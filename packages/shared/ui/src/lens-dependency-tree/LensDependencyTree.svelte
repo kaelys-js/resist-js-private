@@ -115,6 +115,15 @@
   import Search from '@lucide/svelte/icons/search';
   import SearchX from '@lucide/svelte/icons/search-x';
   import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
+  import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+  import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
+  import ChevronsDownUp from '@lucide/svelte/icons/chevrons-down-up';
+  import Network from '@lucide/svelte/icons/network';
+  import Orbit from '@lucide/svelte/icons/orbit';
+  import Waypoints from '@lucide/svelte/icons/waypoints';
+  import Accessibility from '@lucide/svelte/icons/accessibility';
+  import TreePine from '@lucide/svelte/icons/tree-pine';
+  import LocateFixed from '@lucide/svelte/icons/locate-fixed';
   import * as DropdownMenu from '../dropdown-menu/index.js';
   import Slider from '../slider/slider.svelte';
   import {
@@ -549,6 +558,10 @@
     x2: Num;
     /** End Y (top of child). @values 96, 192, 288 */
     y2: Num;
+    /** Source (parent) node ID. @values root, badge-0 */
+    fromId: Str;
+    /** Target (child) node ID. @values badge-0, tooltip-1 */
+    toId: Str;
   };
 
   /**
@@ -641,6 +654,8 @@
             y1: (parent.y + NODE_H) as Num,
             x2: (x + NODE_W / 2) as Num,
             y2: y,
+            fromId: parentId,
+            toId: nodeId,
           });
         }
 
@@ -667,11 +682,499 @@
     };
   }
 
-  /** Computed graph layout from the dependency chain. */
+  /**
+   * Find the parametric t for the intersection of a ray with a rectangle edge.
+   *
+   * @param halfW - Half width of the rectangle
+   * @param halfH - Half height of the rectangle
+   * @param rdx - Ray direction X
+   * @param rdy - Ray direction Y
+   * @returns Parametric t for the intersection
+   */
+  function rectEdgeT(halfW: number, halfH: number, rdx: number, rdy: number): number {
+    const tx: number = rdx === 0 ? Infinity : halfW / Math.abs(rdx);
+    const ty: number = rdy === 0 ? Infinity : halfH / Math.abs(rdy);
+    return Math.min(tx, ty);
+  }
+
+  /**
+   * Clip a line from the center of a rectangle to the center of another rectangle,
+   * so that each endpoint sits on the edge of its respective rectangle instead of
+   * the center. Used by radial and force layouts to avoid lines passing through cards.
+   *
+   * @param fromX - Top-left X of the source rectangle
+   * @param fromY - Top-left Y of the source rectangle
+   * @param toX - Top-left X of the target rectangle
+   * @param toY - Top-left Y of the target rectangle
+   * @param w - Rectangle width
+   * @param h - Rectangle height
+   * @returns Clipped endpoints {x1, y1, x2, y2}
+   */
+  function clipLineToEdge(
+    fromX: Num,
+    fromY: Num,
+    toX: Num,
+    toY: Num,
+    w: Num,
+    h: Num,
+  ): { x1: Num; y1: Num; x2: Num; y2: Num } {
+    const cx1: number = (fromX as number) + (w as number) / 2;
+    const cy1: number = (fromY as number) + (h as number) / 2;
+    const cx2: number = (toX as number) + (w as number) / 2;
+    const cy2: number = (toY as number) + (h as number) / 2;
+    const dx: number = cx2 - cx1;
+    const dy: number = cy2 - cy1;
+    const dist: number = Math.hypot(dx, dy);
+    if (dist < 1) return { x1: cx1 as Num, y1: cy1 as Num, x2: cx2 as Num, y2: cy2 as Num };
+
+    const hw: number = (w as number) / 2;
+    const hh: number = (h as number) / 2;
+    const t1: number = rectEdgeT(hw, hh, dx, dy);
+    const t2: number = rectEdgeT(hw, hh, -dx, -dy);
+    return {
+      x1: (cx1 + dx * t1) as Num,
+      y1: (cy1 + dy * t1) as Num,
+      x2: (cx2 - dx * t2) as Num,
+      y2: (cy2 - dy * t2) as Num,
+    };
+  }
+
+  /**
+   * Lay out nodes in a radial / concentric-circle arrangement.
+   * Root sits at center; each depth ring expands outward.
+   *
+   * @param rootComponent - The root component name
+   * @param children - Direct dependency chain nodes
+   * @returns Layout result identical in shape to layoutGraph
+   */
+  function layoutRadial(
+    rootComponent: Str,
+    children: ChainNode[],
+  ): { nodes: LayoutNode[]; connectors: Connector[]; width: Num; height: Num } {
+    const nodes: LayoutNode[] = [];
+    const connectors: Connector[] = [];
+    let idCounter: Num = 0 as Num;
+    const RING_GAP: Num = 180 as Num;
+    const BASE_RADIUS: Num = 250 as Num;
+    /** Minimum arc spacing between adjacent cards on a ring. */
+    const CARD_SPACING: Num = (NODE_W + GAP_X) as Num;
+
+    // Single-pass BFS: assign stable IDs and collect depth info simultaneously
+    type BfsEntry = {
+      /** The chain node being placed. */
+      chain: ChainNode;
+      /** Unique node identifier assigned during BFS. @values Button-0, Tooltip-3 */
+      id: Str;
+      /** Parent node identifier. @values root, Button-0 */
+      parentId: Str;
+      /** BFS depth level (1 = direct child of root). @values 1, 2, 3 */
+      depth: Num;
+    };
+    const allEntries: BfsEntry[] = [];
+    const bfsQueue: BfsEntry[] = [];
+    for (const child of children) {
+      const entryId: Str = `${child.component}-${String(idCounter)}` as Str;
+      idCounter = (idCounter + 1) as Num;
+      bfsQueue.push({ chain: child, id: entryId, parentId: 'root', depth: 1 as Num });
+    }
+    while (bfsQueue.length > 0) {
+      const entry: BfsEntry | undefined = bfsQueue.shift();
+      if (!entry) continue;
+      allEntries.push(entry);
+      for (const child of entry.chain.children) {
+        const childId: Str = `${child.component}-${String(idCounter)}` as Str;
+        idCounter = (idCounter + 1) as Num;
+        bfsQueue.push({
+          chain: child,
+          id: childId,
+          parentId: entry.id,
+          depth: (entry.depth + 1) as Num,
+        });
+      }
+    }
+
+    // Group entries by depth for ring placement
+    const depthMap: Map<Num, BfsEntry[]> = new Map();
+    for (const entry of allEntries) {
+      const list: BfsEntry[] = depthMap.get(entry.depth) ?? [];
+      list.push(entry);
+      depthMap.set(entry.depth, list);
+    }
+
+    // Place root at center
+    const centerX: Num = 0 as Num;
+    const centerY: Num = 0 as Num;
+    nodes.push({
+      id: 'root',
+      component: rootComponent,
+      kind: '',
+      category: 'component',
+      x: centerX,
+      y: centerY,
+      parentId: '',
+    });
+
+    // Place each depth ring — radius expands to fit all cards without overlap
+    for (const [depth, items] of depthMap) {
+      const depthRadius: number =
+        (BASE_RADIUS as number) + ((depth as number) - 1) * (RING_GAP as number);
+      // Ensure circumference has room for all cards: radius >= count * spacing / (2π)
+      const fitRadius: number =
+        items.length > 1 ? (items.length * (CARD_SPACING as number)) / (2 * Math.PI) : 0;
+      const radius: Num = Math.max(depthRadius, fitRadius) as Num;
+      const count: Num = items.length as Num;
+      for (
+        let i: Num = 0 as Num;
+        (i as number) < (count as number);
+        i = ((i as number) + 1) as Num
+      ) {
+        const entry: BfsEntry | undefined = items[i as number];
+        if (!entry) continue;
+        const angle: Num = ((2 * Math.PI * (i as number)) / (count as number) - Math.PI / 2) as Num;
+        const x: Num = (centerX + radius * Math.cos(angle) - NODE_W / 2) as Num;
+        const y: Num = (centerY + radius * Math.sin(angle) - NODE_H / 2) as Num;
+        nodes.push({
+          id: entry.id,
+          component: entry.chain.component,
+          kind: entry.chain.kind,
+          category: entry.chain.category,
+          x,
+          y,
+          parentId: entry.parentId,
+        });
+
+        const parent: LayoutNode | undefined = nodes.find(
+          (n: LayoutNode): boolean => n.id === entry.parentId,
+        );
+        if (parent) {
+          const clipped = clipLineToEdge(parent.x, parent.y, x, y, NODE_W, NODE_H);
+          connectors.push({
+            ...clipped,
+            fromId: entry.parentId,
+            toId: entry.id,
+          });
+        }
+      }
+    }
+
+    // Shift all coordinates so nothing is negative
+    let minX: Num = 0 as Num;
+    let minY: Num = 0 as Num;
+    for (const n of nodes) {
+      if (n.x < minX) minX = n.x;
+      if (n.y < minY) minY = n.y;
+    }
+    const offsetX: Num = (-minX + GAP_X) as Num;
+    const offsetY: Num = (-minY + GAP_Y) as Num;
+    for (const n of nodes) {
+      n.x = (n.x + offsetX) as Num;
+      n.y = (n.y + offsetY) as Num;
+    }
+    for (const c of connectors) {
+      c.x1 = (c.x1 + offsetX) as Num;
+      c.y1 = (c.y1 + offsetY) as Num;
+      c.x2 = (c.x2 + offsetX) as Num;
+      c.y2 = (c.y2 + offsetY) as Num;
+    }
+
+    let maxX: Num = 0 as Num;
+    let maxYVal: Num = 0 as Num;
+    for (const n of nodes) {
+      if (n.x + NODE_W > maxX) maxX = (n.x + NODE_W) as Num;
+      if (n.y + NODE_H > maxYVal) maxYVal = (n.y + NODE_H) as Num;
+    }
+
+    return {
+      nodes,
+      connectors,
+      width: (maxX + GAP_X) as Num,
+      height: (maxYVal + GAP_Y) as Num,
+    };
+  }
+
+  /**
+   * Lay out nodes using a simple force-directed simulation.
+   * Runs a fixed number of iterations with repulsion + attraction forces.
+   *
+   * @param rootComponent - The root component name
+   * @param children - Direct dependency chain nodes
+   * @returns Layout result identical in shape to layoutGraph
+   */
+  function layoutForce(
+    rootComponent: Str,
+    children: ChainNode[],
+  ): { nodes: LayoutNode[]; connectors: Connector[]; width: Num; height: Num } {
+    // First, flatten all nodes with a BFS to get IDs and parent links
+    type FlatNode = {
+      /** Unique node identifier. @values root, Button-0, Tooltip-3 */
+      id: Str;
+      /** Component name. @values Button, Tooltip, Dialog */
+      component: Str;
+      /** Import kind (type, named, default, namespace). @values type, named, default, namespace */
+      kind: Str;
+      /** Dependency category (component, workspace, external). @values component, workspace, external */
+      category: Str;
+      /** Parent node identifier. @values root, Button-0 */
+      parentId: Str;
+      /** X position (mutable during simulation). @values 0, 150, -300 */
+      x: Num;
+      /** Y position (mutable during simulation). @values 0, 100, -200 */
+      y: Num;
+    };
+    const flatNodes: FlatNode[] = [];
+    const edges: Array<{ from: Str; to: Str }> = [];
+    let idCounter: Num = 0 as Num;
+
+    // Root
+    flatNodes.push({
+      id: 'root',
+      component: rootComponent,
+      kind: '',
+      category: 'component',
+      parentId: '',
+      x: 0 as Num,
+      y: 0 as Num,
+    });
+
+    // BFS to flatten
+    type QItem = {
+      /** The chain node to process. */ chain: ChainNode;
+      /** Parent node ID. @values root, Button-0 */ parentId: Str;
+    };
+    const bfsQueue: QItem[] = children.map(
+      (c: ChainNode): QItem => ({ chain: c, parentId: 'root' }),
+    );
+    while (bfsQueue.length > 0) {
+      const item: QItem | undefined = bfsQueue.shift();
+      if (!item) continue;
+      const nodeId: Str = `${item.chain.component}-${String(idCounter)}` as Str;
+      idCounter = (idCounter + 1) as Num;
+      // Random initial position to break symmetry
+      flatNodes.push({
+        id: nodeId,
+        component: item.chain.component,
+        kind: item.chain.kind,
+        category: item.chain.category,
+        parentId: item.parentId,
+        x: ((Math.random() - 0.5) * 1200) as Num,
+        y: ((Math.random() - 0.5) * 1200) as Num,
+      });
+      edges.push({ from: item.parentId, to: nodeId });
+      for (const child of item.chain.children) {
+        bfsQueue.push({ chain: child, parentId: nodeId });
+      }
+    }
+
+    // Force simulation
+    const ITERATIONS: Num = 150 as Num;
+    const REPULSION: Num = 200_000 as Num;
+    const ATTRACTION: Num = 0.003 as Num;
+    const IDEAL_LENGTH: Num = 350 as Num;
+    const DAMPING: Num = 0.9 as Num;
+
+    const vx: number[] = Array.from({ length: flatNodes.length }, (): number => 0);
+    const vy: number[] = Array.from({ length: flatNodes.length }, (): number => 0);
+
+    for (let iter: number = 0; iter < (ITERATIONS as number); iter++) {
+      // Repulsion between all pairs
+      for (let i: number = 0; i < flatNodes.length; i++) {
+        const ni: FlatNode | undefined = flatNodes[i];
+        if (!ni) continue;
+        for (let j: number = i + 1; j < flatNodes.length; j++) {
+          const nj: FlatNode | undefined = flatNodes[j];
+          if (!nj) continue;
+          const dx: number = (ni.x as number) - (nj.x as number);
+          const dy: number = (ni.y as number) - (nj.y as number);
+          const dist: number = Math.max(Math.hypot(dx, dy), 1);
+          const force: number = (REPULSION as number) / (dist * dist);
+          const fx: number = (dx / dist) * force;
+          const fy: number = (dy / dist) * force;
+          vx[i] = (vx[i] ?? 0) + fx;
+          vy[i] = (vy[i] ?? 0) + fy;
+          vx[j] = (vx[j] ?? 0) - fx;
+          vy[j] = (vy[j] ?? 0) - fy;
+        }
+      }
+
+      // Attraction along edges
+      for (const edge of edges) {
+        const fromIdx: number = flatNodes.findIndex((n: FlatNode): boolean => n.id === edge.from);
+        const toIdx: number = flatNodes.findIndex((n: FlatNode): boolean => n.id === edge.to);
+        if (fromIdx < 0 || toIdx < 0) continue;
+        const fromNode: FlatNode | undefined = flatNodes[fromIdx];
+        const toNode: FlatNode | undefined = flatNodes[toIdx];
+        if (!fromNode || !toNode) continue;
+        const dx: number = (toNode.x as number) - (fromNode.x as number);
+        const dy: number = (toNode.y as number) - (fromNode.y as number);
+        const dist: number = Math.max(Math.hypot(dx, dy), 1);
+        const force: number = (ATTRACTION as number) * (dist - (IDEAL_LENGTH as number));
+        const fx: number = (dx / dist) * force;
+        const fy: number = (dy / dist) * force;
+        vx[fromIdx] = (vx[fromIdx] ?? 0) + fx;
+        vy[fromIdx] = (vy[fromIdx] ?? 0) + fy;
+        vx[toIdx] = (vx[toIdx] ?? 0) - fx;
+        vy[toIdx] = (vy[toIdx] ?? 0) - fy;
+      }
+
+      // Apply velocities with damping, pin root at 0,0
+      for (let i: number = 0; i < flatNodes.length; i++) {
+        const node: FlatNode | undefined = flatNodes[i];
+        if (!node) continue;
+        const curVx: number = vx[i] ?? 0;
+        const curVy: number = vy[i] ?? 0;
+        if (node.id === 'root') {
+          vx[i] = 0;
+          vy[i] = 0;
+          continue;
+        }
+        vx[i] = curVx * (DAMPING as number);
+        vy[i] = curVy * (DAMPING as number);
+        node.x = ((node.x as number) + (vx[i] ?? 0)) as Num;
+        node.y = ((node.y as number) + (vy[i] ?? 0)) as Num;
+      }
+    }
+
+    // Post-process: resolve any remaining overlaps by pushing apart
+    const PAD_W: number = NODE_W + GAP_X;
+    const PAD_H: number = NODE_H + GAP_Y;
+    for (let pass: number = 0; pass < 50; pass++) {
+      let moved: boolean = false;
+      for (let i: number = 0; i < flatNodes.length; i++) {
+        const a: FlatNode | undefined = flatNodes[i];
+        if (!a) continue;
+        for (let j: number = i + 1; j < flatNodes.length; j++) {
+          const b: FlatNode | undefined = flatNodes[j];
+          if (!b) continue;
+          const overlapX: number = PAD_W - Math.abs((a.x as number) - (b.x as number));
+          const overlapY: number = PAD_H - Math.abs((a.y as number) - (b.y as number));
+          if (overlapX > 0 && overlapY > 0) {
+            // Push apart along the axis of smaller overlap
+            if (overlapX < overlapY) {
+              const pushX: number = overlapX / 2 + 1;
+              const signX: number = (a.x as number) >= (b.x as number) ? 1 : -1;
+              if (a.id !== 'root') a.x = ((a.x as number) + signX * pushX) as Num;
+              if (b.id !== 'root') b.x = ((b.x as number) - signX * pushX) as Num;
+            } else {
+              const pushY: number = overlapY / 2 + 1;
+              const signY: number = (a.y as number) >= (b.y as number) ? 1 : -1;
+              if (a.id !== 'root') a.y = ((a.y as number) + signY * pushY) as Num;
+              if (b.id !== 'root') b.y = ((b.y as number) - signY * pushY) as Num;
+            }
+            moved = true;
+          }
+        }
+      }
+      if (!moved) break;
+    }
+
+    // Convert to LayoutNode[] + Connector[]
+    // Shift so all coords are positive
+    let minX: number = Infinity;
+    let minY: number = Infinity;
+    for (const n of flatNodes) {
+      if ((n.x as number) < minX) minX = n.x as number;
+      if ((n.y as number) < minY) minY = n.y as number;
+    }
+    const offsetX: Num = (-minX + GAP_X) as Num;
+    const offsetY: Num = (-minY + GAP_Y) as Num;
+
+    const layoutNodes: LayoutNode[] = flatNodes.map(
+      (n: FlatNode): LayoutNode => ({
+        id: n.id,
+        component: n.component,
+        kind: n.kind,
+        category: n.category,
+        x: (n.x + (offsetX as number)) as Num,
+        y: (n.y + (offsetY as number)) as Num,
+        parentId: n.parentId,
+      }),
+    );
+
+    const layoutConnectors: Connector[] = [];
+    for (const edge of edges) {
+      const from: LayoutNode | undefined = layoutNodes.find(
+        (n: LayoutNode): boolean => n.id === edge.from,
+      );
+      const to: LayoutNode | undefined = layoutNodes.find(
+        (n: LayoutNode): boolean => n.id === edge.to,
+      );
+      if (!from || !to) continue;
+      const clipped = clipLineToEdge(from.x, from.y, to.x, to.y, NODE_W, NODE_H);
+      layoutConnectors.push({
+        ...clipped,
+        fromId: edge.from as Str,
+        toId: edge.to as Str,
+      });
+    }
+
+    let maxX: number = 0;
+    let maxY: number = 0;
+    for (const n of layoutNodes) {
+      if ((n.x as number) + (NODE_W as number) > maxX) maxX = (n.x as number) + (NODE_W as number);
+      if ((n.y as number) + (NODE_H as number) > maxY) maxY = (n.y as number) + (NODE_H as number);
+    }
+
+    return {
+      nodes: layoutNodes,
+      connectors: layoutConnectors,
+      width: (maxX + (GAP_X as number)) as Num,
+      height: (maxY + (GAP_Y as number)) as Num,
+    };
+  }
+
+  /** Computed graph layout from the dependency chain, using current layout mode. */
   const graphLayout = $derived.by(() => {
     const current: Str = validated.currentComponent ?? '';
     if (!current || dependencyChain.length === 0) return null;
+    if (chainLayout === 'radial') return layoutRadial(current, dependencyChain);
+    if (chainLayout === 'force') return layoutForce(current, dependencyChain);
     return layoutGraph(current, dependencyChain);
+  });
+
+  /**
+   * Compute the set of hidden node IDs based on collapsed parents.
+   * A node is hidden if ANY of its ancestors is in the collapsed set.
+   */
+  const hiddenNodeIds: Set<Str> = $derived.by((): Set<Str> => {
+    if (!graphLayout) return new Set();
+    const layout = graphLayout;
+    const hidden: Set<Str> = new Set<Str>();
+
+    /**
+     * Recursively mark all descendants of a node as hidden.
+     *
+     * @param parentId - The parent node ID whose children should be hidden
+     */
+    function hideDescendants(parentId: Str): void {
+      for (const node of layout.nodes) {
+        if (node.parentId === parentId && !hidden.has(node.id)) {
+          hidden.add(node.id);
+          hideDescendants(node.id);
+        }
+      }
+    }
+
+    // For each collapsed node, hide all its descendants
+    for (const [nodeId, isCollapsed] of Object.entries(chainCollapsedNodes)) {
+      if (isCollapsed) {
+        hideDescendants(nodeId as Str);
+      }
+    }
+    return hidden;
+  });
+
+  /** Visible nodes (filtered by collapsed state). */
+  const visibleNodes: LayoutNode[] = $derived(
+    graphLayout?.nodes.filter((n: LayoutNode): boolean => !hiddenNodeIds.has(n.id)) ?? [],
+  );
+
+  /** Visible connectors (both endpoints must be visible). */
+  const visibleConnectors: Connector[] = $derived.by((): Connector[] => {
+    if (!graphLayout) return [];
+    const visIds: Set<Str> = new Set(visibleNodes.map((n: LayoutNode): Str => n.id));
+    return graphLayout.connectors.filter(
+      (conn: Connector): boolean => visIds.has(conn.fromId) && visIds.has(conn.toId),
+    );
   });
 
   /* ------------------------------------------------------------------ */
@@ -769,6 +1272,25 @@
    */
   function chainZoomFit(): void {
     chainZoom = 1 as Num;
+  }
+
+  /**
+   * Scroll the chain canvas so the root node is centered in view.
+   * Uses requestAnimationFrame to ensure layout has updated after state changes.
+   */
+  function centerOnRoot(): void {
+    requestAnimationFrame((): void => {
+      if (!chainCanvasRef || !graphLayout) return;
+      const root: LayoutNode | undefined = graphLayout.nodes.find(
+        (n: LayoutNode): boolean => n.id === 'root',
+      );
+      if (!root) return;
+      const rect: DOMRect = chainCanvasRef.getBoundingClientRect();
+      const rootCenterX: number = ((root.x as number) + NODE_W / 2) * (chainZoom as number);
+      const rootCenterY: number = ((root.y as number) + NODE_H / 2) * (chainZoom as number);
+      chainCanvasRef.scrollLeft = rootCenterX - rect.width / 2;
+      chainCanvasRef.scrollTop = rootCenterY - rect.height / 2;
+    });
   }
 
   /** DOM reference to the chain graph container for image export. */
@@ -955,6 +1477,203 @@
       chainExportFeedback = '';
     }, 2000);
   }
+
+  /* ------------------------------------------------------------------ */
+  /*  New toolbar state (must precede derived values)                    */
+  /* ------------------------------------------------------------------ */
+
+  /** Per-node collapsed state keyed by node ID (#4). */
+  let chainCollapsedNodes: Record<Str, Bool> = $state({});
+
+  /** Search query for filtering graph nodes by name (#5). */
+  let chainNodeSearch: Str = $state('' as Str);
+
+  /** Current graph layout mode (#6). */
+  let chainLayout: Str = $state('tree' as Str);
+
+  /** Search query for layout menu (#6). */
+  let chainLayoutSearchQuery: Str = $state('' as Str);
+
+  /** Whether color-blind safe palette is active (#7). */
+  let chainColorBlindMode: Bool = $state(false);
+
+  /* ------------------------------------------------------------------ */
+  /*  #1 Reset — zoom to 100% + exit fullscreen                         */
+  /* ------------------------------------------------------------------ */
+
+  /** Whether any chain state has been modified from defaults. */
+  const chainHasChanges: Bool = $derived(
+    chainZoom !== 1 ||
+      chainFullscreen ||
+      chainNodeSearch !== '' ||
+      chainLayout !== 'tree' ||
+      chainColorBlindMode,
+  );
+
+  /**
+   * Reset the dependency chain to default state.
+   */
+  function chainReset(): Void {
+    chainZoom = 1 as Num;
+    chainFullscreen = false;
+    chainNodeSearch = '' as Str;
+    chainLayout = 'tree' as Str;
+    chainColorBlindMode = false;
+    chainCollapsedNodes = {};
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  #2 Tree metrics — node count, edge count, max depth                */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * Compute max depth of the chain tree recursively.
+   *
+   * @param nodes - Chain nodes at current level
+   * @param depth - Current depth
+   * @returns Maximum depth reached
+   */
+  function maxChainDepth(nodes: ChainNode[], depth: Num): Num {
+    if (nodes.length === 0) return depth;
+    let max: Num = depth;
+    for (const node of nodes) {
+      const d: Num = maxChainDepth(node.children, (depth + 1) as Num);
+      if (d > max) max = d;
+    }
+    return max;
+  }
+
+  /** Total node count in the graph layout (including root). */
+  const chainNodeCount: Num = $derived(graphLayout?.nodes.length ?? (0 as Num));
+
+  /** Total edge/connector count in the graph layout. */
+  const chainEdgeCount: Num = $derived(graphLayout?.connectors.length ?? (0 as Num));
+
+  /** Maximum depth of the dependency chain tree. */
+  const chainMaxDepth: Num = $derived(maxChainDepth(dependencyChain, 0 as Num));
+
+  /* ------------------------------------------------------------------ */
+  /*  #4 Collapse/Expand all nodes (derived)                             */
+  /* ------------------------------------------------------------------ */
+
+  /** Whether all expandable nodes are currently collapsed. */
+  const chainAllCollapsed: Bool = $derived.by((): Bool => {
+    if (!graphLayout) return false;
+    const layout = graphLayout;
+    const expandable: LayoutNode[] = layout.nodes.filter((n: LayoutNode): boolean => {
+      return layout.nodes.some((c: LayoutNode): boolean => c.parentId === n.id);
+    });
+    if (expandable.length === 0) return false;
+    return expandable.every((n: LayoutNode): boolean => chainCollapsedNodes[n.id] === true);
+  });
+
+  /**
+   * Toggle all nodes between collapsed and expanded.
+   */
+  function toggleCollapseAll(): Void {
+    if (!graphLayout) return;
+    const shouldCollapse: Bool = !chainAllCollapsed;
+    const next: Record<Str, Bool> = {};
+    for (const node of graphLayout.nodes) {
+      const hasChildren: Bool = graphLayout.nodes.some(
+        (c: LayoutNode): boolean => c.parentId === node.id,
+      );
+      if (hasChildren) {
+        next[node.id] = shouldCollapse;
+      }
+    }
+    chainCollapsedNodes = next;
+    centerOnRoot();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  #5 Search/filter nodes (derived)                                   */
+  /* ------------------------------------------------------------------ */
+
+  /** Set of node IDs that match the search query. */
+  const chainMatchedNodeIds: Set<Str> = $derived.by((): Set<Str> => {
+    if (!graphLayout || chainNodeSearch.length === 0) return new Set();
+    const q: Str = chainNodeSearch.toLowerCase() as Str;
+    const matched: Set<Str> = new Set<Str>();
+    for (const node of graphLayout.nodes) {
+      const label: Str = node.category === 'component' ? toTitle(node.component) : node.component;
+      if (label.toLowerCase().includes(q) || node.component.toLowerCase().includes(q)) {
+        matched.add(node.id);
+      }
+    }
+    return matched;
+  });
+
+  /** Count of matched nodes. */
+  const chainMatchCount: Num = $derived(chainMatchedNodeIds.size as Num);
+
+  /* ------------------------------------------------------------------ */
+  /*  #6 Layout toggle options                                           */
+  /* ------------------------------------------------------------------ */
+
+  /** Available layout modes with icons and descriptions. */
+  const CHAIN_LAYOUT_OPTIONS: Array<{
+    /** Layout mode ID. */
+    id: Str;
+    /** Display label. */
+    label: Str;
+    /** Brief description. */
+    description: Str;
+    /** Layout icon component. */
+    icon: typeof Network;
+  }> = [
+    { id: 'tree', label: 'Tree', description: 'Top-down hierarchical layout', icon: Network },
+    { id: 'radial', label: 'Radial', description: 'Circular outward from center', icon: Orbit },
+    { id: 'force', label: 'Force', description: 'Physics-based force-directed', icon: Waypoints },
+  ];
+
+  /** Layout options filtered by search. */
+  const filteredLayoutOptions = $derived(
+    chainLayoutSearchQuery.length === 0
+      ? CHAIN_LAYOUT_OPTIONS
+      : CHAIN_LAYOUT_OPTIONS.filter((o) => {
+          const q: Str = chainLayoutSearchQuery.toLowerCase() as Str;
+          return o.label.toLowerCase().includes(q) || o.description.toLowerCase().includes(q);
+        }),
+  );
+
+  /**
+   * Get the node category CSS classes, respecting color-blind mode.
+   *
+   * @param category - Node category
+   * @returns Border + background CSS classes
+   */
+  function getCategoryColor(category: Str): Str {
+    if (chainColorBlindMode) {
+      if (category === 'utility') return 'border-blue-600/40 bg-blue-600/5' as Str;
+      if (category === 'workspace') return 'border-orange-500/40 bg-orange-500/5' as Str;
+      if (category === 'external') return 'border-purple-600/40 bg-purple-600/5' as Str;
+      return '' as Str;
+    }
+    if (category === 'utility') return 'border-slate-500/40 bg-slate-500/5' as Str;
+    if (category === 'workspace') return 'border-amber-500/40 bg-amber-500/5' as Str;
+    if (category === 'external') return 'border-emerald-500/40 bg-emerald-500/5' as Str;
+    return '' as Str;
+  }
+
+  /**
+   * Get the node category dot color, respecting color-blind mode.
+   *
+   * @param category - Node category
+   * @returns Dot CSS class
+   */
+  function getCategoryDotColor(category: Str): Str {
+    if (chainColorBlindMode) {
+      if (category === 'utility') return 'bg-blue-600/40' as Str;
+      if (category === 'workspace') return 'bg-orange-500/40' as Str;
+      if (category === 'external') return 'bg-purple-600/40' as Str;
+      return 'bg-primary/40' as Str;
+    }
+    if (category === 'utility') return 'bg-slate-500/40' as Str;
+    if (category === 'workspace') return 'bg-amber-500/40' as Str;
+    if (category === 'external') return 'bg-emerald-500/40' as Str;
+    return 'bg-primary/40' as Str;
+  }
 </script>
 
 <svelte:window
@@ -1037,7 +1756,7 @@
                 {/if}
                 <span class="ml-auto flex shrink-0 items-center gap-1.5">
                   <span class="truncate text-xs text-muted-foreground">{rev.names.join(', ')}</span>
-                  <Tooltip.Root delayDuration={200}>
+                  <Tooltip.Root delayDuration={300}>
                     <Tooltip.Trigger>
                       {#snippet child({ props: tooltipProps })}
                         <button
@@ -1099,6 +1818,128 @@
         >
           <!-- Zoom toolbar -->
           <div class="flex items-center gap-1 border-t px-3 py-1.5">
+            <!-- #4 Collapse/Expand all -->
+            <Tooltip.Root delayDuration={300}>
+              <Tooltip.Trigger>
+                {#snippet child({ props: tipProps })}
+                  <button
+                    {...tipProps}
+                    type="button"
+                    class="inline-flex size-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    onclick={toggleCollapseAll}
+                  >
+                    {#if chainAllCollapsed}
+                      <ChevronsUpDown class="size-3.5" />
+                    {:else}
+                      <ChevronsDownUp class="size-3.5" />
+                    {/if}
+                  </button>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content side="top" sideOffset={4}
+                >{chainAllCollapsed ? 'Expand all nodes' : 'Collapse all nodes'}</Tooltip.Content
+              >
+            </Tooltip.Root>
+            <!-- Focus root node -->
+            <Tooltip.Root delayDuration={300}>
+              <Tooltip.Trigger>
+                {#snippet child({ props: tipProps })}
+                  <button
+                    {...tipProps}
+                    type="button"
+                    class="inline-flex size-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    onclick={centerOnRoot}
+                  >
+                    <LocateFixed class="size-3.5" />
+                  </button>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content side="top" sideOffset={4}>Focus root node</Tooltip.Content>
+            </Tooltip.Root>
+            <span class="mx-0.5 h-4 w-px bg-border" aria-hidden="true"></span>
+            <!-- #6 Layout toggle -->
+            <Tooltip.Provider>
+              <Tooltip.Root delayDuration={300}>
+                <DropdownMenu.Root
+                  onOpenChange={(open) => {
+                    if (open) chainLayoutSearchQuery = '' as Str;
+                  }}
+                >
+                  <Tooltip.Trigger>
+                    {#snippet child({ props: tipProps })}
+                      <DropdownMenu.Trigger>
+                        {#snippet child({ props })}
+                          <button
+                            type="button"
+                            {...tipProps}
+                            {...props}
+                            class="inline-flex size-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                          >
+                            {#if chainLayout === 'radial'}
+                              <Orbit class="size-3.5" />
+                            {:else if chainLayout === 'force'}
+                              <Waypoints class="size-3.5" />
+                            {:else}
+                              <Network class="size-3.5" />
+                            {/if}
+                          </button>
+                        {/snippet}
+                      </DropdownMenu.Trigger>
+                    {/snippet}
+                  </Tooltip.Trigger>
+                  <Tooltip.Content side="top" sideOffset={4}>Layout mode</Tooltip.Content>
+                  <DropdownMenu.Content align="start" class="flex w-56 flex-col overflow-hidden">
+                    <div class="shrink-0 px-2 pb-1.5 pt-1">
+                      <div
+                        class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                      >
+                        <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                        <input
+                          type="text"
+                          placeholder="Search layouts..."
+                          class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                          bind:value={chainLayoutSearchQuery}
+                          onkeydown={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    </div>
+                    {#each filteredLayoutOptions as option (option.id)}
+                      <DropdownMenu.Item
+                        closeOnSelect={false}
+                        onclick={() => {
+                          chainLayout = option.id;
+                          centerOnRoot();
+                        }}
+                      >
+                        {#if chainLayout === option.id}
+                          <span in:fade={{ duration: 150 }}
+                            ><Check class="size-4 text-green-500" /></span
+                          >
+                        {:else}
+                          <option.icon class="size-4" />
+                        {/if}
+                        <div class="flex flex-col gap-0.5">
+                          <span class="text-sm">{option.label}</span>
+                          <span class="text-[11px] text-muted-foreground">{option.description}</span
+                          >
+                        </div>
+                      </DropdownMenu.Item>
+                    {:else}
+                      <div
+                        class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+                      >
+                        <SearchX class="size-5" />
+                        <div class="flex flex-col items-center gap-0.5">
+                          <p class="text-xs font-medium">No layouts found</p>
+                          <p class="text-[11px]">Try a different search term</p>
+                        </div>
+                      </div>
+                    {/each}
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+              </Tooltip.Root>
+            </Tooltip.Provider>
+            <!-- #7 Color-blind palette toggle -->
             <Tooltip.Root delayDuration={300}>
               <Tooltip.Trigger>
                 {#snippet child({ props: tipProps })}
@@ -1106,7 +1947,34 @@
                     {...tipProps}
                     type="button"
                     class={cn(
-                      'inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors',
+                      'inline-flex size-7 items-center justify-center rounded transition-colors',
+                      chainColorBlindMode
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                    )}
+                    onclick={() => {
+                      chainColorBlindMode = !chainColorBlindMode;
+                    }}
+                    aria-pressed={chainColorBlindMode}
+                  >
+                    <Accessibility class="size-3.5" />
+                  </button>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content side="top" sideOffset={4}>
+                {chainColorBlindMode ? 'Disable color-blind palette' : 'Color-blind safe palette'}
+              </Tooltip.Content>
+            </Tooltip.Root>
+            <span class="mx-0.5 h-4 w-px bg-border" aria-hidden="true"></span>
+            <!-- Zoom controls -->
+            <Tooltip.Root delayDuration={300}>
+              <Tooltip.Trigger>
+                {#snippet child({ props: tipProps })}
+                  <button
+                    {...tipProps}
+                    type="button"
+                    class={cn(
+                      'inline-flex size-7 items-center justify-center rounded text-muted-foreground transition-colors',
                       chainZoom <= ZOOM_MIN
                         ? 'cursor-not-allowed opacity-30'
                         : 'hover:bg-muted hover:text-foreground',
@@ -1130,7 +1998,7 @@
                     {...tipProps}
                     type="button"
                     class={cn(
-                      'inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors',
+                      'inline-flex size-7 items-center justify-center rounded text-muted-foreground transition-colors',
                       chainZoom >= ZOOM_MAX
                         ? 'cursor-not-allowed opacity-30'
                         : 'hover:bg-muted hover:text-foreground',
@@ -1151,7 +2019,7 @@
                     {...tipProps}
                     type="button"
                     class={cn(
-                      'inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors',
+                      'inline-flex size-7 items-center justify-center rounded text-muted-foreground transition-colors',
                       chainZoom === 1
                         ? 'cursor-not-allowed opacity-30'
                         : 'hover:bg-muted hover:text-foreground',
@@ -1171,7 +2039,7 @@
                   <button
                     {...tipProps}
                     type="button"
-                    class="inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    class="inline-flex size-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                     onclick={toggleChainFullscreen}
                   >
                     {#if chainFullscreen}
@@ -1186,6 +2054,55 @@
                 >{chainFullscreen ? 'Exit fullscreen' : 'Fullscreen'}</Tooltip.Content
               >
             </Tooltip.Root>
+            <span class="mx-0.5 h-4 w-px bg-border" aria-hidden="true"></span>
+            <!-- #1 Reset button -->
+            {#if chainHasChanges}
+              <Tooltip.Root delayDuration={300}>
+                <Tooltip.Trigger>
+                  {#snippet child({ props: tipProps })}
+                    <button
+                      {...tipProps}
+                      type="button"
+                      class="inline-flex size-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      onclick={chainReset}
+                    >
+                      <RotateCcw class="size-3.5" />
+                    </button>
+                  {/snippet}
+                </Tooltip.Trigger>
+                <Tooltip.Content side="top" sideOffset={4}>Reset to defaults</Tooltip.Content>
+              </Tooltip.Root>
+            {/if}
+            <!-- #2 Tree metrics badge -->
+            <Tooltip.Root delayDuration={300}>
+              <Tooltip.Trigger>
+                {#snippet child({ props: tipProps })}
+                  <span
+                    {...tipProps}
+                    class="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+                  >
+                    <TreePine class="size-3" />
+                    {chainNodeCount}N · {chainEdgeCount}E · D{chainMaxDepth}
+                  </span>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content side="top" sideOffset={4}>
+                {chainNodeCount} nodes · {chainEdgeCount} edges · depth {chainMaxDepth}
+              </Tooltip.Content>
+            </Tooltip.Root>
+            <!-- #5 Node search -->
+            <div class="flex items-center gap-1 rounded-md border bg-transparent px-1.5 py-0.5">
+              <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <input
+                type="text"
+                placeholder="Filter nodes..."
+                class="w-20 bg-transparent text-[11px] outline-none placeholder:text-muted-foreground"
+                bind:value={chainNodeSearch}
+              />
+              {#if chainNodeSearch.length > 0}
+                <span class="text-[10px] font-medium text-muted-foreground">{chainMatchCount}</span>
+              {/if}
+            </div>
             <div class="ml-auto">
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger>
@@ -1193,7 +2110,7 @@
                     <button
                       {...props}
                       type="button"
-                      class="inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      class="inline-flex size-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                       aria-label="Options"
                     >
                       <EllipsisVertical class="size-3.5" />
@@ -1446,7 +2363,7 @@
                 width={graphLayout.width}
                 height={graphLayout.height}
               >
-                {#each graphLayout.connectors as conn, ci (ci)}
+                {#each visibleConnectors as conn, ci (ci)}
                   {@const midY = conn.y1 + (conn.y2 - conn.y1) * 0.5}
                   <!-- Line shadow (wide, faint glow) -->
                   <path
@@ -1469,35 +2386,30 @@
                 {/each}
               </svg>
               <!-- Node cards -->
-              {#each graphLayout.nodes as node, gi (gi)}
+              {#each visibleNodes as node, gi (gi)}
                 {@const isRoot = node.parentId === ''}
                 {@const isComponent = node.category === 'component'}
                 {@const sc = isComponent ? sourceChip(node.component) : ''}
                 {@const bc = isComponent ? bundledChip(node.component) : ''}
-                {@const catColor =
-                  node.category === 'utility'
-                    ? 'border-slate-500/40 bg-slate-500/5'
-                    : node.category === 'workspace'
-                      ? 'border-amber-500/40 bg-amber-500/5'
-                      : node.category === 'external'
-                        ? 'border-emerald-500/40 bg-emerald-500/5'
-                        : ''}
-                {@const dotColor =
-                  node.category === 'utility'
-                    ? 'bg-slate-500/40'
-                    : node.category === 'workspace'
-                      ? 'bg-amber-500/40'
-                      : node.category === 'external'
-                        ? 'bg-emerald-500/40'
-                        : 'bg-primary/40'}
+                {@const catColor = getCategoryColor(node.category)}
+                {@const dotColor = getCategoryDotColor(node.category)}
+                {@const isSearchMatch =
+                  chainNodeSearch.length > 0 && chainMatchedNodeIds.has(node.id)}
+                {@const isDimmed =
+                  chainNodeSearch.length > 0 && !chainMatchedNodeIds.has(node.id) && !isRoot}
+                {@const nodeHasChildren =
+                  graphLayout?.nodes.some((c) => c.parentId === node.id) ?? false}
+                {@const isNodeCollapsed = chainCollapsedNodes[node.id] === true}
                 <div
                   class={cn(
-                    'absolute flex flex-col justify-center gap-1 rounded-md border px-3 py-1.5 text-xs shadow-sm transition-colors',
+                    'absolute flex flex-col justify-center gap-1 rounded-md border px-3 py-1.5 text-xs shadow-sm transition-all',
                     isRoot
                       ? 'border-rose-500/40 bg-rose-500/5'
                       : !isComponent
                         ? catColor
                         : 'border-border bg-card hover:border-primary/30 hover:bg-muted/30',
+                    isSearchMatch && 'ring-2 ring-primary/50',
+                    isDimmed && 'opacity-30',
                   )}
                   style="left: {node.x}px; top: {node.y}px; width: {NODE_W}px; height: {NODE_H}px;"
                 >
@@ -1533,6 +2445,28 @@
                         {kindLabel(node.kind)}
                       </span>
                     {/if}
+                    {#if nodeHasChildren}
+                      <button
+                        type="button"
+                        class={cn(
+                          'ml-auto inline-flex size-4 shrink-0 items-center justify-center rounded transition-colors',
+                          'text-muted-foreground/60 hover:text-foreground',
+                        )}
+                        onclick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          chainCollapsedNodes = {
+                            ...chainCollapsedNodes,
+                            [node.id]: !isNodeCollapsed,
+                          };
+                        }}
+                        aria-label={isNodeCollapsed ? 'Expand children' : 'Collapse children'}
+                      >
+                        <ChevronRight
+                          class={cn('size-3 transition-transform', !isNodeCollapsed && 'rotate-90')}
+                        />
+                      </button>
+                    {/if}
                   </div>
                   <!-- Row 2: size chips -->
                   {#if sc || bc}
@@ -1559,7 +2493,7 @@
                 width={graphLayout.width}
                 height={graphLayout.height}
               >
-                {#each graphLayout.connectors as conn, ci (ci)}
+                {#each visibleConnectors as conn, ci (ci)}
                   <!-- Start knob shadow -->
                   <circle
                     cx={conn.x1}
@@ -1654,7 +2588,7 @@
                 {/if}
                 <span class="ml-auto flex shrink-0 items-center gap-1.5">
                   <code class="truncate text-xs text-muted-foreground">{dep.path}</code>
-                  <Tooltip.Root delayDuration={200}>
+                  <Tooltip.Root delayDuration={300}>
                     <Tooltip.Trigger>
                       {#snippet child({ props: tooltipProps })}
                         <button
@@ -1720,7 +2654,7 @@
                 {/if}
                 <span class="ml-auto flex shrink-0 items-center gap-1.5">
                   <span class="truncate text-xs text-muted-foreground">{dep.names.join(', ')}</span>
-                  <Tooltip.Root delayDuration={200}>
+                  <Tooltip.Root delayDuration={300}>
                     <Tooltip.Trigger>
                       {#snippet child({ props: tooltipProps })}
                         <button
@@ -1796,7 +2730,7 @@
                 {/if}
                 <span class="ml-auto flex shrink-0 items-center gap-1.5">
                   <span class="truncate text-xs text-muted-foreground">{dep.names.join(', ')}</span>
-                  <Tooltip.Root delayDuration={200}>
+                  <Tooltip.Root delayDuration={300}>
                     <Tooltip.Trigger>
                       {#snippet child({ props: tooltipProps })}
                         <button
@@ -1862,7 +2796,7 @@
                 {/if}
                 <span class="ml-auto flex shrink-0 items-center gap-1.5">
                   <span class="truncate text-xs text-muted-foreground">{dep.names.join(', ')}</span>
-                  <Tooltip.Root delayDuration={200}>
+                  <Tooltip.Root delayDuration={300}>
                     <Tooltip.Trigger>
                       {#snippet child({ props: tooltipProps })}
                         <button

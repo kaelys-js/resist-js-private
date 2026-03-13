@@ -7524,7 +7524,7 @@
                   <div class="flex items-center gap-1">
                     <!-- Color-blind toggle -->
                     <Tooltip.Provider>
-                      <Tooltip.Root delayDuration={200}>
+                      <Tooltip.Root delayDuration={300}>
                         <Tooltip.Trigger>
                           {#snippet child({ props: cbTipProps })}
                             <button
@@ -7553,7 +7553,7 @@
                     </Tooltip.Provider>
                     <!-- Settings dropdown -->
                     <Tooltip.Provider>
-                      <Tooltip.Root delayDuration={200}>
+                      <Tooltip.Root delayDuration={300}>
                         <DropdownMenu.Root
                           onOpenChange={(open) => {
                             if (open) debugOutlineSettingsSearch = '' as Str;
@@ -7809,6 +7809,116 @@
           },
         )}
         <span class="mx-0.5 h-4 w-px bg-border" aria-hidden="true"></span>
+        <!-- #10 Screenshot button -->
+        {@render toolbarButton(
+          Camera,
+          'Take screenshot',
+          () => captureScreenshot(cardKey, variantKey, variantOption),
+          false,
+        )}
+        <!-- #12 Dark/Light mode quick toggle -->
+        {@render toolbarToggle(
+          (cardModes[cardKey] ?? 'auto') === 'dark' ? Sun : Moon,
+          (cardModes[cardKey] ?? 'auto') === 'dark'
+            ? 'Switch to light mode'
+            : 'Switch to dark mode',
+          (cardModes[cardKey] ?? 'auto') !== 'auto',
+          () => {
+            const current: Str = cardModes[cardKey] ?? 'auto';
+            if (current === 'dark') setCardMode(cardKey, 'light' as Str);
+            else if (current === 'light') setCardMode(cardKey, 'auto' as Str);
+            else setCardMode(cardKey, 'dark' as Str);
+          },
+        )}
+        <!-- #11 Quick viewport toggle -->
+        <Tooltip.Provider>
+          <Tooltip.Root delayDuration={300}>
+            <DropdownMenu.Root>
+              <Tooltip.Trigger>
+                {#snippet child({ props: tipProps })}
+                  <DropdownMenu.Trigger>
+                    {#snippet child({ props })}
+                      <button
+                        type="button"
+                        {...tipProps}
+                        {...props}
+                        class={cn(
+                          'inline-flex size-7 items-center justify-center rounded-md transition-colors',
+                          hasViewport(cardKey)
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                        )}
+                      >
+                        <MonitorSmartphone class="size-3.5" aria-hidden="true" />
+                      </button>
+                    {/snippet}
+                  </DropdownMenu.Trigger>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content side="top" sideOffset={4}>Quick viewport</Tooltip.Content>
+              <DropdownMenu.Content align="end" class="w-48">
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => setViewport(cardKey, 'auto' as Str)}
+                >
+                  {#if !hasViewport(cardKey)}
+                    <span in:fade={{ duration: 150 }}><Check class="size-4 text-green-500" /></span>
+                  {:else}
+                    <Monitor class="size-4" />
+                  {/if}
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-sm">Auto</span>
+                    <span class="text-[11px] text-muted-foreground">Fill available width</span>
+                  </div>
+                </DropdownMenu.Item>
+                <DropdownMenu.Separator />
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => setViewport(cardKey, 'iphone-16-pro' as Str)}
+                >
+                  {#if (cardViewports[cardKey] ?? 'auto') === 'iphone-16-pro'}
+                    <span in:fade={{ duration: 150 }}><Check class="size-4 text-green-500" /></span>
+                  {:else}
+                    <Smartphone class="size-4" />
+                  {/if}
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-sm">Mobile</span>
+                    <span class="text-[11px] text-muted-foreground">393 × 852</span>
+                  </div>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => setViewport(cardKey, 'ipad-air' as Str)}
+                >
+                  {#if (cardViewports[cardKey] ?? 'auto') === 'ipad-air'}
+                    <span in:fade={{ duration: 150 }}><Check class="size-4 text-green-500" /></span>
+                  {:else}
+                    <Tablet class="size-4" />
+                  {/if}
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-sm">Tablet</span>
+                    <span class="text-[11px] text-muted-foreground">820 × 1180</span>
+                  </div>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => setViewport(cardKey, 'desktop-fhd' as Str)}
+                >
+                  {#if (cardViewports[cardKey] ?? 'auto') === 'desktop-fhd'}
+                    <span in:fade={{ duration: 150 }}><Check class="size-4 text-green-500" /></span>
+                  {:else}
+                    <Monitor class="size-4" />
+                  {/if}
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-sm">Desktop</span>
+                    <span class="text-[11px] text-muted-foreground">1920 × 1080</span>
+                  </div>
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          </Tooltip.Root>
+        </Tooltip.Provider>
+        <span class="mx-0.5 h-4 w-px bg-border" aria-hidden="true"></span>
         {@render toolbarButton(
           isFullscreen ? Minimize2 : Maximize2,
           isFullscreen ? 'Exit fullscreen' : 'Fullscreen',
@@ -7819,7 +7929,7 @@
           {@const stats: LensStatsData = cardStats[cardKey]}
           <Popover.Root>
             <Tooltip.Provider>
-              <Tooltip.Root delayDuration={400}>
+              <Tooltip.Root delayDuration={300}>
                 <Tooltip.Trigger>
                   {#snippet child({ props: tipProps })}
                     {@const hp = healthPercent(stats)}
@@ -8096,7 +8206,7 @@
                             (budget.label === 'Headings' && stats.a11y.headings.length > 0))}
                         <div>
                           <Tooltip.Provider>
-                            <Tooltip.Root delayDuration={200}>
+                            <Tooltip.Root delayDuration={300}>
                               <Tooltip.Trigger>
                                 {#snippet child({ props: tipProps })}
                                   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
@@ -8311,7 +8421,7 @@
                     <div class="space-y-1 text-xs">
                       <!-- CLS -->
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div
@@ -8378,7 +8488,7 @@
 
                       <!-- Long Tasks -->
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div
@@ -8443,7 +8553,7 @@
 
                       <!-- Paint Timing -->
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div
@@ -8499,7 +8609,7 @@
                         </Tooltip.Root>
                       </Tooltip.Provider>
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div
@@ -8558,7 +8668,7 @@
 
                       <!-- LCP -->
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div
@@ -8628,7 +8738,7 @@
 
                       <!-- FID -->
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div
@@ -8692,7 +8802,7 @@
 
                       <!-- INP -->
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div
@@ -8760,7 +8870,7 @@
 
                       <!-- TTFB -->
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div
@@ -8834,7 +8944,7 @@
                     </p>
                     <div class="grid grid-cols-4 gap-2 text-xs">
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div {...tipProps} class="cursor-help">
@@ -8849,7 +8959,7 @@
                         </Tooltip.Root>
                       </Tooltip.Provider>
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div {...tipProps} class="cursor-help">
@@ -8864,7 +8974,7 @@
                         </Tooltip.Root>
                       </Tooltip.Provider>
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div {...tipProps} class="cursor-help">
@@ -8879,7 +8989,7 @@
                         </Tooltip.Root>
                       </Tooltip.Provider>
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div {...tipProps} class="cursor-help">
@@ -8901,7 +9011,7 @@
               {#if stats.memoryDeltaBytes >= 0}
                 <div class="border-t px-3 py-2">
                   <Tooltip.Provider>
-                    <Tooltip.Root delayDuration={200}>
+                    <Tooltip.Root delayDuration={300}>
                       <Tooltip.Trigger>
                         {#snippet child({ props: tipProps })}
                           <button
@@ -8958,7 +9068,7 @@
                     </p>
                     <div class="space-y-1 text-xs">
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div
@@ -9005,7 +9115,7 @@
                         </Tooltip.Root>
                       </Tooltip.Provider>
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div
@@ -9051,7 +9161,7 @@
                       </Tooltip.Provider>
                       <div class="grid grid-cols-3 gap-2 pt-1">
                         <Tooltip.Provider>
-                          <Tooltip.Root delayDuration={200}>
+                          <Tooltip.Root delayDuration={300}>
                             <Tooltip.Trigger>
                               {#snippet child({ props: tipProps })}
                                 <div {...tipProps} class="cursor-help">
@@ -9066,7 +9176,7 @@
                           </Tooltip.Root>
                         </Tooltip.Provider>
                         <Tooltip.Provider>
-                          <Tooltip.Root delayDuration={200}>
+                          <Tooltip.Root delayDuration={300}>
                             <Tooltip.Trigger>
                               {#snippet child({ props: tipProps })}
                                 <div {...tipProps} class="cursor-help">
@@ -9081,7 +9191,7 @@
                           </Tooltip.Root>
                         </Tooltip.Provider>
                         <Tooltip.Provider>
-                          <Tooltip.Root delayDuration={200}>
+                          <Tooltip.Root delayDuration={300}>
                             <Tooltip.Trigger>
                               {#snippet child({ props: tipProps })}
                                 <div {...tipProps} class="cursor-help">
@@ -9101,7 +9211,7 @@
                     <!-- Roles -->
                     {#if stats.a11y.roles.length > 0}
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div {...tipProps} class="mt-1.5 cursor-help">
@@ -9122,7 +9232,7 @@
                     <!-- Landmarks -->
                     {#if stats.a11y.landmarks.length > 0}
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div {...tipProps} class="mt-1 cursor-help">
@@ -9145,7 +9255,7 @@
                     {#if stats.a11y.headings.length > 0}
                       <div class="mt-1.5">
                         <Tooltip.Provider>
-                          <Tooltip.Root delayDuration={200}>
+                          <Tooltip.Root delayDuration={300}>
                             <Tooltip.Trigger>
                               {#snippet child({ props: tipProps })}
                                 <div
@@ -9297,7 +9407,7 @@
                     <!-- SVGs without labels -->
                     {#if stats.a11y.svgsWithoutLabel > 0}
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div
@@ -9332,7 +9442,7 @@
                     <!-- Animations / Motion -->
                     {#if stats.a11y.animatedElementCount > 0}
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div {...tipProps} class="mt-1.5 cursor-help">
@@ -9390,7 +9500,7 @@
                     <!-- Tab Order (first 10 elements) -->
                     {#if stats.a11y.tabOrder.length > 0}
                       <Tooltip.Provider>
-                        <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
                             {#snippet child({ props: tipProps })}
                               <div {...tipProps} class="mt-1.5 cursor-help">
@@ -9492,7 +9602,7 @@
               {#if stats.hasAsyncContent}
                 <div class="border-t px-3 py-1.5">
                   <Tooltip.Provider>
-                    <Tooltip.Root delayDuration={200}>
+                    <Tooltip.Root delayDuration={300}>
                       <Tooltip.Trigger>
                         {#snippet child({ props: tipProps })}
                           <span
@@ -9563,7 +9673,7 @@
               <!-- Prop coverage -->
               <div class="border-t px-3 py-2">
                 <Tooltip.Provider>
-                  <Tooltip.Root delayDuration={200}>
+                  <Tooltip.Root delayDuration={300}>
                     <Tooltip.Trigger>
                       {#snippet child({ props: tipProps })}
                         <button
@@ -9853,7 +9963,7 @@
                           <span class="text-[9px] text-muted-foreground/60">{src.desc}</span>
                         {/if}
                         {#if src.id !== 'playwright'}
-                          <Tooltip.Root delayDuration={200}>
+                          <Tooltip.Root delayDuration={300}>
                             <Tooltip.Trigger>
                               {#snippet child({ props: tipProps })}
                                 <span
@@ -10093,7 +10203,7 @@
                                 >{device.screenWidth}×{device.screenHeight}</span
                               >
                             {/if}
-                            <Tooltip.Root delayDuration={200}>
+                            <Tooltip.Root delayDuration={300}>
                               <Tooltip.Trigger>
                                 {#snippet child({ props: devTipProps })}
                                   <span
@@ -10182,7 +10292,7 @@
                                 >{device.width}×{device.height}</span
                               >
                             {/if}
-                            <Tooltip.Root delayDuration={200}>
+                            <Tooltip.Root delayDuration={300}>
                               <Tooltip.Trigger>
                                 {#snippet child({ props: aDevTipProps })}
                                   <span
@@ -13363,7 +13473,7 @@
   >
     <!-- Close button with Esc tooltip -->
     <Tooltip.Provider>
-      <Tooltip.Root delayDuration={200}>
+      <Tooltip.Root delayDuration={300}>
         <Tooltip.Trigger>
           {#snippet child({ props: closeTipProps })}
             <button
@@ -13392,7 +13502,7 @@
     <!-- Previous button -->
     {#if lbHasPrev}
       <Tooltip.Provider>
-        <Tooltip.Root delayDuration={200}>
+        <Tooltip.Root delayDuration={300}>
           <Tooltip.Trigger>
             {#snippet child({ props: prevTipProps })}
               <button
@@ -13424,7 +13534,7 @@
     <!-- Next button -->
     {#if lbHasNext}
       <Tooltip.Provider>
-        <Tooltip.Root delayDuration={200}>
+        <Tooltip.Root delayDuration={300}>
           <Tooltip.Trigger>
             {#snippet child({ props: nextTipProps })}
               <button
