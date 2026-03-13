@@ -83,7 +83,36 @@
   import Clipboard from '@lucide/svelte/icons/clipboard';
   import Link from '@lucide/svelte/icons/link';
   import ArrowUp from '@lucide/svelte/icons/arrow-up';
+  import TextCursorInput from '@lucide/svelte/icons/text-cursor-input';
+  import LayoutGrid from '@lucide/svelte/icons/layout-grid';
+  import Layers2 from '@lucide/svelte/icons/layers-2';
+  import Compass from '@lucide/svelte/icons/compass';
+  import Eye from '@lucide/svelte/icons/eye';
+  import Wrench from '@lucide/svelte/icons/wrench';
+  import Microscope from '@lucide/svelte/icons/microscope';
   import { cn } from '../utils.js';
+
+  /** Category-to-icon mapping for visual differentiation in the header. */
+  const CATEGORY_ICONS: Record<Str, Component> = {
+    form: TextCursorInput,
+    layout: LayoutGrid,
+    overlay: Layers2,
+    navigation: Compass,
+    display: Eye,
+    utility: Wrench,
+    lens: Microscope,
+  };
+
+  /** Category-to-color mapping for icon background differentiation. */
+  const CATEGORY_COLORS: Record<Str, Str> = {
+    form: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' as Str,
+    layout: 'bg-purple-500/10 text-purple-600 dark:text-purple-400' as Str,
+    overlay: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' as Str,
+    navigation: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' as Str,
+    display: 'bg-rose-500/10 text-rose-600 dark:text-rose-400' as Str,
+    utility: 'bg-slate-500/10 text-slate-600 dark:text-slate-400' as Str,
+    lens: 'bg-primary/10 text-primary' as Str,
+  };
 
   const allProps: LensHeaderProps = $props();
   const validated: LensHeaderProps = $derived.by(() => {
@@ -124,6 +153,33 @@
   /** Number of changelog entries (0 if not provided). */
   const changelogCount: Num = $derived(validated.changelogCount ?? 0);
 
+  /** Resolved icon component for the current category. Falls back to generic ComponentIcon. */
+  const categoryIcon: Component = $derived(
+    CATEGORY_ICONS[validated.meta?.category ?? ''] ?? ComponentIcon,
+  );
+
+  /** Resolved CSS classes for the icon container background. Falls back to primary. */
+  const categoryColorClass: Str = $derived(
+    CATEGORY_COLORS[validated.meta?.category ?? ''] ?? ('bg-primary/10 text-primary' as Str),
+  );
+
+  /**
+   * Render description text with inline code support.
+   * Converts backtick-wrapped segments to styled `<code>` elements.
+   *
+   * @param text - Raw description string potentially containing backtick code
+   * @returns HTML string with `<code>` tags for inline code spans
+   */
+  function renderDescriptionHtml(text: Str): Str {
+    return text.replaceAll(/`([^`]+)`/g, (_: Str, code: Str): Str => {
+      const escaped: Str = code
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;') as Str;
+      return `<code class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">${escaped}</code>`;
+    }) as Str;
+  }
+
   /** Whether the page is scrolled to the top. */
   let isAtTop: Bool = $state(true);
 
@@ -136,6 +192,31 @@
     onScroll();
     return (): void => {
       window.removeEventListener('scroll', onScroll);
+    };
+  });
+
+  /* Keyboard navigation — ArrowLeft/ArrowRight for prev/next component */
+  $effect(() => {
+    /**
+     * Navigate to prev/next component on arrow key press (when no input focused).
+     *
+     * @param e - The keyboard event
+     */
+    function onKeydown(e: KeyboardEvent): Void {
+      const tag: Str = (document.activeElement?.tagName ?? '') as Str;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if ((document.activeElement as HTMLElement)?.isContentEditable) return;
+      if (e.key === 'ArrowLeft' && validated.prevComponent) {
+        e.preventDefault();
+        window.location.href = `/components/${validated.prevComponent}`;
+      } else if (e.key === 'ArrowRight' && validated.nextComponent) {
+        e.preventDefault();
+        window.location.href = `/components/${validated.nextComponent}`;
+      }
+    }
+    window.addEventListener('keydown', onKeydown);
+    return (): void => {
+      window.removeEventListener('keydown', onKeydown);
     };
   });
 
@@ -387,13 +468,35 @@
 </script>
 
 <div class="flex items-start gap-4">
-  <div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-    <ComponentIcon class="size-6 text-primary" />
-  </div>
+  <Tooltip.Root delayDuration={300}>
+    <Tooltip.Trigger>
+      {#snippet child({ props: iconTooltipProps })}
+        <div
+          class={cn(
+            'flex size-12 shrink-0 items-center justify-center rounded-xl',
+            categoryColorClass,
+          )}
+          {...iconTooltipProps}
+        >
+          <svelte:component this={categoryIcon} class="size-6" />
+        </div>
+      {/snippet}
+    </Tooltip.Trigger>
+    <Tooltip.Content side="bottom" sideOffset={4}>
+      {validated.meta?.category
+        ? `${validated.meta.category.charAt(0).toUpperCase()}${validated.meta.category.slice(1)} component`
+        : 'Component'}
+    </Tooltip.Content>
+  </Tooltip.Root>
   <div class="min-w-0 flex-1">
     <div class="flex items-center gap-4">
       <div class="flex items-baseline gap-4">
-        <h1 class="text-3xl font-bold tracking-tight">{toTitle(validated.name)}</h1>
+        <a
+          href="#top"
+          class="group decoration-primary/30 decoration-2 underline-offset-4 hover:underline"
+        >
+          <h1 class="text-3xl font-bold tracking-tight">{toTitle(validated.name)}</h1>
+        </a>
 
         <div class="flex items-center gap-1">
           <!-- Page menu dropdown -->
@@ -702,20 +805,28 @@
               {#snippet child({ props: tooltipProps })}
                 <a
                   href="/components/{validated.prevComponent}"
-                  class="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                   {...tooltipProps}
                 >
-                  <ChevronLeft class="size-4" />
-                  <span class="sr-only">Previous: {toTitle(validated.prevComponent ?? '')}</span>
+                  <ChevronLeft class="size-3.5" />
+                  <span class="hidden sm:inline">{toTitle(validated.prevComponent ?? '')}</span>
+                  <span class="sr-only sm:hidden"
+                    >Previous: {toTitle(validated.prevComponent ?? '')}</span
+                  >
                 </a>
               {/snippet}
             </Tooltip.Trigger>
             <Tooltip.Content side="bottom" sideOffset={4}>
-              {toTitle(validated.prevComponent ?? '')}
+              Previous: {toTitle(validated.prevComponent ?? '')}
+              <kbd class="ml-1.5 rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">←</kbd>
             </Tooltip.Content>
           </Tooltip.Root>
         {:else}
-          <span class="inline-flex size-8 items-center justify-center text-muted-foreground/30">
+          <span
+            class="inline-flex size-8 items-center justify-center text-muted-foreground/30"
+            aria-disabled="true"
+            role="link"
+          >
             <ChevronLeft class="size-4" />
           </span>
         {/if}
@@ -725,41 +836,85 @@
               {#snippet child({ props: tooltipProps })}
                 <a
                   href="/components/{validated.nextComponent}"
-                  class="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                   {...tooltipProps}
                 >
-                  <ChevronRight class="size-4" />
-                  <span class="sr-only">Next: {toTitle(validated.nextComponent ?? '')}</span>
+                  <span class="hidden sm:inline">{toTitle(validated.nextComponent ?? '')}</span>
+                  <span class="sr-only sm:hidden"
+                    >Next: {toTitle(validated.nextComponent ?? '')}</span
+                  >
+                  <ChevronRight class="size-3.5" />
                 </a>
               {/snippet}
             </Tooltip.Trigger>
             <Tooltip.Content side="bottom" sideOffset={4}>
-              {toTitle(validated.nextComponent ?? '')}
+              Next: {toTitle(validated.nextComponent ?? '')}
+              <kbd class="ml-1.5 rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">→</kbd>
             </Tooltip.Content>
           </Tooltip.Root>
         {:else}
-          <span class="inline-flex size-8 items-center justify-center text-muted-foreground/30">
+          <span
+            class="inline-flex size-8 items-center justify-center text-muted-foreground/30"
+            aria-disabled="true"
+            role="link"
+          >
             <ChevronRight class="size-4" />
           </span>
         {/if}
       </div>
     </div>
     {#if validated.description}
-      <p class="mt-1 text-sm text-muted-foreground">{validated.description}</p>
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -- Inline code in description is generated from trusted component metadata -->
+      <p class="mt-1 text-sm text-muted-foreground">
+        {@html renderDescriptionHtml(validated.description)}
+      </p>
     {/if}
     {#if validated.meta}
       <div class="mt-2 flex flex-wrap items-center gap-1.5">
-        <Badge variant="secondary" class="text-xs capitalize">{validated.meta.category}</Badge>
+        <Tooltip.Root delayDuration={300}>
+          <Tooltip.Trigger>
+            {#snippet child({ props: catTooltipProps })}
+              <span {...catTooltipProps}>
+                <Badge variant="secondary" class="text-xs capitalize"
+                  >{validated.meta?.category}</Badge
+                >
+              </span>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content side="bottom" sideOffset={4}>Component category</Tooltip.Content>
+        </Tooltip.Root>
         {#each validated.meta.tags as tag, i (i)}
-          <Badge variant="outline" class="text-xs">{tag}</Badge>
+          <Tooltip.Root delayDuration={300}>
+            <Tooltip.Trigger>
+              {#snippet child({ props: tagTooltipProps })}
+                <span {...tagTooltipProps}>
+                  <Badge variant="outline" class="text-xs">{tag}</Badge>
+                </span>
+              {/snippet}
+            </Tooltip.Trigger>
+            <Tooltip.Content side="bottom" sideOffset={4}>Tag: {tag}</Tooltip.Content>
+          </Tooltip.Root>
         {/each}
       </div>
     {/if}
     <div class="mt-1.5">
-      <CopyImport
-        text={validated.importPath ?? `@/ui/${validated.name}`}
-        copyText="import ... from '@/ui/{validated.name}/...';"
-      />
+      <Tooltip.Root delayDuration={300}>
+        <Tooltip.Trigger>
+          {#snippet child({ props: importTooltipProps })}
+            <span {...importTooltipProps}>
+              <CopyImport
+                text={validated.importPath ?? `@/ui/${validated.name}`}
+                copyText="import ... from '@/ui/{validated.name}/...';"
+              />
+            </span>
+          {/snippet}
+        </Tooltip.Trigger>
+        <Tooltip.Content side="bottom" sideOffset={4}>
+          <code class="font-mono text-xs"
+            >import {'{ ... }'} from '{validated.importPath ?? `@/ui/${validated.name}`}/...';</code
+          >
+        </Tooltip.Content>
+      </Tooltip.Root>
     </div>
   </div>
 </div>
