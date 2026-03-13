@@ -177,6 +177,23 @@ export type LensCategory = v.InferOutput<typeof LensCategorySchema>;
 export const LensStatusSchema = v.picklist(['new', 'updated', 'deprecated']);
 export type LensStatus = v.InferOutput<typeof LensStatusSchema>;
 
+/**
+ * A single breaking change entry for a component.
+ *
+ * Records a specific breaking API change with optional migration guidance
+ * and a "since" marker (version, date, or commit) for traceability.
+ */
+export const BreakingChangeSchema = v.strictObject({
+  /** What changed (e.g. "Removed `size` prop"). */
+  change: StrSchema,
+  /** Migration guidance (e.g. "Use `dimensions` prop instead"). */
+  migration: v.optional(StrSchema),
+  /** Version, date, or commit when the change was introduced. */
+  since: v.optional(StrSchema),
+});
+/** A single breaking change entry. */
+export type BreakingChange = v.InferOutput<typeof BreakingChangeSchema>;
+
 export const LensMetaSchema = v.strictObject({
   /** Sidebar grouping category. */
   category: LensCategorySchema,
@@ -186,6 +203,8 @@ export const LensMetaSchema = v.strictObject({
   description: StrSchema,
   /** Optional lifecycle status badge shown in sidebar. @values 'new', 'updated', 'deprecated' */
   status: v.optional(LensStatusSchema),
+  /** Optional list of breaking changes with migration notes. */
+  breakingChanges: v.optional(v.array(BreakingChangeSchema)),
 });
 export type LensMeta = v.InferOutput<typeof LensMetaSchema>;
 

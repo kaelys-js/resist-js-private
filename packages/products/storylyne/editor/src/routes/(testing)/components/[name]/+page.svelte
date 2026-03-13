@@ -126,6 +126,12 @@
   /** Lens metadata (compound components only). */
   const lensModules: Record<Str, () => Promise<unknown>> = import.meta.glob('@/ui/*/lens.ts');
 
+  /** Eager lens.ts metadata for all components (dependency status checking). */
+  const eagerLensMetas: Record<Str, { meta?: LensMeta }> = import.meta.glob('@/ui/*/lens.ts', {
+    import: '*',
+    eager: true,
+  }) as Record<Str, { meta?: LensMeta }>;
+
   /** Live example components (compound components only). */
   const exampleLiveModules: Record<Str, () => Promise<unknown>> = import.meta.glob(
     '@/ui/*/examples/*.svelte',
@@ -219,6 +225,58 @@
    */
   function handleTogglePin(): Void {
     document.dispatchEvent(new CustomEvent('lens:toggle-pin', { detail: name }));
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  Watch state (syncs with layout via custom events)                  */
+  /* ------------------------------------------------------------------ */
+
+  /** Whether the current component is being watched for changes. */
+  let isWatched: Bool = $state(false);
+
+  // Read initial watch state from localStorage
+  $effect(() => {
+    const _n: Str = name;
+    if (!_n) return;
+    try {
+      const stored: Str | null = localStorage.getItem(storageKey('lens-watched'));
+      if (stored) {
+        const watched: Str[] = JSON.parse(stored) as Str[];
+        isWatched = watched.includes(_n) as Bool;
+      } else {
+        isWatched = false as Bool;
+      }
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — default false is fine */
+    }
+  });
+
+  // Listen for watch state changes from the layout
+  $effect(() => {
+    /**
+     * Handle watch state update from layout.
+     *
+     * @param e - The custom event with watch state detail
+     */
+    function onWatchChanged(e: Event): Void {
+      const detail = (e as CustomEvent).detail as { name: Str; watched: Bool };
+      const currentName: Str = untrack(() => name);
+      if (detail.name === currentName) {
+        isWatched = detail.watched;
+      }
+    }
+    document.addEventListener('lens:watch-changed', onWatchChanged);
+    return (): void => {
+      document.removeEventListener('lens:watch-changed', onWatchChanged);
+    };
+  });
+
+  /**
+   * Toggle watch state for the current component.
+   * Dispatches a custom event that the layout listens for.
+   */
+  function handleToggleWatch(): Void {
+    document.dispatchEvent(new CustomEvent('lens:toggle-watch', { detail: name }));
   }
 
   /**
@@ -552,7 +610,11 @@
             const metaResult: Result<LensMeta> = parseLensMeta(lm.meta);
             if (metaResult.ok) {
               // Spread to unfreeze — Result.data is deep-frozen but $state needs mutable shape
-              lensMeta = { ...metaResult.data, tags: [...metaResult.data.tags] };
+              lensMeta = {
+                ...metaResult.data,
+                tags: [...metaResult.data.tags],
+                breakingChanges: metaResult.data.breakingChanges?.map((bc) => ({ ...bc })),
+              };
             } else {
               // Error propagates to loadError — renders visible error state
               if (!cancelled) loadError = `Invalid lens metadata: ${metaResult.error.message}`;
@@ -2391,6 +2453,8 @@
         {nextComponent}
         {isPinned}
         onTogglePin={handleTogglePin}
+        {isWatched}
+        onToggleWatch={handleToggleWatch}
       />
     </div>
     {#if lensCompat && !lensCompat.compatible}
@@ -2411,6 +2475,94 @@
                     <span class="font-mono text-amber-500/70">R{violation.rule}</span>
                   {/if}
                   {violation.message}
+                </li>
+              {/each}
+            </ul>
+          </div>
+        </div>
+      </div>
+    {/if}
+    <!-- Component status banner -->
+    {#if lensMeta?.status}
+      {@const statusConfig = {
+        new: {
+          icon: CircleCheck,
+          bg: 'border-emerald-500/30 bg-emerald-500/5',
+          color: 'text-emerald-600 dark:text-emerald-400',
+          label: 'New Component',
+          desc: 'This component was recently added to the library.',
+        },
+        updated: {
+          icon: RefreshCw,
+          bg: 'border-blue-500/30 bg-blue-500/5',
+          color: 'text-blue-600 dark:text-blue-400',
+          label: 'Recently Updated',
+          desc: 'This component has been updated with changes.',
+        },
+        deprecated: {
+          icon: TriangleAlert,
+          bg: 'border-red-500/30 bg-red-500/5',
+          color: 'text-red-600 dark:text-red-400',
+          label: 'Deprecated',
+          desc: 'This component is deprecated and may be removed in a future version.',
+        },
+      }}
+      {@const cfg = statusConfig[lensMeta.status]}
+      <div class="mx-8 mt-4 rounded-lg border {cfg.bg} px-4 py-3">
+        <div class="flex items-center gap-2">
+          <cfg.icon class="size-4 shrink-0 {cfg.color}" />
+          <p class="text-sm font-medium {cfg.color}">{cfg.label}</p>
+          <span class="text-xs text-muted-foreground">{cfg.desc}</span>
+        </div>
+      </div>
+    {/if}
+    <!-- Dependency deprecation alerts -->
+    {#if deps.internal.length > 0}
+      {@const deprecatedDeps = deps.internal.filter((dep) => {
+        const key = Object.keys(eagerLensMetas).find((k) => extractDir(k) === dep.component);
+        return key ? eagerLensMetas[key]?.meta?.status === 'deprecated' : false;
+      })}
+      {#if deprecatedDeps.length > 0}
+        <div class="mx-8 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3">
+          <div class="flex items-start gap-2">
+            <TriangleAlert class="mt-0.5 size-4 shrink-0 text-amber-500" />
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium text-amber-600 dark:text-amber-400">
+                Deprecated dependenc{deprecatedDeps.length === 1 ? 'y' : 'ies'}
+              </p>
+              <p class="mt-0.5 text-xs text-muted-foreground">
+                This component depends on {deprecatedDeps
+                  .map((dep) => toTitle(dep.component))
+                  .join(', ')} which {deprecatedDeps.length === 1 ? 'is' : 'are'} deprecated.
+              </p>
+            </div>
+          </div>
+        </div>
+      {/if}
+    {/if}
+    <!-- Breaking change warnings -->
+    {#if lensMeta?.breakingChanges && lensMeta.breakingChanges.length > 0}
+      <div class="mx-8 mt-4 rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3">
+        <div class="flex items-start gap-2">
+          <ShieldAlert class="mt-0.5 size-4 shrink-0 text-red-600 dark:text-red-400" />
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold text-red-600 dark:text-red-400">
+              Breaking Change{lensMeta.breakingChanges.length === 1 ? '' : 's'}
+            </p>
+            <ul class="mt-1.5 space-y-1.5">
+              {#each lensMeta.breakingChanges as bc (bc.change)}
+                <li class="text-xs text-red-600/80 dark:text-red-400/70">
+                  <span class="font-medium text-red-700 dark:text-red-300">{bc.change}</span>
+                  {#if bc.migration}
+                    <span class="text-muted-foreground"> — {bc.migration}</span>
+                  {/if}
+                  {#if bc.since}
+                    <span
+                      class="ml-1 rounded bg-red-500/10 px-1 py-0.5 text-[10px] text-red-600 dark:text-red-400"
+                    >
+                      since {bc.since}
+                    </span>
+                  {/if}
                 </li>
               {/each}
             </ul>

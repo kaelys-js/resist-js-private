@@ -82,7 +82,11 @@
     if (mod.meta) {
       const result: Result<LensMeta> = parseLensMeta(mod.meta);
       if (result.ok) {
-        metaByName.set(dir, { ...result.data, tags: [...result.data.tags] });
+        metaByName.set(dir, {
+          ...result.data,
+          tags: [...result.data.tags],
+          breakingChanges: result.data.breakingChanges?.map((bc) => ({ ...bc })),
+        });
       } else {
         log.warn(`Invalid lens.ts for "${dir}": ${result.error.message}`);
       }

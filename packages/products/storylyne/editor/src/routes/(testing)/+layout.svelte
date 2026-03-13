@@ -69,6 +69,35 @@
   import StarOff from '@lucide/svelte/icons/star-off';
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import XIcon from '@lucide/svelte/icons/x';
+  import Bell from '@lucide/svelte/icons/bell';
+  import BellOff from '@lucide/svelte/icons/bell-off';
+  import Settings2 from '@lucide/svelte/icons/settings-2';
+  import CircleCheck from '@lucide/svelte/icons/circle-check';
+  import Info from '@lucide/svelte/icons/info';
+  import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
+  import CircleX from '@lucide/svelte/icons/circle-x';
+  import * as Popover from '@/ui/popover/index.js';
+  import Switch from '@/ui/switch/switch.svelte';
+  import Button from '@/ui/button/button.svelte';
+  import { Toaster, toast } from 'svelte-sonner';
+  import {
+    loadNotifications,
+    pushNotification,
+    getNotifications,
+    getUnreadCount,
+    getGroupedNotifications,
+    markRead,
+    markAllRead,
+    removeNotification,
+    clearAllNotifications,
+    getPreferences,
+    updatePreferences,
+    resetPreferences,
+    isTypeEnabled,
+    type LensNotification,
+    type NotificationType,
+    type NotificationPreferences,
+  } from '$lib/stores/lens-notifications.svelte.js';
 
   const { children } = $props();
 
@@ -144,7 +173,11 @@
       const result: Result<LensMeta> = parseLensMeta(mod.meta);
       if (result.ok) {
         // Spread to unfreeze — Result.data is deep-frozen but Map<Str, LensMeta> needs mutable shape
-        metaByName.set(dir, { ...result.data, tags: [...result.data.tags] });
+        metaByName.set(dir, {
+          ...result.data,
+          tags: [...result.data.tags],
+          breakingChanges: result.data.breakingChanges?.map((bc) => ({ ...bc })),
+        });
       } else {
         // UI boundary — sidebar must render; error stored for visible indicator
         log.warn(`Invalid lens.ts for "${dir}": ${result.error.message}`);
@@ -923,6 +956,12 @@
   /*  Sidebar section collapse / expand state                            */
   /* ------------------------------------------------------------------ */
 
+  /** Whether the "Pinned" sidebar section is open. */
+  let sidebarPinnedOpen: boolean = $state(true);
+
+  /** Whether the "Recent" sidebar section is open. */
+  let sidebarRecentOpen: boolean = $state(true);
+
   /** Whether the top-level "Components" collapsible group is open. */
   let sidebarComponentsOpen: boolean = $state(true);
 
@@ -1097,6 +1136,251 @@
       sidebarExportFeedback = '';
     }, 2000);
   }
+
+  /* ------------------------------------------------------------------ */
+  /*  Notification center                                                */
+  /* ------------------------------------------------------------------ */
+
+  /** Whether the notification center dropdown is open. */
+  let notifCenterOpen: boolean = $state(false);
+
+  /** Whether the notification preferences panel is visible. */
+  let notifPrefsOpen: boolean = $state(false);
+
+  /** Reactive notification list. */
+  const notifList: LensNotification[] = $derived(getNotifications());
+
+  /** Reactive unread count. */
+  const unreadCount: Num = $derived(getUnreadCount());
+
+  /** Reactive grouped notifications. */
+  const groupedNotifs = $derived(getGroupedNotifications());
+
+  /** Reactive preferences. */
+  const notifPrefs: NotificationPreferences = $derived(getPreferences());
+
+  /** Whether notification preferences match the defaults. */
+  const notifPrefsAreDefault: boolean = $derived(
+    notifPrefs.info === true &&
+      notifPrefs.success === true &&
+      notifPrefs.warning === true &&
+      notifPrefs.error === true &&
+      notifPrefs.showToasts === true &&
+      notifPrefs.autoDismissMs === 5000,
+  );
+
+  // Load notifications from localStorage on mount
+  $effect(() => {
+    loadNotifications();
+  });
+
+  /**
+   * Fire a toast and push to notification center.
+   *
+   * @param opts - Notification options
+   */
+  function notify(opts: {
+    type: NotificationType;
+    title: Str;
+    message?: Str;
+    actionLabel?: Str;
+    actionHref?: Str;
+    componentName?: Str;
+    category?: Str;
+  }): void {
+    if (!isTypeEnabled(opts.type)) return;
+    const notif: LensNotification = pushNotification(opts);
+    const prefs: NotificationPreferences = getPreferences();
+    if (prefs.showToasts) {
+      /** Toast function lookup by notification type. */
+      const TOAST_FNS: Record<NotificationType, typeof toast.info> = {
+        error: toast.error,
+        warning: toast.warning,
+        success: toast.success,
+        info: toast.info,
+      };
+      const toastFn: typeof toast.info = TOAST_FNS[opts.type];
+      toastFn(opts.title, {
+        description: opts.message,
+        duration: prefs.autoDismissMs,
+        action: opts.actionHref
+          ? {
+              label: opts.actionLabel ?? 'View',
+              onClick: (): void => {
+                window.location.href = opts.actionHref ?? '';
+              },
+            }
+          : undefined,
+      });
+    }
+    // Mark read when notification center is already open
+    if (notifCenterOpen) {
+      markRead(notif.id);
+    }
+  }
+
+  /**
+   * Format a relative time string from an ISO timestamp.
+   *
+   * @param iso - ISO 8601 timestamp
+   * @returns Human-readable relative time (e.g. "2m ago", "3h ago", "Yesterday")
+   */
+  function relativeTime(iso: Str): Str {
+    const diff: number = Date.now() - new Date(iso).getTime();
+    const mins: number = Math.floor(diff / 60_000);
+    if (mins < 1) return 'Just now' as Str;
+    if (mins < 60) return `${mins}m ago` as Str;
+    const hours: number = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago` as Str;
+    const days: number = Math.floor(hours / 24);
+    if (days === 1) return 'Yesterday' as Str;
+    if (days < 7) return `${days}d ago` as Str;
+    return `${Math.floor(days / 7)}w ago` as Str;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  Watched components                                                 */
+  /* ------------------------------------------------------------------ */
+
+  /** Maximum watched components. */
+  const MAX_WATCHED: Num = 20 as Num;
+
+  /** Set of watched component names. */
+  let watchedComponents: Set<Str> = $state(new Set());
+
+  // Restore watched from localStorage on mount
+  $effect(() => {
+    try {
+      const stored: Str | null = localStorage.getItem(storageKey('lens-watched'));
+      if (stored) {
+        const parsed: Str[] = JSON.parse(stored) as Str[];
+        watchedComponents = new Set(parsed.filter((n: Str): boolean => componentNames.includes(n)));
+      }
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — default empty is fine */
+    }
+  });
+
+  // Persist watched to localStorage on change
+  $effect(() => {
+    if (watchedComponents.size === 0) return;
+    try {
+      localStorage.setItem(storageKey('lens-watched'), JSON.stringify([...watchedComponents]));
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — non-critical */
+    }
+  });
+
+  /**
+   * Toggle a component's watched state.
+   *
+   * @param name - Component directory name to toggle
+   */
+  function toggleWatch(name: Str): void {
+    const next: Set<Str> = new Set(watchedComponents);
+    if (next.has(name)) {
+      next.delete(name);
+    } else if (next.size < (MAX_WATCHED as number)) {
+      next.add(name);
+    }
+    watchedComponents = next;
+    // Persist immediately since effect won't fire for empty→empty
+    try {
+      if (next.size > 0) {
+        localStorage.setItem(storageKey('lens-watched'), JSON.stringify([...next]));
+      } else {
+        localStorage.removeItem(storageKey('lens-watched'));
+      }
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — non-critical */
+    }
+  }
+
+  // Listen for watch toggle events from the component page
+  $effect(() => {
+    /**
+     * Handle watch toggle request from component page.
+     *
+     * @param e - The custom event with component name detail
+     */
+    function onToggleWatch(e: Event): Void {
+      const componentName: Str = (e as CustomEvent).detail as Str;
+      toggleWatch(componentName);
+    }
+    document.addEventListener('lens:toggle-watch', onToggleWatch);
+    return (): void => {
+      document.removeEventListener('lens:toggle-watch', onToggleWatch);
+    };
+  });
+
+  // Listen for watch state queries and respond
+  $effect(() => {
+    /**
+     * Handle watch state changed dispatch to component page.
+     *
+     * @param e - The custom event with component name detail
+     */
+    function onWatchChanged(e: Event): Void {
+      const componentName: Str = (e as CustomEvent).detail as Str;
+      document.dispatchEvent(
+        new CustomEvent('lens:watch-changed', {
+          detail: { name: componentName, watched: watchedComponents.has(componentName) },
+        }),
+      );
+    }
+    document.addEventListener('lens:toggle-watch', onWatchChanged);
+    return (): void => {
+      document.removeEventListener('lens:toggle-watch', onWatchChanged);
+    };
+  });
+
+  /* ------------------------------------------------------------------ */
+  /*  Dependency & status change notifications (on navigation)           */
+  /* ------------------------------------------------------------------ */
+
+  // Generate notifications for component status and dependency changes
+  $effect(() => {
+    if (!currentName || currentName.length === 0) return;
+    const meta: LensMeta | undefined = metaByName.get(currentName);
+
+    // Status notification for watched components
+    if (meta?.status && watchedComponents.has(currentName)) {
+      const statusLabels: Record<string, Str> = {
+        new: 'recently added' as Str,
+        updated: 'recently updated' as Str,
+        deprecated: 'deprecated' as Str,
+      };
+      const label: Str = statusLabels[meta.status] ?? (meta.status as Str);
+      notify({
+        type: meta.status === 'deprecated' ? 'warning' : 'info',
+        title: `${toTitle(currentName)} is ${label}` as Str,
+        componentName: currentName,
+        actionLabel: 'View' as Str,
+        actionHref: `/components/${currentName}` as Str,
+        category: 'status' as Str,
+      });
+    }
+  });
+
+  /* ------------------------------------------------------------------ */
+  /*  Documentation coverage alerts                                      */
+  /* ------------------------------------------------------------------ */
+
+  /** Notification type descriptions for preference tooltips. */
+  const NOTIF_TYPE_DESCS: Record<Str, Str> = {
+    info: 'General updates and informational messages' as Str,
+    success: 'Successful operations and completions' as Str,
+    warning: 'Deprecation notices and potential issues' as Str,
+    error: 'Errors and failures requiring attention' as Str,
+  };
+
+  /** Whether the doc coverage alert has been dismissed this session. */
+  let docCoverageAlertDismissed: boolean = $state(false);
+
+  /** Undocumented component names. */
+  const undocumentedComponents: Str[] = $derived(
+    componentNames.filter((n: Str): boolean => !metaByName.has(n)),
+  );
 </script>
 
 <ModeWatcher
@@ -1258,135 +1542,165 @@
       </Sidebar.Group>
       <!-- Pinned components -->
       {#if pinnedComponents.size > 0}
-        <Sidebar.Group>
-          <Sidebar.GroupLabel class="flex items-center text-xs">
-            <Star class="mr-1 size-3" />
-            <span class="flex-1">Pinned</span>
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger
-                class="ml-auto rounded-sm p-0.5 text-muted-foreground/50 transition-colors hover:text-foreground"
-              >
-                <EllipsisVertical class="size-3.5" />
-                <span class="sr-only">Pinned options</span>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="end" class="w-40">
-                <DropdownMenu.Item onclick={clearAllPinned}>
-                  <Trash2 class="mr-2 size-4" />
-                  Clear all pinned
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
-          </Sidebar.GroupLabel>
-          <Sidebar.GroupContent>
-            <Sidebar.Menu>
-              {#each [...pinnedComponents] as name (name)}
-                {@const pinMeta = metaByName.get(name)}
-                {@const PinIcon = CATEGORY_ICONS[pinMeta?.category ?? 'display'] ?? ComponentIcon}
-                {@const pinColor =
-                  CATEGORY_COLORS[pinMeta?.category ?? 'display'] ??
-                  ('text-muted-foreground' as Str)}
-                <Sidebar.MenuItem>
-                  <Sidebar.MenuButton isActive={currentName === name}>
-                    {#snippet child({ props })}
-                      <a href="/components/{name}" {...props}>
-                        <PinIcon class="size-4 {pinColor}" />
-                        <span>{toTitle(name)}</span>
-                      </a>
-                    {/snippet}
-                  </Sidebar.MenuButton>
-                  <Sidebar.MenuAction>
-                    <Tooltip.Root delayDuration={300}>
-                      <Tooltip.Trigger>
-                        {#snippet child({ props: unpinTip })}
-                          <button
-                            type="button"
-                            class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/50 hover:text-foreground"
-                            {...unpinTip}
-                            onclick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              togglePin(name);
-                            }}
-                          >
-                            <StarOff class="size-3" />
-                          </button>
-                        {/snippet}
-                      </Tooltip.Trigger>
-                      <Tooltip.Content side="right" sideOffset={4}>Unpin</Tooltip.Content>
-                    </Tooltip.Root>
-                  </Sidebar.MenuAction>
-                </Sidebar.MenuItem>
-              {/each}
-            </Sidebar.Menu>
-          </Sidebar.GroupContent>
-        </Sidebar.Group>
+        <Collapsible.Root bind:open={sidebarPinnedOpen} class="group/pinned">
+          <Sidebar.Group>
+            <Sidebar.GroupLabel class="gap-1.5 text-sm">
+              {#snippet child({ props: pinnedLabelProps })}
+                <Collapsible.Trigger {...pinnedLabelProps}>
+                  <Star class="size-3" />
+                  Pinned
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger
+                      class="ml-auto rounded-sm p-0.5 text-muted-foreground/50 transition-colors hover:text-foreground"
+                      onclick={(e) => e.stopPropagation()}
+                    >
+                      <EllipsisVertical class="size-3.5" />
+                      <span class="sr-only">Pinned options</span>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content align="end" class="w-40">
+                      <DropdownMenu.Item onclick={clearAllPinned}>
+                        <Trash2 class="mr-2 size-4" />
+                        Clear all pinned
+                      </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Root>
+                  <ChevronRight
+                    class="transition-transform group-data-[state=open]/pinned:rotate-90"
+                  />
+                </Collapsible.Trigger>
+              {/snippet}
+            </Sidebar.GroupLabel>
+            <Collapsible.Content>
+              <div transition:slide={{ duration: 150 }}>
+                <Sidebar.GroupContent>
+                  <Sidebar.Menu>
+                    {#each [...pinnedComponents] as name (name)}
+                      {@const pinMeta = metaByName.get(name)}
+                      {@const PinIcon =
+                        CATEGORY_ICONS[pinMeta?.category ?? 'display'] ?? ComponentIcon}
+                      {@const pinColor =
+                        CATEGORY_COLORS[pinMeta?.category ?? 'display'] ??
+                        ('text-muted-foreground' as Str)}
+                      <Sidebar.MenuItem>
+                        <Sidebar.MenuButton isActive={currentName === name}>
+                          {#snippet child({ props })}
+                            <a href="/components/{name}" {...props}>
+                              <PinIcon class="size-4 {pinColor}" />
+                              <span>{toTitle(name)}</span>
+                            </a>
+                          {/snippet}
+                        </Sidebar.MenuButton>
+                        <Sidebar.MenuAction>
+                          <Tooltip.Root delayDuration={300}>
+                            <Tooltip.Trigger>
+                              {#snippet child({ props: unpinTip })}
+                                <button
+                                  type="button"
+                                  class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/50 hover:text-foreground"
+                                  {...unpinTip}
+                                  onclick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    togglePin(name);
+                                  }}
+                                >
+                                  <StarOff class="size-3" />
+                                </button>
+                              {/snippet}
+                            </Tooltip.Trigger>
+                            <Tooltip.Content side="right" sideOffset={4}>Unpin</Tooltip.Content>
+                          </Tooltip.Root>
+                        </Sidebar.MenuAction>
+                      </Sidebar.MenuItem>
+                    {/each}
+                  </Sidebar.Menu>
+                </Sidebar.GroupContent>
+              </div>
+            </Collapsible.Content>
+          </Sidebar.Group>
+        </Collapsible.Root>
       {/if}
       <!-- Recently viewed -->
       {#if recentComponents.length > 0}
-        <Sidebar.Group>
-          <Sidebar.GroupLabel class="flex items-center text-xs">
-            <Clock class="mr-1 size-3" />
-            <span class="flex-1">Recent</span>
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger
-                class="ml-auto rounded-sm p-0.5 text-muted-foreground/50 transition-colors hover:text-foreground"
-              >
-                <EllipsisVertical class="size-3.5" />
-                <span class="sr-only">Recent options</span>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="end" class="w-40">
-                <DropdownMenu.Item onclick={clearRecent}>
-                  <Trash2 class="mr-2 size-4" />
-                  Clear recent
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
-          </Sidebar.GroupLabel>
-          <Sidebar.GroupContent>
-            <Sidebar.Menu>
-              {#each recentComponents
-                .filter((n) => !pinnedComponents.has(n))
-                .slice(0, 5) as name (name)}
-                {@const recMeta = metaByName.get(name)}
-                {@const RecIcon = CATEGORY_ICONS[recMeta?.category ?? 'display'] ?? ComponentIcon}
-                {@const recColor =
-                  CATEGORY_COLORS[recMeta?.category ?? 'display'] ??
-                  ('text-muted-foreground' as Str)}
-                <Sidebar.MenuItem>
-                  <Sidebar.MenuButton isActive={currentName === name}>
-                    {#snippet child({ props })}
-                      <a href="/components/{name}" {...props}>
-                        <RecIcon class="size-4 {recColor}" />
-                        <span>{toTitle(name)}</span>
-                      </a>
-                    {/snippet}
-                  </Sidebar.MenuButton>
-                  <Sidebar.MenuAction>
-                    <Tooltip.Root delayDuration={300}>
-                      <Tooltip.Trigger>
-                        {#snippet child({ props: removeTip })}
-                          <button
-                            type="button"
-                            class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/50 hover:text-foreground"
-                            {...removeTip}
-                            onclick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              removeRecent(name);
-                            }}
-                          >
-                            <XIcon class="size-3" />
-                          </button>
-                        {/snippet}
-                      </Tooltip.Trigger>
-                      <Tooltip.Content side="right" sideOffset={4}>Remove</Tooltip.Content>
-                    </Tooltip.Root>
-                  </Sidebar.MenuAction>
-                </Sidebar.MenuItem>
-              {/each}
-            </Sidebar.Menu>
-          </Sidebar.GroupContent>
-        </Sidebar.Group>
+        <Collapsible.Root bind:open={sidebarRecentOpen} class="group/recent">
+          <Sidebar.Group>
+            <Sidebar.GroupLabel class="gap-1.5 text-sm">
+              {#snippet child({ props: recentLabelProps })}
+                <Collapsible.Trigger {...recentLabelProps}>
+                  <Clock class="size-3" />
+                  Recent
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger
+                      class="ml-auto rounded-sm p-0.5 text-muted-foreground/50 transition-colors hover:text-foreground"
+                      onclick={(e) => e.stopPropagation()}
+                    >
+                      <EllipsisVertical class="size-3.5" />
+                      <span class="sr-only">Recent options</span>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content align="end" class="w-40">
+                      <DropdownMenu.Item onclick={clearRecent}>
+                        <Trash2 class="mr-2 size-4" />
+                        Clear recent
+                      </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Root>
+                  <ChevronRight
+                    class="transition-transform group-data-[state=open]/recent:rotate-90"
+                  />
+                </Collapsible.Trigger>
+              {/snippet}
+            </Sidebar.GroupLabel>
+            <Collapsible.Content>
+              <div transition:slide={{ duration: 150 }}>
+                <Sidebar.GroupContent>
+                  <Sidebar.Menu>
+                    {#each recentComponents
+                      .filter((n) => !pinnedComponents.has(n))
+                      .slice(0, 5) as name (name)}
+                      {@const recMeta = metaByName.get(name)}
+                      {@const RecIcon =
+                        CATEGORY_ICONS[recMeta?.category ?? 'display'] ?? ComponentIcon}
+                      {@const recColor =
+                        CATEGORY_COLORS[recMeta?.category ?? 'display'] ??
+                        ('text-muted-foreground' as Str)}
+                      <Sidebar.MenuItem>
+                        <Sidebar.MenuButton isActive={currentName === name}>
+                          {#snippet child({ props })}
+                            <a href="/components/{name}" {...props}>
+                              <RecIcon class="size-4 {recColor}" />
+                              <span>{toTitle(name)}</span>
+                            </a>
+                          {/snippet}
+                        </Sidebar.MenuButton>
+                        <Sidebar.MenuAction>
+                          <Tooltip.Root delayDuration={300}>
+                            <Tooltip.Trigger>
+                              {#snippet child({ props: removeTip })}
+                                <button
+                                  type="button"
+                                  class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/50 hover:text-foreground"
+                                  {...removeTip}
+                                  onclick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    removeRecent(name);
+                                  }}
+                                >
+                                  <XIcon class="size-3" />
+                                </button>
+                              {/snippet}
+                            </Tooltip.Trigger>
+                            <Tooltip.Content side="right" sideOffset={4}>Remove</Tooltip.Content>
+                          </Tooltip.Root>
+                        </Sidebar.MenuAction>
+                      </Sidebar.MenuItem>
+                    {/each}
+                  </Sidebar.Menu>
+                </Sidebar.GroupContent>
+              </div>
+            </Collapsible.Content>
+          </Sidebar.Group>
+        </Collapsible.Root>
       {/if}
       <Collapsible.Root bind:open={sidebarComponentsOpen} class="group/collapsible">
         <Sidebar.Group>
@@ -1775,6 +2089,337 @@
               >
             </Tooltip.Content>
           </Tooltip.Root>
+          <!-- Notification center bell -->
+          <Popover.Root bind:open={notifCenterOpen}>
+            <Popover.Trigger>
+              {#snippet child({ props: bellProps })}
+                <button
+                  type="button"
+                  class="relative inline-flex size-9 items-center justify-center rounded-md border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+                  {...bellProps}
+                  aria-label="Notifications"
+                >
+                  <Bell class="size-4" />
+                  {#if (unreadCount as number) > 0}
+                    <span
+                      class="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground"
+                    >
+                      {(unreadCount as number) > 9 ? '9+' : unreadCount}
+                    </span>
+                  {/if}
+                </button>
+              {/snippet}
+            </Popover.Trigger>
+            <Popover.Content align="end" sideOffset={8} class="w-80 p-0">
+              <!-- Notification center header -->
+              <div class="flex items-center gap-2 border-b px-4 py-3">
+                <h3 class="flex-1 text-sm font-semibold">Notifications</h3>
+                {#if (unreadCount as number) > 0}
+                  <button
+                    type="button"
+                    class="text-xs text-muted-foreground hover:text-foreground"
+                    onclick={markAllRead}
+                  >
+                    Mark all read
+                  </button>
+                {/if}
+                <Tooltip.Root delayDuration={300}>
+                  <Tooltip.Trigger>
+                    {#snippet child({ props: prefsTip })}
+                      <button
+                        type="button"
+                        class="flex size-6 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
+                        {...prefsTip}
+                        onclick={() => {
+                          notifPrefsOpen = !notifPrefsOpen;
+                        }}
+                      >
+                        <Settings2 class="size-3.5" />
+                      </button>
+                    {/snippet}
+                  </Tooltip.Trigger>
+                  <Tooltip.Content sideOffset={4}>Preferences</Tooltip.Content>
+                </Tooltip.Root>
+              </div>
+              <!-- Preferences panel (collapsible) -->
+              {#if notifPrefsOpen}
+                <div class="border-b bg-muted/30 px-4 py-3" transition:slide={{ duration: 150 }}>
+                  <p class="mb-2 text-xs font-medium text-muted-foreground">Filter by severity</p>
+                  <div class="space-y-2">
+                    {#each ['info', 'success', 'warning', 'error'] as ntype (ntype)}
+                      <Tooltip.Root delayDuration={300}>
+                        <Tooltip.Trigger>
+                          {#snippet child({ props: ntypeTip })}
+                            <div class="flex items-center justify-between" {...ntypeTip}>
+                              <span class="text-xs capitalize">{ntype}</span>
+                              <Switch
+                                checked={notifPrefs[ntype as NotificationType]}
+                                onCheckedChange={(checked) => {
+                                  updatePreferences({ [ntype]: checked });
+                                }}
+                              />
+                            </div>
+                          {/snippet}
+                        </Tooltip.Trigger>
+                        <Tooltip.Content side="left" sideOffset={4}>
+                          <p class="text-xs">{NOTIF_TYPE_DESCS[ntype as Str]}</p>
+                        </Tooltip.Content>
+                      </Tooltip.Root>
+                    {/each}
+                  </div>
+                  <div class="mt-3 space-y-2">
+                    <Tooltip.Root delayDuration={300}>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props: toastTip })}
+                          <div class="flex items-center justify-between" {...toastTip}>
+                            <span class="text-xs">Show toast popups</span>
+                            <Switch
+                              checked={notifPrefs.showToasts}
+                              onCheckedChange={(checked) => {
+                                updatePreferences({ showToasts: checked });
+                              }}
+                            />
+                          </div>
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content side="left" sideOffset={4}>
+                        <p class="text-xs">Show temporary popup notifications</p>
+                      </Tooltip.Content>
+                    </Tooltip.Root>
+                    <div class="flex justify-end">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        class="h-7 px-3 text-xs"
+                        disabled={notifPrefsAreDefault}
+                        onclick={resetPreferences}
+                      >
+                        Reset to defaults
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              {/if}
+              <!-- Notification list -->
+              <div class="max-h-80 overflow-y-auto">
+                {#if notifList.length === 0}
+                  <div class="flex flex-col items-center gap-2 py-8 text-muted-foreground">
+                    <BellOff class="size-8 text-muted-foreground/30" />
+                    <p class="text-xs">No notifications yet</p>
+                  </div>
+                {:else}
+                  {#if groupedNotifs.today.length > 0}
+                    <div class="px-4 pb-1 pt-2">
+                      <p
+                        class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/60"
+                      >
+                        Today
+                      </p>
+                    </div>
+                    {#each groupedNotifs.today as notif (notif.id)}
+                      {@const NIcon =
+                        notif.type === 'error'
+                          ? CircleX
+                          : notif.type === 'warning'
+                            ? TriangleAlert
+                            : notif.type === 'success'
+                              ? CircleCheck
+                              : Info}
+                      {@const nColor =
+                        notif.type === 'error'
+                          ? 'text-red-500'
+                          : notif.type === 'warning'
+                            ? 'text-amber-500'
+                            : notif.type === 'success'
+                              ? 'text-emerald-500'
+                              : 'text-blue-500'}
+                      <div
+                        class="group/notif flex gap-3 px-4 py-2 transition-colors hover:bg-accent/50 {notif.read
+                          ? 'opacity-60'
+                          : ''}"
+                      >
+                        <NIcon class="mt-0.5 size-4 shrink-0 {nColor}" />
+                        <div class="min-w-0 flex-1">
+                          <p class="text-xs font-medium {notif.read ? '' : 'text-foreground'}">
+                            {notif.title}
+                          </p>
+                          {#if notif.message}
+                            <p class="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">
+                              {notif.message}
+                            </p>
+                          {/if}
+                          <div class="mt-1 flex items-center gap-2">
+                            <span class="text-[10px] text-muted-foreground/60"
+                              >{relativeTime(notif.timestamp)}</span
+                            >
+                            {#if notif.actionHref}
+                              <a
+                                href={notif.actionHref}
+                                class="text-[10px] font-medium text-primary hover:underline"
+                              >
+                                {notif.actionLabel ?? 'View'}
+                              </a>
+                            {/if}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground/30 opacity-0 transition-opacity hover:text-foreground group-hover/notif:opacity-100"
+                          onclick={() => removeNotification(notif.id)}
+                          aria-label="Dismiss notification"
+                        >
+                          <XIcon class="size-3" />
+                        </button>
+                      </div>
+                    {/each}
+                  {/if}
+                  {#if groupedNotifs.thisWeek.length > 0}
+                    <div class="px-4 pb-1 pt-2">
+                      <p
+                        class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/60"
+                      >
+                        This week
+                      </p>
+                    </div>
+                    {#each groupedNotifs.thisWeek as notif (notif.id)}
+                      {@const NIcon =
+                        notif.type === 'error'
+                          ? CircleX
+                          : notif.type === 'warning'
+                            ? TriangleAlert
+                            : notif.type === 'success'
+                              ? CircleCheck
+                              : Info}
+                      {@const nColor =
+                        notif.type === 'error'
+                          ? 'text-red-500'
+                          : notif.type === 'warning'
+                            ? 'text-amber-500'
+                            : notif.type === 'success'
+                              ? 'text-emerald-500'
+                              : 'text-blue-500'}
+                      <div
+                        class="group/notif flex gap-3 px-4 py-2 transition-colors hover:bg-accent/50 {notif.read
+                          ? 'opacity-60'
+                          : ''}"
+                      >
+                        <NIcon class="mt-0.5 size-4 shrink-0 {nColor}" />
+                        <div class="min-w-0 flex-1">
+                          <p class="text-xs font-medium {notif.read ? '' : 'text-foreground'}">
+                            {notif.title}
+                          </p>
+                          {#if notif.message}
+                            <p class="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">
+                              {notif.message}
+                            </p>
+                          {/if}
+                          <div class="mt-1 flex items-center gap-2">
+                            <span class="text-[10px] text-muted-foreground/60"
+                              >{relativeTime(notif.timestamp)}</span
+                            >
+                            {#if notif.actionHref}
+                              <a
+                                href={notif.actionHref}
+                                class="text-[10px] font-medium text-primary hover:underline"
+                                >{notif.actionLabel ?? 'View'}</a
+                              >
+                            {/if}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground/30 opacity-0 transition-opacity hover:text-foreground group-hover/notif:opacity-100"
+                          onclick={() => removeNotification(notif.id)}
+                          aria-label="Dismiss notification"
+                        >
+                          <XIcon class="size-3" />
+                        </button>
+                      </div>
+                    {/each}
+                  {/if}
+                  {#if groupedNotifs.older.length > 0}
+                    <div class="px-4 pb-1 pt-2">
+                      <p
+                        class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/60"
+                      >
+                        Older
+                      </p>
+                    </div>
+                    {#each groupedNotifs.older as notif (notif.id)}
+                      {@const NIcon =
+                        notif.type === 'error'
+                          ? CircleX
+                          : notif.type === 'warning'
+                            ? TriangleAlert
+                            : notif.type === 'success'
+                              ? CircleCheck
+                              : Info}
+                      {@const nColor =
+                        notif.type === 'error'
+                          ? 'text-red-500'
+                          : notif.type === 'warning'
+                            ? 'text-amber-500'
+                            : notif.type === 'success'
+                              ? 'text-emerald-500'
+                              : 'text-blue-500'}
+                      <div
+                        class="group/notif flex gap-3 px-4 py-2 transition-colors hover:bg-accent/50 {notif.read
+                          ? 'opacity-60'
+                          : ''}"
+                      >
+                        <NIcon class="mt-0.5 size-4 shrink-0 {nColor}" />
+                        <div class="min-w-0 flex-1">
+                          <p class="text-xs font-medium {notif.read ? '' : 'text-foreground'}">
+                            {notif.title}
+                          </p>
+                          {#if notif.message}
+                            <p class="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">
+                              {notif.message}
+                            </p>
+                          {/if}
+                          <div class="mt-1 flex items-center gap-2">
+                            <span class="text-[10px] text-muted-foreground/60"
+                              >{relativeTime(notif.timestamp)}</span
+                            >
+                            {#if notif.actionHref}
+                              <a
+                                href={notif.actionHref}
+                                class="text-[10px] font-medium text-primary hover:underline"
+                                >{notif.actionLabel ?? 'View'}</a
+                              >
+                            {/if}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground/30 opacity-0 transition-opacity hover:text-foreground group-hover/notif:opacity-100"
+                          onclick={() => removeNotification(notif.id)}
+                          aria-label="Dismiss notification"
+                        >
+                          <XIcon class="size-3" />
+                        </button>
+                      </div>
+                    {/each}
+                  {/if}
+                {/if}
+              </div>
+              <!-- Footer -->
+              {#if notifList.length > 0}
+                <div class="flex items-center justify-between border-t px-4 py-2">
+                  <span class="text-[11px] text-muted-foreground/60"
+                    >{notifList.length} notification{notifList.length === 1 ? '' : 's'}</span
+                  >
+                  <button
+                    type="button"
+                    class="text-[11px] text-muted-foreground hover:text-foreground"
+                    onclick={clearAllNotifications}
+                  >
+                    Clear all
+                  </button>
+                </div>
+              {/if}
+            </Popover.Content>
+          </Popover.Root>
           <ModeToggle
             mode={currentMode}
             {setMode}
@@ -1800,3 +2445,5 @@
     bind:open={searchOpen}
   />
 </Sidebar.Provider>
+
+<Toaster richColors closeButton position="bottom-right" />

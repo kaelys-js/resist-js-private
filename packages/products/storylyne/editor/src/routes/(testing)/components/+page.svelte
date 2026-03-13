@@ -6,12 +6,13 @@
    * Data is self-contained via import.meta.glob (same pattern as [name]/+page.svelte).
    */
   import type { Num, Str } from '@/schemas/common';
-  import type { LensMeta, CategoryGroup } from '@/ui/lens/types.js';
+  import type { LensMeta, LensStatus, CategoryGroup } from '@/ui/lens/types.js';
   import type { Result } from '@/schemas/result/result';
   import { extractDir, toTitle, parseLensMeta } from '@/ui/lens/lens-utils.js';
   import { extractTokens, type ThemeTokenSet } from '@/ui/lens/extract-tokens.js';
   import { log } from '@/utils/core/logger';
   import Kbd from '@/ui/kbd/Kbd.svelte';
+  import Badge from '@/ui/badge/badge.svelte';
   import * as Tooltip from '@/ui/tooltip/index.js';
   import { cn } from '@/ui/utils.js';
   import type { Component } from 'svelte';
@@ -26,8 +27,13 @@
   import Palette from '@lucide/svelte/icons/palette';
   import ComponentIcon from '@lucide/svelte/icons/component';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
+  import CircleX from '@lucide/svelte/icons/circle-x';
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
   import List from '@lucide/svelte/icons/list';
+  import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
+  import Sparkles from '@lucide/svelte/icons/sparkles';
+  import RefreshCw from '@lucide/svelte/icons/refresh-cw';
+  import Trash2 from '@lucide/svelte/icons/trash-2';
   import { storageKey } from '$lib/config/app-meta';
 
   /* ------------------------------------------------------------------ */
@@ -67,7 +73,11 @@
     if (mod.meta) {
       const result: Result<LensMeta> = parseLensMeta(mod.meta);
       if (result.ok) {
-        metaByName.set(dir, { ...result.data, tags: [...result.data.tags] });
+        metaByName.set(dir, {
+          ...result.data,
+          tags: [...result.data.tags],
+          breakingChanges: result.data.breakingChanges?.map((bc) => ({ ...bc })),
+        });
       } else {
         log.warn(`Invalid lens.ts for "${dir}": ${result.error.message}`);
       }
@@ -163,6 +173,43 @@
   const documentedPercent: Num = (
     componentNames.length > 0 ? Math.round((documentedCount / componentNames.length) * 100) : 0
   ) as Num;
+
+  /** Components without lens.ts documentation. */
+  const undocumentedComponents: Str[] = componentNames.filter(
+    (n: Str): boolean => !metaByName.has(n),
+  );
+
+  /** Status icon mapping. */
+  const STATUS_ICONS: Record<LensStatus, Component> = {
+    new: Sparkles,
+    updated: RefreshCw,
+    deprecated: Trash2,
+  };
+
+  /** Status color mapping. */
+  const STATUS_COLORS: Record<LensStatus, Str> = {
+    new: 'text-emerald-600 dark:text-emerald-400' as Str,
+    updated: 'text-blue-600 dark:text-blue-400' as Str,
+    deprecated: 'text-red-600 dark:text-red-400' as Str,
+  };
+
+  /** Status badge colors. */
+  const STATUS_BADGE_COLORS: Record<LensStatus, Str> = {
+    new: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400' as Str,
+    updated: 'bg-blue-500/15 text-blue-700 dark:text-blue-400' as Str,
+    deprecated: 'bg-red-500/15 text-red-700 dark:text-red-400' as Str,
+  };
+
+  /** Activity feed — components with a status (new, updated, deprecated). */
+  const activityEntries: Array<{ name: Str; meta: LensMeta }> = componentNames
+    .filter((n: Str): boolean => {
+      const m: LensMeta | undefined = metaByName.get(n);
+      return m?.status !== undefined;
+    })
+    .map((n: Str): { name: Str; meta: LensMeta } => ({
+      name: n,
+      meta: metaByName.get(n) as LensMeta, // safe — filtered above
+    }));
 
   /**
    * Open the ⌘K command search by dispatching the keyboard shortcut.
@@ -285,6 +332,88 @@
       </Tooltip.Content>
     </Tooltip.Root>
   </div>
+
+  <!-- Documentation Coverage Alert -->
+  {#if undocumentedComponents.length > 0}
+    <div class="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
+      <div class="flex items-start gap-3">
+        <TriangleAlert class="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+        <div class="flex-1">
+          <p class="text-sm font-medium text-amber-700 dark:text-amber-300">
+            {undocumentedComponents.length} component{undocumentedComponents.length === 1
+              ? ''
+              : 's'} missing documentation
+          </p>
+          <p class="mt-1 text-xs text-amber-600/80 dark:text-amber-400/70">
+            Add a <code
+              class="rounded bg-amber-500/10 px-1 py-0.5 font-mono text-[11px] text-amber-700 dark:text-amber-300"
+              >lens.ts</code
+            > file to enable documentation, examples, and variant generation.
+          </p>
+          <div class="mt-2.5 flex flex-wrap gap-1">
+            {#each undocumentedComponents.slice(0, 12) as name (name)}
+              <a
+                href="/components/{name}"
+                class="inline-flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 text-[11px] text-amber-700 transition-colors hover:bg-amber-500/20 dark:text-amber-300"
+              >
+                <CircleX class="size-2.5" />
+                {toTitle(name)}
+              </a>
+            {/each}
+            {#if undocumentedComponents.length > 12}
+              <span
+                class="rounded bg-amber-500/10 px-1.5 py-0.5 text-[11px] text-amber-600/60 dark:text-amber-400/50"
+              >
+                +{undocumentedComponents.length - 12} more
+              </span>
+            {/if}
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Activity Feed / Changelog -->
+  {#if activityEntries.length > 0}
+    <div>
+      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+        Recent Changes
+      </h2>
+      <div class="rounded-lg border bg-card">
+        {#each activityEntries as entry, i (entry.name)}
+          {@const status = entry.meta.status}
+          {#if status}
+            {@const StatusIcon = STATUS_ICONS[status]}
+            {@const statusColor = STATUS_COLORS[status]}
+            {@const badgeColor = STATUS_BADGE_COLORS[status]}
+            {#if i > 0}
+              <div class="border-t"></div>
+            {/if}
+            <a
+              href="/components/{entry.name}"
+              class="group/entry flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent/50"
+            >
+              <StatusIcon class="size-4 shrink-0 {statusColor}" />
+              <span class="text-sm font-medium group-hover/entry:text-primary">
+                {toTitle(entry.name)}
+              </span>
+              <Badge variant="secondary" class="text-[10px] {badgeColor}">
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </Badge>
+              {#if entry.meta.description}
+                <span class="hidden text-xs text-muted-foreground sm:inline">
+                  {entry.meta.description}
+                </span>
+              {/if}
+              <ArrowRight
+                class="ml-auto size-3.5 shrink-0 text-muted-foreground/30 transition-transform group-hover/entry:translate-x-0.5 group-hover/entry:text-primary"
+              />
+            </a>
+          {/if}
+        {/each}
+      </div>
+    </div>
+  {/if}
 
   <!-- Search CTA -->
   <button
