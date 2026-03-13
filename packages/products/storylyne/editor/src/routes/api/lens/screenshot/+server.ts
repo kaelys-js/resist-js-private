@@ -311,8 +311,11 @@ export const GET: RequestHandler = async ({ url }) => {
         timeout: networkThrottle ? 30_000 : 15_000,
       });
 
-      /* Wait for the isolate page to signal component is rendered */
-      await page.waitForSelector('[data-lens-ready]', { timeout: 10_000 });
+      /* Wait for the isolate page to signal component is rendered.
+         Use 'attached' instead of default 'visible' — some components (dialogs,
+         sheets, command palettes) render no visible content until triggered,
+         making the inline-block wrapper collapse to zero size. */
+      await page.waitForSelector('[data-lens-ready]', { state: 'attached', timeout: 10_000 });
 
       /* Brief extra delay for CSS transitions to settle */
       await page.waitForTimeout(200);
