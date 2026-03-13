@@ -524,6 +524,12 @@
   /** Per-card compare right screenshot index. */
   let cardCompareRight: Record<Str, Num> = $state({});
 
+  /** Compare left selector search query. */
+  let compareLeftSearch: Str = $state('' as Str);
+
+  /** Compare right selector search query. */
+  let compareRightSearch: Str = $state('' as Str);
+
   /** Screenshot lightbox state — null when closed, object URL when open. */
   let lightboxUrl: Str | null = $state(null);
 
@@ -11504,48 +11510,182 @@
                 <div
                   class="mx-auto max-w-2xl overflow-hidden rounded-md border bg-background shadow-sm"
                 >
-                  <!-- Compare header with selectable dropdowns -->
+                  <!-- Compare header with searchable dropdown selectors -->
                   <div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
                     <div class="flex items-center gap-1.5">
                       <!-- Left selector -->
-                      <select
-                        class="rounded border bg-transparent px-1.5 py-0.5 text-[10px] font-medium outline-none"
-                        value={leftIdx}
-                        onchange={(e) => {
-                          cardCompareLeft[cardKey] = Number(
-                            (e.target as HTMLSelectElement).value,
-                          ) as Num;
+                      <DropdownMenu.Root
+                        onOpenChange={(open) => {
+                          if (open) compareLeftSearch = '' as Str;
                         }}
                       >
-                        {#each allCaptures as cap, i (cap.timestamp)}
-                          <option value={i}
-                            >#{i + 1}
-                            {cap.browserDisplayName}{cap.device !== 'custom'
-                              ? ` · ${cap.device}`
-                              : ''}</option
-                          >
-                        {/each}
-                      </select>
+                        <DropdownMenu.Trigger>
+                          {#snippet child({ props: leftTrigProps })}
+                            <button
+                              {...leftTrigProps}
+                              type="button"
+                              class="inline-flex items-center gap-1 rounded border bg-transparent px-1.5 py-0.5 text-[10px] font-medium transition-colors hover:bg-muted"
+                            >
+                              {#if leftCapture.source === 'ios-simulator'}
+                                <Apple class="size-3 text-muted-foreground" aria-hidden="true" />
+                              {:else if leftCapture.source === 'android-emulator'}
+                                <Bot class="size-3 text-muted-foreground" aria-hidden="true" />
+                              {:else}
+                                <Chrome class="size-3 text-muted-foreground" aria-hidden="true" />
+                              {/if}
+                              <span class="max-w-24 truncate"
+                                >#{leftIdx + 1} {leftCapture.browserDisplayName}</span
+                              >
+                              <ChevronDown
+                                class="size-3 text-muted-foreground"
+                                aria-hidden="true"
+                              />
+                            </button>
+                          {/snippet}
+                        </DropdownMenu.Trigger>
+                        <DropdownMenu.Content class="flex max-h-64 w-64 flex-col overflow-hidden">
+                          <div class="shrink-0 px-2 pb-1.5 pt-1">
+                            <div
+                              class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                            >
+                              <Search
+                                class="size-3 shrink-0 text-muted-foreground"
+                                aria-hidden="true"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Search screenshots..."
+                                class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                                bind:value={compareLeftSearch}
+                                onkeydown={(e) => e.stopPropagation()}
+                                onkeyup={(e) => e.stopPropagation()}
+                                onkeypress={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                          </div>
+                          <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+                            {#each allCaptures as cap, i (cap.timestamp)}
+                              {@const capLabel = `#${i + 1} ${cap.browserDisplayName}${cap.device !== 'custom' ? ` · ${cap.device}` : ''}`}
+                              {#if !compareLeftSearch || capLabel
+                                  .toLowerCase()
+                                  .includes(compareLeftSearch.toLowerCase())}
+                                <DropdownMenu.Item
+                                  onSelect={(e) => {
+                                    e.preventDefault();
+                                    cardCompareLeft[cardKey] = i as Num;
+                                  }}
+                                >
+                                  <Check class={cn('size-4', leftIdx !== i && 'opacity-0')} />
+                                  {#if cap.source === 'ios-simulator'}
+                                    <Apple
+                                      class="size-3 text-muted-foreground"
+                                      aria-hidden="true"
+                                    />
+                                  {:else if cap.source === 'android-emulator'}
+                                    <Bot class="size-3 text-muted-foreground" aria-hidden="true" />
+                                  {:else}
+                                    <Chrome
+                                      class="size-3 text-muted-foreground"
+                                      aria-hidden="true"
+                                    />
+                                  {/if}
+                                  <span class="flex-1 truncate text-[11px]">{capLabel}</span>
+                                  <span class="text-[9px] text-muted-foreground/40"
+                                    >{relativeTime(cap.timestamp)}</span
+                                  >
+                                </DropdownMenu.Item>
+                              {/if}
+                            {/each}
+                          </div>
+                        </DropdownMenu.Content>
+                      </DropdownMenu.Root>
                       <span class="text-[9px] font-medium text-muted-foreground/40">vs</span>
                       <!-- Right selector -->
-                      <select
-                        class="rounded border bg-transparent px-1.5 py-0.5 text-[10px] font-medium outline-none"
-                        value={rightIdx}
-                        onchange={(e) => {
-                          cardCompareRight[cardKey] = Number(
-                            (e.target as HTMLSelectElement).value,
-                          ) as Num;
+                      <DropdownMenu.Root
+                        onOpenChange={(open) => {
+                          if (open) compareRightSearch = '' as Str;
                         }}
                       >
-                        {#each allCaptures as cap, i (cap.timestamp)}
-                          <option value={i}
-                            >#{i + 1}
-                            {cap.browserDisplayName}{cap.device !== 'custom'
-                              ? ` · ${cap.device}`
-                              : ''}</option
-                          >
-                        {/each}
-                      </select>
+                        <DropdownMenu.Trigger>
+                          {#snippet child({ props: rightTrigProps })}
+                            <button
+                              {...rightTrigProps}
+                              type="button"
+                              class="inline-flex items-center gap-1 rounded border bg-transparent px-1.5 py-0.5 text-[10px] font-medium transition-colors hover:bg-muted"
+                            >
+                              {#if rightCapture.source === 'ios-simulator'}
+                                <Apple class="size-3 text-muted-foreground" aria-hidden="true" />
+                              {:else if rightCapture.source === 'android-emulator'}
+                                <Bot class="size-3 text-muted-foreground" aria-hidden="true" />
+                              {:else}
+                                <Chrome class="size-3 text-muted-foreground" aria-hidden="true" />
+                              {/if}
+                              <span class="max-w-24 truncate"
+                                >#{rightIdx + 1} {rightCapture.browserDisplayName}</span
+                              >
+                              <ChevronDown
+                                class="size-3 text-muted-foreground"
+                                aria-hidden="true"
+                              />
+                            </button>
+                          {/snippet}
+                        </DropdownMenu.Trigger>
+                        <DropdownMenu.Content class="flex max-h-64 w-64 flex-col overflow-hidden">
+                          <div class="shrink-0 px-2 pb-1.5 pt-1">
+                            <div
+                              class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                            >
+                              <Search
+                                class="size-3 shrink-0 text-muted-foreground"
+                                aria-hidden="true"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Search screenshots..."
+                                class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                                bind:value={compareRightSearch}
+                                onkeydown={(e) => e.stopPropagation()}
+                                onkeyup={(e) => e.stopPropagation()}
+                                onkeypress={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                          </div>
+                          <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+                            {#each allCaptures as cap, i (cap.timestamp)}
+                              {@const capLabel = `#${i + 1} ${cap.browserDisplayName}${cap.device !== 'custom' ? ` · ${cap.device}` : ''}`}
+                              {#if !compareRightSearch || capLabel
+                                  .toLowerCase()
+                                  .includes(compareRightSearch.toLowerCase())}
+                                <DropdownMenu.Item
+                                  onSelect={(e) => {
+                                    e.preventDefault();
+                                    cardCompareRight[cardKey] = i as Num;
+                                  }}
+                                >
+                                  <Check class={cn('size-4', rightIdx !== i && 'opacity-0')} />
+                                  {#if cap.source === 'ios-simulator'}
+                                    <Apple
+                                      class="size-3 text-muted-foreground"
+                                      aria-hidden="true"
+                                    />
+                                  {:else if cap.source === 'android-emulator'}
+                                    <Bot class="size-3 text-muted-foreground" aria-hidden="true" />
+                                  {:else}
+                                    <Chrome
+                                      class="size-3 text-muted-foreground"
+                                      aria-hidden="true"
+                                    />
+                                  {/if}
+                                  <span class="flex-1 truncate text-[11px]">{capLabel}</span>
+                                  <span class="text-[9px] text-muted-foreground/40"
+                                    >{relativeTime(cap.timestamp)}</span
+                                  >
+                                </DropdownMenu.Item>
+                              {/if}
+                            {/each}
+                          </div>
+                        </DropdownMenu.Content>
+                      </DropdownMenu.Root>
                     </div>
                     <div class="flex items-center gap-1.5">
                       <span class="text-[9px] tabular-nums text-muted-foreground/50">
