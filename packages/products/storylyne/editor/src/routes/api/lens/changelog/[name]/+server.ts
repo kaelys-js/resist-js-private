@@ -157,11 +157,10 @@ function getChangelog(componentName: Str): { entries: ChangelogEntry[]; total: N
   }
 
   try {
-    /* Use null-byte (%x00) between fields and RS (%x1e) between records */
-    const format: Str =
-      `%h${FIELD_SEP}%s${FIELD_SEP}%b${FIELD_SEP}%aI${FIELD_SEP}%an${RECORD_SEP}` as Str;
+    /* Use git's %x00 / %x1E format codes — the actual bytes appear in the output
+       but are NOT interpolated into the shell command (null bytes break execSync). */
     const output: Str = execSync(
-      `git log --follow --format="${format}" -n ${MAX_ENTRIES} -- "${componentDir}"`,
+      `git log --follow --format="%h%x00%s%x00%b%x00%aI%x00%an%x1E" -n ${MAX_ENTRIES} -- "${componentDir}"`,
       { encoding: 'utf8', timeout: 10_000 },
     ).trim() as Str;
 
