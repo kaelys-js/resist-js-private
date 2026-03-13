@@ -530,6 +530,16 @@
   /** Compare right selector search query. */
   let compareRightSearch: Str = $state('' as Str);
 
+  /** Compare export search query (separate from per-card export search). */
+  let compareExportSearchQuery: Str = $state('' as Str);
+
+  /**
+   * Pending destructive action confirmation keys.
+   * When a destructive action is clicked once, its key is added here.
+   * A second click within the timeout confirms the action.
+   */
+  let pendingDestructiveAction: Record<Str, Bool> = $state({});
+
   /** Screenshot lightbox state — null when closed, object URL when open. */
   let lightboxUrl: Str | null = $state(null);
 
@@ -6447,6 +6457,62 @@
   }
 
   /**
+   * Two-click confirmation for destructive actions.
+   * First click arms the action (returns false), second click confirms (returns true).
+   * Auto-disarms after 3 seconds if not confirmed.
+   *
+   * @param actionKey - Unique key identifying the destructive action
+   * @returns Whether the action is confirmed
+   */
+  function confirmDestructive(actionKey: Str): Bool {
+    if (pendingDestructiveAction[actionKey]) {
+      pendingDestructiveAction[actionKey] = false;
+      return true as Bool;
+    }
+    pendingDestructiveAction[actionKey] = true;
+    setTimeout((): Void => {
+      pendingDestructiveAction[actionKey] = false;
+    }, 3000);
+    return false as Bool;
+  }
+
+  /**
+   * Copy screenshot metadata to clipboard as formatted text.
+   *
+   * @param capture - The screenshot capture to copy info for
+   * @param index - Display index of the capture
+   */
+  async function copyScreenshotInfo(capture: ScreenshotCapture, index: Num): Promise<void> {
+    const lines: Str[] = [
+      `Screenshot #${(index as number) + 1}` as Str,
+      `Browser: ${capture.browserDisplayName}${capture.browserVersion ? ` v${capture.browserVersion}` : ''}` as Str,
+      `Device: ${capture.device}` as Str,
+      `Source: ${capture.source ?? 'playwright'}` as Str,
+      `Captured: ${new Date(capture.timestamp as number).toISOString()}` as Str,
+    ];
+    if (capture.performance) {
+      if (capture.performance.firstPaint !== undefined)
+        lines.push(`First Paint: ${capture.performance.firstPaint}ms` as Str);
+      if (capture.performance.domContentLoaded !== undefined)
+        lines.push(`DCL: ${capture.performance.domContentLoaded}ms` as Str);
+      if (capture.performance.load !== undefined)
+        lines.push(`Load: ${capture.performance.load}ms` as Str);
+    }
+    if (capture.consoleLogs.length > 0) {
+      const errors: Num = capture.consoleLogs.filter((l) => l.level === 'error').length as Num;
+      const warnings: Num = capture.consoleLogs.filter((l) => l.level === 'warning').length as Num;
+      lines.push(
+        `Console: ${capture.consoleLogs.length} messages (${errors} errors, ${warnings} warnings)` as Str,
+      );
+    }
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'));
+    } catch {
+      /* Clipboard write failed — browser may not support it */
+    }
+  }
+
+  /**
    * Remove a screenshot capture and revoke its object URL.
    *
    * @param key - Card key
@@ -6520,16 +6586,40 @@
     ...new Set(filteredScreenshotExportItems.map((p) => p.category)),
   ]);
 
-  /** Feedback state for screenshot export actions. */
-  let screenshotExportFeedback: Str = $state('');
+  /** Compare export items filtered by the separate compare export search query. */
+  const filteredCompareExportItems = $derived(
+    compareExportSearchQuery.length === 0
+      ? SCREENSHOT_EXPORT_ITEMS
+      : SCREENSHOT_EXPORT_ITEMS.filter((p) => {
+          const q: Str = compareExportSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q) ||
+            p.description.toLowerCase().includes(q) ||
+            p.category.toLowerCase().includes(q)
+          );
+        }),
+  );
+
+  /** Unique compare export categories present after filtering. */
+  const filteredCompareExportCategories: Str[] = $derived([
+    ...new Set(filteredCompareExportItems.map((p) => p.category)),
+  ]);
+
+  /** Per-card feedback state for screenshot export actions. Keyed by cardKey or 'compare'. */
+  let screenshotExportFeedback: Record<Str, Str> = $state({});
 
   /**
    * Export a single screenshot capture by format.
    *
    * @param capture - The screenshot capture to export
    * @param formatId - Export format identifier
+   * @param feedbackKey - Key for scoping export feedback (e.g. cardKey or 'compare')
    */
-  async function handleScreenshotExport(capture: ScreenshotCapture, formatId: Str): Promise<void> {
+  async function handleScreenshotExport(
+    capture: ScreenshotCapture,
+    formatId: Str,
+    feedbackKey: Str = '' as Str,
+  ): Promise<void> {
     if (formatId === 'copy-image') {
       try {
         const response: Response = await fetch(capture.imageUrl);
@@ -6557,9 +6647,9 @@
       a.download = `screenshot-${capture.browserDisplayName}-${capture.device}-${capture.timestamp}.png`;
       a.click();
     }
-    screenshotExportFeedback = formatId;
+    screenshotExportFeedback[feedbackKey] = formatId;
     setTimeout((): Void => {
-      screenshotExportFeedback = '';
+      screenshotExportFeedback[feedbackKey] = '';
     }, 2000);
   }
 
@@ -6656,6 +6746,7 @@
    * @param leftCapture - Left capture metadata (for filename)
    * @param rightCapture - Right capture metadata (for filename)
    * @param formatId - Export format identifier
+   * @param feedbackKey - Key for scoping export feedback
    */
   async function handleCompareExport(
     leftUrl: Str,
@@ -6664,6 +6755,7 @@
     leftCapture: ScreenshotCapture,
     rightCapture: ScreenshotCapture,
     formatId: Str,
+    feedbackKey: Str,
   ): Promise<void> {
     const compositeUrl: Str = await compositeCompareImage(leftUrl, rightUrl, position);
     const virtualCapture: ScreenshotCapture = {
@@ -6673,7 +6765,7 @@
         `${leftCapture.browserDisplayName} vs ${rightCapture.browserDisplayName}` as Str,
       device: 'compare' as Str,
     };
-    await handleScreenshotExport(virtualCapture, formatId);
+    await handleScreenshotExport(virtualCapture, formatId, feedbackKey);
   }
 
   /** Export All screenshot format menu items with descriptions and file extension badges. */
@@ -6809,9 +6901,9 @@
     } else if (formatId === 'copy-all-json') {
       await navigator.clipboard.writeText(JSON.stringify(buildMetadata(), null, 2));
     }
-    screenshotExportFeedback = formatId;
+    screenshotExportFeedback[key] = formatId;
     setTimeout((): Void => {
-      screenshotExportFeedback = '';
+      screenshotExportFeedback[key] = '';
     }, 2000);
   }
 
@@ -10114,9 +10206,18 @@
                   Apply to All Cards
                 </DropdownMenu.Item>
               {/if}
-              <DropdownMenu.Item onclick={() => resetCard(cardKey)} variant="destructive">
+              <DropdownMenu.Item
+                onSelect={(e) => {
+                  e.preventDefault();
+                  if (!confirmDestructive(`reset-${cardKey}` as Str)) return;
+                  resetCard(cardKey);
+                }}
+                variant="destructive"
+              >
                 <RotateCcw class="size-4" />
-                Reset to Defaults
+                {pendingDestructiveAction[`reset-${cardKey}`]
+                  ? 'Confirm Reset'
+                  : 'Reset to Defaults'}
               </DropdownMenu.Item>
             {/if}
           </DropdownMenu.Content>
@@ -11248,14 +11349,16 @@
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator />
                 <DropdownMenu.Item
-                  onclick={() => {
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    if (!confirmDestructive(`clear-console-${cardKey}` as Str)) return;
                     cardConsoleLogs[cardKey] = [];
                   }}
                   disabled={allLogs.length === 0}
                   variant="destructive"
                 >
                   <Trash2 class="size-4" />
-                  Clear
+                  {pendingDestructiveAction[`clear-console-${cardKey}`] ? 'Confirm Clear' : 'Clear'}
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Root>
@@ -11535,7 +11638,7 @@
                 >
                   <DropdownMenu.SubTrigger disabled={(cardScreenshots[cardKey] ?? []).length === 0}>
                     <Download class="size-4" />
-                    Export All
+                    Export All ({(cardScreenshots[cardKey] ?? []).length})
                   </DropdownMenu.SubTrigger>
                   <DropdownMenu.SubContent class="flex max-h-[28rem] w-64 flex-col overflow-hidden">
                     <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -11574,7 +11677,7 @@
                               handleScreenshotExportAll(cardKey, item.id);
                             }}
                           >
-                            {#if screenshotExportFeedback === item.id}
+                            {#if screenshotExportFeedback[cardKey] === item.id}
                               <Check class="size-4 text-green-500" />
                             {:else}
                               <item.icon class="size-4" />
@@ -11611,15 +11714,23 @@
                 </DropdownMenu.Sub>
                 <DropdownMenu.Separator />
                 <DropdownMenu.Item
-                  onclick={() => {
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    if (!confirmDestructive(`clear-all-${cardKey}` as Str)) return;
                     const captures: ScreenshotCapture[] = cardScreenshots[cardKey] ?? [];
                     for (const c of captures) URL.revokeObjectURL(c.imageUrl);
                     cardScreenshots[cardKey] = [];
+                    /* Auto-close compare mode when clearing all screenshots */
+                    cardScreenCompare[cardKey] = false;
+                    delete cardCompareLeft[cardKey];
+                    delete cardCompareRight[cardKey];
                   }}
                   variant="destructive"
                 >
                   <Trash2 class="size-4" />
-                  Clear All
+                  {pendingDestructiveAction[`clear-all-${cardKey}`]
+                    ? 'Confirm Clear All'
+                    : 'Clear All'}
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Root>
@@ -11884,7 +11995,7 @@
                         <DropdownMenu.Content align="end" class="w-52">
                           <DropdownMenu.Sub
                             onOpenChange={(open) => {
-                              if (open) screenshotExportSearchQuery = '';
+                              if (open) compareExportSearchQuery = '' as Str;
                             }}
                           >
                             <DropdownMenu.SubTrigger>
@@ -11906,7 +12017,7 @@
                                     type="text"
                                     placeholder="Search formats..."
                                     class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                                    bind:value={screenshotExportSearchQuery}
+                                    bind:value={compareExportSearchQuery}
                                     onkeydown={(e) => e.stopPropagation()}
                                     onkeyup={(e) => e.stopPropagation()}
                                     onkeypress={(e) => e.stopPropagation()}
@@ -11917,8 +12028,8 @@
                                 class="flex min-h-0 flex-1 flex-col overflow-y-auto"
                                 use:lockHeight
                               >
-                                {#each filteredScreenshotExportCategories as category (category)}
-                                  {#if filteredScreenshotExportCategories.indexOf(category) > 0}
+                                {#each filteredCompareExportCategories as category (category)}
+                                  {#if filteredCompareExportCategories.indexOf(category) > 0}
                                     <DropdownMenu.Separator />
                                   {/if}
                                   <DropdownMenu.Label class="flex items-center gap-1.5 text-xs">
@@ -11929,7 +12040,7 @@
                                     {/if}
                                     {category}
                                   </DropdownMenu.Label>
-                                  {#each filteredScreenshotExportItems.filter((i) => i.category === category) as item (item.id)}
+                                  {#each filteredCompareExportItems.filter((i) => i.category === category) as item (item.id)}
                                     <DropdownMenu.Item
                                       onSelect={(e) => {
                                         e.preventDefault();
@@ -11942,10 +12053,11 @@
                                           leftCapture,
                                           rightCapture,
                                           item.id,
+                                          `compare-${cardKey}` as Str,
                                         );
                                       }}
                                     >
-                                      {#if screenshotExportFeedback === item.id}
+                                      {#if screenshotExportFeedback[`compare-${cardKey}`] === item.id}
                                         <Check class="size-4 text-green-500" />
                                       {:else}
                                         <item.icon class="size-4" />
@@ -12365,10 +12477,10 @@
                                   <DropdownMenu.Item
                                     onSelect={(e) => {
                                       e.preventDefault();
-                                      handleScreenshotExport(capture, item.id);
+                                      handleScreenshotExport(capture, item.id, cardKey);
                                     }}
                                   >
-                                    {#if screenshotExportFeedback === item.id}
+                                    {#if screenshotExportFeedback[cardKey] === item.id}
                                       <Check class="size-4 text-green-500" />
                                     {:else}
                                       <item.icon class="size-4" />
@@ -12403,13 +12515,46 @@
                             </div>
                           </DropdownMenu.SubContent>
                         </DropdownMenu.Sub>
+                        <DropdownMenu.Item
+                          onSelect={() => {
+                            window.open(capture.imageUrl, '_blank');
+                          }}
+                        >
+                          <ExternalLink class="size-4" />
+                          Open in New Tab
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item
+                          onSelect={() => {
+                            copyScreenshotInfo(capture, idx as Num);
+                          }}
+                        >
+                          <ClipboardCopy class="size-4" />
+                          Copy Image Info
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item
+                          onSelect={() => {
+                            cardScreenSource[cardKey] = capture.source;
+                            cardScreenBrowser[cardKey] = capture.browser;
+                            cardScreenDevice[cardKey] = capture.device;
+                            captureScreenshot(cardKey, variantKey, variantOption);
+                          }}
+                        >
+                          <RefreshCw class="size-4" />
+                          Recapture with Same Settings
+                        </DropdownMenu.Item>
                         <DropdownMenu.Separator />
                         <DropdownMenu.Item
-                          onclick={() => removeScreenshot(cardKey, idx as Num)}
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            if (!confirmDestructive(`delete-${cardKey}-${idx}` as Str)) return;
+                            removeScreenshot(cardKey, idx as Num);
+                          }}
                           variant="destructive"
                         >
                           <Trash2 class="size-4" />
-                          Delete
+                          {pendingDestructiveAction[`delete-${cardKey}-${idx}`]
+                            ? 'Confirm Delete'
+                            : 'Delete'}
                         </DropdownMenu.Item>
                       </DropdownMenu.Content>
                     </DropdownMenu.Root>

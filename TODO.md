@@ -13,6 +13,8 @@ Several Issues:
 - 
 Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
 ----
+- Like the Props Section shows the count, Variants/examples should have that also
+
 - Real Browser
   - Install/setup all the stuff I need for the Android screenshot/live streaming
   - Live Preview (each engine):
@@ -22,7 +24,8 @@ Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
   - Verify All Options Passed And Appear In Screenshot For Each Engine
     - Font Size Not Passed
     - Network Simulation Not Respected
-  - Screenshot Diff
+  - Screenshot Compare
+    - Diff
 
 - The Sidebar/CommandSearch components don't render right contained to preview (use playwright mcp any you will see what i mean)
 
