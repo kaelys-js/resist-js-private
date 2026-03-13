@@ -150,6 +150,10 @@
   import WrapText from '@lucide/svelte/icons/wrap-text';
   import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
   import Zap from '@lucide/svelte/icons/zap';
+  import Apple from '@lucide/svelte/icons/apple';
+  import Bot from '@lucide/svelte/icons/bot';
+  import Star from '@lucide/svelte/icons/star';
+  import SplitSquareHorizontal from '@lucide/svelte/icons/split-square-horizontal';
   import { zipSync, strToU8 } from 'fflate';
   import * as DropdownMenu from '../dropdown-menu/index.js';
   import * as Popover from '../popover/index.js';
@@ -506,6 +510,15 @@
 
   /** Per-screenshot-capture console section collapsed state (true = expanded, default true). */
   let screenshotConsoleExpanded: Record<Str, Bool> = $state({});
+
+  /** Per-card screenshot compare mode (true = show side-by-side slider). */
+  let cardScreenCompare: Record<Str, Bool> = $state({});
+
+  /** Per-card compare slider position (0–100, default 50). */
+  let cardComparePosition: Record<Str, Num> = $state({});
+
+  /** Screenshot lightbox state — null when closed, object URL when open. */
+  let lightboxUrl: Str | null = $state(null);
 
   /** Search query for the Browser & Device Preview device list. */
   let browserSearchQuery: Str = $state('');
@@ -6033,6 +6046,38 @@
     },
   );
 
+  /** Popular Playwright device names shown at the top of the device list. */
+  const POPULAR_DEVICE_NAMES: Str[] = [
+    'iPhone 15 Pro Max' as Str,
+    'iPhone 15' as Str,
+    'Pixel 7' as Str,
+    'iPad Pro 11' as Str,
+    'Desktop Chrome' as Str,
+  ];
+
+  /** Popular devices filtered from loaded Playwright devices. */
+  const popularPlaywrightDevices: PlaywrightDevice[] = $derived.by((): PlaywrightDevice[] => {
+    if (browserSearchQuery) return []; /* hide popular when searching */
+    return POPULAR_DEVICE_NAMES.map((name: Str): PlaywrightDevice | undefined =>
+      playwrightDevices.find((d: PlaywrightDevice): boolean => d.name === name),
+    ).filter((d: PlaywrightDevice | undefined): d is PlaywrightDevice => d !== undefined);
+  });
+
+  /**
+   * Format a timestamp as relative time (e.g., "just now", "2m ago", "1h ago").
+   *
+   * @param ts - Timestamp in ms since epoch
+   * @returns Human-readable relative time string
+   */
+  function relativeTime(ts: Num): Str {
+    const delta: Num = (Date.now() - (ts as number)) as Num;
+    if (delta < 5000) return 'just now' as Str;
+    if (delta < 60_000) return `${Math.floor((delta as number) / 1000)}s ago` as Str;
+    if (delta < 3_600_000) return `${Math.floor((delta as number) / 60_000)}m ago` as Str;
+    if (delta < 86_400_000) return `${Math.floor((delta as number) / 3_600_000)}h ago` as Str;
+    return `${Math.floor((delta as number) / 86_400_000)}d ago` as Str;
+  }
+
   /**
    * Capture a real browser screenshot for a card.
    *
@@ -9433,6 +9478,13 @@
                             (cardScreenSource[cardKey] || 'playwright') !== src.id && 'opacity-0',
                           )}
                         />
+                        {#if src.id === 'playwright'}
+                          <Globe class="size-3.5 text-muted-foreground" aria-hidden="true" />
+                        {:else if src.id === 'ios-simulator'}
+                          <Apple class="size-3.5 text-muted-foreground" aria-hidden="true" />
+                        {:else}
+                          <Bot class="size-3.5 text-muted-foreground" aria-hidden="true" />
+                        {/if}
                         <span class="flex-1">{src.label}</span>
                         {#if src.id !== 'playwright' && !engineStatus[src.id]?.available}
                           <span class="text-[9px] font-medium text-amber-600">Setup&nbsp;→</span>
@@ -9468,6 +9520,36 @@
                         {/if}
                       </DropdownMenu.Item>
                     {/each}
+                    <!-- Summary strip: current configuration at a glance -->
+                    {#if true}
+                      {@const selSrc = cardScreenSource[cardKey] || 'playwright'}
+                      {@const selBrowser = cardScreenBrowser[cardKey] || 'chromium'}
+                      {@const selDevice = cardScreenDevice[cardKey] || ''}
+                      <div class="flex items-center gap-1.5 px-3 py-1">
+                        <span
+                          class="rounded bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary/80"
+                        >
+                          {selSrc === 'playwright'
+                            ? 'Playwright'
+                            : selSrc === 'ios-simulator'
+                              ? 'iOS'
+                              : 'Android'}
+                        </span>
+                        {#if selSrc === 'playwright'}
+                          <span class="text-[9px] text-muted-foreground">
+                            {selBrowser === 'chromium'
+                              ? 'Chromium'
+                              : selBrowser === 'firefox'
+                                ? 'Firefox'
+                                : 'WebKit'}
+                          </span>
+                        {/if}
+                        <span class="text-[9px] text-muted-foreground/40">·</span>
+                        <span class="max-w-32 truncate text-[9px] text-muted-foreground">
+                          {selDevice || 'Default viewport'}
+                        </span>
+                      </div>
+                    {/if}
                     <DropdownMenu.Separator />
                     <!-- Browser engine selector (Playwright only) -->
                     {#if (cardScreenSource[cardKey] || 'playwright') === 'playwright'}
@@ -9490,7 +9572,15 @@
                       {/each}
                       <DropdownMenu.Separator />
                       <!-- Device selector -->
-                      <DropdownMenu.Label class="text-xs">Device</DropdownMenu.Label>
+                      <DropdownMenu.Label class="flex items-center gap-1.5 text-xs">
+                        Device
+                        {#if devicesLoaded}
+                          <span
+                            class="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground/60"
+                            >{playwrightDevices.length}</span
+                          >
+                        {/if}
+                      </DropdownMenu.Label>
                       {#if !devicesLoaded}
                         <div class="flex items-center justify-center py-4">
                           <LoaderCircle class="size-4 animate-spin text-muted-foreground" />
@@ -9520,6 +9610,35 @@
                           />
                           <span class="text-muted-foreground">Default viewport</span>
                         </DropdownMenu.Item>
+                        {#if popularPlaywrightDevices.length > 0}
+                          <DropdownMenu.Separator />
+                          <DropdownMenu.Label class="flex items-center gap-1.5 text-[10px]">
+                            <Star class="size-3 text-amber-500" aria-hidden="true" />
+                            Popular
+                          </DropdownMenu.Label>
+                          {#each popularPlaywrightDevices as device (device.name)}
+                            <DropdownMenu.Item
+                              onSelect={(e) => {
+                                e.preventDefault();
+                                cardScreenDevice[cardKey] = device.name;
+                              }}
+                            >
+                              <Check
+                                class={cn(
+                                  'size-4',
+                                  (cardScreenDevice[cardKey] || '') !== device.name && 'opacity-0',
+                                )}
+                              />
+                              <span class="flex-1 truncate">{device.name}</span>
+                              {#if device.os}
+                                <span class="text-[9px] text-muted-foreground/60">{device.os}</span>
+                              {/if}
+                              <span class="ml-auto text-[10px] text-muted-foreground"
+                                >{device.width}×{device.height}</span
+                              >
+                            </DropdownMenu.Item>
+                          {/each}
+                        {/if}
                         {#each filteredDeviceCategories as category (category)}
                           <DropdownMenu.Separator />
                           <DropdownMenu.Label class="text-[10px]">{category}</DropdownMenu.Label>
@@ -9549,7 +9668,15 @@
                       {/if}
                     {:else if (cardScreenSource[cardKey] || 'playwright') === 'ios-simulator'}
                       <!-- iOS Simulator device list -->
-                      <DropdownMenu.Label class="text-xs">iOS Devices</DropdownMenu.Label>
+                      <DropdownMenu.Label class="flex items-center gap-1.5 text-xs">
+                        iOS Devices
+                        {#if iosDevicesLoaded && iosDevices.length > 0}
+                          <span
+                            class="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground/60"
+                            >{iosDevices.length}</span
+                          >
+                        {/if}
+                      </DropdownMenu.Label>
                       {#if !iosDevicesLoaded}
                         <div class="flex items-center justify-center py-4">
                           <LoaderCircle class="size-4 animate-spin text-muted-foreground" />
@@ -9630,7 +9757,15 @@
                       {/if}
                     {:else if (cardScreenSource[cardKey] || 'playwright') === 'android-emulator'}
                       <!-- Android Emulator device list -->
-                      <DropdownMenu.Label class="text-xs">Android Devices</DropdownMenu.Label>
+                      <DropdownMenu.Label class="flex items-center gap-1.5 text-xs">
+                        Android Devices
+                        {#if androidDevicesLoaded && androidDevices.length > 0}
+                          <span
+                            class="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground/60"
+                            >{androidDevices.length}</span
+                          >
+                        {/if}
+                      </DropdownMenu.Label>
                       {#if !androidDevicesLoaded}
                         <div class="flex items-center justify-center py-4">
                           <LoaderCircle class="size-4 animate-spin text-muted-foreground" />
@@ -11183,6 +11318,34 @@
                 </Tooltip.Content>
               </Tooltip.Root>
             {/if}
+            {#if (cardScreenshots[cardKey] ?? []).length >= 2}
+              <Tooltip.Root delayDuration={300}>
+                <Tooltip.Trigger>
+                  {#snippet child({ props: triggerProps })}
+                    <button
+                      {...triggerProps}
+                      type="button"
+                      class={cn(
+                        'inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs transition-colors',
+                        (cardScreenCompare[cardKey] ?? false)
+                          ? 'border-primary/30 bg-primary/10 text-primary'
+                          : 'text-muted-foreground hover:bg-muted',
+                      )}
+                      onclick={() => {
+                        cardScreenCompare[cardKey] = !(cardScreenCompare[cardKey] ?? false);
+                        if (!cardComparePosition[cardKey]) cardComparePosition[cardKey] = 50 as Num;
+                      }}
+                    >
+                      <SplitSquareHorizontal class="size-3.5" aria-hidden="true" />
+                      Compare
+                    </button>
+                  {/snippet}
+                </Tooltip.Trigger>
+                <Tooltip.Content side="top" sideOffset={4}>
+                  Side-by-side comparison of the two most recent screenshots
+                </Tooltip.Content>
+              </Tooltip.Root>
+            {/if}
             <DropdownMenu.Root>
               <DropdownMenu.Trigger>
                 {#snippet child({ props: menuProps })}
@@ -11295,6 +11458,92 @@
           </div>
         </div>
         {#if cardScreenshotsOpen[cardKey] ?? true}
+          {#if (cardScreenCompare[cardKey] ?? false) && (cardScreenshots[cardKey] ?? []).length >= 2}
+            <!-- Compare view: side-by-side slider -->
+            {@const comparePair = (() => {
+              const all: ScreenshotCapture[] = cardScreenshots[cardKey] ?? [];
+              return { left: all[all.length - 2]!, right: all[all.length - 1]! };
+            })()}
+            {#if comparePair.left && comparePair.right}
+              {@const leftCapture = comparePair.left}
+              {@const rightCapture = comparePair.right}
+              <div class="p-3" transition:slide={{ duration: 200 }}>
+                <div
+                  class="mx-auto max-w-2xl overflow-hidden rounded-md border bg-background shadow-sm"
+                >
+                  <div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
+                    <div class="flex items-center gap-2">
+                      {#if leftCapture.source === 'ios-simulator'}
+                        <Apple class="size-3 text-muted-foreground" aria-hidden="true" />
+                      {:else if leftCapture.source === 'android-emulator'}
+                        <Bot class="size-3 text-muted-foreground" aria-hidden="true" />
+                      {:else}
+                        <Chrome class="size-3 text-muted-foreground" aria-hidden="true" />
+                      {/if}
+                      <span class="text-[10px] font-medium">{leftCapture.browserDisplayName}</span>
+                      <span class="text-[9px] text-muted-foreground/40">vs</span>
+                      {#if rightCapture.source === 'ios-simulator'}
+                        <Apple class="size-3 text-muted-foreground" aria-hidden="true" />
+                      {:else if rightCapture.source === 'android-emulator'}
+                        <Bot class="size-3 text-muted-foreground" aria-hidden="true" />
+                      {:else}
+                        <Chrome class="size-3 text-muted-foreground" aria-hidden="true" />
+                      {/if}
+                      <span class="text-[10px] font-medium">{rightCapture.browserDisplayName}</span>
+                    </div>
+                    <span class="text-[9px] tabular-nums text-muted-foreground/50">
+                      {cardComparePosition[cardKey] ?? 50}%
+                    </span>
+                  </div>
+                  <div class="relative overflow-hidden" style="height: 320px;">
+                    <!-- Left image (clipped by slider) -->
+                    <div
+                      class="absolute inset-0 overflow-hidden"
+                      style="width: {cardComparePosition[cardKey] ?? 50}%;"
+                    >
+                      <img
+                        src={leftCapture.imageUrl}
+                        alt="Left: {leftCapture.browserDisplayName}"
+                        class="h-full w-full object-contain"
+                        style="max-width: none; width: 100%;"
+                      />
+                    </div>
+                    <!-- Right image (full) -->
+                    <img
+                      src={rightCapture.imageUrl}
+                      alt="Right: {rightCapture.browserDisplayName}"
+                      class="h-full w-full object-contain"
+                    />
+                    <!-- Slider handle -->
+                    <div
+                      class="absolute inset-y-0 z-10 w-0.5 bg-primary shadow-sm"
+                      style="left: {cardComparePosition[cardKey] ?? 50}%;"
+                    >
+                      <div
+                        class="absolute left-1/2 top-1/2 flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border bg-background shadow-sm"
+                      >
+                        <SplitSquareHorizontal class="size-3 text-muted-foreground" />
+                      </div>
+                    </div>
+                    <!-- Invisible slider input -->
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={cardComparePosition[cardKey] ?? 50}
+                      oninput={(e) => {
+                        cardComparePosition[cardKey] = Number(
+                          (e.target as HTMLInputElement).value,
+                        ) as Num;
+                      }}
+                      class="absolute inset-0 z-20 size-full cursor-col-resize opacity-0"
+                      aria-label="Compare slider"
+                    />
+                  </div>
+                </div>
+              </div>
+            {/if}
+          {/if}
           <div
             class="flex max-h-[32rem] flex-wrap gap-3 overflow-y-auto p-3"
             transition:slide={{ duration: 200 }}
@@ -11350,15 +11599,9 @@
                 <!-- Header: source badge + browser name + version + device + delete -->
                 <div class="flex items-center gap-1.5 border-b bg-muted/30 px-2 py-1.5">
                   {#if capture.source === 'ios-simulator'}
-                    <Smartphone
-                      class="size-3.5 shrink-0 text-muted-foreground"
-                      aria-hidden="true"
-                    />
+                    <Apple class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
                   {:else if capture.source === 'android-emulator'}
-                    <Smartphone
-                      class="size-3.5 shrink-0 text-muted-foreground"
-                      aria-hidden="true"
-                    />
+                    <Bot class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
                   {:else}
                     <Chrome class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
                   {/if}
@@ -11384,7 +11627,42 @@
                       >{capture.deviceOS}</span
                     >
                   {/if}
-                  <div class="ml-auto flex items-center gap-0.5">
+                  <!-- Capture timestamp -->
+                  <span class="ml-auto text-[9px] tabular-nums text-muted-foreground/40">
+                    {relativeTime(capture.timestamp)}
+                  </span>
+                  <div class="flex items-center gap-0.5">
+                    <!-- Recapture button -->
+                    <Tooltip.Provider>
+                      <Tooltip.Root delayDuration={300}>
+                        <Tooltip.Trigger>
+                          {#snippet child({ props: recapProps })}
+                            <button
+                              type="button"
+                              {...recapProps}
+                              class="rounded p-1 text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground"
+                              disabled={cardScreenCapturing[cardKey]}
+                              onclick={() => {
+                                /* Recapture with same source/browser/device */
+                                cardScreenSource[cardKey] = capture.source;
+                                if (capture.source === 'playwright') {
+                                  cardScreenBrowser[cardKey] = capture.browser;
+                                }
+                                cardScreenDevice[cardKey] =
+                                  capture.device === 'custom' ? ('' as Str) : capture.device;
+                                captureScreenshot(cardKey, variantKey, variantOption);
+                              }}
+                              aria-label="Recapture with same settings"
+                            >
+                              <RefreshCw class="size-3.5" aria-hidden="true" />
+                            </button>
+                          {/snippet}
+                        </Tooltip.Trigger>
+                        <Tooltip.Content side="top" sideOffset={4}>
+                          Recapture with same settings
+                        </Tooltip.Content>
+                      </Tooltip.Root>
+                    </Tooltip.Provider>
                     <!-- Performance popover (toolbar) -->
                     {#if Object.keys(capture.performance).length > 0}
                       <Popover.Root>
@@ -11647,7 +11925,13 @@
                 <div class="relative border-b">
                   {#if showDeviceFrame && capture.deviceFrame}
                     <!-- Device frame compositing -->
-                    <a href={capture.imageUrl} target="_blank" rel="noopener" class="block p-2">
+                    <button
+                      type="button"
+                      class="block w-full cursor-zoom-in p-2"
+                      onclick={() => {
+                        lightboxUrl = capture.imageUrl;
+                      }}
+                    >
                       <div
                         class="relative mx-auto"
                         style="width: {capture.deviceFrame.screenRegion.width +
@@ -11667,15 +11951,21 @@
                             .width}px; height: {capture.deviceFrame.screenRegion.height}px;"
                         />
                       </div>
-                    </a>
+                    </button>
                   {:else}
-                    <a href={capture.imageUrl} target="_blank" rel="noopener" class="block">
+                    <button
+                      type="button"
+                      class="block w-full cursor-zoom-in"
+                      onclick={() => {
+                        lightboxUrl = capture.imageUrl;
+                      }}
+                    >
                       <img
                         src={capture.imageUrl}
                         alt="{cardKey} screenshot — {capture.browserDisplayName} {capture.device}"
                         class="max-h-64 w-full object-contain"
                       />
-                    </a>
+                    </button>
                   {/if}
                   {#if showSafeAreaOverlay && capture.source === 'ios-simulator' && capture.safeAreaInsets}
                     <!-- Safe area inset overlay (colored regions) -->
@@ -12208,6 +12498,56 @@
         {@render errorCard(label || componentName || 'default', error)}
       {/snippet}
     </svelte:boundary>
+  </div>
+{/if}
+
+<!-- Screenshot lightbox overlay -->
+{#if lightboxUrl}
+  <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
+  <div
+    class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+    onclick={() => {
+      lightboxUrl = null;
+    }}
+    onkeydown={(e) => {
+      if (e.key === 'Escape') lightboxUrl = null;
+    }}
+    transition:fade={{ duration: 150 }}
+  >
+    <button
+      type="button"
+      class="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+      onclick={() => {
+        lightboxUrl = null;
+      }}
+      aria-label="Close lightbox"
+    >
+      <X class="size-5" />
+    </button>
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions a11y_click_events_have_key_events -->
+    <img
+      src={lightboxUrl}
+      alt="Screenshot preview"
+      class="max-h-[90vh] max-w-[90vw] cursor-zoom-out rounded-lg object-contain shadow-2xl"
+      onclick={(e) => {
+        e.stopPropagation();
+        lightboxUrl = null;
+      }}
+    />
+    <div class="absolute bottom-4 flex items-center gap-2">
+      <a
+        href={lightboxUrl}
+        target="_blank"
+        rel="noopener"
+        class="rounded-md bg-white/10 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/20"
+        onclick={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        <ExternalLink class="mr-1.5 inline size-3" aria-hidden="true" />
+        Open in new tab
+      </a>
+    </div>
   </div>
 {/if}
 
