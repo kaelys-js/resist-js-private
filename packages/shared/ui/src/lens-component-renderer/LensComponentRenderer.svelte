@@ -5831,6 +5831,43 @@
   }
 
   /**
+   * Estimate the rendered image height for a screenshot placeholder skeleton.
+   * Uses the same logic as captureScreenshot to determine viewport dimensions,
+   * then computes the aspect-ratio-scaled height within the 30rem (480px) card.
+   *
+   * @param key - Card key
+   * @returns CSS height string (e.g., "150px") or "6rem" as fallback
+   */
+  function estimateScreenshotHeight(key: Str): Str {
+    const CARD_WIDTH: Num = 480 as Num;
+    const MAX_HEIGHT: Num = 384 as Num; /* max-h-96 = 24rem */
+    let w: Num = 0 as Num;
+    let h: Num = 0 as Num;
+
+    const preset = getViewportPreset(key);
+    if (preset) {
+      w = preset.width;
+      h = preset.height;
+    } else {
+      /* Auto — measure the component element */
+      const compEl: HTMLDivElement | undefined = cardComponentRefs[key];
+      if (compEl) {
+        w = Math.round(compEl.clientWidth) as Num;
+        h = Math.round(compEl.clientHeight) as Num;
+      }
+    }
+
+    if ((w as number) > 0 && (h as number) > 0) {
+      const scaled: Num = Math.round(
+        (CARD_WIDTH as number) * ((h as number) / (w as number)),
+      ) as Num;
+      const clamped: Num = Math.min(scaled as number, MAX_HEIGHT as number) as Num;
+      return `${clamped}px` as Str;
+    }
+    return '6rem' as Str;
+  }
+
+  /**
    * Get the border-radius CSS value appropriate for a viewport category.
    * Phones/watches get more rounded corners, desktops get subtle rounding.
    *
@@ -9965,7 +10002,7 @@
                       />
                     </div>
                   </div>
-                  <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+                  <div class="flex min-h-0 flex-1 flex-col overflow-y-auto pr-1" use:lockHeight>
                     <!-- Source selector (Playwright / iOS Simulator / Android Emulator) -->
                     <DropdownMenu.Label class="text-xs">Source</DropdownMenu.Label>
                     {#each [{ id: 'playwright' as ScreenshotSource, label: 'Playwright' as Str, desc: 'Headless browsers' as Str }, { id: 'ios-simulator' as ScreenshotSource, label: 'iOS Simulator' as Str, desc: 'Real Safari' as Str }, { id: 'android-emulator' as ScreenshotSource, label: 'Android Emulator' as Str, desc: 'Real Chrome' as Str }] as src (src.id)}
@@ -12581,10 +12618,12 @@
                     {:else}
                       <Chrome class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
                     {/if}
-                    <LoaderCircle
-                      class="size-3.5 animate-spin text-muted-foreground"
-                      aria-hidden="true"
-                    />
+                    <!-- Skeleton #N badge (matches real card's py-0.5 badge height) -->
+                    <span
+                      class="rounded bg-muted px-1 py-0.5 text-[8px] font-semibold leading-none text-muted-foreground/40"
+                    >
+                      <LoaderCircle class="inline size-2.5 animate-spin" aria-hidden="true" />
+                    </span>
                     <span class="text-[11px] font-semibold text-muted-foreground">
                       {placeholderSource === 'ios-simulator'
                         ? 'Capturing iOS Safari…'
@@ -12592,12 +12631,28 @@
                           ? 'Capturing Android Chrome…'
                           : 'Capturing Chromium…'}
                     </span>
+                    <!-- Spacer + skeleton timestamp + action button placeholders to match real card header height -->
+                    <span class="ml-auto h-2.5 w-10 animate-pulse rounded bg-muted/30"></span>
+                    <div class="flex items-center gap-0.5">
+                      <span class="rounded p-1"
+                        ><span class="block size-3.5 animate-pulse rounded bg-muted/20"
+                        ></span></span
+                      >
+                      <span class="rounded p-1"
+                        ><span class="block size-3.5 animate-pulse rounded bg-muted/20"
+                        ></span></span
+                      >
+                      <span class="rounded p-1"
+                        ><span class="block size-3.5 animate-pulse rounded bg-muted/20"
+                        ></span></span
+                      >
+                    </div>
                   </div>
-                  <div class="flex flex-col gap-2 px-4 py-8">
-                    <div class="mx-auto h-32 w-full animate-pulse rounded bg-muted/50"></div>
-                    <div class="mx-auto h-2.5 w-3/4 animate-pulse rounded bg-muted/40"></div>
-                    <div class="mx-auto h-2.5 w-1/2 animate-pulse rounded bg-muted/30"></div>
-                  </div>
+                  <!-- Skeleton image area — sized to match expected screenshot aspect ratio -->
+                  <div
+                    class="animate-pulse bg-muted/10"
+                    style="height: {estimateScreenshotHeight(cardKey)}; max-height: 24rem;"
+                  ></div>
                 </div>
               {/each}
             {/if}

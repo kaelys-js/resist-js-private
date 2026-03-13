@@ -14,19 +14,27 @@ Several Issues:
 Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
 ----
 
+LensComponentRenderer: Browser Live Submenu
+
+* What suggestions do you have for improvement? Think so I don't have to ask again.
+
+Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
+
+--
+- Sidebar: Can mark "incompatible" components in the sidebar (like ones that don't have valid lens setup)
 - Real Browser
   - Install/setup all the stuff I need for the Android screenshot/live streaming
   - Live Preview (each engine):
     - What happens if Lens is closed while Live Preview is running?
     - What happens on errors in the UX when clicking "Live" or during the Live session?
     - Mouse/Keyboard/Touch/etc on the rendered component are passed to the Live session?
-  - Verify All Options Passed And Appear In Screenshot For Each Engine
+  - Verify All LensComponentRenderer Options Are Passed And Appear In Screenshot For Each Engine
     - Font Size Not Passed
     - Network Simulation Not Respected
   - Screenshot Compare
     - Diff
 
-- The Sidebar/CommandSearch components don't render right contained to preview (use playwright mcp any you will see what i mean)
+- The Sidebar/CommandSearch components don't render properly, they are not contained to LensComponentRenderer rendered component area (use playwright mcp any you will see what i mean)
 
 - Lens Homepage: Complete Redesign (Add sidebar entry also)
 - Intelligent Automatic Examples Instead of examples/
