@@ -39,6 +39,12 @@
     prevComponent: v.optional(v.nullable(StrSchema)),
     /** Next component name for sequential navigation (kebab-case). @values button, dialog, sidebar */
     nextComponent: v.optional(v.nullable(StrSchema)),
+    /** Whether this component is pinned in the sidebar. @values true, false */
+    isPinned: v.optional(BoolSchema),
+    /** Callback fired when the pin/unpin button is clicked. @values () => void */
+    onTogglePin: v.optional(
+      v.custom<() => void>((val: unknown): boolean => typeof val === 'function'),
+    ),
   });
   /** Props for the LensHeader component. */
   export type LensHeaderProps = v.InferOutput<typeof LensHeaderPropsSchema>;
@@ -93,6 +99,7 @@
   import Eye from '@lucide/svelte/icons/eye';
   import Wrench from '@lucide/svelte/icons/wrench';
   import Microscope from '@lucide/svelte/icons/microscope';
+  import Star from '@lucide/svelte/icons/star';
   import { cn } from '../utils.js';
 
   /** Category-to-icon mapping for visual differentiation in the header. */
@@ -503,6 +510,31 @@
         >
           <h1 class="text-3xl font-bold tracking-tight">{toTitle(validated.name)}</h1>
         </a>
+
+        {#if validated.onTogglePin}
+          <Tooltip.Root delayDuration={300}>
+            <Tooltip.Trigger>
+              {#snippet child({ props: pinTooltipProps })}
+                <button
+                  type="button"
+                  class={cn(
+                    'flex size-7 items-center justify-center rounded-md transition-colors',
+                    validated.isPinned
+                      ? 'text-amber-500 hover:text-amber-600'
+                      : 'text-muted-foreground/40 hover:text-foreground',
+                  )}
+                  {...pinTooltipProps}
+                  onclick={validated.onTogglePin}
+                >
+                  <Star class={cn('size-4', validated.isPinned && 'fill-current')} />
+                </button>
+              {/snippet}
+            </Tooltip.Trigger>
+            <Tooltip.Content side="bottom" sideOffset={4}>
+              {validated.isPinned ? 'Unpin from sidebar' : 'Pin to sidebar'}
+            </Tooltip.Content>
+          </Tooltip.Root>
+        {/if}
 
         <div class="flex items-center gap-1">
           <!-- Page menu dropdown -->

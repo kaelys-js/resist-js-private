@@ -6,8 +6,9 @@
    * at runtime — no hand-written Demo.svelte files needed.
    */
   import type { Bool, Num, Str, Void } from '@/schemas/common';
-  import { tick, type Component } from 'svelte';
+  import { tick, untrack, type Component } from 'svelte';
   import { fade, slide } from 'svelte/transition';
+  import { storageKey } from '$lib/config/app-meta';
   import type {
     PropMeta,
     VariantMeta,
@@ -166,6 +167,59 @@
   /* ------------------------------------------------------------------ */
 
   const name: Str = $derived(page.params.name ?? '');
+
+  /* ------------------------------------------------------------------ */
+  /*  Pin state (reads localStorage, syncs with layout via custom events) */
+  /* ------------------------------------------------------------------ */
+
+  /** Whether the current component is pinned in the sidebar. */
+  let isPinned: Bool = $state(false);
+
+  // Read initial pin state from localStorage
+  $effect(() => {
+    // Subscribe to `name` so this re-runs on navigation
+    const _n: Str = name;
+    if (!_n) return;
+    try {
+      const stored: Str | null = localStorage.getItem(storageKey('lens-pinned'));
+      if (stored) {
+        const pinned: Str[] = JSON.parse(stored) as Str[];
+        isPinned = pinned.includes(_n) as Bool;
+      } else {
+        isPinned = false as Bool;
+      }
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — default false is fine */
+    }
+  });
+
+  // Listen for pin state changes from the layout (when user pins/unpins via sidebar)
+  $effect(() => {
+    /**
+     * Handle pin state update from layout.
+     *
+     * @param e - The custom event with pin state detail
+     */
+    function onPinChanged(e: Event): Void {
+      const detail = (e as CustomEvent).detail as { name: Str; pinned: Bool };
+      const currentName: Str = untrack(() => name);
+      if (detail.name === currentName) {
+        isPinned = detail.pinned;
+      }
+    }
+    document.addEventListener('lens:pin-changed', onPinChanged);
+    return (): void => {
+      document.removeEventListener('lens:pin-changed', onPinChanged);
+    };
+  });
+
+  /**
+   * Toggle pin state for the current component.
+   * Dispatches a custom event that the layout listens for.
+   */
+  function handleTogglePin(): Void {
+    document.dispatchEvent(new CustomEvent('lens:toggle-pin', { detail: name }));
+  }
 
   /**
    * Sorted list of all component directory names derived from the raw source glob.
@@ -2335,6 +2389,8 @@
         changelogCount={changelog.length}
         {prevComponent}
         {nextComponent}
+        {isPinned}
+        onTogglePin={handleTogglePin}
       />
     </div>
     {#if lensCompat && !lensCompat.compatible}

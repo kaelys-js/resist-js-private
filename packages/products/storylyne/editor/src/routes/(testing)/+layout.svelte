@@ -9,7 +9,7 @@
   import { ModeWatcher, mode as derivedMode, setMode as rawSetMode } from 'mode-watcher';
   import { page } from '$app/state';
   import { storageKey } from '$lib/config/app-meta';
-  import type { Num, Str } from '@/schemas/common';
+  import type { Num, Str, Void } from '@/schemas/common';
   import type { LensMeta, CategoryGroup, LensExample, LensStatus } from '@/ui/lens/types.js';
   import type { Result } from '@/schemas/result/result';
   import type { SearchItem } from '@/ui/search-autocomplete/search-item.js';
@@ -37,7 +37,7 @@
   import Badge from '@/ui/badge/badge.svelte';
   import { extractTokens, type ThemeTokenSet } from '@/ui/lens/extract-tokens.js';
   import { fade, slide } from 'svelte/transition';
-  import type { Component } from 'svelte';
+  import { untrack, type Component } from 'svelte';
   import ComponentIcon from '@lucide/svelte/icons/component';
   import SearchIcon from '@lucide/svelte/icons/search';
   import Palette from '@lucide/svelte/icons/palette';
@@ -67,6 +67,8 @@
   import Star from '@lucide/svelte/icons/star';
   import Clock from '@lucide/svelte/icons/clock';
   import StarOff from '@lucide/svelte/icons/star-off';
+  import Trash2 from '@lucide/svelte/icons/trash-2';
+  import XIcon from '@lucide/svelte/icons/x';
 
   const { children } = $props();
 
@@ -625,6 +627,8 @@
   /**
    * Toggle a component's pinned state.
    *
+   * Dispatches `lens:pin-changed` so the component page can update its pin indicator.
+   *
    * @param name - Component directory name to toggle
    */
   function togglePin(name: Str): void {
@@ -635,7 +639,30 @@
       next.add(name);
     }
     pinnedComponents = next;
+    // Notify the component page of the pin state change
+    document.dispatchEvent(
+      new CustomEvent('lens:pin-changed', {
+        detail: { name, pinned: next.has(name) },
+      }),
+    );
   }
+
+  // Listen for toggle-pin events from the component page's LensHeader
+  $effect(() => {
+    /**
+     * Handle toggle-pin request from component page.
+     *
+     * @param e - The custom event with component name detail
+     */
+    function onTogglePin(e: Event): Void {
+      const componentName: Str = (e as CustomEvent).detail as Str;
+      togglePin(componentName);
+    }
+    document.addEventListener('lens:toggle-pin', onTogglePin);
+    return (): void => {
+      document.removeEventListener('lens:toggle-pin', onTogglePin);
+    };
+  });
 
   /* ------------------------------------------------------------------ */
   /*  Recently viewed (persisted to localStorage)                        */
@@ -661,9 +688,11 @@
   });
 
   // Track navigation — add current component to recent list
+  // Uses untrack() to read recentComponents without subscribing, preventing infinite loop
   $effect(() => {
     if (!currentName || currentName.length === 0) return;
-    const filtered: Str[] = recentComponents.filter((n: Str): boolean => n !== currentName);
+    const current: Str[] = untrack(() => recentComponents);
+    const filtered: Str[] = current.filter((n: Str): boolean => n !== currentName);
     recentComponents = [currentName, ...filtered].slice(0, MAX_RECENT);
   });
 
@@ -676,6 +705,44 @@
       /* localStorage unavailable (SSR/incognito) — non-critical */
     }
   });
+
+  /** Clear all recently viewed components from state and localStorage. */
+  function clearRecent(): void {
+    recentComponents = [];
+    try {
+      localStorage.removeItem(storageKey('lens-recent'));
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — non-critical */
+    }
+  }
+
+  /**
+   * Remove a single component from the recently viewed list.
+   *
+   * @param name - Component name to remove
+   */
+  function removeRecent(name: Str): void {
+    recentComponents = recentComponents.filter((n: Str): boolean => n !== name);
+    try {
+      if (recentComponents.length > 0) {
+        localStorage.setItem(storageKey('lens-recent'), JSON.stringify(recentComponents));
+      } else {
+        localStorage.removeItem(storageKey('lens-recent'));
+      }
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — non-critical */
+    }
+  }
+
+  /** Clear all pinned components from state and localStorage. */
+  function clearAllPinned(): void {
+    pinnedComponents = new Set();
+    try {
+      localStorage.removeItem(storageKey('lens-pinned'));
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — non-critical */
+    }
+  }
 
   /* ------------------------------------------------------------------ */
   /*  Status badge helpers                                               */
@@ -1187,9 +1254,23 @@
       <!-- Pinned components -->
       {#if pinnedComponents.size > 0}
         <Sidebar.Group>
-          <Sidebar.GroupLabel class="text-xs">
+          <Sidebar.GroupLabel class="flex items-center text-xs">
             <Star class="mr-1 size-3" />
-            Pinned
+            <span class="flex-1">Pinned</span>
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger
+                class="ml-auto rounded-sm p-0.5 text-muted-foreground/50 transition-colors hover:text-foreground"
+              >
+                <EllipsisVertical class="size-3.5" />
+                <span class="sr-only">Pinned options</span>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content align="end" class="w-40">
+                <DropdownMenu.Item onclick={clearAllPinned}>
+                  <Trash2 class="mr-2 size-4" />
+                  Clear all pinned
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
           </Sidebar.GroupLabel>
           <Sidebar.GroupContent>
             <Sidebar.Menu>
@@ -1214,7 +1295,7 @@
                         {#snippet child({ props: unpinTip })}
                           <button
                             type="button"
-                            class="size-5 rounded-sm text-muted-foreground/50 hover:text-foreground"
+                            class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/50 hover:text-foreground"
                             {...unpinTip}
                             onclick={(e) => {
                               e.preventDefault();
@@ -1238,9 +1319,23 @@
       <!-- Recently viewed -->
       {#if recentComponents.length > 0}
         <Sidebar.Group>
-          <Sidebar.GroupLabel class="text-xs">
+          <Sidebar.GroupLabel class="flex items-center text-xs">
             <Clock class="mr-1 size-3" />
-            Recent
+            <span class="flex-1">Recent</span>
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger
+                class="ml-auto rounded-sm p-0.5 text-muted-foreground/50 transition-colors hover:text-foreground"
+              >
+                <EllipsisVertical class="size-3.5" />
+                <span class="sr-only">Recent options</span>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content align="end" class="w-40">
+                <DropdownMenu.Item onclick={clearRecent}>
+                  <Trash2 class="mr-2 size-4" />
+                  Clear recent
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
           </Sidebar.GroupLabel>
           <Sidebar.GroupContent>
             <Sidebar.Menu>
@@ -1261,6 +1356,27 @@
                       </a>
                     {/snippet}
                   </Sidebar.MenuButton>
+                  <Sidebar.MenuAction>
+                    <Tooltip.Root delayDuration={300}>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props: removeTip })}
+                          <button
+                            type="button"
+                            class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/50 hover:text-foreground"
+                            {...removeTip}
+                            onclick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              removeRecent(name);
+                            }}
+                          >
+                            <XIcon class="size-3" />
+                          </button>
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content side="right" sideOffset={4}>Remove</Tooltip.Content>
+                    </Tooltip.Root>
+                  </Sidebar.MenuAction>
                 </Sidebar.MenuItem>
               {/each}
             </Sidebar.Menu>
@@ -1485,7 +1601,7 @@
                                   {#snippet child({ props: pinTip })}
                                     <button
                                       type="button"
-                                      class="size-5 rounded-sm text-muted-foreground/40 transition-colors hover:text-foreground {pinnedComponents.has(
+                                      class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/40 transition-colors hover:text-foreground {pinnedComponents.has(
                                         name,
                                       )
                                         ? 'text-amber-500 hover:text-amber-600'

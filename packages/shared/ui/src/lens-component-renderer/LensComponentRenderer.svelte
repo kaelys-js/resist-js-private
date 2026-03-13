@@ -10676,7 +10676,10 @@
         </svg>
       {/if}
       <div
-        class={cn('w-full', hasViewport(cardKey) && 'flex max-w-full flex-col items-start overflow-x-auto')}
+        class={cn(
+          'w-full',
+          hasViewport(cardKey) && 'flex max-w-full flex-col items-start overflow-x-auto',
+        )}
       >
         {#if hasViewport(cardKey)}
           {@const vpLabel = getViewportPreset(cardKey)}
