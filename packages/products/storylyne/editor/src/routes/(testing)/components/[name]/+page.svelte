@@ -66,7 +66,10 @@
   import Check from '@lucide/svelte/icons/check';
   import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
   import Clipboard from '@lucide/svelte/icons/clipboard';
+  import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+  import GitCommitHorizontal from '@lucide/svelte/icons/git-commit-horizontal';
   import CopyButton from '@/ui/copy-button/CopyButton.svelte';
+  import { cn } from '@/ui/utils.js';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
   import * as Tooltip from '@/ui/tooltip/index.js';
 
@@ -174,6 +177,15 @@
   /** Changelog entries for the current component. */
   let changelog: ChangelogEntry[] = $state([]);
 
+  /** Whether changelog is currently being fetched from the API. */
+  let changelogLoading: Bool = $state(true);
+
+  /** Search query for filtering changelog entries by hash, message, or author. */
+  let changelogSearchQuery: Str = $state('');
+
+  /** Selected changelog row hashes for batch copy. */
+  let selectedChangelogRows: Set<Str> = $state(new Set());
+
   /** GitHub repo base URL for commit links (empty if unavailable). */
   let changelogRepoUrl: Str = $state('');
 
@@ -188,6 +200,70 @@
 
   /** SHA256 diff anchor for scrolling to the primary file in GitHub commit views. */
   let changelogDiffAnchor: Str = $state('');
+
+  /** Changelog entries filtered by search query (searches hash, message, author). */
+  const filteredChangelog: ChangelogEntry[] = $derived(
+    changelogSearchQuery.length === 0
+      ? changelog
+      : changelog.filter((e: ChangelogEntry): boolean => {
+          const q: Str = changelogSearchQuery.toLowerCase() as Str;
+          return (
+            e.hash.toLowerCase().includes(q) ||
+            e.message.toLowerCase().includes(q) ||
+            e.author.toLowerCase().includes(q)
+          );
+        }),
+  );
+
+  /**
+   * Format a date string as relative time (e.g. "3 days ago").
+   *
+   * @param dateStr - ISO date string
+   * @returns Human-readable relative time
+   */
+  function relativeDate(dateStr: Str): Str {
+    const delta: Num = (Date.now() - new Date(dateStr as string).getTime()) as Num;
+    if (delta < 60_000) return 'just now' as Str;
+    if (delta < 3_600_000) return `${Math.floor((delta as number) / 60_000)}m ago` as Str;
+    if (delta < 86_400_000) return `${Math.floor((delta as number) / 3_600_000)}h ago` as Str;
+    if (delta < 604_800_000) return `${Math.floor((delta as number) / 86_400_000)}d ago` as Str;
+    if (delta < 2_592_000_000) return `${Math.floor((delta as number) / 604_800_000)}w ago` as Str;
+    return `${Math.floor((delta as number) / 2_592_000_000)}mo ago` as Str;
+  }
+
+  /**
+   * Toggle a changelog row's selection state.
+   *
+   * @param hash - Commit hash to toggle
+   */
+  function toggleChangelogRow(hash: Str): Void {
+    const next: Set<Str> = new Set(selectedChangelogRows);
+    if (next.has(hash)) {
+      next.delete(hash);
+    } else {
+      next.add(hash);
+    }
+    selectedChangelogRows = next;
+  }
+
+  /**
+   * Copy selected changelog rows (or all if none selected) to clipboard as text.
+   */
+  async function copySelectedChangelog(): Promise<void> {
+    const entries: ChangelogEntry[] =
+      selectedChangelogRows.size > 0
+        ? changelog.filter((e: ChangelogEntry): boolean => selectedChangelogRows.has(e.hash))
+        : changelog;
+    const lines: Str[] = entries.map(
+      (e: ChangelogEntry): Str =>
+        `${e.hash} ${e.message} (${e.author}, ${new Date(e.date).toLocaleString()})` as Str,
+    );
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'));
+    } catch {
+      /* Clipboard write failed — browser may not support it in this context */
+    }
+  }
 
   $effect(() => {
     const currentName: Str = name;
@@ -435,9 +511,12 @@
     if (!currentName) return;
     let cancelled: Bool = false;
     changelog = [];
+    changelogLoading = true;
     changelogRepoUrl = '';
     changelogComponentPath = '';
     changelogDiffAnchor = '';
+    changelogSearchQuery = '' as Str;
+    selectedChangelogRows = new Set();
     (async (): Promise<void> => {
       try {
         const response: Response = await fetch(`/api/lens/changelog/${currentName}`);
@@ -464,6 +543,8 @@
         }
       } catch {
         /* Changelog fetch failed — entries remain empty */
+      } finally {
+        if (!cancelled) changelogLoading = false;
       }
     })();
     return (): void => {
@@ -1645,10 +1726,14 @@
                       : ''}"
                   />
                   <History class="size-5" /> Changelog
-                  <span
-                    class="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground"
-                    >{changelog.length}</span
-                  >
+                  {#if changelogLoading}
+                    <LoaderCircle class="size-4 animate-spin text-muted-foreground" />
+                  {:else}
+                    <span
+                      class="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground"
+                      >{changelog.length}</span
+                    >
+                  {/if}
                 </button>
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
@@ -1662,7 +1747,46 @@
                       </button>
                     {/snippet}
                   </DropdownMenu.Trigger>
-                  <DropdownMenu.Content align="end" class="w-48">
+                  <DropdownMenu.Content align="end" class="w-56">
+                    <!-- Quick copy actions -->
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleChangelogExport('copy-markdown');
+                      }}
+                    >
+                      {#if changelogExportFeedback === 'copy-markdown'}
+                        <Check class="size-4 text-green-500" />
+                      {:else}
+                        <ClipboardCopy class="size-4" />
+                      {/if}
+                      Copy as Markdown
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleChangelogExport('copy-json');
+                      }}
+                    >
+                      {#if changelogExportFeedback === 'copy-json'}
+                        <Check class="size-4 text-green-500" />
+                      {:else}
+                        <ClipboardCopy class="size-4" />
+                      {/if}
+                      Copy as JSON
+                    </DropdownMenu.Item>
+                    {#if selectedChangelogRows.size > 0}
+                      <DropdownMenu.Item
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          copySelectedChangelog();
+                        }}
+                      >
+                        <Clipboard class="size-4" />
+                        Copy {selectedChangelogRows.size} Selected
+                      </DropdownMenu.Item>
+                    {/if}
+                    <DropdownMenu.Separator />
                     <DropdownMenu.Sub
                       onOpenChange={(open) => {
                         if (open) changelogExportSearchQuery = '';
@@ -1749,72 +1873,216 @@
                         </div>
                       </DropdownMenu.SubContent>
                     </DropdownMenu.Sub>
+                    {#if changelogRepoUrl && changelogComponentPath}
+                      <DropdownMenu.Separator />
+                      <DropdownMenu.Item
+                        onclick={() => {
+                          window.open(
+                            `${changelogRepoUrl}/commits/main/${changelogComponentPath}`,
+                            '_blank',
+                          );
+                        }}
+                      >
+                        <GitCommitHorizontal class="size-4" />
+                        View Full History
+                      </DropdownMenu.Item>
+                    {/if}
                   </DropdownMenu.Content>
                 </DropdownMenu.Root>
               </div>
               {#if sectionOpen.changelog}
                 <div transition:slide={{ duration: 200 }}>
-                  <div class="rounded-lg border bg-card">
-                    <table class="w-full table-fixed text-sm">
-                      <thead>
-                        <tr class="border-b text-left text-xs text-muted-foreground">
-                          <th class="w-20 px-4 py-2">Hash</th>
-                          <th class="px-4 py-2">Message</th>
-                          <th class="w-44 px-4 py-2">Date</th>
-                          <th class="w-32 px-4 py-2">Author</th>
-                          <th class="w-16 px-2 py-2"><span class="sr-only">Actions</span></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {#each changelog as entry (entry.hash)}
-                          <tr class="border-b last:border-b-0 transition-colors hover:bg-muted/50">
-                            <td class="px-4 py-2">
-                              <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs"
-                                >{entry.hash}</code
+                  {#if changelogLoading}
+                    <!-- Loading skeleton -->
+                    <div class="flex items-center justify-center rounded-lg border py-12">
+                      <div class="flex flex-col items-center gap-2 text-muted-foreground">
+                        <LoaderCircle class="size-5 animate-spin" />
+                        <span class="text-xs">Loading changelog...</span>
+                      </div>
+                    </div>
+                  {:else if changelog.length === 0}
+                    <!-- Empty state -->
+                    <div
+                      class="flex flex-col items-center justify-center gap-2 rounded-lg border py-12 text-muted-foreground"
+                    >
+                      <History class="size-6" />
+                      <div class="flex flex-col items-center gap-0.5">
+                        <p class="text-sm font-medium">No changelog entries</p>
+                        <p class="text-xs">No git commits found for this component</p>
+                      </div>
+                    </div>
+                  {:else}
+                    <!-- Search bar -->
+                    {#if changelog.length > 5}
+                      <div class="mb-2">
+                        <div
+                          class="flex items-center gap-2 rounded-md border bg-transparent px-3 py-1.5 text-sm"
+                        >
+                          <Search
+                            class="size-3.5 shrink-0 text-muted-foreground"
+                            aria-hidden="true"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Filter by hash, message, or author..."
+                            class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                            bind:value={changelogSearchQuery}
+                          />
+                          {#if changelogSearchQuery}
+                            <span class="shrink-0 text-[10px] text-muted-foreground/60">
+                              {filteredChangelog.length}/{changelog.length}
+                            </span>
+                          {/if}
+                        </div>
+                      </div>
+                    {/if}
+                    {#if filteredChangelog.length === 0}
+                      <div
+                        class="flex flex-col items-center justify-center gap-2 rounded-lg border py-8 text-muted-foreground"
+                      >
+                        <SearchX class="size-5" />
+                        <div class="flex flex-col items-center gap-0.5">
+                          <p class="text-xs font-medium">No matching entries</p>
+                          <p class="text-[11px]">Try a different search term</p>
+                        </div>
+                      </div>
+                    {:else}
+                      <div class="rounded-lg border bg-card">
+                        {#if selectedChangelogRows.size > 0}
+                          <div
+                            class="flex items-center gap-2 border-b bg-muted/30 px-4 py-1.5 text-xs text-muted-foreground"
+                          >
+                            <span class="font-medium">{selectedChangelogRows.size} selected</span>
+                            <button
+                              type="button"
+                              class="text-primary hover:underline"
+                              onclick={() => {
+                                selectedChangelogRows = new Set();
+                              }}>Clear</button
+                            >
+                          </div>
+                        {/if}
+                        <table class="w-full table-fixed text-sm">
+                          <thead>
+                            <tr class="border-b text-left text-xs text-muted-foreground">
+                              <th class="w-20 px-4 py-2">Hash</th>
+                              <th class="px-4 py-2">Message</th>
+                              <th class="w-32 px-4 py-2">Date</th>
+                              <th class="w-32 px-4 py-2">Author</th>
+                              <th class="w-16 px-2 py-2"><span class="sr-only">Actions</span></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {#each filteredChangelog as entry (entry.hash)}
+                              <tr
+                                class={cn(
+                                  'border-b last:border-b-0 cursor-pointer transition-colors',
+                                  selectedChangelogRows.has(entry.hash)
+                                    ? 'bg-primary/5 hover:bg-primary/10'
+                                    : 'hover:bg-muted/50',
+                                )}
+                                role="button"
+                                tabindex="0"
+                                onclick={() => toggleChangelogRow(entry.hash)}
+                                onkeydown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    toggleChangelogRow(entry.hash);
+                                  }
+                                }}
                               >
-                            </td>
-                            <td class="truncate px-4 py-2 text-sm">{entry.message}</td>
-                            <td class="whitespace-nowrap px-4 py-2 text-xs text-muted-foreground"
-                              >{new Date(entry.date).toLocaleString()}</td
-                            >
-                            <td class="truncate px-4 py-2 text-xs text-muted-foreground"
-                              >{entry.author}</td
-                            >
-                            <td class="px-2 py-2">
-                              <div class="flex items-center gap-0.5">
-                                <CopyButton
-                                  text={`${entry.hash} ${entry.message} (${entry.author}, ${new Date(entry.date).toLocaleString()})`}
-                                  label="Copy row"
-                                />
-                                {#if changelogRepoUrl}
+                                <td class="px-4 py-2">
+                                  {#if changelogRepoUrl}
+                                    <a
+                                      href="{changelogRepoUrl}/commit/{entry.hash}{changelogDiffAnchor
+                                        ? `#diff-${changelogDiffAnchor}`
+                                        : ''}"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-primary hover:underline"
+                                      onclick={(e: MouseEvent): void => e.stopPropagation()}
+                                      >{entry.hash}</a
+                                    >
+                                  {:else}
+                                    <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs"
+                                      >{entry.hash}</code
+                                    >
+                                  {/if}
+                                </td>
+                                <td class="px-4 py-2 text-sm">
+                                  <Tooltip.Root delayDuration={500}>
+                                    <Tooltip.Trigger>
+                                      {#snippet child({ props: msgTipProps })}
+                                        <span {...msgTipProps} class="block truncate"
+                                          >{entry.message}</span
+                                        >
+                                      {/snippet}
+                                    </Tooltip.Trigger>
+                                    <Tooltip.Content side="top" sideOffset={4} class="max-w-sm">
+                                      {entry.message}
+                                    </Tooltip.Content>
+                                  </Tooltip.Root>
+                                </td>
+                                <td
+                                  class="whitespace-nowrap px-4 py-2 text-xs text-muted-foreground"
+                                >
                                   <Tooltip.Root delayDuration={300}>
                                     <Tooltip.Trigger>
-                                      {#snippet child({ props: tipProps })}
-                                        <a
-                                          {...tipProps}
-                                          href="{changelogRepoUrl}/commit/{entry.hash}{changelogDiffAnchor
-                                            ? `#diff-${changelogDiffAnchor}`
-                                            : ''}"
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                                        >
-                                          <ExternalLink class="size-3.5" />
-                                        </a>
+                                      {#snippet child({ props: dateTipProps })}
+                                        <span {...dateTipProps}>{relativeDate(entry.date)}</span>
                                       {/snippet}
                                     </Tooltip.Trigger>
                                     <Tooltip.Content side="top" sideOffset={4}>
-                                      Open in GitHub
+                                      {new Date(entry.date).toLocaleString()}
                                     </Tooltip.Content>
                                   </Tooltip.Root>
-                                {/if}
-                              </div>
-                            </td>
-                          </tr>
-                        {/each}
-                      </tbody>
-                    </table>
-                  </div>
+                                </td>
+                                <td class="truncate px-4 py-2 text-xs text-muted-foreground"
+                                  >{entry.author}</td
+                                >
+                                <td class="px-2 py-2">
+                                  <div
+                                    class="flex items-center gap-0.5"
+                                    role="toolbar"
+                                    tabindex="-1"
+                                    onclick={(e) => e.stopPropagation()}
+                                    onkeydown={(e) => e.stopPropagation()}
+                                  >
+                                    <CopyButton
+                                      text={`${entry.hash} ${entry.message} (${entry.author}, ${new Date(entry.date).toLocaleString()})`}
+                                      label="Copy row"
+                                    />
+                                    {#if changelogRepoUrl}
+                                      <Tooltip.Root delayDuration={300}>
+                                        <Tooltip.Trigger>
+                                          {#snippet child({ props: tipProps })}
+                                            <a
+                                              {...tipProps}
+                                              href="{changelogRepoUrl}/commit/{entry.hash}{changelogDiffAnchor
+                                                ? `#diff-${changelogDiffAnchor}`
+                                                : ''}"
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                            >
+                                              <ExternalLink class="size-3.5" />
+                                            </a>
+                                          {/snippet}
+                                        </Tooltip.Trigger>
+                                        <Tooltip.Content side="top" sideOffset={4}>
+                                          Open in GitHub
+                                        </Tooltip.Content>
+                                      </Tooltip.Root>
+                                    {/if}
+                                  </div>
+                                </td>
+                              </tr>
+                            {/each}
+                          </tbody>
+                        </table>
+                      </div>
+                    {/if}
+                  {/if}
                 </div>
               {/if}
             </section>
