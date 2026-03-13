@@ -124,6 +124,11 @@
   import Accessibility from '@lucide/svelte/icons/accessibility';
   import TreePine from '@lucide/svelte/icons/tree-pine';
   import LocateFixed from '@lucide/svelte/icons/locate-fixed';
+  import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
+  import ArrowDownAZ from '@lucide/svelte/icons/arrow-down-a-z';
+  import ArrowDownZA from '@lucide/svelte/icons/arrow-down-z-a';
+  import Weight from '@lucide/svelte/icons/weight';
+  import Layers from '@lucide/svelte/icons/layers';
   import * as DropdownMenu from '../dropdown-menu/index.js';
   import Slider from '../slider/slider.svelte';
   import {
@@ -189,6 +194,24 @@
    */
   function toggle(category: Str): void {
     expanded[category] = !(expanded[category] ?? true);
+  }
+
+  /**
+   * Expand all category sections.
+   */
+  export function expandAll(): Void {
+    for (const key of Object.keys(expanded)) {
+      expanded[key] = true;
+    }
+  }
+
+  /**
+   * Collapse all category sections.
+   */
+  export function collapseAll(): Void {
+    for (const key of Object.keys(expanded)) {
+      expanded[key] = false;
+    }
   }
 
   /** Total dependency count across all categories. */
@@ -457,8 +480,47 @@
     children: ChainNode[];
   };
 
-  /** Maximum recursion depth for the dependency chain tree. */
-  const MAX_CHAIN_DEPTH: Num = 4 as Num;
+  /** Default maximum recursion depth for the dependency chain tree. */
+  const DEFAULT_MAX_DEPTH: Num = 6 as Num;
+
+  /** Current maximum recursion depth for the dependency chain tree. */
+  let chainMaxDepthLimit: Num = $state(6 as Num);
+
+  /** Search query for depth limit dropdown filtering. */
+  let chainDepthSearchQuery: Str = $state('' as Str);
+
+  /** Available depth limit presets. */
+  const DEPTH_PRESETS: Array<{
+    /** Depth value (-1 = unlimited). */
+    value: Num;
+    /** Display label. */
+    label: Str;
+    /** Brief description. */
+    description: Str;
+  }> = [
+    { value: 2, label: '2', description: 'Direct dependencies only' },
+    { value: 3, label: '3', description: 'Two levels deep' },
+    { value: 4, label: '4', description: 'Three levels deep' },
+    { value: 6, label: '6', description: 'Default depth' },
+    { value: 8, label: '8', description: 'Deep traversal' },
+    { value: -1 as Num, label: '\u221E', description: 'No limit (unlimited)' },
+  ];
+
+  /** Depth presets filtered by search query. */
+  const filteredDepthPresets = $derived(
+    chainDepthSearchQuery.length === 0
+      ? DEPTH_PRESETS
+      : DEPTH_PRESETS.filter((p) => {
+          const q: Str = chainDepthSearchQuery.toLowerCase() as Str;
+          return p.label.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
+        }),
+  );
+
+  /** Sort mode for dependency lists within categories. */
+  let depSortMode: Str = $state('default' as Str);
+
+  /** Hovered chain node ID for path highlighting. */
+  let hoveredNodeId: Str = $state('' as Str);
 
   /**
    * Recursively build a dependency chain tree for a component.
@@ -469,7 +531,7 @@
    * @returns Array of child chain nodes
    */
   function buildChain(component: Str, depth: Num, visited: Set<Str>): ChainNode[] {
-    if (depth >= MAX_CHAIN_DEPTH || !component) return [];
+    if ((chainMaxDepthLimit !== -1 && depth >= chainMaxDepthLimit) || !component) return [];
 
     const sourceKey: Str | undefined = findPrimaryKey(component, rawSources);
     if (!sourceKey) return [];
@@ -562,6 +624,8 @@
     fromId: Str;
     /** Target (child) node ID. @values badge-0, tooltip-1 */
     toId: Str;
+    /** Import kind for edge label. @values type, namespace, named, default */
+    kind: Str;
   };
 
   /**
@@ -656,6 +720,7 @@
             y2: y,
             fromId: parentId,
             toId: nodeId,
+            kind: item.kind,
           });
         }
 
@@ -852,6 +917,7 @@
             ...clipped,
             fromId: entry.parentId,
             toId: entry.id,
+            kind: entry.chain.kind,
           });
         }
       }
@@ -922,7 +988,7 @@
       y: Num;
     };
     const flatNodes: FlatNode[] = [];
-    const edges: Array<{ from: Str; to: Str }> = [];
+    const edges: Array<{ from: Str; to: Str; kind: Str }> = [];
     let idCounter: Num = 0 as Num;
 
     // Root
@@ -959,7 +1025,7 @@
         x: ((Math.random() - 0.5) * 1200) as Num,
         y: ((Math.random() - 0.5) * 1200) as Num,
       });
-      edges.push({ from: item.parentId, to: nodeId });
+      edges.push({ from: item.parentId, to: nodeId, kind: item.chain.kind });
       for (const child of item.chain.children) {
         bfsQueue.push({ chain: child, parentId: nodeId });
       }
@@ -1104,6 +1170,7 @@
         ...clipped,
         fromId: edge.from as Str,
         toId: edge.to as Str,
+        kind: edge.kind,
       });
     }
 
@@ -1507,7 +1574,9 @@
       chainFullscreen ||
       chainNodeSearch !== '' ||
       chainLayout !== 'tree' ||
-      chainColorBlindMode,
+      chainColorBlindMode ||
+      chainMaxDepthLimit !== DEFAULT_MAX_DEPTH ||
+      depSortMode !== 'default',
   );
 
   /**
@@ -1520,6 +1589,9 @@
     chainLayout = 'tree' as Str;
     chainColorBlindMode = false;
     chainCollapsedNodes = {};
+    chainMaxDepthLimit = DEFAULT_MAX_DEPTH;
+    depSortMode = 'default' as Str;
+    hoveredNodeId = '' as Str;
   }
 
   /* ------------------------------------------------------------------ */
@@ -1606,6 +1678,138 @@
 
   /** Count of matched nodes. */
   const chainMatchCount: Num = $derived(chainMatchedNodeIds.size as Num);
+
+  /* ------------------------------------------------------------------ */
+  /*  #10 Search auto-scroll to first match                              */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * When search matches change and there are results, auto-scroll
+   * the canvas to center the first matched node.
+   */
+  $effect(() => {
+    if (chainMatchedNodeIds.size === 0 || !chainCanvasRef || !graphLayout) return;
+    const firstId: Str | undefined = chainMatchedNodeIds.values().next().value;
+    if (!firstId) return;
+    const matchedNode: LayoutNode | undefined = graphLayout.nodes.find(
+      (n: LayoutNode): boolean => n.id === firstId,
+    );
+    if (!matchedNode) return;
+    requestAnimationFrame((): void => {
+      if (!chainCanvasRef) return;
+      const rect: DOMRect = chainCanvasRef.getBoundingClientRect();
+      const centerX: number = ((matchedNode.x as number) + NODE_W / 2) * (chainZoom as number);
+      const centerY: number = ((matchedNode.y as number) + NODE_H / 2) * (chainZoom as number);
+      chainCanvasRef.scrollLeft = centerX - rect.width / 2;
+      chainCanvasRef.scrollTop = centerY - rect.height / 2;
+    });
+  });
+
+  /* ------------------------------------------------------------------ */
+  /*  #5 Highlighted path on hover                                       */
+  /* ------------------------------------------------------------------ */
+
+  /** Set of node IDs in the path from hovered node up to root. */
+  const highlightedPathIds: Set<Str> = $derived.by((): Set<Str> => {
+    if (!graphLayout || hoveredNodeId === '') return new Set();
+    const pathIds: Set<Str> = new Set<Str>();
+    let currentId: Str = hoveredNodeId;
+    const nodeMap: Map<Str, LayoutNode> = new Map(
+      graphLayout.nodes.map((n: LayoutNode): [Str, LayoutNode] => [n.id, n]),
+    );
+    while (currentId) {
+      pathIds.add(currentId);
+      const node: LayoutNode | undefined = nodeMap.get(currentId);
+      if (!node || node.parentId === '') {
+        if (node) pathIds.add('root' as Str);
+        break;
+      }
+      currentId = node.parentId;
+    }
+    return pathIds;
+  });
+
+  /* ------------------------------------------------------------------ */
+  /*  #7 Transitive dependency count per node                            */
+  /* ------------------------------------------------------------------ */
+
+  /** Map of node ID to transitive descendant count. */
+  const transitiveCountMap: Map<Str, Num> = $derived.by((): Map<Str, Num> => {
+    if (!graphLayout) return new Map();
+    const layout = graphLayout;
+    const countMap: Map<Str, Num> = new Map();
+
+    /**
+     * Count all descendants of a node recursively.
+     *
+     * @param nodeId - Node to count descendants for
+     * @returns Total descendant count
+     */
+    function countDescendants(nodeId: Str): Num {
+      if (countMap.has(nodeId)) return countMap.get(nodeId) ?? (0 as Num);
+      const children: LayoutNode[] = layout.nodes.filter(
+        (n: LayoutNode): boolean => n.parentId === nodeId,
+      );
+      let total: Num = children.length as Num;
+      for (const child of children) {
+        total = (total + countDescendants(child.id)) as Num;
+      }
+      countMap.set(nodeId, total);
+      return total;
+    }
+
+    for (const node of layout.nodes) {
+      countDescendants(node.id);
+    }
+    return countMap;
+  });
+
+  /* ------------------------------------------------------------------ */
+  /*  #11 Sort controls within categories                                */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * Sort a dependency list based on the current sort mode.
+   *
+   * @param depList - Array of DepEntry items to sort
+   * @returns Sorted copy of the list
+   */
+  function sortDeps(depList: DepEntry[]): DepEntry[] {
+    if (depSortMode === 'default') return depList;
+    const sorted: DepEntry[] = [...depList];
+    if (depSortMode === 'alpha') {
+      sorted.sort((a: DepEntry, b: DepEntry): number => {
+        const aName: Str = a.component || a.path;
+        const bName: Str = b.component || b.path;
+        return aName.localeCompare(bName);
+      });
+    } else if (depSortMode === 'alpha-desc') {
+      sorted.sort((a: DepEntry, b: DepEntry): number => {
+        const aName: Str = a.component || a.path;
+        const bName: Str = b.component || b.path;
+        return bName.localeCompare(aName);
+      });
+    } else if (depSortMode === 'size') {
+      sorted.sort((a: DepEntry, b: DepEntry): number => {
+        const aSize: Num = (sizes[a.component]?.source ?? 0) as Num;
+        const bSize: Num = (sizes[b.component]?.source ?? 0) as Num;
+        return (bSize as number) - (aSize as number);
+      });
+    }
+    return sorted;
+  }
+
+  /** Sorted UI component deps. */
+  const sortedUiComponentDeps: DepEntry[] = $derived(sortDeps(uiComponentDeps));
+
+  /** Sorted utility deps. */
+  const sortedUtilityDeps: DepEntry[] = $derived(sortDeps(utilityDeps));
+
+  /** Sorted workspace deps. */
+  const sortedWorkspaceDeps: DepEntry[] = $derived(sortDeps(validated.deps.workspace));
+
+  /** Sorted external deps. */
+  const sortedExternalDeps: DepEntry[] = $derived(sortDeps(validated.deps.external));
 
   /* ------------------------------------------------------------------ */
   /*  #6 Layout toggle options                                           */
@@ -1931,6 +2135,85 @@
                         <SearchX class="size-5" />
                         <div class="flex flex-col items-center gap-0.5">
                           <p class="text-xs font-medium">No layouts found</p>
+                          <p class="text-[11px]">Try a different search term</p>
+                        </div>
+                      </div>
+                    {/each}
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+              </Tooltip.Root>
+            </Tooltip.Provider>
+            <!-- #4b Depth limit dropdown -->
+            <Tooltip.Provider>
+              <Tooltip.Root delayDuration={300}>
+                <DropdownMenu.Root
+                  onOpenChange={(open) => {
+                    if (open) chainDepthSearchQuery = '' as Str;
+                  }}
+                >
+                  <Tooltip.Trigger>
+                    {#snippet child({ props: tipProps })}
+                      <DropdownMenu.Trigger>
+                        {#snippet child({ props })}
+                          <button
+                            type="button"
+                            {...tipProps}
+                            {...props}
+                            class="inline-flex size-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                          >
+                            <Layers class="size-3.5" />
+                          </button>
+                        {/snippet}
+                      </DropdownMenu.Trigger>
+                    {/snippet}
+                  </Tooltip.Trigger>
+                  <Tooltip.Content side="top" sideOffset={4}
+                    >Depth limit ({chainMaxDepthLimit === -1
+                      ? '\u221E'
+                      : chainMaxDepthLimit})</Tooltip.Content
+                  >
+                  <DropdownMenu.Content align="start" class="flex w-56 flex-col overflow-hidden">
+                    <div class="shrink-0 px-2 pb-1.5 pt-1">
+                      <div
+                        class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                      >
+                        <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                        <input
+                          type="text"
+                          placeholder="Search depths..."
+                          class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                          bind:value={chainDepthSearchQuery}
+                          onkeydown={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    </div>
+                    {#each filteredDepthPresets as preset (preset.value)}
+                      <DropdownMenu.Item
+                        closeOnSelect={false}
+                        onclick={() => {
+                          chainMaxDepthLimit = preset.value;
+                        }}
+                      >
+                        {#if chainMaxDepthLimit === preset.value}
+                          <span in:fade={{ duration: 150 }}
+                            ><Check class="size-4 text-green-500" /></span
+                          >
+                        {:else}
+                          <Layers class="size-4" />
+                        {/if}
+                        <div class="flex flex-col gap-0.5">
+                          <span class="text-sm">Depth {preset.label}</span>
+                          <span class="text-[11px] text-muted-foreground">{preset.description}</span
+                          >
+                        </div>
+                      </DropdownMenu.Item>
+                    {:else}
+                      <div
+                        class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+                      >
+                        <SearchX class="size-5" />
+                        <div class="flex flex-col items-center gap-0.5">
+                          <p class="text-xs font-medium">No depths found</p>
                           <p class="text-[11px]">Try a different search term</p>
                         </div>
                       </div>
@@ -2365,6 +2648,12 @@
               >
                 {#each visibleConnectors as conn, ci (ci)}
                   {@const midY = conn.y1 + (conn.y2 - conn.y1) * 0.5}
+                  {@const midX = (conn.x1 + conn.x2) / 2}
+                  {@const connOnPath =
+                    hoveredNodeId !== '' &&
+                    highlightedPathIds.has(conn.fromId) &&
+                    highlightedPathIds.has(conn.toId)}
+                  {@const connDimmed = hoveredNodeId !== '' && !connOnPath}
                   <!-- Line shadow (wide, faint glow) -->
                   <path
                     d="M {conn.x1} {conn.y1} C {conn.x1} {midY}, {conn.x2} {midY}, {conn.x2} {conn.y2}"
@@ -2372,7 +2661,9 @@
                     stroke="currentColor"
                     stroke-width="6"
                     stroke-linecap="round"
-                    class="text-foreground/[0.05]"
+                    class="text-foreground/[0.05] transition-opacity {connDimmed
+                      ? 'opacity-20'
+                      : ''}"
                   />
                   <!-- Main line -->
                   <path
@@ -2381,8 +2672,24 @@
                     stroke="currentColor"
                     stroke-width="2"
                     stroke-linecap="round"
-                    class="text-muted-foreground/25"
+                    class="transition-opacity {connOnPath
+                      ? 'text-primary/60'
+                      : 'text-muted-foreground/25'} {connDimmed ? 'opacity-20' : ''}"
                   />
+                  <!-- Edge label (import kind) -->
+                  {#if conn.kind && conn.kind !== 'named'}
+                    <text
+                      x={midX}
+                      y={midY}
+                      text-anchor="middle"
+                      dominant-baseline="middle"
+                      class="fill-muted-foreground/50 text-[9px] transition-opacity {connDimmed
+                        ? 'opacity-20'
+                        : ''}"
+                    >
+                      {conn.kind}
+                    </text>
+                  {/if}
                 {/each}
               </svg>
               <!-- Node cards -->
@@ -2395,11 +2702,13 @@
                 {@const dotColor = getCategoryDotColor(node.category)}
                 {@const isSearchMatch =
                   chainNodeSearch.length > 0 && chainMatchedNodeIds.has(node.id)}
-                {@const isDimmed =
+                {@const isDimmedBySearch =
                   chainNodeSearch.length > 0 && !chainMatchedNodeIds.has(node.id) && !isRoot}
+                {@const isDimmedByHover = hoveredNodeId !== '' && !highlightedPathIds.has(node.id)}
                 {@const nodeHasChildren =
                   graphLayout?.nodes.some((c) => c.parentId === node.id) ?? false}
                 {@const isNodeCollapsed = chainCollapsedNodes[node.id] === true}
+                {@const transitiveCount = transitiveCountMap.get(node.id) ?? 0}
                 <div
                   class={cn(
                     'absolute flex flex-col justify-center gap-1 rounded-md border px-3 py-1.5 text-xs shadow-sm transition-all',
@@ -2409,9 +2718,16 @@
                         ? catColor
                         : 'border-border bg-card hover:border-primary/30 hover:bg-muted/30',
                     isSearchMatch && 'ring-2 ring-primary/50',
-                    isDimmed && 'opacity-30',
+                    (isDimmedBySearch || isDimmedByHover) && 'opacity-30',
                   )}
                   style="left: {node.x}px; top: {node.y}px; width: {NODE_W}px; height: {NODE_H}px;"
+                  onmouseenter={() => {
+                    hoveredNodeId = node.id;
+                  }}
+                  onmouseleave={() => {
+                    hoveredNodeId = '' as Str;
+                  }}
+                  role="group"
                 >
                   <!-- Row 1: name + kind badge -->
                   <div class="flex items-center gap-1.5">
@@ -2446,10 +2762,16 @@
                       </span>
                     {/if}
                     {#if nodeHasChildren}
+                      {#if transitiveCount > 0}
+                        <span
+                          class="shrink-0 rounded bg-muted px-1 py-0.5 text-[8px] font-medium leading-none text-muted-foreground"
+                          >{'\u2192'} {transitiveCount} dep{transitiveCount === 1 ? '' : 's'}</span
+                        >
+                      {/if}
                       <button
                         type="button"
                         class={cn(
-                          'ml-auto inline-flex size-4 shrink-0 items-center justify-center rounded transition-colors',
+                          'inline-flex size-4 shrink-0 items-center justify-center rounded transition-colors',
                           'text-muted-foreground/60 hover:text-foreground',
                         )}
                         onclick={(e) => {
@@ -2538,22 +2860,109 @@
   <!-- UI Components (genuine component deps only) -->
   {#if uiComponentDeps.length > 0}
     <div class="overflow-hidden rounded-md border bg-card">
-      <button
-        type="button"
-        class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm font-medium transition-colors hover:bg-muted/50"
-        onclick={() => toggle('internal')}
-      >
-        <ChevronRight
-          class={cn('size-4 shrink-0 transition-transform', expanded.internal && 'rotate-90')}
-        />
-        <ComponentIcon class="size-4 shrink-0 text-primary" />
-        <span>UI Components</span>
-        <Badge variant="secondary" class="ml-auto text-xs">{uiComponentDeps.length}</Badge>
-      </button>
+      <div class="flex items-center">
+        <button
+          type="button"
+          class="flex flex-1 items-center gap-2 px-3 py-2 text-left text-sm font-medium transition-colors hover:bg-muted/50"
+          onclick={() => toggle('internal')}
+        >
+          <ChevronRight
+            class={cn('size-4 shrink-0 transition-transform', expanded.internal && 'rotate-90')}
+          />
+          <ComponentIcon class="size-4 shrink-0 text-primary" />
+          <span>UI Components</span>
+          <Badge variant="secondary" class="ml-auto text-xs">{uiComponentDeps.length}</Badge>
+        </button>
+        <Tooltip.Provider>
+          <Tooltip.Root delayDuration={300}>
+            <DropdownMenu.Root>
+              <Tooltip.Trigger>
+                {#snippet child({ props: tipProps })}
+                  <DropdownMenu.Trigger>
+                    {#snippet child({ props })}
+                      <button
+                        type="button"
+                        {...tipProps}
+                        {...props}
+                        class="mr-2 inline-flex size-6 items-center justify-center rounded text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground"
+                      >
+                        {#if depSortMode === 'alpha'}
+                          <ArrowDownAZ class="size-3" />
+                        {:else if depSortMode === 'alpha-desc'}
+                          <ArrowDownZA class="size-3" />
+                        {:else if depSortMode === 'size'}
+                          <Weight class="size-3" />
+                        {:else}
+                          <ArrowUpDown class="size-3" />
+                        {/if}
+                      </button>
+                    {/snippet}
+                  </DropdownMenu.Trigger>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content side="left" sideOffset={4}>Sort order</Tooltip.Content>
+              <DropdownMenu.Content align="end" class="w-48">
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    depSortMode = 'default' as Str;
+                  }}
+                >
+                  {#if depSortMode === 'default'}
+                    <span in:fade={{ duration: 150 }}><Check class="size-4 text-green-500" /></span>
+                  {:else}
+                    <ArrowUpDown class="size-4" />
+                  {/if}
+                  Insertion order
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    depSortMode = 'alpha' as Str;
+                  }}
+                >
+                  {#if depSortMode === 'alpha'}
+                    <span in:fade={{ duration: 150 }}><Check class="size-4 text-green-500" /></span>
+                  {:else}
+                    <ArrowDownAZ class="size-4" />
+                  {/if}
+                  A–Z
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    depSortMode = 'alpha-desc' as Str;
+                  }}
+                >
+                  {#if depSortMode === 'alpha-desc'}
+                    <span in:fade={{ duration: 150 }}><Check class="size-4 text-green-500" /></span>
+                  {:else}
+                    <ArrowDownZA class="size-4" />
+                  {/if}
+                  Z–A
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    depSortMode = 'size' as Str;
+                  }}
+                >
+                  {#if depSortMode === 'size'}
+                    <span in:fade={{ duration: 150 }}><Check class="size-4 text-green-500" /></span>
+                  {:else}
+                    <Weight class="size-4" />
+                  {/if}
+                  Largest first
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          </Tooltip.Root>
+        </Tooltip.Provider>
+      </div>
       {#if expanded.internal}
         <div class="border-t px-3 py-2" transition:slide={{ duration: 200 }}>
           <ul class="space-y-1">
-            {#each uiComponentDeps as dep, di (di)}
+            {#each sortedUiComponentDeps as dep, di (di)}
               <li class="group/dep flex items-center gap-2 text-sm">
                 <span class="size-1 shrink-0 rounded-full bg-primary/40"></span>
                 <a
@@ -2638,7 +3047,7 @@
       {#if expanded.utilities}
         <div class="border-t px-3 py-2" transition:slide={{ duration: 200 }}>
           <ul class="space-y-1">
-            {#each utilityDeps as dep, ui (ui)}
+            {#each sortedUtilityDeps as dep, ui (ui)}
               <li class="group/dep flex items-center gap-2 text-sm">
                 <span class="size-1 shrink-0 rounded-full bg-slate-500/40"></span>
                 <code class="truncate text-xs text-foreground">{dep.path}</code>
@@ -2704,7 +3113,7 @@
       {#if expanded.workspace}
         <div class="border-t px-3 py-2" transition:slide={{ duration: 200 }}>
           <ul class="space-y-1">
-            {#each validated.deps.workspace as dep, wi (wi)}
+            {#each sortedWorkspaceDeps as dep, wi (wi)}
               {@const wsComp = workspaceComponent(dep.path)}
               <li class="group/dep flex items-center gap-2 text-sm">
                 <span class="size-1 shrink-0 rounded-full bg-amber-500/40"></span>
@@ -2780,7 +3189,7 @@
       {#if expanded.external}
         <div class="border-t px-3 py-2" transition:slide={{ duration: 200 }}>
           <ul class="space-y-1">
-            {#each validated.deps.external as dep, ei (ei)}
+            {#each sortedExternalDeps as dep, ei (ei)}
               <li class="group/dep flex items-center gap-2 text-sm">
                 <span class="size-1 shrink-0 rounded-full bg-emerald-500/40"></span>
                 <code class="truncate text-xs text-foreground">{dep.path}</code>
