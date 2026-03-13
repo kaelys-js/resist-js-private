@@ -125,6 +125,7 @@
   import Pause from '@lucide/svelte/icons/pause';
   import Radio from '@lucide/svelte/icons/radio';
   import ALargeSmall from '@lucide/svelte/icons/a-large-small';
+  import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import FileJson from '@lucide/svelte/icons/file-json';
   import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
@@ -525,6 +526,12 @@
 
   /** Screenshot lightbox state — null when closed, object URL when open. */
   let lightboxUrl: Str | null = $state(null);
+
+  /** Lightbox card key — identifies which card's screenshots we're browsing. */
+  let lightboxCardKey: Str | null = $state(null);
+
+  /** Lightbox screenshot index within the card's captures array. */
+  let lightboxIdx: Num = $state(0 as Num);
 
   /** Search query for the Browser & Device Preview device list. */
   let browserSearchQuery: Str = $state('');
@@ -1921,6 +1928,15 @@
    * @param node - The scrollable container element inside a SubContent
    * @returns Action lifecycle with destroy cleanup
    */
+  /**
+   * Svelte use: action that auto-focuses the element on mount.
+   *
+   * @param node - The DOM element to focus
+   */
+  function autoFocus(node: HTMLElement): void {
+    node.focus();
+  }
+
   function lockHeight(node: HTMLElement): { destroy: () => void } {
     const raf: Num = requestAnimationFrame((): void => {
       node.style.minHeight = `${node.offsetHeight}px`;
@@ -11531,9 +11547,231 @@
                         {/each}
                       </select>
                     </div>
-                    <span class="text-[9px] tabular-nums text-muted-foreground/50">
-                      {cardComparePosition[cardKey] ?? 50}%
-                    </span>
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[9px] tabular-nums text-muted-foreground/50">
+                        {cardComparePosition[cardKey] ?? 50}%
+                      </span>
+                      <!-- Click left/right image to lightbox -->
+                      <Tooltip.Root delayDuration={300}>
+                        <Tooltip.Trigger>
+                          {#snippet child({ props: tipProps })}
+                            <button
+                              {...tipProps}
+                              type="button"
+                              class="rounded p-1 text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground"
+                              onclick={() => {
+                                lightboxUrl = leftCapture.imageUrl;
+                                lightboxCardKey = cardKey;
+                                lightboxIdx = leftIdx as Num;
+                              }}
+                              aria-label="View left screenshot"
+                            >
+                              <ZoomIn class="size-3.5" aria-hidden="true" />
+                            </button>
+                          {/snippet}
+                        </Tooltip.Trigger>
+                        <Tooltip.Content side="top" sideOffset={4}
+                          >View left image full size</Tooltip.Content
+                        >
+                      </Tooltip.Root>
+                      <!-- Export submenu for compare -->
+                      <DropdownMenu.Root>
+                        <DropdownMenu.Trigger>
+                          {#snippet child({ props: menuProps })}
+                            <button
+                              {...menuProps}
+                              type="button"
+                              class="rounded p-1 text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground"
+                              aria-label="Compare export options"
+                            >
+                              <EllipsisVertical class="size-3.5" />
+                            </button>
+                          {/snippet}
+                        </DropdownMenu.Trigger>
+                        <DropdownMenu.Content align="end" class="w-52">
+                          <DropdownMenu.Sub
+                            onOpenChange={(open) => {
+                              if (open) screenshotExportSearchQuery = '';
+                            }}
+                          >
+                            <DropdownMenu.SubTrigger>
+                              <Download class="size-4" />
+                              Export Left (#{leftIdx + 1})
+                            </DropdownMenu.SubTrigger>
+                            <DropdownMenu.SubContent
+                              class="flex max-h-[28rem] w-64 flex-col overflow-hidden"
+                            >
+                              <div class="shrink-0 px-2 pb-1.5 pt-1">
+                                <div
+                                  class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                                >
+                                  <Search
+                                    class="size-3 shrink-0 text-muted-foreground"
+                                    aria-hidden="true"
+                                  />
+                                  <input
+                                    type="text"
+                                    placeholder="Search formats..."
+                                    class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                                    bind:value={screenshotExportSearchQuery}
+                                    onkeydown={(e) => e.stopPropagation()}
+                                    onkeyup={(e) => e.stopPropagation()}
+                                    onkeypress={(e) => e.stopPropagation()}
+                                  />
+                                </div>
+                              </div>
+                              <div
+                                class="flex min-h-0 flex-1 flex-col overflow-y-auto"
+                                use:lockHeight
+                              >
+                                {#each filteredScreenshotExportCategories as category (category)}
+                                  {#if filteredScreenshotExportCategories.indexOf(category) > 0}
+                                    <DropdownMenu.Separator />
+                                  {/if}
+                                  <DropdownMenu.Label class="flex items-center gap-1.5 text-xs">
+                                    {#if category === 'Clipboard'}
+                                      <Clipboard class="size-3 text-muted-foreground" />
+                                    {:else if category === 'File'}
+                                      <Download class="size-3 text-muted-foreground" />
+                                    {/if}
+                                    {category}
+                                  </DropdownMenu.Label>
+                                  {#each filteredScreenshotExportItems.filter((i) => i.category === category) as item (item.id)}
+                                    <DropdownMenu.Item
+                                      onSelect={(e) => {
+                                        e.preventDefault();
+                                        handleScreenshotExport(leftCapture, item.id);
+                                      }}
+                                    >
+                                      {#if screenshotExportFeedback === item.id}
+                                        <Check class="size-4 text-green-500" />
+                                      {:else}
+                                        <item.icon class="size-4" />
+                                      {/if}
+                                      <div class="flex min-w-0 flex-1 flex-col">
+                                        <span class="flex items-center gap-2">
+                                          <span class="truncate">{item.label}</span>
+                                          {#if item.ext}
+                                            <code
+                                              class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 font-mono text-[9px] text-muted-foreground"
+                                              >{item.ext}</code
+                                            >
+                                          {/if}
+                                        </span>
+                                        <span
+                                          class="text-[10px] leading-tight text-muted-foreground"
+                                          >{item.description}</span
+                                        >
+                                      </div>
+                                    </DropdownMenu.Item>
+                                  {/each}
+                                {:else}
+                                  <div
+                                    class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+                                  >
+                                    <SearchX class="size-5" />
+                                    <div class="flex flex-col items-center gap-0.5">
+                                      <p class="text-xs font-medium">No formats found</p>
+                                      <p class="text-[11px]">Try a different search term</p>
+                                    </div>
+                                  </div>
+                                {/each}
+                              </div>
+                            </DropdownMenu.SubContent>
+                          </DropdownMenu.Sub>
+                          <DropdownMenu.Sub
+                            onOpenChange={(open) => {
+                              if (open) screenshotExportSearchQuery = '';
+                            }}
+                          >
+                            <DropdownMenu.SubTrigger>
+                              <Download class="size-4" />
+                              Export Right (#{rightIdx + 1})
+                            </DropdownMenu.SubTrigger>
+                            <DropdownMenu.SubContent
+                              class="flex max-h-[28rem] w-64 flex-col overflow-hidden"
+                            >
+                              <div class="shrink-0 px-2 pb-1.5 pt-1">
+                                <div
+                                  class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                                >
+                                  <Search
+                                    class="size-3 shrink-0 text-muted-foreground"
+                                    aria-hidden="true"
+                                  />
+                                  <input
+                                    type="text"
+                                    placeholder="Search formats..."
+                                    class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                                    bind:value={screenshotExportSearchQuery}
+                                    onkeydown={(e) => e.stopPropagation()}
+                                    onkeyup={(e) => e.stopPropagation()}
+                                    onkeypress={(e) => e.stopPropagation()}
+                                  />
+                                </div>
+                              </div>
+                              <div
+                                class="flex min-h-0 flex-1 flex-col overflow-y-auto"
+                                use:lockHeight
+                              >
+                                {#each filteredScreenshotExportCategories as category (category)}
+                                  {#if filteredScreenshotExportCategories.indexOf(category) > 0}
+                                    <DropdownMenu.Separator />
+                                  {/if}
+                                  <DropdownMenu.Label class="flex items-center gap-1.5 text-xs">
+                                    {#if category === 'Clipboard'}
+                                      <Clipboard class="size-3 text-muted-foreground" />
+                                    {:else if category === 'File'}
+                                      <Download class="size-3 text-muted-foreground" />
+                                    {/if}
+                                    {category}
+                                  </DropdownMenu.Label>
+                                  {#each filteredScreenshotExportItems.filter((i) => i.category === category) as item (item.id)}
+                                    <DropdownMenu.Item
+                                      onSelect={(e) => {
+                                        e.preventDefault();
+                                        handleScreenshotExport(rightCapture, item.id);
+                                      }}
+                                    >
+                                      {#if screenshotExportFeedback === item.id}
+                                        <Check class="size-4 text-green-500" />
+                                      {:else}
+                                        <item.icon class="size-4" />
+                                      {/if}
+                                      <div class="flex min-w-0 flex-1 flex-col">
+                                        <span class="flex items-center gap-2">
+                                          <span class="truncate">{item.label}</span>
+                                          {#if item.ext}
+                                            <code
+                                              class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 font-mono text-[9px] text-muted-foreground"
+                                              >{item.ext}</code
+                                            >
+                                          {/if}
+                                        </span>
+                                        <span
+                                          class="text-[10px] leading-tight text-muted-foreground"
+                                          >{item.description}</span
+                                        >
+                                      </div>
+                                    </DropdownMenu.Item>
+                                  {/each}
+                                {:else}
+                                  <div
+                                    class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+                                  >
+                                    <SearchX class="size-5" />
+                                    <div class="flex flex-col items-center gap-0.5">
+                                      <p class="text-xs font-medium">No formats found</p>
+                                      <p class="text-[11px]">Try a different search term</p>
+                                    </div>
+                                  </div>
+                                {/each}
+                              </div>
+                            </DropdownMenu.SubContent>
+                          </DropdownMenu.Sub>
+                        </DropdownMenu.Content>
+                      </DropdownMenu.Root>
+                    </div>
                   </div>
                   <!-- Slider viewport — both images positioned identically, left is clipped -->
                   <div class="relative overflow-hidden" style="height: 320px;">
@@ -11592,7 +11830,7 @@
               <!-- Error feedback card -->
               <div class="flex w-full items-center justify-center">
                 <div
-                  class="w-80 overflow-hidden rounded-md border border-destructive/30 bg-destructive/5 shadow-sm"
+                  class="w-[30rem] overflow-hidden rounded-md border border-destructive/30 bg-destructive/5 shadow-sm"
                 >
                   <div class="flex flex-col items-center gap-2 px-4 py-6 text-center">
                     <TriangleAlert class="size-5 text-destructive" aria-hidden="true" />
@@ -11617,7 +11855,7 @@
             {/if}
             {#if cardScreenCapturing[cardKey]}
               <!-- Loading placeholder card -->
-              <div class="w-80 overflow-hidden rounded-md border bg-background shadow-sm">
+              <div class="w-[30rem] overflow-hidden rounded-md border bg-background shadow-sm">
                 <div class="flex items-center gap-1.5 border-b bg-muted/30 px-2 py-1.5">
                   <LoaderCircle
                     class="size-3.5 animate-spin text-muted-foreground"
@@ -11635,7 +11873,7 @@
               </div>
             {/if}
             {#each cardScreenshots[cardKey] ?? [] as capture, idx (capture.timestamp)}
-              <div class="w-80 overflow-hidden rounded-md border bg-background shadow-sm">
+              <div class="w-[30rem] overflow-hidden rounded-md border bg-background shadow-sm">
                 <!-- Header: source badge + browser name + version + device + delete -->
                 <div class="flex items-center gap-1.5 border-b bg-muted/30 px-2 py-1.5">
                   {#if capture.source === 'ios-simulator'}
@@ -11974,6 +12212,8 @@
                       class="block w-full cursor-zoom-in p-2"
                       onclick={() => {
                         lightboxUrl = capture.imageUrl;
+                        lightboxCardKey = cardKey;
+                        lightboxIdx = idx as Num;
                       }}
                     >
                       <div
@@ -12002,12 +12242,14 @@
                       class="block w-full cursor-zoom-in"
                       onclick={() => {
                         lightboxUrl = capture.imageUrl;
+                        lightboxCardKey = cardKey;
+                        lightboxIdx = idx as Num;
                       }}
                     >
                       <img
                         src={capture.imageUrl}
                         alt="{cardKey} screenshot — {capture.browserDisplayName} {capture.device}"
-                        class="max-h-64 w-full object-contain"
+                        class="max-h-96 w-full object-contain"
                       />
                     </button>
                   {/if}
@@ -12547,27 +12789,128 @@
 
 <!-- Screenshot lightbox overlay -->
 {#if lightboxUrl}
+  {@const lbCaptures = lightboxCardKey ? (cardScreenshots[lightboxCardKey] ?? []) : []}
+  {@const lbHasPrev = (lightboxIdx as number) > 0}
+  {@const lbHasNext = (lightboxIdx as number) < lbCaptures.length - 1}
   <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
   <div
     class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm"
     onclick={() => {
       lightboxUrl = null;
+      lightboxCardKey = null;
     }}
     onkeydown={(e) => {
-      if (e.key === 'Escape') lightboxUrl = null;
+      if (e.key === 'Escape') {
+        lightboxUrl = null;
+        lightboxCardKey = null;
+      }
+      if (e.key === 'ArrowLeft' && lbHasPrev) {
+        lightboxIdx = ((lightboxIdx as number) - 1) as Num;
+        const prev: ScreenshotCapture | undefined = lbCaptures[lightboxIdx];
+        if (prev) lightboxUrl = prev.imageUrl;
+      }
+      if (e.key === 'ArrowRight' && lbHasNext) {
+        lightboxIdx = ((lightboxIdx as number) + 1) as Num;
+        const next: ScreenshotCapture | undefined = lbCaptures[lightboxIdx];
+        if (next) lightboxUrl = next.imageUrl;
+      }
     }}
+    tabindex="-1"
+    use:autoFocus
     transition:fade={{ duration: 150 }}
   >
-    <button
-      type="button"
-      class="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
-      onclick={() => {
-        lightboxUrl = null;
-      }}
-      aria-label="Close lightbox"
-    >
-      <X class="size-5" />
-    </button>
+    <!-- Close button with Esc tooltip -->
+    <Tooltip.Provider>
+      <Tooltip.Root delayDuration={200}>
+        <Tooltip.Trigger>
+          {#snippet child({ props: closeTipProps })}
+            <button
+              {...closeTipProps}
+              type="button"
+              class="absolute right-4 top-4 z-10 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+              onclick={() => {
+                lightboxUrl = null;
+                lightboxCardKey = null;
+              }}
+              aria-label="Close"
+            >
+              <X class="size-5" />
+            </button>
+          {/snippet}
+        </Tooltip.Trigger>
+        <Tooltip.Content side="bottom" sideOffset={4}>
+          Close <kbd
+            class="ml-1 rounded border border-white/20 bg-white/10 px-1 py-0.5 font-mono text-[10px]"
+            >Esc</kbd
+          >
+        </Tooltip.Content>
+      </Tooltip.Root>
+    </Tooltip.Provider>
+
+    <!-- Previous button -->
+    {#if lbHasPrev}
+      <Tooltip.Provider>
+        <Tooltip.Root delayDuration={200}>
+          <Tooltip.Trigger>
+            {#snippet child({ props: prevTipProps })}
+              <button
+                {...prevTipProps}
+                type="button"
+                class="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+                onclick={(e) => {
+                  e.stopPropagation();
+                  lightboxIdx = ((lightboxIdx as number) - 1) as Num;
+                  const prev: ScreenshotCapture | undefined = lbCaptures[lightboxIdx];
+                  if (prev) lightboxUrl = prev.imageUrl;
+                }}
+                aria-label="Previous screenshot"
+              >
+                <ChevronLeft class="size-5" />
+              </button>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content side="right" sideOffset={4}>
+            Previous <kbd
+              class="ml-1 rounded border border-white/20 bg-white/10 px-1 py-0.5 font-mono text-[10px]"
+              >←</kbd
+            >
+          </Tooltip.Content>
+        </Tooltip.Root>
+      </Tooltip.Provider>
+    {/if}
+
+    <!-- Next button -->
+    {#if lbHasNext}
+      <Tooltip.Provider>
+        <Tooltip.Root delayDuration={200}>
+          <Tooltip.Trigger>
+            {#snippet child({ props: nextTipProps })}
+              <button
+                {...nextTipProps}
+                type="button"
+                class="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+                onclick={(e) => {
+                  e.stopPropagation();
+                  lightboxIdx = ((lightboxIdx as number) + 1) as Num;
+                  const next: ScreenshotCapture | undefined = lbCaptures[lightboxIdx];
+                  if (next) lightboxUrl = next.imageUrl;
+                }}
+                aria-label="Next screenshot"
+              >
+                <ChevronRight class="size-5" />
+              </button>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content side="left" sideOffset={4}>
+            Next <kbd
+              class="ml-1 rounded border border-white/20 bg-white/10 px-1 py-0.5 font-mono text-[10px]"
+              >→</kbd
+            >
+          </Tooltip.Content>
+        </Tooltip.Root>
+      </Tooltip.Provider>
+    {/if}
+
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions a11y_click_events_have_key_events -->
     <img
       src={lightboxUrl}
@@ -12576,9 +12919,17 @@
       onclick={(e) => {
         e.stopPropagation();
         lightboxUrl = null;
+        lightboxCardKey = null;
       }}
     />
-    <div class="absolute bottom-4 flex items-center gap-2">
+    <div class="absolute bottom-4 flex items-center gap-3">
+      {#if lbCaptures.length > 1}
+        <span
+          class="rounded-md bg-white/10 px-2 py-1 text-[10px] font-medium tabular-nums text-white/70"
+        >
+          {(lightboxIdx as number) + 1} / {lbCaptures.length}
+        </span>
+      {/if}
       <a
         href={lightboxUrl}
         target="_blank"
