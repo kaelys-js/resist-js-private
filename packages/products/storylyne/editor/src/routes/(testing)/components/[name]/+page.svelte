@@ -1437,6 +1437,65 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /*  Dependencies section export                                        */
+  /* ------------------------------------------------------------------ */
+
+  /** Feedback state for Dependencies section export menu. */
+  let depsExportFeedback: Str = $state('' as Str);
+
+  /** Component ref for LensDependencyTree (expand/collapse all). */
+  let depTreeRef: LensDependencyTree = $state(undefined as unknown as LensDependencyTree);
+
+  /**
+   * Handle dependency section export/copy actions.
+   *
+   * @param action - The export action to perform
+   */
+  async function handleDepsExport(action: Str): Promise<void> {
+    let text: Str = '' as Str;
+    if (action === 'copy-imports') {
+      const lines: Str[] = [];
+      for (const dep of [...deps.internal, ...deps.workspace, ...deps.external]) {
+        if (dep.kind === 'namespace') {
+          lines.push(`import * as ${dep.names[0] ?? dep.path} from '${dep.path}';` as Str);
+        } else if (dep.kind === 'default') {
+          lines.push(`import ${dep.names[0] ?? 'default'} from '${dep.path}';` as Str);
+        } else if (dep.kind === 'type') {
+          lines.push(`import type { ${dep.names.join(', ')} } from '${dep.path}';` as Str);
+        } else {
+          lines.push(`import { ${dep.names.join(', ')} } from '${dep.path}';` as Str);
+        }
+      }
+      text = lines.join('\n') as Str;
+    } else if (action === 'copy-summary') {
+      const totalDeps: Num = (deps.internal.length +
+        deps.workspace.length +
+        deps.external.length) as Num;
+      const lines: Str[] = [
+        `## Dependencies for ${name}` as Str,
+        '' as Str,
+        `**Total:** ${totalDeps} dependencies` as Str,
+        `- Internal: ${deps.internal.length}` as Str,
+        `- Workspace: ${deps.workspace.length}` as Str,
+        `- External: ${deps.external.length}` as Str,
+        `- Used by: ${usedBy.length} components` as Str,
+      ];
+      text = lines.join('\n') as Str;
+    } else if (action === 'copy-json') {
+      text = JSON.stringify({ deps, usedBy }, null, 2) as Str;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      /* Clipboard write failed — browser may not support it in this context */
+    }
+    depsExportFeedback = action;
+    setTimeout((): Void => {
+      depsExportFeedback = '' as Str;
+    }, 1500);
+  }
+
+  /* ------------------------------------------------------------------ */
   /*  Error Boundary section                                             */
   /* ------------------------------------------------------------------ */
 
@@ -2238,6 +2297,7 @@
         propCount={props.length}
         variantCount={allVariants.length}
         exampleCount={lensExamples.length}
+        depCount={deps.internal.length + deps.workspace.length + deps.external.length}
         changelogCount={changelog.length}
         {prevComponent}
         {nextComponent}
@@ -2248,11 +2308,11 @@
         <div class="space-y-10">
           <!-- ═══ Props ═══ -->
           <section id="props" class="scroll-mt-60">
-            <div class="mb-3 flex flex-wrap items-center gap-3">
+            <div class="mb-3 flex items-center justify-between">
               <button
                 type="button"
                 onclick={() => toggleSection('props')}
-                class="flex items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+                class="flex flex-1 items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
               >
                 <ChevronRight
                   class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.props
@@ -3628,21 +3688,97 @@
           <!-- ═══ Dependencies ═══ -->
           {#if hasDeps}
             <section id="dependencies" class="scroll-mt-60">
-              <button
-                type="button"
-                onclick={() => toggleSection('dependencies')}
-                class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
-              >
-                <ChevronRight
-                  class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.dependencies
-                    ? 'rotate-90'
-                    : ''}"
-                />
-                <GitFork class="size-5" /> Dependencies
-              </button>
+              <div class="mb-3 flex items-center justify-between">
+                <button
+                  type="button"
+                  onclick={() => toggleSection('dependencies')}
+                  class="flex flex-1 items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+                >
+                  <ChevronRight
+                    class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.dependencies
+                      ? 'rotate-90'
+                      : ''}"
+                  />
+                  <GitFork class="size-5" /> Dependencies
+                  <span
+                    class="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground"
+                    >{deps.internal.length + deps.workspace.length + deps.external.length}</span
+                  >
+                </button>
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger>
+                    {#snippet child({ props })}
+                      <button
+                        {...props}
+                        class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        aria-label="Dependencies options"
+                      >
+                        <EllipsisVertical class="size-4" />
+                      </button>
+                    {/snippet}
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Content align="end" class="w-56">
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDepsExport('copy-imports' as Str);
+                      }}
+                    >
+                      {#if depsExportFeedback === 'copy-imports'}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <ClipboardCopy class="size-4" />
+                      {/if}
+                      Copy All Imports
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDepsExport('copy-summary' as Str);
+                      }}
+                    >
+                      {#if depsExportFeedback === 'copy-summary'}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <FileText class="size-4" />
+                      {/if}
+                      Copy Summary
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDepsExport('copy-json' as Str);
+                      }}
+                    >
+                      {#if depsExportFeedback === 'copy-json'}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <Braces class="size-4" />
+                      {/if}
+                      Copy as JSON
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item onclick={() => depTreeRef?.expandAll()}>
+                      <ChevronsUpDown class="size-4" />
+                      Expand All Sections
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item onclick={() => depTreeRef?.collapseAll()}>
+                      <ChevronsDownUp class="size-4" />
+                      Collapse All Sections
+                    </DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+              </div>
               {#if sectionOpen.dependencies}
                 <div transition:slide={{ duration: 200 }}>
                   <LensDependencyTree
+                    bind:this={depTreeRef}
                     {deps}
                     {usedBy}
                     currentComponent={name}

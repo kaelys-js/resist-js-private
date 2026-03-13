@@ -31,6 +31,8 @@
     variantCount: v.optional(NumSchema),
     /** Number of example cards rendered (shown as badge on "Go to Examples"). @values 0, 2, 8 */
     exampleCount: v.optional(NumSchema),
+    /** Number of import dependencies (shown as badge on "Go to Dependencies"). @values 0, 3, 12 */
+    depCount: v.optional(NumSchema),
     /** Number of changelog entries (shown as badge on "Go to Changelog"). @values 0, 4, 15 */
     changelogCount: v.optional(NumSchema),
     /** Previous component name for sequential navigation (kebab-case). @values button, dialog, sidebar */
@@ -150,6 +152,9 @@
 
   /** Number of example cards (0 if not provided). */
   const exampleCount: Num = $derived(validated.exampleCount ?? 0);
+
+  /** Number of import dependencies (0 if not provided). */
+  const depCount: Num = $derived(validated.depCount ?? 0);
 
   /** Number of changelog entries (0 if not provided). */
   const changelogCount: Num = $derived(validated.changelogCount ?? 0);
@@ -609,7 +614,13 @@
                 class={cn(!hasDeps && 'opacity-40')}
               >
                 <GitFork class="size-4" />
-                Go to Dependencies
+                <span class="flex-1">Go to Dependencies</span>
+                {#if (depCount as number) > 0}
+                  <span
+                    class="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground/60"
+                    >{depCount}</span
+                  >
+                {/if}
               </DropdownMenu.Item>
               <DropdownMenu.Item
                 onclick={() => scrollTo('changelog')}

@@ -46,12 +46,14 @@
    * Displays Name, Required, Type, Accepts, Default, and Description columns from
    * auto-extracted `PropMeta[]` data. Props with complex object types show collapsible
    * child rows for their type fields inside a `transition:slide` wrapper. Both parent
-   * and nested tables use `table-layout: fixed` to guarantee column alignment.
+   * and nested tables use explicit `<colgroup>` widths for column alignment.
    */
   import { fade, slide } from 'svelte/transition';
   import type { Bool, Num, Str, Void } from '@/schemas/common';
   import ArrowUp from '@lucide/svelte/icons/arrow-up';
   import ArrowDown from '@lucide/svelte/icons/arrow-down';
+  import ToggleLeft from '@lucide/svelte/icons/toggle-left';
+  import ToggleRight from '@lucide/svelte/icons/toggle-right';
   import { safeParse } from '@/utils/result/safe';
   import Badge from '../badge/badge.svelte';
   import LensEmpty from '../lens-empty/LensEmpty.svelte';
@@ -93,6 +95,50 @@
 
   /** Set of prop names whose type fields are currently expanded. */
   let expandedTypeFields: Set<Str> = $state(new Set());
+
+  /** Current table density mode. */
+  // Density state — cast needed because $state infers literal 'comfortable', not Str
+  let tableDensity: Str = $state('comfortable' as Str);
+
+  /**
+   * Return Tailwind padding classes based on the current density mode.
+   *
+   * @returns Padding class string
+   */
+  function densityPadding(): Str {
+    if (tableDensity === 'compact') return 'px-3 py-0.5' as Str;
+    if (tableDensity === 'spacious') return 'px-4 py-3' as Str;
+    return 'px-4 py-2' as Str;
+  }
+
+  /**
+   * Return Tailwind padding classes for nested/type-field rows based on density.
+   *
+   * @returns Padding class string for nested rows
+   */
+  function nestedDensityPadding(): Str {
+    if (tableDensity === 'compact') return 'px-3 py-0.5' as Str;
+    if (tableDensity === 'spacious') return 'px-4 py-2' as Str;
+    return 'px-4 py-1.5' as Str;
+  }
+
+  /**
+   * Set the table row density mode.
+   *
+   * @param density - One of 'compact', 'comfortable', or 'spacious'
+   */
+  export function setDensity(density: Str): Void {
+    tableDensity = density;
+  }
+
+  /**
+   * Get the current table row density mode.
+   *
+   * @returns Current density string
+   */
+  export function getDensity(): Str {
+    return tableDensity;
+  }
 
   /**
    * Toggle the expanded state of a prop's type fields.
@@ -307,6 +353,63 @@
   }
 
   /**
+   * Return the raw union member before quote-stripping, for type classification.
+   *
+   * @param type - Union type string
+   * @returns Array of raw member strings (with quotes preserved)
+   */
+  function parseUnionMembersRaw(type: Str): Str[] {
+    return type
+      .split(' | ')
+      .map((m: Str): Str => m.trim())
+      .filter(Boolean);
+  }
+
+  /**
+   * Return Tailwind classes for syntax-highlighting a type token.
+   *
+   * @param token - The type token string
+   * @returns Tailwind color classes
+   */
+  function typeTokenClass(token: Str): Str {
+    // Primitives
+    if (/^(string|number|boolean|Str|Num|Bool|Void)$/.test(token)) {
+      return 'text-blue-500 dark:text-blue-400' as Str;
+    }
+    // String literals
+    if (token.startsWith("'") || token.startsWith('"')) {
+      return 'text-emerald-600 dark:text-emerald-400' as Str;
+    }
+    // Nullish
+    if (token === 'undefined' || token === 'null') {
+      return 'text-muted-foreground/50' as Str;
+    }
+    // Type references (PascalCase or generics)
+    if (/^[A-Z]/.test(token) || token.includes('<')) {
+      return 'text-violet-500 dark:text-violet-400' as Str;
+    }
+    return 'text-muted-foreground' as Str;
+  }
+
+  /**
+   * Return chip classes for a union member based on its raw form.
+   *
+   * @param rawMember - The raw union member (with quotes if literal)
+   * @returns Tailwind classes for the chip
+   */
+  function unionChipClass(rawMember: Str): Str {
+    if (rawMember.startsWith("'") || rawMember.startsWith('"')) {
+      return 'rounded bg-emerald-500/10 px-1 py-0.5 text-[11px] text-emerald-600 dark:text-emerald-400' as Str;
+    }
+    if (rawMember === 'undefined' || rawMember === 'null') {
+      return 'rounded bg-muted px-1 py-0.5 text-[11px] text-muted-foreground/50' as Str;
+    }
+    // Other members: base chip + typeTokenClass
+    const colorClass: Str = typeTokenClass(rawMember);
+    return `rounded bg-muted px-1 py-0.5 text-[11px] ${colorClass}` as Str;
+  }
+
+  /**
    * Generate a human-readable explanation for a TypeScript type.
    *
    * @param type - The TypeScript type string
@@ -477,9 +580,208 @@
     return tf.typeFields !== undefined && tf.typeFields.length > 0;
   }
 
+  /**
+   * Return a tooltip label describing what clicking a column header will do next.
+   *
+   * @param col - The column key
+   * @returns Human-readable sort action description
+   */
+  function sortTooltip(col: Str): Str {
+    if (sortColumn === col) {
+      if (sortDirection === 'asc') return 'Click to sort descending' as Str;
+      if (sortDirection === 'desc') return 'Click to clear sort' as Str;
+    }
+    return 'Click to sort ascending' as Str;
+  }
+
   /** Number of columns in the table — always 7 (Name, Required, Type, Accepts, Default, Description, Actions). */
   const colCount: Num = 7;
 </script>
+
+{#snippet requiredDot(required: Bool)}
+  {#if required}
+    <span class="inline-flex size-2 rounded-full bg-red-500" aria-label="Required"></span>
+  {:else}
+    <span class="inline-flex size-2 rounded-full bg-muted-foreground/20" aria-label="Optional"
+    ></span>
+  {/if}
+{/snippet}
+
+{#snippet acceptsCell(accepts: Str)}
+  {#if accepts === '—'}
+    <span class="text-muted-foreground/40">—</span>
+  {:else if accepts === 'true, false'}
+    <span class="inline-flex flex-wrap gap-1">
+      <span
+        class="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400"
+        >true</span
+      >
+      <span
+        class="rounded-full bg-red-500/10 px-1.5 py-0.5 text-[10px] font-medium text-red-600 dark:text-red-400"
+        >false</span
+      >
+    </span>
+  {:else if accepts === 'text' || accepts === 'number'}
+    <span class="text-[11px] italic text-muted-foreground/50">{accepts}</span>
+  {:else if accepts.startsWith('list of ')}
+    {@const listContent = accepts.slice(8)}
+    {@const listNullable = listContent.endsWith(' or empty')}
+    {@const listBase = listNullable ? listContent.slice(0, -9) : listContent}
+    <span class="inline-flex items-center gap-1 text-[11px]">
+      <span
+        class="rounded bg-blue-500/10 px-1 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400"
+        >list</span
+      >
+      <span class="text-muted-foreground/40">of</span>
+      <span class="italic text-muted-foreground/50">{listBase}</span>
+      {#if listNullable}
+        <span class="text-muted-foreground/30">or</span>
+        <span class="text-[10px] italic text-muted-foreground/40">empty</span>
+      {/if}
+    </span>
+  {:else if accepts.endsWith(' or empty')}
+    <span class="inline-flex items-center gap-1 text-[11px]">
+      <span class="italic text-muted-foreground/50">{accepts.slice(0, -9)}</span>
+      <span class="text-muted-foreground/30">or</span>
+      <span class="text-[10px] italic text-muted-foreground/40">empty</span>
+    </span>
+  {:else if accepts.startsWith('object (')}
+    <span class="inline-flex items-center gap-1 text-[11px]">
+      <span
+        class="rounded bg-violet-500/10 px-1 py-0.5 text-[10px] font-medium text-violet-600 dark:text-violet-400"
+        >object</span
+      >
+      <span class="text-muted-foreground/50">{accepts.slice(7)}</span>
+    </span>
+  {:else if accepts === 'snippet' || accepts === 'component'}
+    <span
+      class="rounded bg-amber-500/10 px-1 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400"
+      >{accepts}</span
+    >
+  {:else if accepts === 'function'}
+    <span
+      class="rounded bg-purple-500/10 px-1 py-0.5 text-[10px] font-medium text-purple-600 dark:text-purple-400"
+      >{accepts}</span
+    >
+  {:else if accepts === 'DOM element'}
+    <span
+      class="rounded bg-sky-500/10 px-1 py-0.5 text-[10px] font-medium text-sky-600 dark:text-sky-400"
+      >{accepts}</span
+    >
+  {:else if isAcceptsUnion(accepts)}
+    <span class="inline-flex flex-wrap gap-1">
+      {#each parseAcceptsMembers(accepts) as member, i (i)}
+        <span
+          class="inline-flex items-center rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium"
+          >{member}</span
+        >
+      {/each}
+    </span>
+  {:else}
+    {accepts}
+  {/if}
+{/snippet}
+
+{#snippet defaultCell(defaultVal: Str | undefined)}
+  {#if defaultVal}
+    {#if defaultVal === 'true'}
+      <code class="rounded bg-muted px-1 py-0.5 text-[11px]"
+        ><ToggleRight class="mr-0.5 inline size-3 text-emerald-500" />{defaultVal}</code
+      >
+    {:else if defaultVal === 'false'}
+      <code class="rounded bg-muted px-1 py-0.5 text-[11px]"
+        ><ToggleLeft class="mr-0.5 inline size-3 text-muted-foreground/50" />{defaultVal}</code
+      >
+    {:else}
+      <code class="rounded bg-muted px-1 py-0.5 text-[11px]">{defaultVal}</code>
+    {/if}
+  {:else}
+    <span class="text-[10px] italic text-muted-foreground/30">none</span>
+  {/if}
+{/snippet}
+
+{#snippet typeCell(type: Str)}
+  {#if isUnionType(type)}
+    {@const rawMembers = parseUnionMembersRaw(type)}
+    {@const cleanMembers = parseUnionMembers(type)}
+    <span class="inline-flex flex-wrap items-center gap-1">
+      {#each cleanMembers as member, mi (mi)}
+        <code class={unionChipClass(rawMembers[mi] ?? ('' as Str))}>{member}</code>
+      {/each}
+    </span>
+  {:else if isComplexType(type)}
+    <span class="inline-flex items-center gap-1">
+      {#if type.length > 30}
+        <Tooltip.Provider>
+          <Tooltip.Root delayDuration={300}>
+            <Tooltip.Trigger>
+              {#snippet child({ props: truncTypeProps })}
+                <code {...truncTypeProps} class={cn('cursor-help truncate', typeTokenClass(type))}
+                  >{type.slice(0, 30)}…</code
+                >
+              {/snippet}
+            </Tooltip.Trigger>
+            <Tooltip.Content side="top" sideOffset={4} class="max-w-sm font-mono text-xs">
+              {type}
+            </Tooltip.Content>
+          </Tooltip.Root>
+        </Tooltip.Provider>
+      {:else}
+        <code class={typeTokenClass(type)}>{type}</code>
+      {/if}
+      <Tooltip.Provider>
+        <Tooltip.Root delayDuration={300}>
+          <Tooltip.Trigger>
+            {#snippet child({ props: triggerProps })}
+              <button
+                {...triggerProps}
+                type="button"
+                class="cursor-help text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+                aria-label="Type info"
+              >
+                <CircleHelp class="size-3" aria-hidden="true" />
+              </button>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content side="top" sideOffset={4}>
+            {explainType(type)}
+          </Tooltip.Content>
+        </Tooltip.Root>
+      </Tooltip.Provider>
+    </span>
+  {:else if type}
+    {#if type.length > 30}
+      <Tooltip.Provider>
+        <Tooltip.Root delayDuration={300}>
+          <Tooltip.Trigger>
+            {#snippet child({ props: truncTypeProps })}
+              <code {...truncTypeProps} class={cn('cursor-help', typeTokenClass(type))}
+                >{type.slice(0, 30)}…</code
+              >
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content side="top" sideOffset={4} class="max-w-sm font-mono text-xs">
+            {type}
+          </Tooltip.Content>
+        </Tooltip.Root>
+      </Tooltip.Provider>
+    {:else}
+      <code class={typeTokenClass(type)}>{type}</code>
+    {/if}
+  {:else}
+    <span class="text-muted-foreground/40">—</span>
+  {/if}
+{/snippet}
+
+{#snippet colGroupCols()}
+  <col class="w-[22%]" />
+  <col class="w-[60px]" />
+  <col class="w-[18%]" />
+  <col class="w-[18%]" />
+  <col class="w-[12%]" />
+  <col class="w-auto" />
+  <col class="w-10" />
+{/snippet}
 
 <div class={cn('overflow-x-auto rounded-lg border', validated.class)}>
   {#if validated.props.length === 0}
@@ -489,41 +791,72 @@
     />
   {:else}
     <div class="max-h-[70vh] overflow-y-auto">
-      <table class="w-full table-fixed text-sm">
+      <table class="w-full text-sm">
+        <colgroup>
+          {@render colGroupCols()}
+        </colgroup>
         <thead class="sticky top-0 z-[5] bg-background">
           <tr class="border-b bg-muted/50">
             {#each [{ key: 'name', label: 'Name' }, { key: 'required', label: 'Required' }, { key: 'type', label: 'Type' }, { key: 'accepts', label: 'Accepts' }, { key: 'default', label: 'Default' }, { key: 'description', label: 'Description' }] as col (col.key)}
-              <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+              <th
+                class={cn(
+                  densityPadding(),
+                  'text-left font-medium text-muted-foreground',
+                  col.key === 'name' && 'sticky left-0 z-[3] bg-muted/50',
+                )}
+              >
                 {#if onsort}
-                  <button
-                    type="button"
-                    class="group/th inline-flex items-center gap-1 transition-colors hover:text-foreground"
-                    onclick={() => handleColumnSort(col.key as PropsTableSortColumn)}
-                  >
-                    {col.label}
-                    {#if sortColumn === col.key && sortDirection === 'asc'}
-                      <ArrowUp class="size-3 text-primary" />
-                    {:else if sortColumn === col.key && sortDirection === 'desc'}
-                      <ArrowDown class="size-3 text-primary" />
-                    {:else}
-                      <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
-                    {/if}
-                  </button>
+                  <Tooltip.Provider>
+                    <Tooltip.Root delayDuration={400}>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props: sortTipProps })}
+                          <button
+                            {...sortTipProps}
+                            type="button"
+                            class="group/th inline-flex items-center gap-1 transition-colors hover:text-foreground"
+                            onclick={() => handleColumnSort(col.key as PropsTableSortColumn)}
+                          >
+                            {col.label}
+                            {#if sortColumn === col.key && sortDirection === 'asc'}
+                              <ArrowUp class="size-3 text-primary" />
+                            {:else if sortColumn === col.key && sortDirection === 'desc'}
+                              <ArrowDown class="size-3 text-primary" />
+                            {:else}
+                              <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                            {/if}
+                          </button>
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content side="bottom" sideOffset={4} class="text-xs">
+                        {sortTooltip(col.key)}
+                      </Tooltip.Content>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
                 {:else}
                   {col.label}
                 {/if}
               </th>
             {/each}
-            <th class="w-10 px-2 py-2"><span class="sr-only">Actions</span></th>
+            <th
+              class={cn(
+                'w-10 px-2',
+                densityPadding().replace('px-4', '').replace('px-3', '').trim(),
+              )}><span class="sr-only">Actions</span></th
+            >
           </tr>
         </thead>
         <tbody>
           {#each validated.props as prop (prop.name)}
             <tr
               id="prop-{prop.name}"
-              class="border-b last:border-b-0 transition-colors hover:bg-muted/40"
+              class="group/row border-b last:border-b-0 transition-colors hover:bg-muted/40"
             >
-              <td class="group/name px-4 py-2 font-mono text-xs font-medium">
+              <td
+                class={cn(
+                  'group/name font-mono text-xs font-medium sticky left-0 z-[2] bg-background group-hover/row:bg-muted/40',
+                  densityPadding(),
+                )}
+              >
                 <span class="inline-flex items-center gap-1">
                   {#if hasTypeFields(prop)}
                     <button
@@ -550,11 +883,11 @@
                       )}
                       onclick={() => toggleTypeFields(prop.name)}
                     >
-                      {prop.name}
+                      {prop.name}{#if isRequired(prop)}<span class="text-red-500">*</span>{/if}
                     </button>
                   {:else}
                     <span class={cn(isDeprecated(prop) && 'line-through opacity-60')}>
-                      {prop.name}
+                      {prop.name}{#if isRequired(prop)}<span class="text-red-500">*</span>{/if}
                     </span>
                   {/if}
                   <!-- Deep link copy button — visible on row hover -->
@@ -628,72 +961,19 @@
                   </Tooltip.Provider>
                 {/if}
               </td>
-              <td class="px-4 py-2">
-                {#if isRequired(prop)}
-                  <Badge variant="default" class="rounded-md px-1.5 py-0 text-[10px]"
-                    >Required</Badge
-                  >
-                {:else}
-                  <Badge
-                    variant="secondary"
-                    class="rounded-md px-1.5 py-0 text-[10px] text-muted-foreground">Optional</Badge
-                  >
-                {/if}
+              <td class={densityPadding()}>
+                {@render requiredDot(isRequired(prop))}
               </td>
-              <td class="px-4 py-2 font-mono text-xs text-muted-foreground">
-                {#if isUnionType(prop.type)}
-                  <span class="inline-flex flex-wrap items-center gap-1">
-                    {#each parseUnionMembers(prop.type) as member, mi (mi)}
-                      {#if mi > 0}
-                        <span class="text-[10px] text-muted-foreground/40">|</span>
-                      {/if}
-                      <code class="rounded bg-muted px-1 py-0.5 text-[11px]">{member}</code>
-                    {/each}
-                  </span>
-                {:else if isComplexType(prop.type)}
-                  <span class="inline-flex items-center gap-1">
-                    <code>{prop.type}</code>
-                    <Tooltip.Provider>
-                      <Tooltip.Root delayDuration={300}>
-                        <Tooltip.Trigger>
-                          {#snippet child({ props: triggerProps })}
-                            <button
-                              {...triggerProps}
-                              type="button"
-                              class="cursor-help text-muted-foreground/60 transition-colors hover:text-muted-foreground"
-                              aria-label="Type info"
-                            >
-                              <CircleHelp class="size-3" aria-hidden="true" />
-                            </button>
-                          {/snippet}
-                        </Tooltip.Trigger>
-                        <Tooltip.Content side="top" sideOffset={4}>
-                          {explainType(prop.type)}
-                        </Tooltip.Content>
-                      </Tooltip.Root>
-                    </Tooltip.Provider>
-                  </span>
-                {:else if prop.type}
-                  {prop.type}
-                {:else}
-                  <span class="text-muted-foreground/40">—</span>
-                {/if}
+              <td class={cn(densityPadding(), 'font-mono text-xs text-muted-foreground')}>
+                {@render typeCell(prop.type)}
               </td>
-              <td class="max-w-48 px-4 py-2 font-mono text-xs text-muted-foreground">
-                {#if getAccepts(prop) === '—'}
-                  <span class="text-muted-foreground/40">—</span>
-                {:else}
-                  {getAccepts(prop)}
-                {/if}
+              <td class={cn('max-w-48 font-mono text-xs text-muted-foreground', densityPadding())}>
+                {@render acceptsCell(getAccepts(prop))}
               </td>
-              <td class="px-4 py-2 font-mono text-xs text-muted-foreground">
-                {#if prop.default}
-                  {prop.default}
-                {:else}
-                  <span class="text-muted-foreground/40">—</span>
-                {/if}
+              <td class={cn(densityPadding(), 'font-mono text-xs text-muted-foreground')}>
+                {@render defaultCell(prop.default)}
               </td>
-              <td class="max-w-64 px-4 py-2 text-xs text-muted-foreground">
+              <td class={cn('max-w-64 text-xs text-muted-foreground', densityPadding())}>
                 {#if prop.description}
                   {@const desc = isDeprecated(prop)
                     ? cleanDeprecatedTag(prop.description)
@@ -721,7 +1001,12 @@
                 {/if}
               </td>
               <!-- Per-prop actions column -->
-              <td class="w-10 px-2 py-2">
+              <td
+                class={cn(
+                  'w-10 px-2',
+                  densityPadding().replace('px-4', '').replace('px-3', '').trim(),
+                )}
+              >
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
                     {#snippet child({ props: triggerProps })}
@@ -813,14 +1098,22 @@
               <tr class="border-b">
                 <td colspan={colCount} class="p-0">
                   <div transition:slide={{ duration: 150 }} class="overflow-hidden">
-                    <table class="w-full table-fixed text-sm">
+                    <table class="w-full text-sm">
+                      <colgroup>
+                        {@render colGroupCols()}
+                      </colgroup>
                       <tbody>
                         {#each prop.typeFields ?? [] as tf (tf.field)}
                           {@const nestedKey = `${prop.name}.${tf.field}`}
                           <tr
-                            class="border-b bg-muted/30 last:border-b-0 transition-colors hover:bg-muted/50"
+                            class="group/row border-b bg-muted/30 last:border-b-0 transition-colors hover:bg-muted/50"
                           >
-                            <td class="py-1.5 pl-12 pr-4 font-mono text-xs text-muted-foreground">
+                            <td
+                              class={cn(
+                                'pl-12 pr-4 font-mono text-xs text-muted-foreground sticky left-0 z-[2] bg-muted/30 group-hover/row:bg-muted/50',
+                                nestedDensityPadding(),
+                              )}
+                            >
                               {#if hasNestedFields(tf)}
                                 <span class="inline-flex items-center gap-1">
                                   <button
@@ -851,66 +1144,49 @@
                                 {tf.field}
                               {/if}
                             </td>
-                            <td class="px-4 py-1.5">
-                              {#if tf.required}
-                                <Badge variant="default" class="rounded-md px-1.5 py-0 text-[10px]"
-                                  >Required</Badge
-                                >
-                              {:else}
-                                <Badge
-                                  variant="secondary"
-                                  class="rounded-md px-1.5 py-0 text-[10px] text-muted-foreground"
-                                  >Optional</Badge
-                                >
-                              {/if}
+                            <td class={nestedDensityPadding()}>
+                              {@render requiredDot(tf.required)}
                             </td>
-                            <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
-                              {#if isUnionType(tf.type)}
-                                <span class="inline-flex flex-wrap items-center gap-1">
-                                  {#each parseUnionMembers(tf.type) as member, mi (mi)}
-                                    {#if mi > 0}
-                                      <span class="text-[10px] text-muted-foreground/40">|</span>
-                                    {/if}
-                                    <code class="rounded bg-muted px-1 py-0.5 text-[11px]"
-                                      >{member}</code
-                                    >
-                                  {/each}
-                                </span>
-                              {:else if tf.type}
-                                {tf.type}
-                              {:else}
-                                <span class="text-muted-foreground/40">—</span>
-                              {/if}
+                            <td
+                              class={cn(
+                                nestedDensityPadding(),
+                                'font-mono text-xs text-muted-foreground',
+                              )}
+                            >
+                              {@render typeCell(tf.type)}
                             </td>
-                            <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
-                              {#if isAcceptsUnion(tf.accepts)}
-                                <span class="inline-flex flex-wrap items-center gap-1">
-                                  {#each parseAcceptsMembers(tf.accepts) as member, mi (mi)}
-                                    {#if mi > 0}
-                                      <span class="text-[10px] text-muted-foreground/40">|</span>
-                                    {/if}
-                                    <code class="rounded bg-muted px-1 py-0.5 text-[11px]"
-                                      >{member}</code
-                                    >
-                                  {/each}
-                                </span>
-                              {:else if tf.accepts}
-                                {tf.accepts}
-                              {:else}
-                                <span class="text-muted-foreground/40">—</span>
-                              {/if}
+                            <td
+                              class={cn(
+                                nestedDensityPadding(),
+                                'font-mono text-xs text-muted-foreground',
+                              )}
+                            >
+                              {@render acceptsCell(tf.accepts)}
                             </td>
-                            <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
-                              <span class="text-muted-foreground/40">—</span>
+                            <td
+                              class={cn(
+                                nestedDensityPadding(),
+                                'font-mono text-xs text-muted-foreground',
+                              )}
+                            >
+                              <span class="text-[10px] italic text-muted-foreground/30">none</span>
                             </td>
-                            <td class="px-4 py-1.5 text-xs text-muted-foreground">
+                            <td class={cn(nestedDensityPadding(), 'text-xs text-muted-foreground')}>
                               {#if tf.description}
                                 {tf.description}
                               {:else}
                                 <span class="text-muted-foreground/40">—</span>
                               {/if}
                             </td>
-                            <td class="w-10 px-2 py-1.5">
+                            <td
+                              class={cn(
+                                'w-10 px-2',
+                                nestedDensityPadding()
+                                  .replace('px-4', '')
+                                  .replace('px-3', '')
+                                  .trim(),
+                              )}
+                            >
                               {#if variantKeySet.has(`${prop.name}.${tf.field}`)}
                                 <DropdownMenu.Root>
                                   <DropdownMenu.Trigger>
@@ -940,76 +1216,66 @@
                           {#if hasNestedFields(tf) && expandedTypeFields.has(nestedKey)}
                             {#each tf.typeFields ?? [] as ntf (ntf.field)}
                               <tr
-                                class="border-b bg-muted/20 last:border-b-0 transition-colors hover:bg-muted/40"
+                                class="group/row border-b bg-muted/20 last:border-b-0 transition-colors hover:bg-muted/40"
                               >
                                 <td
-                                  class="py-1.5 pl-20 pr-4 font-mono text-xs text-muted-foreground/80"
+                                  class={cn(
+                                    'pl-20 pr-4 font-mono text-xs text-muted-foreground/80 sticky left-0 z-[2] bg-muted/20 group-hover/row:bg-muted/40',
+                                    nestedDensityPadding(),
+                                  )}
                                 >
                                   {ntf.field}
                                 </td>
-                                <td class="px-4 py-1.5">
-                                  {#if ntf.required}
-                                    <Badge
-                                      variant="default"
-                                      class="rounded-md px-1.5 py-0 text-[10px]">Required</Badge
-                                    >
-                                  {:else}
-                                    <Badge
-                                      variant="secondary"
-                                      class="rounded-md px-1.5 py-0 text-[10px] text-muted-foreground"
-                                      >Optional</Badge
-                                    >
-                                  {/if}
+                                <td class={nestedDensityPadding()}>
+                                  {@render requiredDot(ntf.required)}
                                 </td>
-                                <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
-                                  {#if isUnionType(ntf.type)}
-                                    <span class="inline-flex flex-wrap items-center gap-1">
-                                      {#each parseUnionMembers(ntf.type) as member, mi (mi)}
-                                        {#if mi > 0}
-                                          <span class="text-[10px] text-muted-foreground/40">|</span
-                                          >
-                                        {/if}
-                                        <code class="rounded bg-muted px-1 py-0.5 text-[11px]"
-                                          >{member}</code
-                                        >
-                                      {/each}
-                                    </span>
-                                  {:else if ntf.type}
-                                    {ntf.type}
-                                  {:else}
-                                    <span class="text-muted-foreground/40">—</span>
-                                  {/if}
+                                <td
+                                  class={cn(
+                                    nestedDensityPadding(),
+                                    'font-mono text-xs text-muted-foreground',
+                                  )}
+                                >
+                                  {@render typeCell(ntf.type)}
                                 </td>
-                                <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
-                                  {#if isAcceptsUnion(ntf.accepts)}
-                                    <span class="inline-flex flex-wrap items-center gap-1">
-                                      {#each parseAcceptsMembers(ntf.accepts) as member, mi (mi)}
-                                        {#if mi > 0}
-                                          <span class="text-[10px] text-muted-foreground/40">|</span
-                                          >
-                                        {/if}
-                                        <code class="rounded bg-muted px-1 py-0.5 text-[11px]"
-                                          >{member}</code
-                                        >
-                                      {/each}
-                                    </span>
-                                  {:else if ntf.accepts}
-                                    {ntf.accepts}
-                                  {:else}
-                                    <span class="text-muted-foreground/40">—</span>
-                                  {/if}
+                                <td
+                                  class={cn(
+                                    nestedDensityPadding(),
+                                    'font-mono text-xs text-muted-foreground',
+                                  )}
+                                >
+                                  {@render acceptsCell(ntf.accepts)}
                                 </td>
-                                <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
-                                  <span class="text-muted-foreground/40">—</span>
+                                <td
+                                  class={cn(
+                                    nestedDensityPadding(),
+                                    'font-mono text-xs text-muted-foreground',
+                                  )}
+                                >
+                                  <span class="text-[10px] italic text-muted-foreground/30"
+                                    >none</span
+                                  >
                                 </td>
-                                <td class="px-4 py-1.5 text-xs text-muted-foreground">
+                                <td
+                                  class={cn(
+                                    nestedDensityPadding(),
+                                    'text-xs text-muted-foreground',
+                                  )}
+                                >
                                   {#if ntf.description}
                                     {ntf.description}
                                   {:else}
                                     <span class="text-muted-foreground/40">—</span>
                                   {/if}
                                 </td>
-                                <td class="w-10 px-2 py-1.5"></td>
+                                <td
+                                  class={cn(
+                                    'w-10 px-2',
+                                    nestedDensityPadding()
+                                      .replace('px-4', '')
+                                      .replace('px-3', '')
+                                      .trim(),
+                                  )}
+                                ></td>
                               </tr>
                             {/each}
                           {/if}
