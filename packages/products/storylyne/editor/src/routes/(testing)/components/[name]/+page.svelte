@@ -68,6 +68,9 @@
   import Clipboard from '@lucide/svelte/icons/clipboard';
   import LoaderCircle from '@lucide/svelte/icons/loader-circle';
   import GitCommitHorizontal from '@lucide/svelte/icons/git-commit-horizontal';
+  import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import AlertCircle from '@lucide/svelte/icons/alert-circle';
+  import Copy from '@lucide/svelte/icons/copy';
   import CopyButton from '@/ui/copy-button/CopyButton.svelte';
   import { cn } from '@/ui/utils.js';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
@@ -172,19 +175,31 @@
   let loadError: Str | null = $state(null);
 
   /** Changelog entry from git log API. */
-  type ChangelogEntry = { hash: Str; message: Str; date: Str; author: Str };
+  type ChangelogEntry = { hash: Str; message: Str; body: Str; date: Str; author: Str };
 
   /** Changelog entries for the current component. */
   let changelog: ChangelogEntry[] = $state([]);
 
+  /** Total number of commits for this component (may exceed entries returned). */
+  let changelogTotal: Num = $state(0 as Num);
+
   /** Whether changelog is currently being fetched from the API. */
   let changelogLoading: Bool = $state(true);
+
+  /** Error message from failed changelog fetch (null if no error). */
+  let changelogError: Str | null = $state(null);
 
   /** Search query for filtering changelog entries by hash, message, or author. */
   let changelogSearchQuery: Str = $state('');
 
   /** Selected changelog row hashes for batch copy. */
   let selectedChangelogRows: Set<Str> = $state(new Set());
+
+  /** Number of changelog entries visible (for "Show More" pagination). */
+  let changelogVisibleCount: Num = $state(30 as Num);
+
+  /** Set of expanded changelog row hashes (showing full commit body). */
+  let expandedChangelogRows: Set<Str> = $state(new Set());
 
   /** GitHub repo base URL for commit links (empty if unavailable). */
   let changelogRepoUrl: Str = $state('');
@@ -201,7 +216,7 @@
   /** SHA256 diff anchor for scrolling to the primary file in GitHub commit views. */
   let changelogDiffAnchor: Str = $state('');
 
-  /** Changelog entries filtered by search query (searches hash, message, author). */
+  /** Changelog entries filtered by search query (searches hash, message, body, author). */
   const filteredChangelog: ChangelogEntry[] = $derived(
     changelogSearchQuery.length === 0
       ? changelog
@@ -210,9 +225,15 @@
           return (
             e.hash.toLowerCase().includes(q) ||
             e.message.toLowerCase().includes(q) ||
+            e.body.toLowerCase().includes(q) ||
             e.author.toLowerCase().includes(q)
           );
         }),
+  );
+
+  /** Paginated slice of filtered changelog (for "Show More" button). */
+  const paginatedChangelog: ChangelogEntry[] = $derived(
+    filteredChangelog.slice(0, changelogVisibleCount as number),
   );
 
   /**
@@ -247,6 +268,68 @@
   }
 
   /**
+   * Toggle a changelog row's expanded state (show/hide full commit body).
+   *
+   * @param hash - Commit hash to toggle
+   */
+  function toggleChangelogExpand(hash: Str): Void {
+    const next: Set<Str> = new Set(expandedChangelogRows);
+    if (next.has(hash)) {
+      next.delete(hash);
+    } else {
+      next.add(hash);
+    }
+    expandedChangelogRows = next;
+  }
+
+  /**
+   * Re-fetch changelog data for the current component.
+   * Used as a retry mechanism when the initial fetch fails.
+   */
+  function retryChangelog(): Void {
+    changelogError = null;
+    changelogLoading = true;
+    changelog = [];
+    changelogTotal = 0 as Num;
+    changelogSearchQuery = '' as Str;
+    selectedChangelogRows = new Set();
+    expandedChangelogRows = new Set();
+    changelogVisibleCount = 30 as Num;
+    (async (): Promise<void> => {
+      try {
+        const response: Response = await fetch(`/api/lens/changelog/${name}`);
+        if (response.ok) {
+          const data: unknown = await response.json();
+          const body: {
+            entries: ChangelogEntry[];
+            total: Num;
+            repoUrl: Str;
+            componentPath: Str;
+            diffAnchor: Str;
+          } = data as {
+            entries: ChangelogEntry[];
+            total: Num;
+            repoUrl: Str;
+            componentPath: Str;
+            diffAnchor: Str;
+          };
+          changelog = body.entries;
+          changelogTotal = body.total;
+          changelogRepoUrl = body.repoUrl;
+          changelogComponentPath = body.componentPath;
+          changelogDiffAnchor = body.diffAnchor;
+        } else {
+          changelogError = `Failed to load changelog (HTTP ${response.status})` as Str;
+        }
+      } catch {
+        changelogError = 'Failed to load changelog — network error' as Str;
+      } finally {
+        changelogLoading = false;
+      }
+    })();
+  }
+
+  /**
    * Copy selected changelog rows (or all if none selected) to clipboard as text.
    */
   async function copySelectedChangelog(): Promise<void> {
@@ -254,10 +337,11 @@
       selectedChangelogRows.size > 0
         ? changelog.filter((e: ChangelogEntry): boolean => selectedChangelogRows.has(e.hash))
         : changelog;
-    const lines: Str[] = entries.map(
-      (e: ChangelogEntry): Str =>
-        `${e.hash} ${e.message} (${e.author}, ${new Date(e.date).toLocaleString()})` as Str,
-    );
+    const lines: Str[] = entries.map((e: ChangelogEntry): Str => {
+      const base: Str =
+        `${e.hash} ${e.message} (${e.author}, ${new Date(e.date).toLocaleString()})` as Str;
+      return e.body ? (`${base}\n${e.body}` as Str) : base;
+    });
     try {
       await navigator.clipboard.writeText(lines.join('\n'));
     } catch {
@@ -458,8 +542,10 @@
   /** Whether the component has custom documentation. */
   const hasDocs: Bool = $derived(docsContent !== null && docsContent.length > 0);
 
-  /** Whether the component has changelog entries. */
-  const hasChangelog: Bool = $derived(changelog.length > 0);
+  /** Whether the changelog section should be shown (has entries, is loading, or has error). */
+  const hasChangelog: Bool = $derived(
+    changelog.length > 0 || changelogLoading || changelogError !== null,
+  );
 
   /** Source sizes per component directory (computed from raw sources). */
   const sourceSizes: Record<Str, Num> = extractSourceSizes(rawSources, extractDir);
@@ -511,12 +597,16 @@
     if (!currentName) return;
     let cancelled: Bool = false;
     changelog = [];
+    changelogTotal = 0 as Num;
     changelogLoading = true;
+    changelogError = null;
     changelogRepoUrl = '';
     changelogComponentPath = '';
     changelogDiffAnchor = '';
     changelogSearchQuery = '' as Str;
     selectedChangelogRows = new Set();
+    expandedChangelogRows = new Set();
+    changelogVisibleCount = 30 as Num;
     (async (): Promise<void> => {
       try {
         const response: Response = await fetch(`/api/lens/changelog/${currentName}`);
@@ -524,25 +614,30 @@
         if (response.ok) {
           const data: unknown = await response.json();
           if (cancelled) return;
-          // Server returns { entries, repoUrl, componentPath, diffAnchor }
+          // Server returns { entries, total, repoUrl, componentPath, diffAnchor }
           const body: {
             entries: ChangelogEntry[];
+            total: Num;
             repoUrl: Str;
             componentPath: Str;
             diffAnchor: Str;
           } = data as {
             entries: ChangelogEntry[];
+            total: Num;
             repoUrl: Str;
             componentPath: Str;
             diffAnchor: Str;
           };
           changelog = body.entries;
+          changelogTotal = body.total;
           changelogRepoUrl = body.repoUrl;
           changelogComponentPath = body.componentPath;
           changelogDiffAnchor = body.diffAnchor;
+        } else {
+          changelogError = `Failed to load changelog (HTTP ${response.status})` as Str;
         }
       } catch {
-        /* Changelog fetch failed — entries remain empty */
+        changelogError = 'Failed to load changelog — network error' as Str;
       } finally {
         if (!cancelled) changelogLoading = false;
       }
@@ -863,16 +958,20 @@
    * @returns Formatted markdown string
    */
   function changelogToMarkdown(entries: ChangelogEntry[]): Str {
-    const lines: Str[] = [
-      `# Changelog — ${name}`,
-      '',
-      '| Hash | Message | Date | Author |',
-      '|------|---------|------|--------|',
-      ...entries.map(
-        (e: ChangelogEntry): Str =>
-          `| ${e.hash} | ${e.message} | ${new Date(e.date).toLocaleString()} | ${e.author} |`,
-      ),
-    ];
+    const lines: Str[] = [`# Changelog — ${name}`, ''];
+    for (const e of entries) {
+      lines.push(
+        `- **\`${e.hash}\`** ${e.message} — *${e.author}* (${new Date(e.date).toLocaleString()})`,
+      );
+      if (e.body) {
+        lines.push('');
+        /* Indent body lines under the bullet */
+        for (const bodyLine of e.body.split('\n')) {
+          lines.push(`  ${bodyLine}`);
+        }
+        lines.push('');
+      }
+    }
     return lines.join('\n');
   }
 
@@ -883,11 +982,12 @@
    * @returns CSV-formatted string
    */
   function changelogToCsv(entries: ChangelogEntry[]): Str {
-    const header: Str = 'Hash,Message,Date,Author';
+    const header: Str = 'Hash,Message,Body,Date,Author';
     const rows: Str[] = entries.map((e: ChangelogEntry): Str => {
       const msg: Str = e.message.replaceAll('"', '""');
+      const body: Str = e.body.replaceAll('"', '""');
       const author: Str = e.author.replaceAll('"', '""');
-      return `${e.hash},"${msg}",${new Date(e.date).toLocaleString()},"${author}"`;
+      return `${e.hash},"${msg}","${body}",${new Date(e.date).toLocaleString()},"${author}"`;
     });
     return [header, ...rows].join('\n');
   }
@@ -1900,6 +2000,25 @@
                         <span class="text-xs">Loading changelog...</span>
                       </div>
                     </div>
+                  {:else if changelogError}
+                    <!-- Error state with retry -->
+                    <div
+                      class="flex flex-col items-center justify-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 py-12"
+                    >
+                      <AlertCircle class="size-6 text-destructive" />
+                      <div class="flex flex-col items-center gap-1">
+                        <p class="text-sm font-medium text-destructive">
+                          {changelogError}
+                        </p>
+                        <button
+                          type="button"
+                          class="mt-1 rounded-md bg-muted px-3 py-1 text-xs font-medium transition-colors hover:bg-muted/80"
+                          onclick={retryChangelog}
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    </div>
                   {:else if changelog.length === 0}
                     <!-- Empty state -->
                     <div
@@ -1947,7 +2066,14 @@
                         </div>
                       </div>
                     {:else}
+                      <!-- Showing X of Y count -->
+                      {#if changelogTotal > changelog.length}
+                        <p class="mb-1.5 text-[11px] text-muted-foreground/60">
+                          Showing {changelog.length} of {changelogTotal} commits
+                        </p>
+                      {/if}
                       <div class="rounded-lg border bg-card">
+                        <!-- Selection bar or hint -->
                         {#if selectedChangelogRows.size > 0}
                           <div
                             class="flex items-center gap-2 border-b bg-muted/30 px-4 py-1.5 text-xs text-muted-foreground"
@@ -1955,11 +2081,23 @@
                             <span class="font-medium">{selectedChangelogRows.size} selected</span>
                             <button
                               type="button"
-                              class="text-primary hover:underline"
+                              class="rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
+                              onclick={copySelectedChangelog}
+                            >
+                              <Copy class="mr-1 inline size-3" />
+                              Copy Selected
+                            </button>
+                            <button
+                              type="button"
+                              class="text-muted-foreground/60 hover:text-foreground"
                               onclick={() => {
                                 selectedChangelogRows = new Set();
                               }}>Clear</button
                             >
+                          </div>
+                        {:else}
+                          <div class="border-b px-4 py-1 text-[11px] text-muted-foreground/40">
+                            Click rows to select for batch copy
                           </div>
                         {/if}
                         <table class="w-full table-fixed text-sm">
@@ -1973,7 +2111,7 @@
                             </tr>
                           </thead>
                           <tbody>
-                            {#each filteredChangelog as entry (entry.hash)}
+                            {#each paginatedChangelog as entry (entry.hash)}
                               <tr
                                 class={cn(
                                   'border-b last:border-b-0 cursor-pointer transition-colors',
@@ -2010,18 +2148,50 @@
                                   {/if}
                                 </td>
                                 <td class="px-4 py-2 text-sm">
-                                  <Tooltip.Root delayDuration={500}>
-                                    <Tooltip.Trigger>
-                                      {#snippet child({ props: msgTipProps })}
-                                        <span {...msgTipProps} class="block truncate"
-                                          >{entry.message}</span
+                                  <div class="min-w-0">
+                                    <div class="flex items-center gap-1">
+                                      {#if entry.body}
+                                        <button
+                                          type="button"
+                                          class="shrink-0 rounded p-0.5 text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground"
+                                          onclick={(e: MouseEvent): void => {
+                                            e.stopPropagation();
+                                            toggleChangelogExpand(entry.hash);
+                                          }}
+                                          aria-label={expandedChangelogRows.has(entry.hash)
+                                            ? 'Collapse commit details'
+                                            : 'Expand commit details'}
                                         >
-                                      {/snippet}
-                                    </Tooltip.Trigger>
-                                    <Tooltip.Content side="top" sideOffset={4} class="max-w-sm">
-                                      {entry.message}
-                                    </Tooltip.Content>
-                                  </Tooltip.Root>
+                                          <ChevronDown
+                                            class={cn(
+                                              'size-3.5 transition-transform duration-200',
+                                              expandedChangelogRows.has(entry.hash) && 'rotate-180',
+                                            )}
+                                          />
+                                        </button>
+                                      {/if}
+                                      <Tooltip.Root delayDuration={500}>
+                                        <Tooltip.Trigger>
+                                          {#snippet child({ props: msgTipProps })}
+                                            <span {...msgTipProps} class="block truncate"
+                                              >{entry.message}</span
+                                            >
+                                          {/snippet}
+                                        </Tooltip.Trigger>
+                                        <Tooltip.Content side="top" sideOffset={4} class="max-w-sm">
+                                          {entry.message}
+                                        </Tooltip.Content>
+                                      </Tooltip.Root>
+                                    </div>
+                                    {#if expandedChangelogRows.has(entry.hash) && entry.body}
+                                      <div
+                                        class="mt-1.5 whitespace-pre-wrap rounded-md bg-muted/50 px-2.5 py-2 text-xs leading-relaxed text-muted-foreground"
+                                        transition:slide={{ duration: 150 }}
+                                      >
+                                        {entry.body}
+                                      </div>
+                                    {/if}
+                                  </div>
                                 </td>
                                 <td
                                   class="whitespace-nowrap px-4 py-2 text-xs text-muted-foreground"
@@ -2080,6 +2250,21 @@
                             {/each}
                           </tbody>
                         </table>
+                        <!-- Show More button for pagination -->
+                        {#if paginatedChangelog.length < filteredChangelog.length}
+                          <div class="border-t px-4 py-2 text-center">
+                            <button
+                              type="button"
+                              class="text-xs font-medium text-primary hover:underline"
+                              onclick={() => {
+                                changelogVisibleCount = ((changelogVisibleCount as number) +
+                                  30) as Num;
+                              }}
+                            >
+                              Show More ({filteredChangelog.length - paginatedChangelog.length} remaining)
+                            </button>
+                          </div>
+                        {/if}
                       </div>
                     {/if}
                   {/if}
