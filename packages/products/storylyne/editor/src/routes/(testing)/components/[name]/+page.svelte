@@ -1196,37 +1196,7 @@
       errorMessage: '' as Str,
       expanded: true as Bool,
     },
-    {
-      id: 'required-only' as Str,
-      title: 'Default Props' as Str,
-      description:
-        'Component rendered with props at their default values — shows the baseline functional state.' as Str,
-      rendered: true as Bool,
-      passed: null,
-      errorMessage: '' as Str,
-      expanded: true as Bool,
-    },
   ]);
-
-  /**
-   * Props for the required-only test. Uses strictly required props with empty
-   * defaults. Falls back to ALL props at their defaults if none qualify, so
-   * the test is always distinct from the `missing-props` scenario.
-   */
-  const requiredOnlyTestProps: PropMeta[] = $derived.by((): PropMeta[] => {
-    const strict: PropMeta[] = props.filter(
-      (p: PropMeta): boolean => !p.optional && p.default === '',
-    );
-    return strict.length > 0 ? strict : props;
-  });
-
-  /**
-   * Whether the required-only test fell back to using all props.
-   * Used to update the test description dynamically.
-   */
-  const requiredOnlyUsesAllProps: Bool = $derived(
-    props.filter((p: PropMeta): boolean => !p.optional && p.default === '').length === 0,
-  );
 
   /** Custom error scenario JSON input. */
   let customErrorPropsJson: Str = $state('');
@@ -1293,9 +1263,8 @@
         for (const test of errorBoundaryTests) {
           if (test.passed === null) {
             /* For "missing props" and "invalid props", a successful render means the boundary
-               DIDN'T catch — which is actually a failure (the component should have thrown).
-               For "required only", a successful render means it works — which is a pass. */
-            test.passed = test.id === 'required-only';
+               DIDN'T catch — which is actually a failure (the component should have thrown). */
+            test.passed = false;
             test.errorMessage = '' as Str;
           }
         }
@@ -2137,6 +2106,10 @@
                     : ''}"
                 />
                 <Layers class="size-5" /> Variants
+                <span
+                  class="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground"
+                  >{allVariants.length}</span
+                >
               </button>
               {#if hasVariants}
                 <DropdownMenu.Root>
@@ -2271,6 +2244,10 @@
                     : ''}"
                 />
                 <BookOpen class="size-5" /> Examples
+                <span
+                  class="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground"
+                  >{lensExamples.length}</span
+                >
               </button>
               {#if hasExamples}
                 <DropdownMenu.Root>
@@ -2700,30 +2677,6 @@
                                   {#snippet failed(error)}
                                     <LensError
                                       title="Validation Error"
-                                      description={error instanceof Error
-                                        ? error.message
-                                        : String(error)}
-                                    />
-                                  {/snippet}
-                                </svelte:boundary>
-                              {:else if test.id === 'required-only'}
-                                <svelte:boundary
-                                  onerror={(error) =>
-                                    recordErrorBoundaryCatch('required-only' as Str, error)}
-                                >
-                                  <LensComponentRenderer
-                                    component={PrimaryComponent}
-                                    props={requiredOnlyTestProps}
-                                    tagName={toTag(name)}
-                                    componentName={name}
-                                    label=""
-                                    silent={isCompound}
-                                    contextWrapper={lensContextWrapper ?? undefined}
-                                    codeText={`<!-- ${requiredOnlyUsesAllProps ? 'All props at defaults' : 'Only required props (minimum values)'} -->\n<${toTag(name)} ... />`}
-                                  />
-                                  {#snippet failed(error)}
-                                    <LensError
-                                      title="Render Error"
                                       description={error instanceof Error
                                         ? error.message
                                         : String(error)}

@@ -716,9 +716,9 @@
     description: Str;
   }> = [
     { value: 0.25, label: '25%', description: 'Quarter size' },
-    { value: 0.33, label: '33%', description: 'Third size' },
+    { value: (1 / 3) as Num, label: '33%', description: 'Third size' },
     { value: 0.5, label: '50%', description: 'Half size' },
-    { value: 0.67, label: '67%', description: 'Two-thirds size' },
+    { value: (2 / 3) as Num, label: '67%', description: 'Two-thirds size' },
     { value: 0.75, label: '75%', description: 'Three-quarters' },
     { value: 1, label: '100%', description: 'Default — actual size' },
     { value: 1.25, label: '125%', description: 'Slight magnification' },
