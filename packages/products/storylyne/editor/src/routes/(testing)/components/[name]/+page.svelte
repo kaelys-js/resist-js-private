@@ -36,6 +36,8 @@
     isInternalFile,
     findPrimaryKey,
     parseLensMeta,
+    computeLensCompatibility,
+    type LensCompatibility,
   } from '@/ui/lens/lens-utils.js';
   import { page } from '$app/state';
   import LensEmpty from '@/ui/lens-empty/LensEmpty.svelte';
@@ -74,6 +76,7 @@
   import GitCommitHorizontal from '@lucide/svelte/icons/git-commit-horizontal';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import AlertCircle from '@lucide/svelte/icons/alert-circle';
+  import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import Copy from '@lucide/svelte/icons/copy';
   import FolderOpen from '@lucide/svelte/icons/folder-open';
   import Hash from '@lucide/svelte/icons/hash';
@@ -197,6 +200,37 @@
   let loading: Bool = $state(true);
   let showSkeleton: Bool = $state(false);
   let loadError: Str | null = $state(null);
+
+  /** Lens compatibility result for the current component, computed from loaded data. */
+  const lensCompat: LensCompatibility | null = $derived.by((): LensCompatibility | null => {
+    if (loading || !rawSource) return null;
+    const currentName: Str = name;
+    const hasLensTs: boolean = Object.keys(lensModules).some(
+      (k: Str): boolean => extractDir(k) === currentName,
+    );
+    const exampleFileKeys: Str[] = Object.keys(exampleLiveModules).filter((k: Str): boolean =>
+      k.includes(`/${currentName}/examples/`),
+    );
+    const existingFiles: Str[] = exampleFileKeys.map((k: Str): Str => {
+      const parts: Str[] = k.split('/');
+      return parts.at(-1) ?? '';
+    });
+    const declaredNames: Str[] = lensExamples.map((ex: LensExample): Str => ex.name);
+    const usesTv: boolean = /\btv\s*\(\s*\{/.test(rawSource);
+    return computeLensCompatibility({
+      dir: currentName,
+      source: rawSource,
+      hasLensTs,
+      meta: lensMeta ?? null,
+      hasPrimary: PrimaryComponent !== null,
+      props,
+      hasVariants: variantMeta !== null && variantMeta.variants.length > 0,
+      hasExamples: lensExamples.length > 0,
+      usesTv,
+      declaredExampleNames: declaredNames,
+      existingExampleFiles: existingFiles,
+    });
+  });
 
   /** Changelog entry from git log API. */
   type ChangelogEntry = { hash: Str; message: Str; body: Str; date: Str; author: Str };
@@ -2303,6 +2337,31 @@
         {nextComponent}
       />
     </div>
+    {#if lensCompat && !lensCompat.compatible}
+      <div class="mx-8 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3">
+        <div class="flex items-start gap-2">
+          <TriangleAlert class="mt-0.5 size-4 shrink-0 text-amber-500" aria-hidden="true" />
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold text-amber-600 dark:text-amber-400">
+              Incompatible — {lensCompat.violations.length} Lens rule violation{lensCompat
+                .violations.length === 1
+                ? ''
+                : 's'}
+            </p>
+            <ul class="mt-1.5 space-y-0.5">
+              {#each lensCompat.violations as violation, i (i)}
+                <li class="text-xs text-foreground/70">
+                  {#if (violation.rule as number) > 0}
+                    <span class="font-mono text-amber-500/70">R{violation.rule}</span>
+                  {/if}
+                  {violation.message}
+                </li>
+              {/each}
+            </ul>
+          </div>
+        </div>
+      </div>
+    {/if}
     <div class="px-8 py-8">
       <svelte:boundary>
         <div class="space-y-10">
