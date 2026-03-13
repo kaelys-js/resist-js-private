@@ -485,6 +485,12 @@
   /** Per-card screenshot capture loading state. */
   let cardScreenCapturing: Record<Str, Bool> = $state({});
 
+  /** Per-card set of engine sources currently being captured (for parallel "All" placeholders). */
+  let cardCapturingSources: Record<Str, Set<ScreenshotSource>> = $state({});
+
+  /** Per-card total number of sources in the current parallel capture batch. */
+  let cardCapturingTotal: Record<Str, Num> = $state({});
+
   /** Per-card screenshot capture error message (empty = no error). */
   let cardScreenError: Record<Str, Str> = $state({});
 
@@ -6424,7 +6430,11 @@
       log.warn(`Screenshot capture error: ${msg}`);
       cardScreenError[key] = msg;
     } finally {
-      cardScreenCapturing[key] = false;
+      /* Only clear capturing flag when NOT inside a parallel batch —
+         captureParallel manages the flag itself via cardCapturingSources */
+      if (!cardCapturingSources[key]?.size) {
+        cardScreenCapturing[key] = false;
+      }
     }
   }
 
@@ -6450,15 +6460,33 @@
       sources.push('android-emulator' as ScreenshotSource);
     }
 
-    /* Fire each source sequentially to avoid cardScreenSource race */
+    /* Track which sources are in-flight for per-engine placeholders */
+    cardCapturingSources[key] = new Set(sources);
+    cardCapturingTotal[key] = sources.length as Num;
+
     const originalSource: ScreenshotSource = cardScreenSource[key] || 'playwright';
-    const promises: Array<Promise<void>> = sources.map((src: ScreenshotSource): Promise<void> => {
-      cardScreenSource[key] = src;
-      return captureScreenshot(key, variantKey, option);
-    });
+
+    /* Fire each source as an independent capture with its own source override */
+    const promises: Array<Promise<void>> = sources.map(
+      async (src: ScreenshotSource): Promise<void> => {
+        /* Temporarily set source for this capture's param building */
+        const prevSource: ScreenshotSource = cardScreenSource[key] || 'playwright';
+        cardScreenSource[key] = src;
+        try {
+          await captureScreenshot(key, variantKey, option);
+        } finally {
+          /* Remove this source from the in-flight set (progressive reveal) */
+          const current: Set<ScreenshotSource> = cardCapturingSources[key] ?? new Set();
+          current.delete(src);
+          cardCapturingSources[key] = new Set(current);
+        }
+      },
+    );
 
     await Promise.allSettled(promises);
     cardScreenSource[key] = originalSource;
+    cardCapturingSources[key] = new Set();
+    cardCapturingTotal[key] = 0 as Num;
     cardScreenCapturing[key] = false;
   }
 
@@ -11759,6 +11787,17 @@
               class="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
               >{(cardScreenshots[cardKey] ?? []).length}</span
             >
+            {#if cardScreenCapturing[cardKey] && (cardCapturingTotal[cardKey] ?? 0) > 0}
+              {@const total = cardCapturingTotal[cardKey] ?? 0}
+              {@const done = (total as number) - (cardCapturingSources[cardKey]?.size ?? 0)}
+              <span
+                class="inline-flex items-center gap-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary"
+                transition:fade={{ duration: 150 }}
+              >
+                <LoaderCircle class="size-2.5 animate-spin" aria-hidden="true" />
+                {done} of {total}
+              </span>
+            {/if}
           </button>
           <div class="flex items-center gap-1.5">
             {#if (cardScreenshots[cardKey] ?? []).some((c) => c.source === 'ios-simulator' && c.safeAreaInsets)}
@@ -12514,23 +12553,44 @@
               </div>
             {/if}
             {#if cardScreenCapturing[cardKey]}
-              <!-- Loading placeholder card -->
-              <div class="w-[30rem] overflow-hidden rounded-md border bg-background shadow-sm">
-                <div class="flex items-center gap-1.5 border-b bg-muted/30 px-2 py-1.5">
-                  <LoaderCircle
-                    class="size-3.5 animate-spin text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                  <span class="text-[11px] font-semibold text-muted-foreground"
-                    >Capturing screenshot…</span
-                  >
+              <!-- Per-engine loading placeholder cards -->
+              {@const capturingSources = cardCapturingSources[cardKey] ?? new Set()}
+              {@const sourcesToShow =
+                capturingSources.size > 0
+                  ? [...capturingSources]
+                  : [cardScreenSource[cardKey] || 'playwright']}
+              {#each sourcesToShow as placeholderSource (placeholderSource)}
+                <div
+                  class="w-[30rem] overflow-hidden rounded-md border bg-background shadow-sm"
+                  transition:fade={{ duration: 150 }}
+                >
+                  <div class="flex items-center gap-1.5 border-b bg-muted/30 px-2 py-1.5">
+                    {#if placeholderSource === 'ios-simulator'}
+                      <Apple class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+                    {:else if placeholderSource === 'android-emulator'}
+                      <Bot class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+                    {:else}
+                      <Chrome class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+                    {/if}
+                    <LoaderCircle
+                      class="size-3.5 animate-spin text-muted-foreground"
+                      aria-hidden="true"
+                    />
+                    <span class="text-[11px] font-semibold text-muted-foreground">
+                      {placeholderSource === 'ios-simulator'
+                        ? 'Capturing iOS Safari…'
+                        : placeholderSource === 'android-emulator'
+                          ? 'Capturing Android Chrome…'
+                          : 'Capturing Chromium…'}
+                    </span>
+                  </div>
+                  <div class="flex flex-col gap-2 px-4 py-8">
+                    <div class="mx-auto h-32 w-full animate-pulse rounded bg-muted/50"></div>
+                    <div class="mx-auto h-2.5 w-3/4 animate-pulse rounded bg-muted/40"></div>
+                    <div class="mx-auto h-2.5 w-1/2 animate-pulse rounded bg-muted/30"></div>
+                  </div>
                 </div>
-                <div class="flex flex-col gap-2 px-4 py-8">
-                  <div class="mx-auto h-32 w-full animate-pulse rounded bg-muted/50"></div>
-                  <div class="mx-auto h-2.5 w-3/4 animate-pulse rounded bg-muted/40"></div>
-                  <div class="mx-auto h-2.5 w-1/2 animate-pulse rounded bg-muted/30"></div>
-                </div>
-              </div>
+              {/each}
             {/if}
             {#each cardScreenshots[cardKey] ?? [] as capture, idx (capture.timestamp)}
               <div class="w-[30rem] overflow-hidden rounded-md border bg-background shadow-sm">
@@ -12594,14 +12654,14 @@
                                   capture.device === 'custom' ? ('' as Str) : capture.device;
                                 captureScreenshot(cardKey, variantKey, variantOption);
                               }}
-                              aria-label="Recapture with same settings"
+                              aria-label="New capture with same settings"
                             >
                               <RefreshCw class="size-3.5" aria-hidden="true" />
                             </button>
                           {/snippet}
                         </Tooltip.Trigger>
                         <Tooltip.Content side="top" sideOffset={4}>
-                          Recapture with same settings
+                          New capture (same settings)
                         </Tooltip.Content>
                       </Tooltip.Root>
                     </Tooltip.Provider>
@@ -12885,7 +12945,7 @@
                           }}
                         >
                           <RefreshCw class="size-4" />
-                          Recapture with Same Settings
+                          New Capture (Same Settings)
                         </DropdownMenu.Item>
                         <DropdownMenu.Separator />
                         <DropdownMenu.Item
