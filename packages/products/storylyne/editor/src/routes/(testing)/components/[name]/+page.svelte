@@ -2327,7 +2327,7 @@
               </button>
               <!-- Inline search + filter controls -->
               {#if sectionOpen.props && props.length > 0}
-                <div class="flex items-center gap-1.5">
+                <div class="flex items-center gap-1.5" transition:fade={{ duration: 150 }}>
                   <div
                     class="flex items-center gap-1.5 rounded-md border bg-transparent px-2 py-1 text-sm"
                   >
