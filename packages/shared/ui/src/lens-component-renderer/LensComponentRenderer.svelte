@@ -4365,10 +4365,15 @@
    * @param entry - Log entry to add
    */
   function pushConsoleLog(key: Str, entry: ConsoleLogEntry): Void {
-    const logs: ConsoleLogEntry[] = cardConsoleLogs[key] ?? [];
-    logs.push(entry);
-    if (logs.length > CONSOLE_MAX_ENTRIES) logs.splice(0, logs.length - CONSOLE_MAX_ENTRIES);
-    cardConsoleLogs[key] = logs;
+    // Defer state mutation to next microtask — pushConsoleLog can be called during
+    // Svelte reactive updates (DOM event handlers, console intercepts during teardown)
+    // which would throw state_unsafe_mutation if we mutate $state synchronously
+    queueMicrotask((): void => {
+      const logs: ConsoleLogEntry[] = cardConsoleLogs[key] ?? [];
+      logs.push(entry);
+      if (logs.length > CONSOLE_MAX_ENTRIES) logs.splice(0, logs.length - CONSOLE_MAX_ENTRIES);
+      cardConsoleLogs[key] = logs;
+    });
   }
 
   /**
@@ -4446,6 +4451,9 @@
      * @param e - The captured DOM event
      */
     function handleEvent(e: Event): void {
+      // Skip events from portaled content (tooltips, dialogs, dropdowns) — they fire
+      // during Svelte reactive updates and cause state_unsafe_mutation
+      if (e.target instanceof Element && e.target.closest('[data-lens-portal]')) return;
       const ts: Num = Math.round((performance.now() - mountTime) * 100) / 100;
       const target: Element | null = e.target instanceof Element ? e.target : null;
       const tag: Str = target?.tagName.toLowerCase() ?? '?';
@@ -4477,6 +4485,14 @@
     let lastMutationTime: Num = mountTime;
 
     const observer: MutationObserver = new MutationObserver((mutations: MutationRecord[]): void => {
+      // Filter out mutations from portaled content (tooltips, dialogs, dropdowns) —
+      // portal DOM changes during Svelte reactive updates cause state_unsafe_mutation
+      const cardMutations: MutationRecord[] = mutations.filter(
+        (m: MutationRecord): boolean =>
+          !(m.target instanceof Element && m.target.closest('[data-lens-portal]')),
+      );
+      if (cardMutations.length === 0) return;
+
       const now: Num = performance.now();
       const delta: Num = Math.round((now - lastMutationTime) * 100) / 100;
       lastMutationTime = now;
@@ -4486,16 +4502,16 @@
       pushConsoleLog(key, {
         type: 'render',
         level: 'render',
-        message: `Re-render (${mutations.length} mutation${mutations.length === 1 ? '' : 's'}, +${delta}ms)`,
+        message: `Re-render (${cardMutations.length} mutation${cardMutations.length === 1 ? '' : 's'}, +${delta}ms)`,
         detail: '',
         ts,
         source: '',
       });
 
       /* Log individual mutations (cap at 10 per batch to avoid flooding) */
-      const mutCap: Num = Math.min(mutations.length, 10);
+      const mutCap: Num = Math.min(cardMutations.length, 10);
       for (let i: Num = 0; i < mutCap; i++) {
-        const m: MutationRecord | undefined = mutations[i];
+        const m: MutationRecord | undefined = cardMutations[i];
         if (!m) continue;
         const target: Element | null =
           m.target instanceof Element ? m.target : m.target.parentElement;
@@ -4540,11 +4556,11 @@
           });
         }
       }
-      if (mutations.length > 10) {
+      if (cardMutations.length > 10) {
         pushConsoleLog(key, {
           type: 'mutation',
           level: 'mutation',
-          message: `… and ${mutations.length - 10} more mutations`,
+          message: `… and ${cardMutations.length - 10} more mutations`,
           detail: '',
           ts,
           source: '',
@@ -5796,9 +5812,11 @@
    * @returns CSS style string or empty
    */
   function getViewportContentStyle(key: Str): Str {
+    // transform creates a containing block for position:fixed children,
+    // keeping components like Sidebar/Dialog contained inside the card
     const preset = getViewportPreset(key);
-    if (!preset) return '';
-    return `height: ${preset.height}px`;
+    if (!preset) return 'transform: translateZ(0)';
+    return `transform: translateZ(0); height: ${preset.height}px`;
   }
 
   /**

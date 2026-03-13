@@ -1288,11 +1288,11 @@
                 <button
                   type="button"
                   class="inline-flex h-9 items-center gap-2 rounded-md border bg-card px-3 text-sm text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+                  {...searchTooltipProps}
                   onclick={() => {
                     searchOpen = true;
                   }}
                   aria-label="Search components"
-                  {...searchTooltipProps}
                 >
                   <SearchIcon class="size-4" />
                   <span class="hidden sm:inline">Search...</span>
