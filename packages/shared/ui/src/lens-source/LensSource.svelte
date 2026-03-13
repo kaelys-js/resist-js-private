@@ -1,31 +1,51 @@
 <script module lang="ts">
   import * as v from 'valibot';
-  import { StrSchema } from '@/schemas/common';
+  import { BoolSchema, StrSchema } from '@/schemas/common';
 
-  /** Schema for LensSource component props. */
+  /**
+   * Source code section for Lens documentation pages.
+   *
+   * Wraps LensSection + CodeBlock to display component source code
+   * with collapsible code toggle, copy-to-clipboard, syntax highlighting,
+   * optional line numbers, search, and word wrap.
+   *
+   * @example
+   * ```svelte
+   * <LensSource name="button" source={rawCode} />
+   * <LensSource name="button" source={rawCode} lang="typescript" showLineNumbers showSearch />
+   * ```
+   */
   export const LensSourcePropsSchema = v.strictObject({
     /** Component directory name (kebab-case). @values button, dialog, sidebar */
     name: StrSchema,
     /** Raw source code string. @values let x = 1, const y = 2, export default z */
     source: StrSchema,
+    /** Language grammar for syntax highlighting. @values svelte, typescript, javascript, html, css, json */
+    lang: v.optional(StrSchema),
+    /** Display title override (defaults to PascalCase of name). @values Button, CopyButton, DropdownMenu */
+    title: v.optional(StrSchema),
+    /** Description text below the title. @values Component source code., Main entry point., Type definitions. */
+    description: v.optional(StrSchema),
+    /** Whether to show line numbers in the code block. @values true, false */
+    showLineNumbers: v.optional(BoolSchema),
+    /** Whether to enable inline search in the code block. @values true, false */
+    showSearch: v.optional(BoolSchema),
+    /** Whether word wrap is enabled by default. @values true, false */
+    wordWrap: v.optional(BoolSchema),
+    /** Additional CSS classes for the root element. */
+    class: v.optional(StrSchema),
   });
   /** Props for the LensSource component. */
   export type LensSourceProps = v.InferOutput<typeof LensSourcePropsSchema>;
 </script>
 
 <script lang="ts">
-  /**
-   * Source code section for Lens documentation pages.
-   *
-   * Wraps LensSection + CodeBlock to display component source code
-   * with collapsible code toggle and copy-to-clipboard.
-   */
   import type { Str } from '@/schemas/common';
   import { safeParse } from '@/utils/result/safe';
   import { stripSvelteProps, toTitle } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
   import LensSection from '../lens-section/LensSection.svelte';
   import CodeBlock from '../code-block/CodeBlock.svelte';
-  import FileCode from '@lucide/svelte/icons/file-code';
 
   const allProps: LensSourceProps = $props();
   const validated: LensSourceProps = $derived.by(() => {
@@ -35,19 +55,25 @@
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as LensSourceProps;
   });
+
+  /** Resolved display title — uses title prop or PascalCase of name. */
+  const displayTitle: Str = $derived(validated.title ?? toTitle(validated.name));
 </script>
 
-<section id="source" class="scroll-mt-60">
-  <h2 class="mb-3 flex items-center gap-2 text-lg font-semibold">
-    <FileCode class="size-5" /> Source
-  </h2>
+<div class={cn('', validated.class)}>
   <LensSection
-    title={toTitle(validated.name)}
-    description="Component source code."
+    title={displayTitle}
+    description={validated.description ?? 'Component source code.'}
     codeText={validated.source}
   >
     {#snippet code()}
-      <CodeBlock code={validated.source} lang="svelte" />
+      <CodeBlock
+        code={validated.source}
+        lang={validated.lang ?? 'svelte'}
+        showLineNumbers={validated.showLineNumbers}
+        showSearch={validated.showSearch}
+        wordWrap={validated.wordWrap}
+      />
     {/snippet}
   </LensSection>
-</section>
+</div>

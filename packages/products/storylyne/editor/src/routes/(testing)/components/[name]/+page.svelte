@@ -42,6 +42,7 @@
   import LensError from '@/ui/lens-error/LensError.svelte';
   import LensHeader from '@/ui/lens-header/LensHeader.svelte';
   import LensSection from '@/ui/lens-section/LensSection.svelte';
+  import LensSource from '@/ui/lens-source/LensSource.svelte';
   import LensDependencyTree from '@/ui/lens-dependency-tree/LensDependencyTree.svelte';
   import PropsTable from '@/ui/lens-props-table/PropsTable.svelte';
   import LensComponentRenderer from '@/ui/lens-component-renderer/LensComponentRenderer.svelte';
@@ -71,6 +72,8 @@
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import AlertCircle from '@lucide/svelte/icons/alert-circle';
   import Copy from '@lucide/svelte/icons/copy';
+  import FolderOpen from '@lucide/svelte/icons/folder-open';
+  import Hash from '@lucide/svelte/icons/hash';
   import CopyButton from '@/ui/copy-button/CopyButton.svelte';
   import { cn } from '@/ui/utils.js';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
@@ -1031,6 +1034,116 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /*  Source section                                                      */
+  /* ------------------------------------------------------------------ */
+
+  /** Feedback state for source export actions (shows check icon briefly). */
+  let sourceExportFeedback: Str = $state('');
+
+  /** Currently active source file tab (key from rawTsSources / rawSources). */
+  let activeSourceFile: Str = $state('');
+
+  /**
+   * Related files for the current component directory.
+   *
+   * Includes co-located .ts files (index.ts, lens.ts, etc.) and additional .svelte files
+   * beyond the primary component file.
+   */
+  type RelatedFile = { key: Str; label: Str; lang: Str; source: Str };
+  const relatedFiles: RelatedFile[] = $derived.by((): RelatedFile[] => {
+    if (!name) return [];
+    const files: RelatedFile[] = [];
+    /* Co-located .ts files */
+    for (const [key, src] of Object.entries(rawTsSources)) {
+      if (extractDir(key) === name && src) {
+        files.push({
+          key: key as Str,
+          label: `${extractStem(key)}.ts` as Str,
+          lang: 'typescript' as Str,
+          source: src as Str,
+        });
+      }
+    }
+    /* Additional .svelte files beyond the primary */
+    for (const [key, src] of Object.entries(rawSources)) {
+      if (extractDir(key) === name && src && src !== rawSource) {
+        files.push({
+          key: key as Str,
+          label: `${extractStem(key)}.svelte` as Str,
+          lang: 'svelte' as Str,
+          source: src as Str,
+        });
+      }
+    }
+    return files.toSorted((a, b) => a.label.localeCompare(b.label));
+  });
+
+  /** Source code of the currently active file tab (primary or related). */
+  const activeFileSource: Str = $derived.by((): Str => {
+    if (!activeSourceFile) return rawSource;
+    const found: RelatedFile | undefined = relatedFiles.find(
+      (f: RelatedFile): boolean => f.key === activeSourceFile,
+    );
+    return found?.source ?? rawSource;
+  });
+
+  /** Language of the currently active file tab. */
+  const activeFileLang: Str = $derived.by((): Str => {
+    if (!activeSourceFile) return 'svelte' as Str;
+    const found: RelatedFile | undefined = relatedFiles.find(
+      (f: RelatedFile): boolean => f.key === activeSourceFile,
+    );
+    return found?.lang ?? 'svelte';
+  });
+
+  /** Label of the currently active file tab. */
+  const activeFileLabel: Str = $derived.by((): Str => {
+    if (!activeSourceFile) return `${toTitle(name)}.svelte` as Str;
+    const found: RelatedFile | undefined = relatedFiles.find(
+      (f: RelatedFile): boolean => f.key === activeSourceFile,
+    );
+    return found?.label ?? `${toTitle(name)}.svelte`;
+  });
+
+  /** Line count of the current source file. */
+  const sourceLineCount: Num = $derived((rawSource ? rawSource.split('\n').length : 0) as Num);
+
+  /**
+   * Handle source section export/copy actions.
+   *
+   * @param action - The export action to perform
+   */
+  async function handleSourceExport(action: Str): Promise<void> {
+    const src: Str = activeFileSource;
+    const label: Str = activeFileLabel;
+    try {
+      if (action === 'copy-source') {
+        await navigator.clipboard.writeText(src);
+      } else if (action === 'copy-path') {
+        const path: Str = `packages/shared/ui/src/${name}/${label}` as Str;
+        await navigator.clipboard.writeText(path);
+      } else if (action === 'copy-markdown') {
+        const md: Str = `## ${label}\n\n\`\`\`${activeFileLang}\n${src}\n\`\`\`` as Str;
+        await navigator.clipboard.writeText(md);
+      } else if (action === 'download') {
+        const blob: Blob = new Blob([src], { type: 'text/plain' });
+        const url: Str = URL.createObjectURL(blob) as Str;
+        const a: HTMLAnchorElement = document.createElement('a');
+        a.href = url;
+        a.download = label;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch {
+      /* Clipboard/download action failed — browser restrictions */
+    }
+    sourceExportFeedback = action;
+    setTimeout((): void => {
+      sourceExportFeedback = '';
+    }, 2000);
+  }
+
+  /* ------------------------------------------------------------------ */
   /*  Component page export (from LensHeader dropdown)                   */
   /* ------------------------------------------------------------------ */
 
@@ -1753,29 +1866,140 @@
           <!-- ═══ Source ═══ -->
           {#if rawSource}
             <section id="source" class="scroll-mt-60">
-              <button
-                type="button"
-                onclick={() => toggleSection('source')}
-                class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
-              >
-                <ChevronRight
-                  class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.source
-                    ? 'rotate-90'
-                    : ''}"
-                />
-                <FileCode class="size-5" /> Source
-              </button>
+              <div class="mb-3 flex items-center justify-between">
+                <button
+                  type="button"
+                  onclick={() => toggleSection('source')}
+                  class="flex items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+                >
+                  <ChevronRight
+                    class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.source
+                      ? 'rotate-90'
+                      : ''}"
+                  />
+                  <FileCode class="size-5" /> Source
+                  <span
+                    class="rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground"
+                    >{sourceLineCount} lines</span
+                  >
+                  {#if relatedFiles.length > 0}
+                    <span
+                      class="rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground"
+                    >
+                      <FolderOpen class="mr-0.5 inline size-3" />{relatedFiles.length + 1} files
+                    </span>
+                  {/if}
+                </button>
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger>
+                    {#snippet child({ props })}
+                      <button
+                        {...props}
+                        class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        aria-label="Source options"
+                      >
+                        <EllipsisVertical class="size-4" />
+                      </button>
+                    {/snippet}
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Content align="end" class="w-52">
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleSourceExport('copy-source');
+                      }}
+                    >
+                      {#if sourceExportFeedback === 'copy-source'}
+                        <Check class="size-4 text-green-500" />
+                      {:else}
+                        <ClipboardCopy class="size-4" />
+                      {/if}
+                      Copy Source
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleSourceExport('copy-markdown');
+                      }}
+                    >
+                      {#if sourceExportFeedback === 'copy-markdown'}
+                        <Check class="size-4 text-green-500" />
+                      {:else}
+                        <FileText class="size-4" />
+                      {/if}
+                      Copy as Markdown
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleSourceExport('copy-path');
+                      }}
+                    >
+                      {#if sourceExportFeedback === 'copy-path'}
+                        <Check class="size-4 text-green-500" />
+                      {:else}
+                        <Clipboard class="size-4" />
+                      {/if}
+                      Copy File Path
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleSourceExport('download');
+                      }}
+                    >
+                      <Download class="size-4" />
+                      Download {activeFileLabel}
+                    </DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+              </div>
               {#if sectionOpen.source}
                 <div transition:slide={{ duration: 200 }}>
-                  <LensSection
-                    title={toTitle(name)}
-                    description="Component source code."
-                    codeText={rawSource}
-                  >
-                    {#snippet code()}
-                      <CodeBlock code={rawSource} lang="svelte" />
-                    {/snippet}
-                  </LensSection>
+                  <!-- File tabs (shown when related files exist) -->
+                  {#if relatedFiles.length > 0}
+                    <div class="mb-2 flex flex-wrap gap-1 rounded-lg border bg-muted/30 p-1">
+                      <button
+                        type="button"
+                        class={cn(
+                          'rounded-md px-3 py-1 text-xs font-medium transition-colors',
+                          !activeSourceFile
+                            ? 'bg-background text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground',
+                        )}
+                        onclick={() => {
+                          activeSourceFile = '';
+                        }}
+                      >
+                        {toTitle(name)}.svelte
+                      </button>
+                      {#each relatedFiles as file (file.key)}
+                        <button
+                          type="button"
+                          class={cn(
+                            'rounded-md px-3 py-1 text-xs font-medium transition-colors',
+                            activeSourceFile === file.key
+                              ? 'bg-background text-foreground shadow-sm'
+                              : 'text-muted-foreground hover:text-foreground',
+                          )}
+                          onclick={() => {
+                            activeSourceFile = file.key;
+                          }}
+                        >
+                          {file.label}
+                        </button>
+                      {/each}
+                    </div>
+                  {/if}
+                  <LensSource
+                    {name}
+                    source={activeFileSource}
+                    lang={activeFileLang}
+                    title={activeFileLabel}
+                    showLineNumbers
+                    showSearch
+                  />
                 </div>
               {/if}
             </section>
