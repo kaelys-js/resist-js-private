@@ -15,15 +15,23 @@ import { dirname, join } from 'node:path';
 import { readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-/** Maximum number of commits to return per component. */
-const MAX_ENTRIES: Num = 30 as Num;
+/** Maximum number of commits to return per request. */
+const MAX_ENTRIES: Num = 100 as Num;
+
+/** Null-byte field separator for git log format (safe — cannot appear in commit text). */
+const FIELD_SEP: Str = '\u0000' as Str;
+
+/** Record separator between commits (ASCII RS character). */
+const RECORD_SEP: Str = '\u001E' as Str;
 
 /** A single changelog entry derived from a git commit. */
 type ChangelogEntry = {
   /** Abbreviated commit hash. */
   hash: Str;
-  /** Commit message (first line only). */
+  /** Commit subject (first line only). */
   message: Str;
+  /** Extended commit body (lines after subject, may be empty). */
+  body: Str;
   /** ISO 8601 date string. */
   date: Str;
   /** Author name. */
@@ -102,15 +110,41 @@ function resolveUiSrcDir(): Str {
   ) as Str;
 }
 
+/** Cached total commit count per component (separate from entry cache). */
+const totalCache: Map<Str, Num> = new Map();
+
+/**
+ * Count total commits touching a component directory.
+ *
+ * @param componentDir - Absolute path to the component directory
+ * @returns Total commit count
+ */
+function countTotalCommits(componentDir: Str): Num {
+  try {
+    const output: Str = execSync(`git rev-list --count HEAD -- "${componentDir}"`, {
+      encoding: 'utf8',
+      timeout: 5000,
+    }).trim() as Str;
+    return (Number.parseInt(output, 10) || 0) as Num;
+  } catch {
+    /* git command failed — return 0 */
+    return 0 as Num;
+  }
+}
+
 /**
  * Get git log entries for a component directory.
  *
+ * Uses null-byte field separator and ASCII RS record separator to safely
+ * handle multi-line commit bodies without delimiter collisions.
+ *
  * @param componentName - Kebab-case component directory name
- * @returns Array of changelog entries
+ * @returns Object with entries array and total commit count
  */
-function getChangelog(componentName: Str): ChangelogEntry[] {
+function getChangelog(componentName: Str): { entries: ChangelogEntry[]; total: Num } {
   const cached: ChangelogEntry[] | undefined = cache.get(componentName);
-  if (cached) return cached;
+  const cachedTotal: Num | undefined = totalCache.get(componentName);
+  if (cached && cachedTotal !== undefined) return { entries: cached, total: cachedTotal };
 
   const uiSrcDir: Str = resolveUiSrcDir();
   const componentDir: Str = join(uiSrcDir, componentName) as Str;
@@ -119,36 +153,44 @@ function getChangelog(componentName: Str): ChangelogEntry[] {
     statSync(componentDir);
   } catch {
     /* Component directory doesn't exist */
-    return [];
+    return { entries: [], total: 0 as Num };
   }
 
   try {
+    /* Use null-byte (%x00) between fields and RS (%x1e) between records */
+    const format: Str =
+      `%h${FIELD_SEP}%s${FIELD_SEP}%b${FIELD_SEP}%aI${FIELD_SEP}%an${RECORD_SEP}` as Str;
     const output: Str = execSync(
-      `git log --follow --format="%h|||%s|||%aI|||%an" -n ${MAX_ENTRIES} -- "${componentDir}"`,
-      { encoding: 'utf8', timeout: 5000 },
+      `git log --follow --format="${format}" -n ${MAX_ENTRIES} -- "${componentDir}"`,
+      { encoding: 'utf8', timeout: 10_000 },
     ).trim() as Str;
 
-    if (!output) return [];
+    if (!output) return { entries: [], total: 0 as Num };
+
+    const total: Num = countTotalCommits(componentDir);
 
     const entries: ChangelogEntry[] = output
-      .split('\n')
-      .map((line: Str): ChangelogEntry | null => {
-        const parts: Str[] = line.split('|||');
-        if (parts.length < 4) return null;
+      .split(RECORD_SEP)
+      .filter((record: Str): boolean => record.trim().length > 0)
+      .map((record: Str): ChangelogEntry | null => {
+        const parts: Str[] = record.trim().split(FIELD_SEP) as Str[];
+        if (parts.length < 5) return null;
         return {
           hash: (parts[0] ?? '') as Str,
           message: (parts[1] ?? '') as Str,
-          date: (parts[2] ?? '') as Str,
-          author: (parts[3] ?? '') as Str,
+          body: (parts[2] ?? '').trim() as Str,
+          date: (parts[3] ?? '') as Str,
+          author: (parts[4] ?? '') as Str,
         };
       })
       .filter((e: ChangelogEntry | null): e is ChangelogEntry => e !== null);
 
     cache.set(componentName, entries);
-    return entries;
+    totalCache.set(componentName, total);
+    return { entries, total };
   } catch {
     /* git command failed — return empty */
-    return [];
+    return { entries: [], total: 0 as Num };
   }
 }
 
@@ -213,12 +255,12 @@ export const GET: RequestHandler = ({ params }) => {
     });
   }
 
-  const entries: ChangelogEntry[] = getChangelog(name);
+  const { entries, total }: { entries: ChangelogEntry[]; total: Num } = getChangelog(name);
   const repoUrl: Str = detectRepoUrl();
   const componentPath: Str = `packages/shared/ui/src/${name}` as Str;
   const diffAnchor: Str = computeDiffAnchor(name, componentPath);
 
-  return new Response(JSON.stringify({ entries, repoUrl, componentPath, diffAnchor }), {
+  return new Response(JSON.stringify({ entries, total, repoUrl, componentPath, diffAnchor }), {
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache',
