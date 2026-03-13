@@ -26,6 +26,9 @@
   import Palette from '@lucide/svelte/icons/palette';
   import ComponentIcon from '@lucide/svelte/icons/component';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
+  import ArrowRight from '@lucide/svelte/icons/arrow-right';
+  import List from '@lucide/svelte/icons/list';
+  import { storageKey } from '$lib/config/app-meta';
 
   /* ------------------------------------------------------------------ */
   /*  Glob-based data (mirrors layout pattern)                           */
@@ -170,6 +173,34 @@
       new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }),
     );
   }
+
+  /* ------------------------------------------------------------------ */
+  /*  View mode toggle (grid / list)                                     */
+  /* ------------------------------------------------------------------ */
+
+  /** Current view mode for category display. */
+  let viewMode: 'grid' | 'list' = $state('grid');
+
+  // Restore view mode from localStorage on mount
+  $effect(() => {
+    try {
+      const stored: Str | null = localStorage.getItem(storageKey('lens-view-mode'));
+      if (stored === 'list' || stored === 'grid') {
+        viewMode = stored;
+      }
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — default grid is fine */
+    }
+  });
+
+  // Persist view mode on change
+  $effect(() => {
+    try {
+      localStorage.setItem(storageKey('lens-view-mode'), viewMode);
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — non-critical */
+    }
+  });
 </script>
 
 <div class="flex flex-1 flex-col gap-8 overflow-y-auto p-6 md:p-10">
@@ -268,73 +299,173 @@
 
   <!-- Category Cards -->
   <div>
-    <h2 class="mb-4 text-sm font-medium uppercase tracking-wider text-muted-foreground">
-      Categories
-    </h2>
-    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {#each groupedComponents as group (group.name)}
-        {@const CatIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
-        {@const catColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
-        {@const catBg = CATEGORY_BG[group.name] ?? ('hover:border-border' as Str)}
-        {@const catDesc = CATEGORY_DESCRIPTIONS[group.name] ?? ('' as Str)}
-        {@const docCount = group.components.filter((n) => metaByName.has(n)).length}
-        <div class={cn('flex flex-col gap-3 rounded-lg border bg-card p-4 transition-all', catBg)}>
-          <div class="flex items-start justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class={cn('flex size-9 items-center justify-center rounded-lg bg-muted/50')}>
-                <CatIcon class="size-5 {catColor}" />
+    <div class="mb-4 flex items-center justify-between">
+      <h2 class="text-sm font-medium uppercase tracking-wider text-muted-foreground">Categories</h2>
+      <div class="flex items-center rounded-md border bg-card p-0.5">
+        <Tooltip.Root delayDuration={300}>
+          <Tooltip.Trigger>
+            {#snippet child({ props: gridTip })}
+              <button
+                type="button"
+                class={cn(
+                  'flex size-7 items-center justify-center rounded-sm transition-colors',
+                  viewMode === 'grid'
+                    ? 'bg-accent text-accent-foreground'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+                {...gridTip}
+                onclick={() => {
+                  viewMode = 'grid';
+                }}
+              >
+                <LayoutGrid class="size-3.5" />
+              </button>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content sideOffset={4}>Grid view</Tooltip.Content>
+        </Tooltip.Root>
+        <Tooltip.Root delayDuration={300}>
+          <Tooltip.Trigger>
+            {#snippet child({ props: listTip })}
+              <button
+                type="button"
+                class={cn(
+                  'flex size-7 items-center justify-center rounded-sm transition-colors',
+                  viewMode === 'list'
+                    ? 'bg-accent text-accent-foreground'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+                {...listTip}
+                onclick={() => {
+                  viewMode = 'list';
+                }}
+              >
+                <List class="size-3.5" />
+              </button>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content sideOffset={4}>List view</Tooltip.Content>
+        </Tooltip.Root>
+      </div>
+    </div>
+
+    {#if viewMode === 'grid'}
+      <!-- Grid view -->
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {#each groupedComponents as group (group.name)}
+          {@const CatIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
+          {@const catColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
+          {@const catBg = CATEGORY_BG[group.name] ?? ('hover:border-border' as Str)}
+          {@const catDesc = CATEGORY_DESCRIPTIONS[group.name] ?? ('' as Str)}
+          {@const docCount = group.components.filter((n) => metaByName.has(n)).length}
+          <div
+            class={cn('flex flex-col gap-3 rounded-lg border bg-card p-4 transition-all', catBg)}
+          >
+            <a
+              href="/components/category/{group.name}"
+              class="group/cat flex items-start justify-between"
+            >
+              <div class="flex items-center gap-2.5">
+                <div class={cn('flex size-9 items-center justify-center rounded-lg bg-muted/50')}>
+                  <CatIcon class="size-5 {catColor}" />
+                </div>
+                <div>
+                  <h3 class="text-sm font-semibold group-hover/cat:text-primary">{group.label}</h3>
+                  <p class="text-xs text-muted-foreground">
+                    {group.components.length} components
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 class="text-sm font-semibold">{group.label}</h3>
-                <p class="text-xs text-muted-foreground">{group.components.length} components</p>
+              <ArrowRight
+                class="size-4 text-muted-foreground/30 transition-transform group-hover/cat:translate-x-0.5 group-hover/cat:text-primary"
+              />
+            </a>
+            {#if catDesc}
+              <p class="text-xs leading-relaxed text-muted-foreground">{catDesc}</p>
+            {/if}
+            <!-- Component list — each name links to its page -->
+            <div class="flex flex-wrap gap-1">
+              {#each group.components.slice(0, 8) as name (name)}
+                <a
+                  href="/components/{name}"
+                  class="rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                  >{toTitle(name)}</a
+                >
+              {/each}
+              {#if group.components.length > 8}
+                <span class="rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground/60"
+                  >+{group.components.length - 8} more</span
+                >
+              {/if}
+            </div>
+            <!-- Documentation coverage bar -->
+            <Tooltip.Root delayDuration={300}>
+              <Tooltip.Trigger>
+                {#snippet child({ props: barTipProps })}
+                  <div class="flex items-center gap-2" {...barTipProps}>
+                    <span class="text-[11px] text-muted-foreground/60">Documented</span>
+                    <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                      <div
+                        class="h-full rounded-full bg-emerald-500 transition-all"
+                        style="width: {group.components.length > 0
+                          ? Math.round((docCount / group.components.length) * 100)
+                          : 0}%"
+                      ></div>
+                    </div>
+                    <span class="text-[11px] tabular-nums text-muted-foreground">
+                      {docCount}/{group.components.length}
+                    </span>
+                  </div>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content sideOffset={4}>
+                {docCount} of {group.components.length} components have lens.ts metadata
+              </Tooltip.Content>
+            </Tooltip.Root>
+          </div>
+        {/each}
+      </div>
+    {:else}
+      <!-- List view -->
+      <div class="rounded-lg border bg-card">
+        {#each groupedComponents as group, gi (group.name)}
+          {@const CatIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
+          {@const catColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
+          {@const docCount = group.components.filter((n) => metaByName.has(n)).length}
+          {#if gi > 0}
+            <div class="border-t"></div>
+          {/if}
+          <a
+            href="/components/category/{group.name}"
+            class="group/row flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent/50"
+          >
+            <div class="flex size-8 items-center justify-center rounded-lg bg-muted/50">
+              <CatIcon class="size-4 {catColor}" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <span class="text-sm font-medium group-hover/row:text-primary">{group.label}</span>
+            </div>
+            <div class="flex items-center gap-4 text-xs text-muted-foreground">
+              <span class="tabular-nums">{group.components.length}</span>
+              <div class="flex items-center gap-1.5">
+                <div class="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
+                  <div
+                    class="h-full rounded-full bg-emerald-500"
+                    style="width: {group.components.length > 0
+                      ? Math.round((docCount / group.components.length) * 100)
+                      : 0}%"
+                  ></div>
+                </div>
+                <span class="tabular-nums text-[10px]">{docCount}/{group.components.length}</span>
               </div>
             </div>
-          </div>
-          {#if catDesc}
-            <p class="text-xs leading-relaxed text-muted-foreground">{catDesc}</p>
-          {/if}
-          <!-- Component list — each name links to its page -->
-          <div class="flex flex-wrap gap-1">
-            {#each group.components.slice(0, 8) as name (name)}
-              <a
-                href="/components/{name}"
-                class="rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                >{toTitle(name)}</a
-              >
-            {/each}
-            {#if group.components.length > 8}
-              <span class="rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground/60"
-                >+{group.components.length - 8} more</span
-              >
-            {/if}
-          </div>
-          <!-- Documentation coverage bar -->
-          <Tooltip.Root delayDuration={300}>
-            <Tooltip.Trigger>
-              {#snippet child({ props: barTipProps })}
-                <div class="flex items-center gap-2" {...barTipProps}>
-                  <span class="text-[11px] text-muted-foreground/60">Documented</span>
-                  <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                    <div
-                      class="h-full rounded-full bg-emerald-500 transition-all"
-                      style="width: {group.components.length > 0
-                        ? Math.round((docCount / group.components.length) * 100)
-                        : 0}%"
-                    ></div>
-                  </div>
-                  <span class="text-[11px] tabular-nums text-muted-foreground">
-                    {docCount}/{group.components.length}
-                  </span>
-                </div>
-              {/snippet}
-            </Tooltip.Trigger>
-            <Tooltip.Content sideOffset={4}>
-              {docCount} of {group.components.length} components have lens.ts metadata
-            </Tooltip.Content>
-          </Tooltip.Root>
-        </div>
-      {/each}
-    </div>
+            <ArrowRight
+              class="size-3.5 text-muted-foreground/30 transition-transform group-hover/row:translate-x-0.5 group-hover/row:text-primary"
+            />
+          </a>
+        {/each}
+      </div>
+    {/if}
   </div>
 
   <!-- Design Tokens link -->
