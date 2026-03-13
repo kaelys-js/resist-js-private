@@ -256,6 +256,9 @@
   /** Per-card measured visual height of the inner content (accounts for zoom + rotation transforms). */
   let cardContentHeights: Record<Str, Num> = $state({});
 
+  /** Per-card measured height of portaled overlay content (dialogs, sheets, dropdowns). */
+  let cardPortalHeights: Record<Str, Num> = $state({});
+
   /** Per-card text direction override keyed by card identifier ('auto' | 'ltr' | 'rtl'). */
   let cardTextDir: Record<Str, Str> = $state({});
 
@@ -1887,6 +1890,88 @@
       destroy(): Void {
         observer.disconnect();
         cardContentHeights[current.key] = 0;
+      },
+    };
+  }
+
+  /**
+   * Svelte action that observes the portal div (`[data-lens-portal]`) inside a
+   * transform container and tracks the maximum height of its children.
+   *
+   * Portal children (dialogs, sheets, dropdowns) use `position: fixed` which,
+   * inside a transform containing block, positions relative to the container.
+   * This action measures those children so the card can auto-expand its
+   * min-height to avoid clipping overlay content.
+   *
+   * @param node - The transform container element
+   * @param key - Card key for indexing into `cardPortalHeights`
+   * @returns Svelte action lifecycle with update and destroy methods
+   */
+  function trackPortalSize(
+    node: HTMLElement,
+    key: Str,
+  ): { update: (k: Str) => Void; destroy: () => Void } {
+    let currentKey: Str = key;
+    let resizeObserver: ResizeObserver | undefined;
+    let mutationObserver: MutationObserver | undefined;
+
+    /** Measure the tallest portal child and update state. */
+    function measure(): Void {
+      const portalEl: HTMLElement | null = node.querySelector('[data-lens-portal]');
+      if (!portalEl || portalEl.children.length === 0) {
+        cardPortalHeights[currentKey] = 0;
+        return;
+      }
+      let maxH: Num = 0;
+      for (const child of portalEl.children) {
+        const rect: DOMRect = child.getBoundingClientRect();
+        if (rect.height > maxH) maxH = rect.height;
+      }
+      cardPortalHeights[currentKey] = maxH;
+    }
+
+    /** Set up ResizeObserver on all current portal children. */
+    function observePortalChildren(): Void {
+      resizeObserver?.disconnect();
+      const portalEl: HTMLElement | null = node.querySelector('[data-lens-portal]');
+      if (!portalEl) return;
+      resizeObserver = new ResizeObserver((): void => {
+        requestAnimationFrame(measure);
+      });
+      // Observe each child so we catch dialogs/sheets appearing/resizing
+      for (const child of portalEl.children) {
+        resizeObserver.observe(child);
+      }
+      requestAnimationFrame(measure);
+    }
+
+    // Watch for children added/removed from the portal div
+    mutationObserver = new MutationObserver((): void => {
+      observePortalChildren();
+    });
+
+    // The portal div is created asynchronously by LensPortalScope's $effect,
+    // so poll briefly until it appears, then attach the mutation observer
+    function waitForPortal(): Void {
+      const portalEl: HTMLElement | null = node.querySelector('[data-lens-portal]');
+      if (portalEl) {
+        mutationObserver?.observe(portalEl, { childList: true });
+        observePortalChildren();
+      } else {
+        requestAnimationFrame(waitForPortal);
+      }
+    }
+    waitForPortal();
+
+    return {
+      update(newKey: Str): Void {
+        currentKey = newKey;
+        requestAnimationFrame(measure);
+      },
+      destroy(): Void {
+        resizeObserver?.disconnect();
+        mutationObserver?.disconnect();
+        cardPortalHeights[currentKey] = 0;
       },
     };
   }
@@ -10551,7 +10636,9 @@
       )}
       style={[
         getBackgroundStyle(cardKey),
-        cardContentHeights[cardKey] ? `min-height: ${cardContentHeights[cardKey] + 32}px` : '',
+        cardContentHeights[cardKey] || cardPortalHeights[cardKey]
+          ? `min-height: ${Math.max(cardContentHeights[cardKey] ?? 0, cardPortalHeights[cardKey] ?? 0) + 32}px`
+          : '',
         activeMode === 'light' ? 'color-scheme: light' : '',
         activeMode === 'dark' ? 'color-scheme: dark' : '',
         activeMode === 'high-contrast' ? 'color-scheme: light' : '',
@@ -10589,7 +10676,7 @@
         </svg>
       {/if}
       <div
-        class={cn(hasViewport(cardKey) && 'flex max-w-full flex-col items-start overflow-x-auto')}
+        class={cn('w-full', hasViewport(cardKey) && 'flex max-w-full flex-col items-start overflow-x-auto')}
       >
         {#if hasViewport(cardKey)}
           {@const vpLabel = getViewportPreset(cardKey)}
@@ -10689,13 +10776,14 @@
           {/if}
           <div
             class={cn(
-              'relative',
+              'relative w-full',
               hasViewport(cardKey) &&
                 (getViewportPreset(cardKey)?.category === 'Watches'
                   ? 'lens-device-content overflow-hidden'
                   : 'lens-device-content overflow-auto'),
             )}
             style={getViewportContentStyle(cardKey)}
+            use:trackPortalSize={cardKey}
           >
             <LensPortalScope
               mode={activeMode as 'auto' | 'light' | 'dark' | 'high-contrast'}
@@ -10713,6 +10801,7 @@
                     landscape: isLandscapeOrientation(cardKey),
                   }}
                   class={cn(
+                    !hasViewport(cardKey) && 'w-fit',
                     activeOutline !== 'none' && 'lens-outline',
                     getMediaPrefClasses(cardKey),
                   )}
