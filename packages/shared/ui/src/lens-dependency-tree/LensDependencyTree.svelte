@@ -1316,7 +1316,7 @@
                           value={Math.round(chainZoom * 100)}
                           min={ZOOM_MIN * 100}
                           max={ZOOM_MAX * 100}
-                          step={5}
+                          step={1}
                           onValueChange={(v) => {
                             chainZoom = (v / 100) as Num;
                           }}
