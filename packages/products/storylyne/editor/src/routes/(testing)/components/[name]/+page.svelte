@@ -44,7 +44,10 @@
   import LensSection from '@/ui/lens-section/LensSection.svelte';
   import LensSource from '@/ui/lens-source/LensSource.svelte';
   import LensDependencyTree from '@/ui/lens-dependency-tree/LensDependencyTree.svelte';
-  import PropsTable from '@/ui/lens-props-table/PropsTable.svelte';
+  import PropsTable, {
+    type PropsTableSortColumn,
+    type PropsTableSortDirection,
+  } from '@/ui/lens-props-table/PropsTable.svelte';
   import LensComponentRenderer from '@/ui/lens-component-renderer/LensComponentRenderer.svelte';
   import { LensCardSettingsMenu } from '@/ui/lens-card-settings-menu/index.js';
   import CodeBlock from '@/ui/code-block/CodeBlock.svelte';
@@ -83,6 +86,13 @@
   import Pencil from '@lucide/svelte/icons/pencil';
   import ListTree from '@lucide/svelte/icons/list-tree';
   import Braces from '@lucide/svelte/icons/braces';
+  import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
+  import ArrowDownAZ from '@lucide/svelte/icons/arrow-down-a-z';
+  import ArrowDownZA from '@lucide/svelte/icons/arrow-down-z-a';
+  import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
+  import ChevronsDownUp from '@lucide/svelte/icons/chevrons-down-up';
+  import ListFilter from '@lucide/svelte/icons/list-filter';
+  import X from '@lucide/svelte/icons/x';
   import CopyButton from '@/ui/copy-button/CopyButton.svelte';
   import { cn } from '@/ui/utils.js';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
@@ -719,6 +729,191 @@
   /** Feedback state for props export actions. */
   let propsExportFeedback: Str = $state('');
 
+  /** Reference to the PropsTable component for expand/collapse all operations. */
+  let propsTableRef: PropsTable | null = $state(null);
+
+  /** Sort mode type for the props table. */
+  type PropsSortMode =
+    | 'default'
+    | 'alpha-asc'
+    | 'alpha-desc'
+    | 'required-first'
+    | 'required-last'
+    | 'type-asc'
+    | 'type-desc'
+    | 'accepts-asc'
+    | 'accepts-desc'
+    | 'default-asc'
+    | 'default-desc'
+    | 'description-asc'
+    | 'description-desc';
+
+  /** Search query for inline props table filtering. */
+  let propsSearchQuery: Str = $state('');
+
+  /** Filter mode for the props table. */
+  let propsFilter: 'all' | 'required' | 'optional' = $state('all');
+
+  /** Sort mode for the props table. */
+  let propsSort: PropsSortMode = $state('default');
+
+  /** Filtered and sorted props based on search, filter, and sort state. */
+  const displayProps = $derived.by(() => {
+    let filtered = props;
+
+    // Search filter
+    if (propsSearchQuery.length > 0) {
+      const q: Str = propsSearchQuery.toLowerCase() as Str;
+      filtered = filtered.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          (p.type && p.type.toLowerCase().includes(q)) ||
+          (p.description && p.description.toLowerCase().includes(q)),
+      );
+    }
+
+    // Required/Optional filter
+    if (propsFilter === 'required') {
+      filtered = filtered.filter((p) => !p.optional && !p.default);
+    } else if (propsFilter === 'optional') {
+      filtered = filtered.filter((p) => p.optional || Boolean(p.default));
+    }
+
+    // Sort
+    if (propsSort === 'alpha-asc') {
+      filtered = filtered.toSorted((a, b) => a.name.localeCompare(b.name));
+    } else if (propsSort === 'alpha-desc') {
+      filtered = filtered.toSorted((a, b) => b.name.localeCompare(a.name));
+    } else if (propsSort === 'required-first') {
+      filtered = filtered.toSorted((a, b) => {
+        const aReq: Bool = !a.optional && !a.default;
+        const bReq: Bool = !b.optional && !b.default;
+        if (aReq && !bReq) return -1;
+        if (!aReq && bReq) return 1;
+        return 0;
+      });
+    } else if (propsSort === 'required-last') {
+      filtered = filtered.toSorted((a, b) => {
+        const aReq: Bool = !a.optional && !a.default;
+        const bReq: Bool = !b.optional && !b.default;
+        if (aReq && !bReq) return 1;
+        if (!aReq && bReq) return -1;
+        return 0;
+      });
+    } else if (propsSort === 'type-asc') {
+      filtered = filtered.toSorted((a, b) => (a.type || '').localeCompare(b.type || ''));
+    } else if (propsSort === 'type-desc') {
+      filtered = filtered.toSorted((a, b) => (b.type || '').localeCompare(a.type || ''));
+    } else if (propsSort === 'accepts-asc') {
+      filtered = filtered.toSorted((a, b) => (a.type || '').localeCompare(b.type || ''));
+    } else if (propsSort === 'accepts-desc') {
+      filtered = filtered.toSorted((a, b) => (b.type || '').localeCompare(a.type || ''));
+    } else if (propsSort === 'default-asc') {
+      filtered = filtered.toSorted((a, b) => {
+        const aHas: Bool = Boolean(a.default);
+        const bHas: Bool = Boolean(b.default);
+        if (aHas && !bHas) return -1;
+        if (!aHas && bHas) return 1;
+        return (a.default || '').localeCompare(b.default || '');
+      });
+    } else if (propsSort === 'default-desc') {
+      filtered = filtered.toSorted((a, b) => {
+        const aHas: Bool = Boolean(a.default);
+        const bHas: Bool = Boolean(b.default);
+        if (aHas && !bHas) return 1;
+        if (!aHas && bHas) return -1;
+        return (b.default || '').localeCompare(a.default || '');
+      });
+    } else if (propsSort === 'description-asc') {
+      filtered = filtered.toSorted((a, b) =>
+        (a.description || '').localeCompare(b.description || ''),
+      );
+    } else if (propsSort === 'description-desc') {
+      filtered = filtered.toSorted((a, b) =>
+        (b.description || '').localeCompare(a.description || ''),
+      );
+    }
+
+    return filtered;
+  });
+
+  /** Whether any props filters are active (search, filter, or sort). */
+  const hasActivePropsFilters: Bool = $derived(
+    propsSearchQuery.length > 0 || propsFilter !== 'all' || propsSort !== 'default',
+  );
+
+  /** Map from propsSort value to the corresponding table column. */
+  const sortColumnMap: Record<PropsSortMode, PropsTableSortColumn | null> = {
+    default: null,
+    'alpha-asc': 'name',
+    'alpha-desc': 'name',
+    'required-first': 'required',
+    'required-last': 'required',
+    'type-asc': 'type',
+    'type-desc': 'type',
+    'accepts-asc': 'accepts',
+    'accepts-desc': 'accepts',
+    'default-asc': 'default',
+    'default-desc': 'default',
+    'description-asc': 'description',
+    'description-desc': 'description',
+  };
+
+  /** Sort modes that are descending direction. */
+  const descModes: Set<PropsSortMode> = new Set([
+    'alpha-desc',
+    'required-last',
+    'type-desc',
+    'accepts-desc',
+    'default-desc',
+    'description-desc',
+  ]);
+
+  /** Current sort column for PropsTable header indicators. */
+  const propsSortColumn: PropsTableSortColumn | null = $derived(sortColumnMap[propsSort]);
+
+  /** Current sort direction for PropsTable header indicators. */
+  const propsSortDirection: PropsTableSortDirection = $derived.by(() => {
+    if (propsSort === 'default') return 'none';
+    return descModes.has(propsSort) ? 'desc' : 'asc';
+  });
+
+  /**
+   * Handle column header sort from PropsTable.
+   *
+   * @param column - Which column was clicked
+   * @param direction - Requested sort direction
+   */
+  /** Map from column + direction to the PropsSortMode. */
+  const columnSortModes: Record<PropsTableSortColumn, { asc: PropsSortMode; desc: PropsSortMode }> =
+    {
+      name: { asc: 'alpha-asc', desc: 'alpha-desc' },
+      required: { asc: 'required-first', desc: 'required-last' },
+      type: { asc: 'type-asc', desc: 'type-desc' },
+      accepts: { asc: 'accepts-asc', desc: 'accepts-desc' },
+      default: { asc: 'default-asc', desc: 'default-desc' },
+      description: { asc: 'description-asc', desc: 'description-desc' },
+    };
+
+  /**
+   * Handle column header sort from PropsTable.
+   * Cycles: none → asc → desc → none for all columns.
+   *
+   * @param column - Which column was clicked
+   * @param direction - Requested sort direction
+   */
+  function handlePropsColumnSort(
+    column: PropsTableSortColumn,
+    direction: PropsTableSortDirection,
+  ): Void {
+    if (direction === 'none') {
+      propsSort = 'default';
+    } else {
+      const modes = columnSortModes[column];
+      propsSort = direction === 'desc' ? modes.desc : modes.asc;
+    }
+  }
+
   /** Props export format menu items with descriptions and file extension badges. */
   const PROPS_EXPORT_ITEMS: Array<{
     id: Str;
@@ -758,6 +953,22 @@
       icon: FileCode,
       category: 'Clipboard',
       description: 'Type definitions for code',
+      ext: '',
+    },
+    {
+      id: 'copy-html',
+      label: 'Copy as HTML Table',
+      icon: ClipboardCopy,
+      category: 'Clipboard',
+      description: 'Paste into rich text editors',
+      ext: '',
+    },
+    {
+      id: 'copy-valibot',
+      label: 'Copy as Valibot Schema',
+      icon: ClipboardCopy,
+      category: 'Clipboard',
+      description: 'Valibot v.strictObject() definition',
       ext: '',
     },
     {
@@ -863,6 +1074,58 @@
   }
 
   /**
+   * Format props as an HTML table.
+   *
+   * @param propsData - Array of prop metadata
+   * @returns HTML table string
+   */
+  function propsToHtml(propsData: typeof props): Str {
+    const rows: Str[] = propsData.map((p): Str => {
+      let required: Str = 'Yes';
+      if (p.optional) required = 'No';
+      else if (p.default) required = 'No';
+      return `<tr><td>${p.name}</td><td>${required}</td><td>${p.type || '—'}</td><td>${p.default || '—'}</td><td>${p.description || '—'}</td></tr>`;
+    });
+    return `<table>\n<thead><tr><th>Name</th><th>Required</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>\n<tbody>\n${rows.join('\n')}\n</tbody>\n</table>`;
+  }
+
+  /**
+   * Format props as a Valibot v.strictObject() schema.
+   *
+   * @param propsData - Array of prop metadata
+   * @returns Valibot schema string
+   */
+  function propsToValibot(propsData: typeof props): Str {
+    const fields: Str[] = propsData.map((p): Str => {
+      const comment: Str = p.description ? `  /** ${p.description} */\n` : '';
+      const typeMap: Record<Str, Str> = {
+        string: 'v.string()',
+        Str: 'v.string()',
+        number: 'v.number()',
+        Num: 'v.number()',
+        boolean: 'v.boolean()',
+        Bool: 'v.boolean()',
+      };
+      let schema: Str = typeMap[p.type] ?? `v.unknown() /* ${p.type || 'untyped'} */`;
+      // Handle union types
+      if (p.type?.includes(' | ')) {
+        const members: Str[] = p.type
+          .split(' | ')
+          .map((m: Str): Str => m.trim())
+          .filter((m: Str): boolean => m !== 'undefined' && m !== 'null');
+        const allLiterals: Bool = members.every((m: Str): boolean => m.startsWith("'"));
+        if (allLiterals) {
+          schema = `v.picklist([${members.join(', ')}])`;
+        }
+      }
+      if (p.optional || p.default) schema = `v.optional(${schema})`;
+      return `${comment}  ${p.name}: ${schema},`;
+    });
+    const typeName: Str = name.replaceAll(/[^a-zA-Z0-9]/g, '');
+    return `import * as v from 'valibot';\n\nexport const ${typeName}PropsSchema = v.strictObject({\n${fields.join('\n')}\n});\n\nexport type ${typeName}Props = v.InferOutput<typeof ${typeName}PropsSchema>;`;
+  }
+
+  /**
    * Handle props export by format id.
    *
    * @param formatId - Export format identifier
@@ -877,6 +1140,10 @@
       await navigator.clipboard.writeText(propsToCsv(props));
     } else if (formatId === 'copy-typescript') {
       await navigator.clipboard.writeText(propsToTypeScript(props));
+    } else if (formatId === 'copy-html') {
+      await navigator.clipboard.writeText(propsToHtml(props));
+    } else if (formatId === 'copy-valibot') {
+      await navigator.clipboard.writeText(propsToValibot(props));
     } else if (formatId === 'download-json') {
       const blob: Blob = new Blob([JSON.stringify(props, null, 2)], { type: 'application/json' });
       const url: Str = URL.createObjectURL(blob);
@@ -1981,11 +2248,11 @@
         <div class="space-y-10">
           <!-- ═══ Props ═══ -->
           <section id="props" class="scroll-mt-60">
-            <div class="mb-3 flex items-center justify-between">
+            <div class="mb-3 flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onclick={() => toggleSection('props')}
-                class="flex flex-1 items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+                class="flex items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
               >
                 <ChevronRight
                   class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.props
@@ -1998,20 +2265,223 @@
                   >{props.length}</span
                 >
               </button>
+              <!-- Inline search + filter controls -->
+              {#if sectionOpen.props && props.length > 0}
+                <div class="flex items-center gap-1.5">
+                  <div
+                    class="flex items-center gap-1.5 rounded-md border bg-transparent px-2 py-1 text-sm"
+                  >
+                    <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                    <input
+                      type="text"
+                      placeholder="Filter props..."
+                      class="w-28 bg-transparent text-xs outline-none placeholder:text-muted-foreground/60"
+                      bind:value={propsSearchQuery}
+                    />
+                    {#if propsSearchQuery}
+                      <button
+                        type="button"
+                        class="text-muted-foreground/40 hover:text-foreground"
+                        onclick={() => {
+                          propsSearchQuery = '' as Str;
+                        }}
+                        aria-label="Clear search"
+                      >
+                        <X class="size-3" />
+                      </button>
+                    {/if}
+                  </div>
+                  <!-- Filter dropdown -->
+                  <Tooltip.Provider>
+                    <Tooltip.Root delayDuration={300}>
+                      <DropdownMenu.Root>
+                        <Tooltip.Trigger>
+                          {#snippet child({ props: tipProps })}
+                            <DropdownMenu.Trigger>
+                              {#snippet child({ props: filterTriggerProps })}
+                                <button
+                                  {...tipProps}
+                                  {...filterTriggerProps}
+                                  class={cn(
+                                    'inline-flex size-7 items-center justify-center rounded-md transition-colors hover:bg-muted hover:text-foreground',
+                                    propsFilter !== 'all'
+                                      ? 'text-primary'
+                                      : 'text-muted-foreground',
+                                  )}
+                                  aria-label="Filter props"
+                                >
+                                  <ListFilter class="size-4" />
+                                </button>
+                              {/snippet}
+                            </DropdownMenu.Trigger>
+                          {/snippet}
+                        </Tooltip.Trigger>
+                        <Tooltip.Content side="bottom" sideOffset={4}>Filter props</Tooltip.Content>
+                        <DropdownMenu.Content align="end" class="w-56">
+                          <DropdownMenu.Label class="text-xs">Filter</DropdownMenu.Label>
+                          {@const filterOptions = [
+                            {
+                              value: 'all',
+                              label: 'All Props',
+                              desc: 'Show all component props',
+                            },
+                            {
+                              value: 'required',
+                              label: 'Required Only',
+                              desc: 'Props with no default value',
+                            },
+                            {
+                              value: 'optional',
+                              label: 'Optional Only',
+                              desc: 'Props with defaults or marked optional',
+                            },
+                          ] as const}
+                          {#each filterOptions as opt (opt.value)}
+                            <DropdownMenu.Item
+                              onSelect={(e) => {
+                                e.preventDefault();
+                                propsFilter = opt.value;
+                              }}
+                            >
+                              {#if propsFilter === opt.value}
+                                <span in:fade={{ duration: 150 }}
+                                  ><Check class="size-4 text-primary" /></span
+                                >
+                              {:else}
+                                <span class="size-4"></span>
+                              {/if}
+                              <div class="flex flex-col">
+                                <span class={cn(propsFilter === opt.value && 'font-medium')}
+                                  >{opt.label}</span
+                                >
+                                <span class="text-[11px] text-muted-foreground">{opt.desc}</span>
+                              </div>
+                            </DropdownMenu.Item>
+                          {/each}
+                        </DropdownMenu.Content>
+                      </DropdownMenu.Root>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                  <!-- Sort dropdown -->
+                  <Tooltip.Provider>
+                    <Tooltip.Root delayDuration={300}>
+                      <DropdownMenu.Root>
+                        <Tooltip.Trigger>
+                          {#snippet child({ props: tipProps })}
+                            <DropdownMenu.Trigger>
+                              {#snippet child({ props: sortTriggerProps })}
+                                <button
+                                  {...tipProps}
+                                  {...sortTriggerProps}
+                                  class={cn(
+                                    'inline-flex size-7 items-center justify-center rounded-md transition-colors hover:bg-muted hover:text-foreground',
+                                    propsSort !== 'default'
+                                      ? 'text-primary'
+                                      : 'text-muted-foreground',
+                                  )}
+                                  aria-label="Sort props"
+                                >
+                                  <ArrowUpDown class="size-4" />
+                                </button>
+                              {/snippet}
+                            </DropdownMenu.Trigger>
+                          {/snippet}
+                        </Tooltip.Trigger>
+                        <Tooltip.Content side="bottom" sideOffset={4}>Sort props</Tooltip.Content>
+                        <DropdownMenu.Content align="end" class="w-56">
+                          <DropdownMenu.Label class="text-xs">Sort by</DropdownMenu.Label>
+                          {@const sortOptions = [
+                            {
+                              value: 'default',
+                              label: 'Source Order',
+                              desc: 'Order as defined in source code',
+                              icon: ArrowUpDown,
+                            },
+                            {
+                              value: 'alpha-asc',
+                              label: 'Name A–Z',
+                              desc: 'Alphabetical ascending',
+                              icon: ArrowDownAZ,
+                            },
+                            {
+                              value: 'alpha-desc',
+                              label: 'Name Z–A',
+                              desc: 'Alphabetical descending',
+                              icon: ArrowDownZA,
+                            },
+                            {
+                              value: 'required-first',
+                              label: 'Required First',
+                              desc: 'Required props before optional',
+                              icon: ArrowDownAZ,
+                            },
+                            {
+                              value: 'required-last',
+                              label: 'Optional First',
+                              desc: 'Optional props before required',
+                              icon: ArrowDownZA,
+                            },
+                            {
+                              value: 'type-asc',
+                              label: 'Type A–Z',
+                              desc: 'Group by TypeScript type ascending',
+                              icon: ArrowDownAZ,
+                            },
+                            {
+                              value: 'type-desc',
+                              label: 'Type Z–A',
+                              desc: 'Group by TypeScript type descending',
+                              icon: ArrowDownZA,
+                            },
+                            {
+                              value: 'default-asc',
+                              label: 'Default Value',
+                              desc: 'Props with defaults first',
+                              icon: ArrowDownAZ,
+                            },
+                          ] as const}
+                          {#each sortOptions as opt (opt.value)}
+                            <DropdownMenu.Item
+                              onSelect={(e) => {
+                                e.preventDefault();
+                                propsSort = opt.value;
+                              }}
+                            >
+                              {#if propsSort === opt.value}
+                                <span in:fade={{ duration: 150 }}
+                                  ><Check class="size-4 text-primary" /></span
+                                >
+                              {:else}
+                                <opt.icon class="size-4 text-muted-foreground" />
+                              {/if}
+                              <div class="flex flex-col">
+                                <span class={cn(propsSort === opt.value && 'font-medium')}
+                                  >{opt.label}</span
+                                >
+                                <span class="text-[11px] text-muted-foreground">{opt.desc}</span>
+                              </div>
+                            </DropdownMenu.Item>
+                          {/each}
+                        </DropdownMenu.Content>
+                      </DropdownMenu.Root>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                </div>
+              {/if}
               {#if props.length > 0}
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
                     {#snippet child({ props: menuProps })}
                       <button
                         {...menuProps}
-                        class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        class="ml-auto inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                         aria-label="Props options"
                       >
                         <EllipsisVertical class="size-4" />
                       </button>
                     {/snippet}
                   </DropdownMenu.Trigger>
-                  <DropdownMenu.Content align="end" class="w-48">
+                  <DropdownMenu.Content align="end" class="w-52">
                     <DropdownMenu.Sub
                       onOpenChange={(open) => {
                         if (open) propsExportSearchQuery = '';
@@ -2100,13 +2570,57 @@
                         </div>
                       </DropdownMenu.SubContent>
                     </DropdownMenu.Sub>
+                    {#if propsTableRef?.getHasExpandableProps()}
+                      <DropdownMenu.Separator />
+                      <DropdownMenu.Item onSelect={() => propsTableRef?.expandAllTypeFields()}>
+                        <ChevronsUpDown class="size-4" />
+                        Expand all types
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        onSelect={() => propsTableRef?.collapseAllTypeFields()}
+                        disabled={!propsTableRef?.getHasAnyExpanded()}
+                      >
+                        <ChevronsDownUp class="size-4" />
+                        Collapse all types
+                      </DropdownMenu.Item>
+                    {/if}
                   </DropdownMenu.Content>
                 </DropdownMenu.Root>
               {/if}
             </div>
             {#if sectionOpen.props}
               <div transition:slide={{ duration: 200 }}>
-                <PropsTable {props} variantKeys={allVariants.map((v) => v.key)} />
+                {#if displayProps.length === 0 && hasActivePropsFilters}
+                  <div
+                    class="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed py-12 text-muted-foreground"
+                  >
+                    <SearchX class="size-6" />
+                    <div class="flex flex-col items-center gap-0.5">
+                      <p class="text-sm font-medium">No props match your filters</p>
+                      <p class="text-xs">Try adjusting your search or filter criteria</p>
+                    </div>
+                    <button
+                      type="button"
+                      class="mt-2 rounded-md bg-muted px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted/80"
+                      onclick={() => {
+                        propsSearchQuery = '' as Str;
+                        propsFilter = 'all';
+                        propsSort = 'default';
+                      }}
+                    >
+                      Clear filters
+                    </button>
+                  </div>
+                {:else}
+                  <PropsTable
+                    bind:this={propsTableRef}
+                    props={displayProps}
+                    variantKeys={allVariants.map((v) => v.key)}
+                    onsort={handlePropsColumnSort}
+                    sortColumn={propsSortColumn}
+                    sortDirection={propsSortDirection}
+                  />
+                {/if}
               </div>
             {/if}
           </section>

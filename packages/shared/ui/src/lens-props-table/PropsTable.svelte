@@ -3,6 +3,18 @@
   import { StrSchema } from '@/schemas/common';
   import { PropMetaSchema, type PropMeta, type TypeField } from '../lens/types.js';
 
+  /** Sort column identifier for PropsTable header sorting. */
+  export type PropsTableSortColumn =
+    | 'name'
+    | 'required'
+    | 'type'
+    | 'accepts'
+    | 'default'
+    | 'description';
+
+  /** Sort direction for PropsTable header sorting. */
+  export type PropsTableSortDirection = 'asc' | 'desc' | 'none';
+
   export const PropsTablePropsSchema = v.strictObject({
     /** Array of prop metadata to render. @values [{name: "variant", type: "Str", default: "default", description: "Visual style", bindable: false}] */
     props: v.array(PropMetaSchema),
@@ -10,6 +22,18 @@
     variantKeys: v.optional(v.array(StrSchema)),
     /** Additional CSS classes for the root element. */
     class: v.optional(StrSchema),
+    /** Callback when a sortable column header is clicked. @values (column, direction) => void */
+    onsort: v.optional(
+      v.custom<(column: PropsTableSortColumn, direction: PropsTableSortDirection) => void>(
+        () => true,
+      ),
+    ),
+    /** Currently sorted column for header indicator display. @values name, required, type, accepts, default, description */
+    sortColumn: v.optional(
+      v.nullable(v.picklist(['name', 'required', 'type', 'accepts', 'default', 'description'])),
+    ),
+    /** Current sort direction for header indicator display. @values asc, desc, none */
+    sortDirection: v.optional(v.picklist(['asc', 'desc', 'none'])),
   });
   /** Props for the PropsTable component. */
   export type PropsTableProps = v.InferOutput<typeof PropsTablePropsSchema>;
@@ -24,8 +48,10 @@
    * child rows for their type fields inside a `transition:slide` wrapper. Both parent
    * and nested tables use `table-layout: fixed` to guarantee column alignment.
    */
-  import { slide } from 'svelte/transition';
+  import { fade, slide } from 'svelte/transition';
   import type { Bool, Num, Str, Void } from '@/schemas/common';
+  import ArrowUp from '@lucide/svelte/icons/arrow-up';
+  import ArrowDown from '@lucide/svelte/icons/arrow-down';
   import { safeParse } from '@/utils/result/safe';
   import Badge from '../badge/badge.svelte';
   import LensEmpty from '../lens-empty/LensEmpty.svelte';
@@ -34,6 +60,11 @@
   import CircleHelp from '@lucide/svelte/icons/circle-help';
   import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
   import Layers from '@lucide/svelte/icons/layers';
+  import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
+  import Link from '@lucide/svelte/icons/link';
+  import Copy from '@lucide/svelte/icons/copy';
+  import Check from '@lucide/svelte/icons/check';
+  import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
   import * as Tooltip from '../tooltip/index.js';
   import { cn } from '../utils.js';
   import { stripSvelteProps } from '../lens/lens-utils.js';
@@ -46,6 +77,13 @@
     // Cast to mutable — Result.data is deep-frozen via Object.freeze but component only reads, never mutates
     return result.data as PropsTableProps;
   });
+
+  /** Callback when a sortable column header is clicked. */
+  const onsort = $derived(validated.onsort);
+  /** Currently sorted column for header indicator display. */
+  const sortColumn = $derived(validated.sortColumn);
+  /** Current sort direction for header indicator display. */
+  const sortDirection = $derived(validated.sortDirection);
 
   /** Resolved variant keys with empty-array default. */
   const variantKeys: readonly Str[] = $derived(validated.variantKeys ?? []);
@@ -72,6 +110,80 @@
   }
 
   /**
+   * Expand all type fields for props that have them.
+   * Recursively includes nested type field keys.
+   */
+  export function expandAllTypeFields(): Void {
+    const all: Set<Str> = new Set<Str>();
+    for (const prop of validated.props) {
+      if (hasTypeFields(prop)) {
+        all.add(prop.name);
+        for (const tf of prop.typeFields ?? []) {
+          if (tf.typeFields && tf.typeFields.length > 0) {
+            all.add(`${prop.name}.${tf.field}` as Str);
+          }
+        }
+      }
+    }
+    expandedTypeFields = all;
+  }
+
+  /**
+   * Collapse all expanded type fields.
+   */
+  export function collapseAllTypeFields(): Void {
+    expandedTypeFields = new Set();
+  }
+
+  /** Whether any type fields are currently expanded. */
+  const hasAnyExpanded: Bool = $derived(expandedTypeFields.size > 0);
+
+  /** Whether any props have expandable type fields. */
+  const hasExpandableProps: Bool = $derived(
+    validated.props.some((p: PropMeta): boolean => hasTypeFields(p)),
+  );
+
+  /**
+   * Returns whether any type fields are currently expanded.
+   *
+   * @returns True if any type fields are expanded
+   */
+  export function getHasAnyExpanded(): Bool {
+    return hasAnyExpanded;
+  }
+
+  /**
+   * Returns whether any props have expandable type fields.
+   *
+   * @returns True if any props have expandable type fields
+   */
+  export function getHasExpandableProps(): Bool {
+    return hasExpandableProps;
+  }
+
+  /**
+   * Handle column header click for sorting.
+   * Cycles: none → asc → desc → none.
+   *
+   * @param column - The column to sort by
+   */
+  function handleColumnSort(column: PropsTableSortColumn): Void {
+    if (!onsort) return;
+    if (sortColumn === column) {
+      // Cycle direction
+      if (sortDirection === 'asc') {
+        onsort(column, 'desc');
+      } else if (sortDirection === 'desc') {
+        onsort(column, 'none');
+      } else {
+        onsort(column, 'asc');
+      }
+    } else {
+      onsort(column, 'asc');
+    }
+  }
+
+  /**
    * Smooth-scroll to a specific variant section by prop name.
    *
    * @param propName - The prop/variant key name to scroll to
@@ -91,6 +203,68 @@
   function isRequired(prop: PropMeta): Bool {
     if (prop.optional) return false;
     return !prop.default;
+  }
+
+  /**
+   * Check whether a prop's description contains a `@deprecated` tag.
+   *
+   * @param prop - The prop metadata
+   * @returns True if the description includes `@deprecated`
+   */
+  function isDeprecated(prop: PropMeta): Bool {
+    return prop.description?.toLowerCase().includes('@deprecated') ?? false;
+  }
+
+  /**
+   * Strip the `@deprecated` tag from a description for display.
+   *
+   * @param description - Raw description string
+   * @returns Cleaned description without the tag
+   */
+  function cleanDeprecatedTag(description: Str): Str {
+    return description.replace(/@deprecated\s*/i, '').trim();
+  }
+
+  /** Tracks which prop row just had its link copied (for feedback). */
+  let copiedPropLink: Str = $state('');
+
+  /** Tracks which prop row just had its name/type copied (for feedback). */
+  let copiedPropAction: Str = $state('');
+
+  /**
+   * Copy text to clipboard and show brief feedback.
+   *
+   * @param text - Text to copy
+   * @param feedbackKey - Key to set for visual feedback
+   */
+  async function copyWithFeedback(text: Str, feedbackKey: Str): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      /* Clipboard write failed — browser may not support it in this context */
+    }
+    copiedPropAction = feedbackKey;
+    setTimeout((): Void => {
+      copiedPropAction = '' as Str;
+    }, 1500);
+  }
+
+  /**
+   * Copy a deep link URL for a specific prop to the clipboard.
+   *
+   * @param propName - The prop name to link to
+   */
+  async function copyPropLink(propName: Str): Promise<void> {
+    const url: Str = `${window.location.pathname}#prop-${propName}` as Str;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      /* Clipboard write failed — browser may not support it in this context */
+    }
+    copiedPropLink = propName;
+    setTimeout((): Void => {
+      copiedPropLink = '' as Str;
+    }, 1500);
   }
 
   /**
@@ -238,6 +412,22 @@
       }
     }
 
+    // Object types with type fields — show field count
+    if (hasTypeFields(prop)) {
+      const count: Num = prop.typeFields?.length ?? 0;
+      return `object (${count} ${count === 1 ? 'field' : 'fields'})`;
+    }
+
+    // Function/callback types
+    if (baseType.includes('=>') || baseType.startsWith('(')) {
+      return 'function';
+    }
+
+    // HTMLElement subtypes
+    if (baseType.endsWith('Element') || baseType === 'HTMLElement') {
+      return 'DOM element';
+    }
+
     return '—';
   }
 
@@ -287,8 +477,8 @@
     return tf.typeFields !== undefined && tf.typeFields.length > 0;
   }
 
-  /** Number of columns in the table — 7 if variant actions shown, else 6. */
-  const colCount: Num = $derived(variantKeys.length > 0 ? 7 : 6);
+  /** Number of columns in the table — always 7 (Name, Required, Type, Accepts, Default, Description, Actions). */
+  const colCount: Num = 7;
 </script>
 
 <div class={cn('overflow-x-auto rounded-lg border', validated.class)}>
@@ -298,272 +488,428 @@
       description="This component's $props() destructuring has no typed fields. Add typed props or a Valibot schema to see them here."
     />
   {:else}
-    <table class="w-full table-fixed text-sm">
-      <thead>
-        <tr class="border-b bg-muted/50">
-          <th class="px-4 py-2 text-left font-medium text-muted-foreground">Name</th>
-          <th class="px-4 py-2 text-left font-medium text-muted-foreground">Required</th>
-          <th class="px-4 py-2 text-left font-medium text-muted-foreground">Type</th>
-          <th class="px-4 py-2 text-left font-medium text-muted-foreground">Accepts</th>
-          <th class="px-4 py-2 text-left font-medium text-muted-foreground">Default</th>
-          <th class="px-4 py-2 text-left font-medium text-muted-foreground">Description</th>
-          {#if variantKeys.length > 0}
-            <th class="w-10 px-2 py-2"><span class="sr-only">Actions</span></th>
-          {/if}
-        </tr>
-      </thead>
-      <tbody>
-        {#each validated.props as prop (prop.name)}
-          <tr id="prop-{prop.name}" class="border-b last:border-b-0">
-            <td class="px-4 py-2 font-mono text-xs font-medium">
-              <span class="inline-flex items-center gap-1">
-                {#if hasTypeFields(prop)}
+    <div class="max-h-[70vh] overflow-y-auto">
+      <table class="w-full table-fixed text-sm">
+        <thead class="sticky top-0 z-[5] bg-background">
+          <tr class="border-b bg-muted/50">
+            {#each [{ key: 'name', label: 'Name' }, { key: 'required', label: 'Required' }, { key: 'type', label: 'Type' }, { key: 'accepts', label: 'Accepts' }, { key: 'default', label: 'Default' }, { key: 'description', label: 'Description' }] as col (col.key)}
+              <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+                {#if onsort}
                   <button
                     type="button"
-                    class="inline-flex size-4 shrink-0 items-center justify-center rounded text-muted-foreground/60 transition-all hover:text-foreground"
-                    onclick={() => toggleTypeFields(prop.name)}
-                    aria-expanded={expandedTypeFields.has(prop.name)}
-                    aria-label="Toggle {prop.name} type fields"
+                    class="group/th inline-flex items-center gap-1 transition-colors hover:text-foreground"
+                    onclick={() => handleColumnSort(col.key as PropsTableSortColumn)}
                   >
-                    <ChevronRight
-                      class="size-3 transition-transform duration-200 {expandedTypeFields.has(
-                        prop.name,
-                      )
-                        ? 'rotate-90'
-                        : ''}"
-                      aria-hidden="true"
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    class="cursor-pointer hover:text-foreground hover:underline"
-                    onclick={() => toggleTypeFields(prop.name)}
-                  >
-                    {prop.name}
+                    {col.label}
+                    {#if sortColumn === col.key && sortDirection === 'asc'}
+                      <ArrowUp class="size-3 text-primary" />
+                    {:else if sortColumn === col.key && sortDirection === 'desc'}
+                      <ArrowDown class="size-3 text-primary" />
+                    {:else}
+                      <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                    {/if}
                   </button>
                 {:else}
-                  {prop.name}
+                  {col.label}
                 {/if}
-              </span>
-              {#if prop.bindable}
-                <Tooltip.Provider>
-                  <Tooltip.Root delayDuration={300}>
-                    <Tooltip.Trigger>
-                      {#snippet child({ props: triggerProps })}
-                        <Badge
-                          {...triggerProps}
-                          variant="outline"
-                          class="ml-1 cursor-help gap-0.5 rounded-md border-blue-200 bg-blue-50 py-0 text-[10px] text-blue-700 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
-                        >
-                          bindable
-                          <CircleHelp class="size-2.5" aria-hidden="true" />
-                        </Badge>
-                      {/snippet}
-                    </Tooltip.Trigger>
-                    <Tooltip.Content side="top" sideOffset={4}>
-                      Supports two-way binding with bind:{prop.name}
-                    </Tooltip.Content>
-                  </Tooltip.Root>
-                </Tooltip.Provider>
-              {/if}
-            </td>
-            <td class="px-4 py-2">
-              {#if isRequired(prop)}
-                <Badge variant="default" class="rounded-md px-1.5 py-0 text-[10px]">Required</Badge>
-              {:else}
-                <Badge
-                  variant="secondary"
-                  class="rounded-md px-1.5 py-0 text-[10px] text-muted-foreground">Optional</Badge
-                >
-              {/if}
-            </td>
-            <td class="px-4 py-2 font-mono text-xs text-muted-foreground">
-              {#if isUnionType(prop.type)}
-                <span class="inline-flex flex-wrap items-center gap-1">
-                  {#each parseUnionMembers(prop.type) as member, mi (mi)}
-                    {#if mi > 0}
-                      <span class="text-[10px] text-muted-foreground/40">|</span>
-                    {/if}
-                    <code class="rounded bg-muted px-1 py-0.5 text-[11px]">{member}</code>
-                  {/each}
-                </span>
-              {:else if isComplexType(prop.type)}
+              </th>
+            {/each}
+            <th class="w-10 px-2 py-2"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {#each validated.props as prop (prop.name)}
+            <tr
+              id="prop-{prop.name}"
+              class="border-b last:border-b-0 transition-colors hover:bg-muted/40"
+            >
+              <td class="group/name px-4 py-2 font-mono text-xs font-medium">
                 <span class="inline-flex items-center gap-1">
-                  <code>{prop.type}</code>
+                  {#if hasTypeFields(prop)}
+                    <button
+                      type="button"
+                      class="inline-flex size-4 shrink-0 items-center justify-center rounded text-muted-foreground/60 transition-all hover:text-foreground"
+                      onclick={() => toggleTypeFields(prop.name)}
+                      aria-expanded={expandedTypeFields.has(prop.name)}
+                      aria-label="Toggle {prop.name} type fields"
+                    >
+                      <ChevronRight
+                        class="size-3 transition-transform duration-200 {expandedTypeFields.has(
+                          prop.name,
+                        )
+                          ? 'rotate-90'
+                          : ''}"
+                        aria-hidden="true"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      class={cn(
+                        'cursor-pointer hover:text-foreground hover:underline',
+                        isDeprecated(prop) && 'line-through opacity-60',
+                      )}
+                      onclick={() => toggleTypeFields(prop.name)}
+                    >
+                      {prop.name}
+                    </button>
+                  {:else}
+                    <span class={cn(isDeprecated(prop) && 'line-through opacity-60')}>
+                      {prop.name}
+                    </span>
+                  {/if}
+                  <!-- Deep link copy button — visible on row hover -->
+                  <Tooltip.Provider>
+                    <Tooltip.Root delayDuration={300}>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props: tipProps })}
+                          <button
+                            {...tipProps}
+                            type="button"
+                            class="invisible inline-flex size-4 items-center justify-center rounded text-muted-foreground/40 transition-colors hover:text-foreground group-hover/name:visible"
+                            onclick={() => copyPropLink(prop.name)}
+                            aria-label="Copy link to {prop.name}"
+                          >
+                            {#if copiedPropLink === prop.name}
+                              <span in:fade={{ duration: 150 }}
+                                ><Check class="size-3 text-green-500" /></span
+                              >
+                            {:else}
+                              <Link class="size-3" />
+                            {/if}
+                          </button>
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content side="top" sideOffset={4}
+                        >Copy link to #{prop.name}</Tooltip.Content
+                      >
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                </span>
+                {#if prop.bindable}
                   <Tooltip.Provider>
                     <Tooltip.Root delayDuration={300}>
                       <Tooltip.Trigger>
                         {#snippet child({ props: triggerProps })}
-                          <button
+                          <Badge
                             {...triggerProps}
-                            type="button"
-                            class="cursor-help text-muted-foreground/60 transition-colors hover:text-muted-foreground"
-                            aria-label="Type info"
+                            variant="outline"
+                            class="ml-1 cursor-help gap-0.5 rounded-md border-blue-200 bg-blue-50 py-0 text-[10px] text-blue-700 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
                           >
-                            <CircleHelp class="size-3" aria-hidden="true" />
-                          </button>
+                            bindable
+                            <CircleHelp class="size-2.5" aria-hidden="true" />
+                          </Badge>
                         {/snippet}
                       </Tooltip.Trigger>
                       <Tooltip.Content side="top" sideOffset={4}>
-                        {explainType(prop.type)}
+                        Supports two-way binding with bind:{prop.name}
                       </Tooltip.Content>
                     </Tooltip.Root>
                   </Tooltip.Provider>
-                </span>
-              {:else if prop.type}
-                {prop.type}
-              {:else}
-                <span class="text-muted-foreground/40">—</span>
-              {/if}
-            </td>
-            <td class="max-w-48 px-4 py-2 font-mono text-xs text-muted-foreground">
-              {#if getAccepts(prop) === '—'}
-                <span class="text-muted-foreground/40">—</span>
-              {:else}
-                {getAccepts(prop)}
-              {/if}
-            </td>
-            <td class="px-4 py-2 font-mono text-xs text-muted-foreground">
-              {#if prop.default}
-                {prop.default}
-              {:else}
-                <span class="text-muted-foreground/40">—</span>
-              {/if}
-            </td>
-            <td class="px-4 py-2 text-xs text-muted-foreground">
-              {#if prop.description}
-                {prop.description}
-              {:else}
-                <span class="text-muted-foreground/40">—</span>
-              {/if}
-            </td>
-            {#if variantKeys.length > 0}
-              <td class="px-2 py-2">
-                {#if variantKeySet.has(prop.name)}
-                  <DropdownMenu.Root>
-                    <DropdownMenu.Trigger>
-                      {#snippet child({ props: triggerProps })}
-                        <button
-                          type="button"
-                          class="inline-flex size-6 items-center justify-center rounded text-muted-foreground/60 transition-colors hover:bg-accent hover:text-foreground"
-                          {...triggerProps}
-                        >
-                          <EllipsisVertical class="size-3.5" />
-                          <span class="sr-only">Prop actions</span>
-                        </button>
-                      {/snippet}
-                    </DropdownMenu.Trigger>
-                    <DropdownMenu.Content align="end" sideOffset={4}>
-                      <DropdownMenu.Item onclick={() => scrollToVariant(prop.name)}>
-                        <Layers class="mr-2 size-4" />
-                        See variants
-                      </DropdownMenu.Item>
-                    </DropdownMenu.Content>
-                  </DropdownMenu.Root>
+                {/if}
+                {#if isDeprecated(prop)}
+                  <Tooltip.Provider>
+                    <Tooltip.Root delayDuration={300}>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props: depProps })}
+                          <Badge
+                            {...depProps}
+                            variant="outline"
+                            class="ml-1 cursor-help gap-0.5 rounded-md border-amber-200 bg-amber-50 py-0 text-[10px] text-amber-700 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+                          >
+                            deprecated
+                            <TriangleAlert class="size-2.5" aria-hidden="true" />
+                          </Badge>
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content side="top" sideOffset={4}>
+                        This prop is deprecated and may be removed in a future version
+                      </Tooltip.Content>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
                 {/if}
               </td>
-            {/if}
-          </tr>
-          {#if hasTypeFields(prop) && expandedTypeFields.has(prop.name)}
-            <tr class="border-b">
-              <td colspan={colCount} class="p-0">
-                <div transition:slide={{ duration: 150 }} class="overflow-hidden">
-                  <table class="w-full table-fixed text-sm">
-                    <tbody>
-                      {#each prop.typeFields ?? [] as tf (tf.field)}
-                        {@const nestedKey = `${prop.name}.${tf.field}`}
-                        <tr class="border-b bg-muted/30 last:border-b-0">
-                          <td class="py-1.5 pl-12 pr-4 font-mono text-xs text-muted-foreground">
-                            {#if hasNestedFields(tf)}
-                              <span class="inline-flex items-center gap-1">
-                                <button
-                                  type="button"
-                                  class="inline-flex size-4 shrink-0 items-center justify-center rounded text-muted-foreground/60 transition-all hover:text-foreground"
-                                  onclick={() => toggleTypeFields(nestedKey)}
-                                  aria-expanded={expandedTypeFields.has(nestedKey)}
-                                  aria-label="Toggle {tf.field} type fields"
-                                >
-                                  <ChevronRight
-                                    class="size-3 transition-transform duration-200 {expandedTypeFields.has(
-                                      nestedKey,
-                                    )
-                                      ? 'rotate-90'
-                                      : ''}"
-                                    aria-hidden="true"
-                                  />
-                                </button>
-                                <button
-                                  type="button"
-                                  class="cursor-pointer hover:text-foreground hover:underline"
-                                  onclick={() => toggleTypeFields(nestedKey)}
-                                >
-                                  {tf.field}
-                                </button>
-                              </span>
-                            {:else}
-                              {tf.field}
-                            {/if}
-                          </td>
-                          <td class="px-4 py-1.5">
-                            {#if tf.required}
-                              <Badge variant="default" class="rounded-md px-1.5 py-0 text-[10px]"
-                                >Required</Badge
-                              >
-                            {:else}
-                              <Badge
-                                variant="secondary"
-                                class="rounded-md px-1.5 py-0 text-[10px] text-muted-foreground"
-                                >Optional</Badge
-                              >
-                            {/if}
-                          </td>
-                          <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
-                            {#if isUnionType(tf.type)}
-                              <span class="inline-flex flex-wrap items-center gap-1">
-                                {#each parseUnionMembers(tf.type) as member, mi (mi)}
-                                  {#if mi > 0}
-                                    <span class="text-[10px] text-muted-foreground/40">|</span>
-                                  {/if}
-                                  <code class="rounded bg-muted px-1 py-0.5 text-[11px]"
-                                    >{member}</code
+              <td class="px-4 py-2">
+                {#if isRequired(prop)}
+                  <Badge variant="default" class="rounded-md px-1.5 py-0 text-[10px]"
+                    >Required</Badge
+                  >
+                {:else}
+                  <Badge
+                    variant="secondary"
+                    class="rounded-md px-1.5 py-0 text-[10px] text-muted-foreground">Optional</Badge
+                  >
+                {/if}
+              </td>
+              <td class="px-4 py-2 font-mono text-xs text-muted-foreground">
+                {#if isUnionType(prop.type)}
+                  <span class="inline-flex flex-wrap items-center gap-1">
+                    {#each parseUnionMembers(prop.type) as member, mi (mi)}
+                      {#if mi > 0}
+                        <span class="text-[10px] text-muted-foreground/40">|</span>
+                      {/if}
+                      <code class="rounded bg-muted px-1 py-0.5 text-[11px]">{member}</code>
+                    {/each}
+                  </span>
+                {:else if isComplexType(prop.type)}
+                  <span class="inline-flex items-center gap-1">
+                    <code>{prop.type}</code>
+                    <Tooltip.Provider>
+                      <Tooltip.Root delayDuration={300}>
+                        <Tooltip.Trigger>
+                          {#snippet child({ props: triggerProps })}
+                            <button
+                              {...triggerProps}
+                              type="button"
+                              class="cursor-help text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+                              aria-label="Type info"
+                            >
+                              <CircleHelp class="size-3" aria-hidden="true" />
+                            </button>
+                          {/snippet}
+                        </Tooltip.Trigger>
+                        <Tooltip.Content side="top" sideOffset={4}>
+                          {explainType(prop.type)}
+                        </Tooltip.Content>
+                      </Tooltip.Root>
+                    </Tooltip.Provider>
+                  </span>
+                {:else if prop.type}
+                  {prop.type}
+                {:else}
+                  <span class="text-muted-foreground/40">—</span>
+                {/if}
+              </td>
+              <td class="max-w-48 px-4 py-2 font-mono text-xs text-muted-foreground">
+                {#if getAccepts(prop) === '—'}
+                  <span class="text-muted-foreground/40">—</span>
+                {:else}
+                  {getAccepts(prop)}
+                {/if}
+              </td>
+              <td class="px-4 py-2 font-mono text-xs text-muted-foreground">
+                {#if prop.default}
+                  {prop.default}
+                {:else}
+                  <span class="text-muted-foreground/40">—</span>
+                {/if}
+              </td>
+              <td class="max-w-64 px-4 py-2 text-xs text-muted-foreground">
+                {#if prop.description}
+                  {@const desc = isDeprecated(prop)
+                    ? cleanDeprecatedTag(prop.description)
+                    : prop.description}
+                  {#if desc.length > 80}
+                    <Tooltip.Provider>
+                      <Tooltip.Root delayDuration={300}>
+                        <Tooltip.Trigger>
+                          {#snippet child({ props: truncProps })}
+                            <span {...truncProps} class="cursor-help">
+                              {desc.slice(0, 80)}…
+                            </span>
+                          {/snippet}
+                        </Tooltip.Trigger>
+                        <Tooltip.Content side="top" sideOffset={4} class="max-w-sm text-xs">
+                          {desc}
+                        </Tooltip.Content>
+                      </Tooltip.Root>
+                    </Tooltip.Provider>
+                  {:else}
+                    {desc}
+                  {/if}
+                {:else}
+                  <span class="text-muted-foreground/40">—</span>
+                {/if}
+              </td>
+              <!-- Per-prop actions column -->
+              <td class="w-10 px-2 py-2">
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger>
+                    {#snippet child({ props: triggerProps })}
+                      <button
+                        type="button"
+                        class="inline-flex size-6 items-center justify-center rounded text-muted-foreground/60 transition-colors hover:bg-accent hover:text-foreground"
+                        {...triggerProps}
+                      >
+                        <EllipsisVertical class="size-3.5" />
+                        <span class="sr-only">Prop actions</span>
+                      </button>
+                    {/snippet}
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Content align="end" sideOffset={4} class="min-w-44">
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        copyWithFeedback(prop.name, `name-${prop.name}`);
+                      }}
+                    >
+                      {#if copiedPropAction === `name-${prop.name}`}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <Copy class="size-4" />
+                      {/if}
+                      Copy Name
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        copyWithFeedback(prop.type || '—', `type-${prop.name}`);
+                      }}
+                    >
+                      {#if copiedPropAction === `type-${prop.name}`}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <Copy class="size-4" />
+                      {/if}
+                      Copy Type
+                    </DropdownMenu.Item>
+                    {#if prop.bindable}
+                      <DropdownMenu.Item
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          copyWithFeedback(`bind:${prop.name}`, `bind-${prop.name}`);
+                        }}
+                      >
+                        {#if copiedPropAction === `bind-${prop.name}`}
+                          <span in:fade={{ duration: 150 }}
+                            ><Check class="size-4 text-green-500" /></span
+                          >
+                        {:else}
+                          <ClipboardCopy class="size-4" />
+                        {/if}
+                        Copy bind:{prop.name}
+                      </DropdownMenu.Item>
+                    {/if}
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        copyWithFeedback(JSON.stringify(prop, null, 2), `json-${prop.name}`);
+                      }}
+                    >
+                      {#if copiedPropAction === `json-${prop.name}`}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <ClipboardCopy class="size-4" />
+                      {/if}
+                      Copy as JSON
+                    </DropdownMenu.Item>
+                    {#if variantKeySet.has(prop.name)}
+                      <DropdownMenu.Separator />
+                      <DropdownMenu.Item onclick={() => scrollToVariant(prop.name)}>
+                        <Layers class="size-4" />
+                        See variants
+                      </DropdownMenu.Item>
+                    {/if}
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+              </td>
+            </tr>
+            {#if hasTypeFields(prop) && expandedTypeFields.has(prop.name)}
+              <tr class="border-b">
+                <td colspan={colCount} class="p-0">
+                  <div transition:slide={{ duration: 150 }} class="overflow-hidden">
+                    <table class="w-full table-fixed text-sm">
+                      <tbody>
+                        {#each prop.typeFields ?? [] as tf (tf.field)}
+                          {@const nestedKey = `${prop.name}.${tf.field}`}
+                          <tr
+                            class="border-b bg-muted/30 last:border-b-0 transition-colors hover:bg-muted/50"
+                          >
+                            <td class="py-1.5 pl-12 pr-4 font-mono text-xs text-muted-foreground">
+                              {#if hasNestedFields(tf)}
+                                <span class="inline-flex items-center gap-1">
+                                  <button
+                                    type="button"
+                                    class="inline-flex size-4 shrink-0 items-center justify-center rounded text-muted-foreground/60 transition-all hover:text-foreground"
+                                    onclick={() => toggleTypeFields(nestedKey)}
+                                    aria-expanded={expandedTypeFields.has(nestedKey)}
+                                    aria-label="Toggle {tf.field} type fields"
                                   >
-                                {/each}
-                              </span>
-                            {:else if tf.type}
-                              {tf.type}
-                            {:else}
-                              <span class="text-muted-foreground/40">—</span>
-                            {/if}
-                          </td>
-                          <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
-                            {#if isAcceptsUnion(tf.accepts)}
-                              <span class="inline-flex flex-wrap items-center gap-1">
-                                {#each parseAcceptsMembers(tf.accepts) as member, mi (mi)}
-                                  {#if mi > 0}
-                                    <span class="text-[10px] text-muted-foreground/40">|</span>
-                                  {/if}
-                                  <code class="rounded bg-muted px-1 py-0.5 text-[11px]"
-                                    >{member}</code
+                                    <ChevronRight
+                                      class="size-3 transition-transform duration-200 {expandedTypeFields.has(
+                                        nestedKey,
+                                      )
+                                        ? 'rotate-90'
+                                        : ''}"
+                                      aria-hidden="true"
+                                    />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    class="cursor-pointer hover:text-foreground hover:underline"
+                                    onclick={() => toggleTypeFields(nestedKey)}
                                   >
-                                {/each}
-                              </span>
-                            {:else if tf.accepts}
-                              {tf.accepts}
-                            {:else}
+                                    {tf.field}
+                                  </button>
+                                </span>
+                              {:else}
+                                {tf.field}
+                              {/if}
+                            </td>
+                            <td class="px-4 py-1.5">
+                              {#if tf.required}
+                                <Badge variant="default" class="rounded-md px-1.5 py-0 text-[10px]"
+                                  >Required</Badge
+                                >
+                              {:else}
+                                <Badge
+                                  variant="secondary"
+                                  class="rounded-md px-1.5 py-0 text-[10px] text-muted-foreground"
+                                  >Optional</Badge
+                                >
+                              {/if}
+                            </td>
+                            <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
+                              {#if isUnionType(tf.type)}
+                                <span class="inline-flex flex-wrap items-center gap-1">
+                                  {#each parseUnionMembers(tf.type) as member, mi (mi)}
+                                    {#if mi > 0}
+                                      <span class="text-[10px] text-muted-foreground/40">|</span>
+                                    {/if}
+                                    <code class="rounded bg-muted px-1 py-0.5 text-[11px]"
+                                      >{member}</code
+                                    >
+                                  {/each}
+                                </span>
+                              {:else if tf.type}
+                                {tf.type}
+                              {:else}
+                                <span class="text-muted-foreground/40">—</span>
+                              {/if}
+                            </td>
+                            <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
+                              {#if isAcceptsUnion(tf.accepts)}
+                                <span class="inline-flex flex-wrap items-center gap-1">
+                                  {#each parseAcceptsMembers(tf.accepts) as member, mi (mi)}
+                                    {#if mi > 0}
+                                      <span class="text-[10px] text-muted-foreground/40">|</span>
+                                    {/if}
+                                    <code class="rounded bg-muted px-1 py-0.5 text-[11px]"
+                                      >{member}</code
+                                    >
+                                  {/each}
+                                </span>
+                              {:else if tf.accepts}
+                                {tf.accepts}
+                              {:else}
+                                <span class="text-muted-foreground/40">—</span>
+                              {/if}
+                            </td>
+                            <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
                               <span class="text-muted-foreground/40">—</span>
-                            {/if}
-                          </td>
-                          <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
-                            <span class="text-muted-foreground/40">—</span>
-                          </td>
-                          <td class="px-4 py-1.5 text-xs text-muted-foreground">
-                            {#if tf.description}
-                              {tf.description}
-                            {:else}
-                              <span class="text-muted-foreground/40">—</span>
-                            {/if}
-                          </td>
-                          {#if variantKeys.length > 0}
+                            </td>
+                            <td class="px-4 py-1.5 text-xs text-muted-foreground">
+                              {#if tf.description}
+                                {tf.description}
+                              {:else}
+                                <span class="text-muted-foreground/40">—</span>
+                              {/if}
+                            </td>
                             <td class="w-10 px-2 py-1.5">
                               {#if variantKeySet.has(`${prop.name}.${tf.field}`)}
                                 <DropdownMenu.Root>
@@ -583,98 +929,100 @@
                                     <DropdownMenu.Item
                                       onclick={() => scrollToVariant(`${prop.name}.${tf.field}`)}
                                     >
-                                      <Layers class="mr-2 size-4" />
+                                      <Layers class="size-4" />
                                       See variants
                                     </DropdownMenu.Item>
                                   </DropdownMenu.Content>
                                 </DropdownMenu.Root>
                               {/if}
                             </td>
-                          {/if}
-                        </tr>
-                        {#if hasNestedFields(tf) && expandedTypeFields.has(nestedKey)}
-                          {#each tf.typeFields ?? [] as ntf (ntf.field)}
-                            <tr class="border-b bg-muted/20 last:border-b-0">
-                              <td
-                                class="py-1.5 pl-20 pr-4 font-mono text-xs text-muted-foreground/80"
+                          </tr>
+                          {#if hasNestedFields(tf) && expandedTypeFields.has(nestedKey)}
+                            {#each tf.typeFields ?? [] as ntf (ntf.field)}
+                              <tr
+                                class="border-b bg-muted/20 last:border-b-0 transition-colors hover:bg-muted/40"
                               >
-                                {ntf.field}
-                              </td>
-                              <td class="px-4 py-1.5">
-                                {#if ntf.required}
-                                  <Badge
-                                    variant="default"
-                                    class="rounded-md px-1.5 py-0 text-[10px]">Required</Badge
-                                  >
-                                {:else}
-                                  <Badge
-                                    variant="secondary"
-                                    class="rounded-md px-1.5 py-0 text-[10px] text-muted-foreground"
-                                    >Optional</Badge
-                                  >
-                                {/if}
-                              </td>
-                              <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
-                                {#if isUnionType(ntf.type)}
-                                  <span class="inline-flex flex-wrap items-center gap-1">
-                                    {#each parseUnionMembers(ntf.type) as member, mi (mi)}
-                                      {#if mi > 0}
-                                        <span class="text-[10px] text-muted-foreground/40">|</span>
-                                      {/if}
-                                      <code class="rounded bg-muted px-1 py-0.5 text-[11px]"
-                                        >{member}</code
-                                      >
-                                    {/each}
-                                  </span>
-                                {:else if ntf.type}
-                                  {ntf.type}
-                                {:else}
+                                <td
+                                  class="py-1.5 pl-20 pr-4 font-mono text-xs text-muted-foreground/80"
+                                >
+                                  {ntf.field}
+                                </td>
+                                <td class="px-4 py-1.5">
+                                  {#if ntf.required}
+                                    <Badge
+                                      variant="default"
+                                      class="rounded-md px-1.5 py-0 text-[10px]">Required</Badge
+                                    >
+                                  {:else}
+                                    <Badge
+                                      variant="secondary"
+                                      class="rounded-md px-1.5 py-0 text-[10px] text-muted-foreground"
+                                      >Optional</Badge
+                                    >
+                                  {/if}
+                                </td>
+                                <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
+                                  {#if isUnionType(ntf.type)}
+                                    <span class="inline-flex flex-wrap items-center gap-1">
+                                      {#each parseUnionMembers(ntf.type) as member, mi (mi)}
+                                        {#if mi > 0}
+                                          <span class="text-[10px] text-muted-foreground/40">|</span
+                                          >
+                                        {/if}
+                                        <code class="rounded bg-muted px-1 py-0.5 text-[11px]"
+                                          >{member}</code
+                                        >
+                                      {/each}
+                                    </span>
+                                  {:else if ntf.type}
+                                    {ntf.type}
+                                  {:else}
+                                    <span class="text-muted-foreground/40">—</span>
+                                  {/if}
+                                </td>
+                                <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
+                                  {#if isAcceptsUnion(ntf.accepts)}
+                                    <span class="inline-flex flex-wrap items-center gap-1">
+                                      {#each parseAcceptsMembers(ntf.accepts) as member, mi (mi)}
+                                        {#if mi > 0}
+                                          <span class="text-[10px] text-muted-foreground/40">|</span
+                                          >
+                                        {/if}
+                                        <code class="rounded bg-muted px-1 py-0.5 text-[11px]"
+                                          >{member}</code
+                                        >
+                                      {/each}
+                                    </span>
+                                  {:else if ntf.accepts}
+                                    {ntf.accepts}
+                                  {:else}
+                                    <span class="text-muted-foreground/40">—</span>
+                                  {/if}
+                                </td>
+                                <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
                                   <span class="text-muted-foreground/40">—</span>
-                                {/if}
-                              </td>
-                              <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
-                                {#if isAcceptsUnion(ntf.accepts)}
-                                  <span class="inline-flex flex-wrap items-center gap-1">
-                                    {#each parseAcceptsMembers(ntf.accepts) as member, mi (mi)}
-                                      {#if mi > 0}
-                                        <span class="text-[10px] text-muted-foreground/40">|</span>
-                                      {/if}
-                                      <code class="rounded bg-muted px-1 py-0.5 text-[11px]"
-                                        >{member}</code
-                                      >
-                                    {/each}
-                                  </span>
-                                {:else if ntf.accepts}
-                                  {ntf.accepts}
-                                {:else}
-                                  <span class="text-muted-foreground/40">—</span>
-                                {/if}
-                              </td>
-                              <td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
-                                <span class="text-muted-foreground/40">—</span>
-                              </td>
-                              <td class="px-4 py-1.5 text-xs text-muted-foreground">
-                                {#if ntf.description}
-                                  {ntf.description}
-                                {:else}
-                                  <span class="text-muted-foreground/40">—</span>
-                                {/if}
-                              </td>
-                              {#if variantKeys.length > 0}
+                                </td>
+                                <td class="px-4 py-1.5 text-xs text-muted-foreground">
+                                  {#if ntf.description}
+                                    {ntf.description}
+                                  {:else}
+                                    <span class="text-muted-foreground/40">—</span>
+                                  {/if}
+                                </td>
                                 <td class="w-10 px-2 py-1.5"></td>
-                              {/if}
-                            </tr>
-                          {/each}
-                        {/if}
-                      {/each}
-                    </tbody>
-                  </table>
-                </div>
-              </td>
-            </tr>
-          {/if}
-        {/each}
-      </tbody>
-    </table>
+                              </tr>
+                            {/each}
+                          {/if}
+                        {/each}
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            {/if}
+          {/each}
+        </tbody>
+      </table>
+    </div>
   {/if}
 </div>
