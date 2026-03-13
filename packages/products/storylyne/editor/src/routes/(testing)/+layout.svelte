@@ -19,6 +19,8 @@
     parseLensMeta,
     findPrimaryKey,
     extractComponentDescription,
+    computeLensCompatibility,
+    type LensCompatibility,
   } from '@/ui/lens/lens-utils.js';
   import { extractProps } from '@/ui/lens/extract-props.js';
   import { extractVariants } from '@/ui/lens/extract-variants.js';
@@ -59,6 +61,8 @@
   import SearchX from '@lucide/svelte/icons/search-x';
   import Clipboard from '@lucide/svelte/icons/clipboard';
   import Filter from '@lucide/svelte/icons/filter';
+  import CircleAlert from '@lucide/svelte/icons/circle-alert';
+  import EyeOff from '@lucide/svelte/icons/eye-off';
 
   const { children } = $props();
 
@@ -208,6 +212,12 @@
   };
 
   /**
+   * Raw example .svelte file paths for compatibility checking (rule 16).
+   * Used to verify declared example names match actual filesystem files.
+   */
+  const exampleSvelteModules: Record<Str, unknown> = import.meta.glob('@/ui/*/examples/*.svelte');
+
+  /**
    * Build global search items with hierarchical grouping.
    *
    * Each component gets multiple groups using " › " as a hierarchy separator:
@@ -221,6 +231,13 @@
    */
   const tsSources: Str[] = Object.values(rawTsSources);
   const globalSearchItems: SearchItem[] = [];
+
+  /**
+   * Lens compatibility results per component, computed alongside search indexing.
+   * Keyed by component directory name. Used for sidebar indicators and detail page banners.
+   */
+  const compatByName: Map<Str, LensCompatibility> = new Map();
+
   for (const n of componentNames) {
     const m: LensMeta | undefined = metaByName.get(n);
     const title: Str = toTitle(n);
@@ -253,6 +270,36 @@
       const componentProps = extractProps(src, tsSources.length > 0 ? tsSources : undefined);
       const variants = extractVariants(src);
       const deps: DepTree = extractDeps(src);
+
+      // — Lens compatibility check —
+      const compHasLensTs: boolean = Object.keys(lensMetaModules).some(
+        (k: Str): boolean => extractDir(k) === n,
+      );
+      const compExamples: LensExample[] | undefined = examplesByName.get(n);
+      const compDeclaredNames: Str[] = (compExamples ?? []).map((ex: LensExample): Str => ex.name);
+      const compExistingFiles: Str[] = Object.keys(exampleSvelteModules)
+        .filter((k: Str): boolean => k.includes(`/${n}/examples/`))
+        .map((k: Str): Str => {
+          const parts: Str[] = k.split('/');
+          return parts.at(-1) ?? '';
+        });
+      const compUsesTv: boolean = /\btv\s*\(\s*\{/.test(src);
+      compatByName.set(
+        n,
+        computeLensCompatibility({
+          dir: n,
+          source: src,
+          hasLensTs: compHasLensTs,
+          meta: m ?? null,
+          hasPrimary: true,
+          props: componentProps,
+          hasVariants: variants !== null && variants.variants.length > 0,
+          hasExamples: (compExamples?.length ?? 0) > 0,
+          usesTv: compUsesTv,
+          declaredExampleNames: compDeclaredNames,
+          existingExampleFiles: compExistingFiles,
+        }),
+      );
 
       // — Props group —
       const propsGroup: Str = `${title} › Props`;
@@ -408,6 +455,29 @@
           keywords: [n],
         },
       );
+
+      // No primary source — compute compatibility with hasPrimary=false
+      if (!compatByName.has(n)) {
+        const hasLensTs: boolean = Object.keys(lensMetaModules).some(
+          (k: Str): boolean => extractDir(k) === n,
+        );
+        compatByName.set(
+          n,
+          computeLensCompatibility({
+            dir: n,
+            source: '' as Str,
+            hasLensTs,
+            meta: m ?? null,
+            hasPrimary: false,
+            props: [],
+            hasVariants: false,
+            hasExamples: (examplesByName.get(n)?.length ?? 0) > 0,
+            usesTv: false,
+            declaredExampleNames: [],
+            existingExampleFiles: [],
+          }),
+        );
+      }
     }
 
     // — Documentation group (from docs.md) —
@@ -491,13 +561,49 @@
   /** Inline sidebar filter query (filters component list without opening command palette). */
   let sidebarFilter: Str = $state('' as Str);
 
+  /** Whether to hide incompatible components from the sidebar. Persisted to localStorage. */
+  let hideIncompatible: boolean = $state(false);
+
+  // Restore hideIncompatible from localStorage on mount
+  $effect(() => {
+    try {
+      const stored: Str | null = localStorage.getItem(storageKey('lens-hide-incompatible'));
+      if (stored === 'true') hideIncompatible = true;
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — default false is fine */
+    }
+  });
+
+  // Persist hideIncompatible to localStorage on change
+  $effect(() => {
+    try {
+      localStorage.setItem(
+        storageKey('lens-hide-incompatible'),
+        hideIncompatible ? 'true' : 'false',
+      );
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — non-critical */
+    }
+  });
+
   /**
-   * Grouped components filtered by the inline sidebar filter.
+   * Count compatible components within a category group.
+   *
+   * @param group - Category group to count
+   * @returns Number of compatible components
+   */
+  function countCompatible(group: CategoryGroup): number {
+    return group.components.filter((n: Str): boolean => compatByName.get(n)?.compatible ?? false)
+      .length;
+  }
+
+  /**
+   * Grouped components filtered by the inline sidebar filter and optionally by compatibility.
    * When filter is empty, returns all groups. Otherwise, filters component names
    * by case-insensitive substring match on name and title.
    */
   const filteredGroupedComponents: CategoryGroup[] = $derived(
-    sidebarFilter.length === 0
+    (sidebarFilter.length === 0
       ? groupedComponents
       : groupedComponents
           .map(
@@ -509,7 +615,20 @@
               }),
             }),
           )
-          .filter((g: CategoryGroup): boolean => g.components.length > 0),
+          .filter((g: CategoryGroup): boolean => g.components.length > 0)
+    )
+      .map(
+        (g: CategoryGroup): CategoryGroup =>
+          hideIncompatible
+            ? {
+                ...g,
+                components: g.components.filter(
+                  (n: Str): boolean => compatByName.get(n)?.compatible ?? false,
+                ),
+              }
+            : g,
+      )
+      .filter((g: CategoryGroup): boolean => g.components.length > 0),
   );
 
   /** Total design token count for the sidebar badge. */
@@ -904,10 +1023,11 @@
               </Collapsible.Trigger>
             {/snippet}
           </Sidebar.GroupLabel>
-          <Collapsible.Content>
-            <Sidebar.GroupContent>
+          <!-- Filter + hide incompatible controls — outside Collapsible.Content so sticky works -->
+          {#if sidebarComponentsOpen}
+            <div class="sticky top-0 z-10 bg-sidebar px-2 pb-0.5 pt-1">
               <!-- Inline filter input -->
-              <div class="px-3 pb-2">
+              <div class="pb-1.5">
                 <div
                   class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
                 >
@@ -934,6 +1054,42 @@
                   <Kbd label="/" class="ml-auto shrink-0 text-[10px]" />
                 </div>
               </div>
+              <!-- Hide incompatible toggle -->
+              <div class="pb-0.5">
+                <Tooltip.Root delayDuration={300}>
+                  <Tooltip.Trigger>
+                    {#snippet child({ props: toggleTooltipProps })}
+                      <button
+                        type="button"
+                        class="flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-xs transition-colors hover:bg-accent/50 {hideIncompatible
+                          ? 'text-foreground'
+                          : 'text-muted-foreground/60'}"
+                        {...toggleTooltipProps}
+                        onclick={() => {
+                          hideIncompatible = !hideIncompatible;
+                        }}
+                      >
+                        <EyeOff class="size-3 shrink-0" aria-hidden="true" />
+                        <span>{hideIncompatible ? 'Show incompatible' : 'Hide incompatible'}</span>
+                        {#if hideIncompatible}
+                          <span class="ml-auto" in:fade={{ duration: 150 }}
+                            ><Check class="size-3 text-green-500" aria-hidden="true" /></span
+                          >
+                        {/if}
+                      </button>
+                    {/snippet}
+                  </Tooltip.Trigger>
+                  <Tooltip.Content side="right" sideOffset={8} class="max-w-48">
+                    <p class="text-xs">
+                      {hideIncompatible ? 'Showing compatible only' : 'Show all components'}
+                    </p>
+                  </Tooltip.Content>
+                </Tooltip.Root>
+              </div>
+            </div>
+          {/if}
+          <Collapsible.Content>
+            <Sidebar.GroupContent>
               {#if sidebarFilter.length > 0 && filteredGroupedComponents.length === 0}
                 <div class="flex flex-col items-center gap-1 px-2 py-4 text-center">
                   <SearchX class="size-4 text-muted-foreground/40" />
@@ -962,10 +1118,13 @@
                             class="text-xs font-medium uppercase tracking-wider text-muted-foreground/60"
                             >{group.label}</span
                           >
+                          {@const compatCount = countCompatible(group)}
                           <Badge
                             variant="secondary"
-                            class="ml-auto h-5 rounded px-1.5 text-[11px] leading-none"
-                            >{group.components.length}</Badge
+                            class="ml-auto h-5 rounded px-1.5 text-[11px] leading-none {compatCount <
+                            group.components.length
+                              ? 'text-amber-600 dark:text-amber-400'
+                              : ''}">{compatCount}/{group.components.length}</Badge
                           >
                         </Collapsible.Trigger>
                       {/snippet}
@@ -981,6 +1140,8 @@
                       <Sidebar.Menu class="pl-4">
                         {#each group.components as name (name)}
                           {@const itemMeta = metaByName.get(name)}
+                          {@const itemCompat = compatByName.get(name)}
+                          {@const isIncompat = itemCompat ? !itemCompat.compatible : false}
                           {@const ItemIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
                           {@const itemColor =
                             CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
@@ -993,29 +1154,68 @@
                                     {...tooltipProps}
                                   >
                                     {#snippet child({ props })}
-                                      <a href="/components/{name}" {...props}>
+                                      <a
+                                        href="/components/{name}"
+                                        {...props}
+                                        class="{props.class ?? ''} {isIncompat ? 'opacity-50' : ''}"
+                                      >
                                         <ItemIcon class="size-4 {itemColor}"></ItemIcon>
                                         <span>{toTitle(name)}</span>
+                                        {#if isIncompat}
+                                          <CircleAlert
+                                            class="ml-auto size-3 shrink-0 text-amber-500"
+                                            aria-hidden="true"
+                                          />
+                                        {/if}
                                       </a>
                                     {/snippet}
                                   </Sidebar.MenuButton>
                                 {/snippet}
                               </Tooltip.Trigger>
-                              {#if itemMeta?.description}
-                                <Tooltip.Content side="right" sideOffset={8} class="max-w-64">
+                              <Tooltip.Content side="right" sideOffset={8} class="max-w-72">
+                                {#if itemMeta?.description}
                                   <p class="text-xs">{itemMeta.description}</p>
-                                  {#if itemMeta.tags.length > 0}
-                                    <div class="mt-1 flex flex-wrap gap-1">
-                                      {#each itemMeta.tags as tag (tag)}
-                                        <span
-                                          class="rounded bg-primary-foreground/20 px-1 py-0.5 text-[10px]"
-                                          >{tag}</span
-                                        >
+                                {/if}
+                                {#if itemMeta?.tags && itemMeta.tags.length > 0}
+                                  <div class="mt-1 flex flex-wrap gap-1">
+                                    {#each itemMeta.tags as tag (tag)}
+                                      <span
+                                        class="rounded bg-primary-foreground/20 px-1 py-0.5 text-[10px]"
+                                        >{tag}</span
+                                      >
+                                    {/each}
+                                  </div>
+                                {/if}
+                                {#if isIncompat && itemCompat}
+                                  <div class="mt-1.5 border-t border-border pt-1.5">
+                                    <p
+                                      class="mb-1 text-[10px] font-semibold text-popover-foreground"
+                                    >
+                                      {itemCompat.violations.length} violation{itemCompat.violations
+                                        .length === 1
+                                        ? ''
+                                        : 's'}
+                                    </p>
+                                    <ul class="space-y-0.5">
+                                      {#each itemCompat.violations.slice(0, 5) as violation, i (i)}
+                                        <li class="text-[10px] text-popover-foreground/90">
+                                          {#if (violation.rule as number) > 0}
+                                            <span class="font-mono text-popover-foreground/60"
+                                              >R{violation.rule}</span
+                                            >
+                                          {/if}
+                                          {violation.message}
+                                        </li>
                                       {/each}
-                                    </div>
-                                  {/if}
-                                </Tooltip.Content>
-                              {/if}
+                                      {#if itemCompat.violations.length > 5}
+                                        <li class="text-[10px] text-popover-foreground/60">
+                                          +{itemCompat.violations.length - 5} more...
+                                        </li>
+                                      {/if}
+                                    </ul>
+                                  </div>
+                                {/if}
+                              </Tooltip.Content>
                             </Tooltip.Root>
                           </Sidebar.MenuItem>
                         {/each}
