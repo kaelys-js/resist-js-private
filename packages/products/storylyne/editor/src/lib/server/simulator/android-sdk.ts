@@ -11,6 +11,7 @@
 
 import type { Bool, Str } from '@/schemas/common';
 import { execFile } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
@@ -95,21 +96,32 @@ export function parseAdbVersion(output: Str): Str | null {
 /**
  * Detect the Android SDK root directory.
  *
- * Checks `ANDROID_HOME`, `ANDROID_SDK_ROOT`, and common default locations.
+ * Checks `ANDROID_HOME`, `ANDROID_SDK_ROOT`, then probes common install
+ * locations (Homebrew, Android Studio default) and returns the first that
+ * actually exists on disk.
  *
  * @returns SDK root path, or empty string if not found
  */
 function detectSdkRoot(): Str {
+  /* Explicit env vars take priority — trust the user */
   const envHome: Str = (process.env.ANDROID_HOME ?? '') as Str;
   if (envHome) return envHome;
 
   const envRoot: Str = (process.env.ANDROID_SDK_ROOT ?? '') as Str;
   if (envRoot) return envRoot;
 
-  /* Common default locations */
+  /* Probe common default locations — return first that exists */
   const home: Str = (process.env.HOME ?? '') as Str;
-  if (home) {
-    return `${home}/Library/Android/sdk` as Str;
+  const candidates: Str[] = [
+    '/opt/homebrew/share/android-commandlinetools' as Str,
+    `${home}/Library/Android/sdk` as Str,
+    '/usr/local/share/android-commandlinetools' as Str,
+  ];
+
+  for (const candidate of candidates) {
+    if (candidate && existsSync(candidate as string)) {
+      return candidate;
+    }
   }
 
   return '' as Str;

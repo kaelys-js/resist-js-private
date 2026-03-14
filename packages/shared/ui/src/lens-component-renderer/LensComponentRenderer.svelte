@@ -92,6 +92,7 @@
   import Moon from '@lucide/svelte/icons/moon';
   import Paintbrush from '@lucide/svelte/icons/paintbrush';
   import Palette from '@lucide/svelte/icons/palette';
+  import Plus from '@lucide/svelte/icons/plus';
   import Search from '@lucide/svelte/icons/search';
   import SearchX from '@lucide/svelte/icons/search-x';
   import Settings2 from '@lucide/svelte/icons/settings-2';
@@ -591,8 +592,11 @@
   /** iOS Simulator device list. */
   let iosDevices: Array<Record<Str, unknown>> = $state([]);
 
-  /** Android emulator AVD list. */
+  /** Android emulator AVD + hardware profile list. */
   let androidDevices: Array<Record<Str, unknown>> = $state([]);
+
+  /** Device ID currently being created as an AVD (shows spinner). */
+  let creatingAvdDeviceId: Str | null = $state(null);
 
   /** Whether iOS devices have been loaded. */
   let iosDevicesLoaded: Bool = $state(false);
@@ -6137,11 +6141,13 @@
   }
 
   /**
-   * Fetch Android emulator AVD list.
-   * Cached after first call.
+   * Fetch Android emulator AVD + hardware profile list.
+   * Cached after first call unless `force` is true.
+   *
+   * @param force - Skip cache and re-fetch (after AVD creation)
    */
-  async function fetchAndroidDevices(): Promise<void> {
-    if (androidDevicesLoaded) return;
+  async function fetchAndroidDevices(force?: boolean): Promise<void> {
+    if (androidDevicesLoaded && !force) return;
     try {
       const res: Response = await fetch('/api/lens/screenshot/android/devices');
       if (res.ok) {
@@ -6154,6 +6160,43 @@
       /* Android device list fetch failed */
     }
     androidDevicesLoaded = true;
+  }
+
+  /**
+   * Create a new AVD from a hardware device profile.
+   * Shows spinner during creation, then refreshes the device list.
+   *
+   * @param deviceId - Hardware profile device ID (e.g. 'pixel_9')
+   * @param displayName - Human-readable name for selection after creation
+   */
+  async function createAndroidAvd(deviceId: Str, displayName: Str): Promise<void> {
+    creatingAvdDeviceId = deviceId;
+    try {
+      const res: Response = await fetch('/api/lens/screenshot/android/devices/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deviceId: deviceId as string }),
+      });
+      if (res.ok) {
+        const data: Record<Str, unknown> = (await res.json()) as Record<Str, unknown>;
+        /* Refresh device list to pick up the new AVD */
+        androidDevicesLoaded = false;
+        await fetchAndroidDevices(true);
+        /* Auto-select the newly created AVD */
+        const newName: Str = ((data.name as string) ?? (displayName as string)) as Str;
+        if (newName) {
+          /* Find the current card key from the dropdown context */
+          for (const key of Object.keys(cardScreenSource)) {
+            if ((cardScreenSource[key] || 'playwright') === 'android-emulator') {
+              cardScreenDevice[key] = newName;
+            }
+          }
+        }
+      }
+    } catch {
+      /* AVD creation failed — device list will show the profile as uncreated */
+    }
+    creatingAvdDeviceId = null;
   }
 
   /**
@@ -10442,55 +10485,106 @@
                           {/if}
                         </div>
                       {:else}
-                        {#each filteredAndroidDevices as device, idx (idx)}
-                          <DropdownMenu.Item
-                            onSelect={(e) => {
-                              e.preventDefault();
-                              cardScreenDevice[cardKey] = (device.name ?? '') as Str;
-                            }}
-                          >
-                            <Check
-                              class={cn(
-                                'size-4',
-                                (cardScreenDevice[cardKey] || '') !==
-                                  ((device.name ?? '') as Str) && 'opacity-0',
-                              )}
-                            />
-                            <span class="flex-1 truncate"
-                              >{device.displayTag ?? device.name ?? 'Unknown'}</span
+                        <!-- Created AVDs -->
+                        {@const createdDevices = filteredAndroidDevices.filter(
+                          (d) => d.created === true,
+                        )}
+                        {@const uncreatedDevices = filteredAndroidDevices.filter(
+                          (d) => d.created === false,
+                        )}
+                        {#if createdDevices.length > 0}
+                          {#each createdDevices as device, idx (idx)}
+                            <DropdownMenu.Item
+                              onSelect={(e) => {
+                                e.preventDefault();
+                                cardScreenDevice[cardKey] = (device.name ?? '') as Str;
+                              }}
                             >
-                            {#if device.apiLevel}
-                              <span class="text-[9px] text-muted-foreground/60"
-                                >API {device.apiLevel}</span
+                              <Check
+                                class={cn(
+                                  'size-4',
+                                  (cardScreenDevice[cardKey] || '') !==
+                                    ((device.name ?? '') as Str) && 'opacity-0',
+                                )}
+                              />
+                              <span class="flex-1 truncate">{device.name ?? 'Unknown'}</span>
+                              {#if device.displayTag || device.apiLevel}
+                                <span class="text-[9px] text-muted-foreground/60"
+                                  >{device.displayTag ? `${device.displayTag} · ` : ''}API {device.apiLevel}</span
+                                >
+                              {/if}
+                              {#if device.width && device.height}
+                                <span class="text-[10px] text-muted-foreground"
+                                  >{device.width}×{device.height}</span
+                                >
+                              {/if}
+                              <Tooltip.Root delayDuration={300}>
+                                <Tooltip.Trigger>
+                                  {#snippet child({ props: aDevTipProps })}
+                                    <span
+                                      {...aDevTipProps}
+                                      class={cn(
+                                        'ml-1 inline-block size-1.5 rounded-full cursor-help',
+                                        device.state === 'running'
+                                          ? 'bg-emerald-500'
+                                          : 'bg-muted-foreground/40',
+                                      )}
+                                    ></span>
+                                  {/snippet}
+                                </Tooltip.Trigger>
+                                <Tooltip.Content side="top" sideOffset={4}>
+                                  {device.state === 'running'
+                                    ? 'Running — ready to capture'
+                                    : 'Stopped — will boot on capture'}
+                                </Tooltip.Content>
+                              </Tooltip.Root>
+                            </DropdownMenu.Item>
+                          {/each}
+                        {/if}
+                        <!-- Uncreated hardware profiles -->
+                        {#if uncreatedDevices.length > 0}
+                          {#if createdDevices.length > 0}
+                            <DropdownMenu.Separator />
+                          {/if}
+                          <DropdownMenu.Label
+                            class="flex items-center gap-1.5 text-[10px] text-muted-foreground/70"
+                          >
+                            Available Profiles
+                          </DropdownMenu.Label>
+                          {#each uncreatedDevices as device, idx (idx)}
+                            {@const isCreating =
+                              creatingAvdDeviceId === ((device.deviceId ?? '') as Str)}
+                            <DropdownMenu.Item
+                              disabled={!!creatingAvdDeviceId}
+                              onSelect={(e) => {
+                                e.preventDefault();
+                                createAndroidAvd(
+                                  (device.deviceId ?? '') as Str,
+                                  (device.name ?? '') as Str,
+                                );
+                              }}
+                            >
+                              {#if isCreating}
+                                <LoaderCircle class="size-4 animate-spin text-primary" />
+                              {:else}
+                                <Plus class="size-4 text-muted-foreground/50" />
+                              {/if}
+                              <span class="flex-1 truncate text-muted-foreground"
+                                >{device.name ?? 'Unknown'}</span
                               >
-                            {/if}
-                            {#if device.width && device.height}
-                              <span class="text-[10px] text-muted-foreground"
-                                >{device.width}×{device.height}</span
-                              >
-                            {/if}
-                            <Tooltip.Root delayDuration={300}>
-                              <Tooltip.Trigger>
-                                {#snippet child({ props: aDevTipProps })}
-                                  <span
-                                    {...aDevTipProps}
-                                    class={cn(
-                                      'ml-1 inline-block size-1.5 rounded-full cursor-help',
-                                      device.state === 'running'
-                                        ? 'bg-emerald-500'
-                                        : 'bg-muted-foreground/40',
-                                    )}
-                                  ></span>
-                                {/snippet}
-                              </Tooltip.Trigger>
-                              <Tooltip.Content side="top" sideOffset={4}>
-                                {device.state === 'running'
-                                  ? 'Running — ready to capture'
-                                  : 'Stopped — will boot on capture'}
-                              </Tooltip.Content>
-                            </Tooltip.Root>
-                          </DropdownMenu.Item>
-                        {/each}
+                              {#if device.width && device.height}
+                                <span class="text-[10px] text-muted-foreground/50"
+                                  >{device.width}×{device.height}</span
+                                >
+                              {/if}
+                              {#if isCreating}
+                                <span class="text-[9px] text-primary">Creating…</span>
+                              {:else}
+                                <span class="text-[9px] text-muted-foreground/40">Setup</span>
+                              {/if}
+                            </DropdownMenu.Item>
+                          {/each}
+                        {/if}
                       {/if}
                     {/if}
                     <DropdownMenu.Separator />

@@ -1,9 +1,9 @@
 /**
- * Android Emulator Devices API — Available AVD Profiles
+ * Android Emulator Devices API — Available AVD & Hardware Profiles
  *
- * Returns all available Android Virtual Devices (AVDs) with their name,
- * dimensions, density, API level, and display tag. Results are cached
- * for the server lifecycle.
+ * Returns all available Android device profiles: existing AVDs (created: true)
+ * and uncreated hardware profiles from the SDK (created: false). Uncreated
+ * profiles can be turned into AVDs via the create endpoint.
  *
  * Dev-only — returns 404 in production builds.
  *
@@ -13,7 +13,11 @@
 import type { RequestHandler } from './$types';
 import type { Num, Str } from '@/schemas/common';
 import { dev } from '$app/environment';
-import { type AndroidDevice, getAndroidDevices } from '$lib/server/simulator/android-devices';
+import {
+  type AndroidDevice,
+  getAndroidDeviceProfiles,
+  listSystemImages,
+} from '$lib/server/simulator/android-devices';
 import { checkAndroidSdk } from '$lib/server/simulator/android-sdk';
 
 /* ------------------------------------------------------------------ */
@@ -21,19 +25,19 @@ import { checkAndroidSdk } from '$lib/server/simulator/android-sdk';
 /* ------------------------------------------------------------------ */
 
 /** Cached device list with expiry timestamp. */
-let deviceCache: { devices: AndroidDevice[]; expiresAt: Num } | null = null;
+let deviceCache: { devices: AndroidDevice[]; systemImages: Str[]; expiresAt: Num } | null = null;
 
-/** Cache duration in ms (60 seconds — AVD list changes rarely). */
-const CACHE_TTL_MS: Num = 60_000 as Num;
+/** Cache duration in ms (30 seconds — shorter to pick up newly created AVDs). */
+const CACHE_TTL_MS: Num = 30_000 as Num;
 
 /* ------------------------------------------------------------------ */
 /*  GET handler                                                        */
 /* ------------------------------------------------------------------ */
 
 /**
- * GET handler — returns all available Android Emulator AVD profiles.
+ * GET handler — returns all Android device profiles (created + uncreated).
  *
- * @returns JSON with available status and device array (200) or error (404/500)
+ * @returns JSON with available status, device array, and system images (200) or error (404/500)
  */
 export const GET: RequestHandler = async () => {
   if (!dev) {
@@ -48,6 +52,7 @@ export const GET: RequestHandler = async () => {
         available: false,
         error: sdkStatus.instructions,
         devices: [],
+        systemImages: [],
       }),
       {
         headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
@@ -61,6 +66,7 @@ export const GET: RequestHandler = async () => {
       JSON.stringify({
         available: true,
         devices: deviceCache.devices,
+        systemImages: deviceCache.systemImages,
       }),
       {
         headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
@@ -68,11 +74,16 @@ export const GET: RequestHandler = async () => {
     );
   }
 
-  /* Fetch fresh device list */
+  /* Fetch fresh device list + system images */
   try {
-    const devices: AndroidDevice[] = await getAndroidDevices(sdkStatus.paths.emulator);
+    const [devices, systemImages]: [AndroidDevice[], Str[]] = await Promise.all([
+      getAndroidDeviceProfiles(sdkStatus.paths.emulator, sdkStatus.paths.avdmanager),
+      listSystemImages(sdkStatus.paths.avdmanager),
+    ]);
+
     deviceCache = {
       devices,
+      systemImages,
       expiresAt: (Date.now() + CACHE_TTL_MS) as Num,
     };
 
@@ -80,6 +91,7 @@ export const GET: RequestHandler = async () => {
       JSON.stringify({
         available: true,
         devices,
+        systemImages,
       }),
       {
         headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
@@ -94,6 +106,7 @@ export const GET: RequestHandler = async () => {
         available: false,
         error: message,
         devices: [],
+        systemImages: [],
       }),
       {
         status: 500,
