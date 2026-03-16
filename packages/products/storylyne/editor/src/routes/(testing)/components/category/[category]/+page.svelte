@@ -2,8 +2,8 @@
   /**
    * Category page — shows all components belonging to a single category.
    *
-   * Displays a category header with icon, description, and a grid of component
-   * cards with name, description, tags, documentation status, and links.
+   * Displays a category header with icon, description, search, and a grid of component
+   * cards with name, description, tags, compatibility status, and links.
    * Data is self-contained via import.meta.glob (same pattern as other Lens pages).
    */
   import { page } from '$app/state';
@@ -15,13 +15,13 @@
     toTitle,
     parseLensMeta,
     extractComponentDescription,
+    type LensCompatibility,
   } from '@/ui/lens/lens-utils.js';
-  import { extractProps } from '@/ui/lens/extract-props.js';
   import { log } from '@/utils/core/logger';
   import Badge from '@/ui/badge/badge.svelte';
   import * as Tooltip from '@/ui/tooltip/index.js';
   import { cn } from '@/ui/utils.js';
-  import type { Component } from 'svelte';
+  import { getContext, type Component } from 'svelte';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
   import TextCursorInput from '@lucide/svelte/icons/text-cursor-input';
   import Layers2 from '@lucide/svelte/icons/layers-2';
@@ -31,9 +31,11 @@
   import Microscope from '@lucide/svelte/icons/microscope';
   import ComponentIcon from '@lucide/svelte/icons/component';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
-  import CircleX from '@lucide/svelte/icons/circle-x';
+  import CircleAlert from '@lucide/svelte/icons/circle-alert';
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
+  import SearchIcon from '@lucide/svelte/icons/search';
   import Tag from '@lucide/svelte/icons/tag';
+  import PackageOpen from '@lucide/svelte/icons/package-open';
 
   /* ------------------------------------------------------------------ */
   /*  Glob-based data                                                    */
@@ -100,6 +102,42 @@
       return (m?.category ?? 'display') === category;
     }),
   );
+
+  /* ------------------------------------------------------------------ */
+  /*  Compatibility data from parent layout (via Svelte context)         */
+  /* ------------------------------------------------------------------ */
+
+  /** Lens compatibility results per component, set by +layout.svelte. */
+  const compatByName: Map<Str, LensCompatibility> = getContext('lens-compat-by-name');
+
+  /** Short rule descriptions for all 18 Lens compatibility rules (R0–R17). */
+  const lensRuleNames: readonly Str[] = getContext('lens-rule-names');
+
+  /* ------------------------------------------------------------------ */
+  /*  Search                                                              */
+  /* ------------------------------------------------------------------ */
+
+  /** Search query for filtering components within this category. */
+  let searchQuery: Str = $state('' as Str);
+
+  /** Filtered components matching the search query. */
+  const filteredComponents: Str[] = $derived(
+    searchQuery.length === 0
+      ? categoryComponents
+      : categoryComponents.filter((n: Str): boolean => {
+          const q: Str = searchQuery.toLowerCase() as Str;
+          const label: Str = toTitle(n).toLowerCase() as Str;
+          if (label.includes(q)) return true;
+          const meta: LensMeta | undefined = metaByName.get(n);
+          if (meta?.tags?.some((t: Str): boolean => t.toLowerCase().includes(q))) return true;
+          const desc: Str = getDescription(n).toLowerCase() as Str;
+          return desc.includes(q);
+        }),
+  );
+
+  /* ------------------------------------------------------------------ */
+  /*  Mappings                                                            */
+  /* ------------------------------------------------------------------ */
 
   /** Category icon mapping. */
   const CATEGORY_ICONS: Record<Str, Component> = {
@@ -176,24 +214,6 @@
     return '' as Str;
   }
 
-  /**
-   * Get the prop count for a component from its source.
-   *
-   * @param name - Component directory name
-   * @returns Number of props
-   */
-  function getPropCount(name: Str): Num {
-    const sources: Str[] = Object.entries(rawSources)
-      .filter(([k]: [Str, Str]): boolean => extractDir(k) === name)
-      .map(([, v]: [Str, Str]): Str => v);
-    if (sources.length === 0) return 0 as Num;
-    let count: Num = 0 as Num;
-    for (const src of sources) {
-      count = (count + extractProps(src).length) as Num;
-    }
-    return count;
-  }
-
   /** Resolved category icon. */
   const CatIcon: Component = $derived(CATEGORY_ICONS[category] ?? ComponentIcon);
 
@@ -205,11 +225,6 @@
 
   /** Resolved category description. */
   const catDesc: Str = $derived(CATEGORY_DESCRIPTIONS[category] ?? ('' as Str));
-
-  /** Number of documented components in this category. */
-  const documentedCount: Num = $derived(
-    categoryComponents.filter((n: Str): boolean => metaByName.has(n)).length as Num,
-  );
 </script>
 
 <div class="flex flex-1 flex-col gap-8 overflow-y-auto p-6 md:p-10">
@@ -228,24 +243,83 @@
     </div>
     <div class="flex items-center gap-3 text-sm text-muted-foreground">
       <span class="tabular-nums">{categoryComponents.length} components</span>
-      <span class="text-border">·</span>
-      <span class="tabular-nums">{documentedCount} documented</span>
     </div>
+  </div>
+
+  <!-- Search -->
+  <div class="relative">
+    <SearchIcon
+      class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/50"
+    />
+    <input
+      type="text"
+      placeholder="Search {categoryLabel.toLowerCase()} components..."
+      bind:value={searchQuery}
+      class="h-10 w-full rounded-lg border bg-card pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/30"
+    />
   </div>
 
   <!-- Component Grid -->
   {#if categoryComponents.length === 0}
-    <div class="flex flex-col items-center gap-2 py-12 text-muted-foreground">
-      <ComponentIcon class="size-10 text-muted-foreground/30" strokeWidth={1.5} />
-      <p class="text-sm">No components found in this category.</p>
+    <!-- Empty category — no components at all -->
+    <div
+      class="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed bg-card py-16 text-center"
+    >
+      <div class={cn('flex size-16 items-center justify-center rounded-2xl', catBg)}>
+        <PackageOpen class="size-8 {catColor} opacity-40" />
+      </div>
+      <div class="flex flex-col items-center gap-1.5">
+        <h3 class="text-sm font-semibold text-muted-foreground/60">No components yet</h3>
+        <p class="max-w-64 text-xs leading-relaxed text-muted-foreground/40">
+          Components categorized as "{categoryLabel.toLowerCase()}" will appear here. Add a
+          <code class="rounded bg-muted px-1 py-0.5 font-mono text-[11px] text-muted-foreground/60"
+            >lens.ts</code
+          >
+          file with
+          <code class="rounded bg-muted px-1 py-0.5 font-mono text-[11px] text-muted-foreground/60"
+            >category: '{category}'</code
+          > to get started.
+        </p>
+      </div>
+      <a
+        href="/components"
+        class="mt-2 inline-flex items-center gap-1.5 rounded-md bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+      >
+        <ArrowRight class="size-3 rotate-180" />
+        Back to overview
+      </a>
+    </div>
+  {:else if filteredComponents.length === 0}
+    <!-- Search returned no results -->
+    <div
+      class="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed bg-card py-16 text-center"
+    >
+      <div class="flex size-16 items-center justify-center rounded-2xl bg-muted/50">
+        <SearchIcon class="size-8 text-muted-foreground/20" />
+      </div>
+      <div class="flex flex-col items-center gap-1.5">
+        <h3 class="text-sm font-semibold text-muted-foreground/60">No results</h3>
+        <p class="max-w-64 text-xs leading-relaxed text-muted-foreground/40">
+          No components matching "<span class="font-medium text-muted-foreground/60"
+            >{searchQuery}</span
+          >" in {categoryLabel.toLowerCase()}.
+        </p>
+      </div>
+      <button
+        type="button"
+        onclick={() => (searchQuery = '' as Str)}
+        class="mt-2 inline-flex items-center gap-1.5 rounded-md bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+      >
+        Clear search
+      </button>
     </div>
   {:else}
     <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {#each categoryComponents as name (name)}
+      {#each filteredComponents as name (name)}
         {@const meta = metaByName.get(name)}
         {@const desc = getDescription(name)}
-        {@const propCount = getPropCount(name)}
-        {@const isDocumented = metaByName.has(name)}
+        {@const compat = compatByName.get(name)}
+        {@const isCompat = compat?.compatible === true}
         <a
           href="/components/{name}"
           class="group flex flex-col gap-2.5 rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md"
@@ -263,18 +337,45 @@
               {/if}
               <Tooltip.Root delayDuration={300}>
                 <Tooltip.Trigger>
-                  {#snippet child({ props: docTip })}
-                    <span {...docTip}>
-                      {#if isDocumented}
+                  {#snippet child({ props: compatTip })}
+                    <span {...compatTip}>
+                      {#if isCompat}
                         <CircleCheck class="size-4 text-emerald-500" />
                       {:else}
-                        <CircleX class="size-4 text-muted-foreground/30" />
+                        <CircleAlert class="size-4 text-amber-500" />
                       {/if}
                     </span>
                   {/snippet}
                 </Tooltip.Trigger>
-                <Tooltip.Content sideOffset={4}>
-                  {isDocumented ? 'Has lens.ts documentation' : 'No lens.ts metadata'}
+                <Tooltip.Content sideOffset={4} class="max-w-72" portalProps={{ disabled: true }}>
+                  {#if isCompat}
+                    <p class="text-xs">All compatibility rules pass</p>
+                  {:else if compat}
+                    {@const failedRules = new Set(compat.violations.map((vi) => vi.rule as number))}
+                    {@const failCount = compat.violations.length}
+                    {@const passCount = lensRuleNames.length - failCount}
+                    <p class="mb-1 text-[10px] font-semibold">
+                      Compatibility — {passCount}✓ {failCount}✗
+                    </p>
+                    <ul class="space-y-0.5">
+                      {#each lensRuleNames as ruleName, ruleIdx (ruleIdx)}
+                        {@const failed = failedRules.has(ruleIdx)}
+                        <li class="flex items-start gap-1 text-[10px]">
+                          <span
+                            class="mt-px shrink-0 font-bold leading-none {failed
+                              ? 'text-red-300'
+                              : 'text-emerald-300'}">{failed ? '✗' : '✓'}</span
+                          >
+                          <span
+                            ><span class="font-mono opacity-60">R{ruleIdx}</span>
+                            {ruleName}</span
+                          >
+                        </li>
+                      {/each}
+                    </ul>
+                  {:else}
+                    <p class="text-xs">Compatibility data unavailable</p>
+                  {/if}
                 </Tooltip.Content>
               </Tooltip.Root>
             </div>
@@ -287,27 +388,46 @@
               {#if meta?.tags}
                 {#each meta.tags.slice(0, 3) as tag (tag)}
                   <span
-                    class="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
+                    class="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
                   >
                     <Tag class="size-3" />
                     {tag}
                   </span>
                 {/each}
                 {#if meta.tags.length > 3}
-                  <span class="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground/60">
-                    +{meta.tags.length - 3}
-                  </span>
+                  <Tooltip.Root delayDuration={300}>
+                    <Tooltip.Trigger>
+                      {#snippet child({ props: tagTip })}
+                        <span
+                          class="cursor-default rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground/60"
+                          {...tagTip}
+                        >
+                          +{meta.tags.length - 3} more
+                        </span>
+                      {/snippet}
+                    </Tooltip.Trigger>
+                    <Tooltip.Content
+                      side="bottom"
+                      sideOffset={4}
+                      class="max-h-64 overflow-y-auto p-3"
+                      portalProps={{ disabled: true }}
+                    >
+                      <div class="flex flex-col gap-0.5">
+                        {#each meta.tags.slice(3) as extraTag (extraTag)}
+                          <span
+                            class="inline-flex items-center gap-1 text-xs text-primary-foreground/80"
+                            ><Tag class="size-3 shrink-0 opacity-50" />{extraTag}</span
+                          >
+                        {/each}
+                      </div>
+                    </Tooltip.Content>
+                  </Tooltip.Root>
                 {/if}
               {/if}
             </div>
-            <div class="flex items-center gap-2 text-[10px] text-muted-foreground/60">
-              {#if (propCount as number) > 0}
-                <span class="tabular-nums">{propCount} props</span>
-              {/if}
-              <ArrowRight
-                class="size-3.5 text-muted-foreground/30 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
-              />
-            </div>
+            <ArrowRight
+              class="size-3.5 shrink-0 text-muted-foreground/30 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
+            />
           </div>
         </a>
       {/each}

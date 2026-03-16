@@ -373,7 +373,7 @@
           globalSearchItems.push({
             value: `${n}/prop/${prop.name}`,
             label: prop.name,
-            href: `${baseHref}#props`,
+            href: `${baseHref}#prop-${prop.name}`,
             group: propsGroup,
             keywords: propKeywords,
           });
@@ -563,6 +563,34 @@
       href: `${baseHref}#changelog`,
       group: `${title} › Changelog`,
       keywords: [n, 'changelog', 'history', 'git', 'commits'],
+    });
+  }
+
+  // — Category search items —
+  for (const group of groupedComponents) {
+    globalSearchItems.push({
+      value: `category/${group.name}`,
+      label: `${group.label} — ${group.components.length} components`,
+      href: `/components/category/${group.name}`,
+      group: 'Categories',
+      keywords: ['category', group.name, group.label],
+    });
+  }
+
+  // — Tag search items —
+  const allUniqueTags: Str[] = [
+    ...new Set([...metaByName.values()].flatMap((m: LensMeta): Str[] => m.tags)),
+  ].toSorted();
+  for (const tag of allUniqueTags) {
+    const tagCount: Num = [...metaByName.values()].filter((m: LensMeta): boolean =>
+      m.tags.includes(tag),
+    ).length as Num;
+    globalSearchItems.push({
+      value: `tag/${tag}`,
+      label: `${tag} — ${tagCount} component${tagCount === 1 ? '' : 's'}`,
+      href: `/components?tag=${tag}`,
+      group: 'Tags',
+      keywords: ['tag', tag],
     });
   }
 

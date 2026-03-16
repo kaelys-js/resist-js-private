@@ -301,7 +301,7 @@
    * @param propName - The prop name to link to
    */
   async function copyPropLink(propName: Str): Promise<void> {
-    const url: Str = `${window.location.pathname}#prop-${propName}` as Str;
+    const url: Str = `${window.location.origin}${window.location.pathname}#prop-${propName}` as Str;
     try {
       await navigator.clipboard.writeText(url);
     } catch {
