@@ -217,7 +217,7 @@
   <div class="flex flex-col gap-3">
     <div class="flex items-center gap-3">
       <div class={cn('flex size-12 items-center justify-center rounded-xl', catBg)}>
-        <svelte:component this={CatIcon} class="size-6 {catColor}" />
+        <CatIcon class="size-6 {catColor}" />
       </div>
       <div>
         <h1 class="text-2xl font-bold tracking-tight">{categoryLabel}</h1>
@@ -252,7 +252,7 @@
         >
           <div class="flex items-start justify-between">
             <div class="flex items-center gap-2">
-              <svelte:component this={CatIcon} class="size-4 {catColor}" />
+              <CatIcon class="size-4 {catColor}" />
               <h3 class="text-sm font-semibold group-hover:text-primary">{toTitle(name)}</h3>
             </div>
             <div class="flex items-center gap-1.5">

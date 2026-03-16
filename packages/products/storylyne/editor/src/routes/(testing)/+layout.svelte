@@ -76,6 +76,7 @@
   import Info from '@lucide/svelte/icons/info';
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import CircleX from '@lucide/svelte/icons/circle-x';
+  import Tag from '@lucide/svelte/icons/tag';
   import * as Popover from '@/ui/popover/index.js';
   import Switch from '@/ui/switch/switch.svelte';
   import Button from '@/ui/button/button.svelte';
@@ -249,6 +250,28 @@
     utility: 'Utility primitives and helper components' as Str,
     lens: 'Lens documentation system components' as Str,
   };
+
+  /** Short rule descriptions for all 18 Lens compatibility rules (R0–R17). */
+  const LENS_RULE_NAMES: readonly Str[] = [
+    'Needs Lens conversion' as Str,
+    '@values on Str/Num type fields' as Str,
+    'No inline object types' as Str,
+    'JSDoc on type fields' as Str,
+    'Component description JSDoc' as Str,
+    'No orphaned Demo.svelte' as Str,
+    'Valid lens.ts exists' as Str,
+    'JSDoc on extracted props' as Str,
+    '@values on extracted Str/Num props' as Str,
+    'Renderable Lens content' as Str,
+    'Directory is kebab-case' as Str,
+    'Primary .svelte file exists' as Str,
+    'Uses v.strictObject()' as Str,
+    'No bare v.object()' as Str,
+    'Uses safeParse + stripSvelteProps' as Str,
+    'No bare Valibot primitives' as Str,
+    'Example files match declarations' as Str,
+    'tv-variant tag when tv() used' as Str,
+  ];
 
   /**
    * Raw example .svelte file paths for compatibility checking (rule 16).
@@ -867,13 +890,117 @@
     sidebarComponentsOpen = true;
     // Expand the category containing the active component
     sidebarCategoryOpen[cat] = true;
-    // Scroll into view after DOM updates
+    // Scroll the active button in the categorized components section into view.
+    // We pick the LAST matching element because Recent/Pinned duplicates appear
+    // earlier in the DOM. Poll with rAF because the collapsible slide transition
+    // (150ms) must finish before the target element exists in the DOM.
+    // NOTE: We manually scroll the sidebar overflow container instead of using
+    // scrollIntoView(), which calculates visibility relative to the viewport
+    // and fails to scroll nested overflow containers like the sidebar.
+    // Wait for sidebar layout to stabilize before scrolling. The $effect fires
+    // before the sidebar is fully rendered on initial page load, so element
+    // positions are inaccurate at that point. A 250ms delay ensures layout is
+    // complete (collapsible animations are 150ms). We use setTimeout instead of
+    // tick()+rAF because tick only waits for Svelte's microtask flush, not for
+    // CSS transitions and browser layout/paint.
     setTimeout((): void => {
-      const activeEl: HTMLElement | null = document.querySelector(
-        '[data-sidebar="menu-button"][data-active="true"]',
+      const scrollContainer: HTMLElement | null = document.querySelector(
+        '[data-sidebar="content"]',
       );
-      activeEl?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    }, 100);
+      const categorizedSection: HTMLElement | null = document.querySelector(
+        '[data-section="categorized"]',
+      );
+      // Only look for active elements INSIDE the categorized section
+      // to avoid finding duplicates in Recent/Pinned
+      const activeEl: HTMLElement | null =
+        categorizedSection?.querySelector('[data-sidebar="menu-button"][data-active="true"]') ??
+        null;
+      if (activeEl && scrollContainer) {
+        const containerRect: DOMRect = scrollContainer.getBoundingClientRect();
+        const elRect: DOMRect = activeEl.getBoundingClientRect();
+        const elTopInContainer: Num = (elRect.top -
+          containerRect.top +
+          scrollContainer.scrollTop) as Num;
+        const targetScroll: Num = (elTopInContainer -
+          containerRect.height / 2 +
+          elRect.height / 2) as Num;
+        scrollContainer.scrollTo({ top: Math.max(0, targetScroll), behavior: 'smooth' });
+        // Background shine: inject a real <div> overlay inside the element that
+        // sweeps a gradient left-to-right. We use a child element instead of
+        // ::after because the sidebar button has `overflow-clip` in its Tailwind
+        // classes which clips pseudo-elements. The injected div has absolute
+        // positioning and pointer-events:none so it layers on top without
+        // affecting layout or clicks, and self-removes after the animation.
+        if (!document.querySelector('#sidebar-scroll-shine')) {
+          const style: HTMLStyleElement = document.createElement('style');
+          style.id = 'sidebar-scroll-shine';
+          style.textContent = `
+            @keyframes sidebar-shine-sweep {
+              0% { transform: translateX(-100%); }
+              100% { transform: translateX(100%); }
+            }
+          `;
+          // svelte-check misresolves .append() to Fetch API in .svelte files;
+          // prefer-dom-node-append disabled for .svelte in oxlintrc
+          document.head.appendChild(style);
+        }
+        // Wait for the smooth scroll to finish before starting the shine.
+        // 'scrollend' fires once the scroll animation settles.
+        const startShine: () => void = (): void => {
+          // Determine shine color based on background luminance so it works
+          // in any theme (light, dark, forest green, etc.). Uses a 1x1 canvas
+          // to convert any CSS color format (oklch, hsl, rgb, etc.) to RGB,
+          // then picks white shine for dark backgrounds and black for light.
+          const bgStr: Str = window.getComputedStyle(activeEl).backgroundColor as Str;
+          const cvs: HTMLCanvasElement = document.createElement('canvas');
+          cvs.width = 1;
+          cvs.height = 1;
+          const ctx: CanvasRenderingContext2D | null = cvs.getContext('2d');
+          let shineBase: Str = 'rgba(255,255,255,' as Str;
+          if (ctx) {
+            ctx.fillStyle = bgStr;
+            ctx.fillRect(0, 0, 1, 1);
+            const px: Uint8ClampedArray = ctx.getImageData(0, 0, 1, 1).data;
+            // sRGB relative luminance
+            const lum: Num = ((0.2126 * px[0] + 0.7152 * px[1] + 0.0722 * px[2]) / 255) as Num;
+            shineBase = (lum > 0.5 ? 'rgba(0,0,0,' : 'rgba(255,255,255,') as Str;
+          }
+          // Temporarily override overflow-clip so the sweep is visible
+          activeEl.style.overflow = 'hidden';
+          activeEl.style.position = 'relative';
+          const shineDiv: HTMLDivElement = document.createElement('div');
+          shineDiv.style.cssText = [
+            'position:absolute',
+            'inset:0',
+            'pointer-events:none',
+            'border-radius:inherit',
+            'z-index:10',
+            `background:linear-gradient(90deg, transparent 0%, ${shineBase}0.2) 30%, ${shineBase}0.45) 50%, ${shineBase}0.2) 70%, transparent 100%)`,
+            'animation:sidebar-shine-sweep 0.8s ease-in-out 2',
+          ].join(';');
+          shineDiv.addEventListener(
+            'animationend',
+            (): void => {
+              shineDiv.remove();
+              activeEl.style.overflow = '';
+              activeEl.style.position = '';
+            },
+            { once: true },
+          );
+          // svelte-check misresolves .append() in .svelte files
+          activeEl.appendChild(shineDiv);
+        };
+        scrollContainer.addEventListener('scrollend', startShine, { once: true });
+        // Fallback: if scrollend doesn't fire (e.g. already at target position),
+        // start the shine after a generous timeout matching typical smooth scroll duration.
+        setTimeout((): void => {
+          scrollContainer.removeEventListener('scrollend', startShine);
+          if (!activeEl.querySelector('div[style*="sidebar-shine-sweep"]')) {
+            startShine();
+          }
+        }, 600);
+      }
+    }, 250);
   });
 
   /**
@@ -961,6 +1088,58 @@
 
   /** Whether the "Recent" sidebar section is open. */
   let sidebarRecentOpen: boolean = $state(true);
+
+  /** Whether to show all pinned components (vs. first 5). */
+  let showAllPinned: boolean = $state(false);
+
+  /** Whether to show all recent components (vs. first 5). */
+  let showAllRecent: boolean = $state(false);
+
+  /** Confirm gate for "Clear all pinned" (resets after 3s). */
+  let confirmClearPinned: boolean = $state(false);
+
+  /** Confirm gate for "Clear recent" (resets after 3s). */
+  let confirmClearRecent: boolean = $state(false);
+
+  /** Timer ID for pinned confirm reset. */
+  let confirmPinnedTimer: ReturnType<typeof setTimeout> | undefined;
+
+  /** Timer ID for recent confirm reset. */
+  let confirmRecentTimer: ReturnType<typeof setTimeout> | undefined;
+
+  /**
+   * Handle "Clear all pinned" with 2-step confirmation.
+   * First click arms, second click executes. Resets after 3s.
+   */
+  function handleClearPinned(): void {
+    if (confirmClearPinned) {
+      clearAllPinned();
+      confirmClearPinned = false;
+      if (confirmPinnedTimer) clearTimeout(confirmPinnedTimer);
+    } else {
+      confirmClearPinned = true;
+      confirmPinnedTimer = setTimeout((): void => {
+        confirmClearPinned = false;
+      }, 3000);
+    }
+  }
+
+  /**
+   * Handle "Clear recent" with 2-step confirmation.
+   * First click arms, second click executes. Resets after 3s.
+   */
+  function handleClearRecent(): void {
+    if (confirmClearRecent) {
+      clearRecent();
+      confirmClearRecent = false;
+      if (confirmRecentTimer) clearTimeout(confirmRecentTimer);
+    } else {
+      confirmClearRecent = true;
+      confirmRecentTimer = setTimeout((): void => {
+        confirmClearRecent = false;
+      }, 3000);
+    }
+  }
 
   /** Whether the top-level "Components" collapsible group is open. */
   let sidebarComponentsOpen: boolean = $state(true);
@@ -1546,6 +1725,44 @@
       </Sidebar.Group>
       <!-- Pinned components -->
       {#if pinnedComponents.size > 0}
+        {@const pinnedList = [...pinnedComponents]}
+        {#snippet pinnedItem(name: Str)}
+          {@const pinMeta = metaByName.get(name)}
+          {@const PinIcon = CATEGORY_ICONS[pinMeta?.category ?? 'display'] ?? ComponentIcon}
+          {@const pinColor =
+            CATEGORY_COLORS[pinMeta?.category ?? 'display'] ?? ('text-muted-foreground' as Str)}
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={currentName === name}>
+              {#snippet child({ props })}
+                <a href="/components/{name}" {...props}>
+                  <PinIcon class="size-4 {pinColor}" />
+                  <span>{toTitle(name)}</span>
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+            <Sidebar.MenuAction>
+              <Tooltip.Root delayDuration={300}>
+                <Tooltip.Trigger>
+                  {#snippet child({ props: unpinTip })}
+                    <button
+                      type="button"
+                      class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/50 hover:text-foreground"
+                      {...unpinTip}
+                      onclick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        togglePin(name);
+                      }}
+                    >
+                      <StarOff class="size-3" />
+                    </button>
+                  {/snippet}
+                </Tooltip.Trigger>
+                <Tooltip.Content side="right" sideOffset={4}>Unpin</Tooltip.Content>
+              </Tooltip.Root>
+            </Sidebar.MenuAction>
+          </Sidebar.MenuItem>
+        {/snippet}
         <Collapsible.Root bind:open={sidebarPinnedOpen} class="group/pinned">
           <Sidebar.Group>
             <Sidebar.GroupLabel class="gap-1.5 text-sm">
@@ -1561,10 +1778,16 @@
                       <EllipsisVertical class="size-3.5" />
                       <span class="sr-only">Pinned options</span>
                     </DropdownMenu.Trigger>
-                    <DropdownMenu.Content align="end" class="w-40">
-                      <DropdownMenu.Item onclick={clearAllPinned}>
+                    <DropdownMenu.Content align="end" class="w-44">
+                      <DropdownMenu.Item
+                        variant="destructive"
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          handleClearPinned();
+                        }}
+                      >
                         <Trash2 class="mr-2 size-4" />
-                        Clear all pinned
+                        {confirmClearPinned ? 'Confirm Clear' : 'Clear all pinned'}
                       </DropdownMenu.Item>
                     </DropdownMenu.Content>
                   </DropdownMenu.Root>
@@ -1578,45 +1801,27 @@
               <div transition:slide={{ duration: 150 }}>
                 <Sidebar.GroupContent>
                   <Sidebar.Menu>
-                    {#each [...pinnedComponents] as name (name)}
-                      {@const pinMeta = metaByName.get(name)}
-                      {@const PinIcon =
-                        CATEGORY_ICONS[pinMeta?.category ?? 'display'] ?? ComponentIcon}
-                      {@const pinColor =
-                        CATEGORY_COLORS[pinMeta?.category ?? 'display'] ??
-                        ('text-muted-foreground' as Str)}
-                      <Sidebar.MenuItem>
-                        <Sidebar.MenuButton isActive={currentName === name}>
-                          {#snippet child({ props })}
-                            <a href="/components/{name}" {...props}>
-                              <PinIcon class="size-4 {pinColor}" />
-                              <span>{toTitle(name)}</span>
-                            </a>
-                          {/snippet}
-                        </Sidebar.MenuButton>
-                        <Sidebar.MenuAction>
-                          <Tooltip.Root delayDuration={300}>
-                            <Tooltip.Trigger>
-                              {#snippet child({ props: unpinTip })}
-                                <button
-                                  type="button"
-                                  class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/50 hover:text-foreground"
-                                  {...unpinTip}
-                                  onclick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    togglePin(name);
-                                  }}
-                                >
-                                  <StarOff class="size-3" />
-                                </button>
-                              {/snippet}
-                            </Tooltip.Trigger>
-                            <Tooltip.Content side="right" sideOffset={4}>Unpin</Tooltip.Content>
-                          </Tooltip.Root>
-                        </Sidebar.MenuAction>
-                      </Sidebar.MenuItem>
+                    {#each pinnedList.slice(0, 5) as name (name)}
+                      {@render pinnedItem(name)}
                     {/each}
+                    {#if pinnedList.length > 5}
+                      {#if showAllPinned}
+                        <div transition:slide={{ duration: 150 }}>
+                          {#each pinnedList.slice(5) as name (name)}
+                            {@render pinnedItem(name)}
+                          {/each}
+                        </div>
+                      {/if}
+                      <li class="px-2 py-0.5">
+                        <button
+                          type="button"
+                          class="w-full text-center text-[11px] text-muted-foreground/60 transition-colors hover:text-foreground"
+                          onclick={() => (showAllPinned = !showAllPinned)}
+                        >
+                          {showAllPinned ? 'Show less' : `Show ${pinnedList.length - 5} more…`}
+                        </button>
+                      </li>
+                    {/if}
                   </Sidebar.Menu>
                 </Sidebar.GroupContent>
               </div>
@@ -1626,6 +1831,44 @@
       {/if}
       <!-- Recently viewed -->
       {#if recentComponents.length > 0}
+        {@const recentList = recentComponents.filter((n) => !pinnedComponents.has(n))}
+        {#snippet recentItem(name: Str)}
+          {@const recMeta = metaByName.get(name)}
+          {@const RecIcon = CATEGORY_ICONS[recMeta?.category ?? 'display'] ?? ComponentIcon}
+          {@const recColor =
+            CATEGORY_COLORS[recMeta?.category ?? 'display'] ?? ('text-muted-foreground' as Str)}
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={currentName === name}>
+              {#snippet child({ props })}
+                <a href="/components/{name}" {...props}>
+                  <RecIcon class="size-4 {recColor}" />
+                  <span>{toTitle(name)}</span>
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+            <Sidebar.MenuAction>
+              <Tooltip.Root delayDuration={300}>
+                <Tooltip.Trigger>
+                  {#snippet child({ props: removeTip })}
+                    <button
+                      type="button"
+                      class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/50 hover:text-foreground"
+                      {...removeTip}
+                      onclick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeRecent(name);
+                      }}
+                    >
+                      <XIcon class="size-3" />
+                    </button>
+                  {/snippet}
+                </Tooltip.Trigger>
+                <Tooltip.Content side="right" sideOffset={4}>Remove</Tooltip.Content>
+              </Tooltip.Root>
+            </Sidebar.MenuAction>
+          </Sidebar.MenuItem>
+        {/snippet}
         <Collapsible.Root bind:open={sidebarRecentOpen} class="group/recent">
           <Sidebar.Group>
             <Sidebar.GroupLabel class="gap-1.5 text-sm">
@@ -1641,10 +1884,16 @@
                       <EllipsisVertical class="size-3.5" />
                       <span class="sr-only">Recent options</span>
                     </DropdownMenu.Trigger>
-                    <DropdownMenu.Content align="end" class="w-40">
-                      <DropdownMenu.Item onclick={clearRecent}>
+                    <DropdownMenu.Content align="end" class="w-44">
+                      <DropdownMenu.Item
+                        variant="destructive"
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          handleClearRecent();
+                        }}
+                      >
                         <Trash2 class="mr-2 size-4" />
-                        Clear recent
+                        {confirmClearRecent ? 'Confirm Clear' : 'Clear recent'}
                       </DropdownMenu.Item>
                     </DropdownMenu.Content>
                   </DropdownMenu.Root>
@@ -1658,47 +1907,27 @@
               <div transition:slide={{ duration: 150 }}>
                 <Sidebar.GroupContent>
                   <Sidebar.Menu>
-                    {#each recentComponents
-                      .filter((n) => !pinnedComponents.has(n))
-                      .slice(0, 5) as name (name)}
-                      {@const recMeta = metaByName.get(name)}
-                      {@const RecIcon =
-                        CATEGORY_ICONS[recMeta?.category ?? 'display'] ?? ComponentIcon}
-                      {@const recColor =
-                        CATEGORY_COLORS[recMeta?.category ?? 'display'] ??
-                        ('text-muted-foreground' as Str)}
-                      <Sidebar.MenuItem>
-                        <Sidebar.MenuButton isActive={currentName === name}>
-                          {#snippet child({ props })}
-                            <a href="/components/{name}" {...props}>
-                              <RecIcon class="size-4 {recColor}" />
-                              <span>{toTitle(name)}</span>
-                            </a>
-                          {/snippet}
-                        </Sidebar.MenuButton>
-                        <Sidebar.MenuAction>
-                          <Tooltip.Root delayDuration={300}>
-                            <Tooltip.Trigger>
-                              {#snippet child({ props: removeTip })}
-                                <button
-                                  type="button"
-                                  class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/50 hover:text-foreground"
-                                  {...removeTip}
-                                  onclick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    removeRecent(name);
-                                  }}
-                                >
-                                  <XIcon class="size-3" />
-                                </button>
-                              {/snippet}
-                            </Tooltip.Trigger>
-                            <Tooltip.Content side="right" sideOffset={4}>Remove</Tooltip.Content>
-                          </Tooltip.Root>
-                        </Sidebar.MenuAction>
-                      </Sidebar.MenuItem>
+                    {#each recentList.slice(0, 5) as name (name)}
+                      {@render recentItem(name)}
                     {/each}
+                    {#if recentList.length > 5}
+                      {#if showAllRecent}
+                        <div transition:slide={{ duration: 150 }}>
+                          {#each recentList.slice(5) as name (name)}
+                            {@render recentItem(name)}
+                          {/each}
+                        </div>
+                      {/if}
+                      <li class="px-2 py-0.5">
+                        <button
+                          type="button"
+                          class="w-full text-center text-[11px] text-muted-foreground/60 transition-colors hover:text-foreground"
+                          onclick={() => (showAllRecent = !showAllRecent)}
+                        >
+                          {showAllRecent ? 'Show less' : `Show ${recentList.length - 5} more…`}
+                        </button>
+                      </li>
+                    {/if}
                   </Sidebar.Menu>
                 </Sidebar.GroupContent>
               </div>
@@ -1706,7 +1935,11 @@
           </Sidebar.Group>
         </Collapsible.Root>
       {/if}
-      <Collapsible.Root bind:open={sidebarComponentsOpen} class="group/collapsible">
+      <Collapsible.Root
+        bind:open={sidebarComponentsOpen}
+        class="group/collapsible"
+        data-section="categorized"
+      >
         <Sidebar.Group>
           <Sidebar.GroupLabel class="text-sm">
             {#snippet child({ props })}
@@ -1822,21 +2055,35 @@
                             >{group.label}</span
                           >
                           {@const compatCount = countCompatible(group)}
-                          <Badge
-                            variant="secondary"
-                            class="ml-auto h-5 rounded px-1.5 text-[11px] leading-none {compatCount <
+                          <span
+                            class="ml-auto inline-flex items-center gap-1 text-[10px] tabular-nums leading-none {compatCount <
                             group.components.length
-                              ? 'text-amber-600 dark:text-amber-400'
-                              : ''}">{compatCount}/{group.components.length}</Badge
+                              ? 'text-amber-500/70 dark:text-amber-400/70'
+                              : 'text-muted-foreground/40'}"
                           >
+                            <span
+                              class="inline-block size-1.5 rounded-full {compatCount >=
+                              group.components.length
+                                ? 'bg-emerald-500/60'
+                                : 'bg-amber-500/60'}"
+                            ></span>
+                            {compatCount}<span class="opacity-40">/</span>{group.components.length}
+                          </span>
                         </Collapsible.Trigger>
                       {/snippet}
                     </Tooltip.Trigger>
-                    {#if CATEGORY_DESCRIPTIONS[group.name]}
-                      <Tooltip.Content side="right" sideOffset={8} class="max-w-56">
+                    <Tooltip.Content side="right" sideOffset={8} class="max-w-56">
+                      {#if CATEGORY_DESCRIPTIONS[group.name]}
                         <p class="text-xs">{CATEGORY_DESCRIPTIONS[group.name]}</p>
-                      </Tooltip.Content>
-                    {/if}
+                      {/if}
+                      {@const tipCompat = countCompatible(group)}
+                      <p class="mt-1 text-[10px] opacity-70">
+                        {tipCompat} of {group.components.length} component{group.components
+                          .length === 1
+                          ? ''
+                          : 's'} pass all compatibility rules
+                      </p>
+                    </Tooltip.Content>
                   </Tooltip.Root>
                   <Collapsible.Content>
                     <div transition:slide={{ duration: 150 }}>
@@ -1889,38 +2136,33 @@
                                   <div class="mt-1 flex flex-wrap gap-1">
                                     {#each itemMeta.tags as tag (tag)}
                                       <span
-                                        class="rounded bg-primary-foreground/20 px-1 py-0.5 text-[10px]"
-                                        >{tag}</span
+                                        class="inline-flex items-center gap-0.5 rounded bg-primary-foreground/20 px-1 py-0.5 text-[10px]"
+                                        ><Tag class="size-2.5 shrink-0 opacity-60" />{tag}</span
                                       >
                                     {/each}
                                   </div>
                                 {/if}
-                                {#if isIncompat && itemCompat}
+                                {#if itemCompat}
+                                  {@const failedRules = new Set(
+                                    itemCompat.violations.map((v) => v.rule as number),
+                                  )}
                                   <div class="mt-1.5 border-t border-border pt-1.5">
-                                    <p
-                                      class="mb-1 text-[10px] font-semibold text-popover-foreground"
-                                    >
-                                      {itemCompat.violations.length} violation{itemCompat.violations
-                                        .length === 1
-                                        ? ''
-                                        : 's'}
-                                    </p>
+                                    <p class="mb-1 text-[10px] font-semibold">Compatibility</p>
                                     <ul class="space-y-0.5">
-                                      {#each itemCompat.violations.slice(0, 5) as violation, i (i)}
-                                        <li class="text-[10px] text-popover-foreground/90">
-                                          {#if (violation.rule as number) > 0}
-                                            <span class="font-mono text-popover-foreground/60"
-                                              >R{violation.rule}</span
-                                            >
-                                          {/if}
-                                          {violation.message}
+                                      {#each LENS_RULE_NAMES as ruleName, ruleIdx (ruleIdx)}
+                                        {@const failed = failedRules.has(ruleIdx)}
+                                        <li class="flex items-start gap-1 text-[10px]">
+                                          <span
+                                            class="mt-px shrink-0 font-bold leading-none {failed
+                                              ? 'text-red-300'
+                                              : 'text-emerald-300'}">{failed ? '✗' : '✓'}</span
+                                          >
+                                          <span
+                                            ><span class="font-mono opacity-60">R{ruleIdx}</span>
+                                            {ruleName}</span
+                                          >
                                         </li>
                                       {/each}
-                                      {#if itemCompat.violations.length > 5}
-                                        <li class="text-[10px] text-popover-foreground/60">
-                                          +{itemCompat.violations.length - 5} more...
-                                        </li>
-                                      {/if}
                                     </ul>
                                   </div>
                                 {/if}

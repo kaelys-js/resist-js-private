@@ -175,7 +175,7 @@
   const changelogCount: Num = $derived(validated.changelogCount ?? 0);
 
   /** Resolved icon component for the current category. Falls back to generic ComponentIcon. */
-  const categoryIcon: Component = $derived(
+  const CategoryIcon: Component = $derived(
     CATEGORY_ICONS[validated.meta?.category ?? ''] ?? ComponentIcon,
   );
 
@@ -499,7 +499,7 @@
           )}
           {...iconTooltipProps}
         >
-          <svelte:component this={categoryIcon} class="size-6" />
+          <CategoryIcon class="size-6" />
         </div>
       {/snippet}
     </Tooltip.Trigger>
@@ -972,7 +972,7 @@
                   variant="secondary"
                   class="inline-flex items-center gap-1 text-xs capitalize"
                 >
-                  <svelte:component this={categoryIcon} class="size-3" />
+                  <CategoryIcon class="size-3" />
                   {validated.meta?.category}
                 </Badge>
               </span>
