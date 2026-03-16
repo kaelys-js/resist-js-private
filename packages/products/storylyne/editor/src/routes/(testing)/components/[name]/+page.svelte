@@ -2345,14 +2345,16 @@
         sectionOpen[sectionId] = true;
       }
       await tick();
-      const el: Element | null = document.querySelector(`#${CSS.escape(id)}`);
+      const el: HTMLElement | null = document.querySelector(`#${CSS.escape(id)}`);
       if (!el) return;
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // Brief glow highlight after scroll completes
-      el.classList.add('lens-scroll-highlight');
+      // Wait for smooth scroll to finish, then glow
       setTimeout((): void => {
-        el.classList.remove('lens-scroll-highlight');
-      }, 2000);
+        el.classList.add('lens-scroll-highlight');
+        setTimeout((): void => {
+          el.classList.remove('lens-scroll-highlight');
+        }, 2000);
+      }, 500);
     }
     async function handleScrollTo(e: Event): Promise<void> {
       const id: Str = (e as CustomEvent).detail;
