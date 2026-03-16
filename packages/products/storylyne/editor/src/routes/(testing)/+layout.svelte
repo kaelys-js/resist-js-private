@@ -37,7 +37,7 @@
   import Badge from '@/ui/badge/badge.svelte';
   import { extractTokens, type ThemeTokenSet } from '@/ui/lens/extract-tokens.js';
   import { fade, slide } from 'svelte/transition';
-  import { untrack, type Component } from 'svelte';
+  import { setContext, untrack, type Component } from 'svelte';
   import ComponentIcon from '@lucide/svelte/icons/component';
   import SearchIcon from '@lucide/svelte/icons/search';
   import Palette from '@lucide/svelte/icons/palette';
@@ -565,6 +565,10 @@
       keywords: [n, 'changelog', 'history', 'git', 'commits'],
     });
   }
+
+  // — Share compatibility data with child pages via Svelte context —
+  setContext('lens-compat-by-name', compatByName);
+  setContext('lens-rule-names', LENS_RULE_NAMES);
 
   // — Design Tokens search items —
   const cssRawSource: Str = Object.values(cssRawModules)[0] ?? '';
@@ -1941,9 +1945,10 @@
         data-section="categorized"
       >
         <Sidebar.Group>
-          <Sidebar.GroupLabel class="text-sm">
+          <Sidebar.GroupLabel class="gap-1.5 text-sm font-semibold">
             {#snippet child({ props })}
               <Collapsible.Trigger {...props}>
+                <LayoutGrid class="size-3" />
                 Components
                 <ChevronRight
                   class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90"
@@ -2051,7 +2056,7 @@
                           />
                           <CatIcon class="size-3.5 {catColor}"></CatIcon>
                           <span
-                            class="text-xs font-medium uppercase tracking-wider text-muted-foreground/60"
+                            class="text-[13px] font-medium uppercase tracking-wider text-muted-foreground/70"
                             >{group.label}</span
                           >
                           {@const compatCount = countCompatible(group)}

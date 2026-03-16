@@ -1,27 +1,10 @@
-- PropsTable copy link to propery is missing the full url (and I don't think these go to the correct hash thing?)
 - Command Search is missing full link to property names
 - Command search should clearly separate "Recent"
 - Command Search: Support listing all Categories/Tags and searching for them?
 - Command Search recent should be able to clear individual or all recent entries (like the sidebar)
+
+- PropsTable copy link to propery is missing the full url (and I don't think these go to the correct hash thing?)
 - The hash links in use everywhere and "Go to [thing]" maybe after scrolling to it could make that thing glow briefly?
-- Overview page
-  - Documented card
-    - Rename to compatibility
-      - It should be based on ALL lens rules not just whether a component has a lens metadata file
-      - Percentage and count should have appropriate colors
-  - "Search components, props, variants" -> "Search..."
-  - Categories cards
-    - Remove documented part
-    - +x more (Show tooltip nicely formatted with what the other ones are)
-- Categories page
-  - Header: Remove "x documented"
-  - Should have search also with empty state same as other empty states
-  - If no components in that category show nice empty ux
-  - Card
-    - The "green circle checkmark" should be based on whether component is compatibly or not and list in the tooltip all failures (like the sidebar component entry)
-    - Remove 
-    - "x props" remove it
-    - "+x" what is that for?
 
 - [Lens]
     - Intelligent Automatic Examples Instead of examples/
