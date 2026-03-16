@@ -552,6 +552,18 @@
               </Tooltip.Content>
             </Tooltip.Root>
           </div>
+        {:else}
+          <div
+            class="col-span-full flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed bg-card py-12 text-center"
+          >
+            <ComponentIcon class="size-8 text-muted-foreground/20" />
+            <div class="flex flex-col items-center gap-1">
+              <p class="text-sm font-medium text-muted-foreground/60">No categories yet</p>
+              <p class="max-w-56 text-xs leading-relaxed text-muted-foreground/40">
+                Add lens.ts metadata files to your components to organize them into categories
+              </p>
+            </div>
+          </div>
         {/each}
       </div>
     {:else}
@@ -592,6 +604,16 @@
               class="size-3.5 text-muted-foreground/30 transition-transform group-hover/row:translate-x-0.5 group-hover/row:text-primary"
             />
           </a>
+        {:else}
+          <div class="flex flex-col items-center justify-center gap-2 py-12 text-center">
+            <ComponentIcon class="size-8 text-muted-foreground/20" />
+            <div class="flex flex-col items-center gap-1">
+              <p class="text-sm font-medium text-muted-foreground/60">No categories yet</p>
+              <p class="max-w-56 text-xs leading-relaxed text-muted-foreground/40">
+                Add lens.ts metadata files to your components to organize them into categories
+              </p>
+            </div>
+          </div>
         {/each}
       </div>
     {/if}

@@ -74,6 +74,13 @@ export default defineConfig({
     __GIT_DIRTY__: JSON.stringify(git.dirty),
     __BUILD_TIMESTAMP__: JSON.stringify(new Date().toISOString()),
   },
+  server: {
+    watch: {
+      /* Reduce file watcher pressure on macOS — avoids EPERM errors
+         when SvelteKit scans routes concurrently with other watchers */
+      ignored: ['**/.svelte-kit/**', '**/node_modules/**', '**/.vite/**'],
+    },
+  },
   ssr: {
     noExternal: ['@lucide/svelte'],
   },

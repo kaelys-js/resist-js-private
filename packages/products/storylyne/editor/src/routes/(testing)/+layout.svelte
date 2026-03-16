@@ -975,6 +975,8 @@
    */
   function expandAllSidebar(): void {
     sidebarComponentsOpen = true;
+    sidebarPinnedOpen = true;
+    sidebarRecentOpen = true;
     for (const cat of categoryOrder) {
       sidebarCategoryOpen[cat] = true;
     }
@@ -985,6 +987,8 @@
    */
   function collapseAllSidebar(): void {
     sidebarComponentsOpen = false;
+    sidebarPinnedOpen = false;
+    sidebarRecentOpen = false;
     for (const cat of categoryOrder) {
       sidebarCategoryOpen[cat] = false;
     }
@@ -1781,10 +1785,18 @@
           {/if}
           <Collapsible.Content>
             <Sidebar.GroupContent>
-              {#if sidebarFilter.length > 0 && filteredGroupedComponents.length === 0}
-                <div class="flex flex-col items-center gap-1 px-2 py-4 text-center">
-                  <SearchX class="size-4 text-muted-foreground/40" />
-                  <span class="text-xs text-muted-foreground/60">No components match</span>
+              {#if filteredGroupedComponents.length === 0}
+                <div class="flex flex-col items-center gap-1.5 px-2 py-6 text-center">
+                  {#if sidebarFilter.length > 0}
+                    <SearchX class="size-4 text-muted-foreground/40" />
+                    <span class="text-xs text-muted-foreground/60">No components match</span>
+                  {:else}
+                    <ComponentIcon class="size-5 text-muted-foreground/30" />
+                    <span class="text-xs font-medium text-muted-foreground/50">No components</span>
+                    <span class="text-[11px] leading-snug text-muted-foreground/40">
+                      Add lens.ts files to register components
+                    </span>
+                  {/if}
                 </div>
               {/if}
               {#each filteredGroupedComponents as group (group.name)}
