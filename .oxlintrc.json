@@ -526,7 +526,8 @@
         "import/no-mutable-exports": "off",
         "import/max-dependencies": ["error", { "max": 1000 }],
         "typescript/consistent-type-imports": "off",
-        "unicorn/filename-case": "off"
+        "unicorn/filename-case": "off",
+        "unicorn/prefer-dom-node-append": "off"
       }
     },
     {

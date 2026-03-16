@@ -13891,17 +13891,28 @@
       </Tooltip.Provider>
     {/if}
 
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions a11y_click_events_have_key_events -->
-    <img
-      src={lightboxUrl}
-      alt="Screenshot preview"
-      class="max-h-[90vh] max-w-[90vw] cursor-zoom-out rounded-lg object-contain shadow-2xl"
+    <button
+      type="button"
+      class="cursor-zoom-out border-0 bg-transparent p-0"
       onclick={(e) => {
         e.stopPropagation();
         lightboxUrl = null;
         lightboxCardKey = null;
       }}
-    />
+      onkeydown={(e) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          lightboxUrl = null;
+          lightboxCardKey = null;
+        }
+      }}
+    >
+      <img
+        src={lightboxUrl}
+        alt="Screenshot preview — click to close"
+        class="max-h-[90vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
+      />
+    </button>
     <div class="absolute bottom-4 flex items-center gap-3">
       {#if lbCaptures.length > 1}
         <span
