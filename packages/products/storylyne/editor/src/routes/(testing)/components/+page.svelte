@@ -8,14 +8,19 @@
   import type { Num, Str } from '@/schemas/common';
   import type { LensMeta, LensStatus, CategoryGroup } from '@/ui/lens/types.js';
   import type { Result } from '@/schemas/result/result';
-  import { extractDir, toTitle, parseLensMeta } from '@/ui/lens/lens-utils.js';
+  import {
+    extractDir,
+    toTitle,
+    parseLensMeta,
+    type LensCompatibility,
+  } from '@/ui/lens/lens-utils.js';
   import { extractTokens, type ThemeTokenSet } from '@/ui/lens/extract-tokens.js';
   import { log } from '@/utils/core/logger';
   import Kbd from '@/ui/kbd/Kbd.svelte';
   import Badge from '@/ui/badge/badge.svelte';
   import * as Tooltip from '@/ui/tooltip/index.js';
   import { cn } from '@/ui/utils.js';
-  import type { Component } from 'svelte';
+  import { getContext, type Component } from 'svelte';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
   import SearchIcon from '@lucide/svelte/icons/search';
   import TextCursorInput from '@lucide/svelte/icons/text-cursor-input';
@@ -27,13 +32,13 @@
   import Palette from '@lucide/svelte/icons/palette';
   import ComponentIcon from '@lucide/svelte/icons/component';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
-  import CircleX from '@lucide/svelte/icons/circle-x';
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
   import List from '@lucide/svelte/icons/list';
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import Sparkles from '@lucide/svelte/icons/sparkles';
   import RefreshCw from '@lucide/svelte/icons/refresh-cw';
   import Trash2 from '@lucide/svelte/icons/trash-2';
+  import TagIcon from '@lucide/svelte/icons/tag';
   import { storageKey } from '$lib/config/app-meta';
 
   /* ------------------------------------------------------------------ */
@@ -165,19 +170,49 @@
     );
   })();
 
-  /** Number of documented components (have lens.ts metadata). */
-  const documentedCount: Num = componentNames.filter((n: Str): boolean => metaByName.has(n))
-    .length as Num;
+  /* ------------------------------------------------------------------ */
+  /*  Lens compatibility data from parent layout (via Svelte context)    */
+  /* ------------------------------------------------------------------ */
 
-  /** Documentation coverage percentage. */
-  const documentedPercent: Num = (
-    componentNames.length > 0 ? Math.round((documentedCount / componentNames.length) * 100) : 0
+  /** Lens compatibility results per component, set by +layout.svelte. */
+  const compatByName: Map<Str, LensCompatibility> = getContext('lens-compat-by-name');
+
+  /** Short rule descriptions for all 18 Lens compatibility rules (R0–R17). */
+  const lensRuleNames: readonly Str[] = getContext('lens-rule-names');
+
+  /** Number of fully compliant components (all 18 rules pass). */
+  const compliantCount: Num = componentNames.filter(
+    (n: Str): boolean => compatByName.get(n)?.compatible === true,
+  ).length as Num;
+
+  /** Compliance percentage. */
+  const compliantPercent: Num = (
+    componentNames.length > 0 ? Math.round((compliantCount / componentNames.length) * 100) : 0
   ) as Num;
 
-  /** Components without lens.ts documentation. */
-  const undocumentedComponents: Str[] = componentNames.filter(
-    (n: Str): boolean => !metaByName.has(n),
-  );
+  /** Components with at least one lens rule violation, sorted by violation count descending. */
+  const incompatibleComponents: Array<{ name: Str; compat: LensCompatibility }> = componentNames
+    .filter((n: Str): boolean => {
+      const c: LensCompatibility | undefined = compatByName.get(n);
+      return c !== undefined && !c.compatible;
+    })
+    .map((n: Str): { name: Str; compat: LensCompatibility } => ({
+      name: n,
+      compat: compatByName.get(n) as LensCompatibility, // safe — filtered above
+    }))
+    .toSorted(
+      (a: { compat: LensCompatibility }, b: { compat: LensCompatibility }): Num =>
+        (b.compat.violations.length - a.compat.violations.length) as Num,
+    );
+
+  /* ------------------------------------------------------------------ */
+  /*  Tags                                                               */
+  /* ------------------------------------------------------------------ */
+
+  /** All unique tags across all documented components, sorted alphabetically. */
+  const allTags: Str[] = [
+    ...new Set([...metaByName.values()].flatMap((m: LensMeta): Str[] => m.tags)),
+  ].toSorted();
 
   /** Status icon mapping. */
   const STATUS_ICONS: Record<LensStatus, Component> = {
@@ -267,7 +302,7 @@
   </div>
 
   <!-- Quick Stats -->
-  <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+  <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">
     <Tooltip.Root delayDuration={300}>
       <Tooltip.Trigger>
         {#snippet child({ props: tipProps })}
@@ -280,7 +315,9 @@
           </div>
         {/snippet}
       </Tooltip.Trigger>
-      <Tooltip.Content sideOffset={4}>Total UI components discovered in @/ui</Tooltip.Content>
+      <Tooltip.Content sideOffset={4} portalProps={{ disabled: true }}
+        >Total UI components discovered in @/ui</Tooltip.Content
+      >
     </Tooltip.Root>
     <Tooltip.Root delayDuration={300}>
       <Tooltip.Trigger>
@@ -294,8 +331,51 @@
           </div>
         {/snippet}
       </Tooltip.Trigger>
-      <Tooltip.Content sideOffset={4}>
-        Component groups: form, layout, overlay, navigation, display, utility
+      <Tooltip.Content
+        side="top"
+        sideOffset={4}
+        class="max-h-96 overflow-y-auto p-3"
+        portalProps={{ disabled: true }}
+      >
+        <div class="flex flex-col gap-1.5">
+          {#each groupedComponents as group (group.name)}
+            {@const DotIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
+            {@const dotColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
+            <div class="flex items-center gap-2 text-xs">
+              <DotIcon class="size-3 shrink-0 {dotColor}" />
+              <span class="capitalize">{group.name}</span>
+              <span class="text-muted-foreground">({group.components.length})</span>
+            </div>
+          {/each}
+        </div>
+      </Tooltip.Content>
+    </Tooltip.Root>
+    <Tooltip.Root delayDuration={300}>
+      <Tooltip.Trigger>
+        {#snippet child({ props: tipProps })}
+          <div class="rounded-lg border bg-card p-4" {...tipProps}>
+            <div class="flex items-center gap-2 text-muted-foreground">
+              <TagIcon class="size-4" />
+              <span class="text-xs font-medium uppercase tracking-wider">Tags</span>
+            </div>
+            <p class="mt-2 text-2xl font-bold tabular-nums">{allTags.length}</p>
+          </div>
+        {/snippet}
+      </Tooltip.Trigger>
+      <Tooltip.Content
+        side="top"
+        sideOffset={4}
+        class="max-h-96 overflow-y-auto p-3"
+        portalProps={{ disabled: true }}
+      >
+        <div class="grid grid-cols-5 gap-1.5">
+          {#each allTags as tag (tag)}
+            <span
+              class="inline-flex items-center gap-0.5 rounded bg-primary-foreground/20 px-1.5 py-1 text-xs"
+              ><TagIcon class="size-3 shrink-0 opacity-60" />{tag}</span
+            >
+          {/each}
+        </div>
       </Tooltip.Content>
     </Tooltip.Root>
     <Tooltip.Root delayDuration={300}>
@@ -310,7 +390,7 @@
           </div>
         {/snippet}
       </Tooltip.Trigger>
-      <Tooltip.Content sideOffset={4}>
+      <Tooltip.Content sideOffset={4} portalProps={{ disabled: true }}>
         CSS custom properties extracted from app.css across all themes
       </Tooltip.Content>
     </Tooltip.Root>
@@ -320,52 +400,131 @@
           <div class="rounded-lg border bg-card p-4" {...tipProps}>
             <div class="flex items-center gap-2 text-muted-foreground">
               <CircleCheck class="size-4" />
-              <span class="text-xs font-medium uppercase tracking-wider">Documented</span>
+              <span class="text-xs font-medium uppercase tracking-wider">Compatible</span>
             </div>
-            <p class="mt-2 text-2xl font-bold tabular-nums">{documentedPercent}%</p>
-            <p class="text-xs text-muted-foreground">{documentedCount}/{componentNames.length}</p>
+            <p
+              class="mt-2 text-2xl font-bold tabular-nums {compliantPercent >= 80
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : compliantPercent >= 50
+                  ? 'text-amber-600 dark:text-amber-400'
+                  : 'text-red-600 dark:text-red-400'}"
+            >
+              {compliantPercent}%
+            </p>
+            <p
+              class="text-xs {compliantPercent >= 80
+                ? 'text-emerald-600/70 dark:text-emerald-400/70'
+                : compliantPercent >= 50
+                  ? 'text-amber-600/70 dark:text-amber-400/70'
+                  : 'text-red-600/70 dark:text-red-400/70'}"
+            >
+              {compliantCount}/{componentNames.length}
+            </p>
           </div>
         {/snippet}
       </Tooltip.Trigger>
-      <Tooltip.Content sideOffset={4}>
-        Components with a lens.ts metadata file for docs generation
+      <Tooltip.Content sideOffset={4} portalProps={{ disabled: true }}>
+        {compliantCount} out of {componentNames.length} components are compatible
       </Tooltip.Content>
     </Tooltip.Root>
   </div>
 
-  <!-- Documentation Coverage Alert -->
-  {#if undocumentedComponents.length > 0}
+  <!-- Incompatible Components Alert -->
+  {#if incompatibleComponents.length > 0}
     <div class="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
       <div class="flex items-start gap-3">
         <TriangleAlert class="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
         <div class="flex-1">
           <p class="text-sm font-medium text-amber-700 dark:text-amber-300">
-            {undocumentedComponents.length} component{undocumentedComponents.length === 1
+            {incompatibleComponents.length} incompatible component{incompatibleComponents.length ===
+            1
               ? ''
-              : 's'} missing documentation
+              : 's'}
           </p>
           <p class="mt-1 text-xs text-amber-600/80 dark:text-amber-400/70">
-            Add a <code
-              class="rounded bg-amber-500/10 px-1 py-0.5 font-mono text-[11px] text-amber-700 dark:text-amber-300"
-              >lens.ts</code
-            > file to enable documentation, examples, and variant generation.
+            Failing one or more compatibility rules.
           </p>
           <div class="mt-2.5 flex flex-wrap gap-1">
-            {#each undocumentedComponents.slice(0, 12) as name (name)}
-              <a
-                href="/components/{name}"
-                class="inline-flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 text-[11px] text-amber-700 transition-colors hover:bg-amber-500/20 dark:text-amber-300"
-              >
-                <CircleX class="size-2.5" />
-                {toTitle(name)}
-              </a>
+            {#each incompatibleComponents.slice(0, 12) as entry (entry.name)}
+              {@const failCount = entry.compat.violations.length}
+              {@const passCount = lensRuleNames.length - failCount}
+              {@const failedRules = new Set(entry.compat.violations.map((vi) => vi.rule as number))}
+              <Tooltip.Root delayDuration={300}>
+                <Tooltip.Trigger>
+                  {#snippet child({ props: compTip })}
+                    <a
+                      href="/components/{entry.name}"
+                      class="inline-flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 text-[11px] text-amber-700 transition-colors hover:bg-amber-500/20 dark:text-amber-300"
+                      {...compTip}
+                    >
+                      <TriangleAlert class="size-2.5" />
+                      {toTitle(entry.name)}
+                      <span class="opacity-60">({failCount})</span>
+                    </a>
+                  {/snippet}
+                </Tooltip.Trigger>
+                <Tooltip.Content
+                  side="bottom"
+                  sideOffset={4}
+                  class="max-w-72"
+                  portalProps={{ disabled: true }}
+                >
+                  <p class="mb-1 text-[10px] font-semibold">
+                    Compatibility — {passCount}✓ {failCount}✗
+                  </p>
+                  <ul class="space-y-0.5">
+                    {#each lensRuleNames as ruleName, ruleIdx (ruleIdx)}
+                      {@const failed = failedRules.has(ruleIdx)}
+                      <li class="flex items-start gap-1 text-[10px]">
+                        <span
+                          class="mt-px shrink-0 font-bold leading-none {failed
+                            ? 'text-red-300'
+                            : 'text-emerald-300'}">{failed ? '✗' : '✓'}</span
+                        >
+                        <span
+                          ><span class="font-mono opacity-60">R{ruleIdx}</span>
+                          {ruleName}</span
+                        >
+                      </li>
+                    {/each}
+                  </ul>
+                </Tooltip.Content>
+              </Tooltip.Root>
             {/each}
-            {#if undocumentedComponents.length > 12}
-              <span
-                class="rounded bg-amber-500/10 px-1.5 py-0.5 text-[11px] text-amber-600/60 dark:text-amber-400/50"
-              >
-                +{undocumentedComponents.length - 12} more
-              </span>
+            {#if incompatibleComponents.length > 12}
+              <Tooltip.Root delayDuration={300}>
+                <Tooltip.Trigger>
+                  {#snippet child({ props: moreTip })}
+                    <span
+                      class="cursor-default rounded bg-amber-500/10 px-1.5 py-0.5 text-[11px] text-amber-600/60 dark:text-amber-400/50"
+                      {...moreTip}
+                    >
+                      +{incompatibleComponents.length - 12} more
+                    </span>
+                  {/snippet}
+                </Tooltip.Trigger>
+                <Tooltip.Content
+                  side="top"
+                  sideOffset={4}
+                  class="max-h-96 max-w-80 overflow-y-auto p-3"
+                  portalProps={{ disabled: true }}
+                >
+                  <div class="flex flex-col gap-1.5">
+                    {#each incompatibleComponents.slice(12) as overflow (overflow.name)}
+                      <div class="flex items-center gap-2 text-xs">
+                        <TriangleAlert class="size-3 shrink-0 text-amber-500" />
+                        <span class="font-medium">{toTitle(overflow.name)}</span>
+                        <span class="text-muted-foreground">
+                          ({overflow.compat.violations.length} violation{overflow.compat.violations
+                            .length === 1
+                            ? ''
+                            : 's'})
+                        </span>
+                      </div>
+                    {/each}
+                  </div>
+                </Tooltip.Content>
+              </Tooltip.Root>
             {/if}
           </div>
         </div>
@@ -422,7 +581,7 @@
     onclick={openSearch}
   >
     <SearchIcon class="size-4 shrink-0" />
-    <span>Search components, props, variants...</span>
+    <span>Search...</span>
     <Kbd label="⌘K" class="ml-auto" />
   </button>
 
@@ -451,7 +610,9 @@
               </button>
             {/snippet}
           </Tooltip.Trigger>
-          <Tooltip.Content sideOffset={4}>Grid view</Tooltip.Content>
+          <Tooltip.Content sideOffset={4} portalProps={{ disabled: true }}
+            >Grid view</Tooltip.Content
+          >
         </Tooltip.Root>
         <Tooltip.Root delayDuration={300}>
           <Tooltip.Trigger>
@@ -473,7 +634,9 @@
               </button>
             {/snippet}
           </Tooltip.Trigger>
-          <Tooltip.Content sideOffset={4}>List view</Tooltip.Content>
+          <Tooltip.Content sideOffset={4} portalProps={{ disabled: true }}
+            >List view</Tooltip.Content
+          >
         </Tooltip.Root>
       </div>
     </div>
@@ -486,7 +649,6 @@
           {@const catColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
           {@const catBg = CATEGORY_BG[group.name] ?? ('hover:border-border' as Str)}
           {@const catDesc = CATEGORY_DESCRIPTIONS[group.name] ?? ('' as Str)}
-          {@const docCount = group.components.filter((n) => metaByName.has(n)).length}
           <div
             class={cn('flex flex-col gap-3 rounded-lg border bg-card p-4 transition-all', catBg)}
           >
@@ -499,7 +661,9 @@
                   <CatIcon class="size-5 {catColor}" />
                 </div>
                 <div>
-                  <h3 class="text-sm font-semibold group-hover/cat:text-primary">{group.label}</h3>
+                  <h3 class="text-sm font-semibold group-hover/cat:text-primary">
+                    {group.label}
+                  </h3>
                   <p class="text-xs text-muted-foreground">
                     {group.components.length} components
                   </p>
@@ -522,35 +686,37 @@
                 >
               {/each}
               {#if group.components.length > 8}
-                <span class="rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground/60"
-                  >+{group.components.length - 8} more</span
-                >
+                <Tooltip.Root delayDuration={300}>
+                  <Tooltip.Trigger>
+                    {#snippet child({ props: moreCatTip })}
+                      <span
+                        class="cursor-default rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground/60"
+                        {...moreCatTip}>+{group.components.length - 8} more</span
+                      >
+                    {/snippet}
+                  </Tooltip.Trigger>
+                  <Tooltip.Content
+                    side="bottom"
+                    sideOffset={4}
+                    class="max-h-64 overflow-y-auto p-3"
+                    portalProps={{ disabled: true }}
+                  >
+                    <div class="flex flex-col gap-0.5">
+                      {#each group.components.slice(8) as extra (extra)}
+                        <a
+                          href="/components/{extra}"
+                          class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                        >
+                          <ComponentIcon class="size-3 shrink-0 opacity-50" />
+                          <span class="flex-1">{toTitle(extra)}</span>
+                          <ArrowRight class="size-3 shrink-0 opacity-40" />
+                        </a>
+                      {/each}
+                    </div>
+                  </Tooltip.Content>
+                </Tooltip.Root>
               {/if}
             </div>
-            <!-- Documentation coverage bar -->
-            <Tooltip.Root delayDuration={300}>
-              <Tooltip.Trigger>
-                {#snippet child({ props: barTipProps })}
-                  <div class="flex items-center gap-2" {...barTipProps}>
-                    <span class="text-[11px] text-muted-foreground/60">Documented</span>
-                    <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                      <div
-                        class="h-full rounded-full bg-emerald-500 transition-all"
-                        style="width: {group.components.length > 0
-                          ? Math.round((docCount / group.components.length) * 100)
-                          : 0}%"
-                      ></div>
-                    </div>
-                    <span class="text-[11px] tabular-nums text-muted-foreground">
-                      {docCount}/{group.components.length}
-                    </span>
-                  </div>
-                {/snippet}
-              </Tooltip.Trigger>
-              <Tooltip.Content sideOffset={4}>
-                {docCount} of {group.components.length} components have lens.ts metadata
-              </Tooltip.Content>
-            </Tooltip.Root>
           </div>
         {:else}
           <div
@@ -572,7 +738,6 @@
         {#each groupedComponents as group, gi (group.name)}
           {@const CatIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
           {@const catColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
-          {@const docCount = group.components.filter((n) => metaByName.has(n)).length}
           {#if gi > 0}
             <div class="border-t"></div>
           {/if}
@@ -586,20 +751,37 @@
             <div class="min-w-0 flex-1">
               <span class="text-sm font-medium group-hover/row:text-primary">{group.label}</span>
             </div>
-            <div class="flex items-center gap-4 text-xs text-muted-foreground">
-              <span class="tabular-nums">{group.components.length}</span>
-              <div class="flex items-center gap-1.5">
-                <div class="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
-                  <div
-                    class="h-full rounded-full bg-emerald-500"
-                    style="width: {group.components.length > 0
-                      ? Math.round((docCount / group.components.length) * 100)
-                      : 0}%"
-                  ></div>
+            <Tooltip.Root delayDuration={300}>
+              <Tooltip.Trigger>
+                {#snippet child({ props: listCountTip })}
+                  <span
+                    class="cursor-default text-xs tabular-nums text-muted-foreground"
+                    onclick={(e) => e.preventDefault()}
+                    {...listCountTip}>{group.components.length}</span
+                  >
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content
+                side="bottom"
+                sideOffset={4}
+                class="max-h-64 overflow-y-auto p-3"
+                portalProps={{ disabled: true }}
+              >
+                <div class="flex flex-col gap-0.5">
+                  {#each group.components as comp (comp)}
+                    <a
+                      href="/components/{comp}"
+                      class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                      onclick={(e) => e.stopPropagation()}
+                    >
+                      <ComponentIcon class="size-3 shrink-0 opacity-50" />
+                      <span class="flex-1">{toTitle(comp)}</span>
+                      <ArrowRight class="size-3 shrink-0 opacity-40" />
+                    </a>
+                  {/each}
                 </div>
-                <span class="tabular-nums text-[10px]">{docCount}/{group.components.length}</span>
-              </div>
-            </div>
+              </Tooltip.Content>
+            </Tooltip.Root>
             <ArrowRight
               class="size-3.5 text-muted-foreground/30 transition-transform group-hover/row:translate-x-0.5 group-hover/row:text-primary"
             />
@@ -628,10 +810,13 @@
       <Palette class="size-5 text-primary" />
     </div>
     <div class="flex-1">
-      <h3 class="text-sm font-semibold">Design Tokens</h3>
+      <h3 class="text-sm font-semibold group-hover:text-primary">Design Tokens</h3>
       <p class="text-xs text-muted-foreground">
         {tokenCount} CSS custom properties across themes
       </p>
     </div>
+    <ArrowRight
+      class="size-4 text-muted-foreground/30 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
+    />
   </a>
 </div>
