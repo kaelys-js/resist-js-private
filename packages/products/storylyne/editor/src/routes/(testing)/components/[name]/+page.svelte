@@ -6,7 +6,7 @@
    * at runtime — no hand-written Demo.svelte files needed.
    */
   import type { Bool, Num, Str, Void } from '@/schemas/common';
-  import { tick, untrack, type Component } from 'svelte';
+  import { getContext, tick, untrack, type Component } from 'svelte';
   import { fade, slide } from 'svelte/transition';
   import { storageKey } from '$lib/config/app-meta';
   import type {
@@ -312,6 +312,9 @@
   let loading: Bool = $state(true);
   let showSkeleton: Bool = $state(false);
   let loadError: Str | null = $state(null);
+
+  /** Short rule descriptions for all 18 Lens compatibility rules (R0–R17). */
+  const LENS_RULE_NAMES: readonly Str[] = getContext('lens-rule-names');
 
   /** Lens compatibility result for the current component, computed from loaded data. */
   const lensCompat: LensCompatibility | null = $derived.by((): LensCompatibility | null => {
@@ -2332,14 +2335,28 @@
    * and `lens:export` events from LensHeader.
    */
   $effect(() => {
-    async function handleScrollTo(e: Event): Promise<void> {
-      const id: Str = (e as CustomEvent).detail;
-      // Open the section if collapsed
-      if (sectionOpen[id] === false) {
-        sectionOpen[id] = true;
+    async function scrollToAndHighlight(id: Str): Promise<void> {
+      // Open the parent section if collapsed — map prefixed IDs to their section
+      let sectionId: Str = id;
+      if (id.startsWith('prop-')) sectionId = 'props' as Str;
+      else if (id.startsWith('variant-')) sectionId = 'variants' as Str;
+      else if (id.startsWith('example-')) sectionId = 'examples' as Str;
+      if (sectionOpen[sectionId] === false) {
+        sectionOpen[sectionId] = true;
       }
       await tick();
-      document.querySelector(`#${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const el: Element | null = document.querySelector(`#${CSS.escape(id)}`);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Brief glow highlight after scroll completes
+      el.classList.add('lens-scroll-highlight');
+      setTimeout((): void => {
+        el.classList.remove('lens-scroll-highlight');
+      }, 2000);
+    }
+    async function handleScrollTo(e: Event): Promise<void> {
+      const id: Str = (e as CustomEvent).detail;
+      await scrollToAndHighlight(id);
     }
     function handleExpandAll(): Void {
       for (const key of Object.keys(sectionOpen)) {
@@ -2360,6 +2377,22 @@
     document.addEventListener('lens:expand-all', handleExpandAll);
     document.addEventListener('lens:collapse-all', handleCollapseAll);
     document.addEventListener('lens:export', handleExport);
+    // Handle initial URL hash — wait for loading to finish, then scroll to target
+    if (window.location.hash.length > 1) {
+      const hashId: Str = decodeURIComponent(window.location.hash.slice(1)) as Str;
+      const hashInterval: ReturnType<typeof setInterval> = setInterval(async (): Promise<void> => {
+        // Wait until the page has finished loading before attempting to scroll
+        if (loading) return;
+        clearInterval(hashInterval);
+        // Extra tick to ensure DOM has rendered after loading = false
+        await tick();
+        await scrollToAndHighlight(hashId);
+      }, 100);
+      // Safety: stop polling after 10s to avoid leaks
+      setTimeout((): void => {
+        clearInterval(hashInterval);
+      }, 10_000);
+    }
     return (): void => {
       document.removeEventListener('lens:scroll-to', handleScrollTo);
       document.removeEventListener('lens:expand-all', handleExpandAll);
@@ -2458,24 +2491,27 @@
       />
     </div>
     {#if lensCompat && !lensCompat.compatible}
+      {@const failCount = lensCompat.violations.length}
+      {@const passCount = LENS_RULE_NAMES.length - failCount}
+      {@const failedRules = new Set(lensCompat.violations.map((vi) => vi.rule as number))}
       <div class="mx-8 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3">
         <div class="flex items-start gap-2">
           <TriangleAlert class="mt-0.5 size-4 shrink-0 text-amber-500" aria-hidden="true" />
           <div class="min-w-0 flex-1">
             <p class="text-sm font-semibold text-amber-600 dark:text-amber-400">
-              Incompatible — {lensCompat.violations.length} Lens rule violation{lensCompat
-                .violations.length === 1
-                ? ''
-                : 's'}
+              Compatibility — {passCount}✓ {failCount}✗
             </p>
             <ul class="mt-1.5 space-y-0.5">
-              {#each lensCompat.violations as violation, i (i)}
-                <li class="text-xs text-foreground/70">
-                  {#if (violation.rule as number) > 0}
-                    <span class="font-mono text-amber-500/70">R{violation.rule}</span>
-                  {/if}
-                  {violation.message}
-                </li>
+              {#each LENS_RULE_NAMES as ruleName, ruleIdx (ruleIdx)}
+                {#if failedRules.has(ruleIdx)}
+                  <li class="flex items-start gap-1 text-xs text-foreground/70">
+                    <span class="mt-px shrink-0 font-bold leading-none text-red-500">✗</span>
+                    <span>
+                      <span class="font-mono text-amber-500/70">R{ruleIdx}</span>
+                      {ruleName}
+                    </span>
+                  </li>
+                {/if}
               {/each}
             </ul>
           </div>

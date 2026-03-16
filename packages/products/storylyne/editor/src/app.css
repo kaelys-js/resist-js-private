@@ -513,6 +513,24 @@
 	}
 }
 
+/* Lens scroll-to highlight — brief glow when navigating to a section or prop */
+@keyframes lens-highlight-glow {
+	0% {
+		box-shadow: 0 0 0 0 var(--color-primary);
+	}
+	20% {
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 30%, transparent);
+	}
+	100% {
+		box-shadow: 0 0 0 0 transparent;
+	}
+}
+
+.lens-scroll-highlight {
+	animation: lens-highlight-glow 2s ease-out;
+	border-radius: var(--radius-sm);
+}
+
 /* View Transitions API — smooth crossfade for locale switching */
 ::view-transition-old(root),
 ::view-transition-new(root) {

@@ -50,6 +50,8 @@
   import * as Dialog from '../dialog/index.js';
   import SearchX from '@lucide/svelte/icons/search-x';
   import XIcon from '@lucide/svelte/icons/x';
+  import Clock from '@lucide/svelte/icons/clock';
+  import Trash2 from '@lucide/svelte/icons/trash-2';
   import CornerDownLeft from '@lucide/svelte/icons/corner-down-left';
 
   let {
@@ -159,6 +161,34 @@
     open = false;
     searchValue = '';
   }
+
+  /**
+   * Remove a single item from search history.
+   *
+   * @param value - The value of the history item to remove
+   */
+  function removeHistoryItem(value: Str): Void {
+    searchHistory = searchHistory.filter((h: SearchItem): boolean => h.value !== value);
+    try {
+      if (searchHistory.length > 0) {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(searchHistory));
+      } else {
+        localStorage.removeItem(HISTORY_KEY);
+      }
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — non-critical */
+    }
+  }
+
+  /** Clear all search history entries. */
+  function clearAllHistory(): Void {
+    searchHistory = [];
+    try {
+      localStorage.removeItem(HISTORY_KEY);
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — non-critical */
+    }
+  }
 </script>
 
 <Dialog.Root bind:open>
@@ -193,30 +223,70 @@
           </div>
         </Command.Empty>
         {#if searchValue.length === 0 && searchHistory.length > 0}
-          <Command.Group heading="Recent" value="__history">
-            {#each searchHistory as histItem, hi (histItem.value ?? hi)}
-              {#if histItem.href}
-                <Command.LinkItem
-                  href={histItem.href}
-                  value="history-{histItem.value}"
-                  keywords={histItem.keywords}
-                  class="py-1.5 ps-3"
-                  onSelect={() => handleSelect(histItem)}
-                >
-                  {histItem.label}
-                </Command.LinkItem>
-              {:else}
-                <Command.Item
-                  value="history-{histItem.value}"
-                  keywords={histItem.keywords}
-                  class="py-1.5 ps-3 text-muted-foreground/50 italic"
-                  onSelect={() => handleSelect(histItem)}
-                >
-                  {histItem.label}
-                </Command.Item>
-              {/if}
-            {/each}
-          </Command.Group>
+          <div class="border-b pb-1">
+            <div class="flex items-center justify-between px-2 py-1.5">
+              <span class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                <Clock class="size-3" />
+                Recent
+              </span>
+              <button
+                type="button"
+                class="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground"
+                onclick={clearAllHistory}
+              >
+                <Trash2 class="size-3" />
+                Clear all
+              </button>
+            </div>
+            <Command.Group value="__history">
+              {#each searchHistory as histItem, hi (histItem.value ?? hi)}
+                {#if histItem.href}
+                  <Command.LinkItem
+                    href={histItem.href}
+                    value="history-{histItem.value}"
+                    keywords={histItem.keywords}
+                    class="group/hist py-1.5 ps-3 pe-2"
+                    onSelect={() => handleSelect(histItem)}
+                  >
+                    <span class="flex-1">{histItem.label}</span>
+                    <button
+                      type="button"
+                      class="shrink-0 rounded p-0.5 text-muted-foreground/30 opacity-0 transition-all hover:bg-muted hover:text-foreground group-hover/hist:opacity-100"
+                      onclick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeHistoryItem(histItem.value);
+                      }}
+                      aria-label="Remove from recent"
+                    >
+                      <XIcon class="size-3" />
+                    </button>
+                  </Command.LinkItem>
+                {:else}
+                  <Command.Item
+                    value="history-{histItem.value}"
+                    keywords={histItem.keywords}
+                    class="group/hist py-1.5 ps-3 pe-2 text-muted-foreground/50 italic"
+                    onSelect={() => handleSelect(histItem)}
+                  >
+                    <span class="flex-1">{histItem.label}</span>
+                    <button
+                      type="button"
+                      class="shrink-0 rounded p-0.5 text-muted-foreground/30 opacity-0 transition-all hover:bg-muted hover:text-foreground group-hover/hist:opacity-100"
+                      onclick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeHistoryItem(histItem.value);
+                      }}
+                      aria-label="Remove from recent"
+                    >
+                      <XIcon class="size-3" />
+                    </button>
+                  </Command.Item>
+                {/if}
+              {/each}
+            </Command.Group>
+          </div>
         {/if}
         {#each groupedItems as group, gi (gi)}
           {#if group.name}
