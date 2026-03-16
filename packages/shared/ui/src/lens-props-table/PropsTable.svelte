@@ -849,7 +849,7 @@
           {#each validated.props as prop (prop.name)}
             <tr
               id="prop-{prop.name}"
-              class="group/row border-b last:border-b-0 transition-colors hover:bg-muted/40"
+              class="scroll-mt-60 group/row border-b last:border-b-0 transition-colors hover:bg-muted/40"
             >
               <td
                 class={cn(

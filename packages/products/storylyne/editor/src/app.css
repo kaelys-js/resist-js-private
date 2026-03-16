@@ -526,9 +526,31 @@
 	}
 }
 
+@keyframes lens-highlight-bg {
+	0% {
+		background-color: transparent;
+	}
+	20% {
+		background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
+	}
+	100% {
+		background-color: transparent;
+	}
+}
+
 .lens-scroll-highlight {
 	animation: lens-highlight-glow 2s ease-out;
 	border-radius: var(--radius-sm);
+}
+
+/* Table rows don't support box-shadow — use background animation on cells instead */
+tr.lens-scroll-highlight {
+	animation: none;
+	border-radius: 0;
+}
+
+tr.lens-scroll-highlight > td {
+	animation: lens-highlight-bg 2s ease-out;
 }
 
 /* View Transitions API — smooth crossfade for locale switching */
