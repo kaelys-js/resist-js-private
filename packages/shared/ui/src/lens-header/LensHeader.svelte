@@ -106,6 +106,7 @@
   import Wrench from '@lucide/svelte/icons/wrench';
   import Microscope from '@lucide/svelte/icons/microscope';
   import Star from '@lucide/svelte/icons/star';
+  import Tag from '@lucide/svelte/icons/tag';
   import EyeOff from '@lucide/svelte/icons/eye-off';
   import { cn } from '../utils.js';
 
@@ -567,7 +568,9 @@
               {/snippet}
             </Tooltip.Trigger>
             <Tooltip.Content side="bottom" sideOffset={4}>
-              {validated.isWatched ? 'Stop watching' : 'Watch for changes'}
+              {validated.isWatched
+                ? 'Stop watching for file changes'
+                : 'Watch for file changes — auto-refreshes on save'}
             </Tooltip.Content>
           </Tooltip.Root>
         {/if}
@@ -965,9 +968,13 @@
           <Tooltip.Trigger>
             {#snippet child({ props: catTooltipProps })}
               <span {...catTooltipProps}>
-                <Badge variant="secondary" class="text-xs capitalize"
-                  >{validated.meta?.category}</Badge
+                <Badge
+                  variant="secondary"
+                  class="inline-flex items-center gap-1 text-xs capitalize"
                 >
+                  <svelte:component this={categoryIcon} class="size-3" />
+                  {validated.meta?.category}
+                </Badge>
               </span>
             {/snippet}
           </Tooltip.Trigger>
@@ -978,7 +985,10 @@
             <Tooltip.Trigger>
               {#snippet child({ props: tagTooltipProps })}
                 <span {...tagTooltipProps}>
-                  <Badge variant="outline" class="text-xs">{tag}</Badge>
+                  <Badge variant="outline" class="inline-flex items-center gap-1 text-xs">
+                    <Tag class="size-3" />
+                    {tag}
+                  </Badge>
                 </span>
               {/snippet}
             </Tooltip.Trigger>

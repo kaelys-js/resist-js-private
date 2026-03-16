@@ -266,9 +266,9 @@
                   {#snippet child({ props: docTip })}
                     <span {...docTip}>
                       {#if isDocumented}
-                        <CircleCheck class="size-3.5 text-emerald-500" />
+                        <CircleCheck class="size-4 text-emerald-500" />
                       {:else}
-                        <CircleX class="size-3.5 text-muted-foreground/30" />
+                        <CircleX class="size-4 text-muted-foreground/30" />
                       {/if}
                     </span>
                   {/snippet}
@@ -287,9 +287,9 @@
               {#if meta?.tags}
                 {#each meta.tags.slice(0, 3) as tag (tag)}
                   <span
-                    class="inline-flex items-center gap-0.5 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground"
+                    class="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
                   >
-                    <Tag class="size-2.5" />
+                    <Tag class="size-3" />
                     {tag}
                   </span>
                 {/each}
