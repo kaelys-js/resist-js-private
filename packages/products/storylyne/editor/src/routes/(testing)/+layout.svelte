@@ -41,6 +41,9 @@
   import ComponentIcon from '@lucide/svelte/icons/component';
   import SearchIcon from '@lucide/svelte/icons/search';
   import Palette from '@lucide/svelte/icons/palette';
+  import BookOpen from '@lucide/svelte/icons/book-open';
+  import Newspaper from '@lucide/svelte/icons/newspaper';
+  import Shapes from '@lucide/svelte/icons/shapes';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
   import * as Tooltip from '@/ui/tooltip/index.js';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
@@ -562,11 +565,45 @@
     }
   }
 
+  // — New pages search items —
+  globalSearchItems.push(
+    {
+      value: 'pages/getting-started',
+      label: 'Getting Started',
+      href: '/getting-started',
+      group: 'Pages',
+      keywords: ['getting started', 'onboarding', 'install', 'setup', 'guide', 'tutorial'],
+    },
+    {
+      value: 'pages/changelog',
+      label: "What's New",
+      href: '/changelog',
+      group: 'Pages',
+      keywords: ['changelog', "what's new", 'updates', 'history', 'git', 'commits'],
+    },
+    {
+      value: 'pages/icons',
+      label: 'Icons',
+      href: '/icons',
+      group: 'Pages',
+      keywords: ['icons', 'lucide', 'icon gallery', 'search icons', 'svg'],
+    },
+  );
+
   /** Current component name from the URL params. */
   const currentName: Str = $derived(page.params.name ?? '');
 
   /** Whether the current page is the tokens viewer. */
   const isTokensPage: boolean = $derived(page.url.pathname === '/tokens');
+
+  /** Page title for breadcrumb display on new pages. */
+  const currentPageTitle: Str = $derived.by((): Str => {
+    const path: Str = page.url.pathname as Str;
+    if (path === '/getting-started') return 'Getting Started' as Str;
+    if (path === '/changelog') return "What's New" as Str;
+    if (path === '/icons') return 'Icons' as Str;
+    return '' as Str;
+  });
 
   /** Current category page name (from /components/category/[category]). */
   const currentCategory: Str = $derived(
@@ -2207,6 +2244,44 @@
           </Sidebar.MenuItem>
         </Sidebar.Menu>
       </Sidebar.Group>
+      <!-- Pages section -->
+      <Sidebar.Group>
+        <Sidebar.GroupLabel class="text-xs font-medium text-muted-foreground"
+          >Pages</Sidebar.GroupLabel
+        >
+        <Sidebar.Menu>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/getting-started'}>
+              {#snippet child({ props })}
+                <a href="/getting-started" {...props}>
+                  <BookOpen class="size-4" />
+                  <span>Getting Started</span>
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/changelog'}>
+              {#snippet child({ props })}
+                <a href="/changelog" {...props}>
+                  <Newspaper class="size-4" />
+                  <span>What's New</span>
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/icons'}>
+              {#snippet child({ props })}
+                <a href="/icons" {...props}>
+                  <Shapes class="size-4" />
+                  <span>Icons</span>
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+        </Sidebar.Menu>
+      </Sidebar.Group>
     </Sidebar.Content>
   </Sidebar.Root>
 
@@ -2270,6 +2345,34 @@
                       </a>
                     {/snippet}
                   </DropdownMenu.Item>
+                  <DropdownMenu.Separator />
+                  <DropdownMenu.Label class="text-xs text-muted-foreground/60">
+                    Pages
+                  </DropdownMenu.Label>
+                  <DropdownMenu.Item>
+                    {#snippet child({ props: gsProps })}
+                      <a href="/getting-started" {...gsProps}>
+                        <BookOpen class="size-4" />
+                        Getting Started
+                      </a>
+                    {/snippet}
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item>
+                    {#snippet child({ props: clProps })}
+                      <a href="/changelog" {...clProps}>
+                        <Newspaper class="size-4" />
+                        What's New
+                      </a>
+                    {/snippet}
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item>
+                    {#snippet child({ props: icProps })}
+                      <a href="/icons" {...icProps}>
+                        <Shapes class="size-4" />
+                        Icons
+                      </a>
+                    {/snippet}
+                  </DropdownMenu.Item>
                 </DropdownMenu.Content>
               </DropdownMenu.Root>
             </Breadcrumb.Item>
@@ -2289,6 +2392,11 @@
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <Breadcrumb.Page>Design Tokens</Breadcrumb.Page>
+              </Breadcrumb.Item>
+            {:else if currentPageTitle}
+              <Breadcrumb.Separator />
+              <Breadcrumb.Item>
+                <Breadcrumb.Page>{currentPageTitle}</Breadcrumb.Page>
               </Breadcrumb.Item>
             {/if}
           </Breadcrumb.List>
