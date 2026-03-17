@@ -1,25 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Citation source @values cite */
-    cite,
-    /** Theme color @values color */
-    color,
-    children,
-  }: {
-    /** Citation source */
-    cite: Str;
-    /** Theme color */
-    color: Str;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const BlockquotePropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type BlockquoteProps = v.InferOutput<typeof BlockquotePropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Blockquote — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Blockquote />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = BlockquoteProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: BlockquoteProps = $derived.by(() => {
+    const rawProps: BlockquoteProps = stripSvelteProps(allProps);
+    const result = safeParse(BlockquotePropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as BlockquoteProps;
+  });
+</script>
+
+<div data-slot="blockquote" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

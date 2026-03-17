@@ -1,45 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Code text to display @values string, string[] */
-    text,
-    /** Line prefix symbol @values '$' */
-    symbol = '$',
-    /** Theme color @values 'default' */
-    color = 'default',
-    /** Visual variant @values 'bordered', 'flat', 'shadow' */
-    variant = 'flat',
-    /** Hide the prefix symbol */
-    hideSymbol = false,
-    /** Show copy button */
-    copyable = true,
-    /** Copy feedback duration (ms) @values 0, 2000, 4000 */
-    timeout = 2000,
-    children,
-  }: {
-    /** Code text to display */
-    text: Str;
-    /** Line prefix symbol */
-    symbol?: Str;
-    /** Theme color */
-    color?: Str;
-    /** Visual variant */
-    variant?: Str;
-    /** Hide the prefix symbol */
-    hideSymbol?: Bool;
-    /** Show copy button */
-    copyable?: Bool;
-    /** Copy feedback duration (ms) */
-    timeout?: Num;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const SnippetPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type SnippetProps = v.InferOutput<typeof SnippetPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Snippet — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Snippet />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = SnippetProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: SnippetProps = $derived.by(() => {
+    const rawProps: SnippetProps = stripSvelteProps(allProps);
+    const result = safeParse(SnippetPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as SnippetProps;
+  });
+</script>
+
+<div data-slot="snippet" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

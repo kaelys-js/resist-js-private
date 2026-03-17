@@ -1,41 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Num } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Current value @values 0, 0, 10 */
-    value = 0,
-    /** Minimum value @values 0, 0, 10 */
-    min = 0,
-    /** Maximum value @values 0, 100, 200 */
-    max = 100,
-    /** Low threshold @values 0, 50, 100 */
-    low,
-    /** High threshold @values 0, 50, 100 */
-    high,
-    /** Optimal value @values 0, 50, 100 */
-    optimum,
-    children,
-  }: {
-    /** Current value */
-    value?: Num;
-    /** Minimum value */
-    min?: Num;
-    /** Maximum value */
-    max?: Num;
-    /** Low threshold */
-    low: Num;
-    /** High threshold */
-    high: Num;
-    /** Optimal value */
-    optimum: Num;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const MeterPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type MeterProps = v.InferOutput<typeof MeterPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Meter — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Meter />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = MeterProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: MeterProps = $derived.by(() => {
+    const rawProps: MeterProps = stripSvelteProps(allProps);
+    const result = safeParse(MeterPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as MeterProps;
+  });
+</script>
+
+<div data-slot="meter" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

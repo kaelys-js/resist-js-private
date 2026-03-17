@@ -1,0 +1,44 @@
+<!-- @convert-to-lens -->
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
+
+  export const NotificationCenterPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type NotificationCenterProps = v.InferOutput<typeof NotificationCenterPropsSchema>;
+</script>
+
+<script lang="ts">
+  /**
+   * NotificationCenter — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <NotificationCenter />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = NotificationCenterProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: NotificationCenterProps = $derived.by(() => {
+    const rawProps: NotificationCenterProps = stripSvelteProps(allProps);
+    const result = safeParse(NotificationCenterPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as NotificationCenterProps;
+  });
+</script>
+
+<div data-slot="notification-center" class={cn(validated.class)}>
+  {@render allProps.children?.()}
+</div>

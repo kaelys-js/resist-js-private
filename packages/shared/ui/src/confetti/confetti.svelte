@@ -1,45 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Number of particles @values 0, 50, 100 */
-    particleCount = 50,
-    /** Spread angle @values 0, 60, 120 */
-    spread = 60,
-    /** Burst origin point */
-    origin,
-    /** Particle colors @values string[] */
-    colors,
-    /** Fall speed @values 0, 1, 2 */
-    gravity = 1,
-    /** Effect duration (ms) @values 0, 3000, 6000 */
-    duration = 3000,
-    /** Particle shapes @values string[] */
-    shapes,
-    children,
-  }: {
-    /** Number of particles */
-    particleCount?: Num;
-    /** Spread angle */
-    spread?: Num;
-    /** Burst origin point */
-    origin?: Record<Str, unknown>;
-    /** Particle colors */
-    colors: Str;
-    /** Fall speed */
-    gravity?: Num;
-    /** Effect duration (ms) */
-    duration?: Num;
-    /** Particle shapes */
-    shapes?: Str;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const ConfettiPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type ConfettiProps = v.InferOutput<typeof ConfettiPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Confetti — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Confetti />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = ConfettiProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: ConfettiProps = $derived.by(() => {
+    const rawProps: ConfettiProps = stripSvelteProps(allProps);
+    const result = safeParse(ConfettiPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as ConfettiProps;
+  });
+</script>
+
+<div data-slot="confetti" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

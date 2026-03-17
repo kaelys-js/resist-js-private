@@ -1,1 +1,9 @@
-export { default as DataView } from './data-view.svelte';
+import Root, { type DataViewProps, DataViewPropsSchema } from './DataView.svelte';
+
+export {
+  Root,
+  type DataViewProps,
+  DataViewPropsSchema,
+  //
+  Root as DataView,
+};

@@ -1,1 +1,9 @@
-export { default as NavLink } from './nav-link.svelte';
+import Root, { type NavLinkProps, NavLinkPropsSchema } from './NavLink.svelte';
+
+export {
+  Root,
+  type NavLinkProps,
+  NavLinkPropsSchema,
+  //
+  Root as NavLink,
+};

@@ -1,45 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Navigation items with title, icon, href */
-    items,
-    /** Default icon size @values 0, 40, 80 */
-    iconSize = 40,
-    /** Magnified icon size on hover @values 0, 60, 120 */
-    iconMagnification = 60,
-    /** Magnification trigger distance @values 0, 140, 280 */
-    iconDistance = 140,
-    /** Icon alignment @values 'top', 'middle', 'bottom' */
-    direction = 'middle',
-    /** Dock position @values 'top', 'bottom', 'left', 'right' */
-    position = 'bottom',
-    /** Enable magnification (PrimeReact/PrimeVue) */
-    magnification = true,
-    children,
-  }: {
-    /** Navigation items with title, icon, href */
-    items: Str[];
-    /** Default icon size */
-    iconSize?: Num;
-    /** Magnified icon size on hover */
-    iconMagnification?: Num;
-    /** Magnification trigger distance */
-    iconDistance?: Num;
-    /** Icon alignment */
-    direction?: Str;
-    /** Dock position */
-    position?: Str;
-    /** Enable magnification (PrimeReact/PrimeVue) */
-    magnification?: Bool;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const DockPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type DockProps = v.InferOutput<typeof DockPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Dock — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Dock />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = DockProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: DockProps = $derived.by(() => {
+    const rawProps: DockProps = stripSvelteProps(allProps);
+    const result = safeParse(DockPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as DockProps;
+  });
+</script>
+
+<div data-slot="dock" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

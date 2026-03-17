@@ -1,1 +1,9 @@
-export { default as Stat } from './stat.svelte';
+import Root, { type StatProps, StatPropsSchema } from './Stat.svelte';
+
+export {
+  Root,
+  type StatProps,
+  StatPropsSchema,
+  //
+  Root as Stat,
+};

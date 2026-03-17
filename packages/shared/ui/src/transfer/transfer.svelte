@@ -1,45 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** All available items */
-    dataSource,
-    /** Keys in target list @values string[] */
-    targetKeys,
-    /** Column titles @values string[] */
-    titles,
-    /** Item render function */
-    render,
-    /** Enable search */
-    showSearch = false,
-    /** One-direction only */
-    oneWay = false,
-    /** Pagination config @values boolean, object */
-    pagination,
-    children,
-  }: {
-    /** All available items */
-    dataSource: Str[];
-    /** Keys in target list */
-    targetKeys: Str;
-    /** Column titles */
-    titles: Str;
-    /** Item render function */
-    render: () => void;
-    /** Enable search */
-    showSearch?: Bool;
-    /** One-direction only */
-    oneWay?: Bool;
-    /** Pagination config */
-    pagination: Str;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const TransferPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type TransferProps = v.InferOutput<typeof TransferPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Transfer — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Transfer />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = TransferProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: TransferProps = $derived.by(() => {
+    const rawProps: TransferProps = stripSvelteProps(allProps);
+    const result = safeParse(TransferPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as TransferProps;
+  });
+</script>
+
+<div data-slot="transfer" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

@@ -1,1 +1,9 @@
-export { default as VaulDrawer } from './vaul-drawer.svelte';
+import Root, { type VaulDrawerProps, VaulDrawerPropsSchema } from './VaulDrawer.svelte';
+
+export {
+  Root,
+  type VaulDrawerProps,
+  VaulDrawerPropsSchema,
+  //
+  Root as VaulDrawer,
+};

@@ -143,7 +143,7 @@ export const meta: LensMeta = {
 
 **Rules:**
 - Export a `meta` constant typed as `LensMeta`
-- `category` must be one of: `display`, `form`, `layout`, `lens`, `navigation`, `overlay`, `utility`
+- `category` must be one of the values in `LensCategorySchema` (see table below)
 - `tags` must have at least one entry
 - `description` is a single sentence, no period optional
 
@@ -151,12 +151,36 @@ export const meta: LensMeta = {
 
 | Category | Use for |
 |-----------|---------|
-| `display` | Read-only visual elements (badge, avatar, card, table, chart) |
-| `form` | Interactive input elements (button, input, select, checkbox, slider) |
-| `layout` | Structural containers (sidebar, accordion, tabs, separator, resizable) |
+| `a11y` | Accessibility helpers (focus-trap, screen-reader-only, live-region, skip-nav) |
+| `admin` | Admin dashboards, system management (admin-layout, audit-log, permission-matrix) |
+| `animation` | Animations, transitions, motion effects (animated-beam, aurora-background) |
+| `commerce` | E-commerce, pricing, payments (product-card, shopping-cart, checkout-form) |
+| `content` | Publishing, articles, documents (article-card, markdown-editor, pdf-viewer) |
+| `data-display` | Tables, charts, data visualization (data-table, heatmap, treemap-chart) |
+| `date-time` | Date/time pickers and calendars (date-picker, time-field, calendar) |
+| `desktop` | Desktop app chrome (window, title-bar, system-tray, traffic-lights) |
+| `devtools` | Developer tools (json-viewer, schema-viewer, git-graph, query-editor) |
+| `disclosure` | Expandable/collapsible content (accordion, collapsible) |
+| `display` | Read-only visual elements (badge, avatar, card, stat) |
+| `education` | Learning, courses, quizzes (quiz, flashcard, course-card, grade-book) |
+| `feedback` | Alerts, spinners, progress indicators (alert, spinner, progress) |
+| `finance` | Financial data, transactions (stock-ticker, transaction-list, invoice-table) |
+| `form` | Interactive input elements (button, input, select, checkbox, slider, auth forms) |
+| `gaming` | Game UI, RPG elements (health-bar, leaderboard, achievement-badge, skill-tree) |
+| `healthcare` | Medical, patient data (vital-signs-monitor, patient-card, lab-results) |
+| `iot` | IoT devices, sensors (thermostat-control, device-card, sensor-reading) |
+| `layout` | Structural containers (sidebar, tabs, separator, resizable) |
+| `legal` | Compliance, consent (cookie-consent, privacy-notice, gdpr-banner) |
 | `lens` | Lens system internal components (lens-header, lens-error, lens-props-table) |
+| `maps` | Maps, location, geospatial (map-view, map-marker, location-picker) |
+| `marketing` | Marketing, landing pages (hero-section, testimonial-card, newsletter-signup) |
+| `media` | Images, video, audio players (image, video-player, audio-player) |
+| `mobile` | Mobile-specific patterns (pull-to-refresh, bottom-sheet, swipe-actions) |
 | `navigation` | Navigation elements (breadcrumb, pagination, menubar, app-sidebar) |
 | `overlay` | Floating/modal elements (dialog, tooltip, popover, dropdown-menu, sheet) |
+| `scheduling` | Calendars, booking, events (booking-calendar, scheduler, agenda-view) |
+| `social` | Social features, chat, messaging (comment-thread, like-button, ai-chat) |
+| `typography` | Text-related elements (heading, text, code, blockquote) |
 | `utility` | Functional helpers (mode-toggle, copy-button, language-switcher) |
 
 ### Tags

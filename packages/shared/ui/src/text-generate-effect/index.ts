@@ -1,1 +1,12 @@
-export { default as TextGenerateEffect } from './text-generate-effect.svelte';
+import Root, {
+  type TextGenerateEffectProps,
+  TextGenerateEffectPropsSchema,
+} from './TextGenerateEffect.svelte';
+
+export {
+  Root,
+  type TextGenerateEffectProps,
+  TextGenerateEffectPropsSchema,
+  //
+  Root as TextGenerateEffect,
+};

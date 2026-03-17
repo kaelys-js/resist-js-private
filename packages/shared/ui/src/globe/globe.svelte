@@ -1,53 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Arc definitions (start/end lat/lng, color) */
-    arcs,
-    /** Point markers (lat, lng, label) */
-    markers,
-    /** Auto-rotation */
-    autoRotate = true,
-    /** Rotation speed @values 0, 50, 100 */
-    rotateSpeed = 0.5,
-    /** Globe surface color @values '#1d072e' */
-    globeColor = '#1d072e',
-    /** Arc color @values string, function */
-    arcColor,
-    /** Glow atmosphere */
-    atmosphere = true,
-    /** Canvas width @values 0, 600, 1200 */
-    width = 600,
-    /** Canvas height @values 0, 600, 1200 */
-    height = 600,
-    children,
-  }: {
-    /** Arc definitions (start/end lat/lng, color) */
-    arcs: Str[];
-    /** Point markers (lat, lng, label) */
-    markers: Str[];
-    /** Auto-rotation */
-    autoRotate?: Bool;
-    /** Rotation speed */
-    rotateSpeed?: Num;
-    /** Globe surface color */
-    globeColor?: Str;
-    /** Arc color */
-    arcColor: Str;
-    /** Glow atmosphere */
-    atmosphere?: Bool;
-    /** Canvas width */
-    width?: Num;
-    /** Canvas height */
-    height?: Num;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const GlobePropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type GlobeProps = v.InferOutput<typeof GlobePropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Globe — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Globe />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = GlobeProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: GlobeProps = $derived.by(() => {
+    const rawProps: GlobeProps = stripSvelteProps(allProps);
+    const result = safeParse(GlobePropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as GlobeProps;
+  });
+</script>
+
+<div data-slot="globe" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

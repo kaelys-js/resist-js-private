@@ -1,29 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Position @values 'top', 'bottom' */
-    type = 'top',
-    /** Visibility */
-    open = true,
-    /** Can be dismissed */
-    dismissable = true,
-    children,
-  }: {
-    /** Position */
-    type?: Str;
-    /** Visibility */
-    open?: Bool;
-    /** Can be dismissed */
-    dismissable?: Bool;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const BannerPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type BannerProps = v.InferOutput<typeof BannerPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Banner — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Banner />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = BannerProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: BannerProps = $derived.by(() => {
+    const rawProps: BannerProps = stripSvelteProps(allProps);
+    const result = safeParse(BannerPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as BannerProps;
+  });
+</script>
+
+<div data-slot="banner" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

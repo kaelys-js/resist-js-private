@@ -1,41 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Input value @values value */
-    value,
-    /** Suggestion items */
-    suggestions,
-    /** Display field(s) @values string, string[] */
-    field,
-    /** Trigger character(s) @values string, string[] */
-    trigger = '@',
-    /** Auto-resize textarea */
-    autoResize = false,
-    /** Search debounce delay @values 0, 0, 10 */
-    delay = 0,
-    children,
-  }: {
-    /** Input value */
-    value: Str;
-    /** Suggestion items */
-    suggestions: Str[];
-    /** Display field(s) */
-    field: Str;
-    /** Trigger character(s) */
-    trigger?: Str;
-    /** Auto-resize textarea */
-    autoResize?: Bool;
-    /** Search debounce delay */
-    delay?: Num;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const MentionPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type MentionProps = v.InferOutput<typeof MentionPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Mention — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Mention />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = MentionProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: MentionProps = $derived.by(() => {
+    const rawProps: MentionProps = stripSvelteProps(allProps);
+    const result = safeParse(MentionPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as MentionProps;
+  });
+</script>
+
+<div data-slot="mention" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

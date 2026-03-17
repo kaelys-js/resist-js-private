@@ -1,1 +1,9 @@
-export { default as WavyBackground } from './wavy-background.svelte';
+import Root, { type WavyBackgroundProps, WavyBackgroundPropsSchema } from './WavyBackground.svelte';
+
+export {
+  Root,
+  type WavyBackgroundProps,
+  WavyBackgroundPropsSchema,
+  //
+  Root as WavyBackground,
+};

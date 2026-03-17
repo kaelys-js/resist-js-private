@@ -1,1 +1,9 @@
-export { default as BentoGrid } from './bento-grid.svelte';
+import Root, { type BentoGridProps, BentoGridPropsSchema } from './BentoGrid.svelte';
+
+export {
+  Root,
+  type BentoGridProps,
+  BentoGridPropsSchema,
+  //
+  Root as BentoGrid,
+};

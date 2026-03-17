@@ -1,1 +1,9 @@
-export { default as ThemeIcon } from './theme-icon.svelte';
+import Root, { type ThemeIconProps, ThemeIconPropsSchema } from './ThemeIcon.svelte';
+
+export {
+  Root,
+  type ThemeIconProps,
+  ThemeIconPropsSchema,
+  //
+  Root as ThemeIcon,
+};

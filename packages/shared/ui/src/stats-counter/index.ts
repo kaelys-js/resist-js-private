@@ -1,1 +1,9 @@
-export { default as StatsCounter } from './stats-counter.svelte';
+import Root, { type StatsCounterProps, StatsCounterPropsSchema } from './StatsCounter.svelte';
+
+export {
+  Root,
+  type StatsCounterProps,
+  StatsCounterPropsSchema,
+  //
+  Root as StatsCounter,
+};

@@ -1,1 +1,9 @@
-export { default as Tag } from './tag.svelte';
+import Root, { type TagProps, TagPropsSchema } from './Tag.svelte';
+
+export {
+  Root,
+  type TagProps,
+  TagPropsSchema,
+  //
+  Root as Tag,
+};

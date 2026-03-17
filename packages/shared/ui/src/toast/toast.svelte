@@ -1,45 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Toast title @values title */
-    title,
-    /** Toast message @values description */
-    description,
-    /** Toast type @values 'info', 'success', 'warning', 'error', 'loading' */
-    type = 'info',
-    /** Auto-dismiss time (ms) @values 0, 5000, 10000 */
-    duration = 5000,
-    /** Screen position @values 'bottom-right' */
-    position = 'bottom-right',
-    /** Action button config */
-    action,
-    /** Show close button */
-    closable = true,
-    children,
-  }: {
-    /** Toast title */
-    title: Str;
-    /** Toast message */
-    description: Str;
-    /** Toast type */
-    type?: Str;
-    /** Auto-dismiss time (ms) */
-    duration?: Num;
-    /** Screen position */
-    position?: Str;
-    /** Action button config */
-    action: Record<Str, unknown>;
-    /** Show close button */
-    closable?: Bool;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const ToastPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type ToastProps = v.InferOutput<typeof ToastPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Toast — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Toast />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = ToastProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: ToastProps = $derived.by(() => {
+    const rawProps: ToastProps = stripSvelteProps(allProps);
+    const result = safeParse(ToastPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as ToastProps;
+  });
+</script>
+
+<div data-slot="toast" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

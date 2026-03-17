@@ -1,1 +1,9 @@
-export { default as PageHeader } from './page-header.svelte';
+import Root, { type PageHeaderProps, PageHeaderPropsSchema } from './PageHeader.svelte';
+
+export {
+  Root,
+  type PageHeaderProps,
+  PageHeaderPropsSchema,
+  //
+  Root as PageHeader,
+};

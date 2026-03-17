@@ -1,1 +1,12 @@
-export { default as ColorChannelField } from './color-channel-field.svelte';
+import Root, {
+  type ColorChannelFieldProps,
+  ColorChannelFieldPropsSchema,
+} from './ColorChannelField.svelte';
+
+export {
+  Root,
+  type ColorChannelFieldProps,
+  ColorChannelFieldPropsSchema,
+  //
+  Root as ColorChannelField,
+};

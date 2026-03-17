@@ -1,57 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Control visibility */
-    show,
-    /** Enter transition classes @values enter */
-    enter,
-    /** Enter start state @values enterFrom */
-    enterFrom,
-    /** Enter end state @values enterTo */
-    enterTo,
-    /** Leave transition classes @values leave */
-    leave,
-    /** Leave start state @values leaveFrom */
-    leaveFrom,
-    /** Leave end state @values leaveTo */
-    leaveTo,
-    /** Duration (ms) @values number, object */
-    duration = 300,
-    /** Named transition preset @values name */
-    name,
-    /** Animate on initial mount */
-    appear = false,
-    children,
-  }: {
-    /** Control visibility */
-    show: Bool;
-    /** Enter transition classes */
-    enter: Str;
-    /** Enter start state */
-    enterFrom: Str;
-    /** Enter end state */
-    enterTo: Str;
-    /** Leave transition classes */
-    leave: Str;
-    /** Leave start state */
-    leaveFrom: Str;
-    /** Leave end state */
-    leaveTo: Str;
-    /** Duration (ms) */
-    duration?: Num;
-    /** Named transition preset */
-    name: Str;
-    /** Animate on initial mount */
-    appear?: Bool;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const TransitionPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type TransitionProps = v.InferOutput<typeof TransitionPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Transition — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Transition />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = TransitionProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: TransitionProps = $derived.by(() => {
+    const rawProps: TransitionProps = stripSvelteProps(allProps);
+    const result = safeParse(TransitionPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as TransitionProps;
+  });
+</script>
+
+<div data-slot="transition" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

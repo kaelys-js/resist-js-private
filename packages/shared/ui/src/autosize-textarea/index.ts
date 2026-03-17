@@ -1,1 +1,12 @@
-export { default as AutosizeTextarea } from './autosize-textarea.svelte';
+import Root, {
+  type AutosizeTextareaProps,
+  AutosizeTextareaPropsSchema,
+} from './AutosizeTextarea.svelte';
+
+export {
+  Root,
+  type AutosizeTextareaProps,
+  AutosizeTextareaPropsSchema,
+  //
+  Root as AutosizeTextarea,
+};

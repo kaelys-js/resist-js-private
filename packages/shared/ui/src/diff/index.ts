@@ -1,1 +1,9 @@
-export { default as Diff } from './diff.svelte';
+import Root, { type DiffProps, DiffPropsSchema } from './Diff.svelte';
+
+export {
+  Root,
+  type DiffProps,
+  DiffPropsSchema,
+  //
+  Root as Diff,
+};

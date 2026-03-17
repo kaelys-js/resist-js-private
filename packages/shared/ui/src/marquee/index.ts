@@ -1,1 +1,9 @@
-export { default as Marquee } from './marquee.svelte';
+import Root, { type MarqueeProps, MarqueePropsSchema } from './Marquee.svelte';
+
+export {
+  Root,
+  type MarqueeProps,
+  MarqueePropsSchema,
+  //
+  Root as Marquee,
+};

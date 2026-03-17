@@ -1,1 +1,12 @@
-export { default as ExitIntentPopup } from './exit-intent-popup.svelte';
+import Root, {
+  type ExitIntentPopupProps,
+  ExitIntentPopupPropsSchema,
+} from './ExitIntentPopup.svelte';
+
+export {
+  Root,
+  type ExitIntentPopupProps,
+  ExitIntentPopupPropsSchema,
+  //
+  Root as ExitIntentPopup,
+};

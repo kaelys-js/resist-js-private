@@ -1,37 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Stack direction @values 'row', 'column' */
-    direction = 'column',
-    /** Gap between children @values number, string */
-    spacing = 'md',
-    /** Cross-axis alignment @values 'stretch' */
-    align = 'stretch',
-    /** Main-axis alignment @values 'flex-start' */
-    justify = 'flex-start',
-    /** Allow wrapping */
-    wrap = false,
-    children,
-  }: {
-    /** Stack direction */
-    direction?: Str;
-    /** Gap between children */
-    spacing?: Str;
-    /** Cross-axis alignment */
-    align?: Str;
-    /** Main-axis alignment */
-    justify?: Str;
-    /** Allow wrapping */
-    wrap?: Bool;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const StackPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type StackProps = v.InferOutput<typeof StackPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Stack — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Stack />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = StackProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: StackProps = $derived.by(() => {
+    const rawProps: StackProps = stripSvelteProps(allProps);
+    const result = safeParse(StackPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as StackProps;
+  });
+</script>
+
+<div data-slot="stack" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

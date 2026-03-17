@@ -1,65 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Current value @values 0, 50, 100 */
-    value,
-    /** Minimum value @values 0, 0, 10 */
-    min = 0,
-    /** Maximum value @values 0, 100, 200 */
-    max = 100,
-    /** Step increment @values 0, 1, 2 */
-    step = 1,
-    /** Knob diameter in pixels @values 0, 100, 200 */
-    size = 100,
-    /** Track stroke width @values 0, 14, 28 */
-    strokeWidth = 14,
-    /** Display format template @values valueTemplate */
-    valueTemplate,
-    /** Value arc color @values valueColor */
-    valueColor,
-    /** Background arc color @values rangeColor */
-    rangeColor,
-    /** Display numeric value */
-    showValue = true,
-    /** Disabled state */
-    disabled = false,
-    /** Read-only state */
-    readOnly = false,
-    children,
-  }: {
-    /** Current value */
-    value: Num;
-    /** Minimum value */
-    min?: Num;
-    /** Maximum value */
-    max?: Num;
-    /** Step increment */
-    step?: Num;
-    /** Knob diameter in pixels */
-    size?: Num;
-    /** Track stroke width */
-    strokeWidth?: Num;
-    /** Display format template */
-    valueTemplate: Str;
-    /** Value arc color */
-    valueColor: Str;
-    /** Background arc color */
-    rangeColor: Str;
-    /** Display numeric value */
-    showValue?: Bool;
-    /** Disabled state */
-    disabled?: Bool;
-    /** Read-only state */
-    readOnly?: Bool;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const KnobPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type KnobProps = v.InferOutput<typeof KnobPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Knob — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Knob />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = KnobProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: KnobProps = $derived.by(() => {
+    const rawProps: KnobProps = stripSvelteProps(allProps);
+    const result = safeParse(KnobPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as KnobProps;
+  });
+</script>
+
+<div data-slot="knob" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

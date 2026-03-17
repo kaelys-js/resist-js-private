@@ -1,1 +1,9 @@
-export { default as InputValidator } from './input-validator.svelte';
+import Root, { type InputValidatorProps, InputValidatorPropsSchema } from './InputValidator.svelte';
+
+export {
+  Root,
+  type InputValidatorProps,
+  InputValidatorPropsSchema,
+  //
+  Root as InputValidator,
+};

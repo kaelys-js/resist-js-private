@@ -1,1 +1,9 @@
-export { default as Timeline } from './timeline.svelte';
+import Root, { type TimelineProps, TimelinePropsSchema } from './Timeline.svelte';
+
+export {
+  Root,
+  type TimelineProps,
+  TimelinePropsSchema,
+  //
+  Root as Timeline,
+};

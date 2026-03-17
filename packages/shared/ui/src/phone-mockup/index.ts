@@ -1,1 +1,9 @@
-export { default as PhoneMockup } from './phone-mockup.svelte';
+import Root, { type PhoneMockupProps, PhoneMockupPropsSchema } from './PhoneMockup.svelte';
+
+export {
+  Root,
+  type PhoneMockupProps,
+  PhoneMockupPropsSchema,
+  //
+  Root as PhoneMockup,
+};

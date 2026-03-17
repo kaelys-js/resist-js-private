@@ -1,1 +1,12 @@
-export { default as DateRangePicker } from './date-range-picker.svelte';
+import Root, {
+  type DateRangePickerProps,
+  DateRangePickerPropsSchema,
+} from './DateRangePicker.svelte';
+
+export {
+  Root,
+  type DateRangePickerProps,
+  DateRangePickerPropsSchema,
+  //
+  Root as DateRangePicker,
+};

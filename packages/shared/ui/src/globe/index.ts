@@ -1,1 +1,9 @@
-export { default as Globe } from './globe.svelte';
+import Root, { type GlobeProps, GlobePropsSchema } from './Globe.svelte';
+
+export {
+  Root,
+  type GlobeProps,
+  GlobePropsSchema,
+  //
+  Root as Globe,
+};

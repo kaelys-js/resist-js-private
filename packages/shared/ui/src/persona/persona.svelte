@@ -1,49 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Primary name @values name */
-    name,
-    /** Secondary text (title/role) @values secondaryText */
-    secondaryText,
-    /** Third line of text @values tertiaryText */
-    tertiaryText,
-    /** Fourth line of text @values quaternaryText */
-    quaternaryText,
-    /** Avatar size @values 0, 50, 100 */
-    size,
-    /** Text placement @values 'before', 'after', 'below' */
-    textPosition = 'after',
-    /** Avatar configuration @values slot */
-    avatar,
-    /** Presence indicator @values slot */
-    presence,
-    children,
-  }: {
-    /** Primary name */
-    name: Str;
-    /** Secondary text (title/role) */
-    secondaryText: Str;
-    /** Third line of text */
-    tertiaryText: Str;
-    /** Fourth line of text */
-    quaternaryText: Str;
-    /** Avatar size */
-    size: Num;
-    /** Text placement */
-    textPosition?: Str;
-    /** Avatar configuration */
-    avatar: Str;
-    /** Presence indicator */
-    presence: Str;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const PersonaPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type PersonaProps = v.InferOutput<typeof PersonaPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Persona — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Persona />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = PersonaProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: PersonaProps = $derived.by(() => {
+    const rawProps: PersonaProps = stripSvelteProps(allProps);
+    const result = safeParse(PersonaPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as PersonaProps;
+  });
+</script>
+
+<div data-slot="persona" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

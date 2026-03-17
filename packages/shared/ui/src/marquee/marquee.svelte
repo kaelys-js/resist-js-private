@@ -1,49 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Scroll speed @values 0, 50, 100 */
-    speed,
-    /** Scroll direction @values 'left', 'right', 'up', 'down' */
-    direction = 'left',
-    /** Pause animation on hover */
-    pauseOnHover = false,
-    /** Reverse scroll direction */
-    reverse = false,
-    /** Vertical scrolling */
-    vertical = false,
-    /** Content repetitions @values 0, 50, 100 */
-    repeat,
-    /** Auto-fill to cover container */
-    autoFill = false,
-    /** Gap between repeated items @values 0, 50, 100 */
-    gap,
-    children,
-  }: {
-    /** Scroll speed */
-    speed: Num;
-    /** Scroll direction */
-    direction?: Str;
-    /** Pause animation on hover */
-    pauseOnHover?: Bool;
-    /** Reverse scroll direction */
-    reverse?: Bool;
-    /** Vertical scrolling */
-    vertical?: Bool;
-    /** Content repetitions */
-    repeat: Num;
-    /** Auto-fill to cover container */
-    autoFill?: Bool;
-    /** Gap between repeated items */
-    gap: Num;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const MarqueePropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type MarqueeProps = v.InferOutput<typeof MarqueePropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Marquee — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Marquee />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = MarqueeProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: MarqueeProps = $derived.by(() => {
+    const rawProps: MarqueeProps = stripSvelteProps(allProps);
+    const result = safeParse(MarqueePropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as MarqueeProps;
+  });
+</script>
+
+<div data-slot="marquee" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

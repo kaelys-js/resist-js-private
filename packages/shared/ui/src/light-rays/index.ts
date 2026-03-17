@@ -1,1 +1,9 @@
-export { default as LightRays } from './light-rays.svelte';
+import Root, { type LightRaysProps, LightRaysPropsSchema } from './LightRays.svelte';
+
+export {
+  Root,
+  type LightRaysProps,
+  LightRaysPropsSchema,
+  //
+  Root as LightRays,
+};

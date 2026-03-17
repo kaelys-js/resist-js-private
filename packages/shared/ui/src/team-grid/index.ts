@@ -1,1 +1,9 @@
-export { default as TeamGrid } from './team-grid.svelte';
+import Root, { type TeamGridProps, TeamGridPropsSchema } from './TeamGrid.svelte';
+
+export {
+  Root,
+  type TeamGridProps,
+  TeamGridPropsSchema,
+  //
+  Root as TeamGrid,
+};

@@ -1,49 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Hierarchical options data */
-    options,
-    /** Selected path @values string[] */
-    value,
-    /** Placeholder text @values placeholder */
-    placeholder,
-    /** Multiple selection */
-    multiple = false,
-    /** Enable search filtering */
-    showSearch = false,
-    /** Async child loading */
-    loadData,
-    /** Allow partial path selection */
-    changeOnSelect = false,
-    /** Expand trigger @values 'click', 'hover' */
-    expandTrigger = 'click',
-    children,
-  }: {
-    /** Hierarchical options data */
-    options: Str[];
-    /** Selected path */
-    value: Str;
-    /** Placeholder text */
-    placeholder: Str;
-    /** Multiple selection */
-    multiple?: Bool;
-    /** Enable search filtering */
-    showSearch?: Bool;
-    /** Async child loading */
-    loadData: () => void;
-    /** Allow partial path selection */
-    changeOnSelect?: Bool;
-    /** Expand trigger */
-    expandTrigger?: Str;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const CascaderPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type CascaderProps = v.InferOutput<typeof CascaderPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Cascader — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Cascader />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = CascaderProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: CascaderProps = $derived.by(() => {
+    const rawProps: CascaderProps = stripSvelteProps(allProps);
+    const result = safeParse(CascaderPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as CascaderProps;
+  });
+</script>
+
+<div data-slot="cascader" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

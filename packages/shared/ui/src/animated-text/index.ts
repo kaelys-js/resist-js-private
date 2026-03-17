@@ -1,1 +1,9 @@
-export { default as AnimatedText } from './animated-text.svelte';
+import Root, { type AnimatedTextProps, AnimatedTextPropsSchema } from './AnimatedText.svelte';
+
+export {
+  Root,
+  type AnimatedTextProps,
+  AnimatedTextPropsSchema,
+  //
+  Root as AnimatedText,
+};

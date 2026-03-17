@@ -1,1 +1,9 @@
-export { default as Transfer } from './transfer.svelte';
+import Root, { type TransferProps, TransferPropsSchema } from './Transfer.svelte';
+
+export {
+  Root,
+  type TransferProps,
+  TransferPropsSchema,
+  //
+  Root as Transfer,
+};

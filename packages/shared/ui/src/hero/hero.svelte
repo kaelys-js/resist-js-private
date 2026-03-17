@@ -1,45 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Main headline @values string, element */
-    title,
-    /** Supporting text @values description */
-    description,
-    /** Hero image URL @values image */
-    image,
-    /** Image overlay */
-    overlay = false,
-    /** Center-aligned content */
-    centered = false,
-    /** Full viewport height */
-    fullHeight = false,
-    /** Layout variant @values 'default' */
-    variant = 'default',
-    children,
-  }: {
-    /** Main headline */
-    title: Str;
-    /** Supporting text */
-    description: Str;
-    /** Hero image URL */
-    image: Str;
-    /** Image overlay */
-    overlay?: Bool;
-    /** Center-aligned content */
-    centered?: Bool;
-    /** Full viewport height */
-    fullHeight?: Bool;
-    /** Layout variant */
-    variant?: Str;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const HeroPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type HeroProps = v.InferOutput<typeof HeroPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Hero — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Hero />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = HeroProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: HeroProps = $derived.by(() => {
+    const rawProps: HeroProps = stripSvelteProps(allProps);
+    const result = safeParse(HeroPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as HeroProps;
+  });
+</script>
+
+<div data-slot="hero" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

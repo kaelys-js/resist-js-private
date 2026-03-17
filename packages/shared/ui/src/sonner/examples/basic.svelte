@@ -1,7 +1,7 @@
 <script lang="ts">
   import { toast } from 'svelte-sonner';
   import Button from '@/ui/button/button.svelte';
-  import Sonner from '@/ui/sonner/sonner.svelte';
+  import Sonner from '@/ui/sonner/Sonner.svelte';
 </script>
 
 <div class="flex flex-wrap gap-2">

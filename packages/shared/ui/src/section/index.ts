@@ -1,1 +1,9 @@
-export { default as Section } from './section.svelte';
+import Root, { type SectionProps, SectionPropsSchema } from './Section.svelte';
+
+export {
+  Root,
+  type SectionProps,
+  SectionPropsSchema,
+  //
+  Root as Section,
+};

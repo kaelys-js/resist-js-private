@@ -1,25 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Num } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Current countdown value (0-999) @values 0, 50, 100 */
-    value,
-    /** Minimum digits to display @values 0, 50, 100 */
-    digits,
-    children,
-  }: {
-    /** Current countdown value (0-999) */
-    value: Num;
-    /** Minimum digits to display */
-    digits: Num;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const CountdownPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type CountdownProps = v.InferOutput<typeof CountdownPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Countdown — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Countdown />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = CountdownProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: CountdownProps = $derived.by(() => {
+    const rawProps: CountdownProps = stripSvelteProps(allProps);
+    const result = safeParse(CountdownPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as CountdownProps;
+  });
+</script>
+
+<div data-slot="countdown" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

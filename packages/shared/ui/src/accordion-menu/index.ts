@@ -1,1 +1,9 @@
-export { default as AccordionMenu } from './accordion-menu.svelte';
+import Root, { type AccordionMenuProps, AccordionMenuPropsSchema } from './AccordionMenu.svelte';
+
+export {
+  Root,
+  type AccordionMenuProps,
+  AccordionMenuPropsSchema,
+  //
+  Root as AccordionMenu,
+};

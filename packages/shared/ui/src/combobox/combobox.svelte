@@ -1,77 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Selected value(s) @values string, string[] */
-    value,
-    /** Initial selected value(s) @values string, string[] */
-    defaultValue,
-    /** Current search text @values inputValue */
-    inputValue,
-    /** Item collection (Ark UI) @values ListCollection<T> */
-    collection,
-    /** Allow multiple selections */
-    multiple = false,
-    /** Allow typing custom values */
-    allowCustomValue = false,
-    /** Open dropdown on input click */
-    openOnClick = false,
-    /** Open dropdown on input change */
-    openOnChange = true,
-    /** Auto-completion mode @values 'none', 'autohighlight', 'autocomplete' */
-    inputBehavior = 'none',
-    /** Input behavior after selection @values 'clear', 'replace', 'preserve' */
-    selectionBehavior = 'replace',
-    /** Close after selecting */
-    closeOnSelect,
-    /** Loop keyboard navigation */
-    loopFocus = true,
-    /** Disabled state */
-    disabled = false,
-    /** Placeholder text @values placeholder */
-    placeholder,
-    /** Custom filter function (Melt UI) */
-    filterFunction,
-    children,
-  }: {
-    /** Selected value(s) */
-    value: Str;
-    /** Initial selected value(s) */
-    defaultValue: Str;
-    /** Current search text */
-    inputValue: Str;
-    /** Item collection (Ark UI) */
-    collection: Str;
-    /** Allow multiple selections */
-    multiple?: Bool;
-    /** Allow typing custom values */
-    allowCustomValue?: Bool;
-    /** Open dropdown on input click */
-    openOnClick?: Bool;
-    /** Open dropdown on input change */
-    openOnChange?: Bool;
-    /** Auto-completion mode */
-    inputBehavior?: Str;
-    /** Input behavior after selection */
-    selectionBehavior?: Str;
-    /** Close after selecting */
-    closeOnSelect: Bool;
-    /** Loop keyboard navigation */
-    loopFocus?: Bool;
-    /** Disabled state */
-    disabled?: Bool;
-    /** Placeholder text */
-    placeholder: Str;
-    /** Custom filter function (Melt UI) */
-    filterFunction: () => void;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const ComboboxPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type ComboboxProps = v.InferOutput<typeof ComboboxPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Combobox — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Combobox />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = ComboboxProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: ComboboxProps = $derived.by(() => {
+    const rawProps: ComboboxProps = stripSvelteProps(allProps);
+    const result = safeParse(ComboboxPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as ComboboxProps;
+  });
+</script>
+
+<div data-slot="combobox" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

@@ -1,1 +1,9 @@
-export { default as BottomSheet } from './bottom-sheet.svelte';
+import Root, { type BottomSheetProps, BottomSheetPropsSchema } from './BottomSheet.svelte';
+
+export {
+  Root,
+  type BottomSheetProps,
+  BottomSheetPropsSchema,
+  //
+  Root as BottomSheet,
+};

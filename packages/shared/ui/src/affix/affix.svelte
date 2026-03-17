@@ -1,37 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Fixed position coordinates */
-    position,
-    /** Scroll container @values element, string */
-    target,
-    /** Offset from top to trigger @values 0, 50, 100 */
-    offsetTop,
-    /** Offset from bottom to trigger @values 0, 50, 100 */
-    offsetBottom,
-    /** Stack order @values 0, 50, 100 */
-    zIndex,
-    children,
-  }: {
-    /** Fixed position coordinates */
-    position?: Record<Str, unknown>;
-    /** Scroll container */
-    target?: Str;
-    /** Offset from top to trigger */
-    offsetTop: Num;
-    /** Offset from bottom to trigger */
-    offsetBottom: Num;
-    /** Stack order */
-    zIndex: Num;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const AffixPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type AffixProps = v.InferOutput<typeof AffixPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Affix — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Affix />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = AffixProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: AffixProps = $derived.by(() => {
+    const rawProps: AffixProps = stripSvelteProps(allProps);
+    const result = safeParse(AffixPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as AffixProps;
+  });
+</script>
+
+<div data-slot="affix" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

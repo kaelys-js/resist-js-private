@@ -1,1 +1,9 @@
-export { default as TagsInput } from './tags-input.svelte';
+import Root, { type TagsInputProps, TagsInputPropsSchema } from './TagsInput.svelte';
+
+export {
+  Root,
+  type TagsInputProps,
+  TagsInputPropsSchema,
+  //
+  Root as TagsInput,
+};
