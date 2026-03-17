@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'overlay',
-  tags: ['toast', 'notification', 'sonner', 'snackbar'],
+  tags: ['toast', 'notification', 'snackbar', 'non-blocking'],
   description: 'Toast notification system for brief, non-intrusive messages.',
 };
 

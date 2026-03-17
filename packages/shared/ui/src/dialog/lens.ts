@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'overlay',
-  tags: ['shadcn', 'compound'],
+  tags: ['dialog', 'modal', 'popup', 'window', 'compound'],
   description: 'Modal dialog window with backdrop overlay.',
 };
 

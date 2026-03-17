@@ -1,8 +1,8 @@
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
-  category: 'display',
-  tags: ['shadcn', 'compound'],
+  category: 'data-display',
+  tags: ['table', 'data', 'rows', 'columns', 'compound'],
   description: 'Data table with header, body, and optional footer.',
 };
 

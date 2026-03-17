@@ -1,8 +1,8 @@
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
-  category: 'display',
-  tags: ['shadcn'],
+  category: 'feedback',
+  tags: ['skeleton', 'loading', 'placeholder', 'shimmer'],
   description: 'Placeholder loading skeleton.',
 };
 

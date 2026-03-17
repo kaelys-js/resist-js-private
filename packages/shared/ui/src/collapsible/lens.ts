@@ -1,8 +1,8 @@
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
-  category: 'layout',
-  tags: ['shadcn', 'compound'],
+  category: 'disclosure',
+  tags: ['collapsible', 'expand', 'toggle', 'disclosure', 'compound'],
   description: 'Expandable and collapsible content section.',
 };
 

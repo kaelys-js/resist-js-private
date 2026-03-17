@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'overlay',
-  tags: ['shadcn', 'compound'],
+  tags: ['command', 'palette', 'search', 'keyboard', 'compound'],
   description: 'Command palette with search and keyboard navigation.',
 };
 

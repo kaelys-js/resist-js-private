@@ -21,14 +21,16 @@
   import * as Tooltip from '@/ui/tooltip/index.js';
   import { cn } from '@/ui/utils.js';
   import { getContext, type Component } from 'svelte';
+  import {
+    CATEGORY_ORDER,
+    CATEGORY_ICONS,
+    CATEGORY_COLORS,
+    CATEGORY_DESCRIPTIONS,
+    CATEGORY_BG_HOVER,
+    categoryLabel as catLabel,
+  } from '$lib/config/lens-categories';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
   import SearchIcon from '@lucide/svelte/icons/search';
-  import TextCursorInput from '@lucide/svelte/icons/text-cursor-input';
-  import Layers2 from '@lucide/svelte/icons/layers-2';
-  import Compass from '@lucide/svelte/icons/compass';
-  import Eye from '@lucide/svelte/icons/eye';
-  import Wrench from '@lucide/svelte/icons/wrench';
-  import Microscope from '@lucide/svelte/icons/microscope';
   import Palette from '@lucide/svelte/icons/palette';
   import ComponentIcon from '@lucide/svelte/icons/component';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
@@ -89,74 +91,17 @@
     }
   }
 
-  /** Category ordering and grouping. */
-  const categoryOrder: Str[] = [
-    'form',
-    'layout',
-    'overlay',
-    'navigation',
-    'display',
-    'utility',
-    'lens',
-  ];
-
   /** Components grouped by category. */
-  const groupedComponents: CategoryGroup[] = categoryOrder
-    .map(
-      (cat: Str): CategoryGroup => ({
-        name: cat,
-        label: cat.charAt(0).toUpperCase() + cat.slice(1),
-        components: componentNames.filter((n: Str): boolean => {
-          const m: LensMeta | undefined = metaByName.get(n);
-          return (m?.category ?? 'display') === cat;
-        }),
+  const groupedComponents: CategoryGroup[] = CATEGORY_ORDER.map(
+    (cat: Str): CategoryGroup => ({
+      name: cat,
+      label: catLabel(cat),
+      components: componentNames.filter((n: Str): boolean => {
+        const m: LensMeta | undefined = metaByName.get(n);
+        return (m?.category ?? 'display') === cat;
       }),
-    )
-    .filter((g: CategoryGroup): boolean => g.components.length > 0);
-
-  /** Category icon mapping. */
-  const CATEGORY_ICONS: Record<Str, Component> = {
-    form: TextCursorInput,
-    layout: LayoutGrid,
-    overlay: Layers2,
-    navigation: Compass,
-    display: Eye,
-    utility: Wrench,
-    lens: Microscope,
-  };
-
-  /** Category color mapping. */
-  const CATEGORY_COLORS: Record<Str, Str> = {
-    form: 'text-blue-600 dark:text-blue-400' as Str,
-    layout: 'text-purple-600 dark:text-purple-400' as Str,
-    overlay: 'text-amber-600 dark:text-amber-400' as Str,
-    navigation: 'text-emerald-600 dark:text-emerald-400' as Str,
-    display: 'text-rose-600 dark:text-rose-400' as Str,
-    utility: 'text-slate-600 dark:text-slate-400' as Str,
-    lens: 'text-primary' as Str,
-  };
-
-  /** Category descriptions. */
-  const CATEGORY_DESCRIPTIONS: Record<Str, Str> = {
-    form: 'Input controls, selectors, and form elements' as Str,
-    layout: 'Structural components for page and content layout' as Str,
-    overlay: 'Modals, dialogs, popovers, and floating UI' as Str,
-    navigation: 'Menus, breadcrumbs, tabs, and wayfinding' as Str,
-    display: 'Visual content presentation and data display' as Str,
-    utility: 'Utility primitives and helper components' as Str,
-    lens: 'Lens documentation system components' as Str,
-  };
-
-  /** Category background color mapping for card hover states. */
-  const CATEGORY_BG: Record<Str, Str> = {
-    form: 'hover:border-blue-500/30 dark:hover:border-blue-400/30' as Str,
-    layout: 'hover:border-purple-500/30 dark:hover:border-purple-400/30' as Str,
-    overlay: 'hover:border-amber-500/30 dark:hover:border-amber-400/30' as Str,
-    navigation: 'hover:border-emerald-500/30 dark:hover:border-emerald-400/30' as Str,
-    display: 'hover:border-rose-500/30 dark:hover:border-rose-400/30' as Str,
-    utility: 'hover:border-slate-500/30 dark:hover:border-slate-400/30' as Str,
-    lens: 'hover:border-primary/30' as Str,
-  };
+    }),
+  ).filter((g: CategoryGroup): boolean => g.components.length > 0);
 
   /** Total design token count (sum across all theme sets). */
   const tokenCount: Num = (() => {
@@ -446,9 +391,9 @@
           </p>
           <div class="mt-2.5 flex flex-wrap gap-1">
             {#each incompatibleComponents.slice(0, 12) as entry (entry.name)}
-              {@const failCount = entry.compat.violations.length}
-              {@const passCount = lensRuleNames.length - failCount}
               {@const failedRules = new Set(entry.compat.violations.map((vi) => vi.rule as number))}
+              {@const failCount = failedRules.size}
+              {@const passCount = lensRuleNames.length - failCount}
               <Tooltip.Root delayDuration={300}>
                 <Tooltip.Trigger>
                   {#snippet child({ props: compTip })}
@@ -478,8 +423,8 @@
                       <li class="flex items-start gap-1 text-[10px]">
                         <span
                           class="mt-px shrink-0 font-bold leading-none {failed
-                            ? 'text-red-300'
-                            : 'text-emerald-300'}">{failed ? '✗' : '✓'}</span
+                            ? 'opacity-60'
+                            : 'opacity-40'}">{failed ? '✗' : '✓'}</span
                         >
                         <span
                           ><span class="font-mono opacity-60">R{ruleIdx}</span>
@@ -647,7 +592,7 @@
         {#each groupedComponents as group (group.name)}
           {@const CatIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
           {@const catColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
-          {@const catBg = CATEGORY_BG[group.name] ?? ('hover:border-border' as Str)}
+          {@const catBg = CATEGORY_BG_HOVER[group.name] ?? ('hover:border-border' as Str)}
           {@const catDesc = CATEGORY_DESCRIPTIONS[group.name] ?? ('' as Str)}
           <div
             class={cn('flex flex-col gap-3 rounded-lg border bg-card p-4 transition-all', catBg)}

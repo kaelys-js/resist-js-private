@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'layout',
-  tags: ['shadcn', 'compound'],
+  tags: ['resizable', 'panel', 'split', 'drag', 'compound'],
   description: 'Resizable panel layout with drag handles.',
 };
 

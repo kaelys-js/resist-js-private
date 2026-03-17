@@ -1,8 +1,8 @@
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
-  category: 'display',
-  tags: ['animated'],
+  category: 'animation',
+  tags: ['fade-in', 'entrance', 'page-transition', 'mount'],
   description: 'Page-level fade-in entrance animation.',
 };
 

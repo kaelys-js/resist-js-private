@@ -2,6 +2,6 @@ import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'form',
-  tags: ['color', 'picker', 'input', 'hex'],
+  tags: ['color', 'picker', 'input', 'hex', 'swatch'],
   description: 'Compact color picker with hex text input and native color swatch.',
 };

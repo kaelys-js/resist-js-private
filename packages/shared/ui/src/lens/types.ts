@@ -142,12 +142,19 @@ export type LensExample = v.InferOutput<typeof LensExampleSchema>;
  * Component category for sidebar grouping and filtering.
  */
 export const LensCategorySchema = v.picklist([
+  'animation',
+  'data-display',
+  'date-time',
+  'disclosure',
   'display',
+  'feedback',
   'form',
   'layout',
   'lens',
+  'media',
   'navigation',
   'overlay',
+  'typography',
   'utility',
 ]);
 export type LensCategory = v.InferOutput<typeof LensCategorySchema>;

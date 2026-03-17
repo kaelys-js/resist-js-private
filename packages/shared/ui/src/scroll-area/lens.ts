@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'layout',
-  tags: ['shadcn', 'compound'],
+  tags: ['scroll', 'scrollbar', 'overflow', 'container', 'compound'],
   description: 'Custom scrollbar container for overflow content.',
 };
 

@@ -2,6 +2,6 @@ import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'navigation',
-  tags: ['app-specific'],
+  tags: ['project', 'switcher', 'navigation', 'workspace'],
   description: 'Project switcher navigation section.',
 };

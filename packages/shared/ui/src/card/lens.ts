@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'layout',
-  tags: ['shadcn', 'compound'],
+  tags: ['card', 'container', 'content', 'surface', 'compound'],
   description: 'Content card container with header, content, and footer.',
 };
 

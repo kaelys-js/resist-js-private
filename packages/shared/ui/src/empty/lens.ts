@@ -1,7 +1,7 @@
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
-  category: 'display',
+  category: 'feedback',
   tags: ['empty', 'placeholder', 'no-data', 'illustration', 'tv-variant'],
   description: 'Empty state placeholder with optional illustration, title, and description.',
 };

@@ -3,7 +3,7 @@ import LensWrapper from './LensWrapper.svelte';
 
 export const meta: LensMeta = {
   category: 'utility',
-  tags: ['i18n'],
+  tags: ['i18n', 'locale', 'language', 'internationalization'],
   description: 'Language selection dropdown for internationalization.',
 };
 
