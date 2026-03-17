@@ -1595,7 +1595,7 @@
         <Badge
           variant="secondary"
           class="h-5 rounded-full px-1.5 text-[10px] leading-none tabular-nums"
-          >{componentNames.length}</Badge
+          >{componentNames.length.toLocaleString()}</Badge
         >
         <div class="ml-auto">
           <DropdownMenu.Root>
@@ -2241,6 +2241,59 @@
           </Collapsible.Content>
         </Sidebar.Group>
       </Collapsible.Root>
+      <!-- Browse: All Components, Categories, Tags -->
+      <Sidebar.Group class="py-0">
+        <Sidebar.Menu>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/components/all'}>
+              {#snippet child({ props })}
+                <a href="/components/all" {...props}>
+                  <ComponentIcon class="size-4" />
+                  <span>All Components</span>
+                  <Badge
+                    variant="secondary"
+                    class="ml-auto h-5 rounded px-1.5 text-[11px] leading-none tabular-nums"
+                    >{componentNames.length.toLocaleString()}</Badge
+                  >
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/components/category'}>
+              {#snippet child({ props })}
+                <a href="/components/category" {...props}>
+                  <LayoutGrid class="size-4" />
+                  <span>Categories</span>
+                  <Badge
+                    variant="secondary"
+                    class="ml-auto h-5 rounded px-1.5 text-[11px] leading-none tabular-nums"
+                    >{groupedComponents.length.toLocaleString()}</Badge
+                  >
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/components/tags'}>
+              {#snippet child({ props })}
+                <a href="/components/tags" {...props}>
+                  <Tag class="size-4" />
+                  <span>Tags</span>
+                  {#if allUniqueTags.length > 0}
+                    <Badge
+                      variant="secondary"
+                      class="ml-auto h-5 rounded px-1.5 text-[11px] leading-none tabular-nums"
+                      >{allUniqueTags.length.toLocaleString()}</Badge
+                    >
+                  {/if}
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+        </Sidebar.Menu>
+      </Sidebar.Group>
+
       <!-- Reference: Design Tokens, Icons, What's New -->
       <Sidebar.Group class="py-0">
         <Sidebar.Menu>
@@ -2254,7 +2307,7 @@
                     <Badge
                       variant="secondary"
                       class="ml-auto h-5 rounded px-1.5 text-[11px] leading-none tabular-nums"
-                      >{tokenCount}</Badge
+                      >{tokenCount.toLocaleString()}</Badge
                     >
                   {/if}
                 </a>
@@ -2352,6 +2405,12 @@
                   {@const bcShowOverview = bcQuery.length === 0 || 'overview'.includes(bcQuery)}
                   {@const bcShowGettingStarted =
                     bcQuery.length === 0 || 'getting started'.includes(bcQuery)}
+                  {@const bcShowAllComponents =
+                    bcQuery.length === 0 ||
+                    'all components'.includes(bcQuery) ||
+                    'components list'.includes(bcQuery)}
+                  {@const bcShowCategories = bcQuery.length === 0 || 'categories'.includes(bcQuery)}
+                  {@const bcShowTags = bcQuery.length === 0 || 'tags'.includes(bcQuery)}
                   {@const bcShowTokens = bcQuery.length === 0 || 'design tokens'.includes(bcQuery)}
                   {@const bcShowIcons = bcQuery.length === 0 || 'icons'.includes(bcQuery)}
                   {@const bcShowWhatsNew =
@@ -2362,6 +2421,9 @@
                     bcShowOverview ||
                     bcShowGettingStarted ||
                     bcFilteredGroups.length > 0 ||
+                    bcShowAllComponents ||
+                    bcShowCategories ||
+                    bcShowTags ||
                     bcShowTokens ||
                     bcShowIcons ||
                     bcShowWhatsNew}
@@ -2428,9 +2490,49 @@
                         {/each}
                       {/if}
 
+                      <!-- Browse pages -->
+                      {#if bcShowAllComponents || bcShowCategories || bcShowTags}
+                        {#if bcShowOverview || bcShowGettingStarted || bcFilteredGroups.length > 0}
+                          <DropdownMenu.Separator />
+                        {/if}
+                        <DropdownMenu.Label class="text-xs text-muted-foreground/60">
+                          Browse
+                        </DropdownMenu.Label>
+                        {#if bcShowAllComponents}
+                          <DropdownMenu.Item>
+                            {#snippet child({ props: allProps })}
+                              <a href="/components/all" {...allProps}>
+                                <ComponentIcon class="size-4" />
+                                All Components
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/if}
+                        {#if bcShowCategories}
+                          <DropdownMenu.Item>
+                            {#snippet child({ props: catIndexProps })}
+                              <a href="/components/category" {...catIndexProps}>
+                                <LayoutGrid class="size-4" />
+                                Categories
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/if}
+                        {#if bcShowTags}
+                          <DropdownMenu.Item>
+                            {#snippet child({ props: tagsProps })}
+                              <a href="/components/tags" {...tagsProps}>
+                                <Tag class="size-4" />
+                                Tags
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/if}
+                      {/if}
+
                       <!-- Reference pages (matches sidebar bottom group) -->
                       {#if bcShowTokens || bcShowIcons || bcShowWhatsNew}
-                        {#if bcShowOverview || bcShowGettingStarted || bcFilteredGroups.length > 0}
+                        {#if bcShowOverview || bcShowGettingStarted || bcFilteredGroups.length > 0 || bcShowAllComponents || bcShowCategories || bcShowTags}
                           <DropdownMenu.Separator />
                         {/if}
                         {#if bcShowTokens}
