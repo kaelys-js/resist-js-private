@@ -1212,9 +1212,11 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="flex flex-1 flex-col gap-6 overflow-y-auto p-6 md:p-10" onkeydown={handleKeydown}>
-  <!-- Page header + controls -->
-  <div class="flex flex-col gap-3">
+<div class="w-full" onkeydown={handleKeydown}>
+  <!-- Sticky header + controls (matches component page LensHeader pattern) -->
+  <div
+    class="sticky top-(--header-height) z-10 flex flex-col gap-3 border-b bg-background px-6 pb-4 pt-6 md:px-10 md:pt-10"
+  >
     <div class="flex items-center gap-3">
       <div class="flex size-12 items-center justify-center rounded-xl bg-primary/10">
         <Shapes class="size-6 text-primary" />
@@ -1657,349 +1659,368 @@
     </div>
   </div>
 
-  <!-- Detail panel (selected icon) -->
-  {#if selectedIcon && filteredNames.length > 0}
-    <div class="rounded-lg border bg-card p-6" transition:slide={{ duration: 200 }}>
-      <div class="flex flex-col gap-6 sm:flex-row sm:items-start">
-        <!-- Large preview -->
-        <div
-          data-theme={activeTheme || undefined}
-          class="flex shrink-0 items-center justify-center rounded-xl border bg-muted/30"
-          style="width: 120px; height: 120px; color: {effectiveIconColor};"
-          data-detail-svg
-        >
-          {#if getIcon(selectedIcon)}
-            {@const IconComp = getIcon(selectedIcon)}
-            {#if IconComp}
-              <IconComp size={64} {strokeWidth} color={effectiveIconColor} />
-            {/if}
-          {:else}
-            <div class="size-16 animate-pulse rounded bg-muted"></div>
-          {/if}
-        </div>
-
-        <div class="min-w-0 flex-1 space-y-4">
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-              <!-- Click icon name to copy -->
-              <Tooltip.Provider>
-                <Tooltip.Root>
-                  <Tooltip.Trigger>
-                    {#snippet child({ props })}
-                      <button
-                        {...props}
-                        type="button"
-                        class="rounded px-1 font-mono text-sm font-semibold transition-colors hover:bg-muted"
-                        onclick={() => handleDetailCopy('name' as Str, selectedIcon ?? ('' as Str))}
-                      >
-                        {#if detailCopyFeedback === 'name'}
-                          <span class="text-green-500">{selectedIcon}</span>
-                        {:else}
-                          {selectedIcon}
-                        {/if}
-                      </button>
-                    {/snippet}
-                  </Tooltip.Trigger>
-                  <Tooltip.Content>Click to copy name</Tooltip.Content>
-                </Tooltip.Root>
-              </Tooltip.Provider>
-              <!-- Click PascalCase badge to copy -->
-              <Tooltip.Provider>
-                <Tooltip.Root>
-                  <Tooltip.Trigger>
-                    {#snippet child({ props })}
-                      <button
-                        {...props}
-                        type="button"
-                        onclick={() =>
-                          handleDetailCopy('pascal' as Str, toPascal(selectedIcon ?? ('' as Str)))}
-                      >
-                        <Badge
-                          variant="secondary"
-                          class="cursor-pointer text-[10px] transition-colors hover:bg-secondary/80"
-                        >
-                          {#if detailCopyFeedback === 'pascal'}
-                            <Check class="mr-0.5 inline size-3 text-green-500" />
-                          {/if}
-                          {toPascal(selectedIcon ?? ('' as Str))}
-                        </Badge>
-                      </button>
-                    {/snippet}
-                  </Tooltip.Trigger>
-                  <Tooltip.Content>Click to copy component name</Tooltip.Content>
-                </Tooltip.Root>
-              </Tooltip.Provider>
-            </div>
-
-            <div class="flex items-center gap-1">
-              <!-- Copy as... dropdown -->
-              <DropdownMenu.Root>
-                <Tooltip.Provider>
-                  <Tooltip.Root delayDuration={300}>
-                    <Tooltip.Trigger>
-                      {#snippet child({ props: tooltipProps })}
-                        <DropdownMenu.Trigger>
-                          {#snippet child({ props: triggerProps })}
-                            <button
-                              type="button"
-                              class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                              {...tooltipProps}
-                              {...triggerProps}
-                            >
-                              <ClipboardCopy class="size-4" />
-                              <span class="sr-only">Copy as</span>
-                            </button>
-                          {/snippet}
-                        </DropdownMenu.Trigger>
-                      {/snippet}
-                    </Tooltip.Trigger>
-                    <Tooltip.Content side="top" sideOffset={4}>Copy as...</Tooltip.Content>
-                  </Tooltip.Root>
-                </Tooltip.Provider>
-                <DropdownMenu.Content align="end" class="w-72">
-                  <DropdownMenu.Label
-                    class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
-                  >
-                    <Clipboard class="size-3" />
-                    Clipboard
-                  </DropdownMenu.Label>
-                  <DropdownMenu.Item
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      handleDetailCopy('svg' as Str, selectedSvgMarkup);
-                    }}
-                  >
-                    {#if detailCopyFeedback === 'svg'}
-                      <span in:fade={{ duration: 150 }}
-                        ><Check class="mr-2 size-4 text-green-500" /></span
-                      >
-                    {:else}
-                      <Code class="mr-2 size-4" />
-                    {/if}
-                    <div class="flex min-w-0 flex-1 flex-col">
-                      <span class="text-sm">Copy SVG</span>
-                      <span class="text-[11px] text-muted-foreground/60">Raw SVG markup</span>
-                    </div>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      handleDetailCopy('svelte' as Str, importSvelte);
-                    }}
-                  >
-                    {#if detailCopyFeedback === 'svelte'}
-                      <span in:fade={{ duration: 150 }}
-                        ><Check class="mr-2 size-4 text-green-500" /></span
-                      >
-                    {:else}
-                      <FileCode class="mr-2 size-4" />
-                    {/if}
-                    <div class="flex min-w-0 flex-1 flex-col">
-                      <span class="text-sm">Copy Svelte Import</span>
-                      <span class="font-mono text-[11px] text-muted-foreground/60"
-                        >{importSvelte}</span
-                      >
-                    </div>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      handleDetailCopy('usage' as Str, usageExample);
-                    }}
-                  >
-                    {#if detailCopyFeedback === 'usage'}
-                      <span in:fade={{ duration: 150 }}
-                        ><Check class="mr-2 size-4 text-green-500" /></span
-                      >
-                    {:else}
-                      <Code class="mr-2 size-4" />
-                    {/if}
-                    <div class="flex min-w-0 flex-1 flex-col">
-                      <span class="text-sm">Copy Usage</span>
-                      <span class="font-mono text-[11px] text-muted-foreground/60"
-                        >{usageExample}</span
-                      >
-                    </div>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      handleDetailCopy('html' as Str, usageCss);
-                    }}
-                  >
-                    {#if detailCopyFeedback === 'html'}
-                      <span in:fade={{ duration: 150 }}
-                        ><Check class="mr-2 size-4 text-green-500" /></span
-                      >
-                    {:else}
-                      <Hash class="mr-2 size-4" />
-                    {/if}
-                    <div class="flex min-w-0 flex-1 flex-col">
-                      <span class="text-sm">Copy HTML</span>
-                      <span class="font-mono text-[11px] text-muted-foreground/60">{usageCss}</span>
-                    </div>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Separator />
-                  <DropdownMenu.Label
-                    class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
-                  >
-                    <DownloadIcon class="size-3" />
-                    File
-                  </DropdownMenu.Label>
-                  <DropdownMenu.Item onclick={downloadSelectedSvg}>
-                    <DownloadIcon class="mr-2 size-4" />
-                    <div class="flex min-w-0 flex-1 flex-col">
-                      <span class="text-sm">Download SVG</span>
-                      <span class="text-[11px] text-muted-foreground/60"
-                        >Save as {selectedIcon}.svg</span
-                      >
-                    </div>
-                    <code
-                      class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
-                      >.svg</code
-                    >
-                  </DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu.Root>
-
-              <!-- Close button with tooltip -->
-              <Tooltip.Provider>
-                <Tooltip.Root>
-                  <Tooltip.Trigger>
-                    {#snippet child({ props })}
-                      <button
-                        {...props}
-                        type="button"
-                        class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        onclick={() => {
-                          selectedIcon = null;
-                        }}
-                      >
-                        <X class="size-4" />
-                        <span class="sr-only">Close</span>
-                      </button>
-                    {/snippet}
-                  </Tooltip.Trigger>
-                  <Tooltip.Content side="top" sideOffset={4}>Close</Tooltip.Content>
-                </Tooltip.Root>
-              </Tooltip.Provider>
-            </div>
-          </div>
-
-          <!-- Tags / Categories -->
-          {#if selectedIcon && getIconCategories(selectedIcon).length > 0}
-            <div class="flex items-center gap-2">
-              <Tag class="size-3 shrink-0 text-muted-foreground/40" />
-              <div class="flex flex-wrap gap-1">
-                {#each getIconCategories(selectedIcon) as cat (cat)}
-                  <button
-                    type="button"
-                    class="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                    onclick={() => {
-                      toggleCategory(cat);
-                      selectedIcon = null;
-                    }}
-                  >
-                    {cat}
-                  </button>
-                {/each}
-              </div>
-            </div>
-          {/if}
-
-          <!-- Code snippets with syntax highlighting -->
-          <div class="grid gap-2">
-            <div class="rounded-md border bg-muted/30 px-3 py-2 font-mono text-xs">
-              <code class="select-all">{@html highlightImport(selectedIcon)}</code>
-            </div>
-            <div class="rounded-md border bg-muted/30 px-3 py-2 font-mono text-xs">
-              <code class="select-all">{@html highlightUsage(selectedIcon)}</code>
-            </div>
-            <div class="rounded-md border bg-muted/30 px-3 py-2 font-mono text-xs">
-              <code class="select-all">{@html highlightHtml(selectedIcon)}</code>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  {/if}
-
-  <!-- Icon grid -->
-  {#if filteredNames.length === 0}
-    <LensEmpty
-      title="No results"
-      actionLabel="Clear filters"
-      onaction={() => {
-        searchQuery = '' as Str;
-        activeCategories = [];
-      }}
-    >
-      {#snippet icon()}
-        <div class="flex size-16 items-center justify-center rounded-2xl bg-muted/50">
-          <SearchIcon class="size-8 text-muted-foreground/20" />
-        </div>
-      {/snippet}
-      {#snippet descriptionSnippet()}
-        {#if searchQuery && activeCategories.length > 0}
-          No icons matching "<span class="font-medium text-muted-foreground/60">{searchQuery}</span
-          >" in {activeCategories.join(', ')}.
-        {:else if searchQuery}
-          No icons matching "<span class="font-medium text-muted-foreground/60">{searchQuery}</span
-          >".
-        {:else if activeCategories.length > 0}
-          No icons in the selected categories.
-        {:else}
-          No icons found.
-        {/if}
-      {/snippet}
-    </LensEmpty>
-  {:else}
-    <div class="grid gap-2 {gridCols}">
-      {#each displayNames as name, idx (name)}
-        <button
-          type="button"
-          class="group flex flex-col items-center gap-2 rounded-lg border p-3 transition-all duration-150 hover:scale-[1.02] hover:border-primary/30 hover:shadow-sm {selectedIcon ===
-          name
-            ? 'border-primary bg-primary/5 shadow-sm'
-            : (focusedIndex as number) === idx
-              ? 'border-primary/50 bg-primary/5 ring-1 ring-primary/30'
-              : 'hover:bg-muted/50'}"
-          onclick={() => selectIcon(name)}
-          title={name}
-          data-icon={name}
-          data-grid-index={idx}
-          use:observeIcon
-        >
+  <!-- Page content with padding -->
+  <div class="flex flex-col gap-6 px-6 py-6 md:px-10 md:py-8">
+    <!-- Detail panel (selected icon) -->
+    {#if selectedIcon && filteredNames.length > 0}
+      <div class="rounded-lg border bg-card p-6" transition:slide={{ duration: 200 }}>
+        <div class="flex flex-col gap-6 sm:flex-row sm:items-start">
+          <!-- Large preview -->
           <div
             data-theme={activeTheme || undefined}
-            class="flex items-center justify-center rounded-md transition-colors"
-            style="width: {previewSize}px; height: {previewSize}px; color: {effectiveIconColor};"
+            class="flex shrink-0 items-center justify-center rounded-xl border bg-muted/30"
+            style="width: 120px; height: 120px; color: {effectiveIconColor};"
+            data-detail-svg
           >
-            {#if getIcon(name)}
-              {@const IconComp = getIcon(name)}
+            {#if getIcon(selectedIcon)}
+              {@const IconComp = getIcon(selectedIcon)}
               {#if IconComp}
-                <IconComp size={previewSize} {strokeWidth} />
+                <IconComp size={64} {strokeWidth} color={effectiveIconColor} />
               {/if}
             {:else}
-              <div
-                class="animate-pulse rounded bg-muted"
-                style="width: {(previewSize as number) * 0.5}px; height: {(previewSize as number) *
-                  0.5}px;"
-              ></div>
+              <div class="size-16 animate-pulse rounded bg-muted"></div>
             {/if}
           </div>
-          <span class="w-full truncate text-center text-[10px] text-muted-foreground">
-            {name}
-          </span>
-        </button>
-      {/each}
-    </div>
 
-    <!-- Infinite scroll sentinel -->
-    {#if hasMore}
-      <div use:observeSentinel class="flex justify-center py-4">
-        <span class="text-xs text-muted-foreground">Loading more icons...</span>
+          <div class="min-w-0 flex-1 space-y-4">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <!-- Click icon name to copy -->
+                <Tooltip.Provider>
+                  <Tooltip.Root>
+                    <Tooltip.Trigger>
+                      {#snippet child({ props })}
+                        <button
+                          {...props}
+                          type="button"
+                          class="rounded px-1 font-mono text-sm font-semibold transition-colors hover:bg-muted"
+                          onclick={() =>
+                            handleDetailCopy('name' as Str, selectedIcon ?? ('' as Str))}
+                        >
+                          {#if detailCopyFeedback === 'name'}
+                            <span class="text-green-500">{selectedIcon}</span>
+                          {:else}
+                            {selectedIcon}
+                          {/if}
+                        </button>
+                      {/snippet}
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>Click to copy name</Tooltip.Content>
+                  </Tooltip.Root>
+                </Tooltip.Provider>
+                <!-- Click PascalCase badge to copy -->
+                <Tooltip.Provider>
+                  <Tooltip.Root>
+                    <Tooltip.Trigger>
+                      {#snippet child({ props })}
+                        <button
+                          {...props}
+                          type="button"
+                          onclick={() =>
+                            handleDetailCopy(
+                              'pascal' as Str,
+                              toPascal(selectedIcon ?? ('' as Str)),
+                            )}
+                        >
+                          <Badge
+                            variant="secondary"
+                            class="cursor-pointer text-[10px] transition-colors hover:bg-secondary/80"
+                          >
+                            {#if detailCopyFeedback === 'pascal'}
+                              <Check class="mr-0.5 inline size-3 text-green-500" />
+                            {/if}
+                            {toPascal(selectedIcon ?? ('' as Str))}
+                          </Badge>
+                        </button>
+                      {/snippet}
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>Click to copy component name</Tooltip.Content>
+                  </Tooltip.Root>
+                </Tooltip.Provider>
+              </div>
+
+              <div class="flex items-center gap-1">
+                <!-- Copy as... dropdown -->
+                <DropdownMenu.Root>
+                  <Tooltip.Provider>
+                    <Tooltip.Root delayDuration={300}>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props: tooltipProps })}
+                          <DropdownMenu.Trigger>
+                            {#snippet child({ props: triggerProps })}
+                              <button
+                                type="button"
+                                class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                {...tooltipProps}
+                                {...triggerProps}
+                              >
+                                <ClipboardCopy class="size-4" />
+                                <span class="sr-only">Copy as</span>
+                              </button>
+                            {/snippet}
+                          </DropdownMenu.Trigger>
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content side="top" sideOffset={4}>Copy as...</Tooltip.Content>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                  <DropdownMenu.Content align="end" class="w-72">
+                    <DropdownMenu.Label
+                      class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
+                    >
+                      <Clipboard class="size-3" />
+                      Clipboard
+                    </DropdownMenu.Label>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDetailCopy('svg' as Str, selectedSvgMarkup);
+                      }}
+                    >
+                      {#if detailCopyFeedback === 'svg'}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="mr-2 size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <Code class="mr-2 size-4" />
+                      {/if}
+                      <div class="flex min-w-0 flex-1 flex-col">
+                        <span class="text-sm">Copy SVG</span>
+                        <span class="text-[11px] text-muted-foreground/60">Raw SVG markup</span>
+                      </div>
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDetailCopy('svelte' as Str, importSvelte);
+                      }}
+                    >
+                      {#if detailCopyFeedback === 'svelte'}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="mr-2 size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <FileCode class="mr-2 size-4" />
+                      {/if}
+                      <div class="flex min-w-0 flex-1 flex-col">
+                        <span class="text-sm">Copy Svelte Import</span>
+                        <span class="font-mono text-[11px] text-muted-foreground/60"
+                          >{importSvelte}</span
+                        >
+                      </div>
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDetailCopy('usage' as Str, usageExample);
+                      }}
+                    >
+                      {#if detailCopyFeedback === 'usage'}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="mr-2 size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <Code class="mr-2 size-4" />
+                      {/if}
+                      <div class="flex min-w-0 flex-1 flex-col">
+                        <span class="text-sm">Copy Usage</span>
+                        <span class="font-mono text-[11px] text-muted-foreground/60"
+                          >{usageExample}</span
+                        >
+                      </div>
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDetailCopy('html' as Str, usageCss);
+                      }}
+                    >
+                      {#if detailCopyFeedback === 'html'}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="mr-2 size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <Hash class="mr-2 size-4" />
+                      {/if}
+                      <div class="flex min-w-0 flex-1 flex-col">
+                        <span class="text-sm">Copy HTML</span>
+                        <span class="font-mono text-[11px] text-muted-foreground/60"
+                          >{usageCss}</span
+                        >
+                      </div>
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Label
+                      class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
+                    >
+                      <DownloadIcon class="size-3" />
+                      File
+                    </DropdownMenu.Label>
+                    <DropdownMenu.Item onclick={downloadSelectedSvg}>
+                      <DownloadIcon class="mr-2 size-4" />
+                      <div class="flex min-w-0 flex-1 flex-col">
+                        <span class="text-sm">Download SVG</span>
+                        <span class="text-[11px] text-muted-foreground/60"
+                          >Save as {selectedIcon}.svg</span
+                        >
+                      </div>
+                      <code
+                        class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                        >.svg</code
+                      >
+                    </DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+
+                <!-- Close button with tooltip -->
+                <Tooltip.Provider>
+                  <Tooltip.Root>
+                    <Tooltip.Trigger>
+                      {#snippet child({ props })}
+                        <button
+                          {...props}
+                          type="button"
+                          class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                          onclick={() => {
+                            selectedIcon = null;
+                          }}
+                        >
+                          <X class="size-4" />
+                          <span class="sr-only">Close</span>
+                        </button>
+                      {/snippet}
+                    </Tooltip.Trigger>
+                    <Tooltip.Content side="top" sideOffset={4}>Close</Tooltip.Content>
+                  </Tooltip.Root>
+                </Tooltip.Provider>
+              </div>
+            </div>
+
+            <!-- Tags / Categories -->
+            {#if selectedIcon && getIconCategories(selectedIcon).length > 0}
+              <div class="flex flex-wrap items-center gap-1">
+                {#each getIconCategories(selectedIcon) as cat (cat)}
+                  <Tooltip.Provider>
+                    <Tooltip.Root delayDuration={300}>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props })}
+                          <button
+                            {...props}
+                            type="button"
+                            class="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                            onclick={() => {
+                              toggleCategory(cat);
+                              selectedIcon = null;
+                            }}
+                          >
+                            <Tag class="size-3 shrink-0 opacity-60" />
+                            {cat}
+                          </button>
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content side="bottom" sideOffset={4}>Filter by {cat}</Tooltip.Content
+                      >
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                {/each}
+              </div>
+            {/if}
+
+            <!-- Code snippets with syntax highlighting -->
+            <div class="grid gap-2">
+              <div class="rounded-md border bg-muted/30 px-3 py-2 font-mono text-xs">
+                <code class="select-all">{@html highlightImport(selectedIcon)}</code>
+              </div>
+              <div class="rounded-md border bg-muted/30 px-3 py-2 font-mono text-xs">
+                <code class="select-all">{@html highlightUsage(selectedIcon)}</code>
+              </div>
+              <div class="rounded-md border bg-muted/30 px-3 py-2 font-mono text-xs">
+                <code class="select-all">{@html highlightHtml(selectedIcon)}</code>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     {/if}
-  {/if}
+
+    <!-- Icon grid -->
+    {#if filteredNames.length === 0}
+      <LensEmpty
+        title="No results"
+        actionLabel="Clear filters"
+        onaction={() => {
+          searchQuery = '' as Str;
+          activeCategories = [];
+        }}
+      >
+        {#snippet icon()}
+          <div class="flex size-16 items-center justify-center rounded-2xl bg-muted/50">
+            <SearchIcon class="size-8 text-muted-foreground/20" />
+          </div>
+        {/snippet}
+        {#snippet descriptionSnippet()}
+          {#if searchQuery && activeCategories.length > 0}
+            No icons matching "<span class="font-medium text-muted-foreground/60"
+              >{searchQuery}</span
+            >" in {activeCategories.join(', ')}.
+          {:else if searchQuery}
+            No icons matching "<span class="font-medium text-muted-foreground/60"
+              >{searchQuery}</span
+            >".
+          {:else if activeCategories.length > 0}
+            No icons in the selected categories.
+          {:else}
+            No icons found.
+          {/if}
+        {/snippet}
+      </LensEmpty>
+    {:else}
+      <div class="grid gap-2 {gridCols}">
+        {#each displayNames as name, idx (name)}
+          <button
+            type="button"
+            class="group flex flex-col items-center gap-2 rounded-lg border p-3 transition-all duration-150 hover:scale-[1.02] hover:border-primary/30 hover:shadow-sm {selectedIcon ===
+            name
+              ? 'border-primary bg-primary/5 shadow-sm'
+              : (focusedIndex as number) === idx
+                ? 'border-primary/50 bg-primary/5 ring-1 ring-primary/30'
+                : 'hover:bg-muted/50'}"
+            onclick={() => selectIcon(name)}
+            title={name}
+            data-icon={name}
+            data-grid-index={idx}
+            use:observeIcon
+          >
+            <div
+              data-theme={activeTheme || undefined}
+              class="flex items-center justify-center rounded-md transition-colors"
+              style="width: {previewSize}px; height: {previewSize}px; color: {effectiveIconColor};"
+            >
+              {#if getIcon(name)}
+                {@const IconComp = getIcon(name)}
+                {#if IconComp}
+                  <IconComp size={previewSize} {strokeWidth} />
+                {/if}
+              {:else}
+                <div
+                  class="animate-pulse rounded bg-muted"
+                  style="width: {previewSize}px; height: {previewSize}px;"
+                ></div>
+              {/if}
+            </div>
+            <span class="w-full truncate text-center text-[10px] text-muted-foreground">
+              {name}
+            </span>
+          </button>
+        {/each}
+      </div>
+
+      <!-- Infinite scroll sentinel -->
+      {#if hasMore}
+        <div use:observeSentinel class="flex justify-center py-4">
+          <span class="text-xs text-muted-foreground">Loading more icons...</span>
+        </div>
+      {/if}
+    {/if}
+  </div>
 </div>

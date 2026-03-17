@@ -429,9 +429,11 @@
   }
 </script>
 
-<div class="flex flex-1 flex-col gap-6 overflow-y-auto p-6 md:p-10">
-  <!-- Page header + controls -->
-  <div class="flex flex-col gap-3">
+<div class="w-full">
+  <!-- Sticky header + controls (matches component page LensHeader pattern) -->
+  <div
+    class="sticky top-(--header-height) z-10 flex flex-col gap-3 border-b bg-background px-6 pb-4 pt-6 md:px-10 md:pt-10"
+  >
     <div class="flex items-center gap-3">
       <div class="flex size-12 items-center justify-center rounded-xl bg-primary/10">
         <Palette class="size-6 text-primary" />
@@ -689,148 +691,153 @@
     </div>
   </div>
 
-  <!-- Token groups -->
-  {#if filteredGroups.length === 0}
-    <div class="flex flex-1 flex-col items-center justify-center gap-4 py-20 text-center">
-      <div class="flex size-16 items-center justify-center rounded-2xl bg-muted/50">
-        <SearchX class="size-8 text-muted-foreground/40" />
+  <!-- Page content with padding -->
+  <div class="flex flex-col gap-6 px-6 py-6 md:px-10 md:py-8">
+    <!-- Token groups -->
+    {#if filteredGroups.length === 0}
+      <div class="flex flex-1 flex-col items-center justify-center gap-4 py-20 text-center">
+        <div class="flex size-16 items-center justify-center rounded-2xl bg-muted/50">
+          <SearchX class="size-8 text-muted-foreground/40" />
+        </div>
+        <div class="space-y-1">
+          <p class="text-sm font-medium text-muted-foreground">No tokens found</p>
+          <p class="text-xs text-muted-foreground/60">
+            {#if searchQuery}
+              No tokens match "{searchQuery}"
+            {:else}
+              No tokens in the selected categories
+            {/if}
+          </p>
+        </div>
+        <button
+          type="button"
+          class="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          onclick={() => {
+            searchQuery = '' as Str;
+            activeCategories = [];
+          }}
+        >
+          Clear filters
+        </button>
       </div>
-      <div class="space-y-1">
-        <p class="text-sm font-medium text-muted-foreground">No tokens found</p>
-        <p class="text-xs text-muted-foreground/60">
-          {#if searchQuery}
-            No tokens match "{searchQuery}"
-          {:else}
-            No tokens in the selected categories
-          {/if}
-        </p>
-      </div>
-      <button
-        type="button"
-        class="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-        onclick={() => {
-          searchQuery = '' as Str;
-          activeCategories = [];
-        }}
-      >
-        Clear filters
-      </button>
-    </div>
-  {:else}
-    <div class="space-y-10">
-      {#each filteredGroups as group (group.category)}
-        <section id={group.category} class="scroll-mt-60">
+    {:else}
+      <div class="space-y-10">
+        {#each filteredGroups as group (group.category)}
+          <section id={group.category} class="scroll-mt-60">
+            <button
+              type="button"
+              onclick={() => toggleSection(group.category)}
+              class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+            >
+              <ChevronRight
+                class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen[
+                  group.category
+                ]
+                  ? 'rotate-90'
+                  : ''}"
+              />
+              <Palette class="size-5" />
+              {group.label}
+              <Badge variant="outline" class="ml-1 text-xs">{group.tokens.length}</Badge>
+            </button>
+
+            {#if sectionOpen[group.category]}
+              <div transition:slide={{ duration: 200 }}>
+                <div class="rounded-lg border bg-card">
+                  <table class="w-full table-fixed text-sm">
+                    <thead>
+                      <tr class="border-b text-left text-xs text-muted-foreground">
+                        {#if group.category === 'color' || group.category === 'sidebar-color'}
+                          <th class="w-12 px-4 py-2"></th>
+                        {/if}
+                        <th class="px-4 py-2">Variable</th>
+                        <th class="px-4 py-2">Value</th>
+                        <th class="px-4 py-2">Tailwind</th>
+                        <th class="w-12 px-4 py-2"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {#each group.tokens as token (token.name)}
+                        <tr class="border-b last:border-b-0 transition-colors hover:bg-muted/50">
+                          {#if group.category === 'color' || group.category === 'sidebar-color'}
+                            <td class="px-4 py-2.5">
+                              {#if isColorValue(token.value)}
+                                <Tooltip.Root delayDuration={200}>
+                                  <Tooltip.Trigger>
+                                    {#snippet child({ props })}
+                                      <div
+                                        class="size-6 rounded-md border shadow-sm"
+                                        style="background-color: {token.value};"
+                                        {...props}
+                                      ></div>
+                                    {/snippet}
+                                  </Tooltip.Trigger>
+                                  <Tooltip.Content>
+                                    <span class="font-mono text-xs">{token.value}</span>
+                                  </Tooltip.Content>
+                                </Tooltip.Root>
+                              {/if}
+                            </td>
+                          {/if}
+                          <td class="px-4 py-2.5">
+                            <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs"
+                              >{token.variable}</code
+                            >
+                          </td>
+                          <td class="px-4 py-2.5">
+                            <span class="font-mono text-xs text-muted-foreground"
+                              >{token.value}</span
+                            >
+                          </td>
+                          <td class="px-4 py-2.5">
+                            {#if token.tailwindClass}
+                              <code
+                                class="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary"
+                                >{token.tailwindClass}</code
+                              >
+                            {:else}
+                              <span class="text-xs text-muted-foreground/40">—</span>
+                            {/if}
+                          </td>
+                          <td class="px-4 py-2.5">
+                            <CopyButton
+                              text={`var(${token.variable})`}
+                              label={`Copy var(${token.variable})`}
+                            />
+                          </td>
+                        </tr>
+                      {/each}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            {/if}
+          </section>
+        {/each}
+
+        <!-- Raw CSS source -->
+        <section id="source" class="scroll-mt-60">
           <button
             type="button"
-            onclick={() => toggleSection(group.category)}
+            onclick={() => toggleSection('source')}
             class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
           >
             <ChevronRight
-              class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen[
-                group.category
-              ]
+              class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.source
                 ? 'rotate-90'
                 : ''}"
             />
-            <Palette class="size-5" />
-            {group.label}
-            <Badge variant="outline" class="ml-1 text-xs">{group.tokens.length}</Badge>
+            Source (app.css)
           </button>
-
-          {#if sectionOpen[group.category]}
+          {#if sectionOpen.source}
             <div transition:slide={{ duration: 200 }}>
-              <div class="rounded-lg border bg-card">
-                <table class="w-full table-fixed text-sm">
-                  <thead>
-                    <tr class="border-b text-left text-xs text-muted-foreground">
-                      {#if group.category === 'color' || group.category === 'sidebar-color'}
-                        <th class="w-12 px-4 py-2"></th>
-                      {/if}
-                      <th class="px-4 py-2">Variable</th>
-                      <th class="px-4 py-2">Value</th>
-                      <th class="px-4 py-2">Tailwind</th>
-                      <th class="w-12 px-4 py-2"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {#each group.tokens as token (token.name)}
-                      <tr class="border-b last:border-b-0 transition-colors hover:bg-muted/50">
-                        {#if group.category === 'color' || group.category === 'sidebar-color'}
-                          <td class="px-4 py-2.5">
-                            {#if isColorValue(token.value)}
-                              <Tooltip.Root delayDuration={200}>
-                                <Tooltip.Trigger>
-                                  {#snippet child({ props })}
-                                    <div
-                                      class="size-6 rounded-md border shadow-sm"
-                                      style="background-color: {token.value};"
-                                      {...props}
-                                    ></div>
-                                  {/snippet}
-                                </Tooltip.Trigger>
-                                <Tooltip.Content>
-                                  <span class="font-mono text-xs">{token.value}</span>
-                                </Tooltip.Content>
-                              </Tooltip.Root>
-                            {/if}
-                          </td>
-                        {/if}
-                        <td class="px-4 py-2.5">
-                          <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs"
-                            >{token.variable}</code
-                          >
-                        </td>
-                        <td class="px-4 py-2.5">
-                          <span class="font-mono text-xs text-muted-foreground">{token.value}</span>
-                        </td>
-                        <td class="px-4 py-2.5">
-                          {#if token.tailwindClass}
-                            <code
-                              class="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary"
-                              >{token.tailwindClass}</code
-                            >
-                          {:else}
-                            <span class="text-xs text-muted-foreground/40">—</span>
-                          {/if}
-                        </td>
-                        <td class="px-4 py-2.5">
-                          <CopyButton
-                            text={`var(${token.variable})`}
-                            label={`Copy var(${token.variable})`}
-                          />
-                        </td>
-                      </tr>
-                    {/each}
-                  </tbody>
-                </table>
+              <div class="rounded-lg border bg-card p-4">
+                <CodeBlock code={cssSource} lang="css" />
               </div>
             </div>
           {/if}
         </section>
-      {/each}
-
-      <!-- Raw CSS source -->
-      <section id="source" class="scroll-mt-60">
-        <button
-          type="button"
-          onclick={() => toggleSection('source')}
-          class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
-        >
-          <ChevronRight
-            class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.source
-              ? 'rotate-90'
-              : ''}"
-          />
-          Source (app.css)
-        </button>
-        {#if sectionOpen.source}
-          <div transition:slide={{ duration: 200 }}>
-            <div class="rounded-lg border bg-card p-4">
-              <CodeBlock code={cssSource} lang="css" />
-            </div>
-          </div>
-        {/if}
-      </section>
-    </div>
-  {/if}
+      </div>
+    {/if}
+  </div>
 </div>
