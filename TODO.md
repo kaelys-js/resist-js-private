@@ -1,22 +1,19 @@
-- Command Search is missing full link to property names
-- Command search should clearly separate "Recent"
-- Command Search: Support listing all Categories/Tags and searching for them?
-- Command Search recent should be able to clear individual or all recent entries (like the sidebar)
-
-- PropsTable copy link to propery is missing the full url (and I don't think these go to the correct hash thing?)
-- The hash links in use everywhere and "Go to [thing]" maybe after scrolling to it could make that thing glow briefly?
-
 - [Lens]
-    - Intelligent Automatic Examples Instead of examples/
-    - Sidebar Component Entries:
-      - Is it possible to include the "Performance statistics" in the App sidebar to the right of the component with the same details for the overall component? and a green/yellow/red dot to the right of the component name in the sidebar like you have in performance statistics?
-    - Lens: What is missing from a component documentation system like this? We have Components and Design Tokens, what else?
+    - Component Conversions (@convert-to-lens)
+      - Remove exclusions from the lens test file
+      - Review All Rx Rules + lens tests for these
     - Production/Cloudflare Concerns
       - The following will or will not work:
         - Bundle Size
         - Import Globbing For Components/etc
         - Global Search
         - Real Browser: Playwright/iOS/Android Engines (Screenshot/Live/etc)
+    - Implement the auto-generated component examples feature. Start with Part 1: docs/plans/2026-03-16-auto-examples-part1.md. Use the executing-plans skill. Follow CLAUDE.md. TDD — tests first, watch fail, implement, watch pass, QA after every file edit.
+    - Implement Part 2: docs/plans/2026-03-16-auto-examples-part2.md. Same approach — executing-plans skill, TDD, QA after every edit.
+    - Implement Lens pages Part 1: docs/plans/2026-03-16-lens-pages-part1.md. Use the executing-plans skill. Follow CLAUDE.md. TDD, QA after every edit.
+    - Implement Lens pages Part 2: docs/plans/2026-03-16-lens-pages-part2.md. Same approach.
+    - Implement Lens component detail additions: docs/plans/2026-03-16-lens-detail-additions.md. Same approach.
+    - Implement Lens advanced features: docs/plans/2026-03-16-lens-advanced-features.md. Same approach.
     - Real Browser
         - Live Preview (each engine):
             LensComponentRenderer: Browser Live Submenu
@@ -30,12 +27,13 @@
             - Network Simulation Not Respected
         - Screenshot Compare
             - Diff
-    - Component Conversions
     - Component level error boundary (with fallback, retry, etc) and app level error boundary with full tests (unit/integration/e2e and manual testing path for me for component and app error boundaries) plus other suggestions for component/app error boundary component
     - Astro Islands but for Svelte
     https://github.com/11ty/is-land/blob/main/is-land.js (if relevant)
     https://github.com/ElMassimo/iles/blob/main/packages/iles/src/node/build/islands.ts (if relevant)
     - Localize, Dropdown (Language + Theme, etc)
+    - Sidebar Component Entries:
+      - Is it possible to include the "Performance statistics" in the App sidebar to the right of the component with the same details for the default component? and a green/yellow/red dot to the right of the component name in the sidebar like you have in LensComponentRenderer performance statistics?
 - [Workspace]
   - Benchmarks & Performance Tests
   - Full PWA Support
