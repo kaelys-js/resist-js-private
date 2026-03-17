@@ -1,0 +1,636 @@
+<script lang="ts">
+  /**
+   * All Components page — browse every component with search, category
+   * filtering, and compatibility status.
+   *
+   * Matches the Icons page UX: sticky header, 3-dot dropdown, inline search,
+   * category filter chips with structured tooltips.
+   */
+  import type { Bool, Num, Str } from '@/schemas/common';
+  import type { LensMeta, LensStatus, CategoryGroup } from '@/ui/lens/types.js';
+  import type { Result } from '@/schemas/result/result';
+  import {
+    extractDir,
+    toTitle,
+    parseLensMeta,
+    extractComponentDescription,
+    type LensCompatibility,
+  } from '@/ui/lens/lens-utils.js';
+  import { log } from '@/utils/core/logger';
+  import Badge from '@/ui/badge/badge.svelte';
+  import * as Tooltip from '@/ui/tooltip/index.js';
+  import { cn } from '@/ui/utils.js';
+  import { getContext, type Component } from 'svelte';
+  import {
+    CATEGORY_ORDER,
+    CATEGORY_ICONS,
+    CATEGORY_COLORS,
+    CATEGORY_BG,
+    categoryLabel as catLabel,
+  } from '$lib/config/lens-categories';
+  import ComponentIcon from '@lucide/svelte/icons/component';
+  import CircleCheck from '@lucide/svelte/icons/circle-check';
+  import CircleAlert from '@lucide/svelte/icons/circle-alert';
+  import ArrowRight from '@lucide/svelte/icons/arrow-right';
+  import SearchIcon from '@lucide/svelte/icons/search';
+  import SearchX from '@lucide/svelte/icons/search-x';
+  import Tag from '@lucide/svelte/icons/tag';
+  import X from '@lucide/svelte/icons/x';
+  import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
+  import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
+  import FileText from '@lucide/svelte/icons/file-text';
+  import DownloadIcon from '@lucide/svelte/icons/download';
+  import Trash2 from '@lucide/svelte/icons/trash-2';
+  import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
+  import Input from '@/ui/input/input.svelte';
+
+  /* ------------------------------------------------------------------ */
+  /*  Glob-based data                                                    */
+  /* ------------------------------------------------------------------ */
+
+  /** All .svelte files in @/ui for component directory discovery. */
+  const allModules: Record<Str, unknown> = import.meta.glob('@/ui/*/*.svelte');
+
+  /** Raw .svelte sources for description extraction. */
+  const rawSources: Record<Str, Str> = import.meta.glob('@/ui/*/*.svelte', {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  }) as Record<Str, Str>;
+
+  /** Eager lens.ts metadata. */
+  const lensMetaModules: Record<Str, { meta?: LensMeta; default?: unknown; examples?: unknown }> =
+    import.meta.glob('@/ui/*/lens.ts', { import: '*', eager: true }) as Record<
+      Str,
+      { meta?: LensMeta; default?: unknown; examples?: unknown }
+    >;
+
+  /* ------------------------------------------------------------------ */
+  /*  Derived data                                                       */
+  /* ------------------------------------------------------------------ */
+
+  /** Sorted unique component directory names. */
+  const componentNames: Str[] = [...new Set(Object.keys(allModules).map(extractDir))]
+    .filter((n: Str): boolean => n.length > 0)
+    .toSorted();
+
+  /** Metadata lookup by component name. */
+  const metaByName: Map<Str, LensMeta> = new Map();
+  for (const [key, mod] of Object.entries(lensMetaModules)) {
+    const dir: Str = extractDir(key);
+    if (mod.meta) {
+      const result: Result<LensMeta> = parseLensMeta(mod.meta);
+      if (result.ok) {
+        metaByName.set(dir, {
+          ...result.data,
+          tags: [...result.data.tags],
+          breakingChanges: result.data.breakingChanges?.map((bc) => ({ ...bc })),
+        });
+      } else {
+        log.warn(`Invalid lens.ts for "${dir}": ${result.error.message}`);
+      }
+    }
+  }
+
+  /** Components grouped by category (for filter chips). */
+  const groupedComponents: CategoryGroup[] = CATEGORY_ORDER.map(
+    (cat: Str): CategoryGroup => ({
+      name: cat,
+      label: catLabel(cat),
+      components: componentNames.filter((n: Str): boolean => {
+        const m: LensMeta | undefined = metaByName.get(n);
+        return (m?.category ?? 'display') === cat;
+      }),
+    }),
+  ).filter((g: CategoryGroup): boolean => g.components.length > 0);
+
+  /** Lens compatibility results per component. */
+  const compatByName: Map<Str, LensCompatibility> = getContext('lens-compat-by-name');
+
+  /** Short rule descriptions for Lens compatibility rules. */
+  const lensRuleNames: readonly Str[] = getContext('lens-rule-names');
+
+  /** Status badge color mapping. */
+  const STATUS_COLORS: Record<LensStatus, Str> = {
+    new: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400' as Str,
+    updated: 'bg-blue-500/15 text-blue-700 dark:text-blue-400' as Str,
+    deprecated: 'bg-red-500/15 text-red-700 dark:text-red-400' as Str,
+  };
+
+  /** Status badge labels. */
+  const STATUS_LABELS: Record<LensStatus, Str> = {
+    new: 'New' as Str,
+    updated: 'Updated' as Str,
+    deprecated: 'Deprecated' as Str,
+  };
+
+  /**
+   * Get the description for a component from its source JSDoc.
+   *
+   * @param name - Component directory name
+   * @returns The component description or empty string
+   */
+  function getDescription(name: Str): Str {
+    const sources: Str[] = Object.entries(rawSources)
+      .filter(([k]: [Str, Str]): boolean => extractDir(k) === name)
+      .map(([, v]: [Str, Str]): Str => v);
+    for (const src of sources) {
+      const desc: Str | undefined = extractComponentDescription(src);
+      if (desc) return desc;
+    }
+    return '' as Str;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  State                                                              */
+  /* ------------------------------------------------------------------ */
+
+  /** Search query. */
+  let searchQuery: Str = $state('' as Str);
+
+  /** Active category filters. */
+  let activeCategories: Str[] = $state([]);
+
+  /** Two-step reset confirmation. */
+  let confirmingReset: Bool = $state(false as Bool);
+  let confirmResetTimer: ReturnType<typeof setTimeout> | undefined;
+
+  /* ------------------------------------------------------------------ */
+  /*  Filtered components                                                */
+  /* ------------------------------------------------------------------ */
+
+  /** Components filtered by search query and active categories. */
+  const filteredComponents: Str[] = $derived.by((): Str[] => {
+    const q: Str = searchQuery.trim().toLowerCase() as Str;
+    let names: Str[] = componentNames;
+
+    // Filter by active categories
+    if (activeCategories.length > 0) {
+      names = names.filter((n: Str): boolean => {
+        const m: LensMeta | undefined = metaByName.get(n);
+        const cat: Str = (m?.category ?? 'display') as Str;
+        return activeCategories.includes(cat);
+      });
+    }
+
+    // Filter by search query
+    if (q) {
+      names = names.filter((n: Str): boolean => {
+        if (
+          toTitle(n)
+            .toLowerCase()
+            .includes(q as string)
+        )
+          return true;
+        const meta: LensMeta | undefined = metaByName.get(n);
+        if (meta?.tags?.some((t: Str): boolean => t.toLowerCase().includes(q as string)))
+          return true;
+        return getDescription(n)
+          .toLowerCase()
+          .includes(q as string);
+      });
+    }
+
+    return names;
+  });
+
+  /** Dynamic subtitle. */
+  const headerSubtitle: Str = $derived.by((): Str => {
+    if (searchQuery.trim() || activeCategories.length > 0) {
+      return `${filteredComponents.length} of ${componentNames.length} components` as Str;
+    }
+    return `${componentNames.length} components` as Str;
+  });
+
+  /** Whether any filter is active. */
+  const isCustomized: boolean = $derived(
+    searchQuery.trim().length > 0 || activeCategories.length > 0,
+  );
+
+  /* ------------------------------------------------------------------ */
+  /*  Export                                                              */
+  /* ------------------------------------------------------------------ */
+
+  /** Export menu item descriptor. */
+  type ExportItem = {
+    /** Unique identifier. */
+    id: Str;
+    /** Display label. */
+    label: Str;
+    /** Lucide icon component. */
+    icon: typeof ClipboardCopy;
+    /** Grouping category. */
+    category: Str;
+    /** Short description. */
+    description: Str;
+    /** File extension for downloads. */
+    ext: Str;
+  };
+
+  /** Page-level export menu items. */
+  const PAGE_EXPORT_ITEMS: ExportItem[] = [
+    {
+      id: 'copy-json' as Str,
+      label: 'Copy as JSON' as Str,
+      icon: ClipboardCopy,
+      category: 'Clipboard' as Str,
+      description: 'Component names array' as Str,
+      ext: '' as Str,
+    },
+    {
+      id: 'copy-markdown' as Str,
+      label: 'Copy as Markdown' as Str,
+      icon: FileText,
+      category: 'Clipboard' as Str,
+      description: 'Formatted list for docs' as Str,
+      ext: '' as Str,
+    },
+    {
+      id: 'download-json' as Str,
+      label: 'Download JSON' as Str,
+      icon: DownloadIcon,
+      category: 'File' as Str,
+      description: 'Structured data file' as Str,
+      ext: '.json' as Str,
+    },
+  ];
+
+  /** Unique export categories. */
+  const PAGE_EXPORT_CATEGORIES: Str[] = [
+    ...new Set(PAGE_EXPORT_ITEMS.map((p: ExportItem): Str => p.category)),
+  ];
+
+  /* ------------------------------------------------------------------ */
+  /*  Handlers                                                           */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * Toggle a category filter chip on or off.
+   *
+   * @param cat - Category name to toggle
+   */
+  function toggleCategory(cat: Str): void {
+    if (activeCategories.includes(cat)) {
+      activeCategories = activeCategories.filter((c: Str): boolean => c !== cat);
+    } else {
+      activeCategories = [...activeCategories, cat];
+    }
+  }
+
+  /** Two-step reset handler. */
+  function handleReset(): void {
+    if (confirmingReset) {
+      searchQuery = '' as Str;
+      activeCategories = [];
+      confirmingReset = false as Bool;
+      if (confirmResetTimer) clearTimeout(confirmResetTimer);
+    } else {
+      confirmingReset = true as Bool;
+      confirmResetTimer = setTimeout((): void => {
+        confirmingReset = false as Bool;
+      }, 3000);
+    }
+  }
+
+  /**
+   * Handle export action from the dropdown menu.
+   *
+   * @param itemId - Export item identifier
+   */
+  function handleExport(itemId: Str): void {
+    const names: Str[] = componentNames.map(toTitle);
+    if (itemId === 'copy-json') {
+      navigator.clipboard.writeText(JSON.stringify(names, null, 2));
+    } else if (itemId === 'copy-markdown') {
+      const md: Str =
+        `## All Components\n${names.map((n: Str): Str => `- ${n}` as Str).join('\n')}` as Str;
+      navigator.clipboard.writeText(md);
+    } else if (itemId === 'download-json') {
+      const blob: Blob = new Blob([JSON.stringify(names, null, 2)], { type: 'application/json' });
+      const url: Str = URL.createObjectURL(blob) as Str;
+      const a: HTMLAnchorElement = document.createElement('a');
+      a.href = url;
+      a.download = 'lens-all-components.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  }
+</script>
+
+<div class="w-full">
+  <!-- Sticky header -->
+  <div
+    class="sticky top-(--header-height) z-10 flex flex-col gap-3 border-b bg-background px-6 pb-4 pt-6 md:px-10 md:pt-10"
+  >
+    <div class="flex items-center gap-3">
+      <div class="flex size-12 items-center justify-center rounded-xl bg-primary/10">
+        <ComponentIcon class="size-6 text-primary" />
+      </div>
+      <div class="flex-1">
+        <h1 class="text-2xl font-bold tracking-tight">All Components</h1>
+        <p class="text-sm text-muted-foreground">{headerSubtitle}</p>
+      </div>
+
+      <!-- 3-dot menu -->
+      <DropdownMenu.Root>
+        <Tooltip.Provider>
+          <Tooltip.Root delayDuration={300}>
+            <Tooltip.Trigger>
+              {#snippet child({ props: tooltipProps })}
+                <DropdownMenu.Trigger>
+                  {#snippet child({ props: triggerProps })}
+                    <button
+                      type="button"
+                      class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                      {...tooltipProps}
+                      {...triggerProps}
+                    >
+                      <EllipsisVertical class="size-4" />
+                      <span class="sr-only">Page options</span>
+                    </button>
+                  {/snippet}
+                </DropdownMenu.Trigger>
+              {/snippet}
+            </Tooltip.Trigger>
+            <Tooltip.Content side="bottom" sideOffset={4}>Page options</Tooltip.Content>
+          </Tooltip.Root>
+        </Tooltip.Provider>
+        <DropdownMenu.Content align="end" sideOffset={4}>
+          <DropdownMenu.Sub>
+            <DropdownMenu.SubTrigger>
+              <DownloadIcon class="mr-2 size-4" />
+              Export
+            </DropdownMenu.SubTrigger>
+            <DropdownMenu.SubContent class="w-64">
+              {#each PAGE_EXPORT_CATEGORIES as exportCat (exportCat)}
+                <DropdownMenu.Label
+                  class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
+                >
+                  {exportCat}
+                </DropdownMenu.Label>
+                {#each PAGE_EXPORT_ITEMS.filter((p) => p.category === exportCat) as item (item.id)}
+                  <DropdownMenu.Item onclick={() => handleExport(item.id)}>
+                    <item.icon class="mr-2 size-4" />
+                    <div class="flex min-w-0 flex-1 flex-col">
+                      <span class="text-sm">{item.label}</span>
+                      <span class="text-[11px] text-muted-foreground/60">{item.description}</span>
+                    </div>
+                    {#if item.ext}
+                      <code
+                        class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                        >{item.ext}</code
+                      >
+                    {/if}
+                  </DropdownMenu.Item>
+                {/each}
+              {/each}
+            </DropdownMenu.SubContent>
+          </DropdownMenu.Sub>
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item
+            variant="destructive"
+            disabled={!isCustomized}
+            onSelect={(e) => {
+              e.preventDefault();
+              handleReset();
+            }}
+          >
+            <Trash2 class="mr-2 size-4" />
+            {confirmingReset ? 'Confirm Reset' : 'Reset to defaults'}
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
+    </div>
+
+    <!-- Search -->
+    <div class="relative">
+      <SearchIcon
+        class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+        aria-hidden="true"
+      />
+      <Input
+        type="text"
+        placeholder="Search {componentNames.length} components..."
+        class="pl-10 pr-8"
+        bind:value={searchQuery}
+      />
+      {#if searchQuery}
+        <button
+          type="button"
+          class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
+          onclick={() => {
+            searchQuery = '' as Str;
+          }}
+          aria-label="Clear search"
+        >
+          <X class="size-4" />
+        </button>
+      {/if}
+    </div>
+
+    <!-- Category filter chips -->
+    <div class="flex flex-wrap items-center gap-1.5">
+      <button
+        type="button"
+        class={cn(
+          'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors',
+          activeCategories.length === 0
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+        )}
+        onclick={() => {
+          activeCategories = [];
+        }}
+      >
+        All
+      </button>
+      {#each groupedComponents as group (group.name)}
+        {@const CatIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
+        {@const isActive = activeCategories.includes(group.name)}
+        <Tooltip.Provider>
+          <Tooltip.Root delayDuration={300}>
+            <Tooltip.Trigger>
+              {#snippet child({ props })}
+                <button
+                  {...props}
+                  type="button"
+                  class={cn(
+                    'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors',
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+                  )}
+                  onclick={() => toggleCategory(group.name)}
+                >
+                  <CatIcon class="size-3 shrink-0 opacity-60" />
+                  {group.label}
+                  <span class="opacity-60">{group.components.length}</span>
+                  {#if isActive}
+                    <X class="size-3 opacity-70" />
+                  {/if}
+                </button>
+              {/snippet}
+            </Tooltip.Trigger>
+            <Tooltip.Content
+              side="bottom"
+              class="max-h-64 max-w-xs overflow-y-auto p-3"
+              portalProps={{ disabled: true }}
+            >
+              <div class="flex flex-col gap-1">
+                {#each group.components as comp (comp)}
+                  <div class="flex items-center gap-2 text-xs">
+                    <Tag class="size-3 shrink-0 text-muted-foreground/50" />
+                    <span class="font-mono text-[11px]">{toTitle(comp)}</span>
+                  </div>
+                {/each}
+              </div>
+            </Tooltip.Content>
+          </Tooltip.Root>
+        </Tooltip.Provider>
+      {/each}
+      {#if activeCategories.length > 0}
+        <button
+          type="button"
+          class="inline-flex items-center gap-1 rounded-full border border-dashed border-muted-foreground/30 px-2.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          onclick={() => {
+            activeCategories = [];
+          }}
+        >
+          <X class="size-3" />
+          Clear selection
+        </button>
+      {/if}
+    </div>
+  </div>
+
+  <!-- Page content -->
+  <div class="flex flex-col gap-6 px-6 py-6 md:px-10 md:py-8">
+    {#if filteredComponents.length === 0}
+      <div
+        class="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed bg-card py-16 text-center"
+      >
+        <div class="flex size-16 items-center justify-center rounded-2xl bg-muted/50">
+          <SearchX class="size-8 text-muted-foreground/40" />
+        </div>
+        <div class="space-y-1">
+          <p class="text-sm font-medium text-muted-foreground/60">No matching components</p>
+          <p class="max-w-64 text-xs leading-relaxed text-muted-foreground/40">
+            Try a different search term or clear filters
+          </p>
+        </div>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          onclick={() => {
+            searchQuery = '' as Str;
+            activeCategories = [];
+          }}
+        >
+          <X class="size-3" />
+          Clear filters
+        </button>
+      </div>
+    {:else}
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {#each filteredComponents as name (name)}
+          {@const meta = metaByName.get(name)}
+          {@const desc = getDescription(name)}
+          {@const compat = compatByName.get(name)}
+          {@const isCompat = compat?.compatible === true}
+          {@const cat = (meta?.category ?? 'display') as Str}
+          {@const CatIcon = CATEGORY_ICONS[cat] ?? ComponentIcon}
+          {@const catColor = CATEGORY_COLORS[cat] ?? ('text-muted-foreground' as Str)}
+          <a
+            href="/components/{name}"
+            class="group flex flex-col gap-2.5 rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md"
+          >
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-2">
+                <CatIcon class="size-4 {catColor}" />
+                <h3 class="text-sm font-semibold group-hover:text-primary">{toTitle(name)}</h3>
+              </div>
+              <div class="flex items-center gap-1.5">
+                {#if meta?.status}
+                  <Badge variant="secondary" class="text-[10px] {STATUS_COLORS[meta.status]}">
+                    {STATUS_LABELS[meta.status]}
+                  </Badge>
+                {/if}
+                <Tooltip.Root delayDuration={300}>
+                  <Tooltip.Trigger>
+                    {#snippet child({ props: compatTip })}
+                      <span {...compatTip}>
+                        {#if isCompat}
+                          <CircleCheck class="size-4 text-emerald-500" />
+                        {:else}
+                          <CircleAlert class="size-4 text-amber-500" />
+                        {/if}
+                      </span>
+                    {/snippet}
+                  </Tooltip.Trigger>
+                  <Tooltip.Content sideOffset={4} class="max-w-72" portalProps={{ disabled: true }}>
+                    {#if isCompat}
+                      <p class="text-xs">All compatibility rules pass</p>
+                    {:else if compat}
+                      {@const failedRules = new Set(
+                        compat.violations.map((vi) => vi.rule as number),
+                      )}
+                      {@const failCount = failedRules.size}
+                      {@const passCount = lensRuleNames.length - failCount}
+                      <p class="mb-1 text-[10px] font-semibold">
+                        Compatibility — {passCount}✓ {failCount}✗
+                      </p>
+                      <ul class="space-y-0.5">
+                        {#each lensRuleNames as ruleName, ruleIdx (ruleIdx)}
+                          {@const failed = failedRules.has(ruleIdx)}
+                          <li class="flex items-start gap-1 text-[10px]">
+                            <span
+                              class="mt-px shrink-0 font-bold leading-none {failed
+                                ? 'opacity-60'
+                                : 'opacity-40'}">{failed ? '✗' : '✓'}</span
+                            >
+                            <span
+                              ><span class="font-mono opacity-60">R{ruleIdx}</span>
+                              {ruleName}</span
+                            >
+                          </li>
+                        {/each}
+                      </ul>
+                    {:else}
+                      <p class="text-xs">Compatibility data unavailable</p>
+                    {/if}
+                  </Tooltip.Content>
+                </Tooltip.Root>
+              </div>
+            </div>
+            {#if desc}
+              <p class="line-clamp-2 text-xs leading-relaxed text-muted-foreground">{desc}</p>
+            {/if}
+            <div class="mt-auto flex items-center justify-between">
+              <div class="flex flex-wrap gap-1">
+                {#if meta?.tags}
+                  {#each meta.tags.slice(0, 3) as tag (tag)}
+                    <span
+                      class="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
+                    >
+                      <Tag class="size-3" />
+                      {tag}
+                    </span>
+                  {/each}
+                  {#if meta.tags.length > 3}
+                    <span
+                      class="rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground/60"
+                      >+{meta.tags.length - 3} more</span
+                    >
+                  {/if}
+                {/if}
+              </div>
+              <ArrowRight
+                class="size-3.5 shrink-0 text-muted-foreground/30 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
+              />
+            </div>
+          </a>
+        {/each}
+      </div>
+    {/if}
+  </div>
+</div>

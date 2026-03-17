@@ -482,6 +482,25 @@
 
     <!-- Navigation Cards -->
     <div class="flex flex-col gap-3">
+      <!-- All Components link -->
+      <a
+        href="/components/all"
+        class="group flex items-center gap-3 rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md"
+      >
+        <div class="flex size-9 items-center justify-center rounded-lg bg-primary/10">
+          <ComponentIcon class="size-5 text-primary" />
+        </div>
+        <div class="flex-1">
+          <h3 class="text-sm font-semibold group-hover:text-primary">All Components</h3>
+          <p class="text-xs text-muted-foreground">
+            Browse all {componentNames.length} components
+          </p>
+        </div>
+        <ArrowRight
+          class="size-4 text-muted-foreground/30 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
+        />
+      </a>
+
       <!-- Categories link -->
       <a
         href="/components/category"
@@ -494,6 +513,25 @@
           <h3 class="text-sm font-semibold group-hover:text-primary">Categories</h3>
           <p class="text-xs text-muted-foreground">
             {groupedComponents.length} categories with {componentNames.length} components
+          </p>
+        </div>
+        <ArrowRight
+          class="size-4 text-muted-foreground/30 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
+        />
+      </a>
+
+      <!-- Tags link -->
+      <a
+        href="/components/tags"
+        class="group flex items-center gap-3 rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md"
+      >
+        <div class="flex size-9 items-center justify-center rounded-lg bg-primary/10">
+          <TagIcon class="size-5 text-primary" />
+        </div>
+        <div class="flex-1">
+          <h3 class="text-sm font-semibold group-hover:text-primary">Tags</h3>
+          <p class="text-xs text-muted-foreground">
+            {allTags.length} tags across components
           </p>
         </div>
         <ArrowRight
