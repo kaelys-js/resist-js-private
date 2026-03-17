@@ -36,6 +36,7 @@
   import SearchIcon from '@lucide/svelte/icons/search';
   import Tag from '@lucide/svelte/icons/tag';
   import PackageOpen from '@lucide/svelte/icons/package-open';
+  import LensEmpty from '@/ui/lens-empty/LensEmpty.svelte';
 
   /* ------------------------------------------------------------------ */
   /*  Glob-based data                                                    */
@@ -242,29 +243,23 @@
       </a>
     </div>
   {:else if filteredComponents.length === 0}
-    <!-- Search returned no results -->
-    <div
-      class="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed bg-card py-16 text-center"
+    <LensEmpty
+      title="No results"
+      actionLabel="Clear search"
+      onaction={() => (searchQuery = '' as Str)}
+      class="bg-card"
     >
-      <div class="flex size-16 items-center justify-center rounded-2xl bg-muted/50">
-        <SearchIcon class="size-8 text-muted-foreground/20" />
-      </div>
-      <div class="flex flex-col items-center gap-1.5">
-        <h3 class="text-sm font-semibold text-muted-foreground/60">No results</h3>
-        <p class="max-w-64 text-xs leading-relaxed text-muted-foreground/40">
-          No components matching "<span class="font-medium text-muted-foreground/60"
-            >{searchQuery}</span
-          >" in {categoryLabel.toLowerCase()}.
-        </p>
-      </div>
-      <button
-        type="button"
-        onclick={() => (searchQuery = '' as Str)}
-        class="mt-2 inline-flex items-center gap-1.5 rounded-md bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-      >
-        Clear search
-      </button>
-    </div>
+      {#snippet icon()}
+        <div class="flex size-16 items-center justify-center rounded-2xl bg-muted/50">
+          <SearchIcon class="size-8 text-muted-foreground/20" />
+        </div>
+      {/snippet}
+      {#snippet descriptionSnippet()}
+        No components matching "<span class="font-medium text-muted-foreground/60"
+          >{searchQuery}</span
+        >" in {categoryLabel.toLowerCase()}.
+      {/snippet}
+    </LensEmpty>
   {:else}
     <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {#each filteredComponents as name (name)}
