@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'overlay',
-  tags: ['shadcn', 'compound'],
+  tags: ['popover', 'floating', 'anchor', 'panel', 'compound'],
   description: 'Floating content panel anchored to a trigger.',
 };
 

@@ -1,8 +1,8 @@
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
-  category: 'display',
-  tags: ['spinner', 'loading', 'progress', 'indicator'],
+  category: 'feedback',
+  tags: ['spinner', 'loading', 'indicator', 'animated'],
   description: 'Animated loading spinner with configurable size.',
 };
 

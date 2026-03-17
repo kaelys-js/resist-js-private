@@ -520,6 +520,10 @@
     });
     try {
       await navigator.clipboard.writeText(lines.join('\n'));
+      changelogCopyFeedback = true;
+      setTimeout((): Void => {
+        changelogCopyFeedback = false;
+      }, 2000);
     } catch {
       /* Clipboard write failed — browser may not support it in this context */
     }
@@ -1326,6 +1330,9 @@
 
   /** Feedback state for changelog export actions. */
   let changelogExportFeedback: Str = $state('');
+
+  /** Feedback state for "Copy Selected" changelog action (shows green check). */
+  let changelogCopyFeedback: Bool = $state(false);
 
   /** Changelog export format menu items with descriptions and file extension badges. */
   const CHANGELOG_EXPORT_ITEMS: Array<{
@@ -2493,9 +2500,9 @@
       />
     </div>
     {#if lensCompat && !lensCompat.compatible}
-      {@const failCount = lensCompat.violations.length}
-      {@const passCount = LENS_RULE_NAMES.length - failCount}
       {@const failedRules = new Set(lensCompat.violations.map((vi) => vi.rule as number))}
+      {@const failCount = failedRules.size}
+      {@const passCount = LENS_RULE_NAMES.length - failCount}
       <div class="mx-8 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3">
         <div class="flex items-start gap-2">
           <TriangleAlert class="mt-0.5 size-4 shrink-0 text-amber-500" aria-hidden="true" />
@@ -2507,7 +2514,7 @@
               {#each LENS_RULE_NAMES as ruleName, ruleIdx (ruleIdx)}
                 {#if failedRules.has(ruleIdx)}
                   <li class="flex items-start gap-1 text-xs text-foreground/70">
-                    <span class="mt-px shrink-0 font-bold leading-none text-red-500">✗</span>
+                    <span class="mt-px shrink-0 font-bold leading-none opacity-60">✗</span>
                     <span>
                       <span class="font-mono text-amber-500/70">R{ruleIdx}</span>
                       {ruleName}
@@ -4375,15 +4382,21 @@
                               class="rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
                               onclick={copySelectedChangelog}
                             >
-                              <Copy class="mr-1 inline size-3" />
-                              Copy Selected
+                              {#if changelogCopyFeedback}
+                                <span in:fade={{ duration: 150 }}>
+                                  <Check class="mr-1 inline size-3 text-green-500" />
+                                </span>
+                              {:else}
+                                <Copy class="mr-1 inline size-3" />
+                              {/if}
+                              {changelogCopyFeedback ? 'Copied!' : 'Copy Selected'}
                             </button>
                             <button
                               type="button"
-                              class="text-muted-foreground/60 hover:text-foreground"
+                              class="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground"
                               onclick={() => {
                                 selectedChangelogRows = new Set();
-                              }}>Clear</button
+                              }}>Clear Selection</button
                             >
                           </div>
                         {:else}

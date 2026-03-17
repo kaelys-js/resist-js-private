@@ -800,8 +800,8 @@
             {#each [{ key: 'name', label: 'Name' }, { key: 'required', label: 'Required' }, { key: 'type', label: 'Type' }, { key: 'accepts', label: 'Accepts' }, { key: 'default', label: 'Default' }, { key: 'description', label: 'Description' }] as col (col.key)}
               <th
                 class={cn(
-                  densityPadding(),
                   'text-left font-medium text-muted-foreground',
+                  onsort ? 'p-0' : densityPadding(),
                   col.key === 'name' && 'sticky left-0 z-[3] bg-muted/50',
                 )}
               >
@@ -813,7 +813,10 @@
                           <button
                             {...sortTipProps}
                             type="button"
-                            class="group/th inline-flex items-center gap-1 transition-colors hover:text-foreground"
+                            class={cn(
+                              'group/th flex w-full items-center gap-1 transition-colors hover:text-foreground',
+                              densityPadding(),
+                            )}
                             onclick={() => handleColumnSort(col.key as PropsTableSortColumn)}
                           >
                             {col.label}

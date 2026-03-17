@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'layout',
-  tags: ['aspect', 'ratio', 'image', 'video'],
+  tags: ['aspect-ratio', 'container', 'responsive', 'image'],
   description: 'Maintains a consistent width-to-height ratio for its child content.',
 };
 

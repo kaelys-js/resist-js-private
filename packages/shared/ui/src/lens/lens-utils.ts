@@ -446,18 +446,53 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
   const violations: LensViolation[] = [];
   const hasConvertMarker: boolean = input.source.includes('@convert-to-lens');
 
-  // If marked @convert-to-lens, that alone is a violation
+  // If marked @convert-to-lens, that alone is a violation — plus auto-fail structural rules
   if (hasConvertMarker) {
     violations.push({
       rule: 0 as Num,
       message: 'Needs Lens conversion (@convert-to-lens)' as Str,
     });
+    // R1-R4 require proper type blocks which placeholder components lack
+    violations.push({
+      rule: 1 as Num,
+      message: 'Skipped — needs Lens conversion first' as Str,
+    });
+    violations.push({
+      rule: 2 as Num,
+      message: 'Skipped — needs Lens conversion first' as Str,
+    });
+    violations.push({
+      rule: 3 as Num,
+      message: 'Skipped — needs Lens conversion first' as Str,
+    });
+    violations.push({
+      rule: 4 as Num,
+      message: 'Skipped — needs Lens conversion first' as Str,
+    });
+    // R12-R15 require v.strictObject/safeParse which placeholder components lack
+    violations.push({
+      rule: 12 as Num,
+      message: 'Skipped — needs Lens conversion first' as Str,
+    });
+    violations.push({
+      rule: 13 as Num,
+      message: 'Skipped — needs Lens conversion first' as Str,
+    });
+    violations.push({
+      rule: 14 as Num,
+      message: 'Skipped — needs Lens conversion first' as Str,
+    });
+    violations.push({
+      rule: 15 as Num,
+      message: 'Skipped — needs Lens conversion first' as Str,
+    });
   }
 
-  // Rule 1: @values on Str/Num fields in type definitions
-  if (input.source) {
-    const blocks: TypeBlock[] = findTypeBlocks(input.source);
-    for (const block of blocks) {
+  // Rules 1–4: Type block checks — skip if @convert-to-lens (already auto-failed above)
+  if (!hasConvertMarker && input.source) {
+    // Rule 1: @values on Str/Num fields in type definitions
+    const r1Blocks: TypeBlock[] = findTypeBlocks(input.source);
+    for (const block of r1Blocks) {
       for (const field of parseFields(block.body)) {
         if (
           (field.type === 'Str' || field.type === 'Num') &&
@@ -471,12 +506,10 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
         }
       }
     }
-  }
 
-  // Rule 2: No inline object types in Props
-  if (input.source) {
-    const blocks: TypeBlock[] = findTypeBlocks(input.source);
-    for (const block of blocks) {
+    // Rule 2: No inline object types in Props
+    const r2Blocks: TypeBlock[] = findTypeBlocks(input.source);
+    for (const block of r2Blocks) {
       if (!block.name.endsWith('Props')) continue;
       const lines: Str[] = block.body.split('\n');
       let skipDepth: Num = 0 as Num;
@@ -500,12 +533,10 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
         }
       }
     }
-  }
 
-  // Rule 3: JSDoc on every type definition field
-  if (input.source) {
-    const blocks: TypeBlock[] = findTypeBlocks(input.source);
-    for (const block of blocks) {
+    // Rule 3: JSDoc on every type definition field
+    const r3Blocks: TypeBlock[] = findTypeBlocks(input.source);
+    for (const block of r3Blocks) {
       for (const field of parseFields(block.body)) {
         if (!field.jsdoc) {
           violations.push({
@@ -515,12 +546,10 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
         }
       }
     }
-  }
 
-  // Rule 4: Component description JSDoc
-  if (input.source) {
-    const blocks: TypeBlock[] = findTypeBlocks(input.source);
-    if (blocks.length > 0) {
+    // Rule 4: Component description JSDoc
+    const r4Blocks: TypeBlock[] = findTypeBlocks(input.source);
+    if (r4Blocks.length > 0) {
       const scriptMatch: RegExpMatchArray | null = input.source.match(
         /<script\s+lang=["']ts["']>([\s\S]*?)<\/script>/,
       );

@@ -22,13 +22,13 @@
   import * as Tooltip from '@/ui/tooltip/index.js';
   import { cn } from '@/ui/utils.js';
   import { getContext, type Component } from 'svelte';
-  import LayoutGrid from '@lucide/svelte/icons/layout-grid';
-  import TextCursorInput from '@lucide/svelte/icons/text-cursor-input';
-  import Layers2 from '@lucide/svelte/icons/layers-2';
-  import Compass from '@lucide/svelte/icons/compass';
-  import Eye from '@lucide/svelte/icons/eye';
-  import Wrench from '@lucide/svelte/icons/wrench';
-  import Microscope from '@lucide/svelte/icons/microscope';
+  import {
+    CATEGORY_ICONS,
+    CATEGORY_COLORS,
+    CATEGORY_BG,
+    CATEGORY_DESCRIPTIONS,
+    categoryLabel as catLabelFn,
+  } from '$lib/config/lens-categories';
   import ComponentIcon from '@lucide/svelte/icons/component';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
   import CircleAlert from '@lucide/svelte/icons/circle-alert';
@@ -66,11 +66,7 @@
   const category: Str = $derived(page.params.category ?? '');
 
   /** Category display label. */
-  const categoryLabel: Str = $derived(
-    category.length > 0
-      ? ((category.charAt(0).toUpperCase() + category.slice(1)) as Str)
-      : ('' as Str),
-  );
+  const categoryLabel: Str = $derived(category.length > 0 ? catLabelFn(category) : ('' as Str));
 
   /** Sorted unique component directory names. */
   const allComponentNames: Str[] = [...new Set(Object.keys(allModules).map(extractDir))]
@@ -138,50 +134,6 @@
   /* ------------------------------------------------------------------ */
   /*  Mappings                                                            */
   /* ------------------------------------------------------------------ */
-
-  /** Category icon mapping. */
-  const CATEGORY_ICONS: Record<Str, Component> = {
-    form: TextCursorInput,
-    layout: LayoutGrid,
-    overlay: Layers2,
-    navigation: Compass,
-    display: Eye,
-    utility: Wrench,
-    lens: Microscope,
-  };
-
-  /** Category color mapping (icon + badge). */
-  const CATEGORY_COLORS: Record<Str, Str> = {
-    form: 'text-blue-600 dark:text-blue-400' as Str,
-    layout: 'text-purple-600 dark:text-purple-400' as Str,
-    overlay: 'text-amber-600 dark:text-amber-400' as Str,
-    navigation: 'text-emerald-600 dark:text-emerald-400' as Str,
-    display: 'text-rose-600 dark:text-rose-400' as Str,
-    utility: 'text-slate-600 dark:text-slate-400' as Str,
-    lens: 'text-primary' as Str,
-  };
-
-  /** Category background accent mapping. */
-  const CATEGORY_BG: Record<Str, Str> = {
-    form: 'bg-blue-500/10' as Str,
-    layout: 'bg-purple-500/10' as Str,
-    overlay: 'bg-amber-500/10' as Str,
-    navigation: 'bg-emerald-500/10' as Str,
-    display: 'bg-rose-500/10' as Str,
-    utility: 'bg-slate-500/10' as Str,
-    lens: 'bg-primary/10' as Str,
-  };
-
-  /** Category descriptions. */
-  const CATEGORY_DESCRIPTIONS: Record<Str, Str> = {
-    form: 'Input controls, selectors, and form elements' as Str,
-    layout: 'Structural components for page and content layout' as Str,
-    overlay: 'Modals, dialogs, popovers, and floating UI' as Str,
-    navigation: 'Menus, breadcrumbs, tabs, and wayfinding' as Str,
-    display: 'Visual content presentation and data display' as Str,
-    utility: 'Utility primitives and helper components' as Str,
-    lens: 'Lens documentation system components' as Str,
-  };
 
   /** Status badge color mapping. */
   const STATUS_COLORS: Record<LensStatus, Str> = {
@@ -352,7 +304,7 @@
                     <p class="text-xs">All compatibility rules pass</p>
                   {:else if compat}
                     {@const failedRules = new Set(compat.violations.map((vi) => vi.rule as number))}
-                    {@const failCount = compat.violations.length}
+                    {@const failCount = failedRules.size}
                     {@const passCount = lensRuleNames.length - failCount}
                     <p class="mb-1 text-[10px] font-semibold">
                       Compatibility — {passCount}✓ {failCount}✗
@@ -363,8 +315,8 @@
                         <li class="flex items-start gap-1 text-[10px]">
                           <span
                             class="mt-px shrink-0 font-bold leading-none {failed
-                              ? 'text-red-300'
-                              : 'text-emerald-300'}">{failed ? '✗' : '✓'}</span
+                              ? 'opacity-60'
+                              : 'opacity-40'}">{failed ? '✗' : '✓'}</span
                           >
                           <span
                             ><span class="font-mono opacity-60">R{ruleIdx}</span>

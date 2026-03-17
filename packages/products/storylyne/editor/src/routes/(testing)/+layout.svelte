@@ -41,13 +41,7 @@
   import ComponentIcon from '@lucide/svelte/icons/component';
   import SearchIcon from '@lucide/svelte/icons/search';
   import Palette from '@lucide/svelte/icons/palette';
-  import TextCursorInput from '@lucide/svelte/icons/text-cursor-input';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
-  import Layers2 from '@lucide/svelte/icons/layers-2';
-  import Compass from '@lucide/svelte/icons/compass';
-  import Eye from '@lucide/svelte/icons/eye';
-  import Wrench from '@lucide/svelte/icons/wrench';
-  import Microscope from '@lucide/svelte/icons/microscope';
   import * as Tooltip from '@/ui/tooltip/index.js';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
@@ -77,6 +71,14 @@
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import CircleX from '@lucide/svelte/icons/circle-x';
   import Tag from '@lucide/svelte/icons/tag';
+  import {
+    CATEGORY_ORDER,
+    CATEGORY_ICONS,
+    CATEGORY_COLORS,
+    CATEGORY_DESCRIPTIONS,
+    LENS_RULE_NAMES,
+    categoryLabel as catLabel,
+  } from '$lib/config/lens-categories';
   import * as Popover from '@/ui/popover/index.js';
   import Switch from '@/ui/switch/switch.svelte';
   import Button from '@/ui/button/button.svelte';
@@ -195,83 +197,16 @@
    * Group component names by category for sidebar rendering.
    * Components without metadata default to 'display'.
    */
-  const categoryOrder: Str[] = [
-    'form',
-    'layout',
-    'overlay',
-    'navigation',
-    'display',
-    'utility',
-    'lens',
-  ];
-
-  const groupedComponents: CategoryGroup[] = categoryOrder
-    .map(
-      (cat: Str): CategoryGroup => ({
-        name: cat,
-        label: cat.charAt(0).toUpperCase() + cat.slice(1),
-        components: componentNames.filter((n: Str): boolean => {
-          const m: LensMeta | undefined = metaByName.get(n);
-          return (m?.category ?? 'display') === cat;
-        }),
+  const groupedComponents: CategoryGroup[] = CATEGORY_ORDER.map(
+    (cat: Str): CategoryGroup => ({
+      name: cat,
+      label: catLabel(cat),
+      components: componentNames.filter((n: Str): boolean => {
+        const m: LensMeta | undefined = metaByName.get(n);
+        return (m?.category ?? 'display') === cat;
       }),
-    )
-    .filter((g: CategoryGroup): boolean => g.components.length > 0);
-
-  /** Category-to-icon mapping for visual differentiation in sidebar triggers. */
-  const CATEGORY_ICONS: Record<Str, Component> = {
-    form: TextCursorInput,
-    layout: LayoutGrid,
-    overlay: Layers2,
-    navigation: Compass,
-    display: Eye,
-    utility: Wrench,
-    lens: Microscope,
-  };
-
-  /** Category-to-color mapping for sidebar component item icons. */
-  const CATEGORY_COLORS: Record<Str, Str> = {
-    form: 'text-blue-600 dark:text-blue-400' as Str,
-    layout: 'text-purple-600 dark:text-purple-400' as Str,
-    overlay: 'text-amber-600 dark:text-amber-400' as Str,
-    navigation: 'text-emerald-600 dark:text-emerald-400' as Str,
-    display: 'text-rose-600 dark:text-rose-400' as Str,
-    utility: 'text-slate-600 dark:text-slate-400' as Str,
-    lens: 'text-primary' as Str,
-  };
-
-  /** Short description per category for sidebar header tooltips. */
-  const CATEGORY_DESCRIPTIONS: Record<Str, Str> = {
-    form: 'Input controls, selectors, and form elements' as Str,
-    layout: 'Structural components for page and content layout' as Str,
-    overlay: 'Modals, dialogs, popovers, and floating UI' as Str,
-    navigation: 'Menus, breadcrumbs, tabs, and wayfinding' as Str,
-    display: 'Visual content presentation and data display' as Str,
-    utility: 'Utility primitives and helper components' as Str,
-    lens: 'Lens documentation system components' as Str,
-  };
-
-  /** Short rule descriptions for all 18 Lens compatibility rules (R0–R17). */
-  const LENS_RULE_NAMES: readonly Str[] = [
-    'Needs Lens conversion' as Str,
-    '@values on Str/Num type fields' as Str,
-    'No inline object types' as Str,
-    'JSDoc on type fields' as Str,
-    'Component description JSDoc' as Str,
-    'No orphaned Demo.svelte' as Str,
-    'Valid lens.ts exists' as Str,
-    'JSDoc on extracted props' as Str,
-    '@values on extracted Str/Num props' as Str,
-    'Renderable Lens content' as Str,
-    'Directory is kebab-case' as Str,
-    'Primary .svelte file exists' as Str,
-    'Uses v.strictObject()' as Str,
-    'No bare v.object()' as Str,
-    'Uses safeParse + stripSvelteProps' as Str,
-    'No bare Valibot primitives' as Str,
-    'Example files match declarations' as Str,
-    'tv-variant tag when tv() used' as Str,
-  ];
+    }),
+  ).filter((g: CategoryGroup): boolean => g.components.length > 0);
 
   /**
    * Raw example .svelte file paths for compatibility checking (rule 16).
@@ -1178,7 +1113,7 @@
 
   /** Per-category collapsible open state (keyed by category name, default open). */
   let sidebarCategoryOpen: Record<Str, boolean> = $state(
-    Object.fromEntries(categoryOrder.map((cat: Str): [Str, boolean] => [cat, true])),
+    Object.fromEntries(CATEGORY_ORDER.map((cat: Str): [Str, boolean] => [cat, true])),
   );
 
   /**
@@ -1188,7 +1123,7 @@
     sidebarComponentsOpen = true;
     sidebarPinnedOpen = true;
     sidebarRecentOpen = true;
-    for (const cat of categoryOrder) {
+    for (const cat of CATEGORY_ORDER) {
       sidebarCategoryOpen[cat] = true;
     }
   }
@@ -1200,7 +1135,7 @@
     sidebarComponentsOpen = false;
     sidebarPinnedOpen = false;
     sidebarRecentOpen = false;
-    for (const cat of categoryOrder) {
+    for (const cat of CATEGORY_ORDER) {
       sidebarCategoryOpen[cat] = false;
     }
   }
@@ -1295,7 +1230,9 @@
     });
     return {
       totalComponents: componentNames.length,
-      categories: categoryOrder.filter((cat: Str) => groupedComponents.some((g) => g.name === cat)),
+      categories: CATEGORY_ORDER.filter((cat: Str) =>
+        groupedComponents.some((g) => g.name === cat),
+      ),
       components,
     };
   }
@@ -2179,16 +2116,21 @@
                                   {@const failedRules = new Set(
                                     itemCompat.violations.map((v) => v.rule as number),
                                   )}
+                                  {@const sidebarFailCount = failedRules.size}
+                                  {@const sidebarPassCount =
+                                    LENS_RULE_NAMES.length - sidebarFailCount}
                                   <div class="mt-1.5 border-t border-border pt-1.5">
-                                    <p class="mb-1 text-[10px] font-semibold">Compatibility</p>
+                                    <p class="mb-1 text-[10px] font-semibold">
+                                      Compatibility — {sidebarPassCount}✓ {sidebarFailCount}✗
+                                    </p>
                                     <ul class="space-y-0.5">
                                       {#each LENS_RULE_NAMES as ruleName, ruleIdx (ruleIdx)}
                                         {@const failed = failedRules.has(ruleIdx)}
                                         <li class="flex items-start gap-1 text-[10px]">
                                           <span
                                             class="mt-px shrink-0 font-bold leading-none {failed
-                                              ? 'text-red-300'
-                                              : 'text-emerald-300'}">{failed ? '✗' : '✓'}</span
+                                              ? 'opacity-60'
+                                              : 'opacity-40'}">{failed ? '✗' : '✓'}</span
                                           >
                                           <span
                                             ><span class="font-mono opacity-60">R{ruleIdx}</span>

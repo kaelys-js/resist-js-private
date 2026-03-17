@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'form',
-  tags: ['shadcn'],
+  tags: ['label', 'form-field', 'text', 'accessibility'],
   description: 'Form field label.',
 };
 

@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'overlay',
-  tags: ['shadcn', 'compound'],
+  tags: ['dropdown', 'menu', 'actions', 'context', 'compound'],
   description: 'Contextual dropdown menu with items and sub-menus.',
 };
 

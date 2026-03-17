@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'layout',
-  tags: ['shadcn'],
+  tags: ['separator', 'divider', 'line', 'horizontal'],
   description: 'Visual divider between content sections.',
 };
 

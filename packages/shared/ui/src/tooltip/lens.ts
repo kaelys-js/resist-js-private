@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'overlay',
-  tags: ['shadcn', 'compound'],
+  tags: ['tooltip', 'hover', 'info', 'popup', 'compound'],
   description: 'Hover tooltip for additional context.',
 };
 

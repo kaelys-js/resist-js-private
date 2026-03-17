@@ -2,6 +2,6 @@ import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'navigation',
-  tags: ['app-specific', 'compound'],
+  tags: ['navigation', 'secondary', 'links', 'menu', 'compound'],
   description: 'Secondary navigation links section.',
 };

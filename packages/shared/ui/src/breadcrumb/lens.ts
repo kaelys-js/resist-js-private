@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'navigation',
-  tags: ['shadcn', 'compound'],
+  tags: ['breadcrumb', 'trail', 'navigation', 'path', 'compound'],
   description: 'Breadcrumb trail navigation with separator icons.',
 };
 

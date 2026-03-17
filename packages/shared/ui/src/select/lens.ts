@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'form',
-  tags: ['shadcn', 'compound'],
+  tags: ['select', 'dropdown', 'picker', 'option', 'compound'],
   description: 'Dropdown selection with grouped options.',
 };
 
