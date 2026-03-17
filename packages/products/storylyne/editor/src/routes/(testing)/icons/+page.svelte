@@ -902,19 +902,7 @@
   function categorySamples(catName: Str): Str[] {
     const icons: Set<Str> | undefined = categoryMap.get(catName);
     if (!icons) return [];
-    return [...icons].slice(0, 12) as Str[];
-  }
-
-  /**
-   * Get the remaining count of icons not shown in the tooltip.
-   *
-   * @param catName - Category name
-   * @returns Number of remaining icons beyond the 12 shown
-   */
-  function categoryRemaining(catName: Str): Num {
-    const icons: Set<Str> | undefined = categoryMap.get(catName);
-    if (!icons) return 0 as Num;
-    return Math.max(0, icons.size - 12) as Num;
+    return [...icons] as Str[];
   }
 
   /**
@@ -1618,7 +1606,11 @@
                 </button>
               {/snippet}
             </Tooltip.Trigger>
-            <Tooltip.Content side="bottom" class="max-h-64 max-w-xs overflow-y-auto p-3">
+            <Tooltip.Content
+              side="bottom"
+              class="max-h-64 max-w-xs overflow-y-auto p-3"
+              portalProps={{ disabled: true }}
+            >
               <div class="flex flex-col gap-1">
                 {#each categorySamples(cat.name) as sample (sample)}
                   <div class="flex items-center gap-2 text-xs">
@@ -1626,11 +1618,6 @@
                     <span class="font-mono text-[11px]">{sample}</span>
                   </div>
                 {/each}
-                {#if (categoryRemaining(cat.name) as number) > 0}
-                  <div class="mt-1 text-[10px] text-muted-foreground/60">
-                    +{categoryRemaining(cat.name)} more
-                  </div>
-                {/if}
               </div>
             </Tooltip.Content>
           </Tooltip.Root>
