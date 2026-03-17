@@ -699,19 +699,18 @@
                 </button>
               {/snippet}
             </Tooltip.Trigger>
-            <Tooltip.Content side="bottom" class="max-h-64 max-w-xs overflow-y-auto p-3">
+            <Tooltip.Content
+              side="bottom"
+              class="max-h-64 max-w-xs overflow-y-auto p-3"
+              portalProps={{ disabled: true }}
+            >
               <div class="flex flex-col gap-1">
-                {#each group.components.slice(0, 12) as comp (comp)}
+                {#each group.components as comp (comp)}
                   <div class="flex items-center gap-2 text-xs">
                     <TagIcon class="size-3 shrink-0 text-muted-foreground/50" />
                     <span class="font-mono text-[11px]">{toTitle(comp)}</span>
                   </div>
                 {/each}
-                {#if group.components.length > 12}
-                  <div class="mt-1 text-[10px] text-muted-foreground/60">
-                    +{group.components.length - 12} more
-                  </div>
-                {/if}
               </div>
             </Tooltip.Content>
           </Tooltip.Root>
