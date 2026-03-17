@@ -1,1 +1,9 @@
-export { default as Tracker } from './tracker.svelte';
+import Root, { type TrackerProps, TrackerPropsSchema } from './Tracker.svelte';
+
+export {
+  Root,
+  type TrackerProps,
+  TrackerPropsSchema,
+  //
+  Root as Tracker,
+};

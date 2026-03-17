@@ -1,29 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Number of columns (or responsive) @values number, object */
-    columns = 3,
-    /** Gap between items @values number, string */
-    gap = '1rem',
-    /** Fill columns left-to-right */
-    sequential = false,
-    children,
-  }: {
-    /** Number of columns (or responsive) */
-    columns?: Num;
-    /** Gap between items */
-    gap?: Str;
-    /** Fill columns left-to-right */
-    sequential?: Bool;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const MasonryPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type MasonryProps = v.InferOutput<typeof MasonryPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Masonry — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Masonry />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = MasonryProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: MasonryProps = $derived.by(() => {
+    const rawProps: MasonryProps = stripSvelteProps(allProps);
+    const result = safeParse(MasonryPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as MasonryProps;
+  });
+</script>
+
+<div data-slot="masonry" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

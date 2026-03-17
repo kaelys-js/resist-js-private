@@ -1,53 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Tour step definitions (target, title, content) */
-    steps,
-    /** Controlled visibility */
-    open,
-    /** Current step index @values 0, 0, 10 */
-    current = 0,
-    /** Dim non-highlighted areas */
-    mask = true,
-    /** Show pointer arrow */
-    arrow = true,
-    /** Visual style @values 'default', 'primary' */
-    type = 'default',
-    /** Popover placement @values 'bottom' */
-    placement = 'bottom',
-    /** Padding around highlighted element */
-    gap,
-    /** Scroll behavior */
-    scrollIntoViewOptions,
-    children,
-  }: {
-    /** Tour step definitions (target, title, content) */
-    steps: Str[];
-    /** Controlled visibility */
-    open: Bool;
-    /** Current step index */
-    current?: Num;
-    /** Dim non-highlighted areas */
-    mask?: Bool;
-    /** Show pointer arrow */
-    arrow?: Bool;
-    /** Visual style */
-    type?: Str;
-    /** Popover placement */
-    placement?: Str;
-    /** Padding around highlighted element */
-    gap: Record<Str, unknown>;
-    /** Scroll behavior */
-    scrollIntoViewOptions: Record<Str, unknown>;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const TourPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type TourProps = v.InferOutput<typeof TourPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Tour — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Tour />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = TourProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: TourProps = $derived.by(() => {
+    const rawProps: TourProps = stripSvelteProps(allProps);
+    const result = safeParse(TourPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as TourProps;
+  });
+</script>
+
+<div data-slot="tour" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

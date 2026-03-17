@@ -1,1 +1,9 @@
-export { default as AnimatedBeam } from './animated-beam.svelte';
+import Root, { type AnimatedBeamProps, AnimatedBeamPropsSchema } from './AnimatedBeam.svelte';
+
+export {
+  Root,
+  type AnimatedBeamProps,
+  AnimatedBeamPropsSchema,
+  //
+  Root as AnimatedBeam,
+};

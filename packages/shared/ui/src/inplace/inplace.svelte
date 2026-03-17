@@ -1,29 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Whether content view is shown */
-    active = false,
-    /** Show close button in content view */
-    closable = false,
-    /** Disabled state */
-    disabled = false,
-    children,
-  }: {
-    /** Whether content view is shown */
-    active?: Bool;
-    /** Show close button in content view */
-    closable?: Bool;
-    /** Disabled state */
-    disabled?: Bool;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const InplacePropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type InplaceProps = v.InferOutput<typeof InplacePropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Inplace — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Inplace />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = InplaceProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: InplaceProps = $derived.by(() => {
+    const rawProps: InplaceProps = stripSvelteProps(allProps);
+    const result = safeParse(InplacePropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as InplaceProps;
+  });
+</script>
+
+<div data-slot="inplace" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

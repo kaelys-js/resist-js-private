@@ -1,7 +1,7 @@
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
-  category: 'display',
+  category: 'marketing',
   tags: ['logo', 'cloud', 'clients', 'marquee'],
   description: 'LogoCloud component — awaiting implementation.',
 };

@@ -1,1 +1,9 @@
-export { default as Paper } from './paper.svelte';
+import Root, { type PaperProps, PaperPropsSchema } from './Paper.svelte';
+
+export {
+  Root,
+  type PaperProps,
+  PaperPropsSchema,
+  //
+  Root as Paper,
+};

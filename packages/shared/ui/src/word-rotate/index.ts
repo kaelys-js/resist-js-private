@@ -1,1 +1,9 @@
-export { default as WordRotate } from './word-rotate.svelte';
+import Root, { type WordRotateProps, WordRotatePropsSchema } from './WordRotate.svelte';
+
+export {
+  Root,
+  type WordRotateProps,
+  WordRotatePropsSchema,
+  //
+  Root as WordRotate,
+};

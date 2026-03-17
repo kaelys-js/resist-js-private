@@ -1,1 +1,12 @@
-export { default as NoiseBackground } from './noise-background.svelte';
+import Root, {
+  type NoiseBackgroundProps,
+  NoiseBackgroundPropsSchema,
+} from './NoiseBackground.svelte';
+
+export {
+  Root,
+  type NoiseBackgroundProps,
+  NoiseBackgroundPropsSchema,
+  //
+  Root as NoiseBackground,
+};

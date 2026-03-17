@@ -1,1 +1,9 @@
-export { default as ChatBubble } from './chat-bubble.svelte';
+import Root, { type ChatBubbleProps, ChatBubblePropsSchema } from './ChatBubble.svelte';
+
+export {
+  Root,
+  type ChatBubbleProps,
+  ChatBubblePropsSchema,
+  //
+  Root as ChatBubble,
+};

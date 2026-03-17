@@ -1,57 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Watermark text @values string, string[] */
-    content,
-    /** Watermark image URL @values image */
-    image,
-    /** Single mark width @values 0, 120, 240 */
-    width = 120,
-    /** Single mark height @values 0, 64, 128 */
-    height = 64,
-    /** Rotation angle @values 0, 50, 100 */
-    rotate,
-    /** Spacing between marks @values [number, number] */
-    gap,
-    /** Position offset @values [number, number] */
-    offset,
-    /** Font style (color, size, weight, family) */
-    font,
-    /** Stack order @values 0, 9, 18 */
-    zIndex = 9,
-    /** Inherit parent font */
-    inherit = false,
-    children,
-  }: {
-    /** Watermark text */
-    content: Str;
-    /** Watermark image URL */
-    image: Str;
-    /** Single mark width */
-    width?: Num;
-    /** Single mark height */
-    height?: Num;
-    /** Rotation angle */
-    rotate?: Num;
-    /** Spacing between marks */
-    gap?: Str;
-    /** Position offset */
-    offset: Str;
-    /** Font style (color, size, weight, family) */
-    font: Record<Str, unknown>;
-    /** Stack order */
-    zIndex?: Num;
-    /** Inherit parent font */
-    inherit?: Bool;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const WatermarkPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type WatermarkProps = v.InferOutput<typeof WatermarkPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Watermark — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Watermark />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = WatermarkProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: WatermarkProps = $derived.by(() => {
+    const rawProps: WatermarkProps = stripSvelteProps(allProps);
+    const result = safeParse(WatermarkPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as WatermarkProps;
+  });
+</script>
+
+<div data-slot="watermark" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

@@ -1,1 +1,12 @@
-export { default as ScrollWheelPicker } from './scroll-wheel-picker.svelte';
+import Root, {
+  type ScrollWheelPickerProps,
+  ScrollWheelPickerPropsSchema,
+} from './ScrollWheelPicker.svelte';
+
+export {
+  Root,
+  type ScrollWheelPickerProps,
+  ScrollWheelPickerPropsSchema,
+  //
+  Root as ScrollWheelPicker,
+};

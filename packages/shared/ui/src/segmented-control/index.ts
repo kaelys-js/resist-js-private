@@ -1,1 +1,12 @@
-export { default as SegmentedControl } from './segmented-control.svelte';
+import Root, {
+  type SegmentedControlProps,
+  SegmentedControlPropsSchema,
+} from './SegmentedControl.svelte';
+
+export {
+  Root,
+  type SegmentedControlProps,
+  SegmentedControlPropsSchema,
+  //
+  Root as SegmentedControl,
+};

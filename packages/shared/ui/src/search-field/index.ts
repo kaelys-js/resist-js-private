@@ -1,1 +1,9 @@
-export { default as SearchField } from './search-field.svelte';
+import Root, { type SearchFieldProps, SearchFieldPropsSchema } from './SearchField.svelte';
+
+export {
+  Root,
+  type SearchFieldProps,
+  SearchFieldPropsSchema,
+  //
+  Root as SearchField,
+};

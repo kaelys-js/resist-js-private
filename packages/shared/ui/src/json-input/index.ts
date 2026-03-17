@@ -1,1 +1,9 @@
-export { default as JsonInput } from './json-input.svelte';
+import Root, { type JsonInputProps, JsonInputPropsSchema } from './JsonInput.svelte';
+
+export {
+  Root,
+  type JsonInputProps,
+  JsonInputPropsSchema,
+  //
+  Root as JsonInput,
+};

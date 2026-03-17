@@ -1,1 +1,9 @@
-export { default as QrCode } from './qr-code.svelte';
+import Root, { type QrCodeProps, QrCodePropsSchema } from './QrCode.svelte';
+
+export {
+  Root,
+  type QrCodeProps,
+  QrCodePropsSchema,
+  //
+  Root as QrCode,
+};

@@ -1,0 +1,44 @@
+<!-- @convert-to-lens -->
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
+
+  export const ComparisonSliderPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type ComparisonSliderProps = v.InferOutput<typeof ComparisonSliderPropsSchema>;
+</script>
+
+<script lang="ts">
+  /**
+   * ComparisonSlider — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <ComparisonSlider />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = ComparisonSliderProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: ComparisonSliderProps = $derived.by(() => {
+    const rawProps: ComparisonSliderProps = stripSvelteProps(allProps);
+    const result = safeParse(ComparisonSliderPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as ComparisonSliderProps;
+  });
+</script>
+
+<div data-slot="comparison-slider" class={cn(validated.class)}>
+  {@render allProps.children?.()}
+</div>

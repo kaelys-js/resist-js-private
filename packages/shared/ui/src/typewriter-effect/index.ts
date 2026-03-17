@@ -1,1 +1,12 @@
-export { default as TypewriterEffect } from './typewriter-effect.svelte';
+import Root, {
+  type TypewriterEffectProps,
+  TypewriterEffectPropsSchema,
+} from './TypewriterEffect.svelte';
+
+export {
+  Root,
+  type TypewriterEffectProps,
+  TypewriterEffectPropsSchema,
+  //
+  Root as TypewriterEffect,
+};

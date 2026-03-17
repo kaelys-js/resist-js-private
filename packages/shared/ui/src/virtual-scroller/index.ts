@@ -1,1 +1,12 @@
-export { default as VirtualScroller } from './virtual-scroller.svelte';
+import Root, {
+  type VirtualScrollerProps,
+  VirtualScrollerPropsSchema,
+} from './VirtualScroller.svelte';
+
+export {
+  Root,
+  type VirtualScrollerProps,
+  VirtualScrollerPropsSchema,
+  //
+  Root as VirtualScroller,
+};

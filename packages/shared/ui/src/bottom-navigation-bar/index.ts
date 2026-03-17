@@ -1,1 +1,12 @@
-export { default as BottomNavigationBar } from './bottom-navigation-bar.svelte';
+import Root, {
+  type BottomNavigationBarProps,
+  BottomNavigationBarPropsSchema,
+} from './BottomNavigationBar.svelte';
+
+export {
+  Root,
+  type BottomNavigationBarProps,
+  BottomNavigationBarPropsSchema,
+  //
+  Root as BottomNavigationBar,
+};

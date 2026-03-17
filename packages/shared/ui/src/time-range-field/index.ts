@@ -1,1 +1,9 @@
-export { default as TimeRangeField } from './time-range-field.svelte';
+import Root, { type TimeRangeFieldProps, TimeRangeFieldPropsSchema } from './TimeRangeField.svelte';
+
+export {
+  Root,
+  type TimeRangeFieldProps,
+  TimeRangeFieldPropsSchema,
+  //
+  Root as TimeRangeField,
+};

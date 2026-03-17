@@ -1,49 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Current value @values 0, 0, 10 */
-    value = 0,
-    /** Minimum value @values 0, 0, 10 */
-    min = 0,
-    /** Maximum value @values 0, 100, 200 */
-    max = 100,
-    /** Component size @values 'sm', 'md', 'lg' */
-    size = 'md',
-    /** Display numeric value */
-    showValue = true,
-    /** Fill color @values 'primary' */
-    color = 'primary',
-    /** Background track color @values 'muted' */
-    trackColor = 'muted',
-    /** Stroke width @values 0, 50, 100 */
-    thickness,
-    children,
-  }: {
-    /** Current value */
-    value?: Num;
-    /** Minimum value */
-    min?: Num;
-    /** Maximum value */
-    max?: Num;
-    /** Component size */
-    size?: Str;
-    /** Display numeric value */
-    showValue?: Bool;
-    /** Fill color */
-    color?: Str;
-    /** Background track color */
-    trackColor?: Str;
-    /** Stroke width */
-    thickness: Num;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const GaugePropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type GaugeProps = v.InferOutput<typeof GaugePropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Gauge — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Gauge />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = GaugeProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: GaugeProps = $derived.by(() => {
+    const rawProps: GaugeProps = stripSvelteProps(allProps);
+    const result = safeParse(GaugePropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as GaugeProps;
+  });
+</script>
+
+<div data-slot="gauge" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

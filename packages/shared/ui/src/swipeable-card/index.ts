@@ -1,1 +1,9 @@
-export { default as SwipeableCard } from './swipeable-card.svelte';
+import Root, { type SwipeableCardProps, SwipeableCardPropsSchema } from './SwipeableCard.svelte';
+
+export {
+  Root,
+  type SwipeableCardProps,
+  SwipeableCardPropsSchema,
+  //
+  Root as SwipeableCard,
+};

@@ -1,1 +1,9 @@
-export { default as TreeView } from './tree-view.svelte';
+import Root, { type TreeViewProps, TreeViewPropsSchema } from './TreeView.svelte';
+
+export {
+  Root,
+  type TreeViewProps,
+  TreeViewPropsSchema,
+  //
+  Root as TreeView,
+};

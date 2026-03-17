@@ -1,33 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Ripple color @values 'currentColor' */
-    color = 'currentColor',
-    /** Number of rings @values 0, 3, 6 */
-    count = 3,
-    /** Animation duration (seconds) @values 0, 2, 4 */
-    duration = 2,
-    /** Maximum ring size @values 0, 50, 100 */
-    size,
-    children,
-  }: {
-    /** Ripple color */
-    color?: Str;
-    /** Number of rings */
-    count?: Num;
-    /** Animation duration (seconds) */
-    duration?: Num;
-    /** Maximum ring size */
-    size: Num;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const RipplePropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type RippleProps = v.InferOutput<typeof RipplePropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Ripple — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Ripple />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = RippleProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: RippleProps = $derived.by(() => {
+    const rawProps: RippleProps = stripSvelteProps(allProps);
+    const result = safeParse(RipplePropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as RippleProps;
+  });
+</script>
+
+<div data-slot="ripple" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

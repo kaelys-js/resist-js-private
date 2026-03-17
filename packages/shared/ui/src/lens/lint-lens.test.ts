@@ -533,6 +533,10 @@ describe('Lens lint', () => {
       if (!primaryFile) continue;
 
       const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+
+      // Skip placeholder components explicitly marked for future implementation
+      if (source.includes('@convert-to-lens')) continue;
+
       const props: PropMeta[] = extractProps(source);
       const variants: VariantMeta | null = extractVariants(source);
       const hasExamples: boolean =

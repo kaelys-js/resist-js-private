@@ -1,1 +1,9 @@
-export { default as BlockUi } from './block-ui.svelte';
+import Root, { type BlockUiProps, BlockUiPropsSchema } from './BlockUi.svelte';
+
+export {
+  Root,
+  type BlockUiProps,
+  BlockUiPropsSchema,
+  //
+  Root as BlockUi,
+};

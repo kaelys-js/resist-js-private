@@ -1,1 +1,9 @@
-export { default as RadioCard } from './radio-card.svelte';
+import Root, { type RadioCardProps, RadioCardPropsSchema } from './RadioCard.svelte';
+
+export {
+  Root,
+  type RadioCardProps,
+  RadioCardPropsSchema,
+  //
+  Root as RadioCard,
+};

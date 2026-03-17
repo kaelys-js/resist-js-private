@@ -1,1 +1,9 @@
-export { default as ColorWheel } from './color-wheel.svelte';
+import Root, { type ColorWheelProps, ColorWheelPropsSchema } from './ColorWheel.svelte';
+
+export {
+  Root,
+  type ColorWheelProps,
+  ColorWheelPropsSchema,
+  //
+  Root as ColorWheel,
+};

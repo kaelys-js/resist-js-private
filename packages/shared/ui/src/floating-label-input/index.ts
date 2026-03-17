@@ -1,1 +1,12 @@
-export { default as FloatingLabelInput } from './floating-label-input.svelte';
+import Root, {
+  type FloatingLabelInputProps,
+  FloatingLabelInputPropsSchema,
+} from './FloatingLabelInput.svelte';
+
+export {
+  Root,
+  type FloatingLabelInputProps,
+  FloatingLabelInputPropsSchema,
+  //
+  Root as FloatingLabelInput,
+};

@@ -1,1 +1,9 @@
-export { default as PickList } from './pick-list.svelte';
+import Root, { type PickListProps, PickListPropsSchema } from './PickList.svelte';
+
+export {
+  Root,
+  type PickListProps,
+  PickListPropsSchema,
+  //
+  Root as PickList,
+};

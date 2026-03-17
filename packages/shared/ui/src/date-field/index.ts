@@ -1,1 +1,9 @@
-export { default as DateField } from './date-field.svelte';
+import Root, { type DateFieldProps, DateFieldPropsSchema } from './DateField.svelte';
+
+export {
+  Root,
+  type DateFieldProps,
+  DateFieldPropsSchema,
+  //
+  Root as DateField,
+};

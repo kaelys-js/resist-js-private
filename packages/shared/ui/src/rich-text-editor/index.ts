@@ -1,1 +1,9 @@
-export { default as RichTextEditor } from './rich-text-editor.svelte';
+import Root, { type RichTextEditorProps, RichTextEditorPropsSchema } from './RichTextEditor.svelte';
+
+export {
+  Root,
+  type RichTextEditorProps,
+  RichTextEditorPropsSchema,
+  //
+  Root as RichTextEditor,
+};

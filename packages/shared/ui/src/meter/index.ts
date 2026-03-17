@@ -1,1 +1,9 @@
-export { default as Meter } from './meter.svelte';
+import Root, { type MeterProps, MeterPropsSchema } from './Meter.svelte';
+
+export {
+  Root,
+  type MeterProps,
+  MeterPropsSchema,
+  //
+  Root as Meter,
+};

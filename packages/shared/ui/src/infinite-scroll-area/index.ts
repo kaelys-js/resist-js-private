@@ -1,1 +1,12 @@
-export { default as InfiniteScrollArea } from './infinite-scroll-area.svelte';
+import Root, {
+  type InfiniteScrollAreaProps,
+  InfiniteScrollAreaPropsSchema,
+} from './InfiniteScrollArea.svelte';
+
+export {
+  Root,
+  type InfiniteScrollAreaProps,
+  InfiniteScrollAreaPropsSchema,
+  //
+  Root as InfiniteScrollArea,
+};

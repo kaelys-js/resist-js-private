@@ -1,1 +1,12 @@
-export { default as ReorderableList } from './reorderable-list.svelte';
+import Root, {
+  type ReorderableListProps,
+  ReorderableListPropsSchema,
+} from './ReorderableList.svelte';
+
+export {
+  Root,
+  type ReorderableListProps,
+  ReorderableListPropsSchema,
+  //
+  Root as ReorderableList,
+};

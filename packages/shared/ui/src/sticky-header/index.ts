@@ -1,1 +1,9 @@
-export { default as StickyHeader } from './sticky-header.svelte';
+import Root, { type StickyHeaderProps, StickyHeaderPropsSchema } from './StickyHeader.svelte';
+
+export {
+  Root,
+  type StickyHeaderProps,
+  StickyHeaderPropsSchema,
+  //
+  Root as StickyHeader,
+};

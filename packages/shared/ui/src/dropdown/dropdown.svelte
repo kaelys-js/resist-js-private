@@ -1,45 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Menu items */
-    items,
-    /** Open trigger @values 'click', 'hover', 'contextMenu' */
-    trigger = 'click',
-    /** Menu position @values 'bottomLeft' */
-    placement = 'bottomLeft',
-    /** Disabled state */
-    disabled = false,
-    /** Show arrow pointer */
-    arrow = false,
-    /** Controlled open state */
-    open,
-    /** Unmount on close */
-    destroyPopupOnHide = false,
-    children,
-  }: {
-    /** Menu items */
-    items: Str[];
-    /** Open trigger */
-    trigger?: Str;
-    /** Menu position */
-    placement?: Str;
-    /** Disabled state */
-    disabled?: Bool;
-    /** Show arrow pointer */
-    arrow?: Bool;
-    /** Controlled open state */
-    open: Bool;
-    /** Unmount on close */
-    destroyPopupOnHide?: Bool;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const DropdownPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type DropdownProps = v.InferOutput<typeof DropdownPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Dropdown — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Dropdown />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = DropdownProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: DropdownProps = $derived.by(() => {
+    const rawProps: DropdownProps = stripSvelteProps(allProps);
+    const result = safeParse(DropdownPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as DropdownProps;
+  });
+</script>
+
+<div data-slot="dropdown" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

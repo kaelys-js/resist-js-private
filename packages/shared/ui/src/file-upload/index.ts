@@ -1,1 +1,9 @@
-export { default as FileUpload } from './file-upload.svelte';
+import Root, { type FileUploadProps, FileUploadPropsSchema } from './FileUpload.svelte';
+
+export {
+  Root,
+  type FileUploadProps,
+  FileUploadPropsSchema,
+  //
+  Root as FileUpload,
+};

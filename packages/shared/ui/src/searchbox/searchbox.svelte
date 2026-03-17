@@ -1,49 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Search text @values value */
-    value,
-    /** Initial value @values defaultValue */
-    defaultValue,
-    /** Visual style @values appearance */
-    appearance,
-    /** Input size @values size */
-    size,
-    /** Disabled state */
-    disabled = false,
-    /** Clear/dismiss button @values slot */
-    dismiss,
-    /** Search icon @values slot */
-    contentBefore,
-    /** Additional content @values slot */
-    contentAfter,
-    children,
-  }: {
-    /** Search text */
-    value: Str;
-    /** Initial value */
-    defaultValue: Str;
-    /** Visual style */
-    appearance: Str;
-    /** Input size */
-    size: Str;
-    /** Disabled state */
-    disabled?: Bool;
-    /** Clear/dismiss button */
-    dismiss: Str;
-    /** Search icon */
-    contentBefore: Str;
-    /** Additional content */
-    contentAfter: Str;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const SearchboxPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type SearchboxProps = v.InferOutput<typeof SearchboxPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Searchbox — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Searchbox />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = SearchboxProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: SearchboxProps = $derived.by(() => {
+    const rawProps: SearchboxProps = stripSvelteProps(allProps);
+    const result = safeParse(SearchboxPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as SearchboxProps;
+  });
+</script>
+
+<div data-slot="searchbox" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

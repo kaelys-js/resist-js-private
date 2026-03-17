@@ -1,1 +1,9 @@
-export { default as AbsoluteCenter } from './absolute-center.svelte';
+import Root, { type AbsoluteCenterProps, AbsoluteCenterPropsSchema } from './AbsoluteCenter.svelte';
+
+export {
+  Root,
+  type AbsoluteCenterProps,
+  AbsoluteCenterPropsSchema,
+  //
+  Root as AbsoluteCenter,
+};

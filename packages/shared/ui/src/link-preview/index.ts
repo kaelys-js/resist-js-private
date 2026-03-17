@@ -1,1 +1,9 @@
-export { default as LinkPreview } from './link-preview.svelte';
+import Root, { type LinkPreviewProps, LinkPreviewPropsSchema } from './LinkPreview.svelte';
+
+export {
+  Root,
+  type LinkPreviewProps,
+  LinkPreviewPropsSchema,
+  //
+  Root as LinkPreview,
+};

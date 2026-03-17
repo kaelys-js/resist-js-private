@@ -1,1 +1,9 @@
-export { default as StepsIndicator } from './steps-indicator.svelte';
+import Root, { type StepsIndicatorProps, StepsIndicatorPropsSchema } from './StepsIndicator.svelte';
+
+export {
+  Root,
+  type StepsIndicatorProps,
+  StepsIndicatorPropsSchema,
+  //
+  Root as StepsIndicator,
+};

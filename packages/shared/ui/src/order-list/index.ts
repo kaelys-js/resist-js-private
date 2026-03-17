@@ -1,1 +1,9 @@
-export { default as OrderList } from './order-list.svelte';
+import Root, { type OrderListProps, OrderListPropsSchema } from './OrderList.svelte';
+
+export {
+  Root,
+  type OrderListProps,
+  OrderListPropsSchema,
+  //
+  Root as OrderList,
+};

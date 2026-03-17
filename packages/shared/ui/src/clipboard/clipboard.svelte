@@ -1,25 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Text to copy @values value */
-    value,
-    /** Reset delay after copy (ms) @values 0, 2000, 4000 */
-    timeout = 2000,
-    children,
-  }: {
-    /** Text to copy */
-    value: Str;
-    /** Reset delay after copy (ms) */
-    timeout?: Num;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const ClipboardPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type ClipboardProps = v.InferOutput<typeof ClipboardPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Clipboard — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Clipboard />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = ClipboardProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: ClipboardProps = $derived.by(() => {
+    const rawProps: ClipboardProps = stripSvelteProps(allProps);
+    const result = safeParse(ClipboardPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as ClipboardProps;
+  });
+</script>
+
+<div data-slot="clipboard" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

@@ -1,1 +1,9 @@
-export { default as Navbar } from './navbar.svelte';
+import Root, { type NavbarProps, NavbarPropsSchema } from './Navbar.svelte';
+
+export {
+  Root,
+  type NavbarProps,
+  NavbarPropsSchema,
+  //
+  Root as Navbar,
+};

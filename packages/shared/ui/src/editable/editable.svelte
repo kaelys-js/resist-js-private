@@ -1,53 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Current text value @values value */
-    value,
-    /** Initial text value @values defaultValue */
-    defaultValue,
-    /** Placeholder text @values placeholder */
-    placeholder,
-    /** Disabled state */
-    disabled = false,
-    /** Read-only state */
-    readOnly = false,
-    /** Maximum input length @values 0, 50, 100 */
-    maxLength,
-    /** How to submit edits @values 'enter', 'blur', 'both', 'none' */
-    submitMode,
-    /** How to enter edit mode @values 'click', 'dblclick', 'focus', 'none' */
-    activationMode,
-    /** Auto-resize input to content */
-    autoResize = false,
-    children,
-  }: {
-    /** Current text value */
-    value: Str;
-    /** Initial text value */
-    defaultValue: Str;
-    /** Placeholder text */
-    placeholder: Str;
-    /** Disabled state */
-    disabled?: Bool;
-    /** Read-only state */
-    readOnly?: Bool;
-    /** Maximum input length */
-    maxLength: Num;
-    /** How to submit edits */
-    submitMode: Str;
-    /** How to enter edit mode */
-    activationMode: Str;
-    /** Auto-resize input to content */
-    autoResize?: Bool;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const EditablePropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type EditableProps = v.InferOutput<typeof EditablePropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Editable — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Editable />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = EditableProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: EditableProps = $derived.by(() => {
+    const rawProps: EditableProps = stripSvelteProps(allProps);
+    const result = safeParse(EditablePropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as EditableProps;
+  });
+</script>
+
+<div data-slot="editable" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

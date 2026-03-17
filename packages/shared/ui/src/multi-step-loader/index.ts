@@ -1,1 +1,12 @@
-export { default as MultiStepLoader } from './multi-step-loader.svelte';
+import Root, {
+  type MultiStepLoaderProps,
+  MultiStepLoaderPropsSchema,
+} from './MultiStepLoader.svelte';
+
+export {
+  Root,
+  type MultiStepLoaderProps,
+  MultiStepLoaderPropsSchema,
+  //
+  Root as MultiStepLoader,
+};

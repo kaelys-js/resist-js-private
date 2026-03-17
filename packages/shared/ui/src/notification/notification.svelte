@@ -1,41 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Notification title @values title */
-    title,
-    /** Body content @values string, element */
-    description,
-    /** Notification type @values 'info', 'success', 'warning', 'error' */
-    type = 'info',
-    /** Screen position @values 'topRight' */
-    placement = 'topRight',
-    /** Auto-close time (seconds, null = persistent) @values 0, 50, 100 */
-    duration = 4.5,
-    /** Show close button */
-    closable = true,
-    children,
-  }: {
-    /** Notification title */
-    title: Str;
-    /** Body content */
-    description: Str;
-    /** Notification type */
-    type?: Str;
-    /** Screen position */
-    placement?: Str;
-    /** Auto-close time (seconds, null = persistent) */
-    duration?: Num;
-    /** Show close button */
-    closable?: Bool;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const NotificationPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type NotificationProps = v.InferOutput<typeof NotificationPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Notification — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Notification />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = NotificationProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: NotificationProps = $derived.by(() => {
+    const rawProps: NotificationProps = stripSvelteProps(allProps);
+    const result = safeParse(NotificationPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as NotificationProps;
+  });
+</script>
+
+<div data-slot="notification" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

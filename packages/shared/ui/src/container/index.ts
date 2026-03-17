@@ -1,1 +1,9 @@
-export { default as Container } from './container.svelte';
+import Root, { type ContainerProps, ContainerPropsSchema } from './Container.svelte';
+
+export {
+  Root,
+  type ContainerProps,
+  ContainerPropsSchema,
+  //
+  Root as Container,
+};

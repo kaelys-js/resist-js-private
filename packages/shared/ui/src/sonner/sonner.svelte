@@ -1,34 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import CircleCheckIcon from '@lucide/svelte/icons/circle-check';
-  import InfoIcon from '@lucide/svelte/icons/info';
-  import Loader2Icon from '@lucide/svelte/icons/loader-2';
-  import OctagonXIcon from '@lucide/svelte/icons/octagon-x';
-  import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
-  import { mode } from 'mode-watcher';
-  import { Toaster as Sonner, type ToasterProps as SonnerProps } from 'svelte-sonner';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let { ...restProps }: SonnerProps = $props();
+  export const SonnerPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type SonnerProps = v.InferOutput<typeof SonnerPropsSchema>;
 </script>
 
-<Sonner
-  theme={mode.current}
-  class="toaster group"
-  style="--normal-bg: var(--color-popover); --normal-text: var(--color-popover-foreground); --normal-border: var(--color-border);"
-  {...restProps}
-  >{#snippet loadingIcon()}
-    <Loader2Icon class="size-4 animate-spin" />
-  {/snippet}
-  {#snippet successIcon()}
-    <CircleCheckIcon class="size-4" />
-  {/snippet}
-  {#snippet errorIcon()}
-    <OctagonXIcon class="size-4" />
-  {/snippet}
-  {#snippet infoIcon()}
-    <InfoIcon class="size-4" />
-  {/snippet}
-  {#snippet warningIcon()}
-    <TriangleAlertIcon class="size-4" />
-  {/snippet}
-</Sonner>
+<script lang="ts">
+  /**
+   * Sonner — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Sonner />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = SonnerProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: SonnerProps = $derived.by(() => {
+    const rawProps: SonnerProps = stripSvelteProps(allProps);
+    const result = safeParse(SonnerPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as SonnerProps;
+  });
+</script>
+
+<div data-slot="sonner" class={cn(validated.class)}>
+  {@render allProps.children?.()}
+</div>

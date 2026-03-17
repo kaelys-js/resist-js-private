@@ -1,53 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Text variant @values 'h1', 'h2', 'h3', 'h4', 'body1', 'body2', 'caption', 'overline' */
-    variant = 'body1',
-    /** Rendered HTML element @values as */
-    as,
-    /** Text color @values 'inherit' */
-    color = 'inherit',
-    /** Text alignment @values 'left', 'center', 'right', 'justify' */
-    align = 'inherit',
-    /** Bottom margin */
-    gutterBottom = false,
-    /** Truncate with ellipsis */
-    noWrap = false,
-    /** Gradient text effect */
-    gradient,
-    /** Line clamp truncation @values boolean, number */
-    truncate = false,
-    /** Heading hierarchy order @values 0, 50, 100 */
-    order,
-    children,
-  }: {
-    /** Text variant */
-    variant?: Str;
-    /** Rendered HTML element */
-    as: Str;
-    /** Text color */
-    color?: Str;
-    /** Text alignment */
-    align?: Str;
-    /** Bottom margin */
-    gutterBottom?: Bool;
-    /** Truncate with ellipsis */
-    noWrap?: Bool;
-    /** Gradient text effect */
-    gradient: Record<Str, unknown>;
-    /** Line clamp truncation */
-    truncate?: Bool;
-    /** Heading hierarchy order */
-    order: Num;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const TypographyPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type TypographyProps = v.InferOutput<typeof TypographyPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Typography — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Typography />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = TypographyProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: TypographyProps = $derived.by(() => {
+    const rawProps: TypographyProps = stripSvelteProps(allProps);
+    const result = safeParse(TypographyPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as TypographyProps;
+  });
+</script>
+
+<div data-slot="typography" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

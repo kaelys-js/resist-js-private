@@ -1,1 +1,9 @@
-export { default as Wrap } from './wrap.svelte';
+import Root, { type WrapProps, WrapPropsSchema } from './Wrap.svelte';
+
+export {
+  Root,
+  type WrapProps,
+  WrapPropsSchema,
+  //
+  Root as Wrap,
+};

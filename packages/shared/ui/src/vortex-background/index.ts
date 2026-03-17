@@ -1,1 +1,12 @@
-export { default as VortexBackground } from './vortex-background.svelte';
+import Root, {
+  type VortexBackgroundProps,
+  VortexBackgroundPropsSchema,
+} from './VortexBackground.svelte';
+
+export {
+  Root,
+  type VortexBackgroundProps,
+  VortexBackgroundPropsSchema,
+  //
+  Root as VortexBackground,
+};

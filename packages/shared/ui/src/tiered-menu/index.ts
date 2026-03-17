@@ -1,1 +1,9 @@
-export { default as TieredMenu } from './tiered-menu.svelte';
+import Root, { type TieredMenuProps, TieredMenuPropsSchema } from './TieredMenu.svelte';
+
+export {
+  Root,
+  type TieredMenuProps,
+  TieredMenuPropsSchema,
+  //
+  Root as TieredMenu,
+};

@@ -1,1 +1,9 @@
-export { default as SwipeActions } from './swipe-actions.svelte';
+import Root, { type SwipeActionsProps, SwipeActionsPropsSchema } from './SwipeActions.svelte';
+
+export {
+  Root,
+  type SwipeActionsProps,
+  SwipeActionsPropsSchema,
+  //
+  Root as SwipeActions,
+};

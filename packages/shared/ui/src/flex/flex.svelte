@@ -1,53 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Flex direction @values 'row', 'column', 'row-reverse', 'column-reverse' */
-    direction = 'row',
-    /** Flex wrap @values 'nowrap', 'wrap', 'wrap-reverse' */
-    wrap = 'nowrap',
-    /** Align items @values 'stretch' */
-    align = 'stretch',
-    /** Justify content @values 'flex-start' */
-    justify = 'flex-start',
-    /** Gap between children @values number, string */
-    gap,
-    /** Flex shorthand for child sizing @values flex */
-    flex,
-    /** Flex basis @values basis */
-    basis,
-    /** Flex grow @values 0, 50, 100 */
-    grow,
-    /** Flex shrink @values 0, 50, 100 */
-    shrink,
-    children,
-  }: {
-    /** Flex direction */
-    direction?: Str;
-    /** Flex wrap */
-    wrap?: Str;
-    /** Align items */
-    align?: Str;
-    /** Justify content */
-    justify?: Str;
-    /** Gap between children */
-    gap: Str;
-    /** Flex shorthand for child sizing */
-    flex: Str;
-    /** Flex basis */
-    basis: Str;
-    /** Flex grow */
-    grow: Num;
-    /** Flex shrink */
-    shrink: Num;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const FlexPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type FlexProps = v.InferOutput<typeof FlexPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Flex — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Flex />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = FlexProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: FlexProps = $derived.by(() => {
+    const rawProps: FlexProps = stripSvelteProps(allProps);
+    const result = safeParse(FlexPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as FlexProps;
+  });
+</script>
+
+<div data-slot="flex" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

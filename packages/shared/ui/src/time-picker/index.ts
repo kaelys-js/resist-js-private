@@ -1,1 +1,9 @@
-export { default as TimePicker } from './time-picker.svelte';
+import Root, { type TimePickerProps, TimePickerPropsSchema } from './TimePicker.svelte';
+
+export {
+  Root,
+  type TimePickerProps,
+  TimePickerPropsSchema,
+  //
+  Root as TimePicker,
+};

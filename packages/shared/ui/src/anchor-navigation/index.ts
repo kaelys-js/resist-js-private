@@ -1,1 +1,12 @@
-export { default as AnchorNavigation } from './anchor-navigation.svelte';
+import Root, {
+  type AnchorNavigationProps,
+  AnchorNavigationPropsSchema,
+} from './AnchorNavigation.svelte';
+
+export {
+  Root,
+  type AnchorNavigationProps,
+  AnchorNavigationPropsSchema,
+  //
+  Root as AnchorNavigation,
+};

@@ -1,1 +1,12 @@
-export { default as CanvasRevealEffect } from './canvas-reveal-effect.svelte';
+import Root, {
+  type CanvasRevealEffectProps,
+  CanvasRevealEffectPropsSchema,
+} from './CanvasRevealEffect.svelte';
+
+export {
+  Root,
+  type CanvasRevealEffectProps,
+  CanvasRevealEffectPropsSchema,
+  //
+  Root as CanvasRevealEffect,
+};

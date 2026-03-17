@@ -1,45 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Bool, Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Badge content @values number, string */
-    value,
-    /** Badge color @values 'primary' */
-    color = 'primary',
-    /** Corner position @values 'top-right' */
-    position = 'top-right',
-    /** Pulsing animation */
-    processing = false,
-    /** Show as dot (no content) */
-    dot = false,
-    /** Show when value is 0 */
-    showZero = false,
-    /** Max displayed count @values 0, 99, 198 */
-    overflowCount = 99,
-    children,
-  }: {
-    /** Badge content */
-    value: Str;
-    /** Badge color */
-    color?: Str;
-    /** Corner position */
-    position?: Str;
-    /** Pulsing animation */
-    processing?: Bool;
-    /** Show as dot (no content) */
-    dot?: Bool;
-    /** Show when value is 0 */
-    showZero?: Bool;
-    /** Max displayed count */
-    overflowCount?: Num;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const IndicatorPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type IndicatorProps = v.InferOutput<typeof IndicatorPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Indicator — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Indicator />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = IndicatorProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: IndicatorProps = $derived.by(() => {
+    const rawProps: IndicatorProps = stripSvelteProps(allProps);
+    const result = safeParse(IndicatorPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as IndicatorProps;
+  });
+</script>
+
+<div data-slot="indicator" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

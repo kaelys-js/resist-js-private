@@ -1,1 +1,9 @@
-export { default as AvatarGroup } from './avatar-group.svelte';
+import Root, { type AvatarGroupProps, AvatarGroupPropsSchema } from './AvatarGroup.svelte';
+
+export {
+  Root,
+  type AvatarGroupProps,
+  AvatarGroupPropsSchema,
+  //
+  Root as AvatarGroup,
+};

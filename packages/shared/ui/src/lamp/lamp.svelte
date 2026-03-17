@@ -1,29 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Num, Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Light color @values 'cyan' */
-    color = 'cyan',
-    /** Light cone width @values '50%' */
-    width = '50%',
-    /** Animation delay @values 0, 50, 100 */
-    delay = 0.5,
-    children,
-  }: {
-    /** Light color */
-    color?: Str;
-    /** Light cone width */
-    width?: Str;
-    /** Animation delay */
-    delay?: Num;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const LampPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type LampProps = v.InferOutput<typeof LampPropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Lamp — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Lamp />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = LampProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: LampProps = $derived.by(() => {
+    const rawProps: LampProps = stripSvelteProps(allProps);
+    const result = safeParse(LampPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as LampProps;
+  });
+</script>
+
+<div data-slot="lamp" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>

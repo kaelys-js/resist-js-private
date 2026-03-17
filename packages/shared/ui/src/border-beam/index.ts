@@ -1,1 +1,9 @@
-export { default as BorderBeam } from './border-beam.svelte';
+import Root, { type BorderBeamProps, BorderBeamPropsSchema } from './BorderBeam.svelte';
+
+export {
+  Root,
+  type BorderBeamProps,
+  BorderBeamPropsSchema,
+  //
+  Root as BorderBeam,
+};

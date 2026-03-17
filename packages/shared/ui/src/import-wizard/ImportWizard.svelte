@@ -1,0 +1,44 @@
+<!-- @convert-to-lens -->
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
+
+  export const ImportWizardPropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type ImportWizardProps = v.InferOutput<typeof ImportWizardPropsSchema>;
+</script>
+
+<script lang="ts">
+  /**
+   * ImportWizard — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <ImportWizard />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = ImportWizardProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: ImportWizardProps = $derived.by(() => {
+    const rawProps: ImportWizardProps = stripSvelteProps(allProps);
+    const result = safeParse(ImportWizardPropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as ImportWizardProps;
+  });
+</script>
+
+<div data-slot="import-wizard" class={cn(validated.class)}>
+  {@render allProps.children?.()}
+</div>

@@ -1,1 +1,9 @@
-export { default as MeteorEffect } from './meteor-effect.svelte';
+import Root, { type MeteorEffectProps, MeteorEffectPropsSchema } from './MeteorEffect.svelte';
+
+export {
+  Root,
+  type MeteorEffectProps,
+  MeteorEffectPropsSchema,
+  //
+  Root as MeteorEffect,
+};

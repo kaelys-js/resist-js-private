@@ -1,1 +1,9 @@
-export { default as TextDivider } from './text-divider.svelte';
+import Root, { type TextDividerProps, TextDividerPropsSchema } from './TextDivider.svelte';
+
+export {
+  Root,
+  type TextDividerProps,
+  TextDividerPropsSchema,
+  //
+  Root as TextDivider,
+};

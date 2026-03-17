@@ -1,1 +1,9 @@
-export { default as BackToTop } from './back-to-top.svelte';
+import Root, { type BackToTopProps, BackToTopPropsSchema } from './BackToTop.svelte';
+
+export {
+  Root,
+  type BackToTopProps,
+  BackToTopPropsSchema,
+  //
+  Root as BackToTop,
+};

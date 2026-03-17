@@ -1,29 +1,44 @@
 <!-- @convert-to-lens -->
-<script lang="ts">
-  import type { Str } from '@/schemas/common';
-  import type { Snippet } from 'svelte';
+<script module lang="ts">
+  import * as v from 'valibot';
+  import { StrSchema } from '@/schemas/common';
 
-  let {
-    /** Timeline events */
-    value,
-    /** Orientation @values 'vertical', 'horizontal' */
-    layout = 'vertical',
-    /** Content alignment @values 'left', 'right', 'alternate' */
-    align = 'left',
-    children,
-  }: {
-    /** Timeline events */
-    value: Str[];
-    /** Orientation */
-    layout?: Str;
-    /** Content alignment */
-    align?: Str;
-    /** Content to render inside the component. */
-    children?: Snippet;
-  } = $props();
+  export const TimelinePropsSchema = v.strictObject({
+    /** Additional CSS classes for the root element. @values custom-class */
+    class: v.optional(StrSchema),
+  });
+  export type TimelineProps = v.InferOutput<typeof TimelinePropsSchema>;
 </script>
 
-<!-- Placeholder: implement from LENS-COMPONENTS.md -->
-<div>
-  {@render children?.()}
+<script lang="ts">
+  /**
+   * Timeline — placeholder component awaiting full implementation.
+   *
+   * @example
+   * ```svelte
+   * <Timeline />
+   * ```
+   */
+  import type { Snippet } from 'svelte';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+
+  type Props = TimelineProps & {
+    /** Content to render inside the component. */
+    children?: Snippet;
+  };
+
+  const allProps: Props = $props();
+  const validated: TimelineProps = $derived.by(() => {
+    const rawProps: TimelineProps = stripSvelteProps(allProps);
+    const result = safeParse(TimelinePropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as TimelineProps;
+  });
+</script>
+
+<div data-slot="timeline" class={cn(validated.class)}>
+  {@render allProps.children?.()}
 </div>
