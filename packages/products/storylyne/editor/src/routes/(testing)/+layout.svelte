@@ -105,7 +105,7 @@
     type NotificationPreferences,
   } from '$lib/stores/lens-notifications.svelte.js';
 
-  const { children } = $props();
+  const { children, data } = $props();
 
   /**
    * Discover all component directories by globbing all .svelte files.
@@ -632,6 +632,9 @@
   /** Inline sidebar filter query (filters component list without opening command palette). */
   let sidebarFilter: Str = $state('' as Str);
 
+  /** Breadcrumb dropdown search query. */
+  let breadcrumbSearch: Str = $state('' as Str);
+
   /** Whether to hide incompatible components from the sidebar. Persisted to localStorage. */
   let hideIncompatible: boolean = $state(false);
 
@@ -1088,10 +1091,10 @@
   /* ------------------------------------------------------------------ */
 
   /** Whether the "Pinned" sidebar section is open. */
-  let sidebarPinnedOpen: boolean = $state(true);
+  let sidebarPinnedOpen: boolean = $state(false);
 
   /** Whether the "Recent" sidebar section is open. */
-  let sidebarRecentOpen: boolean = $state(true);
+  let sidebarRecentOpen: boolean = $state(false);
 
   /** Whether to show all pinned components (vs. first 5). */
   let showAllPinned: boolean = $state(false);
@@ -1146,11 +1149,11 @@
   }
 
   /** Whether the top-level "Components" collapsible group is open. */
-  let sidebarComponentsOpen: boolean = $state(true);
+  let sidebarComponentsOpen: boolean = $state(false);
 
-  /** Per-category collapsible open state (keyed by category name, default open). */
+  /** Per-category collapsible open state (keyed by category name, default collapsed). */
   let sidebarCategoryOpen: Record<Str, boolean> = $state(
-    Object.fromEntries(CATEGORY_ORDER.map((cat: Str): [Str, boolean] => [cat, true])),
+    Object.fromEntries(CATEGORY_ORDER.map((cat: Str): [Str, boolean] => [cat, false])),
   );
 
   /**
@@ -1713,9 +1716,9 @@
         </div>
       </div>
     </Sidebar.Header>
-    <Sidebar.Content>
-      <!-- Overview link -->
-      <Sidebar.Group>
+    <Sidebar.Content class="gap-1">
+      <!-- Overview + Getting Started -->
+      <Sidebar.Group class="py-0 pt-2">
         <Sidebar.Menu>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/components' && !currentName}>
@@ -1723,6 +1726,16 @@
                 <a href="/components" {...props}>
                   <Home class="size-4" />
                   <span>Overview</span>
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/getting-started'}>
+              {#snippet child({ props })}
+                <a href="/getting-started" {...props}>
+                  <BookOpen class="size-4" />
+                  <span>Getting Started</span>
                 </a>
               {/snippet}
             </Sidebar.MenuButton>
@@ -1770,8 +1783,10 @@
           </Sidebar.MenuItem>
         {/snippet}
         <Collapsible.Root bind:open={sidebarPinnedOpen} class="group/pinned">
-          <Sidebar.Group>
-            <Sidebar.GroupLabel class="gap-1.5 text-sm">
+          <Sidebar.Group class="py-0">
+            <Sidebar.GroupLabel
+              class="h-8 gap-2 text-sm rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+            >
               {#snippet child({ props: pinnedLabelProps })}
                 <Collapsible.Trigger {...pinnedLabelProps}>
                   <Star class="size-3" />
@@ -1876,8 +1891,10 @@
           </Sidebar.MenuItem>
         {/snippet}
         <Collapsible.Root bind:open={sidebarRecentOpen} class="group/recent">
-          <Sidebar.Group>
-            <Sidebar.GroupLabel class="gap-1.5 text-sm">
+          <Sidebar.Group class="py-0">
+            <Sidebar.GroupLabel
+              class="h-8 gap-2 text-sm rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+            >
               {#snippet child({ props: recentLabelProps })}
                 <Collapsible.Trigger {...recentLabelProps}>
                   <Clock class="size-3" />
@@ -1946,8 +1963,10 @@
         class="group/collapsible"
         data-section="categorized"
       >
-        <Sidebar.Group>
-          <Sidebar.GroupLabel class="gap-1.5 text-sm font-semibold">
+        <Sidebar.Group class="py-0">
+          <Sidebar.GroupLabel
+            class="h-8 gap-2 text-sm font-semibold rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+          >
             {#snippet child({ props })}
               <Collapsible.Trigger {...props}>
                 <LayoutGrid class="size-3" />
@@ -2222,8 +2241,8 @@
           </Collapsible.Content>
         </Sidebar.Group>
       </Collapsible.Root>
-      <!-- Design Tokens link -->
-      <Sidebar.Group>
+      <!-- Reference: Design Tokens, Icons, What's New -->
+      <Sidebar.Group class="py-0">
         <Sidebar.Menu>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/tokens'}>
@@ -2242,20 +2261,19 @@
               {/snippet}
             </Sidebar.MenuButton>
           </Sidebar.MenuItem>
-        </Sidebar.Menu>
-      </Sidebar.Group>
-      <!-- Pages section -->
-      <Sidebar.Group>
-        <Sidebar.GroupLabel class="text-xs font-medium text-muted-foreground"
-          >Pages</Sidebar.GroupLabel
-        >
-        <Sidebar.Menu>
           <Sidebar.MenuItem>
-            <Sidebar.MenuButton isActive={page.url.pathname === '/getting-started'}>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/icons'}>
               {#snippet child({ props })}
-                <a href="/getting-started" {...props}>
-                  <BookOpen class="size-4" />
-                  <span>Getting Started</span>
+                <a href="/icons" {...props}>
+                  <Shapes class="size-4" />
+                  <span>Icons</span>
+                  {#if data?.iconCount > 0}
+                    <Badge
+                      variant="secondary"
+                      class="ml-auto h-5 rounded px-1.5 text-[11px] leading-none tabular-nums"
+                      >{data.iconCount.toLocaleString()}</Badge
+                    >
+                  {/if}
                 </a>
               {/snippet}
             </Sidebar.MenuButton>
@@ -2266,16 +2284,6 @@
                 <a href="/changelog" {...props}>
                   <Newspaper class="size-4" />
                   <span>What's New</span>
-                </a>
-              {/snippet}
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton isActive={page.url.pathname === '/icons'}>
-              {#snippet child({ props })}
-                <a href="/icons" {...props}>
-                  <Shapes class="size-4" />
-                  <span>Icons</span>
                 </a>
               {/snippet}
             </Sidebar.MenuButton>
@@ -2301,78 +2309,163 @@
                   Lens
                   <ChevronRight class="size-3 rotate-90" />
                 </DropdownMenu.Trigger>
-                <DropdownMenu.Content align="start" sideOffset={8} class="w-52">
-                  <DropdownMenu.Item>
-                    {#snippet child({ props: overviewProps })}
-                      <a href="/components" {...overviewProps}>
-                        <Home class="size-4" />
-                        Overview
-                      </a>
-                    {/snippet}
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Separator />
-                  <DropdownMenu.Label class="text-xs text-muted-foreground/60">
-                    Categories
-                  </DropdownMenu.Label>
-                  {#each groupedComponents as group (group.name)}
-                    {@const BcIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
-                    {@const bcColor =
-                      CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
-                    <DropdownMenu.Item>
-                      {#snippet child({ props: catItemProps })}
-                        <a
-                          href="/components/category/{group.name}"
-                          class="flex w-full items-center"
-                          {...catItemProps}
+                <DropdownMenu.Content
+                  align="start"
+                  sideOffset={8}
+                  class="flex max-h-[50vh] w-56 flex-col overflow-hidden"
+                  onCloseAutoFocus={() => {
+                    breadcrumbSearch = '' as Str;
+                  }}
+                >
+                  <!-- Search input -->
+                  <div class="border-b px-2 py-1.5">
+                    <div class="flex items-center gap-2 rounded-md bg-muted/50 px-2">
+                      <SearchIcon class="size-3 shrink-0 text-muted-foreground/60" />
+                      <input
+                        type="text"
+                        placeholder="Search pages..."
+                        class="h-7 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/40"
+                        bind:value={breadcrumbSearch}
+                      />
+                      {#if breadcrumbSearch.length > 0}
+                        <button
+                          type="button"
+                          class="shrink-0 text-muted-foreground/60 hover:text-foreground"
+                          onclick={() => {
+                            breadcrumbSearch = '' as Str;
+                          }}
                         >
-                          <BcIcon class="size-4 {bcColor}" />
-                          <span class="flex-1">{group.label}</span>
-                          <span
-                            class="rounded-full bg-muted px-1.5 py-0.5 text-[10px] tabular-nums text-muted-foreground/60"
-                          >
-                            {group.components.length}
-                          </span>
-                        </a>
-                      {/snippet}
-                    </DropdownMenu.Item>
-                  {/each}
-                  <DropdownMenu.Separator />
-                  <DropdownMenu.Item>
-                    {#snippet child({ props: tokensProps })}
-                      <a href="/tokens" {...tokensProps}>
-                        <Palette class="size-4" />
-                        Design Tokens
-                      </a>
-                    {/snippet}
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Separator />
-                  <DropdownMenu.Label class="text-xs text-muted-foreground/60">
-                    Pages
-                  </DropdownMenu.Label>
-                  <DropdownMenu.Item>
-                    {#snippet child({ props: gsProps })}
-                      <a href="/getting-started" {...gsProps}>
-                        <BookOpen class="size-4" />
-                        Getting Started
-                      </a>
-                    {/snippet}
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item>
-                    {#snippet child({ props: clProps })}
-                      <a href="/changelog" {...clProps}>
-                        <Newspaper class="size-4" />
-                        What's New
-                      </a>
-                    {/snippet}
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item>
-                    {#snippet child({ props: icProps })}
-                      <a href="/icons" {...icProps}>
-                        <Shapes class="size-4" />
-                        Icons
-                      </a>
-                    {/snippet}
-                  </DropdownMenu.Item>
+                          <XIcon class="size-3" />
+                        </button>
+                      {/if}
+                    </div>
+                  </div>
+
+                  <!-- Scrollable items -->
+                  {@const bcQuery = breadcrumbSearch.toLowerCase() as Str}
+                  {@const bcFilteredGroups = groupedComponents.filter(
+                    (g) =>
+                      bcQuery.length === 0 ||
+                      g.label.toLowerCase().includes(bcQuery) ||
+                      g.name.toLowerCase().includes(bcQuery),
+                  )}
+                  {@const bcShowOverview = bcQuery.length === 0 || 'overview'.includes(bcQuery)}
+                  {@const bcShowGettingStarted =
+                    bcQuery.length === 0 || 'getting started'.includes(bcQuery)}
+                  {@const bcShowTokens = bcQuery.length === 0 || 'design tokens'.includes(bcQuery)}
+                  {@const bcShowIcons = bcQuery.length === 0 || 'icons'.includes(bcQuery)}
+                  {@const bcShowWhatsNew =
+                    bcQuery.length === 0 ||
+                    "what's new".includes(bcQuery) ||
+                    'changelog'.includes(bcQuery)}
+                  {@const bcHasResults =
+                    bcShowOverview ||
+                    bcShowGettingStarted ||
+                    bcFilteredGroups.length > 0 ||
+                    bcShowTokens ||
+                    bcShowIcons ||
+                    bcShowWhatsNew}
+
+                  <div class="flex-1 overflow-y-auto py-1">
+                    {#if !bcHasResults}
+                      <!-- Empty state -->
+                      <div class="flex flex-col items-center gap-1.5 py-6 text-center">
+                        <SearchX class="size-4 text-muted-foreground/40" />
+                        <span class="text-xs text-muted-foreground/60">No pages match</span>
+                      </div>
+                    {:else}
+                      <!-- Overview + Getting Started (matches sidebar top group) -->
+                      {#if bcShowOverview}
+                        <DropdownMenu.Item>
+                          {#snippet child({ props: overviewProps })}
+                            <a href="/components" {...overviewProps}>
+                              <Home class="size-4" />
+                              Overview
+                            </a>
+                          {/snippet}
+                        </DropdownMenu.Item>
+                      {/if}
+                      {#if bcShowGettingStarted}
+                        <DropdownMenu.Item>
+                          {#snippet child({ props: gsProps })}
+                            <a href="/getting-started" {...gsProps}>
+                              <BookOpen class="size-4" />
+                              Getting Started
+                            </a>
+                          {/snippet}
+                        </DropdownMenu.Item>
+                      {/if}
+
+                      <!-- Categories (matches sidebar middle group) -->
+                      {#if bcFilteredGroups.length > 0}
+                        {#if bcShowOverview || bcShowGettingStarted}
+                          <DropdownMenu.Separator />
+                        {/if}
+                        <DropdownMenu.Label class="text-xs text-muted-foreground/60">
+                          Categories
+                        </DropdownMenu.Label>
+                        {#each bcFilteredGroups as group (group.name)}
+                          {@const BcIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
+                          {@const bcColor =
+                            CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
+                          <DropdownMenu.Item>
+                            {#snippet child({ props: catItemProps })}
+                              <a
+                                href="/components/category/{group.name}"
+                                class="flex w-full items-center"
+                                {...catItemProps}
+                              >
+                                <BcIcon class="size-4 {bcColor}" />
+                                <span class="flex-1">{group.label}</span>
+                                <span
+                                  class="rounded-full bg-muted px-1.5 py-0.5 text-[10px] tabular-nums text-muted-foreground/60"
+                                >
+                                  {group.components.length}
+                                </span>
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/each}
+                      {/if}
+
+                      <!-- Reference pages (matches sidebar bottom group) -->
+                      {#if bcShowTokens || bcShowIcons || bcShowWhatsNew}
+                        {#if bcShowOverview || bcShowGettingStarted || bcFilteredGroups.length > 0}
+                          <DropdownMenu.Separator />
+                        {/if}
+                        {#if bcShowTokens}
+                          <DropdownMenu.Item>
+                            {#snippet child({ props: tokensProps })}
+                              <a href="/tokens" {...tokensProps}>
+                                <Palette class="size-4" />
+                                Design Tokens
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/if}
+                        {#if bcShowIcons}
+                          <DropdownMenu.Item>
+                            {#snippet child({ props: icProps })}
+                              <a href="/icons" {...icProps}>
+                                <Shapes class="size-4" />
+                                Icons
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/if}
+                        {#if bcShowWhatsNew}
+                          <DropdownMenu.Item>
+                            {#snippet child({ props: clProps })}
+                              <a href="/changelog" {...clProps}>
+                                <Newspaper class="size-4" />
+                                What's New
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/if}
+                      {/if}
+                    {/if}
+                  </div>
                 </DropdownMenu.Content>
               </DropdownMenu.Root>
             </Breadcrumb.Item>

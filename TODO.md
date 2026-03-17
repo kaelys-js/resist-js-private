@@ -1,4 +1,23 @@
 - [Lens]
+    - Icons Page: Skeleton placeholders for icons don't match default size of icons after loaded
+    - What's New Page
+      - Doesn't follow same width/styling/icon in header/etc as overview page
+      - * What suggestions do you have for improvement? Think so I don't have to ask again. Check what every other library does also.
+    - Getting Started Page
+      - Doesn't follow same width/styling/icon in header/etc as overview page
+      - * What suggestions do you have for improvement? Think so I don't have to ask again. Check what every other library does also.
+    - Recent
+      - Non-existent components show up
+    - New Pages?
+      - Browser/Device Support
+      - About
+      - Support
+      - Styling (Themes, etc)
+      - Accessibility
+    - Overview Page
+      - Updates based on new pages
+      - Sort Categories (how should be sorted in sidebar, breadcrumb dropdown?)
+    - Lens Compat Tooltip: Replace With Table
     - Component Conversions (@convert-to-lens)
       - Remove exclusions from the lens test file
       - Review All Rx Rules + lens tests for these
@@ -10,7 +29,6 @@
         - Real Browser: Playwright/iOS/Android Engines (Screenshot/Live/etc)
     - Implement the auto-generated component examples feature. Start with Part 1: docs/plans/2026-03-16-auto-examples-part1.md. Use the executing-plans skill. Follow CLAUDE.md. TDD — tests first, watch fail, implement, watch pass, QA after every file edit.
     - Implement Part 2: docs/plans/2026-03-16-auto-examples-part2.md. Same approach — executing-plans skill, TDD, QA after every edit.
-    - Implement Lens pages Part 1: docs/plans/2026-03-16-lens-pages-part1.md. Use the executing-plans skill. Follow CLAUDE.md. TDD, QA after every edit.
     - Implement Lens pages Part 2: docs/plans/2026-03-16-lens-pages-part2.md. Same approach.
     - Implement Lens component detail additions: docs/plans/2026-03-16-lens-detail-additions.md. Same approach.
     - Implement Lens advanced features: docs/plans/2026-03-16-lens-advanced-features.md. Same approach.

@@ -3,7 +3,10 @@
    * Design Token Viewer page for the Lens documentation system.
    *
    * Displays all CSS custom properties extracted from app.css,
-   * grouped by category with live color swatches and theme comparison.
+   * grouped by category with live color swatches, search filtering,
+   * category chip filters, theme selection, and export options.
+   *
+   * Layout and UX patterns match the Icons gallery page.
    */
   import type { Bool, Num, Str } from '@/schemas/common';
   import {
@@ -16,16 +19,26 @@
   import Badge from '@/ui/badge/badge.svelte';
   import CodeBlock from '@/ui/code-block/CodeBlock.svelte';
   import CopyButton from '@/ui/copy-button/CopyButton.svelte';
-  import * as Popover from '@/ui/popover/index.js';
+  import Input from '@/ui/input/input.svelte';
+  import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
   import * as Tooltip from '@/ui/tooltip/index.js';
   import { cn } from '@/ui/utils.js';
-  import { slide } from 'svelte/transition';
+  import { clipboardCopy } from '@/ui/lens/clipboard.js';
+  import { slide, fade } from 'svelte/transition';
   import Palette from '@lucide/svelte/icons/palette';
   import Check from '@lucide/svelte/icons/check';
-  import Search from '@lucide/svelte/icons/search';
+  import SearchIcon from '@lucide/svelte/icons/search';
   import SearchX from '@lucide/svelte/icons/search-x';
+  import X from '@lucide/svelte/icons/x';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
-  import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
+  import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
+  import DownloadIcon from '@lucide/svelte/icons/download';
+  import Clipboard from '@lucide/svelte/icons/clipboard';
+  import FileText from '@lucide/svelte/icons/file-text';
+  import Trash2 from '@lucide/svelte/icons/trash-2';
+  import Tag from '@lucide/svelte/icons/tag';
+  import Paintbrush from '@lucide/svelte/icons/paintbrush';
 
   /* ------------------------------------------------------------------ */
   /*  Load app.css raw source and extract tokens                        */
@@ -89,17 +102,87 @@
   ]);
 
   /* ------------------------------------------------------------------ */
+  /*  Export items                                                       */
+  /* ------------------------------------------------------------------ */
+
+  /** Export menu item descriptor. */
+  type ExportItem = {
+    /** Unique identifier. */
+    id: Str;
+    /** Display label. */
+    label: Str;
+    /** Lucide icon component. */
+    icon: typeof ClipboardCopy;
+    /** Export category (Clipboard or File). */
+    category: Str;
+    /** Short description. */
+    description: Str;
+    /** File extension badge text. */
+    ext: Str;
+  };
+
+  /** Page-level export menu items. */
+  const PAGE_EXPORT_ITEMS: ExportItem[] = [
+    {
+      id: 'copy-css' as Str,
+      label: 'Copy as CSS' as Str,
+      icon: ClipboardCopy,
+      category: 'Clipboard' as Str,
+      description: 'CSS custom properties' as Str,
+      ext: '' as Str,
+    },
+    {
+      id: 'copy-json' as Str,
+      label: 'Copy as JSON' as Str,
+      icon: ClipboardCopy,
+      category: 'Clipboard' as Str,
+      description: 'Token name/value pairs' as Str,
+      ext: '' as Str,
+    },
+    {
+      id: 'copy-markdown' as Str,
+      label: 'Copy as Markdown' as Str,
+      icon: FileText,
+      category: 'Clipboard' as Str,
+      description: 'Formatted table for docs' as Str,
+      ext: '' as Str,
+    },
+    {
+      id: 'download-css' as Str,
+      label: 'Download CSS' as Str,
+      icon: DownloadIcon,
+      category: 'File' as Str,
+      description: 'Custom properties file' as Str,
+      ext: '.css' as Str,
+    },
+    {
+      id: 'download-json' as Str,
+      label: 'Download JSON' as Str,
+      icon: DownloadIcon,
+      category: 'File' as Str,
+      description: 'Structured data file' as Str,
+      ext: '.json' as Str,
+    },
+  ];
+
+  /** Unique export categories. */
+  const PAGE_EXPORT_CATEGORIES: Str[] = [...new Set(PAGE_EXPORT_ITEMS.map((p) => p.category))];
+
+  /* ------------------------------------------------------------------ */
   /*  State                                                             */
   /* ------------------------------------------------------------------ */
 
   /** Currently selected theme context for viewing. */
   let selectedTheme: Str = $state(':root');
 
-  /** Theme search query. */
+  /** Theme search query inside the submenu. */
   let themeSearchQuery: Str = $state('');
 
-  /** Whether the theme popover is open. */
-  let themePopoverOpen: Bool = $state(false);
+  /** Token search query. */
+  let searchQuery: Str = $state('' as Str);
+
+  /** Active category filters. */
+  let activeCategories: Str[] = $state([]);
 
   /** Section open states. */
   let sectionOpen: Record<Str, Bool> = $state({
@@ -109,6 +192,15 @@
     typography: true,
     animation: true,
   });
+
+  /** Export feedback (shows check icon briefly). */
+  let exportFeedback: Str = $state('' as Str);
+
+  /** Two-step confirm gate for reset. */
+  let confirmingReset: Bool = $state(false as Bool);
+
+  /** Timer ID for reset confirm auto-dismiss. */
+  let confirmResetTimer: ReturnType<typeof setTimeout> | undefined;
 
   /* ------------------------------------------------------------------ */
   /*  Derived                                                           */
@@ -125,6 +217,9 @@
   /** Total token count. */
   const tokenCount: Num = $derived(currentSet?.tokens.length ?? 0);
 
+  /** All available category names from token groups. */
+  const allCategoryNames: Str[] = $derived(groups.map((g) => g.category));
+
   /** Label for the currently selected theme. */
   const selectedLabel: Str = $derived(
     THEME_PRESETS.find((p: ThemePreset): boolean => p.value === selectedTheme)?.label ?? 'Light',
@@ -140,25 +235,65 @@
   );
 
   /** Filtered group names (only groups that have matching presets). */
-  const filteredGroups: Str[] = $derived(
+  const filteredThemeGroups: Str[] = $derived(
     themeGroups.filter((g: Str): boolean =>
       filteredPresets.some((p: ThemePreset): boolean => p.group === g),
     ),
   );
 
+  /** Token groups filtered by search query and active categories. */
+  const filteredGroups: TokenGroup[] = $derived.by((): TokenGroup[] => {
+    const q: Str = searchQuery.toLowerCase() as Str;
+    let result: TokenGroup[] = groups;
+
+    /* Category filter */
+    if (activeCategories.length > 0) {
+      result = result.filter((g) => activeCategories.includes(g.category));
+    }
+
+    /* Search filter */
+    if (q.length > 0) {
+      result = result
+        .map((g) => ({
+          ...g,
+          tokens: g.tokens.filter(
+            (t) =>
+              t.name.toLowerCase().includes(q) ||
+              t.variable.toLowerCase().includes(q) ||
+              t.value.toLowerCase().includes(q) ||
+              (t.tailwindClass && t.tailwindClass.toLowerCase().includes(q)),
+          ),
+        }))
+        .filter((g) => g.tokens.length > 0);
+    }
+
+    return result;
+  });
+
+  /** Total filtered token count. */
+  const filteredTokenCount: Num = $derived(
+    filteredGroups.reduce((sum, g) => sum + g.tokens.length, 0) as Num,
+  );
+
+  /** Whether any customization is active (for the reset button). */
+  const isCustomized: Bool = $derived(
+    (selectedTheme !== ':root' || activeCategories.length > 0) as Bool,
+  );
+
+  /** Dynamic subtitle text. */
+  const headerSubtitle: Str = $derived.by((): Str => {
+    if (searchQuery) {
+      return `${filteredTokenCount} result${(filteredTokenCount as number) === 1 ? '' : 's'} for "${searchQuery}"` as Str;
+    }
+    if (activeCategories.length > 0) {
+      return `${filteredTokenCount} tokens in ${activeCategories.length} categor${activeCategories.length === 1 ? 'y' : 'ies'}` as Str;
+    }
+    return `${tokenCount} tokens across ${groups.length} categories · ${selectedLabel} theme` as Str;
+  });
+
   /* ------------------------------------------------------------------ */
   /*  Helpers                                                           */
   /* ------------------------------------------------------------------ */
-
-  /**
-   * Select a theme and close the popover.
-   *
-   * @param value - Theme selector value
-   */
-  function selectTheme(value: Str): void {
-    selectedTheme = value;
-    themePopoverOpen = false;
-  }
 
   /**
    * Check if a token value is a color (oklch or other color format).
@@ -183,75 +318,245 @@
   function toggleSection(id: Str): void {
     sectionOpen[id] = !sectionOpen[id];
   }
+
+  /**
+   * Toggle a category in the active filter list.
+   *
+   * @param cat - Category name to toggle
+   */
+  function toggleCategory(cat: Str): void {
+    const idx: Num = activeCategories.indexOf(cat) as Num;
+    if ((idx as number) >= 0) {
+      activeCategories = activeCategories.filter((c) => c !== cat);
+    } else {
+      activeCategories = [...activeCategories, cat];
+    }
+  }
+
+  /** Reset all controls to their default values. */
+  function resetDefaults(): void {
+    selectedTheme = ':root';
+    activeCategories = [];
+    searchQuery = '' as Str;
+  }
+
+  /**
+   * Handle "Reset to defaults" with 2-step confirmation.
+   * First click arms, second click executes. Resets after 3s.
+   */
+  function handleReset(): void {
+    if (confirmingReset) {
+      resetDefaults();
+      confirmingReset = false as Bool;
+      if (confirmResetTimer) clearTimeout(confirmResetTimer);
+    } else {
+      confirmingReset = true as Bool;
+      confirmResetTimer = setTimeout((): void => {
+        confirmingReset = false as Bool;
+      }, 3000);
+    }
+  }
+
+  /**
+   * Handle page-level export action.
+   *
+   * @param formatId - Export format identifier
+   */
+  async function handleExport(formatId: Str): Promise<void> {
+    const tokens = filteredGroups.flatMap((g) => g.tokens);
+    let content: Str = '' as Str;
+    let filename: Str = '' as Str;
+
+    if (formatId === 'copy-css') {
+      const lines: Str[] = tokens.map((t) => `  ${t.variable}: ${t.value};` as Str);
+      content = `:root {\n${lines.join('\n')}\n}` as Str;
+      await clipboardCopy(content);
+    } else if (formatId === 'copy-json') {
+      const obj: Record<Str, Str> = Object.fromEntries(tokens.map((t) => [t.name, t.value]));
+      content = JSON.stringify(obj, null, 2) as Str;
+      await clipboardCopy(content);
+    } else if (formatId === 'copy-markdown') {
+      const rows: Str[] = tokens.map(
+        (t) =>
+          `| \`${t.variable}\` | \`${t.value}\` | ${t.tailwindClass ? `\`${t.tailwindClass}\`` : '—'} |` as Str,
+      );
+      content =
+        `| Variable | Value | Tailwind |\n|----------|-------|----------|\n${rows.join('\n')}` as Str;
+      await clipboardCopy(content);
+    } else if (formatId === 'download-css') {
+      const lines: Str[] = tokens.map((t) => `  ${t.variable}: ${t.value};` as Str);
+      content = `/* Design Tokens — ${selectedLabel} */\n:root {\n${lines.join('\n')}\n}\n` as Str;
+      filename = 'design-tokens.css' as Str;
+    } else if (formatId === 'download-json') {
+      const obj: Record<Str, Str> = Object.fromEntries(tokens.map((t) => [t.name, t.value]));
+      content = JSON.stringify(obj, null, 2) as Str;
+      filename = 'design-tokens.json' as Str;
+    }
+
+    if (filename) {
+      const blob: Blob = new Blob([content], { type: 'text/plain' });
+      const url: Str = URL.createObjectURL(blob) as Str;
+      const a: HTMLAnchorElement = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    exportFeedback = formatId;
+    setTimeout(() => {
+      exportFeedback = '' as Str;
+    }, 2000);
+  }
+
+  /**
+   * Svelte action that locks an element's height to its initial rendered value.
+   * Prevents SubContent from shrinking when filtering, avoiding GraceArea close.
+   *
+   * @param node - The scrollable container element
+   * @returns Action lifecycle with destroy cleanup
+   */
+  function lockHeight(node: HTMLElement): { destroy: () => void } {
+    const raf: Num = requestAnimationFrame((): void => {
+      node.style.minHeight = `${node.offsetHeight}px`;
+    }) as Num;
+    return {
+      destroy(): void {
+        cancelAnimationFrame(raf as number);
+        node.style.minHeight = '';
+      },
+    };
+  }
 </script>
 
-<div class="w-full">
-  <!-- Header -->
-  <div class="sticky top-(--header-height) z-10 border-b bg-background px-8 pb-4 pt-10">
-    <div class="flex items-start gap-4">
-      <div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+<div class="flex flex-1 flex-col gap-6 overflow-y-auto p-6 md:p-10">
+  <!-- Page header + controls -->
+  <div class="flex flex-col gap-3">
+    <div class="flex items-center gap-3">
+      <div class="flex size-12 items-center justify-center rounded-xl bg-primary/10">
         <Palette class="size-6 text-primary" />
       </div>
-      <div class="min-w-0 flex-1">
-        <div class="flex items-center gap-4">
-          <h1 class="text-3xl font-bold tracking-tight">Design Tokens</h1>
-          <Badge variant="secondary" class="text-xs">{tokenCount} tokens</Badge>
-        </div>
-        <p class="mt-1 text-sm text-muted-foreground">
-          CSS custom properties powering the design system. All colors use OKLCh color space.
-        </p>
+      <div class="flex-1">
+        <h1 class="text-2xl font-bold tracking-tight">Design Tokens</h1>
+        <p class="text-sm text-muted-foreground">{headerSubtitle}</p>
+      </div>
 
-        <!-- Theme selector -->
-        <div class="mt-3 flex items-center gap-2">
-          <span class="text-xs font-medium text-muted-foreground">Theme:</span>
-          <Popover.Root
-            bind:open={themePopoverOpen}
-            onOpenChange={(open) => {
-              if (open) themeSearchQuery = '';
-            }}
-          >
-            <Popover.Trigger
-              class="inline-flex h-8 items-center gap-2 rounded-md border bg-transparent px-3 text-sm shadow-xs transition-colors hover:bg-accent"
-            >
-              {selectedLabel}
-              <ChevronDown class="size-3.5 opacity-50" />
-            </Popover.Trigger>
-            <Popover.Content side="bottom" align="start" class="w-56 p-0">
-              <div class="shrink-0 px-2 pb-1.5 pt-2">
-                <div
-                  class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+      <!-- Page-level three-dot menu -->
+      <DropdownMenu.Root>
+        <Tooltip.Provider>
+          <Tooltip.Root delayDuration={300}>
+            <Tooltip.Trigger>
+              {#snippet child({ props: tooltipProps })}
+                <DropdownMenu.Trigger>
+                  {#snippet child({ props: triggerProps })}
+                    <button
+                      type="button"
+                      class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                      {...tooltipProps}
+                      {...triggerProps}
+                    >
+                      <EllipsisVertical class="size-4" />
+                      <span class="sr-only">Page options</span>
+                    </button>
+                  {/snippet}
+                </DropdownMenu.Trigger>
+              {/snippet}
+            </Tooltip.Trigger>
+            <Tooltip.Content side="bottom" sideOffset={4}>Page options</Tooltip.Content>
+          </Tooltip.Root>
+        </Tooltip.Provider>
+        <DropdownMenu.Content align="end" sideOffset={4}>
+          <!-- Export submenu -->
+          <DropdownMenu.Sub>
+            <DropdownMenu.SubTrigger>
+              <DownloadIcon class="mr-2 size-4" />
+              Export
+            </DropdownMenu.SubTrigger>
+            <DropdownMenu.SubContent class="w-64">
+              {#each PAGE_EXPORT_CATEGORIES as category (category)}
+                <DropdownMenu.Label
+                  class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
                 >
-                  <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  {#if category === 'Clipboard'}
+                    <Clipboard class="size-3" />
+                  {:else}
+                    <DownloadIcon class="size-3" />
+                  {/if}
+                  {category}
+                </DropdownMenu.Label>
+                {#each PAGE_EXPORT_ITEMS.filter((p) => p.category === category) as item (item.id)}
+                  <DropdownMenu.Item
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      handleExport(item.id);
+                    }}
+                  >
+                    {#if exportFeedback === item.id}
+                      <span in:fade={{ duration: 150 }}
+                        ><Check class="mr-2 size-4 text-green-500" /></span
+                      >
+                    {:else}
+                      <item.icon class="mr-2 size-4" />
+                    {/if}
+                    <div class="flex min-w-0 flex-1 flex-col">
+                      <span class="text-sm">{item.label}</span>
+                      <span class="text-[11px] text-muted-foreground/60">{item.description}</span>
+                    </div>
+                    {#if item.ext}
+                      <code
+                        class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                        >{item.ext}</code
+                      >
+                    {/if}
+                  </DropdownMenu.Item>
+                {/each}
+              {/each}
+            </DropdownMenu.SubContent>
+          </DropdownMenu.Sub>
+
+          <DropdownMenu.Separator />
+
+          <!-- Theme submenu -->
+          <DropdownMenu.Sub>
+            <DropdownMenu.SubTrigger>
+              <Paintbrush class="mr-2 size-4" />
+              Theme
+              {#if selectedTheme !== ':root'}
+                <Badge
+                  variant="secondary"
+                  class="ml-auto h-5 rounded px-1.5 text-[10px] leading-none"
+                >
+                  {selectedLabel}
+                </Badge>
+              {/if}
+            </DropdownMenu.SubTrigger>
+            <DropdownMenu.SubContent class="w-56 p-0">
+              <!-- Theme search -->
+              <div class="border-b px-2 py-1.5">
+                <div class="flex items-center gap-2 rounded-md bg-muted/50 px-2">
+                  <SearchIcon class="size-3 shrink-0 text-muted-foreground/60" />
                   <input
                     type="text"
                     placeholder="Search themes..."
-                    class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                    class="h-7 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/40"
                     bind:value={themeSearchQuery}
                   />
-                </div>
-              </div>
-              <div class="max-h-64 overflow-y-auto px-1 pb-1">
-                {#each filteredGroups as group (group)}
-                  <div class="px-2 py-1.5 text-xs font-medium text-muted-foreground">{group}</div>
-                  {#each filteredPresets.filter((p) => p.group === group) as preset (preset.value)}
+                  {#if themeSearchQuery.length > 0}
                     <button
                       type="button"
-                      class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors hover:bg-accent"
-                      onclick={() => selectTheme(preset.value)}
+                      class="shrink-0 text-muted-foreground/60 hover:text-foreground"
+                      onclick={() => {
+                        themeSearchQuery = '' as Str;
+                      }}
                     >
-                      <Check
-                        class={cn('size-4 shrink-0', selectedTheme !== preset.value && 'opacity-0')}
-                      />
-                      {#if preset.dot}
-                        <span
-                          class="inline-block size-3.5 shrink-0 rounded-full shadow-sm ring-1 ring-black/10"
-                          style="background-color: {preset.dot}"
-                        ></span>
-                      {/if}
-                      {preset.label}
+                      <X class="size-3" />
                     </button>
-                  {/each}
-                {:else}
+                  {/if}
+                </div>
+              </div>
+              <!-- Theme list -->
+              <div class="max-h-64 overflow-y-auto px-1 py-1" use:lockHeight>
+                {#if filteredThemeGroups.length === 0}
                   <div
                     class="flex flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
                   >
@@ -261,129 +566,271 @@
                       <p class="text-[11px]">Try a different search term</p>
                     </div>
                   </div>
-                {/each}
+                {:else}
+                  {#each filteredThemeGroups as group (group)}
+                    <div class="px-2 py-1.5 text-xs font-medium text-muted-foreground">{group}</div>
+                    {#each filteredPresets.filter((p) => p.group === group) as preset (preset.value)}
+                      <DropdownMenu.Item
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          selectedTheme = preset.value;
+                        }}
+                      >
+                        <Check
+                          class={cn(
+                            'mr-1 size-4 shrink-0',
+                            selectedTheme !== preset.value && 'opacity-0',
+                          )}
+                        />
+                        {#if preset.dot}
+                          <span
+                            class="inline-block size-3.5 shrink-0 rounded-full shadow-sm ring-1 ring-black/10"
+                            style="background-color: {preset.dot}"
+                          ></span>
+                        {/if}
+                        <span class="flex-1">{preset.label}</span>
+                      </DropdownMenu.Item>
+                    {/each}
+                  {/each}
+                {/if}
               </div>
-            </Popover.Content>
-          </Popover.Root>
-        </div>
+            </DropdownMenu.SubContent>
+          </DropdownMenu.Sub>
+
+          <DropdownMenu.Separator />
+
+          <!-- Reset to defaults -->
+          <DropdownMenu.Item
+            variant="destructive"
+            disabled={!isCustomized}
+            onSelect={(e) => {
+              e.preventDefault();
+              handleReset();
+            }}
+          >
+            <Trash2 class="mr-2 size-4" />
+            {confirmingReset ? 'Confirm Reset' : 'Reset to defaults'}
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
+    </div>
+
+    <!-- Search -->
+    <div class="flex items-center gap-2">
+      <div class="relative flex-1">
+        <SearchIcon
+          class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
+        <Input
+          type="text"
+          placeholder="Search {tokenCount} tokens..."
+          class="pl-10 pr-8"
+          bind:value={searchQuery}
+        />
+        {#if searchQuery}
+          <button
+            type="button"
+            class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
+            onclick={() => {
+              searchQuery = '' as Str;
+            }}
+            aria-label="Clear search"
+          >
+            <X class="size-4" />
+          </button>
+        {/if}
       </div>
+    </div>
+
+    <!-- Category filter chips -->
+    <div class="flex flex-wrap gap-1.5">
+      <button
+        type="button"
+        class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors {activeCategories.length ===
+        0
+          ? 'bg-primary text-primary-foreground'
+          : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'}"
+        onclick={() => {
+          activeCategories = [];
+        }}
+      >
+        All
+      </button>
+      {#each allCategoryNames as cat (cat)}
+        <button
+          type="button"
+          class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors {activeCategories.includes(
+            cat,
+          )
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'}"
+          onclick={() => toggleCategory(cat)}
+        >
+          <Tag class="size-3 shrink-0 opacity-60" />
+          {cat}
+          {#if activeCategories.includes(cat)}
+            <X class="size-3 opacity-70" />
+          {/if}
+        </button>
+      {/each}
+      {#if activeCategories.length > 0}
+        <button
+          type="button"
+          class="inline-flex items-center gap-1 rounded-full border border-dashed border-muted-foreground/30 px-2.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          onclick={() => {
+            activeCategories = [];
+          }}
+        >
+          <X class="size-3" />
+          Clear selection
+        </button>
+      {/if}
     </div>
   </div>
 
   <!-- Token groups -->
-  <div class="space-y-10 px-8 py-8">
-    {#each groups as group (group.category)}
-      <section id={group.category} class="scroll-mt-60">
+  {#if filteredGroups.length === 0}
+    <div class="flex flex-1 flex-col items-center justify-center gap-4 py-20 text-center">
+      <div class="flex size-16 items-center justify-center rounded-2xl bg-muted/50">
+        <SearchX class="size-8 text-muted-foreground/40" />
+      </div>
+      <div class="space-y-1">
+        <p class="text-sm font-medium text-muted-foreground">No tokens found</p>
+        <p class="text-xs text-muted-foreground/60">
+          {#if searchQuery}
+            No tokens match "{searchQuery}"
+          {:else}
+            No tokens in the selected categories
+          {/if}
+        </p>
+      </div>
+      <button
+        type="button"
+        class="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        onclick={() => {
+          searchQuery = '' as Str;
+          activeCategories = [];
+        }}
+      >
+        Clear filters
+      </button>
+    </div>
+  {:else}
+    <div class="space-y-10">
+      {#each filteredGroups as group (group.category)}
+        <section id={group.category} class="scroll-mt-60">
+          <button
+            type="button"
+            onclick={() => toggleSection(group.category)}
+            class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+          >
+            <ChevronRight
+              class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen[
+                group.category
+              ]
+                ? 'rotate-90'
+                : ''}"
+            />
+            <Palette class="size-5" />
+            {group.label}
+            <Badge variant="outline" class="ml-1 text-xs">{group.tokens.length}</Badge>
+          </button>
+
+          {#if sectionOpen[group.category]}
+            <div transition:slide={{ duration: 200 }}>
+              <div class="rounded-lg border bg-card">
+                <table class="w-full table-fixed text-sm">
+                  <thead>
+                    <tr class="border-b text-left text-xs text-muted-foreground">
+                      {#if group.category === 'color' || group.category === 'sidebar-color'}
+                        <th class="w-12 px-4 py-2"></th>
+                      {/if}
+                      <th class="px-4 py-2">Variable</th>
+                      <th class="px-4 py-2">Value</th>
+                      <th class="px-4 py-2">Tailwind</th>
+                      <th class="w-12 px-4 py-2"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {#each group.tokens as token (token.name)}
+                      <tr class="border-b last:border-b-0 transition-colors hover:bg-muted/50">
+                        {#if group.category === 'color' || group.category === 'sidebar-color'}
+                          <td class="px-4 py-2.5">
+                            {#if isColorValue(token.value)}
+                              <Tooltip.Root delayDuration={200}>
+                                <Tooltip.Trigger>
+                                  {#snippet child({ props })}
+                                    <div
+                                      class="size-6 rounded-md border shadow-sm"
+                                      style="background-color: {token.value};"
+                                      {...props}
+                                    ></div>
+                                  {/snippet}
+                                </Tooltip.Trigger>
+                                <Tooltip.Content>
+                                  <span class="font-mono text-xs">{token.value}</span>
+                                </Tooltip.Content>
+                              </Tooltip.Root>
+                            {/if}
+                          </td>
+                        {/if}
+                        <td class="px-4 py-2.5">
+                          <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs"
+                            >{token.variable}</code
+                          >
+                        </td>
+                        <td class="px-4 py-2.5">
+                          <span class="font-mono text-xs text-muted-foreground">{token.value}</span>
+                        </td>
+                        <td class="px-4 py-2.5">
+                          {#if token.tailwindClass}
+                            <code
+                              class="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary"
+                              >{token.tailwindClass}</code
+                            >
+                          {:else}
+                            <span class="text-xs text-muted-foreground/40">—</span>
+                          {/if}
+                        </td>
+                        <td class="px-4 py-2.5">
+                          <CopyButton
+                            text={`var(${token.variable})`}
+                            label={`Copy var(${token.variable})`}
+                          />
+                        </td>
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          {/if}
+        </section>
+      {/each}
+
+      <!-- Raw CSS source -->
+      <section id="source" class="scroll-mt-60">
         <button
           type="button"
-          onclick={() => toggleSection(group.category)}
+          onclick={() => toggleSection('source')}
           class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
         >
           <ChevronRight
-            class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen[
-              group.category
-            ]
+            class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.source
               ? 'rotate-90'
               : ''}"
           />
-          <Palette class="size-5" />
-          {group.label}
-          <Badge variant="outline" class="ml-1 text-xs">{group.tokens.length}</Badge>
+          Source (app.css)
         </button>
-
-        {#if sectionOpen[group.category]}
+        {#if sectionOpen.source}
           <div transition:slide={{ duration: 200 }}>
-            <div class="rounded-lg border bg-card">
-              <table class="w-full table-fixed text-sm">
-                <thead>
-                  <tr class="border-b text-left text-xs text-muted-foreground">
-                    {#if group.category === 'color' || group.category === 'sidebar-color'}
-                      <th class="w-12 px-4 py-2"></th>
-                    {/if}
-                    <th class="px-4 py-2">Variable</th>
-                    <th class="px-4 py-2">Value</th>
-                    <th class="px-4 py-2">Tailwind</th>
-                    <th class="w-12 px-4 py-2"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {#each group.tokens as token (token.name)}
-                    <tr class="border-b last:border-b-0 transition-colors hover:bg-muted/50">
-                      {#if group.category === 'color' || group.category === 'sidebar-color'}
-                        <td class="px-4 py-2.5">
-                          {#if isColorValue(token.value)}
-                            <Tooltip.Root delayDuration={200}>
-                              <Tooltip.Trigger>
-                                {#snippet child({ props })}
-                                  <div
-                                    class="size-6 rounded-md border shadow-sm"
-                                    style="background-color: {token.value};"
-                                    {...props}
-                                  ></div>
-                                {/snippet}
-                              </Tooltip.Trigger>
-                              <Tooltip.Content>
-                                <span class="font-mono text-xs">{token.value}</span>
-                              </Tooltip.Content>
-                            </Tooltip.Root>
-                          {/if}
-                        </td>
-                      {/if}
-                      <td class="px-4 py-2.5">
-                        <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs"
-                          >{token.variable}</code
-                        >
-                      </td>
-                      <td class="px-4 py-2.5">
-                        <span class="font-mono text-xs text-muted-foreground">{token.value}</span>
-                      </td>
-                      <td class="px-4 py-2.5">
-                        {#if token.tailwindClass}
-                          <code
-                            class="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary"
-                            >{token.tailwindClass}</code
-                          >
-                        {:else}
-                          <span class="text-xs text-muted-foreground/40">—</span>
-                        {/if}
-                      </td>
-                      <td class="px-4 py-2.5">
-                        <CopyButton
-                          text={`var(${token.variable})`}
-                          label={`Copy var(${token.variable})`}
-                        />
-                      </td>
-                    </tr>
-                  {/each}
-                </tbody>
-              </table>
+            <div class="rounded-lg border bg-card p-4">
+              <CodeBlock code={cssSource} lang="css" />
             </div>
           </div>
         {/if}
       </section>
-    {/each}
-
-    <!-- Raw CSS source -->
-    <section id="source" class="scroll-mt-60">
-      <button
-        type="button"
-        onclick={() => toggleSection('source')}
-        class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
-      >
-        <ChevronRight
-          class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.source
-            ? 'rotate-90'
-            : ''}"
-        />
-        Source (app.css)
-      </button>
-      {#if sectionOpen.source}
-        <div transition:slide={{ duration: 200 }}>
-          <div class="rounded-lg border bg-card p-4">
-            <CodeBlock code={cssSource} lang="css" />
-          </div>
-        </div>
-      {/if}
-    </section>
-  </div>
+    </div>
+  {/if}
 </div>
