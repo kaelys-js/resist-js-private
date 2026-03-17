@@ -1299,6 +1299,245 @@
             </DropdownMenu.SubContent>
           </DropdownMenu.Sub>
           <DropdownMenu.Separator />
+
+          <!-- Customize submenu (all appearance settings) -->
+          <DropdownMenu.Sub>
+            <DropdownMenu.SubTrigger>
+              <SlidersHorizontal class="mr-2 size-4" />
+              Customize
+              {#if isCustomized}
+                <span
+                  class="ml-auto shrink-0 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary"
+                  >Modified</span
+                >
+              {/if}
+            </DropdownMenu.SubTrigger>
+            <DropdownMenu.SubContent class="w-72">
+              <!-- Grid Density section -->
+              <DropdownMenu.Label
+                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+              >
+                <LayoutGrid class="size-3" />
+                Grid Density
+              </DropdownMenu.Label>
+              <DropdownMenu.RadioGroup bind:value={gridDensity}>
+                <DropdownMenu.RadioItem value="compact">
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">Compact</span>
+                    <span class="text-[11px] text-muted-foreground/60"
+                      >Small cards, more icons per row</span
+                    >
+                  </div>
+                </DropdownMenu.RadioItem>
+                <DropdownMenu.RadioItem value="comfortable">
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">Comfortable</span>
+                    <span class="text-[11px] text-muted-foreground/60"
+                      >Balanced size with icon names</span
+                    >
+                  </div>
+                </DropdownMenu.RadioItem>
+                <DropdownMenu.RadioItem value="large">
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">Large</span>
+                    <span class="text-[11px] text-muted-foreground/60"
+                      >Larger previews, fewer per row</span
+                    >
+                  </div>
+                </DropdownMenu.RadioItem>
+              </DropdownMenu.RadioGroup>
+
+              <DropdownMenu.Separator />
+
+              <!-- Color Mode section -->
+              <DropdownMenu.Label
+                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+              >
+                <Paintbrush class="size-3" />
+                Color Mode
+              </DropdownMenu.Label>
+              <DropdownMenu.RadioGroup bind:value={previewBg}>
+                <DropdownMenu.RadioItem value="auto">
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">Auto</span>
+                    <span class="text-[11px] text-muted-foreground/60"
+                      >Icons inherit page color</span
+                    >
+                  </div>
+                </DropdownMenu.RadioItem>
+                <DropdownMenu.RadioItem value="light">
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">Light</span>
+                    <span class="text-[11px] text-muted-foreground/60"
+                      >Dark icons (light mode style)</span
+                    >
+                  </div>
+                </DropdownMenu.RadioItem>
+                <DropdownMenu.RadioItem value="dark">
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">Dark</span>
+                    <span class="text-[11px] text-muted-foreground/60"
+                      >Light icons (dark mode style)</span
+                    >
+                  </div>
+                </DropdownMenu.RadioItem>
+              </DropdownMenu.RadioGroup>
+
+              <DropdownMenu.Separator />
+
+              <!-- Theme sub-submenu -->
+              <DropdownMenu.Sub
+                onOpenChange={(open) => {
+                  if (open) themeSearchQuery = '' as Str;
+                }}
+              >
+                <DropdownMenu.SubTrigger>
+                  <Palette class="size-4" />
+                  Theme
+                  {#if activeThemeLabel}
+                    <span
+                      class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+                      >{activeThemeLabel}</span
+                    >
+                  {/if}
+                </DropdownMenu.SubTrigger>
+                <DropdownMenu.SubContent class="flex max-h-[28rem] w-72 flex-col overflow-hidden">
+                  <div class="shrink-0 px-2 pb-1.5 pt-1">
+                    <div
+                      class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                    >
+                      <SearchIcon
+                        class="size-3 shrink-0 text-muted-foreground"
+                        aria-hidden="true"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Search themes..."
+                        class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                        bind:value={themeSearchQuery}
+                        onkeydown={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  </div>
+                  <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+                    {#each filteredThemeCategories as themeCategory (themeCategory)}
+                      <DropdownMenu.Label class="text-xs">{themeCategory}</DropdownMenu.Label>
+                      {#each filteredThemePresets.filter((p) => p.category === themeCategory) as preset (preset.id)}
+                        <DropdownMenu.Item
+                          closeOnSelect={false}
+                          onclick={() => {
+                            activeTheme = preset.id;
+                          }}
+                        >
+                          <Check
+                            class={cn(
+                              'size-4 shrink-0 transition-opacity duration-150',
+                              activeTheme !== preset.id && 'opacity-0',
+                            )}
+                          />
+                          {#if preset.dot}
+                            <span
+                              class="inline-block size-4 shrink-0 rounded-full shadow-sm ring-1 ring-black/10"
+                              style="background-color: {preset.dot}"
+                            ></span>
+                          {/if}
+                          <div class="flex flex-col gap-0.5">
+                            <span class="text-sm">{preset.label}</span>
+                            <span class="text-[11px] text-muted-foreground"
+                              >{preset.description}</span
+                            >
+                          </div>
+                        </DropdownMenu.Item>
+                      {/each}
+                      {#if themeCategory !== filteredThemeCategories[filteredThemeCategories.length - 1]}
+                        <DropdownMenu.Separator />
+                      {/if}
+                    {:else}
+                      <div
+                        class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+                      >
+                        <SearchX class="size-5" />
+                        <div class="flex flex-col items-center gap-0.5">
+                          <p class="text-xs font-medium">No themes found</p>
+                          <p class="text-[11px]">Try a different search term</p>
+                        </div>
+                      </div>
+                    {/each}
+                  </div>
+                </DropdownMenu.SubContent>
+              </DropdownMenu.Sub>
+
+              <DropdownMenu.Separator />
+
+              <!-- Icon Style section (sliders) -->
+              <DropdownMenu.Label
+                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+              >
+                <SlidersHorizontal class="size-3" />
+                Icon Style
+              </DropdownMenu.Label>
+              <div class="flex flex-col gap-3 px-2 py-1.5">
+                <!-- Size slider -->
+                <div class="flex flex-col gap-1.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium">Size</span>
+                    <span class="font-mono text-xs text-muted-foreground">{previewSize}px</span>
+                  </div>
+                  <Slider.Root type="single" bind:value={previewSize} min={12} max={64} step={2} />
+                </div>
+
+                <!-- Stroke slider -->
+                <div class="flex flex-col gap-1.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium">Stroke</span>
+                    <span class="font-mono text-xs text-muted-foreground"
+                      >{Number(strokeWidth).toFixed(1)}</span
+                    >
+                  </div>
+                  <Slider.Root
+                    type="single"
+                    bind:value={strokeWidth}
+                    min={0.5}
+                    max={4}
+                    step={0.25}
+                  />
+                </div>
+
+                <!-- Color picker -->
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-medium">Color</span>
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="color"
+                      class="size-6 cursor-pointer rounded border bg-transparent p-0.5"
+                      value={iconColor === 'currentColor' ? '#000000' : iconColor}
+                      oninput={(e) => {
+                        /* HTMLInputElement cast — event target is always the color input */
+                        iconColor = (e.target as HTMLInputElement).value as Str;
+                      }}
+                    />
+                    {#if iconColor !== 'currentColor'}
+                      <button
+                        type="button"
+                        class="rounded p-1 text-muted-foreground transition-colors hover:text-foreground"
+                        onclick={() => {
+                          iconColor = 'currentColor' as Str;
+                        }}
+                      >
+                        <RotateCcw class="size-3" />
+                      </button>
+                    {:else}
+                      <span class="text-xs text-muted-foreground/60">Theme</span>
+                    {/if}
+                  </div>
+                </div>
+              </div>
+            </DropdownMenu.SubContent>
+          </DropdownMenu.Sub>
+
+          <DropdownMenu.Separator />
+
+          <!-- Reset -->
           <DropdownMenu.Item
             variant="destructive"
             disabled={!isCustomized}
@@ -1314,278 +1553,31 @@
       </DropdownMenu.Root>
     </div>
 
-    <!-- Search + Customize dropdown -->
-    <div class="flex items-center gap-2">
-      <!-- Search -->
-      <div class="relative flex-1">
-        <SearchIcon
-          class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-          aria-hidden="true"
-        />
-        <Input
-          type="text"
-          placeholder="Search {data.names.length.toLocaleString()} icons..."
-          class="pl-10 pr-8"
-          bind:value={searchQuery}
-          data-icon-search
-        />
-        {#if searchQuery}
-          <button
-            type="button"
-            class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
-            onclick={() => {
-              searchQuery = '' as Str;
-            }}
-            aria-label="Clear search"
-          >
-            <X class="size-4" />
-          </button>
-        {/if}
-      </div>
-
-      <!-- Customize dropdown (all appearance settings) -->
-      <DropdownMenu.Root>
-        <Tooltip.Provider>
-          <Tooltip.Root delayDuration={300}>
-            <Tooltip.Trigger>
-              {#snippet child({ props: tooltipProps })}
-                <DropdownMenu.Trigger>
-                  {#snippet child({ props: triggerProps })}
-                    <button
-                      type="button"
-                      class="inline-flex size-8 items-center justify-center rounded-md border transition-colors {isCustomized
-                        ? 'border-primary/30 bg-primary/5 text-primary'
-                        : 'text-muted-foreground hover:bg-accent hover:text-foreground'}"
-                      {...tooltipProps}
-                      {...triggerProps}
-                    >
-                      <SlidersHorizontal class="size-4" />
-                      <span class="sr-only">Customize</span>
-                    </button>
-                  {/snippet}
-                </DropdownMenu.Trigger>
-              {/snippet}
-            </Tooltip.Trigger>
-            <Tooltip.Content>Customize appearance</Tooltip.Content>
-          </Tooltip.Root>
-        </Tooltip.Provider>
-        <DropdownMenu.Content align="end" class="w-72">
-          <!-- Grid Density section -->
-          <DropdownMenu.Label class="flex items-center gap-1.5 text-xs text-muted-foreground/60">
-            <LayoutGrid class="size-3" />
-            Grid Density
-          </DropdownMenu.Label>
-          <DropdownMenu.RadioGroup bind:value={gridDensity}>
-            <DropdownMenu.RadioItem value="compact">
-              <div class="flex min-w-0 flex-1 flex-col">
-                <span class="text-sm">Compact</span>
-                <span class="text-[11px] text-muted-foreground/60"
-                  >Small cards, more icons per row</span
-                >
-              </div>
-            </DropdownMenu.RadioItem>
-            <DropdownMenu.RadioItem value="comfortable">
-              <div class="flex min-w-0 flex-1 flex-col">
-                <span class="text-sm">Comfortable</span>
-                <span class="text-[11px] text-muted-foreground/60"
-                  >Balanced size with icon names</span
-                >
-              </div>
-            </DropdownMenu.RadioItem>
-            <DropdownMenu.RadioItem value="large">
-              <div class="flex min-w-0 flex-1 flex-col">
-                <span class="text-sm">Large</span>
-                <span class="text-[11px] text-muted-foreground/60"
-                  >Larger previews, fewer per row</span
-                >
-              </div>
-            </DropdownMenu.RadioItem>
-          </DropdownMenu.RadioGroup>
-
-          <DropdownMenu.Separator />
-
-          <!-- Color Mode section -->
-          <DropdownMenu.Label class="flex items-center gap-1.5 text-xs text-muted-foreground/60">
-            <Paintbrush class="size-3" />
-            Color Mode
-          </DropdownMenu.Label>
-          <DropdownMenu.RadioGroup bind:value={previewBg}>
-            <DropdownMenu.RadioItem value="auto">
-              <div class="flex min-w-0 flex-1 flex-col">
-                <span class="text-sm">Auto</span>
-                <span class="text-[11px] text-muted-foreground/60">Icons inherit page color</span>
-              </div>
-            </DropdownMenu.RadioItem>
-            <DropdownMenu.RadioItem value="light">
-              <div class="flex min-w-0 flex-1 flex-col">
-                <span class="text-sm">Light</span>
-                <span class="text-[11px] text-muted-foreground/60"
-                  >Dark icons (light mode style)</span
-                >
-              </div>
-            </DropdownMenu.RadioItem>
-            <DropdownMenu.RadioItem value="dark">
-              <div class="flex min-w-0 flex-1 flex-col">
-                <span class="text-sm">Dark</span>
-                <span class="text-[11px] text-muted-foreground/60"
-                  >Light icons (dark mode style)</span
-                >
-              </div>
-            </DropdownMenu.RadioItem>
-          </DropdownMenu.RadioGroup>
-
-          <DropdownMenu.Separator />
-
-          <!-- Theme submenu -->
-          <DropdownMenu.Sub
-            onOpenChange={(open) => {
-              if (open) themeSearchQuery = '' as Str;
-            }}
-          >
-            <DropdownMenu.SubTrigger>
-              <Palette class="size-4" />
-              Theme
-              {#if activeThemeLabel}
-                <span
-                  class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
-                  >{activeThemeLabel}</span
-                >
-              {/if}
-            </DropdownMenu.SubTrigger>
-            <DropdownMenu.SubContent class="flex max-h-[28rem] w-72 flex-col overflow-hidden">
-              <div class="shrink-0 px-2 pb-1.5 pt-1">
-                <div
-                  class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
-                >
-                  <SearchIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
-                  <input
-                    type="text"
-                    placeholder="Search themes..."
-                    class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                    bind:value={themeSearchQuery}
-                    onkeydown={(e) => e.stopPropagation()}
-                  />
-                </div>
-              </div>
-              <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-                {#each filteredThemeCategories as category (category)}
-                  <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
-                  {#each filteredThemePresets.filter((p) => p.category === category) as preset (preset.id)}
-                    <DropdownMenu.Item
-                      closeOnSelect={false}
-                      onclick={() => {
-                        activeTheme = preset.id;
-                      }}
-                    >
-                      <Check
-                        class={cn(
-                          'size-4 shrink-0 transition-opacity duration-150',
-                          activeTheme !== preset.id && 'opacity-0',
-                        )}
-                      />
-                      {#if preset.dot}
-                        <span
-                          class="inline-block size-4 shrink-0 rounded-full shadow-sm ring-1 ring-black/10"
-                          style="background-color: {preset.dot}"
-                        ></span>
-                      {/if}
-                      <div class="flex flex-col gap-0.5">
-                        <span class="text-sm">{preset.label}</span>
-                        <span class="text-[11px] text-muted-foreground">{preset.description}</span>
-                      </div>
-                    </DropdownMenu.Item>
-                  {/each}
-                  {#if category !== filteredThemeCategories[filteredThemeCategories.length - 1]}
-                    <DropdownMenu.Separator />
-                  {/if}
-                {:else}
-                  <div
-                    class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
-                  >
-                    <SearchX class="size-5" />
-                    <div class="flex flex-col items-center gap-0.5">
-                      <p class="text-xs font-medium">No themes found</p>
-                      <p class="text-[11px]">Try a different search term</p>
-                    </div>
-                  </div>
-                {/each}
-              </div>
-            </DropdownMenu.SubContent>
-          </DropdownMenu.Sub>
-
-          <DropdownMenu.Separator />
-
-          <!-- Icon Style section (sliders — not discrete choices) -->
-          <DropdownMenu.Label class="flex items-center gap-1.5 text-xs text-muted-foreground/60">
-            <SlidersHorizontal class="size-3" />
-            Icon Style
-          </DropdownMenu.Label>
-          <div class="flex flex-col gap-3 px-2 py-1.5">
-            <!-- Size slider -->
-            <div class="flex flex-col gap-1.5">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-medium">Size</span>
-                <span class="font-mono text-xs text-muted-foreground">{previewSize}px</span>
-              </div>
-              <Slider.Root type="single" bind:value={previewSize} min={12} max={64} step={2} />
-            </div>
-
-            <!-- Stroke slider -->
-            <div class="flex flex-col gap-1.5">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-medium">Stroke</span>
-                <span class="font-mono text-xs text-muted-foreground"
-                  >{Number(strokeWidth).toFixed(1)}</span
-                >
-              </div>
-              <Slider.Root type="single" bind:value={strokeWidth} min={0.5} max={4} step={0.25} />
-            </div>
-
-            <!-- Color picker -->
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-medium">Color</span>
-              <div class="flex items-center gap-2">
-                <input
-                  type="color"
-                  class="size-6 cursor-pointer rounded border bg-transparent p-0.5"
-                  value={iconColor === 'currentColor' ? '#000000' : iconColor}
-                  oninput={(e) => {
-                    /* HTMLInputElement cast — event target is always the color input */
-                    iconColor = (e.target as HTMLInputElement).value as Str;
-                  }}
-                />
-                {#if iconColor !== 'currentColor'}
-                  <button
-                    type="button"
-                    class="rounded p-1 text-muted-foreground transition-colors hover:text-foreground"
-                    onclick={() => {
-                      iconColor = 'currentColor' as Str;
-                    }}
-                  >
-                    <RotateCcw class="size-3" />
-                  </button>
-                {:else}
-                  <span class="text-xs text-muted-foreground/60">Theme</span>
-                {/if}
-              </div>
-            </div>
-          </div>
-
-          {#if isCustomized}
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item
-              variant="destructive"
-              onSelect={(e) => {
-                e.preventDefault();
-                handleReset();
-              }}
-            >
-              <Trash2 class="mr-2 size-4" />
-              {confirmingReset ? 'Confirm Reset' : 'Reset all to defaults'}
-            </DropdownMenu.Item>
-          {/if}
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
+    <!-- Search -->
+    <div class="relative">
+      <SearchIcon
+        class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+        aria-hidden="true"
+      />
+      <Input
+        type="text"
+        placeholder="Search {data.names.length.toLocaleString()} icons..."
+        class="pl-10 pr-8"
+        bind:value={searchQuery}
+        data-icon-search
+      />
+      {#if searchQuery}
+        <button
+          type="button"
+          class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
+          onclick={() => {
+            searchQuery = '' as Str;
+          }}
+          aria-label="Clear search"
+        >
+          <X class="size-4" />
+        </button>
+      {/if}
     </div>
 
     <!-- Category filter chips -->
