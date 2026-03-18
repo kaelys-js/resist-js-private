@@ -68,7 +68,6 @@
   import XIcon from '@lucide/svelte/icons/x';
   import Bell from '@lucide/svelte/icons/bell';
   import BellOff from '@lucide/svelte/icons/bell-off';
-  import Settings2 from '@lucide/svelte/icons/settings-2';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
   import Info from '@lucide/svelte/icons/info';
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
@@ -83,12 +82,12 @@
     categoryLabel as catLabel,
   } from '$lib/config/lens-categories';
   import * as Popover from '@/ui/popover/index.js';
-  import Switch from '@/ui/switch/switch.svelte';
-  import Button from '@/ui/button/button.svelte';
+  import { cn } from '@/ui/utils.js';
   import { Toaster, toast } from 'svelte-sonner';
   import {
     loadNotifications,
     pushNotification,
+    pushNotificationBatch,
     getNotifications,
     getUnreadCount,
     getGroupedNotifications,
@@ -98,7 +97,6 @@
     clearAllNotifications,
     getPreferences,
     updatePreferences,
-    resetPreferences,
     isTypeEnabled,
     type LensNotification,
     type NotificationType,
@@ -1337,8 +1335,9 @@
   /** Whether the notification center dropdown is open. */
   let notifCenterOpen: boolean = $state(false);
 
-  /** Whether the notification preferences panel is visible. */
-  let notifPrefsOpen: boolean = $state(false);
+  /** Two-step confirmation for clearing all notifications. */
+  let confirmClearNotifs: boolean = $state(false);
+  let confirmClearNotifsTimer: ReturnType<typeof setTimeout> | undefined;
 
   /** Reactive notification list. */
   const notifList: LensNotification[] = $derived(getNotifications());
@@ -1351,16 +1350,6 @@
 
   /** Reactive preferences. */
   const notifPrefs: NotificationPreferences = $derived(getPreferences());
-
-  /** Whether notification preferences match the defaults. */
-  const notifPrefsAreDefault: boolean = $derived(
-    notifPrefs.info === true &&
-      notifPrefs.success === true &&
-      notifPrefs.warning === true &&
-      notifPrefs.error === true &&
-      notifPrefs.showToasts === true &&
-      notifPrefs.autoDismissMs === 5000,
-  );
 
   // Load notifications from localStorage on mount
   $effect(() => {
@@ -1380,11 +1369,13 @@
     actionHref?: Str;
     componentName?: Str;
     category?: Str;
+    /** When true, push to notification center but skip toast popup. */
+    silent?: boolean;
   }): void {
     if (!isTypeEnabled(opts.type)) return;
     const notif: LensNotification = pushNotification(opts);
     const prefs: NotificationPreferences = getPreferences();
-    if (prefs.showToasts) {
+    if (prefs.showToasts && !opts.silent) {
       /** Toast function lookup by notification type. */
       const TOAST_FNS: Record<NotificationType, typeof toast.info> = {
         error: toast.error,
@@ -1555,14 +1546,16 @@
     }
   });
 
-  // Generate a single summary notification for compatibility violations on load
-  /** Whether compatibility notification has been generated this session. */
-  let compatNotifGenerated: boolean = $state(false);
+  // Generate compatibility notifications on load:
+  // - One summary toast (visible popup)
+  // - One silent notification per incompatible component (notification center only)
+  /** Whether compatibility notifications have been generated this session. */
+  let compatNotifsGenerated: boolean = $state(false);
 
   $effect(() => {
-    if (compatNotifGenerated) return;
+    if (compatNotifsGenerated) return;
     if (componentNames.length === 0) return;
-    compatNotifGenerated = true;
+    compatNotifsGenerated = true;
 
     const incompatible: Str[] = componentNames.filter((n: Str): boolean => {
       const c: LensCompatibility | undefined = compatByName.get(n);
@@ -1571,9 +1564,10 @@
 
     if (incompatible.length === 0) return;
 
+    // Summary toast (visible)
     const topNames: Str = incompatible.slice(0, 5).map(toTitle).join(', ') as Str;
     const remaining: Num = (incompatible.length - 5) as Num;
-    const message: Str = (
+    const summaryMsg: Str = (
       (remaining as number) > 0 ? `${topNames}, and ${remaining} more` : topNames
     ) as Str;
 
@@ -1581,11 +1575,41 @@
       type: 'warning' as NotificationType,
       title:
         `${incompatible.length} component${incompatible.length === 1 ? '' : 's'} with compatibility issues` as Str,
-      message,
+      message: summaryMsg,
       actionLabel: 'View All' as Str,
       actionHref: '/components/all' as Str,
       category: 'compatibility' as Str,
     });
+
+    // Per-component notifications (batch — single persist, no toasts)
+    const batchItems: Array<{
+      type: NotificationType;
+      title: Str;
+      message?: Str;
+      actionLabel?: Str;
+      actionHref?: Str;
+      componentName?: Str;
+      category?: Str;
+    }> = incompatible.map((name: Str) => {
+      const compat: LensCompatibility | undefined = compatByName.get(name);
+      const failedRules: Set<number> = new Set(
+        (compat?.violations ?? []).map((vi) => vi.rule as number),
+      );
+      const ruleIds: Str = [...failedRules]
+        .map((idx: number): Str => `R${idx}` as Str)
+        .join(', ') as Str;
+      return {
+        type: 'warning' as NotificationType,
+        title:
+          `${toTitle(name)} — ${failedRules.size} rule violation${failedRules.size === 1 ? '' : 's'}` as Str,
+        message: ruleIds,
+        componentName: name,
+        actionLabel: 'View Component' as Str,
+        actionHref: `/components/${name}` as Str,
+        category: 'compatibility' as Str,
+      };
+    });
+    pushNotificationBatch(batchItems);
   });
 
   /* ------------------------------------------------------------------ */
@@ -2665,7 +2689,7 @@
                   <Bell class="size-4" />
                   {#if (unreadCount as number) > 0}
                     <span
-                      class="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground"
+                      class="absolute -right-1.5 -top-1.5 z-10 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground"
                     >
                       {(unreadCount as number) > 9 ? '9+' : unreadCount}
                     </span>
@@ -2677,92 +2701,106 @@
               <!-- Notification center header -->
               <div class="flex items-center gap-2 border-b px-4 py-3">
                 <h3 class="flex-1 text-sm font-semibold">Notifications</h3>
-                {#if (unreadCount as number) > 0}
-                  <button
-                    type="button"
-                    class="text-xs text-muted-foreground hover:text-foreground"
-                    onclick={markAllRead}
-                  >
-                    Mark all read
-                  </button>
-                {/if}
-                <Tooltip.Root delayDuration={300}>
-                  <Tooltip.Trigger>
-                    {#snippet child({ props: prefsTip })}
+                <!-- 3-dot menu -->
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger>
+                    {#snippet child({ props: notifMenuProps })}
                       <button
                         type="button"
                         class="flex size-6 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
-                        {...prefsTip}
-                        onclick={() => {
-                          notifPrefsOpen = !notifPrefsOpen;
-                        }}
+                        {...notifMenuProps}
                       >
-                        <Settings2 class="size-3.5" />
+                        <EllipsisVertical class="size-3.5" />
                       </button>
                     {/snippet}
-                  </Tooltip.Trigger>
-                  <Tooltip.Content sideOffset={4}>Preferences</Tooltip.Content>
-                </Tooltip.Root>
-              </div>
-              <!-- Preferences panel (collapsible) -->
-              {#if notifPrefsOpen}
-                <div class="border-b bg-muted/30 px-4 py-3" transition:slide={{ duration: 150 }}>
-                  <p class="mb-2 text-xs font-medium text-muted-foreground">Filter by severity</p>
-                  <div class="space-y-2">
-                    {#each ['info', 'success', 'warning', 'error'] as ntype (ntype)}
-                      <Tooltip.Root delayDuration={300}>
-                        <Tooltip.Trigger>
-                          {#snippet child({ props: ntypeTip })}
-                            <div class="flex items-center justify-between" {...ntypeTip}>
-                              <span class="text-xs capitalize">{ntype}</span>
-                              <Switch
-                                checked={notifPrefs[ntype as NotificationType]}
-                                onCheckedChange={(checked) => {
-                                  updatePreferences({ [ntype]: checked });
-                                }}
-                              />
-                            </div>
-                          {/snippet}
-                        </Tooltip.Trigger>
-                        <Tooltip.Content side="left" sideOffset={4}>
-                          <p class="text-xs">{NOTIF_TYPE_DESCS[ntype as Str]}</p>
-                        </Tooltip.Content>
-                      </Tooltip.Root>
-                    {/each}
-                  </div>
-                  <div class="mt-3 space-y-2">
-                    <Tooltip.Root delayDuration={300}>
-                      <Tooltip.Trigger>
-                        {#snippet child({ props: toastTip })}
-                          <div class="flex items-center justify-between" {...toastTip}>
-                            <span class="text-xs">Show toast popups</span>
-                            <Switch
-                              checked={notifPrefs.showToasts}
-                              onCheckedChange={(checked) => {
-                                updatePreferences({ showToasts: checked });
-                              }}
-                            />
-                          </div>
-                        {/snippet}
-                      </Tooltip.Trigger>
-                      <Tooltip.Content side="left" sideOffset={4}>
-                        <p class="text-xs">Show temporary popup notifications</p>
-                      </Tooltip.Content>
-                    </Tooltip.Root>
-                    <div class="flex justify-end">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        class="h-7 px-3 text-xs"
-                        disabled={notifPrefsAreDefault}
-                        onclick={resetPreferences}
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Content align="end" sideOffset={4} class="w-56">
+                    <!-- Mark all read -->
+                    <DropdownMenu.Item
+                      disabled={(unreadCount as number) === 0}
+                      onclick={markAllRead}
+                    >
+                      <Check class="mr-2 size-4" />
+                      Mark All Read
+                    </DropdownMenu.Item>
+
+                    <DropdownMenu.Separator />
+
+                    <!-- Filter by severity -->
+                    <DropdownMenu.Label class="text-xs text-muted-foreground/60">
+                      Filter by Severity
+                    </DropdownMenu.Label>
+                    {#each [{ k: 'info', l: 'Info', d: 'General updates' }, { k: 'success', l: 'Success', d: 'Completions' }, { k: 'warning', l: 'Warning', d: 'Deprecation & issues' }, { k: 'error', l: 'Error', d: 'Failures' }] as sev (sev.k)}
+                      <DropdownMenu.Item
+                        closeOnSelect={false}
+                        onclick={() => {
+                          updatePreferences({
+                            [sev.k]: !notifPrefs[sev.k as NotificationType],
+                          });
+                        }}
                       >
-                        Reset to defaults
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              {/if}
+                        <Check
+                          class={cn(
+                            'size-4 shrink-0 transition-opacity duration-150',
+                            !notifPrefs[sev.k as NotificationType] && 'opacity-0',
+                          )}
+                        />
+                        <div class="flex min-w-0 flex-1 flex-col">
+                          <span class="text-sm">{sev.l}</span>
+                          <span class="text-[11px] text-muted-foreground/60">{sev.d}</span>
+                        </div>
+                      </DropdownMenu.Item>
+                    {/each}
+
+                    <DropdownMenu.Separator />
+
+                    <!-- Show toasts toggle -->
+                    <DropdownMenu.Item
+                      closeOnSelect={false}
+                      onclick={() => {
+                        updatePreferences({ showToasts: !notifPrefs.showToasts });
+                      }}
+                    >
+                      <Check
+                        class={cn(
+                          'size-4 shrink-0 transition-opacity duration-150',
+                          !notifPrefs.showToasts && 'opacity-0',
+                        )}
+                      />
+                      <div class="flex min-w-0 flex-1 flex-col">
+                        <span class="text-sm">Show Toasts</span>
+                        <span class="text-[11px] text-muted-foreground/60"
+                          >Temporary popup notifications</span
+                        >
+                      </div>
+                    </DropdownMenu.Item>
+
+                    <DropdownMenu.Separator />
+
+                    <!-- Clear all — destructive + 2-step -->
+                    <DropdownMenu.Item
+                      variant="destructive"
+                      disabled={notifList.length === 0}
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        if (confirmClearNotifs) {
+                          clearAllNotifications();
+                          confirmClearNotifs = false;
+                          if (confirmClearNotifsTimer) clearTimeout(confirmClearNotifsTimer);
+                        } else {
+                          confirmClearNotifs = true;
+                          confirmClearNotifsTimer = setTimeout(() => {
+                            confirmClearNotifs = false;
+                          }, 3000);
+                        }
+                      }}
+                    >
+                      <Trash2 class="mr-2 size-4" />
+                      {confirmClearNotifs ? 'Confirm Clear All' : 'Clear All'}
+                    </DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+              </div>
               <!-- Notification list -->
               <div class="max-h-80 overflow-y-auto">
                 {#if notifList.length === 0}
@@ -2968,17 +3006,10 @@
               </div>
               <!-- Footer -->
               {#if notifList.length > 0}
-                <div class="flex items-center justify-between border-t px-4 py-2">
+                <div class="border-t px-4 py-2 text-center">
                   <span class="text-[11px] text-muted-foreground/60"
                     >{notifList.length} notification{notifList.length === 1 ? '' : 's'}</span
                   >
-                  <button
-                    type="button"
-                    class="text-[11px] text-muted-foreground hover:text-foreground"
-                    onclick={clearAllNotifications}
-                  >
-                    Clear all
-                  </button>
                 </div>
               {/if}
             </Popover.Content>
@@ -3009,4 +3040,11 @@
   />
 </Sidebar.Provider>
 
-<Toaster richColors closeButton position="bottom-right" />
+<Toaster
+  richColors
+  closeButton
+  position="bottom-right"
+  toastOptions={{
+    class: 'border shadow-lg !bg-card !text-foreground',
+  }}
+/>

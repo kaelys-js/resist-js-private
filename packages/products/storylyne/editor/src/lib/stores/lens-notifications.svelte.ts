@@ -78,9 +78,6 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
   showToasts: true,
 };
 
-/** Maximum stored notifications. */
-const MAX_NOTIFICATIONS: Num = 50 as Num;
-
 /* ------------------------------------------------------------------ */
 /*  Storage keys                                                       */
 /* ------------------------------------------------------------------ */
@@ -190,9 +187,46 @@ export function pushNotification(opts: {
     componentName: opts.componentName,
     category: opts.category,
   };
-  notifications = [notif, ...notifications].slice(0, MAX_NOTIFICATIONS as number);
+  notifications = [notif, ...notifications];
   persistNotifications();
   return notif;
+}
+
+/**
+ * Push multiple notifications at once (single persist at the end).
+ * Use for batch operations to avoid N localStorage writes.
+ *
+ * @param items - Array of notification option objects
+ * @returns Array of created notifications
+ */
+export function pushNotificationBatch(
+  items: Array<{
+    type: NotificationType;
+    title: Str;
+    message?: Str;
+    actionLabel?: Str;
+    actionHref?: Str;
+    componentName?: Str;
+    category?: Str;
+  }>,
+): LensNotification[] {
+  const created: LensNotification[] = items.map(
+    (opts): LensNotification => ({
+      id: generateId(),
+      type: opts.type,
+      title: opts.title,
+      message: opts.message,
+      actionLabel: opts.actionLabel,
+      actionHref: opts.actionHref,
+      timestamp: new Date().toISOString(),
+      read: false,
+      componentName: opts.componentName,
+      category: opts.category,
+    }),
+  );
+  notifications = [...created, ...notifications];
+  persistNotifications();
+  return created;
 }
 
 /**
