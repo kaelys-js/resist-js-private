@@ -33,6 +33,10 @@
   import CircleCheck from '@lucide/svelte/icons/circle-check';
   import CircleAlert from '@lucide/svelte/icons/circle-alert';
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
+  import Check from '@lucide/svelte/icons/check';
+  import LayoutGrid from '@lucide/svelte/icons/layout-grid';
+  import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
+  import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
   import SearchIcon from '@lucide/svelte/icons/search';
   import Tag from '@lucide/svelte/icons/tag';
   import X from '@lucide/svelte/icons/x';
@@ -125,20 +129,54 @@
   /** Search query for filtering components within this category. */
   let searchQuery: Str = $state('' as Str);
 
-  /** Filtered components matching the search query. */
-  const filteredComponents: Str[] = $derived(
-    searchQuery.length === 0
-      ? categoryComponents
-      : categoryComponents.filter((n: Str): boolean => {
-          const q: Str = searchQuery.toLowerCase() as Str;
-          const label: Str = toTitle(n).toLowerCase() as Str;
-          if (label.includes(q)) return true;
-          const meta: LensMeta | undefined = metaByName.get(n);
-          if (meta?.tags?.some((t: Str): boolean => t.toLowerCase().includes(q))) return true;
-          const desc: Str = getDescription(n).toLowerCase() as Str;
-          return desc.includes(q);
-        }),
-  );
+  /** View mode. */
+  let viewMode: 'grid' | 'list' = $state('grid');
+
+  /** Sort mode. */
+  let sortMode: Str = $state('name-asc' as Str);
+
+  /** Filtered and sorted components. */
+  const filteredComponents: Str[] = $derived.by((): Str[] => {
+    let names: Str[] = categoryComponents;
+
+    // Filter by search
+    if (searchQuery.length > 0) {
+      const q: Str = searchQuery.toLowerCase() as Str;
+      names = names.filter((n: Str): boolean => {
+        const label: Str = toTitle(n).toLowerCase() as Str;
+        if (label.includes(q)) return true;
+        const meta: LensMeta | undefined = metaByName.get(n);
+        if (meta?.tags?.some((t: Str): boolean => t.toLowerCase().includes(q))) return true;
+        const desc: Str = getDescription(n).toLowerCase() as Str;
+        return desc.includes(q);
+      });
+    }
+
+    // Sort
+    if (sortMode === 'name-desc') {
+      names = [...names].toSorted((a: Str, b: Str): Num => b.localeCompare(a) as Num);
+    } else if (sortMode === 'compatibility') {
+      names = [...names].toSorted((a: Str, b: Str): Num => {
+        const aOk: Num = (compatByName.get(a)?.compatible ? 1 : 0) as Num;
+        const bOk: Num = (compatByName.get(b)?.compatible ? 1 : 0) as Num;
+        return (bOk - aOk) as Num;
+      });
+    } else if (sortMode === 'status') {
+      const statusOrder: Record<string, Num> = {
+        new: 0 as Num,
+        updated: 1 as Num,
+        deprecated: 2 as Num,
+      };
+      names = [...names].toSorted((a: Str, b: Str): Num => {
+        const aS: Num = statusOrder[metaByName.get(a)?.status ?? ''] ?? (3 as Num);
+        const bS: Num = statusOrder[metaByName.get(b)?.status ?? ''] ?? (3 as Num);
+        return (aS - bS) as Num;
+      });
+    }
+    // 'name-asc' is default — categoryComponents is already sorted
+
+    return names;
+  });
 
   /* ------------------------------------------------------------------ */
   /*  Mappings                                                            */
@@ -199,8 +237,10 @@
   let confirmingReset: Bool = $state(false as Bool);
   let confirmResetTimer: ReturnType<typeof setTimeout> | undefined;
 
-  /** Whether search is active (for reset button state). */
-  const isCustomized: boolean = $derived(searchQuery.trim().length > 0);
+  /** Whether any customization is active. */
+  const isCustomized: boolean = $derived(
+    searchQuery.trim().length > 0 || viewMode !== 'grid' || sortMode !== 'name-asc',
+  );
 
   /** Export menu item descriptor. */
   type ExportItem = {
@@ -257,6 +297,8 @@
   function handleReset(): void {
     if (confirmingReset) {
       searchQuery = '' as Str;
+      viewMode = 'grid';
+      sortMode = 'name-asc' as Str;
       confirmingReset = false as Bool;
       if (confirmResetTimer) clearTimeout(confirmResetTimer);
     } else {
@@ -363,6 +405,71 @@
                     {/if}
                   </DropdownMenu.Item>
                 {/each}
+              {/each}
+            </DropdownMenu.SubContent>
+          </DropdownMenu.Sub>
+
+          <DropdownMenu.Separator />
+
+          <!-- Customize submenu -->
+          <DropdownMenu.Sub>
+            <DropdownMenu.SubTrigger>
+              <SlidersHorizontal class="mr-2 size-4" />
+              Customize
+            </DropdownMenu.SubTrigger>
+            <DropdownMenu.SubContent class="w-56">
+              <DropdownMenu.Label
+                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+              >
+                <LayoutGrid class="size-3" />
+                View Mode
+              </DropdownMenu.Label>
+              {#each [{ v: 'grid', l: 'Grid', d: 'Component cards' }, { v: 'list', l: 'List', d: 'Compact rows' }] as opt (opt.v)}
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    viewMode = opt.v as 'grid' | 'list';
+                  }}
+                >
+                  <Check
+                    class={cn(
+                      'size-4 shrink-0 transition-opacity duration-150',
+                      viewMode !== opt.v && 'opacity-0',
+                    )}
+                  />
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">{opt.l}</span>
+                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
+                  </div>
+                </DropdownMenu.Item>
+              {/each}
+
+              <DropdownMenu.Separator />
+
+              <DropdownMenu.Label
+                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+              >
+                <ArrowUpDown class="size-3" />
+                Sort By
+              </DropdownMenu.Label>
+              {#each [{ v: 'name-asc', l: 'Name (A–Z)', d: 'Alphabetical' }, { v: 'name-desc', l: 'Name (Z–A)', d: 'Reverse alphabetical' }, { v: 'compatibility', l: 'Compatibility', d: 'Compliant first' }, { v: 'status', l: 'Status', d: 'New → Updated → Deprecated' }] as opt (opt.v)}
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    sortMode = opt.v as Str;
+                  }}
+                >
+                  <Check
+                    class={cn(
+                      'size-4 shrink-0 transition-opacity duration-150',
+                      sortMode !== opt.v && 'opacity-0',
+                    )}
+                  />
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">{opt.l}</span>
+                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
+                  </div>
+                </DropdownMenu.Item>
               {/each}
             </DropdownMenu.SubContent>
           </DropdownMenu.Sub>
