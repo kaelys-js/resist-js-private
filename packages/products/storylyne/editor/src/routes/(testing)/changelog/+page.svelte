@@ -32,7 +32,8 @@
   import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
   import LayoutList from '@lucide/svelte/icons/layout-list';
   import Input from '@/ui/input/input.svelte';
-  import { fade } from 'svelte/transition';
+  import ExternalLink from '@lucide/svelte/icons/external-link';
+  import { fade, slide } from 'svelte/transition';
   import type { ChangelogData } from './+page.server.js';
 
   const { data }: { data: ChangelogData } = $props();
@@ -58,6 +59,9 @@
 
   /** Set of collapsed date group keys. */
   let collapsedGroups: Set<Str> = $state(new Set());
+
+  /** Set of expanded commit body rows (by hash). */
+  let expandedRows: Set<Str> = $state(new Set());
 
   /** Two-step reset confirmation. */
   let confirmingReset: Bool = $state(false as Bool);
@@ -292,6 +296,15 @@
   });
 
   /** Filtered sort options. */
+  /** Whether any settings differ from defaults. */
+  const hasChanges: boolean = $derived(
+    searchQuery !== '' ||
+      activeFilters.size > 0 ||
+      viewMode !== 'timeline' ||
+      sortDirection !== 'newest' ||
+      collapsedGroups.size > 0,
+  );
+
   const filteredSortOptions = $derived.by(() => {
     if (!sortSearch) return SORT_OPTIONS;
     const q: Str = sortSearch.toLowerCase() as Str;
@@ -406,6 +419,21 @@
       next.add(dateKey);
     }
     collapsedGroups = next;
+  }
+
+  /**
+   * Toggle a commit body expanded state.
+   *
+   * @param hash - Commit hash to toggle
+   */
+  function toggleRowExpand(hash: Str): void {
+    const next: Set<Str> = new Set(expandedRows);
+    if (next.has(hash)) {
+      next.delete(hash);
+    } else {
+      next.add(hash);
+    }
+    expandedRows = next;
   }
 
   /**
@@ -708,8 +736,12 @@
 
           <DropdownMenu.Separator />
 
-          <!-- Reset to defaults (two-step confirm) -->
-          <DropdownMenu.Item variant="destructive" onSelect={handleReset}>
+          <!-- Reset to defaults (two-step confirm, disabled when nothing changed) -->
+          <DropdownMenu.Item
+            variant="destructive"
+            disabled={!hasChanges && !confirmingReset}
+            onSelect={handleReset}
+          >
             <Trash2 class="mr-2 size-4" />
             {confirmingReset ? 'Confirm Reset' : 'Reset to Defaults'}
           </DropdownMenu.Item>
@@ -869,8 +901,47 @@
                             <TypeIcon class="mr-0.5 size-2.5" />
                             {typeConfig.label}
                           </Badge>
-                          <p class="truncate text-sm font-medium">{entry.message}</p>
+                          {#if entry.body}
+                            <button
+                              type="button"
+                              class="shrink-0 rounded p-0.5 text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground"
+                              onclick={() => toggleRowExpand(entry.hash)}
+                              aria-label={expandedRows.has(entry.hash)
+                                ? 'Collapse details'
+                                : 'Expand details'}
+                            >
+                              <ChevronDown
+                                class="size-3.5 transition-transform duration-200 {expandedRows.has(
+                                  entry.hash,
+                                )
+                                  ? 'rotate-180'
+                                  : ''}"
+                              />
+                            </button>
+                          {/if}
+                          <Tooltip.Root delayDuration={500}>
+                            <Tooltip.Trigger>
+                              {#snippet child({ props: msgTipProps })}
+                                <p {...msgTipProps} class="truncate text-sm font-medium">
+                                  {entry.message}
+                                </p>
+                              {/snippet}
+                            </Tooltip.Trigger>
+                            <Tooltip.Content side="top" sideOffset={4} class="max-w-sm">
+                              {entry.message}
+                            </Tooltip.Content>
+                          </Tooltip.Root>
                         </div>
+
+                        <!-- Expanded commit body -->
+                        {#if expandedRows.has(entry.hash) && entry.body}
+                          <div
+                            class="mt-1.5 whitespace-pre-wrap rounded-md bg-muted/50 px-2.5 py-2 text-xs leading-relaxed text-muted-foreground"
+                            transition:slide={{ duration: 150 }}
+                          >
+                            {entry.body}
+                          </div>
+                        {/if}
 
                         <!-- Component badges -->
                         {#if entry.components.length > 0}
@@ -897,12 +968,52 @@
                       <div class="flex shrink-0 flex-col items-end gap-1">
                         <div class="flex items-center gap-1.5 text-[10px] text-muted-foreground">
                           <GitCommitHorizontal class="size-3" />
-                          <code class="font-mono">{entry.hash}</code>
+                          {#if data.repoUrl}
+                            <a
+                              href="{data.repoUrl}/commit/{entry.hash}"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-primary hover:underline"
+                            >
+                              {entry.hash}
+                            </a>
+                          {:else}
+                            <code class="font-mono">{entry.hash}</code>
+                          {/if}
                         </div>
                         <span class="text-[10px] text-muted-foreground">{entry.author}</span>
-                        <span class="text-[10px] text-muted-foreground"
-                          >{relativeTime(entry.date)}</span
-                        >
+                        <Tooltip.Root delayDuration={300}>
+                          <Tooltip.Trigger>
+                            {#snippet child({ props: dateTipProps })}
+                              <span {...dateTipProps} class="text-[10px] text-muted-foreground">
+                                {relativeTime(entry.date)}
+                              </span>
+                            {/snippet}
+                          </Tooltip.Trigger>
+                          <Tooltip.Content side="top" sideOffset={4}>
+                            {new Date(entry.date).toLocaleString()}
+                          </Tooltip.Content>
+                        </Tooltip.Root>
+                        {#if data.repoUrl}
+                          <Tooltip.Root delayDuration={300}>
+                            <Tooltip.Trigger>
+                              {#snippet child({ props: ghTipProps })}
+                                <a
+                                  {...ghTipProps}
+                                  href="{data.repoUrl}/commit/{entry.hash}"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  class="inline-flex size-5 items-center justify-center rounded text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground"
+                                >
+                                  <ExternalLink class="size-3" />
+                                </a>
+                              {/snippet}
+                            </Tooltip.Trigger>
+                            <Tooltip.Content side="top" sideOffset={4}>
+                              Open in GitHub
+                            </Tooltip.Content>
+                          </Tooltip.Root>
+                        {/if}
                       </div>
                     </div>
                   </div>
