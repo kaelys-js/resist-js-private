@@ -2741,7 +2741,7 @@
                   <Bell class="size-4" />
                   {#if (unreadCount as number) > 0}
                     <span
-                      class="absolute -right-1 -top-1 z-10 flex size-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground ring-2 ring-background"
+                      class="absolute right-0 top-0 z-10 flex size-4 -translate-y-1/3 translate-x-1/3 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground ring-2 ring-background"
                     >
                       {(unreadCount as number) > 99 ? '99+' : unreadCount}
                     </span>
