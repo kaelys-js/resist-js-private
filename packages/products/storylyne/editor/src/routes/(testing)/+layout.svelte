@@ -757,8 +757,9 @@
 
   // Track navigation — add current component to recent list
   // Uses untrack() to read recentComponents without subscribing, preventing infinite loop
+  // Only adds valid components (must exist in componentNames) to prevent phantom entries
   $effect(() => {
-    if (!currentName || currentName.length === 0) return;
+    if (!currentName || currentName.length === 0 || !componentNames.includes(currentName)) return;
     const current: Str[] = untrack(() => recentComponents);
     const filtered: Str[] = current.filter((n: Str): boolean => n !== currentName);
     recentComponents = [currentName, ...filtered].slice(0, MAX_RECENT);
@@ -1532,7 +1533,7 @@
 
   // Generate notifications for component status and dependency changes
   $effect(() => {
-    if (!currentName || currentName.length === 0) return;
+    if (!currentName || currentName.length === 0 || !componentNames.includes(currentName)) return;
     const meta: LensMeta | undefined = metaByName.get(currentName);
 
     // Status notification for watched components
@@ -2571,14 +2572,14 @@
                 </DropdownMenu.Content>
               </DropdownMenu.Root>
             </Breadcrumb.Item>
-            {#if currentCategory}
+            {#if currentCategory && CATEGORY_ORDER.includes(currentCategory)}
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <Breadcrumb.Page>
                   {currentCategory.charAt(0).toUpperCase()}{currentCategory.slice(1)}
                 </Breadcrumb.Page>
               </Breadcrumb.Item>
-            {:else if currentName}
+            {:else if currentName && componentNames.includes(currentName)}
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <Breadcrumb.Page>{toTitle(currentName)}</Breadcrumb.Page>
