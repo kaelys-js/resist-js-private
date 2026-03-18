@@ -36,6 +36,8 @@
   import Check from '@lucide/svelte/icons/check';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
 
+  import ArrowUp from '@lucide/svelte/icons/arrow-up';
+  import ArrowDown from '@lucide/svelte/icons/arrow-down';
   import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
   import SearchIcon from '@lucide/svelte/icons/search';
   import SearchX from '@lucide/svelte/icons/search-x';
@@ -133,14 +135,69 @@
   /** View mode. */
   let viewMode: 'grid' | 'compact' | 'list' | 'table' = $state('grid');
 
-  /** Sort mode. */
-  let sortMode: Str = $state('name-asc' as Str);
+  /** Active sort field (empty = default name-asc order). */
+  let sortField: Str = $state('' as Str);
+
+  /** Sort direction. */
+  let sortDir: 'asc' | 'desc' = $state('asc');
 
   /** Search query inside the View Mode submenu. */
   let viewSearchQuery: Str = $state('' as Str);
 
   /** Search query inside the Sort By submenu. */
   let sortSearchQuery: Str = $state('' as Str);
+
+  /** Human-readable label for the current view mode. */
+  const viewModeLabel: Str = $derived.by((): Str => {
+    if (viewMode === 'compact') return 'Dense' as Str;
+    if (viewMode === 'list') return 'List' as Str;
+    if (viewMode === 'table') return 'Table' as Str;
+    return 'Grid' as Str;
+  });
+
+  /** Human-readable label for the active sort, or empty when default. */
+  const sortLabel: Str = $derived.by((): Str => {
+    if (sortField === 'name') return 'Name' as Str;
+    if (sortField === 'tag-count') return 'Tags' as Str;
+    if (sortField === 'description') return 'Desc' as Str;
+    if (sortField === 'compatibility') return 'Compat' as Str;
+    if (sortField === 'status') return 'Status' as Str;
+    return '' as Str;
+  });
+
+  /**
+   * Compute a raw ascending sort value for two components.
+   *
+   * @param a - First component name
+   * @param b - Second component name
+   * @returns Numeric comparison value
+   */
+  function getSortValue(a: Str, b: Str): Num {
+    if (sortField === 'name') return a.localeCompare(b) as Num;
+    if (sortField === 'tag-count') {
+      return ((metaByName.get(a)?.tags?.length ?? 0) -
+        (metaByName.get(b)?.tags?.length ?? 0)) as Num;
+    }
+    if (sortField === 'description') {
+      return ((getDescription(a) ? 0 : 1) - (getDescription(b) ? 0 : 1)) as Num;
+    }
+    if (sortField === 'compatibility') {
+      const aOk: Num = (compatByName.get(a)?.compatible ? 1 : 0) as Num;
+      const bOk: Num = (compatByName.get(b)?.compatible ? 1 : 0) as Num;
+      return (aOk - bOk) as Num;
+    }
+    if (sortField === 'status') {
+      const statusOrder: Record<string, Num> = {
+        new: 0 as Num,
+        updated: 1 as Num,
+        deprecated: 2 as Num,
+      };
+      const aS: Num = statusOrder[metaByName.get(a)?.status ?? ''] ?? (3 as Num);
+      const bS: Num = statusOrder[metaByName.get(b)?.status ?? ''] ?? (3 as Num);
+      return (aS - bS) as Num;
+    }
+    return 0 as Num;
+  }
 
   /** Filtered and sorted components. */
   const filteredComponents: Str[] = $derived.by((): Str[] => {
@@ -160,36 +217,14 @@
     }
 
     // Sort
-    if (sortMode === 'name-desc') {
-      names = [...names].toSorted((a: Str, b: Str): Num => b.localeCompare(a) as Num);
-    } else if (sortMode === 'tag-count') {
-      names = [...names].toSorted(
-        (a: Str, b: Str): Num =>
-          ((metaByName.get(b)?.tags?.length ?? 0) - (metaByName.get(a)?.tags?.length ?? 0)) as Num,
-      );
-    } else if (sortMode === 'description') {
-      names = [...names].toSorted(
-        (a: Str, b: Str): Num => ((getDescription(b) ? 0 : 1) - (getDescription(a) ? 0 : 1)) as Num,
-      );
-    } else if (sortMode === 'compatibility') {
+    if (sortField) {
+      const mul: Num = (sortDir === 'desc' ? -1 : 1) as Num;
       names = [...names].toSorted((a: Str, b: Str): Num => {
-        const aOk: Num = (compatByName.get(a)?.compatible ? 1 : 0) as Num;
-        const bOk: Num = (compatByName.get(b)?.compatible ? 1 : 0) as Num;
-        return (bOk - aOk) as Num;
-      });
-    } else if (sortMode === 'status') {
-      const statusOrder: Record<string, Num> = {
-        new: 0 as Num,
-        updated: 1 as Num,
-        deprecated: 2 as Num,
-      };
-      names = [...names].toSorted((a: Str, b: Str): Num => {
-        const aS: Num = statusOrder[metaByName.get(a)?.status ?? ''] ?? (3 as Num);
-        const bS: Num = statusOrder[metaByName.get(b)?.status ?? ''] ?? (3 as Num);
-        return (aS - bS) as Num;
+        const raw: Num = getSortValue(a, b);
+        return (raw * mul) as Num;
       });
     }
-    // 'name-asc' is default — categoryComponents is already sorted
+    // When sortField is empty, categoryComponents default order (name-asc) is kept
 
     return names;
   });
@@ -255,7 +290,7 @@
 
   /** Whether any customization is active. */
   const isCustomized: boolean = $derived(
-    searchQuery.trim().length > 0 || viewMode !== 'grid' || sortMode !== 'name-asc',
+    searchQuery.trim().length > 0 || viewMode !== 'grid' || sortField !== '',
   );
 
   /** Export menu item descriptor. */
@@ -336,7 +371,8 @@
     if (confirmingReset) {
       searchQuery = '' as Str;
       viewMode = 'grid';
-      sortMode = 'name-asc' as Str;
+      sortField = '' as Str;
+      sortDir = 'asc';
       confirmingReset = false as Bool;
       if (confirmResetTimer) clearTimeout(confirmResetTimer);
     } else {
@@ -481,6 +517,9 @@
             <DropdownMenu.SubTrigger>
               <LayoutGrid class="mr-2 size-4" />
               View Mode
+              <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                >{viewModeLabel}</span
+              >
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -550,6 +589,11 @@
             <DropdownMenu.SubTrigger>
               <ArrowUpDown class="mr-2 size-4" />
               Sort By
+              {#if sortLabel}
+                <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                  >{sortLabel}</span
+                >
+              {/if}
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -567,12 +611,11 @@
                 </div>
               </div>
               {@const sortOpts = [
-                { v: 'name-asc', l: 'Name (A\u2013Z)', d: 'Alphabetical' },
-                { v: 'name-desc', l: 'Name (Z\u2013A)', d: 'Reverse alphabetical' },
-                { v: 'tag-count', l: 'Most Tags', d: 'Most tags first' },
-                { v: 'description', l: 'Has Description', d: 'Documented first' },
+                { v: 'name', l: 'Name', d: 'Alphabetical' },
+                { v: 'tag-count', l: 'Tags', d: 'By tag count' },
+                { v: 'description', l: 'Description', d: 'Documented first' },
                 { v: 'compatibility', l: 'Compatibility', d: 'Compliant first' },
-                { v: 'status', l: 'Status', d: 'New \u2192 Updated \u2192 Deprecated' },
+                { v: 'status', l: 'Status', d: 'By lifecycle status' },
               ]}
               {@const filteredSortOpts = sortSearchQuery
                 ? sortOpts.filter(
@@ -593,15 +636,26 @@
                   <DropdownMenu.Item
                     closeOnSelect={false}
                     onclick={() => {
-                      sortMode = opt.v as Str;
+                      if (sortField === opt.v) {
+                        if (sortDir === 'asc') {
+                          sortDir = 'desc';
+                        } else {
+                          sortField = '' as Str;
+                          sortDir = 'asc';
+                        }
+                      } else {
+                        sortField = opt.v as Str;
+                        sortDir = 'asc';
+                      }
                     }}
                   >
-                    <Check
-                      class={cn(
-                        'size-4 shrink-0 transition-opacity duration-150',
-                        sortMode !== opt.v && 'opacity-0',
-                      )}
-                    />
+                    {#if sortField === opt.v && sortDir === 'asc'}
+                      <ArrowUp class="size-4 shrink-0" />
+                    {:else if sortField === opt.v && sortDir === 'desc'}
+                      <ArrowDown class="size-4 shrink-0" />
+                    {:else}
+                      <ArrowUpDown class="size-4 shrink-0 opacity-30" />
+                    {/if}
                     <div class="flex min-w-0 flex-1 flex-col">
                       <span class="text-sm">{opt.l}</span>
                       <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
@@ -779,18 +833,26 @@
               </div>
             </div>
             {#if desc}
-              <p class="line-clamp-2 text-xs leading-relaxed text-muted-foreground">{desc}</p>
+              <p class="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                {desc.replace(/^[A-Z][A-Za-z]*\s*[—–\-]\s*/, '')}
+              </p>
             {/if}
             <div class="mt-auto flex items-center justify-between">
               <div class="flex flex-wrap gap-1">
                 {#if meta?.tags}
                   {#each meta.tags.slice(0, 3) as tag (tag)}
-                    <span
-                      class="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
+                    <button
+                      type="button"
+                      class="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                      onclick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.location.href = `/components/tags?q=${encodeURIComponent(tag)}`;
+                      }}
                     >
                       <Tag class="size-3" />
                       {tag}
-                    </span>
+                    </button>
                   {/each}
                   {#if meta.tags.length > 3}
                     <Tooltip.Root delayDuration={300}>
@@ -812,10 +874,19 @@
                       >
                         <div class="flex flex-col gap-0.5">
                           {#each meta.tags.slice(3) as extraTag (extraTag)}
-                            <span
-                              class="inline-flex items-center gap-1 text-xs text-primary-foreground/80"
-                              ><Tag class="size-3 shrink-0 opacity-50" />{extraTag}</span
+                            <button
+                              type="button"
+                              class="flex w-full items-center gap-1.5 rounded px-1.5 py-1 text-left text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                              onclick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.location.href = `/components/tags?q=${encodeURIComponent(extraTag)}`;
+                              }}
                             >
+                              <Tag class="size-3 shrink-0 opacity-50" />
+                              <span class="flex-1">{extraTag}</span>
+                              <ArrowRight class="size-3 shrink-0 opacity-40" />
+                            </button>
                           {/each}
                         </div>
                       </Tooltip.Content>
@@ -856,7 +927,7 @@
               <th class="px-4 py-2">Description</th>
               <th class="w-32 px-4 py-2">Tags</th>
               <th class="w-24 px-4 py-2">Status</th>
-              <th class="w-20 px-4 py-2">Compat</th>
+              <th class="w-28 px-4 py-2">Compatibility</th>
             </tr>
           </thead>
           <tbody>
@@ -876,23 +947,22 @@
                   </a>
                 </td>
                 <td class="px-4 py-2.5">
-                  <span class="line-clamp-1 text-xs text-muted-foreground">{desc || '\u2014'}</span>
+                  <span class="line-clamp-1 text-xs text-muted-foreground"
+                    >{desc.replace(/^[A-Z][A-Za-z]*\s*[—–\-]\s*/, '') || '—'}</span
+                  >
                 </td>
                 <td class="px-4 py-2.5">
                   <div class="flex flex-wrap gap-1">
                     {#if meta?.tags}
-                      {#each meta.tags.slice(0, 2) as tag (tag)}
-                        <span class="rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
-                          >{tag}</span
+                      {#each meta.tags as tag (tag)}
+                        <a
+                          href="/components/tags?q={encodeURIComponent(tag)}"
+                          class="rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                          >{tag}</a
                         >
                       {/each}
-                      {#if meta.tags.length > 2}
-                        <span class="text-[10px] text-muted-foreground/60"
-                          >+{meta.tags.length - 2}</span
-                        >
-                      {/if}
                     {:else}
-                      <span class="text-[10px] text-muted-foreground/40">\u2014</span>
+                      <span class="text-[10px] text-muted-foreground/40">—</span>
                     {/if}
                   </div>
                 </td>
@@ -902,15 +972,59 @@
                       {STATUS_LABELS[meta.status]}
                     </Badge>
                   {:else}
-                    <span class="text-[10px] text-muted-foreground/40">\u2014</span>
+                    <span class="text-[10px] text-muted-foreground/40">—</span>
                   {/if}
                 </td>
                 <td class="px-4 py-2.5">
-                  {#if isCompat}
-                    <CircleCheck class="size-4 text-emerald-500" />
-                  {:else}
-                    <CircleAlert class="size-4 text-amber-500" />
-                  {/if}
+                  <Tooltip.Root delayDuration={300}>
+                    <Tooltip.Trigger>
+                      {#snippet child({ props: tblCompatTip })}
+                        <span {...tblCompatTip}>
+                          {#if isCompat}
+                            <CircleCheck class="size-4 text-emerald-500" />
+                          {:else}
+                            <CircleAlert class="size-4 text-amber-500" />
+                          {/if}
+                        </span>
+                      {/snippet}
+                    </Tooltip.Trigger>
+                    <Tooltip.Content
+                      sideOffset={4}
+                      class="max-w-72"
+                      portalProps={{ disabled: true }}
+                    >
+                      {#if isCompat}
+                        <p class="text-xs">All compatibility rules pass</p>
+                      {:else if compat}
+                        {@const failedRules = new Set(
+                          compat.violations.map((vi) => vi.rule as number),
+                        )}
+                        {@const failCount = failedRules.size}
+                        {@const passCount = lensRuleNames.length - failCount}
+                        <p class="mb-1 text-[10px] font-semibold">
+                          Compatibility — {passCount}✓ {failCount}✗
+                        </p>
+                        <ul class="space-y-0.5">
+                          {#each lensRuleNames as ruleName, ruleIdx (ruleIdx)}
+                            {@const failed = failedRules.has(ruleIdx)}
+                            <li class="flex items-start gap-1 text-[10px]">
+                              <span
+                                class="mt-px shrink-0 font-bold leading-none {failed
+                                  ? 'opacity-60'
+                                  : 'opacity-40'}">{failed ? '✗' : '✓'}</span
+                              >
+                              <span
+                                ><span class="font-mono opacity-60">R{ruleIdx}</span>
+                                {ruleName}</span
+                              >
+                            </li>
+                          {/each}
+                        </ul>
+                      {:else}
+                        <p class="text-xs">Compatibility data unavailable</p>
+                      {/if}
+                    </Tooltip.Content>
+                  </Tooltip.Root>
                 </td>
               </tr>
             {/each}
@@ -940,11 +1054,49 @@
                 {STATUS_LABELS[meta.status]}
               </Badge>
             {/if}
-            {#if isCompat}
-              <CircleCheck class="size-4 shrink-0 text-emerald-500" />
-            {:else}
-              <CircleAlert class="size-4 shrink-0 text-amber-500" />
-            {/if}
+            <Tooltip.Root delayDuration={300}>
+              <Tooltip.Trigger>
+                {#snippet child({ props: listCompatTip })}
+                  <span {...listCompatTip} onclick={(e) => e.preventDefault()}>
+                    {#if isCompat}
+                      <CircleCheck class="size-4 shrink-0 text-emerald-500" />
+                    {:else}
+                      <CircleAlert class="size-4 shrink-0 text-amber-500" />
+                    {/if}
+                  </span>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content sideOffset={4} class="max-w-72" portalProps={{ disabled: true }}>
+                {#if isCompat}
+                  <p class="text-xs">All compatibility rules pass</p>
+                {:else if compat}
+                  {@const failedRules = new Set(compat.violations.map((vi) => vi.rule as number))}
+                  {@const failCount = failedRules.size}
+                  {@const passCount = lensRuleNames.length - failCount}
+                  <p class="mb-1 text-[10px] font-semibold">
+                    Compatibility — {passCount}✓ {failCount}✗
+                  </p>
+                  <ul class="space-y-0.5">
+                    {#each lensRuleNames as ruleName, ruleIdx (ruleIdx)}
+                      {@const failed = failedRules.has(ruleIdx)}
+                      <li class="flex items-start gap-1 text-[10px]">
+                        <span
+                          class="mt-px shrink-0 font-bold leading-none {failed
+                            ? 'opacity-60'
+                            : 'opacity-40'}">{failed ? '✗' : '✓'}</span
+                        >
+                        <span
+                          ><span class="font-mono opacity-60">R{ruleIdx}</span>
+                          {ruleName}</span
+                        >
+                      </li>
+                    {/each}
+                  </ul>
+                {:else}
+                  <p class="text-xs">Compatibility data unavailable</p>
+                {/if}
+              </Tooltip.Content>
+            </Tooltip.Root>
             <ArrowRight
               class="size-3.5 shrink-0 text-muted-foreground/30 transition-transform group-hover/row:translate-x-0.5 group-hover/row:text-primary"
             />

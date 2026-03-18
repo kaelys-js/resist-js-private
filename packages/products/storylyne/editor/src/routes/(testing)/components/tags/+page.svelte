@@ -18,6 +18,8 @@
   import Check from '@lucide/svelte/icons/check';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
 
+  import ArrowUp from '@lucide/svelte/icons/arrow-up';
+  import ArrowDown from '@lucide/svelte/icons/arrow-down';
   import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
   import SearchX from '@lucide/svelte/icons/search-x';
   import ComponentIcon from '@lucide/svelte/icons/component';
@@ -98,8 +100,11 @@
   /** View mode for tag display. */
   let viewMode: 'grid' | 'compact' | 'list' = $state('grid');
 
-  /** Sort mode for tags. */
-  let sortMode: Str = $state('alphabetical' as Str);
+  /** Active sort field (empty string = default alphabetical). */
+  let sortField: Str = $state('' as Str);
+
+  /** Sort direction: 'asc' | 'desc'. Only meaningful when sortField is set. */
+  let sortDir: 'asc' | 'desc' = $state('asc');
 
   /** Search query inside the View Mode submenu. */
   let viewSearchQuery: Str = $state('' as Str);
@@ -123,20 +128,21 @@
       tags = tags.filter((tag: Str): boolean => tag.toLowerCase().includes(q as string));
     }
 
-    if (sortMode === 'alpha-desc') {
-      tags = [...tags].toSorted((a: Str, b: Str): Num => b.localeCompare(a) as Num);
-    } else if (sortMode === 'count-desc') {
-      tags = [...tags].toSorted(
-        (a: Str, b: Str): Num =>
-          ((tagMap.get(b)?.length ?? 0) - (tagMap.get(a)?.length ?? 0)) as Num,
-      );
-    } else if (sortMode === 'count-asc') {
-      tags = [...tags].toSorted(
-        (a: Str, b: Str): Num =>
-          ((tagMap.get(a)?.length ?? 0) - (tagMap.get(b)?.length ?? 0)) as Num,
-      );
+    if (sortField) {
+      const mul: Num = (sortDir === 'desc' ? -1 : 1) as Num;
+      if (sortField === 'name') {
+        tags = [...tags].toSorted(
+          (a: Str, b: Str): Num => ((mul as number) * a.localeCompare(b)) as Num,
+        );
+      } else if (sortField === 'count') {
+        tags = [...tags].toSorted(
+          (a: Str, b: Str): Num =>
+            ((mul as number) *
+              ((tagMap.get(a)?.length ?? 0) - (tagMap.get(b)?.length ?? 0))) as Num,
+        );
+      }
     }
-    // 'alphabetical' is default — allTags is already sorted
+    // Empty sortField = default alphabetical (allTags already sorted)
 
     return tags;
   });
@@ -149,9 +155,24 @@
     return `${allTags.length} tags across ${componentNames.length} components` as Str;
   });
 
+  /** Current view mode display label. */
+  const viewModeLabel: Str = $derived.by((): Str => {
+    if (viewMode === 'grid') return 'Grid' as Str;
+    if (viewMode === 'compact') return 'Dense Chips' as Str;
+    return 'List' as Str;
+  });
+
+  /** Current sort display label (field + direction arrow, or empty if default). */
+  const sortLabel: Str = $derived.by((): Str => {
+    if (!sortField) return '' as Str;
+    const names: Record<string, string> = { name: 'Name', count: 'Count' };
+    const arrow: Str = (sortDir === 'asc' ? '\u2191' : '\u2193') as Str;
+    return `${names[sortField] ?? sortField} ${arrow}` as Str;
+  });
+
   /** Whether any customization is active. */
   const isCustomized: boolean = $derived(
-    searchQuery.trim().length > 0 || viewMode !== 'grid' || sortMode !== 'alphabetical',
+    searchQuery.trim().length > 0 || viewMode !== 'grid' || sortField !== '',
   );
 
   /* ------------------------------------------------------------------ */
@@ -238,7 +259,8 @@
     if (confirmingReset) {
       searchQuery = '' as Str;
       viewMode = 'grid';
-      sortMode = 'alphabetical' as Str;
+      sortField = '' as Str;
+      sortDir = 'asc';
       confirmingReset = false as Bool;
       if (confirmResetTimer) clearTimeout(confirmResetTimer);
     } else {
@@ -384,6 +406,9 @@
             <DropdownMenu.SubTrigger>
               <LayoutGrid class="mr-2 size-4" />
               View Mode
+              <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                >{viewModeLabel}</span
+              >
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -452,6 +477,11 @@
             <DropdownMenu.SubTrigger>
               <ArrowUpDown class="mr-2 size-4" />
               Sort By
+              {#if sortLabel}
+                <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                  >{sortLabel}</span
+                >
+              {/if}
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -469,10 +499,8 @@
                 </div>
               </div>
               {@const sortOpts = [
-                { v: 'alphabetical', l: 'Alphabetical', d: 'A\u2013Z' },
-                { v: 'alpha-desc', l: 'Reverse Alphabetical', d: 'Z\u2013A' },
-                { v: 'count-desc', l: 'Most Used', d: 'Most components first' },
-                { v: 'count-asc', l: 'Least Used', d: 'Fewest components first' },
+                { v: 'name', l: 'Name', d: 'Alphabetical by tag name' },
+                { v: 'count', l: 'Count', d: 'Sort by component count' },
               ]}
               {@const filteredSortOpts = sortSearchQuery
                 ? sortOpts.filter(
@@ -493,15 +521,28 @@
                   <DropdownMenu.Item
                     closeOnSelect={false}
                     onclick={() => {
-                      sortMode = opt.v as Str;
+                      if (sortField === opt.v) {
+                        if (sortDir === 'asc') {
+                          sortDir = 'desc';
+                        } else {
+                          sortField = '' as Str;
+                          sortDir = 'asc';
+                        }
+                      } else {
+                        sortField = opt.v as Str;
+                        sortDir = 'asc';
+                      }
                     }}
                   >
-                    <Check
-                      class={cn(
-                        'size-4 shrink-0 transition-opacity duration-150',
-                        sortMode !== opt.v && 'opacity-0',
-                      )}
-                    />
+                    {#if sortField === opt.v && sortDir === 'asc'}
+                      <ArrowUp class="size-4 shrink-0 text-primary" />
+                    {:else if sortField === opt.v && sortDir === 'desc'}
+                      <ArrowDown class="size-4 shrink-0 text-primary" />
+                    {:else}
+                      <ArrowUpDown
+                        class="size-4 shrink-0 opacity-0 transition-opacity duration-150 group-hover:opacity-40"
+                      />
+                    {/if}
                     <div class="flex min-w-0 flex-1 flex-col">
                       <span class="text-sm">{opt.l}</span>
                       <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
@@ -669,9 +710,35 @@
           <div class="flex items-center gap-3 px-4 py-3">
             <TagIcon class="size-4 shrink-0 text-primary" />
             <span class="text-sm font-medium">{tag}</span>
-            <span class="ml-auto text-xs tabular-nums text-muted-foreground"
-              >{components.length}</span
-            >
+            <Tooltip.Root delayDuration={300}>
+              <Tooltip.Trigger>
+                {#snippet child({ props: countTip })}
+                  <span
+                    class="ml-auto cursor-default text-xs tabular-nums text-muted-foreground"
+                    {...countTip}>{components.length}</span
+                  >
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content
+                side="bottom"
+                sideOffset={4}
+                class="max-h-64 overflow-y-auto p-3"
+                portalProps={{ disabled: true }}
+              >
+                <div class="flex flex-col gap-0.5">
+                  {#each components as comp (comp)}
+                    <a
+                      href="/components/{comp}"
+                      class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                    >
+                      <ComponentIcon class="size-3 shrink-0 opacity-50" />
+                      <span class="flex-1">{toTitle(comp)}</span>
+                      <ArrowRight class="size-3 shrink-0 opacity-40" />
+                    </a>
+                  {/each}
+                </div>
+              </Tooltip.Content>
+            </Tooltip.Root>
           </div>
         {/each}
       </div>

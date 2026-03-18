@@ -29,11 +29,15 @@
   import Check from '@lucide/svelte/icons/check';
 
   import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
+  import ArrowUp from '@lucide/svelte/icons/arrow-up';
+  import ArrowDown from '@lucide/svelte/icons/arrow-down';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
   import SearchIcon from '@lucide/svelte/icons/search';
   import SearchX from '@lucide/svelte/icons/search-x';
   import X from '@lucide/svelte/icons/x';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
+  import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
+  import ChevronsDownUp from '@lucide/svelte/icons/chevrons-down-up';
   import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
   import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
   import DownloadIcon from '@lucide/svelte/icons/download';
@@ -131,7 +135,7 @@
       label: 'Copy as CSS' as Str,
       icon: ClipboardCopy,
       category: 'Clipboard' as Str,
-      description: 'CSS custom properties' as Str,
+      description: 'Raw CSS :root { --var: value } block for stylesheets' as Str,
       ext: '' as Str,
     },
     {
@@ -139,7 +143,7 @@
       label: 'Copy as JSON' as Str,
       icon: ClipboardCopy,
       category: 'Clipboard' as Str,
-      description: 'Token name/value pairs' as Str,
+      description: 'Key-value JSON object for tooling and scripts' as Str,
       ext: '' as Str,
     },
     {
@@ -147,7 +151,7 @@
       label: 'Copy as Markdown' as Str,
       icon: FileText,
       category: 'Clipboard' as Str,
-      description: 'Formatted table for docs' as Str,
+      description: 'Markdown table with name, value, and Tailwind class' as Str,
       ext: '' as Str,
     },
     {
@@ -155,7 +159,7 @@
       label: 'Download CSS' as Str,
       icon: DownloadIcon,
       category: 'File' as Str,
-      description: 'Custom properties file' as Str,
+      description: 'Standalone .css file with all custom properties' as Str,
       ext: '.css' as Str,
     },
     {
@@ -163,7 +167,7 @@
       label: 'Download JSON' as Str,
       icon: DownloadIcon,
       category: 'File' as Str,
-      description: 'Structured data file' as Str,
+      description: 'Machine-readable .json file for design tool import' as Str,
       ext: '.json' as Str,
     },
   ];
@@ -225,8 +229,11 @@
   /** View mode for token display. */
   let viewMode: 'table' | 'compact' | 'list' = $state('table');
 
-  /** Sort mode for tokens. */
-  let sortMode: Str = $state('default' as Str);
+  /** Active sort field (empty string = default/no sort). */
+  let sortField: Str = $state('' as Str);
+
+  /** Sort direction: 'asc' | 'desc'. Only meaningful when sortField is set. */
+  let sortDir: 'asc' | 'desc' = $state('asc');
 
   /** Search query inside the View Mode submenu. */
   let viewSearchQuery: Str = $state('' as Str);
@@ -236,12 +243,24 @@
 
   let confirmingReset: Bool = $state(false as Bool);
 
+  /** Token name currently showing copy feedback checkmark. */
+  let copiedToken: Str = $state('' as Str);
+
+  /** Timer ID for copied-token feedback auto-dismiss. */
+  let copiedTokenTimer: ReturnType<typeof setTimeout> | undefined;
+
   /** Timer ID for reset confirm auto-dismiss. */
   let confirmResetTimer: ReturnType<typeof setTimeout> | undefined;
 
   /* ------------------------------------------------------------------ */
   /*  Derived                                                           */
   /* ------------------------------------------------------------------ */
+
+  /** Whether every section is currently expanded. */
+  const allExpanded: Bool = $derived(Object.values(sectionOpen).every((v) => v === true) as Bool);
+
+  /** Whether every section is currently collapsed. */
+  const allCollapsed: Bool = $derived(Object.values(sectionOpen).every((v) => v === false) as Bool);
 
   /** Token set for the currently selected theme. */
   const currentSet: ThemeTokenSet | undefined = $derived(
@@ -305,23 +324,27 @@
     }
 
     /* Sort */
-    if (sortMode === 'category') {
-      result = [...result].toSorted((a, b) => a.category.localeCompare(b.category) as Num);
-    } else if (sortMode === 'value') {
-      result = result.map((g) => ({
-        ...g,
-        tokens: [...g.tokens].toSorted((a, b) => a.value.localeCompare(b.value) as Num),
-      }));
-    } else if (sortMode === 'name-asc') {
-      result = result.map((g) => ({
-        ...g,
-        tokens: [...g.tokens].toSorted((a, b) => a.name.localeCompare(b.name) as Num),
-      }));
-    } else if (sortMode === 'name-desc') {
-      result = result.map((g) => ({
-        ...g,
-        tokens: [...g.tokens].toSorted((a, b) => b.name.localeCompare(a.name) as Num),
-      }));
+    if (sortField) {
+      const mul: Num = (sortDir === 'desc' ? -1 : 1) as Num;
+      if (sortField === 'category') {
+        result = [...result].toSorted(
+          (a, b) => ((mul as number) * a.category.localeCompare(b.category)) as Num,
+        );
+      } else if (sortField === 'name') {
+        result = result.map((g) => ({
+          ...g,
+          tokens: [...g.tokens].toSorted(
+            (a, b) => ((mul as number) * a.name.localeCompare(b.name)) as Num,
+          ),
+        }));
+      } else if (sortField === 'value') {
+        result = result.map((g) => ({
+          ...g,
+          tokens: [...g.tokens].toSorted(
+            (a, b) => ((mul as number) * a.value.localeCompare(b.value)) as Num,
+          ),
+        }));
+      }
     }
 
     return result;
@@ -337,8 +360,24 @@
     (selectedTheme !== ':root' ||
       activeCategories.length > 0 ||
       viewMode !== 'table' ||
-      sortMode !== 'default') as Bool,
+      sortField !== '' ||
+      !allExpanded) as Bool,
   );
+
+  /** Current view mode display label. */
+  const viewModeLabel: Str = $derived.by((): Str => {
+    if (viewMode === 'table') return 'Table' as Str;
+    if (viewMode === 'compact') return 'Compact' as Str;
+    return 'List' as Str;
+  });
+
+  /** Current sort display label (field + direction arrow, or empty if default). */
+  const sortLabel: Str = $derived.by((): Str => {
+    if (!sortField) return '' as Str;
+    const names: Record<string, string> = { name: 'Name', value: 'Value', category: 'Category' };
+    const arrow: Str = (sortDir === 'asc' ? '↑' : '↓') as Str;
+    return `${names[sortField] ?? sortField} ${arrow}` as Str;
+  });
 
   /** Dynamic subtitle text. */
   const headerSubtitle: Str = $derived.by((): Str => {
@@ -379,6 +418,22 @@
     sectionOpen[id] = !sectionOpen[id];
   }
 
+  /** Expand all collapsible sections including source. */
+  function expandAllSections(): void {
+    for (const key of Object.keys(sectionOpen)) {
+      sectionOpen[key as Str] = true as Bool;
+    }
+    sectionOpen.source = true as Bool;
+  }
+
+  /** Collapse all collapsible sections including source. */
+  function collapseAllSections(): void {
+    for (const key of Object.keys(sectionOpen)) {
+      sectionOpen[key as Str] = false as Bool;
+    }
+    sectionOpen.source = false as Bool;
+  }
+
   /**
    * Toggle a category in the active filter list.
    *
@@ -399,7 +454,9 @@
     activeCategories = [];
     searchQuery = '' as Str;
     viewMode = 'table';
-    sortMode = 'default' as Str;
+    sortField = '' as Str;
+    sortDir = 'asc';
+    expandAllSections();
   }
 
   /**
@@ -695,6 +752,9 @@
             <DropdownMenu.SubTrigger>
               <LayoutGrid class="mr-2 size-4" />
               View Mode
+              <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                >{viewModeLabel}</span
+              >
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -763,6 +823,11 @@
             <DropdownMenu.SubTrigger>
               <ArrowUpDown class="mr-2 size-4" />
               Sort By
+              {#if sortLabel}
+                <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                  >{sortLabel}</span
+                >
+              {/if}
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -780,9 +845,7 @@
                 </div>
               </div>
               {@const sortOpts = [
-                { v: 'default', l: 'Default', d: 'As defined in CSS' },
-                { v: 'name-asc', l: 'Name (A\u2013Z)', d: 'Alphabetical' },
-                { v: 'name-desc', l: 'Name (Z\u2013A)', d: 'Reverse alphabetical' },
+                { v: 'name', l: 'Name', d: 'Alphabetical by variable name' },
                 { v: 'category', l: 'Category', d: 'Grouped by token type' },
                 { v: 'value', l: 'Value', d: 'Sort by CSS value' },
               ]}
@@ -805,15 +868,28 @@
                   <DropdownMenu.Item
                     closeOnSelect={false}
                     onclick={() => {
-                      sortMode = opt.v as Str;
+                      if (sortField === opt.v) {
+                        if (sortDir === 'asc') {
+                          sortDir = 'desc';
+                        } else {
+                          sortField = '' as Str;
+                          sortDir = 'asc';
+                        }
+                      } else {
+                        sortField = opt.v as Str;
+                        sortDir = 'asc';
+                      }
                     }}
                   >
-                    <Check
-                      class={cn(
-                        'size-4 shrink-0 transition-opacity duration-150',
-                        sortMode !== opt.v && 'opacity-0',
-                      )}
-                    />
+                    {#if sortField === opt.v && sortDir === 'asc'}
+                      <ArrowUp class="size-4 shrink-0 text-primary" />
+                    {:else if sortField === opt.v && sortDir === 'desc'}
+                      <ArrowDown class="size-4 shrink-0 text-primary" />
+                    {:else}
+                      <ArrowUpDown
+                        class="size-4 shrink-0 opacity-0 transition-opacity duration-150 group-hover:opacity-40"
+                      />
+                    {/if}
                     <div class="flex min-w-0 flex-1 flex-col">
                       <span class="text-sm">{opt.l}</span>
                       <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
@@ -823,6 +899,18 @@
               {/if}
             </DropdownMenu.SubContent>
           </DropdownMenu.Sub>
+
+          <DropdownMenu.Separator />
+
+          <!-- Expand / Collapse All -->
+          <DropdownMenu.Item onclick={expandAllSections} disabled={allExpanded}>
+            <ChevronsUpDown class="mr-2 size-4" />
+            Expand All
+          </DropdownMenu.Item>
+          <DropdownMenu.Item onclick={collapseAllSections} disabled={allCollapsed}>
+            <ChevronsDownUp class="mr-2 size-4" />
+            Collapse All
+          </DropdownMenu.Item>
 
           <DropdownMenu.Separator />
 
@@ -1080,12 +1168,25 @@
                     {#snippet child({ props })}
                       <button
                         type="button"
-                        class="flex flex-col items-center gap-1.5 rounded-lg border bg-card p-2 text-center transition-colors hover:border-primary/30"
+                        {...props}
+                        class="relative flex flex-col items-center gap-1.5 rounded-lg border bg-card p-2 text-center transition-colors hover:border-primary/30"
                         onclick={() => {
                           navigator.clipboard.writeText(`var(${token.name})`);
+                          copiedToken = token.name as Str;
+                          clearTimeout(copiedTokenTimer);
+                          copiedTokenTimer = setTimeout(() => {
+                            copiedToken = '' as Str;
+                          }, 1500);
                         }}
-                        {...props}
                       >
+                        {#if copiedToken === token.name}
+                          <div
+                            class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-card"
+                            transition:fade={{ duration: 150 }}
+                          >
+                            <Check class="size-6 text-green-500" />
+                          </div>
+                        {/if}
                         {#if isColorValue(token.value)}
                           <div
                             class="size-8 rounded-md border shadow-sm"

@@ -41,6 +41,8 @@
   import FileText from '@lucide/svelte/icons/file-text';
   import DownloadIcon from '@lucide/svelte/icons/download';
 
+  import ArrowUp from '@lucide/svelte/icons/arrow-up';
+  import ArrowDown from '@lucide/svelte/icons/arrow-down';
   import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
   import Input from '@/ui/input/input.svelte';
@@ -119,8 +121,11 @@
   /** Active category filters. */
   let activeCategories: Str[] = $state([]);
 
-  /** Sort mode for categories. */
-  let sortMode: Str = $state('default' as Str);
+  /** Active sort field (empty = default order). */
+  let sortField: Str = $state('' as Str);
+
+  /** Sort direction. */
+  let sortDir: 'asc' | 'desc' = $state('asc');
 
   /** Search query inside the View Mode submenu. */
   let viewSearchQuery: Str = $state('' as Str);
@@ -131,6 +136,21 @@
   /** Two-step reset confirmation. */
   let confirmingReset: Bool = $state(false as Bool);
   let confirmResetTimer: ReturnType<typeof setTimeout> | undefined;
+
+  /** Human-readable label for the current view mode. */
+  const viewModeLabel: Str = $derived.by((): Str => {
+    if (viewMode === 'compact') return 'Dense' as Str;
+    if (viewMode === 'list') return 'List' as Str;
+    return 'Grid' as Str;
+  });
+
+  /** Human-readable label for the active sort, or empty when default. */
+  const sortLabel: Str = $derived.by((): Str => {
+    if (sortField === 'name') return 'Name' as Str;
+    if (sortField === 'count') return 'Count' as Str;
+    if (sortField === 'compatibility') return 'Compat' as Str;
+    return '' as Str;
+  });
 
   // Restore view mode from localStorage on mount
   $effect(() => {
@@ -156,6 +176,30 @@
   /* ------------------------------------------------------------------ */
   /*  Filtered + sorted categories                                       */
   /* ------------------------------------------------------------------ */
+
+  /**
+   * Compute a raw ascending sort value for two category groups.
+   *
+   * @param a - First group
+   * @param b - Second group
+   * @returns Numeric comparison value
+   */
+  function getSortValue(a: CategoryGroup, b: CategoryGroup): Num {
+    if (sortField === 'name') return a.label.localeCompare(b.label) as Num;
+    if (sortField === 'count') {
+      return (a.components.length - b.components.length) as Num;
+    }
+    if (sortField === 'compatibility') {
+      const aCompat: Num = (a.components.filter(
+        (n: Str): boolean => compatByName.get(n)?.compatible === true,
+      ).length / Math.max(1, a.components.length)) as Num;
+      const bCompat: Num = (b.components.filter(
+        (n: Str): boolean => compatByName.get(n)?.compatible === true,
+      ).length / Math.max(1, b.components.length)) as Num;
+      return (aCompat - bCompat) as Num;
+    }
+    return 0 as Num;
+  }
 
   /** Categories filtered by search query and active category filters. */
   const filteredGroups: CategoryGroup[] = $derived.by((): CategoryGroup[] => {
@@ -190,33 +234,11 @@
     }
 
     // Sort
-    if (sortMode === 'count') {
-      groups = [...groups].toSorted(
-        (a: CategoryGroup, b: CategoryGroup): Num =>
-          (b.components.length - a.components.length) as Num,
-      );
-    } else if (sortMode === 'name') {
-      groups = [...groups].toSorted(
-        (a: CategoryGroup, b: CategoryGroup): Num => a.label.localeCompare(b.label) as Num,
-      );
-    } else if (sortMode === 'count-asc') {
-      groups = [...groups].toSorted(
-        (a: CategoryGroup, b: CategoryGroup): Num =>
-          (a.components.length - b.components.length) as Num,
-      );
-    } else if (sortMode === 'name-desc') {
-      groups = [...groups].toSorted(
-        (a: CategoryGroup, b: CategoryGroup): Num => b.label.localeCompare(a.label) as Num,
-      );
-    } else if (sortMode === 'compatibility') {
+    if (sortField) {
+      const mul: Num = (sortDir === 'desc' ? -1 : 1) as Num;
       groups = [...groups].toSorted((a: CategoryGroup, b: CategoryGroup): Num => {
-        const aCompat: Num = (a.components.filter(
-          (n: Str): boolean => compatByName.get(n)?.compatible === true,
-        ).length / Math.max(1, a.components.length)) as Num;
-        const bCompat: Num = (b.components.filter(
-          (n: Str): boolean => compatByName.get(n)?.compatible === true,
-        ).length / Math.max(1, b.components.length)) as Num;
-        return (bCompat - aCompat) as Num;
+        const raw: Num = getSortValue(a, b);
+        return (raw * mul) as Num;
       });
     }
 
@@ -240,7 +262,7 @@
   });
 
   /** Whether any customization is active. */
-  const isCustomized: boolean = $derived(viewMode !== 'grid' || sortMode !== 'default');
+  const isCustomized: boolean = $derived(viewMode !== 'grid' || sortField !== '');
 
   /* ------------------------------------------------------------------ */
   /*  Export                                                              */
@@ -346,7 +368,8 @@
   function handleReset(): void {
     if (confirmingReset) {
       viewMode = 'grid';
-      sortMode = 'default' as Str;
+      sortField = '' as Str;
+      sortDir = 'asc';
       searchQuery = '' as Str;
       activeCategories = [];
       confirmingReset = false as Bool;
@@ -513,6 +536,9 @@
             <DropdownMenu.SubTrigger>
               <LayoutGrid class="mr-2 size-4" />
               View Mode
+              <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                >{viewModeLabel}</span
+              >
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -581,6 +607,11 @@
             <DropdownMenu.SubTrigger>
               <ArrowUpDown class="mr-2 size-4" />
               Sort By
+              {#if sortLabel}
+                <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                  >{sortLabel}</span
+                >
+              {/if}
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -598,12 +629,9 @@
                 </div>
               </div>
               {@const sortOpts = [
-                { v: 'default', l: 'Default', d: 'Category order' },
                 { v: 'name', l: 'Name', d: 'Alphabetical' },
-                { v: 'count', l: 'Component Count', d: 'Most components first' },
-                { v: 'count-asc', l: 'Fewest Components', d: 'Ascending count' },
-                { v: 'name-desc', l: 'Name (Z\u2013A)', d: 'Reverse alphabetical' },
-                { v: 'compatibility', l: 'Compatibility', d: 'Highest compliance first' },
+                { v: 'count', l: 'Component Count', d: 'By count' },
+                { v: 'compatibility', l: 'Compatibility', d: 'By compliance' },
               ]}
               {@const filteredSortOpts = sortSearchQuery
                 ? sortOpts.filter(
@@ -624,15 +652,26 @@
                   <DropdownMenu.Item
                     closeOnSelect={false}
                     onclick={() => {
-                      sortMode = opt.v as Str;
+                      if (sortField === opt.v) {
+                        if (sortDir === 'asc') {
+                          sortDir = 'desc';
+                        } else {
+                          sortField = '' as Str;
+                          sortDir = 'asc';
+                        }
+                      } else {
+                        sortField = opt.v as Str;
+                        sortDir = 'asc';
+                      }
                     }}
                   >
-                    <Check
-                      class={cn(
-                        'size-4 shrink-0 transition-opacity duration-150',
-                        sortMode !== opt.v && 'opacity-0',
-                      )}
-                    />
+                    {#if sortField === opt.v && sortDir === 'asc'}
+                      <ArrowUp class="size-4 shrink-0" />
+                    {:else if sortField === opt.v && sortDir === 'desc'}
+                      <ArrowDown class="size-4 shrink-0" />
+                    {:else}
+                      <ArrowUpDown class="size-4 shrink-0 opacity-30" />
+                    {/if}
                     <div class="flex min-w-0 flex-1 flex-col">
                       <span class="text-sm">{opt.l}</span>
                       <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
@@ -735,12 +774,16 @@
               class="max-h-64 max-w-xs overflow-y-auto p-3"
               portalProps={{ disabled: true }}
             >
-              <div class="flex flex-col gap-1">
+              <div class="flex flex-col gap-0.5">
                 {#each group.components as comp (comp)}
-                  <div class="flex items-center gap-2 text-xs">
-                    <TagIcon class="size-3 shrink-0 text-muted-foreground/50" />
-                    <span class="font-mono text-[11px]">{toTitle(comp)}</span>
-                  </div>
+                  <a
+                    href="/components/{comp}"
+                    class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                  >
+                    <ComponentIcon class="size-3 shrink-0 opacity-50" />
+                    <span class="flex-1">{toTitle(comp)}</span>
+                    <ArrowRight class="size-3 shrink-0 opacity-40" />
+                  </a>
                 {/each}
               </div>
             </Tooltip.Content>
@@ -896,8 +939,37 @@
               class="min-w-0 flex-1 truncate text-sm font-medium group-hover/compact:text-primary"
               >{group.label}</span
             >
-            <span class="text-xs tabular-nums text-muted-foreground">{group.components.length}</span
-            >
+            <Tooltip.Root delayDuration={300}>
+              <Tooltip.Trigger>
+                {#snippet child({ props: compactCountTip })}
+                  <span
+                    class="cursor-default text-xs tabular-nums text-muted-foreground"
+                    onclick={(e) => e.preventDefault()}
+                    {...compactCountTip}>{group.components.length}</span
+                  >
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content
+                side="bottom"
+                sideOffset={4}
+                class="max-h-64 overflow-y-auto p-3"
+                portalProps={{ disabled: true }}
+              >
+                <div class="flex flex-col gap-0.5">
+                  {#each group.components as comp (comp)}
+                    <a
+                      href="/components/{comp}"
+                      class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                      onclick={(e) => e.stopPropagation()}
+                    >
+                      <ComponentIcon class="size-3 shrink-0 opacity-50" />
+                      <span class="flex-1">{toTitle(comp)}</span>
+                      <ArrowRight class="size-3 shrink-0 opacity-40" />
+                    </a>
+                  {/each}
+                </div>
+              </Tooltip.Content>
+            </Tooltip.Root>
           </a>
         {:else}
           <div

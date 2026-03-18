@@ -25,11 +25,16 @@
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
   import Check from '@lucide/svelte/icons/check';
+  import Clipboard from '@lucide/svelte/icons/clipboard';
   import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
   import FileText from '@lucide/svelte/icons/file-text';
   import DownloadIcon from '@lucide/svelte/icons/download';
   import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+  import ArrowUp from '@lucide/svelte/icons/arrow-up';
+  import ArrowDown from '@lucide/svelte/icons/arrow-down';
   import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
+  import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
+  import ChevronsDownUp from '@lucide/svelte/icons/chevrons-down-up';
   import LayoutList from '@lucide/svelte/icons/layout-list';
   import Input from '@/ui/input/input.svelte';
   import ExternalLink from '@lucide/svelte/icons/external-link';
@@ -54,8 +59,11 @@
   /** View mode: 'timeline' (default), 'compact', 'list'. */
   let viewMode: Str = $state('timeline' as Str);
 
-  /** Sort direction: 'newest' or 'oldest'. */
-  let sortDirection: Str = $state('newest' as Str);
+  /** Active sort field (empty string = default/newest first). */
+  let sortField: Str = $state('' as Str);
+
+  /** Sort direction: 'asc' | 'desc'. Only meaningful when sortField is set. */
+  let sortDir: 'asc' | 'desc' = $state('asc');
 
   /** Set of collapsed date group keys. */
   let collapsedGroups: Set<Str> = $state(new Set());
@@ -171,8 +179,8 @@
       }
     }
 
-    /* Apply sort direction */
-    if (sortDirection === 'oldest') {
+    /* Apply sort — default is newest first; 'date' field with asc = oldest first */
+    if (sortField === 'date' && sortDir === 'asc') {
       return result.toReversed();
     }
 
@@ -244,47 +252,74 @@
   /*  Export options                                                      */
   /* ------------------------------------------------------------------ */
 
-  /** Export format options. */
-  const EXPORT_OPTIONS: Array<{
+  /** Export format option descriptor. */
+  type ExportOption = {
+    /** Unique identifier. */
     id: Str;
+    /** Display label. */
     label: Str;
+    /** Short description. */
     description: Str;
+    /** Lucide icon component. */
     icon: typeof ClipboardCopy;
-  }> = [
+    /** Grouping category (Clipboard or File). */
+    category: Str;
+    /** File extension badge text. */
+    ext: Str;
+  };
+
+  /** Export format options. */
+  const EXPORT_OPTIONS: ExportOption[] = [
+    {
+      id: 'clipboard' as Str,
+      label: 'Copy as Text' as Str,
+      description: 'Copy visible entries as plain text' as Str,
+      icon: ClipboardCopy,
+      category: 'Clipboard' as Str,
+      ext: '' as Str,
+    },
     {
       id: 'json' as Str,
-      label: 'JSON' as Str,
-      description: 'Structured changelog data' as Str,
-      icon: FileText,
+      label: 'Download JSON' as Str,
+      description: 'Structured changelog data for tooling' as Str,
+      icon: DownloadIcon,
+      category: 'File' as Str,
+      ext: '.json' as Str,
     },
     {
       id: 'markdown' as Str,
-      label: 'Markdown' as Str,
-      description: 'Formatted changelog text' as Str,
-      icon: FileText,
-    },
-    {
-      id: 'clipboard' as Str,
-      label: 'Copy to Clipboard' as Str,
-      description: 'Copy visible entries as text' as Str,
-      icon: ClipboardCopy,
+      label: 'Download Markdown' as Str,
+      description: 'Formatted changelog for documentation' as Str,
+      icon: DownloadIcon,
+      category: 'File' as Str,
+      ext: '.md' as Str,
     },
     {
       id: 'csv' as Str,
-      label: 'CSV' as Str,
-      description: 'Spreadsheet-compatible format' as Str,
+      label: 'Download CSV' as Str,
+      description: 'Spreadsheet-compatible tabular format' as Str,
       icon: DownloadIcon,
+      category: 'File' as Str,
+      ext: '.csv' as Str,
     },
   ];
 
   /** Filtered export options. */
-  const filteredExports = $derived.by(() => {
+  const filteredExports: ExportOption[] = $derived.by((): ExportOption[] => {
     if (!exportSearch) return EXPORT_OPTIONS;
     const q: Str = exportSearch.toLowerCase() as Str;
     return EXPORT_OPTIONS.filter(
-      (o) => o.label.toLowerCase().includes(q) || o.description.toLowerCase().includes(q),
+      (o: ExportOption): boolean =>
+        o.label.toLowerCase().includes(q) ||
+        o.description.toLowerCase().includes(q) ||
+        o.category.toLowerCase().includes(q),
     );
   });
+
+  /** Unique export categories present after filtering. */
+  const filteredExportCategories: Str[] = $derived([
+    ...new Set(filteredExports.map((o: ExportOption): Str => o.category)),
+  ]);
 
   /** Filtered view mode options. */
   const filteredViewModes = $derived.by(() => {
@@ -297,20 +332,42 @@
 
   /** Filtered sort options. */
   /** Whether any settings differ from defaults. */
-  const hasChanges: boolean = $derived(
-    searchQuery !== '' ||
+  const hasChanges: Bool = $derived(
+    (searchQuery !== '' ||
       activeFilters.size > 0 ||
       viewMode !== 'timeline' ||
-      sortDirection !== 'newest' ||
-      collapsedGroups.size > 0,
+      sortField !== '' ||
+      collapsedGroups.size > 0) as Bool,
   );
 
-  const filteredSortOptions = $derived.by(() => {
-    if (!sortSearch) return SORT_OPTIONS;
-    const q: Str = sortSearch.toLowerCase() as Str;
-    return SORT_OPTIONS.filter(
-      (o) => o.label.toLowerCase().includes(q) || o.description.toLowerCase().includes(q),
-    );
+  /** All date keys in the currently filtered groups. */
+  const allGroupKeys: Str[] = $derived(filteredGroups.map((g) => g.date as Str));
+
+  /** Whether all date groups are expanded (none collapsed). */
+  const allExpanded: Bool = $derived(
+    (allGroupKeys.length > 0 && allGroupKeys.every((k: Str) => !collapsedGroups.has(k))) as Bool,
+  );
+
+  /** Whether all date groups are collapsed. */
+  const allCollapsed: Bool = $derived(
+    (allGroupKeys.length > 0 && allGroupKeys.every((k: Str) => collapsedGroups.has(k))) as Bool,
+  );
+
+  /** Current view mode display label. */
+  const viewModeLabel: Str = $derived.by((): Str => {
+    if (viewMode === 'timeline') return 'Timeline' as Str;
+    if (viewMode === 'compact') return 'Compact' as Str;
+    return 'List' as Str;
+  });
+
+  /** Current sort display label (field + direction arrow, or empty if default). */
+  const sortLabel: Str = $derived.by((): Str => {
+    if (!sortField) return '' as Str;
+    const names: Record<string, string> = {
+      date: 'Date',
+    };
+    const arrow: Str = (sortDir === 'asc' ? '\u2191' : '\u2193') as Str;
+    return `${names[sortField] ?? sortField} ${arrow}` as Str;
   });
 
   /* ------------------------------------------------------------------ */
@@ -333,20 +390,6 @@
       id: 'list' as Str,
       label: 'Simple List' as Str,
       description: 'Flat list with minimal detail' as Str,
-    },
-  ];
-
-  /** Sort options. */
-  const SORT_OPTIONS: Array<{ id: Str; label: Str; description: Str }> = [
-    {
-      id: 'newest' as Str,
-      label: 'Newest First' as Str,
-      description: 'Most recent changes at the top' as Str,
-    },
-    {
-      id: 'oldest' as Str,
-      label: 'Oldest First' as Str,
-      description: 'Earliest changes at the top' as Str,
     },
   ];
 
@@ -443,9 +486,20 @@
     searchQuery = '' as Str;
     activeFilters = new Set();
     viewMode = 'timeline' as Str;
-    sortDirection = 'newest' as Str;
+    sortField = '' as Str;
+    sortDir = 'asc';
     visibleGroups = 10 as Num;
     collapsedGroups = new Set();
+  }
+
+  /** Expand all date groups. */
+  function expandAllGroups(): void {
+    collapsedGroups = new Set();
+  }
+
+  /** Collapse all date groups. */
+  function collapseAllGroups(): void {
+    collapsedGroups = new Set(filteredGroups.map((g) => g.date as Str));
   }
 
   /**
@@ -606,19 +660,32 @@
                   <span class="text-xs text-muted-foreground/60">No formats match</span>
                 </div>
               {:else}
-                {#each filteredExports as opt (opt.id)}
-                  {@const OptIcon = opt.icon}
-                  <DropdownMenu.Item
-                    onSelect={() => {
-                      handleExport(opt.id);
-                    }}
+                {#each filteredExportCategories as exportCat (exportCat)}
+                  <DropdownMenu.Label
+                    class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
                   >
-                    <OptIcon class="mr-2 size-4" />
-                    <div class="flex flex-col">
-                      <span>{opt.label}</span>
-                      <span class="text-[10px] text-muted-foreground">{opt.description}</span>
-                    </div>
-                  </DropdownMenu.Item>
+                    {#if exportCat === 'Clipboard'}
+                      <Clipboard class="size-3" />
+                    {:else}
+                      <DownloadIcon class="size-3" />
+                    {/if}
+                    {exportCat}
+                  </DropdownMenu.Label>
+                  {#each filteredExports.filter((o) => o.category === exportCat) as opt (opt.id)}
+                    <DropdownMenu.Item onclick={() => handleExport(opt.id)}>
+                      <opt.icon class="mr-2 size-4" />
+                      <div class="flex min-w-0 flex-1 flex-col">
+                        <span class="text-sm">{opt.label}</span>
+                        <span class="text-[11px] text-muted-foreground/60">{opt.description}</span>
+                      </div>
+                      {#if opt.ext}
+                        <code
+                          class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                          >{opt.ext}</code
+                        >
+                      {/if}
+                    </DropdownMenu.Item>
+                  {/each}
                 {/each}
               {/if}
             </DropdownMenu.SubContent>
@@ -633,6 +700,9 @@
             <DropdownMenu.SubTrigger>
               <LayoutList class="mr-2 size-4" />
               View Mode
+              <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                >{viewModeLabel}</span
+              >
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -688,6 +758,11 @@
             <DropdownMenu.SubTrigger>
               <ArrowUpDown class="mr-2 size-4" />
               Sort By
+              {#if sortLabel}
+                <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                  >{sortLabel}</span
+                >
+              {/if}
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -704,7 +779,15 @@
                   />
                 </div>
               </div>
-              {#if filteredSortOptions.length === 0}
+              {@const sortOpts = [{ v: 'date', l: 'Date', d: 'Oldest or newest first' }]}
+              {@const filteredSortOpts = sortSearch
+                ? sortOpts.filter(
+                    (o) =>
+                      o.l.toLowerCase().includes(sortSearch.toLowerCase()) ||
+                      o.d.toLowerCase().includes(sortSearch.toLowerCase()),
+                  )
+                : sortOpts}
+              {#if filteredSortOpts.length === 0}
                 <div
                   class="flex flex-col items-center gap-1.5 py-6 text-center text-muted-foreground"
                 >
@@ -712,27 +795,53 @@
                   <span class="text-xs text-muted-foreground/60">No sort options match</span>
                 </div>
               {:else}
-                {#each filteredSortOptions as opt (opt.id)}
+                {#each filteredSortOpts as opt (opt.v)}
                   <DropdownMenu.Item
                     closeOnSelect={false}
                     onclick={() => {
-                      sortDirection = opt.id;
+                      if (sortField === opt.v) {
+                        if (sortDir === 'asc') {
+                          sortDir = 'desc';
+                        } else {
+                          sortField = '' as Str;
+                          sortDir = 'asc';
+                        }
+                      } else {
+                        sortField = opt.v as Str;
+                        sortDir = 'asc';
+                      }
                     }}
                   >
-                    <div class="mr-2 flex size-4 items-center justify-center">
-                      {#if sortDirection === opt.id}
-                        <Check class="size-4 text-primary" />
-                      {/if}
-                    </div>
-                    <div class="flex flex-col">
-                      <span>{opt.label}</span>
-                      <span class="text-[10px] text-muted-foreground">{opt.description}</span>
+                    {#if sortField === opt.v && sortDir === 'asc'}
+                      <ArrowUp class="size-4 shrink-0 text-primary" />
+                    {:else if sortField === opt.v && sortDir === 'desc'}
+                      <ArrowDown class="size-4 shrink-0 text-primary" />
+                    {:else}
+                      <ArrowUpDown
+                        class="size-4 shrink-0 opacity-0 transition-opacity duration-150 group-hover:opacity-40"
+                      />
+                    {/if}
+                    <div class="flex min-w-0 flex-1 flex-col">
+                      <span class="text-sm">{opt.l}</span>
+                      <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
                     </div>
                   </DropdownMenu.Item>
                 {/each}
               {/if}
             </DropdownMenu.SubContent>
           </DropdownMenu.Sub>
+
+          <DropdownMenu.Separator />
+
+          <!-- Expand / Collapse All -->
+          <DropdownMenu.Item onclick={expandAllGroups} disabled={allExpanded}>
+            <ChevronsUpDown class="mr-2 size-4" />
+            Expand All
+          </DropdownMenu.Item>
+          <DropdownMenu.Item onclick={collapseAllGroups} disabled={allCollapsed}>
+            <ChevronsDownUp class="mr-2 size-4" />
+            Collapse All
+          </DropdownMenu.Item>
 
           <DropdownMenu.Separator />
 
@@ -886,7 +995,10 @@
 
             <!-- Entries -->
             {#if !collapsedGroups.has(group.date)}
-              <div class="ml-1 space-y-2 border-l-2 border-muted pl-5">
+              <div
+                class="ml-1 space-y-2 border-l-2 border-muted pl-5"
+                transition:slide={{ duration: 200 }}
+              >
                 {#each group.entries as entry (entry.hash)}
                   {@const entryType = detectEntryType(entry.message as Str, entry.isNew)}
                   {@const typeConfig = ENTRY_TYPE_CONFIG[entryType]}
@@ -1041,36 +1153,76 @@
             <span class="opacity-60">({group.entries.length})</span>
           </button>
           {#if !collapsedGroups.has(group.date)}
-            {#each group.entries as entry (entry.hash)}
-              {@const entryType = detectEntryType(entry.message as Str, entry.isNew)}
-              {@const typeConfig = ENTRY_TYPE_CONFIG[entryType]}
-              {@const TypeIcon = typeConfig.icon}
-              <div
-                class="flex items-center gap-3 border-b px-4 py-2 last:border-b-0 hover:bg-accent/30"
-              >
-                <TypeIcon class="size-3.5 shrink-0 {typeConfig.color}" />
-                <span class="min-w-0 flex-1 truncate text-sm">{entry.message}</span>
-                {#each entry.components.slice(0, 3) as comp}
-                  <a
-                    href="/components/{comp}"
-                    class="hidden rounded border bg-muted/50 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground hover:text-foreground sm:inline"
-                  >
-                    {comp}
-                  </a>
-                {/each}
-                {#if entry.components.length > 3}
-                  <span class="hidden text-[10px] text-muted-foreground sm:inline">
-                    +{entry.components.length - 3}
-                  </span>
-                {/if}
-                <code class="shrink-0 font-mono text-[10px] text-muted-foreground/60">
-                  {entry.hash}
-                </code>
-                <span class="shrink-0 text-[10px] text-muted-foreground/60">
-                  {relativeTime(entry.date)}
-                </span>
-              </div>
-            {/each}
+            <div transition:slide={{ duration: 200 }}>
+              {#each group.entries as entry (entry.hash)}
+                {@const entryType = detectEntryType(entry.message as Str, entry.isNew)}
+                {@const typeConfig = ENTRY_TYPE_CONFIG[entryType]}
+                {@const TypeIcon = typeConfig.icon}
+                <div
+                  class="flex items-center gap-3 border-b px-4 py-2 last:border-b-0 hover:bg-accent/30"
+                >
+                  <TypeIcon class="size-3.5 shrink-0 {typeConfig.color}" />
+                  <span class="min-w-0 flex-1 truncate text-sm">{entry.message}</span>
+                  {#each entry.components.slice(0, 3) as comp}
+                    <a
+                      href="/components/{comp}"
+                      class="hidden rounded border bg-muted/50 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground hover:text-foreground sm:inline"
+                    >
+                      {comp}
+                    </a>
+                  {/each}
+                  {#if entry.components.length > 3}
+                    <span class="hidden text-[10px] text-muted-foreground sm:inline">
+                      +{entry.components.length - 3}
+                    </span>
+                  {/if}
+                  {#if data.repoUrl}
+                    <a
+                      href="{data.repoUrl}/commit/{entry.hash}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="shrink-0 font-mono text-[10px] text-primary hover:underline"
+                    >
+                      {entry.hash}
+                    </a>
+                  {:else}
+                    <code class="shrink-0 font-mono text-[10px] text-muted-foreground/60">
+                      {entry.hash}
+                    </code>
+                  {/if}
+                  <Tooltip.Root delayDuration={300}>
+                    <Tooltip.Trigger>
+                      {#snippet child({ props: dateTip })}
+                        <span {...dateTip} class="shrink-0 text-[10px] text-muted-foreground/60">
+                          {relativeTime(entry.date)}
+                        </span>
+                      {/snippet}
+                    </Tooltip.Trigger>
+                    <Tooltip.Content side="top" sideOffset={4}>
+                      {new Date(entry.date).toLocaleString()}
+                    </Tooltip.Content>
+                  </Tooltip.Root>
+                  {#if data.repoUrl}
+                    <Tooltip.Root delayDuration={300}>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props: ghTip })}
+                          <a
+                            {...ghTip}
+                            href="{data.repoUrl}/commit/{entry.hash}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground"
+                          >
+                            <ExternalLink class="size-3" />
+                          </a>
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content side="top" sideOffset={4}>Open in GitHub</Tooltip.Content>
+                    </Tooltip.Root>
+                  {/if}
+                </div>
+              {/each}
+            </div>
           {/if}
         {/each}
       </div>
@@ -1085,9 +1237,42 @@
             <div class="flex items-center gap-2 rounded px-2 py-1.5 hover:bg-accent/30">
               <TypeIcon class="size-3.5 shrink-0 {typeConfig.color}" />
               <span class="min-w-0 flex-1 truncate text-sm">{entry.message}</span>
-              <span class="shrink-0 text-[10px] text-muted-foreground">
-                {relativeTime(entry.date)}
-              </span>
+              {#if data.repoUrl}
+                <a
+                  href="{data.repoUrl}/commit/{entry.hash}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="shrink-0 font-mono text-[10px] text-primary hover:underline"
+                >
+                  {entry.hash}
+                </a>
+              {:else}
+                <code class="shrink-0 font-mono text-[10px] text-muted-foreground/60">
+                  {entry.hash}
+                </code>
+              {/if}
+              <Tooltip.Root delayDuration={300}>
+                <Tooltip.Trigger>
+                  {#snippet child({ props: dateTip })}
+                    <span {...dateTip} class="shrink-0 text-[10px] text-muted-foreground">
+                      {relativeTime(entry.date)}
+                    </span>
+                  {/snippet}
+                </Tooltip.Trigger>
+                <Tooltip.Content side="top" sideOffset={4}>
+                  {new Date(entry.date).toLocaleString()}
+                </Tooltip.Content>
+              </Tooltip.Root>
+              {#if data.repoUrl}
+                <a
+                  href="{data.repoUrl}/commit/{entry.hash}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  <ExternalLink class="size-3" />
+                </a>
+              {/if}
             </div>
           {/each}
         {/each}
