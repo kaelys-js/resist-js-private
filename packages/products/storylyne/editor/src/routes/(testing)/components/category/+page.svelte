@@ -113,7 +113,7 @@
   /* ------------------------------------------------------------------ */
 
   /** Current view mode for category display. */
-  let viewMode: 'grid' | 'compact' | 'list' = $state('grid');
+  let viewMode: 'grid' | 'compact' | 'list' | 'table' = $state('grid');
 
   /** Search query for filtering categories and components. */
   let searchQuery: Str = $state('' as Str);
@@ -139,6 +139,7 @@
 
   /** Human-readable label for the current view mode. */
   const viewModeLabel: Str = $derived.by((): Str => {
+    if (viewMode === 'table') return 'Table' as Str;
     if (viewMode === 'compact') return 'Dense' as Str;
     if (viewMode === 'list') return 'List' as Str;
     return 'Grid' as Str;
@@ -156,7 +157,7 @@
   $effect(() => {
     try {
       const stored: Str | null = localStorage.getItem(storageKey('lens-view-mode'));
-      if (stored === 'list' || stored === 'grid' || stored === 'compact') {
+      if (stored === 'list' || stored === 'grid' || stored === 'compact' || stored === 'table') {
         viewMode = stored;
       }
     } catch {
@@ -557,6 +558,7 @@
               </div>
               {@const viewOpts = [
                 { v: 'grid', l: 'Grid', d: 'Category cards with components' },
+                { v: 'table', l: 'Table', d: 'Full details with columns' },
                 { v: 'compact', l: 'Dense Grid', d: 'Names and counts only' },
                 { v: 'list', l: 'List', d: 'Compact rows with counts' },
               ]}
@@ -579,7 +581,7 @@
                   <DropdownMenu.Item
                     closeOnSelect={false}
                     onclick={() => {
-                      viewMode = opt.v as 'grid' | 'compact' | 'list';
+                      viewMode = opt.v as 'grid' | 'compact' | 'list' | 'table';
                     }}
                   >
                     <Check
@@ -923,6 +925,97 @@
             </div>
           </div>
         {/each}
+      </div>
+    {:else if viewMode === 'table'}
+      <!-- Table view -->
+      <div class="rounded-lg border bg-card">
+        <table class="w-full table-fixed text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs text-muted-foreground">
+              <th class="px-4 py-2">Category</th>
+              <th class="w-28 px-4 py-2">Components</th>
+              <th class="px-4 py-2">Description</th>
+              <th class="px-4 py-2">Sample Components</th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each filteredGroups as group (group.name)}
+              {@const CatIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
+              {@const catColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
+              {@const catDesc = CATEGORY_DESCRIPTIONS[group.name] ?? ('' as Str)}
+              <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/50">
+                <td class="px-4 py-2.5">
+                  <a
+                    href="/components/category/{group.name}"
+                    class="flex items-center gap-2 font-medium text-foreground hover:text-primary"
+                  >
+                    <CatIcon class="size-3.5 shrink-0 {catColor}" />
+                    {group.label}
+                  </a>
+                </td>
+                <td class="px-4 py-2.5">
+                  <span class="text-xs tabular-nums text-muted-foreground"
+                    >{group.components.length}</span
+                  >
+                </td>
+                <td class="px-4 py-2.5">
+                  <span class="line-clamp-1 text-xs text-muted-foreground">{catDesc || '—'}</span>
+                </td>
+                <td class="px-4 py-2.5">
+                  <div class="flex flex-wrap gap-1">
+                    {#each group.components.slice(0, 4) as name (name)}
+                      <a
+                        href="/components/{name}"
+                        class="rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                        >{toTitle(name)}</a
+                      >
+                    {/each}
+                    {#if group.components.length > 4}
+                      <Tooltip.Root delayDuration={300}>
+                        <Tooltip.Trigger>
+                          {#snippet child({ props: tblMoreTip })}
+                            <span
+                              class="cursor-default rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground/60"
+                              {...tblMoreTip}>+{group.components.length - 4} more</span
+                            >
+                          {/snippet}
+                        </Tooltip.Trigger>
+                        <Tooltip.Content
+                          side="bottom"
+                          sideOffset={4}
+                          class="max-h-64 overflow-y-auto p-3"
+                          portalProps={{ disabled: true }}
+                        >
+                          <div class="flex flex-col gap-0.5">
+                            {#each group.components.slice(4) as extra (extra)}
+                              <a
+                                href="/components/{extra}"
+                                class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                              >
+                                <ComponentIcon class="size-3 shrink-0 opacity-50" />
+                                <span class="flex-1">{toTitle(extra)}</span>
+                                <ArrowRight class="size-3 shrink-0 opacity-40" />
+                              </a>
+                            {/each}
+                          </div>
+                        </Tooltip.Content>
+                      </Tooltip.Root>
+                    {/if}
+                  </div>
+                </td>
+              </tr>
+            {:else}
+              <tr>
+                <td colspan="4" class="px-4 py-12 text-center">
+                  <div class="flex flex-col items-center gap-2">
+                    <ComponentIcon class="size-8 text-muted-foreground/20" />
+                    <p class="text-sm font-medium text-muted-foreground/60">No categories yet</p>
+                  </div>
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
       </div>
     {:else if viewMode === 'compact'}
       <!-- Compact / dense grid view -->
