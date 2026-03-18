@@ -823,6 +823,12 @@
   /** Search query for sort mode menu filtering. */
   let sortSearchQuery: Str = $state('' as Str);
 
+  /** Search query for grid density menu filtering. */
+  let densitySearchQuery: Str = $state('' as Str);
+
+  /** Search query for color mode menu filtering. */
+  let colorModeSearchQuery: Str = $state('' as Str);
+
   /** Search query for export menu filtering. */
   let exportSearchQuery: Str = $state('' as Str);
 
@@ -1503,168 +1509,226 @@
 
           <DropdownMenu.Separator />
 
-          <!-- Customize submenu (appearance settings) -->
-          <DropdownMenu.Sub>
+          <!-- Grid Density submenu -->
+          <DropdownMenu.Sub
+            onOpenChange={(open) => {
+              if (open) densitySearchQuery = '' as Str;
+            }}
+          >
             <DropdownMenu.SubTrigger>
-              <SlidersHorizontal class="mr-2 size-4" />
-              Customize
-              {#if isCustomized}
+              <LayoutGrid class="mr-2 size-4" />
+              Grid Density
+            </DropdownMenu.SubTrigger>
+            <DropdownMenu.SubContent class="w-56">
+              <div class="shrink-0 px-2 pb-1.5 pt-1">
+                <div
+                  class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                >
+                  <SearchIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <input
+                    type="text"
+                    placeholder="Search density..."
+                    class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                    bind:value={densitySearchQuery}
+                    onkeydown={(e) => e.stopPropagation()}
+                  />
+                </div>
+              </div>
+              {@const densityOpts = [
+                { v: 'compact', l: 'Compact', d: 'Small cards, more icons per row' },
+                { v: 'comfortable', l: 'Comfortable', d: 'Balanced size with icon names' },
+                { v: 'large', l: 'Large', d: 'Larger previews, fewer per row' },
+              ]}
+              {@const filteredDensityOpts = densitySearchQuery
+                ? densityOpts.filter(
+                    (o) =>
+                      o.l.toLowerCase().includes(densitySearchQuery.toLowerCase()) ||
+                      o.d.toLowerCase().includes(densitySearchQuery.toLowerCase()),
+                  )
+                : densityOpts}
+              {#if filteredDensityOpts.length === 0}
+                <div
+                  class="flex flex-col items-center gap-1.5 py-6 text-center text-muted-foreground"
+                >
+                  <SearchX class="size-4 text-muted-foreground/40" />
+                  <span class="text-xs text-muted-foreground/60">No density options match</span>
+                </div>
+              {:else}
+                {#each filteredDensityOpts as opt (opt.v)}
+                  <DropdownMenu.Item
+                    closeOnSelect={false}
+                    onclick={() => {
+                      gridDensity = opt.v as Str;
+                    }}
+                  >
+                    <Check
+                      class={cn(
+                        'size-4 shrink-0 transition-opacity duration-150',
+                        gridDensity !== opt.v && 'opacity-0',
+                      )}
+                    />
+                    <div class="flex min-w-0 flex-1 flex-col">
+                      <span class="text-sm">{opt.l}</span>
+                      <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
+                    </div>
+                  </DropdownMenu.Item>
+                {/each}
+              {/if}
+            </DropdownMenu.SubContent>
+          </DropdownMenu.Sub>
+
+          <!-- Color Mode submenu -->
+          <DropdownMenu.Sub
+            onOpenChange={(open) => {
+              if (open) colorModeSearchQuery = '' as Str;
+            }}
+          >
+            <DropdownMenu.SubTrigger>
+              <Paintbrush class="mr-2 size-4" />
+              Color Mode
+            </DropdownMenu.SubTrigger>
+            <DropdownMenu.SubContent class="w-56">
+              <div class="shrink-0 px-2 pb-1.5 pt-1">
+                <div
+                  class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                >
+                  <SearchIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <input
+                    type="text"
+                    placeholder="Search modes..."
+                    class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                    bind:value={colorModeSearchQuery}
+                    onkeydown={(e) => e.stopPropagation()}
+                  />
+                </div>
+              </div>
+              {@const colorOpts = [
+                { v: 'auto', l: 'Auto', d: 'Icons inherit page color' },
+                { v: 'light', l: 'Light', d: 'Dark icons (light mode style)' },
+                { v: 'dark', l: 'Dark', d: 'Light icons (dark mode style)' },
+              ]}
+              {@const filteredColorOpts = colorModeSearchQuery
+                ? colorOpts.filter(
+                    (o) =>
+                      o.l.toLowerCase().includes(colorModeSearchQuery.toLowerCase()) ||
+                      o.d.toLowerCase().includes(colorModeSearchQuery.toLowerCase()),
+                  )
+                : colorOpts}
+              {#if filteredColorOpts.length === 0}
+                <div
+                  class="flex flex-col items-center gap-1.5 py-6 text-center text-muted-foreground"
+                >
+                  <SearchX class="size-4 text-muted-foreground/40" />
+                  <span class="text-xs text-muted-foreground/60">No modes match</span>
+                </div>
+              {:else}
+                {#each filteredColorOpts as opt (opt.v)}
+                  <DropdownMenu.Item
+                    closeOnSelect={false}
+                    onclick={() => {
+                      previewBg = opt.v as Str;
+                    }}
+                  >
+                    <Check
+                      class={cn(
+                        'size-4 shrink-0 transition-opacity duration-150',
+                        previewBg !== opt.v && 'opacity-0',
+                      )}
+                    />
+                    <div class="flex min-w-0 flex-1 flex-col">
+                      <span class="text-sm">{opt.l}</span>
+                      <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
+                    </div>
+                  </DropdownMenu.Item>
+                {/each}
+              {/if}
+            </DropdownMenu.SubContent>
+          </DropdownMenu.Sub>
+
+          <!-- Theme submenu -->
+          <DropdownMenu.Sub
+            onOpenChange={(open) => {
+              if (open) themeSearchQuery = '' as Str;
+            }}
+          >
+            <DropdownMenu.SubTrigger>
+              <Palette class="mr-2 size-4" />
+              Theme
+              {#if activeThemeLabel}
                 <span
-                  class="ml-auto shrink-0 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary"
-                  >Modified</span
+                  class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+                  >{activeThemeLabel}</span
                 >
               {/if}
             </DropdownMenu.SubTrigger>
-            <DropdownMenu.SubContent class="w-72">
-              <!-- Grid Density section -->
-              <DropdownMenu.Label
-                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
-              >
-                <LayoutGrid class="size-3" />
-                Grid Density
-              </DropdownMenu.Label>
-              {#each [{ v: 'compact', l: 'Compact', d: 'Small cards, more icons per row' }, { v: 'comfortable', l: 'Comfortable', d: 'Balanced size with icon names' }, { v: 'large', l: 'Large', d: 'Larger previews, fewer per row' }] as opt (opt.v)}
-                <DropdownMenu.Item
-                  closeOnSelect={false}
-                  onclick={() => {
-                    gridDensity = opt.v as Str;
-                  }}
+            <DropdownMenu.SubContent class="flex max-h-[28rem] w-72 flex-col overflow-hidden">
+              <div class="shrink-0 px-2 pb-1.5 pt-1">
+                <div
+                  class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
                 >
-                  <Check
-                    class={cn(
-                      'size-4 shrink-0 transition-opacity duration-150',
-                      gridDensity !== opt.v && 'opacity-0',
-                    )}
+                  <SearchIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <input
+                    type="text"
+                    placeholder="Search themes..."
+                    class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                    bind:value={themeSearchQuery}
+                    onkeydown={(e) => e.stopPropagation()}
                   />
-                  <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">{opt.l}</span>
-                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
-                  </div>
-                </DropdownMenu.Item>
-              {/each}
-
-              <DropdownMenu.Separator />
-
-              <!-- Color Mode section -->
-              <DropdownMenu.Label
-                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
-              >
-                <Paintbrush class="size-3" />
-                Color Mode
-              </DropdownMenu.Label>
-              {#each [{ v: 'auto', l: 'Auto', d: 'Icons inherit page color' }, { v: 'light', l: 'Light', d: 'Dark icons (light mode style)' }, { v: 'dark', l: 'Dark', d: 'Light icons (dark mode style)' }] as opt (opt.v)}
-                <DropdownMenu.Item
-                  closeOnSelect={false}
-                  onclick={() => {
-                    previewBg = opt.v as Str;
-                  }}
-                >
-                  <Check
-                    class={cn(
-                      'size-4 shrink-0 transition-opacity duration-150',
-                      previewBg !== opt.v && 'opacity-0',
-                    )}
-                  />
-                  <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">{opt.l}</span>
-                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
-                  </div>
-                </DropdownMenu.Item>
-              {/each}
-
-              <DropdownMenu.Separator />
-
-              <!-- Theme sub-submenu -->
-              <DropdownMenu.Sub
-                onOpenChange={(open) => {
-                  if (open) themeSearchQuery = '' as Str;
-                }}
-              >
-                <DropdownMenu.SubTrigger>
-                  <Palette class="size-4" />
-                  Theme
-                  {#if activeThemeLabel}
-                    <span
-                      class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
-                      >{activeThemeLabel}</span
+                </div>
+              </div>
+              <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+                {#each filteredThemeCategories as themeCategory (themeCategory)}
+                  <DropdownMenu.Label class="text-xs">{themeCategory}</DropdownMenu.Label>
+                  {#each filteredThemePresets.filter((p) => p.category === themeCategory) as preset (preset.id)}
+                    <DropdownMenu.Item
+                      closeOnSelect={false}
+                      onclick={() => {
+                        activeTheme = preset.id;
+                      }}
                     >
+                      <Check
+                        class={cn(
+                          'size-4 shrink-0 transition-opacity duration-150',
+                          activeTheme !== preset.id && 'opacity-0',
+                        )}
+                      />
+                      {#if preset.dot}
+                        <span
+                          class="inline-block size-4 shrink-0 rounded-full shadow-sm ring-1 ring-black/10"
+                          style="background-color: {preset.dot}"
+                        ></span>
+                      {/if}
+                      <div class="flex flex-col gap-0.5">
+                        <span class="text-sm">{preset.label}</span>
+                        <span class="text-[11px] text-muted-foreground">{preset.description}</span>
+                      </div>
+                    </DropdownMenu.Item>
+                  {/each}
+                  {#if themeCategory !== filteredThemeCategories[filteredThemeCategories.length - 1]}
+                    <DropdownMenu.Separator />
                   {/if}
-                </DropdownMenu.SubTrigger>
-                <DropdownMenu.SubContent class="flex max-h-[28rem] w-72 flex-col overflow-hidden">
-                  <div class="shrink-0 px-2 pb-1.5 pt-1">
-                    <div
-                      class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
-                    >
-                      <SearchIcon
-                        class="size-3 shrink-0 text-muted-foreground"
-                        aria-hidden="true"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Search themes..."
-                        class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                        bind:value={themeSearchQuery}
-                        onkeydown={(e) => e.stopPropagation()}
-                      />
+                {:else}
+                  <div
+                    class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+                  >
+                    <SearchX class="size-5" />
+                    <div class="flex flex-col items-center gap-0.5">
+                      <p class="text-xs font-medium">No themes found</p>
+                      <p class="text-[11px]">Try a different search term</p>
                     </div>
                   </div>
-                  <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-                    {#each filteredThemeCategories as themeCategory (themeCategory)}
-                      <DropdownMenu.Label class="text-xs">{themeCategory}</DropdownMenu.Label>
-                      {#each filteredThemePresets.filter((p) => p.category === themeCategory) as preset (preset.id)}
-                        <DropdownMenu.Item
-                          closeOnSelect={false}
-                          onclick={() => {
-                            activeTheme = preset.id;
-                          }}
-                        >
-                          <Check
-                            class={cn(
-                              'size-4 shrink-0 transition-opacity duration-150',
-                              activeTheme !== preset.id && 'opacity-0',
-                            )}
-                          />
-                          {#if preset.dot}
-                            <span
-                              class="inline-block size-4 shrink-0 rounded-full shadow-sm ring-1 ring-black/10"
-                              style="background-color: {preset.dot}"
-                            ></span>
-                          {/if}
-                          <div class="flex flex-col gap-0.5">
-                            <span class="text-sm">{preset.label}</span>
-                            <span class="text-[11px] text-muted-foreground"
-                              >{preset.description}</span
-                            >
-                          </div>
-                        </DropdownMenu.Item>
-                      {/each}
-                      {#if themeCategory !== filteredThemeCategories[filteredThemeCategories.length - 1]}
-                        <DropdownMenu.Separator />
-                      {/if}
-                    {:else}
-                      <div
-                        class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
-                      >
-                        <SearchX class="size-5" />
-                        <div class="flex flex-col items-center gap-0.5">
-                          <p class="text-xs font-medium">No themes found</p>
-                          <p class="text-[11px]">Try a different search term</p>
-                        </div>
-                      </div>
-                    {/each}
-                  </div>
-                </DropdownMenu.SubContent>
-              </DropdownMenu.Sub>
+                {/each}
+              </div>
+            </DropdownMenu.SubContent>
+          </DropdownMenu.Sub>
 
-              <DropdownMenu.Separator />
-
-              <!-- Icon Style section (sliders) -->
-              <DropdownMenu.Label
-                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
-              >
-                <SlidersHorizontal class="size-3" />
-                Icon Style
-              </DropdownMenu.Label>
+          <!-- Icon Style submenu -->
+          <DropdownMenu.Sub>
+            <DropdownMenu.SubTrigger>
+              <SlidersHorizontal class="mr-2 size-4" />
+              Icon Style
+            </DropdownMenu.SubTrigger>
+            <DropdownMenu.SubContent class="w-64">
               <div class="flex flex-col gap-3 px-2 py-1.5">
                 <!-- Size slider -->
                 <div class="flex flex-col gap-1.5">
