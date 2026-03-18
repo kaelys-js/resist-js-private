@@ -1199,7 +1199,7 @@
       label: 'Copy as JSON',
       icon: ClipboardCopy,
       category: 'Clipboard',
-      description: 'Structured data format',
+      description: 'Components with categories, tags, and metadata',
       ext: '',
     },
     {
@@ -1207,7 +1207,7 @@
       label: 'Copy as Markdown',
       icon: FileText,
       category: 'Clipboard',
-      description: 'Formatted table for docs',
+      description: 'Component table with categories and tags',
       ext: '',
     },
     {
@@ -1215,7 +1215,7 @@
       label: 'Download JSON',
       icon: Download,
       category: 'File',
-      description: 'Structured data file',
+      description: 'Full component index with all metadata',
       ext: '.json',
     },
     {
@@ -1223,7 +1223,7 @@
       label: 'Download Markdown',
       icon: Download,
       category: 'File',
-      description: 'Formatted doc file',
+      description: 'Full component index as formatted doc',
       ext: '.md',
     },
   ];
@@ -1555,6 +1555,38 @@
     }
   });
 
+  // Generate compatibility violation notifications on initial load
+  // One notification per incompatible component, listing violated rules
+  /** Whether compatibility notifications have been generated this session. */
+  let compatNotifsGenerated: boolean = $state(false);
+
+  $effect(() => {
+    if (compatNotifsGenerated) return;
+    if (componentNames.length === 0) return;
+    compatNotifsGenerated = true;
+
+    for (const name of componentNames) {
+      const compat: LensCompatibility | undefined = compatByName.get(name);
+      if (!compat || compat.compatible) continue;
+
+      const failedRules: Set<number> = new Set(compat.violations.map((vi) => vi.rule as number));
+      const ruleList: Str = [...failedRules]
+        .map((idx: number): Str => `R${idx} ${LENS_RULE_NAMES[idx] ?? ''}` as Str)
+        .join(', ') as Str;
+
+      notify({
+        type: 'warning' as NotificationType,
+        title:
+          `${toTitle(name)} — ${failedRules.size} rule violation${failedRules.size === 1 ? '' : 's'}` as Str,
+        message: ruleList,
+        componentName: name,
+        actionLabel: 'View Component' as Str,
+        actionHref: `/components/${name}` as Str,
+        category: 'compatibility' as Str,
+      });
+    }
+  });
+
   /* ------------------------------------------------------------------ */
   /*  Documentation coverage alerts                                      */
   /* ------------------------------------------------------------------ */
@@ -1632,9 +1664,6 @@
                 </DropdownMenu.SubTrigger>
                 <DropdownMenu.SubContent class="flex max-h-[28rem] w-64 flex-col overflow-hidden">
                   <div class="shrink-0 px-2 pb-1.5 pt-1">
-                    <p class="mb-1.5 text-[11px] font-medium text-muted-foreground">
-                      Component index · {componentNames.length} components
-                    </p>
                     <div
                       class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
                     >
