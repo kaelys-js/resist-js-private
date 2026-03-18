@@ -235,7 +235,12 @@
           r.description.toLowerCase().includes(q as string) ||
           r.wcag.toLowerCase().includes(q as string) ||
           r.category.toLowerCase().includes(q as string) ||
-          r.evidence.toLowerCase().includes(q as string),
+          r.evidence.toLowerCase().includes(q as string) ||
+          r.fileFindings.some(
+            (f) =>
+              f.problem.toLowerCase().includes(q as string) ||
+              f.solution.toLowerCase().includes(q as string),
+          ),
       );
     }
 
@@ -364,6 +369,16 @@
   /** Collapse all expanded rules. */
   function collapseAll(): void {
     expandedRules = new Set();
+  }
+
+  /**
+   * Format a number with locale-appropriate thousands separators.
+   *
+   * @param n - Number to format
+   * @returns Locale-formatted string, e.g. 1234 → "1,234"
+   */
+  function fmt(n: Num): string {
+    return (n as number).toLocaleString();
   }
 
   function toggleExpanded(ruleId: Str): void {
@@ -966,7 +981,7 @@
                 ? 'text-red-500'
                 : ''}"
             >
-              {criticalFailures}
+              {fmt(criticalFailures)}
             </p>
           </div>
           <!-- Warnings -->
@@ -985,7 +1000,7 @@
                 ? 'text-amber-500'
                 : ''}"
             >
-              {warningCount}
+              {fmt(warningCount)}
             </p>
           </div>
           <!-- Manual -->
@@ -997,7 +1012,7 @@
               <span class="text-xs font-medium uppercase tracking-wider">Manual</span>
             </div>
             <p class="mt-2 text-2xl font-bold tabular-nums">
-              {auditResult.rules.filter((r) => r.status === 'not-applicable').length}
+              {fmt(auditResult.rules.filter((r) => r.status === 'not-applicable').length as Num)}
             </p>
           </div>
           <!-- Per-category cards -->
@@ -1012,7 +1027,9 @@
               <div class="flex items-center gap-2 text-muted-foreground">
                 <span class="text-xs font-medium uppercase tracking-wider">{cat.label}</span>
               </div>
-              <p class="mt-2 text-2xl font-bold tabular-nums">{cat.passing}/{cat.total}</p>
+              <p class="mt-2 text-2xl font-bold tabular-nums">
+                {fmt(cat.passing)}/{fmt(cat.total)}
+              </p>
               <div class="mt-2 h-1.5 w-full rounded-full bg-muted">
                 <div
                   class="h-1.5 rounded-full {pct >= 80
@@ -1151,7 +1168,7 @@
                             ></div>
                           </div>
                           <span class="text-xs tabular-nums text-muted-foreground"
-                            >{rule.passCount}/{rule.totalChecked}</span
+                            >{fmt(rule.passCount)}/{fmt(rule.totalChecked)}</span
                           >
                         </div>
                       {/if}
