@@ -131,7 +131,7 @@
   let searchQuery: Str = $state('' as Str);
 
   /** View mode. */
-  let viewMode: 'grid' | 'list' = $state('grid');
+  let viewMode: 'grid' | 'compact' | 'list' | 'table' = $state('grid');
 
   /** Sort mode. */
   let sortMode: Str = $state('name-asc' as Str);
@@ -162,6 +162,15 @@
     // Sort
     if (sortMode === 'name-desc') {
       names = [...names].toSorted((a: Str, b: Str): Num => b.localeCompare(a) as Num);
+    } else if (sortMode === 'tag-count') {
+      names = [...names].toSorted(
+        (a: Str, b: Str): Num =>
+          ((metaByName.get(b)?.tags?.length ?? 0) - (metaByName.get(a)?.tags?.length ?? 0)) as Num,
+      );
+    } else if (sortMode === 'description') {
+      names = [...names].toSorted(
+        (a: Str, b: Str): Num => ((getDescription(b) ? 0 : 1) - (getDescription(a) ? 0 : 1)) as Num,
+      );
     } else if (sortMode === 'compatibility') {
       names = [...names].toSorted((a: Str, b: Str): Num => {
         const aOk: Num = (compatByName.get(a)?.compatible ? 1 : 0) as Num;
@@ -490,7 +499,9 @@
               </div>
               {@const viewOpts = [
                 { v: 'grid', l: 'Grid', d: 'Component cards' },
+                { v: 'compact', l: 'Dense Grid', d: 'Names only, no details' },
                 { v: 'list', l: 'List', d: 'Compact rows' },
+                { v: 'table', l: 'Table', d: 'Rows with all details' },
               ]}
               {@const filteredViewOpts = viewSearchQuery
                 ? viewOpts.filter(
@@ -511,7 +522,7 @@
                   <DropdownMenu.Item
                     closeOnSelect={false}
                     onclick={() => {
-                      viewMode = opt.v as 'grid' | 'list';
+                      viewMode = opt.v as 'grid' | 'compact' | 'list' | 'table';
                     }}
                   >
                     <Check
@@ -558,6 +569,8 @@
               {@const sortOpts = [
                 { v: 'name-asc', l: 'Name (A\u2013Z)', d: 'Alphabetical' },
                 { v: 'name-desc', l: 'Name (Z\u2013A)', d: 'Reverse alphabetical' },
+                { v: 'tag-count', l: 'Most Tags', d: 'Most tags first' },
+                { v: 'description', l: 'Has Description', d: 'Documented first' },
                 { v: 'compatibility', l: 'Compatibility', d: 'Compliant first' },
                 { v: 'status', l: 'Status', d: 'New \u2192 Updated \u2192 Deprecated' },
               ]}
@@ -816,6 +829,93 @@
             </div>
           </a>
         {/each}
+      </div>
+    {:else if viewMode === 'compact'}
+      <!-- Compact / dense grid view -->
+      <div class="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+        {#each filteredComponents as name (name)}
+          <a
+            href="/components/{name}"
+            class="group/compact flex items-center gap-2 rounded-lg border bg-card px-2.5 py-2 transition-all hover:border-primary/30 hover:shadow-sm"
+          >
+            <CatIcon class="size-3.5 shrink-0 {catColor}" />
+            <span
+              class="min-w-0 flex-1 truncate text-xs font-medium group-hover/compact:text-primary"
+              >{toTitle(name)}</span
+            >
+          </a>
+        {/each}
+      </div>
+    {:else if viewMode === 'table'}
+      <!-- Table view -->
+      <div class="rounded-lg border bg-card">
+        <table class="w-full table-fixed text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs text-muted-foreground">
+              <th class="px-4 py-2">Name</th>
+              <th class="px-4 py-2">Description</th>
+              <th class="w-32 px-4 py-2">Tags</th>
+              <th class="w-24 px-4 py-2">Status</th>
+              <th class="w-20 px-4 py-2">Compat</th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each filteredComponents as name (name)}
+              {@const meta = metaByName.get(name)}
+              {@const desc = getDescription(name)}
+              {@const compat = compatByName.get(name)}
+              {@const isCompat = compat?.compatible === true}
+              <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/50">
+                <td class="px-4 py-2.5">
+                  <a
+                    href="/components/{name}"
+                    class="flex items-center gap-2 font-medium text-foreground hover:text-primary"
+                  >
+                    <CatIcon class="size-3.5 shrink-0 {catColor}" />
+                    {toTitle(name)}
+                  </a>
+                </td>
+                <td class="px-4 py-2.5">
+                  <span class="line-clamp-1 text-xs text-muted-foreground">{desc || '\u2014'}</span>
+                </td>
+                <td class="px-4 py-2.5">
+                  <div class="flex flex-wrap gap-1">
+                    {#if meta?.tags}
+                      {#each meta.tags.slice(0, 2) as tag (tag)}
+                        <span class="rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                          >{tag}</span
+                        >
+                      {/each}
+                      {#if meta.tags.length > 2}
+                        <span class="text-[10px] text-muted-foreground/60"
+                          >+{meta.tags.length - 2}</span
+                        >
+                      {/if}
+                    {:else}
+                      <span class="text-[10px] text-muted-foreground/40">\u2014</span>
+                    {/if}
+                  </div>
+                </td>
+                <td class="px-4 py-2.5">
+                  {#if meta?.status}
+                    <Badge variant="secondary" class="text-[10px] {STATUS_COLORS[meta.status]}">
+                      {STATUS_LABELS[meta.status]}
+                    </Badge>
+                  {:else}
+                    <span class="text-[10px] text-muted-foreground/40">\u2014</span>
+                  {/if}
+                </td>
+                <td class="px-4 py-2.5">
+                  {#if isCompat}
+                    <CircleCheck class="size-4 text-emerald-500" />
+                  {:else}
+                    <CircleAlert class="size-4 text-amber-500" />
+                  {/if}
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
       </div>
     {:else}
       <!-- List view -->

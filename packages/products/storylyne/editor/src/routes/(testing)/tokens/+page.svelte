@@ -223,7 +223,7 @@
 
   /** Two-step confirm gate for reset. */
   /** View mode for token display. */
-  let viewMode: 'table' | 'compact' = $state('table');
+  let viewMode: 'table' | 'compact' | 'list' = $state('table');
 
   /** Sort mode for tokens. */
   let sortMode: Str = $state('default' as Str);
@@ -302,6 +302,26 @@
           ),
         }))
         .filter((g) => g.tokens.length > 0);
+    }
+
+    /* Sort */
+    if (sortMode === 'category') {
+      result = [...result].toSorted((a, b) => a.category.localeCompare(b.category) as Num);
+    } else if (sortMode === 'value') {
+      result = result.map((g) => ({
+        ...g,
+        tokens: [...g.tokens].toSorted((a, b) => a.value.localeCompare(b.value) as Num),
+      }));
+    } else if (sortMode === 'name-asc') {
+      result = result.map((g) => ({
+        ...g,
+        tokens: [...g.tokens].toSorted((a, b) => a.name.localeCompare(b.name) as Num),
+      }));
+    } else if (sortMode === 'name-desc') {
+      result = result.map((g) => ({
+        ...g,
+        tokens: [...g.tokens].toSorted((a, b) => b.name.localeCompare(a.name) as Num),
+      }));
     }
 
     return result;
@@ -694,6 +714,7 @@
               {@const viewOpts = [
                 { v: 'table', l: 'Table', d: 'Full details with columns' },
                 { v: 'compact', l: 'Compact', d: 'Dense grid with swatches' },
+                { v: 'list', l: 'Simple List', d: 'Flat rows with name and value' },
               ]}
               {@const filteredViewOpts = viewSearchQuery
                 ? viewOpts.filter(
@@ -714,7 +735,7 @@
                   <DropdownMenu.Item
                     closeOnSelect={false}
                     onclick={() => {
-                      viewMode = opt.v as 'table' | 'compact';
+                      viewMode = opt.v as 'table' | 'compact' | 'list';
                     }}
                   >
                     <Check
@@ -760,8 +781,10 @@
               </div>
               {@const sortOpts = [
                 { v: 'default', l: 'Default', d: 'As defined in CSS' },
-                { v: 'name-asc', l: 'Name (A–Z)', d: 'Alphabetical' },
-                { v: 'name-desc', l: 'Name (Z–A)', d: 'Reverse alphabetical' },
+                { v: 'name-asc', l: 'Name (A\u2013Z)', d: 'Alphabetical' },
+                { v: 'name-desc', l: 'Name (Z\u2013A)', d: 'Reverse alphabetical' },
+                { v: 'category', l: 'Category', d: 'Grouped by token type' },
+                { v: 'value', l: 'Value', d: 'Sort by CSS value' },
               ]}
               {@const filteredSortOpts = sortSearchQuery
                 ? sortOpts.filter(
@@ -1040,7 +1063,7 @@
           {/if}
         </section>
       </div>
-    {:else}
+    {:else if viewMode === 'compact'}
       <!-- Compact view — dense grid of swatches -->
       <div class="space-y-8">
         {#each filteredGroups as group (group.category)}
@@ -1094,6 +1117,29 @@
               {/each}
             </div>
           </div>
+        {/each}
+      </div>
+    {:else}
+      <!-- Simple list view -->
+      <div class="rounded-lg border bg-card">
+        {#each filteredGroups as group (group.category)}
+          {#each group.tokens as token, ti (token.name)}
+            {#if ti > 0 || filteredGroups.indexOf(group) > 0}
+              <div class="border-t"></div>
+            {/if}
+            <div class="flex items-center gap-3 px-4 py-2.5">
+              {#if isColorValue(token.value)}
+                <div
+                  class="size-5 shrink-0 rounded border shadow-sm"
+                  style="background-color: {token.value};"
+                ></div>
+              {/if}
+              <code class="min-w-0 flex-1 truncate font-mono text-xs text-foreground"
+                >{token.variable}</code
+              >
+              <span class="shrink-0 font-mono text-xs text-muted-foreground">{token.value}</span>
+            </div>
+          {/each}
         {/each}
       </div>
     {/if}

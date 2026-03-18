@@ -96,7 +96,7 @@
   let searchQuery: Str = $state('' as Str);
 
   /** View mode for tag display. */
-  let viewMode: 'grid' | 'list' = $state('grid');
+  let viewMode: 'grid' | 'compact' | 'list' = $state('grid');
 
   /** Sort mode for tags. */
   let sortMode: Str = $state('alphabetical' as Str);
@@ -123,7 +123,9 @@
       tags = tags.filter((tag: Str): boolean => tag.toLowerCase().includes(q as string));
     }
 
-    if (sortMode === 'count-desc') {
+    if (sortMode === 'alpha-desc') {
+      tags = [...tags].toSorted((a: Str, b: Str): Num => b.localeCompare(a) as Num);
+    } else if (sortMode === 'count-desc') {
       tags = [...tags].toSorted(
         (a: Str, b: Str): Num =>
           ((tagMap.get(b)?.length ?? 0) - (tagMap.get(a)?.length ?? 0)) as Num,
@@ -400,6 +402,7 @@
               </div>
               {@const viewOpts = [
                 { v: 'grid', l: 'Grid', d: 'Tag cards with samples' },
+                { v: 'compact', l: 'Dense Chips', d: 'Inline chips with counts' },
                 { v: 'list', l: 'List', d: 'Compact rows with counts' },
               ]}
               {@const filteredViewOpts = viewSearchQuery
@@ -421,7 +424,7 @@
                   <DropdownMenu.Item
                     closeOnSelect={false}
                     onclick={() => {
-                      viewMode = opt.v as 'grid' | 'list';
+                      viewMode = opt.v as 'grid' | 'compact' | 'list';
                     }}
                   >
                     <Check
@@ -467,6 +470,7 @@
               </div>
               {@const sortOpts = [
                 { v: 'alphabetical', l: 'Alphabetical', d: 'A\u2013Z' },
+                { v: 'alpha-desc', l: 'Reverse Alphabetical', d: 'Z\u2013A' },
                 { v: 'count-desc', l: 'Most Used', d: 'Most components first' },
                 { v: 'count-asc', l: 'Least Used', d: 'Fewest components first' },
               ]}
@@ -635,6 +639,23 @@
               {/if}
             </div>
           </div>
+        {/each}
+      </div>
+    {:else if viewMode === 'compact'}
+      <!-- Dense chips view -->
+      <div class="flex flex-wrap gap-1.5">
+        {#each filteredTags as tag (tag)}
+          {@const components = tagMap.get(tag) ?? []}
+          <span
+            class="inline-flex items-center gap-1 rounded-full border bg-card px-2.5 py-1 text-xs font-medium transition-colors hover:border-primary/30"
+          >
+            <TagIcon class="size-3 shrink-0 text-primary" />
+            {tag}
+            <span
+              class="inline-flex size-5 items-center justify-center rounded-full bg-muted text-[10px] tabular-nums text-muted-foreground"
+              >{components.length}</span
+            >
+          </span>
         {/each}
       </div>
     {:else}

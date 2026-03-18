@@ -111,7 +111,7 @@
   /* ------------------------------------------------------------------ */
 
   /** Current view mode for category display. */
-  let viewMode: 'grid' | 'list' = $state('grid');
+  let viewMode: 'grid' | 'compact' | 'list' = $state('grid');
 
   /** Search query for filtering categories and components. */
   let searchQuery: Str = $state('' as Str);
@@ -136,7 +136,7 @@
   $effect(() => {
     try {
       const stored: Str | null = localStorage.getItem(storageKey('lens-view-mode'));
-      if (stored === 'list' || stored === 'grid') {
+      if (stored === 'list' || stored === 'grid' || stored === 'compact') {
         viewMode = stored;
       }
     } catch {
@@ -198,6 +198,15 @@
     } else if (sortMode === 'name') {
       groups = [...groups].toSorted(
         (a: CategoryGroup, b: CategoryGroup): Num => a.label.localeCompare(b.label) as Num,
+      );
+    } else if (sortMode === 'count-asc') {
+      groups = [...groups].toSorted(
+        (a: CategoryGroup, b: CategoryGroup): Num =>
+          (a.components.length - b.components.length) as Num,
+      );
+    } else if (sortMode === 'name-desc') {
+      groups = [...groups].toSorted(
+        (a: CategoryGroup, b: CategoryGroup): Num => b.label.localeCompare(a.label) as Num,
       );
     } else if (sortMode === 'compatibility') {
       groups = [...groups].toSorted((a: CategoryGroup, b: CategoryGroup): Num => {
@@ -522,6 +531,7 @@
               </div>
               {@const viewOpts = [
                 { v: 'grid', l: 'Grid', d: 'Category cards with components' },
+                { v: 'compact', l: 'Dense Grid', d: 'Names and counts only' },
                 { v: 'list', l: 'List', d: 'Compact rows with counts' },
               ]}
               {@const filteredViewOpts = viewSearchQuery
@@ -543,7 +553,7 @@
                   <DropdownMenu.Item
                     closeOnSelect={false}
                     onclick={() => {
-                      viewMode = opt.v as 'grid' | 'list';
+                      viewMode = opt.v as 'grid' | 'compact' | 'list';
                     }}
                   >
                     <Check
@@ -591,6 +601,8 @@
                 { v: 'default', l: 'Default', d: 'Category order' },
                 { v: 'name', l: 'Name', d: 'Alphabetical' },
                 { v: 'count', l: 'Component Count', d: 'Most components first' },
+                { v: 'count-asc', l: 'Fewest Components', d: 'Ascending count' },
+                { v: 'name-desc', l: 'Name (Z\u2013A)', d: 'Reverse alphabetical' },
                 { v: 'compatibility', l: 'Compatibility', d: 'Highest compliance first' },
               ]}
               {@const filteredSortOpts = sortSearchQuery
@@ -866,6 +878,33 @@
                 Add lens.ts metadata files to your components to organize them into categories
               </p>
             </div>
+          </div>
+        {/each}
+      </div>
+    {:else if viewMode === 'compact'}
+      <!-- Compact / dense grid view -->
+      <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+        {#each filteredGroups as group (group.name)}
+          {@const CatIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
+          {@const catColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
+          <a
+            href="/components/category/{group.name}"
+            class="group/compact flex items-center gap-2 rounded-lg border bg-card px-3 py-2.5 transition-all hover:border-primary/30 hover:shadow-sm"
+          >
+            <CatIcon class="size-4 shrink-0 {catColor}" />
+            <span
+              class="min-w-0 flex-1 truncate text-sm font-medium group-hover/compact:text-primary"
+              >{group.label}</span
+            >
+            <span class="text-xs tabular-nums text-muted-foreground">{group.components.length}</span
+            >
+          </a>
+        {:else}
+          <div
+            class="col-span-full flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed bg-card py-12 text-center"
+          >
+            <ComponentIcon class="size-8 text-muted-foreground/20" />
+            <p class="text-sm font-medium text-muted-foreground/60">No categories yet</p>
           </div>
         {/each}
       </div>
