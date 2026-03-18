@@ -1,22 +1,43 @@
 - [Lens]
-    - Icons Page: Skeleton placeholders for icons don't match default size of icons after loaded
-    - What's New Page
-      - Doesn't follow same width/styling/icon in header/etc as overview page
-      - * What suggestions do you have for improvement? Think so I don't have to ask again. Check what every other library does also.
-    - Getting Started Page
-      - Doesn't follow same width/styling/icon in header/etc as overview page
-      - * What suggestions do you have for improvement? Think so I don't have to ask again. Check what every other library does also.
-    - Recent
-      - Non-existent components show up
-    - New Pages?
-      - Browser/Device Support
-      - About
-      - Support
-      - Styling (Themes, etc)
-      - Accessibility
-    - Overview Page
-      - Updates based on new pages
-      - Sort Categories (how should be sorted in sidebar, breadcrumb dropdown?)
+    - Accessibility:
+      - Card Counts way off
+      - Diff view can't scroll, most are empty/broken, most don't have full code fix examples (before/after) with line #'s
+    - Browser Support Page:
+      - Missing Sort By Options For: Engine, Status, (Notes/Role/Description), (Browser/Framework/Feature), (Uses/Files)
+    - Browser Support Page: Cards: Browser version/Framework version has a weird gray background + CSS Features Detected use shorthands like "Chr", "FF"
+
+    - Design Tokens: Compact: Clicking Cards Does Nothing: IT should show a large centerd green checkmark that follows the same pattern used everywhere else
+    - Tags List View: Component count doesn't have the nice tooltip linking to components like elsewhere
+
+    - All Components/"/category/[category]": \u2014
+    - All Components: Categories Tags Tooltips: Should link to component pages
+    - All Components Grid View: Tags should link to tags pages
+    - All Components Grid View: Tags "+x more" should show same tooltips we use elsewhere and link to tags pages
+    - All Components: Table/List Warning Tooltip doesn't work like in Grid View
+    - Accessiblity: Expand/Collapse All "Fail/Warn" Rules - Like sidebar Expand/CollapsE all
+    - "/category/[category] AND All Components Page:
+      - Table view: Show all tags + Link to tag pages
+      - Table view: Description column includes "Component name --"
+      - Table View: "Compat" -> "Compatibility"
+      - Table View/List View: Compat Column Tooltip doesn't work
+      - Table Grid View: Link to "tags" pages
+
+    - Categories: Dense Grid Component Count Tooltip Doesn't Work (Works In Other Views)
+
+    - Categories: Categories Tags Tooltips: Should link to component pages
+    - What's New: Export missing same separation of copy/download like other Export menus have
+    - What's New: Expand/Collapse Timeline/Compact entries not animated
+    - What's New: Compact/List Views: Missing Date Tooltip/Hash Link/GH Link Like Timeline View Has
+
+    - Icons Expanded View Dropdown Export Missing Search+Empty like other Exports
+    - Browser Support Page: Browser Minimums Are Not Clear
+    - Browser Support/Accessibility: Each Section Collapse/Expand (same as Design Tokens) + Menu Options Like Sidebar Has To Expand/Collapse All
+    - Missing Table View: Changelog, Categories, Tags
+    - All Components Table View: Show All Tags (no +x)
+    - Browser Support Page, Accessibility Page, Design Tokens Page, Icons Page, All Components, Category Page:
+      - Same as PropsTable Support For Table Header:
+        - Click to sort asc/desc/normal + full width click
+    - Accessiblity/Browser Support: Push into notifications/sidebar tooltip rules and component pages
     - Lens Compat Tooltip: Replace With Table
     - Component Conversions (@convert-to-lens)
       - Remove exclusions from the lens test file

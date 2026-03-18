@@ -43,6 +43,11 @@
   import ShieldCheck from '@lucide/svelte/icons/shield-check';
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import List from '@lucide/svelte/icons/list';
+  import Monitor from '@lucide/svelte/icons/monitor';
+  import Info from '@lucide/svelte/icons/info';
+  import LifeBuoy from '@lucide/svelte/icons/life-buoy';
+  import PaintbrushIcon from '@lucide/svelte/icons/paintbrush';
+  import AccessibilityIcon from '@lucide/svelte/icons/accessibility';
 
   /* ------------------------------------------------------------------ */
   /*  Glob-based data (mirrors layout pattern)                           */
@@ -319,6 +324,56 @@
       bg: 'bg-orange-500/10' as Str,
       count: activityEntries.length as Num,
       countLabel: 'updates' as Str,
+    },
+    {
+      href: '/browser-support' as Str,
+      title: 'Browser Support' as Str,
+      description: 'Supported browsers, CSS features, and framework compatibility' as Str,
+      icon: Monitor,
+      color: 'text-cyan-600 dark:text-cyan-400' as Str,
+      bg: 'bg-cyan-500/10' as Str,
+      count: 0 as Num,
+      countLabel: '' as Str,
+    },
+    {
+      href: '/styling' as Str,
+      title: 'Styling' as Str,
+      description: 'Theme system, dark mode, colors, typography, and customization' as Str,
+      icon: PaintbrushIcon,
+      color: 'text-fuchsia-600 dark:text-fuchsia-400' as Str,
+      bg: 'bg-fuchsia-500/10' as Str,
+      count: 0 as Num,
+      countLabel: '' as Str,
+    },
+    {
+      href: '/accessibility' as Str,
+      title: 'Accessibility' as Str,
+      description: 'WCAG compliance, keyboard navigation, and screen reader support' as Str,
+      icon: AccessibilityIcon,
+      color: 'text-indigo-600 dark:text-indigo-400' as Str,
+      bg: 'bg-indigo-500/10' as Str,
+      count: 0 as Num,
+      countLabel: '' as Str,
+    },
+    {
+      href: '/about' as Str,
+      title: 'About' as Str,
+      description: 'Project mission, tech stack, and release information' as Str,
+      icon: Info,
+      color: 'text-sky-600 dark:text-sky-400' as Str,
+      bg: 'bg-sky-500/10' as Str,
+      count: 0 as Num,
+      countLabel: '' as Str,
+    },
+    {
+      href: '/support' as Str,
+      title: 'Support' as Str,
+      description: 'Help resources, bug reporting, FAQ, and community' as Str,
+      icon: LifeBuoy,
+      color: 'text-lime-600 dark:text-lime-400' as Str,
+      bg: 'bg-lime-500/10' as Str,
+      count: 0 as Num,
+      countLabel: '' as Str,
     },
   ];
 
