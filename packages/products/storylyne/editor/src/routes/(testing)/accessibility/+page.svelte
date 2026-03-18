@@ -25,6 +25,8 @@
   import SearchX from '@lucide/svelte/icons/search-x';
   import X from '@lucide/svelte/icons/x';
   import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
+  import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
+  import ChevronsDownUp from '@lucide/svelte/icons/chevrons-down-up';
   import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
   import DownloadIcon from '@lucide/svelte/icons/download';
   import Clipboard from '@lucide/svelte/icons/clipboard';
@@ -282,14 +284,19 @@
     (activeCategories.length > 0 || viewMode !== 'table' || sortMode !== 'status') as Bool,
   );
 
-  /** Count of rules with fail status. */
+  /** Total failing component-checks across all applicable rules. */
   const criticalFailures: Num = $derived(
-    auditResult.rules.filter((r: A11yRuleResult) => r.status === 'fail').length as Num,
+    auditResult.rules.reduce(
+      (sum: number, r: A11yRuleResult): number => sum + (r.failCount as number),
+      0,
+    ) as Num,
   );
 
-  /** Count of rules with warning status. */
+  /** Total failing component-checks across rules in warning range (≥80% but not 100%). */
   const warningCount: Num = $derived(
-    auditResult.rules.filter((r: A11yRuleResult) => r.status === 'warning').length as Num,
+    auditResult.rules
+      .filter((r: A11yRuleResult) => r.status === 'warning')
+      .reduce((sum: number, r: A11yRuleResult): number => sum + (r.failCount as number), 0) as Num,
   );
 
   /** Per-category pass stats for Coverage Overview cards. */
@@ -300,8 +307,11 @@
       const std: Str = r.category;
       const existing = categories.get(std) ?? { pass: 0 as Num, total: 0 as Num };
       categories.set(std, {
-        pass: ((existing.pass as number) + (r.status === 'pass' ? 1 : 0)) as Num,
-        total: ((existing.total as number) + 1) as Num,
+        /* Aggregate component-level counts so cards show "287/350 checks pass"
+           rather than "3/8 rules pass" — a rule with 99% coverage was wrongly
+           counted the same as 0% when only rule-level status was used */
+        pass: ((existing.pass as number) + (r.passCount as number)) as Num,
+        total: ((existing.total as number) + (r.totalChecked as number)) as Num,
       });
     }
     return [...categories.entries()].map(([label, { pass, total }]) => ({
@@ -342,6 +352,20 @@
    *
    * @param ruleId - The rule ID to toggle
    */
+  /** Expand all fail/warn rules that have findings. */
+  function expandAll(): void {
+    expandedRules = new Set(
+      auditResult.rules
+        .filter((r: A11yRuleResult) => r.failingFiles.length > 0 || r.fileFindings.length > 0)
+        .map((r: A11yRuleResult): Str => r.id),
+    );
+  }
+
+  /** Collapse all expanded rules. */
+  function collapseAll(): void {
+    expandedRules = new Set();
+  }
+
   function toggleExpanded(ruleId: Str): void {
     const next: Set<Str> = new Set(expandedRules);
     if (next.has(ruleId)) {
@@ -769,6 +793,17 @@
 
           <DropdownMenu.Separator />
 
+          <DropdownMenu.Item onclick={expandAll}>
+            <ChevronsUpDown class="mr-2 size-4" />
+            Expand All Failures
+          </DropdownMenu.Item>
+          <DropdownMenu.Item onclick={collapseAll}>
+            <ChevronsDownUp class="mr-2 size-4" />
+            Collapse All
+          </DropdownMenu.Item>
+
+          <DropdownMenu.Separator />
+
           <!-- Reset to defaults -->
           <DropdownMenu.Item
             variant="destructive"
@@ -1137,14 +1172,14 @@
                             fix: '' as import('@/schemas/common').Str,
                           }))}
                     <tr class="border-b bg-muted/20 last:border-b-0">
-                      <td colspan="6" class="overflow-hidden px-0">
+                      <td colspan="6" class="px-0">
                         <div
                           class="ml-10 flex flex-col gap-2 px-4 py-3"
                           transition:slide={{ duration: 200 }}
                         >
                           <div class="flex max-h-72 flex-col gap-3 overflow-y-auto">
                             {#each displayFindings as finding (finding.file + (finding.found || finding.problem))}
-                              <div class="overflow-hidden rounded-lg border">
+                              <div class="shrink-0 overflow-hidden rounded-lg border">
                                 <!-- File header (GitHub style) -->
                                 <div
                                   class="flex items-center gap-2 border-b bg-muted/50 px-3 py-1.5"
