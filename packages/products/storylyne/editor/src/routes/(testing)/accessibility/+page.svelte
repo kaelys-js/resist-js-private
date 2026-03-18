@@ -378,10 +378,12 @@
     if (!sortField) return '' as Str;
     const names: Record<string, string> = {
       name: 'Name',
+      standard: 'Standard',
       status: 'Status',
       coverage: 'Coverage',
       wcag: 'WCAG',
       category: 'Category',
+      evidence: 'Evidence',
       'failing-files': 'Failures',
     };
     const arrow: Str = (sortDir === 'asc' ? '\u2191' : '\u2193') as Str;
@@ -417,6 +419,8 @@
     if (field === 'coverage') return (a.passRate as number) - (b.passRate as number);
     if (field === 'wcag') return a.wcag.localeCompare(b.wcag, undefined, { numeric: true });
     if (field === 'category') return a.category.localeCompare(b.category);
+    if (field === 'standard') return a.standard.localeCompare(b.standard);
+    if (field === 'evidence') return a.evidence.localeCompare(b.evidence);
     if (field === 'failing-files') return (a.failCount as number) - (b.failCount as number);
     return 0;
   }
@@ -906,13 +910,11 @@
                     }}
                   >
                     {#if sortField === opt.v && sortDir === 'asc'}
-                      <ArrowUp class="size-4 shrink-0 text-primary" />
+                      <ArrowUp class="mr-1 size-4 shrink-0 text-primary" />
                     {:else if sortField === opt.v && sortDir === 'desc'}
-                      <ArrowDown class="size-4 shrink-0 text-primary" />
+                      <ArrowDown class="mr-1 size-4 shrink-0 text-primary" />
                     {:else}
-                      <ArrowUpDown
-                        class="size-4 shrink-0 opacity-0 transition-opacity duration-150 group-hover:opacity-40"
-                      />
+                      <ArrowUpDown class="mr-1 size-4 shrink-0 opacity-30" />
                     {/if}
                     <div class="flex min-w-0 flex-1 flex-col">
                       <span class="text-sm">{opt.l}</span>
@@ -1220,13 +1222,163 @@
               <div class="rounded-lg border bg-card">
                 <table class="w-full text-sm">
                   <thead>
-                    <tr class="border-b text-left text-xs text-muted-foreground">
-                      <th class="px-4 py-2.5">Rule</th>
-                      <th class="w-32 px-4 py-2.5">Standard</th>
-                      <th class="w-28 px-4 py-2.5">Category</th>
-                      <th class="w-24 px-4 py-2.5">Status</th>
-                      <th class="w-24 px-4 py-2.5">Pass Rate</th>
-                      <th class="px-4 py-2.5">Evidence</th>
+                    <tr class="border-b bg-muted/50">
+                      <th class="p-0 text-left font-medium text-muted-foreground">
+                        <button
+                          type="button"
+                          class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                          onclick={() => {
+                            if (sortField === 'name' && sortDir === 'asc') {
+                              sortDir = 'desc';
+                            } else if (sortField === 'name' && sortDir === 'desc') {
+                              sortField = '' as Str;
+                              sortDir = 'asc';
+                            } else {
+                              sortField = 'name' as Str;
+                              sortDir = 'asc';
+                            }
+                          }}
+                        >
+                          Rule
+                          {#if sortField === 'name' && sortDir === 'asc'}
+                            <ArrowUp class="size-3 text-primary" />
+                          {:else if sortField === 'name' && sortDir === 'desc'}
+                            <ArrowDown class="size-3 text-primary" />
+                          {:else}
+                            <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                          {/if}
+                        </button>
+                      </th>
+                      <th class="p-0 text-left font-medium text-muted-foreground">
+                        <button
+                          type="button"
+                          class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                          onclick={() => {
+                            if (sortField === 'standard' && sortDir === 'asc') {
+                              sortDir = 'desc';
+                            } else if (sortField === 'standard' && sortDir === 'desc') {
+                              sortField = '' as Str;
+                              sortDir = 'asc';
+                            } else {
+                              sortField = 'standard' as Str;
+                              sortDir = 'asc';
+                            }
+                          }}
+                        >
+                          Standard
+                          {#if sortField === 'standard' && sortDir === 'asc'}
+                            <ArrowUp class="size-3 text-primary" />
+                          {:else if sortField === 'standard' && sortDir === 'desc'}
+                            <ArrowDown class="size-3 text-primary" />
+                          {:else}
+                            <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                          {/if}
+                        </button>
+                      </th>
+                      <th class="p-0 text-left font-medium text-muted-foreground">
+                        <button
+                          type="button"
+                          class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                          onclick={() => {
+                            if (sortField === 'category' && sortDir === 'asc') {
+                              sortDir = 'desc';
+                            } else if (sortField === 'category' && sortDir === 'desc') {
+                              sortField = '' as Str;
+                              sortDir = 'asc';
+                            } else {
+                              sortField = 'category' as Str;
+                              sortDir = 'asc';
+                            }
+                          }}
+                        >
+                          Category
+                          {#if sortField === 'category' && sortDir === 'asc'}
+                            <ArrowUp class="size-3 text-primary" />
+                          {:else if sortField === 'category' && sortDir === 'desc'}
+                            <ArrowDown class="size-3 text-primary" />
+                          {:else}
+                            <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                          {/if}
+                        </button>
+                      </th>
+                      <th class="p-0 text-left font-medium text-muted-foreground">
+                        <button
+                          type="button"
+                          class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                          onclick={() => {
+                            if (sortField === 'status' && sortDir === 'asc') {
+                              sortDir = 'desc';
+                            } else if (sortField === 'status' && sortDir === 'desc') {
+                              sortField = '' as Str;
+                              sortDir = 'asc';
+                            } else {
+                              sortField = 'status' as Str;
+                              sortDir = 'asc';
+                            }
+                          }}
+                        >
+                          Status
+                          {#if sortField === 'status' && sortDir === 'asc'}
+                            <ArrowUp class="size-3 text-primary" />
+                          {:else if sortField === 'status' && sortDir === 'desc'}
+                            <ArrowDown class="size-3 text-primary" />
+                          {:else}
+                            <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                          {/if}
+                        </button>
+                      </th>
+                      <th class="p-0 text-left font-medium text-muted-foreground">
+                        <button
+                          type="button"
+                          class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                          onclick={() => {
+                            if (sortField === 'coverage' && sortDir === 'asc') {
+                              sortDir = 'desc';
+                            } else if (sortField === 'coverage' && sortDir === 'desc') {
+                              sortField = '' as Str;
+                              sortDir = 'asc';
+                            } else {
+                              sortField = 'coverage' as Str;
+                              sortDir = 'asc';
+                            }
+                          }}
+                        >
+                          Pass Rate
+                          {#if sortField === 'coverage' && sortDir === 'asc'}
+                            <ArrowUp class="size-3 text-primary" />
+                          {:else if sortField === 'coverage' && sortDir === 'desc'}
+                            <ArrowDown class="size-3 text-primary" />
+                          {:else}
+                            <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                          {/if}
+                        </button>
+                      </th>
+                      <th class="p-0 text-left font-medium text-muted-foreground">
+                        <button
+                          type="button"
+                          class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                          onclick={() => {
+                            if (sortField === 'evidence' && sortDir === 'asc') {
+                              sortDir = 'desc';
+                            } else if (sortField === 'evidence' && sortDir === 'desc') {
+                              sortField = '' as Str;
+                              sortDir = 'asc';
+                            } else {
+                              sortField = 'evidence' as Str;
+                              sortDir = 'asc';
+                            }
+                          }}
+                        >
+                          Evidence
+                          {#if sortField === 'evidence' && sortDir === 'asc'}
+                            <ArrowUp class="size-3 text-primary" />
+                          {:else if sortField === 'evidence' && sortDir === 'desc'}
+                            <ArrowDown class="size-3 text-primary" />
+                          {:else}
+                            <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                          {/if}
+                        </button>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1237,7 +1389,7 @@
                           rule.failingFiles.length > 0 || rule.fileFindings.length > 0
                             ? 'cursor-pointer'
                             : '',
-                          expandedRules.has(rule.id) ? 'bg-muted/30' : 'hover:bg-muted/50',
+                          expandedRules.has(rule.id) ? 'bg-muted/30' : 'hover:bg-muted/40',
                         )}
                         onclick={() => {
                           if (rule.failingFiles.length > 0 || rule.fileFindings.length > 0)

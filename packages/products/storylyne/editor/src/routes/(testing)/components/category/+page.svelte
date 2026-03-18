@@ -147,9 +147,10 @@
 
   /** Human-readable label for the active sort, or empty when default. */
   const sortLabel: Str = $derived.by((): Str => {
-    if (sortField === 'name') return 'Name' as Str;
-    if (sortField === 'count') return 'Count' as Str;
-    if (sortField === 'compatibility') return 'Compat' as Str;
+    if (sortField === 'name') return 'Category' as Str;
+    if (sortField === 'count') return 'Components' as Str;
+    if (sortField === 'description') return 'Description' as Str;
+    if (sortField === 'components') return 'Sample Components' as Str;
     return '' as Str;
   });
 
@@ -190,14 +191,13 @@
     if (sortField === 'count') {
       return (a.components.length - b.components.length) as Num;
     }
-    if (sortField === 'compatibility') {
-      const aCompat: Num = (a.components.filter(
-        (n: Str): boolean => compatByName.get(n)?.compatible === true,
-      ).length / Math.max(1, a.components.length)) as Num;
-      const bCompat: Num = (b.components.filter(
-        (n: Str): boolean => compatByName.get(n)?.compatible === true,
-      ).length / Math.max(1, b.components.length)) as Num;
-      return (aCompat - bCompat) as Num;
+    if (sortField === 'description') {
+      return (CATEGORY_DESCRIPTIONS[a.name] ?? '').localeCompare(
+        CATEGORY_DESCRIPTIONS[b.name] ?? '',
+      ) as Num;
+    }
+    if (sortField === 'components') {
+      return (a.components.length - b.components.length) as Num;
     }
     return 0 as Num;
   }
@@ -631,9 +631,10 @@
                 </div>
               </div>
               {@const sortOpts = [
-                { v: 'name', l: 'Name', d: 'Alphabetical' },
-                { v: 'count', l: 'Component Count', d: 'By count' },
-                { v: 'compatibility', l: 'Compatibility', d: 'By compliance' },
+                { v: 'name', l: 'Category', d: 'Alphabetical' },
+                { v: 'count', l: 'Components', d: 'By component count' },
+                { v: 'description', l: 'Description', d: 'By description' },
+                { v: 'components', l: 'Sample Components', d: 'By component count' },
               ]}
               {@const filteredSortOpts = sortSearchQuery
                 ? sortOpts.filter(
@@ -652,6 +653,7 @@
               {:else}
                 {#each filteredSortOpts as opt (opt.v)}
                   <DropdownMenu.Item
+                    class="group"
                     closeOnSelect={false}
                     onclick={() => {
                       if (sortField === opt.v) {
@@ -668,11 +670,11 @@
                     }}
                   >
                     {#if sortField === opt.v && sortDir === 'asc'}
-                      <ArrowUp class="size-4 shrink-0" />
+                      <ArrowUp class="mr-1 size-4 shrink-0 text-primary" />
                     {:else if sortField === opt.v && sortDir === 'desc'}
-                      <ArrowDown class="size-4 shrink-0" />
+                      <ArrowDown class="mr-1 size-4 shrink-0 text-primary" />
                     {:else}
-                      <ArrowUpDown class="size-4 shrink-0 opacity-30" />
+                      <ArrowUpDown class="mr-1 size-4 shrink-0 opacity-30" />
                     {/if}
                     <div class="flex min-w-0 flex-1 flex-col">
                       <span class="text-sm">{opt.l}</span>
@@ -929,13 +931,113 @@
     {:else if viewMode === 'table'}
       <!-- Table view -->
       <div class="rounded-lg border bg-card">
-        <table class="w-full table-fixed text-sm">
+        <table class="w-full text-sm">
           <thead>
-            <tr class="border-b text-left text-xs text-muted-foreground">
-              <th class="px-4 py-2">Category</th>
-              <th class="w-28 px-4 py-2">Components</th>
-              <th class="px-4 py-2">Description</th>
-              <th class="px-4 py-2">Sample Components</th>
+            <tr class="border-b bg-muted/50">
+              <th class="p-0 text-left font-medium text-muted-foreground">
+                <button
+                  type="button"
+                  class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                  onclick={() => {
+                    if (sortField === 'name' && sortDir === 'asc') {
+                      sortDir = 'desc';
+                    } else if (sortField === 'name' && sortDir === 'desc') {
+                      sortField = '' as Str;
+                      sortDir = 'asc';
+                    } else {
+                      sortField = 'name' as Str;
+                      sortDir = 'asc';
+                    }
+                  }}
+                >
+                  Category
+                  {#if sortField === 'name' && sortDir === 'asc'}
+                    <ArrowUp class="size-3 text-primary" />
+                  {:else if sortField === 'name' && sortDir === 'desc'}
+                    <ArrowDown class="size-3 text-primary" />
+                  {:else}
+                    <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                  {/if}
+                </button>
+              </th>
+              <th class="p-0 text-left font-medium text-muted-foreground">
+                <button
+                  type="button"
+                  class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                  onclick={() => {
+                    if (sortField === 'count' && sortDir === 'asc') {
+                      sortDir = 'desc';
+                    } else if (sortField === 'count' && sortDir === 'desc') {
+                      sortField = '' as Str;
+                      sortDir = 'asc';
+                    } else {
+                      sortField = 'count' as Str;
+                      sortDir = 'asc';
+                    }
+                  }}
+                >
+                  Components
+                  {#if sortField === 'count' && sortDir === 'asc'}
+                    <ArrowUp class="size-3 text-primary" />
+                  {:else if sortField === 'count' && sortDir === 'desc'}
+                    <ArrowDown class="size-3 text-primary" />
+                  {:else}
+                    <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                  {/if}
+                </button>
+              </th>
+              <th class="p-0 text-left font-medium text-muted-foreground">
+                <button
+                  type="button"
+                  class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                  onclick={() => {
+                    if (sortField === 'description' && sortDir === 'asc') {
+                      sortDir = 'desc';
+                    } else if (sortField === 'description' && sortDir === 'desc') {
+                      sortField = '' as Str;
+                      sortDir = 'asc';
+                    } else {
+                      sortField = 'description' as Str;
+                      sortDir = 'asc';
+                    }
+                  }}
+                >
+                  Description
+                  {#if sortField === 'description' && sortDir === 'asc'}
+                    <ArrowUp class="size-3 text-primary" />
+                  {:else if sortField === 'description' && sortDir === 'desc'}
+                    <ArrowDown class="size-3 text-primary" />
+                  {:else}
+                    <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                  {/if}
+                </button>
+              </th>
+              <th class="p-0 text-left font-medium text-muted-foreground">
+                <button
+                  type="button"
+                  class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                  onclick={() => {
+                    if (sortField === 'components' && sortDir === 'asc') {
+                      sortDir = 'desc';
+                    } else if (sortField === 'components' && sortDir === 'desc') {
+                      sortField = '' as Str;
+                      sortDir = 'asc';
+                    } else {
+                      sortField = 'components' as Str;
+                      sortDir = 'asc';
+                    }
+                  }}
+                >
+                  Sample Components
+                  {#if sortField === 'components' && sortDir === 'asc'}
+                    <ArrowUp class="size-3 text-primary" />
+                  {:else if sortField === 'components' && sortDir === 'desc'}
+                    <ArrowDown class="size-3 text-primary" />
+                  {:else}
+                    <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                  {/if}
+                </button>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -943,7 +1045,7 @@
               {@const CatIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
               {@const catColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
               {@const catDesc = CATEGORY_DESCRIPTIONS[group.name] ?? ('' as Str)}
-              <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/50">
+              <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/40">
                 <td class="px-4 py-2.5">
                   <a
                     href="/components/category/{group.name}"

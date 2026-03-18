@@ -368,6 +368,10 @@
     if (!sortField) return '' as Str;
     const names: Record<string, string> = {
       date: 'Date',
+      type: 'Type',
+      message: 'Message',
+      components: 'Components',
+      hash: 'Hash',
     };
     const arrow: Str = (sortDir === 'asc' ? '\u2191' : '\u2193') as Str;
     return `${names[sortField] ?? sortField} ${arrow}` as Str;
@@ -787,7 +791,13 @@
                   />
                 </div>
               </div>
-              {@const sortOpts = [{ v: 'date', l: 'Date', d: 'Oldest or newest first' }]}
+              {@const sortOpts = [
+                { v: 'date', l: 'Date', d: 'Oldest or newest first' },
+                { v: 'type', l: 'Type', d: 'By change type' },
+                { v: 'message', l: 'Message', d: 'Alphabetical by message' },
+                { v: 'components', l: 'Components', d: 'By component count' },
+                { v: 'hash', l: 'Hash', d: 'By commit hash' },
+              ]}
               {@const filteredSortOpts = sortSearch
                 ? sortOpts.filter(
                     (o) =>
@@ -805,6 +815,7 @@
               {:else}
                 {#each filteredSortOpts as opt (opt.v)}
                   <DropdownMenu.Item
+                    class="group"
                     closeOnSelect={false}
                     onclick={() => {
                       if (sortField === opt.v) {
@@ -821,13 +832,11 @@
                     }}
                   >
                     {#if sortField === opt.v && sortDir === 'asc'}
-                      <ArrowUp class="size-4 shrink-0 text-primary" />
+                      <ArrowUp class="mr-1 size-4 shrink-0 text-primary" />
                     {:else if sortField === opt.v && sortDir === 'desc'}
-                      <ArrowDown class="size-4 shrink-0 text-primary" />
+                      <ArrowDown class="mr-1 size-4 shrink-0 text-primary" />
                     {:else}
-                      <ArrowUpDown
-                        class="size-4 shrink-0 opacity-0 transition-opacity duration-150 group-hover:opacity-40"
-                      />
+                      <ArrowUpDown class="mr-1 size-4 shrink-0 opacity-30" />
                     {/if}
                     <div class="flex min-w-0 flex-1 flex-col">
                       <span class="text-sm">{opt.l}</span>
@@ -1146,14 +1155,139 @@
     {:else if viewMode === 'table'}
       <!-- Table view -->
       <div class="rounded-lg border bg-card">
-        <table class="w-full table-fixed text-sm">
+        <table class="w-full text-sm">
           <thead>
-            <tr class="border-b text-left text-xs text-muted-foreground">
-              <th class="w-28 px-4 py-2">Date</th>
-              <th class="w-20 px-4 py-2">Type</th>
-              <th class="px-4 py-2">Message</th>
-              <th class="w-40 px-4 py-2">Components</th>
-              <th class="w-20 px-4 py-2">Hash</th>
+            <tr class="border-b bg-muted/50">
+              <th class="p-0 text-left font-medium text-muted-foreground">
+                <button
+                  type="button"
+                  class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                  onclick={() => {
+                    if (sortField === 'date' && sortDir === 'asc') {
+                      sortDir = 'desc';
+                    } else if (sortField === 'date' && sortDir === 'desc') {
+                      sortField = '' as Str;
+                      sortDir = 'asc';
+                    } else {
+                      sortField = 'date' as Str;
+                      sortDir = 'asc';
+                    }
+                  }}
+                >
+                  Date
+                  {#if sortField === 'date' && sortDir === 'asc'}
+                    <ArrowUp class="size-3 text-primary" />
+                  {:else if sortField === 'date' && sortDir === 'desc'}
+                    <ArrowDown class="size-3 text-primary" />
+                  {:else}
+                    <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                  {/if}
+                </button>
+              </th>
+              <th class="p-0 text-left font-medium text-muted-foreground">
+                <button
+                  type="button"
+                  class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                  onclick={() => {
+                    if (sortField === 'type' && sortDir === 'asc') {
+                      sortDir = 'desc';
+                    } else if (sortField === 'type' && sortDir === 'desc') {
+                      sortField = '' as Str;
+                      sortDir = 'asc';
+                    } else {
+                      sortField = 'type' as Str;
+                      sortDir = 'asc';
+                    }
+                  }}
+                >
+                  Type
+                  {#if sortField === 'type' && sortDir === 'asc'}
+                    <ArrowUp class="size-3 text-primary" />
+                  {:else if sortField === 'type' && sortDir === 'desc'}
+                    <ArrowDown class="size-3 text-primary" />
+                  {:else}
+                    <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                  {/if}
+                </button>
+              </th>
+              <th class="p-0 text-left font-medium text-muted-foreground">
+                <button
+                  type="button"
+                  class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                  onclick={() => {
+                    if (sortField === 'message' && sortDir === 'asc') {
+                      sortDir = 'desc';
+                    } else if (sortField === 'message' && sortDir === 'desc') {
+                      sortField = '' as Str;
+                      sortDir = 'asc';
+                    } else {
+                      sortField = 'message' as Str;
+                      sortDir = 'asc';
+                    }
+                  }}
+                >
+                  Message
+                  {#if sortField === 'message' && sortDir === 'asc'}
+                    <ArrowUp class="size-3 text-primary" />
+                  {:else if sortField === 'message' && sortDir === 'desc'}
+                    <ArrowDown class="size-3 text-primary" />
+                  {:else}
+                    <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                  {/if}
+                </button>
+              </th>
+              <th class="p-0 text-left font-medium text-muted-foreground">
+                <button
+                  type="button"
+                  class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                  onclick={() => {
+                    if (sortField === 'components' && sortDir === 'asc') {
+                      sortDir = 'desc';
+                    } else if (sortField === 'components' && sortDir === 'desc') {
+                      sortField = '' as Str;
+                      sortDir = 'asc';
+                    } else {
+                      sortField = 'components' as Str;
+                      sortDir = 'asc';
+                    }
+                  }}
+                >
+                  Components
+                  {#if sortField === 'components' && sortDir === 'asc'}
+                    <ArrowUp class="size-3 text-primary" />
+                  {:else if sortField === 'components' && sortDir === 'desc'}
+                    <ArrowDown class="size-3 text-primary" />
+                  {:else}
+                    <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                  {/if}
+                </button>
+              </th>
+              <th class="p-0 text-left font-medium text-muted-foreground">
+                <button
+                  type="button"
+                  class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                  onclick={() => {
+                    if (sortField === 'hash' && sortDir === 'asc') {
+                      sortDir = 'desc';
+                    } else if (sortField === 'hash' && sortDir === 'desc') {
+                      sortField = '' as Str;
+                      sortDir = 'asc';
+                    } else {
+                      sortField = 'hash' as Str;
+                      sortDir = 'asc';
+                    }
+                  }}
+                >
+                  Hash
+                  {#if sortField === 'hash' && sortDir === 'asc'}
+                    <ArrowUp class="size-3 text-primary" />
+                  {:else if sortField === 'hash' && sortDir === 'desc'}
+                    <ArrowDown class="size-3 text-primary" />
+                  {:else}
+                    <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                  {/if}
+                </button>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -1162,7 +1296,7 @@
                 {@const entryType = detectEntryType(entry.message as Str, entry.isNew)}
                 {@const typeConfig = ENTRY_TYPE_CONFIG[entryType]}
                 {@const TypeIcon = typeConfig.icon}
-                <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/50">
+                <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/40">
                   <td class="px-4 py-2.5">
                     <span class="text-xs tabular-nums text-muted-foreground"
                       >{formatGroupDate(group.date)}</span

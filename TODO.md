@@ -1,9 +1,6 @@
 - [Lens]
-    - Browser Support Page, Accessibility Page, Design Tokens Page, Icons Page, All Components, Category Page:
-      - Same as PropsTable Support For Table Header:
-        - Click to sort asc/desc/normal + full width click on header to sort
-    - Accessiblity/Browser Support: Push into notifications/sidebar tooltip rules and component pages
     - Lens Compat Tooltip: Replace With Table
+      - Accessiblity/Browser Support: Push into notifications/sidebar tooltip rules and component pages
     - Connect to local project components
     - "Blocks/Stories"
     - Component Conversions (@convert-to-lens)
