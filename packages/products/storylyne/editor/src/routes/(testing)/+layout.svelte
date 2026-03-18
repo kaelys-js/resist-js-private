@@ -1201,6 +1201,22 @@
     Object.fromEntries(CATEGORY_ORDER.map((cat: Str): [Str, boolean] => [cat, false])),
   );
 
+  /** Whether every sidebar section is currently expanded. */
+  const sidebarAllExpanded: boolean = $derived(
+    sidebarComponentsOpen &&
+      sidebarPinnedOpen &&
+      sidebarRecentOpen &&
+      Object.values(sidebarCategoryOpen).every((v) => v === true),
+  );
+
+  /** Whether every sidebar section is currently collapsed. */
+  const sidebarAllCollapsed: boolean = $derived(
+    !sidebarComponentsOpen &&
+      !sidebarPinnedOpen &&
+      !sidebarRecentOpen &&
+      Object.values(sidebarCategoryOpen).every((v) => v === false),
+  );
+
   /**
    * Expand all sidebar collapsible sections.
    */
@@ -1852,11 +1868,11 @@
                 </DropdownMenu.SubContent>
               </DropdownMenu.Sub>
               <DropdownMenu.Separator />
-              <DropdownMenu.Item onclick={expandAllSidebar}>
+              <DropdownMenu.Item onclick={expandAllSidebar} disabled={sidebarAllExpanded}>
                 <ChevronsUpDown class="mr-2 size-4" />
                 Expand All
               </DropdownMenu.Item>
-              <DropdownMenu.Item onclick={collapseAllSidebar}>
+              <DropdownMenu.Item onclick={collapseAllSidebar} disabled={sidebarAllCollapsed}>
                 <ChevronsDownUp class="mr-2 size-4" />
                 Collapse All
               </DropdownMenu.Item>

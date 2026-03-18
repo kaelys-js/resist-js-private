@@ -29,6 +29,10 @@
   import FileText from '@lucide/svelte/icons/file-text';
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
+  import ArrowUp from '@lucide/svelte/icons/arrow-up';
+  import ArrowDown from '@lucide/svelte/icons/arrow-down';
+  import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
+  import ChevronsDownUp from '@lucide/svelte/icons/chevrons-down-up';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
   import Tag from '@lucide/svelte/icons/tag';
 
@@ -364,8 +368,11 @@
   /** View mode for display. */
   let viewMode: 'sections' | 'cards' | 'compact' = $state('sections');
 
-  /** Sort mode for sections. */
-  let sortMode: Str = $state('default' as Str);
+  /** Active sort field (empty string = default/no sort). */
+  let sortField: Str = $state('' as Str);
+
+  /** Sort direction: 'asc' | 'desc'. Only meaningful when sortField is set. */
+  let sortDir: 'asc' | 'desc' = $state('asc');
 
   /** Search query inside the View Mode submenu. */
   let viewSearchQuery: Str = $state('' as Str);
@@ -378,6 +385,16 @@
 
   /** Timer ID for reset confirm auto-dismiss. */
   let confirmResetTimer: ReturnType<typeof setTimeout> | undefined;
+
+  /** Whether every section is currently expanded. */
+  const allSectionsExpanded: Bool = $derived(
+    Object.values(sectionOpen).every((v) => v === true) as Bool,
+  );
+
+  /** Whether every section is currently collapsed. */
+  const allSectionsCollapsed: Bool = $derived(
+    Object.values(sectionOpen).every((v) => v === false) as Bool,
+  );
 
   /* ------------------------------------------------------------------ */
   /*  Derived                                                           */
@@ -411,15 +428,14 @@
     }
 
     /* Sort */
-    if (sortMode === 'name-asc') {
+    if (sortField) {
+      const mul: Num = (sortDir === 'desc' ? -1 : 1) as Num;
       result = [...result].toSorted(
-        (a: StylingSection, b: StylingSection): Num => a.title.localeCompare(b.title) as Num,
-      );
-    } else if (sortMode === 'name-desc') {
-      result = [...result].toSorted(
-        (a: StylingSection, b: StylingSection): Num => b.title.localeCompare(a.title) as Num,
+        (a: StylingSection, b: StylingSection): Num =>
+          ((mul as number) * a.title.localeCompare(b.title)) as Num,
       );
     }
+    /* Empty sortField keeps original array order */
 
     return result;
   });
@@ -429,8 +445,25 @@
 
   /** Whether any customization is active (for the reset button). */
   const isCustomized: Bool = $derived(
-    (activeCategories.length > 0 || viewMode !== 'sections' || sortMode !== 'default') as Bool,
+    (activeCategories.length > 0 ||
+      viewMode !== 'sections' ||
+      sortField !== '' ||
+      !allSectionsExpanded) as Bool,
   );
+
+  /** Current view mode display label. */
+  const viewModeLabel: Str = $derived.by((): Str => {
+    if (viewMode === 'sections') return 'Sections' as Str;
+    if (viewMode === 'cards') return 'Cards' as Str;
+    return 'Compact' as Str;
+  });
+
+  /** Current sort display label (field + direction arrow, or empty if default). */
+  const sortLabel: Str = $derived.by((): Str => {
+    if (!sortField) return '' as Str;
+    const arrow: Str = (sortDir === 'asc' ? '\u2191' : '\u2193') as Str;
+    return `Name ${arrow}` as Str;
+  });
 
   /** Dynamic subtitle text. */
   const headerSubtitle: Str = $derived.by((): Str => {
@@ -475,7 +508,23 @@
     activeCategories = [];
     searchQuery = '' as Str;
     viewMode = 'sections';
-    sortMode = 'default' as Str;
+    sortField = '' as Str;
+    sortDir = 'asc';
+    expandAllSections();
+  }
+
+  /** Expand all collapsible sections. */
+  function expandAllSections(): void {
+    for (const key of Object.keys(sectionOpen)) {
+      sectionOpen[key as Str] = true as Bool;
+    }
+  }
+
+  /** Collapse all collapsible sections. */
+  function collapseAllSections(): void {
+    for (const key of Object.keys(sectionOpen)) {
+      sectionOpen[key as Str] = false as Bool;
+    }
   }
 
   /**
@@ -720,6 +769,9 @@
             <DropdownMenu.SubTrigger>
               <LayoutGrid class="mr-2 size-4" />
               View Mode
+              <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                >{viewModeLabel}</span
+              >
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -788,6 +840,11 @@
             <DropdownMenu.SubTrigger>
               <ArrowUpDown class="mr-2 size-4" />
               Sort By
+              {#if sortLabel}
+                <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                  >{sortLabel}</span
+                >
+              {/if}
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -804,11 +861,7 @@
                   />
                 </div>
               </div>
-              {@const sortOpts = [
-                { v: 'default', l: 'Default', d: 'As defined in data' },
-                { v: 'name-asc', l: 'Name (A\u2013Z)', d: 'Alphabetical' },
-                { v: 'name-desc', l: 'Name (Z\u2013A)', d: 'Reverse alphabetical' },
-              ]}
+              {@const sortOpts = [{ v: 'name', l: 'Name', d: 'Alphabetical by title' }]}
               {@const filteredSortOpts = sortSearchQuery
                 ? sortOpts.filter(
                     (o) =>
@@ -828,15 +881,28 @@
                   <DropdownMenu.Item
                     closeOnSelect={false}
                     onclick={() => {
-                      sortMode = opt.v as Str;
+                      if (sortField === opt.v) {
+                        if (sortDir === 'asc') {
+                          sortDir = 'desc';
+                        } else {
+                          sortField = '' as Str;
+                          sortDir = 'asc';
+                        }
+                      } else {
+                        sortField = opt.v as Str;
+                        sortDir = 'asc';
+                      }
                     }}
                   >
-                    <Check
-                      class={cn(
-                        'size-4 shrink-0 transition-opacity duration-150',
-                        sortMode !== opt.v && 'opacity-0',
-                      )}
-                    />
+                    {#if sortField === opt.v && sortDir === 'asc'}
+                      <ArrowUp class="size-4 shrink-0 text-primary" />
+                    {:else if sortField === opt.v && sortDir === 'desc'}
+                      <ArrowDown class="size-4 shrink-0 text-primary" />
+                    {:else}
+                      <ArrowUpDown
+                        class="size-4 shrink-0 opacity-0 transition-opacity duration-150 group-hover:opacity-40"
+                      />
+                    {/if}
                     <div class="flex min-w-0 flex-1 flex-col">
                       <span class="text-sm">{opt.l}</span>
                       <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
@@ -846,6 +912,18 @@
               {/if}
             </DropdownMenu.SubContent>
           </DropdownMenu.Sub>
+
+          <DropdownMenu.Separator />
+
+          <!-- Expand / Collapse All -->
+          <DropdownMenu.Item onclick={expandAllSections} disabled={allSectionsExpanded}>
+            <ChevronsUpDown class="mr-2 size-4" />
+            Expand All
+          </DropdownMenu.Item>
+          <DropdownMenu.Item onclick={collapseAllSections} disabled={allSectionsCollapsed}>
+            <ChevronsDownUp class="mr-2 size-4" />
+            Collapse All
+          </DropdownMenu.Item>
 
           <DropdownMenu.Separator />
 

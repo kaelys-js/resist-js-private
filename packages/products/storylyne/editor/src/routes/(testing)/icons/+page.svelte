@@ -537,6 +537,9 @@
   /** Feedback state for detail panel copy dropdown — tracks which format was just copied. */
   let detailCopyFeedback: Str = $state('' as Str);
 
+  /** Search query for the detail export dropdown. */
+  let detailExportSearch: Str = $state('' as Str);
+
   /** Feedback state for page-level export menu. */
   let pageExportFeedback: Str = $state('' as Str);
 
@@ -1530,6 +1533,9 @@
             <DropdownMenu.SubTrigger>
               <LayoutGrid class="mr-2 size-4" />
               Grid Density
+              <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                >{gridDensity}</span
+              >
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -1598,6 +1604,9 @@
             <DropdownMenu.SubTrigger>
               <Paintbrush class="mr-2 size-4" />
               Color Mode
+              <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                >{previewBg}</span
+              >
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -1739,6 +1748,9 @@
             <DropdownMenu.SubTrigger>
               <SlidersHorizontal class="mr-2 size-4" />
               Icon Style
+              <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                >{previewSize}px / {Number(strokeWidth).toFixed(1)}</span
+              >
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-64">
               <div class="flex flex-col gap-3 px-2 py-1.5">
@@ -1997,7 +2009,11 @@
 
               <div class="flex items-center gap-1">
                 <!-- Copy as... dropdown -->
-                <DropdownMenu.Root>
+                <DropdownMenu.Root
+                  onOpenChange={(open) => {
+                    if (open) detailExportSearch = '' as Str;
+                  }}
+                >
                   <Tooltip.Provider>
                     <Tooltip.Root delayDuration={300}>
                       <Tooltip.Trigger>
@@ -2021,110 +2037,163 @@
                     </Tooltip.Root>
                   </Tooltip.Provider>
                   <DropdownMenu.Content align="end" class="w-72">
-                    <DropdownMenu.Label
-                      class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
-                    >
-                      <Clipboard class="size-3" />
-                      Clipboard
-                    </DropdownMenu.Label>
-                    <DropdownMenu.Item
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        handleDetailCopy('svg' as Str, selectedSvgMarkup);
-                      }}
-                    >
-                      {#if detailCopyFeedback === 'svg'}
-                        <span in:fade={{ duration: 150 }}
-                          ><Check class="mr-2 size-4 text-green-500" /></span
-                        >
-                      {:else}
-                        <Code class="mr-2 size-4" />
-                      {/if}
-                      <div class="flex min-w-0 flex-1 flex-col">
-                        <span class="text-sm">Copy SVG</span>
-                        <span class="text-[11px] text-muted-foreground/60">Raw SVG markup</span>
-                      </div>
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        handleDetailCopy('svelte' as Str, importSvelte);
-                      }}
-                    >
-                      {#if detailCopyFeedback === 'svelte'}
-                        <span in:fade={{ duration: 150 }}
-                          ><Check class="mr-2 size-4 text-green-500" /></span
-                        >
-                      {:else}
-                        <FileCode class="mr-2 size-4" />
-                      {/if}
-                      <div class="flex min-w-0 flex-1 flex-col">
-                        <span class="text-sm">Copy Svelte Import</span>
-                        <span class="font-mono text-[11px] text-muted-foreground/60"
-                          >{importSvelte}</span
-                        >
-                      </div>
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        handleDetailCopy('usage' as Str, usageExample);
-                      }}
-                    >
-                      {#if detailCopyFeedback === 'usage'}
-                        <span in:fade={{ duration: 150 }}
-                          ><Check class="mr-2 size-4 text-green-500" /></span
-                        >
-                      {:else}
-                        <Code class="mr-2 size-4" />
-                      {/if}
-                      <div class="flex min-w-0 flex-1 flex-col">
-                        <span class="text-sm">Copy Usage</span>
-                        <span class="font-mono text-[11px] text-muted-foreground/60"
-                          >{usageExample}</span
-                        >
-                      </div>
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        handleDetailCopy('html' as Str, usageCss);
-                      }}
-                    >
-                      {#if detailCopyFeedback === 'html'}
-                        <span in:fade={{ duration: 150 }}
-                          ><Check class="mr-2 size-4 text-green-500" /></span
-                        >
-                      {:else}
-                        <Hash class="mr-2 size-4" />
-                      {/if}
-                      <div class="flex min-w-0 flex-1 flex-col">
-                        <span class="text-sm">Copy HTML</span>
-                        <span class="font-mono text-[11px] text-muted-foreground/60"
-                          >{usageCss}</span
-                        >
-                      </div>
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Separator />
-                    <DropdownMenu.Label
-                      class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
-                    >
-                      <DownloadIcon class="size-3" />
-                      File
-                    </DropdownMenu.Label>
-                    <DropdownMenu.Item onclick={downloadSelectedSvg}>
-                      <DownloadIcon class="mr-2 size-4" />
-                      <div class="flex min-w-0 flex-1 flex-col">
-                        <span class="text-sm">Download SVG</span>
-                        <span class="text-[11px] text-muted-foreground/60"
-                          >Save as {selectedIcon}.svg</span
-                        >
-                      </div>
-                      <code
-                        class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
-                        >.svg</code
+                    <div class="shrink-0 px-2 pb-1.5 pt-1">
+                      <div
+                        class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
                       >
-                    </DropdownMenu.Item>
+                        <SearchIcon
+                          class="size-3 shrink-0 text-muted-foreground"
+                          aria-hidden="true"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Search formats..."
+                          class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                          bind:value={detailExportSearch}
+                          onkeydown={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    </div>
+                    {@const dq = detailExportSearch.toLowerCase()}
+                    {@const clipboardItems = [
+                      { id: 'svg', label: 'Copy SVG', desc: 'Raw SVG markup' },
+                      { id: 'svelte', label: 'Copy Svelte Import', desc: importSvelte },
+                      { id: 'usage', label: 'Copy Usage', desc: usageExample },
+                      { id: 'html', label: 'Copy HTML', desc: usageCss },
+                    ].filter(
+                      (i) =>
+                        !dq ||
+                        i.label.toLowerCase().includes(dq) ||
+                        i.desc.toLowerCase().includes(dq),
+                    )}
+                    {@const fileItems = [
+                      {
+                        id: 'download',
+                        label: 'Download SVG',
+                        desc: `Save as ${selectedIcon}.svg`,
+                      },
+                    ].filter(
+                      (i) =>
+                        !dq ||
+                        i.label.toLowerCase().includes(dq) ||
+                        i.desc.toLowerCase().includes(dq),
+                    )}
+                    {#if clipboardItems.length === 0 && fileItems.length === 0}
+                      <div
+                        class="flex flex-col items-center gap-1.5 py-6 text-center text-muted-foreground"
+                      >
+                        <SearchX class="size-4 text-muted-foreground/40" />
+                        <span class="text-xs text-muted-foreground/60">No formats match</span>
+                      </div>
+                    {/if}
+                    {#if clipboardItems.length > 0}
+                      <DropdownMenu.Label
+                        class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
+                      >
+                        <Clipboard class="size-3" />
+                        Clipboard
+                      </DropdownMenu.Label>
+                      <DropdownMenu.Item
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          handleDetailCopy('svg' as Str, selectedSvgMarkup);
+                        }}
+                      >
+                        {#if detailCopyFeedback === 'svg'}
+                          <span in:fade={{ duration: 150 }}
+                            ><Check class="mr-2 size-4 text-green-500" /></span
+                          >
+                        {:else}
+                          <Code class="mr-2 size-4" />
+                        {/if}
+                        <div class="flex min-w-0 flex-1 flex-col">
+                          <span class="text-sm">Copy SVG</span>
+                          <span class="text-[11px] text-muted-foreground/60">Raw SVG markup</span>
+                        </div>
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          handleDetailCopy('svelte' as Str, importSvelte);
+                        }}
+                      >
+                        {#if detailCopyFeedback === 'svelte'}
+                          <span in:fade={{ duration: 150 }}
+                            ><Check class="mr-2 size-4 text-green-500" /></span
+                          >
+                        {:else}
+                          <FileCode class="mr-2 size-4" />
+                        {/if}
+                        <div class="flex min-w-0 flex-1 flex-col">
+                          <span class="text-sm">Copy Svelte Import</span>
+                          <span class="font-mono text-[11px] text-muted-foreground/60"
+                            >{importSvelte}</span
+                          >
+                        </div>
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          handleDetailCopy('usage' as Str, usageExample);
+                        }}
+                      >
+                        {#if detailCopyFeedback === 'usage'}
+                          <span in:fade={{ duration: 150 }}
+                            ><Check class="mr-2 size-4 text-green-500" /></span
+                          >
+                        {:else}
+                          <Code class="mr-2 size-4" />
+                        {/if}
+                        <div class="flex min-w-0 flex-1 flex-col">
+                          <span class="text-sm">Copy Usage</span>
+                          <span class="font-mono text-[11px] text-muted-foreground/60"
+                            >{usageExample}</span
+                          >
+                        </div>
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          handleDetailCopy('html' as Str, usageCss);
+                        }}
+                      >
+                        {#if detailCopyFeedback === 'html'}
+                          <span in:fade={{ duration: 150 }}
+                            ><Check class="mr-2 size-4 text-green-500" /></span
+                          >
+                        {:else}
+                          <Hash class="mr-2 size-4" />
+                        {/if}
+                        <div class="flex min-w-0 flex-1 flex-col">
+                          <span class="text-sm">Copy HTML</span>
+                          <span class="font-mono text-[11px] text-muted-foreground/60"
+                            >{usageCss}</span
+                          >
+                        </div>
+                      </DropdownMenu.Item>
+                    {/if}
+                    {#if fileItems.length > 0}
+                      <DropdownMenu.Separator />
+                      <DropdownMenu.Label
+                        class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
+                      >
+                        <DownloadIcon class="size-3" />
+                        File
+                      </DropdownMenu.Label>
+                      <DropdownMenu.Item onclick={downloadSelectedSvg}>
+                        <DownloadIcon class="mr-2 size-4" />
+                        <div class="flex min-w-0 flex-1 flex-col">
+                          <span class="text-sm">Download SVG</span>
+                          <span class="text-[11px] text-muted-foreground/60"
+                            >Save as {selectedIcon}.svg</span
+                          >
+                        </div>
+                        <code
+                          class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                          >.svg</code
+                        >
+                      </DropdownMenu.Item>
+                    {/if}
                   </DropdownMenu.Content>
                 </DropdownMenu.Root>
 

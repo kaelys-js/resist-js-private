@@ -19,6 +19,8 @@
   import { fade, slide } from 'svelte/transition';
   import Accessibility from '@lucide/svelte/icons/accessibility';
   import Check from '@lucide/svelte/icons/check';
+  import ArrowUp from '@lucide/svelte/icons/arrow-up';
+  import ArrowDown from '@lucide/svelte/icons/arrow-down';
   import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
   import SearchIcon from '@lucide/svelte/icons/search';
@@ -195,8 +197,11 @@
   /** View mode for display. */
   let viewMode: 'table' | 'cards' | 'list' = $state('table');
 
-  /** Sort mode for rules. */
-  let sortMode: Str = $state('status' as Str);
+  /** Active sort field (empty string = default/status sort). */
+  let sortField: Str = $state('' as Str);
+
+  /** Sort direction: 'asc' | 'desc'. Only meaningful when sortField is set. */
+  let sortDir: 'asc' | 'desc' = $state('asc');
 
   /** Search query inside the View Mode submenu. */
   let viewSearchQuery: Str = $state('' as Str);
@@ -206,6 +211,22 @@
 
   /** Set of expanded rule IDs (for showing failing files). */
   let expandedRules: Set<Str> = $state(new Set());
+
+  /** IDs of all rules that have expandable findings. */
+  const expandableRuleIds: Str[] = $derived(
+    auditResult.rules
+      .filter((r: A11yRuleResult) => r.failingFiles.length > 0 || r.fileFindings.length > 0)
+      .map((r: A11yRuleResult): Str => r.id),
+  );
+
+  /** Whether all expandable rules are currently expanded. */
+  const a11yAllExpanded: Bool = $derived(
+    (expandableRuleIds.length > 0 &&
+      expandableRuleIds.every((id: Str) => expandedRules.has(id))) as Bool,
+  );
+
+  /** Whether no rules are currently expanded. */
+  const a11yAllCollapsed: Bool = $derived((expandedRules.size === 0) as Bool);
 
   /** Two-step confirm gate for reset. */
   let confirmingReset: Bool = $state(false as Bool);
@@ -244,19 +265,22 @@
       );
     }
 
-    /* Sort */
-    if (sortMode === 'name-asc') {
-      result = [...result].toSorted((a, b) => a.label.localeCompare(b.label) as Num);
-    } else if (sortMode === 'name-desc') {
-      result = [...result].toSorted((a, b) => b.label.localeCompare(a.label) as Num);
-    } else if (sortMode === 'status') {
+    /* Sort — default is status (fail first), otherwise field + direction */
+    if (sortField) {
+      const mul: Num = (sortDir === 'desc' ? -1 : 1) as Num;
+      result = [...result].toSorted(
+        (a: A11yRuleResult, b: A11yRuleResult): number =>
+          (mul as number) * compareSortField(a, b, sortField),
+      );
+    } else {
+      /* Default: status order (fail → warning → n/a → pass), secondary by pass rate desc */
       const statusOrder: Record<Str, Num> = {
         fail: 0 as Num,
         warning: 1 as Num,
         'not-applicable': 2 as Num,
         pass: 3 as Num,
       };
-      result = [...result].toSorted((a, b) => {
+      result = [...result].toSorted((a: A11yRuleResult, b: A11yRuleResult): number => {
         const statusDiff: number =
           ((statusOrder[a.status] ?? (4 as Num)) as number) -
           ((statusOrder[b.status] ?? (4 as Num)) as number);
@@ -264,18 +288,6 @@
         /* Secondary sort: highest pass rate first within same status group */
         return (b.passRate as number) - (a.passRate as number);
       });
-    } else if (sortMode === 'coverage') {
-      result = [...result].toSorted((a, b) => (a.passRate as number) - (b.passRate as number));
-    } else if (sortMode === 'coverage-desc') {
-      result = [...result].toSorted((a, b) => (b.passRate as number) - (a.passRate as number));
-    } else if (sortMode === 'wcag') {
-      result = [...result].toSorted(
-        (a, b) => a.wcag.localeCompare(b.wcag, undefined, { numeric: true }) as Num,
-      );
-    } else if (sortMode === 'category') {
-      result = [...result].toSorted((a, b) => a.category.localeCompare(b.category) as Num);
-    } else if (sortMode === 'failing-files') {
-      result = [...result].toSorted((a, b) => (b.failCount as number) - (a.failCount as number));
     }
 
     return result;
@@ -286,7 +298,10 @@
 
   /** Whether any customization is active (for the reset button). */
   const isCustomized: Bool = $derived(
-    (activeCategories.length > 0 || viewMode !== 'table' || sortMode !== 'status') as Bool,
+    (activeCategories.length > 0 ||
+      viewMode !== 'table' ||
+      sortField !== '' ||
+      !a11yAllCollapsed) as Bool,
   );
 
   /** Total failing component-checks across all applicable rules. */
@@ -334,9 +349,60 @@
     return `${auditResult.passingRules} of ${auditResult.totalRules} rules passing · ${auditResult.overallScore}% overall score` as Str;
   });
 
+  /** Current view mode display label. */
+  const viewModeLabel: Str = $derived.by((): Str => {
+    if (viewMode === 'table') return 'Table' as Str;
+    if (viewMode === 'cards') return 'Cards' as Str;
+    return 'List' as Str;
+  });
+
+  /** Current sort display label (field + direction arrow, or empty if default). */
+  const sortLabel: Str = $derived.by((): Str => {
+    if (!sortField) return '' as Str;
+    const names: Record<string, string> = {
+      name: 'Name',
+      status: 'Status',
+      coverage: 'Coverage',
+      wcag: 'WCAG',
+      category: 'Category',
+      'failing-files': 'Failures',
+    };
+    const arrow: Str = (sortDir === 'asc' ? '\u2191' : '\u2193') as Str;
+    return `${names[sortField] ?? sortField} ${arrow}` as Str;
+  });
+
   /* ------------------------------------------------------------------ */
   /*  Helpers                                                           */
   /* ------------------------------------------------------------------ */
+
+  /**
+   * Compare two rules by a given sort field for use with toSorted.
+   * Extracted to avoid nested ternaries in the sort callback.
+   *
+   * @param a - First rule
+   * @param b - Second rule
+   * @param field - Sort field key
+   * @returns Comparison number (-1, 0, 1 style)
+   */
+  function compareSortField(a: A11yRuleResult, b: A11yRuleResult, field: Str): number {
+    if (field === 'name') return a.label.localeCompare(b.label);
+    if (field === 'status') {
+      const order: Record<Str, Num> = {
+        fail: 0 as Num,
+        warning: 1 as Num,
+        'not-applicable': 2 as Num,
+        pass: 3 as Num,
+      };
+      return (
+        ((order[a.status] ?? (4 as Num)) as number) - ((order[b.status] ?? (4 as Num)) as number)
+      );
+    }
+    if (field === 'coverage') return (a.passRate as number) - (b.passRate as number);
+    if (field === 'wcag') return a.wcag.localeCompare(b.wcag, undefined, { numeric: true });
+    if (field === 'category') return a.category.localeCompare(b.category);
+    if (field === 'failing-files') return (a.failCount as number) - (b.failCount as number);
+    return 0;
+  }
 
   /**
    * Toggle a category in the active filter list.
@@ -396,7 +462,9 @@
     activeCategories = [];
     searchQuery = '' as Str;
     viewMode = 'table';
-    sortMode = 'status' as Str;
+    sortField = '' as Str;
+    sortDir = 'asc';
+    collapseAll();
   }
 
   /**
@@ -673,6 +741,9 @@
             <DropdownMenu.SubTrigger>
               <LayoutGrid class="mr-2 size-4" />
               View Mode
+              <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                >{viewModeLabel}</span
+              >
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -741,6 +812,11 @@
             <DropdownMenu.SubTrigger>
               <ArrowUpDown class="mr-2 size-4" />
               Sort By
+              {#if sortLabel}
+                <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px]"
+                  >{sortLabel}</span
+                >
+              {/if}
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
               <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -758,12 +834,9 @@
                 </div>
               </div>
               {@const sortOpts = [
-                { v: 'default', l: 'Default', d: 'Grouped by category' },
-                { v: 'name-asc', l: 'Name (A\u2013Z)', d: 'Alphabetical' },
-                { v: 'name-desc', l: 'Name (Z\u2013A)', d: 'Reverse alphabetical' },
+                { v: 'name', l: 'Name', d: 'Alphabetical by rule name' },
                 { v: 'status', l: 'Status', d: 'Failing first' },
-                { v: 'coverage', l: 'Coverage', d: 'Lowest pass rate first' },
-                { v: 'coverage-desc', l: 'Coverage (High)', d: 'Highest pass rate first' },
+                { v: 'coverage', l: 'Coverage', d: 'By pass rate' },
                 { v: 'wcag', l: 'WCAG Criterion', d: 'By WCAG number (1.1.1, 1.2.1...)' },
                 { v: 'category', l: 'Category', d: 'Group by category alphabetically' },
                 { v: 'failing-files', l: 'Most Failures', d: 'Most failing files first' },
@@ -787,15 +860,28 @@
                   <DropdownMenu.Item
                     closeOnSelect={false}
                     onclick={() => {
-                      sortMode = opt.v as Str;
+                      if (sortField === opt.v) {
+                        if (sortDir === 'asc') {
+                          sortDir = 'desc';
+                        } else {
+                          sortField = '' as Str;
+                          sortDir = 'asc';
+                        }
+                      } else {
+                        sortField = opt.v as Str;
+                        sortDir = 'asc';
+                      }
                     }}
                   >
-                    <Check
-                      class={cn(
-                        'size-4 shrink-0 transition-opacity duration-150',
-                        sortMode !== opt.v && 'opacity-0',
-                      )}
-                    />
+                    {#if sortField === opt.v && sortDir === 'asc'}
+                      <ArrowUp class="size-4 shrink-0 text-primary" />
+                    {:else if sortField === opt.v && sortDir === 'desc'}
+                      <ArrowDown class="size-4 shrink-0 text-primary" />
+                    {:else}
+                      <ArrowUpDown
+                        class="size-4 shrink-0 opacity-0 transition-opacity duration-150 group-hover:opacity-40"
+                      />
+                    {/if}
                     <div class="flex min-w-0 flex-1 flex-col">
                       <span class="text-sm">{opt.l}</span>
                       <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
@@ -808,11 +894,11 @@
 
           <DropdownMenu.Separator />
 
-          <DropdownMenu.Item onclick={expandAll}>
+          <DropdownMenu.Item onclick={expandAll} disabled={a11yAllExpanded}>
             <ChevronsUpDown class="mr-2 size-4" />
             Expand All Failures
           </DropdownMenu.Item>
-          <DropdownMenu.Item onclick={collapseAll}>
+          <DropdownMenu.Item onclick={collapseAll} disabled={a11yAllCollapsed}>
             <ChevronsDownUp class="mr-2 size-4" />
             Collapse All
           </DropdownMenu.Item>
