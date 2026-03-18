@@ -209,6 +209,22 @@
   /** Search query inside the Sort By submenu. */
   let sortSearchQuery: Str = $state('' as Str);
 
+  /** Section open state (Coverage Overview + All Rules). */
+  let sectionOpen: Record<Str, Bool> = $state({
+    coverage: true as Bool,
+    rules: true as Bool,
+  });
+
+  /** Whether all sections are expanded. */
+  const allSectionsExpanded: Bool = $derived(
+    Object.values(sectionOpen).every((v) => v === true) as Bool,
+  );
+
+  /** Whether all sections are collapsed. */
+  const allSectionsCollapsed: Bool = $derived(
+    Object.values(sectionOpen).every((v) => v === false) as Bool,
+  );
+
   /** Set of expanded rule IDs (for showing failing files). */
   let expandedRules: Set<Str> = $state(new Set());
 
@@ -301,7 +317,8 @@
     (activeCategories.length > 0 ||
       viewMode !== 'table' ||
       sortField !== '' ||
-      !a11yAllCollapsed) as Bool,
+      !a11yAllCollapsed ||
+      !allSectionsExpanded) as Bool,
   );
 
   /** Total failing component-checks across all applicable rules. */
@@ -423,6 +440,20 @@
    *
    * @param ruleId - The rule ID to toggle
    */
+  /** Expand all page sections. */
+  function expandAllSections(): void {
+    for (const key of Object.keys(sectionOpen)) {
+      sectionOpen[key as Str] = true as Bool;
+    }
+  }
+
+  /** Collapse all page sections. */
+  function collapseAllSections(): void {
+    for (const key of Object.keys(sectionOpen)) {
+      sectionOpen[key as Str] = false as Bool;
+    }
+  }
+
   /** Expand all fail/warn rules that have findings. */
   function expandAll(): void {
     expandedRules = new Set(
@@ -465,6 +496,7 @@
     sortField = '' as Str;
     sortDir = 'asc';
     collapseAll();
+    expandAllSections();
   }
 
   /**
@@ -894,13 +926,21 @@
 
           <DropdownMenu.Separator />
 
+          <DropdownMenu.Item onclick={expandAllSections} disabled={allSectionsExpanded}>
+            <ChevronsUpDown class="mr-2 size-4" />
+            Expand All Sections
+          </DropdownMenu.Item>
+          <DropdownMenu.Item onclick={collapseAllSections} disabled={allSectionsCollapsed}>
+            <ChevronsDownUp class="mr-2 size-4" />
+            Collapse All Sections
+          </DropdownMenu.Item>
           <DropdownMenu.Item onclick={expandAll} disabled={a11yAllExpanded}>
             <ChevronsUpDown class="mr-2 size-4" />
             Expand All Failures
           </DropdownMenu.Item>
           <DropdownMenu.Item onclick={collapseAll} disabled={a11yAllCollapsed}>
             <ChevronsDownUp class="mr-2 size-4" />
-            Collapse All
+            Collapse All Failures
           </DropdownMenu.Item>
 
           <DropdownMenu.Separator />
@@ -1026,402 +1066,440 @@
     {:else}
       <!-- === Coverage Overview (top) === -->
       <section>
-        <h2 class="mb-4 flex items-center gap-2 text-lg font-semibold">
+        <button
+          type="button"
+          class="mb-4 flex w-full items-center gap-2 text-left text-lg font-semibold"
+          onclick={() => {
+            sectionOpen.coverage = !sectionOpen.coverage as Bool;
+          }}
+        >
+          <ChevronRight
+            class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.coverage
+              ? 'rotate-90'
+              : ''}"
+          />
           <BarChart3 class="size-5 text-primary" />
           Coverage Overview
-        </h2>
-        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          <!-- Overall Score -->
+        </button>
+        {#if sectionOpen.coverage}
           <div
-            class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
+            transition:slide={{ duration: 200 }}
+            class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
           >
-            <div class="flex items-center gap-2 text-muted-foreground">
-              <ShieldCheck class="size-4" />
-              <span class="text-xs font-medium uppercase tracking-wider">Overall</span>
-            </div>
-            <p class="mt-2 text-2xl font-bold tabular-nums">{auditResult.overallScore}%</p>
-            <div class="mt-2 h-1.5 w-full rounded-full bg-muted">
-              <div
-                class="h-1.5 rounded-full {(auditResult.overallScore as number) >= 80
-                  ? 'bg-emerald-500'
-                  : (auditResult.overallScore as number) >= 50
-                    ? 'bg-amber-500'
-                    : 'bg-red-500'}"
-                style="width: {auditResult.overallScore}%"
-              ></div>
-            </div>
-          </div>
-          <!-- Critical Failures -->
-          <div
-            class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm {(criticalFailures as number) >
-            0
-              ? 'border-red-500/30'
-              : ''}"
-          >
-            <div class="flex items-center gap-2 text-muted-foreground">
-              <CircleX class="size-4 {(criticalFailures as number) > 0 ? 'text-red-500' : ''}" />
-              <span class="text-xs font-medium uppercase tracking-wider">Failures</span>
-            </div>
-            <p
-              class="mt-2 text-2xl font-bold tabular-nums {(criticalFailures as number) > 0
-                ? 'text-red-500'
-                : ''}"
-            >
-              {fmt(criticalFailures)}
-            </p>
-          </div>
-          <!-- Warnings -->
-          <div
-            class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm {(warningCount as number) >
-            0
-              ? 'border-amber-500/30'
-              : ''}"
-          >
-            <div class="flex items-center gap-2 text-muted-foreground">
-              <CircleAlert class="size-4 {(warningCount as number) > 0 ? 'text-amber-500' : ''}" />
-              <span class="text-xs font-medium uppercase tracking-wider">Warnings</span>
-            </div>
-            <p
-              class="mt-2 text-2xl font-bold tabular-nums {(warningCount as number) > 0
-                ? 'text-amber-500'
-                : ''}"
-            >
-              {fmt(warningCount)}
-            </p>
-          </div>
-          <!-- Manual -->
-          <div
-            class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
-          >
-            <div class="flex items-center gap-2 text-muted-foreground">
-              <Eye class="size-4" />
-              <span class="text-xs font-medium uppercase tracking-wider">Manual</span>
-            </div>
-            <p class="mt-2 text-2xl font-bold tabular-nums">
-              {fmt(auditResult.rules.filter((r) => r.status === 'not-applicable').length as Num)}
-            </p>
-          </div>
-          <!-- Per-category cards -->
-          {#each categoryStats as cat (cat.label)}
-            {@const pct =
-              (cat.total as number) > 0
-                ? Math.round(((cat.passing as number) / (cat.total as number)) * 100)
-                : 0}
+            <!-- Overall Score -->
             <div
               class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
             >
               <div class="flex items-center gap-2 text-muted-foreground">
-                <span class="text-xs font-medium uppercase tracking-wider">{cat.label}</span>
+                <ShieldCheck class="size-4" />
+                <span class="text-xs font-medium uppercase tracking-wider">Overall</span>
               </div>
-              <p class="mt-2 text-2xl font-bold tabular-nums">
-                {fmt(cat.passing)}/{fmt(cat.total)}
-              </p>
+              <p class="mt-2 text-2xl font-bold tabular-nums">{auditResult.overallScore}%</p>
               <div class="mt-2 h-1.5 w-full rounded-full bg-muted">
                 <div
-                  class="h-1.5 rounded-full {pct >= 80
+                  class="h-1.5 rounded-full {(auditResult.overallScore as number) >= 80
                     ? 'bg-emerald-500'
-                    : pct >= 50
+                    : (auditResult.overallScore as number) >= 50
                       ? 'bg-amber-500'
                       : 'bg-red-500'}"
-                  style="width: {pct}%"
+                  style="width: {auditResult.overallScore}%"
                 ></div>
               </div>
             </div>
-          {/each}
-        </div>
+            <!-- Critical Failures -->
+            <div
+              class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm {(criticalFailures as number) >
+              0
+                ? 'border-red-500/30'
+                : ''}"
+            >
+              <div class="flex items-center gap-2 text-muted-foreground">
+                <CircleX class="size-4 {(criticalFailures as number) > 0 ? 'text-red-500' : ''}" />
+                <span class="text-xs font-medium uppercase tracking-wider">Failures</span>
+              </div>
+              <p
+                class="mt-2 text-2xl font-bold tabular-nums {(criticalFailures as number) > 0
+                  ? 'text-red-500'
+                  : ''}"
+              >
+                {fmt(criticalFailures)}
+              </p>
+            </div>
+            <!-- Warnings -->
+            <div
+              class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm {(warningCount as number) >
+              0
+                ? 'border-amber-500/30'
+                : ''}"
+            >
+              <div class="flex items-center gap-2 text-muted-foreground">
+                <CircleAlert
+                  class="size-4 {(warningCount as number) > 0 ? 'text-amber-500' : ''}"
+                />
+                <span class="text-xs font-medium uppercase tracking-wider">Warnings</span>
+              </div>
+              <p
+                class="mt-2 text-2xl font-bold tabular-nums {(warningCount as number) > 0
+                  ? 'text-amber-500'
+                  : ''}"
+              >
+                {fmt(warningCount)}
+              </p>
+            </div>
+            <!-- Manual -->
+            <div
+              class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
+            >
+              <div class="flex items-center gap-2 text-muted-foreground">
+                <Eye class="size-4" />
+                <span class="text-xs font-medium uppercase tracking-wider">Manual</span>
+              </div>
+              <p class="mt-2 text-2xl font-bold tabular-nums">
+                {fmt(auditResult.rules.filter((r) => r.status === 'not-applicable').length as Num)}
+              </p>
+            </div>
+            <!-- Per-category cards -->
+            {#each categoryStats as cat (cat.label)}
+              {@const pct =
+                (cat.total as number) > 0
+                  ? Math.round(((cat.passing as number) / (cat.total as number)) * 100)
+                  : 0}
+              <div
+                class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
+              >
+                <div class="flex items-center gap-2 text-muted-foreground">
+                  <span class="text-xs font-medium uppercase tracking-wider">{cat.label}</span>
+                </div>
+                <p class="mt-2 text-2xl font-bold tabular-nums">
+                  {fmt(cat.passing)}/{fmt(cat.total)}
+                </p>
+                <div class="mt-2 h-1.5 w-full rounded-full bg-muted">
+                  <div
+                    class="h-1.5 rounded-full {pct >= 80
+                      ? 'bg-emerald-500'
+                      : pct >= 50
+                        ? 'bg-amber-500'
+                        : 'bg-red-500'}"
+                    style="width: {pct}%"
+                  ></div>
+                </div>
+              </div>
+            {/each}
+          </div>
+        {/if}
       </section>
 
       <!-- === All Rules === -->
       <section>
-        <h2 class="mb-1 flex items-center gap-2 text-lg font-semibold">
+        <button
+          type="button"
+          class="mb-1 flex w-full items-center gap-2 text-left text-lg font-semibold"
+          onclick={() => {
+            sectionOpen.rules = !sectionOpen.rules as Bool;
+          }}
+        >
+          <ChevronRight
+            class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.rules
+              ? 'rotate-90'
+              : ''}"
+          />
           <ShieldCheck class="size-5 text-primary" />
           All Rules
           <span
             class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium text-muted-foreground"
             >{filteredRules.length}</span
           >
-        </h2>
-        <p class="mb-4 text-xs text-muted-foreground">
-          {auditResult.passingRules} of {auditResult.totalRules} rules passing · {auditResult.overallScore}%
-          overall
-        </p>
-        {#if viewMode === 'table'}
-          <div class="rounded-lg border bg-card">
-            <table class="w-full text-sm">
-              <thead>
-                <tr class="border-b text-left text-xs text-muted-foreground">
-                  <th class="px-4 py-2.5">Rule</th>
-                  <th class="w-32 px-4 py-2.5">Standard</th>
-                  <th class="w-28 px-4 py-2.5">Category</th>
-                  <th class="w-24 px-4 py-2.5">Status</th>
-                  <th class="w-24 px-4 py-2.5">Pass Rate</th>
-                  <th class="px-4 py-2.5">Evidence</th>
-                </tr>
-              </thead>
-              <tbody>
-                {#each filteredRules as rule (rule.id)}
-                  <tr
-                    class={cn(
-                      'border-b transition-colors last:border-b-0',
-                      rule.failingFiles.length > 0 || rule.fileFindings.length > 0
-                        ? 'cursor-pointer'
-                        : '',
-                      expandedRules.has(rule.id) ? 'bg-muted/30' : 'hover:bg-muted/50',
-                    )}
-                    onclick={() => {
-                      if (rule.failingFiles.length > 0 || rule.fileFindings.length > 0)
-                        toggleExpanded(rule.id);
-                    }}
-                  >
-                    <td class="px-4 py-2.5">
-                      <div class="flex min-w-0 items-center gap-2">
-                        {#if rule.failingFiles.length > 0 || rule.fileFindings.length > 0}
-                          <ChevronRight
-                            class="size-3.5 shrink-0 text-muted-foreground transition-transform duration-200 {expandedRules.has(
-                              rule.id,
-                            )
-                              ? 'rotate-90'
-                              : ''}"
-                          />
-                        {/if}
-                        <div>
-                          <span class="font-medium">{rule.label}</span>
-                          <p class="text-[11px] text-muted-foreground">{rule.description}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="px-4 py-2.5">
-                      <span class="text-xs text-muted-foreground">
-                        {rule.standard}
-                        {rule.wcag}
-                      </span>
-                    </td>
-                    <td class="px-4 py-2.5">
-                      <Badge variant="outline" class="text-[10px]">{rule.category}</Badge>
-                    </td>
-                    <td class="px-4 py-2.5">
-                      {#if rule.status === 'not-applicable'}
-                        <Tooltip.Provider>
-                          <Tooltip.Root delayDuration={300}>
-                            <Tooltip.Trigger>
-                              {#snippet child({ props })}
-                                <span
-                                  {...props}
-                                  class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium {statusClasses(
-                                    rule.status,
-                                  )}"
-                                >
-                                  <Eye class="size-3" />
-                                  {statusLabel(rule.status)}
-                                </span>
-                              {/snippet}
-                            </Tooltip.Trigger>
-                            <Tooltip.Content
-                              >Requires manual testing — cannot be verified by static analysis</Tooltip.Content
-                            >
-                          </Tooltip.Root>
-                        </Tooltip.Provider>
-                      {:else}
-                        <span
-                          class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium {statusClasses(
-                            rule.status,
-                          )}"
-                        >
-                          {#if rule.status === 'pass'}
-                            <CircleCheck class="size-3" />
-                          {:else if rule.status === 'fail'}
-                            <CircleX class="size-3" />
-                          {:else}
-                            <CircleAlert class="size-3" />
-                          {/if}
-                          {statusLabel(rule.status)}
-                        </span>
-                      {/if}
-                    </td>
-                    <td class="px-4 py-2.5">
-                      {#if rule.status === 'not-applicable'}
-                        <span class="text-xs text-muted-foreground/40">—</span>
-                      {:else}
-                        <div class="flex items-center gap-2">
-                          <div class="h-1.5 w-16 rounded-full bg-muted">
-                            <div
-                              class="h-1.5 rounded-full {(rule.passRate as number) >= 80
-                                ? 'bg-emerald-500'
-                                : (rule.passRate as number) >= 50
-                                  ? 'bg-amber-500'
-                                  : 'bg-red-500'}"
-                              style="width: {rule.passRate}%"
-                            ></div>
-                          </div>
-                          <span class="text-xs tabular-nums text-muted-foreground"
-                            >{fmt(rule.passCount)}/{fmt(rule.totalChecked)}</span
-                          >
-                        </div>
-                      {/if}
-                    </td>
-                    <td class="max-w-xs px-4 py-2.5">
-                      <span class="text-xs text-muted-foreground">{rule.evidence}</span>
-                    </td>
-                  </tr>
-                  {#if expandedRules.has(rule.id) && (rule.failingFiles.length > 0 || rule.fileFindings.length > 0)}
-                    {@const displayFindings =
-                      rule.fileFindings.length > 0
-                        ? rule.fileFindings
-                        : rule.failingFiles.map((f) => ({
-                            file: f,
-                            problem: rule.description,
-                            solution: rule.evidence,
-                            found: '' as import('@/schemas/common').Str,
-                            fix: '' as import('@/schemas/common').Str,
-                          }))}
-                    <tr class="border-b bg-muted/20 last:border-b-0">
-                      <td colspan="6" class="px-0">
-                        <div
-                          class="ml-10 flex flex-col gap-2 px-4 py-3"
-                          transition:slide={{ duration: 200 }}
-                        >
-                          <div class="flex max-h-72 flex-col gap-3 overflow-y-auto">
-                            {#each displayFindings as finding (finding.file + (finding.found || finding.problem))}
-                              <div class="shrink-0 overflow-hidden rounded-lg border">
-                                <!-- File header (GitHub style) -->
-                                <div
-                                  class="flex items-center gap-2 border-b bg-muted/50 px-3 py-1.5"
-                                >
-                                  <span
-                                    class="font-mono text-[10px] font-medium text-muted-foreground"
-                                    >{finding.file}</span
-                                  >
-                                </div>
-                                <!-- Problem / Solution descriptions -->
-                                {#if finding.problem || finding.solution}
-                                  <div class="border-b px-3 py-2 text-xs">
-                                    {#if finding.problem}
-                                      <div class="flex gap-1.5">
-                                        <span class="shrink-0 font-medium text-foreground"
-                                          >Problem:</span
-                                        >
-                                        <span class="text-muted-foreground">{finding.problem}</span>
-                                      </div>
-                                    {/if}
-                                    {#if finding.solution}
-                                      <div class="mt-1 flex gap-1.5">
-                                        <span class="shrink-0 font-medium text-foreground"
-                                          >Solution:</span
-                                        >
-                                        <span class="text-muted-foreground">{finding.solution}</span
-                                        >
-                                      </div>
-                                    {/if}
-                                  </div>
-                                {/if}
-                                <!-- Code diff lines -->
-                                {#if finding.found || finding.fix}
-                                  <div class="font-mono text-[11px] leading-relaxed">
-                                    {#if finding.found}
-                                      <div class="flex border-b border-red-500/10 bg-red-500/5">
-                                        <span
-                                          class="flex w-8 shrink-0 select-none items-center justify-center border-r border-red-500/10 text-[9px] text-red-400/60"
-                                          >−</span
-                                        >
-                                        <code
-                                          class="flex-1 whitespace-pre-wrap break-all px-3 py-1 text-red-600 dark:text-red-400"
-                                          >{finding.found}</code
-                                        >
-                                      </div>
-                                    {/if}
-                                    {#if finding.fix}
-                                      <div class="flex bg-emerald-500/5">
-                                        <span
-                                          class="flex w-8 shrink-0 select-none items-center justify-center border-r border-emerald-500/10 text-[9px] text-emerald-400/60"
-                                          >+</span
-                                        >
-                                        <code
-                                          class="flex-1 whitespace-pre-wrap break-all px-3 py-1 text-emerald-600 dark:text-emerald-400"
-                                          >{finding.fix}</code
-                                        >
-                                      </div>
-                                    {/if}
-                                  </div>
-                                {/if}
-                              </div>
-                            {/each}
-                          </div>
-                        </div>
-                      </td>
+        </button>
+        {#if sectionOpen.rules}
+          <div transition:slide={{ duration: 200 }}>
+            <p class="mb-4 text-xs text-muted-foreground">
+              {auditResult.passingRules} of {auditResult.totalRules} rules passing · {auditResult.overallScore}%
+              overall
+            </p>
+            {#if viewMode === 'table'}
+              <div class="rounded-lg border bg-card">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-b text-left text-xs text-muted-foreground">
+                      <th class="px-4 py-2.5">Rule</th>
+                      <th class="w-32 px-4 py-2.5">Standard</th>
+                      <th class="w-28 px-4 py-2.5">Category</th>
+                      <th class="w-24 px-4 py-2.5">Status</th>
+                      <th class="w-24 px-4 py-2.5">Pass Rate</th>
+                      <th class="px-4 py-2.5">Evidence</th>
                     </tr>
-                  {/if}
-                {/each}
-              </tbody>
-            </table>
-          </div>
-        {:else if viewMode === 'cards'}
-          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {#each filteredRules as rule (rule.id)}
-              <div
-                class={cn(
-                  'flex flex-col gap-1.5 rounded-lg border p-4 transition-colors',
-                  rule.status === 'pass' &&
-                    'border-emerald-500/20 bg-emerald-500/5 hover:border-emerald-500/40',
-                  rule.status === 'fail' &&
-                    'border-red-500/20 bg-red-500/5 hover:border-red-500/40',
-                  rule.status === 'warning' &&
-                    'border-amber-500/20 bg-amber-500/5 hover:border-amber-500/40',
-                  rule.status === 'not-applicable' && 'bg-card hover:border-primary/30',
-                )}
-              >
-                <div class="flex items-start justify-between gap-2">
-                  <span class="text-sm font-semibold">{rule.label}</span>
-                  <span
-                    class="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium {statusClasses(
-                      rule.status,
-                    )}"
+                  </thead>
+                  <tbody>
+                    {#each filteredRules as rule (rule.id)}
+                      <tr
+                        class={cn(
+                          'border-b transition-colors last:border-b-0',
+                          rule.failingFiles.length > 0 || rule.fileFindings.length > 0
+                            ? 'cursor-pointer'
+                            : '',
+                          expandedRules.has(rule.id) ? 'bg-muted/30' : 'hover:bg-muted/50',
+                        )}
+                        onclick={() => {
+                          if (rule.failingFiles.length > 0 || rule.fileFindings.length > 0)
+                            toggleExpanded(rule.id);
+                        }}
+                      >
+                        <td class="px-4 py-2.5">
+                          <div class="flex min-w-0 items-center gap-2">
+                            {#if rule.failingFiles.length > 0 || rule.fileFindings.length > 0}
+                              <ChevronRight
+                                class="size-3.5 shrink-0 text-muted-foreground transition-transform duration-200 {expandedRules.has(
+                                  rule.id,
+                                )
+                                  ? 'rotate-90'
+                                  : ''}"
+                              />
+                            {/if}
+                            <div>
+                              <span class="font-medium">{rule.label}</span>
+                              <p class="text-[11px] text-muted-foreground">{rule.description}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="px-4 py-2.5">
+                          <span class="text-xs text-muted-foreground">
+                            {rule.standard}
+                            {rule.wcag}
+                          </span>
+                        </td>
+                        <td class="px-4 py-2.5">
+                          <Badge variant="outline" class="text-[10px]">{rule.category}</Badge>
+                        </td>
+                        <td class="px-4 py-2.5">
+                          {#if rule.status === 'not-applicable'}
+                            <Tooltip.Provider>
+                              <Tooltip.Root delayDuration={300}>
+                                <Tooltip.Trigger>
+                                  {#snippet child({ props })}
+                                    <span
+                                      {...props}
+                                      class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium {statusClasses(
+                                        rule.status,
+                                      )}"
+                                    >
+                                      <Eye class="size-3" />
+                                      {statusLabel(rule.status)}
+                                    </span>
+                                  {/snippet}
+                                </Tooltip.Trigger>
+                                <Tooltip.Content
+                                  >Requires manual testing — cannot be verified by static analysis</Tooltip.Content
+                                >
+                              </Tooltip.Root>
+                            </Tooltip.Provider>
+                          {:else}
+                            <span
+                              class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium {statusClasses(
+                                rule.status,
+                              )}"
+                            >
+                              {#if rule.status === 'pass'}
+                                <CircleCheck class="size-3" />
+                              {:else if rule.status === 'fail'}
+                                <CircleX class="size-3" />
+                              {:else}
+                                <CircleAlert class="size-3" />
+                              {/if}
+                              {statusLabel(rule.status)}
+                            </span>
+                          {/if}
+                        </td>
+                        <td class="px-4 py-2.5">
+                          {#if rule.status === 'not-applicable'}
+                            <span class="text-xs text-muted-foreground/40">—</span>
+                          {:else}
+                            <div class="flex items-center gap-2">
+                              <div class="h-1.5 w-16 rounded-full bg-muted">
+                                <div
+                                  class="h-1.5 rounded-full {(rule.passRate as number) >= 80
+                                    ? 'bg-emerald-500'
+                                    : (rule.passRate as number) >= 50
+                                      ? 'bg-amber-500'
+                                      : 'bg-red-500'}"
+                                  style="width: {rule.passRate}%"
+                                ></div>
+                              </div>
+                              <span class="text-xs tabular-nums text-muted-foreground"
+                                >{fmt(rule.passCount)}/{fmt(rule.totalChecked)}</span
+                              >
+                            </div>
+                          {/if}
+                        </td>
+                        <td class="max-w-xs px-4 py-2.5">
+                          <span class="text-xs text-muted-foreground">{rule.evidence}</span>
+                        </td>
+                      </tr>
+                      {#if expandedRules.has(rule.id) && (rule.failingFiles.length > 0 || rule.fileFindings.length > 0)}
+                        {@const displayFindings =
+                          rule.fileFindings.length > 0
+                            ? rule.fileFindings
+                            : rule.failingFiles.map((f) => ({
+                                file: f,
+                                problem: rule.description,
+                                solution: rule.evidence,
+                                found: '' as import('@/schemas/common').Str,
+                                fix: '' as import('@/schemas/common').Str,
+                              }))}
+                        <tr class="border-b bg-muted/20 last:border-b-0">
+                          <td colspan="6" class="px-0">
+                            <div
+                              class="ml-10 flex flex-col gap-2 px-4 py-3"
+                              transition:slide={{ duration: 200 }}
+                            >
+                              <div class="flex max-h-72 flex-col gap-3 overflow-y-auto">
+                                {#each displayFindings as finding (finding.file + (finding.found || finding.problem))}
+                                  <div class="shrink-0 overflow-hidden rounded-lg border">
+                                    <!-- File header (GitHub style) -->
+                                    <div
+                                      class="flex items-center gap-2 border-b bg-muted/50 px-3 py-1.5"
+                                    >
+                                      <span
+                                        class="font-mono text-[10px] font-medium text-muted-foreground"
+                                        >{finding.file}</span
+                                      >
+                                    </div>
+                                    <!-- Problem / Solution descriptions -->
+                                    {#if finding.problem || finding.solution}
+                                      <div class="border-b px-3 py-2 text-xs">
+                                        {#if finding.problem}
+                                          <div class="flex gap-1.5">
+                                            <span class="shrink-0 font-medium text-foreground"
+                                              >Problem:</span
+                                            >
+                                            <span class="text-muted-foreground"
+                                              >{finding.problem}</span
+                                            >
+                                          </div>
+                                        {/if}
+                                        {#if finding.solution}
+                                          <div class="mt-1 flex gap-1.5">
+                                            <span class="shrink-0 font-medium text-foreground"
+                                              >Solution:</span
+                                            >
+                                            <span class="text-muted-foreground"
+                                              >{finding.solution}</span
+                                            >
+                                          </div>
+                                        {/if}
+                                      </div>
+                                    {/if}
+                                    <!-- Code diff lines -->
+                                    {#if finding.found || finding.fix}
+                                      <div class="font-mono text-[11px] leading-relaxed">
+                                        {#if finding.found}
+                                          <div class="flex border-b border-red-500/10 bg-red-500/5">
+                                            <span
+                                              class="flex w-8 shrink-0 select-none items-center justify-center border-r border-red-500/10 text-[9px] text-red-400/60"
+                                              >−</span
+                                            >
+                                            <code
+                                              class="flex-1 whitespace-pre-wrap break-all px-3 py-1 text-red-600 dark:text-red-400"
+                                              >{finding.found}</code
+                                            >
+                                          </div>
+                                        {/if}
+                                        {#if finding.fix}
+                                          <div class="flex bg-emerald-500/5">
+                                            <span
+                                              class="flex w-8 shrink-0 select-none items-center justify-center border-r border-emerald-500/10 text-[9px] text-emerald-400/60"
+                                              >+</span
+                                            >
+                                            <code
+                                              class="flex-1 whitespace-pre-wrap break-all px-3 py-1 text-emerald-600 dark:text-emerald-400"
+                                              >{finding.fix}</code
+                                            >
+                                          </div>
+                                        {/if}
+                                      </div>
+                                    {/if}
+                                  </div>
+                                {/each}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      {/if}
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+            {:else if viewMode === 'cards'}
+              <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {#each filteredRules as rule (rule.id)}
+                  <div
+                    class={cn(
+                      'flex flex-col gap-1.5 rounded-lg border p-4 transition-colors',
+                      rule.status === 'pass' &&
+                        'border-emerald-500/20 bg-emerald-500/5 hover:border-emerald-500/40',
+                      rule.status === 'fail' &&
+                        'border-red-500/20 bg-red-500/5 hover:border-red-500/40',
+                      rule.status === 'warning' &&
+                        'border-amber-500/20 bg-amber-500/5 hover:border-amber-500/40',
+                      rule.status === 'not-applicable' && 'bg-card hover:border-primary/30',
+                    )}
                   >
-                    {#if rule.status === 'pass'}
-                      <CircleCheck class="size-2.5" />
-                    {:else if rule.status === 'fail'}
-                      <CircleX class="size-2.5" />
-                    {:else if rule.status === 'warning'}
-                      <CircleAlert class="size-2.5" />
-                    {:else}
-                      <Eye class="size-2.5" />
-                    {/if}
-                    {statusLabel(rule.status)}
-                  </span>
-                </div>
-                <p class="text-[11px] text-muted-foreground">{rule.description}</p>
-                <div class="mt-1 flex items-center gap-3 text-[10px] text-muted-foreground">
-                  <code class="rounded bg-muted px-1 py-0.5 text-[9px]">{rule.wcag}</code>
-                  <span>{rule.category}</span>
-                  <span>·</span>
-                  <span class="tabular-nums font-medium">{rule.passCount}/{rule.totalChecked}</span>
-                </div>
-                <p class="mt-1 text-[10px] text-muted-foreground">{rule.evidence}</p>
+                    <div class="flex items-start justify-between gap-2">
+                      <span class="text-sm font-semibold">{rule.label}</span>
+                      <span
+                        class="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium {statusClasses(
+                          rule.status,
+                        )}"
+                      >
+                        {#if rule.status === 'pass'}
+                          <CircleCheck class="size-2.5" />
+                        {:else if rule.status === 'fail'}
+                          <CircleX class="size-2.5" />
+                        {:else if rule.status === 'warning'}
+                          <CircleAlert class="size-2.5" />
+                        {:else}
+                          <Eye class="size-2.5" />
+                        {/if}
+                        {statusLabel(rule.status)}
+                      </span>
+                    </div>
+                    <p class="text-[11px] text-muted-foreground">{rule.description}</p>
+                    <div class="mt-1 flex items-center gap-3 text-[10px] text-muted-foreground">
+                      <code class="rounded bg-muted px-1 py-0.5 text-[9px]">{rule.wcag}</code>
+                      <span>{rule.category}</span>
+                      <span>·</span>
+                      <span class="tabular-nums font-medium"
+                        >{rule.passCount}/{rule.totalChecked}</span
+                      >
+                    </div>
+                    <p class="mt-1 text-[10px] text-muted-foreground">{rule.evidence}</p>
+                  </div>
+                {/each}
               </div>
-            {/each}
-          </div>
-        {:else}
-          <div class="divide-y rounded-lg border bg-card">
-            {#each filteredRules as rule (rule.id)}
-              <div class="flex items-center gap-3 px-4 py-2.5">
-                <span
-                  class="inline-flex size-2 shrink-0 rounded-full {rule.status === 'pass'
-                    ? 'bg-emerald-500'
-                    : rule.status === 'fail'
-                      ? 'bg-red-500'
-                      : rule.status === 'warning'
-                        ? 'bg-amber-500'
-                        : 'bg-gray-400'}"
-                ></span>
-                <span class="min-w-0 flex-1 text-sm font-medium">{rule.label}</span>
-                <span class="shrink-0 text-xs tabular-nums text-muted-foreground"
-                  >{rule.passCount}/{rule.totalChecked}</span
-                >
-                <code
-                  class="shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground"
-                  >{rule.wcag}</code
-                >
+            {:else}
+              <div class="divide-y rounded-lg border bg-card">
+                {#each filteredRules as rule (rule.id)}
+                  <div class="flex items-center gap-3 px-4 py-2.5">
+                    <span
+                      class="inline-flex size-2 shrink-0 rounded-full {rule.status === 'pass'
+                        ? 'bg-emerald-500'
+                        : rule.status === 'fail'
+                          ? 'bg-red-500'
+                          : rule.status === 'warning'
+                            ? 'bg-amber-500'
+                            : 'bg-gray-400'}"
+                    ></span>
+                    <span class="min-w-0 flex-1 text-sm font-medium">{rule.label}</span>
+                    <span class="shrink-0 text-xs tabular-nums text-muted-foreground"
+                      >{rule.passCount}/{rule.totalChecked}</span
+                    >
+                    <code
+                      class="shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground"
+                      >{rule.wcag}</code
+                    >
+                  </div>
+                {/each}
               </div>
-            {/each}
+            {/if}
           </div>
         {/if}
       </section>

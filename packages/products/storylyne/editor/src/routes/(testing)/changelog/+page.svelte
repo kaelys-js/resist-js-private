@@ -38,6 +38,8 @@
   import LayoutList from '@lucide/svelte/icons/layout-list';
   import Input from '@/ui/input/input.svelte';
   import ExternalLink from '@lucide/svelte/icons/external-link';
+  import ComponentIcon from '@lucide/svelte/icons/component';
+  import ArrowRight from '@lucide/svelte/icons/arrow-right';
   import { fade, slide } from 'svelte/transition';
   import type { ChangelogData } from './+page.server.js';
 
@@ -356,6 +358,7 @@
   /** Current view mode display label. */
   const viewModeLabel: Str = $derived.by((): Str => {
     if (viewMode === 'timeline') return 'Timeline' as Str;
+    if (viewMode === 'table') return 'Table' as Str;
     if (viewMode === 'compact') return 'Compact' as Str;
     return 'List' as Str;
   });
@@ -380,6 +383,11 @@
       id: 'timeline' as Str,
       label: 'Timeline' as Str,
       description: 'Cards grouped by date with timeline indicators' as Str,
+    },
+    {
+      id: 'table' as Str,
+      label: 'Table' as Str,
+      description: 'Full details with columns' as Str,
     },
     {
       id: 'compact' as Str,
@@ -1134,6 +1142,104 @@
             {/if}
           </div>
         {/each}
+      </div>
+    {:else if viewMode === 'table'}
+      <!-- Table view -->
+      <div class="rounded-lg border bg-card">
+        <table class="w-full table-fixed text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs text-muted-foreground">
+              <th class="w-28 px-4 py-2">Date</th>
+              <th class="w-20 px-4 py-2">Type</th>
+              <th class="px-4 py-2">Message</th>
+              <th class="w-40 px-4 py-2">Components</th>
+              <th class="w-20 px-4 py-2">Hash</th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each displayGroups as group (group.date)}
+              {#each group.entries as entry (entry.hash)}
+                {@const entryType = detectEntryType(entry.message as Str, entry.isNew)}
+                {@const typeConfig = ENTRY_TYPE_CONFIG[entryType]}
+                {@const TypeIcon = typeConfig.icon}
+                <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/50">
+                  <td class="px-4 py-2.5">
+                    <span class="text-xs tabular-nums text-muted-foreground"
+                      >{formatGroupDate(group.date)}</span
+                    >
+                  </td>
+                  <td class="px-4 py-2.5">
+                    <Badge variant="secondary" class="text-[10px] {typeConfig.badgeColor}">
+                      <TypeIcon class="mr-0.5 size-2.5" />
+                      {typeConfig.label}
+                    </Badge>
+                  </td>
+                  <td class="px-4 py-2.5">
+                    <span class="line-clamp-1 text-xs">{entry.message}</span>
+                  </td>
+                  <td class="px-4 py-2.5">
+                    <div class="flex flex-wrap gap-1">
+                      {#each entry.components.slice(0, 3) as comp}
+                        <a
+                          href="/components/{comp}"
+                          class="rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                          >{comp}</a
+                        >
+                      {/each}
+                      {#if entry.components.length > 3}
+                        <Tooltip.Root delayDuration={300}>
+                          <Tooltip.Trigger>
+                            {#snippet child({ props: tblMoreTip })}
+                              <span
+                                class="cursor-default rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground/60"
+                                {...tblMoreTip}>+{entry.components.length - 3} more</span
+                              >
+                            {/snippet}
+                          </Tooltip.Trigger>
+                          <Tooltip.Content
+                            side="bottom"
+                            sideOffset={4}
+                            class="max-h-64 overflow-y-auto p-3"
+                            portalProps={{ disabled: true }}
+                          >
+                            <div class="flex flex-col gap-0.5">
+                              {#each entry.components.slice(3) as extra (extra)}
+                                <a
+                                  href="/components/{extra}"
+                                  class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                                >
+                                  <ComponentIcon class="size-3 shrink-0 opacity-50" />
+                                  <span class="flex-1">{extra}</span>
+                                  <ArrowRight class="size-3 shrink-0 opacity-40" />
+                                </a>
+                              {/each}
+                            </div>
+                          </Tooltip.Content>
+                        </Tooltip.Root>
+                      {/if}
+                    </div>
+                  </td>
+                  <td class="px-4 py-2.5">
+                    {#if data.repoUrl}
+                      <a
+                        href="{data.repoUrl}/commit/{entry.hash}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-mono text-[10px] text-primary hover:underline"
+                      >
+                        {entry.hash}
+                      </a>
+                    {:else}
+                      <code class="font-mono text-[10px] text-muted-foreground/60">
+                        {entry.hash}
+                      </code>
+                    {/if}
+                  </td>
+                </tr>
+              {/each}
+            {/each}
+          </tbody>
+        </table>
       </div>
     {:else if viewMode === 'compact'}
       <!-- Compact view — dense rows -->
