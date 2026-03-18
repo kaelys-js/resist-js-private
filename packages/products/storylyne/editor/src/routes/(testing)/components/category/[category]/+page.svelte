@@ -35,7 +35,7 @@
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
   import Check from '@lucide/svelte/icons/check';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
-  import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
+
   import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
   import SearchIcon from '@lucide/svelte/icons/search';
   import SearchX from '@lucide/svelte/icons/search-x';
@@ -135,6 +135,12 @@
 
   /** Sort mode. */
   let sortMode: Str = $state('name-asc' as Str);
+
+  /** Search query inside the View Mode submenu. */
+  let viewSearchQuery: Str = $state('' as Str);
+
+  /** Search query inside the Sort By submenu. */
+  let sortSearchQuery: Str = $state('' as Str);
 
   /** Filtered and sorted components. */
   const filteredComponents: Str[] = $derived.by((): Str[] => {
@@ -457,66 +463,139 @@
 
           <DropdownMenu.Separator />
 
-          <!-- Customize submenu -->
-          <DropdownMenu.Sub>
+          <!-- View Mode submenu -->
+          <DropdownMenu.Sub
+            onOpenChange={(open) => {
+              if (open) viewSearchQuery = '' as Str;
+            }}
+          >
             <DropdownMenu.SubTrigger>
-              <SlidersHorizontal class="mr-2 size-4" />
-              Customize
+              <LayoutGrid class="mr-2 size-4" />
+              View Mode
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-56">
-              <DropdownMenu.Label
-                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
-              >
-                <LayoutGrid class="size-3" />
-                View Mode
-              </DropdownMenu.Label>
-              {#each [{ v: 'grid', l: 'Grid', d: 'Component cards' }, { v: 'list', l: 'List', d: 'Compact rows' }] as opt (opt.v)}
-                <DropdownMenu.Item
-                  closeOnSelect={false}
-                  onclick={() => {
-                    viewMode = opt.v as 'grid' | 'list';
-                  }}
+              <div class="shrink-0 px-2 pb-1.5 pt-1">
+                <div
+                  class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
                 >
-                  <Check
-                    class={cn(
-                      'size-4 shrink-0 transition-opacity duration-150',
-                      viewMode !== opt.v && 'opacity-0',
-                    )}
+                  <SearchIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <input
+                    type="text"
+                    placeholder="Search views..."
+                    class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                    bind:value={viewSearchQuery}
+                    onkeydown={(e) => e.stopPropagation()}
                   />
-                  <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">{opt.l}</span>
-                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
-                  </div>
-                </DropdownMenu.Item>
-              {/each}
-
-              <DropdownMenu.Separator />
-
-              <DropdownMenu.Label
-                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
-              >
-                <ArrowUpDown class="size-3" />
-                Sort By
-              </DropdownMenu.Label>
-              {#each [{ v: 'name-asc', l: 'Name (A–Z)', d: 'Alphabetical' }, { v: 'name-desc', l: 'Name (Z–A)', d: 'Reverse alphabetical' }, { v: 'compatibility', l: 'Compatibility', d: 'Compliant first' }, { v: 'status', l: 'Status', d: 'New → Updated → Deprecated' }] as opt (opt.v)}
-                <DropdownMenu.Item
-                  closeOnSelect={false}
-                  onclick={() => {
-                    sortMode = opt.v as Str;
-                  }}
+                </div>
+              </div>
+              {@const viewOpts = [
+                { v: 'grid', l: 'Grid', d: 'Component cards' },
+                { v: 'list', l: 'List', d: 'Compact rows' },
+              ]}
+              {@const filteredViewOpts = viewSearchQuery
+                ? viewOpts.filter(
+                    (o) =>
+                      o.l.toLowerCase().includes(viewSearchQuery.toLowerCase()) ||
+                      o.d.toLowerCase().includes(viewSearchQuery.toLowerCase()),
+                  )
+                : viewOpts}
+              {#if filteredViewOpts.length === 0}
+                <div
+                  class="flex flex-col items-center gap-1.5 py-6 text-center text-muted-foreground"
                 >
-                  <Check
-                    class={cn(
-                      'size-4 shrink-0 transition-opacity duration-150',
-                      sortMode !== opt.v && 'opacity-0',
-                    )}
+                  <SearchX class="size-4 text-muted-foreground/40" />
+                  <span class="text-xs text-muted-foreground/60">No views match</span>
+                </div>
+              {:else}
+                {#each filteredViewOpts as opt (opt.v)}
+                  <DropdownMenu.Item
+                    closeOnSelect={false}
+                    onclick={() => {
+                      viewMode = opt.v as 'grid' | 'list';
+                    }}
+                  >
+                    <Check
+                      class={cn(
+                        'size-4 shrink-0 transition-opacity duration-150',
+                        viewMode !== opt.v && 'opacity-0',
+                      )}
+                    />
+                    <div class="flex min-w-0 flex-1 flex-col">
+                      <span class="text-sm">{opt.l}</span>
+                      <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
+                    </div>
+                  </DropdownMenu.Item>
+                {/each}
+              {/if}
+            </DropdownMenu.SubContent>
+          </DropdownMenu.Sub>
+
+          <!-- Sort By submenu -->
+          <DropdownMenu.Sub
+            onOpenChange={(open) => {
+              if (open) sortSearchQuery = '' as Str;
+            }}
+          >
+            <DropdownMenu.SubTrigger>
+              <ArrowUpDown class="mr-2 size-4" />
+              Sort By
+            </DropdownMenu.SubTrigger>
+            <DropdownMenu.SubContent class="w-56">
+              <div class="shrink-0 px-2 pb-1.5 pt-1">
+                <div
+                  class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                >
+                  <SearchIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <input
+                    type="text"
+                    placeholder="Search sort..."
+                    class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                    bind:value={sortSearchQuery}
+                    onkeydown={(e) => e.stopPropagation()}
                   />
-                  <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">{opt.l}</span>
-                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
-                  </div>
-                </DropdownMenu.Item>
-              {/each}
+                </div>
+              </div>
+              {@const sortOpts = [
+                { v: 'name-asc', l: 'Name (A\u2013Z)', d: 'Alphabetical' },
+                { v: 'name-desc', l: 'Name (Z\u2013A)', d: 'Reverse alphabetical' },
+                { v: 'compatibility', l: 'Compatibility', d: 'Compliant first' },
+                { v: 'status', l: 'Status', d: 'New \u2192 Updated \u2192 Deprecated' },
+              ]}
+              {@const filteredSortOpts = sortSearchQuery
+                ? sortOpts.filter(
+                    (o) =>
+                      o.l.toLowerCase().includes(sortSearchQuery.toLowerCase()) ||
+                      o.d.toLowerCase().includes(sortSearchQuery.toLowerCase()),
+                  )
+                : sortOpts}
+              {#if filteredSortOpts.length === 0}
+                <div
+                  class="flex flex-col items-center gap-1.5 py-6 text-center text-muted-foreground"
+                >
+                  <SearchX class="size-4 text-muted-foreground/40" />
+                  <span class="text-xs text-muted-foreground/60">No sort options match</span>
+                </div>
+              {:else}
+                {#each filteredSortOpts as opt (opt.v)}
+                  <DropdownMenu.Item
+                    closeOnSelect={false}
+                    onclick={() => {
+                      sortMode = opt.v as Str;
+                    }}
+                  >
+                    <Check
+                      class={cn(
+                        'size-4 shrink-0 transition-opacity duration-150',
+                        sortMode !== opt.v && 'opacity-0',
+                      )}
+                    />
+                    <div class="flex min-w-0 flex-1 flex-col">
+                      <span class="text-sm">{opt.l}</span>
+                      <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
+                    </div>
+                  </DropdownMenu.Item>
+                {/each}
+              {/if}
             </DropdownMenu.SubContent>
           </DropdownMenu.Sub>
 
