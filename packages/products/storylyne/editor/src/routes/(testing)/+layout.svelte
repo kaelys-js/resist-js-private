@@ -90,7 +90,6 @@
     pushNotificationBatch,
     getNotifications,
     getUnreadCount,
-    getGroupedNotifications,
     markRead,
     markAllRead,
     removeNotification,
@@ -1339,17 +1338,50 @@
   let confirmClearNotifs: boolean = $state(false);
   let confirmClearNotifsTimer: ReturnType<typeof setTimeout> | undefined;
 
-  /** Reactive notification list. */
+  /** Reactive notification list (all stored). */
   const notifList: LensNotification[] = $derived(getNotifications());
 
   /** Reactive unread count. */
   const unreadCount: Num = $derived(getUnreadCount());
 
-  /** Reactive grouped notifications. */
-  const groupedNotifs = $derived(getGroupedNotifications());
-
   /** Reactive preferences. */
   const notifPrefs: NotificationPreferences = $derived(getPreferences());
+
+  /** Display filters — which severity types to show in the dropdown (independent of push prefs). */
+  let notifDisplayFilters: Record<NotificationType, boolean> = $state({
+    info: true,
+    success: true,
+    warning: true,
+    error: true,
+  });
+
+  /** Search query for notification filter submenu. */
+  let notifFilterSearchQuery: Str = $state('' as Str);
+
+  /** Notifications filtered by display filters. */
+  const filteredNotifList: LensNotification[] = $derived(
+    notifList.filter(
+      (n: LensNotification): boolean => notifDisplayFilters[n.type as NotificationType] ?? true,
+    ),
+  );
+
+  /** Number of notifications to render (progressive scroll). */
+  let visibleNotifCount: Num = $state(50 as Num);
+
+  /** Notifications to actually render (paginated slice of filtered list). */
+  const displayedNotifs: LensNotification[] = $derived(
+    filteredNotifList.slice(0, visibleNotifCount as number),
+  );
+
+  /** Whether there are more notifications to load. */
+  const hasMoreNotifs: boolean = $derived((visibleNotifCount as number) < filteredNotifList.length);
+
+  /** Reset visible count when filters change. */
+  $effect(() => {
+    /* Subscribe to display filter changes — reset pagination */
+    const _filters = notifDisplayFilters;
+    visibleNotifCount = 50 as Num;
+  });
 
   // Load notifications from localStorage on mount
   $effect(() => {
@@ -1564,21 +1596,35 @@
 
     if (incompatible.length === 0) return;
 
-    // Summary toast (visible)
+    // Summary toast — always fires regardless of notification preferences
     const topNames: Str = incompatible.slice(0, 5).map(toTitle).join(', ') as Str;
     const remaining: Num = (incompatible.length - 5) as Num;
     const summaryMsg: Str = (
       (remaining as number) > 0 ? `${topNames}, and ${remaining} more` : topNames
     ) as Str;
+    const summaryTitle: Str =
+      `${incompatible.length} component${incompatible.length === 1 ? '' : 's'} with compatibility issues` as Str;
 
-    notify({
+    // Push to notification center (bypasses isTypeEnabled)
+    pushNotification({
       type: 'warning' as NotificationType,
-      title:
-        `${incompatible.length} component${incompatible.length === 1 ? '' : 's'} with compatibility issues` as Str,
+      title: summaryTitle,
       message: summaryMsg,
       actionLabel: 'View All' as Str,
       actionHref: '/components/all' as Str,
       category: 'compatibility' as Str,
+    });
+
+    // Always show toast (bypasses preference check)
+    toast.warning(summaryTitle, {
+      description: summaryMsg,
+      duration: 8000,
+      action: {
+        label: 'View All',
+        onClick: (): void => {
+          window.location.href = '/components/all';
+        },
+      },
     });
 
     // Per-component notifications (batch — single persist, no toasts)
@@ -2689,9 +2735,9 @@
                   <Bell class="size-4" />
                   {#if (unreadCount as number) > 0}
                     <span
-                      class="absolute -right-1.5 -top-1.5 z-10 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground"
+                      class="absolute -right-1 -top-1 z-10 flex size-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground ring-2 ring-background"
                     >
-                      {(unreadCount as number) > 9 ? '9+' : unreadCount}
+                      {(unreadCount as number) > 99 ? '99+' : unreadCount}
                     </span>
                   {/if}
                 </button>
@@ -2726,33 +2772,80 @@
 
                     <DropdownMenu.Separator />
 
-                    <!-- Filter by severity -->
-                    <DropdownMenu.Label class="text-xs text-muted-foreground/60">
-                      Filter by Severity
-                    </DropdownMenu.Label>
-                    {#each [{ k: 'info', l: 'Info', d: 'General updates' }, { k: 'success', l: 'Success', d: 'Completions' }, { k: 'warning', l: 'Warning', d: 'Deprecation & issues' }, { k: 'error', l: 'Error', d: 'Failures' }] as sev (sev.k)}
-                      <DropdownMenu.Item
-                        closeOnSelect={false}
-                        onclick={() => {
-                          updatePreferences({
-                            [sev.k]: !notifPrefs[sev.k as NotificationType],
-                          });
-                        }}
-                      >
-                        <Check
-                          class={cn(
-                            'size-4 shrink-0 transition-opacity duration-150',
-                            !notifPrefs[sev.k as NotificationType] && 'opacity-0',
-                          )}
-                        />
-                        <div class="flex min-w-0 flex-1 flex-col">
-                          <span class="text-sm">{sev.l}</span>
-                          <span class="text-[11px] text-muted-foreground/60">{sev.d}</span>
+                    <!-- Filter submenu -->
+                    <DropdownMenu.Sub
+                      onOpenChange={(open) => {
+                        if (open) notifFilterSearchQuery = '' as Str;
+                      }}
+                    >
+                      <DropdownMenu.SubTrigger>
+                        <SearchIcon class="mr-2 size-4" />
+                        Filter
+                      </DropdownMenu.SubTrigger>
+                      <DropdownMenu.SubContent class="w-56">
+                        <div class="shrink-0 px-2 pb-1.5 pt-1">
+                          <div
+                            class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                          >
+                            <SearchIcon
+                              class="size-3 shrink-0 text-muted-foreground"
+                              aria-hidden="true"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Search filters..."
+                              class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                              bind:value={notifFilterSearchQuery}
+                              onkeydown={(e) => e.stopPropagation()}
+                            />
+                          </div>
                         </div>
-                      </DropdownMenu.Item>
-                    {/each}
-
-                    <DropdownMenu.Separator />
+                        {@const filterOpts = [
+                          { k: 'info', l: 'Info', d: 'General updates' },
+                          { k: 'success', l: 'Success', d: 'Completions' },
+                          { k: 'warning', l: 'Warning', d: 'Deprecation & issues' },
+                          { k: 'error', l: 'Error', d: 'Failures' },
+                        ]}
+                        {@const filteredFilterOpts = notifFilterSearchQuery
+                          ? filterOpts.filter(
+                              (o) =>
+                                o.l.toLowerCase().includes(notifFilterSearchQuery.toLowerCase()) ||
+                                o.d.toLowerCase().includes(notifFilterSearchQuery.toLowerCase()),
+                            )
+                          : filterOpts}
+                        {#if filteredFilterOpts.length === 0}
+                          <div
+                            class="flex flex-col items-center gap-1.5 py-6 text-center text-muted-foreground"
+                          >
+                            <SearchX class="size-4 text-muted-foreground/40" />
+                            <span class="text-xs text-muted-foreground/60">No filters match</span>
+                          </div>
+                        {:else}
+                          {#each filteredFilterOpts as sev (sev.k)}
+                            <DropdownMenu.Item
+                              closeOnSelect={false}
+                              onclick={() => {
+                                notifDisplayFilters = {
+                                  ...notifDisplayFilters,
+                                  [sev.k]: !notifDisplayFilters[sev.k as NotificationType],
+                                };
+                              }}
+                            >
+                              <Check
+                                class={cn(
+                                  'size-4 shrink-0 transition-opacity duration-150',
+                                  !notifDisplayFilters[sev.k as NotificationType] && 'opacity-0',
+                                )}
+                              />
+                              <div class="flex min-w-0 flex-1 flex-col">
+                                <span class="text-sm">{sev.l}</span>
+                                <span class="text-[11px] text-muted-foreground/60">{sev.d}</span>
+                              </div>
+                            </DropdownMenu.Item>
+                          {/each}
+                        {/if}
+                      </DropdownMenu.SubContent>
+                    </DropdownMenu.Sub>
 
                     <!-- Show toasts toggle -->
                     <DropdownMenu.Item
@@ -2801,214 +2894,98 @@
                   </DropdownMenu.Content>
                 </DropdownMenu.Root>
               </div>
-              <!-- Notification list -->
-              <div class="max-h-80 overflow-y-auto">
-                {#if notifList.length === 0}
+              <!-- Notification list (progressive rendering) -->
+              <div
+                class="max-h-80 overflow-y-auto"
+                onscroll={(e) => {
+                  /* Load more when scrolled near bottom */
+                  const el = e.currentTarget as HTMLDivElement;
+                  if (el.scrollHeight - el.scrollTop - el.clientHeight < 100 && hasMoreNotifs) {
+                    visibleNotifCount = ((visibleNotifCount as number) + 50) as Num;
+                  }
+                }}
+              >
+                {#if filteredNotifList.length === 0}
                   <div class="flex flex-col items-center gap-2 py-8 text-muted-foreground">
                     <BellOff class="size-8 text-muted-foreground/30" />
-                    <p class="text-xs">No notifications yet</p>
+                    <p class="text-xs">
+                      {notifList.length === 0
+                        ? 'No notifications yet'
+                        : 'No matching notifications'}
+                    </p>
                   </div>
                 {:else}
-                  {#if groupedNotifs.today.length > 0}
-                    <div class="px-4 pb-1 pt-2">
-                      <p
-                        class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/60"
-                      >
-                        Today
-                      </p>
-                    </div>
-                    {#each groupedNotifs.today as notif (notif.id)}
-                      {@const NIcon =
-                        notif.type === 'error'
-                          ? CircleX
-                          : notif.type === 'warning'
-                            ? TriangleAlert
-                            : notif.type === 'success'
-                              ? CircleCheck
-                              : Info}
-                      {@const nColor =
-                        notif.type === 'error'
-                          ? 'text-red-500'
-                          : notif.type === 'warning'
-                            ? 'text-amber-500'
-                            : notif.type === 'success'
-                              ? 'text-emerald-500'
-                              : 'text-blue-500'}
-                      <div
-                        class="group/notif flex gap-3 px-4 py-2 transition-colors hover:bg-accent/50 {notif.read
-                          ? 'opacity-60'
-                          : ''}"
-                      >
-                        <NIcon class="mt-0.5 size-4 shrink-0 {nColor}" />
-                        <div class="min-w-0 flex-1">
-                          <p class="text-xs font-medium {notif.read ? '' : 'text-foreground'}">
-                            {notif.title}
+                  {#each displayedNotifs as notif (notif.id)}
+                    {@const NIcon =
+                      notif.type === 'error'
+                        ? CircleX
+                        : notif.type === 'warning'
+                          ? TriangleAlert
+                          : notif.type === 'success'
+                            ? CircleCheck
+                            : Info}
+                    {@const nColor =
+                      notif.type === 'error'
+                        ? 'text-red-500'
+                        : notif.type === 'warning'
+                          ? 'text-amber-500'
+                          : notif.type === 'success'
+                            ? 'text-emerald-500'
+                            : 'text-blue-500'}
+                    <div
+                      class="group/notif flex gap-3 px-4 py-2 transition-colors hover:bg-accent/50 {notif.read
+                        ? 'opacity-60'
+                        : ''}"
+                    >
+                      <NIcon class="mt-0.5 size-4 shrink-0 {nColor}" />
+                      <div class="min-w-0 flex-1">
+                        <p class="text-xs font-medium {notif.read ? '' : 'text-foreground'}">
+                          {notif.title}
+                        </p>
+                        {#if notif.message}
+                          <p class="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">
+                            {notif.message}
                           </p>
-                          {#if notif.message}
-                            <p class="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">
-                              {notif.message}
-                            </p>
-                          {/if}
-                          <div class="mt-1 flex items-center gap-2">
-                            <span class="text-[10px] text-muted-foreground/60"
-                              >{relativeTime(notif.timestamp)}</span
+                        {/if}
+                        <div class="mt-1 flex items-center gap-2">
+                          <span class="text-[10px] text-muted-foreground/60"
+                            >{relativeTime(notif.timestamp)}</span
+                          >
+                          {#if notif.actionHref}
+                            <a
+                              href={notif.actionHref}
+                              class="text-[10px] font-medium text-primary hover:underline"
                             >
-                            {#if notif.actionHref}
-                              <a
-                                href={notif.actionHref}
-                                class="text-[10px] font-medium text-primary hover:underline"
-                              >
-                                {notif.actionLabel ?? 'View'}
-                              </a>
-                            {/if}
-                          </div>
+                              {notif.actionLabel ?? 'View'}
+                            </a>
+                          {/if}
                         </div>
-                        <button
-                          type="button"
-                          class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground/30 opacity-0 transition-opacity hover:text-foreground group-hover/notif:opacity-100"
-                          onclick={() => removeNotification(notif.id)}
-                          aria-label="Dismiss notification"
-                        >
-                          <XIcon class="size-3" />
-                        </button>
                       </div>
-                    {/each}
-                  {/if}
-                  {#if groupedNotifs.thisWeek.length > 0}
-                    <div class="px-4 pb-1 pt-2">
-                      <p
-                        class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/60"
+                      <button
+                        type="button"
+                        class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground/30 opacity-0 transition-opacity hover:text-foreground group-hover/notif:opacity-100"
+                        onclick={() => removeNotification(notif.id)}
+                        aria-label="Dismiss notification"
                       >
-                        This week
-                      </p>
+                        <XIcon class="size-3" />
+                      </button>
                     </div>
-                    {#each groupedNotifs.thisWeek as notif (notif.id)}
-                      {@const NIcon =
-                        notif.type === 'error'
-                          ? CircleX
-                          : notif.type === 'warning'
-                            ? TriangleAlert
-                            : notif.type === 'success'
-                              ? CircleCheck
-                              : Info}
-                      {@const nColor =
-                        notif.type === 'error'
-                          ? 'text-red-500'
-                          : notif.type === 'warning'
-                            ? 'text-amber-500'
-                            : notif.type === 'success'
-                              ? 'text-emerald-500'
-                              : 'text-blue-500'}
-                      <div
-                        class="group/notif flex gap-3 px-4 py-2 transition-colors hover:bg-accent/50 {notif.read
-                          ? 'opacity-60'
-                          : ''}"
-                      >
-                        <NIcon class="mt-0.5 size-4 shrink-0 {nColor}" />
-                        <div class="min-w-0 flex-1">
-                          <p class="text-xs font-medium {notif.read ? '' : 'text-foreground'}">
-                            {notif.title}
-                          </p>
-                          {#if notif.message}
-                            <p class="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">
-                              {notif.message}
-                            </p>
-                          {/if}
-                          <div class="mt-1 flex items-center gap-2">
-                            <span class="text-[10px] text-muted-foreground/60"
-                              >{relativeTime(notif.timestamp)}</span
-                            >
-                            {#if notif.actionHref}
-                              <a
-                                href={notif.actionHref}
-                                class="text-[10px] font-medium text-primary hover:underline"
-                                >{notif.actionLabel ?? 'View'}</a
-                              >
-                            {/if}
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground/30 opacity-0 transition-opacity hover:text-foreground group-hover/notif:opacity-100"
-                          onclick={() => removeNotification(notif.id)}
-                          aria-label="Dismiss notification"
-                        >
-                          <XIcon class="size-3" />
-                        </button>
-                      </div>
-                    {/each}
-                  {/if}
-                  {#if groupedNotifs.older.length > 0}
-                    <div class="px-4 pb-1 pt-2">
-                      <p
-                        class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/60"
-                      >
-                        Older
-                      </p>
+                  {/each}
+                  {#if hasMoreNotifs}
+                    <div class="flex justify-center py-3">
+                      <span class="text-[10px] text-muted-foreground/40">Scroll for more…</span>
                     </div>
-                    {#each groupedNotifs.older as notif (notif.id)}
-                      {@const NIcon =
-                        notif.type === 'error'
-                          ? CircleX
-                          : notif.type === 'warning'
-                            ? TriangleAlert
-                            : notif.type === 'success'
-                              ? CircleCheck
-                              : Info}
-                      {@const nColor =
-                        notif.type === 'error'
-                          ? 'text-red-500'
-                          : notif.type === 'warning'
-                            ? 'text-amber-500'
-                            : notif.type === 'success'
-                              ? 'text-emerald-500'
-                              : 'text-blue-500'}
-                      <div
-                        class="group/notif flex gap-3 px-4 py-2 transition-colors hover:bg-accent/50 {notif.read
-                          ? 'opacity-60'
-                          : ''}"
-                      >
-                        <NIcon class="mt-0.5 size-4 shrink-0 {nColor}" />
-                        <div class="min-w-0 flex-1">
-                          <p class="text-xs font-medium {notif.read ? '' : 'text-foreground'}">
-                            {notif.title}
-                          </p>
-                          {#if notif.message}
-                            <p class="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">
-                              {notif.message}
-                            </p>
-                          {/if}
-                          <div class="mt-1 flex items-center gap-2">
-                            <span class="text-[10px] text-muted-foreground/60"
-                              >{relativeTime(notif.timestamp)}</span
-                            >
-                            {#if notif.actionHref}
-                              <a
-                                href={notif.actionHref}
-                                class="text-[10px] font-medium text-primary hover:underline"
-                                >{notif.actionLabel ?? 'View'}</a
-                              >
-                            {/if}
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground/30 opacity-0 transition-opacity hover:text-foreground group-hover/notif:opacity-100"
-                          onclick={() => removeNotification(notif.id)}
-                          aria-label="Dismiss notification"
-                        >
-                          <XIcon class="size-3" />
-                        </button>
-                      </div>
-                    {/each}
                   {/if}
                 {/if}
               </div>
               <!-- Footer -->
-              {#if notifList.length > 0}
+              {#if filteredNotifList.length > 0}
                 <div class="border-t px-4 py-2 text-center">
                   <span class="text-[11px] text-muted-foreground/60"
-                    >{notifList.length} notification{notifList.length === 1 ? '' : 's'}</span
+                    >{filteredNotifList.length} of {notifList.length} notification{notifList.length ===
+                    1
+                      ? ''
+                      : 's'}</span
                   >
                 </div>
               {/if}
@@ -3045,6 +3022,7 @@
   closeButton
   position="bottom-right"
   toastOptions={{
-    class: 'border shadow-lg !bg-card !text-foreground',
+    class:
+      'border shadow-lg !bg-card !text-foreground [&_[data-close-button]]:!bg-background [&_[data-close-button]]:!text-foreground [&_[data-close-button]]:!border-border',
   }}
 />
