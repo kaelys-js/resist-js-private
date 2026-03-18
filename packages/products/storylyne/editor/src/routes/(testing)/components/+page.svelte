@@ -30,7 +30,6 @@
   import ComponentIcon from '@lucide/svelte/icons/component';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
-  import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import Sparkles from '@lucide/svelte/icons/sparkles';
   import RefreshCw from '@lucide/svelte/icons/refresh-cw';
   import Trash2 from '@lucide/svelte/icons/trash-2';
@@ -115,9 +114,6 @@
   /** Lens compatibility results per component, set by +layout.svelte. */
   const compatByName: Map<Str, LensCompatibility> = getContext('lens-compat-by-name');
 
-  /** Short rule descriptions for all 18 Lens compatibility rules (R0–R17). */
-  const lensRuleNames: readonly Str[] = getContext('lens-rule-names');
-
   /** Number of fully compliant components (all 18 rules pass). */
   const compliantCount: Num = componentNames.filter(
     (n: Str): boolean => compatByName.get(n)?.compatible === true,
@@ -127,21 +123,6 @@
   const compliantPercent: Num = (
     componentNames.length > 0 ? Math.round((compliantCount / componentNames.length) * 100) : 0
   ) as Num;
-
-  /** Components with at least one lens rule violation, sorted by violation count descending. */
-  const incompatibleComponents: Array<{ name: Str; compat: LensCompatibility }> = componentNames
-    .filter((n: Str): boolean => {
-      const c: LensCompatibility | undefined = compatByName.get(n);
-      return c !== undefined && !c.compatible;
-    })
-    .map((n: Str): { name: Str; compat: LensCompatibility } => ({
-      name: n,
-      compat: compatByName.get(n) as LensCompatibility, // safe — filtered above
-    }))
-    .toSorted(
-      (a: { compat: LensCompatibility }, b: { compat: LensCompatibility }): Num =>
-        (b.compat.violations.length - a.compat.violations.length) as Num,
-    );
 
   /* ------------------------------------------------------------------ */
   /*  Tags                                                               */
@@ -332,111 +313,6 @@
         </Tooltip.Content>
       </Tooltip.Root>
     </div>
-
-    <!-- Incompatible Components Alert -->
-    {#if incompatibleComponents.length > 0}
-      <div class="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
-        <div class="flex items-start gap-3">
-          <TriangleAlert class="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
-          <div class="flex-1">
-            <p class="text-sm font-medium text-amber-700 dark:text-amber-300">
-              {incompatibleComponents.length} incompatible component{incompatibleComponents.length ===
-              1
-                ? ''
-                : 's'}
-            </p>
-            <p class="mt-1 text-xs text-amber-600/80 dark:text-amber-400/70">
-              Failing one or more compatibility rules.
-            </p>
-            <div class="mt-2.5 flex flex-wrap gap-1">
-              {#each incompatibleComponents.slice(0, 12) as entry (entry.name)}
-                {@const failedRules = new Set(
-                  entry.compat.violations.map((vi) => vi.rule as number),
-                )}
-                {@const failCount = failedRules.size}
-                {@const passCount = lensRuleNames.length - failCount}
-                <Tooltip.Root delayDuration={300}>
-                  <Tooltip.Trigger>
-                    {#snippet child({ props: compTip })}
-                      <a
-                        href="/components/{entry.name}"
-                        class="inline-flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 text-[11px] text-amber-700 transition-colors hover:bg-amber-500/20 dark:text-amber-300"
-                        {...compTip}
-                      >
-                        <TriangleAlert class="size-2.5" />
-                        {toTitle(entry.name)}
-                        <span class="opacity-60">({failCount})</span>
-                      </a>
-                    {/snippet}
-                  </Tooltip.Trigger>
-                  <Tooltip.Content
-                    side="bottom"
-                    sideOffset={4}
-                    class="max-w-72"
-                    portalProps={{ disabled: true }}
-                  >
-                    <p class="mb-1 text-[10px] font-semibold">
-                      Compatibility — {passCount}✓ {failCount}✗
-                    </p>
-                    <ul class="space-y-0.5">
-                      {#each lensRuleNames as ruleName, ruleIdx (ruleIdx)}
-                        {@const failed = failedRules.has(ruleIdx)}
-                        <li class="flex items-start gap-1 text-[10px]">
-                          <span
-                            class="mt-px shrink-0 font-bold leading-none {failed
-                              ? 'opacity-60'
-                              : 'opacity-40'}">{failed ? '✗' : '✓'}</span
-                          >
-                          <span
-                            ><span class="font-mono opacity-60">R{ruleIdx}</span>
-                            {ruleName}</span
-                          >
-                        </li>
-                      {/each}
-                    </ul>
-                  </Tooltip.Content>
-                </Tooltip.Root>
-              {/each}
-              {#if incompatibleComponents.length > 12}
-                <Tooltip.Root delayDuration={300}>
-                  <Tooltip.Trigger>
-                    {#snippet child({ props: moreTip })}
-                      <span
-                        class="cursor-default rounded bg-amber-500/10 px-1.5 py-0.5 text-[11px] text-amber-600/60 dark:text-amber-400/50"
-                        {...moreTip}
-                      >
-                        +{incompatibleComponents.length - 12} more
-                      </span>
-                    {/snippet}
-                  </Tooltip.Trigger>
-                  <Tooltip.Content
-                    side="top"
-                    sideOffset={4}
-                    class="max-h-96 max-w-80 overflow-y-auto p-3"
-                    portalProps={{ disabled: true }}
-                  >
-                    <div class="flex flex-col gap-1.5">
-                      {#each incompatibleComponents.slice(12) as overflow (overflow.name)}
-                        <div class="flex items-center gap-2 text-xs">
-                          <TriangleAlert class="size-3 shrink-0 text-amber-500" />
-                          <span class="font-medium">{toTitle(overflow.name)}</span>
-                          <span class="text-muted-foreground">
-                            ({overflow.compat.violations.length} violation{overflow.compat
-                              .violations.length === 1
-                              ? ''
-                              : 's'})
-                          </span>
-                        </div>
-                      {/each}
-                    </div>
-                  </Tooltip.Content>
-                </Tooltip.Root>
-              {/if}
-            </div>
-          </div>
-        </div>
-      </div>
-    {/if}
 
     <!-- Activity Feed / Changelog -->
     {#if activityEntries.length > 0}
