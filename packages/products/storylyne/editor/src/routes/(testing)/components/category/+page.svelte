@@ -27,6 +27,7 @@
     CATEGORY_BG_HOVER,
     categoryLabel as catLabel,
   } from '$lib/config/lens-categories';
+  import Check from '@lucide/svelte/icons/check';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
   import SearchIcon from '@lucide/svelte/icons/search';
   import SearchX from '@lucide/svelte/icons/search-x';
@@ -457,24 +458,25 @@
                 <LayoutGrid class="size-3" />
                 View Mode
               </DropdownMenu.Label>
-              <DropdownMenu.RadioGroup bind:value={viewMode}>
-                <DropdownMenu.RadioItem value="grid">
+              {#each [{ v: 'grid', l: 'Grid', d: 'Category cards with components' }, { v: 'list', l: 'List', d: 'Compact rows with counts' }] as opt (opt.v)}
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    viewMode = opt.v as 'grid' | 'list';
+                  }}
+                >
+                  <Check
+                    class={cn(
+                      'size-4 shrink-0 transition-opacity duration-150',
+                      viewMode !== opt.v && 'opacity-0',
+                    )}
+                  />
                   <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">Grid</span>
-                    <span class="text-[11px] text-muted-foreground/60"
-                      >Category cards with components</span
-                    >
+                    <span class="text-sm">{opt.l}</span>
+                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
                   </div>
-                </DropdownMenu.RadioItem>
-                <DropdownMenu.RadioItem value="list">
-                  <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">List</span>
-                    <span class="text-[11px] text-muted-foreground/60"
-                      >Compact rows with counts</span
-                    >
-                  </div>
-                </DropdownMenu.RadioItem>
-              </DropdownMenu.RadioGroup>
+                </DropdownMenu.Item>
+              {/each}
 
               <DropdownMenu.Separator />
 
@@ -485,34 +487,25 @@
                 <ArrowUpDown class="size-3" />
                 Sort By
               </DropdownMenu.Label>
-              <DropdownMenu.RadioGroup bind:value={sortMode}>
-                <DropdownMenu.RadioItem value="default">
+              {#each [{ v: 'default', l: 'Default', d: 'Category order' }, { v: 'name', l: 'Name', d: 'Alphabetical' }, { v: 'count', l: 'Component Count', d: 'Most components first' }, { v: 'compatibility', l: 'Compatibility', d: 'Highest compliance first' }] as opt (opt.v)}
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    sortMode = opt.v as Str;
+                  }}
+                >
+                  <Check
+                    class={cn(
+                      'size-4 shrink-0 transition-opacity duration-150',
+                      sortMode !== opt.v && 'opacity-0',
+                    )}
+                  />
                   <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">Default</span>
-                    <span class="text-[11px] text-muted-foreground/60">Category order</span>
+                    <span class="text-sm">{opt.l}</span>
+                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
                   </div>
-                </DropdownMenu.RadioItem>
-                <DropdownMenu.RadioItem value="name">
-                  <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">Name</span>
-                    <span class="text-[11px] text-muted-foreground/60">Alphabetical</span>
-                  </div>
-                </DropdownMenu.RadioItem>
-                <DropdownMenu.RadioItem value="count">
-                  <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">Component Count</span>
-                    <span class="text-[11px] text-muted-foreground/60">Most components first</span>
-                  </div>
-                </DropdownMenu.RadioItem>
-                <DropdownMenu.RadioItem value="compatibility">
-                  <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">Compatibility</span>
-                    <span class="text-[11px] text-muted-foreground/60"
-                      >Highest compliance first</span
-                    >
-                  </div>
-                </DropdownMenu.RadioItem>
-              </DropdownMenu.RadioGroup>
+                </DropdownMenu.Item>
+              {/each}
             </DropdownMenu.SubContent>
           </DropdownMenu.Sub>
 

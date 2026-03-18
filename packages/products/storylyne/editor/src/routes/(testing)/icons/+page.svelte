@@ -1308,32 +1308,25 @@
                 <LayoutGrid class="size-3" />
                 Grid Density
               </DropdownMenu.Label>
-              <DropdownMenu.RadioGroup bind:value={gridDensity}>
-                <DropdownMenu.RadioItem value="compact">
+              {#each [{ v: 'compact', l: 'Compact', d: 'Small cards, more icons per row' }, { v: 'comfortable', l: 'Comfortable', d: 'Balanced size with icon names' }, { v: 'large', l: 'Large', d: 'Larger previews, fewer per row' }] as opt (opt.v)}
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    gridDensity = opt.v as Str;
+                  }}
+                >
+                  <Check
+                    class={cn(
+                      'size-4 shrink-0 transition-opacity duration-150',
+                      gridDensity !== opt.v && 'opacity-0',
+                    )}
+                  />
                   <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">Compact</span>
-                    <span class="text-[11px] text-muted-foreground/60"
-                      >Small cards, more icons per row</span
-                    >
+                    <span class="text-sm">{opt.l}</span>
+                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
                   </div>
-                </DropdownMenu.RadioItem>
-                <DropdownMenu.RadioItem value="comfortable">
-                  <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">Comfortable</span>
-                    <span class="text-[11px] text-muted-foreground/60"
-                      >Balanced size with icon names</span
-                    >
-                  </div>
-                </DropdownMenu.RadioItem>
-                <DropdownMenu.RadioItem value="large">
-                  <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">Large</span>
-                    <span class="text-[11px] text-muted-foreground/60"
-                      >Larger previews, fewer per row</span
-                    >
-                  </div>
-                </DropdownMenu.RadioItem>
-              </DropdownMenu.RadioGroup>
+                </DropdownMenu.Item>
+              {/each}
 
               <DropdownMenu.Separator />
 
@@ -1344,32 +1337,25 @@
                 <Paintbrush class="size-3" />
                 Color Mode
               </DropdownMenu.Label>
-              <DropdownMenu.RadioGroup bind:value={previewBg}>
-                <DropdownMenu.RadioItem value="auto">
+              {#each [{ v: 'auto', l: 'Auto', d: 'Icons inherit page color' }, { v: 'light', l: 'Light', d: 'Dark icons (light mode style)' }, { v: 'dark', l: 'Dark', d: 'Light icons (dark mode style)' }] as opt (opt.v)}
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    previewBg = opt.v as Str;
+                  }}
+                >
+                  <Check
+                    class={cn(
+                      'size-4 shrink-0 transition-opacity duration-150',
+                      previewBg !== opt.v && 'opacity-0',
+                    )}
+                  />
                   <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">Auto</span>
-                    <span class="text-[11px] text-muted-foreground/60"
-                      >Icons inherit page color</span
-                    >
+                    <span class="text-sm">{opt.l}</span>
+                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
                   </div>
-                </DropdownMenu.RadioItem>
-                <DropdownMenu.RadioItem value="light">
-                  <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">Light</span>
-                    <span class="text-[11px] text-muted-foreground/60"
-                      >Dark icons (light mode style)</span
-                    >
-                  </div>
-                </DropdownMenu.RadioItem>
-                <DropdownMenu.RadioItem value="dark">
-                  <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="text-sm">Dark</span>
-                    <span class="text-[11px] text-muted-foreground/60"
-                      >Light icons (dark mode style)</span
-                    >
-                  </div>
-                </DropdownMenu.RadioItem>
-              </DropdownMenu.RadioGroup>
+                </DropdownMenu.Item>
+              {/each}
 
               <DropdownMenu.Separator />
 
