@@ -288,6 +288,28 @@
     ...new Set(PAGE_EXPORT_ITEMS.map((p: ExportItem): Str => p.category)),
   ];
 
+  /** Search query for export menu filtering. */
+  let exportSearchQuery: Str = $state('' as Str);
+
+  /** Export items filtered by search query. */
+  const filteredExportItems: ExportItem[] = $derived(
+    exportSearchQuery.length === 0
+      ? PAGE_EXPORT_ITEMS
+      : PAGE_EXPORT_ITEMS.filter((p: ExportItem): boolean => {
+          const q: Str = exportSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q as string) ||
+            p.description.toLowerCase().includes(q as string) ||
+            p.category.toLowerCase().includes(q as string)
+          );
+        }),
+  );
+
+  /** Unique export categories present after filtering. */
+  const filteredExportCategories: Str[] = $derived([
+    ...new Set(filteredExportItems.map((p: ExportItem): Str => p.category)),
+  ]);
+
   /* ------------------------------------------------------------------ */
   /*  Handlers                                                           */
   /* ------------------------------------------------------------------ */
@@ -417,28 +439,51 @@
               Export
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-64">
-              {#each PAGE_EXPORT_CATEGORIES as exportCat (exportCat)}
-                <DropdownMenu.Label
-                  class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
+              <div class="shrink-0 px-2 pb-1.5 pt-1">
+                <div
+                  class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
                 >
-                  {exportCat}
-                </DropdownMenu.Label>
-                {#each PAGE_EXPORT_ITEMS.filter((p) => p.category === exportCat) as item (item.id)}
-                  <DropdownMenu.Item onclick={() => handleExport(item.id)}>
-                    <item.icon class="mr-2 size-4" />
-                    <div class="flex min-w-0 flex-1 flex-col">
-                      <span class="text-sm">{item.label}</span>
-                      <span class="text-[11px] text-muted-foreground/60">{item.description}</span>
-                    </div>
-                    {#if item.ext}
-                      <code
-                        class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
-                        >{item.ext}</code
-                      >
-                    {/if}
-                  </DropdownMenu.Item>
+                  <SearchIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <input
+                    type="text"
+                    placeholder="Search exports..."
+                    class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                    bind:value={exportSearchQuery}
+                    onkeydown={(e) => e.stopPropagation()}
+                  />
+                </div>
+              </div>
+              {#if filteredExportItems.length === 0}
+                <div
+                  class="flex flex-col items-center gap-1.5 py-6 text-center text-muted-foreground"
+                >
+                  <SearchX class="size-4 text-muted-foreground/40" />
+                  <span class="text-xs text-muted-foreground/60">No exports match</span>
+                </div>
+              {:else}
+                {#each filteredExportCategories as exportCat (exportCat)}
+                  <DropdownMenu.Label
+                    class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
+                  >
+                    {exportCat}
+                  </DropdownMenu.Label>
+                  {#each filteredExportItems.filter((p) => p.category === exportCat) as item (item.id)}
+                    <DropdownMenu.Item onclick={() => handleExport(item.id)}>
+                      <item.icon class="mr-2 size-4" />
+                      <div class="flex min-w-0 flex-1 flex-col">
+                        <span class="text-sm">{item.label}</span>
+                        <span class="text-[11px] text-muted-foreground/60">{item.description}</span>
+                      </div>
+                      {#if item.ext}
+                        <code
+                          class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                          >{item.ext}</code
+                        >
+                      {/if}
+                    </DropdownMenu.Item>
+                  {/each}
                 {/each}
-              {/each}
+              {/if}
             </DropdownMenu.SubContent>
           </DropdownMenu.Sub>
 

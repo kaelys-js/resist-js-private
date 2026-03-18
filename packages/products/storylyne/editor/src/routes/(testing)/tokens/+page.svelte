@@ -171,6 +171,28 @@
   /** Unique export categories. */
   const PAGE_EXPORT_CATEGORIES: Str[] = [...new Set(PAGE_EXPORT_ITEMS.map((p) => p.category))];
 
+  /** Search query for export menu filtering. */
+  let exportSearchQuery: Str = $state('' as Str);
+
+  /** Export items filtered by search query. */
+  const filteredExportItems: ExportItem[] = $derived(
+    exportSearchQuery.length === 0
+      ? PAGE_EXPORT_ITEMS
+      : PAGE_EXPORT_ITEMS.filter((p: ExportItem): boolean => {
+          const q: Str = exportSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q as string) ||
+            p.description.toLowerCase().includes(q as string) ||
+            p.category.toLowerCase().includes(q as string)
+          );
+        }),
+  );
+
+  /** Unique export categories present after filtering. */
+  const filteredExportCategories: Str[] = $derived([
+    ...new Set(filteredExportItems.map((p: ExportItem): Str => p.category)),
+  ]);
+
   /* ------------------------------------------------------------------ */
   /*  State                                                             */
   /* ------------------------------------------------------------------ */
@@ -489,44 +511,67 @@
               Export
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-64">
-              {#each PAGE_EXPORT_CATEGORIES as category (category)}
-                <DropdownMenu.Label
-                  class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
+              <div class="shrink-0 px-2 pb-1.5 pt-1">
+                <div
+                  class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
                 >
-                  {#if category === 'Clipboard'}
-                    <Clipboard class="size-3" />
-                  {:else}
-                    <DownloadIcon class="size-3" />
-                  {/if}
-                  {category}
-                </DropdownMenu.Label>
-                {#each PAGE_EXPORT_ITEMS.filter((p) => p.category === category) as item (item.id)}
-                  <DropdownMenu.Item
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      handleExport(item.id);
-                    }}
+                  <SearchIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <input
+                    type="text"
+                    placeholder="Search exports..."
+                    class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                    bind:value={exportSearchQuery}
+                    onkeydown={(e) => e.stopPropagation()}
+                  />
+                </div>
+              </div>
+              {#if filteredExportItems.length === 0}
+                <div
+                  class="flex flex-col items-center gap-1.5 py-6 text-center text-muted-foreground"
+                >
+                  <SearchX class="size-4 text-muted-foreground/40" />
+                  <span class="text-xs text-muted-foreground/60">No exports match</span>
+                </div>
+              {:else}
+                {#each filteredExportCategories as category (category)}
+                  <DropdownMenu.Label
+                    class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
                   >
-                    {#if exportFeedback === item.id}
-                      <span in:fade={{ duration: 150 }}
-                        ><Check class="mr-2 size-4 text-green-500" /></span
-                      >
+                    {#if category === 'Clipboard'}
+                      <Clipboard class="size-3" />
                     {:else}
-                      <item.icon class="mr-2 size-4" />
+                      <DownloadIcon class="size-3" />
                     {/if}
-                    <div class="flex min-w-0 flex-1 flex-col">
-                      <span class="text-sm">{item.label}</span>
-                      <span class="text-[11px] text-muted-foreground/60">{item.description}</span>
-                    </div>
-                    {#if item.ext}
-                      <code
-                        class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
-                        >{item.ext}</code
-                      >
-                    {/if}
-                  </DropdownMenu.Item>
+                    {category}
+                  </DropdownMenu.Label>
+                  {#each filteredExportItems.filter((p) => p.category === category) as item (item.id)}
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleExport(item.id);
+                      }}
+                    >
+                      {#if exportFeedback === item.id}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="mr-2 size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <item.icon class="mr-2 size-4" />
+                      {/if}
+                      <div class="flex min-w-0 flex-1 flex-col">
+                        <span class="text-sm">{item.label}</span>
+                        <span class="text-[11px] text-muted-foreground/60">{item.description}</span>
+                      </div>
+                      {#if item.ext}
+                        <code
+                          class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                          >{item.ext}</code
+                        >
+                      {/if}
+                    </DropdownMenu.Item>
+                  {/each}
                 {/each}
-              {/each}
+              {/if}
             </DropdownMenu.SubContent>
           </DropdownMenu.Sub>
 
@@ -801,7 +846,7 @@
           Clear filters
         </button>
       </div>
-    {:else}
+    {:else if viewMode === 'table'}
       <div class="space-y-10">
         {#each filteredGroups as group (group.category)}
           <section id={group.category} class="scroll-mt-60">
@@ -918,6 +963,62 @@
             </div>
           {/if}
         </section>
+      </div>
+    {:else}
+      <!-- Compact view — dense grid of swatches -->
+      <div class="space-y-8">
+        {#each filteredGroups as group (group.category)}
+          <div>
+            <h3 class="mb-3 flex items-center gap-2 text-sm font-semibold">
+              <Palette class="size-4" />
+              {group.label}
+              <Badge variant="outline" class="text-xs">{group.tokens.length}</Badge>
+            </h3>
+            <div class="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+              {#each group.tokens as token (token.name)}
+                <Tooltip.Root delayDuration={200}>
+                  <Tooltip.Trigger>
+                    {#snippet child({ props })}
+                      <button
+                        type="button"
+                        class="flex flex-col items-center gap-1.5 rounded-lg border bg-card p-2 text-center transition-colors hover:border-primary/30"
+                        onclick={() => {
+                          navigator.clipboard.writeText(`var(${token.name})`);
+                        }}
+                        {...props}
+                      >
+                        {#if isColorValue(token.value)}
+                          <div
+                            class="size-8 rounded-md border shadow-sm"
+                            style="background-color: {token.value};"
+                          ></div>
+                        {:else}
+                          <div
+                            class="flex size-8 items-center justify-center rounded-md border bg-muted text-[9px] text-muted-foreground"
+                          >
+                            val
+                          </div>
+                        {/if}
+                        <span class="w-full truncate text-[10px] text-muted-foreground"
+                          >{token.name.replace('--', '')}</span
+                        >
+                      </button>
+                    {/snippet}
+                  </Tooltip.Trigger>
+                  <Tooltip.Content>
+                    <div class="flex flex-col gap-0.5">
+                      <span class="font-mono text-xs">{token.name}</span>
+                      <span class="font-mono text-[10px] text-muted-foreground">{token.value}</span>
+                      {#if token.tailwindClass}
+                        <span class="text-[10px] text-primary">{token.tailwindClass}</span>
+                      {/if}
+                    </div>
+                  </Tooltip.Content>
+                </Tooltip.Root>
+              {/each}
+            </div>
+          </div>
+        {/each}
       </div>
     {/if}
   </div>
