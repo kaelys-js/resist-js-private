@@ -34,6 +34,7 @@
   import Check from '@lucide/svelte/icons/check';
   import Tag from '@lucide/svelte/icons/tag';
   import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
+  import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
   import Paintbrush from '@lucide/svelte/icons/paintbrush';
   import Palette from '@lucide/svelte/icons/palette';
   import SearchX from '@lucide/svelte/icons/search-x';
@@ -483,6 +484,9 @@
   /** Grid density: 'compact' (10 cols), 'comfortable' (6 cols), 'large' (4 cols). */
   let gridDensity: Str = $state((initParams.get('density') ?? DEFAULT_DENSITY) as Str);
 
+  /** View mode for icon display. */
+  let viewMode: 'grid' | 'list' = $state('grid');
+
   /** Sort mode for icons. */
   let sortMode: Str = $state('name-asc' as Str);
 
@@ -525,6 +529,7 @@
       previewBg !== DEFAULT_BG ||
       gridDensity !== DEFAULT_DENSITY ||
       activeTheme !== DEFAULT_THEME ||
+      viewMode !== 'grid' ||
       sortMode !== 'name-asc' ||
       activeCategories.length > 0) as Bool,
   );
@@ -812,6 +817,28 @@
   /** Unique export categories. */
   const PAGE_EXPORT_CATEGORIES: Str[] = [...new Set(PAGE_EXPORT_ITEMS.map((p) => p.category))];
 
+  /** Search query for export menu filtering. */
+  let exportSearchQuery: Str = $state('' as Str);
+
+  /** Export items filtered by search query. */
+  const filteredExportItems: ExportItem[] = $derived(
+    exportSearchQuery.length === 0
+      ? PAGE_EXPORT_ITEMS
+      : PAGE_EXPORT_ITEMS.filter((p: ExportItem): boolean => {
+          const q: Str = exportSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q as string) ||
+            p.description.toLowerCase().includes(q as string) ||
+            p.category.toLowerCase().includes(q as string)
+          );
+        }),
+  );
+
+  /** Unique export categories present after filtering. */
+  const filteredExportCategories: Str[] = $derived([
+    ...new Set(filteredExportItems.map((p: ExportItem): Str => p.category)),
+  ]);
+
   /* ------------------------------------------------------------------ */
   /*  Clear selection when search yields 0 results                       */
   /* ------------------------------------------------------------------ */
@@ -879,6 +906,7 @@
     previewBg = DEFAULT_BG;
     gridDensity = DEFAULT_DENSITY;
     activeTheme = DEFAULT_THEME;
+    viewMode = 'grid';
     sortMode = 'name-asc' as Str;
     activeCategories = [];
   }
@@ -1267,44 +1295,67 @@
               Export
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-64">
-              {#each PAGE_EXPORT_CATEGORIES as category (category)}
-                <DropdownMenu.Label
-                  class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
+              <div class="shrink-0 px-2 pb-1.5 pt-1">
+                <div
+                  class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
                 >
-                  {#if category === 'Clipboard'}
-                    <Clipboard class="size-3" />
-                  {:else}
-                    <DownloadIcon class="size-3" />
-                  {/if}
-                  {category}
-                </DropdownMenu.Label>
-                {#each PAGE_EXPORT_ITEMS.filter((p) => p.category === category) as item (item.id)}
-                  <DropdownMenu.Item
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      handlePageExport(item.id);
-                    }}
+                  <SearchIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <input
+                    type="text"
+                    placeholder="Search exports..."
+                    class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                    bind:value={exportSearchQuery}
+                    onkeydown={(e) => e.stopPropagation()}
+                  />
+                </div>
+              </div>
+              {#if filteredExportItems.length === 0}
+                <div
+                  class="flex flex-col items-center gap-1.5 py-6 text-center text-muted-foreground"
+                >
+                  <SearchX class="size-4 text-muted-foreground/40" />
+                  <span class="text-xs text-muted-foreground/60">No exports match</span>
+                </div>
+              {:else}
+                {#each filteredExportCategories as exportCat (exportCat)}
+                  <DropdownMenu.Label
+                    class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
                   >
-                    {#if pageExportFeedback === item.id}
-                      <span in:fade={{ duration: 150 }}
-                        ><Check class="mr-2 size-4 text-green-500" /></span
-                      >
+                    {#if exportCat === 'Clipboard'}
+                      <Clipboard class="size-3" />
                     {:else}
-                      <item.icon class="mr-2 size-4" />
+                      <DownloadIcon class="size-3" />
                     {/if}
-                    <div class="flex min-w-0 flex-1 flex-col">
-                      <span class="text-sm">{item.label}</span>
-                      <span class="text-[11px] text-muted-foreground/60">{item.description}</span>
-                    </div>
-                    {#if item.ext}
-                      <code
-                        class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
-                        >{item.ext}</code
-                      >
-                    {/if}
-                  </DropdownMenu.Item>
+                    {exportCat}
+                  </DropdownMenu.Label>
+                  {#each filteredExportItems.filter((p) => p.category === exportCat) as item (item.id)}
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handlePageExport(item.id);
+                      }}
+                    >
+                      {#if pageExportFeedback === item.id}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="mr-2 size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <item.icon class="mr-2 size-4" />
+                      {/if}
+                      <div class="flex min-w-0 flex-1 flex-col">
+                        <span class="text-sm">{item.label}</span>
+                        <span class="text-[11px] text-muted-foreground/60">{item.description}</span>
+                      </div>
+                      {#if item.ext}
+                        <code
+                          class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                          >{item.ext}</code
+                        >
+                      {/if}
+                    </DropdownMenu.Item>
+                  {/each}
                 {/each}
-              {/each}
+              {/if}
             </DropdownMenu.SubContent>
           </DropdownMenu.Sub>
           <DropdownMenu.Separator />
@@ -1322,6 +1373,64 @@
               {/if}
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent class="w-72">
+              <!-- View Mode section -->
+              <DropdownMenu.Label
+                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+              >
+                <LayoutGrid class="size-3" />
+                View Mode
+              </DropdownMenu.Label>
+              {#each [{ v: 'grid', l: 'Grid', d: 'Icon cards in a grid' }, { v: 'list', l: 'List', d: 'Compact rows with names' }] as opt (opt.v)}
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    viewMode = opt.v as 'grid' | 'list';
+                  }}
+                >
+                  <Check
+                    class={cn(
+                      'size-4 shrink-0 transition-opacity duration-150',
+                      viewMode !== opt.v && 'opacity-0',
+                    )}
+                  />
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">{opt.l}</span>
+                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
+                  </div>
+                </DropdownMenu.Item>
+              {/each}
+
+              <DropdownMenu.Separator />
+
+              <!-- Sort section -->
+              <DropdownMenu.Label
+                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+              >
+                <ArrowUpDown class="size-3" />
+                Sort By
+              </DropdownMenu.Label>
+              {#each [{ v: 'name-asc', l: 'Name (A–Z)', d: 'Alphabetical' }, { v: 'name-desc', l: 'Name (Z–A)', d: 'Reverse alphabetical' }, { v: 'category', l: 'Category', d: 'Grouped by category' }] as opt (opt.v)}
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    sortMode = opt.v as Str;
+                  }}
+                >
+                  <Check
+                    class={cn(
+                      'size-4 shrink-0 transition-opacity duration-150',
+                      sortMode !== opt.v && 'opacity-0',
+                    )}
+                  />
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">{opt.l}</span>
+                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
+                  </div>
+                </DropdownMenu.Item>
+              {/each}
+
+              <DropdownMenu.Separator />
+
               <!-- Grid Density section -->
               <DropdownMenu.Label
                 class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
@@ -1960,7 +2069,7 @@
           {/if}
         {/snippet}
       </LensEmpty>
-    {:else}
+    {:else if viewMode === 'grid'}
       <div class="grid gap-2 {gridCols}">
         {#each displayNames as name, idx (name)}
           <button
@@ -1997,6 +2106,51 @@
             <span class="w-full truncate text-center text-[10px] text-muted-foreground">
               {name}
             </span>
+          </button>
+        {/each}
+      </div>
+
+      <!-- Infinite scroll sentinel -->
+      {#if hasMore}
+        <div use:observeSentinel class="flex justify-center py-4">
+          <span class="text-xs text-muted-foreground">Loading more icons...</span>
+        </div>
+      {/if}
+    {:else}
+      <!-- List view -->
+      <div class="rounded-lg border bg-card">
+        {#each displayNames as name, idx (name)}
+          {#if idx > 0}
+            <div class="border-t"></div>
+          {/if}
+          <button
+            type="button"
+            class="group/row flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-accent/50 {selectedIcon ===
+            name
+              ? 'bg-primary/5'
+              : ''}"
+            onclick={() => selectIcon(name)}
+            data-icon={name}
+            use:observeIcon
+          >
+            <div
+              data-theme={activeTheme || undefined}
+              class="flex shrink-0 items-center justify-center"
+              style="width: 20px; height: 20px; color: {effectiveIconColor};"
+            >
+              {#if getIcon(name)}
+                {@const IconComp = getIcon(name)}
+                {#if IconComp}
+                  <IconComp size={20} {strokeWidth} />
+                {/if}
+              {:else}
+                <div class="size-5 animate-pulse rounded bg-muted"></div>
+              {/if}
+            </div>
+            <span
+              class="min-w-0 flex-1 truncate text-sm font-medium text-foreground group-hover/row:text-primary"
+              >{name}</span
+            >
           </button>
         {/each}
       </div>
