@@ -485,7 +485,7 @@
   let gridDensity: Str = $state((initParams.get('density') ?? DEFAULT_DENSITY) as Str);
 
   /** View mode for icon display. */
-  let viewMode: 'grid' | 'list' = $state('grid');
+  let viewMode: 'grid' | 'compact' | 'list' | 'table' = $state('grid');
 
   /** Sort mode for icons. */
   let sortMode: Str = $state('name-asc' as Str);
@@ -579,6 +579,14 @@
           .map(([cat]) => cat);
         return (aCats[0] ?? '').localeCompare(bCats[0] ?? '') as Num;
       });
+    } else if (sortMode === 'popularity') {
+      result = [...result].toSorted((a: Str, b: Str): Num => {
+        const aCount: Num = [...categoryMap.values()].filter((icons) => icons.has(a)).length as Num;
+        const bCount: Num = [...categoryMap.values()].filter((icons) => icons.has(b)).length as Num;
+        return (bCount - aCount) as Num;
+      });
+    } else if (sortMode === 'recent') {
+      result = [...result].toReversed() as Str[];
     }
     // 'name-asc' is default — data.names is already sorted A-Z
 
@@ -1399,7 +1407,9 @@
               </div>
               {@const viewOpts = [
                 { v: 'grid', l: 'Grid', d: 'Icon cards in a grid' },
+                { v: 'compact', l: 'Dense Grid', d: 'Small icons, no names' },
                 { v: 'list', l: 'List', d: 'Compact rows with names' },
+                { v: 'table', l: 'Table', d: 'Rows with icon, name, categories' },
               ]}
               {@const filteredViewOpts = viewSearchQuery
                 ? viewOpts.filter(
@@ -1420,7 +1430,7 @@
                   <DropdownMenu.Item
                     closeOnSelect={false}
                     onclick={() => {
-                      viewMode = opt.v as 'grid' | 'list';
+                      viewMode = opt.v as 'grid' | 'compact' | 'list' | 'table';
                     }}
                   >
                     <Check
@@ -1468,6 +1478,8 @@
                 { v: 'name-asc', l: 'Name (A–Z)', d: 'Alphabetical' },
                 { v: 'name-desc', l: 'Name (Z–A)', d: 'Reverse alphabetical' },
                 { v: 'category', l: 'Category', d: 'Grouped by category' },
+                { v: 'popularity', l: 'Most Popular', d: 'Most categories first' },
+                { v: 'recent', l: 'Recently Added', d: 'Newest icons first' },
               ]}
               {@const filteredSortOpts = sortSearchQuery
                 ? sortOpts.filter(
@@ -2265,7 +2277,41 @@
           <span class="text-xs text-muted-foreground">Loading more icons...</span>
         </div>
       {/if}
-    {:else}
+    {:else if viewMode === 'compact'}
+      <!-- Dense grid — small icons, no names -->
+      <div class="grid grid-cols-8 gap-1 sm:grid-cols-12 lg:grid-cols-16">
+        {#each displayNames as name (name)}
+          <button
+            type="button"
+            class="flex items-center justify-center rounded-md border p-2 transition-all hover:border-primary/30 hover:bg-muted/50 {selectedIcon ===
+            name
+              ? 'border-primary bg-primary/5'
+              : ''}"
+            onclick={() => selectIcon(name)}
+            title={name}
+            data-icon={name}
+            use:observeIcon
+          >
+            <div data-theme={activeTheme || undefined} style="color: {effectiveIconColor};">
+              {#if getIcon(name)}
+                {@const IconComp = getIcon(name)}
+                {#if IconComp}
+                  <IconComp size={16} {strokeWidth} />
+                {/if}
+              {:else}
+                <div class="size-4 animate-pulse rounded bg-muted"></div>
+              {/if}
+            </div>
+          </button>
+        {/each}
+      </div>
+
+      {#if hasMore}
+        <div use:observeSentinel class="flex justify-center py-4">
+          <span class="text-xs text-muted-foreground">Loading more icons...</span>
+        </div>
+      {/if}
+    {:else if viewMode === 'list'}
       <!-- List view -->
       <div class="rounded-lg border bg-card">
         {#each displayNames as name, idx (name)}
@@ -2304,7 +2350,72 @@
         {/each}
       </div>
 
-      <!-- Infinite scroll sentinel -->
+      {#if hasMore}
+        <div use:observeSentinel class="flex justify-center py-4">
+          <span class="text-xs text-muted-foreground">Loading more icons...</span>
+        </div>
+      {/if}
+    {:else}
+      <!-- Table view -->
+      <div class="rounded-lg border bg-card">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs text-muted-foreground">
+              <th class="w-12 px-4 py-2"></th>
+              <th class="px-4 py-2">Name</th>
+              <th class="px-4 py-2">Categories</th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each displayNames as name (name)}
+              {@const iconCats = [...categoryMap.entries()]
+                .filter(([, icons]) => icons.has(name))
+                .map(([cat]) => cat)}
+              <tr
+                class="border-b transition-colors last:border-b-0 hover:bg-muted/50 {selectedIcon ===
+                name
+                  ? 'bg-primary/5'
+                  : ''}"
+                onclick={() => selectIcon(name)}
+                role="button"
+                tabindex="0"
+                data-icon={name}
+                use:observeIcon
+              >
+                <td class="px-4 py-2.5">
+                  <div
+                    data-theme={activeTheme || undefined}
+                    class="flex items-center justify-center"
+                    style="width: 20px; height: 20px; color: {effectiveIconColor};"
+                  >
+                    {#if getIcon(name)}
+                      {@const IconComp = getIcon(name)}
+                      {#if IconComp}
+                        <IconComp size={20} {strokeWidth} />
+                      {/if}
+                    {:else}
+                      <div class="size-5 animate-pulse rounded bg-muted"></div>
+                    {/if}
+                  </div>
+                </td>
+                <td class="px-4 py-2.5">
+                  <span class="font-mono text-xs">{name}</span>
+                </td>
+                <td class="px-4 py-2.5">
+                  <div class="flex flex-wrap gap-1">
+                    {#each iconCats as cat (cat)}
+                      <span class="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground"
+                        >{cat}</span
+                      >
+                    {/each}
+                  </div>
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+
       {#if hasMore}
         <div use:observeSentinel class="flex justify-center py-4">
           <span class="text-xs text-muted-foreground">Loading more icons...</span>
