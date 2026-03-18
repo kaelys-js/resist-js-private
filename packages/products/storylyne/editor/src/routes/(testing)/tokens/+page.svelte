@@ -866,6 +866,7 @@
               {:else}
                 {#each filteredSortOpts as opt (opt.v)}
                   <DropdownMenu.Item
+                    class="group"
                     closeOnSelect={false}
                     onclick={() => {
                       if (sortField === opt.v) {
@@ -882,13 +883,11 @@
                     }}
                   >
                     {#if sortField === opt.v && sortDir === 'asc'}
-                      <ArrowUp class="size-4 shrink-0 text-primary" />
+                      <ArrowUp class="mr-1 size-4 shrink-0 text-primary" />
                     {:else if sortField === opt.v && sortDir === 'desc'}
-                      <ArrowDown class="size-4 shrink-0 text-primary" />
+                      <ArrowDown class="mr-1 size-4 shrink-0 text-primary" />
                     {:else}
-                      <ArrowUpDown
-                        class="size-4 shrink-0 opacity-0 transition-opacity duration-150 group-hover:opacity-40"
-                      />
+                      <ArrowUpDown class="mr-1 size-4 shrink-0 opacity-30" />
                     {/if}
                     <div class="flex min-w-0 flex-1 flex-col">
                       <span class="text-sm">{opt.l}</span>
@@ -1057,21 +1056,73 @@
             {#if sectionOpen[group.category]}
               <div transition:slide={{ duration: 200 }}>
                 <div class="rounded-lg border bg-card">
-                  <table class="w-full table-fixed text-sm">
+                  <table class="w-full text-sm">
                     <thead>
-                      <tr class="border-b text-left text-xs text-muted-foreground">
+                      <tr class="border-b bg-muted/50">
                         {#if group.category === 'color' || group.category === 'sidebar-color'}
                           <th class="w-12 px-4 py-2"></th>
                         {/if}
-                        <th class="px-4 py-2">Variable</th>
-                        <th class="px-4 py-2">Value</th>
-                        <th class="px-4 py-2">Tailwind</th>
+                        <th class="p-0 text-left font-medium text-muted-foreground">
+                          <button
+                            type="button"
+                            class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                            onclick={() => {
+                              if (sortField === 'name' && sortDir === 'asc') {
+                                sortDir = 'desc';
+                              } else if (sortField === 'name' && sortDir === 'desc') {
+                                sortField = '' as Str;
+                                sortDir = 'asc';
+                              } else {
+                                sortField = 'name' as Str;
+                                sortDir = 'asc';
+                              }
+                            }}
+                          >
+                            Variable
+                            {#if sortField === 'name' && sortDir === 'asc'}
+                              <ArrowUp class="size-3 text-primary" />
+                            {:else if sortField === 'name' && sortDir === 'desc'}
+                              <ArrowDown class="size-3 text-primary" />
+                            {:else}
+                              <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                            {/if}
+                          </button>
+                        </th>
+                        <th class="p-0 text-left font-medium text-muted-foreground">
+                          <button
+                            type="button"
+                            class="group/th flex w-full items-center gap-1 px-4 py-2 transition-colors hover:text-foreground"
+                            onclick={() => {
+                              if (sortField === 'value' && sortDir === 'asc') {
+                                sortDir = 'desc';
+                              } else if (sortField === 'value' && sortDir === 'desc') {
+                                sortField = '' as Str;
+                                sortDir = 'asc';
+                              } else {
+                                sortField = 'value' as Str;
+                                sortDir = 'asc';
+                              }
+                            }}
+                          >
+                            Value
+                            {#if sortField === 'value' && sortDir === 'asc'}
+                              <ArrowUp class="size-3 text-primary" />
+                            {:else if sortField === 'value' && sortDir === 'desc'}
+                              <ArrowDown class="size-3 text-primary" />
+                            {:else}
+                              <ArrowUp class="size-3 opacity-0 group-hover/th:opacity-40" />
+                            {/if}
+                          </button>
+                        </th>
+                        <th class="px-4 py-2 text-left font-medium text-muted-foreground"
+                          >Tailwind</th
+                        >
                         <th class="w-12 px-4 py-2"></th>
                       </tr>
                     </thead>
                     <tbody>
                       {#each group.tokens as token (token.name)}
-                        <tr class="border-b last:border-b-0 transition-colors hover:bg-muted/50">
+                        <tr class="border-b last:border-b-0 transition-colors hover:bg-muted/40">
                           {#if group.category === 'color' || group.category === 'sidebar-color'}
                             <td class="px-4 py-2.5">
                               {#if isColorValue(token.value)}

@@ -2929,9 +2929,13 @@
                     <Bell class="size-4" />
                   </button>
                   {#if (unreadCount as number) > 0}
-                    <span
-                      class="pointer-events-none absolute -right-0.5 -top-0.5 size-2.5 animate-pulse rounded-full bg-destructive ring-2 ring-background"
-                    ></span>
+                    <span class="pointer-events-none absolute -right-0.5 -top-0.5 flex size-2.5">
+                      <span
+                        class="absolute inline-flex size-full animate-ping rounded-full bg-destructive opacity-75"
+                      ></span>
+                      <span class="relative inline-flex size-2.5 rounded-full bg-destructive"
+                      ></span>
+                    </span>
                   {/if}
                 </span>
               {/snippet}

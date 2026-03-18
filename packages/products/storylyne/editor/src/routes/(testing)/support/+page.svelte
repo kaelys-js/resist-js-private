@@ -846,13 +846,11 @@
                     }}
                   >
                     {#if sortField === opt.v && sortDir === 'asc'}
-                      <ArrowUp class="size-4 shrink-0 text-primary" />
+                      <ArrowUp class="mr-1 size-4 shrink-0 text-primary" />
                     {:else if sortField === opt.v && sortDir === 'desc'}
-                      <ArrowDown class="size-4 shrink-0 text-primary" />
+                      <ArrowDown class="mr-1 size-4 shrink-0 text-primary" />
                     {:else}
-                      <ArrowUpDown
-                        class="size-4 shrink-0 opacity-0 transition-opacity duration-150 group-hover:opacity-40"
-                      />
+                      <ArrowUpDown class="mr-1 size-4 shrink-0 opacity-30" />
                     {/if}
                     <div class="flex min-w-0 flex-1 flex-col">
                       <span class="text-sm">{opt.l}</span>
