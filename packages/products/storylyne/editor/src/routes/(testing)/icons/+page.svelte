@@ -483,6 +483,9 @@
   /** Grid density: 'compact' (10 cols), 'comfortable' (6 cols), 'large' (4 cols). */
   let gridDensity: Str = $state((initParams.get('density') ?? DEFAULT_DENSITY) as Str);
 
+  /** Sort mode for icons. */
+  let sortMode: Str = $state('name-asc' as Str);
+
   /** Active theme preset ID ('' = default/inherit). */
   let activeTheme: Str = $state((initParams.get('theme') ?? DEFAULT_THEME) as Str);
 
@@ -522,6 +525,7 @@
       previewBg !== DEFAULT_BG ||
       gridDensity !== DEFAULT_DENSITY ||
       activeTheme !== DEFAULT_THEME ||
+      sortMode !== 'name-asc' ||
       activeCategories.length > 0) as Bool,
   );
 
@@ -556,6 +560,22 @@
       const q: Str = searchQuery.toLowerCase() as Str;
       result = result.filter((name) => name.toLowerCase().includes(q)) as Str[];
     }
+
+    /* Sort */
+    if (sortMode === 'name-desc') {
+      result = [...result].toSorted((a: Str, b: Str): Num => b.localeCompare(a) as Num);
+    } else if (sortMode === 'category') {
+      result = [...result].toSorted((a: Str, b: Str): Num => {
+        const aCats: Str[] = [...categoryMap.entries()]
+          .filter(([, icons]) => icons.has(a))
+          .map(([cat]) => cat);
+        const bCats: Str[] = [...categoryMap.entries()]
+          .filter(([, icons]) => icons.has(b))
+          .map(([cat]) => cat);
+        return (aCats[0] ?? '').localeCompare(bCats[0] ?? '') as Num;
+      });
+    }
+    // 'name-asc' is default — data.names is already sorted A-Z
 
     return result;
   });
@@ -859,6 +879,7 @@
     previewBg = DEFAULT_BG;
     gridDensity = DEFAULT_DENSITY;
     activeTheme = DEFAULT_THEME;
+    sortMode = 'name-asc' as Str;
     activeCategories = [];
   }
 
