@@ -8,15 +8,15 @@
     title: StrSchema,
     /** Secondary description text below the title (plain string). @values This component has no renderable variants., Add examples to see them here. */
     description: v.optional(StrSchema),
-    /** Rich description snippet — used instead of `description` when rich content (e.g. highlighted query) is needed. */
+    /** Rich description snippet — used instead of `description` when rich content (e.g. highlighted query) is needed. @values {#snippet desc()}<span>...</span>{/snippet} */
     descriptionSnippet: v.optional(v.custom<Snippet>((val) => typeof val === 'function')),
     /** Optional icon snippet — defaults to PackageOpen. @values <div>content</div> */
     icon: v.optional(v.custom<Snippet>((val) => typeof val === 'function')),
     /** Visual variant. @values default, destructive */
     variant: v.optional(v.picklist(['default', 'destructive'])),
-    /** Label for the optional action button (e.g. "Clear search"). */
+    /** Label for the optional action button (e.g. "Clear search"). @values Clear search, Reset filters, Try again */
     actionLabel: v.optional(StrSchema),
-    /** Callback fired when the action button is clicked. */
+    /** Callback fired when the action button is clicked. @values () => clearSearch() */
     onaction: v.optional(v.custom<() => void>((val) => typeof val === 'function')),
     /** Additional CSS classes for the root element. */
     class: v.optional(StrSchema),

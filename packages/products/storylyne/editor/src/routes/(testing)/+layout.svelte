@@ -73,6 +73,10 @@
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import CircleX from '@lucide/svelte/icons/circle-x';
   import Tag from '@lucide/svelte/icons/tag';
+  import Monitor from '@lucide/svelte/icons/monitor';
+  import LifeBuoy from '@lucide/svelte/icons/life-buoy';
+  import PaintbrushIcon from '@lucide/svelte/icons/paintbrush';
+  import AccessibilityIcon from '@lucide/svelte/icons/accessibility';
   import {
     CATEGORY_ORDER,
     CATEGORY_ICONS,
@@ -585,6 +589,41 @@
       group: 'Pages',
       keywords: ['icons', 'lucide', 'icon gallery', 'search icons', 'svg'],
     },
+    {
+      value: 'pages/browser-support',
+      label: 'Browser & Device Support',
+      href: '/browser-support',
+      group: 'Pages',
+      keywords: ['browser', 'device', 'support', 'compatibility', 'chrome', 'firefox', 'safari'],
+    },
+    {
+      value: 'pages/about',
+      label: 'About',
+      href: '/about',
+      group: 'Pages',
+      keywords: ['about', 'mission', 'tech stack', 'version', 'license', 'contributors'],
+    },
+    {
+      value: 'pages/support',
+      label: 'Support',
+      href: '/support',
+      group: 'Pages',
+      keywords: ['support', 'help', 'faq', 'bug report', 'feature request', 'contributing'],
+    },
+    {
+      value: 'pages/styling',
+      label: 'Styling',
+      href: '/styling',
+      group: 'Pages',
+      keywords: ['styling', 'theming', 'themes', 'css', 'dark mode', 'colors', 'typography'],
+    },
+    {
+      value: 'pages/accessibility',
+      label: 'Accessibility',
+      href: '/accessibility',
+      group: 'Pages',
+      keywords: ['accessibility', 'a11y', 'wcag', 'aria', 'keyboard', 'screen reader'],
+    },
   );
 
   /** Current component name from the URL params. */
@@ -602,6 +641,11 @@
     if (path === '/components/all') return 'All Components' as Str;
     if (path === '/components/category') return 'Categories' as Str;
     if (path === '/components/tags') return 'Tags' as Str;
+    if (path === '/browser-support') return 'Browser Support' as Str;
+    if (path === '/about') return 'About' as Str;
+    if (path === '/support') return 'Support' as Str;
+    if (path === '/styling') return 'Styling' as Str;
+    if (path === '/accessibility') return 'Accessibility' as Str;
     return '' as Str;
   });
 
@@ -2446,6 +2490,56 @@
               {/snippet}
             </Sidebar.MenuButton>
           </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/browser-support'}>
+              {#snippet child({ props })}
+                <a href="/browser-support" {...props}>
+                  <Monitor class="size-4" />
+                  <span>Browser Support</span>
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/styling'}>
+              {#snippet child({ props })}
+                <a href="/styling" {...props}>
+                  <PaintbrushIcon class="size-4" />
+                  <span>Styling</span>
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/accessibility'}>
+              {#snippet child({ props })}
+                <a href="/accessibility" {...props}>
+                  <AccessibilityIcon class="size-4" />
+                  <span>Accessibility</span>
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/about'}>
+              {#snippet child({ props })}
+                <a href="/about" {...props}>
+                  <Info class="size-4" />
+                  <span>About</span>
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/support'}>
+              {#snippet child({ props })}
+                <a href="/support" {...props}>
+                  <LifeBuoy class="size-4" />
+                  <span>Support</span>
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
         </Sidebar.Menu>
       </Sidebar.Group>
     </Sidebar.Content>
@@ -2522,6 +2616,26 @@
                     bcQuery.length === 0 ||
                     "what's new".includes(bcQuery) ||
                     'changelog'.includes(bcQuery)}
+                  {@const bcShowBrowserSupport =
+                    bcQuery.length === 0 ||
+                    'browser support'.includes(bcQuery) ||
+                    'device support'.includes(bcQuery) ||
+                    'compatibility'.includes(bcQuery)}
+                  {@const bcShowStyling =
+                    bcQuery.length === 0 ||
+                    'styling'.includes(bcQuery) ||
+                    'theming'.includes(bcQuery) ||
+                    'themes'.includes(bcQuery)}
+                  {@const bcShowAccessibility =
+                    bcQuery.length === 0 ||
+                    'accessibility'.includes(bcQuery) ||
+                    'a11y'.includes(bcQuery)}
+                  {@const bcShowAbout = bcQuery.length === 0 || 'about'.includes(bcQuery)}
+                  {@const bcShowSupport =
+                    bcQuery.length === 0 ||
+                    'support'.includes(bcQuery) ||
+                    'help'.includes(bcQuery) ||
+                    'faq'.includes(bcQuery)}
                   {@const bcHasResults =
                     bcShowOverview ||
                     bcShowGettingStarted ||
@@ -2531,7 +2645,12 @@
                     bcShowTags ||
                     bcShowTokens ||
                     bcShowIcons ||
-                    bcShowWhatsNew}
+                    bcShowWhatsNew ||
+                    bcShowBrowserSupport ||
+                    bcShowStyling ||
+                    bcShowAccessibility ||
+                    bcShowAbout ||
+                    bcShowSupport}
 
                   <div class="flex-1 overflow-y-auto py-1">
                     {#if !bcHasResults}
@@ -2636,7 +2755,7 @@
                       {/if}
 
                       <!-- Reference pages (matches sidebar bottom group) -->
-                      {#if bcShowTokens || bcShowIcons || bcShowWhatsNew}
+                      {#if bcShowTokens || bcShowIcons || bcShowWhatsNew || bcShowBrowserSupport || bcShowStyling || bcShowAccessibility || bcShowAbout || bcShowSupport}
                         {#if bcShowOverview || bcShowGettingStarted || bcFilteredGroups.length > 0 || bcShowAllComponents || bcShowCategories || bcShowTags}
                           <DropdownMenu.Separator />
                         {/if}
@@ -2666,6 +2785,56 @@
                               <a href="/changelog" {...clProps}>
                                 <Newspaper class="size-4" />
                                 What's New
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/if}
+                        {#if bcShowBrowserSupport}
+                          <DropdownMenu.Item>
+                            {#snippet child({ props: bsProps })}
+                              <a href="/browser-support" {...bsProps}>
+                                <Monitor class="size-4" />
+                                Browser Support
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/if}
+                        {#if bcShowStyling}
+                          <DropdownMenu.Item>
+                            {#snippet child({ props: stProps })}
+                              <a href="/styling" {...stProps}>
+                                <PaintbrushIcon class="size-4" />
+                                Styling
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/if}
+                        {#if bcShowAccessibility}
+                          <DropdownMenu.Item>
+                            {#snippet child({ props: a11yProps })}
+                              <a href="/accessibility" {...a11yProps}>
+                                <AccessibilityIcon class="size-4" />
+                                Accessibility
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/if}
+                        {#if bcShowAbout}
+                          <DropdownMenu.Item>
+                            {#snippet child({ props: aboutProps })}
+                              <a href="/about" {...aboutProps}>
+                                <Info class="size-4" />
+                                About
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/if}
+                        {#if bcShowSupport}
+                          <DropdownMenu.Item>
+                            {#snippet child({ props: supProps })}
+                              <a href="/support" {...supProps}>
+                                <LifeBuoy class="size-4" />
+                                Support
                               </a>
                             {/snippet}
                           </DropdownMenu.Item>
