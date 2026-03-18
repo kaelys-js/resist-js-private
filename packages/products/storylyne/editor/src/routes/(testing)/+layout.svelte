@@ -1705,11 +1705,6 @@
       <div class="flex items-center gap-2 px-2 py-1.5">
         <AppLogo size={20} />
         <span class="text-sm font-semibold tracking-tight">Lens</span>
-        <Badge
-          variant="secondary"
-          class="h-5 rounded-full px-1.5 text-[10px] leading-none tabular-nums"
-          >{componentNames.length.toLocaleString()}</Badge
-        >
         <div class="ml-auto">
           <DropdownMenu.Root>
             <Tooltip.Root delayDuration={300}>
