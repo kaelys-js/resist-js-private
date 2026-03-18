@@ -27,6 +27,9 @@
   import { slide, fade } from 'svelte/transition';
   import Palette from '@lucide/svelte/icons/palette';
   import Check from '@lucide/svelte/icons/check';
+  import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
+  import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
+  import LayoutGrid from '@lucide/svelte/icons/layout-grid';
   import SearchIcon from '@lucide/svelte/icons/search';
   import SearchX from '@lucide/svelte/icons/search-x';
   import X from '@lucide/svelte/icons/x';
@@ -197,6 +200,12 @@
   let exportFeedback: Str = $state('' as Str);
 
   /** Two-step confirm gate for reset. */
+  /** View mode for token display. */
+  let viewMode: 'table' | 'compact' = $state('table');
+
+  /** Sort mode for tokens. */
+  let sortMode: Str = $state('default' as Str);
+
   let confirmingReset: Bool = $state(false as Bool);
 
   /** Timer ID for reset confirm auto-dismiss. */
@@ -277,7 +286,10 @@
 
   /** Whether any customization is active (for the reset button). */
   const isCustomized: Bool = $derived(
-    (selectedTheme !== ':root' || activeCategories.length > 0) as Bool,
+    (selectedTheme !== ':root' ||
+      activeCategories.length > 0 ||
+      viewMode !== 'table' ||
+      sortMode !== 'default') as Bool,
   );
 
   /** Dynamic subtitle text. */
@@ -338,6 +350,8 @@
     selectedTheme = ':root';
     activeCategories = [];
     searchQuery = '' as Str;
+    viewMode = 'table';
+    sortMode = 'default' as Str;
   }
 
   /**
@@ -596,6 +610,73 @@
                   {/each}
                 {/if}
               </div>
+            </DropdownMenu.SubContent>
+          </DropdownMenu.Sub>
+
+          <DropdownMenu.Separator />
+
+          <!-- Customize submenu -->
+          <DropdownMenu.Sub>
+            <DropdownMenu.SubTrigger>
+              <SlidersHorizontal class="mr-2 size-4" />
+              Customize
+            </DropdownMenu.SubTrigger>
+            <DropdownMenu.SubContent class="w-56">
+              <!-- View Mode -->
+              <DropdownMenu.Label
+                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+              >
+                <LayoutGrid class="size-3" />
+                View Mode
+              </DropdownMenu.Label>
+              {#each [{ v: 'table', l: 'Table', d: 'Full details with columns' }, { v: 'compact', l: 'Compact', d: 'Dense grid with swatches' }] as opt (opt.v)}
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    viewMode = opt.v as 'table' | 'compact';
+                  }}
+                >
+                  <Check
+                    class={cn(
+                      'size-4 shrink-0 transition-opacity duration-150',
+                      viewMode !== opt.v && 'opacity-0',
+                    )}
+                  />
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">{opt.l}</span>
+                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
+                  </div>
+                </DropdownMenu.Item>
+              {/each}
+
+              <DropdownMenu.Separator />
+
+              <!-- Sort -->
+              <DropdownMenu.Label
+                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+              >
+                <ArrowUpDown class="size-3" />
+                Sort By
+              </DropdownMenu.Label>
+              {#each [{ v: 'default', l: 'Default', d: 'As defined in CSS' }, { v: 'name-asc', l: 'Name (A–Z)', d: 'Alphabetical' }, { v: 'name-desc', l: 'Name (Z–A)', d: 'Reverse alphabetical' }] as opt (opt.v)}
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    sortMode = opt.v as Str;
+                  }}
+                >
+                  <Check
+                    class={cn(
+                      'size-4 shrink-0 transition-opacity duration-150',
+                      sortMode !== opt.v && 'opacity-0',
+                    )}
+                  />
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">{opt.l}</span>
+                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
+                  </div>
+                </DropdownMenu.Item>
+              {/each}
             </DropdownMenu.SubContent>
           </DropdownMenu.Sub>
 

@@ -33,6 +33,10 @@
   import CircleAlert from '@lucide/svelte/icons/circle-alert';
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
   import SearchIcon from '@lucide/svelte/icons/search';
+  import Check from '@lucide/svelte/icons/check';
+  import LayoutGrid from '@lucide/svelte/icons/layout-grid';
+  import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
+  import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
   import SearchX from '@lucide/svelte/icons/search-x';
   import Tag from '@lucide/svelte/icons/tag';
   import X from '@lucide/svelte/icons/x';
@@ -151,6 +155,12 @@
   /** Active category filters. */
   let activeCategories: Str[] = $state([]);
 
+  /** View mode. */
+  let viewMode: 'grid' | 'list' = $state('grid');
+
+  /** Sort mode. */
+  let sortMode: Str = $state('name-asc' as Str);
+
   /** Two-step reset confirmation. */
   let confirmingReset: Bool = $state(false as Bool);
   let confirmResetTimer: ReturnType<typeof setTimeout> | undefined;
@@ -191,6 +201,35 @@
       });
     }
 
+    // Sort
+    if (sortMode === 'name-desc') {
+      names = [...names].toSorted((a: Str, b: Str): Num => b.localeCompare(a) as Num);
+    } else if (sortMode === 'category') {
+      names = [...names].toSorted((a: Str, b: Str): Num => {
+        const aCat: Str = (metaByName.get(a)?.category ?? 'display') as Str;
+        const bCat: Str = (metaByName.get(b)?.category ?? 'display') as Str;
+        return aCat.localeCompare(bCat) as Num;
+      });
+    } else if (sortMode === 'compatibility') {
+      names = [...names].toSorted((a: Str, b: Str): Num => {
+        const aOk: Num = (compatByName.get(a)?.compatible ? 1 : 0) as Num;
+        const bOk: Num = (compatByName.get(b)?.compatible ? 1 : 0) as Num;
+        return (bOk - aOk) as Num;
+      });
+    } else if (sortMode === 'status') {
+      const statusOrder: Record<string, Num> = {
+        new: 0 as Num,
+        updated: 1 as Num,
+        deprecated: 2 as Num,
+      };
+      names = [...names].toSorted((a: Str, b: Str): Num => {
+        const aS: Num = statusOrder[metaByName.get(a)?.status ?? ''] ?? (3 as Num);
+        const bS: Num = statusOrder[metaByName.get(b)?.status ?? ''] ?? (3 as Num);
+        return (aS - bS) as Num;
+      });
+    }
+    // 'name-asc' is default — componentNames is already sorted A-Z
+
     return names;
   });
 
@@ -204,7 +243,10 @@
 
   /** Whether any filter is active. */
   const isCustomized: boolean = $derived(
-    searchQuery.trim().length > 0 || activeCategories.length > 0,
+    searchQuery.trim().length > 0 ||
+      activeCategories.length > 0 ||
+      viewMode !== 'grid' ||
+      sortMode !== 'name-asc',
   );
 
   /* ------------------------------------------------------------------ */
@@ -282,6 +324,8 @@
     if (confirmingReset) {
       searchQuery = '' as Str;
       activeCategories = [];
+      viewMode = 'grid';
+      sortMode = 'name-asc' as Str;
       confirmingReset = false as Bool;
       if (confirmResetTimer) clearTimeout(confirmResetTimer);
     } else {
@@ -387,6 +431,72 @@
             </DropdownMenu.SubContent>
           </DropdownMenu.Sub>
           <DropdownMenu.Separator />
+
+          <!-- Customize submenu -->
+          <DropdownMenu.Sub>
+            <DropdownMenu.SubTrigger>
+              <SlidersHorizontal class="mr-2 size-4" />
+              Customize
+            </DropdownMenu.SubTrigger>
+            <DropdownMenu.SubContent class="w-56">
+              <DropdownMenu.Label
+                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+              >
+                <LayoutGrid class="size-3" />
+                View Mode
+              </DropdownMenu.Label>
+              {#each [{ v: 'grid', l: 'Grid', d: 'Component cards' }, { v: 'list', l: 'List', d: 'Compact rows' }] as opt (opt.v)}
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    viewMode = opt.v as 'grid' | 'list';
+                  }}
+                >
+                  <Check
+                    class={cn(
+                      'size-4 shrink-0 transition-opacity duration-150',
+                      viewMode !== opt.v && 'opacity-0',
+                    )}
+                  />
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">{opt.l}</span>
+                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
+                  </div>
+                </DropdownMenu.Item>
+              {/each}
+
+              <DropdownMenu.Separator />
+
+              <DropdownMenu.Label
+                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+              >
+                <ArrowUpDown class="size-3" />
+                Sort By
+              </DropdownMenu.Label>
+              {#each [{ v: 'name-asc', l: 'Name (A–Z)', d: 'Alphabetical' }, { v: 'name-desc', l: 'Name (Z–A)', d: 'Reverse alphabetical' }, { v: 'category', l: 'Category', d: 'Grouped by category' }, { v: 'compatibility', l: 'Compatibility', d: 'Compliant first' }, { v: 'status', l: 'Status', d: 'New → Updated → Deprecated' }] as opt (opt.v)}
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    sortMode = opt.v as Str;
+                  }}
+                >
+                  <Check
+                    class={cn(
+                      'size-4 shrink-0 transition-opacity duration-150',
+                      sortMode !== opt.v && 'opacity-0',
+                    )}
+                  />
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">{opt.l}</span>
+                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
+                  </div>
+                </DropdownMenu.Item>
+              {/each}
+            </DropdownMenu.SubContent>
+          </DropdownMenu.Sub>
+
+          <DropdownMenu.Separator />
+
           <DropdownMenu.Item
             variant="destructive"
             disabled={!isCustomized}

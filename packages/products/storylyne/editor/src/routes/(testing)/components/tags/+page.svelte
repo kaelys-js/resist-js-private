@@ -15,6 +15,10 @@
   import { cn } from '@/ui/utils.js';
   import TagIcon from '@lucide/svelte/icons/tag';
   import SearchIcon from '@lucide/svelte/icons/search';
+  import Check from '@lucide/svelte/icons/check';
+  import LayoutGrid from '@lucide/svelte/icons/layout-grid';
+  import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
+  import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
   import SearchX from '@lucide/svelte/icons/search-x';
   import ComponentIcon from '@lucide/svelte/icons/component';
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
@@ -91,19 +95,42 @@
   /** Search query. */
   let searchQuery: Str = $state('' as Str);
 
+  /** View mode for tag display. */
+  let viewMode: 'grid' | 'list' = $state('grid');
+
+  /** Sort mode for tags. */
+  let sortMode: Str = $state('alphabetical' as Str);
+
   /** Two-step reset confirmation. */
   let confirmingReset: Bool = $state(false as Bool);
   let confirmResetTimer: ReturnType<typeof setTimeout> | undefined;
 
   /* ------------------------------------------------------------------ */
-  /*  Filtered tags                                                      */
+  /*  Filtered + sorted tags                                             */
   /* ------------------------------------------------------------------ */
 
-  /** Tags filtered by search query. */
+  /** Tags filtered by search query and sorted. */
   const filteredTags: Str[] = $derived.by((): Str[] => {
     const q: Str = searchQuery.trim().toLowerCase() as Str;
-    if (!q) return allTags;
-    return allTags.filter((tag: Str): boolean => tag.toLowerCase().includes(q as string));
+    let tags: Str[] = allTags;
+    if (q) {
+      tags = tags.filter((tag: Str): boolean => tag.toLowerCase().includes(q as string));
+    }
+
+    if (sortMode === 'count-desc') {
+      tags = [...tags].toSorted(
+        (a: Str, b: Str): Num =>
+          ((tagMap.get(b)?.length ?? 0) - (tagMap.get(a)?.length ?? 0)) as Num,
+      );
+    } else if (sortMode === 'count-asc') {
+      tags = [...tags].toSorted(
+        (a: Str, b: Str): Num =>
+          ((tagMap.get(a)?.length ?? 0) - (tagMap.get(b)?.length ?? 0)) as Num,
+      );
+    }
+    // 'alphabetical' is default — allTags is already sorted
+
+    return tags;
   });
 
   /** Dynamic subtitle. */
@@ -114,8 +141,10 @@
     return `${allTags.length} tags across ${componentNames.length} components` as Str;
   });
 
-  /** Whether search is active. */
-  const isCustomized: boolean = $derived(searchQuery.trim().length > 0);
+  /** Whether any customization is active. */
+  const isCustomized: boolean = $derived(
+    searchQuery.trim().length > 0 || viewMode !== 'grid' || sortMode !== 'alphabetical',
+  );
 
   /* ------------------------------------------------------------------ */
   /*  Export                                                              */
@@ -178,6 +207,8 @@
   function handleReset(): void {
     if (confirmingReset) {
       searchQuery = '' as Str;
+      viewMode = 'grid';
+      sortMode = 'alphabetical' as Str;
       confirmingReset = false as Bool;
       if (confirmResetTimer) clearTimeout(confirmResetTimer);
     } else {
@@ -290,6 +321,72 @@
             </DropdownMenu.SubContent>
           </DropdownMenu.Sub>
           <DropdownMenu.Separator />
+
+          <!-- Customize submenu -->
+          <DropdownMenu.Sub>
+            <DropdownMenu.SubTrigger>
+              <SlidersHorizontal class="mr-2 size-4" />
+              Customize
+            </DropdownMenu.SubTrigger>
+            <DropdownMenu.SubContent class="w-56">
+              <DropdownMenu.Label
+                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+              >
+                <LayoutGrid class="size-3" />
+                View Mode
+              </DropdownMenu.Label>
+              {#each [{ v: 'grid', l: 'Grid', d: 'Tag cards with samples' }, { v: 'list', l: 'List', d: 'Compact rows with counts' }] as opt (opt.v)}
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    viewMode = opt.v as 'grid' | 'list';
+                  }}
+                >
+                  <Check
+                    class={cn(
+                      'size-4 shrink-0 transition-opacity duration-150',
+                      viewMode !== opt.v && 'opacity-0',
+                    )}
+                  />
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">{opt.l}</span>
+                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
+                  </div>
+                </DropdownMenu.Item>
+              {/each}
+
+              <DropdownMenu.Separator />
+
+              <DropdownMenu.Label
+                class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+              >
+                <ArrowUpDown class="size-3" />
+                Sort By
+              </DropdownMenu.Label>
+              {#each [{ v: 'alphabetical', l: 'Alphabetical', d: 'A–Z' }, { v: 'count-desc', l: 'Most Used', d: 'Most components first' }, { v: 'count-asc', l: 'Least Used', d: 'Fewest components first' }] as opt (opt.v)}
+                <DropdownMenu.Item
+                  closeOnSelect={false}
+                  onclick={() => {
+                    sortMode = opt.v as Str;
+                  }}
+                >
+                  <Check
+                    class={cn(
+                      'size-4 shrink-0 transition-opacity duration-150',
+                      sortMode !== opt.v && 'opacity-0',
+                    )}
+                  />
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-sm">{opt.l}</span>
+                    <span class="text-[11px] text-muted-foreground/60">{opt.d}</span>
+                  </div>
+                </DropdownMenu.Item>
+              {/each}
+            </DropdownMenu.SubContent>
+          </DropdownMenu.Sub>
+
+          <DropdownMenu.Separator />
+
           <DropdownMenu.Item
             variant="destructive"
             disabled={!isCustomized}
