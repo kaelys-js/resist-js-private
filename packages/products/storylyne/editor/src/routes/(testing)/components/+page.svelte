@@ -1,9 +1,9 @@
 <script lang="ts">
   /**
-   * Lens homepage — dashboard overview of the component library.
+   * Lens Overview — dashboard hub for the component library.
    *
-   * Displays quick stats, compatibility alerts, activity feed, and
-   * navigation cards to Categories, Design Tokens, and Icons pages.
+   * Displays stats, health metrics, explore hub cards, categories at a glance,
+   * popular tags, and recent activity feed.
    */
   import type { Num, Str } from '@/schemas/common';
   import type { LensMeta, LensStatus, CategoryGroup } from '@/ui/lens/types.js';
@@ -19,11 +19,14 @@
   import Badge from '@/ui/badge/badge.svelte';
   import * as Tooltip from '@/ui/tooltip/index.js';
   import { getContext, type Component } from 'svelte';
+  import { page } from '$app/stores';
   import {
     CATEGORY_ORDER,
     CATEGORY_ICONS,
     CATEGORY_COLORS,
+    CATEGORY_BG,
     categoryLabel as catLabel,
+    LENS_RULE_NAMES,
   } from '$lib/config/lens-categories';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
   import Palette from '@lucide/svelte/icons/palette';
@@ -34,6 +37,12 @@
   import RefreshCw from '@lucide/svelte/icons/refresh-cw';
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import TagIcon from '@lucide/svelte/icons/tag';
+  import Shapes from '@lucide/svelte/icons/shapes';
+  import BookOpen from '@lucide/svelte/icons/book-open';
+  import Newspaper from '@lucide/svelte/icons/newspaper';
+  import ShieldCheck from '@lucide/svelte/icons/shield-check';
+  import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
+  import List from '@lucide/svelte/icons/list';
 
   /* ------------------------------------------------------------------ */
   /*  Glob-based data (mirrors layout pattern)                           */
@@ -124,6 +133,23 @@
     componentNames.length > 0 ? Math.round((compliantCount / componentNames.length) * 100) : 0
   ) as Num;
 
+  /** Incompatible count. */
+  const incompatibleCount: Num = (componentNames.length - (compliantCount as number)) as Num;
+
+  /** Rule violation counts — how many components violate each rule. */
+  const ruleViolationCounts: Array<{ rule: Num; name: Str; count: Num }> = LENS_RULE_NAMES.map(
+    (name: Str, idx: Num): { rule: Num; name: Str; count: Num } => {
+      const count: Num = componentNames.filter((n: Str): boolean => {
+        const compat: LensCompatibility | undefined = compatByName.get(n);
+        if (!compat) return false;
+        return compat.violations.some((v) => v.rule === idx);
+      }).length as Num;
+      return { rule: idx, name, count };
+    },
+  )
+    .filter((r): boolean => (r.count as number) > 0)
+    .toSorted((a, b): number => (b.count as number) - (a.count as number));
+
   /* ------------------------------------------------------------------ */
   /*  Tags                                                               */
   /* ------------------------------------------------------------------ */
@@ -132,6 +158,27 @@
   const allTags: Str[] = [
     ...new Set([...metaByName.values()].flatMap((m: LensMeta): Str[] => m.tags)),
   ].toSorted();
+
+  /** Tag usage counts for popular tags display. */
+  const tagCounts: Map<Str, Num> = new Map();
+  for (const meta of metaByName.values()) {
+    for (const tag of meta.tags) {
+      tagCounts.set(tag, ((tagCounts.get(tag) ?? 0) + 1) as Num);
+    }
+  }
+
+  /** Top 20 tags sorted by usage count descending. */
+  const popularTags: Array<{ tag: Str; count: Num }> = [...tagCounts.entries()]
+    .map(([tag, count]: [Str, Num]): { tag: Str; count: Num } => ({ tag, count }))
+    .toSorted((a, b): number => (b.count as number) - (a.count as number))
+    .slice(0, 20);
+
+  /** Max tag count for relative sizing. */
+  const maxTagCount: Num = (popularTags.length > 0 ? (popularTags[0]?.count ?? 1) : 1) as Num;
+
+  /* ------------------------------------------------------------------ */
+  /*  Activity feed                                                      */
+  /* ------------------------------------------------------------------ */
 
   /** Status icon mapping. */
   const STATUS_ICONS: Record<LensStatus, Component> = {
@@ -164,6 +211,123 @@
       name: n,
       meta: metaByName.get(n) as LensMeta, // safe — filtered above
     }));
+
+  /* ------------------------------------------------------------------ */
+  /*  Icon count from layout data                                        */
+  /* ------------------------------------------------------------------ */
+
+  /** Icon count from layout server data. */
+  // UI boundary — $derived must produce a value; fallback if data not loaded
+  const iconCount: Num = $derived.by((): Num => {
+    const count: unknown = $page.data?.iconCount;
+    if (typeof count === 'number') return count as Num;
+    log.warn('iconCount not available from layout data');
+    return 0 as Num;
+  });
+
+  /* ------------------------------------------------------------------ */
+  /*  Explore hub cards                                                   */
+  /* ------------------------------------------------------------------ */
+
+  /** Hub card definition for the explore grid. */
+  type HubCard = {
+    /** Page URL. */
+    href: Str;
+    /** Card title. */
+    title: Str;
+    /** Short description. */
+    description: Str;
+    /** Lucide icon component. */
+    icon: Component;
+    /** Icon/accent color class. */
+    color: Str;
+    /** Background color class. */
+    bg: Str;
+    /** Count to display. */
+    count: Num;
+    /** Count label. */
+    countLabel: Str;
+  };
+
+  const hubCards: HubCard[] = [
+    {
+      href: '/components/all' as Str,
+      title: 'All Components' as Str,
+      description: 'Browse, search, and filter the full component library' as Str,
+      icon: List,
+      color: 'text-blue-600 dark:text-blue-400' as Str,
+      bg: 'bg-blue-500/10' as Str,
+      count: componentNames.length as Num,
+      countLabel: 'components' as Str,
+    },
+    {
+      href: '/components/category' as Str,
+      title: 'Categories' as Str,
+      description: 'Components organized by function and purpose' as Str,
+      icon: LayoutGrid,
+      color: 'text-violet-600 dark:text-violet-400' as Str,
+      bg: 'bg-violet-500/10' as Str,
+      count: groupedComponents.length as Num,
+      countLabel: 'categories' as Str,
+    },
+    {
+      href: '/components/tags' as Str,
+      title: 'Tags' as Str,
+      description: 'Cross-cutting labels for component discovery' as Str,
+      icon: TagIcon,
+      color: 'text-amber-600 dark:text-amber-400' as Str,
+      bg: 'bg-amber-500/10' as Str,
+      count: allTags.length as Num,
+      countLabel: 'tags' as Str,
+    },
+    {
+      href: '/tokens' as Str,
+      title: 'Design Tokens' as Str,
+      description: 'CSS custom properties and theme variables' as Str,
+      icon: Palette,
+      color: 'text-pink-600 dark:text-pink-400' as Str,
+      bg: 'bg-pink-500/10' as Str,
+      count: tokenCount,
+      countLabel: 'tokens' as Str,
+    },
+    {
+      href: '/icons' as Str,
+      title: 'Icons' as Str,
+      description: 'Lucide icon browser with preview and export' as Str,
+      icon: Shapes,
+      color: 'text-teal-600 dark:text-teal-400' as Str,
+      bg: 'bg-teal-500/10' as Str,
+      count: iconCount,
+      countLabel: 'icons' as Str,
+    },
+    {
+      href: '/getting-started' as Str,
+      title: 'Getting Started' as Str,
+      description: 'Installation, setup, and usage guide' as Str,
+      icon: BookOpen,
+      color: 'text-emerald-600 dark:text-emerald-400' as Str,
+      bg: 'bg-emerald-500/10' as Str,
+      count: 0 as Num,
+      countLabel: '' as Str,
+    },
+    {
+      href: '/changelog' as Str,
+      title: "What's New" as Str,
+      description: 'Latest changes, additions, and deprecations' as Str,
+      icon: Newspaper,
+      color: 'text-orange-600 dark:text-orange-400' as Str,
+      bg: 'bg-orange-500/10' as Str,
+      count: activityEntries.length as Num,
+      countLabel: 'updates' as Str,
+    },
+  ];
+
+  /* ------------------------------------------------------------------ */
+  /*  Health section collapse state                                      */
+  /* ------------------------------------------------------------------ */
+
+  /** Whether the health details section is expanded. */
+  let healthExpanded: boolean = $state(false);
 </script>
 
 <div class="w-full">
@@ -176,44 +340,60 @@
         <LayoutGrid class="size-6 text-primary" />
       </div>
       <div class="flex-1">
-        <h1 class="text-2xl font-bold tracking-tight">Lens</h1>
-        <p class="text-sm text-muted-foreground">
-          {componentNames.length} components across {groupedComponents.length} categories
-        </p>
+        <h1 class="text-2xl font-bold tracking-tight">Overview</h1>
+        <p class="text-sm text-muted-foreground">Component library dashboard</p>
       </div>
     </div>
   </div>
 
   <!-- Page content with padding -->
   <div class="flex flex-col gap-8 px-6 py-6 md:px-10 md:py-8">
-    <!-- Quick Stats -->
+    <!-- At a Glance — Quick Stats (clickable, with tooltips + arrows) -->
     <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">
       <Tooltip.Root delayDuration={300}>
         <Tooltip.Trigger>
           {#snippet child({ props: tipProps })}
-            <div class="rounded-lg border bg-card p-4" {...tipProps}>
+            <a
+              href="/components/all"
+              class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
+              {...tipProps}
+            >
               <div class="flex items-center gap-2 text-muted-foreground">
                 <ComponentIcon class="size-4" />
                 <span class="text-xs font-medium uppercase tracking-wider">Components</span>
+                <ArrowRight
+                  class="ml-auto size-3 text-muted-foreground/0 transition-all group-hover:text-primary"
+                />
               </div>
-              <p class="mt-2 text-2xl font-bold tabular-nums">{componentNames.length}</p>
-            </div>
+              <p class="mt-2 text-2xl font-bold tabular-nums group-hover:text-primary">
+                {componentNames.length}
+              </p>
+            </a>
           {/snippet}
         </Tooltip.Trigger>
-        <Tooltip.Content sideOffset={4} portalProps={{ disabled: true }}
-          >Total UI components discovered in @/ui</Tooltip.Content
-        >
+        <Tooltip.Content sideOffset={4} portalProps={{ disabled: true }}>
+          Total UI components discovered in @/ui
+        </Tooltip.Content>
       </Tooltip.Root>
       <Tooltip.Root delayDuration={300}>
         <Tooltip.Trigger>
           {#snippet child({ props: tipProps })}
-            <div class="rounded-lg border bg-card p-4" {...tipProps}>
+            <a
+              href="/components/category"
+              class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
+              {...tipProps}
+            >
               <div class="flex items-center gap-2 text-muted-foreground">
                 <LayoutGrid class="size-4" />
                 <span class="text-xs font-medium uppercase tracking-wider">Categories</span>
+                <ArrowRight
+                  class="ml-auto size-3 text-muted-foreground/0 transition-all group-hover:text-primary"
+                />
               </div>
-              <p class="mt-2 text-2xl font-bold tabular-nums">{groupedComponents.length}</p>
-            </div>
+              <p class="mt-2 text-2xl font-bold tabular-nums group-hover:text-primary">
+                {groupedComponents.length}
+              </p>
+            </a>
           {/snippet}
         </Tooltip.Trigger>
         <Tooltip.Content
@@ -238,13 +418,22 @@
       <Tooltip.Root delayDuration={300}>
         <Tooltip.Trigger>
           {#snippet child({ props: tipProps })}
-            <div class="rounded-lg border bg-card p-4" {...tipProps}>
+            <a
+              href="/components/tags"
+              class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
+              {...tipProps}
+            >
               <div class="flex items-center gap-2 text-muted-foreground">
                 <TagIcon class="size-4" />
                 <span class="text-xs font-medium uppercase tracking-wider">Tags</span>
+                <ArrowRight
+                  class="ml-auto size-3 text-muted-foreground/0 transition-all group-hover:text-primary"
+                />
               </div>
-              <p class="mt-2 text-2xl font-bold tabular-nums">{allTags.length}</p>
-            </div>
+              <p class="mt-2 text-2xl font-bold tabular-nums group-hover:text-primary">
+                {allTags.length}
+              </p>
+            </a>
           {/snippet}
         </Tooltip.Trigger>
         <Tooltip.Content
@@ -257,8 +446,9 @@
             {#each allTags as tag (tag)}
               <span
                 class="inline-flex items-center gap-0.5 rounded bg-primary-foreground/20 px-1.5 py-1 text-xs"
-                ><TagIcon class="size-3 shrink-0 opacity-60" />{tag}</span
               >
+                <TagIcon class="size-3 shrink-0 opacity-60" />{tag}
+              </span>
             {/each}
           </div>
         </Tooltip.Content>
@@ -266,13 +456,22 @@
       <Tooltip.Root delayDuration={300}>
         <Tooltip.Trigger>
           {#snippet child({ props: tipProps })}
-            <div class="rounded-lg border bg-card p-4" {...tipProps}>
+            <a
+              href="/tokens"
+              class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
+              {...tipProps}
+            >
               <div class="flex items-center gap-2 text-muted-foreground">
                 <Palette class="size-4" />
                 <span class="text-xs font-medium uppercase tracking-wider">Tokens</span>
+                <ArrowRight
+                  class="ml-auto size-3 text-muted-foreground/0 transition-all group-hover:text-primary"
+                />
               </div>
-              <p class="mt-2 text-2xl font-bold tabular-nums">{tokenCount}</p>
-            </div>
+              <p class="mt-2 text-2xl font-bold tabular-nums group-hover:text-primary">
+                {tokenCount}
+              </p>
+            </a>
           {/snippet}
         </Tooltip.Trigger>
         <Tooltip.Content sideOffset={4} portalProps={{ disabled: true }}>
@@ -282,39 +481,193 @@
       <Tooltip.Root delayDuration={300}>
         <Tooltip.Trigger>
           {#snippet child({ props: tipProps })}
-            <div class="rounded-lg border bg-card p-4" {...tipProps}>
+            <a
+              href="/icons"
+              class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
+              {...tipProps}
+            >
               <div class="flex items-center gap-2 text-muted-foreground">
-                <CircleCheck class="size-4" />
-                <span class="text-xs font-medium uppercase tracking-wider">Compatible</span>
+                <Shapes class="size-4" />
+                <span class="text-xs font-medium uppercase tracking-wider">Icons</span>
+                <ArrowRight
+                  class="ml-auto size-3 text-muted-foreground/0 transition-all group-hover:text-primary"
+                />
               </div>
-              <p
-                class="mt-2 text-2xl font-bold tabular-nums {compliantPercent >= 80
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : compliantPercent >= 50
-                    ? 'text-amber-600 dark:text-amber-400'
-                    : 'text-red-600 dark:text-red-400'}"
-              >
-                {compliantPercent}%
+              <p class="mt-2 text-2xl font-bold tabular-nums group-hover:text-primary">
+                {iconCount.toLocaleString()}
               </p>
-              <p
-                class="text-xs {compliantPercent >= 80
-                  ? 'text-emerald-600/70 dark:text-emerald-400/70'
-                  : compliantPercent >= 50
-                    ? 'text-amber-600/70 dark:text-amber-400/70'
-                    : 'text-red-600/70 dark:text-red-400/70'}"
-              >
-                {compliantCount}/{componentNames.length}
-              </p>
-            </div>
+            </a>
           {/snippet}
         </Tooltip.Trigger>
         <Tooltip.Content sideOffset={4} portalProps={{ disabled: true }}>
-          {compliantCount} out of {componentNames.length} components are compatible
+          Lucide icon library browser with search, preview, and export
         </Tooltip.Content>
       </Tooltip.Root>
     </div>
 
-    <!-- Activity Feed / Changelog -->
+    <!-- Health & Quality -->
+    <div class="rounded-lg border bg-card">
+      <div class="flex items-center gap-3 p-4">
+        <ShieldCheck
+          class="size-5 shrink-0 {compliantPercent >= 80
+            ? 'text-emerald-600 dark:text-emerald-400'
+            : compliantPercent >= 50
+              ? 'text-amber-600 dark:text-amber-400'
+              : 'text-red-600 dark:text-red-400'}"
+        />
+        <div class="flex-1">
+          <div class="flex items-baseline gap-2">
+            <span class="text-sm font-semibold">Compatibility</span>
+            <span
+              class="text-sm font-bold tabular-nums {compliantPercent >= 80
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : compliantPercent >= 50
+                  ? 'text-amber-600 dark:text-amber-400'
+                  : 'text-red-600 dark:text-red-400'}"
+            >
+              {compliantPercent}%
+            </span>
+            <span class="text-xs text-muted-foreground">
+              ({compliantCount}/{componentNames.length} passing)
+            </span>
+          </div>
+          <!-- Progress bar -->
+          <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              class="h-full rounded-full transition-all {compliantPercent >= 80
+                ? 'bg-emerald-500'
+                : compliantPercent >= 50
+                  ? 'bg-amber-500'
+                  : 'bg-red-500'}"
+              style="width: {compliantPercent}%;"
+            ></div>
+          </div>
+        </div>
+        {#if ruleViolationCounts.length > 0}
+          <button
+            type="button"
+            class="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            onclick={() => {
+              healthExpanded = !healthExpanded;
+            }}
+            aria-label={healthExpanded ? 'Hide details' : 'Show details'}
+          >
+            <ArrowRight
+              class="size-4 transition-transform duration-200 {healthExpanded ? 'rotate-90' : ''}"
+            />
+          </button>
+        {/if}
+      </div>
+
+      {#if healthExpanded && ruleViolationCounts.length > 0}
+        <div class="border-t px-4 py-3">
+          <div class="mb-2 flex items-center gap-2">
+            <TriangleAlert class="size-3.5 text-amber-500" />
+            <span class="text-xs font-medium text-muted-foreground">
+              Top rule violations ({incompatibleCount as number} components affected)
+            </span>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            {#each ruleViolationCounts.slice(0, 8) as rv (rv.rule)}
+              <div class="flex items-start gap-2 text-xs">
+                <Badge variant="outline" class="shrink-0 px-1.5 py-0 font-mono text-[10px]">
+                  R{rv.rule}
+                </Badge>
+                <span class="flex-1 text-muted-foreground">{rv.name}</span>
+                <span class="shrink-0 tabular-nums text-muted-foreground/70">
+                  {rv.count} component{(rv.count as number) !== 1 ? 's' : ''}
+                </span>
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/if}
+    </div>
+
+    <!-- Explore Hub Grid -->
+    <div>
+      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+        Explore
+      </h2>
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {#each hubCards as card (card.href)}
+          {@const CardIcon = card.icon}
+          <a
+            href={card.href}
+            class="group flex items-center gap-3 rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md"
+          >
+            <div class="flex size-10 shrink-0 items-center justify-center rounded-lg {card.bg}">
+              <CardIcon class="size-5 {card.color}" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <h3 class="text-sm font-semibold group-hover:text-primary">{card.title}</h3>
+                {#if (card.count as number) > 0}
+                  <Badge variant="secondary" class="text-[10px] tabular-nums">
+                    {card.count.toLocaleString()}
+                  </Badge>
+                {/if}
+              </div>
+              <p class="mt-0.5 truncate text-xs text-muted-foreground">{card.description}</p>
+            </div>
+            <ArrowRight
+              class="size-4 shrink-0 text-muted-foreground/30 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
+            />
+          </a>
+        {/each}
+      </div>
+    </div>
+
+    <!-- Categories at a Glance -->
+    <div>
+      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+        Categories
+      </h2>
+      <div class="flex flex-wrap gap-2">
+        {#each groupedComponents as group (group.name)}
+          {@const CatIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
+          {@const catColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
+          {@const catBg = CATEGORY_BG[group.name] ?? ('bg-muted' as Str)}
+          <a
+            href="/components/category/{group.name}"
+            class="group inline-flex items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm transition-all hover:border-primary/30 hover:shadow-sm"
+          >
+            <div class="flex size-6 items-center justify-center rounded {catBg}">
+              <CatIcon class="size-3.5 {catColor}" />
+            </div>
+            <span class="font-medium capitalize group-hover:text-primary">{group.label}</span>
+            <span class="text-xs tabular-nums text-muted-foreground">
+              {group.components.length}
+            </span>
+          </a>
+        {/each}
+      </div>
+    </div>
+
+    <!-- Popular Tags -->
+    {#if popularTags.length > 0}
+      <div>
+        <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+          Popular Tags
+        </h2>
+        <div class="flex flex-wrap gap-1.5">
+          {#each popularTags as pt (pt.tag)}
+            {@const relSize = 0.7 + 0.5 * ((pt.count as number) / (maxTagCount as number))}
+            <a
+              href="/components/tags?tag={pt.tag}"
+              class="group inline-flex items-center gap-1 rounded-full border bg-card px-2.5 py-1 transition-all hover:border-primary/30 hover:bg-accent"
+              style="font-size: {relSize}rem;"
+            >
+              <TagIcon class="size-3 shrink-0 opacity-50 group-hover:opacity-80" />
+              <span class="font-medium group-hover:text-primary">{pt.tag}</span>
+              <span class="text-[10px] tabular-nums text-muted-foreground/60">{pt.count}</span>
+            </a>
+          {/each}
+        </div>
+      </div>
+    {/if}
+
+    <!-- Recent Changes / Activity Feed -->
     {#if activityEntries.length > 0}
       <div>
         <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-muted-foreground">
@@ -327,6 +680,10 @@
               {@const StatusIcon = STATUS_ICONS[status]}
               {@const statusColor = STATUS_COLORS[status]}
               {@const badgeColor = STATUS_BADGE_COLORS[status]}
+              {@const entryCatIcon = CATEGORY_ICONS[entry.meta.category ?? ''] ?? ComponentIcon}
+              {@const entryCatColor =
+                CATEGORY_COLORS[entry.meta.category ?? ''] ?? ('text-muted-foreground' as Str)}
+              {@const CatEntryIcon = entryCatIcon}
               {#if i > 0}
                 <div class="border-t"></div>
               {/if}
@@ -341,8 +698,22 @@
                 <Badge variant="secondary" class="text-[10px] {badgeColor}">
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </Badge>
+                <Tooltip.Provider>
+                  <Tooltip.Root delayDuration={200}>
+                    <Tooltip.Trigger>
+                      {#snippet child({ props: catTipProps })}
+                        <span {...catTipProps} class="inline-flex">
+                          <CatEntryIcon class="size-3.5 {entryCatColor}" />
+                        </span>
+                      {/snippet}
+                    </Tooltip.Trigger>
+                    <Tooltip.Content side="top" sideOffset={4}>
+                      {catLabel(entry.meta.category ?? 'display')}
+                    </Tooltip.Content>
+                  </Tooltip.Root>
+                </Tooltip.Provider>
                 {#if entry.meta.description}
-                  <span class="hidden text-xs text-muted-foreground sm:inline">
+                  <span class="hidden flex-1 truncate text-xs text-muted-foreground sm:inline">
                     {entry.meta.description}
                   </span>
                 {/if}
@@ -355,84 +726,5 @@
         </div>
       </div>
     {/if}
-
-    <!-- Navigation Cards -->
-    <div class="flex flex-col gap-3">
-      <!-- All Components link -->
-      <a
-        href="/components/all"
-        class="group flex items-center gap-3 rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md"
-      >
-        <div class="flex size-9 items-center justify-center rounded-lg bg-primary/10">
-          <ComponentIcon class="size-5 text-primary" />
-        </div>
-        <div class="flex-1">
-          <h3 class="text-sm font-semibold group-hover:text-primary">All Components</h3>
-          <p class="text-xs text-muted-foreground">
-            Browse all {componentNames.length} components
-          </p>
-        </div>
-        <ArrowRight
-          class="size-4 text-muted-foreground/30 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
-        />
-      </a>
-
-      <!-- Categories link -->
-      <a
-        href="/components/category"
-        class="group flex items-center gap-3 rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md"
-      >
-        <div class="flex size-9 items-center justify-center rounded-lg bg-primary/10">
-          <LayoutGrid class="size-5 text-primary" />
-        </div>
-        <div class="flex-1">
-          <h3 class="text-sm font-semibold group-hover:text-primary">Categories</h3>
-          <p class="text-xs text-muted-foreground">
-            {groupedComponents.length} categories with {componentNames.length} components
-          </p>
-        </div>
-        <ArrowRight
-          class="size-4 text-muted-foreground/30 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
-        />
-      </a>
-
-      <!-- Tags link -->
-      <a
-        href="/components/tags"
-        class="group flex items-center gap-3 rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md"
-      >
-        <div class="flex size-9 items-center justify-center rounded-lg bg-primary/10">
-          <TagIcon class="size-5 text-primary" />
-        </div>
-        <div class="flex-1">
-          <h3 class="text-sm font-semibold group-hover:text-primary">Tags</h3>
-          <p class="text-xs text-muted-foreground">
-            {allTags.length} tags across components
-          </p>
-        </div>
-        <ArrowRight
-          class="size-4 text-muted-foreground/30 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
-        />
-      </a>
-
-      <!-- Design Tokens link -->
-      <a
-        href="/tokens"
-        class="group flex items-center gap-3 rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md"
-      >
-        <div class="flex size-9 items-center justify-center rounded-lg bg-primary/10">
-          <Palette class="size-5 text-primary" />
-        </div>
-        <div class="flex-1">
-          <h3 class="text-sm font-semibold group-hover:text-primary">Design Tokens</h3>
-          <p class="text-xs text-muted-foreground">
-            {tokenCount} CSS custom properties across themes
-          </p>
-        </div>
-        <ArrowRight
-          class="size-4 text-muted-foreground/30 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
-        />
-      </a>
-    </div>
   </div>
 </div>

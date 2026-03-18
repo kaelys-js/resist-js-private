@@ -599,6 +599,9 @@
     if (path === '/getting-started') return 'Getting Started' as Str;
     if (path === '/changelog') return "What's New" as Str;
     if (path === '/icons') return 'Icons' as Str;
+    if (path === '/components/all') return 'All Components' as Str;
+    if (path === '/components/category') return 'Categories' as Str;
+    if (path === '/components/tags') return 'Tags' as Str;
     return '' as Str;
   });
 
@@ -2681,8 +2684,12 @@
             {#if currentCategory && CATEGORY_ORDER.includes(currentCategory)}
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
+                <Breadcrumb.Link href="/components/category">Categories</Breadcrumb.Link>
+              </Breadcrumb.Item>
+              <Breadcrumb.Separator />
+              <Breadcrumb.Item>
                 <Breadcrumb.Page>
-                  {currentCategory.charAt(0).toUpperCase()}{currentCategory.slice(1)}
+                  {catLabel(currentCategory)}
                 </Breadcrumb.Page>
               </Breadcrumb.Item>
             {:else if currentName && componentNames.includes(currentName)}
