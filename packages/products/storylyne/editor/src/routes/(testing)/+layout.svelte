@@ -1555,36 +1555,37 @@
     }
   });
 
-  // Generate compatibility violation notifications on initial load
-  // One notification per incompatible component, listing violated rules
-  /** Whether compatibility notifications have been generated this session. */
-  let compatNotifsGenerated: boolean = $state(false);
+  // Generate a single summary notification for compatibility violations on load
+  /** Whether compatibility notification has been generated this session. */
+  let compatNotifGenerated: boolean = $state(false);
 
   $effect(() => {
-    if (compatNotifsGenerated) return;
+    if (compatNotifGenerated) return;
     if (componentNames.length === 0) return;
-    compatNotifsGenerated = true;
+    compatNotifGenerated = true;
 
-    for (const name of componentNames) {
-      const compat: LensCompatibility | undefined = compatByName.get(name);
-      if (!compat || compat.compatible) continue;
+    const incompatible: Str[] = componentNames.filter((n: Str): boolean => {
+      const c: LensCompatibility | undefined = compatByName.get(n);
+      return c !== undefined && !c.compatible;
+    });
 
-      const failedRules: Set<number> = new Set(compat.violations.map((vi) => vi.rule as number));
-      const ruleList: Str = [...failedRules]
-        .map((idx: number): Str => `R${idx} ${LENS_RULE_NAMES[idx] ?? ''}` as Str)
-        .join(', ') as Str;
+    if (incompatible.length === 0) return;
 
-      notify({
-        type: 'warning' as NotificationType,
-        title:
-          `${toTitle(name)} — ${failedRules.size} rule violation${failedRules.size === 1 ? '' : 's'}` as Str,
-        message: ruleList,
-        componentName: name,
-        actionLabel: 'View Component' as Str,
-        actionHref: `/components/${name}` as Str,
-        category: 'compatibility' as Str,
-      });
-    }
+    const topNames: Str = incompatible.slice(0, 5).map(toTitle).join(', ') as Str;
+    const remaining: Num = (incompatible.length - 5) as Num;
+    const message: Str = (
+      (remaining as number) > 0 ? `${topNames}, and ${remaining} more` : topNames
+    ) as Str;
+
+    notify({
+      type: 'warning' as NotificationType,
+      title:
+        `${incompatible.length} component${incompatible.length === 1 ? '' : 's'} with compatibility issues` as Str,
+      message,
+      actionLabel: 'View All' as Str,
+      actionHref: '/components/all' as Str,
+      category: 'compatibility' as Str,
+    });
   });
 
   /* ------------------------------------------------------------------ */
