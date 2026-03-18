@@ -2732,21 +2732,23 @@
           <Popover.Root bind:open={notifCenterOpen}>
             <Popover.Trigger>
               {#snippet child({ props: bellProps })}
-                <button
-                  type="button"
-                  class="relative inline-flex size-9 items-center justify-center rounded-md border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-                  {...bellProps}
-                  aria-label="Notifications"
-                >
-                  <Bell class="size-4" />
+                <span class="relative">
+                  <button
+                    type="button"
+                    class="inline-flex size-9 items-center justify-center rounded-md border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+                    {...bellProps}
+                    aria-label="Notifications"
+                  >
+                    <Bell class="size-4" />
+                  </button>
                   {#if (unreadCount as number) > 0}
                     <span
-                      class="absolute right-0 top-0 z-10 flex size-4 -translate-y-1/3 translate-x-1/3 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground ring-2 ring-background"
+                      class="pointer-events-none absolute -right-1 -top-1 flex min-w-4 items-center justify-center rounded-full bg-destructive px-1 py-0.5 text-[9px] font-bold leading-none text-destructive-foreground ring-2 ring-background"
                     >
                       {(unreadCount as number) > 99 ? '99+' : unreadCount}
                     </span>
                   {/if}
-                </button>
+                </span>
               {/snippet}
             </Popover.Trigger>
             <Popover.Content align="end" sideOffset={8} class="w-80 p-0">
