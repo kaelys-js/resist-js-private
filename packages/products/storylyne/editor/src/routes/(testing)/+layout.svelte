@@ -2732,7 +2732,7 @@
           <Popover.Root bind:open={notifCenterOpen}>
             <Popover.Trigger>
               {#snippet child({ props: bellProps })}
-                <span class="relative">
+                <span class="relative inline-flex">
                   <button
                     type="button"
                     class="inline-flex size-9 items-center justify-center rounded-md border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
@@ -2743,10 +2743,8 @@
                   </button>
                   {#if (unreadCount as number) > 0}
                     <span
-                      class="pointer-events-none absolute -right-1 -top-1 flex min-w-4 items-center justify-center rounded-full bg-destructive px-1 py-0.5 text-[9px] font-bold leading-none text-destructive-foreground ring-2 ring-background"
-                    >
-                      {(unreadCount as number) > 99 ? '99+' : unreadCount}
-                    </span>
+                      class="pointer-events-none absolute -right-0.5 -top-0.5 size-2.5 animate-pulse rounded-full bg-destructive ring-2 ring-background"
+                    ></span>
                   {/if}
                 </span>
               {/snippet}
