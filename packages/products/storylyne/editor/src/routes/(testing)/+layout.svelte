@@ -1589,6 +1589,12 @@
     if (componentNames.length === 0) return;
     compatNotifsGenerated = true;
 
+    // Skip if compatibility notifications already exist from a previous session
+    const existingCompat: LensNotification[] = getNotifications().filter(
+      (n: LensNotification): boolean => n.category === 'compatibility',
+    );
+    if (existingCompat.length > 0) return;
+
     const incompatible: Str[] = componentNames.filter((n: Str): boolean => {
       const c: LensCompatibility | undefined = compatByName.get(n);
       return c !== undefined && !c.compatible;
@@ -3023,6 +3029,6 @@
   position="bottom-right"
   toastOptions={{
     class:
-      'border shadow-lg !bg-card !text-foreground [&_[data-close-button]]:!bg-background [&_[data-close-button]]:!text-foreground [&_[data-close-button]]:!border-border',
+      '!border !border-border shadow-lg !bg-card !text-foreground [&_[data-close-button]]:!bg-card [&_[data-close-button]]:!text-muted-foreground [&_[data-close-button]]:!border-border [&_[data-close-button]:hover]:!bg-accent [&_[data-close-button]:hover]:!text-accent-foreground',
   }}
 />
