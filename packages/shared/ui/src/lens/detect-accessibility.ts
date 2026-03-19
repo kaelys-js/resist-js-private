@@ -507,17 +507,24 @@ const A11Y_RULES: A11yRule[] = [
       const passing: Str[] = [];
       const failing: Str[] = [];
       const findings: A11yFileFinding[] = [];
-      const interactivePattern: RegExp = /<(button|a|input|select|textarea)\b/;
+      /* Only flag truly interactive elements that need explicit ARIA.
+       * Semantic <a href="..."> and <button> have implicit ARIA roles.
+       * Skip files where the only interactive elements are semantic links with href. */
+      const interactivePattern: RegExp = /<(button|input|select|textarea)\b/;
+      const nonSemanticLinkPattern: RegExp = /<a\b(?![^>]*\bhref\b)/;
 
       for (const [filename, content] of files) {
-        if (!interactivePattern.test(content as string)) continue;
-        if (/aria-/.test(content as string)) {
+        const src: string = content as string;
+        const hasInteractive: boolean = interactivePattern.test(src);
+        const hasNonSemanticLink: boolean = nonSemanticLinkPattern.test(src);
+        if (!hasInteractive && !hasNonSemanticLink) continue;
+        if (/aria-/.test(src)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
         } else {
           fail = ((fail as number) + 1) as Num;
           failing.push(filename);
-          const wcagMatch: RegExpMatchArray | null = (content as string).match(
+          const wcagMatch: RegExpMatchArray | null = src.match(
             /<(button|a|input|select|textarea)\b[^>]*>/,
           );
           const wcagFound: Str = wcagMatch
@@ -693,24 +700,29 @@ const A11Y_RULES: A11yRule[] = [
     category: 'Standards' as Str,
     wcag: '4.1.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
-      /* Mirrors WCAG 2.1 AA check — European equivalent */
+      /* Mirrors WCAG 2.1 AA check — European equivalent.
+       * Skip semantic <a href="..."> links — they have implicit ARIA roles. */
       const files: SourceEntry[] = svelteFiles(sources);
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
       const failing: Str[] = [];
       const findings: A11yFileFinding[] = [];
-      const interactivePattern: RegExp = /<(button|a|input|select|textarea)\b/;
+      const interactivePattern: RegExp = /<(button|input|select|textarea)\b/;
+      const nonSemanticLinkPattern: RegExp = /<a\b(?![^>]*\bhref\b)/;
 
       for (const [filename, content] of files) {
-        if (!interactivePattern.test(content as string)) continue;
-        if (/aria-/.test(content as string)) {
+        const src: string = content as string;
+        const hasInteractive: boolean = interactivePattern.test(src);
+        const hasNonSemanticLink: boolean = nonSemanticLinkPattern.test(src);
+        if (!hasInteractive && !hasNonSemanticLink) continue;
+        if (/aria-/.test(src)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
         } else {
           fail = ((fail as number) + 1) as Num;
           failing.push(filename);
-          const en549Match: RegExpMatchArray | null = (content as string).match(
+          const en549Match: RegExpMatchArray | null = src.match(
             /<(button|a|input|select|textarea)\b[^>]*>/,
           );
           const en549Found: Str = en549Match
@@ -2041,13 +2053,21 @@ const A11Y_RULES: A11yRule[] = [
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
       const failing: Str[] = [];
-      const dynamicPattern: RegExp = /\{#if|\{#each|\$effect|\$derived|bind:|on:change/;
+      /* Only flag components with runtime-dynamic status updates — NOT static {#if}/{#each}.
+       * Require BOTH a dynamic mechanism ($effect, bind:, on:change) AND status-indicating
+       * content (loading, error, success, progress, count, timer) to avoid false positives
+       * on components that just conditionally render static content. */
+      const dynamicMechanism: RegExp =
+        /\$effect|bind:|on:change|onchange|oninput|setInterval|setTimeout/;
+      const statusContent: RegExp =
+        /loading|spinner|progress|count|timer|updating|fetching|saving/i;
       const livePattern: RegExp = /aria-live|role="(alert|status|log|marquee|timer)"/;
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!dynamicPattern.test(content as string)) continue;
-        if (livePattern.test(content as string)) {
+        const src: string = content as string;
+        if (!dynamicMechanism.test(src) || !statusContent.test(src)) continue;
+        if (livePattern.test(src)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
         } else {
@@ -2055,14 +2075,14 @@ const A11Y_RULES: A11yRule[] = [
           failing.push(filename);
           findings.push({
             file: filename,
-            problem: 'Dynamic content updates without aria-live region' as Str,
+            problem: 'Dynamic status content updates without aria-live region' as Str,
             solution:
               'Add aria-live="polite" or role="status" to containers with dynamic content updates' as Str,
             found: truncSnippet(
-              (((content as string).match(/\{#if\b|\{#each\b|\$effect\b|\$derived\b/) ??
-                [])[0] as Str) ?? ('{#if condition} <!-- dynamic update -->' as Str),
+              ((src.match(/\$effect\b|bind:\w+|on:change/) ?? [])[0] as Str) ??
+                ('$effect(() => { /* status update */ })' as Str),
             ),
-            fix: '<div aria-live="polite" role="status">{#if condition}...{/if}</div>' as Str,
+            fix: '<div aria-live="polite" role="status">{#if loading}...{/if}</div>' as Str,
           });
         }
       }
@@ -4684,13 +4704,19 @@ const A11Y_RULES: A11yRule[] = [
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
       const failing: Str[] = [];
-      const statusPattern: RegExp = /success|error|warning|info|loading|progress|notification/i;
+      /* Only match status words in actual template/code context, not in JSDoc comments.
+       * Require the status word to appear in a class attribute, element text, or variable
+       * to reduce false positives from documentation or type definitions. */
+      const statusInTemplatePattern: RegExp =
+        /class="[^"]*(?:success|error|warning|loading|progress|notification)[^"]*"|>\s*(?:Loading|Error|Warning|Success)\b/;
       const livePattern: RegExp = /aria-live|role="status"|role="alert"|role="log"/;
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!statusPattern.test(content as string)) continue;
-        if (livePattern.test(content as string)) {
+        /* Strip JSDoc comments before matching to avoid false positives from documentation. */
+        const stripped: string = (content as string).replaceAll(/\/\*\*[\s\S]*?\*\//g, '');
+        if (!statusInTemplatePattern.test(stripped)) continue;
+        if (livePattern.test(stripped)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
         } else {
@@ -4704,7 +4730,7 @@ const A11Y_RULES: A11yRule[] = [
               'Add aria-live="polite" or role="status" to dynamic status message containers' as Str,
             found: truncSnippet(
               (((content as string).match(
-                /class="[^"]*(?:success|error|warning|info|loading|progress)[^"]*"/,
+                /class="[^"]*(?:success|error|warning|loading|progress)[^"]*"/,
               ) ?? [])[0] as Str) ?? ('class="error" <!-- no aria-live -->' as Str),
             ),
             fix: '<div role="status" aria-live="polite" class="error">...</div>' as Str,

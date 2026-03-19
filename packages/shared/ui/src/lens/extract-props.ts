@@ -614,11 +614,11 @@ export function buildBaseProps(propsMeta: PropMeta[]): Record<string, unknown> {
       } else {
         base[prop.name] = Number(d);
       }
-    } else if (prop.mockValues && prop.mockValues.length === 1) {
-      // Single @values entry — use as base prop default for all variant cards.
-      // Multi-value @values props are excluded: they get their own variant section,
-      // and including them here would mask other variant effects (e.g. `src` image
-      // covering `color`/`name` fallback-dependent props on Avatar).
+    } else if (prop.mockValues && prop.mockValues.length > 0) {
+      // Use first @values entry as base prop default for all variant cards.
+      // Multi-value props also get their own variant section, but the first value
+      // serves as the base so dependent props work (e.g. citeUrl needs cite set,
+      // radius needs variant: 'bordered').
       // Skip Snippet/function-type props — they are visual overrides that change
       // appearance significantly and should only appear in their own variant section.
       if (isFunctionType(prop.type, prop.typeDefinition)) continue;

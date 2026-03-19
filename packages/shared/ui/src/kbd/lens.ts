@@ -1,3 +1,4 @@
+import type { Str } from '@/schemas/common';
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
@@ -5,4 +6,5 @@ export const meta: LensMeta = {
   tags: ['keyboard', 'shortcut', 'key', 'hotkey', 'kbd', 'tv-variant'],
   description:
     'Keyboard shortcut indicator with platform-aware key symbol mapping, size variants, and grouping.',
+  defaultLabel: '' as Str,
 };

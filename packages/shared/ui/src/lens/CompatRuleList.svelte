@@ -1,10 +1,11 @@
 <script lang="ts">
   /**
-   * Compatibility rule table — displays the R0–R17 pass/fail breakdown,
+   * Compatibility rule table — displays the R0–R23 pass/fail breakdown,
    * plus optional per-component accessibility failures and unsupported browsers.
    *
    * Shared by CompatTooltip (tooltip content) and the component detail page
    * (amber banner). Renders a `<table>` with Rule, Name, and Status columns.
+   * Each row shows a colored badge indicating the ruleset (Lens, A11y, Browser).
    *
    * A11y and browser data are passed as optional props, filtered by the caller.
    */
@@ -52,12 +53,20 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Lens rules (R0–R17) -->
+      <!-- Lens rules (R0–R23) -->
       {#each ruleNames as ruleName, ruleIdx (ruleIdx)}
         {@const failed = violations.has(ruleIdx as Num)}
         {#if showAllRules || failed}
           <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/40">
-            <td class="px-3 py-1.5 font-mono text-muted-foreground">R{ruleIdx}</td>
+            <td class="px-3 py-1.5 text-muted-foreground">
+              <span class="inline-flex items-center gap-1.5">
+                <span
+                  class="inline-flex whitespace-nowrap rounded bg-blue-500/10 px-1 py-0.5 text-[10px] font-semibold leading-none text-blue-600 dark:text-blue-400"
+                  >Lens</span
+                >
+                <span class="font-mono">R{ruleIdx}</span>
+              </span>
+            </td>
             <td class="px-3 py-1.5">{ruleName}</td>
             <td class="px-3 py-1.5 text-right">
               {#if failed}
@@ -83,7 +92,15 @@
       <!-- Accessibility rules (per-component or global) -->
       {#each a11yRules as rule (rule.id)}
         <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/40">
-          <td class="px-3 py-1.5 font-mono text-muted-foreground">{rule.wcag}</td>
+          <td class="px-3 py-1.5 text-muted-foreground">
+            <span class="inline-flex items-center gap-1.5">
+              <span
+                class="inline-flex whitespace-nowrap rounded bg-purple-500/10 px-1 py-0.5 text-[10px] font-semibold leading-none text-purple-600 dark:text-purple-400"
+                >A11y</span
+              >
+              <span class="font-mono">{rule.wcag}</span>
+            </span>
+          </td>
           <td class="px-3 py-1.5">{rule.label}</td>
           <td class="px-3 py-1.5 text-right">
             <span
@@ -99,7 +116,14 @@
       <!-- Unsupported browsers (global only) -->
       {#each unsupportedBrowsers as browser (browser.name)}
         <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/40">
-          <td class="px-3 py-1.5 font-mono text-muted-foreground">Browser</td>
+          <td class="px-3 py-1.5 text-muted-foreground">
+            <span class="inline-flex items-center gap-1.5">
+              <span
+                class="inline-flex whitespace-nowrap rounded bg-amber-500/10 px-1 py-0.5 text-[10px] font-semibold leading-none text-amber-600 dark:text-amber-400"
+                >Browser</span
+              >
+            </span>
+          </td>
           <td class="px-3 py-1.5">{browser.name} — {browser.notes}</td>
           <td class="px-3 py-1.5 text-right">
             <span

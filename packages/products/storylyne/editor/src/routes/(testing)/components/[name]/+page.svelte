@@ -3187,7 +3187,7 @@
                       {props}
                       tagName={toTag(name)}
                       componentName={name}
-                      label={lensMeta?.defaultLabel ?? 'Example'}
+                      label={lensMeta?.defaultLabel ?? ''}
                       silent={isCompound}
                       contextWrapper={lensContextWrapper ?? undefined}
                       innerContent={childComponent ? childContent : undefined}
@@ -3318,7 +3318,7 @@
                             {props}
                             tagName={toTag(name)}
                             componentName={name}
-                            label={lensMeta?.defaultLabel ?? 'Example'}
+                            label={lensMeta?.defaultLabel ?? ''}
                             silent={isCompound}
                             contextWrapper={lensContextWrapper ?? undefined}
                             sectionId="variants"

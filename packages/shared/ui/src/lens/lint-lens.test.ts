@@ -1044,9 +1044,11 @@ describe('Lens lint', () => {
       const props: PropMeta[] = extractProps(source);
       if (props.length === 0) continue;
 
-      /* Check usage in instance script + template (everything after module script). */
+      /* Check usage in instance script + template (everything after module script).
+       * Strip JSDoc comments so prop names mentioned only in docs don't count as usage. */
       const instanceIdx: number = source.indexOf('<script lang="ts">');
-      const usageSource: string = instanceIdx >= 0 ? source.slice(instanceIdx) : source;
+      const rawUsage: string = instanceIdx >= 0 ? source.slice(instanceIdx) : source;
+      const usageSource: string = rawUsage.replaceAll(/\/\*\*[\s\S]*?\*\//g, '');
 
       const dead: string[] = [];
       for (const prop of props) {

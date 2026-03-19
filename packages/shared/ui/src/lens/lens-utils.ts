@@ -789,9 +789,11 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
 
   // Rule 23: Dead props — schema fields never referenced in instance script or template
   if (!hasConvertMarker && input.source.includes('v.strictObject(')) {
-    // Extract template + instance script (everything after module script closes)
+    // Extract template + instance script (everything after module script closes).
+    // Strip JSDoc comments so prop names mentioned only in docs don't count as usage.
     const instanceIdx: number = input.source.indexOf('<script lang="ts">');
-    const usageSource: string = instanceIdx >= 0 ? input.source.slice(instanceIdx) : input.source;
+    const rawUsage: string = instanceIdx >= 0 ? input.source.slice(instanceIdx) : input.source;
+    const usageSource: string = rawUsage.replaceAll(/\/\*\*[\s\S]*?\*\//g, '');
     // Props always present in usage: 'class' (renamed to className), 'children'/'child' (slot content)
     const alwaysUsedProps: ReadonlySet<string> = new Set(['class', 'children', 'child']);
     const deadProps: string[] = [];

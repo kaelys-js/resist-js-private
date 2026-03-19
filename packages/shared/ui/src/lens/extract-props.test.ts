@@ -922,10 +922,10 @@ export type DepTree = {
 
     // Build base props and check labels is an object (not a function)
     const base: Record<string, unknown> = buildBaseProps(props);
-    // onLogOut is a function type with 1 @value — function/Snippet types are excluded from baseProps
+    // onLogOut is a function type — function/Snippet types are excluded from baseProps
     expect(base['onLogOut']).toBeUndefined();
-    // userName has 3 @values — multi-value props become variant-only, not base props
-    expect(base['userName']).toBeUndefined();
+    // userName has 3 @values — first entry used as base default
+    expect(typeof base['userName']).toBe('string');
     expect(typeof base['features']).toBe('object');
     expect(typeof base['labels']).toBe('object');
   });
