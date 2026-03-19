@@ -19,6 +19,11 @@
  * 15. No bare Valibot primitives in module scripts (skip `@convert-to-lens`)
  * 16. Example names in `lens.ts` match filesystem
  * 17. `tv-variant` tag in `lens.ts` when component uses `tv()`
+ * 18. `@values` must not contain quoted strings (e.g. `'default'` → `default`)
+ * 19. `v.optional()` picklist/boolean fields must have a default value (second arg)
+ * 20. Converted components must use destructured `$props()` with `...restProps`
+ * 21. Root element must spread `{...restProps}` for DOM attribute passthrough
+ * 22. Snippet/callback props must NOT pass through `stripSvelteProps`
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, dirname, join, relative } from 'node:path';
@@ -799,6 +804,216 @@ describe('Lens lint', () => {
 
     it('components using tv() have tv-variant tag in lens.ts', () => {
       expect(violations, `Missing tv-variant tag:\n${violations.join('\n')}`).toHaveLength(0);
+    });
+  });
+
+  describe('Rule 18: @values must not contain quoted strings (skip @convert-to-lens)', () => {
+    const violations: string[] = [];
+
+    for (const file of svelteFiles) {
+      const source: string = readFileSync(file, 'utf8');
+      if (source.includes('@convert-to-lens')) continue;
+
+      const valuesMatches: RegExpMatchArray[] = [...source.matchAll(/@values\s+(.+)/g)];
+      for (const match of valuesMatches) {
+        const valuesStr: string = (match[1] ?? '').trim();
+        /* Skip object/snippet literals and code examples — they legitimately contain quotes */
+        if (valuesStr.startsWith('{') || valuesStr.startsWith('(')) continue;
+        if (/[()<>]/.test(valuesStr)) continue;
+        /* Check for single-quoted values like 'default', 'sm' in comma-separated lists */
+        if (/'[^']+'/g.test(valuesStr)) {
+          violations.push(`${rel(file)} — @values has quoted strings: ${valuesStr}`);
+        }
+      }
+    }
+
+    it('@values entries do not contain quotes', () => {
+      expect(
+        violations,
+        `Quoted @values (remove quotes, mock generator passes them literally):\n${violations.join('\n')}`,
+      ).toHaveLength(0);
+    });
+  });
+
+  describe('Rule 19: v.optional() picklist/boolean must have default value (skip @convert-to-lens)', () => {
+    const violations: string[] = [];
+    const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
+
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
+      .map((d) => d.name);
+
+    for (const dir of dirs) {
+      const dirPath: string = join(UI_SRC, dir);
+      const files: string[] = readdirSync(dirPath);
+      const primaryFile: string | undefined = files.find(
+        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
+      );
+      if (!primaryFile) continue;
+
+      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      if (source.includes('@convert-to-lens')) continue;
+      if (!source.includes('v.strictObject(')) continue;
+
+      /*
+       * Detect v.optional(v.picklist([...]))  — NO default (closing is `]))`)
+       * vs     v.optional(v.picklist([...]), 'x') — HAS default (comma after `])`)
+       * Same for v.optional(BoolSchema) vs v.optional(BoolSchema, false)
+       */
+      const lines: string[] = source.split('\n');
+      for (const line of lines) {
+        /* v.optional(v.picklist([...])) — ends with ])) or ]),\n  ) */
+        if (/v\.optional\(\s*v\.picklist\(/.test(line)) {
+          /* Check this line and next few for the closing pattern */
+          const idx: number = lines.indexOf(line);
+          const chunk: string = lines.slice(idx, idx + 5).join(' ');
+          /* Has default: comma after ]) before final ) — like: ]), 'default') */
+          if (/\]\)\s*\)/.test(chunk) && !/\]\)\s*,/.test(chunk)) {
+            violations.push(
+              `${dir}/${primaryFile} — v.optional(v.picklist(...)) missing default value`,
+            );
+            break;
+          }
+        }
+        /* v.optional(BoolSchema) with no second arg */
+        if (/v\.optional\(\s*BoolSchema\s*\)/.test(line)) {
+          violations.push(`${dir}/${primaryFile} — v.optional(BoolSchema) missing default value`);
+          break;
+        }
+      }
+    }
+
+    it('picklist and boolean optional fields have default values', () => {
+      expect(
+        violations,
+        `Missing v.optional() defaults (add second arg):\n${violations.join('\n')}`,
+      ).toHaveLength(0);
+    });
+  });
+
+  describe('Rule 20: Converted components use destructured $props() with ...restProps (skip @convert-to-lens)', () => {
+    const violations: string[] = [];
+    const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
+
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
+      .map((d) => d.name);
+
+    for (const dir of dirs) {
+      const dirPath: string = join(UI_SRC, dir);
+      const files: string[] = readdirSync(dirPath);
+      const primaryFile: string | undefined = files.find(
+        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
+      );
+      if (!primaryFile) continue;
+
+      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      if (source.includes('@convert-to-lens')) continue;
+      if (!source.includes('v.strictObject(')) continue;
+
+      if (!source.includes('...restProps')) {
+        violations.push(`${dir}/${primaryFile} — missing ...restProps destructure in $props()`);
+      }
+    }
+
+    it('converted components destructure $props() with ...restProps', () => {
+      expect(
+        violations,
+        `Missing ...restProps (DOM attributes from Bits UI wrappers need passthrough):\n${violations.join('\n')}`,
+      ).toHaveLength(0);
+    });
+  });
+
+  describe('Rule 21: Root element spreads {...restProps} (skip @convert-to-lens)', () => {
+    const violations: string[] = [];
+    const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
+
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
+      .map((d) => d.name);
+
+    for (const dir of dirs) {
+      const dirPath: string = join(UI_SRC, dir);
+      const files: string[] = readdirSync(dirPath);
+      const primaryFile: string | undefined = files.find(
+        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
+      );
+      if (!primaryFile) continue;
+
+      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      if (source.includes('@convert-to-lens')) continue;
+      if (!source.includes('v.strictObject(')) continue;
+      if (!source.includes('...restProps')) continue;
+
+      /* Check template section (after </script>) for {...restProps} */
+      const templateStart: number = source.lastIndexOf('</script>');
+      if (templateStart === -1) continue;
+      const template: string = source.slice(templateStart);
+
+      if (!template.includes('{...restProps}')) {
+        violations.push(
+          `${dir}/${primaryFile} — has ...restProps but doesn't spread on root element`,
+        );
+      }
+    }
+
+    it('root element spreads {...restProps} for DOM attribute passthrough', () => {
+      expect(
+        violations,
+        `Missing {...restProps} on root element:\n${violations.join('\n')}`,
+      ).toHaveLength(0);
+    });
+  });
+
+  describe('Rule 22: Snippet/callback props must not pass through stripSvelteProps (skip @convert-to-lens)', () => {
+    const violations: string[] = [];
+    const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
+
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
+      .map((d) => d.name);
+
+    for (const dir of dirs) {
+      const dirPath: string = join(UI_SRC, dir);
+      const files: string[] = readdirSync(dirPath);
+      const primaryFile: string | undefined = files.find(
+        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
+      );
+      if (!primaryFile) continue;
+
+      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      if (source.includes('@convert-to-lens')) continue;
+      if (!source.includes('v.strictObject(')) continue;
+      if (!source.includes('stripSvelteProps(')) continue;
+
+      /*
+       * Detect the pattern: stripSvelteProps({ ..., children, ... }) or
+       * stripSvelteProps({ ..., icon, ... }) — Snippet props inside stripSvelteProps call.
+       * stripSvelteProps strips 'children'/'child' by design, so passing Snippets through it
+       * silently removes them.
+       */
+      const stripCallRe: RegExp = /stripSvelteProps\(\{([^}]+)\}\)/gs;
+      let match: RegExpExecArray | null = stripCallRe.exec(source);
+      while (match) {
+        const args: string = match[1] ?? '';
+        const snippetProps: string[] = ['children', 'icon', 'footer', 'child', 'header', 'trigger'];
+        const found: string[] = snippetProps.filter((p: string): boolean =>
+          new RegExp(`\\b${p}\\b`).test(args),
+        );
+        if (found.length > 0) {
+          violations.push(
+            `${dir}/${primaryFile} — Snippet/callback props [${found.join(', ')}] passed through stripSvelteProps (will be stripped)`,
+          );
+        }
+        match = stripCallRe.exec(source);
+      }
+    }
+
+    it('no Snippet or callback props pass through stripSvelteProps', () => {
+      expect(
+        violations,
+        `Snippet props through stripSvelteProps (bypass with spread after):\n${violations.join('\n')}`,
+      ).toHaveLength(0);
     });
   });
 });

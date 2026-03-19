@@ -1,5 +1,6 @@
 <script lang="ts" module>
   import * as v from 'valibot';
+  import type { Snippet } from 'svelte';
   import { type VariantProps, tv } from 'tailwind-variants';
   import { StrSchema, BoolSchema } from '@/schemas/common';
 
@@ -86,6 +87,12 @@
     disabled: v.optional(BoolSchema, false as Bool),
     /** Additional CSS classes. @values ml-2, animate-pulse */
     class: v.optional(StrSchema),
+    /** Badge text or rich content. @values {#snippet children()}Badge{/snippet} */
+    children: v.optional(v.custom<Snippet>(() => true)),
+    /** Icon rendered before the badge content. @values {#snippet icon()}<Star class="size-3" />{/snippet} */
+    icon: v.optional(v.custom<Snippet>(() => true)),
+    /** Callback fired when the remove button is clicked. @values () => removeBadge(id) */
+    onRemove: v.optional(v.custom<() => void>(() => true)),
   });
   /** Input props type — all fields optional (for $props). */
   export type BadgeInputProps = v.InferInput<typeof BadgePropsSchema>;
@@ -111,29 +118,46 @@
    * <Badge removable onRemove={() => remove(tag)}>Tag</Badge>
    * ```
    */
-  import type { Snippet } from 'svelte';
   import type { Str, Bool } from '@/schemas/common';
   import { safeParse } from '@/utils/result/safe';
   import { stripSvelteProps } from '../lens/lens-utils.js';
   import { cn } from '../utils.js';
   import X from '@lucide/svelte/icons/x';
 
-  type Props = BadgeInputProps & {
-    /** Badge text or rich content. */
-    children?: Snippet;
-    /** Icon rendered before the badge content. @values {#snippet icon()}<Star class="size-3" />{/snippet} */
-    icon?: Snippet;
-    /** Callback fired when the remove button is clicked. @values () => removeBadge(id) */
-    onRemove?: () => void;
-  };
+  const {
+    variant,
+    size,
+    radius,
+    href,
+    dot,
+    removable,
+    disabled,
+    class: className,
+    children,
+    icon,
+    onRemove,
+    ...restProps
+  }: BadgeInputProps = $props();
 
-  const allProps: Props = $props();
+  /** Validate schema props — fills in defaults via v.optional second arg. */
   const validated: BadgeProps = $derived.by(() => {
-    // BadgeInputProps has optional fields; safeParse fills in defaults
-    const rawProps: BadgeInputProps = stripSvelteProps(allProps) as BadgeInputProps;
-    const result = safeParse(BadgePropsSchema, rawProps);
+    const dataProps: Record<string, unknown> = stripSvelteProps({
+      variant,
+      size,
+      radius,
+      href,
+      dot,
+      removable,
+      disabled,
+      class: className,
+    });
+    const result = safeParse(BadgePropsSchema, {
+      ...dataProps,
+      children,
+      icon,
+      onRemove,
+    });
     if (!result.ok) throw result.error;
-    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as BadgeProps;
   });
 
@@ -167,12 +191,13 @@
   class={cn(variantClass, validated.class)}
   aria-disabled={validated.disabled ? 'true' : undefined}
   aria-label={isDot ? 'Status indicator' : undefined}
+  {...restProps}
 >
   {#if !isDot}
-    {#if allProps.icon}
-      {@render allProps.icon()}
+    {#if validated.icon}
+      {@render validated.icon()}
     {/if}
-    {@render allProps.children?.()}
+    {@render validated.children?.()}
     {#if isRemovable}
       <button
         type="button"
@@ -181,7 +206,7 @@
         onclick={(e: MouseEvent) => {
           e.preventDefault();
           e.stopPropagation();
-          allProps.onRemove?.();
+          validated.onRemove?.();
         }}
       >
         <X class="size-3" />

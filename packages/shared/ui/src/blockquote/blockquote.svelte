@@ -1,5 +1,6 @@
 <script module lang="ts">
   import * as v from 'valibot';
+  import type { Snippet } from 'svelte';
   import { type VariantProps, tv } from 'tailwind-variants';
   import { StrSchema, BoolSchema, NumSchema } from '@/schemas/common';
 
@@ -95,33 +96,41 @@
   export type BlockquoteRadius = VariantProps<typeof blockquoteVariants>['radius'];
 
   export const BlockquotePropsSchema = v.strictObject({
-    /** Additional CSS classes for the root element. @values 'custom-class', 'max-w-lg' */
+    /** Additional CSS classes for the root element. @values custom-class, max-w-lg */
     class: v.optional(StrSchema),
-    /** Attribution text displayed below the quote. @values '— Forrest Gump', '— Albert Einstein', 'Source: MDN Docs' */
+    /** Attribution text displayed below the quote. @values — Forrest Gump, — Albert Einstein, Source: MDN Docs */
     cite: v.optional(StrSchema),
-    /** URL for the citation source — wraps cite text in a link. @values 'https://example.com', 'https://mdn.dev' */
+    /** URL for the citation source — wraps cite text in a link. @values https://example.com, https://mdn.dev */
     citeUrl: v.optional(StrSchema),
     /** Visual style variant. @values default, solid, bordered, plain, ghost */
-    variant: v.optional(v.picklist(['default', 'solid', 'bordered', 'plain', 'ghost'])),
+    variant: v.optional(v.picklist(['default', 'solid', 'bordered', 'plain', 'ghost']), 'default'),
     /** Theme color for accent border and background. @values default, primary, secondary, destructive, muted, accent */
     color: v.optional(
       v.picklist(['default', 'primary', 'secondary', 'destructive', 'muted', 'accent']),
+      'default',
     ),
     /** Text size. @values sm, md, lg, xl */
-    size: v.optional(v.picklist(['sm', 'md', 'lg', 'xl'])),
+    size: v.optional(v.picklist(['sm', 'md', 'lg', 'xl']), 'md'),
     /** Text alignment. @values left, center, right */
-    align: v.optional(v.picklist(['left', 'center', 'right'])),
+    align: v.optional(v.picklist(['left', 'center', 'right']), 'left'),
     /** Whether to show the decorative quote icon. @values true, false */
-    showIcon: v.optional(BoolSchema),
+    showIcon: v.optional(BoolSchema, true as Bool),
     /** Whether to show a dash before citation text. @values true, false */
-    showDash: v.optional(BoolSchema),
+    showDash: v.optional(BoolSchema, true as Bool),
     /** Whether quote text is rendered in italic. @values true, false */
-    italic: v.optional(BoolSchema),
+    italic: v.optional(BoolSchema, true as Bool),
     /** Width and height of the icon container in pixels. @values 32, 40, 48 */
     iconSize: v.optional(NumSchema),
     /** Border radius for bordered/solid variants. @values none, sm, md, lg, full */
-    radius: v.optional(v.picklist(['none', 'sm', 'md', 'lg', 'full'])),
+    radius: v.optional(v.picklist(['none', 'sm', 'md', 'lg', 'full']), 'none'),
+    /** Quote text content. @values {#snippet children()}"Life is like a box of chocolates."{/snippet} */
+    children: v.optional(v.custom<Snippet>(() => true)),
+    /** Custom icon snippet replacing the default quote-mark SVG. @values {#snippet icon()}<MyIcon />{/snippet} */
+    icon: v.optional(v.custom<Snippet>(() => true)),
+    /** Footer slot for testimonial-style layouts (avatar, name, role). @values {#snippet footer()}<footer>...</footer>{/snippet} */
+    footer: v.optional(v.custom<Snippet>(() => true)),
   });
+  export type BlockquoteInputProps = v.InferInput<typeof BlockquotePropsSchema>;
   export type BlockquoteProps = v.InferOutput<typeof BlockquotePropsSchema>;
 </script>
 
@@ -141,27 +150,52 @@
    * </Blockquote>
    * ```
    */
-  import type { Snippet } from 'svelte';
   import type { Str, Bool, Num } from '@/schemas/common';
   import { safeParse } from '@/utils/result/safe';
   import { stripSvelteProps } from '../lens/lens-utils.js';
   import { cn } from '../utils.js';
 
-  type Props = BlockquoteProps & {
-    /** Quote content. */
-    children?: Snippet;
-    /** Custom icon snippet replacing the default quote-mark SVG. @values {#snippet icon()}<MyIcon />{/snippet} */
-    icon?: Snippet;
-    /** Footer slot for testimonial-style layouts (avatar, name, role). @values {#snippet footer()}<footer>...</footer>{/snippet} */
-    footer?: Snippet;
-  };
+  const {
+    class: className,
+    cite,
+    citeUrl,
+    variant,
+    color,
+    size,
+    align,
+    showIcon: showIconProp,
+    showDash: showDashProp,
+    italic,
+    iconSize,
+    radius,
+    children,
+    icon,
+    footer,
+    ...restProps
+  }: BlockquoteInputProps = $props();
 
-  const allProps: Props = $props();
   const validated: BlockquoteProps = $derived.by(() => {
-    const rawProps: BlockquoteProps = stripSvelteProps(allProps);
-    const result = safeParse(BlockquotePropsSchema, rawProps);
+    const dataProps: Record<string, unknown> = stripSvelteProps({
+      class: className,
+      cite,
+      citeUrl,
+      variant,
+      color,
+      size,
+      align,
+      showIcon: showIconProp,
+      showDash: showDashProp,
+      italic,
+      iconSize,
+      radius,
+    });
+    const result = safeParse(BlockquotePropsSchema, {
+      ...dataProps,
+      children,
+      icon,
+      footer,
+    });
     if (!result.ok) throw result.error;
-    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as BlockquoteProps;
   });
 
@@ -185,14 +219,15 @@
     isItalic && 'italic',
     validated.class,
   )}
+  {...restProps}
 >
   {#if showIcon}
     <div
       class="mb-3 flex items-center justify-center text-muted-foreground/30"
       style="width: {iconSizePx}px; height: {iconSizePx}px;"
     >
-      {#if allProps.icon}
-        {@render allProps.icon()}
+      {#if validated.icon}
+        {@render validated.icon()}
       {:else}
         <svg class="bq-icon size-full" aria-hidden="true" fill="currentColor" viewBox="0 0 18 14">
           <path
@@ -204,7 +239,7 @@
   {/if}
 
   <div class="text-foreground">
-    {@render allProps.children?.()}
+    {@render validated.children?.()}
   </div>
 
   {#if validated.cite}
@@ -225,9 +260,9 @@
     </footer>
   {/if}
 
-  {#if allProps.footer}
+  {#if validated.footer}
     <div class="mt-3">
-      {@render allProps.footer()}
+      {@render validated.footer()}
     </div>
   {/if}
 </blockquote>

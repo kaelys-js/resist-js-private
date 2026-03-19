@@ -10,8 +10,8 @@ import type { Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import { type LensMeta, LensMetaSchema, type PropMeta } from './types.js';
 
-/** Set of Svelte-internal prop names that must be stripped before schema validation. */
-const SVELTE_INTERNAL_PROPS: ReadonlySet<Str> = new Set(['children', 'child']);
+/** Svelte-internal prop names stripped before schema validation. */
+const STRIP_KEYS: ReadonlySet<Str> = new Set(['children', 'child']);
 
 /**
  * Strip Svelte-internal props (children, child) from a raw props object.
@@ -33,11 +33,10 @@ const SVELTE_INTERNAL_PROPS: ReadonlySet<Str> = new Set(['children', 'child']);
 export function stripSvelteProps<T extends Record<Str, unknown>>(props: T): T {
   const result: Record<Str, unknown> = {};
   for (const [key, value] of Object.entries(props)) {
-    if (!SVELTE_INTERNAL_PROPS.has(key)) {
-      result[key] = value;
-    }
+    if (STRIP_KEYS.has(key)) continue;
+    if (key.startsWith('data-') || key.startsWith('aria-')) continue;
+    result[key] = value;
   }
-  // Stripped keys are Svelte internals (children, child) not present in T
   return result as T;
 }
 
