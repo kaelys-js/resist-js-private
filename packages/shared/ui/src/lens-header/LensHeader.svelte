@@ -45,6 +45,10 @@
     onTogglePin: v.optional(
       v.custom<() => void>((val: unknown): boolean => typeof val === 'function'),
     ),
+    /** Whether all collapsible sections are currently expanded. @values true, false */
+    allSectionsExpanded: v.optional(BoolSchema),
+    /** Whether all collapsible sections are currently collapsed. @values true, false */
+    allSectionsCollapsed: v.optional(BoolSchema),
     /** Whether this component is being watched for changes. @values true, false */
     isWatched: v.optional(BoolSchema),
     /** Callback fired when the watch/unwatch button is clicked. @values () => void */
@@ -871,11 +875,17 @@
                 </DropdownMenu.SubContent>
               </DropdownMenu.Sub>
               <DropdownMenu.Separator />
-              <DropdownMenu.Item onclick={expandAll}>
+              <DropdownMenu.Item
+                onclick={expandAll}
+                disabled={allProps.allSectionsExpanded === true}
+              >
                 <ChevronsUpDown class="size-4" />
                 Expand All
               </DropdownMenu.Item>
-              <DropdownMenu.Item onclick={collapseAll}>
+              <DropdownMenu.Item
+                onclick={collapseAll}
+                disabled={allProps.allSectionsCollapsed === true}
+              >
                 <ChevronsDownUp class="size-4" />
                 Collapse All
               </DropdownMenu.Item>

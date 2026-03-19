@@ -237,6 +237,7 @@
     new: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400' as Str,
     updated: 'bg-blue-500/15 text-blue-700 dark:text-blue-400' as Str,
     deprecated: 'bg-red-500/15 text-red-700 dark:text-red-400' as Str,
+    placeholder: 'bg-amber-500/15 text-amber-700 dark:text-amber-400' as Str,
   };
 
   /** Status badge labels. */
@@ -244,6 +245,7 @@
     new: 'New' as Str,
     updated: 'Updated' as Str,
     deprecated: 'Deprecated' as Str,
+    placeholder: 'Placeholder' as Str,
   };
 
   /**
@@ -784,7 +786,7 @@
                     {STATUS_LABELS[meta.status]}
                   </Badge>
                 {/if}
-                <CompatTooltip {compat} ruleNames={lensRuleNames} />
+                <CompatTooltip {compat} ruleNames={lensRuleNames} componentName={name} />
               </div>
             </div>
             {#if desc}
@@ -1056,7 +1058,7 @@
                   {/if}
                 </td>
                 <td class="px-4 py-2.5">
-                  <CompatTooltip {compat} ruleNames={lensRuleNames} />
+                  <CompatTooltip {compat} ruleNames={lensRuleNames} componentName={name} />
                 </td>
               </tr>
             {/each}
@@ -1086,7 +1088,7 @@
                 {STATUS_LABELS[meta.status]}
               </Badge>
             {/if}
-            <CompatTooltip {compat} ruleNames={lensRuleNames} />
+            <CompatTooltip {compat} ruleNames={lensRuleNames} componentName={name} />
             <ArrowRight
               class="size-3.5 shrink-0 text-muted-foreground/30 transition-transform group-hover/row:translate-x-0.5 group-hover/row:text-primary"
             />

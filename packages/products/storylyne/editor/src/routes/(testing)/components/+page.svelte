@@ -36,6 +36,7 @@
   import Sparkles from '@lucide/svelte/icons/sparkles';
   import RefreshCw from '@lucide/svelte/icons/refresh-cw';
   import Trash2 from '@lucide/svelte/icons/trash-2';
+  import PackageOpen from '@lucide/svelte/icons/package-open';
   import TagIcon from '@lucide/svelte/icons/tag';
   import Shapes from '@lucide/svelte/icons/shapes';
   import BookOpen from '@lucide/svelte/icons/book-open';
@@ -269,6 +270,7 @@
     new: Sparkles,
     updated: RefreshCw,
     deprecated: Trash2,
+    placeholder: PackageOpen,
   };
 
   /** Status color mapping. */
@@ -276,6 +278,7 @@
     new: 'text-emerald-600 dark:text-emerald-400' as Str,
     updated: 'text-blue-600 dark:text-blue-400' as Str,
     deprecated: 'text-red-600 dark:text-red-400' as Str,
+    placeholder: 'text-amber-600 dark:text-amber-400' as Str,
   };
 
   /** Status badge colors. */
@@ -283,6 +286,7 @@
     new: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400' as Str,
     updated: 'bg-blue-500/15 text-blue-700 dark:text-blue-400' as Str,
     deprecated: 'bg-red-500/15 text-red-700 dark:text-red-400' as Str,
+    placeholder: 'bg-amber-500/15 text-amber-700 dark:text-amber-400' as Str,
   };
 
   /** Activity feed — components with a status (new, updated, deprecated). */
@@ -730,32 +734,43 @@
         <div class="border-t px-4 py-3">
           <!-- Lens Rule Violations -->
           {#if ruleViolationCounts.length > 0}
-            <div class="mb-3">
+            <div class="mb-4">
               <div class="mb-2 flex items-center gap-2">
                 <ShieldCheck class="size-3.5 text-amber-500" />
                 <span class="text-xs font-medium text-muted-foreground">
                   Lens Rule Violations ({incompatibleCount as number} components affected)
                 </span>
               </div>
-              <div class="flex flex-col gap-1.5">
-                {#each ruleViolationCounts as rv (rv.rule)}
-                  <div class="flex items-start gap-2 text-xs">
-                    <Badge variant="outline" class="shrink-0 px-1.5 py-0 font-mono text-[10px]">
-                      R{rv.rule}
-                    </Badge>
-                    <span class="flex-1 text-muted-foreground">{rv.name}</span>
-                    <span class="shrink-0 tabular-nums text-muted-foreground/70">
-                      {rv.count} component{(rv.count as number) !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-                {/each}
+              <div class="overflow-hidden rounded-lg border bg-card">
+                <table class="w-full text-xs">
+                  <thead>
+                    <tr class="border-b bg-muted/50">
+                      <th class="px-3 py-1.5 text-left font-medium text-muted-foreground">Rule</th>
+                      <th class="px-3 py-1.5 text-left font-medium text-muted-foreground">Name</th>
+                      <th class="px-3 py-1.5 text-right font-medium text-muted-foreground"
+                        >Affected</th
+                      >
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {#each ruleViolationCounts as rv (rv.rule)}
+                      <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/40">
+                        <td class="px-3 py-1.5 font-mono text-muted-foreground">R{rv.rule}</td>
+                        <td class="px-3 py-1.5">{rv.name}</td>
+                        <td class="px-3 py-1.5 text-right tabular-nums text-muted-foreground">
+                          {rv.count} component{(rv.count as number) !== 1 ? 's' : ''}
+                        </td>
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
               </div>
             </div>
           {/if}
 
           <!-- Accessibility Violations -->
           {#if a11yFailingRules.length > 0}
-            <div class="mb-3">
+            <div class="mb-4">
               <div class="mb-2 flex items-center gap-2">
                 <AccessibilityIcon class="size-3.5 text-amber-500" />
                 <a
@@ -765,18 +780,29 @@
                   Accessibility Violations ({a11yFailingRules.length} rules failing) →
                 </a>
               </div>
-              <div class="flex flex-col gap-1.5">
-                {#each a11yFailingRules as rule (rule.id)}
-                  <div class="flex items-start gap-2 text-xs">
-                    <Badge variant="outline" class="shrink-0 px-1.5 py-0 font-mono text-[10px]">
-                      {rule.wcag}
-                    </Badge>
-                    <span class="flex-1 text-muted-foreground">{rule.label}</span>
-                    <span class="shrink-0 tabular-nums text-muted-foreground/70">
-                      {rule.failCount} failure{(rule.failCount as number) !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-                {/each}
+              <div class="overflow-hidden rounded-lg border bg-card">
+                <table class="w-full text-xs">
+                  <thead>
+                    <tr class="border-b bg-muted/50">
+                      <th class="px-3 py-1.5 text-left font-medium text-muted-foreground">WCAG</th>
+                      <th class="px-3 py-1.5 text-left font-medium text-muted-foreground">Rule</th>
+                      <th class="px-3 py-1.5 text-right font-medium text-muted-foreground"
+                        >Failures</th
+                      >
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {#each a11yFailingRules as rule (rule.id)}
+                      <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/40">
+                        <td class="px-3 py-1.5 font-mono text-muted-foreground">{rule.wcag}</td>
+                        <td class="px-3 py-1.5">{rule.label}</td>
+                        <td class="px-3 py-1.5 text-right tabular-nums text-muted-foreground">
+                          {rule.failCount} failure{(rule.failCount as number) !== 1 ? 's' : ''}
+                        </td>
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
               </div>
             </div>
           {/if}
@@ -793,18 +819,31 @@
                   Unsupported Browsers ({unsupportedBrowserCount}) →
                 </a>
               </div>
-              <div class="flex flex-col gap-1.5">
-                {#each browserResult.unsupported as browser (browser.name)}
-                  <div class="flex items-start gap-2 text-xs">
-                    <Badge variant="outline" class="shrink-0 px-1.5 py-0 text-[10px]">
-                      {browser.name}
-                    </Badge>
-                    <span class="flex-1 text-muted-foreground">{browser.notes}</span>
-                    <span class="shrink-0 text-muted-foreground/70">
-                      {browser.limitingFeature}
-                    </span>
-                  </div>
-                {/each}
+              <div class="overflow-hidden rounded-lg border bg-card">
+                <table class="w-full text-xs">
+                  <thead>
+                    <tr class="border-b bg-muted/50">
+                      <th class="px-3 py-1.5 text-left font-medium text-muted-foreground"
+                        >Browser</th
+                      >
+                      <th class="px-3 py-1.5 text-left font-medium text-muted-foreground">Notes</th>
+                      <th class="px-3 py-1.5 text-right font-medium text-muted-foreground"
+                        >Limiting Feature</th
+                      >
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {#each browserResult.unsupported as browser (browser.name)}
+                      <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/40">
+                        <td class="px-3 py-1.5 font-medium">{browser.name}</td>
+                        <td class="px-3 py-1.5 text-muted-foreground">{browser.notes}</td>
+                        <td class="px-3 py-1.5 text-right text-muted-foreground">
+                          {browser.limitingFeature}
+                        </td>
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
               </div>
             </div>
           {/if}

@@ -1,24 +1,17 @@
 - [Lens]
-    - Connect to local project components
-    - "Blocks/Stories"
     - Component Conversions (@convert-to-lens)
       - Remove exclusions from the lens test file
       - Review All Rx Rules + lens tests for these
-    - Production/Cloudflare Concerns
-      - The following will or will not work:
-        - Bundle Size
-        - Import Globbing For Components/etc
-        - Global Search
-        - Real Browser: Playwright/iOS/Android Engines (Screenshot/Live/etc)
 
     - Plans
       - Support/About/Styling: Need Content Work
+      - docs/plans/2026-03-18-cloudflare-production-readiness.md
       - docs/plans/2026-03-16-lens-pages-part2.md
       - docs/plans/2026-03-16-auto-examples-part1.md
       - docs/plans/2026-03-16-auto-examples-part2.md
       - docs/plans/2026-03-16-lens-detail-additions.md
       - docs/plans/2026-03-16-lens-advanced-features.md
-
+    - Blocks, Stories, Project-Specific Components
     - Real Browser
         - Live Preview (each engine):
             LensComponentRenderer: Browser Live Submenu

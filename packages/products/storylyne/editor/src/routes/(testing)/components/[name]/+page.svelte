@@ -58,6 +58,9 @@
   import TableProperties from '@lucide/svelte/icons/table-properties';
   import ComponentIcon from '@lucide/svelte/icons/component';
   import ShieldAlert from '@lucide/svelte/icons/shield-alert';
+  import ShieldCheck from '@lucide/svelte/icons/shield-check';
+  import ArrowRight from '@lucide/svelte/icons/arrow-right';
+  import type { A11yRuleResult } from '@/ui/lens/detect-accessibility.js';
   import Layers from '@lucide/svelte/icons/layers';
   import BookOpen from '@lucide/svelte/icons/book-open';
   import GitFork from '@lucide/svelte/icons/git-fork';
@@ -79,6 +82,7 @@
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import AlertCircle from '@lucide/svelte/icons/alert-circle';
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
+  import PackageOpen from '@lucide/svelte/icons/package-open';
   import Copy from '@lucide/svelte/icons/copy';
   import FolderOpen from '@lucide/svelte/icons/folder-open';
   import Hash from '@lucide/svelte/icons/hash';
@@ -870,6 +874,16 @@
     dependencies: true,
     changelog: true,
   });
+
+  /** Whether all sections are currently expanded. */
+  const allSectionsExpanded: Bool = $derived(
+    Object.values(sectionOpen).every((v) => v === true) as Bool,
+  );
+
+  /** Whether all sections are currently collapsed. */
+  const allSectionsCollapsed: Bool = $derived(
+    Object.values(sectionOpen).every((v) => v === false) as Bool,
+  );
 
   /**
    * Toggle a section open/closed.
@@ -1902,6 +1916,12 @@
   /** Feedback state for documentation export actions. */
   let docsExportFeedback: Str = $state('');
 
+  /** Whether the compatibility card details are expanded. */
+  let compatExpanded: Bool = $state(false as Bool);
+
+  /** Global accessibility failures from layout context. */
+  const allA11yRules: A11yRuleResult[] = getContext<A11yRuleResult[]>('lens-a11y-failures') ?? [];
+
   /**
    * Parsed documentation headings for the table of contents.
    * Extracts ## and ### headings from the raw markdown.
@@ -2498,28 +2518,95 @@
         onTogglePin={handleTogglePin}
         {isWatched}
         onToggleWatch={handleToggleWatch}
+        {allSectionsExpanded}
+        {allSectionsCollapsed}
       />
     </div>
-    {#if lensCompat && !lensCompat.compatible}
+    {#if lensCompat}
       {@const failedRules = new Set(lensCompat.violations.map((vi) => vi.rule as Num))}
       {@const failCount = failedRules.size}
       {@const passCount = LENS_RULE_NAMES.length - failCount}
-      <div class="mx-8 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3">
-        <div class="flex items-start gap-2">
-          <TriangleAlert class="mt-0.5 size-4 shrink-0 text-amber-500" aria-hidden="true" />
-          <div class="min-w-0 flex-1">
-            <p class="text-sm font-semibold text-amber-600 dark:text-amber-400">
-              Compatibility — {passCount}✓ {failCount}✗
-            </p>
-            <div class="mt-1.5">
-              <CompatRuleList
-                ruleNames={LENS_RULE_NAMES}
-                violations={failedRules}
-                showAllRules={false}
-              />
+      {@const compatPercent = Math.round(((passCount as number) / LENS_RULE_NAMES.length) * 100)}
+      {@const componentA11yRules = allA11yRules.filter((rule: A11yRuleResult): boolean =>
+        rule.failingFiles.some(
+          (f: Str): boolean => f.includes(`/${name}/`) || f.includes(`/${name}.`),
+        ),
+      )}
+      {@const a11yFailCount = componentA11yRules.length}
+      {@const totalIssues = (failCount as number) + a11yFailCount}
+      <div class="mx-8 mt-4 rounded-lg border bg-card">
+        <div class="flex items-center gap-3 p-4">
+          <ShieldCheck
+            class="size-5 shrink-0 {compatPercent >= 80
+              ? 'text-emerald-600 dark:text-emerald-400'
+              : compatPercent >= 50
+                ? 'text-amber-600 dark:text-amber-400'
+                : 'text-red-600 dark:text-red-400'}"
+          />
+          <div class="flex-1">
+            <div class="flex items-baseline gap-2">
+              <span class="text-sm font-semibold">Compatibility</span>
+              <span
+                class="text-sm font-bold tabular-nums {compatPercent >= 80
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : compatPercent >= 50
+                    ? 'text-amber-600 dark:text-amber-400'
+                    : 'text-red-600 dark:text-red-400'}"
+              >
+                {compatPercent}%
+              </span>
+              <span class="text-xs text-muted-foreground">
+                ({passCount}/{LENS_RULE_NAMES.length} passing)
+              </span>
+            </div>
+            <div class="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
+              <span>
+                <ShieldCheck class="mr-0.5 inline size-3" />
+                {failCount} Lens rule{(failCount as number) !== 1 ? 's' : ''} failing
+              </span>
+              {#if a11yFailCount > 0}
+                <span>
+                  <ShieldAlert class="mr-0.5 inline size-3" />
+                  {a11yFailCount} accessibility rule{a11yFailCount !== 1 ? 's' : ''} failing
+                </span>
+              {/if}
+            </div>
+            <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                class="h-full rounded-full transition-all {compatPercent >= 80
+                  ? 'bg-emerald-500'
+                  : compatPercent >= 50
+                    ? 'bg-amber-500'
+                    : 'bg-red-500'}"
+                style="width: {compatPercent}%;"
+              ></div>
             </div>
           </div>
+          {#if totalIssues > 0}
+            <button
+              type="button"
+              class="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              onclick={() => {
+                compatExpanded = !compatExpanded;
+              }}
+              aria-label={compatExpanded ? 'Hide details' : 'Show details'}
+            >
+              <ArrowRight
+                class="size-4 transition-transform duration-200 {compatExpanded ? 'rotate-90' : ''}"
+              />
+            </button>
+          {/if}
         </div>
+        {#if compatExpanded && totalIssues > 0}
+          <div class="border-t px-4 py-3" transition:slide={{ duration: 200 }}>
+            <CompatRuleList
+              ruleNames={LENS_RULE_NAMES}
+              violations={failedRules}
+              showAllRules={false}
+              a11yRules={componentA11yRules}
+            />
+          </div>
+        {/if}
       </div>
     {/if}
     <!-- Component status banner -->
@@ -2545,6 +2632,13 @@
           color: 'text-red-600 dark:text-red-400',
           label: 'Deprecated',
           desc: 'This component is deprecated and may be removed in a future version.',
+        },
+        placeholder: {
+          icon: PackageOpen,
+          bg: 'border-amber-500/30 bg-amber-500/5',
+          color: 'text-amber-600 dark:text-amber-400',
+          label: 'Placeholder',
+          desc: 'This component is a placeholder and not yet fully implemented.',
         },
       }}
       {@const cfg = statusConfig[lensMeta.status]}
