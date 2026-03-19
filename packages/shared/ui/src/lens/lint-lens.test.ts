@@ -24,6 +24,7 @@
  * 20. Converted components must use destructured `$props()` with `...restProps`
  * 21. Root element must spread `{...restProps}` for DOM attribute passthrough
  * 22. Snippet/callback props must NOT pass through `stripSvelteProps`
+ * 23. No dead props — every schema field must be referenced in instance script or template
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, dirname, join, relative } from 'node:path';
@@ -1013,6 +1014,58 @@ describe('Lens lint', () => {
       expect(
         violations,
         `Snippet props through stripSvelteProps (bypass with spread after):\n${violations.join('\n')}`,
+      ).toHaveLength(0);
+    });
+  });
+
+  describe('Rule 23: No dead props — schema fields must be referenced in instance script or template (skip @convert-to-lens)', () => {
+    const violations: string[] = [];
+    const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
+
+    /** Props always implicitly used: class (via cn()), children/child (slot content). */
+    const ALWAYS_USED: ReadonlySet<string> = new Set(['class', 'children', 'child']);
+
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
+      .map((d) => d.name);
+
+    for (const dir of dirs) {
+      const dirPath: string = join(UI_SRC, dir);
+      const files: string[] = readdirSync(dirPath);
+      const primaryFile: string | undefined = files.find(
+        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
+      );
+      if (!primaryFile) continue;
+
+      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      if (source.includes('@convert-to-lens')) continue;
+      if (!source.includes('v.strictObject(')) continue;
+
+      const props: PropMeta[] = extractProps(source);
+      if (props.length === 0) continue;
+
+      /* Check usage in instance script + template (everything after module script). */
+      const instanceIdx: number = source.indexOf('<script lang="ts">');
+      const usageSource: string = instanceIdx >= 0 ? source.slice(instanceIdx) : source;
+
+      const dead: string[] = [];
+      for (const prop of props) {
+        if (!prop.name || ALWAYS_USED.has(prop.name)) continue;
+        const nameRe: RegExp = new RegExp(`\\b${prop.name}\\b`);
+        if (!nameRe.test(usageSource)) {
+          dead.push(prop.name);
+        }
+      }
+
+      if (dead.length > 0) {
+        violations.push(`${dir}/${primaryFile} — dead props: [${dead.join(', ')}]`);
+      }
+    }
+
+    it('every schema prop is referenced in instance script or template', () => {
+      expect(
+        violations,
+        `Dead props (defined in schema but never used):\n${violations.join('\n')}`,
       ).toHaveLength(0);
     });
   });

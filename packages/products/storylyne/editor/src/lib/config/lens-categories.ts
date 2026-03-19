@@ -227,4 +227,5 @@ export const LENS_RULE_NAMES: readonly Str[] = [
   'Must destructure $props() — use { ...restProps } for DOM attribute passthrough' as Str,
   'Must spread {...restProps} — root element must spread restProps for Bits UI compat' as Str,
   'Snippets bypass stripSvelteProps — children/icon/footer must not pass through stripSvelteProps' as Str,
+  'No dead props — every schema field must be referenced in instance script or template' as Str,
 ];
