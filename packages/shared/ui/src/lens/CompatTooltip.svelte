@@ -44,15 +44,25 @@
   /** Global accessibility rules from layout context. */
   const allA11yRules: A11yRuleResult[] = getContext<A11yRuleResult[]>('lens-a11y-failures') ?? [];
 
-  /** A11y rules filtered to only those that fail for this specific component. */
+  /** A11y rules filtered to only those that fail for this specific component, with per-component failCount. */
   const componentA11yRules: A11yRuleResult[] = $derived(
     componentName
-      ? allA11yRules.filter((rule: A11yRuleResult): boolean =>
-          rule.failingFiles.some(
-            (f: Str): boolean =>
-              f.includes(`/${componentName}/`) || f.includes(`/${componentName}.`),
-          ),
-        )
+      ? allA11yRules
+          .filter((rule: A11yRuleResult): boolean =>
+            rule.failingFiles.some(
+              (f: Str): boolean =>
+                f.includes(`/${componentName}/`) || f.includes(`/${componentName}.`),
+            ),
+          )
+          .map(
+            (rule: A11yRuleResult): A11yRuleResult => ({
+              ...rule,
+              failCount: rule.failingFiles.filter(
+                (f: Str): boolean =>
+                  f.includes(`/${componentName}/`) || f.includes(`/${componentName}.`),
+              ).length as typeof rule.failCount,
+            }),
+          )
       : [],
   );
 

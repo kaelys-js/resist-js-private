@@ -2541,14 +2541,25 @@
     {#if lensCompat}
       {@const failedRules = new Set(lensCompat.violations.map((vi) => vi.rule as Num))}
       {@const failCount = failedRules.size}
-      {@const passCount = LENS_RULE_NAMES.length - failCount}
-      {@const compatPercent = Math.round(((passCount as number) / LENS_RULE_NAMES.length) * 100)}
-      {@const componentA11yRules = allA11yRules.filter((rule: A11yRuleResult): boolean =>
-        rule.failingFiles.some(
-          (f: Str): boolean => f.includes(`/${name}/`) || f.includes(`/${name}.`),
-        ),
-      )}
+      {@const componentA11yRules = allA11yRules
+        .filter((rule: A11yRuleResult): boolean =>
+          rule.failingFiles.some(
+            (f: Str): boolean => f.includes(`/${name}/`) || f.includes(`/${name}.`),
+          ),
+        )
+        .map(
+          (rule: A11yRuleResult): A11yRuleResult => ({
+            ...rule,
+            failCount: rule.failingFiles.filter(
+              (f: Str): boolean => f.includes(`/${name}/`) || f.includes(`/${name}.`),
+            ).length as typeof rule.failCount,
+          }),
+        )}
       {@const a11yFailCount = componentA11yRules.length}
+      {@const totalRules = LENS_RULE_NAMES.length + a11yFailCount}
+      {@const passCount = LENS_RULE_NAMES.length - failCount}
+      {@const compatPercent =
+        totalRules > 0 ? Math.round(((passCount as number) / totalRules) * 100) : 100}
       {@const totalIssues = (failCount as number) + a11yFailCount}
       <div class="mx-8 mt-4 rounded-lg border bg-card">
         <div class="flex items-center gap-3 p-4">
@@ -2572,7 +2583,7 @@
                 {compatPercent}%
               </span>
               <span class="text-xs text-muted-foreground">
-                ({passCount}/{LENS_RULE_NAMES.length} passing)
+                ({passCount}/{totalRules} passing)
               </span>
             </div>
             <div class="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
