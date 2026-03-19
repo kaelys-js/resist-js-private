@@ -42,6 +42,7 @@
   import BarChart3 from '@lucide/svelte/icons/bar-chart-3';
 
   import Eye from '@lucide/svelte/icons/eye';
+  import Tag from '@lucide/svelte/icons/tag';
   import {
     auditAccessibility,
     type A11yRuleResult,
@@ -1015,6 +1016,7 @@
             : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'}"
           onclick={() => toggleCategory(cat)}
         >
+          <Tag class="size-3 shrink-0 opacity-60" />
           {cat}
           {#if activeCategories.includes(cat)}
             <X class="size-3 opacity-70" />

@@ -6,6 +6,7 @@
    * Matches the Icons page UX: sticky header, 3-dot dropdown, inline search,
    * grid of tag cards showing component counts and samples.
    */
+  import { page } from '$app/state';
   import type { Bool, Num, Str } from '@/schemas/common';
   import type { LensMeta } from '@/ui/lens/types.js';
   import type { Result } from '@/schemas/result/result';
@@ -94,8 +95,8 @@
   /*  State                                                              */
   /* ------------------------------------------------------------------ */
 
-  /** Search query. */
-  let searchQuery: Str = $state('' as Str);
+  /** Search query — initialized from ?q= URL parameter if present. */
+  let searchQuery: Str = $state((page.url.searchParams.get('q') ?? '') as Str);
 
   /** View mode for tag display. */
   let viewMode: 'grid' | 'compact' | 'list' | 'table' = $state('grid');
@@ -649,8 +650,8 @@
               {#each components.slice(0, 6) as comp (comp)}
                 <a
                   href="/components/{comp}"
-                  class="rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                  >{toTitle(comp)}</a
+                  class="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                  ><ComponentIcon class="size-3 shrink-0 opacity-60" />{toTitle(comp)}</a
                 >
               {/each}
               {#if components.length > 6}
@@ -793,8 +794,8 @@
                     {#each components.slice(0, 4) as comp (comp)}
                       <a
                         href="/components/{comp}"
-                        class="rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                        >{toTitle(comp)}</a
+                        class="inline-flex items-center gap-1 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                        ><ComponentIcon class="size-3 shrink-0 opacity-60" />{toTitle(comp)}</a
                       >
                     {/each}
                     {#if components.length > 4}

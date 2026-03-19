@@ -345,6 +345,12 @@
           ),
         }));
       }
+    } else {
+      /* Default: sort tokens alphabetically by name within each group */
+      result = result.map((g) => ({
+        ...g,
+        tokens: [...g.tokens].toSorted((a, b) => a.name.localeCompare(b.name) as Num),
+      }));
     }
 
     return result;

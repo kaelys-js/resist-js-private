@@ -197,8 +197,9 @@ export type LensCategory = v.InferOutput<typeof LensCategorySchema>;
  * - 'new' — recently added
  * - 'updated' — recently changed
  * - 'deprecated' — scheduled for removal
+ * - 'placeholder' — stub component, not yet implemented
  */
-export const LensStatusSchema = v.picklist(['new', 'updated', 'deprecated']);
+export const LensStatusSchema = v.picklist(['new', 'updated', 'deprecated', 'placeholder']);
 export type LensStatus = v.InferOutput<typeof LensStatusSchema>;
 
 /**

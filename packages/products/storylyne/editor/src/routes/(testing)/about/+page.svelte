@@ -32,6 +32,10 @@
   import FileText from '@lucide/svelte/icons/file-text';
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import Info from '@lucide/svelte/icons/info';
+  import Tag from '@lucide/svelte/icons/tag';
+  import Briefcase from '@lucide/svelte/icons/briefcase';
+  import Code2 from '@lucide/svelte/icons/code-2';
+  import Users from '@lucide/svelte/icons/users';
 
   /* ------------------------------------------------------------------ */
   /*  Data types                                                        */
@@ -143,6 +147,13 @@
         'WebForge logo and brand assets are available for use in documentation and community projects.' as Str,
     },
   ];
+
+  /** Map of category names to their Lucide icon components. */
+  const SECTION_ICONS: Record<Str, typeof Briefcase> = {
+    Project: Briefcase,
+    Technical: Code2,
+    Community: Users,
+  } as Record<Str, typeof Briefcase>;
 
   /** All unique category names. */
   const ALL_CATEGORIES: Str[] = [
@@ -866,6 +877,7 @@
             : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'}"
           onclick={() => toggleCategory(cat)}
         >
+          <Tag class="size-3 shrink-0 opacity-60" />
           {cat}
           {#if activeCategories.includes(cat)}
             <X class="size-3 opacity-70" />
@@ -934,6 +946,10 @@
                   ? 'rotate-90'
                   : ''}"
               />
+              {#if SECTION_ICONS[section.category]}
+                {@const SectionIcon = SECTION_ICONS[section.category]}
+                <SectionIcon class="size-5 shrink-0" />
+              {/if}
               {section.title}
               <span
                 class="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground"
@@ -982,6 +998,10 @@
         {#each filteredSections as section (section.id)}
           <div class="flex flex-col rounded-lg border bg-card p-4">
             <div class="mb-2 flex items-center gap-2">
+              {#if SECTION_ICONS[section.category]}
+                {@const CardIcon = SECTION_ICONS[section.category]}
+                <CardIcon class="size-4 shrink-0" />
+              {/if}
               <h3 class="text-sm font-semibold">{section.title}</h3>
               <span
                 class="ml-auto rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
