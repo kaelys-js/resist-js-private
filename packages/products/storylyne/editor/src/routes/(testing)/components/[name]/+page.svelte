@@ -41,6 +41,7 @@
     type LensCompatibility,
   } from '@/ui/lens/lens-utils.js';
   import { page } from '$app/state';
+  import CompatRuleList from '@/ui/lens/CompatRuleList.svelte';
   import LensEmpty from '@/ui/lens-empty/LensEmpty.svelte';
   import LensError from '@/ui/lens-error/LensError.svelte';
   import LensHeader from '@/ui/lens-header/LensHeader.svelte';
@@ -2500,7 +2501,7 @@
       />
     </div>
     {#if lensCompat && !lensCompat.compatible}
-      {@const failedRules = new Set(lensCompat.violations.map((vi) => vi.rule as number))}
+      {@const failedRules = new Set(lensCompat.violations.map((vi) => vi.rule as Num))}
       {@const failCount = failedRules.size}
       {@const passCount = LENS_RULE_NAMES.length - failCount}
       <div class="mx-8 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3">
@@ -2510,19 +2511,13 @@
             <p class="text-sm font-semibold text-amber-600 dark:text-amber-400">
               Compatibility — {passCount}✓ {failCount}✗
             </p>
-            <ul class="mt-1.5 space-y-0.5">
-              {#each LENS_RULE_NAMES as ruleName, ruleIdx (ruleIdx)}
-                {#if failedRules.has(ruleIdx)}
-                  <li class="flex items-start gap-1 text-xs text-foreground/70">
-                    <span class="mt-px shrink-0 font-bold leading-none opacity-60">✗</span>
-                    <span>
-                      <span class="font-mono text-amber-500/70">R{ruleIdx}</span>
-                      {ruleName}
-                    </span>
-                  </li>
-                {/if}
-              {/each}
-            </ul>
+            <div class="mt-1.5">
+              <CompatRuleList
+                ruleNames={LENS_RULE_NAMES}
+                violations={failedRules}
+                showAllRules={false}
+              />
+            </div>
           </div>
         </div>
       </div>

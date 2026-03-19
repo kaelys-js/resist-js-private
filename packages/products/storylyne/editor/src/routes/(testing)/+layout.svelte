@@ -86,6 +86,7 @@
     categoryLabel as catLabel,
   } from '$lib/config/lens-categories';
   import * as Popover from '@/ui/popover/index.js';
+  import CompatRuleList from '@/ui/lens/CompatRuleList.svelte';
   import { cn } from '@/ui/utils.js';
   import { Toaster, toast } from 'svelte-sonner';
   import {
@@ -2335,31 +2336,18 @@
                                 {/if}
                                 {#if itemCompat}
                                   {@const failedRules = new Set(
-                                    itemCompat.violations.map((v) => v.rule as number),
+                                    itemCompat.violations.map((v) => v.rule as Num),
                                   )}
-                                  {@const sidebarFailCount = failedRules.size}
-                                  {@const sidebarPassCount =
-                                    LENS_RULE_NAMES.length - sidebarFailCount}
+                                  {@const failCount = failedRules.size}
+                                  {@const passCount = LENS_RULE_NAMES.length - failCount}
                                   <div class="mt-1.5 border-t border-border pt-1.5">
                                     <p class="mb-1 text-[10px] font-semibold">
-                                      Compatibility — {sidebarPassCount}✓ {sidebarFailCount}✗
+                                      Compatibility — {passCount}✓ {failCount}✗
                                     </p>
-                                    <ul class="space-y-0.5">
-                                      {#each LENS_RULE_NAMES as ruleName, ruleIdx (ruleIdx)}
-                                        {@const failed = failedRules.has(ruleIdx)}
-                                        <li class="flex items-start gap-1 text-[10px]">
-                                          <span
-                                            class="mt-px shrink-0 font-bold leading-none {failed
-                                              ? 'opacity-60'
-                                              : 'opacity-40'}">{failed ? '✗' : '✓'}</span
-                                          >
-                                          <span
-                                            ><span class="font-mono opacity-60">R{ruleIdx}</span>
-                                            {ruleName}</span
-                                          >
-                                        </li>
-                                      {/each}
-                                    </ul>
+                                    <CompatRuleList
+                                      ruleNames={LENS_RULE_NAMES}
+                                      violations={failedRules}
+                                    />
                                   </div>
                                 {/if}
                               </Tooltip.Content>

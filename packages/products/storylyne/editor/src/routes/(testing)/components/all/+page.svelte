@@ -29,8 +29,7 @@
     categoryLabel as catLabel,
   } from '$lib/config/lens-categories';
   import ComponentIcon from '@lucide/svelte/icons/component';
-  import CircleCheck from '@lucide/svelte/icons/circle-check';
-  import CircleAlert from '@lucide/svelte/icons/circle-alert';
+  import CompatTooltip from '@/ui/lens/CompatTooltip.svelte';
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
   import SearchIcon from '@lucide/svelte/icons/search';
   import Check from '@lucide/svelte/icons/check';
@@ -868,51 +867,7 @@
                     {STATUS_LABELS[meta.status]}
                   </Badge>
                 {/if}
-                <Tooltip.Root delayDuration={300}>
-                  <Tooltip.Trigger>
-                    {#snippet child({ props: compatTip })}
-                      <span {...compatTip}>
-                        {#if isCompat}
-                          <CircleCheck class="size-4 text-emerald-500" />
-                        {:else}
-                          <CircleAlert class="size-4 text-amber-500" />
-                        {/if}
-                      </span>
-                    {/snippet}
-                  </Tooltip.Trigger>
-                  <Tooltip.Content sideOffset={4} class="max-w-72" portalProps={{ disabled: true }}>
-                    {#if isCompat}
-                      <p class="text-xs">All compatibility rules pass</p>
-                    {:else if compat}
-                      {@const failedRules = new Set(
-                        compat.violations.map((vi) => vi.rule as number),
-                      )}
-                      {@const failCount = failedRules.size}
-                      {@const passCount = lensRuleNames.length - failCount}
-                      <p class="mb-1 text-[10px] font-semibold">
-                        Compatibility — {passCount}✓ {failCount}✗
-                      </p>
-                      <ul class="space-y-0.5">
-                        {#each lensRuleNames as ruleName, ruleIdx (ruleIdx)}
-                          {@const failed = failedRules.has(ruleIdx)}
-                          <li class="flex items-start gap-1 text-[10px]">
-                            <span
-                              class="mt-px shrink-0 font-bold leading-none {failed
-                                ? 'opacity-60'
-                                : 'opacity-40'}">{failed ? '✗' : '✓'}</span
-                            >
-                            <span
-                              ><span class="font-mono opacity-60">R{ruleIdx}</span>
-                              {ruleName}</span
-                            >
-                          </li>
-                        {/each}
-                      </ul>
-                    {:else}
-                      <p class="text-xs">Compatibility data unavailable</p>
-                    {/if}
-                  </Tooltip.Content>
-                </Tooltip.Root>
+                <CompatTooltip {compat} ruleNames={lensRuleNames} />
               </div>
             </div>
             {#if desc}
@@ -1221,55 +1176,7 @@
                   {/if}
                 </td>
                 <td class="px-4 py-2.5">
-                  <Tooltip.Root delayDuration={300}>
-                    <Tooltip.Trigger>
-                      {#snippet child({ props: tblCompatTip })}
-                        <span {...tblCompatTip}>
-                          {#if isCompat}
-                            <CircleCheck class="size-4 text-emerald-500" />
-                          {:else}
-                            <CircleAlert class="size-4 text-amber-500" />
-                          {/if}
-                        </span>
-                      {/snippet}
-                    </Tooltip.Trigger>
-                    <Tooltip.Content
-                      sideOffset={4}
-                      class="max-w-72"
-                      portalProps={{ disabled: true }}
-                    >
-                      {#if isCompat}
-                        <p class="text-xs">All compatibility rules pass</p>
-                      {:else if compat}
-                        {@const failedRules = new Set(
-                          compat.violations.map((vi) => vi.rule as number),
-                        )}
-                        {@const failCount = failedRules.size}
-                        {@const passCount = lensRuleNames.length - failCount}
-                        <p class="mb-1 text-[10px] font-semibold">
-                          Compatibility — {passCount}✓ {failCount}✗
-                        </p>
-                        <ul class="space-y-0.5">
-                          {#each lensRuleNames as ruleName, ruleIdx (ruleIdx)}
-                            {@const failed = failedRules.has(ruleIdx)}
-                            <li class="flex items-start gap-1 text-[10px]">
-                              <span
-                                class="mt-px shrink-0 font-bold leading-none {failed
-                                  ? 'opacity-60'
-                                  : 'opacity-40'}">{failed ? '✗' : '✓'}</span
-                              >
-                              <span
-                                ><span class="font-mono opacity-60">R{ruleIdx}</span>
-                                {ruleName}</span
-                              >
-                            </li>
-                          {/each}
-                        </ul>
-                      {:else}
-                        <p class="text-xs">Compatibility data unavailable</p>
-                      {/if}
-                    </Tooltip.Content>
-                  </Tooltip.Root>
+                  <CompatTooltip {compat} ruleNames={lensRuleNames} />
                 </td>
               </tr>
             {/each}
@@ -1297,49 +1204,7 @@
             <span class="min-w-0 flex-1 truncate text-sm font-medium group-hover/row:text-primary"
               >{toTitle(name)}</span
             >
-            <Tooltip.Root delayDuration={300}>
-              <Tooltip.Trigger>
-                {#snippet child({ props: listCompatTip })}
-                  <span {...listCompatTip} onclick={(e) => e.preventDefault()}>
-                    {#if isCompat}
-                      <CircleCheck class="size-4 shrink-0 text-emerald-500" />
-                    {:else}
-                      <CircleAlert class="size-4 shrink-0 text-amber-500" />
-                    {/if}
-                  </span>
-                {/snippet}
-              </Tooltip.Trigger>
-              <Tooltip.Content sideOffset={4} class="max-w-72" portalProps={{ disabled: true }}>
-                {#if isCompat}
-                  <p class="text-xs">All compatibility rules pass</p>
-                {:else if compat}
-                  {@const failedRules = new Set(compat.violations.map((vi) => vi.rule as number))}
-                  {@const failCount = failedRules.size}
-                  {@const passCount = lensRuleNames.length - failCount}
-                  <p class="mb-1 text-[10px] font-semibold">
-                    Compatibility — {passCount}✓ {failCount}✗
-                  </p>
-                  <ul class="space-y-0.5">
-                    {#each lensRuleNames as ruleName, ruleIdx (ruleIdx)}
-                      {@const failed = failedRules.has(ruleIdx)}
-                      <li class="flex items-start gap-1 text-[10px]">
-                        <span
-                          class="mt-px shrink-0 font-bold leading-none {failed
-                            ? 'opacity-60'
-                            : 'opacity-40'}">{failed ? '✗' : '✓'}</span
-                        >
-                        <span
-                          ><span class="font-mono opacity-60">R{ruleIdx}</span>
-                          {ruleName}</span
-                        >
-                      </li>
-                    {/each}
-                  </ul>
-                {:else}
-                  <p class="text-xs">Compatibility data unavailable</p>
-                {/if}
-              </Tooltip.Content>
-            </Tooltip.Root>
+            <CompatTooltip {compat} ruleNames={lensRuleNames} />
             <ArrowRight
               class="size-3.5 shrink-0 text-muted-foreground/30 transition-transform group-hover/row:translate-x-0.5 group-hover/row:text-primary"
             />

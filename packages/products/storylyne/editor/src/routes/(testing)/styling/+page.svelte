@@ -264,7 +264,9 @@
   ];
 
   /** All category names derived from sections. */
-  const ALL_CATEGORIES: Str[] = [...new Set(SECTIONS.map((s: StylingSection): Str => s.category))];
+  const ALL_CATEGORIES: Str[] = [
+    ...new Set(SECTIONS.map((s: StylingSection): Str => s.category)),
+  ].toSorted() as Str[];
 
   /* ------------------------------------------------------------------ */
   /*  Export items                                                       */

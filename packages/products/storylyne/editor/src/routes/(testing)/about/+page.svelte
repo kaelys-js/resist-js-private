@@ -147,7 +147,7 @@
   /** All unique category names. */
   const ALL_CATEGORIES: Str[] = [
     ...new Set(ABOUT_SECTIONS.map((s: AboutSection): Str => s.category)),
-  ];
+  ].toSorted() as Str[];
 
   /* ------------------------------------------------------------------ */
   /*  Export items                                                       */
