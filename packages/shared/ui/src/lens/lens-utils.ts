@@ -785,6 +785,7 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
     violations.push({ rule: 21 as Num, message: 'Skipped — needs Lens conversion first' as Str });
     violations.push({ rule: 22 as Num, message: 'Skipped — needs Lens conversion first' as Str });
     violations.push({ rule: 23 as Num, message: 'Skipped — needs Lens conversion first' as Str });
+    violations.push({ rule: 24 as Num, message: 'Skipped — needs Lens conversion first' as Str });
   }
 
   // Rule 23: Dead props — schema fields never referenced in instance script or template
@@ -811,6 +812,28 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
       violations.push({
         rule: 23 as Num,
         message: `Dead props in schema but never used: [${deadProps.join(', ')}]` as Str,
+      });
+    }
+  }
+
+  // Rule 24: @requires must reference valid props — validate cross-prop dependencies
+  if (!hasConvertMarker && input.props.length > 0) {
+    const propNames: Set<string> = new Set(input.props.map((p) => p.name as string));
+    const invalidRequires: string[] = [];
+    for (const prop of input.props) {
+      if (!prop.requires || prop.requires.length === 0) continue;
+      for (const req of prop.requires) {
+        if (!propNames.has(req.prop as string)) {
+          invalidRequires.push(
+            `${prop.name}: @requires ${req.prop}:${req.value} — prop "${req.prop}" does not exist`,
+          );
+        }
+      }
+    }
+    if (invalidRequires.length > 0) {
+      violations.push({
+        rule: 24 as Num,
+        message: `Invalid @requires references: ${invalidRequires.join('; ')}` as Str,
       });
     }
   }

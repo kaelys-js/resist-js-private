@@ -14,7 +14,7 @@ A. Read `LENS-COMPONENTS.md` — find the `{COMPONENT}` entry. Note every prop, 
 
 B. Read the existing component source at `packages/shared/ui/src/{component-dir}/` — read every `.svelte` file, the `lens.ts` if it exists, and any test files.
 
-C. Read ALL Lens compatibility rules (R0–R22) from `packages/products/storylyne/editor/src/lib/config/lens-categories.ts` (the `LENS_RULE_NAMES` array). Check which rules the component currently violates.
+C. Read ALL Lens compatibility rules (R0–R24) from `packages/products/storylyne/editor/src/lib/config/lens-categories.ts` (the `LENS_RULE_NAMES` array). Check which rules the component currently violates.
 
 D. Read `packages/shared/ui/src/lens/detect-accessibility.ts` — identify every accessibility rule that applies to this component type (ARIA pattern, keyboard, focus, contrast, motion, labels, touch targets, screen reader).
 
@@ -83,7 +83,7 @@ List every feature: keyboard navigation keys, ARIA pattern, animation, controlle
 List every visual variant from all libraries (e.g., bordered, ghost, shadow, flush, splitted).
 
 ### Lens Rule Fixes
-For each of R0–R22 that currently fails, state what needs to change.
+For each of R0–R24 that currently fails, state what needs to change.
 
 ### Accessibility Fixes
 For each applicable a11y rule, state what's needed (ARIA roles, keyboard handlers, focus management, screen reader text, contrast, reduced-motion, touch targets, labels).
@@ -103,6 +103,7 @@ Follow these rules exactly:
 - Props schema using `v.strictObject()` with `v.InferInput` (optional props for callers) and `v.InferOutput` (defaults filled in after validation)
 - Every prop field has `/** JSDoc. @values example1, example2 */`
 - **CRITICAL: `@values` for picklist/enum props must NOT have quotes** — write `@values default, solid, bordered` NOT `@values 'default', 'solid', 'bordered'`. The mock generator passes values literally; quotes become part of the string and fail schema validation.
+- **`@requires` for cross-prop variant dependencies** — when a prop's variants only render correctly with another prop set to a specific value, add `@requires propName:value` to the JSDoc. Multiple `@requires` tags are supported. Example: `/** Border radius. @values none, sm, md, lg @requires variant:bordered */` tells the Lens variant card renderer to set `variant="bordered"` when rendering radius variant cards. The referenced prop must exist in the same schema (enforced by lint rule R24). `@requires` is automatically stripped from the PropsTable description column.
 - **CRITICAL: Set defaults in the Valibot schema** — use `v.optional(schema, defaultValue)` two-argument form so Valibot fills in defaults during `safeParse`. Example: `v.optional(v.picklist(['default', 'solid']), 'default')` and `v.optional(BoolSchema, false as Bool)`. This ensures defaults are applied to the rendered component. Export TWO types: `ComponentInputProps = v.InferInput<typeof Schema>` (all optional — for `$props()`) and `ComponentProps = v.InferOutput<typeof Schema>` (defaults filled in — after validation). Use `InputProps` for the `$props()` type and `Props` for the validated derived state.
 - **NEVER use `@default` in JSDoc** — defaults are encoded in the schema via `v.optional(schema, defaultValue)`. The Lens system reads defaults from the schema, not from JSDoc tags. Do NOT add `@default` to any JSDoc comment.
 - **CRITICAL: ALL props must be in the Valibot schema** — NEVER create a separate `type Props = SchemaProps & { extra }` extension. Snippets use `v.optional(v.custom<Snippet>(() => true))`. Callbacks use `v.optional(v.custom<() => void>(() => true))`. `children`, `icon`, `footer`, `onRemove` — ALL go in `v.strictObject()`. If a prop exists on the component, it MUST be in the schema. `v.strictObject()` rejects unknown keys, so any prop outside the schema will crash when parent components spread DOM attributes.
@@ -141,14 +142,44 @@ After implementation is complete:
 - Re-read the approved changelog
 - Check every single item was implemented
 - Re-read every file you created/modified to confirm changes are present
-- Run the full Lens compatibility check to verify R0–R22 all pass
+- Run the full Lens compatibility check to verify R0–R24 all pass
 - Document any deviations from the changelog and explain why
 
 ## Step 5: Commit
 
 ```
-feat(ui): full Lens conversion for {COMPONENT} — R0-R22 compliant, a11y, all variants
+feat(ui): full Lens conversion for {COMPONENT} — R0-R24 compliant, a11y, all variants
 ```
+
+## Lens Compatibility Rules Reference (R0–R24)
+
+| Rule | Name | Description |
+|------|------|-------------|
+| R0 | Needs Lens conversion | Has `@convert-to-lens` marker, needs full implementation |
+| R1 | Type fields must have @values | Every `Str`/`Num` field needs a `@values` JSDoc tag |
+| R2 | No inline object types | Extract `{ }` types in Props to named type definitions |
+| R3 | Type fields must have JSDoc | Every field in type definitions needs a `/** */` comment |
+| R4 | Component must have JSDoc | Script block needs a top-level `/** */` description |
+| R5 | No orphaned Demo.svelte | Demo files must be registered in `lens.ts` examples |
+| R6 | Valid lens.ts required | Must export `LensMeta` with category, tags, and description |
+| R7 | Props must have JSDoc | Every extracted prop needs a description comment |
+| R8 | Props must have @values | Every `Str`/`Num` prop needs `@values` for mock generation |
+| R9 | Must have renderable content | Needs props, variants, or examples for Lens display |
+| R10 | Directory must be kebab-case | Component folder name must use kebab-case |
+| R11 | Primary .svelte file required | A `.svelte` file matching the directory name must exist |
+| R12 | Must use v.strictObject() | Props need Valibot `strictObject` schema validation |
+| R13 | No bare v.object() | Use `v.strictObject()` to reject unknown keys |
+| R14 | Must use safeParse + stripSvelteProps | Validate props via `safeParse`, clean with `stripSvelteProps` |
+| R15 | No bare Valibot primitives | Use `StrSchema`/`NumSchema`, not `v.string()`/`v.number()` |
+| R16 | Examples must match files | Declared example names in `lens.ts` need matching `.svelte` files |
+| R17 | tv-variant tag required | Components using `tv()` must tag with `tv-variant` in `lens.ts` |
+| R18 | @values must not quote | Picklist values in `@values` must not be wrapped in quotes |
+| R19 | Optional fields need defaults | `v.optional()` picklist/boolean must have a default value |
+| R20 | Must destructure $props() | Use `{ ...restProps }` for DOM attribute passthrough |
+| R21 | Must spread {...restProps} | Root element must spread `restProps` for Bits UI compat |
+| R22 | Snippets bypass stripSvelteProps | `children`/`icon`/`footer` must not pass through `stripSvelteProps` |
+| R23 | No dead props | Every schema field must be referenced in instance script or template |
+| R24 | @requires must reference valid props | `@requires propName:value` must target existing props with valid values |
 
 ## Skill & Verification Requirements
 

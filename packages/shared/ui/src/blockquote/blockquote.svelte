@@ -121,7 +121,7 @@
     italic: v.optional(BoolSchema, true as Bool),
     /** Width and height of the icon container in pixels. @values 32, 40, 48 */
     iconSize: v.optional(NumSchema),
-    /** Border radius for bordered/solid variants. @values none, sm, md, lg, full */
+    /** Border radius for bordered/solid variants. @values none, sm, md, lg, full @requires variant:bordered */
     radius: v.optional(v.picklist(['none', 'sm', 'md', 'lg', 'full']), 'none'),
     /** Quote text content. @values {#snippet children()}Life is like a box of chocolates.{/snippet} */
     children: v.optional(v.custom<Snippet>(() => true)),

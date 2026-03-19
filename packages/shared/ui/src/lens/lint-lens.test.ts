@@ -1071,6 +1071,48 @@ describe('Lens lint', () => {
       ).toHaveLength(0);
     });
   });
+
+  describe('Rule 24: @requires must reference valid props (skip @convert-to-lens)', () => {
+    const violations: string[] = [];
+    const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
+
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
+      .map((d) => d.name);
+
+    for (const dir of dirs) {
+      const dirPath: string = join(UI_SRC, dir);
+      const files: string[] = readdirSync(dirPath);
+      const primaryFile: string | undefined = files.find(
+        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
+      );
+      if (!primaryFile) continue;
+
+      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      if (source.includes('@convert-to-lens')) continue;
+      if (!source.includes('v.strictObject(')) continue;
+
+      const props: PropMeta[] = extractProps(source);
+      if (props.length === 0) continue;
+
+      const propNames: Set<string> = new Set(props.map((p) => p.name as string));
+
+      for (const prop of props) {
+        if (!prop.requires || prop.requires.length === 0) continue;
+        for (const req of prop.requires) {
+          if (!propNames.has(req.prop as string)) {
+            violations.push(
+              `${dir}/${primaryFile} — ${prop.name}: @requires ${req.prop}:${req.value} — prop "${req.prop}" does not exist`,
+            );
+          }
+        }
+      }
+    }
+
+    it('every @requires references an existing prop', () => {
+      expect(violations, `Invalid @requires references:\n${violations.join('\n')}`).toHaveLength(0);
+    });
+  });
 });
 
 /**

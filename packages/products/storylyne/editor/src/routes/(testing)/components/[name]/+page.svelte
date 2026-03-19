@@ -107,6 +107,7 @@
   import { cn } from '@/ui/utils.js';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
   import * as Tooltip from '@/ui/tooltip/index.js';
+  import { Badge } from '@/ui/badge/index.js';
   import { Skeleton } from '@/ui/skeleton/index.js';
 
   /* ------------------------------------------------------------------ */
@@ -3312,6 +3313,25 @@
                           description="Options for the {variantKey.key} prop."
                           propName={variantKey.key}
                         >
+                          {#snippet badges()}
+                            {#if variantKey.requires && variantKey.requires.length > 0}
+                              <Tooltip.Root>
+                                <Tooltip.Trigger>
+                                  <Badge variant="secondary" class="rounded-md text-[10px]">
+                                    @requires
+                                  </Badge>
+                                </Tooltip.Trigger>
+                                <Tooltip.Content side="top" class="max-w-xs">
+                                  <p class="mb-1 text-xs font-semibold">Active @requires</p>
+                                  {#each variantKey.requires as req}
+                                    <p class="font-mono text-xs">
+                                      {req.prop}={req.value}
+                                    </p>
+                                  {/each}
+                                </Tooltip.Content>
+                              </Tooltip.Root>
+                            {/if}
+                          {/snippet}
                           <LensComponentRenderer
                             component={PrimaryComponent}
                             meta={singleMeta}

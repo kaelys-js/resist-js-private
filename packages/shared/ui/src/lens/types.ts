@@ -78,6 +78,17 @@ export const PropMetaSchema = v.strictObject({
   typeFields: v.optional(v.array(TypeFieldSchema)),
   /** Explicit mock values from `@values` JSDoc tag for variant generation. */
   mockValues: v.optional(v.array(StrSchema)),
+  /** Cross-prop dependencies from `@requires propName:value` JSDoc tags. */
+  requires: v.optional(
+    v.array(
+      v.strictObject({
+        /** The prop name that must be set for this prop's variants to render correctly. */
+        prop: StrSchema,
+        /** The value the required prop must be set to. */
+        value: StrSchema,
+      }),
+    ),
+  ),
   /** Whether the prop is optional (from `v.optional()` or `?:` in type). */
   optional: v.optional(BoolSchema),
 });
@@ -104,6 +115,17 @@ export const VariantKeyMetaSchema = v.strictObject({
   default: StrSchema,
   /** Coercion hint for the renderer — how to convert string options to the expected type. */
   coerce: v.optional(v.picklist(['array', 'record-value'])),
+  /** Cross-prop dependencies — other props that must be set for this variant to render correctly. */
+  requires: v.optional(
+    v.array(
+      v.strictObject({
+        /** The prop name that must be set. */
+        prop: StrSchema,
+        /** The value the prop must be set to. */
+        value: StrSchema,
+      }),
+    ),
+  ),
 });
 export type VariantKeyMeta = v.InferOutput<typeof VariantKeyMetaSchema>;
 
