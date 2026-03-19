@@ -48,6 +48,16 @@
   import LifeBuoy from '@lucide/svelte/icons/life-buoy';
   import PaintbrushIcon from '@lucide/svelte/icons/paintbrush';
   import AccessibilityIcon from '@lucide/svelte/icons/accessibility';
+  import Globe from '@lucide/svelte/icons/globe';
+  import {
+    auditAccessibility,
+    type A11yRuleResult,
+    type A11yAuditResult,
+  } from '@/ui/lens/detect-accessibility.js';
+  import {
+    detectBrowserSupport,
+    type BrowserSupportResult,
+  } from '@/ui/lens/detect-browser-support.js';
 
   /* ------------------------------------------------------------------ */
   /*  Glob-based data (mirrors layout pattern)                           */
@@ -122,6 +132,65 @@
   })();
 
   /* ------------------------------------------------------------------ */
+  /*  Accessibility + browser support scanning                           */
+  /* ------------------------------------------------------------------ */
+
+  /** Raw source files for accessibility scanning. */
+  const a11ySourceModules: Record<Str, Str> = import.meta.glob(
+    ['/src/**/*.{svelte,css}', '/../../../shared/ui/src/**/*.{svelte,css,ts}'],
+    { query: '?raw', import: 'default', eager: true },
+  ) as unknown as Record<Str, Str>;
+
+  /**
+   * Convert a glob path to a workspace-relative path.
+   *
+   * @param globPath - Path from import.meta.glob
+   * @returns Workspace-relative path
+   */
+  function toWorkspacePath(globPath: Str): Str {
+    const s: string = globPath as string;
+    const sharedIdx: number = s.indexOf('/shared/');
+    if (sharedIdx >= 0) return s.slice(sharedIdx + 1) as Str;
+    return `editor${s}` as Str;
+  }
+
+  /** Workspace-relative source map for the accessibility scanner. */
+  const a11yScanSources: Record<Str, Str> = Object.fromEntries(
+    Object.entries(a11ySourceModules).map(([path, content]: [Str, unknown]): [Str, Str] => [
+      toWorkspacePath(path as Str),
+      String(content) as Str,
+    ]),
+  );
+
+  /** Accessibility audit result. */
+  const a11yResult: A11yAuditResult = auditAccessibility(a11yScanSources);
+
+  /** Failing accessibility rules. */
+  const a11yFailingRules: A11yRuleResult[] = a11yResult.rules.filter(
+    (r: A11yRuleResult): boolean => r.status === 'fail',
+  );
+
+  /** Raw CSS/Svelte source files for browser support scanning. */
+  const cssSourceModules: Record<Str, Str> = import.meta.glob(
+    ['/src/app.css', '/../../shared/ui/src/**/*.{svelte,css}'],
+    { query: '?raw', import: 'default', eager: true },
+  ) as unknown as Record<Str, Str>;
+
+  /** Filename-keyed source map for the browser scanner. */
+  const browserScanSources: Record<Str, Str> = Object.fromEntries(
+    Object.entries(cssSourceModules).map(([path, content]: [Str, unknown]): [Str, Str] => [
+      (path.split('/').pop() ?? path) as Str,
+      String(content) as Str,
+    ]),
+  );
+
+  /** Browser support analysis result. */
+  const browserResult: BrowserSupportResult = detectBrowserSupport(browserScanSources);
+
+  /** Unsupported browser count. */
+  const unsupportedBrowserCount: Num = browserResult.unsupported.length as Num;
+
+  /* ------------------------------------------------------------------ */
   /*  Lens compatibility data from parent layout (via Svelte context)    */
   /* ------------------------------------------------------------------ */
 
@@ -169,6 +238,16 @@
   for (const meta of metaByName.values()) {
     for (const tag of meta.tags) {
       tagCounts.set(tag, ((tagCounts.get(tag) ?? 0) + 1) as Num);
+    }
+  }
+
+  /** Tag → component names mapping for tooltip display. */
+  const tagComponents: Map<Str, Str[]> = new Map();
+  for (const [name, meta] of metaByName.entries()) {
+    for (const tag of meta.tags) {
+      const existing: Str[] = tagComponents.get(tag) ?? [];
+      existing.push(name);
+      tagComponents.set(tag, existing);
     }
   }
 
@@ -572,7 +651,24 @@
         />
         <div class="flex-1">
           <div class="flex items-baseline gap-2">
-            <span class="text-sm font-semibold">Compatibility</span>
+            <Tooltip.Root delayDuration={300}>
+              <Tooltip.Trigger>
+                {#snippet child({ props: compatLabelTip })}
+                  <span
+                    class="cursor-help text-sm font-semibold underline decoration-dotted underline-offset-4"
+                    {...compatLabelTip}
+                  >
+                    Compatibility
+                  </span>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content sideOffset={4} class="max-w-72">
+                <p class="text-xs">
+                  Combined health score from Lens rules (R0–R17), accessibility audit (WCAG/ARIA),
+                  and browser support analysis.
+                </p>
+              </Tooltip.Content>
+            </Tooltip.Root>
             <span
               class="text-sm font-bold tabular-nums {compliantPercent >= 80
                 ? 'text-emerald-600 dark:text-emerald-400'
@@ -584,6 +680,24 @@
             </span>
             <span class="text-xs text-muted-foreground">
               ({compliantCount}/{componentNames.length} passing)
+            </span>
+          </div>
+          <!-- Summary counts -->
+          <div class="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
+            <span>
+              <ShieldCheck class="mr-0.5 inline size-3" />
+              {ruleViolationCounts.length} Lens rule{ruleViolationCounts.length !== 1 ? 's' : ''} failing
+            </span>
+            <span>
+              <AccessibilityIcon class="mr-0.5 inline size-3" />
+              {a11yFailingRules.length} accessibility rule{a11yFailingRules.length !== 1 ? 's' : ''} failing
+            </span>
+            <span>
+              <Globe class="mr-0.5 inline size-3" />
+              {unsupportedBrowserCount} unsupported browser{(unsupportedBrowserCount as number) !==
+              1
+                ? 's'
+                : ''}
             </span>
           </div>
           <!-- Progress bar -->
@@ -598,43 +712,110 @@
             ></div>
           </div>
         </div>
-        {#if ruleViolationCounts.length > 0}
-          <button
-            type="button"
-            class="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            onclick={() => {
-              healthExpanded = !healthExpanded;
-            }}
-            aria-label={healthExpanded ? 'Hide details' : 'Show details'}
-          >
-            <ArrowRight
-              class="size-4 transition-transform duration-200 {healthExpanded ? 'rotate-90' : ''}"
-            />
-          </button>
-        {/if}
+        <button
+          type="button"
+          class="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          onclick={() => {
+            healthExpanded = !healthExpanded;
+          }}
+          aria-label={healthExpanded ? 'Hide details' : 'Show details'}
+        >
+          <ArrowRight
+            class="size-4 transition-transform duration-200 {healthExpanded ? 'rotate-90' : ''}"
+          />
+        </button>
       </div>
 
-      {#if healthExpanded && ruleViolationCounts.length > 0}
+      {#if healthExpanded}
         <div class="border-t px-4 py-3">
-          <div class="mb-2 flex items-center gap-2">
-            <TriangleAlert class="size-3.5 text-amber-500" />
-            <span class="text-xs font-medium text-muted-foreground">
-              Top rule violations ({incompatibleCount as number} components affected)
-            </span>
-          </div>
-          <div class="flex flex-col gap-1.5">
-            {#each ruleViolationCounts.slice(0, 8) as rv (rv.rule)}
-              <div class="flex items-start gap-2 text-xs">
-                <Badge variant="outline" class="shrink-0 px-1.5 py-0 font-mono text-[10px]">
-                  R{rv.rule}
-                </Badge>
-                <span class="flex-1 text-muted-foreground">{rv.name}</span>
-                <span class="shrink-0 tabular-nums text-muted-foreground/70">
-                  {rv.count} component{(rv.count as number) !== 1 ? 's' : ''}
+          <!-- Lens Rule Violations -->
+          {#if ruleViolationCounts.length > 0}
+            <div class="mb-3">
+              <div class="mb-2 flex items-center gap-2">
+                <ShieldCheck class="size-3.5 text-amber-500" />
+                <span class="text-xs font-medium text-muted-foreground">
+                  Lens Rule Violations ({incompatibleCount as number} components affected)
                 </span>
               </div>
-            {/each}
-          </div>
+              <div class="flex flex-col gap-1.5">
+                {#each ruleViolationCounts as rv (rv.rule)}
+                  <div class="flex items-start gap-2 text-xs">
+                    <Badge variant="outline" class="shrink-0 px-1.5 py-0 font-mono text-[10px]">
+                      R{rv.rule}
+                    </Badge>
+                    <span class="flex-1 text-muted-foreground">{rv.name}</span>
+                    <span class="shrink-0 tabular-nums text-muted-foreground/70">
+                      {rv.count} component{(rv.count as number) !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {/if}
+
+          <!-- Accessibility Violations -->
+          {#if a11yFailingRules.length > 0}
+            <div class="mb-3">
+              <div class="mb-2 flex items-center gap-2">
+                <AccessibilityIcon class="size-3.5 text-amber-500" />
+                <a
+                  href="/accessibility"
+                  class="text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
+                >
+                  Accessibility Violations ({a11yFailingRules.length} rules failing) →
+                </a>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                {#each a11yFailingRules as rule (rule.id)}
+                  <div class="flex items-start gap-2 text-xs">
+                    <Badge variant="outline" class="shrink-0 px-1.5 py-0 font-mono text-[10px]">
+                      {rule.wcag}
+                    </Badge>
+                    <span class="flex-1 text-muted-foreground">{rule.label}</span>
+                    <span class="shrink-0 tabular-nums text-muted-foreground/70">
+                      {rule.failCount} failure{(rule.failCount as number) !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {/if}
+
+          <!-- Browser Support Issues -->
+          {#if (unsupportedBrowserCount as number) > 0}
+            <div>
+              <div class="mb-2 flex items-center gap-2">
+                <Globe class="size-3.5 text-amber-500" />
+                <a
+                  href="/browser-support"
+                  class="text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
+                >
+                  Unsupported Browsers ({unsupportedBrowserCount}) →
+                </a>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                {#each browserResult.unsupported as browser (browser.name)}
+                  <div class="flex items-start gap-2 text-xs">
+                    <Badge variant="outline" class="shrink-0 px-1.5 py-0 text-[10px]">
+                      {browser.name}
+                    </Badge>
+                    <span class="flex-1 text-muted-foreground">{browser.notes}</span>
+                    <span class="shrink-0 text-muted-foreground/70">
+                      {browser.limitingFeature}
+                    </span>
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {/if}
+
+          <!-- All clear message -->
+          {#if ruleViolationCounts.length === 0 && a11yFailingRules.length === 0 && (unsupportedBrowserCount as number) === 0}
+            <div class="flex items-center gap-2 text-xs text-muted-foreground">
+              <CircleCheck class="size-3.5 text-emerald-500" />
+              <span>All checks passing — no violations found</span>
+            </div>
+          {/if}
         </div>
       {/if}
     </div>
@@ -658,9 +839,45 @@
               <div class="flex items-center gap-2">
                 <h3 class="text-sm font-semibold group-hover:text-primary">{card.title}</h3>
                 {#if (card.count as number) > 0}
-                  <Badge variant="secondary" class="text-[10px] tabular-nums">
-                    {card.count.toLocaleString()}
-                  </Badge>
+                  {#if card.href === '/components/all'}
+                    <Tooltip.Root delayDuration={300}>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props: allCountTip })}
+                          <span onclick={(e) => e.preventDefault()} {...allCountTip}>
+                            <Badge
+                              variant="secondary"
+                              class="cursor-default text-[10px] tabular-nums"
+                            >
+                              {card.count.toLocaleString()}
+                            </Badge>
+                          </span>
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content
+                        side="bottom"
+                        sideOffset={4}
+                        class="max-h-64 overflow-y-auto p-3"
+                      >
+                        <div class="flex flex-col gap-0.5">
+                          {#each componentNames as comp (comp)}
+                            <a
+                              href="/components/{comp}"
+                              class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                              onclick={(e) => e.stopPropagation()}
+                            >
+                              <ComponentIcon class="size-3 shrink-0 opacity-50" />
+                              <span class="flex-1">{toTitle(comp)}</span>
+                              <ArrowRight class="size-3 shrink-0 opacity-40" />
+                            </a>
+                          {/each}
+                        </div>
+                      </Tooltip.Content>
+                    </Tooltip.Root>
+                  {:else}
+                    <Badge variant="secondary" class="text-[10px] tabular-nums">
+                      {card.count.toLocaleString()}
+                    </Badge>
+                  {/if}
                 {/if}
               </div>
               <p class="mt-0.5 truncate text-xs text-muted-foreground">{card.description}</p>
@@ -691,9 +908,34 @@
               <CatIcon class="size-3.5 {catColor}" />
             </div>
             <span class="font-medium capitalize group-hover:text-primary">{group.label}</span>
-            <span class="text-xs tabular-nums text-muted-foreground">
-              {group.components.length}
-            </span>
+            <Tooltip.Root delayDuration={300}>
+              <Tooltip.Trigger>
+                {#snippet child({ props: catCountTip })}
+                  <span
+                    class="cursor-default text-xs tabular-nums text-muted-foreground"
+                    onclick={(e) => e.preventDefault()}
+                    {...catCountTip}
+                  >
+                    {group.components.length}
+                  </span>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content side="bottom" sideOffset={4} class="max-h-64 overflow-y-auto p-3">
+                <div class="flex flex-col gap-0.5">
+                  {#each group.components as comp (comp)}
+                    <a
+                      href="/components/{comp}"
+                      class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                      onclick={(e) => e.stopPropagation()}
+                    >
+                      <ComponentIcon class="size-3 shrink-0 opacity-50" />
+                      <span class="flex-1">{toTitle(comp)}</span>
+                      <ArrowRight class="size-3 shrink-0 opacity-40" />
+                    </a>
+                  {/each}
+                </div>
+              </Tooltip.Content>
+            </Tooltip.Root>
           </a>
         {/each}
       </div>
@@ -715,7 +957,35 @@
             >
               <TagIcon class="size-3 shrink-0 opacity-50 group-hover:opacity-80" />
               <span class="font-medium group-hover:text-primary">{pt.tag}</span>
-              <span class="text-[10px] tabular-nums text-muted-foreground/60">{pt.count}</span>
+              <Tooltip.Root delayDuration={300}>
+                <Tooltip.Trigger>
+                  {#snippet child({ props: tagCountTip })}
+                    <span
+                      class="cursor-default text-[10px] tabular-nums text-muted-foreground/60"
+                      onclick={(e) => e.preventDefault()}
+                      {...tagCountTip}
+                    >
+                      {pt.count}
+                    </span>
+                  {/snippet}
+                </Tooltip.Trigger>
+                <Tooltip.Content side="bottom" sideOffset={4} class="max-h-64 overflow-y-auto p-3">
+                  {@const comps = tagComponents.get(pt.tag) ?? []}
+                  <div class="flex flex-col gap-0.5">
+                    {#each comps as comp (comp)}
+                      <a
+                        href="/components/{comp}"
+                        class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                        onclick={(e) => e.stopPropagation()}
+                      >
+                        <ComponentIcon class="size-3 shrink-0 opacity-50" />
+                        <span class="flex-1">{toTitle(comp)}</span>
+                        <ArrowRight class="size-3 shrink-0 opacity-40" />
+                      </a>
+                    {/each}
+                  </div>
+                </Tooltip.Content>
+              </Tooltip.Root>
             </a>
           {/each}
         </div>

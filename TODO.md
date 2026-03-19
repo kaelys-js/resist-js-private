@@ -1,6 +1,4 @@
 - [Lens]
-    - Lens Compat Tooltip: Replace With Table
-      - Accessiblity/Browser Support: Push into notifications/sidebar tooltip rules and component pages and overview compatibility card
     - Connect to local project components
     - "Blocks/Stories"
     - Component Conversions (@convert-to-lens)
