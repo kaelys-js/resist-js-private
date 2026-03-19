@@ -2002,13 +2002,20 @@ const A11Y_RULES: A11yRule[] = [
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
       const failing: Str[] = [];
-      const interactivePattern: RegExp = /<(button|a|input|select|textarea)\b/;
+      /* Only flag truly interactive elements that need explicit ARIA labels.
+       * Semantic <a href="..."> links derive their accessible name from link text
+       * and do not require aria-label or aria-labelledby. */
+      const interactivePattern: RegExp = /<(button|input|select|textarea)\b/;
+      const nonSemanticLinkPattern: RegExp = /<a\b(?![^>]*\bhref\b)/;
       const ariaLabelPattern: RegExp = /aria-label|aria-labelledby/;
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!interactivePattern.test(content as string)) continue;
-        if (ariaLabelPattern.test(content as string)) {
+        const src: string = content as string;
+        const hasInteractive: boolean = interactivePattern.test(src);
+        const hasNonSemanticLink: boolean = nonSemanticLinkPattern.test(src);
+        if (!hasInteractive && !hasNonSemanticLink) continue;
+        if (ariaLabelPattern.test(src)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
         } else {
@@ -2020,7 +2027,7 @@ const A11Y_RULES: A11yRule[] = [
             solution:
               'Add aria-label="description" or aria-labelledby="id" to interactive elements' as Str,
             found: truncSnippet(
-              (((content as string).match(/<(?:button|a|input|select|textarea)\b[^>]*>/) ??
+              (((content as string).match(/<(?:button|input|select|textarea)\b[^>]*>/) ??
                 [])[0] as Str) ?? ('<button> <!-- missing aria-label -->' as Str),
             ),
             fix: '<button aria-label="Describe the action" type="button">...</button>' as Str,

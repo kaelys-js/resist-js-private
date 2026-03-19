@@ -12,37 +12,11 @@
  * // [{ name: 'variant', type: 'string', default: '"default"', description: '...', bindable: false }]
  * ```
  */
-import { createRawSnippet } from 'svelte';
 import type { PropMeta, TypeField, VariantKeyMeta } from './types.js';
 
 /** No-op function used as placeholder for function-typed props. */
 function noop(): void {
   /* intentionally empty — placeholder for function-typed props in variant previews */
-}
-
-/**
- * Regex to extract content from a `{#snippet name()}CONTENT{/snippet}` string.
- *
- * Captures the HTML/text content between the opening and closing snippet tags.
- */
-const SNIPPET_RE: RegExp = /\{#snippet\s+\w+\(\)\}([\s\S]*?)\{\/snippet\}/;
-
-/**
- * Parse a `{#snippet name()}CONTENT{/snippet}` @values string into an actual Svelte Snippet.
- *
- * Uses `createRawSnippet` to construct a runtime Snippet from the extracted HTML content.
- * The content is wrapped in a `<span>` because `createRawSnippet` requires a single root element.
- *
- * @param mv - Raw @values string in `{#snippet}` format
- * @returns A Svelte Snippet, or undefined if the format is invalid
- */
-function parseSnippetValue(mv: string): unknown {
-  const match: RegExpMatchArray | null = mv.match(SNIPPET_RE);
-  if (!match) return undefined;
-  const content: string = match[1] ?? '';
-  return createRawSnippet(() => ({
-    render: (): string => `<span>${content}</span>`,
-  }));
 }
 
 /**
@@ -87,42 +61,6 @@ function tryParseJsLiteral(str: string): unknown {
     /* still unparseable */
   }
   return undefined;
-}
-
-/**
- * Coerce a string mockValue to its actual JS type based on prop type info.
- *
- * @param mv - Raw string mockValue from @values tag
- * @param type - Prop type string (e.g. 'boolean', 'Snippet', 'object')
- * @param typeDefinition - Optional resolved type definition
- * @returns Properly typed value: boolean, number, noop function, parsed object/array, or string
- */
-function coerceMockValue(mv: string, type: string, typeDefinition?: string): unknown {
-  const isArrayType: boolean = type.endsWith('[]');
-
-  // Snippet @values in {#snippet} format — create an actual Snippet using createRawSnippet.
-  // Format: {#snippet name()}CONTENT{/snippet} → extract CONTENT → createRawSnippet
-  if (type === 'Snippet' && mv.startsWith('{#snippet')) {
-    return parseSnippetValue(mv);
-  }
-  // Function types — provide a callable noop instead of string
-  if (isFunctionType(type, typeDefinition)) return noop;
-  // Booleans — coerce string to actual boolean, wrap in array if array-typed
-  if (mv === 'true') return isArrayType ? [true] : true;
-  if (mv === 'false') return isArrayType ? [false] : false;
-  // Numbers — coerce string to actual number, wrap in array if array-typed
-  if (mv !== '' && !Number.isNaN(Number(mv))) {
-    const num: number = Number(mv);
-    return isArrayType ? [num] : num;
-  }
-  // Object/array literals — try to parse into actual JS values
-  if (mv.startsWith('{') || mv.startsWith('[')) {
-    const parsed: unknown = tryParseJsLiteral(mv);
-    if (parsed !== undefined) return parsed;
-    return undefined;
-  }
-  // Everything else is a string, wrap in array if array-typed
-  return isArrayType ? [mv] : mv;
 }
 
 /** JSDoc open marker — extracted to avoid confusing oxlint's JSDoc parser. */
@@ -219,6 +157,7 @@ export function extractProps(source: string, supplementarySources?: string[]): P
       typeDefinition: rawTypeDef,
       typeFields: rawTypeDef ? parseTypeFieldsForDisplay(rawTypeDef, combinedSource) : undefined,
       mockValues: mockValues.length > 0 ? mockValues : undefined,
+      requires: raw.requires.length > 0 ? raw.requires : undefined,
       optional: isOptional || undefined,
     });
   }
@@ -367,8 +306,12 @@ export function extractDescription(source: string): string {
 export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
   const variants: VariantKeyMeta[] = [];
 
-  for (const { type, name, default: defaultVal, typeDefinition, mockValues } of props) {
+  for (const { type, name, default: defaultVal, typeDefinition, mockValues, requires } of props) {
     if (!type) continue;
+
+    /** Requires entries for this prop (undefined if empty, for clean output). */
+    const reqEntries: { prop: string; value: string }[] | undefined =
+      requires && requires.length > 0 ? requires : undefined;
 
     // @values JSDoc tag: highest priority — explicit author declaration.
     // Checked BEFORE isFunctionType so Snippet props with @values can generate variant cards.
@@ -378,6 +321,7 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
         options: mockValues,
         default: defaultVal ? defaultVal.replaceAll("'", '') : '',
         coerce: type.endsWith('[]') ? 'array' : undefined,
+        requires: reqEntries,
       });
       continue;
     }
@@ -389,6 +333,7 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
         key: name,
         options: mockValues,
         default: '',
+        requires: reqEntries,
       });
       continue;
     }
@@ -402,6 +347,7 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
         key: name,
         options: ['true', 'false'],
         default: defaultVal || '',
+        requires: reqEntries,
       });
       continue;
     }
@@ -420,6 +366,7 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
           key: name,
           options,
           default: defaultVal || '',
+          requires: reqEntries,
         });
       }
       continue;
@@ -433,6 +380,7 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
           key: name,
           options: resolved,
           default: defaultVal ? defaultVal.replaceAll("'", '') : '',
+          requires: reqEntries,
         });
       }
       continue;
@@ -447,6 +395,7 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
           key: name,
           options: resolved,
           default: defaultVal ? defaultVal.replaceAll("'", '') : '',
+          requires: reqEntries,
         });
       }
     }
@@ -614,21 +563,6 @@ export function buildBaseProps(propsMeta: PropMeta[]): Record<string, unknown> {
       } else {
         base[prop.name] = Number(d);
       }
-    } else if (prop.mockValues && prop.mockValues.length > 0) {
-      // Use first @values entry as base prop default for all variant cards.
-      // Multi-value props also get their own variant section, but the first value
-      // serves as the base so dependent props work (e.g. citeUrl needs cite set,
-      // radius needs variant: 'bordered').
-      // Skip Snippet/function-type props — they are visual overrides that change
-      // appearance significantly and should only appear in their own variant section.
-      if (isFunctionType(prop.type, prop.typeDefinition)) continue;
-      const coerced: unknown = coerceMockValue(
-        prop.mockValues[0] ?? '',
-        prop.type,
-        prop.typeDefinition,
-      );
-      // Only set if coercion produced a value — undefined means type can't be coerced from string
-      if (coerced !== undefined) base[prop.name] = coerced;
     } else if (prop.type.startsWith('{ ')) {
       // Inline object type summary — construct placeholder with empty string values
       const placeholder: Record<string, string> | null = buildPlaceholderObject(prop.type);
@@ -816,35 +750,59 @@ type RawProp = {
   bindable: boolean;
   /** Explicit mock values from `@values` JSDoc tag. */
   mockValues: string[];
+  /** Cross-prop dependencies from `@requires propName:value` JSDoc tags. */
+  requires: RequiresEntry[];
 };
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
-/** Result of extracting `@values` from a JSDoc description string. */
+/** A single `@requires propName:value` dependency parsed from JSDoc. */
+type RequiresEntry = {
+  /** The prop name that must be set. */
+  prop: string;
+  /** The value the prop must be set to. */
+  value: string;
+};
+
+/** Result of extracting `@values` and `@requires` from a JSDoc description string. */
 type ValuesTagResult = {
-  /** The description with the `@values` tag removed. */
+  /** The description with the `@values` and `@requires` tags removed. */
   description: string;
   /** Parsed comma-separated values from the `@values` tag. */
   mockValues: string[];
+  /** Parsed `@requires propName:value` entries. */
+  requires: RequiresEntry[];
 };
 
 /**
- * Extract and strip `@values` tag from a JSDoc description string.
+ * Extract and strip `@values` and `@requires` tags from a JSDoc description string.
  *
- * Given `"Language grammar to use. @values svelte, typescript, javascript"`,
- * returns `{ description: "Language grammar to use.", mockValues: ["svelte", "typescript", "javascript"] }`.
+ * Given `"Border radius. @values none, sm, md @requires variant:bordered"`,
+ * returns `{ description: "Border radius.", mockValues: ["none", "sm", "md"], requires: [{ prop: "variant", value: "bordered" }] }`.
  *
- * @param text - Raw JSDoc text potentially containing `@values`
- * @returns Separated description and mock values
+ * @param text - Raw JSDoc text potentially containing `@values` and/or `@requires`
+ * @returns Separated description, mock values, and requires entries
  */
 function extractValuesTag(text: string): ValuesTagResult {
-  const valuesIdx: number = text.indexOf('@values');
-  if (valuesIdx === -1) return { description: text, mockValues: [] };
+  // Extract all @requires entries first (can appear multiple times)
+  const requires: RequiresEntry[] = [];
+  const requiresRe: RegExp = /@requires\s+(\w+):(\S+)/g;
+  let reqMatch: RegExpExecArray | null = requiresRe.exec(text);
+  while (reqMatch !== null) {
+    requires.push({ prop: reqMatch[1] ?? '', value: reqMatch[2] ?? '' });
+    reqMatch = requiresRe.exec(text);
+  }
 
-  const description: string = text.slice(0, valuesIdx).trim();
-  const afterTag: string = text.slice(valuesIdx + 7).trim();
+  // Strip all @requires tags from text before processing @values
+  const strippedText: string = text.replaceAll(/@requires\s+\w+:\S+/g, '').trim();
+
+  const valuesIdx: number = strippedText.indexOf('@values');
+  if (valuesIdx === -1) return { description: strippedText, mockValues: [], requires };
+
+  const description: string = strippedText.slice(0, valuesIdx).trim();
+  const afterTag: string = strippedText.slice(valuesIdx + 7).trim();
 
   // Take up to the next @tag or end of string
   const nextTagMatch: RegExpMatchArray | null = afterTag.match(/\s@\w/);
@@ -854,7 +812,7 @@ function extractValuesTag(text: string): ValuesTagResult {
 
   const mockValues: string[] = splitValuesRespectingBrackets(rawValues);
 
-  return { description, mockValues };
+  return { description, mockValues, requires };
 }
 
 /**
@@ -1602,6 +1560,7 @@ function parseDestructuring(destructuring: string): RawProp[] {
         description: parsed.description,
         bindable,
         mockValues: parsed.mockValues,
+        requires: parsed.requires,
       });
       pendingDescription = '';
     }

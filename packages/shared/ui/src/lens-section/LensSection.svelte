@@ -17,6 +17,8 @@
     codeText: v.optional(StrSchema),
     /** Prop name to display as a Badge. @values variant, size, disabled */
     propName: v.optional(StrSchema),
+    /** Extra badges/content rendered after the propName badge in the header row. */
+    badges: v.optional(v.custom<Snippet>((val: unknown): boolean => typeof val === 'function')),
     /** Additional CSS classes for the root element. */
     class: v.optional(StrSchema),
   });
@@ -87,6 +89,9 @@
           <Badge variant="outline" class="rounded-md font-mono text-[10px]"
             >{validated.propName}</Badge
           >
+        {/if}
+        {#if validated.badges}
+          {@render validated.badges()}
         {/if}
       </div>
       {#if validated.description}

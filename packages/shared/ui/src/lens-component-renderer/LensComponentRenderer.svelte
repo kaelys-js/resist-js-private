@@ -13761,7 +13761,11 @@
       {@const options: Str[] = variantKey.options}
       <div class="grid gap-3">
         {#each options as option, oi (oi)}
-          {@const variantProps: Record<Str, unknown> = buildVariantProps(variantName, option, variantKey.coerce)}
+          {@const baseVariantProps: Record<Str, unknown> = buildVariantProps(variantName, option, variantKey.coerce)}
+          {@const requiresProps: Record<Str, unknown> = Object.fromEntries(
+            (variantKey.requires ?? []).map((r) => [r.prop, r.value]),
+          )}
+          {@const variantProps: Record<Str, unknown> = { ...requiresProps, ...baseVariantProps }}
           {@const cardKey: Str = `${variantName}:${option}`}
           {@const snippet: Str = codeSnippet(variantName, option)}
           <svelte:boundary>
