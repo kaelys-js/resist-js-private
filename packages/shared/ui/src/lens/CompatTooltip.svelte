@@ -1,7 +1,7 @@
 <script lang="ts">
   /**
    * Compatibility tooltip — shows a CircleCheck/CircleAlert icon with a tooltip
-   * containing the full R0–R17 rule checklist on hover.
+   * containing the full R0–R17 rule table on hover.
    *
    * Used in All Components, Category, and Sidebar views. Replaces 7 duplicated
    * inline tooltip blocks across the codebase.
@@ -34,12 +34,6 @@
   const failedRules: Set<Num> = $derived(
     new Set((compat?.violations ?? []).map((vi) => vi.rule as Num)),
   );
-
-  /** Number of failing rules. */
-  const failCount: Num = $derived(failedRules.size as Num);
-
-  /** Number of passing rules. */
-  const passCount: Num = $derived((ruleNames.length - (failCount as number)) as Num);
 </script>
 
 <Tooltip.Provider disableHoverableContent={false}>
@@ -55,20 +49,17 @@
         </span>
       {/snippet}
     </Tooltip.Trigger>
-    <Tooltip.Content sideOffset={4} class="w-96 max-w-[min(24rem,90vw)] p-0">
+    <Tooltip.Content
+      sideOffset={2}
+      class="w-96 max-w-[min(24rem,90vw)] max-h-[min(24rem,80vh)] overflow-y-auto p-0"
+    >
       {#if borderTop}
-        <div class="border-t border-border pt-1.5">
-          <p class="mb-1.5 px-2 text-[10px] font-semibold">
-            Compatibility — {passCount}✓ {failCount}✗
-          </p>
+        <div class="border-t border-border">
           <CompatRuleList {ruleNames} violations={failedRules} />
         </div>
       {:else if isCompat}
         <p class="px-3 py-2 text-xs">All compatibility rules pass</p>
       {:else if compat}
-        <p class="mb-1 px-2 pt-2 text-[10px] font-semibold">
-          Compatibility — {passCount}✓ {failCount}✗
-        </p>
         <CompatRuleList {ruleNames} violations={failedRules} />
       {:else}
         <p class="px-3 py-2 text-xs">Compatibility data unavailable</p>

@@ -25,7 +25,7 @@
   } = $props();
 </script>
 
-<div class="overflow-hidden rounded-lg border bg-card">
+<div class="overflow-hidden rounded-lg border bg-card text-card-foreground">
   <table class="w-full text-xs">
     <thead>
       <tr class="border-b bg-muted/50">
