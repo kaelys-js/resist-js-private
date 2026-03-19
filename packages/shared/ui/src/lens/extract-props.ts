@@ -144,6 +144,9 @@ export function extractProps(source: string, supplementarySources?: string[]): P
     // Merge mockValues: destructuring JSDoc wins, fall back to type def JSDoc
     const mockValues: string[] =
       raw.mockValues.length > 0 ? raw.mockValues : (typeDef?.mockValues ?? []);
+    // Merge requires: destructuring JSDoc wins, fall back to type def JSDoc
+    const requires: RequiresEntry[] =
+      raw.requires.length > 0 ? raw.requires : (typeDef?.requires ?? []);
 
     const rawTypeDef: string | undefined = resolveTypeDefinition(resolvedType, combinedSource);
     // Optional if: no default AND type definition says optional (v.optional or ?:)
@@ -157,7 +160,7 @@ export function extractProps(source: string, supplementarySources?: string[]): P
       typeDefinition: rawTypeDef,
       typeFields: rawTypeDef ? parseTypeFieldsForDisplay(rawTypeDef, combinedSource) : undefined,
       mockValues: mockValues.length > 0 ? mockValues : undefined,
-      requires: raw.requires.length > 0 ? raw.requires : undefined,
+      requires: requires.length > 0 ? requires : undefined,
       optional: isOptional || undefined,
     });
   }
@@ -172,10 +175,13 @@ export function extractProps(source: string, supplementarySources?: string[]): P
       const schemaResolved: ResolvedTypeDef | null = resolveValibotSchema(source, schemaName);
       if (schemaResolved) {
         for (const prop of result) {
-          if (!prop.default) {
-            const schemaField = schemaResolved.fields.get(prop.name);
-            if (schemaField?.defaultValue) {
+          const schemaField = schemaResolved.fields.get(prop.name);
+          if (schemaField) {
+            if (!prop.default && schemaField.defaultValue) {
               prop.default = schemaField.defaultValue;
+            }
+            if (!prop.requires && schemaField.requires) {
+              prop.requires = schemaField.requires;
             }
           }
         }
@@ -248,6 +254,7 @@ function extractSchemaBasedProps(source: string, supplementarySources?: string[]
         : undefined,
       mockValues: fieldDef.mockValues.length > 0 ? fieldDef.mockValues : undefined,
       optional: fieldDef.optional || undefined,
+      requires: fieldDef.requires,
     });
   }
 
@@ -728,6 +735,8 @@ type TypeDefField = {
   validatorExpr?: string;
   /** Default value extracted from `v.optional(schema, defaultValue)` two-argument form. */
   defaultValue?: string;
+  /** Cross-prop dependencies from `@requires propName:value` JSDoc tags. */
+  requires?: RequiresEntry[];
 };
 
 /** Result of resolving a named type definition. */
@@ -986,9 +995,9 @@ function resolveNamedType(source: string, typeAnnotation: string): ResolvedTypeD
   const afterEquals: number = (match.index ?? 0) + match[0].length;
   const afterEqualsText: string = source.slice(afterEquals, afterEquals + 200).trim();
 
-  // --- Valibot schema path: type X = v.InferOutput<typeof YSchema> ---
+  // --- Valibot schema path: type X = v.InferInput/InferOutput<typeof YSchema> ---
   const inferMatch: RegExpMatchArray | null = afterEqualsText.match(
-    /v\.InferOutput\s*<\s*typeof\s+(\w+)\s*>/,
+    /v\.Infer(?:Input|Output)\s*<\s*typeof\s+(\w+)\s*>/,
   );
   if (inferMatch) {
     const schemaName: string = inferMatch[1] ?? '';
@@ -1071,6 +1080,7 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
   const lines: string[] = body.split('\n');
   let pendingDescription: string = '';
   let pendingMockValues: string[] = [];
+  let pendingRequires: RequiresEntry[] = [];
   let inJSDoc: boolean = false;
   let jsdocLines: string[] = [];
 
@@ -1083,14 +1093,10 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
     if (trimmed.startsWith(JSDOC_OPEN)) {
       const singleMatch: RegExpMatchArray | null = trimmed.match(SINGLE_JSDOC_RE);
       if (singleMatch) {
-        const content: string = singleMatch[1] ?? '';
-        const valuesMatch: RegExpMatchArray | null = content.match(/@values\s+(.+)/);
-        if (valuesMatch) {
-          pendingMockValues = splitValuesRespectingBrackets(valuesMatch[1] ?? '');
-          pendingDescription = content.replace(/@values\s+.+/, '').trim();
-        } else {
-          pendingDescription = content;
-        }
+        const parsed: ValuesTagResult = extractValuesTag(singleMatch[1] ?? '');
+        pendingDescription = parsed.description;
+        pendingMockValues = parsed.mockValues;
+        pendingRequires = parsed.requires;
         continue;
       }
       inJSDoc = true;
@@ -1109,13 +1115,10 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
           .trim();
         if (beforeClose) jsdocLines.push(beforeClose);
         const fullDoc: string = jsdocLines.join(' ');
-        const valuesMatch: RegExpMatchArray | null = fullDoc.match(/@values\s+(.+)/);
-        if (valuesMatch) {
-          pendingMockValues = splitValuesRespectingBrackets(valuesMatch[1] ?? '');
-          pendingDescription = fullDoc.replace(/@values\s+.+/, '').trim();
-        } else {
-          pendingDescription = fullDoc;
-        }
+        const parsed: ValuesTagResult = extractValuesTag(fullDoc);
+        pendingDescription = parsed.description;
+        pendingMockValues = parsed.mockValues;
+        pendingRequires = parsed.requires;
         inJSDoc = false;
         continue;
       }
@@ -1166,9 +1169,11 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
         optional: isOptional,
         validatorExpr,
         defaultValue: parsedDefault,
+        requires: pendingRequires.length > 0 ? [...pendingRequires] : undefined,
       });
       pendingDescription = '';
       pendingMockValues = [];
+      pendingRequires = [];
     }
   }
 

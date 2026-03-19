@@ -740,8 +740,21 @@
     // TV keys take priority — collect their key names
     const tvKeyNames: Set<Str> = new Set(tvKeys.map((k: VariantKeyMeta): Str => k.key));
 
-    // Add props-based variants that don't overlap with TV variants
-    const merged: VariantKeyMeta[] = [...tvKeys];
+    // Build a lookup of @requires from props-based variants (TV variants don't parse @requires).
+    const propsRequires: Map<Str, VariantKeyMeta['requires']> = new Map();
+    for (const pk of propsKeys) {
+      if (pk.requires && pk.requires.length > 0) {
+        propsRequires.set(pk.key, pk.requires);
+      }
+    }
+
+    // Merge TV variants with @requires from props, and add non-overlapping props variants.
+    const merged: VariantKeyMeta[] = tvKeys.map(
+      (tv: VariantKeyMeta): VariantKeyMeta =>
+        propsRequires.has(tv.key) && (!tv.requires || tv.requires.length === 0)
+          ? { ...tv, requires: propsRequires.get(tv.key) }
+          : tv,
+    );
     for (const pk of propsKeys) {
       if (!tvKeyNames.has(pk.key)) {
         merged.push(pk);
