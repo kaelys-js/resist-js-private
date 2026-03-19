@@ -155,7 +155,9 @@
   ];
 
   /** All unique category names from entries. */
-  const ALL_CATEGORIES: Str[] = [...new Set(BROWSER_ENTRIES.map((e) => e.category))];
+  const ALL_CATEGORIES: Str[] = [
+    ...new Set(BROWSER_ENTRIES.map((e) => e.category)),
+  ].toSorted() as Str[];
 
   /* ------------------------------------------------------------------ */
   /*  Export items                                                       */

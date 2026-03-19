@@ -221,7 +221,9 @@
   ];
 
   /** All unique category names. */
-  const ALL_CATEGORIES: Str[] = [...new Set(SECTIONS.map((s: SupportSection): Str => s.category))];
+  const ALL_CATEGORIES: Str[] = [
+    ...new Set(SECTIONS.map((s: SupportSection): Str => s.category)),
+  ].toSorted() as Str[];
 
   /** Total number of items across all sections. */
   const totalItemCount: Num = SECTIONS.reduce(
