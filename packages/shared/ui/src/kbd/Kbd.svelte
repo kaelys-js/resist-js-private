@@ -1,5 +1,6 @@
 <script module lang="ts">
   import * as v from 'valibot';
+  import type { Snippet } from 'svelte';
   import { type VariantProps, tv } from 'tailwind-variants';
   import { StrSchema, BoolSchema } from '@/schemas/common';
 
@@ -109,16 +110,19 @@
     /** Array of key names auto-mapped to platform symbols. @values command, shift, k */
     keys: v.optional(v.array(StrSchema)),
     /** Visual style variant. @values default, outline, ghost, solid */
-    variant: v.optional(v.picklist(['default', 'outline', 'ghost', 'solid'])),
+    variant: v.optional(v.picklist(['default', 'outline', 'ghost', 'solid']), 'default'),
     /** Text and padding size. @values xs, sm, md, lg, xl */
-    size: v.optional(v.picklist(['xs', 'sm', 'md', 'lg', 'xl'])),
+    size: v.optional(v.picklist(['xs', 'sm', 'md', 'lg', 'xl']), 'sm'),
     /** Color theme. @values default, primary, secondary, muted */
-    color: v.optional(v.picklist(['default', 'primary', 'secondary', 'muted'])),
+    color: v.optional(v.picklist(['default', 'primary', 'secondary', 'muted']), 'default'),
     /** Show on all breakpoints instead of hiding on mobile. @values true, false */
-    alwaysVisible: v.optional(BoolSchema),
+    alwaysVisible: v.optional(BoolSchema, false as Bool),
     /** Additional CSS classes. @values custom-class, ml-2 */
     class: v.optional(StrSchema),
+    /** Custom content inside the kbd element. @values {#snippet children()}⌘K{/snippet} */
+    children: v.optional(v.custom<Snippet>(() => true)),
   });
+  export type KbdInputProps = v.InferInput<typeof KbdPropsSchema>;
   export type KbdProps = v.InferOutput<typeof KbdPropsSchema>;
 </script>
 
@@ -139,23 +143,38 @@
    * <Kbd keys={['command', 'shift', 'p']} />
    * ```
    */
-  import type { Snippet } from 'svelte';
   import type { Str, Bool } from '@/schemas/common';
   import { safeParse } from '@/utils/result/safe';
   import { stripSvelteProps } from '../lens/lens-utils.js';
   import { cn } from '../utils.js';
 
-  type Props = KbdProps & {
-    /** Custom content inside the kbd element. */
-    children?: Snippet;
-  };
+  const {
+    label,
+    keys,
+    variant,
+    size,
+    color,
+    alwaysVisible,
+    class: className,
+    children,
+    ...restProps
+  }: KbdInputProps = $props();
 
-  const allProps: Props = $props();
   const validated: KbdProps = $derived.by(() => {
-    const rawProps: KbdProps = stripSvelteProps(allProps);
-    const result = safeParse(KbdPropsSchema, rawProps);
+    const dataProps: Record<string, unknown> = stripSvelteProps({
+      label,
+      keys,
+      variant,
+      size,
+      color,
+      alwaysVisible,
+      class: className,
+    });
+    const result = safeParse(KbdPropsSchema, {
+      ...dataProps,
+      children,
+    });
     if (!result.ok) throw result.error;
-    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as KbdProps;
   });
 
@@ -186,7 +205,7 @@
 </script>
 
 {#if validated.keys && validated.keys.length > 0}
-  <span class={cn(visClass, 'inline-flex items-center gap-0.5')} data-slot="kbd">
+  <span class={cn(visClass, 'inline-flex items-center gap-0.5')} data-slot="kbd" {...restProps}>
     {#each validated.keys as key, i (i)}
       {#if i > 0}
         <span class="text-[10px] text-muted-foreground/50">+</span>
@@ -195,9 +214,9 @@
     {/each}
   </span>
 {:else}
-  <kbd data-slot="kbd" class={cn(visClass, variantClass, validated.class)}>
-    {#if allProps.children}
-      {@render allProps.children()}
+  <kbd data-slot="kbd" class={cn(visClass, variantClass, validated.class)} {...restProps}>
+    {#if validated.children}
+      {@render validated.children()}
     {:else}
       {validated.label ?? ''}
     {/if}

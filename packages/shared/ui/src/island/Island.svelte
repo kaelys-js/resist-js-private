@@ -17,12 +17,12 @@
   import { cn } from '../utils.js';
 
   const {
-    /** Additional CSS classes to apply to the island container. @values 'p-4', 'rounded-lg border' */
+    /** Additional CSS classes to apply to the island container. @values p-4, rounded-lg border */
     class: className,
     /** The interactive content to render inside the island. @values {#snippet}...{/snippet} */
     children,
   }: {
-    /** Additional CSS classes to apply to the island container. @values 'p-4', 'rounded-lg border' */
+    /** Additional CSS classes to apply to the island container. @values p-4, rounded-lg border */
     class?: string;
     /** The interactive content to render inside the island. @values {#snippet}...{/snippet} */
     children?: Snippet;
