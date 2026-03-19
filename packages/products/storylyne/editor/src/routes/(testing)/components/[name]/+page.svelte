@@ -1701,7 +1701,7 @@
       id: 'missing-props' as Str,
       title: 'Missing Required Props' as Str,
       description:
-        'Component rendered with no props — triggers safeParse validation and shows the error boundary fallback.' as Str,
+        'Renders the component without any props. If required props exist, safeParse rejects the input and the error boundary catches the validation error.' as Str,
       rendered: true as Bool,
       passed: null,
       errorMessage: '' as Str,
@@ -1711,7 +1711,7 @@
       id: 'invalid-props' as Str,
       title: 'Invalid Props' as Str,
       description:
-        'Component rendered with an unknown prop key — triggers strictObject validation and shows the error boundary fallback.' as Str,
+        'Passes an invalid value to a typed prop (e.g. variant="__INVALID__"). The picklist schema rejects it and the error boundary catches the validation error.' as Str,
       rendered: true as Bool,
       passed: null,
       errorMessage: '' as Str,
@@ -1730,6 +1730,16 @@
 
   /** Parsed custom props for the custom error scenario. */
   let customParsedProps: PropMeta[] = $state([]);
+
+  /**
+   * Find the first picklist/enum prop for invalid-value error boundary testing.
+   * Picklist props reject unknown string values, triggering validation errors.
+   * Falls back to any boolean prop if no picklist found.
+   */
+  const invalidTestProp: PropMeta | undefined = $derived(
+    props.find((p: PropMeta): boolean => p.type.includes("'") && p.type.includes(' | ')) ??
+      props.find((p: PropMeta): boolean => p.type === 'Bool' || p.type === 'boolean'),
+  );
 
   /** Counter to force re-rendering of error boundary tests (incremented by Reset). */
   let errorBoundaryRenderKey: Num = $state(0 as Num);
@@ -3115,6 +3125,7 @@
                       {props}
                       tagName={toTag(name)}
                       componentName={name}
+                      label={lensMeta?.defaultLabel ?? 'Example'}
                       silent={isCompound}
                       contextWrapper={lensContextWrapper ?? undefined}
                     />
@@ -3244,6 +3255,7 @@
                             {props}
                             tagName={toTag(name)}
                             componentName={name}
+                            label={lensMeta?.defaultLabel ?? 'Example'}
                             silent={isCompound}
                             contextWrapper={lensContextWrapper ?? undefined}
                             sectionId="variants"
@@ -3643,9 +3655,11 @@
                         </button>
                         {#if test.expanded}
                           <div class="border-t" transition:slide={{ duration: 200 }}>
-                            <p class="px-4 pt-2 text-xs text-muted-foreground">
-                              {test.description}
-                            </p>
+                            {#if !(test.id === 'missing-props' && !hasRequiredProps)}
+                              <p class="px-4 pt-2 text-xs text-muted-foreground">
+                                {test.description}
+                              </p>
+                            {/if}
                             <!-- Error message display -->
                             {#if test.errorMessage}
                               <div
@@ -3695,38 +3709,51 @@
                                   </div>
                                 {/if}
                               {:else if test.id === 'invalid-props'}
-                                <svelte:boundary
-                                  onerror={(error) =>
-                                    recordErrorBoundaryCatch('invalid-props' as Str, error)}
-                                >
-                                  <LensComponentRenderer
-                                    component={PrimaryComponent}
-                                    props={[
-                                      {
-                                        name: '__invalid__',
-                                        type: 'unknown',
-                                        default: "'test'",
-                                        optional: false,
-                                        bindable: false,
-                                        description: '',
-                                      },
-                                    ]}
-                                    tagName={toTag(name)}
-                                    componentName={name}
-                                    label=""
-                                    silent={true}
-                                    contextWrapper={lensContextWrapper ?? undefined}
-                                    codeText={`<!-- Unknown prop key — strictObject rejection -->\n<${toTag(name)} __invalid__="test" />`}
-                                  />
-                                  {#snippet failed(error)}
-                                    <LensError
-                                      title="Validation Error"
-                                      description={error instanceof Error
-                                        ? error.message
-                                        : String(error)}
+                                {#if invalidTestProp}
+                                  <svelte:boundary
+                                    onerror={(error) =>
+                                      recordErrorBoundaryCatch('invalid-props' as Str, error)}
+                                  >
+                                    <LensComponentRenderer
+                                      component={PrimaryComponent}
+                                      props={[
+                                        {
+                                          name: invalidTestProp.name,
+                                          type: invalidTestProp.type,
+                                          default: "'__INVALID__'",
+                                          optional: false as Bool,
+                                          bindable: false as Bool,
+                                          description: '' as Str,
+                                        },
+                                      ]}
+                                      tagName={toTag(name)}
+                                      componentName={name}
+                                      label=""
+                                      silent={true}
+                                      contextWrapper={lensContextWrapper ?? undefined}
+                                      codeText={`<!-- Invalid value for ${invalidTestProp.name} — schema validation rejection -->\n<${toTag(name)} ${invalidTestProp.name}="__INVALID__" />`}
                                     />
-                                  {/snippet}
-                                </svelte:boundary>
+                                    {#snippet failed(error)}
+                                      <LensError
+                                        title="Validation Error"
+                                        description={error instanceof Error
+                                          ? error.message
+                                          : String(error)}
+                                      />
+                                    {/snippet}
+                                  </svelte:boundary>
+                                {:else}
+                                  <div
+                                    class="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed bg-muted/20 py-8 text-center"
+                                  >
+                                    <CircleCheck class="size-6 text-emerald-500" />
+                                    <p class="text-sm font-medium">No typed props for validation</p>
+                                    <p class="text-xs text-muted-foreground">
+                                      All props accept string values — no picklist or boolean to
+                                      reject.
+                                    </p>
+                                  </div>
+                                {/if}
                               {/if}
                             </div>
                           </div>

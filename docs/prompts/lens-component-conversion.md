@@ -14,7 +14,7 @@ A. Read `LENS-COMPONENTS.md` — find the `{COMPONENT}` entry. Note every prop, 
 
 B. Read the existing component source at `packages/shared/ui/src/{component-dir}/` — read every `.svelte` file, the `lens.ts` if it exists, and any test files.
 
-C. Read the 18 Lens compatibility rules from `packages/products/storylyne/editor/src/lib/config/lens-categories.ts` (the `LENS_RULE_NAMES` array). Check which rules the component currently violates.
+C. Read ALL Lens compatibility rules (R0–R22) from `packages/products/storylyne/editor/src/lib/config/lens-categories.ts` (the `LENS_RULE_NAMES` array). Check which rules the component currently violates.
 
 D. Read `packages/shared/ui/src/lens/detect-accessibility.ts` — identify every accessibility rule that applies to this component type (ARIA pattern, keyboard, focus, contrast, motion, labels, touch targets, screen reader).
 
@@ -66,6 +66,8 @@ G. Read `CLAUDE.md` for all coding standards (Result pattern, Valibot types, imp
 
 ## Step 2: Present Full Changelog (MANDATORY — wait for approval)
 
+**Group/compound components**: If research reveals a Group variant (e.g., AvatarGroup, ButtonGroup, CheckboxGroup), present it as a SECOND component in the same changelog. Each gets its own directory, `lens.ts`, `index.ts`, props schema, and full Lens treatment. Present both changelogs together for approval, implement both.
+
 Present a single consolidated changelog covering EVERYTHING the component needs. Organize it as:
 
 ### Props (from LENS-COMPONENTS.md + library research)
@@ -81,7 +83,7 @@ List every feature: keyboard navigation keys, ARIA pattern, animation, controlle
 List every visual variant from all libraries (e.g., bordered, ghost, shadow, flush, splitted).
 
 ### Lens Rule Fixes
-For each of R0–R17 that currently fails, state what needs to change.
+For each of R0–R22 that currently fails, state what needs to change.
 
 ### Accessibility Fixes
 For each applicable a11y rule, state what's needed (ARIA roles, keyboard handlers, focus management, screen reader text, contrast, reduced-motion, touch targets, labels).
@@ -112,6 +114,7 @@ Follow these rules exactly:
 - Support `prefers-reduced-motion` — disable animations when user prefers reduced motion
 - Support RTL (`dir` prop) where applicable
 - Support controlled + uncontrolled modes (value/defaultValue + onValueChange)
+- **CRITICAL: Group/compound components get their own directory** — `AvatarGroup` → `packages/shared/ui/src/avatar-group/` with its own `AvatarGroup.svelte`, `lens.ts`, and `index.ts`. NEVER put a Group component inside the parent's directory (e.g., `avatar/AvatarGroup.svelte`). Each component needs its own Lens page, props table, compatibility check, and sidebar entry. Same applies to any compound variant: `ButtonGroup`, `CheckboxGroup`, `InputGroup`, etc.
 
 ### Metadata (`lens.ts`)
 - Export `meta: LensMeta` with `category`, `tags` (include `tv-variant` if using `tv()`), `description`
@@ -138,13 +141,13 @@ After implementation is complete:
 - Re-read the approved changelog
 - Check every single item was implemented
 - Re-read every file you created/modified to confirm changes are present
-- Run the full Lens compatibility check to verify R0–R17 all pass
+- Run the full Lens compatibility check to verify R0–R22 all pass
 - Document any deviations from the changelog and explain why
 
 ## Step 5: Commit
 
 ```
-feat(ui): full Lens conversion for {COMPONENT} — R0-R17 compliant, a11y, all variants
+feat(ui): full Lens conversion for {COMPONENT} — R0-R22 compliant, a11y, all variants
 ```
 
 ## Skill & Verification Requirements

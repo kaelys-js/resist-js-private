@@ -929,10 +929,7 @@ export type DepTree = {
   });
 
   it('merges schema defaults into destructured props (hybrid pattern)', (): void => {
-    const source: string = readFileSync(
-      resolve(__dirname, '../badge/badge.svelte'),
-      'utf8',
-    );
+    const source: string = readFileSync(resolve(__dirname, '../badge/badge.svelte'), 'utf8');
     const props: PropMeta[] = extractProps(source);
 
     const variantProp: PropMeta | undefined = props.find(
@@ -940,9 +937,7 @@ export type DepTree = {
     );
     expect(variantProp?.default).toBe('default');
 
-    const sizeProp: PropMeta | undefined = props.find(
-      (p: PropMeta): boolean => p.name === 'size',
-    );
+    const sizeProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'size');
     expect(sizeProp?.default).toBe('sm');
 
     const radiusProp: PropMeta | undefined = props.find(
@@ -950,9 +945,7 @@ export type DepTree = {
     );
     expect(radiusProp?.default).toBe('full');
 
-    const dotProp: PropMeta | undefined = props.find(
-      (p: PropMeta): boolean => p.name === 'dot',
-    );
+    const dotProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'dot');
     expect(dotProp?.default).toBe('false');
   });
 
