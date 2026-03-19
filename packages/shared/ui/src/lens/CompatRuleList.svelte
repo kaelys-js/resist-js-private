@@ -96,7 +96,7 @@
             <span class="inline-flex items-center gap-1.5">
               <span
                 class="inline-flex whitespace-nowrap rounded bg-purple-500/10 px-1 py-0.5 text-[10px] font-semibold leading-none text-purple-600 dark:text-purple-400"
-                >A11y</span
+                >{rule.standard}</span
               >
               <span class="font-mono">{rule.wcag}</span>
             </span>
