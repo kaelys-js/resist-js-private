@@ -1,9 +1,10 @@
-<!-- @convert-to-lens -->
 <script lang="ts" module>
+  import * as v from 'valibot';
   import { type VariantProps, tv } from 'tailwind-variants';
+  import { StrSchema, BoolSchema } from '@/schemas/common';
 
   export const badgeVariants = tv({
-    base: 'focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] [&>svg]:pointer-events-none [&>svg]:size-3',
+    base: 'focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden border font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] [&>svg]:pointer-events-none',
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground [a&]:hover:bg-primary/90 border-transparent',
@@ -12,49 +13,179 @@
         destructive:
           'bg-destructive [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/70 border-transparent text-white',
         outline: 'text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
+        success: 'bg-emerald-500 text-white [a&]:hover:bg-emerald-600 border-transparent',
+        warning:
+          'bg-amber-500 text-white [a&]:hover:bg-amber-600 border-transparent dark:bg-amber-600',
+        info: 'bg-blue-500 text-white [a&]:hover:bg-blue-600 border-transparent',
+      },
+      size: {
+        xs: 'px-1 py-0 text-[10px] [&>svg]:size-2.5',
+        sm: 'px-2 py-0.5 text-xs [&>svg]:size-3',
+        md: 'px-2.5 py-0.5 text-xs [&>svg]:size-3.5',
+        lg: 'px-3 py-1 text-sm [&>svg]:size-4',
+      },
+      radius: {
+        none: 'rounded-none',
+        sm: 'rounded-sm',
+        md: 'rounded-md',
+        lg: 'rounded-lg',
+        full: 'rounded-full',
+      },
+      dot: {
+        true: 'size-2 p-0 border-0',
+        false: '',
+      },
+      disabled: {
+        true: 'opacity-50 pointer-events-none',
+        false: '',
       },
     },
+    compoundVariants: [
+      { dot: true, variant: 'default', class: 'bg-primary' },
+      { dot: true, variant: 'secondary', class: 'bg-secondary-foreground/50' },
+      { dot: true, variant: 'destructive', class: 'bg-destructive' },
+      { dot: true, variant: 'outline', class: 'bg-foreground border-0' },
+      { dot: true, variant: 'success', class: 'bg-emerald-500' },
+      { dot: true, variant: 'warning', class: 'bg-amber-500' },
+      { dot: true, variant: 'info', class: 'bg-blue-500' },
+      { dot: true, size: 'xs', class: 'size-1.5' },
+      { dot: true, size: 'sm', class: 'size-2' },
+      { dot: true, size: 'md', class: 'size-2.5' },
+      { dot: true, size: 'lg', class: 'size-3' },
+    ],
     defaultVariants: {
       variant: 'default',
+      size: 'sm',
+      radius: 'full',
+      dot: false,
+      disabled: false,
     },
   });
 
   export type BadgeVariant = VariantProps<typeof badgeVariants>['variant'];
+  export type BadgeSize = VariantProps<typeof badgeVariants>['size'];
+  export type BadgeRadius = VariantProps<typeof badgeVariants>['radius'];
+
+  export const BadgePropsSchema = v.strictObject({
+    /** Visual style variant. @values default, secondary, destructive, outline, success, warning, info */
+    variant: v.optional(
+      v.picklist(['default', 'secondary', 'destructive', 'outline', 'success', 'warning', 'info']),
+      'default',
+    ),
+    /** Badge size controlling padding and text size. @values xs, sm, md, lg */
+    size: v.optional(v.picklist(['xs', 'sm', 'md', 'lg']), 'sm'),
+    /** Border radius. @values none, sm, md, lg, full */
+    radius: v.optional(v.picklist(['none', 'sm', 'md', 'lg', 'full']), 'full'),
+    /** Render as link when URL is provided. @values /components/button, https://example.com */
+    href: v.optional(StrSchema),
+    /** Render as small dot indicator with no text content. @values true, false */
+    dot: v.optional(BoolSchema, false as Bool),
+    /** Show a remove/dismiss X button. @values true, false */
+    removable: v.optional(BoolSchema, false as Bool),
+    /** Disabled state — reduced opacity, no interactions. @values true, false */
+    disabled: v.optional(BoolSchema, false as Bool),
+    /** Additional CSS classes. @values ml-2, animate-pulse */
+    class: v.optional(StrSchema),
+  });
+  /** Input props type — all fields optional (for $props). */
+  export type BadgeInputProps = v.InferInput<typeof BadgePropsSchema>;
+  /** Validated output type — defaults filled in (after safeParse). */
+  export type BadgeProps = v.InferOutput<typeof BadgePropsSchema>;
 </script>
 
 <script lang="ts">
   /**
-   * Small inline label for status indicators, counts, or categories.
+   * Badge — small inline label for status indicators, counts, or categories.
    *
-   * Supports default, secondary, destructive, and outline variants. Renders as a link when href is provided.
+   * Consolidates features from shadcn/ui (variant, href), Mantine (size, radius,
+   * dot), DaisyUI (success/warning/info variants), Flowbite (removable, icon),
+   * Ant Design (dot mode), Material UI (dot), Fluent UI (size scale),
+   * HeroUI (dot, disabled), Carbon (removable), and Polaris (icon slot).
+   *
+   * Renders as `<a>` when `href` is provided, otherwise `<span>`.
+   *
+   * @example
+   * ```svelte
+   * <Badge variant="success">Active</Badge>
+   * <Badge dot variant="destructive" />
+   * <Badge removable onRemove={() => remove(tag)}>Tag</Badge>
+   * ```
    */
-  import type { HTMLAnchorAttributes } from 'svelte/elements';
-  import { cn, type WithElementRef } from '../utils.js';
+  import type { Snippet } from 'svelte';
+  import type { Str, Bool } from '@/schemas/common';
+  import { safeParse } from '@/utils/result/safe';
+  import { stripSvelteProps } from '../lens/lens-utils.js';
+  import { cn } from '../utils.js';
+  import X from '@lucide/svelte/icons/x';
 
-  let {
-    /** The underlying DOM element reference. */
-    ref = $bindable(null),
-    /** When set, renders as an anchor element instead of a span. */
-    href,
-    /** Additional CSS classes to apply. */
-    class: className,
-    /** The visual style variant. */
-    variant = 'default',
-    /** The badge content. */
-    children,
-    ...restProps
-  }: WithElementRef<HTMLAnchorAttributes> & {
-    variant?: BadgeVariant;
-  } = $props();
+  type Props = BadgeInputProps & {
+    /** Badge text or rich content. */
+    children?: Snippet;
+    /** Icon rendered before the badge content. @values {#snippet icon()}<Star class="size-3" />{/snippet} */
+    icon?: Snippet;
+    /** Callback fired when the remove button is clicked. @values () => removeBadge(id) */
+    onRemove?: () => void;
+  };
+
+  const allProps: Props = $props();
+  const validated: BadgeProps = $derived.by(() => {
+    // BadgeInputProps has optional fields; safeParse fills in defaults
+    const rawProps: BadgeInputProps = stripSvelteProps(allProps) as BadgeInputProps;
+    const result = safeParse(BadgePropsSchema, rawProps);
+    if (!result.ok) throw result.error;
+    // DeepReadonly from safeParse is safe to cast — props are read-only in templates
+    return result.data as BadgeProps;
+  });
+
+  /** Whether this badge renders as a link. */
+  const isLink: Bool = $derived(Boolean(validated.href) as Bool);
+
+  /** Whether dot mode is active. */
+  const isDot: Bool = $derived(validated.dot);
+
+  /** Whether the remove button is shown. */
+  const isRemovable: Bool = $derived(
+    ((validated.removable as boolean) && !(isDot as boolean)) as Bool,
+  );
+
+  /** Resolved variant classes. */
+  const variantClass: Str = $derived(
+    badgeVariants({
+      variant: validated.variant,
+      size: validated.size,
+      radius: validated.radius,
+      dot: isDot,
+      disabled: validated.disabled,
+    }) as Str,
+  );
 </script>
 
 <svelte:element
-  this={href ? 'a' : 'span'}
-  bind:this={ref}
+  this={isLink ? 'a' : 'span'}
   data-slot="badge"
-  {href}
-  class={cn(badgeVariants({ variant }), className)}
-  {...restProps}
+  href={isLink ? validated.href : undefined}
+  class={cn(variantClass, validated.class)}
+  aria-disabled={validated.disabled ? 'true' : undefined}
+  aria-label={isDot ? 'Status indicator' : undefined}
 >
-  {@render children?.()}
+  {#if !isDot}
+    {#if allProps.icon}
+      {@render allProps.icon()}
+    {/if}
+    {@render allProps.children?.()}
+    {#if isRemovable}
+      <button
+        type="button"
+        class="-mr-0.5 ml-0.5 inline-flex shrink-0 items-center justify-center rounded-full p-0.5 opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        aria-label="Remove"
+        onclick={(e: MouseEvent) => {
+          e.preventDefault();
+          e.stopPropagation();
+          allProps.onRemove?.();
+        }}
+      >
+        <X class="size-3" />
+      </button>
+    {/if}
+  {/if}
 </svelte:element>
