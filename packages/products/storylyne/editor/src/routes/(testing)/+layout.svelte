@@ -2442,10 +2442,18 @@
                                     {@const failedRules = new Set(
                                       itemCompat.violations.map((v) => v.rule as Num),
                                     )}
+                                    {@const a11yRulesForComponent = a11yFailingRules.filter((r) =>
+                                      r.failingFiles.some(
+                                        (f) =>
+                                          f.includes('/' + name + '/') ||
+                                          f.includes('/' + name + '.'),
+                                      ),
+                                    )}
                                     <div class="mt-1.5 border-t border-border pt-1.5">
                                       <CompatRuleList
                                         ruleNames={LENS_RULE_NAMES}
                                         violations={failedRules}
+                                        a11yRules={a11yRulesForComponent}
                                       />
                                     </div>
                                   {/if}

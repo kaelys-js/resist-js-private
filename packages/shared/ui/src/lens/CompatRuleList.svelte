@@ -1,19 +1,18 @@
 <script lang="ts">
   /**
    * Compatibility rule table — displays the R0–R17 pass/fail breakdown,
-   * accessibility audit failures, and unsupported browsers in a unified table.
+   * plus optional per-component accessibility failures and unsupported browsers.
    *
    * Shared by CompatTooltip (tooltip content) and the component detail page
    * (amber banner). Renders a `<table>` with Rule, Name, and Status columns.
    *
-   * A11y and browser data loaded from Svelte context (set by +layout.svelte).
+   * A11y and browser data are passed as optional props, filtered by the caller.
    */
   import type { Num, Str } from '@/schemas/common';
   import type { A11yRuleResult } from '@/ui/lens/detect-accessibility.js';
   import type { BrowserSupport } from '@/ui/lens/detect-browser-support.js';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
   import CircleX from '@lucide/svelte/icons/circle-x';
-  import { getContext } from 'svelte';
 
   /** Compatibility rule table props. */
   const {
@@ -21,6 +20,8 @@
     violations,
     showAllRules = true,
     embedded = false,
+    a11yRules = [],
+    unsupportedBrowsers = [],
   }: {
     /** Ordered rule name strings. @values LENS_RULE_NAMES */
     ruleNames: readonly Str[];
@@ -30,14 +31,11 @@
     showAllRules?: boolean;
     /** When true, skip rounded-lg border (parent provides container styling). @values true, false */
     embedded?: boolean;
+    /** Per-component accessibility rule failures (pre-filtered by caller). @values filteredA11yRules */
+    a11yRules?: A11yRuleResult[];
+    /** Unsupported browsers (global, only for overview page). @values unsupportedBrowsers */
+    unsupportedBrowsers?: BrowserSupport[];
   } = $props();
-
-  /** Global accessibility failures from layout context. */
-  const a11yFailures: A11yRuleResult[] = getContext<A11yRuleResult[]>('lens-a11y-failures') ?? [];
-
-  /** Global unsupported browsers from layout context. */
-  const unsupportedBrowsers: BrowserSupport[] =
-    getContext<BrowserSupport[]>('lens-unsupported-browsers') ?? [];
 </script>
 
 <div
@@ -82,8 +80,8 @@
         {/if}
       {/each}
 
-      <!-- Accessibility rules -->
-      {#each a11yFailures as rule (rule.id)}
+      <!-- Accessibility rules (per-component or global) -->
+      {#each a11yRules as rule (rule.id)}
         <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/40">
           <td class="px-3 py-1.5 font-mono text-muted-foreground">{rule.wcag}</td>
           <td class="px-3 py-1.5">{rule.label}</td>
@@ -98,7 +96,7 @@
         </tr>
       {/each}
 
-      <!-- Unsupported browsers -->
+      <!-- Unsupported browsers (global only) -->
       {#each unsupportedBrowsers as browser (browser.name)}
         <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/40">
           <td class="px-3 py-1.5 font-mono text-muted-foreground">Browser</td>
