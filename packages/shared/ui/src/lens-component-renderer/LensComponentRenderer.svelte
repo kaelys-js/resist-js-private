@@ -2,7 +2,7 @@
   import * as v from 'valibot';
   import { StrSchema, BoolSchema } from '@/schemas/common';
   import { PropMetaSchema, VariantMetaSchema } from '../lens/types.js';
-  import type { Component, Snippet } from 'svelte';
+  import { createRawSnippet, type Component, type Snippet } from 'svelte';
 
   /** Schema for the LensComponentRenderer component props. @convert-to-lens */
   export const LensComponentRendererPropsSchema = v.strictObject({
@@ -7485,6 +7485,18 @@
       } catch {
         /* not JSON — use comma splitting */
         coerced = option.split(', ').map((s: Str): Str => s.trim());
+      }
+    } else if ((option as string).startsWith('{#snippet')) {
+      // Snippet @values — parse HTML content and create a runtime Snippet via createRawSnippet.
+      // Format: {#snippet name()}CONTENT{/snippet} → extract CONTENT → wrap in <span>
+      const snippetMatch: RegExpMatchArray | null = (option as string).match(
+        /\{#snippet\s+\w+\(\)\}([\s\S]*?)\{\/snippet\}/,
+      );
+      if (snippetMatch) {
+        const htmlContent: Str = (snippetMatch[1] ?? '') as Str;
+        coerced = createRawSnippet(() => ({
+          render: (): string => `<span>${htmlContent as string}</span>`,
+        }));
       }
     } else if (!Number.isNaN(Number(option)) && option !== '') {
       coerced = Number(option);

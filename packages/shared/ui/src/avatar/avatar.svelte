@@ -89,13 +89,13 @@
     disabled: v.optional(BoolSchema, false as Bool),
     /** Online status indicator. @values active, inactive, unset */
     active: v.optional(v.picklist(['active', 'inactive', 'unset']), 'unset'),
-    /** Custom fallback icon snippet. @values {#snippet icon()}<User class="size-5" />{/snippet} */
+    /** Custom fallback icon snippet. @values {#snippet icon()}<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26Z"></path></svg>{/snippet} */
     icon: v.optional(v.custom<Snippet>(() => true)),
-    /** Custom fallback content snippet. @values {#snippet fallback()}AB{/snippet} */
+    /** Custom fallback content snippet. @values {#snippet fallback()}AB{/snippet}, {#snippet fallback()}JD{/snippet}, {#snippet fallback()}?{/snippet} */
     fallback: v.optional(v.custom<Snippet>(() => true)),
-    /** Badge/status overlay snippet. @values {#snippet badge()}<span class="size-3 bg-green-500 rounded-full" />{/snippet} */
+    /** Badge/status overlay snippet. @values {#snippet badge()}<span class="block size-3 bg-green-500 rounded-full"></span>{/snippet}, {#snippet badge()}<span class="block size-3 bg-red-500 rounded-full"></span>{/snippet} */
     badge: v.optional(v.custom<Snippet>(() => true)),
-    /** Content override. @values {#snippet children()}<img src="..." />{/snippet} */
+    /** Content override. */
     children: v.optional(v.custom<Snippet>(() => true)),
     /** Additional CSS classes. @values ring-2, shadow-lg */
     class: v.optional(StrSchema),
@@ -230,6 +230,17 @@
     }) as Str,
   );
 
+  /** Explicit border-radius override class — takes precedence over `shape` when set. */
+  const radiusClass: Str = $derived.by((): Str => {
+    const r: typeof validated.radius = validated.radius;
+    if (r === 'none') return 'rounded-none' as Str;
+    if (r === 'sm') return 'rounded-sm' as Str;
+    if (r === 'md') return 'rounded-md' as Str;
+    if (r === 'lg') return 'rounded-lg' as Str;
+    // 'full' is the default — don't override, let shape handle it
+    return '' as Str;
+  });
+
   /** Status indicator color. */
   const statusColor: Str = $derived.by((): Str => {
     if (validated.active === 'active') return 'bg-emerald-500' as Str;
@@ -242,7 +253,7 @@
   bind:loadingStatus
   delayMs={validated.delayMs}
   data-slot="avatar"
-  class={cn(variantClass, validated.class)}
+  class={cn(variantClass, radiusClass, validated.class)}
   role="img"
   aria-label={validated.alt || validated.name || undefined}
   aria-disabled={validated.disabled ? 'true' : undefined}

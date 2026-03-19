@@ -12,11 +12,37 @@
  * // [{ name: 'variant', type: 'string', default: '"default"', description: '...', bindable: false }]
  * ```
  */
+import { createRawSnippet } from 'svelte';
 import type { PropMeta, TypeField, VariantKeyMeta } from './types.js';
 
 /** No-op function used as placeholder for function-typed props. */
 function noop(): void {
   /* intentionally empty — placeholder for function-typed props in variant previews */
+}
+
+/**
+ * Regex to extract content from a `{#snippet name()}CONTENT{/snippet}` string.
+ *
+ * Captures the HTML/text content between the opening and closing snippet tags.
+ */
+const SNIPPET_RE: RegExp = /\{#snippet\s+\w+\(\)\}([\s\S]*?)\{\/snippet\}/;
+
+/**
+ * Parse a `{#snippet name()}CONTENT{/snippet}` @values string into an actual Svelte Snippet.
+ *
+ * Uses `createRawSnippet` to construct a runtime Snippet from the extracted HTML content.
+ * The content is wrapped in a `<span>` because `createRawSnippet` requires a single root element.
+ *
+ * @param mv - Raw @values string in `{#snippet}` format
+ * @returns A Svelte Snippet, or undefined if the format is invalid
+ */
+function parseSnippetValue(mv: string): unknown {
+  const match: RegExpMatchArray | null = mv.match(SNIPPET_RE);
+  if (!match) return undefined;
+  const content: string = match[1] ?? '';
+  return createRawSnippet(() => ({
+    render: (): string => `<span>${content}</span>`,
+  }));
 }
 
 /**
@@ -74,6 +100,11 @@ function tryParseJsLiteral(str: string): unknown {
 function coerceMockValue(mv: string, type: string, typeDefinition?: string): unknown {
   const isArrayType: boolean = type.endsWith('[]');
 
+  // Snippet @values in {#snippet} format — create an actual Snippet using createRawSnippet.
+  // Format: {#snippet name()}CONTENT{/snippet} → extract CONTENT → createRawSnippet
+  if (type === 'Snippet' && mv.startsWith('{#snippet')) {
+    return parseSnippetValue(mv);
+  }
   // Function types — provide a callable noop instead of string
   if (isFunctionType(type, typeDefinition)) return noop;
   // Booleans — coerce string to actual boolean, wrap in array if array-typed
@@ -339,10 +370,8 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
   for (const { type, name, default: defaultVal, typeDefinition, mockValues } of props) {
     if (!type) continue;
 
-    // Skip function types — can't render Snippet/Component/callback props as string variant options
-    if (isFunctionType(type, typeDefinition)) continue;
-
-    // @values JSDoc tag: highest priority — explicit author declaration
+    // @values JSDoc tag: highest priority — explicit author declaration.
+    // Checked BEFORE isFunctionType so Snippet props with @values can generate variant cards.
     if (mockValues && mockValues.length > 1) {
       variants.push({
         key: name,
@@ -352,6 +381,20 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
       });
       continue;
     }
+
+    // Snippet props with exactly 1 @value — generate a variant card to show what the
+    // component looks like WITH the snippet rendered (the whole point of Snippet @values).
+    if (isFunctionType(type, typeDefinition) && mockValues && mockValues.length === 1) {
+      variants.push({
+        key: name,
+        options: mockValues,
+        default: '',
+      });
+      continue;
+    }
+
+    // Skip function types without @values — can't render Snippet/Component/callback as string variants
+    if (isFunctionType(type, typeDefinition)) continue;
 
     // Boolean props: render true/false
     if (type === 'boolean' || type === 'Bool') {
@@ -571,8 +614,14 @@ export function buildBaseProps(propsMeta: PropMeta[]): Record<string, unknown> {
       } else {
         base[prop.name] = Number(d);
       }
-    } else if (prop.mockValues && prop.mockValues.length > 0) {
-      // Coerce mockValues to actual types — @values are always strings
+    } else if (prop.mockValues && prop.mockValues.length === 1) {
+      // Single @values entry — use as base prop default for all variant cards.
+      // Multi-value @values props are excluded: they get their own variant section,
+      // and including them here would mask other variant effects (e.g. `src` image
+      // covering `color`/`name` fallback-dependent props on Avatar).
+      // Skip Snippet/function-type props — they are visual overrides that change
+      // appearance significantly and should only appear in their own variant section.
+      if (isFunctionType(prop.type, prop.typeDefinition)) continue;
       const coerced: unknown = coerceMockValue(
         prop.mockValues[0] ?? '',
         prop.type,

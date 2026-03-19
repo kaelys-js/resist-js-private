@@ -784,6 +784,33 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
     violations.push({ rule: 20 as Num, message: 'Skipped — needs Lens conversion first' as Str });
     violations.push({ rule: 21 as Num, message: 'Skipped — needs Lens conversion first' as Str });
     violations.push({ rule: 22 as Num, message: 'Skipped — needs Lens conversion first' as Str });
+    violations.push({ rule: 23 as Num, message: 'Skipped — needs Lens conversion first' as Str });
+  }
+
+  // Rule 23: Dead props — schema fields never referenced in instance script or template
+  if (!hasConvertMarker && input.source.includes('v.strictObject(')) {
+    // Extract template + instance script (everything after module script closes)
+    const instanceIdx: number = input.source.indexOf('<script lang="ts">');
+    const usageSource: string = instanceIdx >= 0 ? input.source.slice(instanceIdx) : input.source;
+    // Props always present in usage: 'class' (renamed to className), 'children'/'child' (slot content)
+    const alwaysUsedProps: ReadonlySet<string> = new Set(['class', 'children', 'child']);
+    const deadProps: string[] = [];
+    for (const prop of input.props) {
+      const propName: string = (prop as { name: string }).name;
+      if (!propName || alwaysUsedProps.has(propName)) continue;
+      // Check if prop name appears in instance script or template via validated.propName,
+      // direct propName reference, or Snippet render ({@render propName()})
+      const nameRe: RegExp = new RegExp(`\\b${propName}\\b`);
+      if (!nameRe.test(usageSource)) {
+        deadProps.push(propName);
+      }
+    }
+    if (deadProps.length > 0) {
+      violations.push({
+        rule: 23 as Num,
+        message: `Dead props in schema but never used: [${deadProps.join(', ')}]` as Str,
+      });
+    }
   }
 
   return {

@@ -62,14 +62,14 @@
             <td class="px-3 py-1.5 text-right">
               {#if failed}
                 <span
-                  class="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 font-medium text-red-600 dark:text-red-400"
+                  class="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-red-500/10 px-2 py-0.5 font-medium text-red-600 dark:text-red-400"
                 >
                   <CircleX class="size-3" />
                   Fail
                 </span>
               {:else}
                 <span
-                  class="inline-flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 font-medium text-green-600 dark:text-green-400"
+                  class="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-green-500/10 px-2 py-0.5 font-medium text-green-600 dark:text-green-400"
                 >
                   <CircleCheck class="size-3" />
                   Pass
@@ -87,7 +87,7 @@
           <td class="px-3 py-1.5">{rule.label}</td>
           <td class="px-3 py-1.5 text-right">
             <span
-              class="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 font-medium text-red-600 dark:text-red-400"
+              class="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-red-500/10 px-2 py-0.5 font-medium text-red-600 dark:text-red-400"
             >
               <CircleX class="size-3" />
               {rule.failCount} Fail
@@ -103,7 +103,7 @@
           <td class="px-3 py-1.5">{browser.name} — {browser.notes}</td>
           <td class="px-3 py-1.5 text-right">
             <span
-              class="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 font-medium text-red-600 dark:text-red-400"
+              class="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-red-500/10 px-2 py-0.5 font-medium text-red-600 dark:text-red-400"
             >
               <CircleX class="size-3" />
               Unsupported
