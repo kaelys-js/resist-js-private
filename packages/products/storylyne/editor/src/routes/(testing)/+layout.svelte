@@ -1197,6 +1197,9 @@
   /** Whether the top-level "Components" collapsible group is open. */
   let sidebarComponentsOpen: boolean = $state(false);
 
+  /** Name of the component whose compat tooltip is currently open (empty = none). */
+  let compatTooltipOpenName: Str = $state('' as Str);
+
   /** Per-category collapsible open state (keyed by category name, default collapsed). */
   let sidebarCategoryOpen: Record<Str, boolean> = $state(
     Object.fromEntries(CATEGORY_ORDER.map((cat: Str): [Str, boolean] => [cat, false])),
@@ -2288,100 +2291,114 @@
                           {@const itemColor =
                             CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
                           <Sidebar.MenuItem>
-                            <Tooltip.Root delayDuration={400}>
-                              <Tooltip.Trigger>
-                                {#snippet child({ props: tooltipProps })}
-                                  <Sidebar.MenuButton
-                                    isActive={currentName === name}
-                                    {...tooltipProps}
-                                  >
-                                    {#snippet child({ props })}
-                                      <a
-                                        href="/components/{name}"
-                                        {...props}
-                                        class="{props.class ?? ''} {isIncompat ? 'opacity-50' : ''}"
-                                      >
-                                        <ItemIcon class="size-4 {itemColor}"></ItemIcon>
-                                        <span>{toTitle(name)}</span>
-                                        {#if itemMeta?.status}
-                                          <span
-                                            class="ml-auto shrink-0 rounded px-1 py-0.5 text-[9px] font-medium leading-none {STATUS_COLORS[
-                                              itemMeta.status
-                                            ]}">{STATUS_LABELS[itemMeta.status]}</span
-                                          >
-                                        {:else if isIncompat}
-                                          <CircleAlert
-                                            class="ml-auto size-3 shrink-0 text-amber-500"
-                                            aria-hidden="true"
-                                          />
-                                        {/if}
-                                      </a>
-                                    {/snippet}
-                                  </Sidebar.MenuButton>
-                                {/snippet}
-                              </Tooltip.Trigger>
-                              <Tooltip.Content side="right" sideOffset={8} class="max-w-72">
-                                {#if itemMeta?.description}
-                                  <p class="text-xs">{itemMeta.description}</p>
-                                {/if}
-                                {#if itemMeta?.tags && itemMeta.tags.length > 0}
-                                  <div class="mt-1 flex flex-wrap gap-1">
-                                    {#each itemMeta.tags as tag (tag)}
-                                      <span
-                                        class="inline-flex items-center gap-0.5 rounded bg-primary-foreground/20 px-1 py-0.5 text-[10px]"
-                                        ><Tag class="size-2.5 shrink-0 opacity-60" />{tag}</span
-                                      >
-                                    {/each}
-                                  </div>
-                                {/if}
-                                {#if itemCompat}
-                                  {@const failedRules = new Set(
-                                    itemCompat.violations.map((v) => v.rule as Num),
-                                  )}
-                                  {@const failCount = failedRules.size}
-                                  {@const passCount = LENS_RULE_NAMES.length - failCount}
-                                  <div class="mt-1.5 border-t border-border pt-1.5">
-                                    <p class="mb-1 text-[10px] font-semibold">
-                                      Compatibility — {passCount}✓ {failCount}✗
-                                    </p>
-                                    <CompatRuleList
-                                      ruleNames={LENS_RULE_NAMES}
-                                      violations={failedRules}
-                                    />
-                                  </div>
-                                {/if}
-                              </Tooltip.Content>
-                            </Tooltip.Root>
-                            <Sidebar.MenuAction>
-                              <Tooltip.Root delayDuration={300}>
+                            <Tooltip.Provider disableHoverableContent={false}>
+                              <Tooltip.Root
+                                delayDuration={400}
+                                onOpenChange={(open) => {
+                                  compatTooltipOpenName = (open ? name : '') as Str;
+                                }}
+                              >
                                 <Tooltip.Trigger>
-                                  {#snippet child({ props: pinTip })}
-                                    <button
-                                      type="button"
-                                      class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/40 transition-colors hover:text-foreground {pinnedComponents.has(
-                                        name,
-                                      )
-                                        ? 'text-amber-500 hover:text-amber-600'
-                                        : ''}"
-                                      {...pinTip}
-                                      onclick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        togglePin(name);
-                                      }}
+                                  {#snippet child({ props: tooltipProps })}
+                                    <Sidebar.MenuButton
+                                      isActive={currentName === name}
+                                      {...tooltipProps}
                                     >
-                                      <Star
-                                        class="size-3 {pinnedComponents.has(name)
-                                          ? 'fill-current'
-                                          : ''}"
-                                      />
-                                    </button>
+                                      {#snippet child({ props })}
+                                        <a
+                                          href="/components/{name}"
+                                          {...props}
+                                          class="{props.class ?? ''} {isIncompat
+                                            ? 'opacity-50'
+                                            : ''}"
+                                        >
+                                          <ItemIcon class="size-4 {itemColor}"></ItemIcon>
+                                          <span>{toTitle(name)}</span>
+                                          {#if itemMeta?.status}
+                                            <span
+                                              class="ml-auto shrink-0 rounded px-1 py-0.5 text-[9px] font-medium leading-none {STATUS_COLORS[
+                                                itemMeta.status
+                                              ]}">{STATUS_LABELS[itemMeta.status]}</span
+                                            >
+                                          {:else if isIncompat}
+                                            <CircleAlert
+                                              class="ml-auto size-3 shrink-0 text-amber-500"
+                                              aria-hidden="true"
+                                            />
+                                          {/if}
+                                        </a>
+                                      {/snippet}
+                                    </Sidebar.MenuButton>
                                   {/snippet}
                                 </Tooltip.Trigger>
-                                <Tooltip.Content side="right" sideOffset={4}>
-                                  {pinnedComponents.has(name) ? 'Unpin' : 'Pin to sidebar'}
+                                <Tooltip.Content
+                                  side="right"
+                                  sideOffset={0}
+                                  class="max-w-96 max-h-[min(24rem,80vh)] overflow-y-auto"
+                                >
+                                  {#if itemMeta?.description}
+                                    <p class="text-xs">{itemMeta.description}</p>
+                                  {/if}
+                                  {#if itemMeta?.tags && itemMeta.tags.length > 0}
+                                    <div class="mt-1 flex flex-wrap gap-1">
+                                      {#each itemMeta.tags as tag (tag)}
+                                        <span
+                                          class="inline-flex items-center gap-0.5 rounded bg-primary-foreground/20 px-1 py-0.5 text-[10px]"
+                                          ><Tag class="size-2.5 shrink-0 opacity-60" />{tag}</span
+                                        >
+                                      {/each}
+                                    </div>
+                                  {/if}
+                                  {#if itemCompat}
+                                    {@const failedRules = new Set(
+                                      itemCompat.violations.map((v) => v.rule as Num),
+                                    )}
+                                    <div class="mt-1.5 border-t border-border pt-1.5">
+                                      <CompatRuleList
+                                        ruleNames={LENS_RULE_NAMES}
+                                        violations={failedRules}
+                                      />
+                                    </div>
+                                  {/if}
                                 </Tooltip.Content>
                               </Tooltip.Root>
+                            </Tooltip.Provider>
+                            <Sidebar.MenuAction
+                              class={compatTooltipOpenName === name
+                                ? 'pointer-events-none'
+                                : ''}
+                            >
+                              <Tooltip.Provider>
+                                <Tooltip.Root delayDuration={300}>
+                                  <Tooltip.Trigger>
+                                    {#snippet child({ props: pinTip })}
+                                      <button
+                                        type="button"
+                                        class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/40 transition-colors hover:text-foreground {pinnedComponents.has(
+                                          name,
+                                        )
+                                          ? 'text-amber-500 hover:text-amber-600'
+                                          : ''}"
+                                        {...pinTip}
+                                        onclick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          togglePin(name);
+                                        }}
+                                      >
+                                        <Star
+                                          class="size-3 {pinnedComponents.has(name)
+                                            ? 'fill-current'
+                                            : ''}"
+                                        />
+                                      </button>
+                                    {/snippet}
+                                  </Tooltip.Trigger>
+                                  <Tooltip.Content side="right" sideOffset={4}>
+                                    {pinnedComponents.has(name) ? 'Unpin' : 'Pin to sidebar'}
+                                  </Tooltip.Content>
+                                </Tooltip.Root>
+                              </Tooltip.Provider>
                             </Sidebar.MenuAction>
                           </Sidebar.MenuItem>
                         {/each}
