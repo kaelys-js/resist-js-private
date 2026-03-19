@@ -5,7 +5,7 @@
   import { StrSchema, BoolSchema, NumSchema } from '@/schemas/common';
 
   export const avatarVariants = tv({
-    base: 'relative inline-flex shrink-0 items-center justify-center overflow-hidden',
+    base: 'relative inline-flex shrink-0 items-center justify-center',
     variants: {
       size: {
         xs: 'size-6 text-[10px] [&>svg]:size-3',
@@ -60,7 +60,7 @@
   export type AvatarVariant = VariantProps<typeof avatarVariants>['variant'];
 
   export const AvatarPropsSchema = v.strictObject({
-    /** Image source URL. @values https://i.pravatar.cc/150, /images/user.jpg */
+    /** Image source URL. @values data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect width='150' height='150' fill='%236366f1'/%3E%3Ctext x='75' y='85' text-anchor='middle' fill='white' font-size='48' font-family='sans-serif'%3EAB%3C/text%3E%3C/svg%3E, data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect width='150' height='150' fill='%23ec4899'/%3E%3Ctext x='75' y='85' text-anchor='middle' fill='white' font-size='48' font-family='sans-serif'%3ECD%3C/text%3E%3C/svg%3E, data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect width='150' height='150' fill='%2322c55e'/%3E%3Ctext x='75' y='85' text-anchor='middle' fill='white' font-size='48' font-family='sans-serif'%3EEF%3C/text%3E%3C/svg%3E */
     src: v.optional(StrSchema),
     /** Image alt text for accessibility. @values User avatar, Profile picture */
     alt: v.optional(StrSchema, '' as Str),
@@ -251,28 +251,30 @@
   {#if children}
     {@render children()}
   {:else}
-    {#if showImage}
-      <AvatarPrimitive.Image
-        src={validated.src}
-        alt={validated.alt}
-        data-slot="avatar-image"
-        class="aspect-square size-full object-cover"
-      />
-    {/if}
-    <AvatarPrimitive.Fallback
-      data-slot="avatar-fallback"
-      class="flex size-full items-center justify-center"
-    >
-      {#if fallback}
-        {@render fallback()}
-      {:else if icon}
-        {@render icon()}
-      {:else if showInitials}
-        <span class="font-medium leading-none">{initials}</span>
-      {:else}
-        <User class="opacity-60" />
+    <div class="size-full overflow-hidden rounded-[inherit]">
+      {#if showImage}
+        <AvatarPrimitive.Image
+          src={validated.src}
+          alt={validated.alt}
+          data-slot="avatar-image"
+          class="aspect-square size-full object-cover"
+        />
       {/if}
-    </AvatarPrimitive.Fallback>
+      <AvatarPrimitive.Fallback
+        data-slot="avatar-fallback"
+        class="flex size-full items-center justify-center"
+      >
+        {#if fallback}
+          {@render fallback()}
+        {:else if icon}
+          {@render icon()}
+        {:else if showInitials}
+          <span class="font-medium leading-none">{initials}</span>
+        {:else}
+          <User class="opacity-60" />
+        {/if}
+      </AvatarPrimitive.Fallback>
+    </div>
   {/if}
 
   {#if validated.active !== 'unset'}
