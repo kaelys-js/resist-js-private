@@ -100,7 +100,7 @@
     class: v.optional(StrSchema),
     /** Attribution text displayed below the quote. @values Forrest Gump, Albert Einstein, Source: MDN Docs */
     cite: v.optional(StrSchema),
-    /** URL for the citation source — wraps cite text in a link. @values https://example.com, https://mdn.dev */
+    /** URL for the citation source — wraps cite text in a link. @values https://example.com, https://mdn.dev @requires cite:Attribution */
     citeUrl: v.optional(StrSchema),
     /** Visual style variant. @values default, solid, bordered, plain, ghost */
     variant: v.optional(v.picklist(['default', 'solid', 'bordered', 'plain', 'ghost']), 'default'),

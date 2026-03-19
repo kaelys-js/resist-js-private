@@ -109,13 +109,13 @@
     label: v.optional(StrSchema),
     /** Array of key names auto-mapped to platform symbols. @values ["command", "k"], ["ctrl", "shift", "p"], ["alt", "tab"] */
     keys: v.optional(v.array(StrSchema)),
-    /** Visual style variant. @values default, outline, ghost, solid */
+    /** Visual style variant. @values default, outline, ghost, solid @requires label:⌘K */
     variant: v.optional(v.picklist(['default', 'outline', 'ghost', 'solid']), 'default'),
-    /** Text and padding size. @values xs, sm, md, lg, xl */
+    /** Text and padding size. @values xs, sm, md, lg, xl @requires label:⌘K */
     size: v.optional(v.picklist(['xs', 'sm', 'md', 'lg', 'xl']), 'sm'),
-    /** Color theme. @values default, primary, secondary, muted */
+    /** Color theme. @values default, primary, secondary, muted @requires label:⌘K */
     color: v.optional(v.picklist(['default', 'primary', 'secondary', 'muted']), 'default'),
-    /** Show on all breakpoints instead of hiding on mobile. @values true */
+    /** Show on all breakpoints instead of hiding on mobile. @values true @requires label:⌘K */
     alwaysVisible: v.optional(BoolSchema, false as Bool),
     /** Additional CSS classes. @values custom-class, ml-2 */
     class: v.optional(StrSchema),
