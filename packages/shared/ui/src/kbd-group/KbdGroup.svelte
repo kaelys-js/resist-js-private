@@ -4,7 +4,7 @@
 
   export const KbdGroupPropsSchema = v.strictObject({
     /** Separator character displayed between grouped keys. @values +, then, or */
-    separator: v.optional(StrSchema),
+    separator: v.optional(StrSchema, '+'),
     /** Additional CSS classes. @values gap-1, ml-2 */
     class: v.optional(StrSchema),
   });
@@ -17,6 +17,8 @@
    *
    * Wraps children in a flex container with consistent spacing and an
    * optional separator string (defaults to `+`) between each child.
+   * The separator is injected via a CSS `::before` pseudo-element on
+   * non-first-child `[data-slot="kbd"]` elements using a CSS custom property.
    *
    * @example
    * ```svelte
@@ -27,6 +29,7 @@
    * ```
    */
   import type { Snippet } from 'svelte';
+  import type { Str } from '@/schemas/common';
   import { safeParse } from '@/utils/result/safe';
   import { stripSvelteProps } from '../lens/lens-utils.js';
   import { cn } from '../utils.js';
@@ -44,8 +47,35 @@
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as KbdGroupProps;
   });
+
+  /** Resolved separator with default fallback. */
+  const separator: Str = $derived((validated.separator ?? '+') as Str);
 </script>
 
-<span data-slot="kbd-group" class={cn('inline-flex items-center gap-1', validated.class)}>
+<span
+  data-slot="kbd-group"
+  class={cn('kbd-group inline-flex items-center gap-1', validated.class)}
+  style:--kbd-separator="'{separator}'"
+>
   {@render allProps.children?.()}
 </span>
+
+<style>
+  .kbd-group > :global(:not(:first-child)[data-slot='kbd'])::before {
+    content: var(--kbd-separator, '+');
+    margin-inline: 0.125rem;
+    font-size: 0.625rem;
+    line-height: 1;
+    color: var(--color-muted-foreground);
+    opacity: 0.5;
+  }
+
+  .kbd-group > :global(:not(:first-child) > [data-slot='kbd'])::before {
+    content: var(--kbd-separator, '+');
+    margin-inline: 0.125rem;
+    font-size: 0.625rem;
+    line-height: 1;
+    color: var(--color-muted-foreground);
+    opacity: 0.5;
+  }
+</style>

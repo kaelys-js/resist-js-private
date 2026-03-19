@@ -172,6 +172,10 @@
 
   <h1 class="text-2xl font-semibold tracking-tight">{validated.title}</h1>
   <p class="text-muted-foreground mt-1 max-w-md text-sm leading-relaxed">{validated.description}</p>
+  <!-- Raw error message for screen readers when different from the locale-derived description -->
+  {#if validated.message && validated.message !== validated.description}
+    <p class="sr-only">{validated.message}</p>
+  {/if}
 
   <div class="mt-8 flex gap-3">
     <Button variant="default" href="/">
