@@ -1,12 +1,12 @@
 <script module lang="ts">
   import * as v from 'valibot';
-  import { StrSchema } from '@/schemas/common';
+  import { BoolSchema, StrSchema } from '@/schemas/common';
   import type { Snippet } from 'svelte';
 
   // @convert-to-lens — internal lens component, stripSvelteProps not needed
   export const LensSectionPropsSchema = v.strictObject({
-    /** Section heading. @values Basic Usage, With Form, Custom Styles */
-    title: StrSchema,
+    /** Section heading — omit to show badges only (e.g. variant cards). @values Basic Usage, With Form, Custom Styles */
+    title: v.optional(StrSchema),
     /** Optional description text below the heading. @values Default configuration., Advanced usage with custom props., Responsive layout example. */
     description: v.optional(StrSchema),
     /** The demo content to render inside the preview area. */
@@ -19,6 +19,14 @@
     propName: v.optional(StrSchema),
     /** Extra badges/content rendered after the propName badge in the header row. */
     badges: v.optional(v.custom<Snippet>((val: unknown): boolean => typeof val === 'function')),
+    /** Whether the section body is collapsible via header click. @values true, false */
+    collapsible: v.optional(BoolSchema),
+    /** Whether the section body is open (only used when collapsible is true). @values true, false */
+    open: v.optional(BoolSchema),
+    /** Callback fired when the collapsible header toggle is clicked. */
+    ontoggle: v.optional(
+      v.custom<() => void>((val: unknown): boolean => typeof val === 'function'),
+    ),
     /** Additional CSS classes for the root element. */
     class: v.optional(StrSchema),
   });
@@ -47,6 +55,7 @@
   import Badge from '../badge/badge.svelte';
   import CopyButton from '../copy-button/CopyButton.svelte';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import Code from '@lucide/svelte/icons/code';
   import { slide } from 'svelte/transition';
   import { cn } from '../utils.js';
@@ -58,6 +67,9 @@
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as LensSectionProps;
   });
+
+  /** Whether the section content is visible (controlled by parent when collapsible). */
+  const isOpen: Bool = $derived(validated.collapsible ? (validated.open ?? true) : true);
 
   /** Whether the code panel is visible. */
   let codeOpen: Bool = $state(false);
@@ -81,10 +93,39 @@
 </script>
 
 <section class={cn('overflow-hidden rounded-lg border bg-card', validated.class)}>
-  <div class="flex items-center justify-between border-b bg-muted/50 px-5 py-3">
-    <div>
+  <div
+    class={cn(
+      'flex items-center justify-between bg-muted/50 px-5 py-3',
+      isOpen && 'border-b',
+      validated.collapsible && 'cursor-pointer select-none',
+    )}
+    onclick={validated.collapsible ? validated.ontoggle : undefined}
+    onkeydown={validated.collapsible
+      ? (e: KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            validated.ontoggle?.();
+          }
+        }
+      : undefined}
+    role={validated.collapsible ? 'button' : undefined}
+    tabindex={validated.collapsible ? 0 : undefined}
+    aria-expanded={validated.collapsible ? isOpen : undefined}
+  >
+    <div class="min-w-0 flex-1">
       <div class="flex items-center gap-2">
-        <h3 class="text-sm font-semibold">{validated.title}</h3>
+        {#if validated.collapsible}
+          <ChevronRight
+            class={cn(
+              'size-3.5 shrink-0 text-muted-foreground transition-transform duration-200',
+              isOpen && 'rotate-90',
+            )}
+            aria-hidden="true"
+          />
+        {/if}
+        {#if validated.title}
+          <h3 class="text-sm font-semibold">{validated.title}</h3>
+        {/if}
         {#if validated.propName}
           <Badge variant="outline" class="rounded-md font-mono text-[10px]"
             >{validated.propName}</Badge
@@ -95,11 +136,18 @@
         {/if}
       </div>
       {#if validated.description}
-        <p class="mt-0.5 text-xs text-muted-foreground">{validated.description}</p>
+        <p class={cn('mt-0.5 text-xs text-muted-foreground', validated.collapsible && 'ml-5.5')}>
+          {validated.description}
+        </p>
       {/if}
     </div>
-    {#if validated.code}
-      <div class="flex items-center gap-1">
+    {#if validated.code && isOpen}
+      <div
+        class="flex items-center gap-1"
+        onclick={(e: MouseEvent) => e.stopPropagation()}
+        onkeydown={(e: KeyboardEvent) => e.stopPropagation()}
+        role="group"
+      >
         <button
           type="button"
           class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -120,17 +168,21 @@
     {/if}
   </div>
 
-  {#if validated.children}
-    <div class="p-6">
-      {@render validated.children()}
-    </div>
-  {/if}
+  {#if isOpen}
+    <div transition:slide={{ duration: 200 }}>
+      {#if validated.children}
+        <div class="p-6">
+          {@render validated.children()}
+        </div>
+      {/if}
 
-  {#if validated.code && codeOpen}
-    <div class="overflow-hidden border-t" transition:slide={{ duration: 200 }}>
-      <div bind:this={codeRef} class="min-w-0 overflow-x-auto p-4 text-sm">
-        {@render validated.code()}
-      </div>
+      {#if validated.code && codeOpen}
+        <div class="overflow-hidden border-t" transition:slide={{ duration: 200 }}>
+          <div bind:this={codeRef} class="min-w-0 overflow-x-auto p-4 text-sm">
+            {@render validated.code()}
+          </div>
+        </div>
+      {/if}
     </div>
   {/if}
 </section>

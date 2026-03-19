@@ -2439,7 +2439,7 @@
                                 <Tooltip.Content
                                   side="right"
                                   sideOffset={0}
-                                  class="max-w-96 max-h-[min(24rem,80vh)] overflow-y-auto"
+                                  class="max-w-[28rem] max-h-[min(24rem,80vh)] overflow-x-auto overflow-y-auto"
                                 >
                                   {#if itemMeta?.description}
                                     <p class="text-xs">{itemMeta.description}</p>

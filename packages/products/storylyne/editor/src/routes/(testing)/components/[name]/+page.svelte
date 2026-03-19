@@ -936,14 +936,19 @@
     changelog: true,
   });
 
-  /** Whether all sections are currently expanded. */
+  /** Set of variant keys whose cards are collapsed. */
+  let collapsedVariants: Set<Str> = $state(new Set());
+
+  /** Whether all sections AND all variant cards are expanded. */
   const allSectionsExpanded: Bool = $derived(
-    Object.values(sectionOpen).every((v) => v === true) as Bool,
+    (Object.values(sectionOpen).every((v) => v === true) && collapsedVariants.size === 0) as Bool,
   );
 
-  /** Whether all sections are currently collapsed. */
+  /** Whether all sections AND all variant cards are collapsed. */
   const allSectionsCollapsed: Bool = $derived(
-    Object.values(sectionOpen).every((v) => v === false) as Bool,
+    (Object.values(sectionOpen).every((v) => v === false) &&
+      collapsedVariants.size === allVariants.length &&
+      allVariants.length > 0) as Bool,
   );
 
   /**
@@ -953,6 +958,72 @@
    */
   function toggleSection(id: Str): Void {
     sectionOpen[id] = !sectionOpen[id];
+  }
+
+  /**
+   * Toggle an individual variant card open/closed.
+   *
+   * @param key - Variant key name
+   */
+  function toggleVariantCard(key: Str): Void {
+    const next: Set<Str> = new Set(collapsedVariants);
+    if (next.has(key)) {
+      next.delete(key);
+    } else {
+      next.add(key);
+    }
+    collapsedVariants = next;
+  }
+
+  /**
+   * Find the PropMeta for a variant key name.
+   *
+   * @param key - Variant key name
+   * @returns The matching PropMeta or undefined
+   */
+  function findPropForVariant(key: Str): PropMeta | undefined {
+    return props.find((p: PropMeta): boolean => p.name === key);
+  }
+
+  /** Props that have default values — used for the Default section badge. */
+  const propsWithDefaults: PropMeta[] = $derived(
+    props.filter((p: PropMeta): boolean => Boolean(p.default) && p.default.length > 0),
+  );
+
+  /**
+   * Get a simplified "accepts" string from PropMeta type info.
+   *
+   * @param prop - The prop metadata
+   * @returns Comma-separated accepted values, or empty string if none
+   */
+  function getVariantAccepts(prop: PropMeta): Str {
+    // Inline string literal union: 'a' | 'b' | 'c'
+    if (prop.type.includes(' | ')) {
+      const options: Str[] = prop.type.split(' | ').map((o: Str): Str => o.trim());
+      const allLiterals: Bool = options.every(
+        (o: Str): boolean => o.startsWith("'") || o === 'undefined' || o === 'null',
+      );
+      if (allLiterals) {
+        return options
+          .filter((o: Str): boolean => o !== 'undefined' && o !== 'null')
+          .map((o: Str): Str => o.replaceAll(/^'|'$/g, ''))
+          .join(', ');
+      }
+    }
+    // Resolved type definition
+    if (prop.typeDefinition?.includes(' | ')) {
+      const options: Str[] = prop.typeDefinition.split(' | ').map((o: Str): Str => o.trim());
+      const allLiterals: Bool = options.every(
+        (o: Str): boolean => o.startsWith("'") || o === 'undefined' || o === 'null',
+      );
+      if (allLiterals) {
+        return options
+          .filter((o: Str): boolean => o !== 'undefined' && o !== 'null')
+          .map((o: Str): Str => o.replaceAll(/^'|'$/g, ''))
+          .join(', ');
+      }
+    }
+    return '';
   }
 
   /* ------------------------------------------------------------------ */
@@ -2463,11 +2534,13 @@
       for (const key of Object.keys(sectionOpen)) {
         sectionOpen[key] = true;
       }
+      collapsedVariants = new Set();
     }
     function handleCollapseAll(): Void {
       for (const key of Object.keys(sectionOpen)) {
         sectionOpen[key] = false;
       }
+      collapsedVariants = new Set(allVariants.map((v: VariantKeyMeta): Str => v.key));
     }
     function handleExport(e: Event): Void {
       const formatId: Str = (e as CustomEvent).detail;
@@ -3195,7 +3268,65 @@
               </button>
               {#if sectionOpen.default}
                 <div transition:slide={{ duration: 200 }}>
-                  <LensSection title="Default" description="Component rendered with default props.">
+                  <LensSection title="Default">
+                    {#snippet badges()}
+                      {#if propsWithDefaults.length > 0}
+                        <Tooltip.Provider disableHoverableContent={false}>
+                          <Tooltip.Root delayDuration={200}>
+                            <Tooltip.Trigger>
+                              {#snippet child({ props: defaultsTip })}
+                                <Badge
+                                  {...defaultsTip}
+                                  variant="outline"
+                                  class="rounded-md font-mono text-[10px]"
+                                >
+                                  {propsWithDefaults.length} defaults
+                                </Badge>
+                              {/snippet}
+                            </Tooltip.Trigger>
+                            <Tooltip.Content
+                              sideOffset={4}
+                              class="w-96 max-w-[min(24rem,90vw)] max-h-[min(24rem,80vh)] overflow-y-auto overflow-hidden rounded-lg p-0"
+                            >
+                              <table class="w-full text-xs">
+                                <thead>
+                                  <tr class="border-b bg-muted/50">
+                                    <th
+                                      class="px-3 py-1.5 text-left font-medium text-muted-foreground"
+                                      >Prop</th
+                                    >
+                                    <th
+                                      class="px-3 py-1.5 text-left font-medium text-muted-foreground"
+                                      >Type</th
+                                    >
+                                    <th
+                                      class="px-3 py-1.5 text-right font-medium text-muted-foreground"
+                                      >Default</th
+                                    >
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {#each propsWithDefaults as dp}
+                                    <tr
+                                      class="border-b transition-colors last:border-b-0 hover:bg-muted/40"
+                                    >
+                                      <td class="px-3 py-1.5 font-mono">{dp.name}</td>
+                                      <td class="px-3 py-1.5 text-muted-foreground">{dp.type}</td>
+                                      <td class="px-3 py-1.5 text-right">
+                                        <span
+                                          class="rounded bg-emerald-500/10 px-1.5 py-0.5 font-mono font-medium text-emerald-600 dark:text-emerald-400"
+                                          >{dp.default}</span
+                                        >
+                                      </td>
+                                    </tr>
+                                  {/each}
+                                </tbody>
+                              </table>
+                            </Tooltip.Content>
+                          </Tooltip.Root>
+                        </Tooltip.Provider>
+                      {/if}
+                    {/snippet}
                     <LensComponentRenderer
                       component={PrimaryComponent}
                       {props}
@@ -3320,29 +3451,153 @@
                   <div class="space-y-4">
                     {#each allVariants as variantKey (variantKey.key)}
                       {@const singleMeta: VariantMeta = { variants: [variantKey] }}
+                      {@const variantProp: PropMeta | undefined = findPropForVariant(variantKey.key)}
+                      {@const variantAccepts: Str = variantProp ? getVariantAccepts(variantProp) : ''}
                       <div id="variant-{variantKey.key}" class="scroll-mt-60">
                         <LensSection
-                          title={toTitle(variantKey.key)}
-                          description="Options for the {variantKey.key} prop."
-                          propName={variantKey.key}
+                          collapsible
+                          open={!collapsedVariants.has(variantKey.key)}
+                          ontoggle={() => toggleVariantCard(variantKey.key)}
                         >
                           {#snippet badges()}
-                            {#if variantKey.requires && variantKey.requires.length > 0}
-                              <Tooltip.Root>
+                            <Tooltip.Provider disableHoverableContent={false}>
+                              <Tooltip.Root delayDuration={200}>
                                 <Tooltip.Trigger>
-                                  <Badge variant="secondary" class="rounded-md text-[10px]">
-                                    @requires
-                                  </Badge>
+                                  {#snippet child({ props: variantTip })}
+                                    <Badge
+                                      {...variantTip}
+                                      variant="outline"
+                                      class="rounded-md font-mono text-[10px]"
+                                    >
+                                      {variantKey.key}
+                                    </Badge>
+                                  {/snippet}
                                 </Tooltip.Trigger>
-                                <Tooltip.Content side="top" class="max-w-xs">
-                                  <p class="mb-1 text-xs font-semibold">Active @requires</p>
-                                  {#each variantKey.requires as req}
-                                    <p class="font-mono text-xs">
-                                      {req.prop}={req.value}
-                                    </p>
-                                  {/each}
+                                <Tooltip.Content
+                                  sideOffset={4}
+                                  class="w-96 max-w-[min(24rem,90vw)] max-h-[min(24rem,80vh)] overflow-y-auto overflow-hidden rounded-lg p-0"
+                                >
+                                  <table class="w-full text-xs">
+                                    <thead>
+                                      <tr class="border-b bg-muted/50">
+                                        <th
+                                          class="px-3 py-1.5 text-left font-medium text-muted-foreground"
+                                          >Property</th
+                                        >
+                                        <th
+                                          class="px-3 py-1.5 text-right font-medium text-muted-foreground"
+                                          >Value</th
+                                        >
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr
+                                        class="border-b transition-colors last:border-b-0 hover:bg-muted/40"
+                                      >
+                                        <td class="px-3 py-1.5 text-muted-foreground">Type</td>
+                                        <td class="px-3 py-1.5 text-right">
+                                          <span
+                                            class="rounded bg-blue-500/10 px-1.5 py-0.5 font-mono font-medium text-blue-600 dark:text-blue-400"
+                                            >{variantProp?.type ?? 'unknown'}</span
+                                          >
+                                        </td>
+                                      </tr>
+                                      {#if variantAccepts}
+                                        <tr
+                                          class="border-b transition-colors last:border-b-0 hover:bg-muted/40"
+                                        >
+                                          <td class="px-3 py-1.5 text-muted-foreground">Accepts</td>
+                                          <td class="px-3 py-1.5 text-right font-mono"
+                                            >{variantAccepts}</td
+                                          >
+                                        </tr>
+                                      {/if}
+                                      <tr
+                                        class="border-b transition-colors last:border-b-0 hover:bg-muted/40"
+                                      >
+                                        <td class="px-3 py-1.5 text-muted-foreground">Default</td>
+                                        <td class="px-3 py-1.5 text-right">
+                                          {#if variantProp?.default}
+                                            <span
+                                              class="rounded bg-emerald-500/10 px-1.5 py-0.5 font-mono font-medium text-emerald-600 dark:text-emerald-400"
+                                              >{variantProp.default}</span
+                                            >
+                                          {:else}
+                                            <span class="italic text-muted-foreground">none</span>
+                                          {/if}
+                                        </td>
+                                      </tr>
+                                      <tr
+                                        class="border-b transition-colors last:border-b-0 hover:bg-muted/40"
+                                      >
+                                        <td class="px-3 py-1.5 text-muted-foreground">Required</td>
+                                        <td class="px-3 py-1.5 text-right">
+                                          {#if variantProp?.optional}
+                                            <span
+                                              class="rounded-full bg-muted px-2 py-0.5 font-medium text-muted-foreground"
+                                              >No</span
+                                            >
+                                          {:else}
+                                            <span
+                                              class="rounded-full bg-red-500/10 px-2 py-0.5 font-medium text-red-600 dark:text-red-400"
+                                              >Yes</span
+                                            >
+                                          {/if}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
                                 </Tooltip.Content>
                               </Tooltip.Root>
+                            </Tooltip.Provider>
+                            <!-- @requires badge -->
+                            {#if variantKey.requires && variantKey.requires.length > 0}
+                              <Tooltip.Provider disableHoverableContent={false}>
+                                <Tooltip.Root delayDuration={200}>
+                                  <Tooltip.Trigger>
+                                    {#snippet child({ props: requiresTip })}
+                                      <Badge
+                                        {...requiresTip}
+                                        variant="secondary"
+                                        class="rounded-md text-[10px]"
+                                      >
+                                        @requires
+                                      </Badge>
+                                    {/snippet}
+                                  </Tooltip.Trigger>
+                                  <Tooltip.Content
+                                    sideOffset={4}
+                                    class="w-96 max-w-[min(24rem,90vw)] max-h-[min(24rem,80vh)] overflow-y-auto overflow-hidden rounded-lg p-0"
+                                  >
+                                    <table class="w-full text-xs">
+                                      <thead>
+                                        <tr class="border-b bg-muted/50">
+                                          <th
+                                            class="px-3 py-1.5 text-left font-medium text-muted-foreground"
+                                            >Prop</th
+                                          >
+                                          <th
+                                            class="px-3 py-1.5 text-left font-medium text-muted-foreground"
+                                            >Required Value</th
+                                          >
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {#each variantKey.requires as req}
+                                          <tr
+                                            class="border-b transition-colors last:border-b-0 hover:bg-muted/40"
+                                          >
+                                            <td class="px-3 py-1.5 font-mono">{req.prop}</td>
+                                            <td class="px-3 py-1.5 font-mono text-muted-foreground"
+                                              >{req.value}</td
+                                            >
+                                          </tr>
+                                        {/each}
+                                      </tbody>
+                                    </table>
+                                  </Tooltip.Content>
+                                </Tooltip.Root>
+                              </Tooltip.Provider>
                             {/if}
                           {/snippet}
                           <LensComponentRenderer
