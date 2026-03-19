@@ -36,6 +36,15 @@
   import AppLogo from '@/ui/app-logo/AppLogo.svelte';
   import Badge from '@/ui/badge/badge.svelte';
   import { extractTokens, type ThemeTokenSet } from '@/ui/lens/extract-tokens.js';
+  import {
+    auditAccessibility,
+    type A11yRuleResult,
+    type A11yAuditResult,
+  } from '@/ui/lens/detect-accessibility.js';
+  import {
+    detectBrowserSupport,
+    type BrowserSupportResult,
+  } from '@/ui/lens/detect-browser-support.js';
   import { fade, slide } from 'svelte/transition';
   import { setContext, untrack, type Component } from 'svelte';
   import ComponentIcon from '@lucide/svelte/icons/component';
@@ -534,9 +543,61 @@
     });
   }
 
+  // — Accessibility audit (global) —
+  const a11ySourceModules: Record<Str, Str> = import.meta.glob(
+    ['/src/**/*.{svelte,css}', '/../../../shared/ui/src/**/*.{svelte,css,ts}'],
+    { query: '?raw', import: 'default', eager: true },
+  ) as unknown as Record<Str, Str>;
+
+  /**
+   * Convert glob path to workspace-relative path.
+   *
+   * @param globPath - Path from import.meta.glob
+   * @returns Workspace-relative path
+   */
+  function toWorkspacePath(globPath: Str): Str {
+    const s: string = globPath as string;
+    const sharedIdx: number = s.indexOf('/shared/');
+    if (sharedIdx >= 0) return s.slice(sharedIdx + 1) as Str;
+    return `editor${s}` as Str;
+  }
+
+  /** Accessibility audit result (global). */
+  const a11yResult: A11yAuditResult = auditAccessibility(
+    Object.fromEntries(
+      Object.entries(a11ySourceModules).map(([path, content]: [Str, unknown]): [Str, Str] => [
+        toWorkspacePath(path as Str),
+        String(content) as Str,
+      ]),
+    ),
+  );
+
+  /** Failing accessibility rules (global). */
+  const a11yFailingRules: A11yRuleResult[] = a11yResult.rules.filter(
+    (r: A11yRuleResult): boolean => r.status === 'fail',
+  );
+
+  // — Browser support analysis (global) —
+  const browserCssModules: Record<Str, Str> = import.meta.glob(
+    ['/src/app.css', '/../../shared/ui/src/**/*.{svelte,css}'],
+    { query: '?raw', import: 'default', eager: true },
+  ) as unknown as Record<Str, Str>;
+
+  /** Browser support result (global). */
+  const browserResult: BrowserSupportResult = detectBrowserSupport(
+    Object.fromEntries(
+      Object.entries(browserCssModules).map(([path, content]: [Str, unknown]): [Str, Str] => [
+        (path.split('/').pop() ?? path) as Str,
+        String(content) as Str,
+      ]),
+    ),
+  );
+
   // — Share compatibility data with child pages via Svelte context —
   setContext('lens-compat-by-name', compatByName);
   setContext('lens-rule-names', LENS_RULE_NAMES);
+  setContext('lens-a11y-failures', a11yFailingRules);
+  setContext('lens-unsupported-browsers', browserResult.unsupported);
 
   // — Design Tokens search items —
   const cssRawSource: Str = Object.values(cssRawModules)[0] ?? '';
@@ -2364,9 +2425,7 @@
                               </Tooltip.Root>
                             </Tooltip.Provider>
                             <Sidebar.MenuAction
-                              class={compatTooltipOpenName === name
-                                ? 'pointer-events-none'
-                                : ''}
+                              class={compatTooltipOpenName === name ? 'pointer-events-none' : ''}
                             >
                               <Tooltip.Provider>
                                 <Tooltip.Root delayDuration={300}>
