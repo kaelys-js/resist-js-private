@@ -222,4 +222,9 @@ export const LENS_RULE_NAMES: readonly Str[] = [
   'No bare Valibot primitives — use StrSchema/NumSchema, not v.string()/v.number()' as Str,
   'Examples must match files — declared example names in lens.ts need matching .svelte files' as Str,
   'tv-variant tag required — components using tv() must tag with tv-variant in lens.ts' as Str,
+  '@values must not quote — picklist values in @values must not be wrapped in quotes' as Str,
+  'Optional fields need defaults — v.optional() picklist/boolean must have a default value' as Str,
+  'Must destructure $props() — use { ...restProps } for DOM attribute passthrough' as Str,
+  'Must spread {...restProps} — root element must spread restProps for Bits UI compat' as Str,
+  'Snippets bypass stripSvelteProps — children/icon/footer must not pass through stripSvelteProps' as Str,
 ];

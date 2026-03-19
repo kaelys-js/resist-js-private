@@ -692,6 +692,100 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
     }
   }
 
+  // Rules 18–22: Skip if @convert-to-lens
+  if (!hasConvertMarker && input.source) {
+    // Rule 18: @values must not contain quoted strings
+    const valuesMatches: RegExpMatchArray[] = [...input.source.matchAll(/@values\s+(.+)/g)];
+    for (const vm of valuesMatches) {
+      const valuesStr: Str = ((vm[1] ?? '') as string).trim() as Str;
+      if ((valuesStr as string).startsWith('{') || (valuesStr as string).startsWith('(')) continue;
+      if (/[()<>]/.test(valuesStr as string)) continue;
+      if (/'[^']+'/g.test(valuesStr as string)) {
+        violations.push({
+          rule: 18 as Num,
+          message: `@values has quoted strings: ${valuesStr}` as Str,
+        });
+        break;
+      }
+    }
+
+    // Rule 19: v.optional() picklist/boolean must have default value
+    if (input.source.includes('v.strictObject(')) {
+      const srcLines: string[] = input.source.split('\n');
+      for (let li: number = 0; li < srcLines.length; li++) {
+        const srcLine: string = srcLines[li] ?? '';
+        if (/v\.optional\(\s*v\.picklist\(/.test(srcLine)) {
+          const chunk: string = srcLines.slice(li, li + 5).join(' ');
+          if (/\]\)\s*\)/.test(chunk) && !/\]\)\s*,/.test(chunk)) {
+            violations.push({
+              rule: 19 as Num,
+              message: 'v.optional(v.picklist(...)) missing default value' as Str,
+            });
+            break;
+          }
+        }
+        if (/v\.optional\(\s*BoolSchema\s*\)/.test(srcLine)) {
+          violations.push({
+            rule: 19 as Num,
+            message: 'v.optional(BoolSchema) missing default value' as Str,
+          });
+          break;
+        }
+      }
+    }
+
+    // Rule 20: Must destructure $props() with ...restProps
+    if (input.source.includes('v.strictObject(') && !input.source.includes('...restProps')) {
+      violations.push({
+        rule: 20 as Num,
+        message: 'Missing ...restProps destructure in $props()' as Str,
+      });
+    }
+
+    // Rule 21: Root element must spread {...restProps}
+    if (input.source.includes('...restProps')) {
+      const templateStart: number = input.source.lastIndexOf('</script>');
+      if (templateStart !== -1) {
+        const template: Str = input.source.slice(templateStart) as Str;
+        if (!(template as string).includes('{...restProps}')) {
+          violations.push({
+            rule: 21 as Num,
+            message: 'Has ...restProps but does not spread on root element' as Str,
+          });
+        }
+      }
+    }
+
+    // Rule 22: Snippet/callback props must not pass through stripSvelteProps
+    if (input.source.includes('stripSvelteProps(')) {
+      const stripCallRe: RegExp = /stripSvelteProps\(\{([^}]+)\}\)/gs;
+      let stripMatch: RegExpExecArray | null = stripCallRe.exec(input.source);
+      while (stripMatch) {
+        const args: Str = (stripMatch[1] ?? '') as string as Str;
+        const snippetNames: string[] = ['children', 'icon', 'footer', 'child', 'header', 'trigger'];
+        const found: string[] = snippetNames.filter((p: string): boolean =>
+          new RegExp(`\\b${p}\\b`).test(args as string),
+        );
+        if (found.length > 0) {
+          violations.push({
+            rule: 22 as Num,
+            message: `Snippet props [${found.join(', ')}] passed through stripSvelteProps` as Str,
+          });
+        }
+        stripMatch = stripCallRe.exec(input.source);
+      }
+    }
+  }
+
+  // Auto-fail R18-R22 for @convert-to-lens components
+  if (hasConvertMarker) {
+    violations.push({ rule: 18 as Num, message: 'Skipped — needs Lens conversion first' as Str });
+    violations.push({ rule: 19 as Num, message: 'Skipped — needs Lens conversion first' as Str });
+    violations.push({ rule: 20 as Num, message: 'Skipped — needs Lens conversion first' as Str });
+    violations.push({ rule: 21 as Num, message: 'Skipped — needs Lens conversion first' as Str });
+    violations.push({ rule: 22 as Num, message: 'Skipped — needs Lens conversion first' as Str });
+  }
+
   return {
     compatible: violations.length === 0,
     violations,
