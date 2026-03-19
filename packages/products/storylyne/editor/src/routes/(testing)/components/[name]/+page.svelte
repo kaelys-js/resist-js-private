@@ -20,6 +20,7 @@
     extractProps,
     extractDescription,
     extractPropsVariants,
+    buildBaseProps,
   } from '@/ui/lens/extract-props.js';
   import { extractVariants } from '@/ui/lens/extract-variants.js';
   import {
@@ -320,6 +321,10 @@
   let componentDescription: Str = $state('');
   let lensMeta: LensMeta | null = $state(null);
   let lensContextWrapper: Component | null = $state(null);
+  /** Child component for group wrappers (loaded from lensMeta.childComponent). */
+  let childComponent: Component | null = $state(null);
+  /** Props metadata for the child component (for buildBaseProps). */
+  let childProps: PropMeta[] = $state([]);
   let loading: Bool = $state(true);
   let showSkeleton: Bool = $state(false);
   let loadError: Str | null = $state(null);
@@ -566,6 +571,8 @@
     componentDescription = '';
     lensMeta = null;
     lensContextWrapper = null;
+    childComponent = null;
+    childProps = [];
     loading = true;
     loadError = null;
 
@@ -645,6 +652,35 @@
           }
         }
 
+        // 3b. Load child component for group wrappers (e.g., KbdGroup → Kbd)
+        if (lensMeta?.childComponent) {
+          const childName: Str = lensMeta.childComponent;
+          const childCompKey: Str | undefined =
+            Object.keys(componentModules).find(
+              (k: Str): boolean =>
+                extractDir(k) === childName && extractStem(k) === childName && !isInternalFile(k),
+            ) ??
+            Object.keys(componentModules).find(
+              (k: Str): boolean => extractDir(k) === childName && !isInternalFile(k),
+            );
+          if (childCompKey) {
+            const childMod: unknown = await componentModules[childCompKey]?.();
+            if (cancelled) return;
+            const cm = childMod as Record<Str, unknown>;
+            childComponent = cm.default as Component;
+          }
+          // Load child component raw source for prop extraction
+          const childSourceKey: Str | undefined = findPrimaryKey(childName, rawSources);
+          if (childSourceKey) {
+            const childSrc: Str = rawSources[childSourceKey] ?? '';
+            const childTsSources: Str[] = Object.values(rawTsSources);
+            childProps = extractProps(
+              childSrc,
+              childTsSources.length > 0 ? childTsSources : undefined,
+            );
+          }
+        }
+
         // 4. Load example components + raw sources
         const exKeys: Str[] = Object.keys(exampleLiveModules).filter((k: Str): boolean =>
           k.includes(`/${currentName}/examples/`),
@@ -721,6 +757,11 @@
     if (!lensMeta) return false;
     return lensMeta.tags.includes('compound');
   });
+
+  /** Base props for child component instances inside group wrappers. */
+  const childBaseProps: Record<Str, unknown> = $derived(
+    childProps.length > 0 ? buildBaseProps(childProps) : {},
+  );
 
   /** Categorized dependency tree extracted from raw component source. */
   const deps: DepTree = $derived(
@@ -3113,6 +3154,16 @@
             {/if}
           </section>
 
+          <!-- Child component snippet for group wrappers (e.g., KbdGroup renders 3 Kbd children) -->
+          {#snippet childContent()}
+            {#if childComponent}
+              {@const ChildComp = childComponent}
+              <ChildComp {...childBaseProps} />
+              <ChildComp {...childBaseProps} />
+              <ChildComp {...childBaseProps} />
+            {/if}
+          {/snippet}
+
           <!-- ═══ Default ═══ -->
           {#if PrimaryComponent}
             <section id="default" class="scroll-mt-60">
@@ -3139,6 +3190,7 @@
                       label={lensMeta?.defaultLabel ?? 'Example'}
                       silent={isCompound}
                       contextWrapper={lensContextWrapper ?? undefined}
+                      innerContent={childComponent ? childContent : undefined}
                     />
                   </LensSection>
                 </div>
@@ -3270,6 +3322,7 @@
                             silent={isCompound}
                             contextWrapper={lensContextWrapper ?? undefined}
                             sectionId="variants"
+                            innerContent={childComponent ? childContent : undefined}
                           />
                         </LensSection>
                       </div>

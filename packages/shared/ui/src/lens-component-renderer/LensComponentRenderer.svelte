@@ -32,6 +32,10 @@
     ),
     /** Section identifier for listening to section-level setting events. @values 'variants' | 'examples' */
     sectionId: v.optional(StrSchema),
+    /** Custom inner content rendered inside `<Target>` instead of the label text. Used for group components that render child component instances. */
+    innerContent: v.optional(
+      v.custom<Snippet>((val: unknown): boolean => typeof val === 'function'),
+    ),
   });
   /** Props for the LensComponentRenderer component. */
   export type LensComponentRendererProps = v.InferOutput<typeof LensComponentRendererPropsSchema>;
@@ -190,6 +194,7 @@
     silent = false,
     contextWrapper: ContextWrapper,
     sectionId,
+    innerContent,
   }: LensComponentRendererProps = $props();
 
   const baseProps: Record<Str, unknown> = $derived(buildBaseProps(propsMeta));
@@ -10930,8 +10935,8 @@
                         {@render children()}
                       {:else if ContextWrapper}
                         <ContextWrapper>
-                          <Target {...baseProps} {...extraProps}>
-                            {#if useIcon}
+                          {#if useIcon}
+                            <Target {...baseProps} {...extraProps}>
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="16"
@@ -10945,31 +10950,41 @@
                               >
                                 <circle cx="12" cy="12" r="10"></circle>
                               </svg>
-                            {:else}
-                              {label}
-                            {/if}
-                          </Target>
-                        </ContextWrapper>
-                      {:else}
-                        <Target {...baseProps} {...extraProps}>
-                          {#if useIcon}
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            >
-                              <circle cx="12" cy="12" r="10"></circle>
-                            </svg>
+                            </Target>
+                          {:else if innerContent}
+                            <Target {...baseProps} {...extraProps}>
+                              {@render innerContent()}
+                            </Target>
+                          {:else if label}
+                            <Target {...baseProps} {...extraProps}>{label}</Target>
                           {:else}
-                            {label}
+                            <Target {...baseProps} {...extraProps} />
                           {/if}
+                        </ContextWrapper>
+                      {:else if useIcon}
+                        <Target {...baseProps} {...extraProps}>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <circle cx="12" cy="12" r="10"></circle>
+                          </svg>
                         </Target>
+                      {:else if innerContent}
+                        <Target {...baseProps} {...extraProps}>
+                          {@render innerContent()}
+                        </Target>
+                      {:else if label}
+                        <Target {...baseProps} {...extraProps}>{label}</Target>
+                      {:else}
+                        <Target {...baseProps} {...extraProps} />
                       {/if}
                     </LensStats>
                   {/key}
