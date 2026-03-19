@@ -98,7 +98,7 @@
   export const BlockquotePropsSchema = v.strictObject({
     /** Additional CSS classes for the root element. @values custom-class, max-w-lg */
     class: v.optional(StrSchema),
-    /** Attribution text displayed below the quote. @values — Forrest Gump, — Albert Einstein, Source: MDN Docs */
+    /** Attribution text displayed below the quote. @values Forrest Gump, Albert Einstein, Source: MDN Docs */
     cite: v.optional(StrSchema),
     /** URL for the citation source — wraps cite text in a link. @values https://example.com, https://mdn.dev */
     citeUrl: v.optional(StrSchema),
@@ -123,7 +123,7 @@
     iconSize: v.optional(NumSchema),
     /** Border radius for bordered/solid variants. @values none, sm, md, lg, full */
     radius: v.optional(v.picklist(['none', 'sm', 'md', 'lg', 'full']), 'none'),
-    /** Quote text content. @values {#snippet children()}"Life is like a box of chocolates."{/snippet} */
+    /** Quote text content. @values {#snippet children()}Life is like a box of chocolates.{/snippet} */
     children: v.optional(v.custom<Snippet>(() => true)),
     /** Custom icon snippet replacing the default quote-mark SVG. @values {#snippet icon()}<MyIcon />{/snippet} */
     icon: v.optional(v.custom<Snippet>(() => true)),

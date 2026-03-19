@@ -11,7 +11,7 @@
   export const KEY_SYMBOLS: Record<string, string> = {
     command: '⌘',
     cmd: '⌘',
-    shift: '⇧',
+    shift: 'Shift',
     option: '⌥',
     alt: '⌥',
     ctrl: '⌃',
@@ -105,9 +105,9 @@
   export type KbdColor = VariantProps<typeof kbdVariants>['color'];
 
   export const KbdPropsSchema = v.strictObject({
-    /** Formatted shortcut string rendered as-is. @values ⌘B, Ctrl+K, Esc, ⌘⇧P */
+    /** Formatted shortcut string rendered as-is. @values ⌘K */
     label: v.optional(StrSchema),
-    /** Array of key names auto-mapped to platform symbols. @values command, shift, k */
+    /** Array of key names auto-mapped to platform symbols. @values ["command", "k"], ["ctrl", "shift", "p"], ["alt", "tab"] */
     keys: v.optional(v.array(StrSchema)),
     /** Visual style variant. @values default, outline, ghost, solid */
     variant: v.optional(v.picklist(['default', 'outline', 'ghost', 'solid']), 'default'),
@@ -115,7 +115,7 @@
     size: v.optional(v.picklist(['xs', 'sm', 'md', 'lg', 'xl']), 'sm'),
     /** Color theme. @values default, primary, secondary, muted */
     color: v.optional(v.picklist(['default', 'primary', 'secondary', 'muted']), 'default'),
-    /** Show on all breakpoints instead of hiding on mobile. @values true, false */
+    /** Show on all breakpoints instead of hiding on mobile. @values true */
     alwaysVisible: v.optional(BoolSchema, false as Bool),
     /** Additional CSS classes. @values custom-class, ml-2 */
     class: v.optional(StrSchema),

@@ -5,4 +5,5 @@ export const meta: LensMeta = {
   tags: ['blockquote', 'quote', 'citation', 'text', 'testimonial', 'tv-variant'],
   description:
     'Styled quotation block with attribution, decorative icon, color themes, and multiple visual variants.',
+  defaultLabel: 'Life is like a box of chocolates.',
 };

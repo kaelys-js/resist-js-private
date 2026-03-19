@@ -230,6 +230,8 @@ export const LensMetaSchema = v.strictObject({
   status: v.optional(LensStatusSchema),
   /** Optional list of breaking changes with migration notes. */
   breakingChanges: v.optional(v.array(BreakingChangeSchema)),
+  /** Default slot label text for LensComponentRenderer cards. Overrides the generic "Example" placeholder. */
+  defaultLabel: v.optional(StrSchema),
 });
 export type LensMeta = v.InferOutput<typeof LensMetaSchema>;
 
