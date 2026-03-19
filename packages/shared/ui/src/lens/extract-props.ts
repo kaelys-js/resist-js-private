@@ -248,7 +248,7 @@ function extractSchemaBasedProps(source: string, supplementarySources?: string[]
     result.push({
       name: fieldName,
       type: readableType,
-      default: '',
+      default: fieldDef.defaultValue ?? '',
       description: fieldDef.description,
       bindable: false,
       typeDefinition: rawTypeDef ?? validatorFallback,
@@ -722,6 +722,8 @@ type TypeDefField = {
   optional: boolean;
   /** Original Valibot validator expression (for schema-based extraction). */
   validatorExpr?: string;
+  /** Default value extracted from `v.optional(schema, defaultValue)` two-argument form. */
+  defaultValue?: string;
 };
 
 /** Result of resolving a named type definition. */
@@ -1127,6 +1129,7 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
       const validatorExpr: string = expr.replace(/,\s*$/, '').trim();
       const isOptional: boolean = validatorExpr.trimStart().startsWith('v.optional(');
       const readableType: string = valibotToReadableType(validatorExpr);
+      const parsedDefault: string | undefined = extractOptionalDefault(validatorExpr);
       types.set(fieldName, readableType);
       fields.set(fieldName, {
         type: readableType,
@@ -1134,6 +1137,7 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
         mockValues: pendingMockValues.length > 0 ? [...pendingMockValues] : [],
         optional: isOptional,
         validatorExpr,
+        defaultValue: parsedDefault,
       });
       pendingDescription = '';
       pendingMockValues = [];
@@ -1141,6 +1145,59 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
   }
 
   return { types, fields };
+}
+
+/**
+ * Split a string on the first top-level comma, respecting nested parens/brackets/braces.
+ *
+ * Used to separate `v.optional(schema, defaultValue)` into `[schema, defaultValue]`.
+ * If no top-level comma exists, returns `[input, undefined]`.
+ *
+ * @param input - The string to split
+ * @returns Tuple of [first part, rest or undefined]
+ */
+function splitFirstTopLevelComma(input: string): [string, string | undefined] {
+  let depth: number = 0;
+  for (let i: number = 0; i < input.length; i++) {
+    const ch: string = input[i] ?? '';
+    if (ch === '(' || ch === '[' || ch === '{') depth++;
+    else if (ch === ')' || ch === ']' || ch === '}') depth--;
+    else if (ch === ',' && depth === 0) {
+      return [input.slice(0, i).trim(), input.slice(i + 1).trim()];
+    }
+  }
+  return [input.trim(), undefined];
+}
+
+/**
+ * Extract the default value from a `v.optional(schema, defaultValue)` expression.
+ *
+ * Strips surrounding quotes, `as Type` casts, and common wrappers to produce
+ * a clean default string for display in the Props Table.
+ *
+ * @param validatorExpr - Full validator expression (e.g., `v.optional(v.picklist([...]), 'default')`)
+ * @returns The default value string, or undefined if no default
+ */
+function extractOptionalDefault(validatorExpr: string): string | undefined {
+  const trimmed: string = validatorExpr.trim();
+  if (!trimmed.startsWith('v.optional(')) return undefined;
+  const inner: string = trimmed.slice('v.optional('.length, -1);
+  const [, defaultPart] = splitFirstTopLevelComma(inner);
+  if (!defaultPart) return undefined;
+  // Clean up: strip trailing commas, `as Type` casts, whitespace
+  const cleaned: string = defaultPart
+    .trim()
+    .replace(/,\s*$/, '')
+    .replace(/\s+as\s+\w+$/i, '')
+    .trim();
+  // Remove surrounding single/double quotes
+  if (
+    (cleaned.startsWith("'") && cleaned.endsWith("'")) ||
+    (cleaned.startsWith('"') && cleaned.endsWith('"'))
+  ) {
+    return cleaned.slice(1, -1);
+  }
+  return cleaned;
 }
 
 /**
@@ -1152,10 +1209,11 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
 function valibotToReadableType(expr: string): string {
   const trimmed: string = expr.trim();
 
-  // v.optional(...) — unwrap and mark optional
+  // v.optional(...) — unwrap, extracting only the schema (first argument)
   if (trimmed.startsWith('v.optional(')) {
     const inner: string = trimmed.slice('v.optional('.length, -1);
-    return valibotToReadableType(inner);
+    const schemaArg: string = splitFirstTopLevelComma(inner)[0] ?? inner;
+    return valibotToReadableType(schemaArg);
   }
 
   // v.nullable(...) — unwrap and append ' | null'

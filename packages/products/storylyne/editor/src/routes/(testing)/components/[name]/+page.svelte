@@ -306,6 +306,12 @@
 
   let rawSource: Str = $state('');
   let props: PropMeta[] = $state([]);
+
+  /** Whether the component has any required props (not optional, no default). */
+  const hasRequiredProps: boolean = $derived(
+    props.some((p: PropMeta): boolean => !p.optional && !p.default),
+  );
+
   let variantMeta: VariantMeta | null = $state(null);
   let PrimaryComponent: Component | null = $state(null);
   let lensExamples: LensExample[] = $state([]);
@@ -3654,28 +3660,40 @@
                             {/if}
                             <div class="p-4 pt-2">
                               {#if test.id === 'missing-props'}
-                                <svelte:boundary
-                                  onerror={(error) =>
-                                    recordErrorBoundaryCatch('missing-props' as Str, error)}
-                                >
-                                  <LensComponentRenderer
-                                    component={PrimaryComponent}
-                                    tagName={toTag(name)}
-                                    componentName={name}
-                                    label=""
-                                    silent={true}
-                                    contextWrapper={lensContextWrapper ?? undefined}
-                                    codeText={`<!-- Missing required props — validation error -->\n<${toTag(name)} />`}
-                                  />
-                                  {#snippet failed(error)}
-                                    <LensError
-                                      title="Validation Error"
-                                      description={error instanceof Error
-                                        ? error.message
-                                        : String(error)}
+                                {#if hasRequiredProps}
+                                  <svelte:boundary
+                                    onerror={(error) =>
+                                      recordErrorBoundaryCatch('missing-props' as Str, error)}
+                                  >
+                                    <LensComponentRenderer
+                                      component={PrimaryComponent}
+                                      tagName={toTag(name)}
+                                      componentName={name}
+                                      label=""
+                                      silent={true}
+                                      contextWrapper={lensContextWrapper ?? undefined}
+                                      codeText={`<!-- Missing required props — validation error -->\n<${toTag(name)} />`}
                                     />
-                                  {/snippet}
-                                </svelte:boundary>
+                                    {#snippet failed(error)}
+                                      <LensError
+                                        title="Validation Error"
+                                        description={error instanceof Error
+                                          ? error.message
+                                          : String(error)}
+                                      />
+                                    {/snippet}
+                                  </svelte:boundary>
+                                {:else}
+                                  <div
+                                    class="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed bg-muted/20 py-8 text-center"
+                                  >
+                                    <CircleCheck class="size-6 text-emerald-500" />
+                                    <p class="text-sm font-medium">No required props</p>
+                                    <p class="text-xs text-muted-foreground">
+                                      All props have defaults — component renders without any props.
+                                    </p>
+                                  </div>
+                                {/if}
                               {:else if test.id === 'invalid-props'}
                                 <svelte:boundary
                                   onerror={(error) =>
