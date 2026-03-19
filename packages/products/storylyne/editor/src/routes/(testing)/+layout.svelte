@@ -928,6 +928,7 @@
     new: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400' as Str,
     updated: 'bg-blue-500/15 text-blue-700 dark:text-blue-400' as Str,
     deprecated: 'bg-red-500/15 text-red-700 dark:text-red-400' as Str,
+    placeholder: 'bg-amber-500/15 text-amber-700 dark:text-amber-400' as Str,
   };
 
   /** Status badge labels. */
@@ -935,6 +936,7 @@
     new: 'New' as Str,
     updated: 'Updated' as Str,
     deprecated: 'Deprecated' as Str,
+    placeholder: 'Placeholder' as Str,
   };
 
   /**
@@ -1281,6 +1283,32 @@
       !sidebarRecentOpen &&
       Object.values(sidebarCategoryOpen).every((v) => v === false),
   );
+
+  /** Saved category open state before search — restored when search is cleared. */
+  let preSidebarSearchState: Record<Str, boolean> | null = $state(null);
+
+  /**
+   * Auto-expand all filtered categories while the sidebar search is active.
+   * Saves pre-search state and restores it when the search is cleared.
+   */
+  $effect(() => {
+    if (sidebarFilter.length > 0) {
+      // Save current state before first search keystroke
+      if (preSidebarSearchState === null) {
+        preSidebarSearchState = { ...sidebarCategoryOpen };
+      }
+      // Expand all categories that have matching results
+      for (const group of filteredGroupedComponents) {
+        sidebarCategoryOpen[group.name] = true;
+      }
+    } else if (preSidebarSearchState !== null) {
+      // Restore pre-search state when search is cleared
+      for (const [cat, wasOpen] of Object.entries(preSidebarSearchState)) {
+        sidebarCategoryOpen[cat as Str] = wasOpen;
+      }
+      preSidebarSearchState = null;
+    }
+  });
 
   /**
    * Expand all sidebar collapsible sections.

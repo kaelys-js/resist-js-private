@@ -7,6 +7,7 @@
    * and collapsible date groups.
    */
   import type { Bool, Num, Str } from '@/schemas/common';
+  import { toTitle } from '@/ui/lens/lens-utils.js';
   import LensEmpty from '@/ui/lens-empty/LensEmpty.svelte';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
   import * as Tooltip from '@/ui/tooltip/index.js';
@@ -1316,8 +1317,8 @@
                       {#each entry.components.slice(0, 3) as comp}
                         <a
                           href="/components/{comp}"
-                          class="rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                          >{comp}</a
+                          class="inline-flex items-center gap-1 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                          ><ComponentIcon class="size-3 shrink-0 opacity-60" />{comp}</a
                         >
                       {/each}
                       {#if entry.components.length > 3}
@@ -1406,15 +1407,43 @@
                   {#each entry.components.slice(0, 3) as comp}
                     <a
                       href="/components/{comp}"
-                      class="hidden rounded border bg-muted/50 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground hover:text-foreground sm:inline"
+                      class="hidden items-center gap-1 rounded border bg-muted/50 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground hover:text-foreground sm:inline-flex"
                     >
+                      <ComponentIcon class="size-3 shrink-0 opacity-60" />
                       {comp}
                     </a>
                   {/each}
                   {#if entry.components.length > 3}
-                    <span class="hidden text-[10px] text-muted-foreground sm:inline">
-                      +{entry.components.length - 3}
-                    </span>
+                    <Tooltip.Root delayDuration={300}>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props: moreCompTip })}
+                          <span
+                            class="hidden cursor-default items-center gap-1 rounded border bg-muted/50 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground/60 sm:inline-flex"
+                            {...moreCompTip}
+                          >
+                            +{entry.components.length - 3} more
+                          </span>
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content
+                        side="bottom"
+                        sideOffset={4}
+                        class="max-h-64 overflow-y-auto p-3"
+                      >
+                        <div class="flex flex-col gap-0.5">
+                          {#each entry.components.slice(3) as extra (extra)}
+                            <a
+                              href="/components/{extra}"
+                              class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                            >
+                              <ComponentIcon class="size-3 shrink-0 opacity-50" />
+                              <span class="flex-1">{toTitle(extra)}</span>
+                              <ArrowRight class="size-3 shrink-0 opacity-40" />
+                            </a>
+                          {/each}
+                        </div>
+                      </Tooltip.Content>
+                    </Tooltip.Root>
                   {/if}
                   {#if data.repoUrl}
                     <a

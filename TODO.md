@@ -10,11 +10,15 @@
         - Import Globbing For Components/etc
         - Global Search
         - Real Browser: Playwright/iOS/Android Engines (Screenshot/Live/etc)
-    - Implement the auto-generated component examples feature. Start with Part 1: docs/plans/2026-03-16-auto-examples-part1.md. Use the executing-plans skill. Follow CLAUDE.md. TDD — tests first, watch fail, implement, watch pass, QA after every file edit.
-    - Implement Part 2: docs/plans/2026-03-16-auto-examples-part2.md. Same approach — executing-plans skill, TDD, QA after every edit.
-    - Implement Lens pages Part 2: docs/plans/2026-03-16-lens-pages-part2.md. Same approach.
-    - Implement Lens component detail additions: docs/plans/2026-03-16-lens-detail-additions.md. Same approach.
-    - Implement Lens advanced features: docs/plans/2026-03-16-lens-advanced-features.md. Same approach.
+
+    - Plans
+      - Support/About/Styling: Need Content Work
+      - docs/plans/2026-03-16-lens-pages-part2.md
+      - docs/plans/2026-03-16-auto-examples-part1.md
+      - docs/plans/2026-03-16-auto-examples-part2.md
+      - docs/plans/2026-03-16-lens-detail-additions.md
+      - docs/plans/2026-03-16-lens-advanced-features.md
+
     - Real Browser
         - Live Preview (each engine):
             LensComponentRenderer: Browser Live Submenu

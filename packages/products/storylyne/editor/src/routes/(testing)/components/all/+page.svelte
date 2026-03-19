@@ -1157,8 +1157,8 @@
                       {#each meta.tags as tag (tag)}
                         <a
                           href="/components/tags?q={encodeURIComponent(tag)}"
-                          class="rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                          >{tag}</a
+                          class="inline-flex items-center gap-1 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                          ><Tag class="size-3 shrink-0 opacity-60" />{tag}</a
                         >
                       {/each}
                     {:else}

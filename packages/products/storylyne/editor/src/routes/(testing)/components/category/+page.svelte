@@ -99,7 +99,9 @@
         return (m?.category ?? 'display') === cat;
       }),
     }),
-  ).filter((g: CategoryGroup): boolean => g.components.length > 0);
+  )
+    .filter((g: CategoryGroup): boolean => g.components.length > 0)
+    .toSorted((a: CategoryGroup, b: CategoryGroup) => a.label.localeCompare(b.label));
 
   /* ------------------------------------------------------------------ */
   /*  Lens compatibility data from parent layout (via Svelte context)    */
@@ -746,7 +748,7 @@
       >
         All
       </button>
-      {#each groupedComponents as group (group.name)}
+      {#each [...groupedComponents].sort( (a: CategoryGroup, b: CategoryGroup) => a.label.localeCompare(b.label), ) as group (group.name)}
         {@const CatIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
         {@const isActive = activeCategories.includes(group.name)}
         <Tooltip.Provider>
@@ -877,8 +879,8 @@
               {#each group.components.slice(0, 8) as name (name)}
                 <a
                   href="/components/{name}"
-                  class="rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                  >{toTitle(name)}</a
+                  class="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                  ><ComponentIcon class="size-3 shrink-0 opacity-60" />{toTitle(name)}</a
                 >
               {/each}
               {#if group.components.length > 8}
@@ -1068,8 +1070,8 @@
                     {#each group.components.slice(0, 4) as name (name)}
                       <a
                         href="/components/{name}"
-                        class="rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                        >{toTitle(name)}</a
+                        class="inline-flex items-center gap-1 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                        ><ComponentIcon class="size-3 shrink-0 opacity-60" />{toTitle(name)}</a
                       >
                     {/each}
                     {#if group.components.length > 4}

@@ -12,7 +12,7 @@
   - Several Issues:
     - 
 
-  Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
+  Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
 - [Prompt 3]
   - Build Editor UI: [what you want built]
     - Following memory.md, CLAUDE.md, build-editor skill

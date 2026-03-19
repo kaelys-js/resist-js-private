@@ -34,6 +34,7 @@
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
   import LifeBuoy from '@lucide/svelte/icons/life-buoy';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
+  import Tag from '@lucide/svelte/icons/tag';
 
   /* ------------------------------------------------------------------ */
   /*  Data types                                                        */
@@ -946,6 +947,7 @@
             : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'}"
           onclick={() => toggleCategory(cat)}
         >
+          <Tag class="size-3 shrink-0 opacity-60" />
           {cat}
           {#if activeCategories.includes(cat)}
             <X class="size-3 opacity-70" />
