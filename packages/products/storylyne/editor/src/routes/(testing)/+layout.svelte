@@ -2375,7 +2375,23 @@
                         {#each group.components as name (name)}
                           {@const itemMeta = metaByName.get(name)}
                           {@const itemCompat = compatByName.get(name)}
-                          {@const isIncompat = itemCompat ? !itemCompat.compatible : false}
+                          {@const a11yRulesForComponent = a11yFailingRules
+                            .filter((r) =>
+                              r.failingFiles.some(
+                                (f) => f.includes('/' + name + '/') || f.includes('/' + name + '.'),
+                              ),
+                            )
+                            .map((r) => ({
+                              ...r,
+                              failCount: r.failingFiles.filter(
+                                (f) =>
+                                  (f as string).includes('/' + name + '/') ||
+                                  (f as string).includes('/' + name + '.'),
+                              ).length as typeof r.failCount,
+                            }))}
+                          {@const isIncompat =
+                            (itemCompat ? !itemCompat.compatible : false) ||
+                            a11yRulesForComponent.length > 0}
                           {@const ItemIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
                           {@const itemColor =
                             CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
@@ -2441,13 +2457,6 @@
                                   {#if itemCompat}
                                     {@const failedRules = new Set(
                                       itemCompat.violations.map((v) => v.rule as Num),
-                                    )}
-                                    {@const a11yRulesForComponent = a11yFailingRules.filter((r) =>
-                                      r.failingFiles.some(
-                                        (f) =>
-                                          f.includes('/' + name + '/') ||
-                                          f.includes('/' + name + '.'),
-                                      ),
                                     )}
                                     <div class="mt-1.5 border-t border-border pt-1.5">
                                       <CompatRuleList
