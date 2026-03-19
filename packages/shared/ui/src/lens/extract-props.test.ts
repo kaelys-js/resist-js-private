@@ -928,6 +928,34 @@ export type DepTree = {
     expect(typeof base['labels']).toBe('object');
   });
 
+  it('merges schema defaults into destructured props (hybrid pattern)', (): void => {
+    const source: string = readFileSync(
+      resolve(__dirname, '../badge/badge.svelte'),
+      'utf8',
+    );
+    const props: PropMeta[] = extractProps(source);
+
+    const variantProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'variant',
+    );
+    expect(variantProp?.default).toBe('default');
+
+    const sizeProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'size',
+    );
+    expect(sizeProp?.default).toBe('sm');
+
+    const radiusProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'radius',
+    );
+    expect(radiusProp?.default).toBe('full');
+
+    const dotProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'dot',
+    );
+    expect(dotProp?.default).toBe('false');
+  });
+
   it('preserves commas within @values entries (splits on ", " not bare ",")', (): void => {
     const source: string = readFileSync(
       resolve(__dirname, '../finance-card/FinanceCard.svelte'),

@@ -192,6 +192,27 @@ export function extractProps(source: string, supplementarySources?: string[]): P
     });
   }
 
+  // Fallback: if any props lack defaults, check for a Valibot schema in the same file
+  // and merge schema defaults (from v.optional(schema, defaultValue) two-argument form).
+  // This handles the hybrid pattern: destructured $props() + safeParse validation with schema defaults.
+  const safeParseMatch: RegExpMatchArray | null = source.match(/safeParse\(\s*(\w+Schema)\s*,/);
+  if (safeParseMatch) {
+    const schemaName: string = safeParseMatch[1] ?? '';
+    if (schemaName) {
+      const schemaResolved: ResolvedTypeDef | null = resolveValibotSchema(source, schemaName);
+      if (schemaResolved) {
+        for (const prop of result) {
+          if (!prop.default) {
+            const schemaField = schemaResolved.fields.get(prop.name);
+            if (schemaField?.defaultValue) {
+              prop.default = schemaField.defaultValue;
+            }
+          }
+        }
+      }
+    }
+  }
+
   return result;
 }
 
