@@ -2443,24 +2443,28 @@
                                 <Tooltip.Content
                                   side="right"
                                   sideOffset={0}
-                                  class="max-w-[28rem] max-h-[min(24rem,80vh)] overflow-x-auto overflow-y-auto"
+                                  class="max-w-xs max-h-[min(24rem,80vh)] overflow-x-auto overflow-y-auto p-3"
                                 >
-                                  <div class="flex items-center gap-1.5">
-                                    <ItemIcon class="size-3.5 {itemColor}" />
-                                    <span class="text-xs font-semibold">{toTitle(name)}</span>
-                                    <span class="text-[10px] capitalize text-muted-foreground"
+                                  <div class="flex items-center gap-2">
+                                    <ItemIcon class="size-4 {itemColor}" />
+                                    <span class="text-sm font-semibold">{toTitle(name)}</span>
+                                    <span class="text-xs capitalize text-muted-foreground"
                                       >· {group.label}</span
                                     >
                                   </div>
                                   {#if itemMeta?.description}
-                                    <p class="mt-1 text-xs">{itemMeta.description}</p>
+                                    <p
+                                      class="mt-2 text-[13px] leading-relaxed text-popover-foreground/80"
+                                    >
+                                      {itemMeta.description}
+                                    </p>
                                   {/if}
                                   {#if itemMeta?.tags && itemMeta.tags.length > 0}
-                                    <div class="mt-1 flex flex-wrap gap-1">
+                                    <div class="mt-2 flex flex-wrap gap-1">
                                       {#each itemMeta.tags as tag (tag)}
                                         <span
-                                          class="inline-flex items-center gap-0.5 rounded bg-primary-foreground/20 px-1 py-0.5 text-[10px]"
-                                          ><Tag class="size-2.5 shrink-0 opacity-60" />{tag}</span
+                                          class="inline-flex items-center gap-1 rounded bg-primary-foreground/20 px-1.5 py-0.5 text-xs"
+                                          ><Tag class="size-3 shrink-0 opacity-60" />{tag}</span
                                         >
                                       {/each}
                                     </div>
@@ -2469,7 +2473,7 @@
                                     {@const failedRules = new Set(
                                       itemCompat.violations.map((v) => v.rule as Num),
                                     )}
-                                    <div class="mt-1.5 border-t border-border pt-1.5">
+                                    <div class="mt-2.5 border-t border-border pt-2">
                                       <CompatRuleList
                                         ruleNames={LENS_RULE_NAMES}
                                         violations={failedRules}
@@ -2617,26 +2621,6 @@
             </Sidebar.MenuButton>
           </Sidebar.MenuItem>
           <Sidebar.MenuItem>
-            <Sidebar.MenuButton isActive={page.url.pathname === '/changelog'}>
-              {#snippet child({ props })}
-                <a href="/changelog" {...props}>
-                  <Newspaper class="size-4" />
-                  <span>What's New</span>
-                </a>
-              {/snippet}
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton isActive={page.url.pathname === '/browser-support'}>
-              {#snippet child({ props })}
-                <a href="/browser-support" {...props}>
-                  <Monitor class="size-4" />
-                  <span>Browser Support</span>
-                </a>
-              {/snippet}
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-          <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/styling'}>
               {#snippet child({ props })}
                 <a href="/styling" {...props}>
@@ -2647,11 +2631,31 @@
             </Sidebar.MenuButton>
           </Sidebar.MenuItem>
           <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/changelog'}>
+              {#snippet child({ props })}
+                <a href="/changelog" {...props}>
+                  <Newspaper class="size-4" />
+                  <span>What's New</span>
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/accessibility'}>
               {#snippet child({ props })}
                 <a href="/accessibility" {...props}>
                   <AccessibilityIcon class="size-4" />
                   <span>Accessibility</span>
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/browser-support'}>
+              {#snippet child({ props })}
+                <a href="/browser-support" {...props}>
+                  <Monitor class="size-4" />
+                  <span>Browser Support</span>
                 </a>
               {/snippet}
             </Sidebar.MenuButton>
@@ -2915,26 +2919,6 @@
                             {/snippet}
                           </DropdownMenu.Item>
                         {/if}
-                        {#if bcShowWhatsNew}
-                          <DropdownMenu.Item>
-                            {#snippet child({ props: clProps })}
-                              <a href="/changelog" {...clProps}>
-                                <Newspaper class="size-4" />
-                                What's New
-                              </a>
-                            {/snippet}
-                          </DropdownMenu.Item>
-                        {/if}
-                        {#if bcShowBrowserSupport}
-                          <DropdownMenu.Item>
-                            {#snippet child({ props: bsProps })}
-                              <a href="/browser-support" {...bsProps}>
-                                <Monitor class="size-4" />
-                                Browser Support
-                              </a>
-                            {/snippet}
-                          </DropdownMenu.Item>
-                        {/if}
                         {#if bcShowStyling}
                           <DropdownMenu.Item>
                             {#snippet child({ props: stProps })}
@@ -2945,12 +2929,32 @@
                             {/snippet}
                           </DropdownMenu.Item>
                         {/if}
+                        {#if bcShowWhatsNew}
+                          <DropdownMenu.Item>
+                            {#snippet child({ props: clProps })}
+                              <a href="/changelog" {...clProps}>
+                                <Newspaper class="size-4" />
+                                What's New
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/if}
                         {#if bcShowAccessibility}
                           <DropdownMenu.Item>
                             {#snippet child({ props: a11yProps })}
                               <a href="/accessibility" {...a11yProps}>
                                 <AccessibilityIcon class="size-4" />
                                 Accessibility
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/if}
+                        {#if bcShowBrowserSupport}
+                          <DropdownMenu.Item>
+                            {#snippet child({ props: bsProps })}
+                              <a href="/browser-support" {...bsProps}>
+                                <Monitor class="size-4" />
+                                Browser Support
                               </a>
                             {/snippet}
                           </DropdownMenu.Item>
