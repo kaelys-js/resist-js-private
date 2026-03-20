@@ -1,3 +1,7 @@
+Convert {COMPONENT} to full Lens compliance. Read docs/prompts/lens-component-conversion.md and follow it exactly. Verify after each Step that you have explicitly followed EVERY WORD.
+
+Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
+
 - [Prompt 0]
 - 
 
