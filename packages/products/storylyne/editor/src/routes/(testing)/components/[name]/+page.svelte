@@ -641,6 +641,10 @@
                 tags: [...metaResult.data.tags],
                 breakingChanges: metaResult.data.breakingChanges?.map((bc) => ({ ...bc })),
               };
+              // Prefer curated lens.ts description over extracted JSDoc
+              if (metaResult.data.description) {
+                componentDescription = metaResult.data.description;
+              }
             } else {
               // Error propagates to loadError — renders visible error state
               if (!cancelled) loadError = `Invalid lens metadata: ${metaResult.error.message}`;

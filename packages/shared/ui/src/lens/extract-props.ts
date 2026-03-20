@@ -791,21 +791,23 @@ type ValuesTagResult = {
  * Given `"Border radius. @values none, sm, md @requires variant:bordered"`,
  * returns `{ description: "Border radius.", mockValues: ["none", "sm", "md"], requires: [{ prop: "variant", value: "bordered" }] }`.
  *
+ * Quoted values are supported for values with spaces: `@requires children:"Life is like a box of chocolates."`
+ *
  * @param text - Raw JSDoc text potentially containing `@values` and/or `@requires`
  * @returns Separated description, mock values, and requires entries
  */
 function extractValuesTag(text: string): ValuesTagResult {
   // Extract all @requires entries first (can appear multiple times)
   const requires: RequiresEntry[] = [];
-  const requiresRe: RegExp = /@requires\s+(\w+):(\S+)/g;
+  const requiresRe: RegExp = /@requires\s+(\w+):(?:"([^"]+)"|(\S+))/g;
   let reqMatch: RegExpExecArray | null = requiresRe.exec(text);
   while (reqMatch !== null) {
-    requires.push({ prop: reqMatch[1] ?? '', value: reqMatch[2] ?? '' });
+    requires.push({ prop: reqMatch[1] ?? '', value: reqMatch[2] ?? reqMatch[3] ?? '' });
     reqMatch = requiresRe.exec(text);
   }
 
   // Strip all @requires tags from text before processing @values
-  const strippedText: string = text.replaceAll(/@requires\s+\w+:\S+/g, '').trim();
+  const strippedText: string = text.replaceAll(/@requires\s+\w+:(?:"[^"]+"|(\S+))/g, '').trim();
 
   const valuesIdx: number = strippedText.indexOf('@values');
   if (valuesIdx === -1) return { description: strippedText, mockValues: [], requires };
