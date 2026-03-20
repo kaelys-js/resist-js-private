@@ -7942,6 +7942,332 @@ const A11Y_RULES: A11yRule[] = [
       );
     },
   },
+
+  /* ------------------------------------------------------------------ */
+  /*  Group 6: WebAIM — Part 6 (5 rules)                                */
+  /* ------------------------------------------------------------------ */
+
+  {
+    id: 'webaim-alt-text-prefix' as Str,
+    label: 'Alt text anti-prefix' as Str,
+    description:
+      'Alt text should not begin with redundant prefixes like "image of", "photo of", "picture of", or "graphic of"' as Str,
+    category: 'WebAIM' as Str,
+    wcag: '1.1.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const badPrefixRe: RegExp =
+        /alt=["'](image of|photo of|picture of|graphic of|icon of|img of)\b/i;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!str.includes('alt=')) continue;
+        const match: RegExpMatchArray | null = str.match(badPrefixRe);
+        if (match) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem: `Alt text starts with redundant prefix "${match[1]}"` as Str,
+            solution:
+              'Remove the prefix — screen readers already announce the element as an image' as Str,
+            found: truncSnippet(match[0] as Str),
+            fix: 'alt="descriptive text without prefix"' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components use redundant alt text prefixes` as Str)
+          : ('No redundant alt text prefixes found' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'webaim-empty-link' as Str,
+    label: 'Empty link' as Str,
+    description:
+      'Links must have discernible text content — no empty <a> elements without text, child image alt, or aria-label' as Str,
+    category: 'WebAIM' as Str,
+    wcag: '2.4.4' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* Match <a ...></a> or <a ... /> with nothing meaningful inside */
+      const emptyLinkRe: RegExp = /<a\s[^>]*>\s*<\/a>/g;
+      const selfCloseLinkRe: RegExp = /<a\s[^>]*\/>/g;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!str.includes('<a')) continue;
+        let found: boolean = false;
+        const emptyMatches: RegExpMatchArray[] = [...str.matchAll(emptyLinkRe)];
+        for (const [tag] of emptyMatches) {
+          /* Skip if it has aria-label, aria-labelledby, or title */
+          if (/aria-label|aria-labelledby|title=/.test(tag)) continue;
+          found = true;
+          findings.push({
+            file: filename,
+            problem: 'Empty link with no accessible text' as Str,
+            solution: 'Add text content, aria-label, or a child element with alt text' as Str,
+            found: truncSnippet(tag as Str),
+            fix: '<a href="...">Descriptive text</a>' as Str,
+          });
+        }
+        const selfCloseMatches: RegExpMatchArray[] = [...str.matchAll(selfCloseLinkRe)];
+        for (const [tag] of selfCloseMatches) {
+          if (/aria-label|aria-labelledby|title=/.test(tag)) continue;
+          found = true;
+          findings.push({
+            file: filename,
+            problem: 'Self-closing link with no accessible text' as Str,
+            solution: 'Add aria-label or use non-self-closing form with text content' as Str,
+            found: truncSnippet(tag as Str),
+            fix: '<a href="..." aria-label="Descriptive text" />' as Str,
+          });
+        }
+        if (found) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+        } else if (str.includes('<a')) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components contain empty links` as Str)
+          : ('No empty links found' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'webaim-empty-button' as Str,
+    label: 'Empty button' as Str,
+    description:
+      'Button elements must have discernible text — no empty <button> without text, aria-label, or aria-labelledby' as Str,
+    category: 'WebAIM' as Str,
+    wcag: '4.1.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* Match <button ...></button> with only whitespace or SVG inside */
+      const emptyBtnRe: RegExp = /<button\s[^>]*>\s*(<svg[\s\S]*?<\/svg>\s*)?<\/button>/g;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!str.includes('<button')) continue;
+        let found: boolean = false;
+        const matches: RegExpMatchArray[] = [...str.matchAll(emptyBtnRe)];
+        for (const [tag] of matches) {
+          /* Skip if it has aria-label, aria-labelledby, or title */
+          if (/aria-label|aria-labelledby|title=/.test(tag)) continue;
+          /* Skip if the content between tags has visible text (not just SVG) */
+          const innerContent: string = tag
+            .replace(/<button[^>]*>/, '')
+            .replace(/<\/button>/, '')
+            .replaceAll(/<svg[\s\S]*?<\/svg>/g, '')
+            .trim();
+          if (innerContent.length > 0) continue;
+          found = true;
+          findings.push({
+            file: filename,
+            problem: 'Button with no discernible text content' as Str,
+            solution:
+              'Add visible text, aria-label, or screen-reader-only text inside the button' as Str,
+            found: truncSnippet(tag as Str),
+            fix: '<button aria-label="Action description">...</button>' as Str,
+          });
+        }
+        if (found) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components contain empty buttons` as Str)
+          : ('All buttons have discernible text' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'webaim-bad-link-text' as Str,
+    label: 'Non-descriptive link text' as Str,
+    description:
+      'Link text should be descriptive — avoid generic text like "click here", "here", "more", "read more", "learn more"' as Str,
+    category: 'WebAIM' as Str,
+    wcag: '2.4.4' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const badTextRe: RegExp =
+        /<a\s[^>]*>\s*(click here|here|more|read more|learn more|link to|link)\s*<\/a>/gi;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!str.includes('<a')) continue;
+        const matches: RegExpMatchArray[] = [...str.matchAll(badTextRe)];
+        if (matches.length > 0) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          for (const [fullMatch, linkText] of matches) {
+            findings.push({
+              file: filename,
+              problem: `Non-descriptive link text: "${linkText}"` as Str,
+              solution: 'Use descriptive text that explains the link destination or purpose' as Str,
+              found: truncSnippet(fullMatch as Str),
+              fix: '<a href="...">View the accessibility report</a>' as Str,
+            });
+          }
+        } else if (str.includes('<a')) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have non-descriptive link text` as Str)
+          : ('All link text is descriptive' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'webaim-title-only-name' as Str,
+    label: 'Title as only accessible name' as Str,
+    description:
+      'Elements should not rely solely on the title attribute for their accessible name — use aria-label, visible text, or alt instead' as Str,
+    category: 'WebAIM' as Str,
+    wcag: '4.1.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* Interactive elements with title but no other accessible name */
+      const titleOnlyRe: RegExp =
+        /<(button|a|input|select|textarea)\s[^>]*title=["'][^"']+["'][^>]*>/g;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!str.includes('title=')) continue;
+        let found: boolean = false;
+        const matches: RegExpMatchArray[] = [...str.matchAll(titleOnlyRe)];
+        for (const [tag, elName] of matches) {
+          /* Skip if it has another naming mechanism */
+          if (/aria-label=|aria-labelledby=|alt=/.test(tag)) continue;
+          /* For <a> and <button>, text content inside counts — but we can only check the opening tag here */
+          /* Flag only self-closing or attribute-only patterns */
+          if (
+            (elName === 'input' || elName === 'select' || elName === 'textarea') &&
+            !/<label/.test(str)
+          ) {
+            found = true;
+            findings.push({
+              file: filename,
+              problem: `<${elName}> relies on title attribute as only accessible name` as Str,
+              solution:
+                'Add aria-label, a visible <label>, or aria-labelledby for a proper accessible name' as Str,
+              found: truncSnippet(tag as Str),
+              fix: `<${elName} aria-label="Descriptive name" title="...">` as Str,
+            });
+          }
+        }
+        if (found) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+        } else if (str.includes('title=')) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components rely on title as only accessible name` as Str)
+          : ('No elements rely solely on title for accessible name' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -7951,7 +8277,7 @@ const A11Y_RULES: A11yRule[] = [
 /**
  * Run a full accessibility audit against source files.
  *
- * Evaluates all 135 accessibility rules against the provided source code
+ * Evaluates all 140 accessibility rules against the provided source code
  * and computes an aggregate score with detailed per-rule results, including
  * WCAG 2.1 AA criteria coverage metrics.
  *
@@ -7962,7 +8288,7 @@ const A11Y_RULES: A11yRule[] = [
  * const sources = { 'Button.svelte': btnSrc, 'app.css': cssSrc };
  * const audit = auditAccessibility(sources);
  * console.log(audit.overallScore);  // 85
- * console.log(audit.rules.length);  // 135
+ * console.log(audit.rules.length);  // 140
  * console.log(audit.totalWcagCriteria);  // 50
  * console.log(audit.wcagCoverage);  // 78
  */
