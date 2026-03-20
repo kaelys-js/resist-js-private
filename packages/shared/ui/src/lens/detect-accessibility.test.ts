@@ -126,8 +126,8 @@ const componentDirs: string[] = [
 /* ------------------------------------------------------------------ */
 
 describe('auditAccessibility — global', () => {
-  it('runs all 135 rules', () => {
-    expect(audit.totalRules).toBe(135);
+  it('runs all 140 rules', () => {
+    expect(audit.totalRules).toBe(140);
   });
 
   it('scans at least one component', () => {
