@@ -8268,6 +8268,296 @@ const A11Y_RULES: A11yRule[] = [
       );
     },
   },
+
+  /* ------------------------------------------------------------------ */
+  /*  Group 6 continued: WebAIM — Part 7 (5 rules)                      */
+  /* ------------------------------------------------------------------ */
+
+  {
+    id: 'webaim-outline-removed' as Str,
+    label: 'Focus outline removed' as Str,
+    description:
+      'Focus outline must not be removed without a visible replacement — outline:none/0 on :focus needs a box-shadow, border, or outline alternative' as Str,
+    category: 'WebAIM' as Str,
+    wcag: '2.4.7' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const css: SourceEntry[] = cssFiles(sources);
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      const all: SourceEntry[] = [...css, ...svelte];
+      if (all.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* Match :focus rules that remove outline */
+      const focusOutlineRe: RegExp = /:focus[^{]*\{[^}]*outline\s*:\s*(none|0)\b[^}]*\}/g;
+
+      for (const [filename, content] of all) {
+        const str: string = content as string;
+        if (!str.includes(':focus')) continue;
+        const matches: RegExpMatchArray[] = [...str.matchAll(focusOutlineRe)];
+        let found: boolean = false;
+        for (const [ruleBlock] of matches) {
+          /* Check if there is a replacement indicator */
+          if (/box-shadow|border-color|outline-offset|outline:.*\d+px/.test(ruleBlock)) continue;
+          found = true;
+          findings.push({
+            file: filename,
+            problem: 'Focus outline removed without visible replacement' as Str,
+            solution:
+              'Add a visible focus indicator like box-shadow or border when removing outline' as Str,
+            found: truncSnippet(ruleBlock as Str),
+            fix: ':focus { outline: none; box-shadow: 0 0 0 2px var(--ring); }' as Str,
+          });
+        }
+        if (found) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+        } else if (str.includes(':focus')) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} files remove focus outline without replacement` as Str)
+          : ('All focus outlines have visible replacements' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'webaim-viewport-zoom-disabled' as Str,
+    label: 'Viewport zoom disabled' as Str,
+    description:
+      'Viewport meta must not disable user scaling — user-scalable=no and maximum-scale=1 prevent zoom' as Str,
+    category: 'WebAIM' as Str,
+    wcag: '1.4.4' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const viewportRe: RegExp = /<meta\s[^>]*name=["']viewport["'][^>]*>/gi;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const matches: RegExpMatchArray[] = [...str.matchAll(viewportRe)];
+        for (const [tag] of matches) {
+          const hasNoScale: boolean = /user-scalable\s*=\s*no/i.test(tag);
+          const hasMaxScale: boolean = /maximum-scale\s*=\s*1\b/i.test(tag);
+          if (hasNoScale || hasMaxScale) {
+            fail = ((fail as number) + 1) as Num;
+            failing.push(filename);
+            findings.push({
+              file: filename,
+              problem:
+                `Viewport meta disables zoom: ${hasNoScale ? 'user-scalable=no' : 'maximum-scale=1'}` as Str,
+              solution:
+                'Remove user-scalable=no and set maximum-scale to a value > 1 (e.g., 5)' as Str,
+              found: truncSnippet(tag as Str),
+              fix: '<meta name="viewport" content="width=device-width, initial-scale=1">' as Str,
+            });
+          } else {
+            pass = ((pass as number) + 1) as Num;
+            passing.push(filename);
+          }
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} viewport metas disable zoom` as Str)
+          : ('Viewport zoom is not disabled' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'webaim-autoplay-media' as Str,
+    label: 'Media autoplay' as Str,
+    description:
+      'Video and audio elements should not autoplay — users must have control over media playback' as Str,
+    category: 'WebAIM' as Str,
+    wcag: '1.4.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const autoplayRe: RegExp = /<(video|audio)\s[^>]*autoplay[^>]*>/gi;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!str.includes('autoplay')) continue;
+        const matches: RegExpMatchArray[] = [...str.matchAll(autoplayRe)];
+        if (matches.length > 0) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          for (const [fullMatch, elType] of matches) {
+            findings.push({
+              file: filename,
+              problem: `<${elType}> element has autoplay attribute` as Str,
+              solution:
+                'Remove autoplay and let users control playback with play/pause controls' as Str,
+              found: truncSnippet(fullMatch as Str),
+              fix: `<${elType} controls>` as Str,
+            });
+          }
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components autoplay media` as Str)
+          : ('No media elements autoplay' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'webaim-empty-heading' as Str,
+    label: 'Empty heading' as Str,
+    description:
+      'Heading elements (h1–h6) must have text content — empty headings confuse screen reader navigation' as Str,
+    category: 'WebAIM' as Str,
+    wcag: '1.3.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const emptyHeadingRe: RegExp = /<(h[1-6])\s*>\s*<\/\1>/g;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const matches: RegExpMatchArray[] = [...str.matchAll(emptyHeadingRe)];
+        if (matches.length > 0) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          for (const [fullMatch, level] of matches) {
+            findings.push({
+              file: filename,
+              problem: `Empty <${level}> heading element` as Str,
+              solution: 'Add meaningful text content to the heading or remove it' as Str,
+              found: truncSnippet(fullMatch as Str),
+              fix: `<${level}>Heading text</${level}>` as Str,
+            });
+          }
+        } else if (/<h[1-6]/.test(str)) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components contain empty headings` as Str)
+          : ('No empty headings found' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'webaim-empty-th' as Str,
+    label: 'Empty table header' as Str,
+    description:
+      'Table header cells (th) must have text content — empty headers make tables incomprehensible to screen readers' as Str,
+    category: 'WebAIM' as Str,
+    wcag: '1.3.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const emptyThRe: RegExp = /<th\s*>\s*<\/th>/g;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const matches: RegExpMatchArray[] = [...str.matchAll(emptyThRe)];
+        if (matches.length > 0) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          for (const [fullMatch] of matches) {
+            findings.push({
+              file: filename,
+              problem: 'Empty <th> table header cell' as Str,
+              solution: 'Add descriptive text to the header cell or use scope attribute' as Str,
+              found: truncSnippet(fullMatch as Str),
+              fix: '<th>Column Name</th>' as Str,
+            });
+          }
+        } else if (str.includes('<th')) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components contain empty table headers` as Str)
+          : ('No empty table headers found' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -8277,7 +8567,7 @@ const A11Y_RULES: A11yRule[] = [
 /**
  * Run a full accessibility audit against source files.
  *
- * Evaluates all 140 accessibility rules against the provided source code
+ * Evaluates all 145 accessibility rules against the provided source code
  * and computes an aggregate score with detailed per-rule results, including
  * WCAG 2.1 AA criteria coverage metrics.
  *
@@ -8288,7 +8578,7 @@ const A11Y_RULES: A11yRule[] = [
  * const sources = { 'Button.svelte': btnSrc, 'app.css': cssSrc };
  * const audit = auditAccessibility(sources);
  * console.log(audit.overallScore);  // 85
- * console.log(audit.rules.length);  // 140
+ * console.log(audit.rules.length);  // 145
  * console.log(audit.totalWcagCriteria);  // 50
  * console.log(audit.wcagCoverage);  // 78
  */
