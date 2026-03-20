@@ -48,9 +48,9 @@ exports[`auditAccessibility — global > failing rule IDs match snapshot 1`] = `
 
 exports[`auditAccessibility — global > failing rule count matches snapshot 1`] = `41`;
 
-exports[`auditAccessibility — global > overall score matches snapshot baseline 1`] = `50`;
+exports[`auditAccessibility — global > overall score matches snapshot baseline 1`] = `51`;
 
-exports[`auditAccessibility — global > passing rule count matches snapshot 1`] = `52`;
+exports[`auditAccessibility — global > passing rule count matches snapshot 1`] = `55`;
 
 exports[`auditAccessibility — per-component regressions > component failure map matches snapshot 1`] = `
 {
