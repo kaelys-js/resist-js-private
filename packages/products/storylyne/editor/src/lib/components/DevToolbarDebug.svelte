@@ -23,9 +23,9 @@
   } from '$lib/debug/dev-toolbar-registry';
   import { getBuildInfo } from '$lib/config/build-info';
   import type { BuildInfo } from '$lib/schemas/build-info';
-  import { localeStore, t } from '$lib/i18n.svelte';
+  import { localeStore, t } from '$lib/stores/i18n.svelte';
   import { log } from '@/utils/core/logger';
-  import { announce } from '$lib/utils/announce.svelte';
+  import { announce } from '@/ui/announce/announce.svelte';
   import * as v from 'valibot';
   import type { Str, Bool, Void } from '@/schemas/common';
   import type { Result } from '@/schemas/result/result';

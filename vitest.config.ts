@@ -162,6 +162,23 @@ export default defineConfig({
         test: {
           name: 'ui',
           root: 'packages/shared/ui',
+          exclude: ['src/**/*.svelte.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        plugins: [svelte({ hot: false }), svelteTesting()],
+        test: {
+          name: 'ui-svelte',
+          root: 'packages/shared/ui',
+          environment: 'jsdom',
+          include: ['src/**/*.svelte.test.ts'],
+          alias: [...sharedPathAliases],
+          server: {
+            deps: {
+              inline: ['svelte'],
+            },
+          },
         },
       },
       {
@@ -194,6 +211,14 @@ export default defineConfig({
         test: {
           name: 'config-tooling-svelte',
           root: 'packages/shared/config/tooling/svelte',
+          include: ['src/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'lint',
+          root: 'packages/shared/config/tooling/lint',
           include: ['src/**/*.test.ts'],
         },
       },

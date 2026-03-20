@@ -22,7 +22,7 @@
     humanizeOption,
     type FieldDescriptor,
   } from '$lib/debug/dev-toolbar-registry';
-  import { localeStore, t } from '$lib/i18n.svelte';
+  import { localeStore, t } from '$lib/stores/i18n.svelte';
   import { URL_PARAM_PREFIX } from '$lib/config/app-meta';
   import type { Str, Bool, Void } from '@/schemas/common';
   import type { Result } from '@/schemas/result/result';

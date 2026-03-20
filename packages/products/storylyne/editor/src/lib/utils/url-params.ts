@@ -12,8 +12,9 @@
 
 import type { Bool, Str, Void } from '@/schemas/common';
 import { okUnchecked, type Result } from '@/schemas/result/result';
+import { parsePrefixedParams, type UrlOverrides } from '@/utils/core/url-params';
 import { AppPreferencesSchema, FeatureFlagsSchema } from '$lib/schemas/editor-state';
-import { URL_PARAM_PREFIX, type UrlOverrides } from '$lib/schemas/debug-state';
+import { URL_PARAM_PREFIX } from '$lib/schemas/debug-state';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 
 /** Debug store interface expected by applyUrlOverrides. */
@@ -79,16 +80,7 @@ export function isValidFeatureFlag(key: Str): Bool {
  * ```
  */
 export function parseDebugParams(url: URL): Result<UrlOverrides> {
-  const overrides: UrlOverrides = {};
-
-  for (const [key, value] of url.searchParams) {
-    if (key.startsWith(URL_PARAM_PREFIX)) {
-      const unprefixed: Str = key.slice(URL_PARAM_PREFIX.length);
-      overrides[unprefixed] = value;
-    }
-  }
-
-  return okUnchecked(overrides);
+  return parsePrefixedParams(url, URL_PARAM_PREFIX);
 }
 
 /**

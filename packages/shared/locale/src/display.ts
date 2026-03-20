@@ -2,9 +2,20 @@
  * Language display name utilities using the browser-native Intl.DisplayNames API.
  *
  * Generates endonym (native name) and exonym (name in current locale) pairs
- * for any language code. Used by the LanguageSwitcher to show dual display names.
+ * for any language code. Used by language switchers to show dual display names.
  *
  * @module
+ *
+ * @example
+ * ```typescript
+ * import { getLanguageDisplayName } from '@/locale/display';
+ *
+ * const result = getLanguageDisplayName('ja', 'en');
+ * if (result.ok) {
+ *   console.log(result.data.endonym); // '日本語'
+ *   console.log(result.data.exonym);  // 'Japanese'
+ * }
+ * ```
  */
 
 import * as v from 'valibot';
@@ -15,7 +26,7 @@ import { safeParse } from '@/utils/result/safe';
 /**
  * Schema for a language's display name information.
  */
-const LanguageDisplayInfoSchema = v.strictObject({
+export const LanguageDisplayInfoSchema = v.strictObject({
   /** BCP 47 language code (e.g., `'ja'`, `'fr'`). */
   code: v.string(),
   /** Native name of the language (e.g., `'日本語'` for Japanese). */
@@ -36,6 +47,8 @@ export type LanguageDisplayInfo = v.InferOutput<typeof LanguageDisplayInfoSchema
  *
  * @example
  * ```typescript
+ * import { getLanguageDisplayName } from '@/locale/display';
+ *
  * const result = getLanguageDisplayName('ja', 'en');
  * if (result.ok) {
  *   console.log(result.data.endonym); // '日本語'
@@ -76,6 +89,8 @@ export function getLanguageDisplayName(code: Str, currentLocale: Str): Result<La
  *
  * @example
  * ```typescript
+ * import { getLanguageDisplayNames } from '@/locale/display';
+ *
  * const result = getLanguageDisplayNames(['en', 'ja', 'fr'], 'en');
  * if (result.ok) {
  *   for (const lang of result.data) {

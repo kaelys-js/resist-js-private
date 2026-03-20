@@ -15,7 +15,8 @@ import {
   sanitizeSidebarOpen,
   sanitizeSidebarWidth,
   sanitizeTheme,
-} from '$lib/utils/preference-cookie';
+} from '@/utils/core/preference-cookie';
+import { SUPPORTED_THEMES } from '$lib/schemas/editor-state';
 import { APP_NAME, STORAGE_PREFIX, storageKey, URL_PARAM_PREFIX } from '$lib/config/app-meta';
 
 /** Security headers applied to every response (safe in both dev and prod). */
@@ -220,7 +221,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   const sidebarPx: Num | null = sanitizeSidebarWidth(sidebarPxRaw ?? null);
   event.locals.sidebarPx = sidebarPx;
   const themeRaw: Str | undefined = event.cookies.get(storageKey('theme'));
-  const theme: Str = sanitizeTheme(themeRaw ?? null);
+  const theme: Str = sanitizeTheme(themeRaw ?? null, SUPPORTED_THEMES);
   const sidebarOpenRaw: Str | undefined = event.cookies.get(storageKey('sidebar-open'));
   const sidebarOpen: boolean | null = sanitizeSidebarOpen(sidebarOpenRaw ?? null);
   event.locals.sidebarOpen = sidebarOpen;

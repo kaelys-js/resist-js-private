@@ -1,6 +1,6 @@
 <script lang="ts">
   import ModeToggle from '@/ui/mode-toggle/ModeToggle.svelte';
-  import { localeStore, t } from '$lib/i18n.svelte';
+  import { localeStore, t } from '$lib/stores/i18n.svelte';
   import { useEditorStore } from '$lib/stores/editor-state.svelte';
   import type { Str } from '@/schemas/common';
 

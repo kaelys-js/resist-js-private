@@ -14,8 +14,6 @@
 
 import type { Str, Num, Void } from '@/schemas/common';
 import { okUnchecked, type Result } from '@/schemas/result/result';
-import { SUPPORTED_THEMES } from '$lib/schemas/editor-state';
-import { STORAGE_PREFIX } from '$lib/config/app-meta';
 
 /** Cookie max-age: 1 year in seconds. */
 const MAX_AGE: Num = 31_536_000;
@@ -32,16 +30,21 @@ const SIDEBAR_MAX_PX: Num = 1000;
  * The cookie is set with `max-age=1y`, `path=/`, and `SameSite=Lax` to
  * ensure it's sent with every SSR request and persists across sessions.
  *
- * @param name - Cookie suffix (e.g. `'sidebar-px'` → `'${STORAGE_PREFIX}:sidebar-px'`)
+ * @param storagePrefix - App-specific prefix (e.g. `'storylyne'`)
+ * @param name - Cookie suffix (e.g. `'sidebar-px'` → `'storylyne:sidebar-px'`)
  * @param value - Cookie value (must be pre-sanitized by caller)
  * @returns Result indicating success
  *
  * @example
- * setPreferenceCookie('sidebar-px', '350');
- * // Sets: ${STORAGE_PREFIX}:sidebar-px=350; max-age=31536000; path=/; SameSite=Lax
+ * ```typescript
+ * import { setPreferenceCookie } from '@/utils/core/preference-cookie';
+ *
+ * setPreferenceCookie('storylyne', 'sidebar-px', '350');
+ * // Sets: storylyne:sidebar-px=350; max-age=31536000; path=/; SameSite=Lax
+ * ```
  */
-export function setPreferenceCookie(name: Str, value: Str): Result<Void> {
-  const cookieName: Str = `${STORAGE_PREFIX}:${name}`;
+export function setPreferenceCookie(storagePrefix: Str, name: Str, value: Str): Result<Void> {
+  const cookieName: Str = `${storagePrefix}:${name}`;
   // oxlint-disable-next-line unicorn/no-document-cookie -- Cookie Store API is async and lacks SSR/Safari support; synchronous set needed
   document.cookie = `${cookieName}=${value}; max-age=${String(MAX_AGE)}; path=/; SameSite=Lax`;
   return okUnchecked<Void>(undefined);
@@ -50,14 +53,19 @@ export function setPreferenceCookie(name: Str, value: Str): Result<Void> {
 /**
  * Reads a namespaced preference cookie value.
  *
- * @param name - Cookie suffix (e.g. `'sidebar-px'` → looks for `'${STORAGE_PREFIX}:sidebar-px'`)
+ * @param storagePrefix - App-specific prefix (e.g. `'storylyne'`)
+ * @param name - Cookie suffix (e.g. `'sidebar-px'` → looks for `'storylyne:sidebar-px'`)
  * @returns The cookie value, or `null` if not found
  *
  * @example
- * const width = getPreferenceCookie('sidebar-px'); // '350' | null
+ * ```typescript
+ * import { getPreferenceCookie } from '@/utils/core/preference-cookie';
+ *
+ * const width = getPreferenceCookie('storylyne', 'sidebar-px'); // '350' | null
+ * ```
  */
-export function getPreferenceCookie(name: Str): Str | null {
-  const cookieName: Str = `${STORAGE_PREFIX}:${name}=`;
+export function getPreferenceCookie(storagePrefix: Str, name: Str): Str | null {
+  const cookieName: Str = `${storagePrefix}:${name}=`;
   // oxlint-disable-next-line unicorn/no-document-cookie -- Cookie Store API is async and lacks SSR/Safari support; synchronous read needed
   const cookies: Str = document.cookie;
   if (!cookies) return null;
@@ -83,9 +91,11 @@ export function getPreferenceCookie(name: Str): Str | null {
  * @returns Sanitized pixel width as integer, or `null` if invalid
  *
  * @example
+ * ```typescript
  * sanitizeSidebarWidth('350')      // 350
  * sanitizeSidebarWidth('50')       // null (below min)
  * sanitizeSidebarWidth('"><script>') // null (non-numeric)
+ * ```
  */
 export function sanitizeSidebarWidth(raw: Str | null): Num | null {
   if (raw === null || raw === '') return null;
@@ -106,9 +116,11 @@ export function sanitizeSidebarWidth(raw: Str | null): Num | null {
  * @returns `true` (expanded), `false` (collapsed), or `null` (unknown/invalid)
  *
  * @example
+ * ```typescript
  * sanitizeSidebarOpen('true')         // true
  * sanitizeSidebarOpen('false')        // false
  * sanitizeSidebarOpen('"><script>')   // null (XSS attempt)
+ * ```
  */
 export function sanitizeSidebarOpen(raw: Str | null): boolean | null {
   if (raw === 'true') return true;
@@ -119,20 +131,23 @@ export function sanitizeSidebarOpen(raw: Str | null): boolean | null {
 /**
  * Sanitizes a raw theme cookie value.
  *
- * Validates against the `SUPPORTED_THEMES` picklist. Returns empty string
+ * Validates against a provided list of supported themes. Returns empty string
  * (default theme) for any invalid or unsupported value.
  *
  * @param raw - Raw cookie string value, or `null`
+ * @param supportedThemes - Array of valid theme identifiers (including `''` for default)
  * @returns Valid theme identifier, or `''` (default) if invalid
  *
  * @example
- * sanitizeTheme('midnight')       // 'midnight'
- * sanitizeTheme('neon')           // '' (unsupported)
- * sanitizeTheme('"><script>')     // '' (XSS attempt)
+ * ```typescript
+ * const THEMES = ['', 'midnight', 'ocean'] as const;
+ * sanitizeTheme('midnight', THEMES)    // 'midnight'
+ * sanitizeTheme('neon', THEMES)        // '' (unsupported)
+ * sanitizeTheme('"><script>', THEMES)  // '' (XSS attempt)
+ * ```
  */
-export function sanitizeTheme(raw: Str | null): Str {
+export function sanitizeTheme(raw: Str | null, supportedThemes: readonly Str[]): Str {
   if (raw === null) return '';
-  // SUPPORTED_THEMES includes '' (default), so this check covers all valid values
-  if ((SUPPORTED_THEMES as readonly Str[]).includes(raw)) return raw;
+  if (supportedThemes.includes(raw)) return raw;
   return '';
 }

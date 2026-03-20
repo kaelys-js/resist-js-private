@@ -16,7 +16,7 @@
   import { Separator } from '@/ui/separator/index.js';
   import { useEditorStore, type EditorStore } from '$lib/stores/editor-state.svelte';
   import { useDebugStore, type DebugStore } from '$lib/stores/debug-state.svelte';
-  import { localeStore, t } from '$lib/i18n.svelte';
+  import { localeStore, t } from '$lib/stores/i18n.svelte';
   import { log } from '@/utils/core/logger';
   import type { Str, Num, Bool, Void } from '@/schemas/common';
   import type { Result } from '@/schemas/result/result';

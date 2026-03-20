@@ -4,7 +4,7 @@
   import HeaderUser from './HeaderUser.svelte';
   import ModeToggle from './ModeToggle.svelte';
   import { page } from '$app/state';
-  import { localeStore, t } from '$lib/i18n.svelte';
+  import { localeStore, t } from '$lib/stores/i18n.svelte';
   import { useEditorStore } from '$lib/stores/editor-state.svelte';
   import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';
   import type { ServerUser } from '$lib/server/data/types';

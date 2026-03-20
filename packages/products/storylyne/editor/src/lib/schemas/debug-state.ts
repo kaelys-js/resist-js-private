@@ -50,16 +50,4 @@ export const DebugStateSchema = v.strictObject({
 /** Inferred type for debug state. */
 export type DebugState = v.InferOutput<typeof DebugStateSchema>;
 
-/**
- * Schema for parsed URL overrides. Keys are unprefixed (e.g., `'theme'`, not `'${URL_PARAM_PREFIX}theme'`).
- * Values are raw strings — validated against target schemas when applied.
- *
- * @example
- * ```typescript
- * const result = safeParse(UrlOverridesSchema, { theme: 'midnight', locale: 'ja' });
- * ```
- */
-export const UrlOverridesSchema = v.record(v.string(), v.string());
-
-/** Inferred type for URL overrides map. */
-export type UrlOverrides = v.InferOutput<typeof UrlOverridesSchema>;
+export { UrlOverridesSchema, type UrlOverrides } from '@/utils/core/url-params';

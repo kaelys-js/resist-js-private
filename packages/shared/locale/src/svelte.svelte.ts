@@ -185,3 +185,5 @@ export function createLocaleStore<TSchema extends v.GenericSchema>(
 
   return okUnchecked<LocaleStore<TSchema>>(store);
 }
+
+export { t } from './t';

@@ -5,7 +5,7 @@
   import NavProject from '@/ui/nav-project/NavProject.svelte';
   import ThemeSwitcher from './ThemeSwitcher.svelte';
   import LanguageSwitcher from './LanguageSwitcher.svelte';
-  import { localeStore, t } from '$lib/i18n.svelte';
+  import { localeStore, t } from '$lib/stores/i18n.svelte';
   import { useEditorStore } from '$lib/stores/editor-state.svelte';
   import type { ServerProject } from '$lib/server/data/types';
   import type { Str } from '@/schemas/common';

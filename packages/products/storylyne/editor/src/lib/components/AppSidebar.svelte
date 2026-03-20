@@ -8,7 +8,7 @@
   import NavScenesSkeleton from './NavScenesSkeleton.svelte';
   import NavProject from './NavProject.svelte';
   import NavProjectSkeleton from '@/ui/nav-project/NavProjectSkeleton.svelte';
-  import { localeStore, t } from '$lib/i18n.svelte';
+  import { localeStore, t } from '$lib/stores/i18n.svelte';
   import { APP_TAGLINE } from '$lib/config/app-meta';
   import { useEditorStore } from '$lib/stores/editor-state.svelte';
   import type { ServerUser, ServerProject, ServerScene } from '$lib/server/data/types';

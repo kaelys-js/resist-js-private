@@ -2,9 +2,9 @@
   import ErrorPage from '@/ui/error-page/ErrorPage.svelte';
   import type { Str, Num } from '@/schemas/common';
   import type { Result } from '@/schemas/result/result';
-  import { localeStore, t } from '$lib/i18n.svelte';
+  import { localeStore, t } from '$lib/stores/i18n.svelte';
   import { log } from '@/utils/core/logger';
-  import { announce } from '$lib/utils/announce.svelte';
+  import { announce } from '@/ui/announce/announce.svelte';
 
   let { status, message, errorId }: { status: Num; message: Str; errorId?: Str } = $props();
 
