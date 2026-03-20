@@ -1,5 +1,13 @@
 # CLAUDE.md
 
+## Behavioral Rules (CRITICAL — read first)
+
+- **After compaction or resume, ALWAYS resume work immediately.** Read the compaction summary or session state and continue. Every session event requires action.
+- **ALWAYS respond to the user before running tools.** If the user asked a question, gave feedback, or said "explain" — answer them first. Tools come after.
+- **ALWAYS present a changelog and get explicit approval before implementing changes.** Never edit code without user saying "yes" or "go ahead."
+- **When told to "explain yourself" — stop all work.** Answer what you did, why it was wrong, what you should have done. Wait for permission.
+- **QA runs after responding to user.** If the user is waiting for an answer, respond first, then run QA.
+
 ## Overview
 
 **WebForge RPG** — pnpm monorepo with Turborepo. A web-based RPG creation suite with HD-2D rendering powered by Babylon.js.
