@@ -6521,6 +6521,364 @@ const A11Y_RULES: A11yRule[] = [
       );
     },
   },
+  {
+    id: 'aria-label-no-role' as Str,
+    label: 'ARIA label without role' as Str,
+    description:
+      'aria-label on generic elements (div, span) without an explicit role has no effect (WAI-ARIA 1.2)' as Str,
+    category: 'ARIA' as Str,
+    wcag: '4.1.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* Match <div or <span with aria-label but no role attribute */
+      const divSpanLabelNoRole: RegExp =
+        /<(?:div|span)\b(?![^>]*\brole=)[^>]*\baria-label(?:ledby)?=/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (divSpanLabelNoRole.test(str)) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              'aria-label on <div> or <span> without a role — generic elements have no accessible name computation' as Str,
+            solution: 'Add an appropriate role attribute or use a semantic element instead' as Str,
+            found: truncSnippet(
+              ((str.match(divSpanLabelNoRole) ?? [])[0] as Str) ??
+                ('<div aria-label="...">' as Str),
+            ),
+            fix: '<div role="region" aria-label="..."> or <section aria-label="...">' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components use aria-label on generic elements without a role` as Str)
+          : ('No aria-label on generic elements without role' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'aria-live-assertive-misuse' as Str,
+    label: 'Assertive live region misuse' as Str,
+    description:
+      'aria-live="assertive" should only be used for critical alerts — use "polite" for status updates (WAI-ARIA 1.2)' as Str,
+    category: 'ARIA' as Str,
+    wcag: '4.1.3' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const assertivePattern: RegExp = /aria-live=["']assertive["']/;
+      /* role="alert" is acceptable — it implies assertive semantics for true alerts */
+      const alertRolePattern: RegExp = /role=["']alert["']/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const hasAssertive: boolean = assertivePattern.test(str);
+        const hasAlertRole: boolean = alertRolePattern.test(str);
+        if (!hasAssertive) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        } else if (hasAlertRole) {
+          /* Assertive with role="alert" is correct usage */
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        } else {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              'aria-live="assertive" used without role="alert" — may interrupt screen reader users unnecessarily' as Str,
+            solution:
+              'Use aria-live="polite" for status updates, or add role="alert" if this is a critical alert' as Str,
+            found: truncSnippet(
+              ((str.match(/[^<]*aria-live=["']assertive["'][^>]*/) ?? [])[0] as Str) ??
+                ('aria-live="assertive"' as Str),
+            ),
+            fix: 'aria-live="polite" <!-- or role="alert" for critical alerts -->' as Str,
+          });
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components use aria-live="assertive" without role="alert"` as Str)
+          : ('All assertive live regions are used correctly' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'aria-redundant-role' as Str,
+    label: 'Redundant ARIA role' as Str,
+    description:
+      'Native HTML elements should not have their implicit role explicitly set (WAI-ARIA 1.2)' as Str,
+    category: 'ARIA' as Str,
+    wcag: '4.1.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* Native element → implicit role mappings */
+      const redundantPatterns: RegExp[] = [
+        /<button\b[^>]*\brole=["']button["']/,
+        /<a\b[^>]*\bhref\b[^>]*\brole=["']link["']/,
+        /<a\b[^>]*\brole=["']link["'][^>]*\bhref\b/,
+        /<nav\b[^>]*\brole=["']navigation["']/,
+        /<main\b[^>]*\brole=["']main["']/,
+        /<header\b[^>]*\brole=["']banner["']/,
+        /<footer\b[^>]*\brole=["']contentinfo["']/,
+        /<aside\b[^>]*\brole=["']complementary["']/,
+        /<ul\b[^>]*\brole=["']list["']/,
+        /<ol\b[^>]*\brole=["']list["']/,
+        /<table\b[^>]*\brole=["']table["']/,
+      ];
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const redundant: string[] = [];
+        for (const pattern of redundantPatterns) {
+          if (pattern.test(str)) {
+            const matched: string = (str.match(pattern) ?? [])[0] ?? '';
+            redundant.push(matched);
+          }
+        }
+        if (redundant.length === 0) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        } else {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              `Redundant ARIA role on native element — the implicit role is already correct` as Str,
+            solution: 'Remove the redundant role attribute' as Str,
+            found: truncSnippet(redundant[0] as Str),
+            fix: '<!-- Remove role="..." — the native element already has this implicit role -->' as Str,
+          });
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have redundant ARIA roles on native elements` as Str)
+          : ('No redundant ARIA roles found' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'aria-menu-nav-misuse' as Str,
+    label: 'Menu role on navigation' as Str,
+    description:
+      'role="menu" is for application menus (toolbars, context menus), not site navigation — use <nav> with <ul> instead' as Str,
+    category: 'ARIA' as Str,
+    wcag: '4.1.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* role="menu" inside or on a <nav> element */
+      const menuInNav: RegExp = /<nav\b[^>]*\brole=["']menu(?:bar)?["']/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (menuInNav.test(str)) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              'role="menu" on <nav> — menu role is for application menus (toolbar actions, context menus), not site navigation' as Str,
+            solution:
+              'Remove role="menu" from navigation — use <nav> with <ul>/<li> for site navigation' as Str,
+            found: truncSnippet(
+              ((str.match(menuInNav) ?? [])[0] as Str) ?? ('<nav role="menu">' as Str),
+            ),
+            fix: '<nav aria-label="Main">\n  <ul>\n    <li><a href="/">Home</a></li>\n  </ul>\n</nav>' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components use role="menu" on navigation elements` as Str)
+          : ('No menu role misuse on navigation elements' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+
+  /* ---- WHATWG / HTML Spec (2 rules in part 2) ---- */
+  {
+    id: 'html-interactive-nesting' as Str,
+    label: 'Interactive content nesting' as Str,
+    description:
+      'Interactive elements (button, a) must not contain other interactive elements (WHATWG HTML spec content model)' as Str,
+    category: 'HTML Spec' as Str,
+    wcag: '4.1.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* <button> containing interactive children */
+      const buttonNesting: RegExp =
+        /<button\b[^>]*>[\s\S]*?<(?:a\b[^>]*href|button\b|input\b|select\b|textarea\b)/;
+      /* <a> containing interactive children */
+      const anchorNesting: RegExp =
+        /<a\b[^>]*href[^>]*>[\s\S]*?<(?:a\b[^>]*href|button\b|input\b|select\b|textarea\b)/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const hasButtonNesting: boolean = buttonNesting.test(str);
+        const hasAnchorNesting: boolean = anchorNesting.test(str);
+        if (hasButtonNesting || hasAnchorNesting) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          const parent: string = hasButtonNesting ? '<button>' : '<a>';
+          findings.push({
+            file: filename,
+            problem:
+              `${parent} contains interactive content descendants — forbidden by WHATWG HTML content model` as Str,
+            solution:
+              'Restructure so interactive elements are not nested inside other interactive elements' as Str,
+            found: truncSnippet(
+              ((str.match(hasButtonNesting ? buttonNesting : anchorNesting) ?? [])[0] as Str) ??
+                (`${parent}...<button>...</button>...` as Str),
+            ),
+            fix: '<!-- Move nested interactive elements outside the parent interactive element -->' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have interactive elements nested inside other interactive elements` as Str)
+          : ('No interactive content nesting violations' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'html-img-alt-required' as Str,
+    label: 'Image alt attribute required' as Str,
+    description:
+      'Every <img> element must have an alt attribute — its absence is a WHATWG HTML spec violation' as Str,
+    category: 'HTML Spec' as Str,
+    wcag: '1.1.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* <img> without alt attribute */
+      const imgNoAlt: RegExp = /<img\b(?![^>]*\balt\b)[^>]*>/g;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!/<img\b/.test(str)) continue;
+        const matches: RegExpMatchArray | null = str.match(imgNoAlt);
+        if (matches !== null && matches.length > 0) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem: `${matches.length} <img> element(s) missing alt attribute` as Str,
+            solution:
+              'Add alt="description" for informative images or alt="" for decorative images' as Str,
+            found: truncSnippet((matches[0] ?? '<img src="...">') as Str),
+            fix: '<img src="..." alt="Descriptive text"> or <img src="..." alt="">' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have <img> elements missing alt attribute` as Str)
+          : ('All <img> elements have alt attributes' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -6530,7 +6888,7 @@ const A11Y_RULES: A11yRule[] = [
 /**
  * Run a full accessibility audit against source files.
  *
- * Evaluates all 111 accessibility rules against the provided source code
+ * Evaluates all 117 accessibility rules against the provided source code
  * and computes an aggregate score with detailed per-rule results, including
  * WCAG 2.1 AA criteria coverage metrics.
  *
@@ -6541,7 +6899,7 @@ const A11Y_RULES: A11yRule[] = [
  * const sources = { 'Button.svelte': btnSrc, 'app.css': cssSrc };
  * const audit = auditAccessibility(sources);
  * console.log(audit.overallScore);  // 85
- * console.log(audit.rules.length);  // 111
+ * console.log(audit.rules.length);  // 117
  * console.log(audit.totalWcagCriteria);  // 50
  * console.log(audit.wcagCoverage);  // 78
  */
