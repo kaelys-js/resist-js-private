@@ -10,7 +10,9 @@ coverage/
 .env.*
 !.env.example
 .agents/
-.claude/
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
 .worktrees/
 .playwright-mcp
 test-results/
