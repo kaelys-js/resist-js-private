@@ -407,10 +407,10 @@ The editor targets WCAG 2.2 Level AA conformance across all custom components (s
 
 ### Screen Reader Announcements
 
-The `announce.svelte.ts` utility (`$lib/utils/`) provides a reactive announcement pattern:
+The `announce.svelte.ts` utility (`@/ui/announce/`) provides a reactive announcement pattern:
 
 ```typescript
-import { announce } from '$lib/utils/announce.svelte';
+import { announce } from '@/ui/announce/announce.svelte';
 announce('3 results found');  // Spoken by screen readers via aria-live region
 ```
 

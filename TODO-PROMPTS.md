@@ -1,6 +1,7 @@
 This: 
 
 Need it to be shared so any product can use it.
+Create/Extend Tests For The Implementation (Based On TDD)
 
 CRITICAL: Re-Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
 ---

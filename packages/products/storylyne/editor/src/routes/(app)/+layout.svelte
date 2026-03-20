@@ -13,8 +13,8 @@
   import { IsMobile } from '@/ui/hooks/is-mobile.svelte.js';
   import type { Str, Num, Bool, Void } from '@/schemas/common';
   import type { Result } from '@/schemas/result/result';
-  import { localeStore, t } from '$lib/i18n.svelte';
-  import { OG_LOCALES } from '$lib/og-locales';
+  import { localeStore, t } from '$lib/stores/i18n.svelte';
+  import { toOgLocale } from '@/locale/og';
   import { initEditorStore, type EditorStore } from '$lib/stores/editor-state.svelte';
   import { initDebugStore, type DebugStore } from '$lib/stores/debug-state.svelte';
   import { applyUrlOverrides } from '$lib/utils/url-params';
@@ -25,10 +25,10 @@
   import { log } from '@/utils/core/logger';
   import { APP_TAGLINE, STORAGE_PREFIX, THEME_COLORS, storageKey } from '$lib/config/app-meta';
   import { getBuildInfo } from '$lib/config/build-info';
-  import { getAnnouncement } from '$lib/utils/announce.svelte';
+  import { getAnnouncement } from '@/ui/announce/announce.svelte';
   import type { ServerProject, ServerScene } from '$lib/server/data/types';
   import { addNavigationBreadcrumb } from '$lib/errors/breadcrumbs';
-  import { setPreferenceCookie } from '$lib/utils/preference-cookie';
+  import { setPreferenceCookie } from '@/utils/core/preference-cookie';
   import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';
 
   const { children, data } = $props();
@@ -225,7 +225,7 @@
         const sidebarPx: Num = Math.round((layout[0] / 100) * viewportWidth);
         currentSidebarPx = sidebarPx;
         localStorage.setItem(SIDEBAR_PX_KEY, String(sidebarPx));
-        setPreferenceCookie('sidebar-px', String(sidebarPx));
+        setPreferenceCookie(STORAGE_PREFIX, 'sidebar-px', String(sidebarPx));
       } catch {
         /* ignore malformed data */
       }
@@ -241,7 +241,7 @@
     providerEl.style.setProperty('--sidebar-width', `${widthPx}px`);
     // Persist pixel width directly — PaneForge's internal storage bypasses our adapter.
     localStorage.setItem(SIDEBAR_PX_KEY, String(widthPx));
-    setPreferenceCookie('sidebar-px', String(widthPx));
+    setPreferenceCookie(STORAGE_PREFIX, 'sidebar-px', String(widthPx));
   }
 
   function handleCollapse(): Void {
@@ -327,7 +327,7 @@
   $effect(() => {
     const delay: Num = store.app.mockDataDelay;
     if (!browser) return;
-    setPreferenceCookie('mockDataDelay', String(delay));
+    setPreferenceCookie(STORAGE_PREFIX, 'mockDataDelay', String(delay));
   });
 
   // ── Store → sidebar open cookie sync ──────────────────────────────────
@@ -336,7 +336,7 @@
   $effect(() => {
     const open: Bool = store.app.sidebarOpen;
     if (!browser) return;
-    setPreferenceCookie('sidebar-open', String(open));
+    setPreferenceCookie(STORAGE_PREFIX, 'sidebar-open', String(open));
   });
 
   // ── Store → PaneForge sidebar sync ────────────────────────────────────
@@ -368,7 +368,12 @@
       return result.ok ? result.data : `${store.app.appName} — ${APP_TAGLINE}`;
     })(),
   );
-  const ogLocale: Str = $derived(OG_LOCALES[store.app.locale] ?? 'en_US');
+  const ogLocale: Str = $derived.by(() => {
+    const r = toOgLocale(store.app.locale);
+    // UI boundary — $derived must produce a value; error logged below
+    if (!r.ok) log.warn(`OG locale resolution failed (${r.error.code})`);
+    return r.ok ? r.data : 'en_US';
+  });
 
   // Error title map — must live in layout so title reactively clears on navigation.
   // Svelte's <svelte:head> sets document.title directly; when +error.svelte unmounts,

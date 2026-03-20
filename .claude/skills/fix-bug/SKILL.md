@@ -97,50 +97,11 @@ Only after user approval:
 - Report to user: "Fix applied. [summary]. Please verify visually."
 - Do NOT do visual testing unless the user asks you to
 
-### 6. Visual Verify via Playwright MCP (ONLY if user asks)
-
-**⚠️ USE THE HELPER SCRIPTS. NO AD-HOC TESTING. ⚠️**
-
-Use `mcp__plugin_playwright_playwright__*` tools ONLY. Follow this EXACT sequence:
-
-**STEP 6a — Navigate & Screenshot:**
-1. Navigate to `http://localhost:3100` (verify dev server port first)
-2. Take initial screenshot to see current state
-
-**STEP 6b — Register Discovery Helper (MANDATORY):**
-3. Read `dev-harness-discovery.js` from the expand-feature skill directory (`.claude/skills/expand-feature/dev-harness-discovery.js`)
-4. Register it via `browser_evaluate` — this creates `window.__discover`
-5. Run `__discover.panels()` — find all sidebar panels and body IDs
-6. Run `__discover.fullInventory('<feature>-body')` — get COMPLETE control inventory
-
-**STEP 6c — Register Control Helper (MANDATORY):**
-7. Read `dev-harness-helper.js` from the expand-feature skill directory (`.claude/skills/expand-feature/dev-harness-helper.js`)
-8. Register it via `browser_evaluate` — use `window.__helper = createHelper('<feature>-body')`
-
-**STEP 6d — Test the Specific Bug Fix:**
-9. Use the helpers to navigate to the relevant controls
-10. Reproduce the original bug scenario — verify it no longer occurs
-11. Test adjacent functionality — verify nothing else broke
-12. Take before/after screenshots as proof
-13. Document ✅ fix verified or ❌ still broken
-
-**Key Dev Harness DOM Patterns:**
-- Panel body: `#<feature>-body` (e.g., `#fog-body`, `#glow-body`)
-- Sub-sections: `.cg > .cg-header > span:first-child` (section name) + `.cg-body` (controls)
-- Toggle switches: `.toggle-switch` div with class `on` when enabled (NOT `<input type="checkbox">`, NOT `.active`)
-- Slider rows: `.control-row` with `.control-label` + `input[type="range"]`
-- Select rows: `.control-row` with `.control-label` + `<select>`
-- Sliders MUST use prototype setter + dispatch events: `Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(slider, val)` then dispatch `input` + `change` events. Direct `.value = x` does NOT trigger change handlers.
-
-**Global Runtime Object:**
-- `__WEBFORGE__` — contains: `scene`, `runtime`, `BABYLON`, `tilemap`, `setTime(hour24)`, `getTime()`, `switchPreset(name)`, `status()`
-- Scene: `__WEBFORGE__.scene` directly (NOT `.instance.scene`)
-
 **⚠️ NEVER DISMISS BROKEN FEATURES AS "EXPECTED BEHAVIOR" ⚠️**
 
 If a feature does NOT produce visible output when it should, it is a BUG — not "expected behavior". Investigate via `browser_evaluate`, diagnose, and fix. NEVER write "this is expected Babylon.js behavior" or "this cannot be verified" as an excuse.
 
-### 7. Commit (only if user asks)
+### 6. Commit (only if user asks)
 
 ## Hard Rules
 

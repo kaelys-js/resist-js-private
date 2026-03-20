@@ -1,0 +1,20 @@
+{
+  "name": "@/lint",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "webforge-lint": "./src/cli.ts"
+  },
+  "scripts": {
+    "qa:test": "cd ../../../.. && vitest run --project lint"
+  },
+  "dependencies": {
+    "oxc-parser": "^0.72.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}

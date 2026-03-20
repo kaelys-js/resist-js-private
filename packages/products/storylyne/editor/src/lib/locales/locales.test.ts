@@ -1,16 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import { safeParse } from '@/utils/result/safe';
 import { EditorLocaleSchema, type EditorLocaleRaw } from './schema';
-import { en } from './en';
-import { ja } from './ja';
-import { zh } from './zh';
-import { ko } from './ko';
-import { fr } from './fr';
-import { de } from './de';
-import { es } from './es';
 import type { Num, Str } from '@/schemas/common';
 
-const ALL_LOCALES: Record<Str, EditorLocaleRaw> = { en, ja, zh, ko, fr, de, es };
+/**
+ * Dynamically discover all locale files in this directory via `import.meta.glob`.
+ * Excludes `schema.ts` and test files. Adding a new locale requires no import changes.
+ */
+const localeModules: Record<Str, Record<Str, EditorLocaleRaw>> = import.meta.glob(
+  './!(*schema|*.test).ts',
+  { eager: true },
+);
+
+const ALL_LOCALES: Record<Str, EditorLocaleRaw> = {};
+for (const [path, mod] of Object.entries(localeModules)) {
+  const match: RegExpMatchArray | null = path.match(/\/(\w+)\.ts$/);
+  if (!match) continue;
+  const [, code]: RegExpMatchArray = match;
+  const [data]: EditorLocaleRaw[] = Object.values(mod);
+  if (data) ALL_LOCALES[code] = data;
+}
+
 const LOCALE_CODES: readonly Str[] = Object.keys(ALL_LOCALES);
 
 /**
@@ -33,7 +43,8 @@ function leafKeys(obj: Record<Str, unknown>, prefix = ''): Str[] {
   return keys.toSorted();
 }
 
-const enKeys: readonly Str[] = leafKeys(en);
+const enLocale: EditorLocaleRaw = ALL_LOCALES['en']!;
+const enKeys: readonly Str[] = leafKeys(enLocale);
 
 // =============================================================================
 // Structural parity — every locale has the exact same key set
@@ -78,7 +89,8 @@ describe('no empty strings in any locale', () => {
       const entries = leafEntries(ALL_LOCALES[code]!);
       for (const [path, value] of entries) {
         expect(typeof value, `${code}.${path} should be a string`).toBe('string');
-        expect((value as string).length, `${code}.${path} should not be empty`).toBeGreaterThan(0);
+        // Cast safe: typeof check on previous line guarantees string
+        expect((value as Str).length, `${code}.${path} should not be empty`).toBeGreaterThan(0);
       }
     });
   }
@@ -133,7 +145,7 @@ describe('localized meta.description', () => {
   for (const code of LOCALE_CODES) {
     if (code === 'en') continue;
     it(`${code}.meta.description differs from en`, () => {
-      expect(ALL_LOCALES[code]!.meta.description).not.toBe(en.meta.description);
+      expect(ALL_LOCALES[code]!.meta.description).not.toBe(enLocale.meta.description);
     });
   }
 });
@@ -172,7 +184,7 @@ describe('namespace key counts', () => {
   for (const [ns, expectedCount] of Object.entries(NAMESPACE_KEY_COUNTS)) {
     it(`en.${ns} has ${expectedCount} keys`, () => {
       const actual: Num = Object.keys(
-        en[ns as keyof EditorLocaleRaw] as Record<Str, unknown>,
+        enLocale[ns as keyof EditorLocaleRaw] as Record<Str, unknown>,
       ).length;
       expect(actual).toBe(expectedCount);
     });

@@ -6,7 +6,7 @@
  * messages (e.g., "Copied!", "3 results found") to screen readers.
  *
  * @example
- * import { announce } from '$lib/utils/announce.svelte';
+ * import { announce } from '@/ui/announce/announce.svelte';
  * announce('Copied to clipboard');
  */
 

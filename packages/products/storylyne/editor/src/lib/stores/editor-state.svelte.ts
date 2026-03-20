@@ -22,9 +22,9 @@ import {
   type AppPreferences,
   type FeatureFlags,
 } from '$lib/schemas/editor-state';
-import { APP_NAME, storageKey } from '$lib/config/app-meta';
+import { APP_NAME, STORAGE_PREFIX, storageKey } from '$lib/config/app-meta';
 import { applyPlanPreset } from '$lib/config/subscription-plans';
-import { setPreferenceCookie } from '$lib/utils/preference-cookie';
+import { setPreferenceCookie } from '@/utils/core/preference-cookie';
 
 // =============================================================================
 // Constants
@@ -211,7 +211,7 @@ function setTheme(theme: Str): Result<Void> {
   _app = { ..._app, theme: result.data };
   // Persist theme to cookie so hooks.server.ts can inject it via transformPageChunk
   // to prevent theme flash during hydration.
-  if (typeof document !== 'undefined') setPreferenceCookie('theme', result.data);
+  if (typeof document !== 'undefined') setPreferenceCookie(STORAGE_PREFIX, 'theme', result.data);
   return save();
 }
 

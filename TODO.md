@@ -55,7 +55,6 @@
   - Slider Pill With: Help Icon, Range, Unit, Min, Max, Step, Feature Flag, Custom Input w/ Validation
 - [Storylyne]
   - Extract Shared Workspace Logic
-Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
     - Error Pages + Routes
     - DevToolbar
     - * Review lib, etc

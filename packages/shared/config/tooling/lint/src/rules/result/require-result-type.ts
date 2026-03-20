@@ -1,0 +1,182 @@
+/**
+ * Rule: result/require-result-type
+ *
+ * Exported functions that might fail (await, fetch, try/catch, parse calls)
+ * must return `Result<T>` or `Promise<Result<T>>` for explicit error handling.
+ *
+ * @module
+ */
+
+import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+
+/**
+ * Check if a type annotation is a Result type.
+ *
+ * @param {AstNode} node - The type annotation node
+ * @returns {boolean} Whether the type is Result or Ok | Err union
+ */
+function isResultType(node: AstNode): boolean {
+  if (node.type === 'TSTypeReference') {
+    const typeName = node.typeName as AstNode | undefined;
+    if (!typeName) return false;
+
+    const name: string = (typeName.name as string) ?? '';
+    return name === 'Result' || name === 'Ok' || name === 'Err';
+  }
+
+  // Handle union types like Ok<T> | Err
+  if (node.type === 'TSUnionType') {
+    const types = node.types as AstNode[] | undefined;
+    if (!types) return false;
+
+    return types.some((t: AstNode): boolean => {
+      if (t.type === 'TSTypeReference') {
+        const typeName = t.typeName as AstNode | undefined;
+        const name: string = (typeName?.name as string) ?? '';
+        return name === 'Ok' || name === 'Err';
+      }
+      return false;
+    });
+  }
+
+  return false;
+}
+
+/**
+ * Check if a type annotation is Promise<Result<T>>.
+ *
+ * @param {AstNode} node - The type annotation node
+ * @returns {boolean} Whether the type is Promise<Result<...>>
+ */
+function isPromiseOfResult(node: AstNode): boolean {
+  if (node.type !== 'TSTypeReference') return false;
+
+  const typeName = node.typeName as AstNode | undefined;
+  if (!typeName) return false;
+
+  const name: string = (typeName.name as string) ?? '';
+  if (name !== 'Promise') return false;
+
+  // oxc-parser uses `typeArguments` (not `typeParameters`) for generic args
+  const typeArgs = (node.typeArguments ?? node.typeParameters) as AstNode | undefined;
+  if (!typeArgs) return false;
+
+  const params = typeArgs.params as AstNode[] | undefined;
+  if (!params || params.length === 0) return false;
+
+  return isResultType(params[0]);
+}
+
+/** Patterns for pure predicate functions exempt from Result requirement. */
+const PREDICATE_PATTERNS: readonly RegExp[] = [
+  /^is[A-Z]/,
+  /^has[A-Z]/,
+  /^can[A-Z]/,
+  /^should[A-Z]/,
+];
+
+/**
+ * Check a function and report if it should return Result but doesn't.
+ *
+ * @param {AstNode} node - The function node
+ * @param {VisitorContext} context - The visitor context
+ * @param {string} [funcName] - Optional function name override
+ * @returns {LintResult | null} A lint result or null
+ */
+function checkFunctionReturnType(
+  node: AstNode,
+  context: VisitorContext,
+  funcName?: string,
+): LintResult | null {
+  const returnType = node.returnType as AstNode | undefined;
+  if (!returnType) return null;
+
+  const typeAnnotation = returnType.typeAnnotation as AstNode | undefined;
+  if (!typeAnnotation) return null;
+
+  const name: string = funcName ?? ((node.id as AstNode)?.name as string) ?? 'anonymous';
+
+  if (isResultType(typeAnnotation)) return null;
+  if (isPromiseOfResult(typeAnnotation)) return null;
+
+  // Check if void/Promise<void> — these don't need Result
+  const typeText: string = context.content.slice(typeAnnotation.start, typeAnnotation.end);
+  if (typeText === 'void' || typeText === 'Promise<void>') return null;
+
+  // Exempt boolean return types from pure predicate functions (is*, has*, can*, should*)
+  const isPredicate: boolean = PREDICATE_PATTERNS.some((p: RegExp): boolean => p.test(name));
+  if (isPredicate && (typeText === 'boolean' || typeText === 'Bool')) return null;
+
+  return {
+    file: context.file,
+    line: node.loc.start.line,
+    column: node.loc.start.column + 1,
+    severity: 'warning',
+    message: `Function '${name}' should return Result<T> for explicit error handling`,
+    ruleId: 'result/require-result-type',
+    tip: 'Use Result type to make errors explicit in the return type',
+    fix: {
+      range: { start: typeAnnotation.start, end: typeAnnotation.end },
+      text: `Result<${typeText}>`,
+    },
+  };
+}
+
+const rule: TypeScriptRule = {
+  id: 'result/require-result-type',
+  description: 'Exported functions that might fail should return Result<T>',
+  patterns: ['**/*.ts', '**/*.svelte.ts'],
+
+  visitor: {
+    ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
+      const results: LintResult[] = [];
+
+      const declaration = node.declaration as AstNode | undefined;
+      if (!declaration) return results;
+
+      if (declaration.type === 'FunctionDeclaration') {
+        const result: LintResult | null = checkFunctionReturnType(declaration, context);
+        if (result) results.push(result);
+      }
+
+      if (declaration.type === 'VariableDeclaration') {
+        const declarations = declaration.declarations as AstNode[] | undefined;
+        if (!declarations) return results;
+
+        for (const decl of declarations) {
+          const init = decl.init as AstNode | undefined;
+          if (
+            init &&
+            (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression')
+          ) {
+            const funcName: string = ((decl.id as AstNode)?.name as string) ?? '';
+            const result: LintResult | null = checkFunctionReturnType(init, context, funcName);
+            if (result) results.push(result);
+          }
+        }
+      }
+
+      return results;
+    },
+
+    ExportDefaultDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
+      const results: LintResult[] = [];
+
+      const declaration = node.declaration as AstNode | undefined;
+      if (!declaration) return results;
+
+      if (
+        declaration.type === 'FunctionDeclaration' ||
+        declaration.type === 'ArrowFunctionExpression' ||
+        declaration.type === 'FunctionExpression'
+      ) {
+        const result: LintResult | null = checkFunctionReturnType(declaration, context);
+        if (result) results.push(result);
+      }
+
+      return results;
+    },
+  },
+};
+
+export default rule;

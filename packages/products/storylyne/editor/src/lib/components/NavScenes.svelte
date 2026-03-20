@@ -11,7 +11,7 @@
   import * as Popover from '@/ui/popover/index.js';
   import * as Sidebar from '@/ui/sidebar/index.js';
   import { useSidebar } from '@/ui/sidebar/context.svelte.js';
-  import { localeStore, t } from '$lib/i18n.svelte';
+  import { localeStore, t } from '$lib/stores/i18n.svelte';
   import type { ServerScene } from '$lib/server/data/types';
   import type { Bool, Str } from '@/schemas/common';
   import EmptyScenes from './EmptyScenes.svelte';

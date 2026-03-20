@@ -9,8 +9,8 @@
   import { Button } from '@/ui/button/index.js';
 
   import { discoverFeatureFlags, humanizeKey } from '$lib/debug/dev-toolbar-registry';
-  import { localeStore, t } from '$lib/i18n.svelte';
-  import { announce } from '$lib/utils/announce.svelte';
+  import { localeStore, t } from '$lib/stores/i18n.svelte';
+  import { announce } from '@/ui/announce/announce.svelte';
   import type { Bool, Str, Void } from '@/schemas/common';
   import type { Result } from '@/schemas/result/result';
   import type { EditorStore } from '$lib/stores/editor-state.svelte';

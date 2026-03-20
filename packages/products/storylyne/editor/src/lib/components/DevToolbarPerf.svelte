@@ -7,7 +7,7 @@
   import * as Tooltip from '@/ui/tooltip/index.js';
   import TooltipLabel from '@/ui/tooltip-label/TooltipLabel.svelte';
   import { Separator } from '@/ui/separator/index.js';
-  import { localeStore, t } from '$lib/i18n.svelte';
+  import { localeStore, t } from '$lib/stores/i18n.svelte';
   import type { Str, Num, Bool, Void } from '@/schemas/common';
   import {
     getConnectionQuality,

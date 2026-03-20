@@ -1,6 +1,6 @@
 <script lang="ts">
   import ThemeSwitcher from '@/ui/theme-switcher/ThemeSwitcher.svelte';
-  import { localeStore, t } from '$lib/i18n.svelte';
+  import { localeStore, t } from '$lib/stores/i18n.svelte';
   import { useEditorStore } from '$lib/stores/editor-state.svelte';
   import type { Str } from '@/schemas/common';
 
