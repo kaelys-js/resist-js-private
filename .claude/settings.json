@@ -1,0 +1,122 @@
+{
+  "enabledPlugins": {
+    "claude-code-setup@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "firecrawl@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "posthog@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-destructive-git.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-commit-verify.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "TodoWrite",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/update-session-tasks.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/post-changelog-remind.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/session-state-reminder.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/post-edit-verify.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/post-edit-verify.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/post-tool-error.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/session-start-orientation.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/session-start-orientation.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/session-start-orientation.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/session-start-orientation.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "effortLevel": "high"
+}
