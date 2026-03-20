@@ -6,7 +6,7 @@
    * popular tags, and recent activity feed.
    */
   import type { Num, Str } from '@/schemas/common';
-  import type { LensMeta, LensStatus, CategoryGroup } from '@/ui/lens/types.js';
+  import type { LensMeta, CategoryGroup } from '@/ui/lens/types.js';
   import type { Result } from '@/schemas/result/result';
   import {
     extractDir,
@@ -19,6 +19,7 @@
   import Badge from '@/ui/badge/badge.svelte';
   import * as Tooltip from '@/ui/tooltip/index.js';
   import { getContext, type Component } from 'svelte';
+  import { slide } from 'svelte/transition';
   import { page } from '$app/stores';
   import {
     CATEGORY_ORDER,
@@ -33,10 +34,7 @@
   import ComponentIcon from '@lucide/svelte/icons/component';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
-  import Sparkles from '@lucide/svelte/icons/sparkles';
-  import RefreshCw from '@lucide/svelte/icons/refresh-cw';
-  import Trash2 from '@lucide/svelte/icons/trash-2';
-  import PackageOpen from '@lucide/svelte/icons/package-open';
+  import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import TagIcon from '@lucide/svelte/icons/tag';
   import Shapes from '@lucide/svelte/icons/shapes';
   import BookOpen from '@lucide/svelte/icons/book-open';
@@ -265,31 +263,7 @@
   /*  Activity feed                                                      */
   /* ------------------------------------------------------------------ */
 
-  /** Status icon mapping. */
-  const STATUS_ICONS: Record<LensStatus, Component> = {
-    new: Sparkles,
-    updated: RefreshCw,
-    deprecated: Trash2,
-    placeholder: PackageOpen,
-  };
-
-  /** Status color mapping. */
-  const STATUS_COLORS: Record<LensStatus, Str> = {
-    new: 'text-emerald-600 dark:text-emerald-400' as Str,
-    updated: 'text-blue-600 dark:text-blue-400' as Str,
-    deprecated: 'text-red-600 dark:text-red-400' as Str,
-    placeholder: 'text-amber-600 dark:text-amber-400' as Str,
-  };
-
-  /** Status badge colors. */
-  const STATUS_BADGE_COLORS: Record<LensStatus, Str> = {
-    new: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400' as Str,
-    updated: 'bg-blue-500/15 text-blue-700 dark:text-blue-400' as Str,
-    deprecated: 'bg-red-500/15 text-red-700 dark:text-red-400' as Str,
-    placeholder: 'bg-amber-500/15 text-amber-700 dark:text-amber-400' as Str,
-  };
-
-  /** Activity feed — components with a status (new, updated, deprecated). */
+  /** Components with a status (new, updated, deprecated) for hub card count. */
   const activityEntries: Array<{ name: Str; meta: LensMeta }> = componentNames
     .filter((n: Str): boolean => {
       const m: LensMeta | undefined = metaByName.get(n);
@@ -338,6 +312,16 @@
   };
 
   const hubCards: HubCard[] = [
+    {
+      href: '/getting-started' as Str,
+      title: 'Getting Started' as Str,
+      description: 'Installation, setup, and usage guide' as Str,
+      icon: BookOpen,
+      color: 'text-emerald-600 dark:text-emerald-400' as Str,
+      bg: 'bg-emerald-500/10' as Str,
+      count: 0 as Num,
+      countLabel: '' as Str,
+    },
     {
       href: '/components/all' as Str,
       title: 'All Components' as Str,
@@ -389,36 +373,6 @@
       countLabel: 'icons' as Str,
     },
     {
-      href: '/getting-started' as Str,
-      title: 'Getting Started' as Str,
-      description: 'Installation, setup, and usage guide' as Str,
-      icon: BookOpen,
-      color: 'text-emerald-600 dark:text-emerald-400' as Str,
-      bg: 'bg-emerald-500/10' as Str,
-      count: 0 as Num,
-      countLabel: '' as Str,
-    },
-    {
-      href: '/changelog' as Str,
-      title: "What's New" as Str,
-      description: 'Latest changes, additions, and deprecations' as Str,
-      icon: Newspaper,
-      color: 'text-orange-600 dark:text-orange-400' as Str,
-      bg: 'bg-orange-500/10' as Str,
-      count: activityEntries.length as Num,
-      countLabel: 'updates' as Str,
-    },
-    {
-      href: '/browser-support' as Str,
-      title: 'Browser Support' as Str,
-      description: 'Supported browsers, CSS features, and framework compatibility' as Str,
-      icon: Monitor,
-      color: 'text-cyan-600 dark:text-cyan-400' as Str,
-      bg: 'bg-cyan-500/10' as Str,
-      count: 0 as Num,
-      countLabel: '' as Str,
-    },
-    {
       href: '/styling' as Str,
       title: 'Styling' as Str,
       description: 'Theme system, dark mode, colors, typography, and customization' as Str,
@@ -429,12 +383,32 @@
       countLabel: '' as Str,
     },
     {
+      href: '/changelog' as Str,
+      title: "What's New" as Str,
+      description: 'Latest changes, additions, and deprecations' as Str,
+      icon: Newspaper,
+      color: 'text-orange-600 dark:text-orange-400' as Str,
+      bg: 'bg-orange-500/10' as Str,
+      count: 0 as Num,
+      countLabel: '' as Str,
+    },
+    {
       href: '/accessibility' as Str,
       title: 'Accessibility' as Str,
       description: 'WCAG compliance, keyboard navigation, and screen reader support' as Str,
       icon: AccessibilityIcon,
       color: 'text-indigo-600 dark:text-indigo-400' as Str,
       bg: 'bg-indigo-500/10' as Str,
+      count: 0 as Num,
+      countLabel: '' as Str,
+    },
+    {
+      href: '/browser-support' as Str,
+      title: 'Browser Support' as Str,
+      description: 'Supported browsers, CSS features, and framework compatibility' as Str,
+      icon: Monitor,
+      color: 'text-cyan-600 dark:text-cyan-400' as Str,
+      bg: 'bg-cyan-500/10' as Str,
       count: 0 as Num,
       countLabel: '' as Str,
     },
@@ -466,6 +440,11 @@
 
   /** Whether the health details section is expanded. */
   let healthExpanded: boolean = $state(false);
+
+  /** Section collapse state — all open by default. */
+  let exploreOpen: boolean = $state(true);
+  let categoriesOpen: boolean = $state(true);
+  let tagsOpen: boolean = $state(true);
 </script>
 
 <div class="w-full">
@@ -486,163 +465,6 @@
 
   <!-- Page content with padding -->
   <div class="flex flex-col gap-8 px-6 py-6 md:px-10 md:py-8">
-    <!-- At a Glance — Quick Stats (clickable, with tooltips + arrows) -->
-    <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">
-      <Tooltip.Root delayDuration={300}>
-        <Tooltip.Trigger>
-          {#snippet child({ props: tipProps })}
-            <a
-              href="/components/all"
-              class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
-              {...tipProps}
-            >
-              <div class="flex items-center gap-2 text-muted-foreground">
-                <ComponentIcon class="size-4" />
-                <span class="text-xs font-medium uppercase tracking-wider">Components</span>
-                <ArrowRight
-                  class="ml-auto size-3 text-muted-foreground/0 transition-all group-hover:text-primary"
-                />
-              </div>
-              <p class="mt-2 text-2xl font-bold tabular-nums group-hover:text-primary">
-                {componentNames.length}
-              </p>
-            </a>
-          {/snippet}
-        </Tooltip.Trigger>
-        <Tooltip.Content sideOffset={4} portalProps={{ disabled: true }}>
-          Total UI components discovered in @/ui
-        </Tooltip.Content>
-      </Tooltip.Root>
-      <Tooltip.Root delayDuration={300}>
-        <Tooltip.Trigger>
-          {#snippet child({ props: tipProps })}
-            <a
-              href="/components/category"
-              class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
-              {...tipProps}
-            >
-              <div class="flex items-center gap-2 text-muted-foreground">
-                <LayoutGrid class="size-4" />
-                <span class="text-xs font-medium uppercase tracking-wider">Categories</span>
-                <ArrowRight
-                  class="ml-auto size-3 text-muted-foreground/0 transition-all group-hover:text-primary"
-                />
-              </div>
-              <p class="mt-2 text-2xl font-bold tabular-nums group-hover:text-primary">
-                {groupedComponents.length}
-              </p>
-            </a>
-          {/snippet}
-        </Tooltip.Trigger>
-        <Tooltip.Content
-          side="top"
-          sideOffset={4}
-          class="max-h-96 overflow-y-auto p-3"
-          portalProps={{ disabled: true }}
-        >
-          <div class="flex flex-col gap-1.5">
-            {#each groupedComponents as group (group.name)}
-              {@const DotIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
-              {@const dotColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
-              <div class="flex items-center gap-2 text-xs">
-                <DotIcon class="size-3 shrink-0 {dotColor}" />
-                <span class="capitalize">{group.name}</span>
-                <span class="text-muted-foreground">({group.components.length})</span>
-              </div>
-            {/each}
-          </div>
-        </Tooltip.Content>
-      </Tooltip.Root>
-      <Tooltip.Root delayDuration={300}>
-        <Tooltip.Trigger>
-          {#snippet child({ props: tipProps })}
-            <a
-              href="/components/tags"
-              class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
-              {...tipProps}
-            >
-              <div class="flex items-center gap-2 text-muted-foreground">
-                <TagIcon class="size-4" />
-                <span class="text-xs font-medium uppercase tracking-wider">Tags</span>
-                <ArrowRight
-                  class="ml-auto size-3 text-muted-foreground/0 transition-all group-hover:text-primary"
-                />
-              </div>
-              <p class="mt-2 text-2xl font-bold tabular-nums group-hover:text-primary">
-                {allTags.length}
-              </p>
-            </a>
-          {/snippet}
-        </Tooltip.Trigger>
-        <Tooltip.Content
-          side="top"
-          sideOffset={4}
-          class="max-h-96 overflow-y-auto p-3"
-          portalProps={{ disabled: true }}
-        >
-          <div class="grid grid-cols-5 gap-1.5">
-            {#each allTags as tag (tag)}
-              <span
-                class="inline-flex items-center gap-0.5 rounded bg-primary-foreground/20 px-1.5 py-1 text-xs"
-              >
-                <TagIcon class="size-3 shrink-0 opacity-60" />{tag}
-              </span>
-            {/each}
-          </div>
-        </Tooltip.Content>
-      </Tooltip.Root>
-      <Tooltip.Root delayDuration={300}>
-        <Tooltip.Trigger>
-          {#snippet child({ props: tipProps })}
-            <a
-              href="/tokens"
-              class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
-              {...tipProps}
-            >
-              <div class="flex items-center gap-2 text-muted-foreground">
-                <Palette class="size-4" />
-                <span class="text-xs font-medium uppercase tracking-wider">Tokens</span>
-                <ArrowRight
-                  class="ml-auto size-3 text-muted-foreground/0 transition-all group-hover:text-primary"
-                />
-              </div>
-              <p class="mt-2 text-2xl font-bold tabular-nums group-hover:text-primary">
-                {tokenCount}
-              </p>
-            </a>
-          {/snippet}
-        </Tooltip.Trigger>
-        <Tooltip.Content sideOffset={4} portalProps={{ disabled: true }}>
-          CSS custom properties extracted from app.css across all themes
-        </Tooltip.Content>
-      </Tooltip.Root>
-      <Tooltip.Root delayDuration={300}>
-        <Tooltip.Trigger>
-          {#snippet child({ props: tipProps })}
-            <a
-              href="/icons"
-              class="group flex flex-col rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm"
-              {...tipProps}
-            >
-              <div class="flex items-center gap-2 text-muted-foreground">
-                <Shapes class="size-4" />
-                <span class="text-xs font-medium uppercase tracking-wider">Icons</span>
-                <ArrowRight
-                  class="ml-auto size-3 text-muted-foreground/0 transition-all group-hover:text-primary"
-                />
-              </div>
-              <p class="mt-2 text-2xl font-bold tabular-nums group-hover:text-primary">
-                {iconCount.toLocaleString()}
-              </p>
-            </a>
-          {/snippet}
-        </Tooltip.Trigger>
-        <Tooltip.Content sideOffset={4} portalProps={{ disabled: true }}>
-          Lucide icon library browser with search, preview, and export
-        </Tooltip.Content>
-      </Tooltip.Root>
-    </div>
-
     <!-- Health & Quality -->
     <div class="rounded-lg border bg-card">
       <div class="flex items-center gap-3 p-4">
@@ -755,7 +577,15 @@
                   <tbody>
                     {#each ruleViolationCounts as rv (rv.rule)}
                       <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/40">
-                        <td class="px-3 py-1.5 font-mono text-muted-foreground">R{rv.rule}</td>
+                        <td class="px-3 py-1.5 text-muted-foreground">
+                          <span class="inline-flex items-center gap-1.5">
+                            <span
+                              class="inline-flex whitespace-nowrap rounded bg-blue-500/10 px-1 py-0.5 text-[10px] font-semibold leading-none text-blue-600 dark:text-blue-400"
+                              >Lens</span
+                            >
+                            <span class="font-mono">R{rv.rule}</span>
+                          </span>
+                        </td>
                         <td class="px-3 py-1.5">{rv.name}</td>
                         <td class="px-3 py-1.5 text-right tabular-nums text-muted-foreground">
                           {rv.count} component{(rv.count as number) !== 1 ? 's' : ''}
@@ -784,17 +614,25 @@
                 <table class="w-full text-xs">
                   <thead>
                     <tr class="border-b bg-muted/50">
-                      <th class="px-3 py-1.5 text-left font-medium text-muted-foreground">WCAG</th>
                       <th class="px-3 py-1.5 text-left font-medium text-muted-foreground">Rule</th>
+                      <th class="px-3 py-1.5 text-left font-medium text-muted-foreground">Name</th>
                       <th class="px-3 py-1.5 text-right font-medium text-muted-foreground"
                         >Failures</th
                       >
                     </tr>
                   </thead>
                   <tbody>
-                    {#each a11yFailingRules as rule (rule.id)}
+                    {#each a11yFailingRules.toSorted((a, b) => (b.failCount as number) - (a.failCount as number)) as rule (rule.id)}
                       <tr class="border-b transition-colors last:border-b-0 hover:bg-muted/40">
-                        <td class="px-3 py-1.5 font-mono text-muted-foreground">{rule.wcag}</td>
+                        <td class="px-3 py-1.5 text-muted-foreground">
+                          <span class="inline-flex items-center gap-1.5">
+                            <span
+                              class="inline-flex whitespace-nowrap rounded bg-purple-500/10 px-1 py-0.5 text-[10px] font-semibold leading-none text-purple-600 dark:text-purple-400"
+                              >{rule.standard}</span
+                            >
+                            <span class="font-mono">{rule.wcag}</span>
+                          </span>
+                        </td>
                         <td class="px-3 py-1.5">{rule.label}</td>
                         <td class="px-3 py-1.5 text-right tabular-nums text-muted-foreground">
                           {rule.failCount} failure{(rule.failCount as number) !== 1 ? 's' : ''}
@@ -861,34 +699,254 @@
 
     <!-- Explore Hub Grid -->
     <div>
-      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+      <button
+        type="button"
+        onclick={() => {
+          exploreOpen = !exploreOpen;
+        }}
+        class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+      >
+        <ChevronRight
+          class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {exploreOpen
+            ? 'rotate-90'
+            : ''}"
+        />
+        <Shapes class="size-5" />
         Explore
-      </h2>
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {#each hubCards as card (card.href)}
-          {@const CardIcon = card.icon}
-          <a
-            href={card.href}
-            class="group flex items-center gap-3 rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md"
-          >
-            <div class="flex size-10 shrink-0 items-center justify-center rounded-lg {card.bg}">
-              <CardIcon class="size-5 {card.color}" />
-            </div>
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2">
-                <h3 class="text-sm font-semibold group-hover:text-primary">{card.title}</h3>
-                {#if (card.count as number) > 0}
-                  {#if card.href === '/components/all'}
+      </button>
+      {#if exploreOpen}
+        <div transition:slide={{ duration: 200 }}>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {#each hubCards as card (card.href)}
+              {@const CardIcon = card.icon}
+              <a
+                href={card.href}
+                class="group flex items-center gap-3 rounded-lg border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md"
+              >
+                <div class="flex size-10 shrink-0 items-center justify-center rounded-lg {card.bg}">
+                  <CardIcon class="size-5 {card.color}" />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-sm font-semibold group-hover:text-primary">{card.title}</h3>
+                    {#if (card.count as number) > 0}
+                      <Tooltip.Provider disableHoverableContent={false}>
+                        <Tooltip.Root delayDuration={300}>
+                          <Tooltip.Trigger>
+                            {#snippet child({ props: hubBadgeTip })}
+                              <span
+                                class="inline-flex"
+                                onclick={(e) => e.preventDefault()}
+                                {...hubBadgeTip}
+                              >
+                                <Badge
+                                  variant="secondary"
+                                  class="cursor-default text-[10px] tabular-nums"
+                                >
+                                  {card.count.toLocaleString()}
+                                </Badge>
+                              </span>
+                            {/snippet}
+                          </Tooltip.Trigger>
+                          <Tooltip.Content
+                            side="bottom"
+                            sideOffset={4}
+                            class="max-h-64 overflow-y-auto p-3"
+                          >
+                            {#if card.href === '/components/all'}
+                              <div class="flex flex-col gap-0.5">
+                                {#each componentNames as comp (comp)}
+                                  <a
+                                    href="/components/{comp}"
+                                    class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-popover-foreground/80 transition-colors hover:bg-popover-foreground/10 hover:text-popover-foreground"
+                                    onclick={(e) => e.stopPropagation()}
+                                  >
+                                    <ComponentIcon class="size-3 shrink-0 opacity-50" />
+                                    <span class="flex-1">{toTitle(comp)}</span>
+                                    <ArrowRight class="size-3 shrink-0 opacity-40" />
+                                  </a>
+                                {/each}
+                              </div>
+                            {:else if card.href === '/components/category'}
+                              <div class="flex flex-col gap-0.5">
+                                {#each groupedComponents as group (group.name)}
+                                  {@const GrpIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
+                                  {@const grpColor =
+                                    CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
+                                  <a
+                                    href="/components/category/{group.name}"
+                                    class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-popover-foreground/80 transition-colors hover:bg-popover-foreground/10 hover:text-popover-foreground"
+                                    onclick={(e) => e.stopPropagation()}
+                                  >
+                                    <GrpIcon class="size-3 shrink-0 {grpColor}" />
+                                    <span class="flex-1 capitalize">{group.label}</span>
+                                    <span class="tabular-nums opacity-60"
+                                      >{group.components.length}</span
+                                    >
+                                  </a>
+                                {/each}
+                              </div>
+                            {:else if card.href === '/components/tags'}
+                              <div class="flex flex-col gap-0.5">
+                                {#each popularTags as pt (pt.tag)}
+                                  <a
+                                    href="/components/tags?tag={pt.tag}"
+                                    class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-popover-foreground/80 transition-colors hover:bg-popover-foreground/10 hover:text-popover-foreground"
+                                    onclick={(e) => e.stopPropagation()}
+                                  >
+                                    <TagIcon class="size-3 shrink-0 opacity-50" />
+                                    <span class="flex-1">{pt.tag}</span>
+                                    <span class="tabular-nums opacity-60">{pt.count}</span>
+                                  </a>
+                                {/each}
+                              </div>
+                            {:else if card.href === '/tokens'}
+                              <p class="text-xs text-popover-foreground/80">
+                                {card.count} CSS custom properties across all themes
+                              </p>
+                            {:else}
+                              <p class="text-xs text-popover-foreground/80">
+                                {card.count.toLocaleString()}
+                                {card.countLabel}
+                              </p>
+                            {/if}
+                          </Tooltip.Content>
+                        </Tooltip.Root>
+                      </Tooltip.Provider>
+                    {/if}
+                  </div>
+                  <p class="mt-0.5 truncate text-xs text-muted-foreground">{card.description}</p>
+                </div>
+                <ArrowRight
+                  class="size-4 shrink-0 text-muted-foreground/30 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
+                />
+              </a>
+            {/each}
+          </div>
+        </div>
+      {/if}
+    </div>
+
+    <!-- Categories at a Glance -->
+    <div>
+      <button
+        type="button"
+        onclick={() => {
+          categoriesOpen = !categoriesOpen;
+        }}
+        class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+      >
+        <ChevronRight
+          class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {categoriesOpen
+            ? 'rotate-90'
+            : ''}"
+        />
+        <LayoutGrid class="size-5" />
+        Categories
+        <Badge variant="secondary" class="text-xs">{groupedComponents.length}</Badge>
+      </button>
+      {#if categoriesOpen}
+        <div transition:slide={{ duration: 200 }}>
+          <div class="flex flex-wrap gap-2">
+            {#each groupedComponents as group (group.name)}
+              {@const CatIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
+              {@const catColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
+              {@const catBg = CATEGORY_BG[group.name] ?? ('bg-muted' as Str)}
+              <a
+                href="/components/category/{group.name}"
+                class="group inline-flex items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm transition-all hover:border-primary/30 hover:shadow-sm"
+              >
+                <div class="flex size-6 items-center justify-center rounded {catBg}">
+                  <CatIcon class="size-3.5 {catColor}" />
+                </div>
+                <span class="font-medium capitalize group-hover:text-primary">{group.label}</span>
+                <Tooltip.Provider disableHoverableContent={false}>
+                  <Tooltip.Root delayDuration={300}>
+                    <Tooltip.Trigger>
+                      {#snippet child({ props: catCountTip })}
+                        <span
+                          class="inline-flex"
+                          onclick={(e) => e.preventDefault()}
+                          {...catCountTip}
+                        >
+                          <Badge
+                            variant="secondary"
+                            class="cursor-default text-[10px] tabular-nums"
+                          >
+                            {group.components.length}
+                          </Badge>
+                        </span>
+                      {/snippet}
+                    </Tooltip.Trigger>
+                    <Tooltip.Content
+                      side="bottom"
+                      sideOffset={4}
+                      class="max-h-64 overflow-y-auto p-3"
+                    >
+                      <div class="flex flex-col gap-0.5">
+                        {#each group.components as comp (comp)}
+                          <a
+                            href="/components/{comp}"
+                            class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-popover-foreground/80 transition-colors hover:bg-popover-foreground/10 hover:text-popover-foreground"
+                            onclick={(e) => e.stopPropagation()}
+                          >
+                            <ComponentIcon class="size-3 shrink-0 opacity-50" />
+                            <span class="flex-1">{toTitle(comp)}</span>
+                            <ArrowRight class="size-3 shrink-0 opacity-40" />
+                          </a>
+                        {/each}
+                      </div>
+                    </Tooltip.Content>
+                  </Tooltip.Root>
+                </Tooltip.Provider>
+              </a>
+            {/each}
+          </div>
+        </div>
+      {/if}
+    </div>
+
+    <!-- Popular Tags -->
+    {#if popularTags.length > 0}
+      <div>
+        <button
+          type="button"
+          onclick={() => {
+            tagsOpen = !tagsOpen;
+          }}
+          class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+        >
+          <ChevronRight
+            class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {tagsOpen
+              ? 'rotate-90'
+              : ''}"
+          />
+          <TagIcon class="size-5" />
+          Popular Tags
+          <Badge variant="secondary" class="text-xs">{popularTags.length}</Badge>
+        </button>
+        {#if tagsOpen}
+          <div transition:slide={{ duration: 200 }}>
+            <div class="flex flex-wrap gap-1.5">
+              {#each popularTags as pt (pt.tag)}
+                {@const relSize = 0.7 + 0.5 * ((pt.count as number) / (maxTagCount as number))}
+                <a
+                  href="/components/tags?tag={pt.tag}"
+                  class="group inline-flex items-center gap-1 rounded-full border bg-card px-2.5 py-1 transition-all hover:border-primary/30 hover:bg-accent"
+                  style="font-size: {relSize}rem;"
+                >
+                  <TagIcon class="size-3 shrink-0 opacity-50 group-hover:opacity-80" />
+                  <span class="font-medium group-hover:text-primary">{pt.tag}</span>
+                  <Tooltip.Provider disableHoverableContent={false}>
                     <Tooltip.Root delayDuration={300}>
                       <Tooltip.Trigger>
-                        {#snippet child({ props: allCountTip })}
-                          <span onclick={(e) => e.preventDefault()} {...allCountTip}>
-                            <Badge
-                              variant="secondary"
-                              class="cursor-default text-[10px] tabular-nums"
-                            >
-                              {card.count.toLocaleString()}
-                            </Badge>
+                        {#snippet child({ props: tagCountTip })}
+                          <span
+                            class="cursor-default text-[10px] tabular-nums text-muted-foreground/60"
+                            onclick={(e) => e.preventDefault()}
+                            {...tagCountTip}
+                          >
+                            {pt.count}
                           </span>
                         {/snippet}
                       </Tooltip.Trigger>
@@ -897,11 +955,12 @@
                         sideOffset={4}
                         class="max-h-64 overflow-y-auto p-3"
                       >
+                        {@const comps = tagComponents.get(pt.tag) ?? []}
                         <div class="flex flex-col gap-0.5">
-                          {#each componentNames as comp (comp)}
+                          {#each comps as comp (comp)}
                             <a
                               href="/components/{comp}"
-                              class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                              class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-popover-foreground/80 transition-colors hover:bg-popover-foreground/10 hover:text-popover-foreground"
                               onclick={(e) => e.stopPropagation()}
                             >
                               <ComponentIcon class="size-3 shrink-0 opacity-50" />
@@ -912,182 +971,12 @@
                         </div>
                       </Tooltip.Content>
                     </Tooltip.Root>
-                  {:else}
-                    <Badge variant="secondary" class="text-[10px] tabular-nums">
-                      {card.count.toLocaleString()}
-                    </Badge>
-                  {/if}
-                {/if}
-              </div>
-              <p class="mt-0.5 truncate text-xs text-muted-foreground">{card.description}</p>
+                  </Tooltip.Provider>
+                </a>
+              {/each}
             </div>
-            <ArrowRight
-              class="size-4 shrink-0 text-muted-foreground/30 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
-            />
-          </a>
-        {/each}
-      </div>
-    </div>
-
-    <!-- Categories at a Glance -->
-    <div>
-      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-muted-foreground">
-        Categories
-      </h2>
-      <div class="flex flex-wrap gap-2">
-        {#each groupedComponents as group (group.name)}
-          {@const CatIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
-          {@const catColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
-          {@const catBg = CATEGORY_BG[group.name] ?? ('bg-muted' as Str)}
-          <a
-            href="/components/category/{group.name}"
-            class="group inline-flex items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm transition-all hover:border-primary/30 hover:shadow-sm"
-          >
-            <div class="flex size-6 items-center justify-center rounded {catBg}">
-              <CatIcon class="size-3.5 {catColor}" />
-            </div>
-            <span class="font-medium capitalize group-hover:text-primary">{group.label}</span>
-            <Tooltip.Root delayDuration={300}>
-              <Tooltip.Trigger>
-                {#snippet child({ props: catCountTip })}
-                  <span
-                    class="cursor-default text-xs tabular-nums text-muted-foreground"
-                    onclick={(e) => e.preventDefault()}
-                    {...catCountTip}
-                  >
-                    {group.components.length}
-                  </span>
-                {/snippet}
-              </Tooltip.Trigger>
-              <Tooltip.Content side="bottom" sideOffset={4} class="max-h-64 overflow-y-auto p-3">
-                <div class="flex flex-col gap-0.5">
-                  {#each group.components as comp (comp)}
-                    <a
-                      href="/components/{comp}"
-                      class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
-                      onclick={(e) => e.stopPropagation()}
-                    >
-                      <ComponentIcon class="size-3 shrink-0 opacity-50" />
-                      <span class="flex-1">{toTitle(comp)}</span>
-                      <ArrowRight class="size-3 shrink-0 opacity-40" />
-                    </a>
-                  {/each}
-                </div>
-              </Tooltip.Content>
-            </Tooltip.Root>
-          </a>
-        {/each}
-      </div>
-    </div>
-
-    <!-- Popular Tags -->
-    {#if popularTags.length > 0}
-      <div>
-        <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-muted-foreground">
-          Popular Tags
-        </h2>
-        <div class="flex flex-wrap gap-1.5">
-          {#each popularTags as pt (pt.tag)}
-            {@const relSize = 0.7 + 0.5 * ((pt.count as number) / (maxTagCount as number))}
-            <a
-              href="/components/tags?tag={pt.tag}"
-              class="group inline-flex items-center gap-1 rounded-full border bg-card px-2.5 py-1 transition-all hover:border-primary/30 hover:bg-accent"
-              style="font-size: {relSize}rem;"
-            >
-              <TagIcon class="size-3 shrink-0 opacity-50 group-hover:opacity-80" />
-              <span class="font-medium group-hover:text-primary">{pt.tag}</span>
-              <Tooltip.Root delayDuration={300}>
-                <Tooltip.Trigger>
-                  {#snippet child({ props: tagCountTip })}
-                    <span
-                      class="cursor-default text-[10px] tabular-nums text-muted-foreground/60"
-                      onclick={(e) => e.preventDefault()}
-                      {...tagCountTip}
-                    >
-                      {pt.count}
-                    </span>
-                  {/snippet}
-                </Tooltip.Trigger>
-                <Tooltip.Content side="bottom" sideOffset={4} class="max-h-64 overflow-y-auto p-3">
-                  {@const comps = tagComponents.get(pt.tag) ?? []}
-                  <div class="flex flex-col gap-0.5">
-                    {#each comps as comp (comp)}
-                      <a
-                        href="/components/{comp}"
-                        class="flex items-center gap-1.5 rounded px-1.5 py-1 text-xs text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
-                        onclick={(e) => e.stopPropagation()}
-                      >
-                        <ComponentIcon class="size-3 shrink-0 opacity-50" />
-                        <span class="flex-1">{toTitle(comp)}</span>
-                        <ArrowRight class="size-3 shrink-0 opacity-40" />
-                      </a>
-                    {/each}
-                  </div>
-                </Tooltip.Content>
-              </Tooltip.Root>
-            </a>
-          {/each}
-        </div>
-      </div>
-    {/if}
-
-    <!-- Recent Changes / Activity Feed -->
-    {#if activityEntries.length > 0}
-      <div>
-        <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-muted-foreground">
-          Recent Changes
-        </h2>
-        <div class="rounded-lg border bg-card">
-          {#each activityEntries as entry, i (entry.name)}
-            {@const status = entry.meta.status}
-            {#if status}
-              {@const StatusIcon = STATUS_ICONS[status]}
-              {@const statusColor = STATUS_COLORS[status]}
-              {@const badgeColor = STATUS_BADGE_COLORS[status]}
-              {@const entryCatIcon = CATEGORY_ICONS[entry.meta.category ?? ''] ?? ComponentIcon}
-              {@const entryCatColor =
-                CATEGORY_COLORS[entry.meta.category ?? ''] ?? ('text-muted-foreground' as Str)}
-              {@const CatEntryIcon = entryCatIcon}
-              {#if i > 0}
-                <div class="border-t"></div>
-              {/if}
-              <a
-                href="/components/{entry.name}"
-                class="group/entry flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent/50"
-              >
-                <StatusIcon class="size-4 shrink-0 {statusColor}" />
-                <span class="text-sm font-medium group-hover/entry:text-primary">
-                  {toTitle(entry.name)}
-                </span>
-                <Badge variant="secondary" class="text-[10px] {badgeColor}">
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </Badge>
-                <Tooltip.Provider>
-                  <Tooltip.Root delayDuration={200}>
-                    <Tooltip.Trigger>
-                      {#snippet child({ props: catTipProps })}
-                        <span {...catTipProps} class="inline-flex">
-                          <CatEntryIcon class="size-3.5 {entryCatColor}" />
-                        </span>
-                      {/snippet}
-                    </Tooltip.Trigger>
-                    <Tooltip.Content side="top" sideOffset={4}>
-                      {catLabel(entry.meta.category ?? 'display')}
-                    </Tooltip.Content>
-                  </Tooltip.Root>
-                </Tooltip.Provider>
-                {#if entry.meta.description}
-                  <span class="hidden flex-1 truncate text-xs text-muted-foreground sm:inline">
-                    {entry.meta.description}
-                  </span>
-                {/if}
-                <ArrowRight
-                  class="ml-auto size-3.5 shrink-0 text-muted-foreground/30 transition-transform group-hover/entry:translate-x-0.5 group-hover/entry:text-primary"
-                />
-              </a>
-            {/if}
-          {/each}
-        </div>
+          </div>
+        {/if}
       </div>
     {/if}
   </div>
