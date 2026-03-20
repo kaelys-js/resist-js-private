@@ -1,9 +1,6 @@
 - [Lens]
-    - Do accessibility-rules cover all of this: WAI-ARIA, WebAIM, Scott O'Hara, The A11Y Project, WHATWG/HTML spec, W3C WCAG C7
-    - Component Conversions (@convert-to-lens)
-      - Remove exclusions from the lens test file
-      - Review All Rx Rules + lens tests for these
-
+    - There are 877 components. I feel like some of them shouldn't exist. The docs/prompts/lens-component-conversion.md produces proper research for creating components (Step 1.E), do you understand the purpose is to have every component right? Then later we would build a separate "Blocks system like shadcn has". Do I make sense?
+    - Blocks/Stories, Project-Specific Components
     - Plans
       - Support/About/Styling: Need Content Work
       - docs/plans/2026-03-18-cloudflare-production-readiness.md
@@ -12,7 +9,6 @@
       - docs/plans/2026-03-16-auto-examples-part2.md
       - docs/plans/2026-03-16-lens-detail-additions.md
       - docs/plans/2026-03-16-lens-advanced-features.md
-    - Blocks, Stories, Project-Specific Components
     - Real Browser
         - Live Preview (each engine):
             LensComponentRenderer: Browser Live Submenu
@@ -26,10 +22,14 @@
             - Network Simulation Not Respected
         - Screenshot Compare
             - Diff
-    - Component level error boundary (with fallback, retry, etc) and app level error boundary with full tests (unit/integration/e2e and manual testing path for me for component and app error boundaries) plus other suggestions for component/app error boundary component
-    - Astro Islands but for Svelte
-    https://github.com/11ty/is-land/blob/main/is-land.js (if relevant)
-    https://github.com/ElMassimo/iles/blob/main/packages/iles/src/node/build/islands.ts (if relevant)
+
+    - Component Conversions (@convert-to-lens)
+      - Remove exclusions from the lens test file
+      - Review All Rx Rules + lens tests for these
+      - Component level error boundary (with fallback, retry, etc) and app level error boundary with full tests (unit/integration/e2e and manual testing path for me for component and app error boundaries) plus other suggestions for component/app error boundary component
+      - Astro Islands but for Svelte
+      https://github.com/11ty/is-land/blob/main/is-land.js (if relevant)
+      https://github.com/ElMassimo/iles/blob/main/packages/iles/src/node/build/islands.ts (if relevant)
     - Localize, Dropdown (Language + Theme, etc)
     - Sidebar Component Entries:
       - Is it possible to include the "Performance statistics" in the App sidebar to the right of the component with the same details for the default component? and a green/yellow/red dot to the right of the component name in the sidebar like you have in LensComponentRenderer performance statistics?

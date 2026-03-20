@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-write-guide.sh \"$CLAUDE_FILE_PATH\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Before stopping, verify: (1) Was the task tracking file in tasks/sections/ updated for any guides written? (2) Was quality/verification-log.json updated? (3) Are there any guides marked in_progress that weren't completed? If any bookkeeping is missing, complete it before stopping."
+          }
+        ]
+      }
+    ]
+  }
+}
