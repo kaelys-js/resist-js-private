@@ -8558,6 +8558,332 @@ const A11Y_RULES: A11yRule[] = [
       );
     },
   },
+
+  /* ------------------------------------------------------------------ */
+  /*  Group 7: The A11Y Project — Part 8 (5 rules)                      */
+  /* ------------------------------------------------------------------ */
+
+  {
+    id: 'a11yproject-title-antipattern' as Str,
+    label: 'Title attribute anti-pattern' as Str,
+    description:
+      'The title attribute should not be used as the sole accessibility mechanism — it is unreliable for touch and keyboard users' as Str,
+    category: 'A11Y' as Str,
+    wcag: '4.1.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* Elements where title is acceptable: iframe, frame, abbr */
+      const titleRe: RegExp =
+        /<(?!iframe|frame|abbr|svelte:)(\w+)\s[^>]*title=["'][^"']+["'][^>]*>/g;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!str.includes('title=')) continue;
+        let found: boolean = false;
+        const matches: RegExpMatchArray[] = [...str.matchAll(titleRe)];
+        for (const [tag, elName] of matches) {
+          /* Skip if element has other accessible naming */
+          if (/aria-label=|aria-labelledby=|alt=/.test(tag)) continue;
+          /* Skip if it has visible text content (opening tag only check) */
+          if (
+            elName === 'img' ||
+            elName === 'input' ||
+            elName === 'select' ||
+            elName === 'textarea'
+          ) {
+            found = true;
+            findings.push({
+              file: filename,
+              problem:
+                `<${elName}> uses title as accessibility mechanism — unreliable for touch/keyboard` as Str,
+              solution: 'Use aria-label, visible <label>, or alt attribute instead of title' as Str,
+              found: truncSnippet(tag as Str),
+              fix: `<${elName} aria-label="Descriptive text">` as Str,
+            });
+          }
+        }
+        if (found) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components use title attribute anti-pattern` as Str)
+          : ('No title attribute anti-patterns found' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'a11yproject-autofocus-misuse' as Str,
+    label: 'Autofocus misuse' as Str,
+    description:
+      'The autofocus attribute should be used sparingly — multiple autofocus elements or autofocus on non-primary elements cause disorientation' as Str,
+    category: 'A11Y' as Str,
+    wcag: '3.2.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const autofocusRe: RegExp = /\bautofocus\b/g;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const matches: RegExpMatchArray[] = [...str.matchAll(autofocusRe)];
+        if (matches.length > 1) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem: `Multiple autofocus attributes found (${matches.length} occurrences)` as Str,
+            solution:
+              'Use autofocus on at most one element — the primary interaction target' as Str,
+            found: `${matches.length} autofocus attributes` as Str,
+            fix: 'Keep autofocus on only the primary interaction element' as Str,
+          });
+        } else if (matches.length === 1) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components misuse autofocus` as Str)
+          : ('No autofocus misuse detected' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'a11yproject-landmark-nesting' as Str,
+    label: 'Landmark nesting semantics' as Str,
+    description:
+      'Header and footer elements inside article, section, or aside lose their banner/contentinfo landmark semantics' as Str,
+    category: 'A11Y' as Str,
+    wcag: '1.3.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* Check for header/footer inside article/section/aside */
+      const sectionRe: RegExp = /<(article|section|aside)\b[^>]*>([\s\S]*?)<\/\1>/g;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!/<(article|section|aside)/.test(str)) continue;
+        let found: boolean = false;
+        const sectionMatches: RegExpMatchArray[] = [...str.matchAll(sectionRe)];
+        for (const sectionMatch of sectionMatches) {
+          const parent: string = sectionMatch[1] ?? '';
+          const inner: string = sectionMatch[2] ?? '';
+          if (/<header\b/.test(inner) || /<footer\b/.test(inner)) {
+            found = true;
+            const nested: string = /<header\b/.test(inner) ? 'header' : 'footer';
+            const role: string = nested === 'header' ? 'banner' : 'contentinfo';
+            findings.push({
+              file: filename,
+              problem: `<${nested}> inside <${parent}> loses ${role} landmark semantics` as Str,
+              solution: `Add role="${role}" if the landmark semantics are needed` as Str,
+              found: `<${parent}>...<${nested}>...</${nested}>...</${parent}>` as Str,
+              fix: `<${nested} role="${role}">` as Str,
+            });
+          }
+        }
+        if (found) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have landmark nesting issues` as Str)
+          : ('No landmark nesting issues found' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'a11yproject-nav-disambiguation' as Str,
+    label: 'Navigation disambiguation' as Str,
+    description:
+      'Multiple nav elements must have distinct aria-label or aria-labelledby to be distinguishable by screen readers' as Str,
+    category: 'A11Y' as Str,
+    wcag: '1.3.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const navRe: RegExp = /<nav\b[^>]*>/g;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const navMatches: RegExpMatchArray[] = [...str.matchAll(navRe)];
+        if (navMatches.length < 2) {
+          if (navMatches.length === 1) {
+            pass = ((pass as number) + 1) as Num;
+            passing.push(filename);
+          }
+          continue;
+        }
+        /* Multiple <nav> — check each has aria-label or aria-labelledby */
+        let allLabeled: boolean = true;
+        for (const [tag] of navMatches) {
+          if (!/aria-label=|aria-labelledby=/.test(tag)) {
+            allLabeled = false;
+          }
+        }
+        if (allLabeled) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        } else {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem: `${navMatches.length} <nav> elements without distinct labels` as Str,
+            solution:
+              'Add unique aria-label to each <nav> (e.g., "Primary navigation", "Footer navigation")' as Str,
+            found: `${navMatches.length} <nav> elements` as Str,
+            fix: '<nav aria-label="Primary navigation">' as Str,
+          });
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have ambiguous navigation landmarks` as Str)
+          : ('All navigation landmarks are properly disambiguated' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'a11yproject-selection-contrast' as Str,
+    label: 'Selection contrast' as Str,
+    description:
+      'Custom ::selection CSS must specify both color AND background — an incomplete override may produce unreadable selected text' as Str,
+    category: 'A11Y' as Str,
+    wcag: '1.4.3' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const css: SourceEntry[] = cssFiles(sources);
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      const all: SourceEntry[] = [...css, ...svelte];
+      if (all.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const selectionRe: RegExp = /::selection\s*\{([^}]*)\}/g;
+
+      for (const [filename, content] of all) {
+        const str: string = content as string;
+        if (!str.includes('::selection')) continue;
+        let found: boolean = false;
+        const matches: RegExpMatchArray[] = [...str.matchAll(selectionRe)];
+        for (const [fullMatch, rawBody] of matches) {
+          const body: string = rawBody ?? '';
+          const hasColor: boolean = /\bcolor\s*:/.test(body);
+          const hasBg: boolean = /background(?:-color)?\s*:/.test(body);
+          if (hasColor && hasBg) continue;
+          found = true;
+          let missing: string = 'background';
+          if (!hasColor && !hasBg) missing = 'color and background';
+          else if (!hasColor) missing = 'color';
+          findings.push({
+            file: filename,
+            problem:
+              `::selection CSS is missing ${missing} — may produce unreadable selected text` as Str,
+            solution: 'Always set both color and background in ::selection rules' as Str,
+            found: truncSnippet(fullMatch as Str),
+            fix: '::selection { color: #fff; background: #0066cc; }' as Str,
+          });
+        }
+        if (found) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} files have incomplete ::selection contrast` as Str)
+          : ('All ::selection rules have complete contrast' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -8567,7 +8893,7 @@ const A11Y_RULES: A11yRule[] = [
 /**
  * Run a full accessibility audit against source files.
  *
- * Evaluates all 145 accessibility rules against the provided source code
+ * Evaluates all 150 accessibility rules against the provided source code
  * and computes an aggregate score with detailed per-rule results, including
  * WCAG 2.1 AA criteria coverage metrics.
  *
@@ -8578,7 +8904,7 @@ const A11Y_RULES: A11yRule[] = [
  * const sources = { 'Button.svelte': btnSrc, 'app.css': cssSrc };
  * const audit = auditAccessibility(sources);
  * console.log(audit.overallScore);  // 85
- * console.log(audit.rules.length);  // 145
+ * console.log(audit.rules.length);  // 150
  * console.log(audit.totalWcagCriteria);  // 50
  * console.log(audit.wcagCoverage);  // 78
  */
