@@ -7222,6 +7222,376 @@ const A11Y_RULES: A11yRule[] = [
       );
     },
   },
+  {
+    id: 'html-form-no-name' as Str,
+    label: 'Form without accessible name' as Str,
+    description:
+      '<form> without aria-label, aria-labelledby, or title will not be exposed as a form landmark' as Str,
+    category: 'HTML Spec' as Str,
+    wcag: '1.3.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const formNoName: RegExp = /<form\b(?![^>]*\baria-label(?:ledby)?=)(?![^>]*\btitle=)[^>]*>/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!/<form\b/.test(str)) continue;
+        if (formNoName.test(str)) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              '<form> without accessible name — will not be exposed as a form landmark' as Str,
+            solution: 'Add aria-label or aria-labelledby to the <form> element' as Str,
+            found: truncSnippet(((str.match(formNoName) ?? [])[0] as Str) ?? ('<form>' as Str)),
+            fix: '<form aria-label="Search"> or <form aria-labelledby="form-heading">' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have <form> without accessible name` as Str)
+          : ('All <form> elements have accessible names' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'html-section-no-name' as Str,
+    label: 'Section without accessible name' as Str,
+    description:
+      '<section> without aria-label or aria-labelledby will not be exposed as a region landmark' as Str,
+    category: 'HTML Spec' as Str,
+    wcag: '1.3.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const sectionNoName: RegExp = /<section\b(?![^>]*\baria-label(?:ledby)?=)[^>]*>/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!/<section\b/.test(str)) continue;
+        if (sectionNoName.test(str)) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              '<section> without accessible name — will not be exposed as a region landmark' as Str,
+            solution: 'Add aria-label or aria-labelledby to the <section> element' as Str,
+            found: truncSnippet(
+              ((str.match(sectionNoName) ?? [])[0] as Str) ?? ('<section>' as Str),
+            ),
+            fix: '<section aria-labelledby="section-heading">' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have <section> without accessible name` as Str)
+          : ('All <section> elements have accessible names' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'html-heading-skip' as Str,
+    label: 'Heading level skip' as Str,
+    description:
+      'Heading levels should not skip (e.g. h1 → h3 without h2) within a component template' as Str,
+    category: 'HTML Spec' as Str,
+    wcag: '1.3.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const headingPattern: RegExp = /<h([1-6])\b/g;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const levels: number[] = [];
+        let match: RegExpExecArray | null = headingPattern.exec(str);
+        while (match !== null) {
+          if (match[1] !== undefined) levels.push(Number.parseInt(match[1], 10));
+          match = headingPattern.exec(str);
+        }
+        if (levels.length < 2) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+          continue;
+        }
+        let hasSkip: boolean = false;
+        let skipDetail: string = '';
+        for (let i: number = 1; i < levels.length; i++) {
+          const prev: number = levels[i - 1] ?? 0;
+          const curr: number = levels[i] ?? 0;
+          if (curr > prev + 1) {
+            hasSkip = true;
+            skipDetail = `h${prev} → h${curr}`;
+            break;
+          }
+        }
+        if (hasSkip) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              `Heading level skip: ${skipDetail} — missing intermediate heading level` as Str,
+            solution: 'Ensure heading levels descend sequentially (h1 → h2 → h3)' as Str,
+            found: `${skipDetail} (skipped level)` as Str,
+            fix: '<!-- Use sequential heading levels: h1 → h2 → h3, not h1 → h3 -->' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have heading level skips` as Str)
+          : ('No heading level skips found' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'html-positive-tabindex' as Str,
+    label: 'Positive tabindex' as Str,
+    description:
+      'tabindex values greater than 0 break natural focus order and should never be used' as Str,
+    category: 'HTML Spec' as Str,
+    wcag: '2.4.3' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* tabindex with positive integer value (not 0 or -1) */
+      const positiveTabindex: RegExp = /tabindex=["']([2-9]|\d{2,})["']/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (positiveTabindex.test(str)) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          const matched: string = (str.match(positiveTabindex) ?? [])[0] ?? 'tabindex="..."';
+          findings.push({
+            file: filename,
+            problem: `Positive ${matched} — breaks natural tab order` as Str,
+            solution:
+              'Use tabindex="0" to add to natural order or tabindex="-1" for programmatic focus only' as Str,
+            found: matched as Str,
+            fix: 'tabindex="0" or tabindex="-1"' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components use positive tabindex values` as Str)
+          : ('No positive tabindex values found' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+
+  /* ---- Scott O'Hara Best Practice (2 rules in part 4) ---- */
+  {
+    id: 'ohara-visually-hidden-css' as Str,
+    label: 'Visually hidden CSS technique' as Str,
+    description:
+      "Visually hidden / sr-only CSS must use clip-path technique, not text-indent or font-size:0 (Scott O'Hara pattern)" as Str,
+    category: 'Best Practice' as Str,
+    wcag: '1.3.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const css: SourceEntry[] = cssFiles(sources);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      let foundPattern: boolean = false;
+
+      for (const [filename, content] of css) {
+        const str: string = content as string;
+        const hasSrOnly: boolean = /\.sr-only|\.visually-hidden|visually-hidden/.test(str);
+        if (!hasSrOnly) continue;
+        foundPattern = true;
+        /* Bad patterns */
+        const usesTextIndent: boolean = /text-indent\s*:\s*-\d{3,}/.test(str);
+        const usesFontSizeZero: boolean = /font-size\s*:\s*0/.test(str);
+        if (usesTextIndent || usesFontSizeZero) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              `Visually-hidden CSS uses ${usesTextIndent ? 'text-indent' : 'font-size:0'} — unreliable technique with RTL/SEO issues` as Str,
+            solution: 'Use clip-path: inset(50%) with position: absolute, overflow: hidden' as Str,
+            found: truncSnippet(
+              (usesTextIndent
+                ? ((str.match(/text-indent\s*:[^;]+;/) ?? [])[0] as Str)
+                : ((str.match(/font-size\s*:\s*0[^;]*;/) ?? [])[0] as Str)) ??
+                ('text-indent: -10000px;' as Str),
+            ),
+            fix: '.sr-only { clip-path: inset(50%); clip: rect(0,0,0,0); height: 1px; width: 1px; overflow: hidden; position: absolute; white-space: nowrap; }' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if (!foundPattern)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} files use unreliable visually-hidden CSS technique` as Str)
+          : ('Visually-hidden CSS uses correct clip-path technique' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'ohara-visually-hidden-focusable' as Str,
+    label: 'Focusable visually hidden elements' as Str,
+    description:
+      'Focusable visually-hidden elements (skip links) should use :not(:focus):not(:active) to become visible on focus' as Str,
+    category: 'Best Practice' as Str,
+    wcag: '2.4.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      let hasSkipLinks: boolean = false;
+      let hasFocusVariant: boolean = false;
+      const findings: A11yFileFinding[] = [];
+      const failing: Str[] = [];
+      const passing: Str[] = [];
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        /* Look for focusable elements with visually-hidden / sr-only class */
+        const hasFocusableHidden: boolean =
+          /<a\b[^>]*(?:sr-only|visually-hidden|VisuallyHidden)/.test(str) ||
+          /(?:sr-only|visually-hidden|VisuallyHidden)[^>]*<\/a>/.test(str);
+        if (!hasFocusableHidden) continue;
+        hasSkipLinks = true;
+        /* Check if the component or its CSS has :not(:focus) variant */
+        const hasFocusReveal: boolean =
+          /:not\(:focus\)/.test(str) ||
+          /focus:static/.test(str) ||
+          /focus:h-auto/.test(str) ||
+          /focusable/.test(str);
+        if (hasFocusReveal) {
+          hasFocusVariant = true;
+          passing.push(filename);
+        } else {
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              'Focusable visually-hidden element (skip link) without :not(:focus) reveal variant' as Str,
+            solution:
+              'Use .visually-hidden:not(:focus):not(:active) or the focusable variant to reveal on focus' as Str,
+            found: truncSnippet(
+              ((str.match(/<a\b[^>]*(?:sr-only|visually-hidden)[^>]*>/) ?? [])[0] as Str) ??
+                ('<a class="sr-only" href="#main">' as Str),
+            ),
+            fix: '<VisuallyHidden as="a" focusable href="#main">Skip to content</VisuallyHidden>' as Str,
+          });
+        }
+      }
+
+      /* Also check CSS files for the pattern */
+      if (!hasFocusVariant) {
+        const css: SourceEntry[] = cssFiles(sources);
+        for (const [, content] of css) {
+          if (/:not\(:focus\)/.test(content as string)) {
+            hasFocusVariant = true;
+            break;
+          }
+        }
+      }
+
+      if (!hasSkipLinks)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+
+      const pass: Num = passing.length as Num;
+      const fail: Num = failing.length as Num;
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} skip links lack :not(:focus) reveal variant` as Str)
+          : ('All focusable visually-hidden elements have focus reveal' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -7231,7 +7601,7 @@ const A11Y_RULES: A11yRule[] = [
 /**
  * Run a full accessibility audit against source files.
  *
- * Evaluates all 123 accessibility rules against the provided source code
+ * Evaluates all 129 accessibility rules against the provided source code
  * and computes an aggregate score with detailed per-rule results, including
  * WCAG 2.1 AA criteria coverage metrics.
  *
@@ -7242,7 +7612,7 @@ const A11Y_RULES: A11yRule[] = [
  * const sources = { 'Button.svelte': btnSrc, 'app.css': cssSrc };
  * const audit = auditAccessibility(sources);
  * console.log(audit.overallScore);  // 85
- * console.log(audit.rules.length);  // 123
+ * console.log(audit.rules.length);  // 129
  * console.log(audit.totalWcagCriteria);  // 50
  * console.log(audit.wcagCoverage);  // 78
  */

@@ -23,6 +23,7 @@ exports[`auditAccessibility — global > failing rule IDs match snapshot 1`] = `
   "focus-restoration",
   "html-button-type",
   "html-img-alt-required",
+  "html-section-no-name",
   "labels-or-instructions",
   "landmark-completeness",
   "language-of-page",
@@ -44,11 +45,11 @@ exports[`auditAccessibility — global > failing rule IDs match snapshot 1`] = `
 ]
 `;
 
-exports[`auditAccessibility — global > failing rule count matches snapshot 1`] = `39`;
+exports[`auditAccessibility — global > failing rule count matches snapshot 1`] = `40`;
 
-exports[`auditAccessibility — global > overall score matches snapshot baseline 1`] = `45`;
+exports[`auditAccessibility — global > overall score matches snapshot baseline 1`] = `46`;
 
-exports[`auditAccessibility — global > passing rule count matches snapshot 1`] = `41`;
+exports[`auditAccessibility — global > passing rule count matches snapshot 1`] = `44`;
 
 exports[`auditAccessibility — per-component regressions > component failure map matches snapshot 1`] = `
 {
