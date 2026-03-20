@@ -1,6 +1,13 @@
-import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
+/**
+ * Vite configuration for the product template.
+ *
+ * Uses the shared factory from `@/config/tooling/vite` for git metadata,
+ * server watch config, and SSR settings.
+ */
 
-export default defineConfig({
+import { sveltekit } from '@sveltejs/kit/vite';
+import { createViteConfig } from '@/config/tooling/vite';
+
+export default createViteConfig({
   plugins: [sveltekit()],
 });

@@ -35,7 +35,10 @@
       "@/config/test/harness": ["./packages/shared/config/test/src/harness/index.ts"],
       "@/config/test/harness/*": ["./packages/shared/config/test/src/harness/*.ts"],
       "@/ui": ["./packages/shared/ui/src/index.ts"],
-      "@/ui/*": ["./packages/shared/ui/src/*"]
+      "@/ui/*": ["./packages/shared/ui/src/*"],
+      "@/config/tooling/vite": ["./packages/shared/config/tooling/vite/src/index.ts"],
+      "@/config/tooling/svelte": ["./packages/shared/config/tooling/svelte/src/index.js"],
+      "@/products/*": ["./packages/products/*"]
     }
   },
   "exclude": ["node_modules", "dist", ".svelte-kit", "_INTEGRATE"]

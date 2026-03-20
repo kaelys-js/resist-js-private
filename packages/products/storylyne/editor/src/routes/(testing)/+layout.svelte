@@ -107,6 +107,7 @@
     markRead,
     markAllRead,
     removeNotification,
+    removeByCategory,
     clearAllNotifications,
     getPreferences,
     updatePreferences,
@@ -1745,11 +1746,8 @@
     if (componentNames.length === 0) return;
     compatNotifsGenerated = true;
 
-    // Skip if compatibility notifications already exist from a previous session
-    const existingCompat: LensNotification[] = getNotifications().filter(
-      (n: LensNotification): boolean => n.category === 'compatibility',
-    );
-    if (existingCompat.length > 0) return;
+    // Clear stale compatibility notifications from previous sessions before regenerating
+    removeByCategory('compatibility' as Str);
 
     const incompatible: Str[] = componentNames.filter((n: Str): boolean => {
       const c: LensCompatibility | undefined = compatByName.get(n);
@@ -2443,7 +2441,7 @@
                                 <Tooltip.Content
                                   side="right"
                                   sideOffset={0}
-                                  class="max-w-xs max-h-[min(24rem,80vh)] overflow-x-auto overflow-y-auto p-3"
+                                  class="max-w-sm max-h-[min(24rem,80vh)] overflow-x-auto overflow-y-auto p-3"
                                 >
                                   <div class="flex items-center gap-2">
                                     <ItemIcon class="size-4 {itemColor}" />

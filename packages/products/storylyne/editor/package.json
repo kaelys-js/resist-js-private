@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "NODE_OPTIONS='--enable-source-maps' vite dev",
-    "prebuild": "bash scripts/generate-icons.sh",
+    "prebuild": "bash ../../../../packages/shared/utils/cli/src/tools/generate-icons/generate-icons.sh .",
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf .svelte-kit dist",
@@ -15,7 +15,7 @@
     "qa:benchmark": "cd ../../../.. && vitest bench --project storylyne-editor",
     "qa:test:e2e": "playwright test",
     "qa:type-check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --compiler-warnings \"state_referenced_locally:ignore\"",
-    "generate-icons": "bash scripts/generate-icons.sh"
+    "generate-icons": "bash ../../../../packages/shared/utils/cli/src/tools/generate-icons/generate-icons.sh ."
   },
   "dependencies": {
     "@/schemas/common": "workspace:*",
@@ -38,6 +38,9 @@
   },
   "devDependencies": {
     "@/config/test": "workspace:*",
+    "@/config/tooling/svelte": "workspace:*",
+    "@/config/tooling/vite": "workspace:*",
+    "@/products": "workspace:*",
     "@cloudflare/workers-types": "^4.20260305.1",
     "@internationalized/date": "^3.11.0",
     "@lucide/svelte": "^0.561.0",

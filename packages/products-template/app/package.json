@@ -25,6 +25,8 @@
     "@capacitor/cli": "^6.0.0",
     "@capacitor/ios": "^6.0.0",
     "@capacitor/android": "^6.0.0",
+    "@/config/tooling/svelte": "workspace:*",
+    "@/config/tooling/vite": "workspace:*",
     "@sveltejs/adapter-static": "^3.0.0",
     "@sveltejs/kit": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^4.0.0",

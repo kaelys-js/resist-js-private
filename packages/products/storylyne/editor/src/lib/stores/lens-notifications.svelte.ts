@@ -259,6 +259,16 @@ export function removeNotification(id: Str): void {
   persistNotifications();
 }
 
+/**
+ * Remove all notifications matching a category in a single bulk operation.
+ *
+ * @param category - Category string to match against
+ */
+export function removeByCategory(category: Str): void {
+  notifications = notifications.filter((n: LensNotification): boolean => n.category !== category);
+  persistNotifications();
+}
+
 /** Clear all notifications. */
 export function clearAllNotifications(): void {
   notifications = [];

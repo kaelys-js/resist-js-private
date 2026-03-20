@@ -1,14 +1,9 @@
 import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import type { Str } from '@/schemas/common';
-import { APP_NAME } from '$lib/config/app-meta';
 
-const appHtml: Str = readFileSync(
-  resolve(dirname(fileURLToPath(import.meta.url)), 'app.html'),
-  'utf8',
-);
+const appHtml: Str = readFileSync(resolve(import.meta.dirname, 'app.html'), 'utf8');
 
 describe('app.html script robustness', () => {
   it('wraps IIFE body in try/catch', () => {
@@ -63,7 +58,8 @@ describe('app.html meta tags use placeholders', () => {
       for (const meta of metaContents) {
         // Skip viewport, color-scheme, robots, format-detection, mobile-web-app-capable, status-bar-style
         if (/content="(width|light dark|noindex|telephone|yes|default|{{)/.test(meta)) continue;
-        expect(meta).not.toContain(APP_NAME);
+        // Hardcoded product names should not appear — only {{APP_NAME}} placeholders
+        expect(meta).not.toMatch(/content="[A-Z][a-z]+"/);
       }
     }
   });

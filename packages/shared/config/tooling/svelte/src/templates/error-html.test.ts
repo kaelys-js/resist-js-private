@@ -1,13 +1,9 @@
 import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import type { Num, Str } from '@/schemas/common';
 
-const errorHtml: Str = readFileSync(
-  resolve(dirname(fileURLToPath(import.meta.url)), 'error.html'),
-  'utf8',
-);
+const errorHtml: Str = readFileSync(resolve(import.meta.dirname, 'error.html'), 'utf8');
 
 describe('error.html static fallback', () => {
   it('contains charset utf-8', () => {
@@ -59,6 +55,32 @@ describe('error.html static fallback', () => {
   it('contains Go to homepage link placeholder', () => {
     expect(errorHtml).toContain('href="/"');
     expect(errorHtml).toContain('{{errors.goHome}}');
+  });
+});
+
+describe('error.html placeholder structure', () => {
+  it('uses FONT_FACE_CSS placeholder', () => {
+    expect(errorHtml).toContain('{{FONT_FACE_CSS}}');
+  });
+
+  it('uses FONT_FAMILIES placeholder', () => {
+    expect(errorHtml).toContain('{{FONT_FAMILIES}}');
+  });
+
+  it('uses errors.copyErrorId placeholder in button aria-label', () => {
+    expect(errorHtml).toContain('{{errors.copyErrorId}}');
+  });
+
+  it('uses errors.errorIdPrefix placeholder for error ID prefix', () => {
+    expect(errorHtml).toContain("'{{errors.errorIdPrefix}}'");
+  });
+
+  it('uses errors.copied placeholder for copy feedback', () => {
+    expect(errorHtml).toContain("'{{errors.copied}}'");
+  });
+
+  it('uses errors.copyFailed placeholder for failure feedback', () => {
+    expect(errorHtml).toContain("'{{errors.copyFailed}}'");
   });
 });
 
@@ -167,11 +189,17 @@ describe('error.html script robustness', () => {
     expect(errorCalls!.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('has copyFailed placeholder for error state text', () => {
-    expect(errorHtml).toContain('{{errors.copyFailed}}');
-  });
-
   it('console error prefix uses APP_NAME placeholder', () => {
     expect(errorHtml).toContain("'[{{APP_NAME}}]");
+  });
+
+  it('extracts error ID from SvelteKit error message', () => {
+    expect(errorHtml).toContain('text.match(/\\(Reference:\\s*([^)]+)\\)/)');
+  });
+});
+
+describe('error.html dark mode support', () => {
+  it('has prefers-color-scheme dark media query', () => {
+    expect(errorHtml).toContain('prefers-color-scheme: dark');
   });
 });
