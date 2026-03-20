@@ -1,5 +1,5 @@
 - [Lens]
-    - Convert {COMPONENT} to full Lens compliance. Read docs/prompts/lens-component-conversion.md and follow it exactly. Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
+    - Do accessibility-rules cover all of this: WAI-ARIA, WebAIM, Scott O'Hara, The A11Y Project, WHATWG/HTML spec, W3C WCAG C7
     - Component Conversions (@convert-to-lens)
       - Remove exclusions from the lens test file
       - Review All Rx Rules + lens tests for these
