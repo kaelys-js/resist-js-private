@@ -2392,6 +2392,10 @@
                           {@const isIncompat =
                             (itemCompat ? !itemCompat.compatible : false) ||
                             a11yRulesForComponent.length > 0}
+                          {@const hasConvertMarker =
+                            itemCompat?.violations.some((vi) => vi.rule === 0) ?? false}
+                          {@const badgeStatus =
+                            itemMeta?.status ?? (hasConvertMarker ? 'placeholder' : undefined)}
                           {@const ItemIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
                           {@const itemColor =
                             CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
@@ -2419,11 +2423,11 @@
                                         >
                                           <ItemIcon class="size-4 {itemColor}"></ItemIcon>
                                           <span>{toTitle(name)}</span>
-                                          {#if itemMeta?.status}
+                                          {#if badgeStatus}
                                             <span
                                               class="ml-auto shrink-0 rounded px-1 py-0.5 text-[9px] font-medium leading-none {STATUS_COLORS[
-                                                itemMeta.status
-                                              ]}">{STATUS_LABELS[itemMeta.status]}</span
+                                                badgeStatus
+                                              ]}">{STATUS_LABELS[badgeStatus]}</span
                                             >
                                           {:else if isIncompat}
                                             <CircleAlert
@@ -2441,8 +2445,15 @@
                                   sideOffset={0}
                                   class="max-w-[28rem] max-h-[min(24rem,80vh)] overflow-x-auto overflow-y-auto"
                                 >
+                                  <div class="flex items-center gap-1.5">
+                                    <ItemIcon class="size-3.5 {itemColor}" />
+                                    <span class="text-xs font-semibold">{toTitle(name)}</span>
+                                    <span class="text-[10px] capitalize text-muted-foreground"
+                                      >· {group.label}</span
+                                    >
+                                  </div>
                                   {#if itemMeta?.description}
-                                    <p class="text-xs">{itemMeta.description}</p>
+                                    <p class="mt-1 text-xs">{itemMeta.description}</p>
                                   {/if}
                                   {#if itemMeta?.tags && itemMeta.tags.length > 0}
                                     <div class="mt-1 flex flex-wrap gap-1">
