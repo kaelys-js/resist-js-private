@@ -6879,6 +6879,349 @@ const A11Y_RULES: A11yRule[] = [
       );
     },
   },
+  {
+    id: 'html-img-empty-alt-role' as Str,
+    label: 'Empty alt with role' as Str,
+    description:
+      '<img alt=""> (decorative) must not have a role attribute — WHATWG HTML spec prohibits it' as Str,
+    category: 'HTML Spec' as Str,
+    wcag: '1.1.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const emptyAltWithRole: RegExp = /<img\b[^>]*\balt=["']['"][^>]*\brole=/;
+      const emptyAltWithRole2: RegExp = /<img\b[^>]*\brole=[^>]*\balt=["']['"][^>]*/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!/<img\b/.test(str)) continue;
+        if (emptyAltWithRole.test(str) || emptyAltWithRole2.test(str)) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              '<img alt=""> with role attribute — decorative images must not have a role' as Str,
+            solution: 'Remove the role attribute from decorative images (alt="")' as Str,
+            found: truncSnippet(
+              ((str.match(emptyAltWithRole) ?? str.match(emptyAltWithRole2) ?? [])[0] as Str) ??
+                ('<img alt="" role="...">' as Str),
+            ),
+            fix: '<img alt="" /> <!-- no role on decorative images -->' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have <img alt=""> with a role attribute` as Str)
+          : ('No decorative images have role attributes' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'html-label-nesting' as Str,
+    label: 'Label nesting' as Str,
+    description:
+      '<label> must not contain another <label> or more than one labelable element (WHATWG HTML spec)' as Str,
+    category: 'HTML Spec' as Str,
+    wcag: '1.3.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* <label> containing another <label> */
+      const nestedLabel: RegExp = /<label\b[^>]*>[\s\S]*?<label\b/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!/<label\b/.test(str)) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+          continue;
+        }
+        if (nestedLabel.test(str)) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem: 'Nested <label> elements — labels must not contain other labels' as Str,
+            solution: 'Remove nested <label> or restructure to use for/id association' as Str,
+            found: truncSnippet(
+              ((str.match(nestedLabel) ?? [])[0] as Str) ?? ('<label><label>' as Str),
+            ),
+            fix: '<label for="field-1">Label 1</label>\n<label for="field-2">Label 2</label>' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have nested <label> elements` as Str)
+          : ('No nested label violations' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'html-input-hidden-aria' as Str,
+    label: 'Hidden input with ARIA' as Str,
+    description:
+      '<input type="hidden"> must not have ARIA attributes — hidden inputs are not exposed to accessibility APIs' as Str,
+    category: 'HTML Spec' as Str,
+    wcag: '4.1.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const hiddenWithAria: RegExp = /<input\b[^>]*\btype=["']hidden["'][^>]*\baria-/;
+      const hiddenWithAria2: RegExp = /<input\b[^>]*\baria-[^>]*\btype=["']hidden["']/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (hiddenWithAria.test(str) || hiddenWithAria2.test(str)) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              '<input type="hidden"> with ARIA attributes — hidden inputs are not in the accessibility tree' as Str,
+            solution: 'Remove ARIA attributes from hidden inputs' as Str,
+            found: truncSnippet(
+              ((str.match(hiddenWithAria) ?? str.match(hiddenWithAria2) ?? [])[0] as Str) ??
+                ('<input type="hidden" aria-...>' as Str),
+            ),
+            fix: '<input type="hidden" name="..." value="..."> <!-- no aria-* -->' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have ARIA attributes on hidden inputs` as Str)
+          : ('No ARIA attributes on hidden inputs' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'html-details-summary' as Str,
+    label: 'Details/summary structure' as Str,
+    description:
+      '<details> must have <summary> as its first element child (WHATWG HTML spec)' as Str,
+    category: 'HTML Spec' as Str,
+    wcag: '4.1.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* <details> followed by anything other than <summary> as first child */
+      const detailsPattern: RegExp = /<details\b[^>]*>/g;
+      const detailsSummaryFirst: RegExp = /<details\b[^>]*>\s*<summary\b/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!/<details\b/.test(str)) continue;
+        const hasDetails: boolean = detailsPattern.test(str);
+        detailsPattern.lastIndex = 0;
+        if (!hasDetails) continue;
+        if (detailsSummaryFirst.test(str)) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        } else {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem: '<details> without <summary> as first child element' as Str,
+            solution: 'Add <summary> as the first child of <details>' as Str,
+            found: truncSnippet(
+              ((str.match(/<details\b[^>]*>[^<]*</) ?? [])[0] as Str) ?? ('<details><div>' as Str),
+            ),
+            fix: '<details>\n  <summary>Click to expand</summary>\n  <!-- content -->\n</details>' as Str,
+          });
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have <details> without <summary> as first child` as Str)
+          : ('All <details> elements have <summary> as first child' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'html-button-type' as Str,
+    label: 'Button type attribute' as Str,
+    description:
+      '<button> should have an explicit type attribute — defaults to "submit" which is often unintentional' as Str,
+    category: 'HTML Spec' as Str,
+    wcag: '4.1.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* <button> without type attribute */
+      const buttonNoType: RegExp = /<button\b(?![^>]*\btype=)[^>]*>/g;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (!/<button\b/.test(str)) continue;
+        const matches: RegExpMatchArray | null = str.match(buttonNoType);
+        if (matches !== null && matches.length > 0) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              `${matches.length} <button> element(s) without explicit type attribute — defaults to "submit"` as Str,
+            solution:
+              'Add type="button" for non-submit buttons or type="submit" for form submission' as Str,
+            found: truncSnippet((matches[0] ?? '<button>') as Str),
+            fix: '<button type="button"> or <button type="submit">' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have <button> without explicit type attribute` as Str)
+          : ('All <button> elements have explicit type attributes' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'html-placeholder-label' as Str,
+    label: 'Placeholder not a label' as Str,
+    description:
+      'Input with placeholder must also have an associated <label>, aria-label, or aria-labelledby (WHATWG HTML spec)' as Str,
+    category: 'HTML Spec' as Str,
+    wcag: '1.3.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* <input> with placeholder but no aria-label, aria-labelledby, or id (for label association) */
+      const inputPlaceholder: RegExp = /<input\b[^>]*\bplaceholder=[^>]*/g;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const matches: RegExpMatchArray | null = str.match(inputPlaceholder);
+        if (matches === null) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+          continue;
+        }
+        let hasViolation: boolean = false;
+        for (const m of matches) {
+          const hasLabel: boolean =
+            /aria-label=/.test(m) || /aria-labelledby=/.test(m) || /\bid=/.test(m);
+          if (!hasLabel) {
+            hasViolation = true;
+          }
+        }
+        if (hasViolation) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              '<input> with placeholder but no label association (aria-label, aria-labelledby, or id for <label>)' as Str,
+            solution:
+              'Add a visible <label> with for/id or aria-label — placeholder is not a label substitute' as Str,
+            found: truncSnippet((matches[0] ?? '<input placeholder="...">') as Str),
+            fix: '<label for="field">Label</label>\n<input id="field" placeholder="...">' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components use placeholder as sole labeling mechanism` as Str)
+          : ('All inputs with placeholder have proper labels' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -6888,7 +7231,7 @@ const A11Y_RULES: A11yRule[] = [
 /**
  * Run a full accessibility audit against source files.
  *
- * Evaluates all 117 accessibility rules against the provided source code
+ * Evaluates all 123 accessibility rules against the provided source code
  * and computes an aggregate score with detailed per-rule results, including
  * WCAG 2.1 AA criteria coverage metrics.
  *
@@ -6899,7 +7242,7 @@ const A11Y_RULES: A11yRule[] = [
  * const sources = { 'Button.svelte': btnSrc, 'app.css': cssSrc };
  * const audit = auditAccessibility(sources);
  * console.log(audit.overallScore);  // 85
- * console.log(audit.rules.length);  // 117
+ * console.log(audit.rules.length);  // 123
  * console.log(audit.totalWcagCriteria);  // 50
  * console.log(audit.wcagCoverage);  // 78
  */
