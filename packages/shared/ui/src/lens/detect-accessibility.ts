@@ -203,6 +203,10 @@ function determineStandard(id: Str, category: Str): Str {
   if ((id as string).startsWith('section-508')) return 'Section 508' as Str;
   if ((id as string).startsWith('en-301-549')) return 'EN 301 549' as Str;
   if (category === 'ARIA' || (id as string).startsWith('aria-')) return 'WAI-ARIA' as Str;
+  if ((id as string).startsWith('html-')) return 'WHATWG' as Str;
+  if ((id as string).startsWith('ohara-')) return 'Best Practice' as Str;
+  if ((id as string).startsWith('webaim-')) return 'WebAIM' as Str;
+  if ((id as string).startsWith('a11yproject-')) return 'A11Y Project' as Str;
   return 'WCAG 2.1 AA' as Str;
 }
 
@@ -6080,6 +6084,443 @@ const A11Y_RULES: A11yRule[] = [
       );
     },
   },
+
+  /* ---- WCAG 2.1 AA Gaps (3 rules) ---- */
+  {
+    id: 'pause-stop-hide' as Str,
+    label: 'Pause, stop, hide' as Str,
+    description:
+      'Moving, blinking, or auto-updating content can be paused, stopped, or hidden (WCAG 2.2.2)' as Str,
+    category: 'Visual' as Str,
+    wcag: '2.2.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const css: SourceEntry[] = cssFiles(sources);
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+
+      /* Check CSS: animation/keyframes without prefers-reduced-motion guard */
+      for (const [filename, content] of css) {
+        const str: string = content as string;
+        const hasAnimation: boolean =
+          /animation\s*:/.test(str) || /@keyframes\s/.test(str) || /transition\s*:/.test(str);
+        if (!hasAnimation) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+          continue;
+        }
+        const hasMotionQuery: boolean = /prefers-reduced-motion/.test(str);
+        const hasPauseControl: boolean =
+          /animation-play-state\s*:\s*paused/.test(str) || /\.paused/.test(str);
+        if (hasMotionQuery || hasPauseControl) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        } else {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              'CSS animation/transition without prefers-reduced-motion guard or pause mechanism' as Str,
+            solution:
+              'Add @media (prefers-reduced-motion: reduce) to disable/simplify animations, or provide a pause control' as Str,
+            found: truncSnippet(
+              (((str.match(/animation\s*:[^;]+;/) ?? [])[0] as Str) ??
+                ('@keyframes ... { }' as Str)) as Str,
+            ),
+            fix: '@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }' as Str,
+          });
+        }
+      }
+
+      /* Check Svelte: autoplay on media without pause controls */
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const hasAutoplay: boolean = /<(?:video|audio)[^>]*\bautoplay\b/.test(str);
+        if (!hasAutoplay) continue;
+        const hasPauseBtn: boolean = /pause|controls/.test(str);
+        if (hasPauseBtn) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        } else {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem: 'Media element with autoplay but no visible pause/stop control' as Str,
+            solution: 'Add the controls attribute or provide a visible pause button' as Str,
+            found: truncSnippet(
+              ((str.match(/<(?:video|audio)[^>]*autoplay[^>]*>/) ?? [])[0] as Str) ??
+                ('<video autoplay>' as Str),
+            ),
+            fix: '<video autoplay controls>' as Str,
+          });
+        }
+      }
+
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} files have animations/media without pause mechanism` as Str)
+          : ('All animations/media have pause or reduced-motion support' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'parsing-duplicate-ids' as Str,
+    label: 'No duplicate IDs' as Str,
+    description:
+      'Elements must not share the same id attribute value within a component (WCAG 4.1.1, deprecated in 2.2)' as Str,
+    category: 'Standards' as Str,
+    wcag: '4.1.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const idPattern: RegExp = /\bid=["']([^"']+)["']/g;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const ids: string[] = [];
+        let match: RegExpExecArray | null = idPattern.exec(str);
+        while (match !== null) {
+          if (match[1] !== undefined) ids.push(match[1]);
+          match = idPattern.exec(str);
+        }
+        const seen: Set<string> = new Set();
+        const duplicates: string[] = [];
+        for (const id of ids) {
+          if (seen.has(id) && !duplicates.includes(id)) {
+            duplicates.push(id);
+          }
+          seen.add(id);
+        }
+        if (duplicates.length === 0) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        } else {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem: `Duplicate id attribute values: ${duplicates.join(', ')}` as Str,
+            solution: 'Ensure every id attribute is unique within the component template' as Str,
+            found: `id="${duplicates[0]}" (appears multiple times)` as Str,
+            fix: `id="${duplicates[0]}-1" / id="${duplicates[0]}-2"` as Str,
+          });
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have duplicate id values` as Str)
+          : ('No duplicate id values found' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'audio-description-aa' as Str,
+    label: 'Audio description (AA)' as Str,
+    description:
+      'Prerecorded video must have an audio description track (WCAG 1.2.5 Level AA)' as Str,
+    category: 'Media' as Str,
+    wcag: '1.2.5' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      const videoFiles: SourceEntry[] = svelte.filter(([, c]) => /<video[\s>]/.test(c as string));
+      if (videoFiles.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+
+      for (const [filename, content] of videoFiles) {
+        const str: string = content as string;
+        const hasDescTrack: boolean = /<track[^>]*kind=["']descriptions["']/.test(str);
+        if (hasDescTrack) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        } else {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem: '<video> without <track kind="descriptions"> for audio description' as Str,
+            solution:
+              'Add a <track kind="descriptions" src="..." srclang="en"> inside the <video> element' as Str,
+            found: truncSnippet(
+              ((str.match(/<video[^>]*>/) ?? [])[0] as Str) ?? ('<video>' as Str),
+            ),
+            fix: '<video>\n  <track kind="descriptions" src="desc.vtt" srclang="en" label="Audio Description">\n</video>' as Str,
+          });
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} video elements missing audio description track` as Str)
+          : ('All videos have audio description tracks' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+
+  /* ---- WCAG Technique C7 (1 rule) ---- */
+  {
+    id: 'visually-hidden-link-text' as Str,
+    label: 'Visually hidden link text (C7)' as Str,
+    description:
+      'Links using visually-hidden text must use clip-path CSS technique, not display:none or visibility:hidden (WCAG C7)' as Str,
+    category: 'Utilities' as Str,
+    wcag: '2.4.4' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      const css: SourceEntry[] = cssFiles(sources);
+      /* Find if the project has a visually-hidden / sr-only class definition */
+      let usesClipPath: boolean = false;
+      let usesDisplayNone: boolean = false;
+      let foundDefinition: boolean = false;
+
+      for (const [, content] of css) {
+        const str: string = content as string;
+        /* Look for sr-only or visually-hidden class definitions */
+        if (/(?:\.sr-only|\.visually-hidden|visually-hidden)/.test(str)) {
+          foundDefinition = true;
+          if (/clip-path\s*:\s*inset\(/.test(str) || /clip\s*:\s*rect\(/.test(str)) {
+            usesClipPath = true;
+          }
+          if (/display\s*:\s*none/.test(str) || /visibility\s*:\s*hidden/.test(str)) {
+            usesDisplayNone = true;
+          }
+        }
+      }
+
+      /* Check Svelte files for links containing visually-hidden content */
+      let linksWithHidden: Num = 0 as Num;
+      const findings: A11yFileFinding[] = [];
+      const failing: Str[] = [];
+      const passing: Str[] = [];
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const hasHiddenInLink: boolean =
+          /<a[^>]*>[\s\S]*?(?:sr-only|visually-hidden|VisuallyHidden)[\s\S]*?<\/a>/.test(str);
+        if (hasHiddenInLink) {
+          linksWithHidden = ((linksWithHidden as number) + 1) as Num;
+          if (usesDisplayNone && !usesClipPath) {
+            failing.push(filename);
+            findings.push({
+              file: filename,
+              problem:
+                'Link uses visually-hidden text via display:none or visibility:hidden — this hides content from screen readers too' as Str,
+              solution:
+                'Use clip-path: inset(50%) technique for visually-hidden text (WCAG C7)' as Str,
+              found: '.sr-only { display: none; }' as Str,
+              fix: '.sr-only { clip-path: inset(50%); clip: rect(0,0,0,0); height: 1px; width: 1px; overflow: hidden; position: absolute; white-space: nowrap; }' as Str,
+            });
+          } else {
+            passing.push(filename);
+          }
+        }
+      }
+
+      if ((linksWithHidden as number) === 0 && !foundDefinition)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+
+      const pass: Num = passing.length as Num;
+      const fail: Num = failing.length as Num;
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} links use incorrect visually-hidden technique (display:none instead of clip-path)` as Str)
+          : ('Visually-hidden link text uses correct clip-path technique (C7)' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+
+  /* ---- WAI-ARIA 1.2 Gaps (2 rules in part 1) ---- */
+  {
+    id: 'aria-naming-prohibited' as Str,
+    label: 'ARIA naming prohibited elements' as Str,
+    description:
+      'Elements that prohibit naming must not have aria-label or aria-labelledby (WAI-ARIA 1.2)' as Str,
+    category: 'ARIA' as Str,
+    wcag: '4.1.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* Elements that prohibit naming per WAI-ARIA 1.2 */
+      const prohibitedElements: string[] = [
+        'p',
+        'abbr',
+        'b',
+        'em',
+        'i',
+        'code',
+        'small',
+        'strong',
+        'sub',
+        'sup',
+        'mark',
+        'pre',
+        'blockquote',
+        'cite',
+        'del',
+        'ins',
+        'kbd',
+        'samp',
+        'var',
+      ];
+      const prohibitedPattern: RegExp = new RegExp(
+        `<(${prohibitedElements.join('|')})\\b[^>]*\\baria-(?:label|labelledby)\\b`,
+      );
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const hasProhibited: boolean = prohibitedPattern.test(str);
+        /* For span/div, only flag if there's no role — separate rule handles that */
+        if (hasProhibited) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          const matched: string =
+            (str.match(prohibitedPattern) ?? [])[0] ?? '<element aria-label="...">';
+          findings.push({
+            file: filename,
+            problem:
+              'aria-label/aria-labelledby used on an element that prohibits naming (WAI-ARIA 1.2)' as Str,
+            solution:
+              'Remove aria-label/aria-labelledby from this element — it has no accessible name computation' as Str,
+            found: truncSnippet(matched as Str),
+            fix: '<!-- Remove aria-label from naming-prohibited elements like <p>, <code>, <em> -->' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components use aria-label on naming-prohibited elements` as Str)
+          : ('No aria-label on naming-prohibited elements' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'aria-hidden-focusable' as Str,
+    label: 'ARIA hidden on focusable elements' as Str,
+    description:
+      'aria-hidden="true" must not be used on focusable elements — hides from AT while remaining keyboard-focusable' as Str,
+    category: 'ARIA' as Str,
+    wcag: '4.1.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* Focusable elements that should never have aria-hidden="true" */
+      const focusableWithHidden: RegExp =
+        /<(?:button|select|textarea)\b[^>]*\baria-hidden=["']true["']/;
+      const anchorWithHidden: RegExp = /<a\b[^>]*\bhref\b[^>]*\baria-hidden=["']true["']/;
+      const anchorWithHidden2: RegExp = /<a\b[^>]*\baria-hidden=["']true["'][^>]*\bhref\b/;
+      const inputWithHidden: RegExp =
+        /<input\b(?![^>]*\btype=["']hidden["'])[^>]*\baria-hidden=["']true["']/;
+      const tabindexWithHidden: RegExp = /\btabindex=["'][0-9]+["'][^>]*\baria-hidden=["']true["']/;
+      const tabindexWithHidden2: RegExp =
+        /\baria-hidden=["']true["'][^>]*\btabindex=["'][0-9]+["']/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const hasFocusableHidden: boolean =
+          focusableWithHidden.test(str) ||
+          anchorWithHidden.test(str) ||
+          anchorWithHidden2.test(str) ||
+          inputWithHidden.test(str) ||
+          tabindexWithHidden.test(str) ||
+          tabindexWithHidden2.test(str);
+        if (hasFocusableHidden) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              'aria-hidden="true" on a focusable element — the element is hidden from screen readers but still receives keyboard focus' as Str,
+            solution:
+              'Remove aria-hidden="true" or add tabindex="-1" to remove from tab order' as Str,
+            found: truncSnippet(
+              ((str.match(
+                /(<(?:button|a|input|select|textarea)\b[^>]*aria-hidden=["']true["'][^>]*>)/,
+              ) ?? [])[0] as Str) ?? ('<button aria-hidden="true">' as Str),
+            ),
+            fix: '<!-- Either remove aria-hidden="true" or add tabindex="-1" -->' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have aria-hidden="true" on focusable elements` as Str)
+          : ('No aria-hidden="true" on focusable elements' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -6089,7 +6530,7 @@ const A11Y_RULES: A11yRule[] = [
 /**
  * Run a full accessibility audit against source files.
  *
- * Evaluates all 105 accessibility rules against the provided source code
+ * Evaluates all 111 accessibility rules against the provided source code
  * and computes an aggregate score with detailed per-rule results, including
  * WCAG 2.1 AA criteria coverage metrics.
  *
@@ -6100,7 +6541,7 @@ const A11Y_RULES: A11yRule[] = [
  * const sources = { 'Button.svelte': btnSrc, 'app.css': cssSrc };
  * const audit = auditAccessibility(sources);
  * console.log(audit.overallScore);  // 85
- * console.log(audit.rules.length);  // 105
+ * console.log(audit.rules.length);  // 111
  * console.log(audit.totalWcagCriteria);  // 50
  * console.log(audit.wcagCoverage);  // 78
  */
