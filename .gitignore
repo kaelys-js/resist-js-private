@@ -13,6 +13,14 @@ coverage/
 .claude/*
 !.claude/settings.json
 !.claude/hooks/
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/fix-bug/
+!.claude/skills/code-rules/
+!.claude/skills/qa-commands/
+!.claude/skills/visual-verification/
+!.claude/skills/build-editor/
+!.claude/skills/expand-feature/
 .worktrees/
 .playwright-mcp
 test-results/
