@@ -1,0 +1,268 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`auditAccessibility — global > failing rule IDs match snapshot 1`] = `
+[
+  "accessible-icon",
+  "accordion-a11y",
+  "aria-labels",
+  "aria-live-regions",
+  "aria-prohibited-attrs",
+  "aria-required-attrs",
+  "aria-required-children",
+  "arrow-key-navigation",
+  "button-a11y",
+  "character-key-shortcuts",
+  "color-not-sole-indicator",
+  "consistent-navigation",
+  "content-on-hover-focus",
+  "description-labelling",
+  "en-301-549",
+  "error-identification",
+  "error-suggestion",
+  "escape-to-close",
+  "focus-restoration",
+  "labels-or-instructions",
+  "landmark-completeness",
+  "language-of-page",
+  "link-distinguishable",
+  "on-focus-no-change",
+  "pause-stop-controls",
+  "section-508",
+  "section-508-tables",
+  "semantic-html",
+  "skip-links",
+  "status-messages",
+  "svg-accessibility",
+  "table-header-scope",
+  "text-contrast",
+  "timing-adjustable",
+  "toast-a11y",
+  "tooltip-a11y",
+  "wcag-2.1-aa",
+]
+`;
+
+exports[`auditAccessibility — global > failing rule count matches snapshot 1`] = `37`;
+
+exports[`auditAccessibility — global > overall score matches snapshot baseline 1`] = `41`;
+
+exports[`auditAccessibility — global > passing rule count matches snapshot 1`] = `31`;
+
+exports[`auditAccessibility — per-component regressions > component failure map matches snapshot 1`] = `
+{
+  "accordion": [
+    "accordion-a11y",
+    "semantic-html",
+  ],
+  "alert": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "alert-dialog": [
+    "semantic-html",
+    "status-messages",
+  ],
+  "aspect-ratio": [
+    "semantic-html",
+  ],
+  "avatar": [
+    "aria-live-regions",
+    "link-distinguishable",
+    "semantic-html",
+    "svg-accessibility",
+  ],
+  "badge": [
+    "link-distinguishable",
+  ],
+  "breadcrumb": [
+    "link-distinguishable",
+  ],
+  "button": [
+    "aria-labels",
+  ],
+  "button-group": [
+    "button-a11y",
+    "semantic-html",
+  ],
+  "calendar": [
+    "content-on-hover-focus",
+    "focus-restoration",
+    "semantic-html",
+  ],
+  "card": [
+    "link-distinguishable",
+    "semantic-html",
+  ],
+  "carousel": [
+    "semantic-html",
+  ],
+  "checkbox": [
+    "semantic-html",
+  ],
+  "collapsible": [
+    "accordion-a11y",
+    "link-distinguishable",
+    "semantic-html",
+  ],
+  "command": [
+    "content-on-hover-focus",
+    "escape-to-close",
+    "focus-restoration",
+    "link-distinguishable",
+    "semantic-html",
+  ],
+  "context-menu": [
+    "semantic-html",
+  ],
+  "dialog": [
+    "escape-to-close",
+    "focus-restoration",
+    "link-distinguishable",
+    "semantic-html",
+  ],
+  "drawer": [
+    "escape-to-close",
+    "semantic-html",
+  ],
+  "dropdown-menu": [
+    "escape-to-close",
+    "link-distinguishable",
+    "semantic-html",
+  ],
+  "empty": [
+    "semantic-html",
+  ],
+  "field": [
+    "semantic-html",
+  ],
+  "form-field": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "hover-card": [
+    "semantic-html",
+  ],
+  "input": [
+    "aria-labels",
+    "color-not-sole-indicator",
+    "description-labelling",
+    "error-suggestion",
+    "section-508",
+    "semantic-html",
+  ],
+  "input-group": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "input-otp": [
+    "semantic-html",
+  ],
+  "item": [
+    "semantic-html",
+  ],
+  "label": [
+    "semantic-html",
+  ],
+  "menubar": [
+    "semantic-html",
+  ],
+  "native-select": [
+    "aria-labels",
+    "arrow-key-navigation",
+    "description-labelling",
+    "error-suggestion",
+    "section-508",
+    "semantic-html",
+  ],
+  "navigation-menu": [
+    "semantic-html",
+  ],
+  "pagination": [
+    "aria-live-regions",
+    "semantic-html",
+  ],
+  "popover": [
+    "escape-to-close",
+    "focus-restoration",
+    "link-distinguishable",
+    "semantic-html",
+  ],
+  "progress": [
+    "aria-live-regions",
+    "semantic-html",
+  ],
+  "radio-group": [
+    "semantic-html",
+  ],
+  "range-calendar": [
+    "content-on-hover-focus",
+    "escape-to-close",
+    "focus-restoration",
+    "semantic-html",
+  ],
+  "scroll-area": [
+    "semantic-html",
+  ],
+  "select": [
+    "escape-to-close",
+    "semantic-html",
+  ],
+  "separator": [
+    "semantic-html",
+  ],
+  "sheet": [
+    "escape-to-close",
+    "focus-restoration",
+    "link-distinguishable",
+    "semantic-html",
+  ],
+  "sidebar": [
+    "accordion-a11y",
+    "focus-restoration",
+    "link-distinguishable",
+    "semantic-html",
+  ],
+  "skeleton": [
+    "aria-live-regions",
+    "link-distinguishable",
+    "pause-stop-controls",
+    "semantic-html",
+  ],
+  "slider": [
+    "semantic-html",
+  ],
+  "switch": [
+    "pause-stop-controls",
+    "semantic-html",
+  ],
+  "table": [
+    "link-distinguishable",
+    "section-508-tables",
+  ],
+  "tabs": [
+    "semantic-html",
+  ],
+  "textarea": [
+    "aria-labels",
+    "color-not-sole-indicator",
+    "description-labelling",
+    "error-suggestion",
+    "section-508",
+    "semantic-html",
+  ],
+  "toggle": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "toggle-group": [
+    "semantic-html",
+  ],
+  "tooltip": [
+    "link-distinguishable",
+    "semantic-html",
+    "tooltip-a11y",
+  ],
+}
+`;
+
+exports[`auditAccessibility — per-component regressions > components with zero a11y failures stay clean 1`] = `825`;

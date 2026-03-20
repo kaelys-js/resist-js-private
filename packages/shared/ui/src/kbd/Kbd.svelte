@@ -218,7 +218,7 @@
     {#if validated.children}
       {@render validated.children()}
     {:else}
-      {validated.label ?? ''}
+      {validated.label ?? '—'}
     {/if}
   </kbd>
 {/if}

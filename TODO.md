@@ -1,7 +1,4 @@
 - [Lens]
-    - Kbd/KbdGroup/BlockQuote/Avatar has Lens rules failures and A11y violations
-      - Can you create a test file that uses all the a11y rules that are shown in the ux so we can catch them when tests run?
-
     - Convert {COMPONENT} to full Lens compliance. Read docs/prompts/lens-component-conversion.md and follow it exactly. Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
     - Component Conversions (@convert-to-lens)
       - Remove exclusions from the lens test file

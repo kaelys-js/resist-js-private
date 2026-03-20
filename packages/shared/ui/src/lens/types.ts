@@ -252,7 +252,7 @@ export const LensMetaSchema = v.strictObject({
   status: v.optional(LensStatusSchema),
   /** Optional list of breaking changes with migration notes. */
   breakingChanges: v.optional(v.array(BreakingChangeSchema)),
-  /** Default slot label text for LensComponentRenderer cards. Empty string renders self-closing component. @values Example, , Life is like a box of chocolates. */
+  /** Default slot label text for LensComponentRenderer cards. Empty string renders self-closing component. */
   defaultLabel: v.optional(StrSchema),
   /** Child component directory name for group wrappers (e.g., 'kbd', 'avatar'). When set, Lens auto-renders instances of this component inside the group instead of text label. */
   childComponent: v.optional(StrSchema),

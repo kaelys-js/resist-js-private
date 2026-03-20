@@ -7639,6 +7639,7 @@
   useIcon: Bool,
   variantKey: Str,
   variantOption: Str,
+  requiredChildren: Str,
 )}
   {@const activeSim: Str = cardSimulations[cardKey] ?? 'none'}
   {@const activeBg: Str = cardBackgrounds[cardKey] ?? 'default'}
@@ -10962,13 +10963,17 @@
                               >
                                 <circle cx="12" cy="12" r="10"></circle>
                               </svg>
+                              {#if requiredChildren}{requiredChildren}{/if}
                             </Target>
                           {:else if innerContent}
                             <Target {...baseProps} {...extraProps}>
                               {@render innerContent()}
+                              {#if requiredChildren}{requiredChildren}{/if}
                             </Target>
-                          {:else if label}
-                            <Target {...baseProps} {...extraProps}>{label}</Target>
+                          {:else if label || requiredChildren}
+                            <Target {...baseProps} {...extraProps}
+                              >{requiredChildren || label}</Target
+                            >
                           {:else}
                             <Target {...baseProps} {...extraProps} />
                           {/if}
@@ -10988,13 +10993,15 @@
                           >
                             <circle cx="12" cy="12" r="10"></circle>
                           </svg>
+                          {#if requiredChildren}{requiredChildren}{/if}
                         </Target>
                       {:else if innerContent}
                         <Target {...baseProps} {...extraProps}>
                           {@render innerContent()}
+                          {#if requiredChildren}{requiredChildren}{/if}
                         </Target>
-                      {:else if label}
-                        <Target {...baseProps} {...extraProps}>{label}</Target>
+                      {:else if label || requiredChildren}
+                        <Target {...baseProps} {...extraProps}>{requiredChildren || label}</Target>
                       {:else}
                         <Target {...baseProps} {...extraProps} />
                       {/if}
@@ -13765,7 +13772,11 @@
           {@const requiresProps: Record<Str, unknown> = Object.fromEntries(
             (variantKey.requires ?? []).map((r) => [r.prop, r.value]),
           )}
-          {@const variantProps: Record<Str, unknown> = { ...requiresProps, ...baseVariantProps }}
+          {@const requiredChildrenValue: Str = (requiresProps['children'] as Str) ?? ''}
+          {@const filteredRequires: Record<Str, unknown> = requiredChildrenValue
+            ? Object.fromEntries(Object.entries(requiresProps).filter(([k]) => k !== 'children'))
+            : requiresProps}
+          {@const variantProps: Record<Str, unknown> = { ...filteredRequires, ...baseVariantProps }}
           {@const cardKey: Str = `${variantName}:${option}`}
           {@const snippet: Str = codeSnippet(variantName, option)}
           <svelte:boundary>
@@ -13777,6 +13788,7 @@
               isIconOption(option),
               variantName,
               option,
+              requiredChildrenValue,
             )}
             {#snippet failed(error)}
               {@render errorCard(option, error)}
@@ -13790,7 +13802,7 @@
   <!-- Default mode: single card with base props -->
   <div class={cn('', className)}>
     <svelte:boundary>
-      {@render card('default', 'default', codeSnippet('', ''), {}, false, '', '')}
+      {@render card('default', 'default', codeSnippet('', ''), {}, false, '', '', '')}
       {#snippet failed(error)}
         {@render errorCard(label || componentName || 'default', error)}
       {/snippet}
