@@ -4,10 +4,17 @@ set -euo pipefail
 # ─────────────────────────────────────────────────────────────
 # generate-icons.sh
 #
-# Generates ALL static icon assets from the master branding SVG.
-# Source of truth: branding/logo.svg
+# Generates ALL static icon assets from a product's master branding SVG.
+# Source of truth: <product>/branding/logo.svg
 #
-# Output (static/):
+# Usage:
+#   bash generate-icons.sh <product-dir>
+#
+# Example:
+#   bash generate-icons.sh packages/products/storylyne/editor
+#   bash generate-icons.sh .    # when CWD is the product root
+#
+# Output (<product>/static/):
 #   favicon.svg          — SVG copy (modern browsers)
 #   favicon.ico          — 32x32 ICO (legacy browsers)
 #   favicon-32.png       — 32x32 PNG (fallback)
@@ -24,10 +31,17 @@ set -euo pipefail
 #                             Linux: apt install imagemagick
 # ─────────────────────────────────────────────────────────────
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-EDITOR_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-MASTER_SVG="$EDITOR_DIR/branding/logo.svg"
-STATIC_DIR="$EDITOR_DIR/static"
+# ── Argument handling ────────────────────────────────────────
+
+if [[ $# -lt 1 ]]; then
+  echo "Usage: bash generate-icons.sh <product-dir>" >&2
+  echo "  e.g. bash generate-icons.sh packages/products/storylyne/editor" >&2
+  exit 1
+fi
+
+PRODUCT_DIR="$(cd "$1" && pwd)"
+MASTER_SVG="$PRODUCT_DIR/branding/logo.svg"
+STATIC_DIR="$PRODUCT_DIR/static"
 
 # Background color for maskable icons (dark blue matching crystal base)
 MASKABLE_BG="#0f172a"
@@ -36,6 +50,11 @@ MASKABLE_BG="#0f172a"
 
 if [[ ! -f "$MASTER_SVG" ]]; then
   echo "ERROR: Master SVG not found at $MASTER_SVG" >&2
+  exit 1
+fi
+
+if [[ ! -d "$STATIC_DIR" ]]; then
+  echo "ERROR: Static directory not found at $STATIC_DIR" >&2
   exit 1
 fi
 
@@ -53,7 +72,7 @@ if ! command -v magick &>/dev/null; then
   exit 1
 fi
 
-echo "Generating icons from branding/logo.svg..."
+echo "Generating icons from $PRODUCT_DIR/branding/logo.svg..."
 
 # ── SVG (copy master → static) ───────────────────────────────
 
@@ -122,4 +141,4 @@ magick "$STATIC_DIR/favicon-32.png" "$STATIC_DIR/favicon.ico"
 
 TOTAL=$(( ${#RASTER_SIZES[@]} + ${#MASKABLE_SIZES[@]} + 2 ))  # +2 for SVG and ICO
 echo ""
-echo "Done. Generated $TOTAL assets in static/"
+echo "Done. Generated $TOTAL assets in $PRODUCT_DIR/static/"

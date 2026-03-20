@@ -1,6 +1,12 @@
+This: 
+
+Need it to be shared so any product can use it.
+
+CRITICAL: Re-Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
+---
 Convert {COMPONENT} to full Lens compliance. Read docs/prompts/lens-component-conversion.md and follow it exactly. Verify after each Step that you have explicitly followed EVERY WORD.
 
-Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
+CRITICAL: Re-Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
 
 - [Prompt 0]
 - 
@@ -20,7 +26,7 @@ Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog
   - Several Issues:
     - 
 
-  Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
+  CRITICAL: Re-Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
 
 - [Prompt 3]
   - Build Editor UI: [what you want built]

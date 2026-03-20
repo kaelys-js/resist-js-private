@@ -1,0 +1,23 @@
+{
+  "name": "@/config/tooling/svelte",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "qa:test": "cd ../../../.. && vitest run --project config-tooling-svelte"
+  },
+  "dependencies": {
+    "@/schemas/common": "workspace:*"
+  },
+  "peerDependencies": {
+    "@sveltejs/vite-plugin-svelte": ">=4.0.0 || >=6.0.0"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^6.2.4",
+    "vitest": "^4.0.18"
+  }
+}

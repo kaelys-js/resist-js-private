@@ -1,10 +1,11 @@
 - [Lens]
-    - There are 877 components. I feel like some of them shouldn't exist. The docs/prompts/lens-component-conversion.md produces proper research for creating components (Step 1.E), do you understand the purpose is to have every component right? Then later we would build a separate "Blocks system like shadcn has". Do I make sense?
-    - Blocks/Stories, Project-Specific Components
+    - Lens Blocks
+    - Project-Specific Components/Blocks
     - Plans
-      - Support/About/Styling: Need Content Work
       - docs/plans/2026-03-18-cloudflare-production-readiness.md
       - docs/plans/2026-03-16-lens-pages-part2.md
+        - Support/About/Styling: Need Content Work
+        - Pages: Animation/Layout/Color/Dark Mode/Typography/Spacing/Breakpoints/Radius/Shadows/Cursors/Images/Hover Effects/Themes
       - docs/plans/2026-03-16-auto-examples-part1.md
       - docs/plans/2026-03-16-auto-examples-part2.md
       - docs/plans/2026-03-16-lens-detail-additions.md
@@ -54,11 +55,7 @@
   - Slider Pill With: Help Icon, Range, Unit, Min, Max, Step, Feature Flag, Custom Input w/ Validation
 - [Storylyne]
   - Extract Shared Workspace Logic
-    - scripts/generate-icons.sh
-    - Playwright Config
-    - Svelte Config
-    - vite.config
-    - Vite Plugins
+Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
     - Error Pages + Routes
     - DevToolbar
     - * Review lib, etc

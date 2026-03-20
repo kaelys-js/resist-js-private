@@ -185,6 +185,21 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          name: 'config-tooling-vite',
+          root: 'packages/shared/config/tooling/vite',
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'config-tooling-svelte',
+          root: 'packages/shared/config/tooling/svelte',
+          include: ['src/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
           name: 'plugin-api',
           root: 'packages/products/storylyne/plugin-api',
         },

@@ -57,12 +57,20 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@25.3.0)(jiti@2.6.1)(jsdom@28.1.0)(lightningcss@1.31.1)
 
+  packages/products: {}
+
   packages/products-template/app:
     dependencies:
       '@capacitor/core':
         specifier: ^6.0.0
         version: 6.2.1
     devDependencies:
+      '@/config/tooling/svelte':
+        specifier: workspace:*
+        version: link:../../shared/config/tooling/svelte
+      '@/config/tooling/vite':
+        specifier: workspace:*
+        version: link:../../shared/config/tooling/vite
       '@capacitor/android':
         specifier: ^6.0.0
         version: 6.2.1(@capacitor/core@6.2.1)
@@ -145,6 +153,15 @@ importers:
       '@/config/test':
         specifier: workspace:*
         version: link:../../../shared/config/test
+      '@/config/tooling/svelte':
+        specifier: workspace:*
+        version: link:../../../shared/config/tooling/svelte
+      '@/config/tooling/vite':
+        specifier: workspace:*
+        version: link:../../../shared/config/tooling/vite
+      '@/products':
+        specifier: workspace:*
+        version: link:../..
       '@cloudflare/workers-types':
         specifier: ^4.20260305.1
         version: 4.20260305.1
@@ -334,12 +351,44 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@25.3.0)(jiti@2.6.1)(jsdom@28.1.0)(lightningcss@1.31.1)
     devDependencies:
+      '@playwright/test':
+        specifier: ^1.58.2
+        version: 1.58.2
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.2.4
         version: 6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.0)(jiti@2.6.1)(lightningcss@1.31.1))
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+
+  packages/shared/config/tooling/svelte:
+    dependencies:
+      '@/schemas/common':
+        specifier: workspace:*
+        version: link:../../../schemas/common
+    devDependencies:
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^6.2.4
+        version: 6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.0)(jiti@2.6.1)(lightningcss@1.31.1))
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@types/node@25.3.0)(jiti@2.6.1)(jsdom@28.1.0)(lightningcss@1.31.1)
+
+  packages/shared/config/tooling/vite:
+    dependencies:
+      '@/schemas/common':
+        specifier: workspace:*
+        version: link:../../../schemas/common
+    devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      valibot:
+        specifier: ^1.2.0
+        version: 1.2.0(typescript@5.9.3)
+      vite:
+        specifier: ^7.3.1
+        version: 7.3.1(@types/node@25.3.0)(jiti@2.6.1)(lightningcss@1.31.1)
 
   packages/shared/extensions/vscode-formatter:
     dependencies:
