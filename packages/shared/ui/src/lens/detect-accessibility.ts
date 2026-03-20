@@ -7592,6 +7592,356 @@ const A11Y_RULES: A11yRule[] = [
       );
     },
   },
+  {
+    id: 'ohara-svg-in-interactive' as Str,
+    label: 'SVG in interactive elements' as Str,
+    description:
+      'SVG inside <button> or <a> must have aria-hidden="true" and focusable="false" (Scott O\'Hara pattern)' as Str,
+    category: 'Best Practice' as Str,
+    wcag: '4.1.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* SVG inside button or anchor */
+      const svgInButton: RegExp = /<button\b[^>]*>[\s\S]*?<svg\b/;
+      const svgInAnchor: RegExp = /<a\b[^>]*href[^>]*>[\s\S]*?<svg\b/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const hasSvgInInteractive: boolean = svgInButton.test(str) || svgInAnchor.test(str);
+        if (!hasSvgInInteractive) {
+          if (/<svg\b/.test(str)) {
+            pass = ((pass as number) + 1) as Num;
+            passing.push(filename);
+          }
+          continue;
+        }
+        /* Check if the SVG has aria-hidden */
+        const svgHasAriaHidden: boolean = /<svg\b[^>]*\baria-hidden=["']true["']/.test(str);
+        if (svgHasAriaHidden) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        } else {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem: 'SVG inside interactive element without aria-hidden="true"' as Str,
+            solution:
+              'Add aria-hidden="true" focusable="false" to decorative SVGs inside buttons/links' as Str,
+            found: truncSnippet(((str.match(/<svg\b[^>]*>/) ?? [])[0] as Str) ?? ('<svg>' as Str)),
+            fix: '<svg aria-hidden="true" focusable="false">...</svg>' as Str,
+          });
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have SVGs in interactive elements without aria-hidden` as Str)
+          : ('All SVGs in interactive elements are properly hidden' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'ohara-dialog-name' as Str,
+    label: 'Dialog accessible name' as Str,
+    description:
+      '<dialog> or role="dialog" must have aria-label or aria-labelledby (Scott O\'Hara pattern)' as Str,
+    category: 'Best Practice' as Str,
+    wcag: '4.1.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      const dialogNoName: RegExp = /<dialog\b(?![^>]*\baria-label(?:ledby)?=)[^>]*>/;
+      const roleDialogNoName: RegExp = /role=["']dialog["'](?![^>]*\baria-label(?:ledby)?=)/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const hasDialog: boolean = /<dialog\b/.test(str) || /role=["']dialog["']/.test(str);
+        if (!hasDialog) continue;
+        if (dialogNoName.test(str) || roleDialogNoName.test(str)) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              'Dialog without accessible name — screen readers cannot identify the dialog' as Str,
+            solution: 'Add aria-label or aria-labelledby pointing to the dialog heading' as Str,
+            found: truncSnippet(
+              ((str.match(dialogNoName) ?? str.match(roleDialogNoName) ?? [])[0] as Str) ??
+                ('<dialog>' as Str),
+            ),
+            fix: '<dialog aria-labelledby="dialog-title">\n  <h2 id="dialog-title">Dialog Heading</h2>\n</dialog>' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} dialogs missing accessible name` as Str)
+          : ('All dialogs have accessible names' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'ohara-dialog-focus-return' as Str,
+    label: 'Dialog focus return' as Str,
+    description:
+      "Dialog close handlers should return focus to the trigger element (Scott O'Hara pattern)" as Str,
+    category: 'Best Practice' as Str,
+    wcag: '2.4.3' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const hasDialog: boolean = /<dialog\b/.test(str) || /role=["']dialog["']/.test(str);
+        if (!hasDialog) continue;
+        /* Check for focus management code */
+        const hasFocusReturn: boolean =
+          /\.focus\(\)/.test(str) ||
+          /focusTrigger|returnFocus|restoreFocus|previousFocus|triggerElement/.test(str);
+        if (hasFocusReturn) {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        } else {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              'Dialog without focus return logic — focus may be lost when dialog closes' as Str,
+            solution:
+              'Save the trigger element reference and call .focus() on it when closing' as Str,
+            found: '<dialog> <!-- no .focus() call found -->' as Str,
+            fix: 'const trigger = document.activeElement;\n// on close:\ntrigger?.focus();' as Str,
+          });
+        }
+      }
+      if ((pass as number) === 0 && (fail as number) === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} dialogs lack focus return to trigger element` as Str)
+          : ('All dialogs return focus to trigger on close' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'ohara-display-contents-button' as Str,
+    label: 'Display contents on button' as Str,
+    description:
+      "display: contents on <button> destroys its semantics in some browsers (Scott O'Hara pattern)" as Str,
+    category: 'Best Practice' as Str,
+    wcag: '4.1.2' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const css: SourceEntry[] = cssFiles(sources);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* Look for button selectors with display: contents */
+      const buttonDisplayContents: RegExp = /button[^{]*\{[^}]*display\s*:\s*contents/;
+
+      for (const [filename, content] of css) {
+        const str: string = content as string;
+        if (buttonDisplayContents.test(str)) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              'display: contents on button — destroys button semantics in some browsers' as Str,
+            solution:
+              'Use display: flex or display: grid instead of display: contents on buttons' as Str,
+            found: truncSnippet(
+              ((str.match(buttonDisplayContents) ?? [])[0] as Str) ??
+                ('button { display: contents; }' as Str),
+            ),
+            fix: 'button { display: flex; } /* not display: contents */' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} files use display: contents on buttons` as Str)
+          : ('No display: contents on button elements' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'ohara-list-style-none' as Str,
+    label: 'List style none semantics' as Str,
+    description:
+      '<ul>/<ol> with list-style: none may lose list semantics in Safari — add role="list" (Scott O\'Hara pattern)' as Str,
+    category: 'Best Practice' as Str,
+    wcag: '1.3.1' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* <ul> or <ol> with list-none class (Tailwind) but no role="list" */
+      const listNoneNoRole: RegExp = /<(?:ul|ol)\b[^>]*\blist-none\b(?![^>]*\brole=)[^>]*>/;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        if (listNoneNoRole.test(str)) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              '<ul>/<ol> with list-none class but no role="list" — Safari strips list semantics' as Str,
+            solution:
+              'Add role="list" to preserve list semantics when using list-style: none' as Str,
+            found: truncSnippet(
+              ((str.match(listNoneNoRole) ?? [])[0] as Str) ?? ('<ul class="list-none">' as Str),
+            ),
+            fix: '<ul class="list-none" role="list">' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have list-none without role="list"` as Str)
+          : ('All unstyled lists have role="list" for Safari compat' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
+  {
+    id: 'ohara-landmark-label-redundancy' as Str,
+    label: 'Landmark label redundancy' as Str,
+    description:
+      'Landmark aria-label should not include the landmark type (e.g. "primary navigation" on <nav> is redundant)' as Str,
+    category: 'Best Practice' as Str,
+    wcag: '2.4.6' as Str,
+    check(sources: Map<Str, Str>): A11yRuleResult {
+      const svelte: SourceEntry[] = svelteFiles(sources);
+      if (svelte.length === 0)
+        return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      let pass: Num = 0 as Num;
+      let fail: Num = 0 as Num;
+      const passing: Str[] = [];
+      const failing: Str[] = [];
+      const findings: A11yFileFinding[] = [];
+      /* Landmark elements with aria-label containing their type */
+      const navWithNavLabel: RegExp = /<nav\b[^>]*\baria-label=["'][^"']*\bnavigation\b/i;
+      const mainWithMainLabel: RegExp = /<main\b[^>]*\baria-label=["'][^"']*\bmain\b/i;
+      const asideWithAsideLabel: RegExp = /<aside\b[^>]*\baria-label=["'][^"']*\bcomplementary\b/i;
+      const headerWithBannerLabel: RegExp = /<header\b[^>]*\baria-label=["'][^"']*\bbanner\b/i;
+      const footerWithContentLabel: RegExp =
+        /<footer\b[^>]*\baria-label=["'][^"']*\bcontentinfo\b/i;
+
+      for (const [filename, content] of svelte) {
+        const str: string = content as string;
+        const hasRedundant: boolean =
+          navWithNavLabel.test(str) ||
+          mainWithMainLabel.test(str) ||
+          asideWithAsideLabel.test(str) ||
+          headerWithBannerLabel.test(str) ||
+          footerWithContentLabel.test(str);
+        if (hasRedundant) {
+          fail = ((fail as number) + 1) as Num;
+          failing.push(filename);
+          findings.push({
+            file: filename,
+            problem:
+              'Landmark aria-label includes the landmark type — screen readers announce "navigation, primary navigation"' as Str,
+            solution:
+              'Remove the landmark type from the aria-label (e.g. "primary" not "primary navigation")' as Str,
+            found: truncSnippet(
+              ((str.match(navWithNavLabel) ?? [])[0] as Str) ?? ('<nav aria-label="...">' as Str),
+            ),
+            fix: '<nav aria-label="Primary"> <!-- not "Primary navigation" -->' as Str,
+          });
+        } else {
+          pass = ((pass as number) + 1) as Num;
+          passing.push(filename);
+        }
+      }
+      return buildResult(
+        this,
+        pass,
+        fail,
+        passing,
+        failing,
+        (fail as number) > 0
+          ? (`${fail} components have redundant landmark type in aria-label` as Str)
+          : ('No redundant landmark type names in aria-labels' as Str),
+        undefined,
+        findings,
+      );
+    },
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -7601,7 +7951,7 @@ const A11Y_RULES: A11yRule[] = [
 /**
  * Run a full accessibility audit against source files.
  *
- * Evaluates all 129 accessibility rules against the provided source code
+ * Evaluates all 135 accessibility rules against the provided source code
  * and computes an aggregate score with detailed per-rule results, including
  * WCAG 2.1 AA criteria coverage metrics.
  *
@@ -7612,7 +7962,7 @@ const A11Y_RULES: A11yRule[] = [
  * const sources = { 'Button.svelte': btnSrc, 'app.css': cssSrc };
  * const audit = auditAccessibility(sources);
  * console.log(audit.overallScore);  // 85
- * console.log(audit.rules.length);  // 129
+ * console.log(audit.rules.length);  // 135
  * console.log(audit.totalWcagCriteria);  // 50
  * console.log(audit.wcagCoverage);  // 78
  */

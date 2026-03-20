@@ -28,6 +28,7 @@ exports[`auditAccessibility — global > failing rule IDs match snapshot 1`] = `
   "landmark-completeness",
   "language-of-page",
   "link-distinguishable",
+  "ohara-svg-in-interactive",
   "on-focus-no-change",
   "pause-stop-controls",
   "section-508",
@@ -45,11 +46,11 @@ exports[`auditAccessibility — global > failing rule IDs match snapshot 1`] = `
 ]
 `;
 
-exports[`auditAccessibility — global > failing rule count matches snapshot 1`] = `40`;
+exports[`auditAccessibility — global > failing rule count matches snapshot 1`] = `41`;
 
-exports[`auditAccessibility — global > overall score matches snapshot baseline 1`] = `46`;
+exports[`auditAccessibility — global > overall score matches snapshot baseline 1`] = `47`;
 
-exports[`auditAccessibility — global > passing rule count matches snapshot 1`] = `44`;
+exports[`auditAccessibility — global > passing rule count matches snapshot 1`] = `47`;
 
 exports[`auditAccessibility — per-component regressions > component failure map matches snapshot 1`] = `
 {
