@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { Str } from '@/schemas/common';
+import type { Path, Str } from '@/schemas/common';
+import type { Result } from '@/schemas/result/result';
 import {
   deriveErrorIdPrefix,
   generateFontFaceCss,
@@ -12,13 +13,13 @@ import {
   type FontFaceEntry,
 } from './vite-plugin-template-html.js';
 
-/* ------------------------------------------------------------------ */
-/*  Test fixtures                                                      */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Test fixtures
+// =============================================================================
 
 const TEST_APP_NAME: Str = 'TestApp';
 
-const TEST_TEMPLATE_PATH: Str = '/tmp/test-template.html';
+const TEST_TEMPLATE_PATH: Path = '/tmp/test-template.html' as Path;
 
 const TEST_FONT_FAMILIES: Str =
   "'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'";
@@ -52,9 +53,9 @@ const TEST_APP_CONFIG: AppHtmlConfig = {
   templatePath: TEST_TEMPLATE_PATH,
 };
 
-/* ------------------------------------------------------------------ */
-/*  Tests                                                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Tests
+// =============================================================================
 
 describe('templateErrorHtml plugin', () => {
   it('returns a Vite plugin object with correct name', () => {
@@ -95,7 +96,10 @@ describe('templateErrorHtml plugin', () => {
 
 describe('generateFontFaceCss', () => {
   it('generates @font-face declarations for all entries', () => {
-    const css = generateFontFaceCss(TEST_FONT_FACES);
+    const result = generateFontFaceCss(TEST_FONT_FACES);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const css = result.data;
     expect(css).toContain("font-family: 'Inter'");
     expect(css).toContain("font-family: 'Rajdhani'");
     expect(css).toContain('font-weight: 100 900');
@@ -107,33 +111,45 @@ describe('generateFontFaceCss', () => {
   });
 
   it('produces valid @font-face blocks', () => {
-    const css = generateFontFaceCss(TEST_FONT_FACES);
-    const blockCount = (css.match(/@font-face/g) ?? []).length;
+    const result = generateFontFaceCss(TEST_FONT_FACES);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const css = result.data;
+    const blockCount: number = (css.match(/@font-face/g) ?? []).length;
     expect(blockCount).toBe(3);
   });
 
-  it('returns empty string for empty array', () => {
-    const css = generateFontFaceCss([]);
-    expect(css).toBe('');
+  it('returns error for empty array (CssStr requires minLength 1)', () => {
+    const result = generateFontFaceCss([]);
+    expect(result.ok).toBe(false);
   });
 });
 
 describe('deriveErrorIdPrefix', () => {
   it('extracts prefix before {id} placeholder', () => {
-    expect(deriveErrorIdPrefix('Reference: {id}')).toBe('Reference: ');
+    const result: Result<Str> = deriveErrorIdPrefix('Reference: {id}');
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toBe('Reference: ');
   });
 
   it('returns full string when no {id} placeholder exists', () => {
-    expect(deriveErrorIdPrefix('No placeholder here')).toBe('No placeholder here');
+    const result: Result<Str> = deriveErrorIdPrefix('No placeholder here');
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toBe('No placeholder here');
   });
 
   it('handles empty prefix', () => {
-    expect(deriveErrorIdPrefix('{id}')).toBe('');
+    const result: Result<Str> = deriveErrorIdPrefix('{id}');
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toBe('');
   });
 });
 
 describe('resolveErrorHtml', () => {
-  const TEMPLATE = `<!doctype html>
+  const TEMPLATE: Str = `<!doctype html>
 <html>
 <head><title>{{errors.serverError}} | {{APP_NAME}}</title></head>
 <style>{{FONT_FACE_CSS}} body { font-family: {{FONT_FAMILIES}}; }</style>
@@ -151,38 +167,50 @@ var failed = '{{errors.copyFailed}}';
 </html>`;
 
   it('replaces all known placeholders', () => {
-    const result = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
-    expect(result).not.toContain('{{');
-    expect(result).not.toContain('}}');
+    const result: Result<Str> = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).not.toContain('{{');
+    expect(result.data).not.toContain('}}');
   });
 
   it('inserts app name', () => {
-    const result: Str = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
-    expect(result).toContain(TEST_APP_NAME);
+    const result: Result<Str> = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toContain(TEST_APP_NAME);
   });
 
   it('inserts font-family stack', () => {
-    const result = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
-    expect(result).toContain("'Inter'");
-    expect(result).toContain('ui-sans-serif');
+    const result: Result<Str> = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toContain("'Inter'");
+    expect(result.data).toContain('ui-sans-serif');
   });
 
   it('inserts @font-face CSS', () => {
-    const result = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
-    expect(result).toContain('@font-face');
-    expect(result).toContain('/fonts/inter-latin.woff2');
+    const result: Result<Str> = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toContain('@font-face');
+    expect(result.data).toContain('/fonts/inter-latin.woff2');
   });
 
   it('inserts locale error strings', () => {
-    const result = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
-    expect(result).toContain('Something went wrong');
-    expect(result).toContain('Go to homepage');
-    expect(result).toContain('Copied!');
+    const result: Result<Str> = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toContain('Something went wrong');
+    expect(result.data).toContain('Go to homepage');
+    expect(result.data).toContain('Copied!');
   });
 
   it('derives error ID prefix from parameterized locale string', () => {
-    const result = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
-    expect(result).toContain("var prefix = 'Reference: '");
+    const result: Result<Str> = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toContain("var prefix = 'Reference: '");
   });
 });
 
@@ -218,32 +246,40 @@ describe('templateAppHtml plugin', () => {
 });
 
 describe('resolveAppHtml', () => {
-  const APP_TEMPLATE = `<meta name="apple-mobile-web-app-title" content="{{APP_NAME}}" />
+  const APP_TEMPLATE: Str = `<meta name="apple-mobile-web-app-title" content="{{APP_NAME}}" />
 <script>(function () { try {
 var m = localStorage.getItem('{{STORAGE_PREFIX}}:mode');
 } catch (e) { console.error('[{{APP_NAME}}] failed:', e); }
 })();</script>`;
 
   it('replaces all APP_NAME placeholders', () => {
-    const result = resolveAppHtml(APP_TEMPLATE, TEST_APP_CONFIG);
-    expect(result).not.toContain('{{APP_NAME}}');
+    const result: Result<Str> = resolveAppHtml(APP_TEMPLATE, TEST_APP_CONFIG);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).not.toContain('{{APP_NAME}}');
   });
 
   it('inserts app name', () => {
-    const result: Str = resolveAppHtml(APP_TEMPLATE, TEST_APP_CONFIG);
-    expect(result).toContain(`content="${TEST_APP_NAME}"`);
-    expect(result).toContain(`'[${TEST_APP_NAME}]`);
+    const result: Result<Str> = resolveAppHtml(APP_TEMPLATE, TEST_APP_CONFIG);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toContain(`content="${TEST_APP_NAME}"`);
+    expect(result.data).toContain(`'[${TEST_APP_NAME}]`);
   });
 
   it('replaces STORAGE_PREFIX with lowercased app name by default', () => {
-    const result: Str = resolveAppHtml(APP_TEMPLATE, TEST_APP_CONFIG);
-    expect(result).not.toContain('{{STORAGE_PREFIX}}');
-    expect(result).toContain("'testapp:mode'");
+    const result: Result<Str> = resolveAppHtml(APP_TEMPLATE, TEST_APP_CONFIG);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).not.toContain('{{STORAGE_PREFIX}}');
+    expect(result.data).toContain("'testapp:mode'");
   });
 
   it('uses custom storagePrefix when provided', () => {
-    const config: AppHtmlConfig = { ...TEST_APP_CONFIG, storagePrefix: 'my-app' };
-    const result: Str = resolveAppHtml(APP_TEMPLATE, config);
-    expect(result).toContain("'my-app:mode'");
+    const appConfig: AppHtmlConfig = { ...TEST_APP_CONFIG, storagePrefix: 'my-app' };
+    const result: Result<Str> = resolveAppHtml(APP_TEMPLATE, appConfig);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toContain("'my-app:mode'");
   });
 });

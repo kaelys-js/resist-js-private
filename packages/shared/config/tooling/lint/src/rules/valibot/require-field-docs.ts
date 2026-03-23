@@ -71,9 +71,32 @@ const rule: TypeScriptRule = {
       const properties = schemaObj.properties as AstNode[] | undefined;
       if (!properties) return results;
 
-      for (const prop of properties) {
-        if (prop.type === 'SpreadElement') continue;
+      // Count actual properties (excluding spread)
+      const namedProps: AstNode[] = properties.filter(
+        (p: AstNode) => p.type !== 'SpreadElement',
+      );
+      const propCount: number = namedProps.length;
 
+      // Count /** */ block comments inside the object
+      const objSource: string = context.content.slice(schemaObj.start, schemaObj.end);
+      const docCommentMatches: RegExpMatchArray | null = objSource.match(/\/\*\*/g);
+      const docCount: number = docCommentMatches ? docCommentMatches.length : 0;
+
+      // Flag count mismatch (orphaned or missing docs)
+      if (docCount > propCount) {
+        results.push({
+          file: context.file,
+          line: schemaObj.loc.start.line,
+          column: schemaObj.loc.start.column + 1,
+          severity: 'error',
+          message: `v.strictObject() has ${docCount} doc comments but only ${propCount} properties — ${docCount - propCount} orphaned doc(s)`,
+          ruleId: 'valibot/require-field-docs',
+          tip: 'Remove orphaned JSDoc comments that no longer match a property',
+          fix: { range: { start: schemaObj.start, end: schemaObj.start }, text: '' },
+        });
+      }
+
+      for (const prop of namedProps) {
         const key = prop.key as AstNode | undefined;
         if (!key) continue;
 

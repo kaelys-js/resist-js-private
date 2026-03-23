@@ -12,6 +12,7 @@ import requireModule from './require-module.ts';
 import requireParam from './require-param.ts';
 import requireReturns from './require-returns.ts';
 import validateExample from './validate-example.ts';
+import requireSchemaLink from './require-schema-link.ts';
 
 /** All JSDoc lint rules. */
 export const JSDOC_RULES: TypeScriptRule[] = [
@@ -22,4 +23,5 @@ export const JSDOC_RULES: TypeScriptRule[] = [
   validateExample,
   paramTypeMatch,
   requireModule,
+  requireSchemaLink,
 ];

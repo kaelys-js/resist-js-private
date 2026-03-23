@@ -20,16 +20,20 @@ import requireReturnType from './require-return-type.ts';
 import noEmptyCatch from './no-empty-catch.ts';
 import noThrow from './no-throw.ts';
 import noBareDataTypes from './no-bare-data-types.ts';
+import noUnionNull from './no-union-null.ts';
+import requireNonNegativeInteger from './require-non-negative-integer.ts';
+import noDefaultParams from './no-default-params.ts';
 
 /**
  * Run a single rule against fixture source code.
  *
  * @param rule - The rule to test
  * @param code - TypeScript source code
+ * @param filename - Optional file name for path-based exemptions
  * @returns Array of lint results
  */
-function lint(rule: TypeScriptRule, code: string): Promise<LintResult[]> {
-  return runTypeScriptRules('test.ts', code, [rule]);
+function lint(rule: TypeScriptRule, code: string, filename?: string): Promise<LintResult[]> {
+  return runTypeScriptRules(filename ?? 'test.ts', code, [rule]);
 }
 
 // =============================================================================
@@ -584,5 +588,131 @@ const config = rawConfig as Config; // Cast safe: validated by schema above
 `;
     const results: LintResult[] = await lint(noBareAsCast, code);
     expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// typescript/no-union-null
+// =============================================================================
+
+describe('typescript/no-union-null', () => {
+  it('flags | null in type annotation', async () => {
+    const code: string = `const x: string | null = null;`;
+    const results: LintResult[] = await lint(noUnionNull, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('typescript/no-union-null');
+    expect(results[0].message).toContain('NullableStr');
+  });
+
+  it('flags | undefined in type annotation', async () => {
+    const code: string = `const x: string | undefined = undefined;`;
+    const results: LintResult[] = await lint(noUnionNull, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('OptionalStr');
+  });
+
+  it('passes NullableStr type', async () => {
+    const code: string = `const x: NullableStr = null;`;
+    const results: LintResult[] = await lint(noUnionNull, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts test files', async () => {
+    const code: string = `const x: string | null = null;`;
+    const results: LintResult[] = await lint(noUnionNull, code, 'my-module.test.ts');
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// typescript/require-non-negative-integer
+// =============================================================================
+
+describe('typescript/require-non-negative-integer', () => {
+  it('flags .length typed as Num', async () => {
+    const code: string = `const len: Num = arr.length;`;
+    const results: LintResult[] = await lint(requireNonNegativeInteger, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('typescript/require-non-negative-integer');
+    expect(results[0].message).toContain('NonNegativeInteger');
+  });
+
+  it('passes .length typed as NonNegativeInteger', async () => {
+    const code: string = `const len: NonNegativeInteger = arr.length;`;
+    const results: LintResult[] = await lint(requireNonNegativeInteger, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does not flag indexOf typed as Num', async () => {
+    const code: string = `const idx: Num = str.indexOf('x');`;
+    const results: LintResult[] = await lint(requireNonNegativeInteger, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// typescript/no-default-params
+// =============================================================================
+
+describe('typescript/no-default-params', () => {
+  it('flags function parameter with default value', async () => {
+    const code: string = `function createConfig(name: string = 'default'): void {}`;
+    const results: LintResult[] = await lint(noDefaultParams, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('typescript/no-default-params');
+    expect(results[0].message).toContain('default value');
+    expect(results[0].message).toContain('Valibot');
+  });
+
+  it('flags optional parameter with ?', async () => {
+    const code: string = `function processData(input: string, options?: object): void {}`;
+    const results: LintResult[] = await lint(noDefaultParams, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('optional');
+    expect(results[0].message).toContain('options');
+  });
+
+  it('flags destructured parameter with default', async () => {
+    const code: string = `function createConfig({ name = 'foo' }: Options): void {}`;
+    const results: LintResult[] = await lint(noDefaultParams, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('name');
+    expect(results[0].message).toContain('default value');
+  });
+
+  it('flags exported function parameter with default', async () => {
+    const code: string = `export function createConfig(name: string = 'default'): void {}`;
+    const results: LintResult[] = await lint(noDefaultParams, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('flags non-exported function parameter with default', async () => {
+    const code: string = `function internal(count: number = 0): void {}`;
+    const results: LintResult[] = await lint(noDefaultParams, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes function without defaults or optionals', async () => {
+    const code: string = `function createConfig(name: string): void {}`;
+    const results: LintResult[] = await lint(noDefaultParams, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores test files', async () => {
+    const code: string = `function helper(name: string = 'test'): void {}`;
+    const results: LintResult[] = await runTypeScriptRules('foo.test.ts', code, [noDefaultParams]);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags arrow function with default', async () => {
+    const code: string = `const fn = (name: string = 'default'): void => {};`;
+    const results: LintResult[] = await lint(noDefaultParams, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('flags multiple defaults in same function', async () => {
+    const code: string = `function multi(a: string = '', b: number = 0): void {}`;
+    const results: LintResult[] = await lint(noDefaultParams, code);
+    expect(results.length).toBe(2);
   });
 });

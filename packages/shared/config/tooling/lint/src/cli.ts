@@ -252,6 +252,13 @@ async function main(): Promise<number> {
   );
   const allResults: LintResult[] = taskResults.flat();
 
+  // Run finalize() on rules that aggregate cross-file data
+  for (const rule of rules) {
+    if (rule.finalize) {
+      allResults.push(...rule.finalize());
+    }
+  }
+
   // Run package.json rules
   const pkgFiles: string[] = [];
   for (const p of paths) {

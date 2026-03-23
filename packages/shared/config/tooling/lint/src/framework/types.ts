@@ -112,6 +112,15 @@ export type AstVisitor = {
   TSTypeAssertion?: VisitorFn;
   TSNonNullExpression?: VisitorFn;
   TSSatisfiesExpression?: VisitorFn;
+
+  // Union types
+  TSUnionType?: VisitorFn;
+
+  // Logical expressions
+  LogicalExpression?: VisitorFn;
+
+  // If statements
+  IfStatement?: VisitorFn;
 };
 
 /** Import specifier info extracted from an ImportDeclaration. */
@@ -168,6 +177,8 @@ export type TypeScriptRule = {
   patterns: string[];
   /** AST visitor functions */
   visitor: Partial<AstVisitor>;
+  /** Optional cross-file finalization — called after ALL files are processed */
+  finalize?: () => LintResult[];
 };
 
 // =============================================================================
