@@ -123,6 +123,12 @@ describe('naming/camel-case-vars', () => {
     const results: LintResult[] = await lint(camelCaseVars, code);
     expect(results.length).toBe(0);
   });
+
+  it('allows PascalCase names ending in Schema (Valibot convention)', async () => {
+    const code: string = `const GitInfoSchema = v.strictObject({ commit: v.string() });`;
+    const results: LintResult[] = await lint(camelCaseVars, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================

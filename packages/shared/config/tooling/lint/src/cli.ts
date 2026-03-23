@@ -16,8 +16,9 @@ import { readFileSync, writeFileSync, statSync, readdirSync } from 'node:fs';
 import { resolve, extname, join, relative } from 'node:path';
 
 import { runTypeScriptRules } from './framework/oxc-runner.ts';
-import type { LintResult, LintFix, TypeScriptRule } from './framework/types.ts';
+import type { LintResult, LintFix, TypeScriptRule, PackageJsonRule, PackageJsonContext, PackageJson } from './framework/types.ts';
 import { ALL_RULES } from './rules/index.ts';
+import { PACKAGE_RULES } from './rules/package/all.ts';
 
 // =============================================================================
 // CLI Arguments
@@ -95,6 +96,47 @@ function collectFiles(dir: string): string[] {
   }
 
   return files;
+}
+
+/**
+ * Recursively collect all package.json files from a directory.
+ *
+ * @param dir - Directory to scan
+ * @returns Array of absolute file paths
+ */
+function collectPackageJsonFiles(dir: string): string[] {
+  const files: string[] = [];
+  let entries: ReturnType<typeof readdirSync>;
+  try { entries = readdirSync(dir, { withFileTypes: true }); }
+  catch { return files; }
+  for (const entry of entries) {
+    if (SKIP_DIRS.has(entry.name)) continue;
+    const fullPath: string = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...collectPackageJsonFiles(fullPath));
+    } else if (entry.isFile() && entry.name === 'package.json') {
+      files.push(fullPath);
+    }
+  }
+  return files;
+}
+
+/**
+ * Run package.json rules on a single package.json file.
+ *
+ * @param filePath - Absolute path to package.json
+ * @param pkg - Parsed package.json content
+ * @param isRoot - Whether this is the workspace root package.json
+ * @param rules - Package.json rules to run
+ * @returns Array of lint results
+ */
+function runPkgRules(filePath: string, pkg: PackageJson, isRoot: boolean, rules: PackageJsonRule[]): LintResult[] {
+  const context: PackageJsonContext = { file: filePath, pkg, isRoot };
+  const results: LintResult[] = [];
+  for (const rule of rules) {
+    results.push(...rule.check(context));
+  }
+  return results;
 }
 
 // =============================================================================
@@ -209,6 +251,28 @@ async function main(): Promise<number> {
     ),
   );
   const allResults: LintResult[] = taskResults.flat();
+
+  // Run package.json rules
+  const pkgFiles: string[] = [];
+  for (const p of paths) {
+    const resolved: string = resolve(p);
+    try {
+      const s = statSync(resolved);
+      if (s.isDirectory()) {
+        pkgFiles.push(...collectPackageJsonFiles(resolved));
+      }
+    } catch { /* skip */ }
+  }
+
+  const workspaceRootPkg: string = resolve('package.json');
+  for (const pkgPath of pkgFiles) {
+    try {
+      const raw: string = readFileSync(pkgPath, 'utf8');
+      const pkg: PackageJson = JSON.parse(raw) as PackageJson;
+      const isRoot: boolean = resolve(pkgPath) === workspaceRootPkg;
+      allResults.push(...runPkgRules(pkgPath, pkg, isRoot, PACKAGE_RULES));
+    } catch { /* skip unreadable */ }
+  }
 
   // Apply fixes if --fix
   if (autoFix && allResults.length > 0) {

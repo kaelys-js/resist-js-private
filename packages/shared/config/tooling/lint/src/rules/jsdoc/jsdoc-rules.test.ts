@@ -15,6 +15,7 @@ import requireJsdoc from './require-jsdoc.ts';
 import requireParam from './require-param.ts';
 import requireReturns from './require-returns.ts';
 import requireExample from './require-example.ts';
+import validateExample from './validate-example.ts';
 import paramTypeMatch from './param-type-match.ts';
 import requireModule from './require-module.ts';
 
@@ -66,6 +67,56 @@ export function foo(): void {}
 
   it('does not report non-exported functions', async () => {
     const results: LintResult[] = await lint(requireJsdoc, 'function internal(): void {}');
+    expect(results.length).toBe(0);
+  });
+
+  it('passes exported function with long JSDoc (>500 chars)', async () => {
+    // Generate a JSDoc comment longer than 500 characters
+    const longDescription: string = 'A'.repeat(600);
+    const code: string = `
+/**
+ * ${longDescription}
+ *
+ * @returns {void} Nothing
+ */
+export function loadConfig(): void {}
+`;
+    const results: LintResult[] = await lint(requireJsdoc, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes exported function with multi-section JSDoc (>500 chars)', async () => {
+    const code: string = `
+/**
+ * Load and validate the root config from the workspace root.
+ *
+ * Discovers the workspace root via findWorkspaceRoot(), loads the config
+ * file with a dynamic import(), deep-merges over defaults, validates
+ * against CoreConfigSchema, and caches the frozen result.
+ *
+ * - Returns the cached singleton immediately on subsequent calls.
+ * - If the config file is missing on disk, logs a warning and caches defaults.
+ * - Never throws — all failures are returned as Result errors.
+ *
+ * @param configPath - Path to the config file.
+ * @returns Promise<Result<DeepReadonly<CoreConfig>>> — the validated, frozen
+ *          config, or a structured error (CONFIG.NOT_FOUND, CONFIG.LOAD_FAILED,
+ *          CONFIG.INVALID).
+ *
+ * @example
+ * \`\`\`typescript
+ * const result = await loadConfig();
+ * if (!result.ok) return result;
+ * result.data.company.name; // => 'My Company'
+ * // Additional usage patterns:
+ * const config = result.data;
+ * console.log(config.tooling.devProxy.port);
+ * console.log(config.versions.node);
+ * \`\`\`
+ */
+export function loadConfig(): void {}
+`;
+    const results: LintResult[] = await lint(requireJsdoc, code);
     expect(results.length).toBe(0);
   });
 });
@@ -123,7 +174,7 @@ export function foo(name: string): void {}
     const results: LintResult[] = await lint(requireParam, code);
     const stale: LintResult[] = results.filter((r: LintResult) => r.message.includes('oldName'));
     expect(stale.length).toBe(1);
-    expect(stale[0].severity).toBe('warning');
+    expect(stale[0].severity).toBe('error');
   });
 
   it('does not report when there is no JSDoc at all', async () => {
@@ -131,6 +182,35 @@ export function foo(name: string): void {}
     const results: LintResult[] = await lint(requireParam, code);
     // No JSDoc → handled by require-jsdoc, not require-param
     expect(results.length).toBe(0);
+  });
+
+  it('allows root0 @param for destructured params (oxlint convention)', async () => {
+    const code: string = `
+/**
+ * Does something.
+ * @param {Options} root0 - The options
+ * @param {string} root0.name - The name
+ * @param {number} root0.age - The age
+ */
+export function foo({ name, age }: Options): void {}
+`;
+    const results: LintResult[] = await lint(requireParam, code);
+    const stale: LintResult[] = results.filter((r: LintResult) => r.message.includes('root0'));
+    expect(stale.length).toBe(0);
+  });
+
+  it('allows dot-notation @param for destructured props', async () => {
+    const code: string = `
+/**
+ * Does something.
+ * @param {Options} root0 - Config
+ * @param root0.plugins - Plugins
+ */
+export function foo({ plugins }: Options): void {}
+`;
+    const results: LintResult[] = await lint(requireParam, code);
+    const stale: LintResult[] = results.filter((r: LintResult) => r.message.includes('does not match'));
+    expect(stale.length).toBe(0);
   });
 });
 
@@ -250,6 +330,30 @@ export function foo(): void {}
     expect(results.length).toBe(1);
     expect(results[0].message).toContain('typescript');
   });
+
+  it('reports missing @example as error severity', async () => {
+    const code: string = `
+/** Does something. */
+export function foo(): void {}
+`;
+    const results: LintResult[] = await lint(requireExample, code);
+    expect(results.length).toBe(1);
+    expect(results[0].severity).toBe('error');
+  });
+
+  it('reports missing typescript fence as error severity', async () => {
+    const code: string = `
+/**
+ * Does something.
+ * @example
+ * foo();
+ */
+export function foo(): void {}
+`;
+    const results: LintResult[] = await lint(requireExample, code);
+    expect(results.length).toBe(1);
+    expect(results[0].severity).toBe('error');
+  });
 });
 
 // =============================================================================
@@ -319,5 +423,225 @@ describe('jsdoc/require-module', () => {
 const x: string = 'hello';`;
     const results: LintResult[] = await lint(requireModule, code);
     expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// jsdoc/validate-example
+// =============================================================================
+
+describe('jsdoc/validate-example', () => {
+  it('passes valid TypeScript in @example block', async () => {
+    const code: string = `
+/**
+ * Adds two numbers.
+ *
+ * @example
+ * \`\`\`typescript
+ * const result = add(1, 2);
+ * console.log(result);
+ * \`\`\`
+ */
+export function add(a: number, b: number): number {
+  return a + b;
+}
+`;
+    const results: LintResult[] = await lint(validateExample, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports syntax error in @example block', async () => {
+    const code: string = `
+/**
+ * Does something.
+ *
+ * @example
+ * \`\`\`typescript
+ * const x = {
+ *   missing: 'closing brace'
+ * \`\`\`
+ */
+export function broken(): void {}
+`;
+    const results: LintResult[] = await lint(validateExample, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('jsdoc/validate-example');
+    expect(results[0].message).toContain('syntax error');
+  });
+
+  it('reports invalid token in @example block', async () => {
+    const code: string = `
+/**
+ * Does something.
+ *
+ * @example
+ * \`\`\`typescript
+ * const x = @@@invalid;
+ * \`\`\`
+ */
+export function broken(): void {}
+`;
+    const results: LintResult[] = await lint(validateExample, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('validates multiple @example blocks independently', async () => {
+    const code: string = `
+/**
+ * Does something.
+ *
+ * @example Basic usage
+ * \`\`\`typescript
+ * const a = 1;
+ * \`\`\`
+ *
+ * @example Advanced (broken)
+ * \`\`\`typescript
+ * const b = {{{;
+ * \`\`\`
+ */
+export function multi(): void {}
+`;
+    const results: LintResult[] = await lint(validateExample, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('ignores non-typescript fences', async () => {
+    const code: string = `
+/**
+ * Does something.
+ *
+ * @example
+ * \`\`\`json
+ * { "not": "parsed as typescript" }}}
+ * \`\`\`
+ */
+export function jsonExample(): void {}
+`;
+    const results: LintResult[] = await lint(validateExample, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores functions without JSDoc', async () => {
+    const code: string = `
+export function noDoc(): void {}
+`;
+    const results: LintResult[] = await lint(validateExample, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores functions without @example', async () => {
+    const code: string = `
+/**
+ * No example here.
+ */
+export function noExample(): void {}
+`;
+    const results: LintResult[] = await lint(validateExample, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes example with import statements', async () => {
+    const code: string = `
+/**
+ * Loads config.
+ *
+ * @example
+ * \`\`\`typescript
+ * import { loadConfig } from '@/config/loader';
+ * const result = await loadConfig();
+ * if (!result.ok) return result;
+ * \`\`\`
+ */
+export function loadConfig(): void {}
+`;
+    const results: LintResult[] = await lint(validateExample, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes example with property access chains', async () => {
+    const code: string = `
+/**
+ * Gets defaults.
+ *
+ * @example
+ * \`\`\`typescript
+ * import { defaults } from '@/config/core/defaults';
+ * defaults.tooling.devProxy.port;
+ * defaults.versions.node;
+ * \`\`\`
+ */
+export function getDefaults(): void {}
+`;
+    const results: LintResult[] = await lint(validateExample, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('validates unfenced @example code as TypeScript', async () => {
+    const code: string = `
+/**
+ * Does something.
+ *
+ * @example
+ * const x = {{{;
+ */
+export function broken(): void {}
+`;
+    const results: LintResult[] = await lint(validateExample, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('jsdoc/validate-example');
+    expect(results[0].message).toContain('syntax error');
+  });
+
+  it('passes valid unfenced @example code', async () => {
+    const code: string = `
+/**
+ * Creates config.
+ *
+ * @example
+ * const result = createConfig({
+ *   plugins: [sveltekit()],
+ * });
+ */
+export function createConfig(opts: unknown): void {}
+`;
+    const results: LintResult[] = await lint(validateExample, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('validates unfenced @example with import statements', async () => {
+    const code: string = `
+/**
+ * Creates config.
+ *
+ * @example
+ * import { sveltekit } from '@sveltejs/kit/vite';
+ * import { createConfig } from '@/config/tooling/vite';
+ *
+ * export default createConfig({
+ *   plugins: [sveltekit()],
+ * });
+ */
+export function createConfig(opts: unknown): void {}
+`;
+    const results: LintResult[] = await lint(validateExample, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('validates unfenced @example with multiple @example blocks', async () => {
+    const code: string = `
+/**
+ * Does something.
+ *
+ * @example
+ * const a = 1;
+ *
+ * @example
+ * const b = {{{;
+ */
+export function multi(): void {}
+`;
+    const results: LintResult[] = await lint(validateExample, code);
+    expect(results.length).toBe(1);
   });
 });

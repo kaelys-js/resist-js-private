@@ -4,8 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "clean": "rm -rf dist coverage .turbo",
     "qa:type-check": "svelte-check --tsconfig ./tsconfig.json --compiler-warnings \"state_referenced_locally:ignore\"",
-    "qa:test": "cd ../../.. && vitest run --project ui"
+    "qa:test": "pnpm -w exec vitest run --project ui",
+    "qa:test:coverage": "pnpm -w exec vitest run --project ui --coverage",
+    "qa:benchmark": "pnpm -w exec vitest bench --project ui"
   },
   "dependencies": {
     "@/schemas/common": "workspace:*",
@@ -19,7 +22,6 @@
     "svelte-sonner": "^1.1.0",
     "tailwind-merge": "^3.5.0",
     "tailwind-variants": "^3.2.2",
-    "valibot": "^1.2.0",
     "vaul-svelte": "1.0.0-next.7"
   },
   "devDependencies": {
@@ -33,8 +35,5 @@
     "svelte-check": "^4.4.3",
     "sveltekit-superforms": "^2.30.0",
     "typescript": "^5.9.3"
-  },
-  "peerDependencies": {
-    "svelte": "^5.0.0"
   }
 }

@@ -121,12 +121,18 @@ function checkFunction(
     const paramName: string | null = getParamName(param);
     if (!paramName) continue;
 
-    if (!isParamValidated(paramName, bodyText)) {
+    // Check indirect validation: param passed to a function, result then safeParsed
+    const indirectPattern: RegExp = new RegExp(
+      `=\\s*\\w+\\([^)]*\\b${paramName}\\b[^)]*\\)[\\s\\S]*?safeParse\\s*\\(`,
+    );
+    const isIndirectlyValidated: boolean = indirectPattern.test(bodyText);
+
+    if (!isParamValidated(paramName, bodyText) && !isIndirectlyValidated) {
       results.push({
         file: context.file,
         line: node.loc.start.line,
         column: node.loc.start.column + 1,
-        severity: 'warning',
+        severity: 'error',
         message: `Function '${name}' does not validate parameter '${paramName}'`,
         ruleId: 'result/validate-function-input',
         tip: `Validate with: const ${paramName}Result = safeParse(${paramName[0].toUpperCase() + paramName.slice(1)}Schema, ${paramName})`,

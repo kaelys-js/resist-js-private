@@ -9,6 +9,7 @@ import { runTypeScriptRules } from '../../framework/oxc-runner.ts';
 import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
 
 import noLintDisable from './no-lint-disable.ts';
+import requireSectionMarkerStyle from './require-section-marker-style.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -77,5 +78,130 @@ describe('comments/no-lint-disable', () => {
     const code: string = `const x: number = 1;\nconst y: number = 2;`;
     const results: LintResult[] = await lint(noLintDisable, code);
     expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// comments/require-section-marker-style
+// =============================================================================
+
+describe('comments/require-section-marker-style', () => {
+  it('passes canonical section marker style', async () => {
+    const code: string = `
+// =============================================================================
+// Section Name
+// =============================================================================
+
+const x: number = 1;
+`;
+    const results: LintResult[] = await lint(requireSectionMarkerStyle, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports block comment section marker (/* --- */ style)', async () => {
+    const code: string = `
+/* ------------------------------------------------------------------ */
+/*  Section Name                                                       */
+/* ------------------------------------------------------------------ */
+
+const x: number = 1;
+`;
+    const results: LintResult[] = await lint(requireSectionMarkerStyle, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('comments/require-section-marker-style');
+    expect(results[0].message).toContain('section marker');
+  });
+
+  it('reports dash-style line comment section marker at top level', async () => {
+    const code: string = `
+// -------------------------------------------------------------------------
+// Section Name
+// -------------------------------------------------------------------------
+
+const x: number = 1;
+`;
+    const results: LintResult[] = await lint(requireSectionMarkerStyle, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('allows dash-style markers inside object literals (indented)', async () => {
+    const code: string = `
+const config = {
+  // -------------------------------------------------------------------------
+  // Business Configuration
+  // -------------------------------------------------------------------------
+
+  company: { name: 'Test' },
+};
+`;
+    const results: LintResult[] = await lint(requireSectionMarkerStyle, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows dash-style markers inside function bodies (indented)', async () => {
+    const code: string = `
+function setup(): void {
+  // -------------------------------------------------------------------------
+  // Initialize
+  // -------------------------------------------------------------------------
+
+  const x: number = 1;
+}
+`;
+    const results: LintResult[] = await lint(requireSectionMarkerStyle, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports multiple non-canonical markers', async () => {
+    const code: string = `
+/* ------------------------------------------------------------------ */
+/*  First Section                                                      */
+/* ------------------------------------------------------------------ */
+
+const a: number = 1;
+
+/* ------------------------------------------------------------------ */
+/*  Second Section                                                     */
+/* ------------------------------------------------------------------ */
+
+const b: number = 2;
+`;
+    const results: LintResult[] = await lint(requireSectionMarkerStyle, code);
+    expect(results.length).toBe(2);
+  });
+
+  it('passes code with no section markers at all', async () => {
+    const code: string = `
+const x: number = 1;
+const y: number = 2;
+`;
+    const results: LintResult[] = await lint(requireSectionMarkerStyle, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does not flag short dash comments (< 10 chars)', async () => {
+    const code: string = `
+// -----
+// Note
+// -----
+const x: number = 1;
+`;
+    const results: LintResult[] = await lint(requireSectionMarkerStyle, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('provides auto-fix with canonical style', async () => {
+    const code: string = `
+/* ------------------------------------------------------------------ */
+/*  My Section                                                         */
+/* ------------------------------------------------------------------ */
+
+const x: number = 1;
+`;
+    const results: LintResult[] = await lint(requireSectionMarkerStyle, code);
+    expect(results.length).toBe(1);
+    expect(results[0].fix).toBeDefined();
+    expect(results[0].fix.text).toContain('// =');
+    expect(results[0].fix.text).toContain('My Section');
   });
 });

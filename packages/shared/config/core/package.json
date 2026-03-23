@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "clean": "rm -rf dist",
-    "qa:test": "vitest run",
-    "qa:test:unit": "vitest run",
-    "qa:test:coverage": "vitest run --coverage",
-    "qa:benchmark": "vitest bench",
+    "qa:test": "pnpm -w exec vitest run --project config-core",
+    "qa:test:unit": "pnpm -w exec vitest run --project config-core",
+    "qa:test:coverage": "pnpm -w exec vitest run --project config-core --coverage",
+    "qa:benchmark": "pnpm -w exec vitest bench --project config-core",
     "qa:type-check": "tsgo --noEmit",
     "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
   },
@@ -17,11 +17,9 @@
     "@/schemas/core-config": "workspace:*",
     "@/schemas/result": "workspace:*",
     "@/utils/core": "workspace:*",
-    "@/utils/result": "workspace:*",
-    "valibot": "^1.2.0"
+    "@/utils/result": "workspace:*"
   },
   "devDependencies": {
-    "@/test-presets": "workspace:*",
-    "vitest": "^4.0.18"
+    "@/test-presets": "workspace:*"
   }
 }

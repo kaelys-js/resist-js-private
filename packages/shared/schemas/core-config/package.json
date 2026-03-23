@@ -5,14 +5,11 @@
   "type": "module",
   "scripts": {
     "clean": "rm -rf dist",
-    "qa:test": "vitest run",
-    "qa:test:unit": "vitest run",
-    "qa:test:coverage": "vitest run --coverage",
-    "qa:benchmark": "vitest bench",
+    "qa:test": "pnpm -w exec vitest run --project schemas-core-config",
+    "qa:test:unit": "pnpm -w exec vitest run --project schemas-core-config",
+    "qa:test:coverage": "pnpm -w exec vitest run --project schemas-core-config --coverage",
+    "qa:benchmark": "pnpm -w exec vitest bench --project schemas-core-config",
     "qa:type-check": "tsgo --noEmit",
     "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
-  },
-  "dependencies": {
-    "valibot": "^1.1.0"
   }
 }

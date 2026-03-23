@@ -18,7 +18,10 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 function hasJsDoc(node: AstNode, content: string): boolean {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
-  return trimmed.endsWith('*/') && trimmed.lastIndexOf('/**') > trimmed.lastIndexOf('*/') - 500;
+  if (!trimmed.endsWith('*/')) return false;
+  const closeIdx: number = trimmed.lastIndexOf('*/');
+  const openIdx: number = trimmed.lastIndexOf('/**');
+  return openIdx !== -1 && openIdx < closeIdx;
 }
 
 /**

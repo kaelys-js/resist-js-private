@@ -58,7 +58,7 @@ type ParamEntry = {
  */
 function extractParamEntries(jsDoc: string): ParamEntry[] {
   const entries: ParamEntry[] = [];
-  const regex: RegExp = /^\s*\*\s*@param\s+(?:(\{[^}]*\})\s+)?(\w+)/gm;
+  const regex: RegExp = /^\s*\*\s*@param\s+(?:(\{[^}]*\})\s+)?([\w.]+)/gm;
   let match: RegExpExecArray | null = regex.exec(jsDoc);
   while (match) {
     entries.push({
@@ -166,13 +166,23 @@ function checkFunction(
     }
   }
 
+  const hasDestructuredParams: boolean = funcParamNames.some(
+    (n: string): boolean => n.startsWith('__destructured_'),
+  );
+
   for (const docName of docParamNames) {
+    // Skip dot-notation params (e.g., root0.plugins) — used for destructured params
+    if (docName.includes('.')) continue;
+
+    // Skip rootN pattern when function has destructured params (oxlint convention)
+    if (/^root\d+$/.test(docName) && hasDestructuredParams) continue;
+
     if (!funcParamNames.includes(docName)) {
       results.push({
         file: context.file,
         line: exportNode.loc.start.line,
         column: exportNode.loc.start.column + 1,
-        severity: 'warning',
+        severity: 'error',
         message: `@param '${docName}' does not match any function parameter`,
         ruleId: 'jsdoc/require-param',
         tip: 'Remove the stale @param tag or fix the parameter name',
