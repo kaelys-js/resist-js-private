@@ -10,15 +10,5 @@
     "qa:test:coverage": "pnpm -w exec vitest run --project utils-devtools --coverage",
     "qa:benchmark": "pnpm -w exec vitest bench --project utils-devtools",
     "qa:type-check": "tsgo --noEmit"
-  },
-  "dependencies": {
-    "@/schemas/common": "workspace:*",
-    "@/schemas/result": "workspace:*",
-    "@/utils/core": "workspace:*",
-    "@/utils/result": "workspace:*",
-    "@/utils/web-vitals": "workspace:*"
-  },
-  "devDependencies": {
-    "@/test-presets": "workspace:*"
   }
 }

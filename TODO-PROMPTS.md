@@ -16,6 +16,7 @@ Run the custom linter against this file/directory and fix every error and warnin
 4. After approval, implement ALL fixes
 5. After implementation, re-run `pnpm -w run qa:lint 2>&1 | grep "[TARGET_PATH]"` and confirm ZERO errors/warnings remain for the target
 6. Run `npx vitest run --project lint` to confirm all rule tests still pass (210+ must pass)
+7. Run tests for these files also (same as you do for lint)
 
 DO NOT weaken assertions, skip errors, or dismiss warnings as "acceptable." Every single diagnostic must be resolved — either fix the code or fix the rule.
 

@@ -11,15 +11,5 @@
     "qa:benchmark": "pnpm -w exec vitest bench --project config-core",
     "qa:type-check": "tsgo --noEmit",
     "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
-  },
-  "dependencies": {
-    "@/schemas/common": "workspace:*",
-    "@/schemas/core-config": "workspace:*",
-    "@/schemas/result": "workspace:*",
-    "@/utils/core": "workspace:*",
-    "@/utils/result": "workspace:*"
-  },
-  "devDependencies": {
-    "@/test-presets": "workspace:*"
   }
 }

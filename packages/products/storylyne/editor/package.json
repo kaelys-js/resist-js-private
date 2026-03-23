@@ -18,12 +18,6 @@
     "generate-icons": "bash ../../../../packages/shared/utils/cli/src/tools/generate-icons/generate-icons.sh ."
   },
   "dependencies": {
-    "@/schemas/common": "workspace:*",
-    "@/schemas/result": "workspace:*",
-    "@/ui": "workspace:*",
-    "@/utils/beacon": "workspace:*",
-    "@/utils/result": "workspace:*",
-    "@/utils/web-vitals": "workspace:*",
     "@sveltejs/adapter-cloudflare": "^7.2.8",
     "@sveltejs/kit": "^2.53.2",
     "bits-ui": "^2.16.3",
@@ -38,10 +32,6 @@
     "ws": "^8.19.0"
   },
   "devDependencies": {
-    "@/test-presets": "workspace:*",
-    "@/config/tooling/svelte": "workspace:*",
-    "@/config/tooling/vite": "workspace:*",
-    "@/products": "workspace:*",
     "@cloudflare/workers-types": "^4.20260305.1",
     "@internationalized/date": "^3.11.0",
     "@lucide/svelte": "^0.561.0",

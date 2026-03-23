@@ -15,6 +15,7 @@ import noWorkspaceDep from './no-workspace-dep.ts';
 import noHoisedDep from './no-hoisted-dep.ts';
 import noPeerDeps from './no-peer-deps.ts';
 import validProjectRef from './valid-project-ref.ts';
+import noWorkspaceSelfRef from './no-workspace-self-ref.ts';
 
 function ctx(overrides: Partial<PackageJsonContext> & { pkg?: Partial<PackageJsonContext['pkg']> } = {}): PackageJsonContext {
   return {
@@ -354,5 +355,60 @@ describe('package/valid-tsconfig', () => {
     // @/lint tsconfig has no protected overrides (rootDir and types are fine)
     const protectedResults: LintResult[] = results.filter((r: LintResult) => r.message.includes('protected'));
     expect(protectedResults.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// package/no-workspace-self-ref
+// =============================================================================
+
+describe('package/no-workspace-self-ref', () => {
+  it('flags workspace:* in dependencies', () => {
+    const results: LintResult[] = noWorkspaceSelfRef.check(ctx({
+      pkg: { name: '@/test', dependencies: { '@/schemas/common': 'workspace:*' } },
+    }));
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('package/no-workspace-self-ref');
+    expect(results[0].message).toContain('@/schemas/common');
+  });
+
+  it('flags workspace:* in devDependencies', () => {
+    const results: LintResult[] = noWorkspaceSelfRef.check(ctx({
+      pkg: { name: '@/test', devDependencies: { '@/test-presets': 'workspace:*' } },
+    }));
+    expect(results.length).toBe(1);
+  });
+
+  it('flags multiple workspace:* entries', () => {
+    const results: LintResult[] = noWorkspaceSelfRef.check(ctx({
+      pkg: {
+        name: '@/test',
+        dependencies: { '@/schemas/common': 'workspace:*', '@/utils/core': 'workspace:*' },
+        devDependencies: { '@/test-presets': 'workspace:*' },
+      },
+    }));
+    expect(results.length).toBe(3);
+  });
+
+  it('passes non-workspace deps', () => {
+    const results: LintResult[] = noWorkspaceSelfRef.check(ctx({
+      pkg: { name: '@/test', dependencies: { 'some-pkg': '^1.0.0' } },
+    }));
+    expect(results.length).toBe(0);
+  });
+
+  it('passes empty deps', () => {
+    const results: LintResult[] = noWorkspaceSelfRef.check(ctx({
+      pkg: { name: '@/test' },
+    }));
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts root', () => {
+    const results: LintResult[] = noWorkspaceSelfRef.check(ctx({
+      isRoot: true,
+      pkg: { dependencies: { '@/schemas/common': 'workspace:*' } },
+    }));
+    expect(results.length).toBe(0);
   });
 });

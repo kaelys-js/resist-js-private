@@ -10,8 +10,5 @@
     "qa:test:coverage": "pnpm -w exec vitest run --project schemas-generic --coverage",
     "qa:benchmark": "pnpm -w exec vitest bench --project schemas-generic",
     "qa:type-check": "tsgo --noEmit"
-  },
-  "devDependencies": {
-    "@/test-presets": "workspace:*"
   }
 }

@@ -3,18 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "main": "./src/index.js",
-  "exports": {
-    ".": "./src/index.js"
-  },
   "scripts": {
     "clean": "rm -rf dist coverage .turbo",
     "qa:test": "pnpm -w exec vitest run --project config-tooling-svelte",
     "qa:test:coverage": "pnpm -w exec vitest run --project config-tooling-svelte --coverage",
     "qa:benchmark": "pnpm -w exec vitest bench --project config-tooling-svelte",
     "qa:type-check": "tsgo --noEmit"
-  },
-  "dependencies": {
-    "@/schemas/common": "workspace:*"
   }
 }

@@ -14,16 +14,11 @@
     "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
   },
   "dependencies": {
-    "@/config": "workspace:*",
-    "@/locale": "workspace:*",
-    "@/schemas/common": "workspace:*",
-    "@/utils/core": "workspace:*",
     "diff": "^8.0.3",
     "glob": "^13.0.0",
     "handlebars": "^4.7.8"
   },
   "devDependencies": {
-    "@/test-presets": "workspace:*",
     "@types/diff": "^8.0.0"
   }
 }

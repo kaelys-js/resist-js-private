@@ -98,10 +98,6 @@
     "vscode:prepublish": "pnpm compile",
     "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
   },
-  "dependencies": {
-    "@/cli": "workspace:*",
-    "@/schemas/result": "workspace:*"
-  },
   "devDependencies": {
     "@types/vscode": "^1.85.0",
     "@vscode/vsce": "^2.22.0",
