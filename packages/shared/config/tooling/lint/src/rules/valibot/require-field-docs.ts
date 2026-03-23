@@ -77,19 +77,29 @@ const rule: TypeScriptRule = {
       );
       const propCount: number = namedProps.length;
 
-      // Count /** */ block comments inside the object
-      const objSource: string = context.content.slice(schemaObj.start, schemaObj.end);
-      const docCommentMatches: RegExpMatchArray | null = objSource.match(/\/\*\*/g);
-      const docCount: number = docCommentMatches ? docCommentMatches.length : 0;
+      // Count /** */ block comments at the TOP level only (exclude nested objects)
+      // Extract source gaps between properties (where top-level docs live)
+      let topLevelDocCount: number = 0;
+      let searchStart: number = schemaObj.start;
+      for (const prop of namedProps) {
+        // Count /** in the gap BEFORE this property (between previous prop end and this prop start)
+        const gap: string = context.content.slice(searchStart, prop.start);
+        const gapMatches: RegExpMatchArray | null = gap.match(/\/\*\*/g);
+        if (gapMatches) {
+          topLevelDocCount += gapMatches.length;
+        }
+        // Skip past this property's value (which may contain nested /** */ blocks)
+        searchStart = prop.end;
+      }
 
       // Flag count mismatch (orphaned or missing docs)
-      if (docCount > propCount) {
+      if (topLevelDocCount > propCount) {
         results.push({
           file: context.file,
           line: schemaObj.loc.start.line,
           column: schemaObj.loc.start.column + 1,
           severity: 'error',
-          message: `v.strictObject() has ${docCount} doc comments but only ${propCount} properties — ${docCount - propCount} orphaned doc(s)`,
+          message: `v.strictObject() has ${topLevelDocCount} doc comments but only ${propCount} properties — ${topLevelDocCount - propCount} orphaned doc(s)`,
           ruleId: 'valibot/require-field-docs',
           tip: 'Remove orphaned JSDoc comments that no longer match a property',
           fix: { range: { start: schemaObj.start, end: schemaObj.start }, text: '' },

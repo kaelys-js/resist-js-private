@@ -16,6 +16,7 @@ import requireFieldDocs from './require-field-docs.ts';
 import preferSharedSchema from './prefer-shared-schema.ts';
 import requireMinLength from './require-min-length.ts';
 import noDuplicateSchema from './no-duplicate-schema.ts';
+import noGenericStringSchema from './no-generic-string-schema.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -275,7 +276,7 @@ describe('valibot/prefer-shared-schema', () => {
   });
 
   it('passes for fields without matching patterns', async () => {
-    const code: string = `const Schema = v.strictObject({ appName: v.pipe(v.string(), v.minLength(1)) });`;
+    const code: string = `const Schema = v.strictObject({ enabled: v.boolean() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(0);
   });
@@ -374,5 +375,120 @@ const Schema = v.strictObject({
     const finalResults: LintResult[] = noDuplicateSchema.finalize?.() ?? [];
     const uniqueResults: LintResult[] = finalResults.filter((r: LintResult) => r.message.includes('uniqueField'));
     expect(uniqueResults.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-generic-string-schema
+// =============================================================================
+
+describe('valibot/no-generic-string-schema', () => {
+  it('flags v.pipe(v.string(), v.minLength(1)) as too generic', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject({
+  /** App name. */
+  appName: v.pipe(v.string(), v.minLength(1)),
+});
+`;
+    const results: LintResult[] = await lint(noGenericStringSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('valibot/no-generic-string-schema');
+    expect(results[0].message).toContain('appName');
+    expect(results[0].message).toContain('semantic constraints');
+  });
+
+  it('flags v.optional(v.pipe(v.string(), v.minLength(1))) as too generic', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject({
+  /** Prefix. */
+  prefix: v.optional(v.pipe(v.string(), v.minLength(1))),
+});
+`;
+    const results: LintResult[] = await lint(noGenericStringSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('prefix');
+  });
+
+  it('passes v.pipe with additional constraints', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject({
+  /** App name. */
+  appName: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
+});
+`;
+    const results: LintResult[] = await lint(noGenericStringSchema, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes shared schema references', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject({
+  /** Path. */
+  templatePath: PathSchema,
+});
+`;
+    const results: LintResult[] = await lint(noGenericStringSchema, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores test files', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject({
+  /** Name. */
+  name: v.pipe(v.string(), v.minLength(1)),
+});
+`;
+    const results: LintResult[] = await lint(noGenericStringSchema, code, 'my.test.ts');
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/prefer-shared-schema (expanded patterns)
+// =============================================================================
+
+describe('valibot/prefer-shared-schema (expanded patterns)', () => {
+  it('flags appName field with string schema', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject({
+  /** Name. */
+  appName: v.pipe(v.string(), v.minLength(1)),
+});
+`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    const nameResults: LintResult[] = results.filter((r: LintResult) => r.message.includes('NameSchema'));
+    expect(nameResults.length).toBe(1);
+  });
+
+  it('flags fontFamilies field with string schema', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject({
+  /** Families. */
+  fontFamilies: v.pipe(v.string(), v.minLength(1)),
+});
+`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    const familyResults: LintResult[] = results.filter((r: LintResult) => r.message.includes('CssFontFamilySchema'));
+    expect(familyResults.length).toBe(1);
+  });
+
+  it('flags storagePrefix field with string schema', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject({
+  /** Prefix. */
+  storagePrefix: v.optional(v.pipe(v.string(), v.minLength(1))),
+});
+`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0].message).toContain('storagePrefix');
   });
 });

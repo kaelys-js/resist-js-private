@@ -19,6 +19,9 @@ const SCHEMA_SUGGESTIONS: readonly { pattern: RegExp; schema: string; source: st
   { pattern: /[Vv]ersion$/, schema: 'SemverSchema', source: '@/schemas/common' },
   { pattern: /[Cc]ommand|[Cc]md$/, schema: 'CommandSchema', source: '@/schemas/common' },
   { pattern: /[Hh]ostname|[Hh]ost$/, schema: 'HostnameSchema', source: '@/schemas/common' },
+  { pattern: /[Nn]ame$|[Tt]itle$/, schema: 'NameSchema', source: '@/schemas/common' },
+  { pattern: /[Pp]refix$|[Ss]uffix$/, schema: 'v.pipe(v.string(), v.minLength(1), v.maxLength(50))', source: 'inline' },
+  { pattern: /[Ff]amily$|[Ff]amilies$/, schema: 'CssFontFamilySchema', source: '@/schemas/common' },
 ];
 
 /** File path patterns exempt from this rule. */
