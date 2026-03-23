@@ -10,6 +10,7 @@
 
 import * as v from 'valibot';
 import type { Plugin } from 'vite';
+import { NameSchema, PathSchema } from '@/schemas/common';
 import type { Str } from '@/schemas/common';
 
 // =============================================================================
@@ -19,14 +20,14 @@ import type { Str } from '@/schemas/common';
 /** Schema for lazy Vite plugin options. */
 const LazyPluginOptionsSchema = v.strictObject({
   /** Unique plugin name. */
-  name: v.string(),
+  name: NameSchema,
   /** Module path to load via ssrLoadModule (relative to project root). */
-  modulePath: v.string(),
+  modulePath: PathSchema,
   /** Name of the setup function exported by the module. */
-  setupFn: v.string(),
+  setupFn: v.pipe(v.string(), v.minLength(1), v.regex(/^[a-zA-Z_]\w*$/, 'Must be a valid JS identifier')),
 });
 
-/** Options for creating a lazy Vite plugin. */
+/** Options for creating a lazy Vite plugin. See {@link LazyPluginOptionsSchema}. */
 export type LazyPluginOptions = v.InferOutput<typeof LazyPluginOptionsSchema>;
 
 // =============================================================================

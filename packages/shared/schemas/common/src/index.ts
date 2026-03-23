@@ -532,6 +532,33 @@ export const KebabCaseIdSchema = v.pipe(
 export type KebabCaseId = v.InferOutput<typeof KebabCaseIdSchema>;
 
 // =============================================================================
+// Name Schema (general-purpose display name)
+// =============================================================================
+
+/**
+ * Schema for general-purpose display names (1-100 characters, non-empty).
+ *
+ * Use for human-readable labels like app names, plugin names, or component names.
+ * For kebab-case identifiers, use {@link KebabCaseIdSchema} or {@link ProductNameSchema}.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(NameSchema, 'My Application');
+ * if (result.ok) result.data; // 'My Application'
+ * ```
+ */
+export const NameSchema = v.pipe(
+  v.string(),
+  v.minLength(1, 'Name must not be empty'),
+  v.maxLength(100, 'Name must not exceed 100 characters'),
+  v.brand('Name'),
+);
+
+/** Inferred output type of {@link NameSchema}. A non-empty display name (1-100 chars). */
+export type Name = v.InferOutput<typeof NameSchema>;
+
+// =============================================================================
 // Product Name Schema
 // =============================================================================
 
