@@ -10,7 +10,16 @@
 import { describe, expect, it } from 'vitest';
 import type { Str } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
-import { matchLocale, detectFromAcceptLanguage } from './detect';
+import type { NullableStr, NonNegativeInteger } from '@/schemas/common';
+import {
+  matchLocale,
+  detectFromAcceptLanguage,
+  detectFromNavigator,
+  detectFromUrlPath,
+  detectFromUrlQuery,
+  detectFromCookie,
+  detectLocale,
+} from './detect';
 
 // Typical supported locales set (mirrors editor + any product)
 const AVAILABLE: readonly Str[] = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es'];
@@ -123,5 +132,156 @@ describe('detectFromAcceptLanguage', () => {
       expect(result.ok).toBe(true);
       if (result.ok) expect(result.data).toBe(code);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// detectFromNavigator
+// ---------------------------------------------------------------------------
+
+describe('detectFromNavigator', () => {
+  it('returns matching locale from navigator.languages', () => {
+    const original = globalThis.navigator;
+    Object.defineProperty(globalThis, 'navigator', {
+      value: { languages: ['ja', 'en-US'], language: 'ja' },
+      writable: true,
+      configurable: true,
+    });
+
+    const result: Result<NullableStr> = detectFromNavigator(AVAILABLE);
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('ja');
+
+    Object.defineProperty(globalThis, 'navigator', { value: original, writable: true, configurable: true });
+  });
+
+  it('returns null when navigator is undefined', () => {
+    const original = globalThis.navigator;
+    // @ts-expect-error — simulating non-browser
+    delete (globalThis as Record<string, unknown>).navigator;
+
+    const result: Result<NullableStr> = detectFromNavigator(AVAILABLE);
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBeNull();
+
+    Object.defineProperty(globalThis, 'navigator', { value: original, writable: true, configurable: true });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// detectFromUrlPath
+// ---------------------------------------------------------------------------
+
+describe('detectFromUrlPath', () => {
+  it('extracts locale from URL path segment', () => {
+    const result: Result<NullableStr> = detectFromUrlPath(
+      'https://example.com/ja/about',
+      0 as NonNegativeInteger,
+      AVAILABLE,
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('ja');
+  });
+
+  it('returns null when segment does not match', () => {
+    const result: Result<NullableStr> = detectFromUrlPath(
+      'https://example.com/about',
+      0 as NonNegativeInteger,
+      AVAILABLE,
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// detectFromUrlQuery
+// ---------------------------------------------------------------------------
+
+describe('detectFromUrlQuery', () => {
+  it('extracts locale from query parameter', () => {
+    const result: Result<NullableStr> = detectFromUrlQuery(
+      'https://example.com?lang=ja',
+      'lang',
+      AVAILABLE,
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('ja');
+  });
+
+  it('returns null when query param is missing', () => {
+    const result: Result<NullableStr> = detectFromUrlQuery(
+      'https://example.com',
+      'lang',
+      AVAILABLE,
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// detectFromCookie
+// ---------------------------------------------------------------------------
+
+describe('detectFromCookie', () => {
+  it('extracts locale from cookie value', () => {
+    const result: Result<NullableStr> = detectFromCookie(
+      'lang=ja; theme=dark',
+      'lang',
+      AVAILABLE,
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('ja');
+  });
+
+  it('returns null when cookie name not found', () => {
+    const result: Result<NullableStr> = detectFromCookie(
+      'theme=dark',
+      'lang',
+      AVAILABLE,
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// detectLocale
+// ---------------------------------------------------------------------------
+
+describe('detectLocale', () => {
+  it('detects locale from header source', () => {
+    const result: Result<Str> = detectLocale({
+      available: [...AVAILABLE],
+      fallback: 'en',
+      sources: [
+        { kind: 'header', value: 'ja,en;q=0.9' },
+      ],
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('ja');
+  });
+
+  it('falls back to default locale when no source matches', () => {
+    const result: Result<Str> = detectLocale({
+      available: [...AVAILABLE],
+      fallback: 'en',
+      sources: [
+        { kind: 'header', value: 'pt-BR' },
+      ],
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('en');
+  });
+
+  it('returns fallback for empty sources array', () => {
+    const result: Result<Str> = detectLocale({
+      available: [...AVAILABLE],
+      fallback: 'de',
+      sources: [],
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('de');
   });
 });

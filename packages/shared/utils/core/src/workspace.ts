@@ -187,7 +187,10 @@ export function ensureWorkspaceRoot(cwdPath?: Path): Result<EnsureWorkspaceRootR
 
   const rootResult: Result<Path> = findWorkspaceRoot(cwdResult.data);
   if (!rootResult.ok) {
-    if (rootResult.error.code === ERRORS.CONFIG.NOT_FOUND) {
+    if (
+      rootResult.error.code === ERRORS.CONFIG.NOT_FOUND ||
+      rootResult.error.code === ERRORS.WORKSPACE.ROOT_NOT_FOUND
+    ) {
       return ok(EnsureWorkspaceRootResultSchema, { status: 'not_found' });
     }
     return rootResult;

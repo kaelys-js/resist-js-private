@@ -235,4 +235,51 @@ describe('toVitalsPayload', () => {
       expect(result.data.metrics).toHaveLength(0);
     }
   });
+
+  it('strips both query params and hash from URL', () => {
+    const result: Result<VitalsBeaconPayload> = toVitalsPayload(
+      [createMetric()],
+      createDevice(),
+      '/scenes/1?token=secret#section',
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.url).toBe('/scenes/1');
+    }
+  });
+
+  it('handles hash before query in malformed URL', () => {
+    const result: Result<VitalsBeaconPayload> = toVitalsPayload(
+      [createMetric()],
+      createDevice(),
+      '/page#section?param=value',
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      // Math.min picks hash index since it comes first
+      expect(result.data.url).toBe('/page');
+    }
+  });
+
+  it('handles URL with trailing ? or #', () => {
+    const result1: Result<VitalsBeaconPayload> = toVitalsPayload(
+      [createMetric()],
+      createDevice(),
+      '/page?',
+    );
+    expect(result1.ok).toBe(true);
+    if (result1.ok) {
+      expect(result1.data.url).toBe('/page');
+    }
+
+    const result2: Result<VitalsBeaconPayload> = toVitalsPayload(
+      [createMetric()],
+      createDevice(),
+      '/page#',
+    );
+    expect(result2.ok).toBe(true);
+    if (result2.ok) {
+      expect(result2.data.url).toBe('/page');
+    }
+  });
 });

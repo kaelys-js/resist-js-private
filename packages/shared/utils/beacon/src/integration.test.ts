@@ -259,4 +259,26 @@ describe('error reporting pipeline', () => {
     const serverResult: Result<BeaconPayload> = safeParse(BeaconPayloadSchema, tampered);
     expect(serverResult.ok).toBe(false);
   });
+
+  it('beaconError returns ok with invalid CapturedError type (payload build fails)', () => {
+    import.meta.env.DEV = false;
+
+    const sendBeaconSpy: ReturnType<typeof vi.fn> = vi.fn(() => true);
+    Object.defineProperty(globalThis, 'navigator', {
+      value: { sendBeacon: sendBeaconSpy },
+      writable: true,
+      configurable: true,
+    });
+
+    // Use an invalid CapturedError type — toBeaconPayload still succeeds because
+    // formatErrorSafe always returns ok, but the resulting payload has an invalid
+    // type. This tests the full error path through beaconError with edge-case data.
+    const captured: CapturedError = makeCaptured({
+      type: 'not-a-real-type' as CapturedErrorType,
+    });
+    const result: Result<Void> = beaconError(captured);
+
+    // beaconError is fire-and-forget — always returns ok
+    expect(result.ok).toBe(true);
+  });
 });

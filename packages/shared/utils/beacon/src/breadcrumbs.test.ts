@@ -259,4 +259,75 @@ describe('initFetchBreadcrumbs', () => {
     const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
     expect(crumb.message).toContain('PUT');
   });
+
+  it('skips re-initialization when already initialized', async () => {
+    const mockFetch: typeof fetch = vi.fn(
+      async () => new Response('ok', { status: 200 }),
+    ) as typeof fetch;
+    globalThis.fetch = mockFetch;
+
+    initFetchBreadcrumbs();
+    const firstWrapped: typeof fetch = globalThis.fetch;
+
+    // Second call should be a no-op
+    initFetchBreadcrumbs();
+    expect(globalThis.fetch).toBe(firstWrapped);
+
+    // Should still work correctly (not double-wrapped)
+    await globalThis.fetch('/api/test');
+    const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toHaveLength(1);
+  });
+
+  it('teardown is no-op when not initialized', () => {
+    // Should not throw when called without prior init
+    teardownFetchBreadcrumbs();
+    teardownFetchBreadcrumbs();
+    // No error means success
+  });
+
+  it('handles non-Error thrown in fetch catch', async () => {
+    const mockFetch: typeof fetch = vi.fn(async () => {
+      throw 'string error';
+    }) as unknown as typeof fetch;
+    globalThis.fetch = mockFetch;
+
+    initFetchBreadcrumbs();
+
+    try {
+      await globalThis.fetch('/api/broken');
+    } catch {
+      /* expected */
+    }
+
+    const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
+    expect(crumb.level).toBe('warning');
+    expect(crumb.message).toContain('Unknown error');
+  });
+
+  it('extracts method from Request object directly', async () => {
+    const mockFetch: typeof fetch = vi.fn(
+      async () => new Response('ok', { status: 200 }),
+    ) as typeof fetch;
+    globalThis.fetch = mockFetch;
+
+    initFetchBreadcrumbs();
+
+    // Pass Request without init — method comes from Request.method
+    const req: Request = new Request('http://localhost/api/items', { method: 'DELETE' });
+    await globalThis.fetch(req);
+
+    const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
+    expect(crumb.message).toContain('DELETE');
+  });
 });

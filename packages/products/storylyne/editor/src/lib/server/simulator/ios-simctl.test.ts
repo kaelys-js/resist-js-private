@@ -71,5 +71,12 @@ describe('ios-simctl', () => {
       expect(hasIphone).toBe(true);
       expect(hasIpad).toBe(true);
     });
+
+    it('all returned devices have isAvailable true (unavailable filtered out)', async () => {
+      const devices = await listSimulatorDevices();
+      for (const d of devices) {
+        expect(d.isAvailable, `${d.name} should be available`).toBe(true);
+      }
+    });
   });
 });

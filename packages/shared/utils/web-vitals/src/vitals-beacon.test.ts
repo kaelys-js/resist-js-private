@@ -180,6 +180,33 @@ describe('vitals beacon', () => {
       expect(result.ok).toBe(true);
       expect(mockAddEventListener).toHaveBeenCalledWith('visibilitychange', expect.any(Function));
     });
+
+    it('flushes queue on visibilitychange to hidden', () => {
+      import.meta.env.DEV = false;
+      setDeviceInfo(createDevice());
+      setupVitalsBeacon();
+
+      // Queue a metric
+      queueVital(createMetric());
+      expect(getBeaconStatus().queued).toBe(1);
+
+      // Capture the visibilitychange callback and invoke it
+      const visibilityCallback = mockAddEventListener.mock.calls.find(
+        (call: unknown[]) => call[0] === 'visibilitychange',
+      )?.[1] as () => void;
+      expect(visibilityCallback).toBeTypeOf('function');
+
+      // Simulate hidden state
+      Object.defineProperty(document, 'visibilityState', {
+        value: 'hidden',
+        writable: true,
+        configurable: true,
+      });
+      visibilityCallback();
+
+      // Queue should be flushed
+      expect(getBeaconStatus().queued).toBe(0);
+    });
   });
 
   // ── setDeviceInfo ───────────────────────────────────────────────────
@@ -234,6 +261,47 @@ describe('vitals beacon', () => {
         '/api/vitals',
         expect.objectContaining({ keepalive: true }),
       );
+    });
+  });
+
+  describe('SSR and edge cases', () => {
+    it('handles both sendBeacon and fetch unavailable without throwing', () => {
+      import.meta.env.DEV = false;
+      vi.stubGlobal('navigator', {});
+      const originalFetch = globalThis.fetch;
+      // @ts-expect-error — removing fetch for test
+      delete globalThis.fetch;
+
+      queueVital({ name: 'FCP', value: 1200, rating: 'good', navigationType: 'navigate' });
+
+      // Should not throw
+      const result = flushVitals();
+      expect(result.ok).toBe(true);
+
+      globalThis.fetch = originalFetch;
+    });
+
+    it('resetBeacon clears queue and resets state', () => {
+      queueVital({ name: 'LCP', value: 2500, rating: 'good', navigationType: 'navigate' });
+      const statusBefore = getBeaconStatus();
+      expect(statusBefore.queued).toBe(1);
+
+      // Change the UUID mock so resetBeacon generates a different sessionId
+      let callCount: Num = 0 as Num;
+      vi.stubGlobal('crypto', {
+        randomUUID: () => {
+          callCount++;
+          return callCount === 1
+            ? 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+            : '11111111-2222-3333-4444-555555555555';
+        },
+      });
+
+      resetBeacon();
+
+      const statusAfter = getBeaconStatus();
+      expect(statusAfter.queued).toBe(0);
+      expect(statusAfter.lastFlushAt).toBeNull();
     });
   });
 });

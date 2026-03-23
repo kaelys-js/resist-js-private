@@ -10,8 +10,6 @@
  */
 
 import type { ChildProcess } from 'node:child_process';
-import * as v from 'valibot';
-
 import {
   BoolSchema,
   CommandSchema,
@@ -40,7 +38,7 @@ import {
 } from '@/schemas/common';
 import type { CoreConfig } from '@/schemas/core-config/config';
 import type { PackageManagerType } from '@/schemas/core-config/tooling';
-import { ERRORS, err, ok, type Result } from '@/schemas/result/result';
+import { ERRORS, err, ok, okUnchecked, type Result } from '@/schemas/result/result';
 import { requireRuntime } from '@/utils/core/environment';
 import { type OptionalNodeChildProcess, nodeChildProcess } from '@/utils/core/node-imports';
 import type { DeepReadonly } from '@/utils/core/object';
@@ -213,8 +211,9 @@ export function spawnProcess(
       stdio: inherit ? 'inherit' : 'pipe',
       ...spawnOptions,
     });
-    // ChildProcess is an opaque Node.js handle — no structural Valibot schema applies
-    return ok(v.unknown(), child);
+    // ChildProcess is a mutable Node.js handle — must NOT be frozen (kill/write/events need mutation).
+    // Both ok() and okUnchecked() deep-freeze data, so we construct the Result manually.
+    return Object.freeze({ ok: true as const, data: child, error: null }) as Result<ChildProcess>;
   } catch (thrown: unknown) {
     return err(ERRORS.IO.EXEC_FAILED, {
       meta: { command: cmdResult.data },

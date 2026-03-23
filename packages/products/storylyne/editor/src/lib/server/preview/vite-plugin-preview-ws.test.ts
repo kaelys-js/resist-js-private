@@ -122,4 +122,24 @@ describe('setupPreviewWs', (): void => {
     );
     expect(upgradeCalls).toHaveLength(1);
   });
+
+  it('upgrade handler ignores non-matching pathname', (): void => {
+    const httpServer = { on: vi.fn() };
+    const server = { httpServer } as never;
+    setupPreviewWs(server);
+
+    // Get the registered upgrade handler
+    const upgradeCall = httpServer.on.mock.calls.find(
+      (call: unknown[]) => call[0] === 'upgrade',
+    );
+    expect(upgradeCall).toBeDefined();
+    const handler = upgradeCall![1] as (req: { url?: string }, socket: unknown, head: unknown) => void;
+
+    // Call with wrong path — should return without error
+    const mockSocket = { destroy: vi.fn() };
+    handler({ url: '/wrong-path' }, mockSocket, Buffer.alloc(0));
+
+    // Socket should NOT be destroyed (it's left for other handlers)
+    expect(mockSocket.destroy).not.toHaveBeenCalled();
+  });
 });

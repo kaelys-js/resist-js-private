@@ -316,4 +316,43 @@ describe('connection quality store', () => {
       expect(Object.isFrozen(snapshot)).toBe(true);
     });
   });
+
+  // ── edge cases ──────────────────────────────────────────────────────
+
+  describe('edge cases', () => {
+    it('returns unknown quality for unrecognized effectiveType', () => {
+      const conn: MockConnection = createMockConnection({
+        effectiveType: '5g',
+        rtt: 10,
+        downlink: 100,
+        saveData: false,
+      });
+      installMockConnection(conn);
+      initConnection();
+
+      expect(getConnectionQuality()).toBe('unknown');
+    });
+
+    it('updateFromNavigatorInfo handles individual undefined fields', () => {
+      const conn: MockConnection = createMockConnection({
+        effectiveType: '4g',
+        rtt: 50,
+        downlink: 10,
+        saveData: false,
+      });
+      installMockConnection(conn);
+      initConnection();
+
+      // Only deviceMemory defined, rest undefined
+      updateFromNavigatorInfo({
+        deviceMemory: 16,
+      });
+
+      const snapshot = getConnectionSnapshot();
+      expect(snapshot.deviceMemory).toBe(16);
+      // Other fields should keep defaults (0/false from resetConnection)
+      expect(snapshot.hardwareConcurrency).toBe(0);
+      expect(snapshot.isLowEndDevice).toBe(false);
+    });
+  });
 });

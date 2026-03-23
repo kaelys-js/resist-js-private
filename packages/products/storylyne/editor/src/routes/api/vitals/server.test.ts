@@ -196,4 +196,23 @@ describe('POST /api/vitals', () => {
     const logMessage: Str = (log.info as ReturnType<typeof vi.fn>).mock.calls[0]![0] as Str;
     expect(logMessage).toContain('/editor/scenes/42');
   });
+
+  it('returns 400 when request.text() throws', async () => {
+    const brokenRequest = {
+      text: () => Promise.reject(new Error('client disconnected')),
+    };
+    const response: Response = await POST({ request: brokenRequest } as never);
+    expect(response.status).toBe(400);
+  });
+
+  it('formats non-timing metrics without ms suffix', async () => {
+    const payload: VitalsBeaconPayload = createPayload({
+      metrics: [createMetric({ name: 'CLS', value: 0.15 })],
+    });
+    await POST({ request: makeRequest(payload) } as never);
+
+    const logMessage: Str = (log.info as ReturnType<typeof vi.fn>).mock.calls[0]![0] as Str;
+    expect(logMessage).toContain('CLS=0');
+    expect(logMessage).not.toContain('CLS=0ms');
+  });
 });

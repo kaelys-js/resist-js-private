@@ -7,6 +7,7 @@ import {
   introspectEntry,
   humanizeKey,
   humanizeOption,
+  generateDebugUrl,
 } from './dev-toolbar-registry';
 
 // =============================================================================
@@ -216,5 +217,45 @@ describe('humanizeOption', () => {
     expect(humanizeOption('subscriptionPlan', 'free')).toBe('Free');
     expect(humanizeOption('subscriptionPlan', 'pro')).toBe('Pro');
     expect(humanizeOption('subscriptionPlan', 'enterprise')).toBe('Enterprise');
+  });
+});
+
+describe('generateDebugUrl', () => {
+  const mockAppStore = {
+    app: { theme: 'midnight', mode: 'dark' },
+    features: { sidebar: true, darkMode: false },
+    setFeature: () => {},
+  };
+  const mockDebugStore = {
+    debug: { enabled: true, logLevel: 'trace' as const },
+    urlOverrides: {},
+    setEnabled: () => ({ ok: true as const, data: undefined }),
+    setLogLevel: () => ({ ok: true as const, data: undefined }),
+  };
+  const mockConfig = {
+    appName: 'TestApp',
+    urlParamPrefix: 'ta.',
+    appPreferencesSchema: TestPrefsSchema.entries,
+    featureFlagsSchema: TestFlagsSchema.entries,
+    debugStateSchema: TestDebugSchema.entries,
+    goto: async () => {},
+    isValidAppKey: (key: string) => key in TestPrefsSchema.entries,
+    isValidFeatureFlag: (key: string) => key in TestFlagsSchema.entries,
+  };
+
+  it('produces URL with debug and app preference params', () => {
+    const url = generateDebugUrl(mockAppStore, mockDebugStore, mockConfig, 'http://localhost:5173/editor');
+    expect(url).toContain('ta.debug=true');
+    expect(url).toContain('ta.logLevel=trace');
+    expect(url).toContain('ta.theme=midnight');
+    expect(url).toContain('http://localhost:5173/editor?');
+  });
+
+  it('only includes non-default feature flags', () => {
+    const url = generateDebugUrl(mockAppStore, mockDebugStore, mockConfig, 'http://localhost:5173');
+    // darkMode is false but default is false → omitted
+    // sidebar is true and default is true → omitted
+    expect(url).not.toContain('ff.sidebar');
+    expect(url).not.toContain('ff.darkMode');
   });
 });

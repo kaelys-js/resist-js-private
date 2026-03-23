@@ -235,4 +235,21 @@ describe('IosInputDispatcher', (): void => {
     expect(args).toContain('585');
     expect(args).toContain('1266');
   });
+
+  it('mouseMove handles error gracefully without throwing', async (): Promise<void> => {
+    (execFile as unknown as Mock).mockImplementation(
+      (_cmd: string, _args: string[], callback: (err: Error | null) => void) => {
+        callback(new Error('simctl failed'));
+      },
+    );
+
+    const dispatcher: IosInputDispatcher = new IosInputDispatcher(
+      TEST_UDID,
+      1170 as Num,
+      2532 as Num,
+    );
+
+    // Should not throw — error is caught and logged
+    await dispatcher.mouseMove(300 as Num, 400 as Num);
+  });
 });
