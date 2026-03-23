@@ -12,7 +12,7 @@
  * @example
  * ```typescript
  * import { describe, it, expect, beforeEach, afterEach } from 'vitest';
- * import { useTempDir } from '@/config/test/harness/temp-dir';
+ * import { useTempDir } from '@/test-presets/harness/temp-dir';
  *
  * describe('config loader', () => {
  *   const getTempDir = useTempDir({ beforeEach, afterEach });
@@ -137,7 +137,7 @@ export type TempDir = {
  *
  * @example
  * ```typescript
- * import { createTempDir } from '@/config/test/harness/temp-dir';
+ * import { createTempDir } from '@/test-presets/harness/temp-dir';
  *
  * const dir = createTempDir('my-test-');
  * try {
@@ -203,7 +203,7 @@ export function createTempDir(prefix = 'test-'): TempDir {
  * @example
  * ```typescript
  * import { describe, it, expect, beforeEach, afterEach } from 'vitest';
- * import { useTempDir } from '@/config/test/harness/temp-dir';
+ * import { useTempDir } from '@/test-presets/harness/temp-dir';
  *
  * describe('file writer', () => {
  *   const getTempDir = useTempDir({ beforeEach, afterEach });

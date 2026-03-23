@@ -81,7 +81,8 @@ describe('templateErrorHtml plugin', () => {
     const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
     // Call config with 'serve' command — should not throw or write files
     if (typeof plugin.config === 'function') {
-      plugin.config({} as never, { command: 'serve', mode: 'development' } as never);
+      const configFn = plugin.config;
+      configFn.call({} as never, {} as never, { command: 'serve', mode: 'development' } as never);
     }
     // No error means the early return worked
   });
@@ -209,7 +210,8 @@ describe('templateAppHtml plugin', () => {
   it('config hook is no-op when command is serve', () => {
     const plugin = templateAppHtml(TEST_APP_CONFIG);
     if (typeof plugin.config === 'function') {
-      plugin.config({} as never, { command: 'serve', mode: 'development' } as never);
+      const configFn = plugin.config;
+      configFn.call({} as never, {} as never, { command: 'serve', mode: 'development' } as never);
     }
     // No error means the early return worked
   });

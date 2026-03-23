@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button } from '@/ui';
+  import { Button } from '@/ui/button';
 
   let count = $state(0);
 </script>

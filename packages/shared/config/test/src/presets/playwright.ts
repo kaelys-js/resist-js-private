@@ -9,14 +9,14 @@
  * @example
  * ```ts
  * // packages/products/my-app/playwright.config.ts
- * import { createPlaywrightConfig } from '@/config/test/presets/playwright';
+ * import { createPlaywrightConfig } from '@/test-presets/presets/playwright';
  * export default createPlaywrightConfig();
  * ```
  *
  * @example
  * ```ts
  * // Custom port and extra browser
- * import { createPlaywrightConfig } from '@/config/test/presets/playwright';
+ * import { createPlaywrightConfig } from '@/test-presets/presets/playwright';
  * import { devices } from '@playwright/test';
  * export default createPlaywrightConfig({
  *   previewPort: 4200,
@@ -60,7 +60,7 @@ export type PlaywrightPresetOptions = {
  *
  * @example
  * ```ts
- * import { createPlaywrightConfig } from '@/config/test/presets/playwright';
+ * import { createPlaywrightConfig } from '@/test-presets/presets/playwright';
  * export default createPlaywrightConfig({ previewPort: 4200 });
  * ```
  */

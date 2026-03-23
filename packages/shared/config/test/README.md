@@ -1,4 +1,4 @@
-# @/config/test
+# @/test-presets
 
 Vitest presets, test harness utilities, and benchmark data generators.
 
@@ -6,27 +6,27 @@ Vitest presets, test harness utilities, and benchmark data generators.
 
 | Entry point | Description |
 |-------------|-------------|
-| `@/config/test` | Barrel export of all presets |
-| `@/config/test/node` | Node.js preset |
-| `@/config/test/svelte` | Svelte preset |
-| `@/config/test/worker` | Cloudflare Worker preset |
-| `@/config/test/harness` | All harness utilities (barrel) |
-| `@/config/test/harness/ansi` | ANSI escape code stripping |
-| `@/config/test/harness/temp-dir` | Temporary directory lifecycle |
-| `@/config/test/harness/console` | Console output capture |
-| `@/config/test/harness/process` | `process.exit` spy and state snapshot |
-| `@/config/test/harness/async` | Async test helpers (`waitFor`, `retry`, `withTimeout`, `withAbort`) |
-| `@/config/test/harness/http` | Web `Request`/`Response` factories |
-| `@/config/test/harness/clock` | Fake timer management |
-| `@/config/test/bench` | Benchmark utilities (barrel) |
-| `@/config/test/bench/data` | Deterministic data generators |
+| `@/test-presets` | Barrel export of all presets |
+| `@/test-presets/node` | Node.js preset |
+| `@/test-presets/svelte` | Svelte preset |
+| `@/test-presets/worker` | Cloudflare Worker preset |
+| `@/test-presets/harness` | All harness utilities (barrel) |
+| `@/test-presets/harness/ansi` | ANSI escape code stripping |
+| `@/test-presets/harness/temp-dir` | Temporary directory lifecycle |
+| `@/test-presets/harness/console` | Console output capture |
+| `@/test-presets/harness/process` | `process.exit` spy and state snapshot |
+| `@/test-presets/harness/async` | Async test helpers (`waitFor`, `retry`, `withTimeout`, `withAbort`) |
+| `@/test-presets/harness/http` | Web `Request`/`Response` factories |
+| `@/test-presets/harness/clock` | Fake timer management |
+| `@/test-presets/bench` | Benchmark utilities (barrel) |
+| `@/test-presets/bench/data` | Deterministic data generators |
 
 ## Presets
 
 Each preset factory returns a Vitest `UserConfig`. Use in `vitest.config.ts`:
 
 ```typescript
-import { createNodeTestConfig } from '@/config/test';
+import { createNodeTestConfig } from '@/test-presets';
 
 export default createNodeTestConfig({
   alias: { '@/utils': resolve(__dirname, 'src/utils') },
@@ -134,7 +134,7 @@ useFakeClock(hooks, now?): () => FakeClock
 All generators produce **deterministic** output for reproducible benchmarks.
 
 ```typescript
-import { generateStrings, generateFilePaths, generateObjects, generatePayload, generateNestedObjects } from '@/config/test/bench/data';
+import { generateStrings, generateFilePaths, generateObjects, generatePayload, generateNestedObjects } from '@/test-presets/bench/data';
 ```
 
 | Function | Description |

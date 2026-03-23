@@ -115,7 +115,6 @@ describe('loadConfig', () => {
     }
 
     // Restore
-    // @ts-expect-error — restoring
     nodeImports.nodePath = original;
   });
 
@@ -309,7 +308,6 @@ describe('configExists', () => {
       expect(result.data).toBe(false);
     }
 
-    // @ts-expect-error — restoring
     nodeImports.nodePath = original;
   });
 

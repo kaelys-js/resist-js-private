@@ -19,7 +19,7 @@
 
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { defineConfig, type UserConfig, type PluginOption } from 'vite';
+import { defineConfig, type UserConfig, type Plugin, type PluginOption } from 'vite';
 import type { Str, Bool } from '@/schemas/common';
 
 /* ------------------------------------------------------------------ */
@@ -180,7 +180,7 @@ export type LazyPluginOptions = {
  *   setupFn: 'setupPreviewWs',
  * })
  */
-export function createLazyPlugin({ name, modulePath, setupFn }: LazyPluginOptions): PluginOption {
+export function createLazyPlugin({ name, modulePath, setupFn }: LazyPluginOptions): Plugin {
   return {
     name,
     apply: 'serve' as const,
@@ -199,9 +199,9 @@ export {
   deriveErrorIdPrefix,
   resolveErrorHtml,
   resolveAppHtml,
-} from './vite-plugin-template-html.ts';
+} from './vite-plugin-template-html.js';
 export type {
   FontFaceEntry,
   ErrorHtmlConfig,
   AppHtmlConfig,
-} from './vite-plugin-template-html.ts';
+} from './vite-plugin-template-html.js';

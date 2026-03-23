@@ -127,7 +127,7 @@ The tilemap uses a chunk-based merged geometry approach: the map is divided into
 | `utils/result` | `@/utils/result` | safeParse, combinators, formatting |
 | `utils/core` | `@/utils/core` | Logger, signal, object, environment |
 | `locale` | `@/locale` | i18n template, format, registry, detect |
-| `config/test` | `@/config/test` | Vitest presets + test harness |
+| `config/test` | `@/test-presets` | Vitest presets + test harness |
 
 ## Tech Stack
 
@@ -601,7 +601,7 @@ Cookies use `max-age=1y`, `path=/`, `SameSite=Lax` to ensure they're sent with e
 
 ## Testing
 
-All modules have colocated `.test.ts` files (2753+ tests total). Pure math modules use logic tests; modules touching Babylon.js use NullEngine integration tests. Test harness from `@/config/test/harness` provides temp dirs, console capture, async helpers, and fake clock.
+All modules have colocated `.test.ts` files (2753+ tests total). Pure math modules use logic tests; modules touching Babylon.js use NullEngine integration tests. Test harness from `@/test-presets/harness` provides temp dirs, console capture, async helpers, and fake clock.
 
 ```bash
 pnpm qa:test              # Run all unit tests (Vitest)

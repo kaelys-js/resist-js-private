@@ -7,7 +7,9 @@
  * @module
  */
 
-import type { CoreConfig } from '@/schemas/core-config/config';
+import { CoreConfigObjectSchema, type CoreConfig } from '@/schemas/core-config/config';
+import type { DeepReadonly } from '@/schemas/result/result';
+import { safeParse } from '@/utils/result/safe';
 
 /**
  * Default configuration values for the entire monorepo.
@@ -39,7 +41,7 @@ import type { CoreConfig } from '@/schemas/core-config/config';
  * defaults.versions.node; // => '24.13.0'
  * ```
  */
-export const defaults: CoreConfig = {
+const _defaultsInput = {
   // -------------------------------------------------------------------------
   // Business Configuration
   // -------------------------------------------------------------------------
@@ -87,6 +89,8 @@ export const defaults: CoreConfig = {
     paths: {
       productsDir: 'packages/products',
       productTemplateDir: 'packages/products-template',
+      cliToolsDir: 'packages/shared/utils/cli/src/tools',
+      schemasDir: 'packages/shared/schemas/tooling',
       configFilename: 'resist.config.ts',
       markerDir: '.resist',
     },
@@ -101,6 +105,8 @@ export const defaults: CoreConfig = {
       baseImage: 'mcr.microsoft.com/devcontainers/base:ubuntu',
       aptPackages: [],
       additionalPorts: [],
+      envVars: {},
+      autoOpen: false,
     },
     coder: {
       enabled: true,
@@ -111,6 +117,15 @@ export const defaults: CoreConfig = {
         memoryGb: 8,
         diskGb: 50,
       },
+      registry: {
+        url: '',
+        namespace: '',
+        authMethod: 'none',
+      },
+      serverType: 'cx32',
+      location: 'fsn1',
+      arch: 'amd64',
+      dotfilesRepo: '',
     },
     ci: {
       enabled: true,
@@ -119,6 +134,39 @@ export const defaults: CoreConfig = {
     infisical: {
       siteUrl: 'http://localhost:8080',
       serverVersion: '0.151.0',
+      globalProjectSlug: 'global',
+      auth: {
+        method: 'interactive',
+        cacheTtlSeconds: 300,
+      },
+      docker: {
+        composeFile: 'docker-compose.infisical.yml',
+        service: 'infisical',
+      },
+      environments: {
+        default: 'development',
+        branchMapping: {
+          main: 'production',
+          staging: 'staging',
+        },
+      },
+      provision: {
+        globalFolders: ['/cloudflare', '/turbo', '/devenv'],
+        productFolders: ['/api', '/app', '/marketing', '/status'],
+        expectedSecrets: {
+          '/cloudflare': ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID'],
+          '/turbo': ['TURBO_TOKEN', 'TURBO_TEAM'],
+          '/devenv': ['HETZNER_TOKEN'],
+          '/api': ['D1_DATABASE_ID', 'KV_NAMESPACE_ID', 'API_SECRET_KEY'],
+          '/app': ['POSTHOG_API_KEY', 'LEMON_SQUEEZY_API_KEY', 'REVENUECAT_API_KEY'],
+          '/marketing': ['RESEND_API_KEY', 'GA_MEASUREMENT_ID'],
+          '/status': ['STATUS_PAGE_TOKEN'],
+        },
+        machineIdentities: [
+          { name: 'coder-vps', role: 'member' },
+          { name: 'ci', role: 'member' },
+        ],
+      },
     },
     gitProvider: {
       provider: 'github',
@@ -178,3 +226,13 @@ export const defaults: CoreConfig = {
 
   environment: 'development',
 };
+
+/** Parsed and validated defaults with all schema defaults filled in. */
+const _parsed = safeParse(CoreConfigObjectSchema, _defaultsInput);
+
+if (!_parsed.ok) {
+  throw new Error(`Default config validation failed: ${_parsed.error.message}`);
+}
+
+/** Fully-resolved default configuration values for the entire monorepo. */
+export const defaults: DeepReadonly<CoreConfig> = _parsed.data;

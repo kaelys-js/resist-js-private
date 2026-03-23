@@ -118,3 +118,6 @@ export const CoreConfigSchema = v.pipe(
  * This is the type returned by `loadConfig()` and accepted by `defineConfig()`.
  */
 export type CoreConfig = v.InferOutput<typeof CoreConfigSchema>;
+
+/** Input type for {@link CoreConfigSchema} — accepts partial objects that `safeParse` fills with defaults. */
+export type CoreConfigInput = v.InferInput<typeof CoreConfigObjectSchema>;

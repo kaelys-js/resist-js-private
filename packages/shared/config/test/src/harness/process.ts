@@ -10,7 +10,7 @@
  * @example
  * ```typescript
  * import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
- * import { useExitSpy, useProcessSnapshot } from '@/config/test/harness/process';
+ * import { useExitSpy, useProcessSnapshot } from '@/test-presets/harness/process';
  *
  * describe('CLI entry point', () => {
  *   const getExitSpy = useExitSpy({ vi, beforeEach, afterEach });
@@ -111,7 +111,7 @@ export type ExitSpy = {
  * @example
  * ```typescript
  * import { vi } from 'vitest';
- * import { createExitSpy } from '@/config/test/harness/process';
+ * import { createExitSpy } from '@/test-presets/harness/process';
  *
  * const exitSpy = createExitSpy(vi);
  * try {
@@ -168,7 +168,7 @@ export function createExitSpy(vi: ViSpyProvider): ExitSpy {
  * @example
  * ```typescript
  * import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
- * import { useExitSpy } from '@/config/test/harness/process';
+ * import { useExitSpy } from '@/test-presets/harness/process';
  *
  * describe('exit handling', () => {
  *   const getExitSpy = useExitSpy({ vi, beforeEach, afterEach });
@@ -264,7 +264,7 @@ export type ProcessSnapshotOptions = {
  *
  * @example
  * ```typescript
- * import { snapshotProcess } from '@/config/test/harness/process';
+ * import { snapshotProcess } from '@/test-presets/harness/process';
  *
  * const snapshot = snapshotProcess({ cwd: true, env: true });
  * try {
@@ -319,7 +319,7 @@ export function snapshotProcess(options: ProcessSnapshotOptions = {}): ProcessSn
  * @example
  * ```typescript
  * import { describe, it, expect, beforeEach, afterEach } from 'vitest';
- * import { useProcessSnapshot } from '@/config/test/harness/process';
+ * import { useProcessSnapshot } from '@/test-presets/harness/process';
  *
  * describe('workspace detection', () => {
  *   useProcessSnapshot({ beforeEach, afterEach }, { cwd: true });

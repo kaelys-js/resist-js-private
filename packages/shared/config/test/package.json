@@ -1,8 +1,14 @@
 {
-  "name": "@/config/test",
+  "name": "@/test-presets",
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    "./node": "./src/presets/node.ts",
+    "./base": "./src/presets/base.ts",
+    "./svelte": "./src/presets/svelte.ts",
+    "./playwright": "./src/presets/playwright.ts"
+  },
   "scripts": {
     "qa:type-check": "tsgo --noEmit"
   },

@@ -34,6 +34,7 @@ export function stripSvelteProps<T extends Record<Str, unknown>>(props: T): T {
   const result: Record<Str, unknown> = {};
   for (const [key, value] of Object.entries(props)) {
     if (STRIP_KEYS.has(key)) continue;
+    if (key.startsWith('$$')) continue;
     if (key.startsWith('data-') || key.startsWith('aria-')) continue;
     result[key] = value;
   }

@@ -127,7 +127,7 @@ Follow these rules exactly:
 - Test keyboard navigation (simulate keydown events)
 - Test ARIA attributes are present and correct
 - Test focus management (focus trap, focus restore)
-- Use `createTestHarness` from `@/config/test/harness`
+- Use `createTestHarness` from `@/test-presets/harness`
 - Use Valibot types in test files (`Str`, `Bool`, `Num`) — same standards as production
 
 ### QA After Every File

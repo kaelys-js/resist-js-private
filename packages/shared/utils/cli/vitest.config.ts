@@ -1,4 +1,4 @@
-import { createNodeTestConfig } from '@/config/test/node';
+import { createNodeTestConfig } from '@/test-presets/node';
 
 export default createNodeTestConfig({
   packageName: '@/cli',

@@ -12,7 +12,7 @@
  * @example
  * ```typescript
  * import { describe, it, expect } from 'vitest';
- * import { waitFor, withTimeout } from '@/config/test/harness/async';
+ * import { waitFor, withTimeout } from '@/test-presets/harness/async';
  *
  * describe('event processor', () => {
  *   it('eventually processes all events', async () => {
@@ -63,7 +63,7 @@ export type WaitForOptions = {
  *
  * @example
  * ```typescript
- * import { waitFor } from '@/config/test/harness/async';
+ * import { waitFor } from '@/test-presets/harness/async';
  *
  * // Wait for console output to appear:
  * await waitFor(() => {
@@ -138,7 +138,7 @@ export type RetryOptions = {
  *
  * @example
  * ```typescript
- * import { retry } from '@/config/test/harness/async';
+ * import { retry } from '@/test-presets/harness/async';
  *
  * // Retry a flaky operation 3 times:
  * const result = await retry(() => fetchExternalApi(), { maxAttempts: 3, delay: 100 });
@@ -183,7 +183,7 @@ export async function retry<T>(fn: () => T | Promise<T>, options: RetryOptions =
  *
  * @example
  * ```typescript
- * import { withTimeout } from '@/config/test/harness/async';
+ * import { withTimeout } from '@/test-presets/harness/async';
  *
  * // Ensure an operation completes within 5 seconds:
  * const result = await withTimeout(processLargeFile(), 5000);
@@ -242,7 +242,7 @@ export async function withTimeout<T>(
  *
  * @example
  * ```typescript
- * import { withAbort } from '@/config/test/harness/async';
+ * import { withAbort } from '@/test-presets/harness/async';
  *
  * it('cancels long-running operation', async () => {
  *   const controller = new AbortController();

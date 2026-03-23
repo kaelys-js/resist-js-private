@@ -2,17 +2,17 @@
  * Shared test harness utilities for reducing boilerplate across the monorepo.
  *
  * Each utility is also independently importable via its own export path
- * (e.g., `@/config/test/harness/temp-dir`). This barrel re-exports everything
+ * (e.g., `@/test-presets/harness/temp-dir`). This barrel re-exports everything
  * for convenience when multiple utilities are needed in a single test file.
  *
  * @example
  * ```typescript
  * // Import individual utilities (preferred for tree-shaking clarity):
- * import { useTempDir } from '@/config/test/harness/temp-dir';
- * import { useConsoleSpy } from '@/config/test/harness/console';
+ * import { useTempDir } from '@/test-presets/harness/temp-dir';
+ * import { useConsoleSpy } from '@/test-presets/harness/console';
  *
  * // Or import from the barrel:
- * import { useTempDir, useConsoleSpy, stripAnsi } from '@/config/test/harness';
+ * import { useTempDir, useConsoleSpy, stripAnsi } from '@/test-presets/harness';
  * ```
  *
  * @module
