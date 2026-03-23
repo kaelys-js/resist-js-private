@@ -1,46 +1,72 @@
 /**
- * Tests for the shared Vite configuration factory and lazy plugin creator.
+ * Tests for the shared Vite configuration factory.
  *
  * @module
  */
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { Str } from '@/schemas/common';
+import type { Result } from '@/schemas/result/result';
 
 // ---------------------------------------------------------------------------
-// Mocks
+// Mocks — mock the shared utilities, not raw node:* modules
 // ---------------------------------------------------------------------------
 
-vi.mock('node:child_process', () => ({
-  execSync: vi.fn((cmd: string) => {
-    if (cmd.includes('--short HEAD')) return Buffer.from('abc1234\n');
-    if (cmd.includes('rev-parse HEAD')) return Buffer.from('abc1234def5678901234567890abcdef12345678\n');
-    if (cmd.includes('--abbrev-ref HEAD')) return Buffer.from('main\n');
-    if (cmd.includes('--porcelain')) return Buffer.from('\n');
-    return Buffer.from('');
-  }),
+/** Helper to create a success Result. */
+function mockOk<T>(data: T): Result<T> {
+  return Object.freeze({ ok: true as const, data, error: null }) as Result<T>;
+}
+
+/** Helper to create a failure Result. */
+function mockErr(code: Str): Result<never> {
+  return Object.freeze({
+    ok: false as const,
+    data: null,
+    error: Object.freeze({ code, message: code, meta: {} }),
+  }) as Result<never>;
+}
+
+const execSyncSafeMock = vi.fn((): Result<Str> => mockOk(''));
+const readFileMock = vi.fn((): Result<Str> => mockOk('{}'));
+const parseJsonWithCommentsMock = vi.fn((): Result<Record<Str, unknown>> => mockOk({}));
+const safeStringifyMock = vi.fn((data: unknown): Result<Str> => mockOk(JSON.stringify(data)));
+
+vi.mock('@/utils/core/shell', () => ({
+  execSyncSafe: (...args: unknown[]): Result<Str> => execSyncSafeMock(...args),
 }));
 
-vi.mock('node:fs', () => ({
-  readFileSync: vi.fn(() => JSON.stringify({ version: '1.2.3' })),
-  writeFileSync: vi.fn(),
+vi.mock('@/utils/core/fs', () => ({
+  readFile: (...args: unknown[]): Result<Str> => readFileMock(...args),
+  parseJsonWithComments: (...args: unknown[]): Result<Record<Str, unknown>> => parseJsonWithCommentsMock(...args),
 }));
 
-const { createViteConfig, createLazyPlugin } = await import('./index.js');
-const { execSync } = await import('node:child_process');
-const { readFileSync } = await import('node:fs');
+vi.mock('@/utils/core/object', () => ({
+  safeStringify: (...args: unknown[]): Result<Str> => safeStringifyMock(...args),
+}));
+
+const { createViteConfig } = await import('./index.ts');
 
 beforeEach(() => {
   vi.clearAllMocks();
-  // Re-set default mock implementations
-  (execSync as ReturnType<typeof vi.fn>).mockImplementation((cmd: string) => {
-    if (cmd.includes('--short HEAD')) return Buffer.from('abc1234\n');
-    if (cmd.includes('rev-parse HEAD')) return Buffer.from('abc1234def5678901234567890abcdef12345678\n');
-    if (cmd.includes('--abbrev-ref HEAD')) return Buffer.from('main\n');
-    if (cmd.includes('--porcelain')) return Buffer.from('\n');
-    return Buffer.from('');
+
+  // Default: git commands succeed
+  execSyncSafeMock.mockImplementation((cmd: unknown): Result<Str> => {
+    const command: Str = cmd as Str;
+    if (command.includes('--short HEAD')) return mockOk('abc1234');
+    if (command.includes('rev-parse HEAD')) return mockOk('abc1234def5678901234567890abcdef12345678');
+    if (command.includes('--abbrev-ref HEAD')) return mockOk('main');
+    if (command.includes('--porcelain')) return mockOk('');
+    return mockOk('');
   });
-  (readFileSync as ReturnType<typeof vi.fn>).mockReturnValue(JSON.stringify({ version: '1.2.3' }));
+
+  // Default: readFile succeeds
+  readFileMock.mockReturnValue(mockOk('{"version":"1.2.3"}'));
+
+  // Default: parseJsonWithComments succeeds
+  parseJsonWithCommentsMock.mockReturnValue(mockOk({ version: '1.2.3' }));
+
+  // Default: safeStringify succeeds
+  safeStringifyMock.mockImplementation((data: unknown): Result<Str> => mockOk(JSON.stringify(data)));
 });
 
 // ---------------------------------------------------------------------------
@@ -59,22 +85,21 @@ describe('createViteConfig', () => {
   it('injects git metadata defines', () => {
     const config = createViteConfig({ plugins: [] });
     const define = config.define as Record<Str, Str>;
-    expect(define.__APP_VERSION__).toBe(JSON.stringify('1.2.3'));
-    expect(define.__GIT_COMMIT__).toBe(JSON.stringify('abc1234'));
-    expect(define.__GIT_COMMIT_FULL__).toBe(JSON.stringify('abc1234def5678901234567890abcdef12345678'));
-    expect(define.__GIT_BRANCH__).toBe(JSON.stringify('main'));
-    expect(define.__GIT_DIRTY__).toBe(JSON.stringify(false));
+    expect(define.__APP_VERSION__).toBe('"1.2.3"');
+    expect(define.__GIT_COMMIT__).toBe('"abc1234"');
+    expect(define.__GIT_COMMIT_FULL__).toBe('"abc1234def5678901234567890abcdef12345678"');
+    expect(define.__GIT_BRANCH__).toBe('"main"');
+    expect(define.__GIT_DIRTY__).toBe('false');
     expect(define.__BUILD_TIMESTAMP__).toBeDefined();
   });
 
   it('merges extraDefines over defaults', () => {
     const config = createViteConfig({
       plugins: [],
-      extraDefines: { __CUSTOM__: JSON.stringify('test') },
+      extraDefines: { __CUSTOM__: '"test"' },
     });
     const define = config.define as Record<Str, Str>;
-    expect(define.__CUSTOM__).toBe(JSON.stringify('test'));
-    // Default defines still present
+    expect(define.__CUSTOM__).toBe('"test"');
     expect(define.__APP_VERSION__).toBeDefined();
   });
 
@@ -99,96 +124,36 @@ describe('createViteConfig', () => {
     expect(config.build?.target).toBe('es2024');
   });
 
-  it('falls back gracefully when git is unavailable', () => {
-    (execSync as ReturnType<typeof vi.fn>).mockImplementation(() => {
-      throw new Error('git not found');
-    });
-    const config = createViteConfig({ plugins: [] });
-    const define = config.define as Record<Str, Str>;
-    expect(define.__GIT_COMMIT__).toBe(JSON.stringify('unknown'));
-    expect(define.__GIT_BRANCH__).toBe(JSON.stringify('unknown'));
+  it('throws when git is unavailable', () => {
+    execSyncSafeMock.mockReturnValue(mockErr('IO.EXEC_FAILED'));
+    expect(() => createViteConfig({ plugins: [] })).toThrow();
   });
 
-  it('falls back to unknown when package.json is missing', () => {
-    (readFileSync as ReturnType<typeof vi.fn>).mockImplementation(() => {
-      throw new Error('ENOENT');
-    });
-    const config = createViteConfig({ plugins: [] });
-    const define = config.define as Record<Str, Str>;
-    expect(define.__APP_VERSION__).toBe(JSON.stringify('unknown'));
+  it('throws when package.json is missing', () => {
+    readFileMock.mockReturnValue(mockErr('IO.READ_FAILED'));
+    expect(() => createViteConfig({ plugins: [] })).toThrow();
   });
 
-  it('reads version from package.json', () => {
-    (readFileSync as ReturnType<typeof vi.fn>).mockReturnValue(JSON.stringify({ version: '5.0.0' }));
-    const config = createViteConfig({ plugins: [] });
-    const define = config.define as Record<Str, Str>;
-    expect(define.__APP_VERSION__).toBe(JSON.stringify('5.0.0'));
+  it('throws when package.json has no version field', () => {
+    parseJsonWithCommentsMock.mockReturnValue(mockOk({}));
+    expect(() => createViteConfig({ plugins: [] })).toThrow();
   });
 
-  it('falls back to unknown when package.json has no version field', () => {
-    (readFileSync as ReturnType<typeof vi.fn>).mockReturnValue(JSON.stringify({}));
-    const config = createViteConfig({ plugins: [] });
-    const define = config.define as Record<Str, Str>;
-    expect(define.__APP_VERSION__).toBe(JSON.stringify('unknown'));
+  it('throws when package.json has empty version', () => {
+    parseJsonWithCommentsMock.mockReturnValue(mockOk({ version: '' }));
+    expect(() => createViteConfig({ plugins: [] })).toThrow();
+  });
+
+  it('throws when safeStringify fails', () => {
+    safeStringifyMock.mockReturnValue(mockErr('INTERNAL.OUTPUT_VALIDATION_FAILED'));
+    expect(() => createViteConfig({ plugins: [] })).toThrow();
   });
 
   it('server.watch.ignored includes standard directories', () => {
     const config = createViteConfig({ plugins: [] });
-    const ignored = config.server?.watch?.ignored as string[];
+    const ignored = config.server?.watch?.ignored as Str[];
     expect(ignored).toContain('**/.svelte-kit/**');
     expect(ignored).toContain('**/node_modules/**');
     expect(ignored).toContain('**/.vite/**');
-  });
-});
-
-// ---------------------------------------------------------------------------
-// createLazyPlugin
-// ---------------------------------------------------------------------------
-
-describe('createLazyPlugin', () => {
-  it('returns plugin with correct name', () => {
-    const plugin = createLazyPlugin({
-      name: 'test-plugin',
-      modulePath: './src/test.ts',
-      setupFn: 'setup',
-    });
-    expect(plugin.name).toBe('test-plugin');
-  });
-
-  it('applies only to serve mode', () => {
-    const plugin = createLazyPlugin({
-      name: 'test-plugin',
-      modulePath: './src/test.ts',
-      setupFn: 'setup',
-    });
-    expect(plugin.apply).toBe('serve');
-  });
-
-  it('has configureServer hook', () => {
-    const plugin = createLazyPlugin({
-      name: 'test-plugin',
-      modulePath: './src/test.ts',
-      setupFn: 'setup',
-    });
-    expect(plugin.configureServer).toBeTypeOf('function');
-  });
-
-  it('configureServer calls ssrLoadModule and invokes setup function', async () => {
-    const setupFn = vi.fn();
-    const mockServer = {
-      ssrLoadModule: vi.fn(() => ({ mySetup: setupFn })),
-    };
-
-    const plugin = createLazyPlugin({
-      name: 'test-plugin',
-      modulePath: './src/test.ts',
-      setupFn: 'mySetup',
-    });
-
-    // Call the configureServer hook
-    await (plugin as { configureServer: (server: unknown) => Promise<void> }).configureServer(mockServer);
-
-    expect(mockServer.ssrLoadModule).toHaveBeenCalledWith('./src/test.ts');
-    expect(setupFn).toHaveBeenCalledWith(mockServer);
   });
 });

@@ -9,6 +9,36 @@
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
+/**
+ * Check whether a node has a relative source path.
+ *
+ * @param {AstNode} node - Import or export declaration node
+ * @param {VisitorContext} context - Visitor context
+ * @returns {LintResult[]} Array of lint results
+ */
+function checkRelativeSource(node: AstNode, context: VisitorContext): LintResult[] {
+  const results: LintResult[] = [];
+
+  const source = node.source as AstNode | undefined;
+  const value: string | undefined = (source as { value?: string } | undefined)?.value;
+  if (!value) return results;
+
+  if (value.startsWith('./') || value.startsWith('../')) {
+    results.push({
+      file: context.file,
+      line: node.loc.start.line,
+      column: node.loc.start.column + 1,
+      severity: 'error',
+      message: `Relative import '${value}' — use workspace alias instead`,
+      ruleId: 'imports/no-relative-imports',
+      tip: 'Replace with an @/ workspace alias (e.g. @/schemas/common)',
+      fix: { range: { start: (source?.start ?? 0) + 1, end: (source?.end ?? 0) - 1 }, text: value },
+    });
+  }
+
+  return results;
+}
+
 const rule: TypeScriptRule = {
   id: 'imports/no-relative-imports',
   description: 'Import paths must not use relative paths (./ or ../)',
@@ -16,25 +46,15 @@ const rule: TypeScriptRule = {
 
   visitor: {
     ImportDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
-      const results: LintResult[] = [];
-      const source = node.source as AstNode | undefined;
-      const value: string | undefined = (source as { value?: string } | undefined)?.value;
-      if (!value) return results;
+      return checkRelativeSource(node, context);
+    },
 
-      if (value.startsWith('./') || value.startsWith('../')) {
-        results.push({
-          file: context.file,
-          line: node.loc.start.line,
-          column: node.loc.start.column + 1,
-          severity: 'error',
-          message: `Relative import '${value}' — use workspace alias instead`,
-          ruleId: 'imports/no-relative-imports',
-          tip: 'Replace with an @/ workspace alias (e.g. @/schemas/common)',
-          fix: { range: { start: (source?.start ?? 0) + 1, end: (source?.end ?? 0) - 1 }, text: value },
-        });
-      }
+    ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
+      return checkRelativeSource(node, context);
+    },
 
-      return results;
+    ExportAllDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
+      return checkRelativeSource(node, context);
     },
   },
 };

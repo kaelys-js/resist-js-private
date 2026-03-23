@@ -169,3 +169,45 @@ export type TypeScriptRule = {
   /** AST visitor functions */
   visitor: Partial<AstVisitor>;
 };
+
+// =============================================================================
+// Package.json Rule Interface
+// =============================================================================
+
+/** Parsed package.json content. */
+export type PackageJson = {
+  /** Package name */
+  name?: string;
+  /** Package scripts */
+  scripts?: Record<string, string>;
+  /** Runtime dependencies */
+  dependencies?: Record<string, string>;
+  /** Dev dependencies */
+  devDependencies?: Record<string, string>;
+  /** Peer dependencies */
+  peerDependencies?: Record<string, string>;
+  /** Workspace configuration (root only) */
+  workspaces?: string[] | { packages: string[] };
+  /** Additional fields */
+  [key: string]: unknown;
+};
+
+/** Context for package.json rules. */
+export type PackageJsonContext = {
+  /** Absolute path to the package.json file */
+  file: string;
+  /** Parsed package.json content */
+  pkg: PackageJson;
+  /** Whether this is the workspace root package.json */
+  isRoot: boolean;
+};
+
+/** A package.json lint rule. */
+export type PackageJsonRule = {
+  /** Unique rule ID (e.g. 'package/require-tsgo') */
+  id: string;
+  /** Human-readable description */
+  description: string;
+  /** Check function */
+  check: (context: PackageJsonContext) => LintResult[];
+};

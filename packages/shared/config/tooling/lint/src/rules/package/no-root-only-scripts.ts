@@ -1,0 +1,35 @@
+/**
+ * Rule: package/no-root-only-scripts
+ *
+ * Scripts qa:format, qa:format:check, qa:lint should only exist in workspace root.
+ * Sub-packages must not define them.
+ *
+ * @module
+ */
+import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
+
+const NO_FIX = { range: { start: 0, end: 0 }, text: '' };
+const ROOT_ONLY_SCRIPTS: readonly string[] = ['qa:format', 'qa:format:check', 'qa:lint'];
+
+const rule: PackageJsonRule = {
+  id: 'package/no-root-only-scripts',
+  description: 'qa:format, qa:format:check, qa:lint belong only in workspace root',
+  check(context: PackageJsonContext): LintResult[] {
+    const results: LintResult[] = [];
+    if (context.isRoot) return results;
+    const scripts: Record<string, string> = context.pkg.scripts ?? {};
+    for (const forbidden of ROOT_ONLY_SCRIPTS) {
+      if (scripts[forbidden]) {
+        results.push({
+          file: context.file, line: 1, column: 1, severity: 'error',
+          message: `Script '${forbidden}' should only be in workspace root, not sub-package '${context.pkg.name ?? ''}'`,
+          ruleId: 'package/no-root-only-scripts',
+          tip: 'Remove this script — formatting and linting run workspace-wide from root',
+          fix: NO_FIX,
+        });
+      }
+    }
+    return results;
+  },
+};
+export default rule;

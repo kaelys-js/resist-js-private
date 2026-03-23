@@ -11,6 +11,7 @@ import requireJsdoc from './require-jsdoc.ts';
 import requireModule from './require-module.ts';
 import requireParam from './require-param.ts';
 import requireReturns from './require-returns.ts';
+import validateExample from './validate-example.ts';
 
 /** All JSDoc lint rules. */
 export const JSDOC_RULES: TypeScriptRule[] = [
@@ -18,6 +19,7 @@ export const JSDOC_RULES: TypeScriptRule[] = [
   requireParam,
   requireReturns,
   requireExample,
+  validateExample,
   paramTypeMatch,
   requireModule,
 ];

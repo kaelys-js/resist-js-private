@@ -87,7 +87,15 @@ function isAfterErrorGuard(ret: AstNode, funcBody: AstNode, context: VisitorCont
   if (lastIfIndex === -1) return false;
 
   const afterIf: string = textBefore.slice(lastIfIndex);
-  return /if\s*\(\s*![\w]+\.ok\s*\)/.test(afterIf);
+  const isErrorGuard: boolean = /if\s*\(\s*![\w]+\.ok\s*\)/.test(afterIf);
+  if (!isErrorGuard) return false;
+
+  // If the guard body contains return/throw, it's an early-return guard.
+  // Code AFTER an early-return guard is the SUCCESS path, not error path.
+  const guardBody: string = afterIf.slice(0, afterIf.indexOf(';') + 1);
+  if (/\breturn\b/.test(guardBody) || /\bthrow\b/.test(guardBody)) return false;
+
+  return true;
 }
 
 /**
@@ -259,7 +267,7 @@ function checkFunction(node: AstNode, context: VisitorContext, funcName?: string
         file: context.file,
         line: ret.loc.start.line,
         column: ret.loc.start.column + 1,
-        severity: 'warning',
+        severity: 'error',
         message: `Function '${name}' returns raw value instead of ok()/err()`,
         ruleId: 'result/require-ok-return',
         tip: 'Wrap return value with ok(Schema, data) or err(ERRORS.DOMAIN.CODE)',
@@ -283,7 +291,7 @@ function checkFunction(node: AstNode, context: VisitorContext, funcName?: string
         file: context.file,
         line: ret.loc.start.line,
         column: ret.loc.start.column + 1,
-        severity: 'warning',
+        severity: 'error',
         message: `Function '${name}' uses ok() in error path — use err() instead`,
         ruleId: 'result/require-ok-return',
         tip: 'Error paths should return err(ERRORS.DOMAIN.CODE, { cause: ... })',
@@ -295,14 +303,33 @@ function checkFunction(node: AstNode, context: VisitorContext, funcName?: string
       continue;
     }
 
-    // Check 3: okUnchecked() when a matching schema exists (should use ok(schema, data))
+    // Check 3: safeParse() in return position — should use ok() instead
+    // safeParse is for untrusted input; ok() is for wrapping known-valid data in a Result
+    if (trimmedReturn.startsWith('safeParse')) {
+      results.push({
+        file: context.file,
+        line: ret.loc.start.line,
+        column: ret.loc.start.column + 1,
+        severity: 'error',
+        message: `Function '${name}' returns safeParse() — use ok() instead for already-typed values`,
+        ruleId: 'result/require-ok-return',
+        tip: 'safeParse() is for untrusted input. Use ok(schema, data) to wrap known-valid data in a Result',
+        fix: {
+          range: { start: argument.start, end: argument.end },
+          text: trimmedReturn.replace(/^safeParse\s*\(/, 'ok('),
+        },
+      });
+      continue;
+    }
+
+    // Check 4: okUnchecked() when a matching schema exists (should use ok(schema, data))
     if (schemaAvailable && trimmedReturn.startsWith('okUnchecked')) {
       const schemaName: string = `${typeName}Schema`;
       results.push({
         file: context.file,
         line: ret.loc.start.line,
         column: ret.loc.start.column + 1,
-        severity: 'warning',
+        severity: 'error',
         message: `Function '${name}' uses okUnchecked() but ${schemaName} is available — use ok(${schemaName}, data)`,
         ruleId: 'result/require-ok-return',
         tip: `Use ok(${schemaName}, data) for validated returns`,

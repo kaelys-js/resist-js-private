@@ -10,12 +10,19 @@
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
 /** Patterns that indicate a Result variable name. */
-const RESULT_PATTERNS: readonly RegExp[] = [
+const RESULT_NAME_PATTERNS: readonly RegExp[] = [
   /[Rr]esult$/,
   /^result$/,
   /[Pp]arsed$/,
   /[Vv]alidated$/,
   /[Vv]alidation$/,
+  /^cached$/,
+  /^existing$/,
+  /^found$/,
+  /^loaded$/,
+  /^fetched$/,
+  /^checked$/,
+  /^response$/,
 ];
 
 /** Patterns that indicate `.ok` was properly checked before access. */
@@ -40,13 +47,23 @@ function getIdentifierName(node: AstNode): string | null {
 }
 
 /**
- * Check if a variable name looks like a Result.
+ * Check if a variable looks like a Result — by name pattern OR type annotation.
+ *
+ * Primary detection: checks the variable's type annotation for `Result<`.
+ * Fallback: checks the variable name against common Result naming patterns.
  *
  * @param {string} name - The variable name
- * @returns {boolean} Whether it matches Result patterns
+ * @param {string} content - Full file source text
+ * @returns {boolean} Whether it's likely a Result variable
  */
-function isLikelyResultVariable(name: string): boolean {
-  return RESULT_PATTERNS.some((p: RegExp): boolean => p.test(name));
+function isLikelyResultVariable(name: string, content: string): boolean {
+  if (RESULT_NAME_PATTERNS.some((p: RegExp): boolean => p.test(name))) return true;
+
+  // Check type annotation: `const varName: Result<...>` or `const varName: Promise<Result<...>>`
+  const typePattern: RegExp = new RegExp(
+    `(?:const|let|var)\\s+${name}\\s*:\\s*(?:Promise\\s*<\\s*)?Result\\s*<`,
+  );
+  return typePattern.test(content);
 }
 
 /**
@@ -61,8 +78,8 @@ function isLikelyResultVariable(name: string): boolean {
 function hasOkCheckBefore(varName: string, node: AstNode, context: VisitorContext): boolean {
   const beforeCode: string = context.content.slice(0, node.start);
 
-  // Find where the variable was declared
-  const declPattern: RegExp = new RegExp(`(?:const|let|var)\\s+${varName}\\s*=`, 'g');
+  // Find where the variable was declared (handles optional type annotations)
+  const declPattern: RegExp = new RegExp(`(?:const|let|var)\\s+${varName}\\s*(?::[^=]*)?=`, 'g');
   const declMatch: RegExpExecArray | null = declPattern.exec(beforeCode);
   if (!declMatch) return false;
 
@@ -83,12 +100,15 @@ function hasOkCheckBefore(varName: string, node: AstNode, context: VisitorContex
     return true;
   }
 
-  // Check for early return patterns after .ok check
-  const earlyReturnPattern: RegExp = new RegExp(
+  // Check for early return patterns after .ok check (with or without braces)
+  const earlyReturnWithBraces: RegExp = new RegExp(
     `if\\s*\\([^)]*!${varName}\\.ok[^)]*\\)\\s*\\{[^}]*return`,
     's',
   );
-  if (earlyReturnPattern.test(codeSinceDeclare)) {
+  const earlyReturnNoBraces: RegExp = new RegExp(
+    `if\\s*\\([^)]*!${varName}\\.ok[^)]*\\)\\s*return\\b`,
+  );
+  if (earlyReturnWithBraces.test(codeSinceDeclare) || earlyReturnNoBraces.test(codeSinceDeclare)) {
     return true;
   }
 
@@ -131,9 +151,28 @@ function checkAccess(node: AstNode, context: VisitorContext): LintResult[] {
   if (!object) return results;
 
   const objectName: string | null = getIdentifierName(object);
-  if (!objectName) return results;
 
-  if (!isLikelyResultVariable(objectName)) return results;
+  // Fix 3: Detect inline chains like safeParse(...).data without .ok check
+  if (!objectName) {
+    if (object.type === 'CallExpression') {
+      const callee = object.callee as AstNode | undefined;
+      const calleeName: string | null = callee ? getIdentifierName(callee) : null;
+      if (calleeName && /^(safeParse|ok|err|okUnchecked)$/.test(calleeName)) {
+        results.push({
+          file: context.file,
+          line: node.loc.start.line,
+          column: node.loc.start.column + 1,
+          severity: 'error',
+          message: `Accessing ${calleeName}(...).${propertyName} without checking .ok first — assign to a variable and check .ok`,
+          ruleId: 'result/check-before-access',
+          tip: `Assign ${calleeName}() result to a variable, check .ok, then access .${propertyName}`,
+        });
+      }
+    }
+    return results;
+  }
+
+  if (!isLikelyResultVariable(objectName, context.content)) return results;
 
   // Check if file imports from Result modules
   const hasResultImport: boolean = context.imports.some(

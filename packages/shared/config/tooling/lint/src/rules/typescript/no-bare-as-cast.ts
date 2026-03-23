@@ -58,17 +58,33 @@ const rule: TypeScriptRule = {
           (typeAnnotation ?? node).start,
           (typeAnnotation ?? node).end,
         );
+
+        // Check if a safeParse call precedes this cast (within 500 chars)
+        const beforeCast: string = context.content.slice(
+          Math.max(0, node.start - 500),
+          node.start,
+        );
+        const hasPrecedingSafeParse: boolean = /safeParse\s*\(/.test(beforeCast);
+
         // Find end of line for the fix insertion point
         const lineEnd: number = context.content.indexOf('\n', node.end);
         const fixPos: number = lineEnd === -1 ? node.end : lineEnd;
+
+        const message: string = hasPrecedingSafeParse
+          ? 'Bare `as` cast without explanatory comment'
+          : 'Unvalidated `as` cast — no safeParse found before cast';
+        const tip: string = hasPrecedingSafeParse
+          ? 'Add an inline comment explaining why the cast is safe'
+          : 'Validate with safeParse() before casting, or add a comment explaining why the cast is safe';
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
           column: node.loc.start.column + 1,
           severity: 'error',
-          message: `Bare \`as\` cast without explanatory comment`,
+          message,
           ruleId: 'typescript/no-bare-as-cast',
-          tip: 'Add an inline comment explaining why the cast is safe',
+          tip,
           example: `value as ${typeText} // Cast safe: <reason>`,
           fix: { range: { start: fixPos, end: fixPos }, text: ' // Cast safe: <reason>' },
         });

@@ -9,12 +9,9 @@
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import devtoolsJson from 'vite-plugin-devtools-json';
-import {
-  createViteConfig,
-  createLazyPlugin,
-  templateAppHtml,
-  templateErrorHtml,
-} from '@/config/tooling/vite';
+import { createViteConfig } from '@/config/tooling/vite';
+import { createLazyPlugin } from '@/config/tooling/vite/lazy-plugin';
+import { templateAppHtml, templateErrorHtml } from '@/config/tooling/vite/template-html';
 import { TEMPLATE_PATHS } from '@/config/tooling/svelte';
 import {
   APP_NAME,

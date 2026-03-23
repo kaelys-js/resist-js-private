@@ -17,6 +17,7 @@ const rule: TypeScriptRule = {
   visitor: {
     ExportAllDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
+
       const source = node.source as AstNode | undefined;
       const value: string = ((source as { value?: string } | undefined)?.value as string) ?? '';
 
@@ -36,6 +37,7 @@ const rule: TypeScriptRule = {
 
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
+
       const source = node.source as AstNode | undefined;
       if (!source) return results;
 

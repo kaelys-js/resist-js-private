@@ -107,11 +107,43 @@ function checkFunctionReturnType(
   const isPredicate: boolean = PREDICATE_PATTERNS.some((p: RegExp): boolean => p.test(name));
   if (isPredicate && (typeText === 'boolean' || typeText === 'Bool')) return null;
 
+  // Exempt identity functions: single `return paramName;` body
+  // But NOT if the function matches predicate patterns (is*, has*, etc.) —
+  // predicates returning non-boolean should still be flagged.
+  const body = node.body as AstNode | undefined;
+  if (!isPredicate && body?.type === 'BlockStatement') {
+    const statements = (body as AstNode).body as AstNode[] | undefined;
+    if (statements && statements.length === 1 && statements[0].type === 'ReturnStatement') {
+      const returnArg = statements[0].argument as AstNode | undefined;
+      if (returnArg?.type === 'Identifier') {
+        const params = node.params as AstNode[] | undefined;
+        const paramNames: string[] = (params ?? [])
+          .map((p: AstNode): string => (p.name as string) ?? '')
+          .filter(Boolean);
+        if (paramNames.includes(returnArg.name as string)) {
+          return null; // Identity function — cannot fail
+        }
+      }
+    }
+  }
+
+  // Exempt integration boundary functions: contain `// integration boundary` comment.
+  // These functions interface with external APIs (Vite, etc.) that don't understand Result.
+  // The comment can appear with a throw (error propagation) or standalone (pure factory).
+  if (body?.type === 'BlockStatement') {
+    const bodySource: string = context.content.slice(body.start, body.end);
+    if (/\/\/.*integration boundary/i.test(bodySource)) {
+      return null;
+    }
+  }
+
+
+
   return {
     file: context.file,
     line: node.loc.start.line,
     column: node.loc.start.column + 1,
-    severity: 'warning',
+    severity: 'error',
     message: `Function '${name}' should return Result<T> for explicit error handling`,
     ruleId: 'result/require-result-type',
     tip: 'Use Result type to make errors explicit in the return type',
@@ -156,6 +188,18 @@ const rule: TypeScriptRule = {
         }
       }
 
+      return results;
+    },
+
+    FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
+      const results: LintResult[] = [];
+
+      // Skip exported functions — handled by ExportNamedDeclaration/ExportDefaultDeclaration
+      const beforeFunc: string = context.content.slice(Math.max(0, node.start - 20), node.start).trim();
+      if (beforeFunc.endsWith('export') || beforeFunc.endsWith('default')) return results;
+
+      const result: LintResult | null = checkFunctionReturnType(node, context);
+      if (result) results.push(result);
       return results;
     },
 

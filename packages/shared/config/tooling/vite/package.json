@@ -4,22 +4,22 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "qa:type-check": "tsc --noEmit",
-    "qa:test": "vitest run"
+    "clean": "rm -rf dist coverage .turbo",
+    "qa:type-check": "tsgo --noEmit",
+    "qa:test": "pnpm -w exec vitest run --project config-tooling-vite",
+    "qa:test:coverage": "pnpm -w exec vitest run --project config-tooling-vite --coverage",
+    "qa:benchmark": "pnpm -w exec vitest bench --project config-tooling-vite"
   },
   "main": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./template-html": "./src/vite-plugin-template-html.ts",
+    "./lazy-plugin": "./src/vite-plugin-lazy.ts"
   },
   "dependencies": {
-    "@/schemas/common": "workspace:*"
-  },
-  "peerDependencies": {
-    "vite": ">=6.0.0 || >=7.0.0"
-  },
-  "devDependencies": {
-    "valibot": "^1.2.0",
-    "vite": "^7.3.1",
-    "typescript": "^5.9.3"
+    "@/schemas/common": "workspace:*",
+    "@/schemas/result": "workspace:*",
+    "@/utils/core": "workspace:*",
+    "@/utils/result": "workspace:*"
   }
 }

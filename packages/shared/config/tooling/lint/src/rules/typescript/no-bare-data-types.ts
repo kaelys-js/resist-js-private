@@ -1,7 +1,10 @@
 /**
  * Rule: typescript/no-bare-data-types
  *
- * Forbids `interface` declarations and `type X = { ... }` bare object types.
+ * Forbids `interface` declarations, `type X = { ... }` bare object types,
+ * inline object types in function return annotations, and inline object
+ * types in function parameter annotations.
+ *
  * Data types must be derived from Valibot schemas using `v.InferOutput<>`.
  *
  * @module
@@ -9,10 +12,9 @@
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
-/** File paths exempt from this rule (tooling, test harness, etc.). */
+/** File paths exempt from this rule (tooling internals, test harness, etc.). */
 const EXEMPT_PATHS: readonly RegExp[] = [
   /config\/tooling\/lint\/src\/framework\//,
-  /config\/tooling\/vite\//,
   /config\/tooling\/svelte\//,
   /config\/test\/src\/harness\//,
   /extensions\/vscode/,
@@ -30,6 +32,96 @@ function isExemptFile(filePath: string): boolean {
   return EXEMPT_PATHS.some((p: RegExp): boolean => p.test(filePath));
 }
 
+/**
+ * Get function name from a function node or its parent variable declarator.
+ *
+ * @param {AstNode} funcNode - The function AST node
+ * @param {VisitorContext} context - Visitor context
+ * @returns {string} The function name or '<anonymous>'
+ */
+function getFuncName(funcNode: AstNode, context: VisitorContext): string {
+  // Named function declaration
+  const id = funcNode.id as AstNode | undefined;
+  if (id?.name) return id.name as string;
+
+  // Arrow/function expression assigned to a variable — look backwards for `const name =`
+  const before: string = context.content.slice(Math.max(0, funcNode.start - 100), funcNode.start);
+  const varMatch: RegExpMatchArray | null = before.match(/(?:const|let|var)\s+(\w+)\s*=\s*$/);
+  if (varMatch) return varMatch[1];
+
+  return '<anonymous>';
+}
+
+/**
+ * Check a function's return type for inline object literals.
+ *
+ * @param {AstNode} funcNode - Function AST node
+ * @param {VisitorContext} context - Visitor context
+ * @returns {LintResult[]} Any violations
+ */
+function checkReturnType(funcNode: AstNode, context: VisitorContext): LintResult[] {
+  const returnType = funcNode.returnType as AstNode | undefined;
+  if (!returnType) return [];
+
+  const typeAnnotation = returnType.typeAnnotation as AstNode | undefined;
+  if (!typeAnnotation) return [];
+
+  if (typeAnnotation.type !== 'TSTypeLiteral') return [];
+
+  const funcName: string = getFuncName(funcNode, context);
+
+  return [{
+    file: context.file,
+    line: funcNode.loc.start.line,
+    column: funcNode.loc.start.column + 1,
+    severity: 'error',
+    message: `Function '${funcName}' has inline object return type — define a Valibot schema and use the derived type`,
+    ruleId: 'typescript/no-bare-data-types',
+    tip: 'Create a schema: const XSchema = v.strictObject({ ... }); type X = v.InferOutput<typeof XSchema>; then use X as the return type',
+    fix: {
+      range: { start: typeAnnotation.start, end: typeAnnotation.end },
+      text: 'NamedType /* TODO: replace with Valibot-derived type */',
+    },
+  }];
+}
+
+/**
+ * Check a function's parameters for inline object type annotations.
+ *
+ * @param {AstNode} funcNode - Function AST node
+ * @param {VisitorContext} context - Visitor context
+ * @returns {LintResult[]} Any violations
+ */
+function checkParamTypes(funcNode: AstNode, context: VisitorContext): LintResult[] {
+  const results: LintResult[] = [];
+  const params = funcNode.params as AstNode[] | undefined;
+  if (!params) return results;
+
+  for (const param of params) {
+    const typeAnnotation = (param.typeAnnotation as AstNode | undefined)?.typeAnnotation as AstNode | undefined; // cast safe: AST property chain
+    if (!typeAnnotation) continue;
+    if (typeAnnotation.type !== 'TSTypeLiteral') continue;
+
+    const paramName: string = (param.name as string) ?? ((param.left as AstNode | undefined)?.name as string) ?? 'param'; // cast safe: AST property
+
+    results.push({
+      file: context.file,
+      line: param.loc.start.line,
+      column: param.loc.start.column + 1,
+      severity: 'error',
+      message: `Parameter '${paramName}' has inline object type — define a Valibot schema and use the derived type`,
+      ruleId: 'typescript/no-bare-data-types',
+      tip: 'Create a schema: const XSchema = v.strictObject({ ... }); type X = v.InferOutput<typeof XSchema>; then use X as the param type',
+      fix: {
+        range: { start: typeAnnotation.start, end: typeAnnotation.end },
+        text: 'NamedType /* TODO: replace with Valibot-derived type */',
+      },
+    });
+  }
+
+  return results;
+}
+
 const rule: TypeScriptRule = {
   id: 'typescript/no-bare-data-types',
   description: 'Data types must use Valibot schemas, not interface/type literals',
@@ -39,7 +131,7 @@ const rule: TypeScriptRule = {
     TSInterfaceDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       if (isExemptFile(context.file)) return [];
 
-      const name: string = ((node.id as AstNode)?.name as string) ?? 'unknown';
+      const name: string = ((node.id as AstNode)?.name as string) ?? 'unknown'; // cast safe: AST property
 
       // Check if the interface extends a Valibot base type
       const bodyText: string = context.content.slice(
@@ -53,7 +145,7 @@ const rule: TypeScriptRule = {
           file: context.file,
           line: node.loc.start.line,
           column: node.loc.start.column + 1,
-          severity: 'warning',
+          severity: 'error',
           message: `Interface '${name}' should be a Valibot schema with v.InferOutput<>`,
           ruleId: 'typescript/no-bare-data-types',
           tip: 'Define a Valibot schema and derive the type: type X = v.InferOutput<typeof XSchema>',
@@ -68,20 +160,20 @@ const rule: TypeScriptRule = {
     TSTypeAliasDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       if (isExemptFile(context.file)) return [];
 
-      const typeAnnotation = node.typeAnnotation as AstNode | undefined;
+      const typeAnnotation = node.typeAnnotation as AstNode | undefined; // cast safe: AST property
       if (!typeAnnotation) return [];
 
       // Only flag bare object literal types: type X = { ... }
       if (typeAnnotation.type !== 'TSTypeLiteral') return [];
 
-      const name: string = ((node.id as AstNode)?.name as string) ?? 'unknown';
+      const name: string = ((node.id as AstNode)?.name as string) ?? 'unknown'; // cast safe: AST property
 
       return [
         {
           file: context.file,
           line: node.loc.start.line,
           column: node.loc.start.column + 1,
-          severity: 'warning',
+          severity: 'error',
           message: `Type '${name}' uses bare object literal — use Valibot schema instead`,
           ruleId: 'typescript/no-bare-data-types',
           tip: 'Define a Valibot schema and derive the type: type X = v.InferOutput<typeof XSchema>',
@@ -91,6 +183,16 @@ const rule: TypeScriptRule = {
           },
         },
       ];
+    },
+
+    FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
+      if (isExemptFile(context.file)) return [];
+      return [...checkReturnType(node, context), ...checkParamTypes(node, context)];
+    },
+
+    ArrowFunctionExpression(node: AstNode, context: VisitorContext): LintResult[] {
+      if (isExemptFile(context.file)) return [];
+      return [...checkReturnType(node, context), ...checkParamTypes(node, context)];
     },
   },
 };

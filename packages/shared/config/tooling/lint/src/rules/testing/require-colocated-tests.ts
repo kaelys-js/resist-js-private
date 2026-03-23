@@ -118,7 +118,7 @@ const rule: TypeScriptRule = {
           file: context.file,
           line: 1,
           column: 1,
-          severity: 'warning',
+          severity: 'error',
           message: `File exports functions but has no colocated test file`,
           ruleId: 'testing/require-colocated-tests',
           tip: `Create ${basename(testPath)} in the same directory`,

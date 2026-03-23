@@ -11,6 +11,9 @@ import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
 import noRelativeImports from './no-relative-imports.ts';
 import noBarrelFiles from './no-barrel-files.ts';
 import noReexport from './no-reexport.ts';
+import noRawNodeImports from './no-raw-node-imports.ts';
+import noRawJson from './no-raw-json.ts';
+import noJsExtension from './no-js-extension.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -57,6 +60,27 @@ describe('imports/no-relative-imports', () => {
 
   it('passes package imports', async () => {
     const code: string = "import * as v from 'valibot';";
+    const results: LintResult[] = await lint(noRelativeImports, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports relative export { x } from syntax', async () => {
+    const code: string = `export { foo } from './module.ts';`;
+    const results: LintResult[] = await lint(noRelativeImports, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('imports/no-relative-imports');
+    expect(results[0].message).toContain('./module.ts');
+  });
+
+  it('reports relative export * from syntax', async () => {
+    const code: string = `export * from '../utils/index.ts';`;
+    const results: LintResult[] = await lint(noRelativeImports, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('../utils/index.ts');
+  });
+
+  it('passes non-relative export { x } from syntax', async () => {
+    const code: string = `export { foo } from '@/utils/core/fs';`;
     const results: LintResult[] = await lint(noRelativeImports, code);
     expect(results.length).toBe(0);
   });
@@ -123,6 +147,238 @@ describe('imports/no-reexport', () => {
   it('passes regular export without source', async () => {
     const code: string = `const foo = 1;\nexport { foo };`;
     const results: LintResult[] = await lint(noReexport, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags re-exports in index.ts (no exemption)', async () => {
+    const code: string = `export { foo, bar } from './module.ts';`;
+    const results: LintResult[] = await lint(noReexport, code, 'index.ts');
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('imports/no-reexport');
+  });
+
+  it('flags export * in index.ts (no exemption)', async () => {
+    const code: string = `export * from './module.ts';`;
+    const results: LintResult[] = await lint(noReexport, code, 'index.ts');
+    expect(results.length).toBe(1);
+  });
+});
+
+// =============================================================================
+// imports/no-raw-node-imports
+// =============================================================================
+
+describe('imports/no-raw-node-imports', () => {
+  it('reports value import from node:fs', async () => {
+    const code: string = "import { readFileSync } from 'node:fs';";
+    const results: LintResult[] = await lint(noRawNodeImports, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('imports/no-raw-node-imports');
+    expect(results[0].message).toContain('node:fs');
+    expect(results[0].tip).toContain('@/utils/core');
+  });
+
+  it('reports value import from node:child_process', async () => {
+    const code: string = "import { execSync } from 'node:child_process';";
+    const results: LintResult[] = await lint(noRawNodeImports, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('node:child_process');
+  });
+
+  it('reports value import from node:path', async () => {
+    const code: string = "import { resolve } from 'node:path';";
+    const results: LintResult[] = await lint(noRawNodeImports, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('node:path');
+  });
+
+  it('passes type-only imports from node:*', async () => {
+    const code: string = "import type { ChildProcess } from 'node:child_process';";
+    const results: LintResult[] = await lint(noRawNodeImports, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes non-node imports', async () => {
+    const code: string = "import { readFile } from '@/utils/core/fs';";
+    const results: LintResult[] = await lint(noRawNodeImports, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes valibot imports', async () => {
+    const code: string = "import * as v from 'valibot';";
+    const results: LintResult[] = await lint(noRawNodeImports, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts files in utils/core/src/', async () => {
+    const code: string = "import { readFileSync } from 'node:fs';";
+    const results: LintResult[] = await lint(
+      noRawNodeImports,
+      code,
+      'packages/shared/utils/core/src/fs.ts',
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts files in config/tooling/lint/', async () => {
+    const code: string = "import { existsSync } from 'node:fs';";
+    const results: LintResult[] = await lint(
+      noRawNodeImports,
+      code,
+      'packages/shared/config/tooling/lint/src/cli.ts',
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts files in config/test/', async () => {
+    const code: string = "import { mkdtempSync } from 'node:fs';";
+    const results: LintResult[] = await lint(
+      noRawNodeImports,
+      code,
+      'packages/shared/config/test/src/harness/temp-dir.ts',
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts .test.ts files', async () => {
+    const code: string = "import { writeFileSync } from 'node:fs';";
+    const results: LintResult[] = await lint(noRawNodeImports, code, 'my-module.test.ts');
+    expect(results.length).toBe(0);
+  });
+
+  it('reports multiple node imports in same file', async () => {
+    const code: string = [
+      "import { readFileSync } from 'node:fs';",
+      "import { execSync } from 'node:child_process';",
+    ].join('\n');
+    const results: LintResult[] = await lint(noRawNodeImports, code);
+    expect(results.length).toBe(2);
+  });
+
+  it('provides correct alternative suggestion for node:fs', async () => {
+    const code: string = "import { readFileSync } from 'node:fs';";
+    const results: LintResult[] = await lint(noRawNodeImports, code);
+    expect(results[0].tip).toContain('@/utils/core/fs');
+  });
+
+  it('provides correct alternative suggestion for node:child_process', async () => {
+    const code: string = "import { execSync } from 'node:child_process';";
+    const results: LintResult[] = await lint(noRawNodeImports, code);
+    expect(results[0].tip).toContain('@/utils/core/shell');
+  });
+});
+
+// =============================================================================
+// imports/no-raw-json
+// =============================================================================
+
+describe('imports/no-raw-json', () => {
+  it('reports JSON.stringify usage', async () => {
+    const code: string = `const json: string = JSON.stringify(data);`;
+    const results: LintResult[] = await lint(noRawJson, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('imports/no-raw-json');
+    expect(results[0].message).toContain('JSON.stringify');
+    expect(results[0].message).toContain('safeStringify');
+  });
+
+  it('reports JSON.parse usage', async () => {
+    const code: string = `const data: unknown = JSON.parse(rawJson);`;
+    const results: LintResult[] = await lint(noRawJson, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('JSON.parse');
+    expect(results[0].message).toContain('parseJsonWithComments');
+  });
+
+  it('passes non-JSON member access', async () => {
+    const code: string = `const x: string = obj.stringify();`;
+    const results: LintResult[] = await lint(noRawJson, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes safeStringify usage', async () => {
+    const code: string = `const json: Result<Str> = safeStringify(data);`;
+    const results: LintResult[] = await lint(noRawJson, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts test files', async () => {
+    const code: string = `const json: string = JSON.stringify(data);`;
+    const results: LintResult[] = await lint(noRawJson, code, 'my-module.test.ts');
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts utils/core files', async () => {
+    const code: string = `const json: string = JSON.stringify(data);`;
+    const results: LintResult[] = await lint(
+      noRawJson,
+      code,
+      'packages/shared/utils/core/src/object.ts',
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('reports multiple JSON usages', async () => {
+    const code: string = [
+      `const a: string = JSON.stringify(x);`,
+      `const b: unknown = JSON.parse(y);`,
+    ].join('\n');
+    const results: LintResult[] = await lint(noRawJson, code);
+    expect(results.length).toBe(2);
+  });
+});
+
+// =============================================================================
+// imports/no-js-extension
+// =============================================================================
+
+describe('imports/no-js-extension', () => {
+  it('reports .js extension in import', async () => {
+    const code: string = `import { foo } from './module.js';`;
+    const results: LintResult[] = await lint(noJsExtension, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('imports/no-js-extension');
+    expect(results[0].message).toContain('.js');
+    expect(results[0].tip).toContain('.ts');
+  });
+
+  it('reports .js extension in named export', async () => {
+    const code: string = `export { foo } from './module.js';`;
+    const results: LintResult[] = await lint(noJsExtension, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('reports .js extension in export all', async () => {
+    const code: string = `export * from './module.js';`;
+    const results: LintResult[] = await lint(noJsExtension, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes .ts extension in import', async () => {
+    const code: string = `import { foo } from './module.ts';`;
+    const results: LintResult[] = await lint(noJsExtension, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes import without extension', async () => {
+    const code: string = `import { foo } from '@/utils/core/fs';`;
+    const results: LintResult[] = await lint(noJsExtension, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts VS Code extension files', async () => {
+    const code: string = `import { foo } from './module.js';`;
+    const results: LintResult[] = await lint(
+      noJsExtension,
+      code,
+      'packages/shared/extensions/vscode-formatter/src/extension.ts',
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts test files', async () => {
+    const code: string = `import { foo } from './module.js';`;
+    const results: LintResult[] = await lint(noJsExtension, code, 'my-module.test.ts');
     expect(results.length).toBe(0);
   });
 });

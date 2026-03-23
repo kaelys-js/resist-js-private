@@ -5,18 +5,13 @@
   "type": "module",
   "scripts": {
     "clean": "rm -rf dist",
-    "qa:test": "vitest run",
-    "qa:test:unit": "vitest run",
-    "qa:test:coverage": "vitest run --coverage",
-    "qa:benchmark": "vitest bench",
+    "qa:test": "pnpm -w exec vitest run --project schemas-result",
+    "qa:test:unit": "pnpm -w exec vitest run --project schemas-result",
+    "qa:test:coverage": "pnpm -w exec vitest run --project schemas-result --coverage",
+    "qa:benchmark": "pnpm -w exec vitest bench --project schemas-result",
     "qa:type-check": "tsgo --noEmit"
   },
-  "dependencies": {
-    "valibot": "^1.2.0"
-  },
   "devDependencies": {
-    "@/test-presets": "workspace:*",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "@/test-presets": "workspace:*"
   }
 }

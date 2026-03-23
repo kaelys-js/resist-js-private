@@ -50,6 +50,9 @@ const rule: TypeScriptRule = {
         const init = decl.init as AstNode | undefined;
         if (init?.type === 'TSAsExpression' || init?.type === 'TSSatisfiesExpression') continue;
 
+        // Allow Valibot schema declarations — complex inferred types (codebase convention)
+        if (name.endsWith('Schema') && init?.type === 'CallExpression') continue;
+
         // Insert `: TYPE` after the identifier name
         const insertPos: number = id.end;
         results.push({

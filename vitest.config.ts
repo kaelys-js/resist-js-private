@@ -100,8 +100,11 @@ const sharedPathAliases: Array<{ find: string; replacement: string }> = [
   { find: '@/ui', replacement: path.resolve(root, 'packages/shared/ui/src/index.ts') },
 ];
 
+/** Directories to skip when scanning for tsconfig.json files. */
+const TSCONFIG_SKIP_DIRS: ReadonlySet<string> = new Set(['_INTEGRATE', 'node_modules', '.git', 'dist', '.svelte-kit']);
+
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  plugins: [tsconfigPaths({ skip: (dir: string): boolean => TSCONFIG_SKIP_DIRS.has(dir) })],
   test: {
     environment: 'node',
     globals: false,
@@ -158,6 +161,14 @@ export default defineConfig({
         test: {
           name: 'schemas-generic',
           root: 'packages/shared/schemas/generic',
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'schemas-template-literal',
+          root: 'packages/shared/schemas/template-literal',
+          include: ['src/**/*.test.ts'],
         },
       },
       {
@@ -267,8 +278,17 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          name: 'schemas-core-config',
+          root: 'packages/shared/schemas/core-config',
+          include: ['src/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
           name: 'config-tooling-vite',
           root: 'packages/shared/config/tooling/vite',
+          include: ['src/**/*.test.ts'],
         },
       },
       {
@@ -330,7 +350,7 @@ export default defineConfig({
         },
       },
       {
-        plugins: [tsconfigPaths()],
+        plugins: [tsconfigPaths({ skip: (dir: string): boolean => TSCONFIG_SKIP_DIRS.has(dir) })],
         define: {
           __APP_VERSION__: JSON.stringify('0.0.0-test'),
           __GIT_COMMIT__: JSON.stringify('abc1234'),

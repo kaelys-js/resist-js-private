@@ -5,20 +5,17 @@
   "type": "module",
   "scripts": {
     "clean": "rm -rf dist",
-    "qa:test": "vitest run",
-    "qa:test:unit": "vitest run",
-    "qa:test:coverage": "vitest run --coverage",
-    "qa:benchmark": "vitest bench",
+    "qa:test": "pnpm -w exec vitest run --project schemas-function",
+    "qa:test:unit": "pnpm -w exec vitest run --project schemas-function",
+    "qa:test:coverage": "pnpm -w exec vitest run --project schemas-function --coverage",
+    "qa:benchmark": "pnpm -w exec vitest bench --project schemas-function",
     "qa:type-check": "tsgo --noEmit"
   },
   "dependencies": {
     "@/schemas/common": "workspace:*",
-    "@/schemas/result": "workspace:*",
-    "valibot": "^1.2.0"
+    "@/schemas/result": "workspace:*"
   },
   "devDependencies": {
-    "@/test-presets": "workspace:*",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "@/test-presets": "workspace:*"
   }
 }

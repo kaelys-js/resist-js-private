@@ -7,14 +7,13 @@
     "webforge-lint": "./src/cli.ts"
   },
   "scripts": {
-    "qa:test": "cd ../../../.. && vitest run --project lint"
+    "clean": "rm -rf dist coverage .turbo",
+    "qa:test": "pnpm -w exec vitest run --project lint",
+    "qa:test:coverage": "pnpm -w exec vitest run --project lint --coverage",
+    "qa:benchmark": "pnpm -w exec vitest bench --project lint",
+    "qa:type-check": "tsgo --noEmit"
   },
   "dependencies": {
     "oxc-parser": "^0.72.3"
-  },
-  "devDependencies": {
-    "@types/node": "^25.3.0",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
   }
 }

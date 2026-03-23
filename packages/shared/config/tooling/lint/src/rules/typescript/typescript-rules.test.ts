@@ -14,6 +14,7 @@ import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
 import requireTypeAnnotation from './require-type-annotation.ts';
 import noBareAsCast from './no-bare-as-cast.ts';
 import noBuiltinTypes from './no-builtin-types.ts';
+import noModuleSideEffects from './no-module-side-effects.ts';
 import requireConstComment from './require-const-comment.ts';
 import requireReturnType from './require-return-type.ts';
 import noEmptyCatch from './no-empty-catch.ts';
@@ -66,6 +67,12 @@ describe('typescript/require-type-annotation', () => {
 
   it('passes const with as expression (type is explicit via cast)', async () => {
     const code: string = "const x = 'hello' as unknown;";
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows Schema const without type annotation (Valibot convention)', async () => {
+    const code: string = `const GitInfoSchema = v.strictObject({ commit: v.string() });`;
     const results: LintResult[] = await lint(requireTypeAnnotation, code);
     expect(results.length).toBe(0);
   });
@@ -305,6 +312,24 @@ describe('typescript/no-throw', () => {
     const results: LintResult[] = await lint(noThrow, code);
     expect(results.length).toBe(0);
   });
+
+  it('allows throw result.error with integration boundary comment', async () => {
+    const code: string = `if (!gitResult.ok) throw gitResult.error; // integration boundary: Vite doesn't understand Result`;
+    const results: LintResult[] = await lint(noThrow, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('still flags throw result.error WITHOUT integration boundary comment', async () => {
+    const code: string = `if (!gitResult.ok) throw gitResult.error;`;
+    const results: LintResult[] = await lint(noThrow, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('still flags throw new Error even with integration boundary comment', async () => {
+    const code: string = `throw new Error('fail'); // integration boundary`;
+    const results: LintResult[] = await lint(noThrow, code);
+    expect(results.length).toBe(1);
+  });
 });
 
 // =============================================================================
@@ -367,6 +392,197 @@ type Handler = (event: Event) => void;
 type Combined = Base & Extra;
 `;
     const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports inline object return type on function', async () => {
+    const code: string = `
+function getInfo(): { name: string; age: number } {
+  return { name: 'test', age: 1 };
+}
+`;
+    const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('getInfo');
+    expect(results[0].message).toContain('inline object');
+  });
+
+  it('reports inline object return type on arrow function', async () => {
+    const code: string = `
+const getInfo = (): { name: string; age: number } => ({ name: 'test', age: 1 });
+`;
+    const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('inline object');
+  });
+
+  it('passes function with named return type', async () => {
+    const code: string = `
+function getInfo(): GitInfo {
+  return { name: 'test', age: 1 };
+}
+`;
+    const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes function with Result return type', async () => {
+    const code: string = `
+function getInfo(): Result<GitInfo> {
+  return ok(GitInfoSchema, data);
+}
+`;
+    const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes function with void return type', async () => {
+    const code: string = `
+function doStuff(): void {
+  console.log('done');
+}
+`;
+    const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports inline object type on function parameter', async () => {
+    const code: string = `
+function process(options: { host: string; port: number }): void {
+  console.log(options);
+}
+`;
+    const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain("'options'");
+    expect(results[0].message).toContain('inline object');
+  });
+
+  it('passes parameter with named type', async () => {
+    const code: string = `
+function process(options: ProcessOptions): void {
+  console.log(options);
+}
+`;
+    const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes parameter with primitive type', async () => {
+    const code: string = `
+function process(name: string): void {
+  console.log(name);
+}
+`;
+    const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// typescript/no-module-side-effects (Fix 5)
+// =============================================================================
+
+describe('typescript/no-module-side-effects', () => {
+  it('reports top-level throw', async () => {
+    const code: string = `
+throw new Error('module init failed');
+`;
+    const results: LintResult[] = await lint(noModuleSideEffects, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('typescript/no-module-side-effects');
+    expect(results[0].message).toContain('throw');
+  });
+
+  it('reports top-level if-statement containing throw', async () => {
+    const code: string = `
+const parsed = safeParse(Schema, data);
+if (!parsed.ok) {
+  throw new Error('validation failed');
+}
+`;
+    const results: LintResult[] = await lint(noModuleSideEffects, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('conditional throw');
+  });
+
+  it('reports top-level function call expression', async () => {
+    const code: string = `
+initializeGlobals();
+`;
+    const results: LintResult[] = await lint(noModuleSideEffects, code);
+    expect(results.length).toBe(1);
+    expect(results[0].severity).toBe('error');
+  });
+
+  it('passes import declarations', async () => {
+    const code: string = `
+import { foo } from './bar';
+`;
+    const results: LintResult[] = await lint(noModuleSideEffects, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes export declarations', async () => {
+    const code: string = `
+export function loadConfig(): Result<Config> {
+  return safeParse(Schema, data);
+}
+`;
+    const results: LintResult[] = await lint(noModuleSideEffects, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes variable declarations (even with function calls)', async () => {
+    const code: string = `
+const result = safeParse(Schema, data);
+`;
+    const results: LintResult[] = await lint(noModuleSideEffects, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does not flag throw inside function body', async () => {
+    const code: string = `
+function example() {
+  throw new Error('inside function');
+}
+`;
+    const results: LintResult[] = await lint(noModuleSideEffects, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// typescript/no-bare-as-cast — Fix 9: unvalidated cast escalation
+// =============================================================================
+
+describe('typescript/no-bare-as-cast — unvalidated cast detection', () => {
+  it('reports unvalidated cast with specific message when no safeParse precedes', async () => {
+    const code: string = `
+const rawConfig = {};
+const config = rawConfig as Config;
+`;
+    const results: LintResult[] = await lint(noBareAsCast, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('Unvalidated');
+    expect(results[0].message).toContain('no safeParse');
+  });
+
+  it('reports bare cast with standard message when safeParse precedes', async () => {
+    const code: string = `
+const parsed = safeParse(Schema, data);
+const config = parsed.data as Config;
+`;
+    const results: LintResult[] = await lint(noBareAsCast, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toBe('Bare `as` cast without explanatory comment');
+  });
+
+  it('passes when cast has explanatory comment', async () => {
+    const code: string = `
+const config = rawConfig as Config; // Cast safe: validated by schema above
+`;
+    const results: LintResult[] = await lint(noBareAsCast, code);
     expect(results.length).toBe(0);
   });
 });

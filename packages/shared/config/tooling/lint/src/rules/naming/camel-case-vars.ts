@@ -44,6 +44,9 @@ const rule: TypeScriptRule = {
         // Allow SCREAMING_SNAKE for top-level const (handled by other rule)
         if (kind === 'const' && SCREAMING_SNAKE_RE.test(name)) continue;
 
+        // Allow PascalCase schema names (codebase convention: StrSchema, PathSchema, etc.)
+        if (name.endsWith('Schema')) continue;
+
         if (!CAMEL_CASE_RE.test(name)) {
           results.push({
             file: context.file,
