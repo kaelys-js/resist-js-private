@@ -84,9 +84,9 @@
   import { safeParse } from '@/utils/result/safe';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: HeaderUserProps = $props();
+  const { ...restProps }: HeaderUserProps = $props();
   const validated: HeaderUserProps = $derived.by(() => {
-    const rawProps: HeaderUserProps = stripSvelteProps(allProps);
+    const rawProps: HeaderUserProps = stripSvelteProps(restProps);
     const result = safeParse(HeaderUserPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -113,7 +113,7 @@
   );
 </script>
 
-<DropdownMenu.Root>
+<DropdownMenu.Root {...restProps}>
   <DropdownMenu.Trigger>
     {#snippet child({ props })}
       <button

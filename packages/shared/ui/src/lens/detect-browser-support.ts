@@ -193,7 +193,7 @@ const CSS_FEATURES: CssFeature[] = [
     id: 'dvh' as Str,
     name: 'dvh/svh/lvh' as Str,
     description: 'Dynamic viewport height units' as Str,
-    pattern: /\b(?:dvh|svh|lvh)\b/g,
+    pattern: /\d+(?:dvh|svh|lvh)/g,
     url: 'https://caniuse.com/viewport-unit-variants' as Str,
     support: {
       chrome: 108 as Num,

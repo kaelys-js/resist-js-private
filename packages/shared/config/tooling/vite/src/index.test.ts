@@ -176,7 +176,7 @@ describe('createLazyPlugin', () => {
   it('configureServer calls ssrLoadModule and invokes setup function', async () => {
     const setupFn = vi.fn();
     const mockServer = {
-      ssrLoadModule: vi.fn(async () => ({ mySetup: setupFn })),
+      ssrLoadModule: vi.fn(() => ({ mySetup: setupFn })),
     };
 
     const plugin = createLazyPlugin({

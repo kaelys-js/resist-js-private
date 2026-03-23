@@ -272,14 +272,14 @@ describe('templateLiteral() regex generation', () => {
     const result = templateLiteral(['$100.00']);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.data.regex.source).toBe('^\\$100\\.00$');
+    expect(result.data.regex.source).toBe(String.raw`^\$100\.00$`);
   });
 
   it('generates correct regex for number slot', () => {
     const result = templateLiteral(['n:', v.number()]);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.data.regex.source).toBe('^n:-?\\d+(?:\\.\\d+)?$');
+    expect(result.data.regex.source).toBe(String.raw`^n:-?\d+(?:\.\d+)?$`);
   });
 
   it('generates correct regex for boolean slot', () => {

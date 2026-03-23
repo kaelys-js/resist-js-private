@@ -1,3 +1,4 @@
+/// <reference types="svelte" />
 /**
  * Connection Quality Store
  *

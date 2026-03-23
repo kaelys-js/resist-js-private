@@ -14,17 +14,17 @@
     /** Import path shown in the copy-import chip. @values @/ui/button, @/ui/dialog, @/ui/sidebar */
     importPath: v.optional(StrSchema),
     /** Whether the component has renderable variants. @values true, false */
-    hasVariants: v.optional(BoolSchema),
+    hasVariants: v.optional(BoolSchema, false),
     /** Whether the component has hand-written examples. @values true, false */
-    hasExamples: v.optional(BoolSchema),
+    hasExamples: v.optional(BoolSchema, false),
     /** Whether the component has raw source available. @values true, false */
-    hasSource: v.optional(BoolSchema),
+    hasSource: v.optional(BoolSchema, false),
     /** Whether the component has any import dependencies. @values true, false */
-    hasDeps: v.optional(BoolSchema),
+    hasDeps: v.optional(BoolSchema, false),
     /** Whether the component has custom docs.md documentation. @values true, false */
-    hasDocs: v.optional(BoolSchema),
+    hasDocs: v.optional(BoolSchema, false),
     /** Whether the component has changelog entries. @values true, false */
-    hasChangelog: v.optional(BoolSchema),
+    hasChangelog: v.optional(BoolSchema, false),
     /** Number of props defined (shown as badge on "Go to Props"). @values 0, 5, 20 */
     propCount: v.optional(NumSchema),
     /** Number of variant cards rendered (shown as badge on "Go to Variants"). @values 0, 3, 12 */
@@ -40,17 +40,17 @@
     /** Next component name for sequential navigation (kebab-case). @values button, dialog, sidebar */
     nextComponent: v.optional(v.nullable(StrSchema)),
     /** Whether this component is pinned in the sidebar. @values true, false */
-    isPinned: v.optional(BoolSchema),
+    isPinned: v.optional(BoolSchema, false),
     /** Callback fired when the pin/unpin button is clicked. @values () => void */
     onTogglePin: v.optional(
       v.custom<() => void>((val: unknown): boolean => typeof val === 'function'),
     ),
     /** Whether all collapsible sections are currently expanded. @values true, false */
-    allSectionsExpanded: v.optional(BoolSchema),
+    allSectionsExpanded: v.optional(BoolSchema, false),
     /** Whether all collapsible sections are currently collapsed. @values true, false */
-    allSectionsCollapsed: v.optional(BoolSchema),
+    allSectionsCollapsed: v.optional(BoolSchema, false),
     /** Whether this component is being watched for changes. @values true, false */
-    isWatched: v.optional(BoolSchema),
+    isWatched: v.optional(BoolSchema, false),
     /** Callback fired when the watch/unwatch button is clicked. @values () => void */
     onToggleWatch: v.optional(
       v.custom<() => void>((val: unknown): boolean => typeof val === 'function'),
@@ -136,9 +136,9 @@
     lens: 'bg-primary/10 text-primary' as Str,
   };
 
-  const allProps: LensHeaderProps = $props();
+  const { ...restProps }: LensHeaderProps = $props();
   const validated: LensHeaderProps = $derived.by(() => {
-    const rawProps: LensHeaderProps = stripSvelteProps(allProps);
+    const rawProps: LensHeaderProps = stripSvelteProps(restProps);
     const result = safeParse(LensHeaderPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -492,7 +492,7 @@
   }
 </script>
 
-<div class="flex items-start gap-4">
+<div class="flex items-start gap-4" {...restProps}>
   <Tooltip.Root delayDuration={300}>
     <Tooltip.Trigger>
       {#snippet child({ props: iconTooltipProps })}
@@ -877,14 +877,14 @@
               <DropdownMenu.Separator />
               <DropdownMenu.Item
                 onclick={expandAll}
-                disabled={allProps.allSectionsExpanded === true}
+                disabled={restProps.allSectionsExpanded === true}
               >
                 <ChevronsUpDown class="size-4" />
                 Expand All
               </DropdownMenu.Item>
               <DropdownMenu.Item
                 onclick={collapseAll}
-                disabled={allProps.allSectionsCollapsed === true}
+                disabled={restProps.allSectionsCollapsed === true}
               >
                 <ChevronsDownUp class="size-4" />
                 Collapse All

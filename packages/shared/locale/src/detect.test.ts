@@ -8,9 +8,8 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import type { Str } from '@/schemas/common';
+import type { Str, NullableStr, NonNegativeInteger } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
-import type { NullableStr, NonNegativeInteger } from '@/schemas/common';
 import {
   matchLocale,
   detectFromAcceptLanguage,
@@ -157,7 +156,6 @@ describe('detectFromNavigator', () => {
 
   it('returns null when navigator is undefined', () => {
     const original = globalThis.navigator;
-    // @ts-expect-error — simulating non-browser
     delete (globalThis as Record<string, unknown>).navigator;
 
     const result: Result<NullableStr> = detectFromNavigator(AVAILABLE);

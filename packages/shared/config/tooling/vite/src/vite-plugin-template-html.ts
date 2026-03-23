@@ -22,7 +22,7 @@ import type { Str } from '@/schemas/common';
 /* ------------------------------------------------------------------ */
 
 /** A single @font-face entry for CSS generation. */
-export interface FontFaceEntry {
+export type FontFaceEntry = {
   /** Font family name (e.g. 'Inter'). */
   family: Str;
   /** Font style (e.g. 'normal', 'italic'). */
@@ -31,10 +31,10 @@ export interface FontFaceEntry {
   weight: Str;
   /** Path to the font file (e.g. '/fonts/inter-latin.woff2'). */
   src: Str;
-}
+};
 
 /** Configuration for the error HTML template plugin. */
-export interface ErrorHtmlConfig {
+export type ErrorHtmlConfig = {
   /** Application display name. */
   appName: Str;
   /** CSS font-family stack string. */
@@ -60,17 +60,17 @@ export interface ErrorHtmlConfig {
     /** Error ID template with `{id}` placeholder (e.g. "Reference: {id}"). */
     errorId: Str;
   };
-}
+};
 
 /** Configuration for the app HTML template plugin. */
-export interface AppHtmlConfig {
+export type AppHtmlConfig = {
   /** Application display name. */
   appName: Str;
   /** Absolute path to the app.html template file. */
   templatePath: Str;
   /** localStorage key prefix (defaults to `appName.toLowerCase()`). */
   storagePrefix?: Str;
-}
+};
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */

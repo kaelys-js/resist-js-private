@@ -43,38 +43,34 @@ const rule: TypeScriptRule = {
       const declaration = node.declaration as AstNode | undefined;
       if (!declaration) return results;
 
-      if (declaration.type === 'FunctionDeclaration') {
-        if (!hasJsDoc(node, context.content)) {
-          const name: string = getFunctionName(declaration) ?? '<anonymous>';
-          results.push({
-            file: context.file,
-            line: node.loc.start.line,
-            column: node.loc.start.column + 1,
-            severity: 'error',
-            message: `Exported function '${name}' is missing a JSDoc comment`,
-            ruleId: 'jsdoc/require-jsdoc',
-            tip: 'Add a /** ... */ comment above the export describing what it does',
-            example: `/** Description. */\nexport function ${name}(...) { ... }`,
-            fix: { range: { start: node.start, end: node.start }, text: '/** Description. */\n' },
-          });
-        }
+      if (declaration.type === 'FunctionDeclaration' && !hasJsDoc(node, context.content)) {
+        const name: string = getFunctionName(declaration) ?? '<anonymous>';
+        results.push({
+          file: context.file,
+          line: node.loc.start.line,
+          column: node.loc.start.column + 1,
+          severity: 'error',
+          message: `Exported function '${name}' is missing a JSDoc comment`,
+          ruleId: 'jsdoc/require-jsdoc',
+          tip: 'Add a /** ... */ comment above the export describing what it does',
+          example: `/** Description. */\nexport function ${name}(...) { ... }`,
+          fix: { range: { start: node.start, end: node.start }, text: '/** Description. */\n' },
+        });
       }
 
-      if (declaration.type === 'TSTypeAliasDeclaration') {
-        if (!hasJsDoc(node, context.content)) {
-          const name: string =
-            ((declaration.id as AstNode | undefined)?.name as string) ?? '<anonymous>';
-          results.push({
-            file: context.file,
-            line: node.loc.start.line,
-            column: node.loc.start.column + 1,
-            severity: 'error',
-            message: `Exported type '${name}' is missing a JSDoc comment`,
-            ruleId: 'jsdoc/require-jsdoc',
-            tip: 'Add a /** ... */ comment above the export describing the type',
-            fix: { range: { start: node.start, end: node.start }, text: '/** Description. */\n' },
-          });
-        }
+      if (declaration.type === 'TSTypeAliasDeclaration' && !hasJsDoc(node, context.content)) {
+        const name: string =
+          ((declaration.id as AstNode | undefined)?.name as string) ?? '<anonymous>';
+        results.push({
+          file: context.file,
+          line: node.loc.start.line,
+          column: node.loc.start.column + 1,
+          severity: 'error',
+          message: `Exported type '${name}' is missing a JSDoc comment`,
+          ruleId: 'jsdoc/require-jsdoc',
+          tip: 'Add a /** ... */ comment above the export describing the type',
+          fix: { range: { start: node.start, end: node.start }, text: '/** Description. */\n' },
+        });
       }
 
       if (declaration.type === 'VariableDeclaration') {
@@ -85,25 +81,24 @@ const rule: TypeScriptRule = {
           const init = decl.init as AstNode | undefined;
           if (
             init &&
-            (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression')
+            (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression') &&
+            !hasJsDoc(node, context.content)
           ) {
-            if (!hasJsDoc(node, context.content)) {
-              const name: string =
-                ((decl.id as AstNode | undefined)?.name as string) ?? '<anonymous>';
-              results.push({
-                file: context.file,
-                line: node.loc.start.line,
-                column: node.loc.start.column + 1,
-                severity: 'error',
-                message: `Exported function '${name}' is missing a JSDoc comment`,
-                ruleId: 'jsdoc/require-jsdoc',
-                tip: 'Add a /** ... */ comment above the export',
-                fix: {
-                  range: { start: node.start, end: node.start },
-                  text: '/** Description. */\n',
-                },
-              });
-            }
+            const name: string =
+              ((decl.id as AstNode | undefined)?.name as string) ?? '<anonymous>';
+            results.push({
+              file: context.file,
+              line: node.loc.start.line,
+              column: node.loc.start.column + 1,
+              severity: 'error',
+              message: `Exported function '${name}' is missing a JSDoc comment`,
+              ruleId: 'jsdoc/require-jsdoc',
+              tip: 'Add a /** ... */ comment above the export',
+              fix: {
+                range: { start: node.start, end: node.start },
+                text: '/** Description. */\n',
+              },
+            });
           }
         }
       }

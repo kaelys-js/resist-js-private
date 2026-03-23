@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'vitest';
 import type { Str, Bool } from '@/schemas/common';
-import { type AppError, type Result, ERRORS, okUnchecked } from '@/schemas/result/result';
+import { type AppError, type KnownErrorCode, type Result, ERRORS, okUnchecked } from '@/schemas/result/result';
 import {
   isAppError,
   isResult,
@@ -121,7 +121,7 @@ describe('isInDomain', () => {
   it('returns error for code with invalid domain prefix', () => {
     // '123' is not a valid ErrorDomain — safeParse(ErrorDomainSchema) should fail
     const result: Result<Bool> = isInDomain(
-      makeError({ code: '123.INVALID' as Str }),
+      makeError({ code: '123.INVALID' as KnownErrorCode }),
       '123' as never,
     );
     expect(result.ok).toBe(false);
@@ -132,16 +132,16 @@ describe('isInDomain', () => {
 
 describe('getCauseChain', () => {
   it('returns chain of causes', () => {
-    const root = makeError({ code: 'ROOT.ERROR' as Str });
-    const mid = makeError({ code: 'MID.ERROR' as Str, cause: root });
-    const top = makeError({ code: 'TOP.ERROR' as Str, cause: mid });
+    const root = makeError({ code: ERRORS.DB.NOT_FOUND });
+    const mid = makeError({ code: ERRORS.DB.CONNECTION, cause: root });
+    const top = makeError({ code: ERRORS.AUTH.INVALID_TOKEN, cause: mid });
 
     const result = getCauseChain(top);
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toHaveLength(3);
-      expect(result.data[0]!.code).toBe('TOP.ERROR');
-      expect(result.data[2]!.code).toBe('ROOT.ERROR');
+      expect(result.data[0]!.code).toBe(ERRORS.AUTH.INVALID_TOKEN);
+      expect(result.data[2]!.code).toBe(ERRORS.DB.NOT_FOUND);
     }
   });
 
@@ -156,19 +156,19 @@ describe('getCauseChain', () => {
 
 describe('findInCauseChain', () => {
   it('finds matching code in chain', () => {
-    const root = makeError({ code: 'ROOT.ERROR' as Str });
-    const top = makeError({ code: 'TOP.ERROR' as Str, cause: root });
+    const root = makeError({ code: ERRORS.DB.NOT_FOUND });
+    const top = makeError({ code: ERRORS.AUTH.INVALID_TOKEN, cause: root });
 
-    const result = findInCauseChain(top, 'ROOT.ERROR' as Str);
+    const result = findInCauseChain(top, ERRORS.DB.NOT_FOUND);
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).not.toBeNull();
-      expect(result.data!.code).toBe('ROOT.ERROR');
+      expect(result.data!.code).toBe(ERRORS.DB.NOT_FOUND);
     }
   });
 
   it('returns null for no match', () => {
-    const result = findInCauseChain(makeError(), 'NONEXISTENT.CODE' as Str);
+    const result = findInCauseChain(makeError(), 'NONEXISTENT.CODE' as KnownErrorCode);
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBeNull();
   });
@@ -178,12 +178,12 @@ describe('findInCauseChain', () => {
 
 describe('getRootCause', () => {
   it('returns deepest cause', () => {
-    const root = makeError({ code: 'ROOT.CAUSE' as Str });
-    const top = makeError({ code: 'TOP.ERROR' as Str, cause: root });
+    const root = makeError({ code: ERRORS.DB.NOT_FOUND });
+    const top = makeError({ code: ERRORS.AUTH.INVALID_TOKEN, cause: root });
 
     const result = getRootCause(top);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.code).toBe('ROOT.CAUSE');
+    if (result.ok) expect(result.data.code).toBe(ERRORS.DB.NOT_FOUND);
   });
 
   it('returns self when no cause', () => {
@@ -204,7 +204,7 @@ describe('getDomain', () => {
   });
 
   it('returns error for code without dot separator', () => {
-    const result = getDomain(makeError({ code: 'NODOT' as Str }));
+    const result = getDomain(makeError({ code: 'NODOT' as KnownErrorCode }));
     expect(result.ok).toBe(false);
   });
 });

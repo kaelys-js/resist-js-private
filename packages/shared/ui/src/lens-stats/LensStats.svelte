@@ -13,9 +13,9 @@
     onstats: v.custom<(key: string, data: v.InferOutput<typeof LensStatsDataSchema>) => void>(
       (val: unknown): boolean => typeof val === 'function',
     ),
-    /** Total prop count for prop coverage metric. */
+    /** Total prop count for prop coverage metric. @values 0, 5, 10, 50 */
     propsTotal: v.optional(NumSchema, 0),
-    /** Count of props with default values for prop coverage metric. */
+    /** Count of props with default values for prop coverage metric. @values 0, 5, 10, 50 */
     propsWithDefaults: v.optional(NumSchema, 0),
     /** Child content to wrap and measure. */
     children: v.custom<Snippet>((val: unknown): boolean => typeof val === 'function'),

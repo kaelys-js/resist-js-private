@@ -79,7 +79,7 @@ export async function isPortAvailable(port: Port): Promise<Result<Bool>> {
   const portResult: Result<Port> = safeParse(PortSchema, port);
   if (!portResult.ok) return portResult;
 
-  return new Promise<Bool>((resolve: (value: Bool) => void) => {
+  return new Promise<Result<Bool>>((resolve: (value: Result<Bool>) => void) => {
     const server: Server = net.createServer();
 
     server.once('error', () => {

@@ -96,8 +96,7 @@ describe('ensureCommand', () => {
       'install it' as Command,
     );
     expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.data.status).toBe('not_found');
+    if (result.ok && result.data.status === 'not_found') {
       expect(result.data.command).toBe('__nonexistent_cmd_xyz_12345__');
     }
   });

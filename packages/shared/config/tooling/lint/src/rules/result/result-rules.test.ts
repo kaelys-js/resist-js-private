@@ -22,7 +22,7 @@ import requireOkReturn from './require-ok-return.ts';
  * @param {string} code - TypeScript source code
  * @returns {Promise<LintResult[]>} Array of lint results
  */
-async function lint(rule: TypeScriptRule, code: string): Promise<LintResult[]> {
+function lint(rule: TypeScriptRule, code: string): Promise<LintResult[]> {
   return runTypeScriptRules('test.ts', code, [rule]);
 }
 

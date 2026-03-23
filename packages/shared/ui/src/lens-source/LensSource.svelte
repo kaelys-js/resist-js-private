@@ -27,11 +27,11 @@
     /** Description text below the title. @values Component source code., Main entry point., Type definitions. */
     description: v.optional(StrSchema),
     /** Whether to show line numbers in the code block. @values true, false */
-    showLineNumbers: v.optional(BoolSchema),
+    showLineNumbers: v.optional(BoolSchema, false),
     /** Whether to enable inline search in the code block. @values true, false */
-    showSearch: v.optional(BoolSchema),
+    showSearch: v.optional(BoolSchema, false),
     /** Whether word wrap is enabled by default. @values true, false */
-    wordWrap: v.optional(BoolSchema),
+    wordWrap: v.optional(BoolSchema, false),
     /** Additional CSS classes for the root element. */
     class: v.optional(StrSchema),
   });
@@ -47,9 +47,9 @@
   import LensSection from '../lens-section/LensSection.svelte';
   import CodeBlock from '../code-block/CodeBlock.svelte';
 
-  const allProps: LensSourceProps = $props();
+  const { ...restProps }: LensSourceProps = $props();
   const validated: LensSourceProps = $derived.by(() => {
-    const rawProps: LensSourceProps = stripSvelteProps(allProps);
+    const rawProps: LensSourceProps = stripSvelteProps(restProps);
     const result = safeParse(LensSourcePropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -60,7 +60,7 @@
   const displayTitle: Str = $derived(validated.title ?? toTitle(validated.name));
 </script>
 
-<div class={cn('', validated.class)}>
+<div class={cn('', validated.class)} {...restProps}>
   <LensSection
     title={displayTitle}
     description={validated.description ?? 'Component source code.'}

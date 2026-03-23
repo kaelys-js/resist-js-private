@@ -7,7 +7,7 @@
  * @module
  */
 
-import * as v from 'valibot';
+import type * as v from 'valibot';
 
 // =============================================================================
 // Template Literal Issue
@@ -31,14 +31,14 @@ import * as v from 'valibot';
  * }
  * ```
  */
-export interface TemplateLiteralIssue extends v.BaseIssue<string> {
+export type TemplateLiteralIssue = v.BaseIssue<string> & {
   /** Always `'schema'` — this is a schema-level issue, not a validation action. */
   readonly kind: 'schema';
   /** Always `'template_literal'` — identifies this issue's origin schema type. */
   readonly type: 'template_literal';
   /** Human-readable expected pattern, e.g., `` `user_${number}` ``. */
   readonly expected: string;
-}
+};
 
 // =============================================================================
 // Supported Part Schemas
@@ -135,11 +135,11 @@ export type TemplateLiteralPart = string | TemplateLiteralPartSchema;
  * schema.expects; // '`user_${number}`'
  * ```
  */
-export interface TemplateLiteralSchema<
+export type TemplateLiteralSchema<
   TParts extends readonly TemplateLiteralPart[],
   TOutput extends string,
   TMessage extends v.ErrorMessage<TemplateLiteralIssue> | undefined,
-> extends v.BaseSchema<string, TOutput, TemplateLiteralIssue> {
+> = v.BaseSchema<string, TOutput, TemplateLiteralIssue> & {
   /** Always `'template_literal'`. */
   readonly type: 'template_literal';
   /** Self-reference to the factory function. */
@@ -152,7 +152,7 @@ export interface TemplateLiteralSchema<
   readonly expects: string;
   /** Optional custom error message. */
   readonly message: TMessage;
-}
+};
 
 /**
  * Placeholder reference for the `templateLiteral` factory function type.

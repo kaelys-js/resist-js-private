@@ -13,7 +13,7 @@
     /** Optional formatted keyboard shortcut string (e.g. "⌘B"). @values ⌘B, Ctrl+K, Esc */
     shortcutLabel: v.optional(StrSchema),
     /** When true, the kbd badge is always visible instead of hidden on mobile. @values true, false */
-    shortcutAlwaysVisible: v.optional(BoolSchema),
+    shortcutAlwaysVisible: v.optional(BoolSchema, false),
   });
   export type TooltipLabelProps = v.InferOutput<typeof TooltipLabelPropsSchema>;
 </script>
@@ -29,9 +29,9 @@
   import Kbd from '../kbd/Kbd.svelte';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: TooltipLabelProps = $props();
+  const { ...restProps }: TooltipLabelProps = $props();
   const validated: TooltipLabelProps = $derived.by(() => {
-    const rawProps: TooltipLabelProps = stripSvelteProps(allProps);
+    const rawProps: TooltipLabelProps = stripSvelteProps(restProps);
     const result = safeParse(TooltipLabelPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -40,7 +40,7 @@
 </script>
 
 {#if validated.shortcutLabel}
-  <span class="flex items-center gap-1.5"
+  <span class="flex items-center gap-1.5" {...restProps}
     >{validated.label}
     <Kbd
       label={validated.shortcutLabel}

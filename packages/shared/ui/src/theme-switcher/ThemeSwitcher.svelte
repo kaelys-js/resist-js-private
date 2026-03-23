@@ -61,9 +61,9 @@
   import Check from '@lucide/svelte/icons/check';
   import * as DropdownMenu from '../dropdown-menu/index.js';
 
-  const allProps: ThemeSwitcherProps = $props();
+  const { ...restProps }: ThemeSwitcherProps = $props();
   const validated: ThemeSwitcherProps = $derived.by(() => {
-    const rawProps: ThemeSwitcherProps = stripSvelteProps(allProps);
+    const rawProps: ThemeSwitcherProps = stripSvelteProps(restProps);
     const result = safeParse(ThemeSwitcherPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -103,7 +103,7 @@
   }
 </script>
 
-<DropdownMenu.Sub onOpenChange={handleSubOpenChange}>
+<DropdownMenu.Sub onOpenChange={handleSubOpenChange} {...restProps}>
   <DropdownMenu.SubTrigger>
     <Palette aria-hidden="true" class="mr-2 size-4" />
     {validated.labels.theme}

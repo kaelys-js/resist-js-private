@@ -9,7 +9,6 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { Bool, Path, Void } from '@/schemas/common';
 import type { CoreConfig } from '@/schemas/core-config/config';
 import type { Result } from '@/schemas/result/result';
-import type { DeepReadonly } from '@/utils/core/object';
 import { defaults } from './defaults';
 
 // ---------------------------------------------------------------------------
@@ -50,7 +49,11 @@ const { log } = await import('@/utils/core/logger');
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Set up mocks for a successful filesystem-based config load. */
+/**
+ * Set up mocks for a successful filesystem-based config load.
+ *
+ * @param options - Mock configuration options
+ */
 function setupFilesystemMocks(options: {
   rootPath?: string;
   configPath?: string;
@@ -273,7 +276,7 @@ describe('setConfig', () => {
 
   it('returns CONFIG.INVALID for invalid config shape', () => {
     const result = setConfig({
-      environment: 12345 as unknown as string,
+      environment: 12_345 as unknown as string,
     });
 
     expect(result.ok).toBe(false);

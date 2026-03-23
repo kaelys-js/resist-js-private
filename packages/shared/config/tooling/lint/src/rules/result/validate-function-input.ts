@@ -45,6 +45,9 @@ function getParamName(param: AstNode): string | null {
   return null;
 }
 
+/** Pattern matching substrings that indicate a callback parameter type. */
+const CALLBACK_PATTERN: RegExp = /Function|=>/;
+
 /**
  * Check if a parameter's type annotation indicates a callback function.
  *
@@ -58,8 +61,7 @@ function isCallbackParam(param: AstNode, context: VisitorContext): boolean {
     | undefined;
   if (!typeAnnotation) return false;
 
-  const typeText: string = context.content.slice(typeAnnotation.start, typeAnnotation.end);
-  return typeText.includes('=>') || typeText.includes('Function');
+  return CALLBACK_PATTERN.test(context.content.slice(typeAnnotation.start, typeAnnotation.end));
 }
 
 /**

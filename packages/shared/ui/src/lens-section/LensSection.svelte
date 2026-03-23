@@ -17,13 +17,13 @@
     codeText: v.optional(StrSchema),
     /** Prop name to display as a Badge. @values variant, size, disabled */
     propName: v.optional(StrSchema),
-    /** Extra badges/content rendered after the propName badge in the header row. */
+    /** Extra badges/content rendered after the propName badge in the header row. @values {#snippet badges()}<span>badge</span>{/snippet} */
     badges: v.optional(v.custom<Snippet>((val: unknown): boolean => typeof val === 'function')),
     /** Whether the section body is collapsible via header click. @values true, false */
     collapsible: v.optional(BoolSchema),
     /** Whether the section body is open (only used when collapsible is true). @values true, false */
     open: v.optional(BoolSchema),
-    /** Callback fired when the collapsible header toggle is clicked. */
+    /** Callback fired when the collapsible header toggle is clicked. @values () => void */
     ontoggle: v.optional(
       v.custom<() => void>((val: unknown): boolean => typeof val === 'function'),
     ),

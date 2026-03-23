@@ -12,6 +12,9 @@
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
+/** Pattern matching Svelte reactive context markers that exempt ternary fallback usage. */
+const REACTIVE_CONTEXT_PATTERN: RegExp = /\$derived\.by|\$effect/;
+
 /**
  * Check if a node is a member expression accessing `.ok` on some object.
  *
@@ -69,12 +72,23 @@ function containsDataAccess(node: AstNode, objectName: string): boolean {
   for (const key of Object.keys(node)) {
     if (key === 'type' || key === 'start' || key === 'end' || key === 'loc') continue;
     const child = node[key];
-    if (child && typeof child === 'object' && 'type' in (child as object)) {
-      if (containsDataAccess(child as AstNode, objectName)) return true;
+    if (child && typeof child === 'object' && 'type' in (child as object) && containsDataAccess(child as AstNode, objectName)) {
+      return true;
     }
   }
 
   return false;
+}
+
+/**
+ * Check if a node position falls within a Svelte reactive context.
+ *
+ * @param {string} content - The full source content
+ * @param {number} position - The byte position of the node
+ * @returns {boolean} Whether the position is inside a reactive context
+ */
+function isInReactiveContext(content: string, position: number): boolean {
+  return REACTIVE_CONTEXT_PATTERN.test(content.slice(Math.max(0, position - 200), position));
 }
 
 const rule: TypeScriptRule = {
@@ -99,11 +113,8 @@ const rule: TypeScriptRule = {
 
       if (!containsDataAccess(consequent, objectName)) return results;
 
-      // Check for Svelte reactive context exemption
-      // Look for $derived.by or $effect in surrounding source context
-      const surroundingStart: number = Math.max(0, node.start - 200);
-      const surrounding: string = context.content.slice(surroundingStart, node.start);
-      if (surrounding.includes('$derived.by') || surrounding.includes('$effect')) {
+      // Check for Svelte reactive context exemption ($derived.by / $effect)
+      if (isInReactiveContext(context.content, node.start)) {
         return results;
       }
 

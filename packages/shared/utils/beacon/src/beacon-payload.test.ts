@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'vitest';
 import type { Str, Bool } from '@/schemas/common';
-import type { AppError, ErrorTags, Result } from '@/schemas/result/result';
+import type { AppError, ErrorTags, KnownErrorCode, Result } from '@/schemas/result/result';
 import type { Breadcrumb, CapturedError, CapturedErrorType } from '@/schemas/result/captured-error';
 import { safeParse } from '@/utils/result/safe';
 import { BeaconPayloadSchema, toBeaconPayload, type BeaconPayload } from './beacon-payload';
@@ -305,7 +305,7 @@ describe('toBeaconPayload', () => {
     // is a defensive guard. We verify the happy path works with a minimal error that
     // still has the required code field, and document that the guard exists.
     const captured: CapturedError = makeCaptured({
-      error: makeAppError({ code: '' as Str }),
+      error: makeAppError({ code: '' as KnownErrorCode }),
     });
     const result: Result<BeaconPayload> = toBeaconPayload(captured);
     // Even with empty code, formatErrorSafe still succeeds (it copies code as-is)

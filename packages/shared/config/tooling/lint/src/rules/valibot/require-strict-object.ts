@@ -39,7 +39,7 @@ const rule: TypeScriptRule = {
             ruleId: 'valibot/require-strict-object',
             tip: 'Replace v.object() with v.strictObject()',
             fix: {
-              range: { start: property!.start, end: property!.end },
+              range: { start: property?.start ?? 0, end: property?.end ?? 0 },
               text: 'strictObject',
             },
           });

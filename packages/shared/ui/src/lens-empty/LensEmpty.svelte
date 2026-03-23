@@ -13,7 +13,7 @@
     /** Optional icon snippet — defaults to PackageOpen. @values <div>content</div> */
     icon: v.optional(v.custom<Snippet>((val) => typeof val === 'function')),
     /** Visual variant. @values default, destructive */
-    variant: v.optional(v.picklist(['default', 'destructive'])),
+    variant: v.optional(v.picklist(['default', 'destructive']), 'default'),
     /** Label for the optional action button (e.g. "Clear search"). @values Clear search, Reset filters, Try again */
     actionLabel: v.optional(StrSchema),
     /** Callback fired when the action button is clicked. @values () => clearSearch() */
@@ -38,9 +38,9 @@
   import PackageOpen from '@lucide/svelte/icons/package-open';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: LensEmptyProps = $props();
+  const { ...restProps }: LensEmptyProps = $props();
   const validated: LensEmptyProps = $derived.by(() => {
-    const rawProps: LensEmptyProps = stripSvelteProps(allProps);
+    const rawProps: LensEmptyProps = stripSvelteProps(restProps);
     const result = safeParse(LensEmptyPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -56,6 +56,7 @@
       : 'bg-muted/5',
     validated.class,
   )}
+  {...restProps}
 >
   <div
     class={cn(

@@ -21,7 +21,7 @@ const rule: TypeScriptRule = {
 
       // Only check files named index.ts
       const parts: string[] = context.file.split('/');
-      const filename: string = parts[parts.length - 1] ?? '';
+      const filename: string = parts.at(-1) ?? '';
       if (filename !== 'index.ts') return results;
 
       const body = node.body as AstNode[] | undefined;

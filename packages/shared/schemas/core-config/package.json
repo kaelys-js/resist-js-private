@@ -11,5 +11,8 @@
     "qa:benchmark": "vitest bench",
     "qa:type-check": "tsc --noEmit",
     "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
+  },
+  "dependencies": {
+    "valibot": "^1.1.0"
   }
 }

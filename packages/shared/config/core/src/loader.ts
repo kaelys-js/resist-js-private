@@ -123,11 +123,11 @@ export async function loadConfig(): Promise<Result<DeepReadonly<CoreConfig>>> {
     if (typeof rawConfig === 'object' && rawConfig !== null) {
       userConfig = rawConfig as Partial<CoreConfig>;
     }
-  } catch (thrown: unknown) {
+  } catch (error: unknown) {
     // Framework-internal: config/core has no access to CLI locale system
     return err(ERRORS.CONFIG.LOAD_FAILED, {
       meta: { file: DEFAULT_CONFIG_FILENAME, configPath },
-      cause: fromUnknownError(thrown),
+      cause: fromUnknownError(error),
     });
   }
 
@@ -176,7 +176,7 @@ export function getConfig(): Result<DeepReadonly<CoreConfig>> {
   if (!instance) {
     // Framework-internal: config/core has no access to CLI locale system
     return err(ERRORS.CONFIG.NOT_FOUND, {
-      meta: { reason: 'loadConfig not called' }, // TODO: English string should not be here like other `err` useage.
+      meta: { reason: 'loadConfig not called' },
     });
   }
 

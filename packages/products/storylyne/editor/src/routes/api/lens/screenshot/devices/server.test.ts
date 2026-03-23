@@ -23,7 +23,7 @@ describe('GET /api/lens/screenshot/devices', () => {
   it('each device has name, width, height, scale fields', async () => {
     const response: Response = await GET({} as never);
     const body = await response.json();
-    const first = body[0];
+    const [first] = body;
 
     expect(typeof first.name).toBe('string');
     expect(typeof first.width).toBe('number');

@@ -309,12 +309,12 @@ describe('vitals-diagnostics', () => {
 
   describe('TTFB diagnostics', () => {
     it('breaks down network waterfall', () => {
-      vi.spyOn(performance, 'getEntriesByType').mockImplementation((type: Str) => {
+      vi.spyOn(performance, 'getEntriesByType').mockImplementation(((type: Str) => {
         if (type === 'navigation') {
           return [mockNavigationEntry()] as unknown as PerformanceEntry[];
         }
         return [];
-      });
+      }) as typeof performance.getEntriesByType);
 
       const diag: VitalDiagnostics | null = collectDiagnostics('TTFB', 1200, 'needsImprovement');
       const waterfall = diag!.findings.find((f) => f.label === 'Waterfall');
@@ -327,7 +327,7 @@ describe('vitals-diagnostics', () => {
     });
 
     it('identifies the biggest bottleneck', () => {
-      vi.spyOn(performance, 'getEntriesByType').mockImplementation((type: Str) => {
+      vi.spyOn(performance, 'getEntriesByType').mockImplementation(((type: Str) => {
         if (type === 'navigation') {
           return [
             mockNavigationEntry({
@@ -337,7 +337,7 @@ describe('vitals-diagnostics', () => {
           ] as unknown as PerformanceEntry[];
         }
         return [];
-      });
+      }) as typeof performance.getEntriesByType);
 
       const diag: VitalDiagnostics | null = collectDiagnostics('TTFB', 1800, 'poor');
       const bottleneck = diag!.findings.find((f) => f.label === 'Bottleneck');
@@ -352,7 +352,7 @@ describe('vitals-diagnostics', () => {
 
   describe('FCP diagnostics', () => {
     it('identifies render-blocking resources', () => {
-      vi.spyOn(performance, 'getEntriesByType').mockImplementation((type: Str) => {
+      vi.spyOn(performance, 'getEntriesByType').mockImplementation(((type: Str) => {
         if (type === 'resource') {
           return [
             mockResourceEntry({
@@ -370,7 +370,7 @@ describe('vitals-diagnostics', () => {
         }
         if (type === 'navigation') return [];
         return [];
-      });
+      }) as typeof performance.getEntriesByType);
 
       const diag: VitalDiagnostics | null = collectDiagnostics('FCP', 2500, 'needsImprovement');
       const blocking = diag!.findings.find((f) => f.label === 'Render-Blocking');
@@ -381,13 +381,13 @@ describe('vitals-diagnostics', () => {
     });
 
     it('reports TTFB impact when server response is slow', () => {
-      vi.spyOn(performance, 'getEntriesByType').mockImplementation((type: Str) => {
+      vi.spyOn(performance, 'getEntriesByType').mockImplementation(((type: Str) => {
         if (type === 'resource') return [];
         if (type === 'navigation') {
           return [mockNavigationEntry({ responseStart: 900 })] as unknown as PerformanceEntry[];
         }
         return [];
-      });
+      }) as typeof performance.getEntriesByType);
 
       const diag: VitalDiagnostics | null = collectDiagnostics('FCP', 2000, 'needsImprovement');
       const ttfbImpact = diag!.findings.find((f) => f.label === 'TTFB Impact');
@@ -491,7 +491,7 @@ describe('vitals-diagnostics', () => {
       // Should contain movement detail with dx direction
       const shiftFinding = diag!.findings.find((f) => f.label === 'Shifted Element');
       if (shiftFinding) {
-        expect(shiftFinding.detail).toContain('50px');
+        expect(shiftFinding.value).toContain('50px');
       }
     });
   });

@@ -179,7 +179,7 @@ describe('sampling', () => {
   });
 
   it('clearSampling restores full logging', () => {
-    setSampling({ rate: 0.1, levels: ['debug'] });
+    setSampling({ rate: 0.1, alwaysSample: ['debug'] });
     const result = clearSampling();
     expect(result.ok).toBe(true);
   });

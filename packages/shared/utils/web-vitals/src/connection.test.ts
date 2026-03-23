@@ -272,7 +272,7 @@ describe('connection quality store', () => {
       expect(getConnectionQuality()).toBe('fast');
 
       // Simulate connection change
-      const changeHandler = conn.addEventListener.mock.calls[0][1] as () => void;
+      const changeHandler = conn.addEventListener.mock.calls[0]![1] as () => void;
       conn.effectiveType = '2g';
       changeHandler();
 

@@ -14,11 +14,6 @@
  */
 import type { PropMeta, TypeField, VariantKeyMeta } from './types.js';
 
-/** No-op function used as placeholder for function-typed props. */
-function noop(): void {
-  /* intentionally empty — placeholder for function-typed props in variant previews */
-}
-
 /**
  * Check if a prop type represents a function (Snippet, Component, callback).
  *
@@ -163,6 +158,12 @@ export function extractProps(source: string, supplementarySources?: string[]): P
       requires: requires.length > 0 ? requires : undefined,
       optional: isOptional || undefined,
     });
+  }
+
+  // Fallback: if destructuring yielded no props but a schema exists, use schema-based extraction
+  if (result.length === 0) {
+    const schemaFallback: PropMeta[] = extractSchemaBasedProps(source, supplementarySources);
+    if (schemaFallback.length > 0) return schemaFallback;
   }
 
   // Fallback: if any props lack defaults, check for a Valibot schema in the same file
@@ -581,12 +582,24 @@ export function buildBaseProps(propsMeta: PropMeta[]): Record<string, unknown> {
       );
       if (placeholder) base[prop.name] = placeholder;
     } else if (
-      !prop.type.endsWith('[]') &&
-      (prop.type.includes(') =>') || prop.typeDefinition?.includes(') =>'))
+      prop.mockValues &&
+      prop.mockValues.length > 0 &&
+      !prop.type.includes(') =>') &&
+      !prop.type.includes('Snippet')
     ) {
-      // Function type — provide a no-op that satisfies the prop requirement
-      // Guard against array types whose inner fields have function validators
-      base[prop.name] = noop;
+      // Use first @values entry for non-function, non-Snippet props
+      const firstMock: string = prop.mockValues[0] ?? '';
+      if (firstMock.startsWith('{') && firstMock.endsWith('}')) {
+        // Object literal in @values — parse as placeholder object
+        const placeholder: Record<string, string> | null = buildPlaceholderFromDefinition(firstMock);
+        if (placeholder) {
+          base[prop.name] = placeholder;
+        } else {
+          base[prop.name] = firstMock;
+        }
+      } else {
+        base[prop.name] = firstMock;
+      }
     }
   }
   return base;
@@ -897,7 +910,10 @@ function findPropsBlock(source: string): PropsBlock | null {
           .replace(/^\s*:\s*/, '')
           .replace(/\s*=\s*$/, '')
           .trim();
-        if (typeAnnotation) {
+        // Skip if the only destructured items are rest elements (schema-based path handles these)
+        const stripped: string = destructuring.replaceAll(/\/\*[\s\S]*?\*\//g, '').replaceAll(/\/\/[^\n]*/g, '').trim();
+        const hasNamedProps: boolean = !/^\.\.\.\w+\s*,?\s*$/.test(stripped);
+        if (typeAnnotation && hasNamedProps) {
           return { destructuring, typeAnnotation };
         }
       }

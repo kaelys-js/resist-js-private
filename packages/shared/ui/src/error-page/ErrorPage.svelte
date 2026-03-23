@@ -74,9 +74,9 @@
   import * as Tooltip from '../tooltip/index.js';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: ErrorPageProps = $props();
+  const { ...restProps }: ErrorPageProps = $props();
   const validated: ErrorPageProps = $derived.by(() => {
-    const rawProps: ErrorPageProps = stripSvelteProps(allProps);
+    const rawProps: ErrorPageProps = stripSvelteProps(restProps);
     const result = safeParse(ErrorPagePropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -165,6 +165,7 @@
 <div
   class="flex min-h-[60vh] flex-col items-center justify-center gap-2 px-4 text-center"
   role="alert"
+  {...restProps}
 >
   <div class="{iconColor} mb-2" aria-hidden="true">
     <StatusIcon size={48} strokeWidth={1.5} />

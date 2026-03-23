@@ -241,7 +241,7 @@ export async function runPool<T>(
       const index: number = currentIndex;
       currentIndex = currentIndex + 1;
 
-      const task: PoolTask<T> = tasks[index];
+      const task: PoolTask<T> = tasks[index]!;
 
       try {
         const result: T = await task();

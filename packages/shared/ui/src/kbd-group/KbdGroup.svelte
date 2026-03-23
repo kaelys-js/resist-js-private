@@ -39,9 +39,9 @@
     children?: Snippet;
   };
 
-  const allProps: Props = $props();
+  const { children, ...restProps }: Props = $props();
   const validated: KbdGroupProps = $derived.by(() => {
-    const rawProps: KbdGroupProps = stripSvelteProps(allProps);
+    const rawProps: KbdGroupProps = stripSvelteProps(restProps);
     const result = safeParse(KbdGroupPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -56,8 +56,9 @@
   data-slot="kbd-group"
   class={cn('kbd-group inline-flex items-center gap-1', validated.class)}
   style:--kbd-separator="'{separator}'"
+  {...restProps}
 >
-  {@render allProps.children?.()}
+  {@render children?.()}
 </span>
 
 <style>

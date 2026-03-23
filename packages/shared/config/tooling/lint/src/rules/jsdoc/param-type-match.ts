@@ -29,12 +29,12 @@ function getJsDoc(node: AstNode, content: string): string | null {
 }
 
 /** Parsed @param entry with optional type. */
-interface DocParam {
+type DocParam = {
   /** The type in braces, if present */
   type: string | null;
   /** The parameter name */
   name: string;
-}
+};
 
 /**
  * Extract @param entries from JSDoc, including their types.
@@ -91,7 +91,7 @@ function getParamType(param: AstNode, content: string): string | null {
  * @returns Normalized type string
  */
 function normalizeType(type: string): string {
-  return type.replace(/\s+/g, ' ').trim();
+  return type.replaceAll(/\s+/g, ' ').trim();
 }
 
 /**

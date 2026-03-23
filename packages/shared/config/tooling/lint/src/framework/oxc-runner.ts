@@ -172,7 +172,7 @@ function extractImports(ast: AstNode): ImportInfo[] {
 
     const specifiers: ImportSpecifier[] = [];
     const nodeSpecifiers: AstNode[] | undefined = node.specifiers as AstNode[] | undefined;
-    const isTypeOnly: boolean = !!(node.importKind === 'type' || node.isTypeOnly);
+    const isTypeOnly: boolean = Boolean(node.importKind === 'type' || node.isTypeOnly);
 
     if (nodeSpecifiers) {
       for (const spec of nodeSpecifiers) {
@@ -294,7 +294,8 @@ export async function runTypeScriptRules(
       const visitorFn = rule.visitor[node.type as keyof typeof rule.visitor];
       if (!visitorFn) continue;
 
-      const context: VisitorContext = contexts.get(rule.id)!; // Context pre-created above
+      const context: VisitorContext | undefined = contexts.get(rule.id);
+      if (!context) continue;
 
       try {
         const ruleResults: LintResult[] = visitorFn(node, context);

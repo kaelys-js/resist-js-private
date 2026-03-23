@@ -57,7 +57,7 @@ function findMonorepoRoot(startDir) {
     dir = path.dirname(dir);
   }
   throw new Error(
-    'Could not find monorepo root (no pnpm-workspace.yaml found above ' + startDir + ')',
+    `Could not find monorepo root (no pnpm-workspace.yaml found above ${startDir})`,
   );
 }
 
@@ -74,10 +74,10 @@ function findMonorepoRoot(startDir) {
  */
 function buildAliasesFromTsconfig(root) {
   const tsconfigPath = path.join(root, 'tsconfig.json');
-  const raw = readFileSync(tsconfigPath, 'utf-8');
+  const raw = readFileSync(tsconfigPath, 'utf8');
 
   // Strip single-line comments (tsconfig allows them via JSONC)
-  const stripped = raw.replace(/\/\/.*$/gm, '');
+  const stripped = raw.replaceAll(/\/\/.*$/gm, '');
   const tsconfig = JSON.parse(stripped);
 
   const paths = tsconfig?.compilerOptions?.paths;
@@ -88,7 +88,7 @@ function buildAliasesFromTsconfig(root) {
 
   for (const [alias, targets] of Object.entries(paths)) {
     // tsconfig paths are arrays — take the first entry
-    const target = /** @type {string[]} */ (targets)[0];
+    const [target] = /** @type {string[]} */ (targets);
     if (!target) continue;
 
     // Convert relative tsconfig path (e.g. "./packages/shared/...") to absolute,
@@ -99,14 +99,10 @@ function buildAliasesFromTsconfig(root) {
       // Wildcard alias: @/utils/core/* -> ./packages/shared/utils/core/src/*.ts
       // Strip trailing .ts from the glob pattern: *.ts -> *
       resolved = resolved.replace(/\*\.ts$/, '*');
-    } else {
+    } else if (!resolved.endsWith('.svelte.ts') && resolved.endsWith('.ts')) {
       // Exact alias: @/schemas/common -> ./packages/shared/schemas/common/src/index.ts
       // Strip .ts extension entirely, BUT keep .svelte.ts
-      if (resolved.endsWith('.svelte.ts')) {
-        // Keep .svelte.ts as-is — SvelteKit needs the full extension for Svelte files
-      } else if (resolved.endsWith('.ts')) {
-        resolved = resolved.slice(0, -3);
-      }
+      resolved = resolved.slice(0, -3);
     }
 
     aliases[alias] = path.join(root, resolved);
@@ -174,10 +170,10 @@ const csp =
  *
  * @param {object} options - Configuration options.
  * @param {import('@sveltejs/kit').Adapter} options.adapter - SvelteKit adapter (required — each product picks their own).
- * @param {boolean} [options.enableCsp=true] - Whether to enable CSP directives in production.
- * @param {Record<string, string>} [options.extraAliases={}] - Additional aliases to merge (product-specific).
- * @param {{ appTemplate?: string, errorTemplate?: string }} [options.files={}] - Custom template paths (override shared defaults).
- * @param {Partial<import('@sveltejs/kit').Config['kit']>} [options.extraKit={}] - Additional kit options to merge.
+ * @param {boolean} [options.enableCsp] - Whether to enable CSP directives in production.
+ * @param {Record<string, string>} [options.extraAliases] - Additional aliases to merge (product-specific).
+ * @param {{ appTemplate?: string, errorTemplate?: string }} [options.files] - Custom template paths (override shared defaults).
+ * @param {Partial<import('@sveltejs/kit').Config['kit']>} [options.extraKit] - Additional kit options to merge.
  * @returns {import('@sveltejs/kit').Config} Complete SvelteKit config.
  *
  * @example

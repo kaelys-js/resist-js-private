@@ -65,7 +65,7 @@ const rule: TypeScriptRule = {
       const args = node.arguments as AstNode[] | undefined;
       if (!args || args.length === 0) return results;
 
-      const schemaObj: AstNode = args[0];
+      const [schemaObj] = args;
       if (schemaObj.type !== 'ObjectExpression') return results;
 
       const properties = schemaObj.properties as AstNode[] | undefined;

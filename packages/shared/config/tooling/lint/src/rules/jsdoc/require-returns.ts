@@ -94,7 +94,7 @@ function extractReturnsType(jsDoc: string): string | null {
  * @returns Normalized type string
  */
 function normalizeType(type: string): string {
-  return type.replace(/\s+/g, ' ').trim();
+  return type.replaceAll(/\s+/g, ' ').trim();
 }
 
 /**

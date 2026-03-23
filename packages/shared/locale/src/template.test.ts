@@ -1,9 +1,8 @@
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 import { StrSchema, NumSchema } from '@/schemas/common';
-import type { Str, Result } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
-import { messageTemplate, renderMessage, buildLocale, type BuiltLocale } from './template';
+import { messageTemplate, renderMessage, buildLocale } from './template';
 
 // =============================================================================
 // messageTemplate
@@ -209,7 +208,7 @@ describe('buildLocale', () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
-    const built = result.data as Record<
+    const built = result.data as unknown as Record<
       string,
       (params: Record<string, unknown>) => { ok: boolean; data?: string }
     >;
@@ -262,7 +261,7 @@ describe('buildLocale', () => {
   });
 
   it('returns error for non-object schema', () => {
-    const result = buildLocale(v.string(), 'not an object');
+    const result = buildLocale(v.string(), 'not an object' as unknown as Record<string, unknown>);
     expect(result.ok).toBe(false);
   });
 
@@ -276,7 +275,7 @@ describe('buildLocale', () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
-    const built = result.data as Record<
+    const built = result.data as unknown as Record<
       string,
       (params: Record<string, unknown>) => { ok: boolean; data?: string }
     >;

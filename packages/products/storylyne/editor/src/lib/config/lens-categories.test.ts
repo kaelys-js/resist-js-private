@@ -5,7 +5,6 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import type { Str } from '@/schemas/common';
 import {
   CATEGORY_ORDER,
   CATEGORY_COLORS,

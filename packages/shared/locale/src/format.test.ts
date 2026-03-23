@@ -133,7 +133,7 @@ describe('DurationInputSchema', () => {
 
 describe('formatNumber', () => {
   it('formats integer with en-US locale', () => {
-    const result = formatNumber(1234567, 'en-US', undefined);
+    const result = formatNumber(1_234_567, 'en-US', undefined);
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBe('1,234,567');
   });

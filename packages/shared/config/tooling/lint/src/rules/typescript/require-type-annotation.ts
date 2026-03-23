@@ -16,7 +16,7 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
  * @returns Whether a type annotation is present
  */
 function hasTypeAnnotation(decl: AstNode): boolean {
-  return !!(decl.typeAnnotation || (decl.id as AstNode | undefined)?.typeAnnotation);
+  return Boolean(decl.typeAnnotation || (decl.id as AstNode | undefined)?.typeAnnotation);
 }
 
 const rule: TypeScriptRule = {
@@ -82,24 +82,24 @@ const rule: TypeScriptRule = {
 
         if (param.type === 'Identifier') {
           paramName = (param.name as string) ?? null;
-          hasType = !!param.typeAnnotation;
+          hasType = Boolean(param.typeAnnotation);
           insertPos = param.end;
         } else if (param.type === 'AssignmentPattern') {
           const left = param.left as AstNode | undefined;
           if (left?.type === 'Identifier') {
             paramName = (left.name as string) ?? null;
-            hasType = !!left.typeAnnotation;
+            hasType = Boolean(left.typeAnnotation);
             insertPos = left.end;
           }
         } else if (param.type === 'RestElement') {
           const arg = param.argument as AstNode | undefined;
           if (arg?.type === 'Identifier') {
             paramName = (arg.name as string) ?? null;
-            hasType = !!arg.typeAnnotation;
+            hasType = Boolean(arg.typeAnnotation);
             insertPos = arg.end;
           }
         } else if (param.type === 'ObjectPattern' || param.type === 'ArrayPattern') {
-          hasType = !!param.typeAnnotation;
+          hasType = Boolean(param.typeAnnotation);
           paramName = '<destructured>';
           insertPos = param.end;
         }

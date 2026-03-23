@@ -17,7 +17,7 @@ import * as v from 'valibot';
  */
 const GitBranchSchema = v.pipe(
   v.string(),
-  v.regex(/^[a-zA-Z0-9._\/-]+$/, 'Must be a valid git branch name'),
+  v.regex(/^[a-zA-Z0-9._/-]+$/, 'Must be a valid git branch name'),
 );
 
 /**

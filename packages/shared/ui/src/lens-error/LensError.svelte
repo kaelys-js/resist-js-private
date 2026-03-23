@@ -30,9 +30,9 @@
   import CircleAlert from '@lucide/svelte/icons/circle-alert';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: LensErrorProps = $props();
+  const { ...restProps }: LensErrorProps = $props();
   const validated: LensErrorProps = $derived.by(() => {
-    const rawProps: LensErrorProps = stripSvelteProps(allProps);
+    const rawProps: LensErrorProps = stripSvelteProps(restProps);
     const result = safeParse(LensErrorPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -45,6 +45,7 @@
     'flex flex-col items-center justify-center rounded-lg border border-dashed border-destructive/50 bg-destructive/5 py-16 text-center',
     validated.class,
   )}
+  {...restProps}
 >
   <div class="mb-3 text-destructive/50">
     {#if validated.icon}
