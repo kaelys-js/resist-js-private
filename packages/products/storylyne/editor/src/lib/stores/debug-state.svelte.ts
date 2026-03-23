@@ -1,26 +1,19 @@
 /**
- * Debug State Store
+ * Debug State Store — Editor-specific wrapper
  *
- * Centralized, reactive debug/developer mode state.
- * Module-level `$state` runes provide fine-grained reactivity.
- * All mutations return `Result<Void>` — no exceptions.
- * Persists to localStorage under the app-prefixed key (via `storageKey('debug-state')`).
+ * Thin wrapper around the shared `@/utils/devtools/debug-state-store`
+ * that provides Storylyne-specific storage key and URL param prefix,
+ * plus singleton management for the editor app.
  *
  * @module
  */
 
-import * as v from 'valibot';
-import type { Bool, Str, Void } from '@/schemas/common';
-import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
-import { safeParse } from '@/utils/result/safe';
-import {
-  DebugStateSchema,
-  LogLevelSchema,
-  type DebugState,
-  type UrlOverrides,
-} from '$lib/schemas/debug-state';
-import { parseDebugParams } from '$lib/utils/url-params';
-import { storageKey } from '$lib/config/app-meta';
+import type { Str } from '@/schemas/common';
+import type { Result } from '@/schemas/result/result';
+import { createDebugStore as createSharedDebugStore, type DebugStore } from '@/utils/devtools/debug-state-store.svelte';
+import { storageKey, URL_PARAM_PREFIX } from '$lib/config/app-meta';
+
+export type { DebugStore } from '@/utils/devtools/debug-state-store.svelte';
 
 // =============================================================================
 // Constants
@@ -30,174 +23,21 @@ import { storageKey } from '$lib/config/app-meta';
 export const STORAGE_KEY: Str = storageKey('debug-state');
 
 // =============================================================================
-// Defaults
-// =============================================================================
-
-const DEBUG_DEFAULTS: DebugState = {
-  enabled: false,
-  logLevel: 'info',
-};
-
-// =============================================================================
-// Module-level reactive state
-// =============================================================================
-
-let _debug: DebugState = $state({ ...DEBUG_DEFAULTS });
-let _urlOverrides: UrlOverrides = $state({});
-
-// =============================================================================
-// Store type
+// Factory (delegates to shared)
 // =============================================================================
 
 /**
- * The debug store interface.
+ * Creates a new debug store with Storylyne-specific storage key and URL prefix.
  *
- * Provides reactive debug state and URL override tracking.
- * All mutations validate via Valibot and return `Result<Void>`.
- */
-export type DebugStore = {
-  /** Current debug state (reactive via `$state`). */
-  readonly debug: DebugState;
-  /** URL overrides parsed from query params (session-only, not persisted). */
-  readonly urlOverrides: UrlOverrides;
-  /** Enable or disable debug mode. */
-  setEnabled(enabled: Bool): Result<Void>;
-  /** Set the active log level. Must be a valid LogLevel. */
-  setLogLevel(level: Str): Result<Void>;
-};
-
-// =============================================================================
-// Persistence helpers
-// =============================================================================
-
-/**
- * Serializes current debug state to localStorage.
- *
- * @returns `Result<Void>` — ok on success, error if write fails
- */
-function save(): Result<Void> {
-  if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
-  try {
-    // Only persist logLevel — `enabled` is session-only (set via URL param or keyboard shortcut)
-    const data = { logLevel: _debug.logLevel };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    return okUnchecked<Void>(undefined);
-  } catch {
-    return err(
-      ERRORS.IO.WRITE_FAILED,
-      `Failed to save debug state to localStorage key "${STORAGE_KEY}" (logLevel: ${_debug.logLevel})`,
-    );
-  }
-}
-
-/**
- * Loads and validates debug state from localStorage.
- *
- * @returns `Result<Void>` — ok on success, error if validation fails
- */
-function load(): Result<Void> {
-  if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
-  try {
-    const raw: Str | null = localStorage.getItem(STORAGE_KEY);
-    if (raw === null) return okUnchecked<Void>(undefined);
-
-    const parsed: unknown = JSON.parse(raw);
-    const result = safeParse(DebugStateSchema, parsed);
-    if (!result.ok) return result;
-
-    _debug = { ...result.data };
-    return okUnchecked<Void>(undefined);
-  } catch {
-    return err(
-      ERRORS.IO.READ_FAILED,
-      `Failed to load debug state from localStorage key "${STORAGE_KEY}" — data may be corrupted`,
-    );
-  }
-}
-
-// =============================================================================
-// Validated setters
-// =============================================================================
-
-/**
- * Enables or disables debug mode.
- *
- * @param enabled - Boolean flag
- * @returns `Result<Void>` — error if value is not boolean
- */
-function setEnabled(enabled: Bool): Result<Void> {
-  const result = safeParse(v.boolean(), enabled);
-  if (!result.ok) return result;
-
-  _debug = { ..._debug, enabled: result.data };
-  return save();
-}
-
-/**
- * Sets the active log level.
- *
- * @param level - Must be one of LOG_LEVELS
- * @returns `Result<Void>` — error if level is invalid
- */
-function setLogLevel(level: Str): Result<Void> {
-  const result = safeParse(LogLevelSchema, level);
-  if (!result.ok) return result;
-
-  _debug = { ..._debug, logLevel: result.data };
-  return save();
-}
-
-// =============================================================================
-// Factory
-// =============================================================================
-
-/**
- * Creates a new debug store, resetting module-level state to defaults
- * and loading any persisted state from localStorage.
- *
- * @param url - Optional URL to parse app-prefixed debug params from
+ * @param url - Optional URL to parse debug params from
  * @returns `Result<DebugStore>` — always ok
- *
- * @example
- * ```typescript
- * const result = createDebugStore(new URL('http://localhost?${URL_PARAM_PREFIX}debug=true'));
- * if (!result.ok) throw new Error('Store creation failed');
- * const store = result.data;
- * ```
  */
 export function createDebugStore(url?: URL): Result<DebugStore> {
-  // Reset to defaults
-  _debug = { ...DEBUG_DEFAULTS };
-  _urlOverrides = {};
-
-  // Try loading from localStorage (failures are non-fatal)
-  load();
-
-  // Parse URL params if provided
-  if (url) {
-    const parseResult = parseDebugParams(url);
-    if (parseResult.ok) {
-      _urlOverrides = { ...parseResult.data };
-    }
-  }
-
-  const store: DebugStore = {
-    get debug(): DebugState {
-      return _debug;
-    },
-    get urlOverrides(): UrlOverrides {
-      return _urlOverrides;
-    },
-    setEnabled,
-    setLogLevel,
-  };
-
-  return Object.freeze({
-    ok: true as const,
-    data: store,
-    error: null,
-    // Cast required: Object.freeze literal doesn't narrow to Result<T> discriminant
-  }) as Result<DebugStore>;
+  return createSharedDebugStore({
+    url,
+    storageKey: STORAGE_KEY,
+    urlParamPrefix: URL_PARAM_PREFIX,
+  });
 }
 
 // =============================================================================

@@ -21,7 +21,7 @@
     humanizeKey,
     humanizeOption,
     type FieldDescriptor,
-  } from '$lib/debug/dev-toolbar-registry';
+  } from '@/utils/devtools/dev-toolbar-registry';
   import { localeStore, t } from '$lib/stores/i18n.svelte';
   import { URL_PARAM_PREFIX } from '$lib/config/app-meta';
   import type { Str, Bool, Void } from '@/schemas/common';
@@ -30,11 +30,11 @@
   import X from '@lucide/svelte/icons/x';
   import * as Tooltip from '@/ui/tooltip/index.js';
   import TooltipLabel from '@/ui/tooltip-label/TooltipLabel.svelte';
-  import type { AppPreferences } from '$lib/schemas/editor-state';
+  import { AppPreferencesSchema, type AppPreferences } from '$lib/schemas/editor-state';
 
   let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => Void } = $props();
 
-  const preferences: FieldDescriptor[] = discoverAppPreferences();
+  const preferences: FieldDescriptor[] = discoverAppPreferences(AppPreferencesSchema.entries as unknown as Record<Str, Record<Str, unknown>>);
 
   /** Keys that belong to the User section. */
   const USER_KEYS = new Set<Str>(['userName', 'userEmail', 'userAvatar', 'subscriptionPlan']);

@@ -13,8 +13,8 @@
  */
 
 import type { Str, Bool, Num } from '@/schemas/common';
-import type { EditorDevtools } from '$lib/debug/devtools-api.svelte';
-import type { BuildInfo } from '$lib/schemas/build-info';
+import type { DevtoolsAPI as EditorDevtools } from '@/utils/devtools/devtools-api.svelte';
+import type { BuildInfo } from '@/utils/core/build-info-schema';
 import type { ServerUser, DataService } from '$lib/server/data/types';
 
 declare global {

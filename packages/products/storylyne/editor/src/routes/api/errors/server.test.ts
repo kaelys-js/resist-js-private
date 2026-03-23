@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Str, Bool } from '@/schemas/common';
 import type { AppError } from '@/schemas/result/result';
-import type { BeaconPayload } from '$lib/errors/beacon-payload';
+import type { BeaconPayload } from '@/utils/beacon/beacon-payload';
 
 // Mock logger before importing the handler
 vi.mock('@/utils/core/logger', () => ({

@@ -8,7 +8,7 @@
   import { Input } from '@/ui/input/index.js';
   import { Button } from '@/ui/button/index.js';
 
-  import { discoverFeatureFlags, humanizeKey } from '$lib/debug/dev-toolbar-registry';
+  import { discoverFeatureFlags, humanizeKey } from '@/utils/devtools/dev-toolbar-registry';
   import { localeStore, t } from '$lib/stores/i18n.svelte';
   import { announce } from '@/ui/announce/announce.svelte';
   import type { Bool, Str, Void } from '@/schemas/common';
@@ -16,11 +16,11 @@
   import type { EditorStore } from '$lib/stores/editor-state.svelte';
   import * as Tooltip from '@/ui/tooltip/index.js';
   import TooltipLabel from '@/ui/tooltip-label/TooltipLabel.svelte';
-  import type { FeatureFlags } from '$lib/schemas/editor-state';
+  import { FeatureFlagsSchema, type FeatureFlags } from '$lib/schemas/editor-state';
 
   let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => Void } = $props();
 
-  const flags = discoverFeatureFlags();
+  const flags = discoverFeatureFlags(FeatureFlagsSchema.entries as unknown as Record<Str, Record<Str, unknown>>);
   let searchQuery: Str = $state('');
 
   const filteredFlags = $derived(

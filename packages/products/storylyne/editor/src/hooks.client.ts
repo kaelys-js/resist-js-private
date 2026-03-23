@@ -17,26 +17,27 @@ import { ERRORS, err, type AppError } from '@/schemas/result/result';
 import { setupLogging } from '@/utils/core/logger';
 import { reportError, setupGlobalErrorHandling } from '@/utils/core/signal';
 import { fromUnknownError, safeParse } from '@/utils/result/safe';
-import { beaconError } from '$lib/errors/beacon';
-import { initFetchBreadcrumbs } from '$lib/errors/breadcrumbs';
-import { setupPerfume, type AnalyticsTrackerOptions } from '$lib/perf/perfume';
-import { logVital } from '$lib/perf/vitals-logger';
-import { queueVital, setupVitalsBeacon, setDeviceInfo } from '$lib/perf/vitals-beacon';
+import { beaconError } from '@/utils/beacon/beacon';
+import { initFetchBreadcrumbs } from '@/utils/beacon/breadcrumbs';
+import { setupPerfume, type AnalyticsTrackerOptions } from '@/utils/web-vitals/perfume';
+import { logVital, setVitalsLoggerAppName } from '@/utils/web-vitals/vitals-logger';
+import { queueVital, setupVitalsBeacon, setDeviceInfo } from '@/utils/web-vitals/vitals-beacon';
 import {
   initConnection,
   updateFromNavigatorInfo,
   getEffectiveType,
   getSaveData,
-} from '$lib/perf/connection.svelte';
-import type { VitalsMetric } from '$lib/perf/vitals-payload';
-import { reportVitalToPanel } from '$lib/perf/vitals-panel-store.svelte';
+} from '@/utils/web-vitals/connection.svelte';
+import type { VitalsMetric } from '@/utils/web-vitals/vitals-payload';
+import { reportVitalToPanel } from '@/utils/web-vitals/vitals-panel-store.svelte';
 import {
   setupDiagnosticObservers,
   collectDiagnostics,
   type VitalDiagnostics,
-} from '$lib/perf/vitals-diagnostics';
+} from '@/utils/web-vitals/vitals-diagnostics';
 
 setupLogging({ service: 'editor-client', initFromEnv: true });
+setVitalsLoggerAppName('Storylyne');
 initFetchBreadcrumbs();
 setupGlobalErrorHandling({
   release: __APP_VERSION__,

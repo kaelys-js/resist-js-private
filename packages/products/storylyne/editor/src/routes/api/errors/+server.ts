@@ -20,7 +20,7 @@ import type { Str, Num } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import { log } from '@/utils/core/logger';
 import { safeParse } from '@/utils/result/safe';
-import { BeaconPayloadSchema, type BeaconPayload } from '$lib/errors/beacon-payload';
+import { BeaconPayloadSchema, type BeaconPayload } from '@/utils/beacon/beacon-payload';
 
 /** Maximum request body size in bytes (64KB). */
 const MAX_BODY_SIZE: Num = 65_536 as Num;

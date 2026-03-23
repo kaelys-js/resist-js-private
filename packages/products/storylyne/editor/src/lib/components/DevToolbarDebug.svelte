@@ -20,9 +20,11 @@
     generateDebugUrl,
     humanizeKey,
     humanizeOption,
-  } from '$lib/debug/dev-toolbar-registry';
-  import { getBuildInfo } from '$lib/config/build-info';
-  import type { BuildInfo } from '$lib/schemas/build-info';
+    type FieldDescriptor,
+  } from '@/utils/devtools/dev-toolbar-registry';
+  import { DebugStateSchema } from '@/utils/devtools/debug-state-schema';
+  import { getBuildInfo } from '@/utils/core/build-info';
+  import type { BuildInfo } from '@/utils/core/build-info-schema';
   import { localeStore, t } from '$lib/stores/i18n.svelte';
   import { log } from '@/utils/core/logger';
   import { announce } from '@/ui/announce/announce.svelte';
@@ -34,7 +36,8 @@
   import { URL_PARAM_PREFIX, type DebugState } from '$lib/schemas/debug-state';
   import * as Tooltip from '@/ui/tooltip/index.js';
   import TooltipLabel from '@/ui/tooltip-label/TooltipLabel.svelte';
-  import { DEVTOOLS_KEY, type EditorDevtools } from '$lib/debug/devtools-api.svelte';
+  import { getDevtoolsKey, type DevtoolsAPI } from '@/utils/devtools/devtools-api.svelte';
+  import { APP_NAME } from '$lib/config/app-meta';
 
   let {
     editorStore,
@@ -42,8 +45,10 @@
     onclose,
   }: { editorStore: EditorStore; debugStore: DebugStore; onclose?: () => Void } = $props();
 
-  const debugFields: Array<import('$lib/debug/dev-toolbar-registry').FieldDescriptor> =
-    discoverDebugFields();
+  const DEVTOOLS_KEY = getDevtoolsKey(APP_NAME);
+
+  const debugFields: FieldDescriptor[] =
+    discoverDebugFields(DebugStateSchema.entries as unknown as Record<Str, Record<Str, unknown>>);
 
   const urlOverrideEntries: Array<[Str, unknown]> = $derived(
     Object.entries(debugStore.urlOverrides),
@@ -100,7 +105,7 @@
 
   function logState(): Void {
     // Window global access — cast required for devtools API on window
-    const devtools = (window as unknown as Record<Str, EditorDevtools | undefined>)[DEVTOOLS_KEY];
+    const devtools = (window as unknown as Record<Str, DevtoolsAPI | undefined>)[DEVTOOLS_KEY];
     devtools?.logState();
     logStateState = 'success';
     clearTimeout(logStateTimeout);
@@ -111,7 +116,7 @@
 
   function logFeatures(): Void {
     // Window global access — cast required for devtools API on window
-    const devtools = (window as unknown as Record<Str, EditorDevtools | undefined>)[DEVTOOLS_KEY];
+    const devtools = (window as unknown as Record<Str, DevtoolsAPI | undefined>)[DEVTOOLS_KEY];
     devtools?.logFeatures();
     logFeaturesState = 'success';
     clearTimeout(logFeaturesTimeout);
@@ -122,7 +127,8 @@
 
   async function copyDebugUrl(): Promise<Void> {
     try {
-      const url: Str = generateDebugUrl(editorStore, debugStore);
+      const { getDevtoolsConfig } = await import('$lib/config/devtools-config');
+      const url: Str = generateDebugUrl(editorStore, debugStore, getDevtoolsConfig());
       await navigator.clipboard.writeText(url);
       debugUrlCopyState = 'success';
       announce(t(localeStore.t.errors.copied, 'Copied!'));

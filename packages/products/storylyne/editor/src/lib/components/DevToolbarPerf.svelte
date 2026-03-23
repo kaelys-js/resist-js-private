@@ -17,9 +17,12 @@
     getIsLowEndExperience,
     getDeviceMemory,
     getHardwareConcurrency,
-  } from '$lib/perf/connection.svelte';
-  import { getBeaconStatus } from '$lib/perf/vitals-beacon';
-  import { getVitalsPanelMetrics, type PanelMetric } from '$lib/perf/vitals-panel-store.svelte';
+  } from '@/utils/web-vitals/connection.svelte';
+  import { getBeaconStatus } from '@/utils/web-vitals/vitals-beacon';
+  import {
+    getVitalsPanelMetrics,
+    type PanelMetric,
+  } from '@/utils/web-vitals/vitals-panel-store.svelte';
 
   let { onclose }: { onclose?: () => Void } = $props();
 

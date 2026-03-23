@@ -9,7 +9,11 @@
 
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Str } from '@/schemas/common';
-import type { VitalsBeaconPayload, VitalsMetric, VitalsDevice } from '$lib/perf/vitals-payload';
+import type {
+  VitalsBeaconPayload,
+  VitalsMetric,
+  VitalsDevice,
+} from '@/utils/web-vitals/vitals-payload';
 
 // Mock logger before importing the handler
 vi.mock('@/utils/core/logger', () => ({

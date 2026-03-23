@@ -1,9 +1,10 @@
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import DevToolbarFeatureFlagsTest from './DevToolbarFeatureFlagsTest.svelte';
-import { discoverFeatureFlags } from '$lib/debug/dev-toolbar-registry';
+import { discoverFeatureFlags } from '@/utils/devtools/dev-toolbar-registry';
+import { FeatureFlagsSchema } from '$lib/schemas/editor-state';
 
-const flags = discoverFeatureFlags();
+const flags = discoverFeatureFlags(FeatureFlagsSchema.entries as unknown as Record<string, Record<string, unknown>>);
 
 describe('DevToolbarFeatureFlags', () => {
   it('renders the panel with correct testid', () => {

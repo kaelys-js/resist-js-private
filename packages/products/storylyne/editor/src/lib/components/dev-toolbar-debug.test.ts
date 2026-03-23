@@ -2,9 +2,10 @@ import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import DevToolbarDebugTest from './DevToolbarDebugTest.svelte';
 import DevToolbarDebugOverridesTest from './DevToolbarDebugOverridesTest.svelte';
-import { discoverDebugFields } from '$lib/debug/dev-toolbar-registry';
+import { discoverDebugFields } from '@/utils/devtools/dev-toolbar-registry';
+import { DebugStateSchema } from '@/utils/devtools/debug-state-schema';
 
-const debugFields = discoverDebugFields();
+const debugFields = discoverDebugFields(DebugStateSchema.entries as unknown as Record<string, Record<string, unknown>>);
 
 describe('DevToolbarDebug', () => {
   it('renders the panel with correct testid', () => {

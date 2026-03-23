@@ -26,6 +26,15 @@ export const PortOffsetSchema = v.pipe(v.number(), v.integer(), v.minValue(0), v
 export type PortOffset = v.InferOutput<typeof PortOffsetSchema>;
 
 /**
+ * Port increment between product base ports (0-1000).
+ * Larger than PortOffset because it defines the gap between products, not offsets within a product.
+ */
+export const PortIncrementSchema = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(1000));
+
+/** Inferred output type of {@link PortIncrementSchema}. An integer from 0 to 1000. */
+export type PortIncrement = v.InferOutput<typeof PortIncrementSchema>;
+
+/**
  * Local TLD for development domains.
  * Must start with a dot and contain only lowercase letters, numbers, and hyphens.
  */
@@ -134,7 +143,7 @@ export const DevProxySchema = v.strictObject({
   /** TLD suffix for local development domains (e.g., ".localhost") */
   localTld: v.optional(LocalTldSchema, '.localhost'),
   /** Port increment between products */
-  portIncrement: v.optional(PortOffsetSchema, 100),
+  portIncrement: v.optional(PortIncrementSchema, 100),
   /** Port for the admin dashboard */
   adminPort: v.optional(PortSchema, 9001),
   /** Port for the QA/testing service */

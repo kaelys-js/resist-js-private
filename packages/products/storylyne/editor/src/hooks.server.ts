@@ -7,7 +7,8 @@ import { ERRORS, err, type AppError } from '@/schemas/result/result';
 import { setupLogging, log } from '@/utils/core/logger';
 import { reportError, setupGlobalErrorHandling } from '@/utils/core/signal';
 import { fromUnknownError } from '@/utils/result/safe';
-import { resolveLocale } from '$lib/server/locale-detection';
+import { detectFromAcceptLanguage, matchLocale } from '@/locale/detect';
+import { SUPPORTED_LOCALES, SUPPORTED_THEMES } from '$lib/schemas/editor-state';
 import type { ServerUser } from '$lib/server/data/types';
 import { MOCK_USER } from '$lib/server/mock/data';
 import { createDataService } from '$lib/server/data/index';
@@ -16,7 +17,6 @@ import {
   sanitizeSidebarWidth,
   sanitizeTheme,
 } from '@/utils/core/preference-cookie';
-import { SUPPORTED_THEMES } from '$lib/schemas/editor-state';
 import { APP_NAME, STORAGE_PREFIX, storageKey, URL_PARAM_PREFIX } from '$lib/config/app-meta';
 
 /** Security headers applied to every response (safe in both dev and prod). */
@@ -196,9 +196,21 @@ export const handle: Handle = async ({ event, resolve }) => {
     throw new Error('Simulated catastrophic failure — tests error.html fallback');
   }
 
-  const cookie: Str = event.cookies.get(storageKey('locale')) ?? '';
-  const header: Str | null = event.request.headers.get('accept-language');
-  const locale: Str = resolveLocale(cookie, header);
+  const localeCookie: Str = event.cookies.get(storageKey('locale')) ?? '';
+  const acceptLang: Str | null = event.request.headers.get('accept-language');
+  const available: readonly Str[] = SUPPORTED_LOCALES;
+
+  // Priority: cookie > Accept-Language > 'en' default
+  const cookieMatch = matchLocale(localeCookie, available);
+  let locale: Str = 'en';
+  if (cookieMatch.ok && cookieMatch.data !== null) {
+    locale = cookieMatch.data;
+  } else if (acceptLang) {
+    const headerMatch = detectFromAcceptLanguage(acceptLang, available);
+    if (headerMatch.ok && headerMatch.data !== null) {
+      locale = headerMatch.data;
+    }
+  }
 
   event.locals.locale = locale;
   // During prerendering, url.searchParams is not accessible — use default mock user.

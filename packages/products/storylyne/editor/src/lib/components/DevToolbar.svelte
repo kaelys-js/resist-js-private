@@ -24,8 +24,9 @@
   import DevToolbarAppState from './DevToolbarAppState.svelte';
   import DevToolbarDebug from './DevToolbarDebug.svelte';
   import DevToolbarPerf from './DevToolbarPerf.svelte';
-  import { discoverFeatureFlags, discoverAppPreferences } from '$lib/debug/dev-toolbar-registry';
+  import { discoverFeatureFlags, discoverAppPreferences } from '@/utils/devtools/dev-toolbar-registry';
   import { storageKey } from '$lib/config/app-meta';
+  import { FeatureFlagsSchema, AppPreferencesSchema } from '$lib/schemas/editor-state';
   import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';
   import { scale, fly, fade } from 'svelte/transition';
 
@@ -133,7 +134,9 @@
   });
 
   // ── Badge data ────────────────────────────────────────────────────────
-  const flags: ReturnType<typeof discoverFeatureFlags> = discoverFeatureFlags();
+  const flagEntries = FeatureFlagsSchema.entries as unknown as Record<Str, Record<Str, unknown>>;
+  const prefEntries = AppPreferencesSchema.entries as unknown as Record<Str, Record<Str, unknown>>;
+  const flags: ReturnType<typeof discoverFeatureFlags> = discoverFeatureFlags(flagEntries);
   /** Locale function type — workaround for DeepReadonly type mangling. */
   type LocaleFn = (params: Record<Str, never>) => Result<Str>;
   const MODE_FALLBACKS: Record<Str, Str> = { light: 'Light', dark: 'Dark', system: 'System' };
@@ -199,7 +202,7 @@
    * Resets all state to defaults.
    */
   function resetAll(): Void {
-    const prefs: ReturnType<typeof discoverAppPreferences> = discoverAppPreferences();
+    const prefs: ReturnType<typeof discoverAppPreferences> = discoverAppPreferences(prefEntries);
     for (const pref of prefs) {
       const setterName: Str = `set${pref.key.charAt(0).toUpperCase()}${pref.key.slice(1)}`;
       // Dynamic setter access — store type doesn't expose string-indexed setters

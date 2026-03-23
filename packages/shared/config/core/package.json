@@ -13,9 +13,15 @@
     "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
   },
   "dependencies": {
+    "@/schemas/common": "workspace:*",
     "@/schemas/core-config": "workspace:*",
     "@/schemas/result": "workspace:*",
     "@/utils/core": "workspace:*",
-    "@/utils/result": "workspace:*"
+    "@/utils/result": "workspace:*",
+    "valibot": "^1.2.0"
+  },
+  "devDependencies": {
+    "@/config/test": "workspace:*",
+    "vitest": "^4.0.18"
   }
 }
