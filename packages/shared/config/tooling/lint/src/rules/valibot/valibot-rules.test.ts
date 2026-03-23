@@ -13,16 +13,20 @@ import noDirectSafeparse from './no-direct-safeparse.ts';
 import requireStrictObject from './require-strict-object.ts';
 import namespaceImport from './namespace-import.ts';
 import requireFieldDocs from './require-field-docs.ts';
+import preferSharedSchema from './prefer-shared-schema.ts';
+import requireMinLength from './require-min-length.ts';
+import noDuplicateSchema from './no-duplicate-schema.ts';
 
 /**
  * Run a single rule against fixture source code.
  *
  * @param rule - The rule to test
  * @param code - TypeScript source code
+ * @param filename - Optional file name for path-based exemptions
  * @returns Array of lint results
  */
-function lint(rule: TypeScriptRule, code: string): Promise<LintResult[]> {
-  return runTypeScriptRules('test.ts', code, [rule]);
+function lint(rule: TypeScriptRule, code: string, filename?: string): Promise<LintResult[]> {
+  return runTypeScriptRules(filename ?? 'test.ts', code, [rule]);
 }
 
 // =============================================================================
@@ -189,5 +193,186 @@ const schema = other.strictObject({
 `;
     const results: LintResult[] = await lint(requireFieldDocs, code);
     expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/require-min-length
+// =============================================================================
+
+describe('valibot/require-min-length', () => {
+  it('flags bare v.string() in strictObject field', async () => {
+    const code: string = `const Schema = v.strictObject({ name: v.string() });`;
+    const results: LintResult[] = await lint(requireMinLength, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('valibot/require-min-length');
+    expect(results[0].message).toContain('name');
+  });
+
+  it('passes v.pipe(v.string(), v.minLength(1))', async () => {
+    const code: string = `const Schema = v.strictObject({ name: v.pipe(v.string(), v.minLength(1)) });`;
+    const results: LintResult[] = await lint(requireMinLength, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes v.picklist()', async () => {
+    const code: string = `const Schema = v.strictObject({ style: v.picklist(['normal', 'italic']) });`;
+    const results: LintResult[] = await lint(requireMinLength, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags multiple bare v.string() fields', async () => {
+    const code: string = `const Schema = v.strictObject({ a: v.string(), b: v.string(), c: v.pipe(v.string(), v.minLength(1)) });`;
+    const results: LintResult[] = await lint(requireMinLength, code);
+    expect(results.length).toBe(2);
+  });
+
+  it('flags v.optional(v.string()) without minLength', async () => {
+    const code: string = `const Schema = v.strictObject({ prefix: v.optional(v.string()) });`;
+    const results: LintResult[] = await lint(requireMinLength, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('v.optional(v.string())');
+  });
+
+  it('passes v.optional(v.pipe(v.string(), v.minLength(1)))', async () => {
+    const code: string = `const Schema = v.strictObject({ prefix: v.optional(v.pipe(v.string(), v.minLength(1))) });`;
+    const results: LintResult[] = await lint(requireMinLength, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/prefer-shared-schema
+// =============================================================================
+
+describe('valibot/prefer-shared-schema', () => {
+  it('suggests PathSchema for field named templatePath', async () => {
+    const code: string = `const Schema = v.strictObject({ templatePath: v.pipe(v.string(), v.minLength(1)) });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('valibot/prefer-shared-schema');
+    expect(results[0].message).toContain('PathSchema');
+  });
+
+  it('suggests UrlStringSchema for field named accessUrl', async () => {
+    const code: string = `const Schema = v.strictObject({ accessUrl: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('UrlStringSchema');
+  });
+
+  it('suggests PortSchema for field named devPort', async () => {
+    const code: string = `const Schema = v.strictObject({ devPort: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('PortSchema');
+  });
+
+  it('passes when field already uses a shared schema', async () => {
+    const code: string = `const Schema = v.strictObject({ templatePath: PathSchema });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for fields without matching patterns', async () => {
+    const code: string = `const Schema = v.strictObject({ appName: v.pipe(v.string(), v.minLength(1)) });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes v.picklist() even if name matches pattern', async () => {
+    const code: string = `const Schema = v.strictObject({ filePath: v.picklist(['/a', '/b']) });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts test files', async () => {
+    const code: string = `const Schema = v.strictObject({ templatePath: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code, 'my-module.test.ts');
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/require-field-docs (orphaned docs enhancement)
+// =============================================================================
+
+describe('valibot/require-field-docs (orphaned docs)', () => {
+  it('flags orphaned doc comments in strictObject', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject({
+  /** Name field. */
+  /** Orphaned doc. */
+  name: v.string(),
+});
+`;
+    const results: LintResult[] = await lint(requireFieldDocs, code);
+    const orphaned: LintResult[] = results.filter((r: LintResult) => r.message.includes('orphaned'));
+    expect(orphaned.length).toBe(1);
+  });
+
+  it('passes when doc count matches property count', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject({
+  /** Name. */
+  name: v.string(),
+  /** Age. */
+  age: v.number(),
+});
+`;
+    const results: LintResult[] = await lint(requireFieldDocs, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-duplicate-schema
+// =============================================================================
+
+describe('valibot/no-duplicate-schema', () => {
+  it('flags field patterns appearing in 3+ files via finalize', async () => {
+    // Simulate 3 files with same field pattern
+    const code: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject({
+  /** Name. */
+  duplicatedField: v.pipe(v.string(), v.minLength(1)),
+});
+`;
+    // Run in 3 different "files"
+    await runTypeScriptRules('file1.ts', code, [noDuplicateSchema]);
+    await runTypeScriptRules('file2.ts', code, [noDuplicateSchema]);
+    await runTypeScriptRules('file3.ts', code, [noDuplicateSchema]);
+
+    const finalResults: LintResult[] = noDuplicateSchema.finalize?.() ?? [];
+    expect(finalResults.length).toBeGreaterThanOrEqual(1);
+    expect(finalResults[0].ruleId).toBe('valibot/no-duplicate-schema');
+    expect(finalResults[0].message).toContain('duplicatedField');
+    expect(finalResults[0].message).toContain('3');
+  });
+
+  it('does not flag unique fields', async () => {
+    const code1: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject({
+  /** Unique. */
+  uniqueField1: v.string(),
+});
+`;
+    const code2: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject({
+  /** Unique. */
+  uniqueField2: v.string(),
+});
+`;
+    await runTypeScriptRules('unique1.ts', code1, [noDuplicateSchema]);
+    await runTypeScriptRules('unique2.ts', code2, [noDuplicateSchema]);
+
+    const finalResults: LintResult[] = noDuplicateSchema.finalize?.() ?? [];
+    const uniqueResults: LintResult[] = finalResults.filter((r: LintResult) => r.message.includes('uniqueField'));
+    expect(uniqueResults.length).toBe(0);
   });
 });

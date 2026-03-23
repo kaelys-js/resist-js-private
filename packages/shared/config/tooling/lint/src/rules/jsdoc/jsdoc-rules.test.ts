@@ -18,6 +18,7 @@ import requireExample from './require-example.ts';
 import validateExample from './validate-example.ts';
 import paramTypeMatch from './param-type-match.ts';
 import requireModule from './require-module.ts';
+import requireSchemaLink from './require-schema-link.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -643,5 +644,56 @@ export function multi(): void {}
 `;
     const results: LintResult[] = await lint(validateExample, code);
     expect(results.length).toBe(1);
+  });
+});
+
+// =============================================================================
+// jsdoc/require-schema-link
+// =============================================================================
+
+describe('jsdoc/require-schema-link', () => {
+  it('flags type derived from schema without {@link}', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const FooSchema = v.strictObject({ name: v.string() });
+/** A foo. */
+export type Foo = v.InferOutput<typeof FooSchema>;
+`;
+    const results: LintResult[] = await lint(requireSchemaLink, code);
+    expect(results.length).toBe(1);
+    expect(results[0].ruleId).toBe('jsdoc/require-schema-link');
+    expect(results[0].message).toContain('FooSchema');
+    expect(results[0].message).toContain('{@link FooSchema}');
+  });
+
+  it('passes type with {@link SchemaName} in JSDoc', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const FooSchema = v.strictObject({ name: v.string() });
+/** A foo. See {@link FooSchema}. */
+export type Foo = v.InferOutput<typeof FooSchema>;
+`;
+    const results: LintResult[] = await lint(requireSchemaLink, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores types not derived from schemas', async () => {
+    const code: string = `
+/** A simple type. */
+export type Foo = { name: string };
+`;
+    const results: LintResult[] = await lint(requireSchemaLink, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores test files', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const FooSchema = v.strictObject({ name: v.string() });
+/** No link needed in tests. */
+export type Foo = v.InferOutput<typeof FooSchema>;
+`;
+    const results: LintResult[] = await runTypeScriptRules('foo.test.ts', code, [requireSchemaLink]);
+    expect(results.length).toBe(0);
   });
 });

@@ -11,9 +11,12 @@ import noBuiltinTypes from './no-builtin-types.ts';
 import noEmptyCatch from './no-empty-catch.ts';
 import noModuleSideEffects from './no-module-side-effects.ts';
 import noThrow from './no-throw.ts';
+import noUnionNull from './no-union-null.ts';
 import requireConstComment from './require-const-comment.ts';
+import requireNonNegativeInteger from './require-non-negative-integer.ts';
 import requireReturnType from './require-return-type.ts';
 import requireTypeAnnotation from './require-type-annotation.ts';
+import noDefaultParams from './no-default-params.ts';
 
 /** All TypeScript lint rules. */
 export const TYPESCRIPT_RULES: TypeScriptRule[] = [
@@ -26,4 +29,7 @@ export const TYPESCRIPT_RULES: TypeScriptRule[] = [
   noThrow,
   noBareDataTypes,
   noModuleSideEffects,
+  noUnionNull,
+  requireNonNegativeInteger,
+  noDefaultParams,
 ];
