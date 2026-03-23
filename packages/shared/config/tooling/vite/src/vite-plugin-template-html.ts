@@ -36,13 +36,13 @@ export const FontFaceEntrySchema = v.strictObject({
   src: v.pipe(v.string(), v.minLength(1), v.startsWith('/')),
 });
 
-/** A single @font-face entry for CSS generation. */
+/** A single @font-face entry for CSS generation. See {@link FontFaceEntrySchema}. */
 export type FontFaceEntry = v.InferOutput<typeof FontFaceEntrySchema>;
 
 /** Valibot schema for an array of {@link FontFaceEntry}. */
 export const FontFaceEntryArraySchema = v.array(FontFaceEntrySchema);
 
-/** Array of {@link FontFaceEntry} objects. */
+/** Array of {@link FontFaceEntry} objects. See {@link FontFaceEntryArraySchema}. */
 export type FontFaceEntryArray = v.InferOutput<typeof FontFaceEntryArraySchema>;
 
 /** Valibot schema for the error HTML template plugin configuration. */
@@ -74,7 +74,7 @@ export const ErrorHtmlConfigSchema = v.strictObject({
   }),
 });
 
-/** Configuration for the error HTML template plugin. */
+/** Configuration for the error HTML template plugin. See {@link ErrorHtmlConfigSchema}. */
 export type ErrorHtmlConfig = v.InferOutput<typeof ErrorHtmlConfigSchema>;
 
 /** Valibot schema for the app HTML template plugin configuration. */
@@ -87,7 +87,7 @@ export const AppHtmlConfigSchema = v.strictObject({
   storagePrefix: v.optional(v.pipe(v.string(), v.minLength(1))),
 });
 
-/** Configuration for the app HTML template plugin. */
+/** Configuration for the app HTML template plugin. See {@link AppHtmlConfigSchema}. */
 export type AppHtmlConfig = v.InferOutput<typeof AppHtmlConfigSchema>;
 
 // =============================================================================
