@@ -520,6 +520,16 @@ export const ERRORS = _deepFreeze({
     FETCH_FAILED: 'IO.FETCH_FAILED',
     /** Operation timed out before completing. */
     TIMEOUT: 'IO.TIMEOUT',
+    /** File or directory deletion failed (permission denied, in use). */
+    DELETE_FAILED: 'IO.DELETE_FAILED',
+    /** Directory creation failed (permission denied, invalid path). */
+    MKDIR_FAILED: 'IO.MKDIR_FAILED',
+    /** Directory read failed (missing, permission denied). */
+    READDIR_FAILED: 'IO.READDIR_FAILED',
+    /** File or directory copy failed. */
+    COPY_FAILED: 'IO.COPY_FAILED',
+    /** Shell command execution failed (non-zero exit, command not found). */
+    EXEC_FAILED: 'IO.EXEC_FAILED',
   },
   /** Network and HTTP errors. */
   HTTP: {
@@ -529,6 +539,16 @@ export const ERRORS = _deepFreeze({
     NOT_FOUND: 'HTTP.NOT_FOUND',
     /** Remote server returned an error (5xx). */
     SERVER_ERROR: 'HTTP.SERVER_ERROR',
+  },
+  /** Network errors. */
+  NETWORK: {
+    /** No available port found in the scanned range. */
+    PORT_UNAVAILABLE: 'NETWORK.PORT_UNAVAILABLE',
+  },
+  /** Workspace detection errors. */
+  WORKSPACE: {
+    /** Workspace root directory could not be found by walking up from cwd. */
+    ROOT_NOT_FOUND: 'WORKSPACE.ROOT_NOT_FOUND',
   },
   /** Runtime capability errors. */
   RUNTIME: {
@@ -853,6 +873,8 @@ export const ErrorDomainSchema = v.picklist([
   'DB',
   'IO',
   'HTTP',
+  'NETWORK',
+  'WORKSPACE',
   'RUNTIME',
   'RESOURCE',
   'ENCODING',

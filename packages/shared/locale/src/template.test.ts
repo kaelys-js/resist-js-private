@@ -151,6 +151,30 @@ describe('renderMessage', () => {
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBe('Use {name} literally');
   });
+
+  it('applies upper case modifier via pipe syntax', () => {
+    const result = renderMessage('{name|upper}', { name: 'alice' }, 'en');
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('ALICE');
+  });
+
+  it('applies lower case modifier via pipe syntax', () => {
+    const result = renderMessage('{name|lower}', { name: 'ALICE' }, 'en');
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('alice');
+  });
+
+  it('applies capitalize case modifier via pipe syntax', () => {
+    const result = renderMessage('{name|capitalize}', { name: 'alice' }, 'en');
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('Alice');
+  });
+
+  it('handles escaped single quotes (double single quote = literal quote)', () => {
+    const result = renderMessage("It''s a test", {});
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toContain("'");
+  });
 });
 
 // =============================================================================

@@ -35,6 +35,7 @@
       "@/locale/svelte": ["./packages/shared/locale/src/svelte.svelte.ts"],
       "@/locale/*": ["./packages/shared/locale/src/*.ts"],
       "@/schemas/core-config/*": ["./packages/shared/schemas/core-config/src/*.ts"],
+      "@/config/*": ["./packages/shared/config/core/src/*.ts"],
       "@/config/core/*": ["./packages/shared/config/core/src/*.ts"],
       "@/config/test/*": ["./packages/shared/config/test/src/*.ts"],
       "@/config/test/harness": ["./packages/shared/config/test/src/harness/index.ts"],

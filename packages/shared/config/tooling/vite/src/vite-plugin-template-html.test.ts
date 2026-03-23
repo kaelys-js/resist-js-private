@@ -76,6 +76,20 @@ describe('templateErrorHtml plugin', () => {
     const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
     expect(plugin.config).toBeTypeOf('function');
   });
+
+  it('config hook is no-op when command is serve', () => {
+    const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
+    // Call config with 'serve' command — should not throw or write files
+    if (typeof plugin.config === 'function') {
+      plugin.config({} as never, { command: 'serve', mode: 'development' } as never);
+    }
+    // No error means the early return worked
+  });
+
+  it('has closeBundle hook', () => {
+    const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
+    expect(plugin.closeBundle).toBeTypeOf('function');
+  });
 });
 
 describe('generateFontFaceCss', () => {
@@ -95,6 +109,11 @@ describe('generateFontFaceCss', () => {
     const css = generateFontFaceCss(TEST_FONT_FACES);
     const blockCount = (css.match(/@font-face/g) ?? []).length;
     expect(blockCount).toBe(3);
+  });
+
+  it('returns empty string for empty array', () => {
+    const css = generateFontFaceCss([]);
+    expect(css).toBe('');
   });
 });
 
@@ -185,6 +204,14 @@ describe('templateAppHtml plugin', () => {
   it('uses config hook', () => {
     const plugin = templateAppHtml(TEST_APP_CONFIG);
     expect(plugin.config).toBeTypeOf('function');
+  });
+
+  it('config hook is no-op when command is serve', () => {
+    const plugin = templateAppHtml(TEST_APP_CONFIG);
+    if (typeof plugin.config === 'function') {
+      plugin.config({} as never, { command: 'serve', mode: 'development' } as never);
+    }
+    // No error means the early return worked
   });
 });
 

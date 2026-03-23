@@ -137,4 +137,13 @@ describe('POST /api/errors', () => {
 
     expect(response.status).toBe(400);
   });
+
+  it('returns 400 when request.text() throws', async () => {
+    const brokenRequest = {
+      text: () => Promise.reject(new Error('client disconnected')),
+    };
+    const response: Response = await POST({ request: brokenRequest } as never);
+
+    expect(response.status).toBe(400);
+  });
 });

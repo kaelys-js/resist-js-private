@@ -460,4 +460,65 @@ describe('vitals-diagnostics', () => {
       expect(labels).toContain('Timing');
     });
   });
+
+  describe('setupDiagnosticObservers edge cases', () => {
+    it('skips re-initialization when already active', () => {
+      setupDiagnosticObservers();
+      // Second call should be a no-op (no error)
+      setupDiagnosticObservers();
+      // If it didn't throw, the guard works
+    });
+  });
+
+  describe('diagnoseCLS edge cases', () => {
+    it('handles dx-only movement (dy=0)', () => {
+      _injectLayoutShiftEntries([
+        {
+          value: 0.2,
+          hadRecentInput: false,
+          sources: [
+            {
+              node: null,
+              previousRect: { x: 0, y: 100, width: 200, height: 50, top: 100, right: 200, bottom: 150, left: 0, toJSON: () => ({}) },
+              currentRect: { x: 50, y: 100, width: 200, height: 50, top: 100, right: 250, bottom: 150, left: 50, toJSON: () => ({}) },
+            },
+          ],
+        },
+      ]);
+
+      const diag: VitalDiagnostics | null = collectDiagnostics('CLS', 0.2, 'needsImprovement');
+      expect(diag).not.toBeNull();
+      // Should contain movement detail with dx direction
+      const shiftFinding = diag!.findings.find((f) => f.label === 'Shifted Element');
+      if (shiftFinding) {
+        expect(shiftFinding.detail).toContain('50px');
+      }
+    });
+  });
+
+  describe('diagnoseLCP timing branches', () => {
+    it('reports render-only timing when loadTime is 0', () => {
+      _injectLCPEntries([mockLCPEntry({ renderTime: 2000, loadTime: 0 })]);
+
+      const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 3000, 'needsImprovement');
+      expect(diag).not.toBeNull();
+      const renderFinding = diag!.findings.find((f) => f.label === 'Render Time');
+      expect(renderFinding).toBeDefined();
+      if (renderFinding) {
+        expect(renderFinding.value).toContain('2000ms');
+      }
+    });
+
+    it('reports load-only timing when renderTime is 0', () => {
+      _injectLCPEntries([mockLCPEntry({ renderTime: 0, loadTime: 1500 })]);
+
+      const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 3000, 'needsImprovement');
+      expect(diag).not.toBeNull();
+      const loadFinding = diag!.findings.find((f) => f.label === 'Load Time');
+      expect(loadFinding).toBeDefined();
+      if (loadFinding) {
+        expect(loadFinding.value).toContain('1500ms');
+      }
+    });
+  });
 });

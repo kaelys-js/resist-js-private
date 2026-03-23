@@ -298,4 +298,57 @@ describe('devtools.perf namespace', () => {
     expect(device.quality).toBe('fast');
     api.destroy();
   });
+
+  it('perf.logVitals() calls console.log', () => {
+    const spy = vi.spyOn(console, 'log');
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.perf.logVitals();
+    expect(spy).toHaveBeenCalled();
+    api.destroy();
+  });
+
+  it('perf.logDevice() calls console.log', () => {
+    const spy = vi.spyOn(console, 'log');
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.perf.logDevice();
+    expect(spy).toHaveBeenCalled();
+    api.destroy();
+  });
+});
+
+describe('devtools.set edge cases', () => {
+  it('returns early for path without section.key format', () => {
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    // Should not throw for invalid path
+    devtools.set('noDotsHere', 'value');
+    expect(appStore.setTheme).not.toHaveBeenCalled();
+    api.destroy();
+  });
+
+  it('silently ignores when app store has no setter for key', () => {
+    // Create store WITHOUT setTheme
+    const sparseStore = {
+      ...appStore,
+      setTheme: undefined,
+    };
+    const api = createDevtoolsAPI(sparseStore as never, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    // Should not throw — typeof undefined !== 'function' guard
+    devtools.set('app.theme', 'midnight');
+    api.destroy();
+  });
+});
+
+describe('devtools.help', () => {
+  it('prints help text to console', () => {
+    const spy = vi.spyOn(console, 'log');
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.help();
+    expect(spy).toHaveBeenCalled();
+    api.destroy();
+  });
 });

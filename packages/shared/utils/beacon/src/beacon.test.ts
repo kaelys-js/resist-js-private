@@ -190,4 +190,19 @@ describe('beaconError', () => {
     // beaconError is fire-and-forget — always returns ok regardless
     expect(result.ok).toBe(true);
   });
+
+  it('handles JSON.stringify throwing gracefully', () => {
+    const originalStringify = JSON.stringify;
+    JSON.stringify = () => {
+      throw new Error('circular reference');
+    };
+
+    const captured: CapturedError = makeCaptured();
+    const result: Result<Void> = beaconError(captured);
+
+    // Catch block swallows the error — still returns ok
+    expect(result.ok).toBe(true);
+
+    JSON.stringify = originalStringify;
+  });
 });

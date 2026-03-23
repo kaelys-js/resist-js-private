@@ -53,4 +53,11 @@ describe('setupPerfume', () => {
       }),
     );
   });
+
+  it('does not throw when called multiple times', () => {
+    const tracker = vi.fn();
+    setupPerfume(tracker);
+    setupPerfume(tracker);
+    expect(mockInitPerfume).toHaveBeenCalledTimes(2);
+  });
 });

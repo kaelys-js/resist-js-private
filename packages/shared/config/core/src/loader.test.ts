@@ -108,7 +108,7 @@ describe('loadConfig', () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.error.code).toContain('RUNTIME');
+      expect(result.error.code).toBe('RUNTIME.UNSUPPORTED');
     }
 
     // Restore
@@ -121,14 +121,68 @@ describe('loadConfig', () => {
 
     const result = await loadConfig();
 
-    // loadConfig falls back to defaults — but defaults fail schema validation
-    // (portIncrement=100 exceeds schema max=99). The function returns the
-    // validation result, which is an error.
-    // What we CAN verify: log.warn was called about missing config file.
+    // Defaults should validate successfully (PortIncrementSchema allows 100)
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.company.name).toBe(defaults.company.name);
+    }
+
+    // log.warn should have been called about missing config file
     expect(log.warn).toHaveBeenCalledOnce();
     const warnMessage = (log.warn as ReturnType<typeof vi.fn>).mock.calls[0]![0] as string;
     expect(warnMessage).toContain('not found');
     expect(warnMessage).toContain('resist.config.ts');
+  });
+
+  it('propagates findWorkspaceRoot error', async () => {
+    (findWorkspaceRoot as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: false,
+      error: { code: 'WORKSPACE.ROOT_NOT_FOUND', message: 'No workspace root' },
+    });
+
+    const result = await loadConfig();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('WORKSPACE.ROOT_NOT_FOUND');
+    }
+  });
+
+  it('propagates joinPath error', async () => {
+    (findWorkspaceRoot as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: '/workspace',
+    });
+    (joinPath as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: false,
+      error: { code: 'VALIDATION.SCHEMA_FAILED', message: 'Invalid path' },
+    });
+
+    const result = await loadConfig();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+    }
+  });
+
+  it('propagates pathExists error', async () => {
+    (findWorkspaceRoot as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: '/workspace',
+    });
+    (joinPath as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: '/workspace/resist.config.ts',
+    });
+    (pathExists as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: false,
+      error: { code: 'IO.STAT_FAILED', message: 'Stat failed' },
+    });
+
+    const result = await loadConfig();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('IO.STAT_FAILED');
+    }
   });
 
   it('returns CONFIG.LOAD_FAILED when dynamic import throws', async () => {
@@ -144,7 +198,7 @@ describe('loadConfig', () => {
     // The dynamic import will fail because the path doesn't exist in test
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.error.code).toContain('CONFIG');
+      expect(result.error.code).toBe('CONFIG.LOAD_FAILED');
     }
   });
 });
@@ -154,7 +208,7 @@ describe('getConfig', () => {
     const result = getConfig();
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.error.code).toContain('CONFIG');
+      expect(result.error.code).toBe('CONFIG.NOT_FOUND');
     }
   });
 
@@ -196,7 +250,7 @@ describe('resetConfig', () => {
     const result = getConfig();
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.error.code).toContain('CONFIG');
+      expect(result.error.code).toBe('CONFIG.NOT_FOUND');
     }
   });
 });
@@ -224,7 +278,7 @@ describe('setConfig', () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.error.code).toContain('CONFIG');
+      expect(result.error.code).toBe('CONFIG.INVALID');
     }
   });
 
@@ -263,6 +317,23 @@ describe('configExists', () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toBe(true);
+    }
+  });
+
+  it('propagates joinPath error', () => {
+    (findWorkspaceRoot as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: '/workspace',
+    });
+    (joinPath as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: false,
+      error: { code: 'VALIDATION.SCHEMA_FAILED', message: 'Invalid path' },
+    });
+
+    const result: Result<Bool> = configExists();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
     }
   });
 

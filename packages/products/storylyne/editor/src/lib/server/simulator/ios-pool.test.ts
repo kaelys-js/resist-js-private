@@ -6,7 +6,7 @@
 
 import type { Num } from '@/schemas/common';
 import { describe, expect, it } from 'vitest';
-import { getPoolStatus } from './ios-pool';
+import { getPoolStatus, releaseSimulator } from './ios-pool';
 
 describe('ios-pool', () => {
   describe('getPoolStatus', () => {
@@ -37,6 +37,15 @@ describe('ios-pool', () => {
     it('pool in-use count does not exceed total', () => {
       const status = getPoolStatus();
       expect((status.inUse as Num) <= (status.total as Num)).toBe(true);
+    });
+  });
+
+  describe('releaseSimulator', () => {
+    it('does nothing for unknown UDID', () => {
+      // Should not throw — releasing a non-pooled device is a no-op
+      releaseSimulator('unknown-udid-xyz');
+      const status = getPoolStatus();
+      expect(status.total).toBe(0);
     });
   });
 });

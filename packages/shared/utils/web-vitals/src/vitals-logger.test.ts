@@ -205,4 +205,49 @@ describe('vitals logger', () => {
       expect(result.ok).toBe(true);
     });
   });
+
+  describe('diagnostics edge cases', () => {
+    it('logs diagnostics in dev mode for non-poor rating with findings', () => {
+      import.meta.env.DEV = true;
+      const mockGroupCollapsed: ReturnType<typeof vi.fn> = vi.spyOn(console, 'groupCollapsed');
+      const mockGroupEnd: ReturnType<typeof vi.fn> = vi.spyOn(console, 'groupEnd');
+
+      const diagnostics = {
+        thresholds: { good: 2500, poor: 4000, unit: 'ms' },
+        findings: [{ label: 'Slow Resource', detail: 'Image load delay', severity: 'medium' }],
+      };
+      logVital('LCP', 2000, 'needsImprovement', diagnostics as never);
+
+      expect(mockGroupCollapsed).toHaveBeenCalledOnce();
+      expect(mockGroupEnd).toHaveBeenCalledOnce();
+    });
+
+    it('handles diagnostics with empty findings array', () => {
+      import.meta.env.DEV = true;
+      const mockConsoleLog: ReturnType<typeof vi.fn> = vi.spyOn(console, 'log');
+
+      const diagnostics = {
+        thresholds: { good: 1800, poor: 3000, unit: 'ms' },
+        findings: [],
+      };
+      // Empty findings → hasDiagnostics is false → plain console.log
+      logVital('FCP', 1200, 'good', diagnostics as never);
+
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('handles finding with empty label', () => {
+      import.meta.env.DEV = true;
+      const mockGroupCollapsed: ReturnType<typeof vi.fn> = vi.spyOn(console, 'groupCollapsed');
+
+      const diagnostics = {
+        thresholds: { good: 2500, poor: 4000, unit: 'ms' },
+        findings: [{ label: '', detail: 'unlabelled detail', severity: 'medium' }],
+      };
+      // Non-empty findings → hasDiagnostics is true → should use groupCollapsed
+      logVital('LCP', 3000, 'needsImprovement', diagnostics as never);
+
+      expect(mockGroupCollapsed).toHaveBeenCalled();
+    });
+  });
 });

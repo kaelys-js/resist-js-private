@@ -6,7 +6,7 @@
 
 import type { Num, Str } from '@/schemas/common';
 import { describe, expect, it } from 'vitest';
-import { assignSerial } from './android-pool';
+import { assignSerial, releaseEmulator, getPoolSize } from './android-pool';
 
 describe('android-pool', () => {
   describe('assignSerial', () => {
@@ -23,6 +23,19 @@ describe('android-pool', () => {
     it('assigns correct serial for index 2', () => {
       const serial2: Str = assignSerial(2 as Num);
       expect(serial2).toBe('emulator-5558');
+    });
+  });
+
+  describe('releaseEmulator', () => {
+    it('does nothing for unknown AVD name', () => {
+      releaseEmulator('unknown-avd-xyz');
+      expect(getPoolSize()).toBe(0);
+    });
+  });
+
+  describe('getPoolSize', () => {
+    it('returns 0 when pool is empty', () => {
+      expect(getPoolSize()).toBe(0);
     });
   });
 });

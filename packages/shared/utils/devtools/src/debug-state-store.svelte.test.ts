@@ -157,3 +157,44 @@ describe('setLogLevel', () => {
     expect(parsed.logLevel).toBe('error');
   });
 });
+
+describe('error handling', () => {
+  it('handles localStorage write error gracefully', () => {
+    localStorageMock.setItem.mockImplementationOnce(() => {
+      throw new Error('QuotaExceededError');
+    });
+
+    const result = createDebugStore({ storageKey: STORAGE_KEY });
+    if (!result.ok) throw new Error('should be ok');
+
+    // setLogLevel triggers save() which should catch the error
+    const setResult = result.data.setLogLevel('warn');
+    // The function still returns ok because it updates in-memory state
+    // even if persistence fails (save error is returned but logLevel IS updated)
+    expect(result.data.debug.logLevel).toBe('warn');
+  });
+
+  it('handles corrupted JSON in localStorage on load', () => {
+    // Write invalid JSON directly
+    localStorageMock.setItem(STORAGE_KEY, '{not valid json!!!');
+    localStorageMock.getItem.mockReturnValueOnce('{not valid json!!!');
+
+    // createDebugStore calls load() internally — should not throw
+    const result = createDebugStore({ storageKey: STORAGE_KEY });
+    // Store creation succeeds even if load fails
+    expect(result.ok).toBe(true);
+  });
+
+  it('skips URL override parsing when urlParamPrefix is missing', () => {
+    const result = createDebugStore({
+      storageKey: STORAGE_KEY,
+      url: new URL('http://localhost?debug=true'),
+      // urlParamPrefix NOT provided — should skip parsing
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      // urlOverrides should be empty since prefix was not provided
+      expect(Object.keys(result.data.urlOverrides)).toHaveLength(0);
+    }
+  });
+});

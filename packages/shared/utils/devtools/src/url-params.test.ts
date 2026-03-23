@@ -15,6 +15,7 @@ const TEST_APP_SCHEMA = {
   theme: { type: 'optional', default: '' },
   mode: { type: 'optional', default: 'system' },
   sidebarOpen: { type: 'optional', default: true },
+  mockDataDelay: { type: 'optional', default: 0 },
 };
 
 const TEST_FLAGS_SCHEMA = {
@@ -112,11 +113,12 @@ describe('isValidFeatureFlag', () => {
 
 describe('applyUrlOverrides', () => {
   const createMockAppStore = (): AppStoreContract & Record<Str, unknown> => ({
-    app: { theme: '', mode: 'system', sidebarOpen: true },
+    app: { theme: '', mode: 'system', sidebarOpen: true, mockDataDelay: 0 },
     features: { settings: true, sidebar: true },
     setTheme: vi.fn(okVoid),
     setMode: vi.fn(okVoid),
     setSidebarOpen: vi.fn(okVoid),
+    setMockDataDelay: vi.fn(okVoid),
     setFeature: vi.fn(okVoid),
   });
 
@@ -197,5 +199,22 @@ describe('applyUrlOverrides', () => {
     expect(debugStore.setLogLevel).toHaveBeenCalledWith('trace');
     expect(appStore.setTheme).toHaveBeenCalledWith('midnight');
     expect(appStore.setFeature).toHaveBeenCalledWith('settings', false);
+  });
+
+  it('converts mockDataDelay to number', () => {
+    applyUrlOverrides(appStore, debugStore, {
+      mockDataDelay: '500',
+    }, config);
+    expect(appStore.setMockDataDelay).toHaveBeenCalledWith(500);
+  });
+
+  it('silently ignores when setter property is not a function', () => {
+    const brokenStore = {
+      ...appStore,
+      setTheme: 'not-a-function' as unknown,
+    };
+    // Should not throw — the typeof setter === 'function' guard protects
+    const result = applyUrlOverrides(brokenStore as never, debugStore, { theme: 'midnight' }, config);
+    expect(result.ok).toBe(true);
   });
 });

@@ -51,4 +51,14 @@ describe('createMockService', () => {
       }
     });
   });
+
+  describe('delay', () => {
+    it('applies delay when delayMs > 0', async () => {
+      const service = createMockService(50);
+      const start = performance.now();
+      await service.projects.getByOwner(MOCK_USER.id);
+      const elapsed = performance.now() - start;
+      expect(elapsed).toBeGreaterThanOrEqual(40);
+    });
+  });
 });

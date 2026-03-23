@@ -194,19 +194,21 @@ export const shortcutStore: KeyboardShortcutsStore = {
   },
 
   update(id, key, modifiers): Result<Void> {
-    const result: Result<ShortcutRegistry> = updateShortcut(_registry, id, key, modifiers);
+    // JSON round-trip to strip $state proxies — structuredClone can't clone Svelte proxies
+    const plain: ShortcutRegistry = JSON.parse(JSON.stringify(_registry)) as ShortcutRegistry;
+    const result: Result<ShortcutRegistry> = updateShortcut(plain, id, key, modifiers);
     if (!result.ok) return result;
-    // as ShortcutRegistry — structuredClone widens Record<ShortcutId, T> to Record<string, T>
-    _registry = structuredClone(result.data) as ShortcutRegistry;
+    _registry = result.data;
     save();
     return okUnchecked<Void>(undefined);
   },
 
   reset(id): Result<Void> {
-    const result: Result<ShortcutRegistry> = resetShortcut(_registry, id);
+    // JSON round-trip to strip $state proxies — structuredClone can't clone Svelte proxies
+    const plain: ShortcutRegistry = JSON.parse(JSON.stringify(_registry)) as ShortcutRegistry;
+    const result: Result<ShortcutRegistry> = resetShortcut(plain, id);
     if (!result.ok) return result;
-    // as ShortcutRegistry — structuredClone widens Record<ShortcutId, T> to Record<string, T>
-    _registry = structuredClone(result.data) as ShortcutRegistry;
+    _registry = result.data;
     save();
     return okUnchecked<Void>(undefined);
   },

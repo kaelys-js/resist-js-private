@@ -70,6 +70,10 @@ const sharedPathAliases: Array<{ find: string; replacement: string }> = [
     find: '@/config/core/',
     replacement: `${path.resolve(root, 'packages/shared/config/core/src')}/`,
   },
+  {
+    find: '@/config/',
+    replacement: `${path.resolve(root, 'packages/shared/config/core/src')}/`,
+  },
   { find: '@/locale/', replacement: `${path.resolve(root, 'packages/shared/locale/src')}/` },
   {
     find: '@/config/test/',
@@ -300,7 +304,7 @@ export default defineConfig({
           environment: 'jsdom',
           globals: true,
           include: ['src/**/*.test.ts'],
-          exclude: ['e2e/**', 'node_modules/**', '.svelte-kit/**'],
+          exclude: ['e2e/**', 'node_modules/**', '.svelte-kit/**', 'src/routes/**/server.test.ts', 'src/routes/**/*.server.test.ts'],
           setupFiles: ['./src/test-setup-component.ts'],
           alias: [
             { find: '$lib', replacement: path.join(storylyneEditorSrc, 'lib') },
@@ -323,6 +327,40 @@ export default defineConfig({
               inline: ['@lucide/svelte', 'bits-ui', 'mode-watcher', 'runed', 'svelte-toolbelt'],
             },
           },
+        },
+      },
+      {
+        plugins: [tsconfigPaths()],
+        define: {
+          __APP_VERSION__: JSON.stringify('0.0.0-test'),
+          __GIT_COMMIT__: JSON.stringify('abc1234'),
+          __GIT_COMMIT_FULL__: JSON.stringify('abc1234def5678901234567890abcdef12345678'),
+          __GIT_BRANCH__: JSON.stringify('test-branch'),
+          __GIT_DIRTY__: 'false',
+          __BUILD_TIMESTAMP__: JSON.stringify('2026-01-01T00:00:00.000Z'),
+        },
+        test: {
+          name: 'storylyne-editor-server',
+          root: 'packages/products/storylyne/editor',
+          environment: 'node',
+          include: ['src/routes/**/server.test.ts', 'src/routes/**/*.server.test.ts'],
+          exclude: ['e2e/**', 'node_modules/**', '.svelte-kit/**'],
+          alias: [
+            { find: '$lib', replacement: path.join(storylyneEditorSrc, 'lib') },
+            {
+              find: '$app/environment',
+              replacement: path.join(storylyneEditorSrc, 'test-mocks/app-environment.ts'),
+            },
+            {
+              find: '$app/navigation',
+              replacement: path.join(storylyneEditorSrc, 'test-mocks/app-navigation.ts'),
+            },
+            {
+              find: '$app/state',
+              replacement: path.join(storylyneEditorSrc, 'test-mocks/app-state.ts'),
+            },
+            ...sharedPathAliases,
+          ],
         },
       },
     ],
