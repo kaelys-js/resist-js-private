@@ -23,6 +23,7 @@ import * as v from 'valibot';
 import { defineConfig, type UserConfig, type PluginOption } from 'vite';
 import type { Str, Bool, Command, Path } from '@/schemas/common';
 import { ok, err, ERRORS, type Result } from '@/schemas/result/result';
+import { safeParse } from '@/utils/result/safe';
 import { execSyncSafe } from '@/utils/core/shell';
 import { readFile, parseJsonWithComments } from '@/utils/core/fs';
 import { safeStringify } from '@/utils/core/object';
@@ -33,12 +34,12 @@ import { safeStringify } from '@/utils/core/object';
 
 /** Schema for git metadata used in build-time injection. */
 const GitInfoSchema = v.strictObject({
-  /** Short commit hash. */
-  commit: v.string(),
-  /** Full commit hash. */
-  commitFull: v.string(),
+  /** Short commit hash (7 characters). */
+  commit: v.pipe(v.string(), v.length(7)),
+  /** Full commit hash (40 characters). */
+  commitFull: v.pipe(v.string(), v.length(40)),
   /** Current branch name. */
-  branch: v.string(),
+  branch: v.pipe(v.string(), v.minLength(1), v.maxLength(255)),
   /** Whether the working tree has uncommitted changes. */
   dirty: v.boolean(),
 });
@@ -147,7 +148,7 @@ const CreateViteConfigOptionsSchema = v.strictObject({
   extraConfig: v.optional(v.custom<Partial<UserConfig>>((): Bool => true), {}), // cast safe: external Vite type
 });
 
-/** Options for the shared Vite configuration factory. */
+/** Options for the shared Vite configuration factory. See {@link CreateViteConfigOptionsSchema}. */
 export type CreateViteConfigOptions = v.InferOutput<typeof CreateViteConfigOptionsSchema>;
 
 /**
@@ -156,11 +157,7 @@ export type CreateViteConfigOptions = v.InferOutput<typeof CreateViteConfigOptio
  * Provides git metadata defines, server watch ignores, and SSR config.
  * Each product supplies its own plugins and optional overrides.
  *
- * @param {CreateViteConfigOptions} root0 - Configuration options
- * @param {PluginOption[]} root0.plugins - Vite plugins to include
- * @param {Str[]} root0.ssrNoExternal - Packages to exclude from SSR externalization
- * @param {Record<Str, Str>} root0.extraDefines - Additional define entries
- * @param {Partial<UserConfig>} root0.extraConfig - Additional Vite config to spread
+ * @param {CreateViteConfigOptions} options - Configuration options (validated via {@link CreateViteConfigOptionsSchema})
  * @returns {UserConfig} Vite UserConfig via defineConfig
  *
  * @example
@@ -181,12 +178,17 @@ export type CreateViteConfigOptions = v.InferOutput<typeof CreateViteConfigOptio
  * });
  * ```
  */
-export function createViteConfig({
-  plugins,
-  ssrNoExternal = ['@lucide/svelte'],
-  extraDefines = {},
-  extraConfig = {},
-}: CreateViteConfigOptions): UserConfig {
+export function createViteConfig(
+  options: CreateViteConfigOptions,
+): UserConfig {
+  const optionsResult: Result<CreateViteConfigOptions> = safeParse(
+    CreateViteConfigOptionsSchema,
+    options,
+  );
+  if (!optionsResult.ok) throw optionsResult.error; // integration boundary: Vite doesn't understand Result
+
+  const { plugins, ssrNoExternal, extraDefines, extraConfig } = optionsResult.data;
+
   const gitResult: Result<GitInfo> = getGitInfo();
   if (!gitResult.ok) throw gitResult.error; // integration boundary: Vite doesn't understand Result
 
