@@ -29,7 +29,6 @@ webforge/
 │           │   │   ├── core/             Engine, camera, shake, Perlin, perf monitor
 │           │   │   └── rendering/        All visual systems (tilemap, lighting, fog, etc.)
 │           │   └── dev/                  Dev harness (visual testing UI)
-│           └── plugin-api/               Plugin SDK for third-party extensions
 ├── docs/                                 Unified documentation
 │   ├── ARCHITECTURE.md                   This file
 │   ├── runtime/                          Runtime engine docs
@@ -626,7 +625,6 @@ A single root `vitest.config.ts` defines all test projects via the `projects` ar
 | utils-core | `packages/shared/utils/core` | node | |
 | locale | `packages/shared/locale` | node | |
 | runtime | `packages/products/storylyne/runtime` | node | Babylon.js deps inlined |
-| plugin-api | `packages/products/storylyne/plugin-api` | node | |
 | editor | `packages/products/storylyne/editor` | jsdom | Svelte + shadcn-svelte |
 
 Root config uses `pool: 'forks'` (Vitest 4.x default, better SvelteKit/Babylon.js compatibility). Each project inherits root settings via `extends: true`.

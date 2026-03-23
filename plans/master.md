@@ -7,7 +7,7 @@
 - **Each session:** this file + ONE phase file maximum
 - **Two-stage workflow:** Extract (done) → Expand with research/questions → Implement with TDD
 - **File naming:** kebab-case per CLAUDE.md (NOT PascalCase from original spec)
-- **Path prefix:** `packages/products/webforge/` for editor, runtime, plugin-api
+- **Path prefix:** `packages/products/webforge/` for editor, runtime
 
 ---
 
@@ -148,12 +148,6 @@
 ### Phase 21: Mini-games + Physics — `phase-21-minigames.md`
 - [ ] 21.1 Mini-game framework (fishing, rhythm, QTE, puzzle, cards, stealth)
 - [ ] 21.2 Physics lite (pushable, projectile, conveyor, ice, wind, buoyancy)
-
-### Phase 22: Plugin API + Marketplace — `phase-22-plugin-api.md`
-- [ ] 22.1 Plugin base + hooks + lifecycle
-- [ ] 22.2 Plugin UI extensions
-- [ ] 22.3 Plugin manager (runtime)
-- [ ] 22.4 Marketplace client
 
 ### Phase 23: Export + Docs + Sample — `phase-23-export.md`
 - [ ] 23.1 Web/desktop/mobile export

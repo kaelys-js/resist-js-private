@@ -13,15 +13,18 @@ import {
   isValidAppKey,
   isValidFeatureFlag,
 } from '$lib/utils/url-params';
-import { createDevtoolsAPI, DEVTOOLS_KEY, type EditorDevtools } from './devtools-api.svelte';
-import { activateDebugServices, syncDebugServices, type DebugServicesHandle } from './init.svelte';
-import { diffSnapshot, formatTimestamp } from './console-styles';
-import { shouldLog } from './state-logger.svelte';
+import { createDevtoolsAPI, getDevtoolsKey, type DevtoolsAPI } from '@/utils/devtools/devtools-api.svelte';
+import { activateDebugServices, syncDebugServices, type DebugServicesHandle } from '@/utils/devtools/init.svelte';
+import { diffSnapshot, formatTimestamp } from '@/utils/devtools/console-styles';
+import { shouldLog } from '@/utils/devtools/state-logger.svelte';
 import { APP_NAME, URL_PARAM_PREFIX } from '$lib/config/app-meta';
+import { AppPreferencesSchema, FeatureFlagsSchema } from '$lib/schemas/editor-state';
+import { DebugStateSchema } from '@/utils/devtools/debug-state-schema';
+import type { DevtoolsConfig } from '@/utils/devtools/types';
 
 // Mock state-logger to avoid $effect in tests
-vi.mock('./state-logger.svelte', async () => {
-  const mod = await import('./state-logger.svelte');
+vi.mock('@/utils/devtools/state-logger.svelte', async () => {
+  const mod = await import('@/utils/devtools/state-logger.svelte');
   return {
     LOG_LEVEL_PRIORITY: mod.LOG_LEVEL_PRIORITY,
     shouldLog: mod.shouldLog,
@@ -35,8 +38,8 @@ vi.mock('./state-logger.svelte', async () => {
  *
  * @returns The devtools instance or undefined if not registered
  */
-const devtoolsGlobal = (): EditorDevtools | undefined =>
-  (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools | undefined;
+const devtoolsGlobal = (): DevtoolsAPI | undefined =>
+  (window as unknown as Record<Str, unknown>)[getDevtoolsKey(APP_NAME)] as DevtoolsAPI | undefined;
 
 const okVoid = () => ({ ok: true as const, data: undefined, error: null });
 
@@ -120,6 +123,17 @@ const createMockDebugStore = (enabled: Bool, logLevel = 'info') => ({
   setLogLevel: vi.fn(okVoid),
 });
 
+const testConfig: DevtoolsConfig = {
+  appName: APP_NAME,
+  urlParamPrefix: URL_PARAM_PREFIX,
+  appPreferencesSchema: AppPreferencesSchema.entries as unknown as Record<Str, Record<Str, unknown>>,
+  featureFlagsSchema: FeatureFlagsSchema.entries as unknown as Record<Str, Record<Str, unknown>>,
+  debugStateSchema: DebugStateSchema.entries as unknown as Record<Str, Record<Str, unknown>>,
+  goto: vi.fn(async () => {}),
+  isValidAppKey: (key: Str) => key in (AppPreferencesSchema.entries as unknown as Record<Str, unknown>),
+  isValidFeatureFlag: (key: Str) => key in (FeatureFlagsSchema.entries as unknown as Record<Str, unknown>),
+};
+
 let editorStore: ReturnType<typeof createMockEditorStore>;
 let consoleSpy: ReturnType<typeof vi.spyOn>;
 let warnSpy: ReturnType<typeof vi.spyOn>;
@@ -133,12 +147,12 @@ beforeEach(() => {
   tableSpy = vi.spyOn(console, 'table').mockImplementation(() => {});
   groupSpy = vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
   vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
-  (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] = undefined;
+  (window as unknown as Record<Str, unknown>)[getDevtoolsKey(APP_NAME)] = undefined;
 });
 
 afterEach(() => {
   vi.restoreAllMocks();
-  (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] = undefined;
+  (window as unknown as Record<Str, unknown>)[getDevtoolsKey(APP_NAME)] = undefined;
 });
 
 // =============================================================================
@@ -432,7 +446,7 @@ describe('state logger pipeline', () => {
 describe('devtools API state inspection', () => {
   it('state reflects current store values', () => {
     const debugStore = createMockDebugStore(true, 'trace');
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     expect(devtools.state.app.theme).toBe('');
@@ -450,7 +464,7 @@ describe('devtools API state inspection', () => {
 
   it('state returns fresh snapshots (not stale references)', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     const snap1 = devtools.state;
@@ -462,7 +476,7 @@ describe('devtools API state inspection', () => {
 
   it('appName and buildInfo are accessible', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     expect(devtools.appName).toBe(APP_NAME);
@@ -477,7 +491,7 @@ describe('devtools API state inspection', () => {
 describe('devtools API mutations', () => {
   it('setTheme calls editor store', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     devtools.setTheme('midnight');
@@ -488,7 +502,7 @@ describe('devtools API mutations', () => {
 
   it('setMode calls editor store', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     devtools.setMode('dark');
@@ -499,7 +513,7 @@ describe('devtools API mutations', () => {
 
   it('setLocale calls editor store', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     devtools.setLocale('ja');
@@ -510,7 +524,7 @@ describe('devtools API mutations', () => {
 
   it('setSidebarOpen calls editor store', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     devtools.setSidebarOpen(false);
@@ -521,7 +535,7 @@ describe('devtools API mutations', () => {
 
   it('setFeature calls editor store', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     devtools.setFeature('settings', false);
@@ -532,7 +546,7 @@ describe('devtools API mutations', () => {
 
   it('setLogLevel calls debug store', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     devtools.setLogLevel('trace');
@@ -543,7 +557,7 @@ describe('devtools API mutations', () => {
 
   it('enable/disable calls debug store', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     devtools.disable();
@@ -557,7 +571,7 @@ describe('devtools API mutations', () => {
 
   it('generic set works for all app paths', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     devtools.set('app.theme', 'ocean');
@@ -577,7 +591,7 @@ describe('devtools API mutations', () => {
 
   it('generic set works for feature paths', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     devtools.set('features.sidebar', false);
@@ -591,7 +605,7 @@ describe('devtools API mutations', () => {
 
   it('generic set works for debug paths', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     devtools.set('debug.logLevel', 'error');
@@ -605,7 +619,7 @@ describe('devtools API mutations', () => {
 
   it('generic set ignores invalid paths silently', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     // No section
@@ -624,7 +638,7 @@ describe('devtools API mutations', () => {
 
   it('generic set ignores unknown feature flag keys', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     devtools.set('features.nonexistent', true);
@@ -637,8 +651,8 @@ describe('devtools API mutations', () => {
 describe('devtools API extension registry', () => {
   it('register makes namespace accessible', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
-    const devtools = devtoolsGlobal()! as EditorDevtools & Record<Str, unknown>;
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
+    const devtools = devtoolsGlobal()! as DevtoolsAPI & Record<Str, unknown>;
 
     devtools.register('test', { ping: () => 'pong' });
 
@@ -650,8 +664,8 @@ describe('devtools API extension registry', () => {
 
   it('unregister removes namespace', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
-    const devtools = devtoolsGlobal()! as EditorDevtools & Record<Str, unknown>;
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
+    const devtools = devtoolsGlobal()! as DevtoolsAPI & Record<Str, unknown>;
 
     devtools.register('test', { ping: () => 'pong' });
     devtools.unregister('test');
@@ -663,8 +677,8 @@ describe('devtools API extension registry', () => {
 
   it('multiple extensions can coexist', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
-    const devtools = devtoolsGlobal()! as EditorDevtools & Record<Str, unknown>;
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
+    const devtools = devtoolsGlobal()! as DevtoolsAPI & Record<Str, unknown>;
 
     devtools.register('audio', { volume: 0.8 });
     devtools.register('scene', { name: 'town' });
@@ -679,7 +693,7 @@ describe('devtools API extension registry', () => {
 describe('devtools API console output', () => {
   it('logState prints all state sections', () => {
     const debugStore = createMockDebugStore(true, 'debug');
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     devtools.logState();
@@ -704,7 +718,7 @@ describe('devtools API console output', () => {
 
   it('logFeatures calls console.table with features object', () => {
     const debugStore = createMockDebugStore(true);
-    const api = createDevtoolsAPI(editorStore, debugStore);
+    const api = createDevtoolsAPI(editorStore, debugStore, testConfig);
     const devtools = devtoolsGlobal()!;
 
     devtools.logFeatures();
@@ -723,7 +737,7 @@ describe('devtools API console output', () => {
 describe('orchestrator lifecycle', () => {
   it('activate registers devtools global, destroy removes it', () => {
     const debugStore = createMockDebugStore(true);
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
     expect(devtoolsGlobal()).toBeDefined();
 
@@ -734,7 +748,7 @@ describe('orchestrator lifecycle', () => {
 
   it('activate logs deactivation message on destroy', () => {
     const debugStore = createMockDebugStore(true);
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
     handle.destroy();
 
@@ -749,30 +763,30 @@ describe('orchestrator lifecycle', () => {
     const disabledStore = createMockDebugStore(false);
 
     // Start disabled
-    let handle: DebugServicesHandle | null = syncDebugServices(editorStore, disabledStore, null);
+    let handle: DebugServicesHandle | null = syncDebugServices(editorStore, disabledStore, testConfig, null);
     expect(handle).toBeNull();
     expect(devtoolsGlobal()).toBeUndefined();
 
     // Enable
-    handle = syncDebugServices(editorStore, enabledStore, handle);
+    handle = syncDebugServices(editorStore, enabledStore, testConfig, handle);
     expect(handle).not.toBeNull();
     expect(devtoolsGlobal()).toBeDefined();
 
     // Stay enabled (idempotent)
-    const sameHandle = syncDebugServices(editorStore, enabledStore, handle);
+    const sameHandle = syncDebugServices(editorStore, enabledStore, testConfig, handle);
     expect(sameHandle).toBe(handle);
 
     // Disable
-    handle = syncDebugServices(editorStore, disabledStore, handle);
+    handle = syncDebugServices(editorStore, disabledStore, testConfig, handle);
     expect(handle).toBeNull();
     expect(devtoolsGlobal()).toBeUndefined();
 
     // Stay disabled (idempotent)
-    handle = syncDebugServices(editorStore, disabledStore, handle);
+    handle = syncDebugServices(editorStore, disabledStore, testConfig, handle);
     expect(handle).toBeNull();
 
     // Re-enable
-    handle = syncDebugServices(editorStore, enabledStore, handle);
+    handle = syncDebugServices(editorStore, enabledStore, testConfig, handle);
     expect(handle).not.toBeNull();
     expect(devtoolsGlobal()).toBeDefined();
 
@@ -781,9 +795,9 @@ describe('orchestrator lifecycle', () => {
 
   it('syncDebugServices is idempotent when already enabled', () => {
     const debugStore = createMockDebugStore(true);
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
-    const result = syncDebugServices(editorStore, debugStore, handle);
+    const result = syncDebugServices(editorStore, debugStore, testConfig, handle);
     expect(result).toBe(handle); // Same handle returned, not re-created
 
     handle.destroy();
@@ -791,7 +805,7 @@ describe('orchestrator lifecycle', () => {
 
   it('syncDebugServices is idempotent when already disabled', () => {
     const debugStore = createMockDebugStore(false);
-    const result = syncDebugServices(editorStore, debugStore, null);
+    const result = syncDebugServices(editorStore, debugStore, testConfig, null);
     expect(result).toBeNull();
   });
 });
@@ -803,7 +817,7 @@ describe('orchestrator lifecycle', () => {
 describe('welcome banner', () => {
   it('shows app name in header', () => {
     const debugStore = createMockDebugStore(true);
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
     // App name is passed as a %s substitution arg, not embedded in the format string
     const headerCall = consoleSpy.mock.calls.find(
@@ -815,7 +829,7 @@ describe('welcome banner', () => {
 
   it('shows Current State collapsible group', () => {
     const debugStore = createMockDebugStore(true);
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
     const stateGroup = groupSpy.mock.calls.find(
       (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Current State'),
@@ -826,7 +840,7 @@ describe('welcome banner', () => {
 
   it('shows Feature Flags collapsible group', () => {
     const debugStore = createMockDebugStore(true);
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
     const flagsGroup = groupSpy.mock.calls.find(
       (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Feature Flags'),
@@ -837,7 +851,7 @@ describe('welcome banner', () => {
 
   it('shows Devtools API group with logKV entries', () => {
     const debugStore = createMockDebugStore(true);
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
     const apiGroup = groupSpy.mock.calls.find(
       (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Devtools API'),
@@ -855,7 +869,7 @@ describe('welcome banner', () => {
 
   it('shows state logger tip when logLevel is info (default)', () => {
     const debugStore = createMockDebugStore(true, 'info');
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
     const tipCall = consoleSpy.mock.calls.find(
       (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Tip'),
@@ -871,7 +885,7 @@ describe('welcome banner', () => {
 
   it('shows state logger active when logLevel is debug', () => {
     const debugStore = createMockDebugStore(true, 'debug');
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
     const loggerCall = consoleSpy.mock.calls.find(
       (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Logger'),
@@ -883,7 +897,7 @@ describe('welcome banner', () => {
 
   it('shows state logger active when logLevel is trace', () => {
     const debugStore = createMockDebugStore(true, 'trace');
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
     const loggerCall = consoleSpy.mock.calls.find(
       (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Logger'),
@@ -896,7 +910,7 @@ describe('welcome banner', () => {
   it('does NOT show URL Overrides section when no overrides', () => {
     const debugStore = createMockDebugStore(true);
     debugStore.urlOverrides = {};
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
     const overrideGroup = groupSpy.mock.calls.find(
       (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('URL Overrides'),
@@ -909,7 +923,7 @@ describe('welcome banner', () => {
   it('shows URL Overrides section with valid override count', () => {
     const debugStore = createMockDebugStore(true);
     debugStore.urlOverrides = { debug: 'true', theme: 'midnight' };
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
     const overrideGroup = groupSpy.mock.calls.find(
       (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('URL Overrides'),
@@ -925,7 +939,7 @@ describe('welcome banner', () => {
   it('flags unknown overrides separately from valid ones', () => {
     const debugStore = createMockDebugStore(true);
     debugStore.urlOverrides = { debug: 'true', logLesel: 'debug', theme: 'midnight' };
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
     // Valid overrides logged as a single block via console.log
     const validBlock = consoleSpy.mock.calls.find(
@@ -950,7 +964,7 @@ describe('welcome banner', () => {
   it('URL Overrides summary includes unknown count', () => {
     const debugStore = createMockDebugStore(true);
     debugStore.urlOverrides = { debug: 'true', typo: 'x' };
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
     const overrideGroup = groupSpy.mock.calls.find(
       (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('URL Overrides'),
@@ -966,7 +980,7 @@ describe('welcome banner', () => {
   it('recognizes ff.* overrides as valid in banner', () => {
     const debugStore = createMockDebugStore(true);
     debugStore.urlOverrides = { 'ff.settings': 'false' };
-    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore, testConfig);
 
     // Valid ff.* override logged as a block via console.log
     const validBlock = consoleSpy.mock.calls.find(
@@ -1011,6 +1025,7 @@ describe('full debug activation flow', () => {
     let handle: DebugServicesHandle | null = syncDebugServices(
       editorStore,
       enabledDebugStore,
+      testConfig,
       null,
     );
     expect(handle).not.toBeNull();
@@ -1047,17 +1062,17 @@ describe('full debug activation flow', () => {
     expect(loggerActive).toBeDefined();
 
     // 10. Destroy cleans up
-    handle = syncDebugServices(editorStore, createMockDebugStore(false), handle);
+    handle = syncDebugServices(editorStore, createMockDebugStore(false), testConfig, handle);
     expect(handle).toBeNull();
     expect(devtoolsGlobal()).toBeUndefined();
   });
 
   it('devtools window global key derives from APP_NAME', () => {
-    expect(DEVTOOLS_KEY).toBe(`__${APP_NAME.toUpperCase()}_DEVTOOLS__`);
+    expect(getDevtoolsKey(APP_NAME)).toBe(`__${APP_NAME.toUpperCase()}_DEVTOOLS__`);
 
     const debugStore = createMockDebugStore(true);
-    activateDebugServices(editorStore, debugStore);
+    activateDebugServices(editorStore, debugStore, testConfig);
 
-    expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBe(devtoolsGlobal());
+    expect((window as unknown as Record<Str, unknown>)[getDevtoolsKey(APP_NAME)]).toBe(devtoolsGlobal());
   });
 });

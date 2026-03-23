@@ -50,6 +50,26 @@ const sharedPathAliases: Array<{ find: string; replacement: string }> = [
     find: '@/utils/core/',
     replacement: `${path.resolve(root, 'packages/shared/utils/core/src')}/`,
   },
+  {
+    find: '@/utils/beacon/',
+    replacement: `${path.resolve(root, 'packages/shared/utils/beacon/src')}/`,
+  },
+  {
+    find: '@/utils/web-vitals/',
+    replacement: `${path.resolve(root, 'packages/shared/utils/web-vitals/src')}/`,
+  },
+  {
+    find: '@/utils/devtools/',
+    replacement: `${path.resolve(root, 'packages/shared/utils/devtools/src')}/`,
+  },
+  {
+    find: '@/schemas/core-config/',
+    replacement: `${path.resolve(root, 'packages/shared/schemas/core-config/src')}/`,
+  },
+  {
+    find: '@/config/core/',
+    replacement: `${path.resolve(root, 'packages/shared/config/core/src')}/`,
+  },
   { find: '@/locale/', replacement: `${path.resolve(root, 'packages/shared/locale/src')}/` },
   {
     find: '@/config/test/',
@@ -145,6 +165,14 @@ export default defineConfig({
       },
       {
         extends: true,
+        define: {
+          __APP_VERSION__: JSON.stringify('0.0.0-test'),
+          __GIT_COMMIT__: JSON.stringify('abc1234'),
+          __GIT_COMMIT_FULL__: JSON.stringify('abc1234def5678901234567890abcdef12345678'),
+          __GIT_BRANCH__: JSON.stringify('test-branch'),
+          __GIT_DIRTY__: 'false',
+          __BUILD_TIMESTAMP__: JSON.stringify('2026-01-01T00:00:00.000Z'),
+        },
         test: {
           name: 'utils-core',
           root: 'packages/shared/utils/core',
@@ -153,8 +181,52 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          name: 'utils-beacon',
+          root: 'packages/shared/utils/beacon',
+        },
+      },
+      {
+        extends: true,
+        plugins: [svelte({ hot: false })],
+        test: {
+          name: 'utils-web-vitals',
+          root: 'packages/shared/utils/web-vitals',
+          environment: 'jsdom',
+        },
+      },
+      {
+        extends: true,
+        plugins: [svelte({ hot: false })],
+        define: {
+          __APP_VERSION__: JSON.stringify('0.0.0-test'),
+          __GIT_COMMIT__: JSON.stringify('abc1234'),
+          __GIT_COMMIT_FULL__: JSON.stringify('abc1234def5678901234567890abcdef12345678'),
+          __GIT_BRANCH__: JSON.stringify('test-branch'),
+          __GIT_DIRTY__: 'false',
+          __BUILD_TIMESTAMP__: JSON.stringify('2026-01-01T00:00:00.000Z'),
+        },
+        test: {
+          name: 'utils-devtools',
+          root: 'packages/shared/utils/devtools',
+          environment: 'jsdom',
+        },
+      },
+      {
+        extends: true,
+        test: {
           name: 'locale',
           root: 'packages/shared/locale',
+          exclude: ['src/**/*.svelte.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        plugins: [svelte({ hot: false })],
+        test: {
+          name: 'locale-svelte',
+          root: 'packages/shared/locale',
+          environment: 'jsdom',
+          include: ['src/**/*.svelte.test.ts'],
         },
       },
       {
@@ -184,19 +256,8 @@ export default defineConfig({
       {
         extends: true,
         test: {
-          name: 'runtime',
-          root: 'packages/products/storylyne/runtime',
-          setupFiles: ['./src/test-setup.ts'],
-          server: {
-            deps: {
-              inline: [
-                '@babylonjs/core',
-                '@babylonjs/materials',
-                '@babylonjs/loaders',
-                '@babylonjs/gui',
-              ],
-            },
-          },
+          name: 'config-core',
+          root: 'packages/shared/config/core',
         },
       },
       {
@@ -220,13 +281,6 @@ export default defineConfig({
           name: 'lint',
           root: 'packages/shared/config/tooling/lint',
           include: ['src/**/*.test.ts'],
-        },
-      },
-      {
-        extends: true,
-        test: {
-          name: 'plugin-api',
-          root: 'packages/products/storylyne/plugin-api',
         },
       },
       {

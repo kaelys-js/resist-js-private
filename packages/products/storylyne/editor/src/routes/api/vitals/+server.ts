@@ -23,7 +23,7 @@ import {
   VitalsBeaconPayloadSchema,
   type VitalsBeaconPayload,
   type VitalsMetric,
-} from '$lib/perf/vitals-payload';
+} from '@/utils/web-vitals/vitals-payload';
 
 /** Maximum request body size in bytes (64KB). */
 const MAX_BODY_SIZE: Num = 65_536 as Num;

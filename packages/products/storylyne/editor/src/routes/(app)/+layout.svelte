@@ -18,16 +18,17 @@
   import { initEditorStore, type EditorStore } from '$lib/stores/editor-state.svelte';
   import { initDebugStore, type DebugStore } from '$lib/stores/debug-state.svelte';
   import { applyUrlOverrides } from '$lib/utils/url-params';
-  import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
-  import { BUILD_KEY } from '$lib/debug/devtools-api.svelte';
+  import { syncDebugServices, type DebugServicesHandle } from '@/utils/devtools/init.svelte';
+  import { getBuildKey } from '@/utils/devtools/devtools-api.svelte';
+  import { getDevtoolsConfig } from '$lib/config/devtools-config';
   import DevToolbar from '$lib/components/DevToolbar.svelte';
   import PageFadeIn from '@/ui/page-fade-in/PageFadeIn.svelte';
   import { log } from '@/utils/core/logger';
   import { APP_TAGLINE, STORAGE_PREFIX, THEME_COLORS, storageKey } from '$lib/config/app-meta';
-  import { getBuildInfo } from '$lib/config/build-info';
+  import { getBuildInfo } from '@/utils/core/build-info';
   import { getAnnouncement } from '@/ui/announce/announce.svelte';
   import type { ServerProject, ServerScene } from '$lib/server/data/types';
-  import { addNavigationBreadcrumb } from '$lib/errors/breadcrumbs';
+  import { addNavigationBreadcrumb } from '@/utils/beacon/breadcrumbs';
   import { setPreferenceCookie } from '@/utils/core/preference-cookie';
   import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';
 
@@ -84,7 +85,7 @@
     const buildResult = getBuildInfo();
     if (buildResult.ok) {
       // Window interface uses literal key; computed access requires cast
-      (window as unknown as Record<Str, unknown>)[BUILD_KEY] = buildResult.data;
+      (window as unknown as Record<Str, unknown>)[getBuildKey(store.app.appName)] = buildResult.data;
       const b: typeof buildResult.data = buildResult.data;
       // eslint-disable-next-line no-console -- Intentional startup log
       console.log(
@@ -99,7 +100,7 @@
   let debugHandle: DebugServicesHandle | null = $state(null);
   $effect(() => {
     if (!debugStore) return;
-    debugHandle = syncDebugServices(store, debugStore, debugHandle);
+    debugHandle = syncDebugServices(store, debugStore, getDevtoolsConfig(), debugHandle);
   });
 
   // ── Streaming data resolution ─────────────────────────────────────────

@@ -1,10 +1,11 @@
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import DevToolbarAppStateTest from './DevToolbarAppStateTest.svelte';
-import { discoverAppPreferences } from '$lib/debug/dev-toolbar-registry';
+import { discoverAppPreferences } from '@/utils/devtools/dev-toolbar-registry';
 import { APP_NAME } from '$lib/config/app-meta';
+import { AppPreferencesSchema } from '$lib/schemas/editor-state';
 
-const preferences = discoverAppPreferences();
+const preferences = discoverAppPreferences(AppPreferencesSchema.entries as unknown as Record<string, Record<string, unknown>>);
 
 describe('DevToolbarAppState', () => {
   it('renders the panel with correct testid', () => {

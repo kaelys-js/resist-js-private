@@ -16,7 +16,6 @@ Already done. The monorepo is scaffolded with pnpm workspaces, Turborepo, and th
 
 - `packages/products/webforge/editor/` -- SvelteKit + shadcn-svelte editor UI
 - `packages/products/webforge/runtime/` -- Babylon.js HD-2D game runtime
-- `packages/products/webforge/plugin-api/` -- Plugin SDK for third-party extensions
 - `packages/shared/` -- Shared schemas, utils, locale, config
 
 ---

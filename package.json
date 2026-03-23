@@ -11,16 +11,16 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "clean": "turbo clean",
-    "qa:test": "turbo qa:test --filter='./packages/products/storylyne/editor' --filter='./packages/products/storylyne/plugin-api' --filter='./packages/products-template/*' --filter='./packages/shared/config/*' --filter='./packages/shared/locale' --filter='./packages/shared/schemas/*' --filter='./packages/shared/ui'",
+    "qa:test": "turbo qa:test --filter='./packages/products/storylyne/editor' --filter='./packages/products-template/*' --filter='./packages/shared/config/*' --filter='./packages/shared/locale' --filter='./packages/shared/schemas/*' --filter='./packages/shared/ui' --filter='./packages/shared/utils/*'",
     "qa:test:unit": "vitest run",
     "qa:test:e2e": "turbo qa:test:e2e",
     "qa:test:coverage": "vitest run --coverage",
     "qa:benchmark": "vitest bench",
-    "qa:type-check": "turbo qa:type-check --filter='./packages/products/storylyne/editor' --filter='./packages/products/storylyne/plugin-api' --filter='./packages/products-template/*' --filter='./packages/shared/config/*' --filter='./packages/shared/locale' --filter='./packages/shared/schemas/*' --filter='./packages/shared/ui'",
+    "qa:type-check": "turbo qa:type-check --filter='./packages/products/storylyne/editor' --filter='./packages/products-template/*' --filter='./packages/shared/config/*' --filter='./packages/shared/locale' --filter='./packages/shared/schemas/*' --filter='./packages/shared/ui' --filter='./packages/shared/utils/*'",
     "qa:format": "biome format --write . && prettier --write '**/*.svelte'",
     "qa:format:check": "biome format . && prettier --check '**/*.svelte'",
-    "qa:lint": "oxlint packages/products/storylyne/editor packages/products/storylyne/plugin-api packages/products-template packages/shared/config packages/shared/locale packages/shared/schemas packages/shared/ui && npx tsx packages/shared/config/tooling/lint/src/cli.ts --warn-only packages/products/storylyne/editor packages/products/storylyne/plugin-api packages/products-template packages/shared/config packages/shared/locale packages/shared/schemas packages/shared/ui",
-    "qa:lint:custom": "npx tsx packages/shared/config/tooling/lint/src/cli.ts packages/products/storylyne/editor packages/products/storylyne/plugin-api packages/products-template packages/shared/config packages/shared/locale packages/shared/schemas packages/shared/ui"
+    "qa:lint": "oxlint packages/products/storylyne/editor packages/products-template packages/shared/config packages/shared/locale packages/shared/schemas packages/shared/ui && npx tsx packages/shared/config/tooling/lint/src/cli.ts --warn-only packages/products/storylyne/editor packages/products-template packages/shared/config packages/shared/locale packages/shared/schemas packages/shared/ui",
+    "qa:lint:custom": "npx tsx packages/shared/config/tooling/lint/src/cli.ts packages/products/storylyne/editor packages/products-template packages/shared/config packages/shared/locale packages/shared/schemas packages/shared/ui"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

@@ -6,12 +6,29 @@ import {
   generateDebugUrl,
   humanizeKey,
   humanizeOption,
-} from '$lib/debug/dev-toolbar-registry';
+} from '@/utils/devtools/dev-toolbar-registry';
 import { FeatureFlagsSchema, AppPreferencesSchema } from '$lib/schemas/editor-state';
-import { DebugStateSchema } from '$lib/schemas/debug-state';
-import { URL_PARAM_PREFIX } from '$lib/config/app-meta';
+import { DebugStateSchema } from '@/utils/devtools/debug-state-schema';
+import { APP_NAME, URL_PARAM_PREFIX } from '$lib/config/app-meta';
 import { createEditorStore } from '$lib/stores/editor-state.svelte';
 import { createDebugStore } from '$lib/stores/debug-state.svelte';
+import type { DevtoolsConfig } from '@/utils/devtools/types';
+import { vi } from 'vitest';
+
+const flagEntries = FeatureFlagsSchema.entries as unknown as Record<string, Record<string, unknown>>;
+const prefEntries = AppPreferencesSchema.entries as unknown as Record<string, Record<string, unknown>>;
+const debugEntries = DebugStateSchema.entries as unknown as Record<string, Record<string, unknown>>;
+
+const testConfig: DevtoolsConfig = {
+  appName: APP_NAME,
+  urlParamPrefix: URL_PARAM_PREFIX,
+  appPreferencesSchema: prefEntries,
+  featureFlagsSchema: flagEntries,
+  debugStateSchema: debugEntries,
+  goto: vi.fn(async () => {}),
+  isValidAppKey: (key: string) => key in prefEntries,
+  isValidFeatureFlag: (key: string) => key in flagEntries,
+};
 
 // =============================================================================
 // humanizeKey
@@ -45,13 +62,13 @@ describe('humanizeKey', () => {
 
 describe('discoverFeatureFlags', () => {
   it('returns an entry for every flag in FeatureFlagsSchema', () => {
-    const flags = discoverFeatureFlags();
+    const flags = discoverFeatureFlags(flagEntries);
     const schemaKeys = Object.keys(FeatureFlagsSchema.entries);
     expect(flags).toHaveLength(schemaKeys.length);
   });
 
   it('each entry has key and default fields', () => {
-    const flags = discoverFeatureFlags();
+    const flags = discoverFeatureFlags(flagEntries);
     for (const flag of flags) {
       expect(flag).toHaveProperty('key');
       expect(flag).toHaveProperty('default');
@@ -61,14 +78,14 @@ describe('discoverFeatureFlags', () => {
   });
 
   it('includes the "settings" flag with default true', () => {
-    const flags = discoverFeatureFlags();
+    const flags = discoverFeatureFlags(flagEntries);
     const settings = flags.find((f) => f.key === 'settings');
     expect(settings).toBeDefined();
     expect(settings?.default).toBe(true);
   });
 
   it('includes all known flags', () => {
-    const flags = discoverFeatureFlags();
+    const flags = discoverFeatureFlags(flagEntries);
     const keys = flags.map((f) => f.key);
     expect(keys).toContain('settings');
     expect(keys).toContain('sceneList');
@@ -83,13 +100,13 @@ describe('discoverFeatureFlags', () => {
 
 describe('discoverAppPreferences', () => {
   it('returns an entry for every field in AppPreferencesSchema', () => {
-    const prefs = discoverAppPreferences();
+    const prefs = discoverAppPreferences(prefEntries);
     const schemaKeys = Object.keys(AppPreferencesSchema.entries);
     expect(prefs).toHaveLength(schemaKeys.length);
   });
 
   it('detects theme as picklist type with options', () => {
-    const prefs = discoverAppPreferences();
+    const prefs = discoverAppPreferences(prefEntries);
     const theme = prefs.find((p) => p.key === 'theme');
     expect(theme).toBeDefined();
     expect(theme?.type).toBe('picklist');
@@ -99,7 +116,7 @@ describe('discoverAppPreferences', () => {
   });
 
   it('detects mode as picklist type', () => {
-    const prefs = discoverAppPreferences();
+    const prefs = discoverAppPreferences(prefEntries);
     const mode = prefs.find((p) => p.key === 'mode');
     expect(mode).toBeDefined();
     expect(mode?.type).toBe('picklist');
@@ -109,7 +126,7 @@ describe('discoverAppPreferences', () => {
   });
 
   it('detects locale as picklist type', () => {
-    const prefs = discoverAppPreferences();
+    const prefs = discoverAppPreferences(prefEntries);
     const locale = prefs.find((p) => p.key === 'locale');
     expect(locale).toBeDefined();
     expect(locale?.type).toBe('picklist');
@@ -118,7 +135,7 @@ describe('discoverAppPreferences', () => {
   });
 
   it('detects sidebarOpen as boolean type', () => {
-    const prefs = discoverAppPreferences();
+    const prefs = discoverAppPreferences(prefEntries);
     const sidebar = prefs.find((p) => p.key === 'sidebarOpen');
     expect(sidebar).toBeDefined();
     expect(sidebar?.type).toBe('boolean');
@@ -126,14 +143,14 @@ describe('discoverAppPreferences', () => {
   });
 
   it('detects appName as string type', () => {
-    const prefs = discoverAppPreferences();
+    const prefs = discoverAppPreferences(prefEntries);
     const appName = prefs.find((p) => p.key === 'appName');
     expect(appName).toBeDefined();
     expect(appName?.type).toBe('string');
   });
 
   it('includes default values', () => {
-    const prefs = discoverAppPreferences();
+    const prefs = discoverAppPreferences(prefEntries);
     const theme = prefs.find((p) => p.key === 'theme');
     expect(theme?.default).toBe('');
 
@@ -145,7 +162,7 @@ describe('discoverAppPreferences', () => {
   });
 
   it('detects subscriptionPlan as picklist type with plan options', () => {
-    const prefs = discoverAppPreferences();
+    const prefs = discoverAppPreferences(prefEntries);
     const plan = prefs.find((p) => p.key === 'subscriptionPlan');
     expect(plan).toBeDefined();
     expect(plan?.type).toBe('picklist');
@@ -185,13 +202,13 @@ describe('humanizeOption — subscriptionPlan', () => {
 
 describe('discoverDebugFields', () => {
   it('returns an entry for every field in DebugStateSchema', () => {
-    const fields = discoverDebugFields();
+    const fields = discoverDebugFields(debugEntries);
     const schemaKeys = Object.keys(DebugStateSchema.entries);
     expect(fields).toHaveLength(schemaKeys.length);
   });
 
   it('detects enabled as boolean type', () => {
-    const fields = discoverDebugFields();
+    const fields = discoverDebugFields(debugEntries);
     const enabled = fields.find((f) => f.key === 'enabled');
     expect(enabled).toBeDefined();
     expect(enabled?.type).toBe('boolean');
@@ -199,7 +216,7 @@ describe('discoverDebugFields', () => {
   });
 
   it('detects logLevel as picklist type with options', () => {
-    const fields = discoverDebugFields();
+    const fields = discoverDebugFields(debugEntries);
     const logLevel = fields.find((f) => f.key === 'logLevel');
     expect(logLevel).toBeDefined();
     expect(logLevel?.type).toBe('picklist');
@@ -218,7 +235,7 @@ describe('generateDebugUrl', () => {
     const debugResult = createDebugStore();
     if (!editorResult.ok || !debugResult.ok) throw new Error('Store creation failed');
 
-    const url = generateDebugUrl(editorResult.data, debugResult.data);
+    const url = generateDebugUrl(editorResult.data, debugResult.data, testConfig);
     expect(url).toContain(`${URL_PARAM_PREFIX}debug=`);
     expect(url).toContain(`${URL_PARAM_PREFIX}theme=`);
     expect(url).toContain(`${URL_PARAM_PREFIX}mode=`);
@@ -233,7 +250,7 @@ describe('generateDebugUrl', () => {
     // Disable a flag
     editorResult.data.setFeature('settings', false);
 
-    const url = generateDebugUrl(editorResult.data, debugResult.data);
+    const url = generateDebugUrl(editorResult.data, debugResult.data, testConfig);
     expect(url).toContain(`${URL_PARAM_PREFIX}ff.settings=false`);
   });
 
@@ -242,7 +259,7 @@ describe('generateDebugUrl', () => {
     const debugResult = createDebugStore();
     if (!editorResult.ok || !debugResult.ok) throw new Error('Store creation failed');
 
-    const url = generateDebugUrl(editorResult.data, debugResult.data, 'https://example.com/editor');
+    const url = generateDebugUrl(editorResult.data, debugResult.data, testConfig, 'https://example.com/editor');
     expect(url).toMatch(/^https:\/\/example\.com\/editor\?/);
   });
 
@@ -251,7 +268,7 @@ describe('generateDebugUrl', () => {
     const debugResult = createDebugStore();
     if (!editorResult.ok || !debugResult.ok) throw new Error('Store creation failed');
 
-    const url = generateDebugUrl(editorResult.data, debugResult.data);
+    const url = generateDebugUrl(editorResult.data, debugResult.data, testConfig);
     // In test env, window.location.href is 'http://localhost:3000/' or similar
     expect(url).toContain(`?${URL_PARAM_PREFIX}`);
   });
