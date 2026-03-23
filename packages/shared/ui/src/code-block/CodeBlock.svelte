@@ -28,11 +28,11 @@
     /** Additional CSS classes for the root element. */
     class: v.optional(StrSchema),
     /** Whether to show line numbers initially. @values true, false */
-    showLineNumbers: v.optional(BoolSchema),
+    showLineNumbers: v.optional(BoolSchema, false),
     /** Whether to enable the inline search bar. @values true, false */
-    showSearch: v.optional(BoolSchema),
+    showSearch: v.optional(BoolSchema, false),
     /** Whether word wrap is enabled by default. @values true, false */
-    wordWrap: v.optional(BoolSchema),
+    wordWrap: v.optional(BoolSchema, false),
   });
   /** Props for the CodeBlock component. */
   export type CodeBlockProps = v.InferOutput<typeof CodeBlockPropsSchema>;
@@ -54,9 +54,9 @@
   import WrapText from '@lucide/svelte/icons/wrap-text';
   import ListOrdered from '@lucide/svelte/icons/list-ordered';
 
-  const allProps: CodeBlockProps = $props();
+  const { ...restProps }: CodeBlockProps = $props();
   const validated: CodeBlockProps = $derived.by(() => {
-    const rawProps: CodeBlockProps = stripSvelteProps(allProps);
+    const rawProps: CodeBlockProps = stripSvelteProps(restProps);
     const result = safeParse(CodeBlockPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -271,7 +271,7 @@
   });
 </script>
 
-<div class={cn('group/codeblock relative max-w-full rounded-md text-sm', validated.class)}>
+<div class={cn('group/codeblock relative max-w-full rounded-md text-sm', validated.class)} {...restProps}>
   <!-- Header bar: language chip + line count + options menu -->
   <div class="flex items-center justify-between border-b px-3 py-1.5">
     <div class="flex items-center gap-2">

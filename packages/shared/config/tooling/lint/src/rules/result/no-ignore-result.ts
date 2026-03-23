@@ -90,12 +90,12 @@ function getFunctionName(node: AstNode): string | null {
  * @returns {boolean} Whether the function likely returns Result
  */
 function likelyReturnsResult(funcName: string, context: VisitorContext): boolean {
-  // Check function name patterns
-  if (RESULT_FUNCTION_PATTERNS.some((p: RegExp): boolean => p.test(funcName))) {
-    // Also check if file uses Result types
-    if (RESULT_IMPORT_PATTERNS.some((p: RegExp): boolean => p.test(context.content))) {
-      return true;
-    }
+  // Check function name patterns and file Result usage
+  if (
+    RESULT_FUNCTION_PATTERNS.some((p: RegExp): boolean => p.test(funcName)) &&
+    RESULT_IMPORT_PATTERNS.some((p: RegExp): boolean => p.test(context.content))
+  ) {
+    return true;
   }
 
   // Check if the function is defined in this file with Result return type

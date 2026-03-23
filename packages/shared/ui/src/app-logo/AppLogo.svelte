@@ -23,9 +23,9 @@
   import { safeParse } from '@/utils/result/safe';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: AppLogoProps = $props();
+  const { ...restProps }: AppLogoProps = $props();
   const validated: AppLogoProps = $derived.by(() => {
-    const rawProps: AppLogoProps = stripSvelteProps(allProps);
+    const rawProps: AppLogoProps = stripSvelteProps(restProps);
     const result = safeParse(AppLogoPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -41,7 +41,7 @@
   Source of truth: branding/logo.svg (regenerate with: pnpm generate-icons)
   Plays a fade-in + grow + sparkle animation on mount.
 -->
-<div class="logo-entrance {className}" style="width: {size}px; height: {size}px;">
+<div class="logo-entrance {className}" style="width: {size}px; height: {size}px;" {...restProps}>
   <img
     src="/favicon.svg"
     alt=""

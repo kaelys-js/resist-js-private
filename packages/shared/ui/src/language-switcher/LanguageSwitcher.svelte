@@ -64,9 +64,9 @@
   import Check from '@lucide/svelte/icons/check';
   import * as DropdownMenu from '../dropdown-menu/index.js';
 
-  const allProps: LanguageSwitcherProps = $props();
+  const { ...restProps }: LanguageSwitcherProps = $props();
   const validated: LanguageSwitcherProps = $derived.by(() => {
-    const rawProps: LanguageSwitcherProps = stripSvelteProps(allProps);
+    const rawProps: LanguageSwitcherProps = stripSvelteProps(restProps);
     const result = safeParse(LanguageSwitcherPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -115,7 +115,7 @@
   }
 </script>
 
-<DropdownMenu.Sub onOpenChange={handleSubOpenChange}>
+<DropdownMenu.Sub onOpenChange={handleSubOpenChange} {...restProps}>
   <DropdownMenu.SubTrigger>
     <Globe aria-hidden="true" class="mr-2 size-4" />
     {validated.labels.language}

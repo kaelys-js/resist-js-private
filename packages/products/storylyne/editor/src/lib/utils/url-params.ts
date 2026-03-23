@@ -27,6 +27,9 @@ const FLAG_ENTRIES = FeatureFlagsSchema.entries as unknown as Record<Str, unknow
 
 /**
  * Checks whether a key is a valid app preference field.
+ *
+ * @param key - The preference key to validate.
+ * @returns Whether the key exists in the app preferences schema.
  */
 export function isValidAppKey(key: Str): Bool {
   return sharedIsValidAppKey(key, APP_ENTRIES);
@@ -34,6 +37,9 @@ export function isValidAppKey(key: Str): Bool {
 
 /**
  * Checks whether a key is a valid feature flag.
+ *
+ * @param key - The feature flag key to validate.
+ * @returns Whether the key exists in the feature flags schema.
  */
 export function isValidFeatureFlag(key: Str): Bool {
   return sharedIsValidFeatureFlag(key, FLAG_ENTRIES);
@@ -41,6 +47,9 @@ export function isValidFeatureFlag(key: Str): Bool {
 
 /**
  * Extracts all app-prefixed parameters from a URL.
+ *
+ * @param url - The URL to parse debug parameters from.
+ * @returns A Result containing the parsed URL overrides.
  */
 export function parseDebugParams(url: URL): Result<UrlOverrides> {
   return sharedParseDebugParams(url, URL_PARAM_PREFIX);
@@ -54,6 +63,11 @@ type DebugStoreLike = {
 
 /**
  * Applies URL overrides to the editor and debug stores.
+ *
+ * @param editorStore - The editor store to apply app preference overrides to.
+ * @param debugStore - The debug store to apply debug state overrides to.
+ * @param overrides - The parsed URL overrides to apply.
+ * @returns A Result indicating success or failure.
  */
 export function applyUrlOverrides(
   editorStore: EditorStore,

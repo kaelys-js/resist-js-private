@@ -125,7 +125,7 @@
     radius: v.optional(v.picklist(['none', 'sm', 'md', 'lg', 'full']), 'none'),
     /** Quote text content. @values {#snippet children()}Life is like a box of chocolates.{/snippet} */
     children: v.optional(v.custom<Snippet>(() => true)),
-    /** Custom icon snippet replacing the default quote-mark SVG. @values {#snippet icon()}<MyIcon />{/snippet} @requires cite:Attribution @requires children:"Life is like a box of chocolates." */
+    /** Custom icon snippet replacing the default quote-mark SVG. @values {#snippet icon()}<MyIcon />{/snippet} @requires cite:Attribution */
     icon: v.optional(v.custom<Snippet>(() => true)),
     /** Footer slot for testimonial-style layouts (avatar, name, role). @values {#snippet footer()}<footer>...</footer>{/snippet} */
     footer: v.optional(v.custom<Snippet>(() => true)),

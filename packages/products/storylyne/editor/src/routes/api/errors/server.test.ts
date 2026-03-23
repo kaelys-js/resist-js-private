@@ -140,7 +140,10 @@ describe('POST /api/errors', () => {
 
   it('returns 400 when request.text() throws', async () => {
     const brokenRequest = {
-      text: () => Promise.reject(new Error('client disconnected')),
+      text: async () => {
+        await Promise.resolve();
+        throw new Error('client disconnected');
+      },
     };
     const response: Response = await POST({ request: brokenRequest } as never);
 

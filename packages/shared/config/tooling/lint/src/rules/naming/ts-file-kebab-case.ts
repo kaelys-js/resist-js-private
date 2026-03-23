@@ -24,7 +24,7 @@ const rule: TypeScriptRule = {
 
       // Extract filename from path
       const parts: string[] = context.file.split('/');
-      const filename: string = parts[parts.length - 1] ?? '';
+      const filename: string = parts.at(-1) ?? '';
 
       // Exempt .svelte.ts files
       if (filename.endsWith('.svelte.ts')) return results;
@@ -47,7 +47,7 @@ const rule: TypeScriptRule = {
           line: 1,
           column: 1,
           severity: 'error',
-          message: `TypeScript file '${filename}' should use kebab-case (e.g., ${baseName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}.ts)`,
+          message: `TypeScript file '${filename}' should use kebab-case (e.g., ${baseName.replaceAll(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}.ts)`,
           ruleId: 'naming/ts-file-kebab-case',
           tip: 'Rename the file to kebab-case (e.g., scene-loader.ts)',
           fix: { range: { start: 0, end: 0 }, text: '' },

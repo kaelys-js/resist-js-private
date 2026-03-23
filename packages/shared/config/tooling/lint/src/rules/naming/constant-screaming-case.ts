@@ -101,7 +101,7 @@ const rule: TypeScriptRule = {
               tip: 'Rename to SCREAMING_SNAKE_CASE (e.g., MAX_RETRIES, DEFAULT_PORT)',
               fix: {
                 range: { start: id.start, end: id.end },
-                text: name.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase(),
+                text: name.replaceAll(/([a-z])([A-Z])/g, '$1_$2').toUpperCase(),
               },
             });
           }

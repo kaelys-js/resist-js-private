@@ -30,8 +30,7 @@
  * @module
  */
 
-import { defineConfig, devices } from '@playwright/test';
-import type { PlaywrightTestConfig } from '@playwright/test';
+import { defineConfig, devices, type PlaywrightTestConfig } from '@playwright/test';
 
 /**
  * Options for configuring a Playwright E2E preset.

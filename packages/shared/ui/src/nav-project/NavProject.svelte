@@ -34,9 +34,9 @@
   import * as Sidebar from '../sidebar/index.js';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: NavProjectProps = $props();
+  const { ...restProps }: NavProjectProps = $props();
   const validated: NavProjectProps = $derived.by(() => {
-    const rawProps: NavProjectProps = stripSvelteProps(allProps);
+    const rawProps: NavProjectProps = stripSvelteProps(restProps);
     const result = safeParse(NavProjectPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -55,7 +55,7 @@
   );
 </script>
 
-<Sidebar.Menu>
+<Sidebar.Menu {...restProps}>
   <Sidebar.MenuItem>
     <DropdownMenu.Root>
       <DropdownMenu.Trigger>

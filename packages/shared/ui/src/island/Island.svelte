@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
   /**
    * Island — isolates interactive content within an otherwise static page.

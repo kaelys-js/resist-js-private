@@ -15,7 +15,7 @@ beforeEach(() => {
 
 describe('shortcutStore', () => {
   it('registry returns a ShortcutRegistry with all shortcut IDs', () => {
-    const registry = shortcutStore.registry;
+    const { registry } = shortcutStore;
     expect(registry).toBeDefined();
     expect(registry.TOGGLE_DEV_TOOLBAR).toBeDefined();
     expect(registry.TOGGLE_SIDEBAR).toBeDefined();

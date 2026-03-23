@@ -36,9 +36,9 @@
   import SidebarToggle from '../sidebar-toggle/SidebarToggle.svelte';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: SiteHeaderProps = $props();
+  const { ...restProps }: SiteHeaderProps = $props();
   const validated: SiteHeaderProps = $derived.by(() => {
-    const rawProps: SiteHeaderProps = stripSvelteProps(allProps);
+    const rawProps: SiteHeaderProps = stripSvelteProps(restProps);
     const result = safeParse(SiteHeaderPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -48,6 +48,7 @@
 
 <header
   class="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height,color,background-color,border-color] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)"
+  {...restProps}
 >
   <div class="flex w-full items-center gap-1 px-4">
     {#if validated.showSidebarToggle}

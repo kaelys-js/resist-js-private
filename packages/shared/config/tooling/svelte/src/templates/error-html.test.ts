@@ -194,7 +194,7 @@ describe('error.html script robustness', () => {
   });
 
   it('extracts error ID from SvelteKit error message', () => {
-    expect(errorHtml).toContain('text.match(/\\(Reference:\\s*([^)]+)\\)/)');
+    expect(errorHtml).toContain(String.raw`text.match(/\(Reference:\s*([^)]+)\)/)`);
   });
 });
 

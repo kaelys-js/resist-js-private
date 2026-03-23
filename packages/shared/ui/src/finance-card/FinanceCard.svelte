@@ -20,7 +20,7 @@
     /** Optional footer text below the card header. @values +12.5% from last month, -3.2% from last month, No change */
     subtitle: v.optional(StrSchema),
     /** Optional trend badge direction. @values up, down, neutral */
-    trend: v.optional(v.picklist(['up', 'down', 'neutral'])),
+    trend: v.optional(v.picklist(['up', 'down', 'neutral']), 'neutral'),
     /** Optional Tailwind classes for the value. @values text-destructive, text-green-500, text-primary */
     valueClass: v.optional(StrSchema),
   });
@@ -40,9 +40,9 @@
   import * as Card from '../card/index.js';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: FinanceCardProps = $props();
+  const { ...restProps }: FinanceCardProps = $props();
   const validated: FinanceCardProps = $derived.by(() => {
-    const rawProps: FinanceCardProps = stripSvelteProps(allProps);
+    const rawProps: FinanceCardProps = stripSvelteProps(restProps);
     const result = safeParse(FinanceCardPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -50,7 +50,7 @@
   });
 </script>
 
-<Card.Root class="@container/card">
+<Card.Root class="@container/card" {...restProps}>
   <Card.Header>
     <Card.Description>{validated.label}</Card.Description>
     <Card.Title

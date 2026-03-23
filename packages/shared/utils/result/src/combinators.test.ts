@@ -5,8 +5,7 @@
  */
 
 import { describe, expect, it, vi } from 'vitest';
-import type { Str } from '@/schemas/common';
-import { type AppError, type Result, okUnchecked, err, ERRORS } from '@/schemas/result/result';
+import { type AppError, type KnownErrorCode, type Result, okUnchecked, err, ERRORS } from '@/schemas/result/result';
 import {
   map,
   mapErr,
@@ -25,8 +24,8 @@ import {
 // ── Helpers ─────────────────────────────────────────────────────────────
 
 const okResult = <T>(data: T): Result<T> => okUnchecked<T>(data);
-const errResult = <T>(code: string = 'TEST.ERROR', message: string = 'test error'): Result<T> =>
-  err(code as Str, message) as Result<T>;
+const errResult = <T>(code: KnownErrorCode = ERRORS.INTERNAL.UNEXPECTED, message: string = 'test error'): Result<T> =>
+  err(code, message) as Result<T>;
 
 // ── map ─────────────────────────────────────────────────────────────────
 
@@ -129,11 +128,11 @@ describe('match', () => {
   });
 
   it('calls err handler for error', () => {
-    const value = match(errResult<number>('TEST.ERROR'), {
+    const value = match(errResult<number>(ERRORS.INTERNAL.UNEXPECTED), {
       ok: (n) => `got ${String(n)}`,
       err: (e) => `error: ${e.code}`,
     });
-    expect(value).toBe('error: TEST.ERROR');
+    expect(value).toBe(`error: ${ERRORS.INTERNAL.UNEXPECTED}`);
   });
 });
 
@@ -209,9 +208,9 @@ describe('combine', () => {
   });
 
   it('short-circuits on first error', () => {
-    const result = combine([okResult(1), errResult<number>('A.B'), okResult(3)]);
+    const result = combine([okResult(1), errResult<number>(ERRORS.DB.NOT_FOUND), okResult(3)]);
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('A.B');
+    if (!result.ok) expect(result.error.code).toBe(ERRORS.DB.NOT_FOUND);
   });
 });
 
@@ -220,12 +219,12 @@ describe('combine', () => {
 describe('combineWithAllErrors', () => {
   it('collects all errors', () => {
     const result = combineWithAllErrors([
-      errResult<number>('A.B'),
-      errResult<number>('C.D'),
+      errResult<number>(ERRORS.DB.NOT_FOUND),
+      errResult<number>(ERRORS.DB.CONSTRAINT),
     ]);
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.error.code).toBe('A.B');
+      expect(result.error.code).toBe(ERRORS.DB.NOT_FOUND);
       expect(result.error.related).toBeDefined();
       expect(result.error.related!).toHaveLength(1);
     }

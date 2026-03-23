@@ -38,9 +38,9 @@
   import { cn } from '../utils.js';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: CopyButtonProps = $props();
+  const { ...restProps }: CopyButtonProps = $props();
   const validated: CopyButtonProps = $derived.by(() => {
-    const rawProps: CopyButtonProps = stripSvelteProps(allProps);
+    const rawProps: CopyButtonProps = stripSvelteProps(restProps);
     const result = safeParse(CopyButtonPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -72,7 +72,7 @@
   }
 </script>
 
-<Tooltip.Provider>
+<Tooltip.Provider {...restProps}>
   <Tooltip.Root delayDuration={300} open={copyState !== 'idle' ? true : undefined}>
     <Tooltip.Trigger>
       {#snippet child({ props })}

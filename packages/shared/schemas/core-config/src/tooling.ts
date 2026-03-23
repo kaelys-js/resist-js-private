@@ -359,7 +359,7 @@ export type DockerImage = v.InferOutput<typeof DockerImageSchema>;
 export const AptPackageSchema = v.pipe(
   v.string(),
   v.minLength(1),
-  v.regex(/^[a-z0-9][a-z0-9.+\-]+$/, 'Must be a valid apt package name'),
+  v.regex(/^[a-z0-9][a-z0-9.+-]+$/, 'Must be a valid apt package name'),
 );
 
 /** Inferred output type of {@link AptPackageSchema}. A valid apt package name string. */
@@ -714,7 +714,7 @@ export const InfisicalAuthSchema = v.strictObject({
   method: v.optional(InfisicalAuthMethodSchema, 'interactive'),
   /** Cache TTL in seconds for fetched secrets (default: 300 = 5 min). */
   cacheTtlSeconds: v.optional(
-    v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(86400)),
+    v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(86_400)),
     300,
   ),
 });
@@ -763,6 +763,9 @@ export const InfisicalMachineIdentitySchema = v.strictObject({
 
 /** Inferred output type of {@link InfisicalMachineIdentitySchema}. */
 export type InfisicalMachineIdentity = v.InferOutput<typeof InfisicalMachineIdentitySchema>;
+
+/** Default CI identity name placeholder — `${provider}` replaced with git provider at runtime. */
+const PROVIDER_CI_IDENTITY: string = ['$', '{provider}-ci'].join('');
 
 /** Valibot schema for Infisical provisioning configuration. */
 export const InfisicalProvisionSchema = v.strictObject({
@@ -816,7 +819,7 @@ export const InfisicalProvisionSchema = v.strictObject({
    */
   machineIdentities: v.optional(v.array(InfisicalMachineIdentitySchema), [
     { name: 'coder-vps', role: 'member' },
-    { name: '${provider}-ci', role: 'member' },
+    { name: PROVIDER_CI_IDENTITY, role: 'member' },
   ]),
 });
 

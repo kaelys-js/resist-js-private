@@ -22,7 +22,7 @@ import tsFileKebabCase from './ts-file-kebab-case.ts';
  * @param {string} filename - The filename to use
  * @returns {Promise<LintResult[]>} Array of lint results
  */
-async function lint(
+function lint(
   rule: TypeScriptRule,
   code: string,
   filename: string = 'test.ts',

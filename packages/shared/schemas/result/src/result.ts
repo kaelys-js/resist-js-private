@@ -132,7 +132,9 @@ function _deepFreeze<T extends object>(obj: T): T {
 function _okResult<T>(data: T): Result<T> {
   const frozen: T =
     typeof data === 'object' && data !== null ? (_deepFreeze(data as object) as T) : data;
-  return Object.freeze({ ok: true as const, data: frozen, error: null }) as Result<T>;
+  const result = { ok: true as const, data: frozen, error: null };
+  Object.freeze(result);
+  return result as Result<T>;
 }
 
 // =============================================================================

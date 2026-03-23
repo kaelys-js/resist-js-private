@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   discoverAppPreferences,
   discoverDebugFields,
@@ -13,7 +13,6 @@ import { APP_NAME, URL_PARAM_PREFIX } from '$lib/config/app-meta';
 import { createEditorStore } from '$lib/stores/editor-state.svelte';
 import { createDebugStore } from '$lib/stores/debug-state.svelte';
 import type { DevtoolsConfig } from '@/utils/devtools/types';
-import { vi } from 'vitest';
 
 const flagEntries = FeatureFlagsSchema.entries as unknown as Record<string, Record<string, unknown>>;
 const prefEntries = AppPreferencesSchema.entries as unknown as Record<string, Record<string, unknown>>;

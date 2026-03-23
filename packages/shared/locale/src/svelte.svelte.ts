@@ -1,3 +1,4 @@
+/// <reference types="svelte" />
 /**
  * Svelte Locale Adapter
  *

@@ -12,7 +12,7 @@
     /** The tooltip text displayed on hover. @values Click to edit, Required field, More information */
     text: StrSchema,
     /** Which side of the icon the tooltip appears on. @values top, bottom, left, right */
-    side: v.optional(v.picklist(['top', 'bottom', 'left', 'right'])),
+    side: v.optional(v.picklist(['top', 'bottom', 'left', 'right']), 'top'),
     /** Additional CSS classes for the icon element. */
     class: v.optional(StrSchema),
     /** Icon size in pixels. @values 14, 16, 20, 24 */
@@ -33,9 +33,9 @@
   import * as Tooltip from '../tooltip/index.js';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: HelpTooltipProps = $props();
+  const { ...restProps }: HelpTooltipProps = $props();
   const validated: HelpTooltipProps = $derived.by(() => {
-    const rawProps: HelpTooltipProps = stripSvelteProps(allProps);
+    const rawProps: HelpTooltipProps = stripSvelteProps(restProps);
     const result = safeParse(HelpTooltipPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -43,7 +43,7 @@
   });
 </script>
 
-<Tooltip.Provider>
+<Tooltip.Provider {...restProps}>
   <Tooltip.Root>
     <Tooltip.Trigger class="inline-flex cursor-help" aria-label={validated.text}>
       <CircleHelp

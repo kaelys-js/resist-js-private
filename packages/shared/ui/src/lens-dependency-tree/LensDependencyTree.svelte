@@ -146,9 +146,9 @@
     type ChainExportNode,
   } from '../lens/export-utils.js';
 
-  const allProps: LensDependencyTreeProps = $props();
+  const { ...restProps }: LensDependencyTreeProps = $props();
   const validated: LensDependencyTreeProps = $derived.by(() => {
-    const rawProps: LensDependencyTreeProps = stripSvelteProps(allProps);
+    const rawProps: LensDependencyTreeProps = stripSvelteProps(restProps);
     const result = safeParse(LensDependencyTreePropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -1919,7 +1919,7 @@
   {/if}
 </div>
 
-<div class={cn('space-y-2', className)}>
+<div class={cn('space-y-2', className)} {...restProps}>
   <!-- Used By (reverse dependencies) -->
   {#if usedByCount > 0}
     <div class="overflow-hidden rounded-md border bg-card">

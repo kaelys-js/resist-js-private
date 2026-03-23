@@ -23,7 +23,7 @@ function getReturnTypeInsertPos(funcNode: AstNode, content: string): number {
   if (!params) return -1;
 
   // Find the closing paren after the last param
-  const lastParam: AstNode | undefined = params[params.length - 1];
+  const lastParam: AstNode | undefined = params.at(-1);
   const searchStart: number = lastParam ? lastParam.end : funcNode.start;
 
   // Search for ')' after the last param

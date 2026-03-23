@@ -43,12 +43,12 @@ function getJsDocEndOffset(node: AstNode, content: string): number {
 }
 
 /** Parsed @param entry with optional type. */
-interface ParamEntry {
+type ParamEntry = {
   /** The parameter name */
   name: string;
   /** Whether a {Type} was present */
   hasType: boolean;
-}
+};
 
 /**
  * Extract `@param` entries from a JSDoc comment, including type presence.
@@ -63,7 +63,7 @@ function extractParamEntries(jsDoc: string): ParamEntry[] {
   while (match) {
     entries.push({
       name: match[2],
-      hasType: match[1] != null,
+      hasType: match[1] !== null && match[1] !== undefined,
     });
     match = regex.exec(jsDoc);
   }

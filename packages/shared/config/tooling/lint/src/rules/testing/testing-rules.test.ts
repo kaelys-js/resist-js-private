@@ -18,7 +18,7 @@ import requireColocatedTests from './require-colocated-tests.ts';
  * @param {string} [filename] - Optional filename override
  * @returns {Promise<LintResult[]>} Array of lint results
  */
-async function lint(
+function lint(
   rule: TypeScriptRule,
   code: string,
   filename: string = '/tmp/nonexistent/module.ts',

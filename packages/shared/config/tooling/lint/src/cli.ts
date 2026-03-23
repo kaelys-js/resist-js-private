@@ -51,9 +51,6 @@ const SKIP_DIRS: ReadonlySet<string> = new Set([
   '_INTEGRATE',
 ]);
 
-/** File extensions to lint. */
-const LINT_EXTENSIONS: ReadonlySet<string> = new Set(['.ts', '.svelte.ts']);
-
 /**
  * Check if a file path should be linted.
  *
@@ -114,7 +111,7 @@ function collectFiles(dir: string): string[] {
  */
 function applyFixes(content: string, fixes: LintFix[]): string {
   // Sort fixes by start offset descending so we can apply from end to start
-  const sorted: LintFix[] = [...fixes].sort(
+  const sorted: LintFix[] = [...fixes].toSorted(
     (a: LintFix, b: LintFix) => b.range.start - a.range.start,
   );
 
@@ -137,17 +134,17 @@ function applyFixes(content: string, fixes: LintFix[]): string {
 async function main(): Promise<number> {
   // List rules mode
   if (listRules) {
-    console.log('Custom lint rules:\n');
+    process.stdout.write('Custom lint rules:\n\n');
     for (const rule of ALL_RULES) {
-      console.log(`  ${rule.id}`);
-      console.log(`    ${rule.description}`);
-      console.log(`    patterns: ${rule.patterns.join(', ')}\n`);
+      process.stdout.write(`  ${rule.id}\n`);
+      process.stdout.write(`    ${rule.description}\n`);
+      process.stdout.write(`    patterns: ${rule.patterns.join(', ')}\n\n`);
     }
     return 0;
   }
 
   if (paths.length === 0) {
-    console.error('Usage: webforge-lint <paths...> [--json] [--rule=id] [--list-rules]');
+    process.stderr.write('Usage: webforge-lint <paths...> [--json] [--rule=id] [--list-rules]\n');
     return 1;
   }
 
@@ -169,22 +166,23 @@ async function main(): Promise<number> {
         allFiles.push(resolved);
       }
     } catch {
-      console.error(`Path not found: ${p}`);
+      process.stderr.write(`Path not found: ${p}\n`);
     }
   }
 
   if (allFiles.length === 0) {
-    if (!jsonOutput) console.log('No lintable files found.');
+    if (!jsonOutput) process.stdout.write('No lintable files found.\n');
     return 0;
   }
 
-  // Run rules on each file
-  const allResults: LintResult[] = [];
+  // Run rules on each file — build tasks then execute in parallel
+  type FileTask = { filePath: string; content: string; applicableRules: TypeScriptRule[] };
+  const tasks: FileTask[] = [];
 
   for (const filePath of allFiles) {
     let content: string;
     try {
-      content = readFileSync(filePath, 'utf-8');
+      content = readFileSync(filePath, 'utf8');
     } catch {
       /* File not readable — skip */
       continue;
@@ -202,10 +200,15 @@ async function main(): Promise<number> {
     );
 
     if (applicableRules.length === 0) continue;
-
-    const results: LintResult[] = await runTypeScriptRules(filePath, content, applicableRules);
-    allResults.push(...results);
+    tasks.push({ filePath, content, applicableRules });
   }
+
+  const taskResults: LintResult[][] = await Promise.all(
+    tasks.map((task: FileTask): Promise<LintResult[]> =>
+      runTypeScriptRules(task.filePath, task.content, task.applicableRules),
+    ),
+  );
+  const allResults: LintResult[] = taskResults.flat();
 
   // Apply fixes if --fix
   if (autoFix && allResults.length > 0) {
@@ -220,26 +223,26 @@ async function main(): Promise<number> {
     let fixedFiles: number = 0;
     for (const [filePath, fixes] of fixesByFile) {
       try {
-        const original: string = readFileSync(filePath, 'utf-8');
+        const original: string = readFileSync(filePath, 'utf8');
         const fixed: string = applyFixes(original, fixes);
         if (fixed !== original) {
-          writeFileSync(filePath, fixed, 'utf-8');
+          writeFileSync(filePath, fixed, 'utf8');
           fixedFiles++;
         }
       } catch {
         /* File write failed — skip */
-        console.error(`  Failed to apply fixes to: ${filePath}`);
+        process.stderr.write(`  Failed to apply fixes to: ${filePath}\n`);
       }
     }
 
     if (!jsonOutput) {
-      console.log(`\nApplied fixes to ${fixedFiles} file(s).`);
+      process.stdout.write(`\nApplied fixes to ${fixedFiles} file(s).\n`);
     }
   }
 
   // Output results
   if (jsonOutput) {
-    console.log(JSON.stringify(allResults, null, 2));
+    process.stdout.write(`${JSON.stringify(allResults, null, 2)}\n`);
   } else {
     const errors: LintResult[] = allResults.filter((r: LintResult) => r.severity === 'error');
     const warnings: LintResult[] = allResults.filter((r: LintResult) => r.severity === 'warning');
@@ -247,17 +250,17 @@ async function main(): Promise<number> {
     for (const result of allResults) {
       const relPath: string = relative(process.cwd(), result.file);
       const icon: string = result.severity === 'error' ? '✗' : '⚠';
-      console.log(
-        `  ${icon} ${relPath}:${result.line}:${result.column} ${result.message} [${result.ruleId}]`,
+      process.stdout.write(
+        `  ${icon} ${relPath}:${result.line}:${result.column} ${result.message} [${result.ruleId}]\n`,
       );
       if (result.tip) {
-        console.log(`    → ${result.tip}`);
+        process.stdout.write(`    → ${result.tip}\n`);
       }
     }
 
     if (allResults.length > 0) {
-      console.log(
-        `\nFound ${errors.length} error(s) and ${warnings.length} warning(s) in ${allFiles.length} file(s).`,
+      process.stdout.write(
+        `\nFound ${errors.length} error(s) and ${warnings.length} warning(s) in ${allFiles.length} file(s).\n`,
       );
     }
   }
@@ -268,9 +271,10 @@ async function main(): Promise<number> {
   return hasErrors ? 1 : 0;
 }
 
-main()
-  .then((code: number) => process.exit(code))
-  .catch((err: unknown) => {
-    console.error('Linter crashed:', err);
-    process.exit(2);
-  });
+try {
+  const code: number = await main();
+  process.exit(code);
+} catch (error: unknown) {
+  process.stderr.write(`Linter crashed: ${String(error)}\n`);
+  process.exit(2);
+}

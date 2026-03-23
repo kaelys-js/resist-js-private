@@ -425,21 +425,23 @@ function diagnoseCLS(): DiagnosticFinding[] {
 
     if (largestShift && largestShift.sources.length > 0) {
       const [source] = largestShift.sources;
-      const nodeDesc: Str = source.node ? describeNode(source.node) : '(unknown)';
-      const dy: Num = Math.round(Math.abs(source.currentRect.top - source.previousRect.top));
-      const dx: Num = Math.round(Math.abs(source.currentRect.left - source.previousRect.left));
-      let movement: Str;
-      if (dy > 0 && dx > 0) {
-        movement = `${dx}px horizontal, ${dy}px vertical`;
-      } else if (dy > 0) {
-        movement = `${dy}px vertical`;
-      } else {
-        movement = `${dx}px horizontal`;
+      if (source) {
+        const nodeDesc: Str = source.node ? describeNode(source.node) : '(unknown)';
+        const dy: Num = Math.round(Math.abs(source.currentRect.top - source.previousRect.top));
+        const dx: Num = Math.round(Math.abs(source.currentRect.left - source.previousRect.left));
+        let movement: Str;
+        if (dy > 0 && dx > 0) {
+          movement = `${dx}px horizontal, ${dy}px vertical`;
+        } else if (dy > 0) {
+          movement = `${dy}px vertical`;
+        } else {
+          movement = `${dx}px horizontal`;
+        }
+        findings.push({
+          label: 'Largest Shift',
+          value: `${nodeDesc} moved ${movement} (score: ${largestValue.toFixed(4)})`,
+        });
       }
-      findings.push({
-        label: 'Largest Shift',
-        value: `${nodeDesc} moved ${movement} (score: ${largestValue.toFixed(4)})`,
-      });
     }
   } catch {
     // Layout Shift API not available
@@ -494,6 +496,7 @@ function diagnoseTTFB(): DiagnosticFinding[] {
     ];
     bottlenecks.sort((a, b) => b[1] - a[1]);
     const [biggest] = bottlenecks;
+    if (!biggest) return findings;
     if (biggest[1] > 50) {
       findings.push({
         label: 'Bottleneck',
@@ -630,6 +633,7 @@ function diagnoseINP(): DiagnosticFinding[] {
     ];
     phases.sort((a, b) => b[1] - a[1]);
     const [biggestPhase] = phases;
+    if (!biggestPhase) return findings;
     if (biggestPhase[1] > 50) {
       findings.push({
         label: 'Bottleneck',
@@ -687,10 +691,12 @@ function diagnoseTBT(): DiagnosticFinding[] {
     let scriptInfo: Str = '';
     if (longestTask.attribution.length > 0) {
       const [attr] = longestTask.attribution;
-      if (attr.containerSrc) {
-        scriptInfo = ` — ${shortenUrl(attr.containerSrc)}`;
-      } else if (attr.containerType) {
-        scriptInfo = ` — ${attr.containerType}`;
+      if (attr) {
+        if (attr.containerSrc) {
+          scriptInfo = ` — ${shortenUrl(attr.containerSrc)}`;
+        } else if (attr.containerType) {
+          scriptInfo = ` — ${attr.containerType}`;
+        }
       }
     }
     findings.push({

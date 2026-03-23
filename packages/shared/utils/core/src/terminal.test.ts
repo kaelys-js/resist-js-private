@@ -155,7 +155,7 @@ describe('spinner', () => {
 
 describe('progressBar', () => {
   it('returns a formatted progress string', () => {
-    const result: Result<Str> = progressBar(50 as NonNegativeInteger, 100 as PositiveInteger);
+    const result: Result<Str> = progressBar(50 as NonNegativeInteger, 100 as NonNegativeInteger);
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data.length).toBeGreaterThan(0);
   });

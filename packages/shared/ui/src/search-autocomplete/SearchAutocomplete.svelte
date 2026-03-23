@@ -50,9 +50,9 @@
   import { cn } from '../utils.js';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: SearchAutocompleteProps = $props();
+  const { ...restProps }: SearchAutocompleteProps = $props();
   const validated: SearchAutocompleteProps = $derived.by(() => {
-    const rawProps: SearchAutocompleteProps = stripSvelteProps(allProps);
+    const rawProps: SearchAutocompleteProps = stripSvelteProps(restProps);
     const result = safeParse(SearchAutocompletePropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -103,7 +103,7 @@
   }
 </script>
 
-<Popover.Root bind:open>
+<Popover.Root bind:open {...restProps}>
   <Popover.Trigger>
     {#snippet child({ props })}
       <button

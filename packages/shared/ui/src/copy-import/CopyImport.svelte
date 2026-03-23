@@ -32,9 +32,9 @@
   import { cn } from '../utils.js';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: CopyImportProps = $props();
+  const { ...restProps }: CopyImportProps = $props();
   const validated: CopyImportProps = $derived.by(() => {
-    const rawProps: CopyImportProps = stripSvelteProps(allProps);
+    const rawProps: CopyImportProps = stripSvelteProps(restProps);
     const result = safeParse(CopyImportPropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -42,7 +42,7 @@
   });
 </script>
 
-<span class={cn('inline-flex items-center gap-1.5', validated.class)}>
+<span class={cn('inline-flex items-center gap-1.5', validated.class)} {...restProps}>
   <code class="rounded bg-muted px-2 py-0.5 text-xs font-mono text-muted-foreground">
     {validated.text}
   </code>

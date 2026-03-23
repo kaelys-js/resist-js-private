@@ -43,8 +43,6 @@ const rule: TypeScriptRule = {
     TSTypeAnnotation(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
 
-      const typeText: string = context.getNodeText(node);
-
       // Walk the type annotation looking for builtin keyword types
       checkTypeNode(node, context, results);
 

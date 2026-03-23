@@ -19,17 +19,16 @@
 import * as v from 'valibot';
 
 import type { Str } from '@/schemas/common';
-import type { Result } from '@/schemas/result/result';
-import { ok } from '@/schemas/result/result';
+import { ok, type Result } from '@/schemas/result/result';
 
 import type { InferTemplateLiteralParts } from '@/schemas/template-literal/infer';
 import { buildRegex, buildExpects } from '@/schemas/template-literal/regex';
-import type {
-  TemplateLiteralIssue,
-  TemplateLiteralPart,
-  TemplateLiteralSchema,
+import {
+  _toTemplateLiteralSchema,
+  type TemplateLiteralIssue,
+  type TemplateLiteralPart,
+  type TemplateLiteralSchema,
 } from '@/schemas/template-literal/types';
-import { _toTemplateLiteralSchema } from '@/schemas/template-literal/types';
 
 // =============================================================================
 // Template Literal Schema Factory

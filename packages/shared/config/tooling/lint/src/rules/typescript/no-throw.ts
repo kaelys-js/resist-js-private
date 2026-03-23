@@ -16,9 +16,7 @@ const rule: TypeScriptRule = {
 
   visitor: {
     ThrowStatement(node: AstNode, context: VisitorContext): LintResult[] {
-      const results: LintResult[] = [];
-
-      results.push({
+      return [{
         file: context.file,
         line: node.loc.start.line,
         column: node.loc.start.column + 1,
@@ -27,9 +25,7 @@ const rule: TypeScriptRule = {
         ruleId: 'typescript/no-throw',
         tip: 'Replace throw with return err() to maintain the Result pattern',
         fix: { range: { start: node.start, end: node.start }, text: '' },
-      });
-
-      return results;
+      }];
     },
   },
 };

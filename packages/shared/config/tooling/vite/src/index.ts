@@ -20,7 +20,7 @@
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { defineConfig, type UserConfig, type PluginOption } from 'vite';
-import type { Str, Num, Bool } from '@/schemas/common';
+import type { Str, Bool } from '@/schemas/common';
 
 /* ------------------------------------------------------------------ */
 /*  Git metadata                                                       */
@@ -72,7 +72,7 @@ function getPackageVersion(): Str {
 /**
  * Options for the shared Vite configuration factory.
  */
-export interface CreateViteConfigOptions {
+export type CreateViteConfigOptions = {
   /** Vite plugins to include (required — each product provides its own). */
   plugins: PluginOption[];
 
@@ -88,7 +88,7 @@ export interface CreateViteConfigOptions {
 
   /** Additional Vite UserConfig to spread (deep merge is NOT performed). */
   extraConfig?: Partial<UserConfig>;
-}
+};
 
 /**
  * Create a complete Vite configuration.
@@ -96,7 +96,7 @@ export interface CreateViteConfigOptions {
  * Provides git metadata defines, server watch ignores, and SSR config.
  * Each product supplies its own plugins and optional overrides.
  *
- * @param options - Configuration options
+ * @param {CreateViteConfigOptions} options - Configuration options
  * @returns Vite UserConfig via `defineConfig()`
  *
  * @example
@@ -154,14 +154,14 @@ export function createViteConfig({
 /**
  * Options for creating a lazy Vite plugin.
  */
-export interface LazyPluginOptions {
+export type LazyPluginOptions = {
   /** Unique plugin name. */
   name: Str;
   /** Module path to load via `ssrLoadModule` (relative to project root). */
   modulePath: Str;
   /** Name of the setup function exported by the module. */
   setupFn: Str;
-}
+};
 
 /**
  * Creates a dev-only Vite plugin that defers module loading to `ssrLoadModule`.
@@ -170,7 +170,7 @@ export interface LazyPluginOptions {
  * bundling time. The real module is loaded at runtime through Vite's pipeline
  * which handles TS compilation and alias resolution.
  *
- * @param options - Plugin name, module path, and setup function name
+ * @param {LazyPluginOptions} options - Plugin name, module path, and setup function name
  * @returns Vite plugin that lazily loads the real implementation
  *
  * @example

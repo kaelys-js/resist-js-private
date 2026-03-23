@@ -55,7 +55,6 @@ function isInsideCatch(ret: AstNode, funcBody: AstNode, context: VisitorContext)
   const textBefore: string = context.content.slice(funcBody.start, ret.start);
 
   // Count unmatched catch blocks — simplified heuristic
-  const catchCount: number = (textBefore.match(/catch\s*\(/g) ?? []).length;
   const catchCloseCount: number = (textBefore.match(/catch\s*\([^)]*\)\s*\{/g) ?? []).length;
 
   if (catchCloseCount === 0) return false;
@@ -114,7 +113,7 @@ function extractResultTypeParam(node: AstNode, context: VisitorContext): string 
 
   if (!match) return null;
 
-  const typeName: string = match[1];
+  const [, typeName] = match;
 
   // Skip void — no schema needed
   if (typeName === 'void') return null;
@@ -165,8 +164,8 @@ function hasResultReturnType(node: AstNode, context: VisitorContext): boolean {
   return (
     typeText.startsWith('Result<') ||
     typeText.startsWith('Promise<Result<') ||
-    typeText === 'Result' ||
-    typeText === 'Promise<Result>'
+    typeText.startsWith('Result') ||
+    typeText.startsWith('Promise<Result>')
   );
 }
 
@@ -278,7 +277,7 @@ function checkFunction(node: AstNode, context: VisitorContext, funcName?: string
 
     if (
       (inCatch || inErrorGuard) &&
-      (/^ok\s*\(/.test(trimmedReturn) || /^okUnchecked/.test(trimmedReturn))
+      (trimmedReturn.startsWith('ok') || trimmedReturn.startsWith('okUnchecked'))
     ) {
       results.push({
         file: context.file,
@@ -297,7 +296,7 @@ function checkFunction(node: AstNode, context: VisitorContext, funcName?: string
     }
 
     // Check 3: okUnchecked() when a matching schema exists (should use ok(schema, data))
-    if (schemaAvailable && /^okUnchecked/.test(trimmedReturn)) {
+    if (schemaAvailable && trimmedReturn.startsWith('okUnchecked')) {
       const schemaName: string = `${typeName}Schema`;
       results.push({
         file: context.file,

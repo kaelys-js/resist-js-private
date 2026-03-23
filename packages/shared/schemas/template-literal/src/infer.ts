@@ -8,7 +8,7 @@
  * @module
  */
 
-import * as v from 'valibot';
+import type * as v from 'valibot';
 
 import type { TemplateLiteralPart, TemplateLiteralSchema } from '@/schemas/template-literal/types';
 
@@ -83,11 +83,11 @@ export type SchemaToTemplateLiteralString<TSchema> =
                       : never
                     : // v.union([...]) → union of inner string representations
                       TSchema extends v.UnionSchema<infer TOptions, unknown>
-                      ? TOptions extends readonly v.BaseSchema<
+                      ? TOptions extends ReadonlyArray<v.BaseSchema<
                           unknown,
                           unknown,
                           v.BaseIssue<unknown>
-                        >[]
+                        >>
                         ? SchemaToTemplateLiteralString<TOptions[number]>
                         : never
                       : // v.optional(T) → inner | 'undefined'

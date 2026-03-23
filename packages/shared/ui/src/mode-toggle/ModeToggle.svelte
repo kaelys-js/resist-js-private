@@ -46,9 +46,9 @@
   import * as Tooltip from '../tooltip/index.js';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: ModeToggleProps = $props();
+  const { ...restProps }: ModeToggleProps = $props();
   const validated: ModeToggleProps = $derived.by(() => {
-    const rawProps: ModeToggleProps = stripSvelteProps(allProps);
+    const rawProps: ModeToggleProps = stripSvelteProps(restProps);
     const result = safeParse(ModeTogglePropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -56,7 +56,7 @@
   });
 </script>
 
-<Tooltip.Root delayDuration={700}>
+<Tooltip.Root delayDuration={700} {...restProps}>
   <DropdownMenu.Root>
     <Tooltip.Trigger>
       {#snippet child({ props: tooltipProps })}

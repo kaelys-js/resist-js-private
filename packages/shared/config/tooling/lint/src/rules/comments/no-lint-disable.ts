@@ -11,7 +11,7 @@
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
 /** Patterns to detect lint-suppression comments. */
-const DISABLE_PATTERNS: readonly { pattern: RegExp; label: string }[] = [
+const DISABLE_PATTERNS: ReadonlyArray<{ pattern: RegExp; label: string }> = [
   { pattern: /eslint-disable(?:-next-line)?/, label: 'eslint-disable' },
   { pattern: /oxlint-ignore/, label: 'oxlint-ignore' },
   { pattern: /oxlint-disable/, label: 'oxlint-disable' },

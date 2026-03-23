@@ -83,20 +83,20 @@ describe('formatErrorDebug', () => {
   });
 
   it('includes cause chain', () => {
-    const root = makeError({ code: 'DB.CONNECTION_FAILED' as Str, message: 'Connection refused' as Str });
+    const root = makeError({ code: ERRORS.DB.CONNECTION, message: 'Connection refused' as Str });
     const error = makeError({ cause: root });
     const result: Result<Str> = formatErrorDebug(error);
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('caused by');
-      expect(result.data).toContain('DB.CONNECTION_FAILED');
+      expect(result.data).toContain('DB.CONNECTION');
     }
   });
 
   it('includes validation issues', () => {
     const error = makeError({
       validation: {
-        issues: [{ message: 'Invalid email', path: [{ key: 'email' }] }],
+        issues: [{ kind: 'validation' as const, type: 'string' as const, input: '', expected: 'string', received: 'undefined', message: 'Invalid email', path: [{ type: 'object' as const, origin: 'value' as const, input: {}, key: 'email', value: undefined }] }],
         flattened: { nested: { email: ['Invalid email'] } },
       },
     });
@@ -134,7 +134,7 @@ describe('formatErrorDebug', () => {
   });
 
   it('includes related errors', () => {
-    const related = makeError({ code: 'DB.NOT_FOUND' as Str, message: 'Record missing' as Str });
+    const related = makeError({ code: ERRORS.DB.NOT_FOUND, message: 'Record missing' as Str });
     const error = makeError({ related: [related] });
     const result: Result<Str> = formatErrorDebug(error);
     expect(result.ok).toBe(true);
@@ -180,7 +180,7 @@ describe('toRfc9457', () => {
     const error = makeError({
       httpStatus: 400,
       validation: {
-        issues: [{ message: 'Required field', path: [{ key: 'name' }] }],
+        issues: [{ kind: 'validation' as const, type: 'string' as const, input: '', expected: 'string', received: 'undefined', message: 'Required field', path: [{ type: 'object' as const, origin: 'value' as const, input: {}, key: 'name', value: undefined }] }],
         flattened: { nested: { name: ['Required field'] } },
       },
     });
@@ -256,7 +256,7 @@ describe('formatErrorSafe', () => {
 
   it('recursively strips cause chain', () => {
     const root = makeError({
-      code: 'DB.QUERY_FAILED' as Str,
+      code: ERRORS.DB.CONSTRAINT,
       message: 'SELECT * FROM users WHERE id=123' as Str,
       meta: { query: 'sensitive' },
     });
@@ -265,7 +265,7 @@ describe('formatErrorSafe', () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data.cause).toBeDefined();
-      expect(result.data.cause!.message).toBe('DB.QUERY_FAILED');
+      expect(result.data.cause!.message).toBe(ERRORS.DB.CONSTRAINT);
       expect(result.data.cause!.stack).toBe('');
       expect(result.data.cause!.meta).toBeUndefined();
     }
@@ -273,7 +273,7 @@ describe('formatErrorSafe', () => {
 
   it('recursively strips related errors', () => {
     const related = makeError({
-      code: 'CACHE.MISS' as Str,
+      code: ERRORS.IO.READ_FAILED,
       message: 'Cache key user:john not found' as Str,
     });
     const error = makeError({ related: [related] });
@@ -282,7 +282,7 @@ describe('formatErrorSafe', () => {
     if (result.ok) {
       expect(result.data.related).toBeDefined();
       expect(result.data.related!).toHaveLength(1);
-      expect(result.data.related![0]!.message).toBe('CACHE.MISS');
+      expect(result.data.related![0]!.message).toBe(ERRORS.IO.READ_FAILED);
       expect(result.data.related![0]!.stack).toBe('');
     }
   });

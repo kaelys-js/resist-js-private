@@ -12,15 +12,15 @@
 // =============================================================================
 
 /** A structured code fix that can be auto-applied. */
-export interface LintFix {
+export type LintFix = {
   /** Byte offset range in the source to replace */
   range: { start: number; end: number };
   /** Replacement text (empty string = deletion) */
   text: string;
-}
+};
 
 /** A single lint diagnostic produced by a rule. */
-export interface LintResult {
+export type LintResult = {
   /** Absolute file path */
   file: string;
   /** 1-based line number */
@@ -43,14 +43,14 @@ export interface LintResult {
   example?: string;
   /** Structured auto-fix — every result MUST include a fix */
   fix: LintFix;
-}
+};
 
 // =============================================================================
 // AST Types (oxc-parser output)
 // =============================================================================
 
 /** Generic AST node from oxc-parser. */
-export interface AstNode {
+export type AstNode = {
   /** Node type (e.g. 'FunctionDeclaration', 'CallExpression') */
   type: string;
   /** Start offset in source */
@@ -64,7 +64,7 @@ export interface AstNode {
   };
   /** Additional node-specific properties */
   [key: string]: unknown;
-}
+};
 
 // =============================================================================
 // Visitor Types
@@ -74,7 +74,7 @@ export interface AstNode {
 export type VisitorFn = (node: AstNode, context: VisitorContext) => LintResult[];
 
 /** Map of AST node types to visitor functions. */
-export interface AstVisitor {
+export type AstVisitor = {
   // Program
   Program?: VisitorFn;
 
@@ -112,10 +112,10 @@ export interface AstVisitor {
   TSTypeAssertion?: VisitorFn;
   TSNonNullExpression?: VisitorFn;
   TSSatisfiesExpression?: VisitorFn;
-}
+};
 
 /** Import specifier info extracted from an ImportDeclaration. */
-export interface ImportSpecifier {
+export type ImportSpecifier = {
   /** Imported name (or 'default' / '*') */
   imported: string;
   /** Local alias */
@@ -124,20 +124,20 @@ export interface ImportSpecifier {
   isDefault: boolean;
   /** Whether this is a namespace import (import * as x) */
   isNamespace: boolean;
-}
+};
 
 /** Parsed import declaration info. */
-export interface ImportInfo {
+export type ImportInfo = {
   /** Module specifier (e.g. 'valibot', './foo') */
   source: string;
   /** Individual import specifiers */
   specifiers: ImportSpecifier[];
   /** Whether the import is type-only */
   isTypeOnly: boolean;
-}
+};
 
 /** Context passed to visitor functions during AST traversal. */
-export interface VisitorContext {
+export type VisitorContext = {
   /** Absolute path to the file being linted */
   file: string;
   /** Full file contents */
@@ -152,14 +152,14 @@ export interface VisitorContext {
   isImportedFrom: (identifier: string, moduleName: string) => boolean;
   /** The rule currently being evaluated */
   rule: TypeScriptRule;
-}
+};
 
 // =============================================================================
 // Rule Interface
 // =============================================================================
 
 /** A TypeScript AST-based lint rule. */
-export interface TypeScriptRule {
+export type TypeScriptRule = {
   /** Unique rule ID (e.g. 'jsdoc/require-param') */
   id: string;
   /** Human-readable description */
@@ -168,4 +168,4 @@ export interface TypeScriptRule {
   patterns: string[];
   /** AST visitor functions */
   visitor: Partial<AstVisitor>;
-}
+};

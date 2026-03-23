@@ -25,7 +25,7 @@ describe('GET /api/lens/screenshot/frames', () => {
     const body = await response.json();
 
     if (body.frames.length > 0) {
-      const first = body.frames[0];
+      const [first] = body.frames;
       expect(first.id).toBeDefined();
       expect(first.name).toBeDefined();
     }

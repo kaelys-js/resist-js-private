@@ -10,8 +10,7 @@
 import * as v from 'valibot';
 
 import type { Str } from '@/schemas/common';
-import type { Result } from '@/schemas/result/result';
-import { ok, err, ERRORS } from '@/schemas/result/result';
+import { ok, type Result } from '@/schemas/result/result';
 
 import type { TemplateLiteralPart } from '@/schemas/template-literal/types';
 
@@ -20,19 +19,19 @@ import type { TemplateLiteralPart } from '@/schemas/template-literal/types';
 // =============================================================================
 
 /** Regex pattern for any string (including newlines). */
-const STRING_PATTERN: Str = '[\\s\\S]*';
+const STRING_PATTERN: Str = String.raw`[\s\S]*`;
 
 /** Regex pattern for any number (integer or float, signed). */
-const NUMBER_PATTERN: Str = '-?\\d+(?:\\.\\d+)?';
+const NUMBER_PATTERN: Str = String.raw`-?\d+(?:\.\d+)?`;
 
 /** Regex pattern for integers only (signed). */
-const INTEGER_PATTERN: Str = '-?\\d+';
+const INTEGER_PATTERN: Str = String.raw`-?\d+`;
 
 /** Regex pattern for boolean strings. */
 const BOOLEAN_PATTERN: Str = '(?:true|false)';
 
 /** Regex pattern for bigint strings (signed integers). */
-const BIGINT_PATTERN: Str = '-?\\d+';
+const BIGINT_PATTERN: Str = String.raw`-?\d+`;
 
 /** Regex pattern for UUID v4. */
 const UUID_PATTERN: Str = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
@@ -48,7 +47,7 @@ const NANOID_PATTERN: Str = '[A-Za-z0-9_-]+';
 
 /** Regex pattern for IPv4 addresses. */
 const IPV4_PATTERN: Str =
-  '(?:(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)';
+  String.raw`(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)`;
 
 /** Regex pattern for hexadecimal strings. */
 const HEXADECIMAL_PATTERN: Str = '[0-9a-fA-F]+';
@@ -57,7 +56,7 @@ const HEXADECIMAL_PATTERN: Str = '[0-9a-fA-F]+';
 const OCTAL_PATTERN: Str = '[0-7]+';
 
 /** Regex pattern for decimal number strings. */
-const DECIMAL_PATTERN: Str = '-?\\d+(?:\\.\\d+)?';
+const DECIMAL_PATTERN: Str = String.raw`-?\d+(?:\.\d+)?`;
 
 /** Regex pattern for slug strings. */
 const SLUG_PATTERN: Str = '[a-z0-9]+(?:-[a-z0-9]+)*';
@@ -79,7 +78,7 @@ const SLUG_PATTERN: Str = '[a-z0-9]+(?:-[a-z0-9]+)*';
  * ```
  */
 export function escapeRegex(str: Str): Result<Str> {
-  const escaped: Str = str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped: Str = str.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
   return ok(v.string(), escaped);
 }
 
@@ -114,14 +113,16 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
       continue;
     }
 
-    const actionType: unknown = (action as { readonly type: unknown }).type;
+    const { type: actionType }: { readonly type: unknown } = action as { readonly type: unknown };
 
     switch (actionType) {
       // ── String format actions ──
       case 'regex': {
-        const requirement: unknown = (action as { readonly requirement: unknown }).requirement;
+        const { requirement }: { readonly requirement: unknown } = action as {
+          readonly requirement: unknown;
+        };
         if (requirement instanceof RegExp) {
-          const source: Str = requirement.source;
+          const { source }: RegExp = requirement;
           // Strip anchors — we add our own ^...$
           const start: number = source.startsWith('^') ? 1 : 0;
           const end: number = source.endsWith('$') ? source.length - 1 : source.length;
@@ -132,8 +133,8 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
       }
       case 'email': {
         // Simplified email pattern — matches most valid emails
-        pattern =
-          "[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*";
+        const backtick: Str = '`';
+        pattern = `[a-zA-Z0-9.!#$%&'*+/=?^_${backtick}{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?${String.raw`(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*`}`;
         break;
       }
       case 'uuid': {
@@ -174,21 +175,27 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
       }
       // ── String length actions ──
       case 'min_length': {
-        const requirement: unknown = (action as { readonly requirement: unknown }).requirement;
+        const { requirement }: { readonly requirement: unknown } = action as {
+          readonly requirement: unknown;
+        };
         if (typeof requirement === 'number') {
           minLen = requirement;
         }
         break;
       }
       case 'max_length': {
-        const requirement: unknown = (action as { readonly requirement: unknown }).requirement;
+        const { requirement }: { readonly requirement: unknown } = action as {
+          readonly requirement: unknown;
+        };
         if (typeof requirement === 'number') {
           maxLen = requirement;
         }
         break;
       }
       case 'length': {
-        const requirement: unknown = (action as { readonly requirement: unknown }).requirement;
+        const { requirement }: { readonly requirement: unknown } = action as {
+          readonly requirement: unknown;
+        };
         if (typeof requirement === 'number') {
           minLen = requirement;
           maxLen = requirement;
@@ -197,20 +204,24 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
       }
       // ── String prefix/suffix actions ──
       case 'starts_with': {
-        const requirement: unknown = (action as { readonly requirement: unknown }).requirement;
+        const { requirement }: { readonly requirement: unknown } = action as {
+          readonly requirement: unknown;
+        };
         if (typeof requirement === 'string') {
           const escapedResult: Result<Str> = escapeRegex(requirement);
           if (!escapedResult.ok) return escapedResult;
-          pattern = escapedResult.data + '[\\s\\S]*';
+          pattern = `${escapedResult.data}${String.raw`[\s\S]*`}`;
         }
         break;
       }
       case 'ends_with': {
-        const requirement: unknown = (action as { readonly requirement: unknown }).requirement;
+        const { requirement }: { readonly requirement: unknown } = action as {
+          readonly requirement: unknown;
+        };
         if (typeof requirement === 'string') {
           const escapedResult: Result<Str> = escapeRegex(requirement);
           if (!escapedResult.ok) return escapedResult;
-          pattern = '[\\s\\S]*' + escapedResult.data;
+          pattern = `${String.raw`[\s\S]*`}${escapedResult.data}`;
         }
         break;
       }
@@ -221,17 +232,18 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
         }
         break;
       }
-      default:
+      default: {
         // Unknown action — skip without modifying pattern
         break;
+      }
     }
   }
 
   // Apply length constraints to string patterns (if no user regex overrides)
   if (!hasUserRegex && (minLen !== undefined || maxLen !== undefined)) {
-    const min: Str = minLen !== undefined ? String(minLen) : '0';
-    const max: Str = maxLen !== undefined ? String(maxLen) : '';
-    pattern = `[\\s\\S]{${min},${max}}`;
+    const min: Str = minLen === undefined ? '0' : String(minLen);
+    const max: Str = maxLen === undefined ? '' : String(maxLen);
+    pattern = String.raw`[\s\S]{${min},${max}}`;
   }
 
   return ok(v.string(), pattern);
@@ -251,48 +263,55 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
  * @returns Result containing the regex fragment string (without anchors).
  */
 export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
-  const schemaType: Str = schema.type;
+  const { type: schemaType }: v.GenericSchema = schema;
 
   switch (schemaType) {
-    case 'string':
+    case 'string': {
       return ok(v.string(), STRING_PATTERN);
+    }
 
-    case 'number':
+    case 'number': {
       return ok(v.string(), NUMBER_PATTERN);
+    }
 
-    case 'boolean':
+    case 'boolean': {
       return ok(v.string(), BOOLEAN_PATTERN);
+    }
 
-    case 'bigint':
+    case 'bigint': {
       return ok(v.string(), BIGINT_PATTERN);
+    }
 
-    case 'null':
+    case 'null': {
       return ok(v.string(), 'null');
+    }
 
-    case 'undefined':
+    case 'undefined': {
       return ok(v.string(), 'undefined');
+    }
 
     case 'literal': {
-      const literal: unknown = (schema as { readonly literal: unknown }).literal;
+      const { literal }: { readonly literal: unknown } = schema as { readonly literal: unknown };
       return escapeRegex(String(literal));
     }
 
     case 'picklist': {
-      const options: readonly unknown[] = (schema as { readonly options: readonly unknown[] })
-        .options;
+      const { options }: { readonly options: readonly unknown[] } = schema as {
+        readonly options: readonly unknown[];
+      };
       const escapedParts: Str[] = [];
       for (const opt of options) {
         const escapedResult: Result<Str> = escapeRegex(String(opt));
         if (!escapedResult.ok) return escapedResult;
         escapedParts.push(escapedResult.data);
       }
-      return ok(v.string(), '(?:' + escapedParts.join('|') + ')');
+      return ok(v.string(), `(?:${escapedParts.join('|')})`);
     }
 
     case 'enum': {
-      const enumObj: Record<string, unknown> = (
-        schema as { readonly enum: Record<string, unknown> }
-      ).enum;
+      const { enum: enumObj }: { readonly enum: Record<string, unknown> } = schema as {
+        readonly enum: Record<string, unknown>;
+      };
       const values: unknown[] = Object.values(enumObj);
       const escapedParts: Str[] = [];
       for (const val of values) {
@@ -300,46 +319,54 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
         if (!escapedResult.ok) return escapedResult;
         escapedParts.push(escapedResult.data);
       }
-      return ok(v.string(), '(?:' + escapedParts.join('|') + ')');
+      return ok(v.string(), `(?:${escapedParts.join('|')})`);
     }
 
     case 'union': {
-      const options: readonly v.GenericSchema[] = (
-        schema as { readonly options: readonly v.GenericSchema[] }
-      ).options;
+      const { options }: { readonly options: readonly v.GenericSchema[] } = schema as {
+        readonly options: readonly v.GenericSchema[];
+      };
       const unionParts: Str[] = [];
       for (const opt of options) {
         const optResult: Result<Str> = schemaToRegex(opt);
         if (!optResult.ok) return optResult;
         unionParts.push(optResult.data);
       }
-      return ok(v.string(), '(?:' + unionParts.join('|') + ')');
+      return ok(v.string(), `(?:${unionParts.join('|')})`);
     }
 
     case 'optional': {
-      const wrapped: v.GenericSchema = (schema as { readonly wrapped: v.GenericSchema }).wrapped;
+      const { wrapped }: { readonly wrapped: v.GenericSchema } = schema as {
+        readonly wrapped: v.GenericSchema;
+      };
       const innerResult: Result<Str> = schemaToRegex(wrapped);
       if (!innerResult.ok) return innerResult;
-      return ok(v.string(), '(?:' + innerResult.data + '|undefined)');
+      return ok(v.string(), `(?:${innerResult.data}|undefined)`);
     }
 
     case 'nullable': {
-      const wrapped: v.GenericSchema = (schema as { readonly wrapped: v.GenericSchema }).wrapped;
+      const { wrapped }: { readonly wrapped: v.GenericSchema } = schema as {
+        readonly wrapped: v.GenericSchema;
+      };
       const innerResult: Result<Str> = schemaToRegex(wrapped);
       if (!innerResult.ok) return innerResult;
-      return ok(v.string(), '(?:' + innerResult.data + '|null)');
+      return ok(v.string(), `(?:${innerResult.data}|null)`);
     }
 
     case 'nullish': {
-      const wrapped: v.GenericSchema = (schema as { readonly wrapped: v.GenericSchema }).wrapped;
+      const { wrapped }: { readonly wrapped: v.GenericSchema } = schema as {
+        readonly wrapped: v.GenericSchema;
+      };
       const innerResult: Result<Str> = schemaToRegex(wrapped);
       if (!innerResult.ok) return innerResult;
-      return ok(v.string(), '(?:' + innerResult.data + '|null|undefined)');
+      return ok(v.string(), `(?:${innerResult.data}|null|undefined)`);
     }
 
     case 'template_literal': {
-      const nestedRegex: RegExp = (schema as { readonly regex: RegExp }).regex;
-      const source: Str = nestedRegex.source;
+      const { regex: nestedRegex }: { readonly regex: RegExp } = schema as {
+        readonly regex: RegExp;
+      };
+      const { source }: RegExp = nestedRegex;
       // Strip ^...$ anchors from nested template literal
       const start: number = source.startsWith('^') ? 1 : 0;
       const end: number = source.endsWith('$') ? source.length - 1 : source.length;
@@ -349,7 +376,9 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
     default: {
       // Check if this is a SchemaWithPipe — has a `pipe` property
       if ('pipe' in schema && Array.isArray((schema as { readonly pipe: unknown }).pipe)) {
-        const pipe: readonly unknown[] = (schema as { readonly pipe: readonly unknown[] }).pipe;
+        const { pipe }: { readonly pipe: readonly unknown[] } = schema as {
+          readonly pipe: readonly unknown[];
+        };
         if (pipe.length > 0) {
           const baseSchema: v.GenericSchema = pipe[0] as v.GenericSchema;
           const baseResult: Result<Str> = schemaToRegex(baseSchema);
@@ -398,7 +427,7 @@ export function buildRegex(parts: readonly TemplateLiteralPart[]): Result<RegExp
   }
   return ok(
     v.custom<RegExp>((val: unknown): boolean => val instanceof RegExp),
-    new RegExp('^' + pattern + '$'),
+    new RegExp(`^${pattern}$`),
   );
 }
 
@@ -429,7 +458,7 @@ export function buildExpects(parts: readonly TemplateLiteralPart[]): Result<Str>
       const schema: v.GenericSchema = part as v.GenericSchema;
       const expects: Str =
         'expects' in schema && typeof schema.expects === 'string' ? schema.expects : 'unknown';
-      result += '${' + expects + '}';
+      result += `\${${expects}}`;
     }
   }
   result += '`';

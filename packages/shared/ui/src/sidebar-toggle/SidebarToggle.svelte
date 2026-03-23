@@ -30,9 +30,9 @@
   import TooltipLabel from '../tooltip-label/TooltipLabel.svelte';
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
-  const allProps: SidebarToggleProps = $props();
+  const { ...restProps }: SidebarToggleProps = $props();
   const validated: SidebarToggleProps = $derived.by(() => {
-    const rawProps: SidebarToggleProps = stripSvelteProps(allProps);
+    const rawProps: SidebarToggleProps = stripSvelteProps(restProps);
     const result = safeParse(SidebarTogglePropsSchema, rawProps);
     if (!result.ok) throw result.error;
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
@@ -40,7 +40,7 @@
   });
 </script>
 
-<Tooltip.Root delayDuration={700}>
+<Tooltip.Root delayDuration={700} {...restProps}>
   <Tooltip.Trigger>
     {#snippet child({ props })}
       <Sidebar.Trigger class="-ml-1" {...props} />

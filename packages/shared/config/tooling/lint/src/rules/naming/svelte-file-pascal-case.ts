@@ -12,18 +12,6 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 /** Pattern for valid PascalCase filenames (without extension). */
 const PASCAL_CASE_RE: RegExp = /^[A-Z][a-zA-Z0-9]*$/;
 
-/** SvelteKit convention file prefixes that are exempt. */
-const SVELTEKIT_PREFIXES: ReadonlySet<string> = new Set([
-  '+page',
-  '+layout',
-  '+error',
-  '+server',
-  '+page.server',
-  '+layout.server',
-  '+page.ts',
-  '+layout.ts',
-]);
-
 const rule: TypeScriptRule = {
   id: 'naming/svelte-file-pascal-case',
   description: 'Svelte files must have PascalCase filenames',
@@ -35,7 +23,7 @@ const rule: TypeScriptRule = {
 
       // Extract filename from path
       const parts: string[] = context.file.split('/');
-      const filename: string = parts[parts.length - 1] ?? '';
+      const filename: string = parts.at(-1) ?? '';
 
       // Remove .svelte extension
       const baseName: string = filename.replace(/\.svelte$/, '');
