@@ -74,12 +74,6 @@ importers:
         specifier: ^6.0.0
         version: 6.2.1
     devDependencies:
-      '@/config/tooling/svelte':
-        specifier: workspace:*
-        version: link:../../shared/config/tooling/svelte
-      '@/config/tooling/vite':
-        specifier: workspace:*
-        version: link:../../shared/config/tooling/vite
       '@capacitor/android':
         specifier: ^6.0.0
         version: 6.2.1(@capacitor/core@6.2.1)
@@ -107,24 +101,6 @@ importers:
 
   packages/products/storylyne/editor:
     dependencies:
-      '@/schemas/common':
-        specifier: workspace:*
-        version: link:../../../shared/schemas/common
-      '@/schemas/result':
-        specifier: workspace:*
-        version: link:../../../shared/schemas/result
-      '@/ui':
-        specifier: workspace:*
-        version: link:../../../shared/ui
-      '@/utils/beacon':
-        specifier: workspace:*
-        version: link:../../../shared/utils/beacon
-      '@/utils/result':
-        specifier: workspace:*
-        version: link:../../../shared/utils/result
-      '@/utils/web-vitals':
-        specifier: workspace:*
-        version: link:../../../shared/utils/web-vitals
       '@sveltejs/adapter-cloudflare':
         specifier: ^7.2.8
         version: 7.2.8(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)))(wrangler@4.71.0(@cloudflare/workers-types@4.20260305.1))
@@ -162,18 +138,6 @@ importers:
         specifier: ^8.19.0
         version: 8.19.0
     devDependencies:
-      '@/config/tooling/svelte':
-        specifier: workspace:*
-        version: link:../../../shared/config/tooling/svelte
-      '@/config/tooling/vite':
-        specifier: workspace:*
-        version: link:../../../shared/config/tooling/vite
-      '@/products':
-        specifier: workspace:*
-        version: link:../..
-      '@/test-presets':
-        specifier: workspace:*
-        version: link:../../../shared/config/test
       '@cloudflare/workers-types':
         specifier: ^4.20260305.1
         version: 4.20260305.1
@@ -253,27 +217,7 @@ importers:
         specifier: ^4.71.0
         version: 4.71.0(@cloudflare/workers-types@4.20260305.1)
 
-  packages/shared/config/core:
-    dependencies:
-      '@/schemas/common':
-        specifier: workspace:*
-        version: link:../../schemas/common
-      '@/schemas/core-config':
-        specifier: workspace:*
-        version: link:../../schemas/core-config
-      '@/schemas/result':
-        specifier: workspace:*
-        version: link:../../schemas/result
-      '@/utils/core':
-        specifier: workspace:*
-        version: link:../../utils/core
-      '@/utils/result':
-        specifier: workspace:*
-        version: link:../../utils/result
-    devDependencies:
-      '@/test-presets':
-        specifier: workspace:*
-        version: link:../test
+  packages/shared/config/core: {}
 
   packages/shared/config/test:
     dependencies:
@@ -291,35 +235,11 @@ importers:
         specifier: ^0.72.3
         version: 0.72.3
 
-  packages/shared/config/tooling/svelte:
-    dependencies:
-      '@/schemas/common':
-        specifier: workspace:*
-        version: link:../../../schemas/common
+  packages/shared/config/tooling/svelte: {}
 
-  packages/shared/config/tooling/vite:
-    dependencies:
-      '@/schemas/common':
-        specifier: workspace:*
-        version: link:../../../schemas/common
-      '@/schemas/result':
-        specifier: workspace:*
-        version: link:../../../schemas/result
-      '@/utils/core':
-        specifier: workspace:*
-        version: link:../../../utils/core
-      '@/utils/result':
-        specifier: workspace:*
-        version: link:../../../utils/result
+  packages/shared/config/tooling/vite: {}
 
   packages/shared/extensions/vscode-formatter:
-    dependencies:
-      '@/cli':
-        specifier: workspace:*
-        version: link:../../utils/cli
-      '@/schemas/result':
-        specifier: workspace:*
-        version: link:../../schemas/result
     devDependencies:
       '@types/vscode':
         specifier: ^1.85.0
@@ -331,60 +251,19 @@ importers:
         specifier: ^5.3.0
         version: 5.9.3
 
-  packages/shared/locale:
-    dependencies:
-      '@/schemas/common':
-        specifier: workspace:*
-        version: link:../schemas/common
-      '@/schemas/result':
-        specifier: workspace:*
-        version: link:../schemas/result
-      '@/utils/result':
-        specifier: workspace:*
-        version: link:../utils/result
-    devDependencies:
-      '@/test-presets':
-        specifier: workspace:*
-        version: link:../config/test
+  packages/shared/locale: {}
 
-  packages/shared/schemas/common:
-    devDependencies:
-      '@/test-presets':
-        specifier: workspace:*
-        version: link:../../config/test
+  packages/shared/schemas/common: {}
 
   packages/shared/schemas/core-config: {}
 
-  packages/shared/schemas/function:
-    dependencies:
-      '@/schemas/common':
-        specifier: workspace:*
-        version: link:../common
-      '@/schemas/result':
-        specifier: workspace:*
-        version: link:../result
-    devDependencies:
-      '@/test-presets':
-        specifier: workspace:*
-        version: link:../../config/test
+  packages/shared/schemas/function: {}
 
-  packages/shared/schemas/generic:
-    devDependencies:
-      '@/test-presets':
-        specifier: workspace:*
-        version: link:../../config/test
+  packages/shared/schemas/generic: {}
 
-  packages/shared/schemas/result:
-    devDependencies:
-      '@/test-presets':
-        specifier: workspace:*
-        version: link:../../config/test
+  packages/shared/schemas/result: {}
 
-  packages/shared/schemas/template-literal:
-    dependencies:
-      '@/schemas/result':
-        specifier: workspace:*
-        version: link:../result
+  packages/shared/schemas/template-literal: {}
 
   packages/shared/secrets/infisical:
     dependencies:
@@ -394,9 +273,6 @@ importers:
 
   packages/shared/ui:
     dependencies:
-      '@/schemas/common':
-        specifier: workspace:*
-        version: link:../schemas/common
       '@internationalized/date':
         specifier: ^3.11.0
         version: 3.11.0
@@ -462,39 +338,10 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
-  packages/shared/utils/beacon:
-    dependencies:
-      '@/schemas/common':
-        specifier: workspace:*
-        version: link:../../schemas/common
-      '@/schemas/result':
-        specifier: workspace:*
-        version: link:../../schemas/result
-      '@/utils/core':
-        specifier: workspace:*
-        version: link:../core
-      '@/utils/result':
-        specifier: workspace:*
-        version: link:../result
-    devDependencies:
-      '@/test-presets':
-        specifier: workspace:*
-        version: link:../../config/test
+  packages/shared/utils/beacon: {}
 
   packages/shared/utils/cli:
     dependencies:
-      '@/config':
-        specifier: workspace:*
-        version: link:../../config/core
-      '@/locale':
-        specifier: workspace:*
-        version: link:../../locale
-      '@/schemas/common':
-        specifier: workspace:*
-        version: link:../../schemas/common
-      '@/utils/core':
-        specifier: workspace:*
-        version: link:../core
       diff:
         specifier: ^8.0.3
         version: 8.0.3
@@ -505,88 +352,21 @@ importers:
         specifier: ^4.7.8
         version: 4.7.8
     devDependencies:
-      '@/test-presets':
-        specifier: workspace:*
-        version: link:../../config/test
       '@types/diff':
         specifier: ^8.0.0
         version: 8.0.0
 
-  packages/shared/utils/core:
-    dependencies:
-      '@/schemas/common':
-        specifier: workspace:*
-        version: link:../../schemas/common
-      '@/schemas/function':
-        specifier: workspace:*
-        version: link:../../schemas/function
-      '@/schemas/result':
-        specifier: workspace:*
-        version: link:../../schemas/result
-      '@/utils/result':
-        specifier: workspace:*
-        version: link:../result
-    devDependencies:
-      '@/test-presets':
-        specifier: workspace:*
-        version: link:../../config/test
+  packages/shared/utils/core: {}
 
-  packages/shared/utils/devtools:
-    dependencies:
-      '@/schemas/common':
-        specifier: workspace:*
-        version: link:../../schemas/common
-      '@/schemas/result':
-        specifier: workspace:*
-        version: link:../../schemas/result
-      '@/utils/core':
-        specifier: workspace:*
-        version: link:../core
-      '@/utils/result':
-        specifier: workspace:*
-        version: link:../result
-      '@/utils/web-vitals':
-        specifier: workspace:*
-        version: link:../web-vitals
-    devDependencies:
-      '@/test-presets':
-        specifier: workspace:*
-        version: link:../../config/test
+  packages/shared/utils/devtools: {}
 
-  packages/shared/utils/result:
-    dependencies:
-      '@/schemas/common':
-        specifier: workspace:*
-        version: link:../../schemas/common
-      '@/schemas/result':
-        specifier: workspace:*
-        version: link:../../schemas/result
-    devDependencies:
-      '@/test-presets':
-        specifier: workspace:*
-        version: link:../../config/test
+  packages/shared/utils/result: {}
 
   packages/shared/utils/web-vitals:
     dependencies:
-      '@/schemas/common':
-        specifier: workspace:*
-        version: link:../../schemas/common
-      '@/schemas/result':
-        specifier: workspace:*
-        version: link:../../schemas/result
-      '@/utils/core':
-        specifier: workspace:*
-        version: link:../core
-      '@/utils/result':
-        specifier: workspace:*
-        version: link:../result
       perfume.js:
         specifier: ^9.4.0
         version: 9.4.0
-    devDependencies:
-      '@/test-presets':
-        specifier: workspace:*
-        version: link:../../config/test
 
 packages:
 

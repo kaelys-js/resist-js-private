@@ -10,13 +10,5 @@
     "qa:test:coverage": "pnpm -w exec vitest run --project locale --coverage",
     "qa:benchmark": "pnpm -w exec vitest bench --project locale",
     "qa:type-check": "tsgo --noEmit"
-  },
-  "dependencies": {
-    "@/schemas/common": "workspace:*",
-    "@/schemas/result": "workspace:*",
-    "@/utils/result": "workspace:*"
-  },
-  "devDependencies": {
-    "@/test-presets": "workspace:*"
   }
 }

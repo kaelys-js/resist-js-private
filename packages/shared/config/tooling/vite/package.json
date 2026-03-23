@@ -10,16 +10,9 @@
     "qa:test:coverage": "pnpm -w exec vitest run --project config-tooling-vite --coverage",
     "qa:benchmark": "pnpm -w exec vitest bench --project config-tooling-vite"
   },
-  "main": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
     "./template-html": "./src/vite-plugin-template-html.ts",
     "./lazy-plugin": "./src/vite-plugin-lazy.ts"
-  },
-  "dependencies": {
-    "@/schemas/common": "workspace:*",
-    "@/schemas/result": "workspace:*",
-    "@/utils/core": "workspace:*",
-    "@/utils/result": "workspace:*"
   }
 }

@@ -12,13 +12,6 @@
     "qa:type-check": "tsgo --noEmit"
   },
   "dependencies": {
-    "@/schemas/common": "workspace:*",
-    "@/schemas/result": "workspace:*",
-    "@/utils/core": "workspace:*",
-    "@/utils/result": "workspace:*",
     "perfume.js": "^9.4.0"
-  },
-  "devDependencies": {
-    "@/test-presets": "workspace:*"
   }
 }
