@@ -41,7 +41,7 @@
   Source of truth: branding/logo.svg (regenerate with: pnpm generate-icons)
   Plays a fade-in + grow + sparkle animation on mount.
 -->
-<div class="logo-entrance {className}" style="width: {size}px; height: {size}px;" {...restProps}>
+<div {...restProps} class="logo-entrance {className}" style="width: {size}px; height: {size}px;">
   <img
     src="/favicon.svg"
     alt=""

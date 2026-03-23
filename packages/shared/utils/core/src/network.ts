@@ -51,6 +51,13 @@ const NetworkInterfacesMapSchema = v.record(v.string(), v.optional(v.array(v.unk
 /** Map of network interface name to its info array. @see {@link NetworkInterfacesMapSchema} */
 type NetworkInterfacesMap = Record<string, NetworkInterfaceInfo[] | undefined>;
 
+/** Default max attempts for port scanning. Branded at module load. */
+const _maxAttemptsResult = safeParse(PositiveIntegerSchema, 100);
+
+const DEFAULT_MAX_ATTEMPTS: PositiveInteger = _maxAttemptsResult.ok
+  ? _maxAttemptsResult.data
+  : (100 as PositiveInteger);
+
 // =============================================================================
 // Port Availability
 // =============================================================================
@@ -116,7 +123,7 @@ export async function isPortAvailable(port: Port): Promise<Result<Bool>> {
  */
 export async function findAvailablePort(
   preferredPort: Port,
-  maxAttempts: PositiveInteger = 100,
+  maxAttempts: PositiveInteger = DEFAULT_MAX_ATTEMPTS,
 ): Promise<Result<Port>> {
   const net: OptionalNodeNet = nodeNet;
   if (!net) return requireRuntime('findAvailablePort', 'node');
@@ -245,9 +252,9 @@ export function getLocalIpAddresses(): Result<Ipv4AddressArray> {
 export function getLocalHostname(): Result<Hostname> {
   const os: OptionalNodeOs = nodeOs;
   if (!os) return requireRuntime('getLocalHostname', 'node');
-  let h: Hostname;
+  let rawHostname: string;
   try {
-    h = os.hostname();
+    rawHostname = os.hostname();
   } catch (e: unknown) {
     return err(ERRORS.IO.READ_FAILED, {
       meta: { path: 'hostname' },
@@ -255,5 +262,5 @@ export function getLocalHostname(): Result<Hostname> {
     });
   }
 
-  return ok(HostnameSchema, h.endsWith('.local') ? h : `${h}.local`);
+  return ok(HostnameSchema, rawHostname.endsWith('.local') ? rawHostname : `${rawHostname}.local`);
 }

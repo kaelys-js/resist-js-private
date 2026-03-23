@@ -11,10 +11,6 @@
     "cap:sync": "cap sync",
     "cap:ios": "cap open ios",
     "cap:android": "cap open android",
-    "qa:test": "vitest run",
-    "qa:test:unit": "vitest run",
-    "qa:test:coverage": "vitest run --coverage",
-    "qa:benchmark": "vitest bench",
     "qa:type-check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
   },

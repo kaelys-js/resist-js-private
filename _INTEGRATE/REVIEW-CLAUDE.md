@@ -24,7 +24,7 @@ packages/
 ├── products/                     # Per-product packages (created via product-create tool)
 └── shared/
     ├── config/core/              # Config loader + defaults (@/config)
-    ├── config/test/              # Vitest presets + test harness (@/config/test)
+    ├── config/test/              # Vitest presets + test harness (@/test-presets)
     ├── extensions/               # Extension system
     ├── locale/                   # i18n engine with ICU MessageFormat (@/locale)
     ├── schemas/common/           # Primitive Valibot schemas — Str, Bool, Num, Port, Path, etc. (@/schemas/common)
@@ -236,7 +236,7 @@ Template helpers: `{{json}}`, `{{jsonPretty}}`, `{{#ifPm "pnpm"}}`, `{{kebabCase
 - **Vitest** for unit/integration tests — colocated (`*.test.ts`)
 - **Playwright** for web E2E — in `tests/e2e/`
 - **Maestro** for mobile E2E
-- Presets in `@/config/test` (node, svelte, worker)
+- Presets in `@/test-presets` (node, svelte, worker)
 - Test harness: temp dirs, console capture, process spy, async helpers, fake clock, benchmark generators
 
 ## Gotchas

@@ -299,7 +299,7 @@ export function readDir(path: Path): Result<StrArray> {
     const entries: StrArray = fs.readdirSync(pathResult.data, { encoding: 'utf-8' });
     const entriesResult: Result<StrArray> = safeParse(StrArraySchema, entries);
     if (!entriesResult.ok) return entriesResult;
-    return ok(StrArraySchema, entriesResult.data);
+    return entriesResult;
   } catch (e: unknown) {
     return err(ERRORS.IO.READDIR_FAILED, {
       meta: { path },

@@ -7,7 +7,7 @@
  *
  * @example
  * ```typescript
- * import { stripAnsi, ANSI_REGEX } from '@/config/test/harness/ansi';
+ * import { stripAnsi, ANSI_REGEX } from '@/test-presets/harness/ansi';
  *
  * const colored = '\x1b[31mError:\x1b[0m file not found';
  * expect(stripAnsi(colored)).toBe('Error: file not found');
@@ -45,7 +45,7 @@ export const ANSI_REGEX = new RegExp(
  *
  * @example
  * ```typescript
- * import { stripAnsi } from '@/config/test/harness/ansi';
+ * import { stripAnsi } from '@/test-presets/harness/ansi';
  *
  * const result = formatPath('/src/index.ts'); // may include color codes
  * const visible = stripAnsi(result);

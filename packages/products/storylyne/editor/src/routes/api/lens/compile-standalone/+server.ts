@@ -254,7 +254,7 @@ const EXACT_ALIASES: ReadonlyArray<[Str, Str]> = [
   ['@/utils/core' as Str, 'packages/shared/utils/core/src/index.ts' as Str],
   ['@/ui' as Str, 'packages/shared/ui/src/index.ts' as Str],
   ['@/locale/svelte' as Str, 'packages/shared/locale/src/svelte.svelte.ts' as Str],
-  ['@/config/test/harness' as Str, 'packages/shared/config/test/src/harness/index.ts' as Str],
+  ['@/test-presets/harness' as Str, 'packages/shared/config/test/src/harness/index.ts' as Str],
 ];
 
 /** Wildcard `@/` alias prefix → filesystem prefix mappings. */
@@ -265,8 +265,8 @@ const WILDCARD_ALIASES: ReadonlyArray<[Str, Str]> = [
   ['@/utils/result/' as Str, 'packages/shared/utils/result/src/' as Str],
   ['@/utils/core/' as Str, 'packages/shared/utils/core/src/' as Str],
   ['@/locale/' as Str, 'packages/shared/locale/src/' as Str],
-  ['@/config/test/harness/' as Str, 'packages/shared/config/test/src/harness/' as Str],
-  ['@/config/test/' as Str, 'packages/shared/config/test/src/' as Str],
+  ['@/test-presets/harness/' as Str, 'packages/shared/config/test/src/harness/' as Str],
+  ['@/test-presets/' as Str, 'packages/shared/config/test/src/' as Str],
   ['@/ui/' as Str, 'packages/shared/ui/src/' as Str],
 ];
 

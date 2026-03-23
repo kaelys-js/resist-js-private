@@ -22,11 +22,11 @@ const sharedPathAliases: Array<{ find: string; replacement: string }> = [
     replacement: path.resolve(root, 'packages/shared/locale/src/svelte.svelte.ts'),
   },
   {
-    find: '@/config/test/harness/',
+    find: '@/test-presets/harness/',
     replacement: `${path.resolve(root, 'packages/shared/config/test/src/harness')}/`,
   },
   {
-    find: '@/config/test/harness',
+    find: '@/test-presets/harness',
     replacement: path.resolve(root, 'packages/shared/config/test/src/harness/index.ts'),
   },
   // 2. Slash-suffixed prefixes — match subpath imports, let Vite resolve extensions
@@ -76,7 +76,7 @@ const sharedPathAliases: Array<{ find: string; replacement: string }> = [
   },
   { find: '@/locale/', replacement: `${path.resolve(root, 'packages/shared/locale/src')}/` },
   {
-    find: '@/config/test/',
+    find: '@/test-presets/',
     replacement: `${path.resolve(root, 'packages/shared/config/test/src')}/`,
   },
   { find: '@/ui/', replacement: `${path.resolve(root, 'packages/shared/ui/src')}/` },

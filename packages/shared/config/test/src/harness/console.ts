@@ -12,7 +12,7 @@
  * @example
  * ```typescript
  * import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
- * import { useConsoleSpy } from '@/config/test/harness/console';
+ * import { useConsoleSpy } from '@/test-presets/harness/console';
  *
  * describe('logger', () => {
  *   const getConsole = useConsoleSpy({ vi, beforeEach, afterEach });
@@ -162,7 +162,7 @@ type ConsoleMethod = 'log' | 'error' | 'warn';
  * @example
  * ```typescript
  * import { vi } from 'vitest';
- * import { createConsoleSpy } from '@/config/test/harness/console';
+ * import { createConsoleSpy } from '@/test-presets/harness/console';
  *
  * const spy = createConsoleSpy(vi);
  * try {
@@ -271,7 +271,7 @@ export function createConsoleSpy(vi: ViSpyProvider, options: ConsoleSpyOptions =
  * @example
  * ```typescript
  * import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
- * import { useConsoleSpy } from '@/config/test/harness/console';
+ * import { useConsoleSpy } from '@/test-presets/harness/console';
  *
  * describe('CLI output', () => {
  *   const getConsole = useConsoleSpy({ vi, beforeEach, afterEach });

@@ -55,9 +55,9 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
  *
  * @returns The config module's `getConfig` function.
  */
-function _loadConfig(): typeof import('@/config') {
+function _loadConfig(): typeof import('@/config/loader') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  return require('@/config') as typeof import('@/config');
+  return require('@/config/loader') as typeof import('@/config/loader');
 }
 
 // =============================================================================
@@ -191,7 +191,7 @@ export function execSyncBool(command: Command): Result<Bool> {
 export function spawnProcess(
   command: Command,
   args: StrArray = [],
-  options: SpawnProcessOptions = {},
+  options: SpawnProcessOptions = { inherit: true },
 ): Result<ChildProcess> {
   const cp: OptionalNodeChildProcess = nodeChildProcess;
   if (!cp) return requireRuntime('spawnProcess', 'node');

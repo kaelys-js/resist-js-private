@@ -6,7 +6,7 @@
  *
  * @example
  * ```typescript
- * import { generateStrings, generateFilePaths, generateObjects, generatePayload } from '@/config/test/bench';
+ * import { generateStrings, generateFilePaths, generateObjects, generatePayload } from '@/test-presets/bench';
  * ```
  *
  * @module

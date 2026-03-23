@@ -120,7 +120,7 @@ export function findWorkspaceRoot(startDir?: Path, marker?: Filename): Result<Pa
   // Auto-detect: use lockfile markers for the configured PM
   const markersResult: Result<StrArray> = getWorkspaceMarkers();
   if (!markersResult.ok) return markersResult;
-  const markers: StrArray = markersResult.data;
+  const markers: ReadonlyArray<string> = markersResult.data;
   const currentDirResult2: Result<Path> = safeParse(PathSchema, path.resolve(startResult.data));
   if (!currentDirResult2.ok) return currentDirResult2;
   let currentDir: Path = currentDirResult2.data;

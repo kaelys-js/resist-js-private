@@ -11,7 +11,7 @@
  * @example
  * ```typescript
  * import { describe, it, expect } from 'vitest';
- * import { createRequest, createResponse, parseJson } from '@/config/test/harness/http';
+ * import { createRequest, createResponse, parseJson } from '@/test-presets/harness/http';
  *
  * describe('user API handler', () => {
  *   it('creates a user', async () => {
@@ -104,7 +104,7 @@ export type CreateRequestOptions = {
  *
  * @example
  * ```typescript
- * import { createRequest } from '@/config/test/harness/http';
+ * import { createRequest } from '@/test-presets/harness/http';
  *
  * // Simple GET:
  * const get = createRequest('GET', '/api/health');
@@ -184,7 +184,7 @@ export type CreateResponseOptions = {
  *
  * @example
  * ```typescript
- * import { createResponse } from '@/config/test/harness/http';
+ * import { createResponse } from '@/test-presets/harness/http';
  *
  * // JSON response:
  * const ok = createResponse({ id: 1, name: 'Alice' }, { status: 201 });
@@ -239,7 +239,7 @@ export function createResponse(body?: unknown, options: CreateResponseOptions = 
  *
  * @example
  * ```typescript
- * import { createRequest, parseJson } from '@/config/test/harness/http';
+ * import { createRequest, parseJson } from '@/test-presets/harness/http';
  *
  * interface User { id: number; name: string }
  *

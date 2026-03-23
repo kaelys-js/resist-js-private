@@ -159,9 +159,6 @@ importers:
         specifier: ^8.19.0
         version: 8.19.0
     devDependencies:
-      '@/config/test':
-        specifier: workspace:*
-        version: link:../../../shared/config/test
       '@/config/tooling/svelte':
         specifier: workspace:*
         version: link:../../../shared/config/tooling/svelte
@@ -171,6 +168,9 @@ importers:
       '@/products':
         specifier: workspace:*
         version: link:../..
+      '@/test-presets':
+        specifier: workspace:*
+        version: link:../../../shared/config/test
       '@cloudflare/workers-types':
         specifier: ^4.20260305.1
         version: 4.20260305.1
@@ -283,7 +283,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
     devDependencies:
-      '@/config/test':
+      '@/test-presets':
         specifier: workspace:*
         version: link:../test
       vitest:
@@ -388,7 +388,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
     devDependencies:
-      '@/config/test':
+      '@/test-presets':
         specifier: workspace:*
         version: link:../config/test
       typescript:
@@ -404,7 +404,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
     devDependencies:
-      '@/config/test':
+      '@/test-presets':
         specifier: workspace:*
         version: link:../../config/test
       '@types/node':
@@ -435,7 +435,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
     devDependencies:
-      '@/config/test':
+      '@/test-presets':
         specifier: workspace:*
         version: link:../../config/test
       typescript:
@@ -451,7 +451,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
     devDependencies:
-      '@/config/test':
+      '@/test-presets':
         specifier: workspace:*
         version: link:../../config/test
       typescript:
@@ -467,7 +467,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
     devDependencies:
-      '@/config/test':
+      '@/test-presets':
         specifier: workspace:*
         version: link:../../config/test
       typescript:
@@ -477,7 +477,14 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@25.3.0)(jiti@2.6.1)(jsdom@28.1.0)(lightningcss@1.31.1)(tsx@4.21.0)
 
-  packages/shared/schemas/template-literal: {}
+  packages/shared/schemas/template-literal:
+    dependencies:
+      '@/schemas/result':
+        specifier: workspace:*
+        version: link:../result
+      valibot:
+        specifier: ^1.2.0
+        version: 1.2.0(typescript@5.9.3)
 
   packages/shared/secrets/infisical:
     dependencies:
@@ -576,7 +583,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
     devDependencies:
-      '@/config/test':
+      '@/test-presets':
         specifier: workspace:*
         version: link:../../config/test
       typescript:
@@ -610,7 +617,7 @@ importers:
         specifier: ^4.7.8
         version: 4.7.8
     devDependencies:
-      '@/config/test':
+      '@/test-presets':
         specifier: workspace:*
         version: link:../../config/test
       '@types/diff':
@@ -638,7 +645,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
     devDependencies:
-      '@/config/test':
+      '@/test-presets':
         specifier: workspace:*
         version: link:../../config/test
       typescript:
@@ -669,7 +676,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
     devDependencies:
-      '@/config/test':
+      '@/test-presets':
         specifier: workspace:*
         version: link:../../config/test
       typescript:
@@ -691,7 +698,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
     devDependencies:
-      '@/config/test':
+      '@/test-presets':
         specifier: workspace:*
         version: link:../../config/test
       typescript:
@@ -722,7 +729,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
     devDependencies:
-      '@/config/test':
+      '@/test-presets':
         specifier: workspace:*
         version: link:../../config/test
       typescript:

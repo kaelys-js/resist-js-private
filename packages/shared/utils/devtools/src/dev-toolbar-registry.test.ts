@@ -9,6 +9,7 @@ import {
   humanizeOption,
   generateDebugUrl,
 } from './dev-toolbar-registry';
+import type { DevtoolsConfig } from './types';
 
 // =============================================================================
 // Test schemas (inline — simulates any product's Valibot schemas)
@@ -229,10 +230,10 @@ describe('generateDebugUrl', () => {
   const mockDebugStore = {
     debug: { enabled: true, logLevel: 'trace' as const },
     urlOverrides: {},
-    setEnabled: () => ({ ok: true as const, data: undefined }),
-    setLogLevel: () => ({ ok: true as const, data: undefined }),
+    setEnabled: () => ({ ok: true as const, data: undefined, error: null }),
+    setLogLevel: () => ({ ok: true as const, data: undefined, error: null }),
   };
-  const mockConfig = {
+  const mockConfig: DevtoolsConfig = {
     appName: 'TestApp',
     urlParamPrefix: 'ta.',
     appPreferencesSchema: TestPrefsSchema.entries,
@@ -240,8 +241,8 @@ describe('generateDebugUrl', () => {
     debugStateSchema: TestDebugSchema.entries,
     goto: async () => {},
     isValidAppKey: (key: string) => key in TestPrefsSchema.entries,
-    isValidFeatureFlag: (key: string) => key in TestFlagsSchema.entries,
-  };
+    isValidFeatureFlag: (key: string) => key in TestPrefsSchema.entries,
+  } as unknown as DevtoolsConfig;
 
   it('produces URL with debug and app preference params', () => {
     const url = generateDebugUrl(mockAppStore, mockDebugStore, mockConfig, 'http://localhost:5173/editor');

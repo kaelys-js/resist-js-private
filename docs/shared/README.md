@@ -13,7 +13,7 @@ Foundational libraries used across all WebForge products. These packages provide
 | `utils/result` | `@/utils/result` | safeParse + Result combinators |
 | `utils/core` | `@/utils/core` | Logger, signal, object, environment |
 | `locale` | `@/locale` | i18n: template, format, registry |
-| `config/test` | `@/config/test` | Vitest presets + test harness |
+| `config/test` | `@/test-presets` | Vitest presets + test harness |
 
 ## schemas/common
 
@@ -126,7 +126,7 @@ Vitest testing infrastructure:
 | `createTestHarness()` | Temp dirs, console capture, async helpers, fake clock |
 
 ```typescript
-import { createTestHarness } from '@/config/test/harness';
+import { createTestHarness } from '@/test-presets/harness';
 
 const harness = createTestHarness();
 ```

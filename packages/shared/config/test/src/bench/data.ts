@@ -8,7 +8,7 @@
  * @example
  * ```typescript
  * import { describe, bench } from 'vitest';
- * import { generateStrings, generateFilePaths, generateObjects } from '@/config/test/bench/data';
+ * import { generateStrings, generateFilePaths, generateObjects } from '@/test-presets/bench/data';
  *
  * // Pre-generate data outside bench() calls
  * const strings1k = generateStrings(1_000);
@@ -121,7 +121,7 @@ function deterministicString(index: number, length: number): string {
  *
  * @example
  * ```typescript
- * import { generateStrings } from '@/config/test/bench/data';
+ * import { generateStrings } from '@/test-presets/bench/data';
  *
  * // Generate 10k strings of 80 chars each:
  * const strings = generateStrings(10_000);
@@ -179,7 +179,7 @@ export type GenerateFilePathsOptions = {
  *
  * @example
  * ```typescript
- * import { generateFilePaths } from '@/config/test/bench/data';
+ * import { generateFilePaths } from '@/test-presets/bench/data';
  *
  * // Default paths (TypeScript project structure):
  * const paths = generateFilePaths(5_000);
@@ -234,7 +234,7 @@ export function generateFilePaths(count: number, options: GenerateFilePathsOptio
  *
  * @example
  * ```typescript
- * import { generateObjects } from '@/config/test/bench/data';
+ * import { generateObjects } from '@/test-presets/bench/data';
  *
  * // Generate user objects:
  * const users = generateObjects(10_000, (i) => ({
@@ -272,7 +272,7 @@ export function generateObjects<T>(count: number, factory: (index: number) => T)
  *
  * @example
  * ```typescript
- * import { generatePayload } from '@/config/test/bench/data';
+ * import { generatePayload } from '@/test-presets/bench/data';
  *
  * // 1 MB payload:
  * const large = generatePayload(1024 * 1024);
@@ -317,7 +317,7 @@ export function generatePayload(bytes: number, pattern = 'x'): string {
  *
  * @example
  * ```typescript
- * import { generateNestedObjects } from '@/config/test/bench/data';
+ * import { generateNestedObjects } from '@/test-presets/bench/data';
  *
  * // Moderate tree: 3^4 = 81 leaf nodes
  * const tree = generateNestedObjects(4, 3);

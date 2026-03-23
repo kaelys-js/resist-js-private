@@ -17,6 +17,7 @@
 import { defaults } from '@/config/core/defaults';
 import {
   BoolSchema,
+  FilenameSchema,
   VoidSchema,
   type Bool,
   type DynamicModule,
@@ -41,7 +42,7 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
 type NullableCoreConfigInstance = DeepReadonly<CoreConfig> | null;
 
 /** Default config filename — resolved once at module load from static defaults. */
-const DEFAULT_CONFIG_FILENAME: Filename = defaults.tooling.paths.configFilename;
+const DEFAULT_CONFIG_FILENAME: Filename = safeParse(FilenameSchema, defaults.tooling.paths.configFilename).data as Filename;
 
 // =============================================================================
 // Config Singleton
@@ -132,7 +133,7 @@ export async function loadConfig(): Promise<Result<DeepReadonly<CoreConfig>>> {
   }
 
   // Deep merge: defaults first, user config wins
-  const merged: CoreConfig = deepMerge(defaults, userConfig);
+  const merged = deepMerge(defaults, userConfig);
 
   // Validate against schema
   const validated: Result<CoreConfig> = safeParse(CoreConfigSchema, merged);
@@ -233,7 +234,7 @@ export function resetConfig(): Result<Void> {
  * ```
  */
 export function setConfig(config: Partial<CoreConfig>): Result<DeepReadonly<CoreConfig>> {
-  const merged: CoreConfig = deepMerge(defaults, config);
+  const merged = deepMerge(defaults, config);
   const validated: Result<CoreConfig> = safeParse(CoreConfigSchema, merged);
 
   if (!validated.ok) {

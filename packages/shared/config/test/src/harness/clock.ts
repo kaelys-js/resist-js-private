@@ -12,7 +12,7 @@
  * @example
  * ```typescript
  * import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
- * import { useFakeClock } from '@/config/test/harness/clock';
+ * import { useFakeClock } from '@/test-presets/harness/clock';
  *
  * describe('debounce', () => {
  *   const getClock = useFakeClock({ vi, beforeEach, afterEach });
@@ -104,7 +104,7 @@ export type FakeClock = {
  * @example
  * ```typescript
  * import { vi } from 'vitest';
- * import { createFakeClock } from '@/config/test/harness/clock';
+ * import { createFakeClock } from '@/test-presets/harness/clock';
  *
  * const clock = createFakeClock(vi, new Date('2024-01-01'));
  * try {
@@ -151,7 +151,7 @@ export function createFakeClock(vi: ViFakeTimerProvider, now?: Date | number): F
  * @example
  * ```typescript
  * import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
- * import { useFakeClock } from '@/config/test/harness/clock';
+ * import { useFakeClock } from '@/test-presets/harness/clock';
  *
  * describe('cron scheduler', () => {
  *   const getClock = useFakeClock({ vi, beforeEach, afterEach });

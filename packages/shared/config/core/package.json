@@ -9,7 +9,7 @@
     "qa:test:unit": "vitest run",
     "qa:test:coverage": "vitest run --coverage",
     "qa:benchmark": "vitest bench",
-    "qa:type-check": "tsc --noEmit",
+    "qa:type-check": "tsgo --noEmit",
     "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
   },
   "dependencies": {
@@ -21,7 +21,7 @@
     "valibot": "^1.2.0"
   },
   "devDependencies": {
-    "@/config/test": "workspace:*",
+    "@/test-presets": "workspace:*",
     "vitest": "^4.0.18"
   }
 }
