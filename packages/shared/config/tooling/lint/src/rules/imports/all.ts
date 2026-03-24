@@ -11,6 +11,7 @@ import noRawJson from './no-raw-json.ts';
 import noRawNodeImports from './no-raw-node-imports.ts';
 import noReexport from './no-reexport.ts';
 import noRelativeImports from './no-relative-imports.ts';
+import requireImportGroups from './require-import-groups.ts';
 
 /** All import lint rules. */
 export const IMPORT_RULES: TypeScriptRule[] = [
@@ -20,4 +21,5 @@ export const IMPORT_RULES: TypeScriptRule[] = [
   noRawNodeImports,
   noRawJson,
   noJsExtension,
+  requireImportGroups,
 ];

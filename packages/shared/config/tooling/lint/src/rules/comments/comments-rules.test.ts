@@ -266,6 +266,48 @@ type Foo = { x: Str };
     const results: LintResult[] = await lint(requireSectionOrder, code);
     expect(results.length).toBe(0);
   });
+
+  it('flags file with multiple content categories but no section markers', async () => {
+    // Generate a file over 50 lines with schemas + exported functions
+    const padding: string = Array.from({ length: 55 }, (_: unknown, i: number) => `// line ${i + 1}`).join('\n');
+    const code: string = `${padding}
+const FooSchema = v.strictObject({ name: v.string() });
+export type Foo = v.InferOutput<typeof FooSchema>;
+const MAX_RETRIES: Num = 3;
+export function doStuff(): void {}
+`;
+    const results: LintResult[] = await lint(requireSectionOrder, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('content categories');
+    expect(results[0].message).toContain('no section markers');
+  });
+
+  it('passes small file with no section markers', async () => {
+    const code: string = `
+const FooSchema = v.strictObject({ name: v.string() });
+export type Foo = v.InferOutput<typeof FooSchema>;
+export function doStuff(): void {}
+`;
+    const results: LintResult[] = await lint(requireSectionOrder, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes file with proper section markers', async () => {
+    const padding: string = Array.from({ length: 55 }, (_: unknown, i: number) => `// line ${i + 1}`).join('\n');
+    const code: string = `${padding}
+// =============================================================================
+// Schemas
+// =============================================================================
+const FooSchema = v.strictObject({ name: v.string() });
+
+// =============================================================================
+// Exported Functions
+// =============================================================================
+export function doStuff(): void {}
+`;
+    const results: LintResult[] = await lint(requireSectionOrder, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================

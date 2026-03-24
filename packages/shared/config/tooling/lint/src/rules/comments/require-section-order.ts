@@ -75,6 +75,33 @@ const rule: TypeScriptRule = {
         }
       }
 
+      // If no section markers found, check if the file NEEDS them
+      if (sections.length === 0) {
+        // Count content categories in the file
+        const hasSchemas: boolean = /v\.strictObject\s*\(|v\.pipe\s*\(|v\.picklist\s*\(/.test(context.content);
+        const hasExportedFunctions: boolean = /export\s+(async\s+)?function\s/.test(context.content);
+        const hasConstants: boolean = /^const\s+[A-Z][A-Z0-9_]*\s*[:=]/m.test(context.content);
+        const hasTypes: boolean = /^export\s+type\s/m.test(context.content);
+
+        const categoryCount: number = [hasSchemas, hasExportedFunctions, hasConstants, hasTypes]
+          .filter(Boolean).length;
+
+        // Only require sections if file has 2+ categories AND is over 50 lines
+        if (categoryCount >= 2 && lines.length > 50) {
+          results.push({
+            file: context.file,
+            line: 1,
+            column: 1,
+            severity: 'error',
+            message: `File has ${categoryCount} content categories but no section markers — add // === headers`,
+            ruleId: 'comments/require-section-order',
+            tip: 'Add section headers: // === Schemas, // === Types, // === Constants, // === API',
+          });
+        }
+
+        return results;
+      }
+
       // Check order: each section's orderIndex must be >= previous
       if (sections.length < 2) {
         return results;
