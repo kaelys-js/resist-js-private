@@ -48,7 +48,7 @@ export function getGitCommitShort(): Result<Str> {
   // cast safe: string literal is a valid non-empty command
   const result: Result<Str> = execSyncSafe('git rev-parse --short HEAD' as Command);
   if (!result.ok) return result;
-  return ok(v.pipe(v.string(), v.length(7)), result.data.trim());
+  return ok(v.pipe(v.string(), v.minLength(7), v.maxLength(12)), result.data.trim());
 }
 
 /**

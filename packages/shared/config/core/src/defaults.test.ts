@@ -55,8 +55,10 @@ describe('defaults', () => {
   it('versions defaults are correct', () => {
     expect(defaults.versions.node).toBe('24.13.0');
     expect(defaults.versions.packageManager).toBe('10.28.2');
-    expect(defaults.versions.nodeTools).toEqual({});
-    expect(defaults.versions.systemTools).toEqual({});
+    expect(Object.keys(defaults.versions.nodeTools).length).toBe(26);
+    expect(defaults.versions.nodeTools['@biomejs/biome']).toBe('2.4.2');
+    expect(Object.keys(defaults.versions.systemTools).length).toBe(66);
+    expect(defaults.versions.systemTools.caddy).toBe('2.10.2');
   });
 
   it('environment defaults to development', () => {

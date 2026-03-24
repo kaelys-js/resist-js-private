@@ -118,8 +118,6 @@ const _defaultsInput = {
         diskGb: 50,
       },
       registry: {
-        url: '',
-        namespace: '',
         authMethod: 'none',
       },
       serverType: 'cx32',

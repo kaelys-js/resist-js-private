@@ -93,6 +93,25 @@ describe('typescript/require-type-annotation', () => {
     const results: LintResult[] = await lint(requireTypeAnnotation, code);
     expect(results.length).toBe(0);
   });
+
+  it('passes for-of destructured binding when iterable is typed', async () => {
+    const code: string = `const entries: Array<[string, string[]]> = Object.entries(paths);\nfor (const [alias, targets] of entries) {\n  const [target]: string[] = targets;\n}`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for-of simple binding when iterable is typed', async () => {
+    const code: string = `const items: string[] = getItems();\nfor (const item of items) {}`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags destructured array outside for-of without annotation', async () => {
+    const code: string = `const [a, b] = something;`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('array');
+  });
 });
 
 // =============================================================================
