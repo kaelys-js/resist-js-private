@@ -9,6 +9,13 @@
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
+/** File paths exempt from this rule. */
+const EXEMPT_PATHS: readonly RegExp[] = [
+  /schemas\/common\//,
+  /config\/tooling\/lint\//,
+  /\.test\.ts$/,
+];
+
 /** Rule definition. */
 const rule: TypeScriptRule = {
   id: 'valibot/require-min-length',
@@ -18,6 +25,11 @@ const rule: TypeScriptRule = {
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
+
+      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
+        return results;
+      }
+
       const callee = node.callee as AstNode | undefined;
       if (!callee) {
         return results;
