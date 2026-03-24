@@ -47,7 +47,8 @@ const RTL_LANGUAGES: ReadonlySet<Str> = new Set([
   'he', // Hebrew
   'khw', // Khowar
   'ks', // Kashmiri
-  'ku', // Kurdish (Sorani)
+  // Note: Kurdish (ku) is NOT included — Kurmanji uses Latin, Sorani uses Arabic.
+  // Use ku-Arab for RTL Kurdish. The script subtag handles this via RTL_SCRIPTS.
   'ps', // Pashto
   'sd', // Sindhi
   'ur', // Urdu
