@@ -30,7 +30,7 @@ const makeAppError = (overrides?: Partial<AppError>): AppError =>
   ({
     code: 'HTTP.REQUEST_FAILED' as Str,
     message: 'Request to /api/data failed with status 500' as Str,
-    id: '11111111-2222-3333-4444-555555555555' as Str,
+    id: '550e8400-e29b-41d4-a716-446655440000' as Str,
     timestamp: '2026-03-05T12:00:00.000Z' as Str,
     stack: 'Error: Request failed\n    at fetchData (src/lib/api.ts:42:10)' as Str,
     severity: 'error',
@@ -43,7 +43,7 @@ const makeAppError = (overrides?: Partial<AppError>): AppError =>
 const makeCaptured = (overrides?: Partial<CapturedError>): CapturedError =>
   ({
     type: 'uncaughtException' as CapturedErrorType,
-    id: '11111111-2222-3333-4444-555555555555' as Str,
+    id: '550e8400-e29b-41d4-a716-446655440000' as Str,
     error: makeAppError(),
     original: new Error('Request failed'),
     environment: 'browser' as const,
@@ -167,7 +167,7 @@ describe('error reporting pipeline', () => {
     });
 
     // Call beaconError
-    const result: Result<Void> = beaconError(captured);
+    const result: Result<Void> = beaconError(captured, '/api/errors');
     expect(result.ok).toBe(true);
     expect(sendBeaconSpy).toHaveBeenCalledOnce();
 
@@ -193,7 +193,7 @@ describe('error reporting pipeline', () => {
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
-    initFetchBreadcrumbs();
+    initFetchBreadcrumbs(['/api/errors'] as Str[]);
 
     // Make a request that generates a breadcrumb
     await globalThis.fetch('/api/project');
@@ -256,7 +256,7 @@ describe('error reporting pipeline', () => {
     expect(serverResult.ok).toBe(false);
   });
 
-  it('beaconError returns ok with invalid CapturedError type (payload build fails)', () => {
+  it('beaconError returns error with invalid CapturedError type', () => {
     import.meta.env.DEV = false;
 
     const sendBeaconSpy: ReturnType<typeof vi.fn> = vi.fn(() => true);
@@ -266,15 +266,12 @@ describe('error reporting pipeline', () => {
       configurable: true,
     });
 
-    // Use an invalid CapturedError type — toBeaconPayload still succeeds because
-    // formatErrorSafe always returns ok, but the resulting payload has an invalid
-    // type. This tests the full error path through beaconError with edge-case data.
     const captured: CapturedError = makeCaptured({
       type: 'not-a-real-type' as CapturedErrorType,
     });
-    const result: Result<Void> = beaconError(captured);
+    const result: Result<Void> = beaconError(captured, '/api/errors');
 
-    // beaconError is fire-and-forget — always returns ok
-    expect(result.ok).toBe(true);
+    // safeParse rejects invalid CapturedError type
+    expect(result.ok).toBe(false);
   });
 });

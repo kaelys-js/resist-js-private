@@ -28,6 +28,7 @@ import {
   AppErrorSchema,
   ErrorTagsSchema,
   type Result,
+  ok,
 } from '@/schemas/result/result';
 import { formatErrorSafe } from '@/utils/result/format';
 
@@ -144,5 +145,5 @@ export function toBeaconPayload(captured: CapturedError): Result<BeaconPayload> 
     ...(capturedResult.data.fingerprint !== undefined && { fingerprint: capturedResult.data.fingerprint }),
   };
 
-  return safeParse(BeaconPayloadSchema, rawPayload);
+  return ok(BeaconPayloadSchema, rawPayload);
 }

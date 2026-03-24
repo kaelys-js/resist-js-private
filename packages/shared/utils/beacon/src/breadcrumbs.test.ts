@@ -31,7 +31,8 @@ afterEach(() => {
 
 describe('addNavigationBreadcrumb', () => {
   it('adds a navigation breadcrumb with from/to URLs', () => {
-    addNavigationBreadcrumb('/home' as Str, '/editor' as Str);
+    const navResult: Result<void> = addNavigationBreadcrumb('/home' as Str, '/editor' as Str);
+    expect(navResult.ok).toBe(true);
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
@@ -47,7 +48,8 @@ describe('addNavigationBreadcrumb', () => {
   });
 
   it('handles null from URL (initial navigation)', () => {
-    addNavigationBreadcrumb(null, '/editor' as Str);
+    const navResult: Result<void> = addNavigationBreadcrumb(null, '/editor' as Str);
+    expect(navResult.ok).toBe(true);
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
@@ -82,7 +84,7 @@ describe('initFetchBreadcrumbs', () => {
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
-    initFetchBreadcrumbs();
+    initFetchBreadcrumbs(['/api/errors'] as Str[]);
 
     await globalThis.fetch('/api/users');
 
@@ -106,7 +108,7 @@ describe('initFetchBreadcrumbs', () => {
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
-    initFetchBreadcrumbs();
+    initFetchBreadcrumbs(['/api/errors'] as Str[]);
 
     await globalThis.fetch('/api/missing');
 
@@ -125,7 +127,7 @@ describe('initFetchBreadcrumbs', () => {
     }) as unknown as typeof fetch;
     globalThis.fetch = mockFetch;
 
-    initFetchBreadcrumbs();
+    initFetchBreadcrumbs(['/api/errors'] as Str[]);
 
     try {
       await globalThis.fetch('/api/broken');
@@ -148,7 +150,7 @@ describe('initFetchBreadcrumbs', () => {
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
-    initFetchBreadcrumbs();
+    initFetchBreadcrumbs(['/api/errors'] as Str[]);
 
     await globalThis.fetch('/api/items', { method: 'POST' });
 
@@ -167,7 +169,7 @@ describe('initFetchBreadcrumbs', () => {
     globalThis.fetch = mockFetch;
     const wrappedRef: typeof fetch = mockFetch;
 
-    initFetchBreadcrumbs();
+    initFetchBreadcrumbs(['/api/errors'] as Str[]);
     const interceptedFetch: typeof fetch = globalThis.fetch;
     expect(interceptedFetch).not.toBe(wrappedRef);
 
@@ -182,7 +184,7 @@ describe('initFetchBreadcrumbs', () => {
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
-    initFetchBreadcrumbs();
+    initFetchBreadcrumbs(['/api/errors'] as Str[]);
 
     await globalThis.fetch('/api/errors');
 
@@ -227,7 +229,7 @@ describe('initFetchBreadcrumbs', () => {
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
-    initFetchBreadcrumbs();
+    initFetchBreadcrumbs(['/api/errors'] as Str[]);
 
     await globalThis.fetch(new URL('http://localhost/api/users'));
 
@@ -247,7 +249,7 @@ describe('initFetchBreadcrumbs', () => {
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
-    initFetchBreadcrumbs();
+    initFetchBreadcrumbs(['/api/errors'] as Str[]);
 
     await globalThis.fetch(new Request('http://localhost/api/data', { method: 'PUT' }));
 
@@ -266,11 +268,11 @@ describe('initFetchBreadcrumbs', () => {
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
-    initFetchBreadcrumbs();
+    initFetchBreadcrumbs(['/api/errors'] as Str[]);
     const firstWrapped: typeof fetch = globalThis.fetch;
 
     // Second call should be a no-op
-    initFetchBreadcrumbs();
+    initFetchBreadcrumbs(['/api/errors'] as Str[]);
     expect(globalThis.fetch).toBe(firstWrapped);
 
     // Should still work correctly (not double-wrapped)
@@ -294,7 +296,7 @@ describe('initFetchBreadcrumbs', () => {
     }) as unknown as typeof fetch;
     globalThis.fetch = mockFetch;
 
-    initFetchBreadcrumbs();
+    initFetchBreadcrumbs(['/api/errors'] as Str[]);
 
     try {
       await globalThis.fetch('/api/broken');
@@ -308,7 +310,7 @@ describe('initFetchBreadcrumbs', () => {
 
     const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
     expect(crumb.level).toBe('warning');
-    expect(crumb.message).toContain('Unknown error');
+    expect(crumb.message).toContain('string error');
   });
 
   it('extracts method from Request object directly', async () => {
@@ -317,7 +319,7 @@ describe('initFetchBreadcrumbs', () => {
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
-    initFetchBreadcrumbs();
+    initFetchBreadcrumbs(['/api/errors'] as Str[]);
 
     // Pass Request without init — method comes from Request.method
     const req: Request = new Request('http://localhost/api/items', { method: 'DELETE' });
