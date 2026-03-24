@@ -1,12 +1,11 @@
 /**
- * Common Schemas
+ * Common Schemas — general-purpose Valibot schemas reusable across any package.
  *
- * General-purpose Valibot schemas reusable across any package.
- * All type annotations use Valibot-inferred types via `v.InferOutput`.
+ * @module
  *
  * Categories:
  * - **Primitives** — Str, Bool, Num, Path, Filename, Void, Never
- * - **Network & Environment** — Port, IPv4 addresses, Hostname, Environment
+ * - **Network & Environment** — Port, IPv4, Hostname, Environment
  * - **Versioning** — Semver
  * - **Identifiers** — KebabCaseId, ProductName, CamelCaseString
  * - **Process** — ExitCode, Platform
@@ -17,8 +16,6 @@
  *
  * CLI-specific schemas (flags, output format, exit code values, tool names)
  * live in `@/cli/schemas`.
- *
- * @module
  */
 
 import * as v from 'valibot';
@@ -220,8 +217,9 @@ export type NonNegativeInteger = v.InferOutput<typeof NonNegativeIntegerSchema>;
  * const width: NonNegativeInteger = DEFAULT_TERMINAL_WIDTH; // 80
  * ```
  */
-export const DEFAULT_TERMINAL_WIDTH: NonNegativeInteger = (() => {
-  const r = v.safeParse(NonNegativeIntegerSchema, 80);
+export const DEFAULT_TERMINAL_WIDTH: NonNegativeInteger = ((): NonNegativeInteger => {
+  const r: v.SafeParseResult<typeof NonNegativeIntegerSchema> = v.safeParse(NonNegativeIntegerSchema, 80);
+
   if (!r.success) {
     throw new Error('BUG: DEFAULT_TERMINAL_WIDTH schema validation failed');
   }
@@ -238,8 +236,9 @@ export const DEFAULT_TERMINAL_WIDTH: NonNegativeInteger = (() => {
  * const indent: NonNegativeInteger = DEFAULT_JSON_INDENT; // 2
  * ```
  */
-export const DEFAULT_JSON_INDENT: NonNegativeInteger = (() => {
-  const r = v.safeParse(NonNegativeIntegerSchema, 2);
+export const DEFAULT_JSON_INDENT: NonNegativeInteger = ((): NonNegativeInteger => {
+  const r: v.SafeParseResult<typeof NonNegativeIntegerSchema> = v.safeParse(NonNegativeIntegerSchema, 2);
+
   if (!r.success) {
     throw new Error('BUG: DEFAULT_JSON_INDENT schema validation failed');
   }
@@ -295,8 +294,9 @@ export type PositiveInteger = v.InferOutput<typeof PositiveIntegerSchema>;
  * const width: PositiveInteger = DEFAULT_PROGRESS_BAR_WIDTH; // 20
  * ```
  */
-export const DEFAULT_PROGRESS_BAR_WIDTH: PositiveInteger = (() => {
-  const r = v.safeParse(PositiveIntegerSchema, 20);
+export const DEFAULT_PROGRESS_BAR_WIDTH: PositiveInteger = ((): PositiveInteger => {
+  const r: v.SafeParseResult<typeof PositiveIntegerSchema> = v.safeParse(PositiveIntegerSchema, 20);
+
   if (!r.success) {
     throw new Error('BUG: DEFAULT_PROGRESS_BAR_WIDTH schema validation failed');
   }
@@ -569,7 +569,7 @@ export type DateOnly = v.InferOutput<typeof DateOnlySchema>;
  */
 export const TimezoneSchema = v.pipe(
   v.string(),
-  v.check((s: string): boolean => {
+  v.check((s: Str): Bool => {
     try {
       Intl.DateTimeFormat(undefined, { timeZone: s });
       return true;
@@ -694,9 +694,11 @@ export type EnvVarName = v.InferOutput<typeof EnvVarNameSchema>;
  */
 export const JsonStringSchema = v.pipe(
   v.string(),
-  v.check((s: string): boolean => {
+  v.check((s: Str): Bool => {
     try {
-      JSON.parse(s);
+      // JSON.parse is correct here: validating string IS parseable JSON
+      const parsed: unknown = JSON.parse(s);
+
       return true;
     } catch {
       return false;
@@ -944,7 +946,7 @@ export type GlobPattern = v.InferOutput<typeof GlobPatternSchema>;
  */
 export const RegexPatternSchema = v.pipe(
   v.string(),
-  v.check((s: string): boolean => {
+  v.check((s: Str): Bool => {
     try {
       new RegExp(s);
       return true;
@@ -1529,7 +1531,7 @@ export type AbsolutePath = v.InferOutput<typeof AbsolutePathSchema>;
 export const RelativePathSchema = v.pipe(
   v.string(),
   v.minLength(1),
-  v.check((s: string): boolean => !s.startsWith('/'), 'Must be a relative path (no leading /)'),
+  v.check((s: Str): Bool => !s.startsWith('/'), 'Must be a relative path (no leading /)'),
   v.brand('RelativePath'),
 );
 
@@ -1686,7 +1688,7 @@ export type Environment = v.InferOutput<typeof EnvironmentSchema>;
  * Semantic version regex pattern.
  * Matches: MAJOR.MINOR.PATCH with optional pre-release and build metadata.
  */
-const SEMVER_REGEX =
+const SEMVER_REGEX: RegExp =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
 /**
@@ -1716,7 +1718,7 @@ export type Semver = v.InferOutput<typeof SemverSchema>;
  * Kebab-case identifier regex pattern.
  * Matches: lowercase letters and numbers separated by hyphens.
  */
-const KEBAB_CASE_REGEX = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+const KEBAB_CASE_REGEX: RegExp = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 
 /**
  * Schema for kebab-case identifiers (e.g., "my-tool", "format-cli").
@@ -1888,8 +1890,9 @@ export type ExitCode = v.InferOutput<typeof ExitCodeSchema>;
  * const code: ExitCode = DEFAULT_EXIT_CODE; // 0
  * ```
  */
-export const DEFAULT_EXIT_CODE: ExitCode = (() => {
-  const r = v.safeParse(ExitCodeSchema, 0);
+export const DEFAULT_EXIT_CODE: ExitCode = ((): ExitCode => {
+  const r: v.SafeParseResult<typeof ExitCodeSchema> = v.safeParse(ExitCodeSchema, 0);
+
   if (!r.success) {
     throw new Error('BUG: DEFAULT_EXIT_CODE schema validation failed');
   }
@@ -1904,8 +1907,9 @@ export const DEFAULT_EXIT_CODE: ExitCode = (() => {
  * const code: ExitCode = FAILURE_EXIT_CODE; // 1
  * ```
  */
-export const FAILURE_EXIT_CODE: ExitCode = (() => {
-  const r = v.safeParse(ExitCodeSchema, 1);
+export const FAILURE_EXIT_CODE: ExitCode = ((): ExitCode => {
+  const r: v.SafeParseResult<typeof ExitCodeSchema> = v.safeParse(ExitCodeSchema, 1);
+
   if (!r.success) {
     throw new Error('BUG: FAILURE_EXIT_CODE schema validation failed');
   }
@@ -1965,7 +1969,7 @@ export const FatalExitOptionsSchema = v.strictObject({
 });
 
 /**
- * Options for `fatalExit`.
+ * Options for `fatalExit`. See {@link FatalExitOptionsSchema}.
  *
  * @example
  * ```typescript
@@ -2302,7 +2306,7 @@ export const DEFAULT_STDIO_OPTION: StdioOption = 'inherit';
  * if (result.ok) result.data; // { inherit: true, cwd: '/app' }
  * ```
  */
-export const SpawnProcessOptionsSchema = v.object({
+export const SpawnProcessOptionsSchema = v.strictObject({
   /** Working directory for the spawned process. */
   cwd: v.optional(v.union([PathSchema, v.pipe(v.string(), v.url())])),
   /** Environment variables. */
@@ -2344,12 +2348,12 @@ export const EnsureCommandResultSchema = v.variant('status', [
     /** The command that was not found. */
     command: CommandSchema,
     /** Suggested command to install the missing tool. */
-    installHint: v.pipe(v.string(), v.minLength(1)),
+    installHint: v.pipe(v.string(), v.minLength(1), v.maxLength(500)),
   }),
 ]);
 
 /**
- * Result of `ensureCommand`.
+ * Result of `ensureCommand`. See {@link EnsureCommandResultSchema}.
  *
  * @example
  * ```typescript
@@ -2390,7 +2394,7 @@ export const EnsureMiseResultSchema = v.variant('status', [
 ]);
 
 /**
- * Result of `ensureMise`.
+ * Result of `ensureMise`. See {@link EnsureMiseResultSchema}.
  *
  * @example
  * ```typescript
@@ -2438,7 +2442,7 @@ export const EnsureWorkspaceRootResultSchema = v.variant('status', [
 ]);
 
 /**
- * Result of `ensureWorkspaceRoot`.
+ * Result of `ensureWorkspaceRoot`. See {@link EnsureWorkspaceRootResultSchema}.
  *
  * @example
  * ```typescript
@@ -2778,7 +2782,7 @@ export type AgentDefinition = v.InferOutput<typeof AgentDefinitionSchema>;
  */
 export const RuntimeInfoSchema = v.strictObject({
   /** Detected runtime kind. */
-  name: v.lazy(() => RuntimeKindSchema),
+  name: v.lazy((): typeof RuntimeKindSchema => RuntimeKindSchema),
   /** Runtime version string (e.g., `'20.11.0'` for Node), or `undefined` if unavailable. */
   version: v.optional(StrSchema),
 });
@@ -3206,7 +3210,7 @@ export type LogEntry = v.InferOutput<typeof LogEntrySchema>;
  * const result = safeParse(AbortSignalSchema, controller.signal);
  * ```
  */
-export const AbortSignalSchema = v.custom<AbortSignal>((val) => val instanceof AbortSignal);
+export const AbortSignalSchema = v.custom<AbortSignal>((val): val is AbortSignal => val instanceof AbortSignal);
 
 /** Inferred output type of {@link AbortSignalSchema}. */
 export type AbortSignalType = v.InferOutput<typeof AbortSignalSchema>;
@@ -3228,8 +3232,8 @@ export type AbortSignalType = v.InferOutput<typeof AbortSignalSchema>;
  * };
  * ```
  */
-export const InterruptHandlerSchema = v.custom<(signal: Str) => void>(
-  (val) => typeof val === 'function',
+export const InterruptHandlerSchema = v.custom<(signal: Str) => Void>(
+  (val): val is (signal: Str) => Void => typeof val === 'function',
 );
 
 /** Inferred output type of {@link InterruptHandlerSchema}. */
@@ -3253,8 +3257,8 @@ export type InterruptHandler = v.InferOutput<typeof InterruptHandlerSchema>;
  * };
  * ```
  */
-export const CleanupCallbackSchema = v.custom<() => void>(
-  (input: unknown): input is () => void => typeof input === 'function',
+export const CleanupCallbackSchema = v.custom<() => Void>(
+  (input: unknown): input is () => Void => typeof input === 'function',
 );
 
 /** Inferred output type of {@link CleanupCallbackSchema}. */
@@ -3312,7 +3316,7 @@ export type EnvRecordWithUndefined = v.InferOutput<typeof EnvRecordWithUndefined
  */
 export const NullablePathSchema = v.nullable(PathSchema);
 
-/** Path or `null`. */
+/** Path or `null`. See {@link NullablePathSchema}. */
 export type NullablePath = v.InferOutput<typeof NullablePathSchema>;
 
 /**
@@ -3331,7 +3335,7 @@ export type NullablePath = v.InferOutput<typeof NullablePathSchema>;
  */
 export const OptionalPathSchema = v.optional(PathSchema);
 
-/** Path or `undefined`. */
+/** Path or `undefined`. See {@link OptionalPathSchema}. */
 export type OptionalPath = v.InferOutput<typeof OptionalPathSchema>;
 
 /**
@@ -3349,7 +3353,7 @@ export type OptionalPath = v.InferOutput<typeof OptionalPathSchema>;
  */
 export const NullableExitCodeSchema = v.nullable(ExitCodeSchema);
 
-/** ExitCode or `null`. */
+/** ExitCode or `null`. See {@link NullableExitCodeSchema}. */
 export type NullableExitCode = v.InferOutput<typeof NullableExitCodeSchema>;
 
 /**
@@ -3366,7 +3370,7 @@ export type NullableExitCode = v.InferOutput<typeof NullableExitCodeSchema>;
  */
 export const NullableStrArraySchema = v.nullable(StrArraySchema);
 
-/** StrArray or `null`. */
+/** StrArray or `null`. See {@link NullableStrArraySchema}. */
 export type NullableStrArray = v.InferOutput<typeof NullableStrArraySchema>;
 
 // =============================================================================
@@ -3417,13 +3421,13 @@ export type DynamicModule = v.InferOutput<typeof DynamicModuleSchema>;
  * Uses `v.custom()` instead of `functionSchema()` to avoid a circular
  * dependency (`schemas/common` ← `schemas/function` ← `schemas/common`).
  */
-export const ConsoleLogFnSchema = v.custom<(...args: unknown[]) => void>(
-  (val: unknown): boolean => typeof val === 'function',
+export const ConsoleLogFnSchema = v.custom<typeof console.log>(
+  (val: unknown): val is typeof console.log => typeof val === 'function',
   'Expected a callable function',
 );
 
 /** `console.log` / `console.error` function signature. @see {@link ConsoleLogFnSchema} */
-export type ConsoleLogFn = (...args: unknown[]) => void;
+export type ConsoleLogFn = typeof console.log;
 
 /** Schema for Node.js `process.env` record with optional values. */
 export const OptionalEnvRecordSchema = v.optional(v.record(v.string(), v.optional(v.string())));
@@ -3470,8 +3474,8 @@ export type UntypedParseResult = unknown;
  * const teardown: TeardownFn = () => { /* cleanup *\/ };
  * ```
  */
-export const TeardownFnSchema = v.custom<() => void>(
-  (val: unknown): val is () => void => typeof val === 'function',
+export const TeardownFnSchema = v.custom<() => Void>(
+  (val: unknown): val is () => Void => typeof val === 'function',
   'Expected a teardown function',
 );
 

@@ -64,6 +64,26 @@ const rule: TypeScriptRule = {
         return results;
       }
 
+      // Exempt catch blocks inside v.check/v.transform/v.rawCheck callbacks
+      const beforeCatch: string = context.content.slice(Math.max(0, node.start - 500), node.start);
+      const lastCallback: number = Math.max(
+        beforeCatch.lastIndexOf('v.check('),
+        beforeCatch.lastIndexOf('v.transform('),
+        beforeCatch.lastIndexOf('v.rawCheck('),
+      );
+
+      if (lastCallback !== -1) {
+        const afterCallback: string = beforeCatch.slice(lastCallback);
+        let depth: number = 0;
+
+        for (const ch of afterCallback) {
+          if (ch === '(') depth++;
+          if (ch === ')') depth--;
+        }
+
+        if (depth > 0) return results; // inside callback — exempt
+      }
+
       const body = node.body as AstNode | undefined;
       if (!body) {
         return results;

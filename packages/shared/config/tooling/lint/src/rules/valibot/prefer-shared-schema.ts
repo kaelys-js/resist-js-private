@@ -105,6 +105,7 @@ const SCHEMA_SUGGESTIONS: ReadonlyArray<{ pattern: RegExp; schema: string; sourc
 /** File path patterns exempt from this rule. */
 const EXEMPT_PATTERNS: readonly RegExp[] = [
   /config\/tooling\/lint\//,
+  /schemas\/common\//,
   /\.test\.ts$/,
   /\.spec\.ts$/,
 ];

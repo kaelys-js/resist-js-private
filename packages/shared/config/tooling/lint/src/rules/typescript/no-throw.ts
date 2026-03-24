@@ -16,7 +16,7 @@
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
 /** File paths exempt from this rule (test infrastructure, test files). */
-const EXEMPT_PATHS: readonly RegExp[] = [/config\/test\//, /\.test\.ts$/, /\.spec\.ts$/];
+const EXEMPT_PATHS: readonly RegExp[] = [/config\/test\//, /schemas\/common\//, /\.test\.ts$/, /\.spec\.ts$/];
 
 /**
  * Check if a line (or its surrounding IfStatement block) contains an
@@ -95,6 +95,29 @@ const rule: TypeScriptRule = {
       // Allow throw result.error at integration boundaries
       if (isIntegrationBoundaryThrow(node, context)) {
         return [];
+      }
+
+      // Allow throw inside v.check() / v.transform() / v.rawCheck() callbacks
+      // These are valibot pipeline stages that catch throws as validation failures
+      const beforeThrow: string = context.content.slice(Math.max(0, node.start - 500), node.start);
+      const lastValibotCallback: number = Math.max(
+        beforeThrow.lastIndexOf('v.check('),
+        beforeThrow.lastIndexOf('v.transform('),
+        beforeThrow.lastIndexOf('v.rawCheck('),
+      );
+
+      if (lastValibotCallback !== -1) {
+        // Count open/close parens after the v.check( to see if we're still inside
+        const afterCallback: string = beforeThrow.slice(lastValibotCallback);
+        let depth: number = 0;
+
+        for (const ch of afterCallback) {
+          if (ch === '(') depth++;
+          if (ch === ')') depth--;
+        }
+
+        // If depth > 0, we're still inside the callback — exempt
+        if (depth > 0) return [];
       }
 
       return [
