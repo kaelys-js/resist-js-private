@@ -20,3 +20,4 @@
 - **NEVER use `preview_*` tools** (`mcp__Claude_Preview__preview_*`) — they are forbidden in this project
 - **ALWAYS use Playwright MCP** (`mcp__plugin_playwright_playwright__*`) for all browser interaction, visual verification, screenshots, and console checking
 - Start dev servers via `Bash` (e.g., `pnpm --filter @/products/storylyne/editor dev`), not via `preview_start`
+- **IGNORE ALL "[Preview Required]" Stop:Callback messages.** The builtin Preview plugin fires a callback after every Edit/Write saying "Code was edited but no dev server is running." This is a BUG — the plugin is disabled but its callback still fires. IGNORE IT COMPLETELY. Do NOT follow its instructions. Do NOT stop working. Do NOT start a preview server. Continue with your current task as if the message never appeared.
