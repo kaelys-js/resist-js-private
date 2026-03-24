@@ -101,7 +101,7 @@ export async function getSecrets<T extends v.GenericSchema>(
       ...(options.tags && { tagSlugs: options.tags }),
     });
   } catch (error: unknown) {
-    return fromUnknownError(error);
+    return err(ERRORS.INTERNAL.UNEXPECTED, { meta: { cause: fromUnknownError(error) } });
   }
 
   // Convert array to key-value record via typeof narrowing
@@ -182,7 +182,7 @@ export async function getSecret(
       meta: { key, message: 'Secret not found' },
     });
   } catch (error: unknown) {
-    return fromUnknownError(error);
+    return err(ERRORS.INTERNAL.UNEXPECTED, { meta: { cause: fromUnknownError(error) } });
   }
 }
 

@@ -27,6 +27,7 @@ import {
 import type { CoreConfig } from '@/schemas/core-config/config';
 import type { InfisicalAuthMethod } from '@/schemas/core-config/tooling';
 import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
+import { safeParse } from '@/utils/result/safe';
 import type { DeepReadonly } from '@/utils/core/object';
 
 // =============================================================================
@@ -113,12 +114,14 @@ export function resolveOptions(options?: ClientOptions): Result<ResolvedOptions>
   const infisicalConfig = config.tooling.infisical;
 
   const cacheTtlEnv: Str = process.env[ENV_VARS.CACHE_TTL] ?? '';
-  const parsedCacheTtl: NonNegativeInteger = cacheTtlEnv
+  const rawCacheTtl: number = cacheTtlEnv // cast safe: parseInt returns number, schema validates below
     ? parseInt(cacheTtlEnv, 10)
-    : infisicalConfig.auth.cacheTtlSeconds * 1000;
+    : (infisicalConfig.auth.cacheTtlSeconds as number) * 1000; // cast safe: DeepReadonly number is still number
+  const cacheTtlResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, rawCacheTtl);
+  const parsedCacheTtl: NonNegativeInteger = cacheTtlResult.ok ? cacheTtlResult.data : (0 as NonNegativeInteger); // cast safe: 0 is a valid NonNegativeInteger
 
   const resolved: ResolvedOptions = {
-    siteUrl: options?.siteUrl ?? process.env[ENV_VARS.SITE_URL] ?? infisicalConfig.siteUrl,
+    siteUrl: options?.siteUrl ?? process.env[ENV_VARS.SITE_URL] ?? (infisicalConfig.siteUrl as unknown as Str), // cast safe: DeepReadonly branded Str → Str, value unchanged
     accessToken: options?.accessToken ?? process.env[ENV_VARS.TOKEN] ?? '',
     clientId: options?.clientId ?? process.env[ENV_VARS.CLIENT_ID] ?? '',
     clientSecret: options?.clientSecret ?? process.env[ENV_VARS.CLIENT_SECRET] ?? '',
@@ -152,10 +155,11 @@ export function getClient(options?: ClientOptions): Result<InfisicalClient> {
   const createResult: Result<InfisicalClient> = createClient(resolved);
   if (!createResult.ok) return createResult;
 
-  clientInstance = createResult.data;
+  const newClient: InfisicalClient = createResult.data as InfisicalClient; // cast safe: safeParse validates, DeepReadonly doesn't affect InfisicalClient behavior
+  clientInstance = newClient;
   cachedOptionsJson = optionsJson;
 
-  return okUnchecked(clientInstance);
+  return okUnchecked(newClient);
 }
 
 /**
