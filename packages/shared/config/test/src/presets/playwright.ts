@@ -33,7 +33,14 @@
 import { defineConfig, devices, type PlaywrightTestConfig } from '@playwright/test';
 import * as v from 'valibot';
 
-import { PathSchema, HostnameSchema, CommandSchema, type Str, type Bool } from '@/schemas/common';
+import {
+  PathSchema,
+  HostnameSchema,
+  CommandSchema,
+  PortSchema,
+  type Str,
+  type Bool,
+} from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import type { Result } from '@/schemas/result/result';
 
@@ -46,7 +53,7 @@ const PlaywrightPresetOptionsSchema = v.strictObject({
   /** Directory containing E2E test files (default: `'./e2e'`). */
   testDir: v.optional(PathSchema, './e2e'),
   /** Port for the preview server (default: `4173`). */
-  previewPort: v.optional(v.number(), 4173),
+  previewPort: v.optional(PortSchema, 4173),
   /** Host address for the preview server (default: `'127.0.0.1'`). */
   previewHost: v.optional(HostnameSchema, '127.0.0.1'),
   /** Command to build and start the preview server. Auto-generated from host/port if omitted. */

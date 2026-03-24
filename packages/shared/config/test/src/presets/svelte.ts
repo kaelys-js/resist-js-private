@@ -66,8 +66,8 @@ export function createSvelteTestConfig(rawOptions: SvelteTestOptions): ViteUserC
     throw optionsResult.error; // integration boundary: vitest config doesn't understand Result
   }
 
-  // cast safe: safeParse validates, shallow destructure into mutable bindings
   const { packageName, dirname, include, coverageExclude, plugins }: SvelteTestOptions =
+    // cast safe: safeParse validates, shallow destructure into mutable bindings
     optionsResult.data as SvelteTestOptions;
   const alias: Record<Str, Str> =
     packageName && dirname ? { [packageName]: resolve(dirname, './src') } : {};
