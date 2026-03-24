@@ -31,10 +31,11 @@ import {
   StrSchema,
   VoidSchema,
   type Bool,
+  type OptionalStr,
   type Str,
   type Void,
 } from '@/schemas/common';
-import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
+import { ERRORS, err, ok, okUnchecked, type Result } from '@/schemas/result/result';
 import { safeParse, fromUnknownError } from '@/utils/result/safe';
 
 // =============================================================================
@@ -62,6 +63,18 @@ export const GetSecretsOptionsSchema = v.strictObject({
 /** @see {@link GetSecretsOptionsSchema} */
 export type GetSecretsOptions = v.InferOutput<typeof GetSecretsOptionsSchema>;
 
+/** Options for fetching a single secret (excludes attachToProcessEnv). */
+export const GetSecretOptionsSchema = v.omit(GetSecretsOptionsSchema, ['attachToProcessEnv']);
+
+/** @see {@link GetSecretOptionsSchema} */
+export type GetSecretOptions = v.InferOutput<typeof GetSecretOptionsSchema>;
+
+/** Options for fetching secrets without path override. */
+export const GetGlobalSecretsOptionsSchema = v.omit(GetSecretsOptionsSchema, ['path']);
+
+/** @see {@link GetGlobalSecretsOptionsSchema} */
+export type GetGlobalSecretsOptions = v.InferOutput<typeof GetGlobalSecretsOptionsSchema>;
+
 // =============================================================================
 // Core Functions
 // =============================================================================
@@ -70,19 +83,32 @@ export type GetSecretsOptions = v.InferOutput<typeof GetSecretsOptionsSchema>;
  * Fetch and validate secrets against a Valibot schema.
  * The core accessor — all other functions delegate to this.
  *
- * @param schema - Valibot schema to validate fetched secrets against.
- * @param options - Fetch options (environment, projectId, path, etc.).
- * @returns `Result<T>` — validated secrets matching the schema.
+ * @param {T} schema - Valibot schema to validate fetched secrets against.
+ * @param {GetSecretsOptions} options - Fetch options (environment, projectId, path, etc.).
+ * @returns {Promise<Result<v.InferOutput<T>>>} Validated secrets matching the schema.
+ *
+ * @example
+ * ```typescript
+ * const result = await getSecrets(AllSecretsSchema, { environment: 'production' });
+ * if (!result.ok) return result;
+ * result.data; // => AllSecrets
+ * ```
  */
 export async function getSecrets<T extends v.GenericSchema>(
   schema: T,
-  options: GetSecretsOptions = {},
+  options: GetSecretsOptions,
 ): Promise<Result<v.InferOutput<T>>> {
-  const clientResult: Result<InfisicalClient> = getClient();
+  const optionsResult: Result<GetSecretsOptions> = safeParse(GetSecretsOptionsSchema, options);
+
+  if (!optionsResult.ok) return optionsResult;
+
+  const validated: GetSecretsOptions = optionsResult.data as GetSecretsOptions; // cast safe: DeepReadonly preserves value
+  const clientResult: Result<InfisicalClient> = getClient({});
+
   if (!clientResult.ok) return clientResult;
 
-  const environment: Str = options.environment ?? process.env[ENV_VARS.ENV] ?? 'development';
-  const projectId: Str = options.projectId ?? process.env[ENV_VARS.PROJECT_ID] ?? '';
+  const environment: Str = validated.environment ?? process.env[ENV_VARS.ENV] ?? 'development';
+  const projectId: Str = validated.projectId ?? process.env[ENV_VARS.PROJECT_ID] ?? '';
 
   if (!projectId) {
     return err(ERRORS.VALIDATION.REQUIRED_FIELD, {
@@ -92,20 +118,23 @@ export async function getSecrets<T extends v.GenericSchema>(
 
   // Fetch secrets from Infisical
   let rawSecrets: unknown[];
+
   try {
     rawSecrets = await clientResult.data.listSecrets({
       environment,
       projectId,
-      path: options.path ?? '/',
-      includeImports: options.includeImports ?? true,
-      ...(options.tags && { tagSlugs: options.tags }),
+      path: validated.path ?? '/',
+      includeImports: validated.includeImports ?? true,
+      ...(validated.tags && { tagSlugs: validated.tags }),
     });
   } catch (error: unknown) {
+    // integration boundary: Infisical SDK threw — wrap as Result error
     return err(ERRORS.INTERNAL.UNEXPECTED, { meta: { cause: fromUnknownError(error) } });
   }
 
   // Convert array to key-value record via typeof narrowing
-  const secretsObj: Record<string, string> = {};
+  const secretsObj: Record<Str, Str> = {};
+
   if (Array.isArray(rawSecrets)) {
     for (const entry of rawSecrets) {
       if (
@@ -122,37 +151,59 @@ export async function getSecrets<T extends v.GenericSchema>(
   }
 
   // Optionally attach to process.env
-  if (options.attachToProcessEnv === true) {
+  if (validated.attachToProcessEnv === true) {
     for (const [key, value] of Object.entries(secretsObj)) {
       process.env[key] = value;
     }
   }
 
-  // Skip validation if requested
-  if (options.skipValidation === true) {
-    return okUnchecked(secretsObj as v.InferOutput<T>);
+  // Skip validation if requested — return unvalidated record
+  if (validated.skipValidation === true) {
+    // cast safe: user explicitly opted out of schema validation via skipValidation
+    const unvalidated: Result<v.InferOutput<T>> = okUnchecked(secretsObj as v.InferOutput<T>);
+
+    return unvalidated;
   }
 
   // Validate against schema
-  return safeParse(schema, secretsObj);
+  const validatedOutput: Result<v.InferOutput<T>> = ok(schema, secretsObj);
+
+  return validatedOutput;
 }
 
 /**
  * Fetch a single secret value by key.
  *
- * @param key - Secret key name.
- * @param options - Fetch options.
- * @returns `Result<Str>` — secret value, or error if not found.
+ * @param {Str} key - Secret key name.
+ * @param {GetSecretOptions} options - Fetch options.
+ * @returns {Promise<Result<Str>>} Secret value, or error if not found.
+ *
+ * @example
+ * ```typescript
+ * const result = await getSecret('DATABASE_URL', { environment: 'production' });
+ * if (!result.ok) return result;
+ * result.data; // => 'postgres://...'
+ * ```
  */
 export async function getSecret(
   key: Str,
-  options: Omit<GetSecretsOptions, 'attachToProcessEnv'> = {},
+  options: GetSecretOptions,
 ): Promise<Result<Str>> {
-  const clientResult: Result<InfisicalClient> = getClient();
+  const keyResult: Result<Str> = safeParse(StrSchema, key);
+
+  if (!keyResult.ok) return keyResult;
+
+  const optionsResult: Result<GetSecretOptions> = safeParse(GetSecretOptionsSchema, options);
+
+  if (!optionsResult.ok) return optionsResult;
+
+  const validated: GetSecretOptions = optionsResult.data as GetSecretOptions; // cast safe: DeepReadonly preserves value
+  const clientResult: Result<InfisicalClient> = getClient({});
+
   if (!clientResult.ok) return clientResult;
 
-  const environment: Str = options.environment ?? process.env[ENV_VARS.ENV] ?? 'development';
-  const projectId: Str = options.projectId ?? process.env[ENV_VARS.PROJECT_ID] ?? '';
+  const environment: Str = validated.environment ?? process.env[ENV_VARS.ENV] ?? 'development';
+  const projectId: Str = validated.projectId ?? process.env[ENV_VARS.PROJECT_ID] ?? '';
 
   if (!projectId) {
     return err(ERRORS.VALIDATION.REQUIRED_FIELD, {
@@ -164,9 +215,9 @@ export async function getSecret(
     const secret: unknown = await clientResult.data.getSecret({
       environment,
       projectId,
-      secretName: key,
-      path: options.path ?? '/',
-      includeImports: options.includeImports ?? true,
+      secretName: keyResult.data,
+      path: validated.path ?? '/',
+      includeImports: validated.includeImports ?? true,
     });
 
     if (
@@ -175,13 +226,14 @@ export async function getSecret(
       'secretValue' in secret &&
       typeof secret.secretValue === 'string'
     ) {
-      return okUnchecked(secret.secretValue);
+      return ok(StrSchema, secret.secretValue);
     }
 
     return err(ERRORS.VALIDATION.REQUIRED_FIELD, {
-      meta: { key, message: 'Secret not found' },
+      meta: { key: keyResult.data, message: 'Secret not found' },
     });
   } catch (error: unknown) {
+    // integration boundary: Infisical SDK threw — wrap as Result error
     return err(ERRORS.INTERNAL.UNEXPECTED, { meta: { cause: fromUnknownError(error) } });
   }
 }
@@ -194,74 +246,142 @@ export async function getSecret(
  * Fetch global secrets (shared across products).
  * Validates against `GlobalSecretsSchema`.
  *
- * @param options - Fetch options (path defaults to '/').
- * @returns `Result<GlobalSecrets>` — typed global secrets.
+ * @param {GetGlobalSecretsOptions} options - Fetch options (path defaults to '/').
+ * @returns {Promise<Result<GlobalSecrets>>} Typed global secrets.
+ *
+ * @example
+ * ```typescript
+ * const result = await getGlobalSecrets({ environment: 'production' });
+ * if (!result.ok) return result;
+ * result.data; // => GlobalSecrets
+ * ```
  */
 export async function getGlobalSecrets(
-  options: Omit<GetSecretsOptions, 'path'> = {},
+  options: GetGlobalSecretsOptions,
 ): Promise<Result<GlobalSecrets>> {
-  return getSecrets(GlobalSecretsSchema, { ...options, path: '/' });
+  const optionsResult: Result<GetGlobalSecretsOptions> = safeParse(GetGlobalSecretsOptionsSchema, options);
+
+  if (!optionsResult.ok) return optionsResult;
+
+  const validated: GetGlobalSecretsOptions = optionsResult.data as GetGlobalSecretsOptions; // cast safe: DeepReadonly preserves value
+
+  return getSecrets(GlobalSecretsSchema, { ...validated, path: '/' });
 }
 
 /**
  * Fetch product-specific secrets.
  * Validates against `ProductSecretsSchema`.
  *
- * @param options - Fetch options.
- * @returns `Result<ProductSecrets>` — typed product secrets.
+ * @param {GetSecretsOptions} options - Fetch options.
+ * @returns {Promise<Result<ProductSecrets>>} Typed product secrets.
+ *
+ * @example
+ * ```typescript
+ * const result = await getProductSecrets({ environment: 'staging', path: '/my-product' });
+ * if (!result.ok) return result;
+ * result.data; // => ProductSecrets
+ * ```
  */
 export async function getProductSecrets(
-  options: GetSecretsOptions = {},
+  options: GetSecretsOptions,
 ): Promise<Result<ProductSecrets>> {
-  return getSecrets(ProductSecretsSchema, options);
+  const optionsResult: Result<GetSecretsOptions> = safeParse(GetSecretsOptionsSchema, options);
+
+  if (!optionsResult.ok) return optionsResult;
+
+  return getSecrets(ProductSecretsSchema, optionsResult.data as GetSecretsOptions); // cast safe: DeepReadonly preserves value
 }
 
 /**
  * Fetch all secrets (global + product).
  * Validates against `AllSecretsSchema`.
  *
- * @param options - Fetch options.
- * @returns `Result<AllSecrets>` — typed combined secrets.
+ * @param {GetSecretsOptions} options - Fetch options.
+ * @returns {Promise<Result<AllSecrets>>} Typed combined secrets.
+ *
+ * @example
+ * ```typescript
+ * const result = await getAllSecrets({ environment: 'production' });
+ * if (!result.ok) return result;
+ * result.data; // => AllSecrets
+ * ```
  */
-export async function getAllSecrets(options: GetSecretsOptions = {}): Promise<Result<AllSecrets>> {
-  return getSecrets(AllSecretsSchema, options);
+export async function getAllSecrets(options: GetSecretsOptions): Promise<Result<AllSecrets>> {
+  const optionsResult: Result<GetSecretsOptions> = safeParse(GetSecretsOptionsSchema, options);
+
+  if (!optionsResult.ok) return optionsResult;
+
+  return getSecrets(AllSecretsSchema, optionsResult.data as GetSecretsOptions); // cast safe: DeepReadonly preserves value
 }
 
 /**
  * Check if a secret exists.
  *
- * @param key - Secret key name.
- * @param options - Fetch options.
- * @returns `Result<Bool>` — true if secret exists and has a value.
+ * @param {Str} key - Secret key name.
+ * @param {GetSecretOptions} options - Fetch options.
+ * @returns {Promise<Result<Bool>>} True if secret exists and has a value.
+ *
+ * @example
+ * ```typescript
+ * const result = await hasSecret('API_KEY', { environment: 'production' });
+ * if (!result.ok) return result;
+ * result.data; // => true or false
+ * ```
  */
 export async function hasSecret(
   key: Str,
-  options: Omit<GetSecretsOptions, 'attachToProcessEnv'> = {},
+  options: GetSecretOptions,
 ): Promise<Result<Bool>> {
-  const result: Result<Str> = await getSecret(key, options);
-  return okUnchecked(result.ok);
+  const keyResult: Result<Str> = safeParse(StrSchema, key);
+
+  if (!keyResult.ok) return keyResult;
+
+  const optionsResult: Result<GetSecretOptions> = safeParse(GetSecretOptionsSchema, options);
+
+  if (!optionsResult.ok) return optionsResult;
+
+  const result: Result<Str> = await getSecret(keyResult.data, optionsResult.data as GetSecretOptions); // cast safe: DeepReadonly preserves value
+
+  return ok(BoolSchema, result.ok);
 }
 
 /**
  * Fetch multiple specific secrets by key.
  *
- * @param keys - Array of secret key names.
- * @param options - Fetch options.
- * @returns `Result<Record<string, Str | undefined>>` — key-value map.
+ * @param {readonly Str[]} keys - Array of secret key names.
+ * @param {GetSecretOptions} options - Fetch options.
+ * @returns {Promise<Result<Record<Str, OptionalStr>>>} Key-value map.
+ *
+ * @example
+ * ```typescript
+ * const result = await getSecretsByKeys(['DB_URL', 'API_KEY'], { environment: 'production' });
+ * if (!result.ok) return result;
+ * result.data['DB_URL']; // => 'postgres://...' or undefined
+ * ```
  */
 export async function getSecretsByKeys(
   keys: readonly Str[],
-  options: Omit<GetSecretsOptions, 'attachToProcessEnv'> = {},
-): Promise<Result<Record<string, Str | undefined>>> {
+  options: GetSecretOptions,
+): Promise<Result<Record<Str, OptionalStr>>> {
+  const keysResult: Result<readonly Str[]> = safeParse(v.array(StrSchema), keys);
+
+  if (!keysResult.ok) return keysResult;
+
+  const optionsResult: Result<GetSecretOptions> = safeParse(GetSecretOptionsSchema, options);
+
+  if (!optionsResult.ok) return optionsResult;
+
   // Fetch all secrets and filter (more efficient than individual calls)
-  const allResult: Result<Record<string, string>> = await getSecrets(
+  const allResult: Result<Record<Str, Str>> = await getSecrets(
     v.record(v.string(), v.string()),
-    { ...options, skipValidation: true },
+    { ...(optionsResult.data as GetSecretOptions), skipValidation: true }, // cast safe: DeepReadonly preserves value
   );
+
   if (!allResult.ok) return allResult;
 
-  const results: Record<string, Str | undefined> = {};
-  for (const key of keys) {
+  const results: Record<Str, OptionalStr> = {};
+
+  for (const key of keysResult.data) {
     results[key] = allResult.data[key];
   }
 
@@ -272,16 +392,28 @@ export async function getSecretsByKeys(
  * Load secrets into process.env (for Node.js scripts).
  * Skips schema validation — attaches all secrets directly.
  *
- * @param options - Fetch options.
- * @returns `Result<Void>` — success or error.
+ * @param {GetSecretsOptions} options - Fetch options.
+ * @returns {Promise<Result<Void>>} Success or error.
+ *
+ * @example
+ * ```typescript
+ * const result = await loadSecretsToEnv({ environment: 'production' });
+ * if (!result.ok) return result;
+ * // secrets are now available via process.env
+ * ```
  */
-export async function loadSecretsToEnv(options: GetSecretsOptions = {}): Promise<Result<Void>> {
+export async function loadSecretsToEnv(options: GetSecretsOptions): Promise<Result<Void>> {
+  const optionsResult: Result<GetSecretsOptions> = safeParse(GetSecretsOptionsSchema, options);
+
+  if (!optionsResult.ok) return optionsResult;
+
   const result: Result<AllSecrets> = await getSecrets(AllSecretsSchema, {
-    ...options,
+    ...(optionsResult.data as GetSecretsOptions), // cast safe: DeepReadonly preserves value
     attachToProcessEnv: true,
     skipValidation: true,
   });
+
   if (!result.ok) return result;
 
-  return okUnchecked(undefined);
+  return ok(VoidSchema, undefined);
 }
