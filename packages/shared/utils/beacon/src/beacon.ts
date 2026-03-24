@@ -4,9 +4,7 @@
  * @module
  */
 
-import * as v from 'valibot';
-
-import { VoidSchema, UrlStringSchema, type Str, type Void } from '@/schemas/common';
+import { VoidSchema, StrSchema, type Str, type Void } from '@/schemas/common';
 import { CapturedErrorSchema, type CapturedError } from '@/schemas/result/captured-error';
 import { type AppError, type Result, ok, err, ERRORS } from '@/schemas/result/result';
 import { log } from '@/utils/core/logger';
@@ -14,21 +12,6 @@ import { safeStringify } from '@/utils/core/object';
 import { safeParse, fromUnknownError } from '@/utils/result/safe';
 
 import { toBeaconPayload, type BeaconPayload } from '@/utils/beacon/beacon-payload';
-
-// =============================================================================
-// Schemas
-// =============================================================================
-
-/** Default beacon endpoint path (same-origin, no CORS issues). */
-const DEFAULT_BEACON_URL: Str = '/api/errors';
-
-/** Schema for beaconError options. */
-const BeaconErrorOptionsSchema = v.strictObject({
-  /** The full CapturedError envelope to send. */
-  captured: CapturedErrorSchema,
-  /** The beacon endpoint URL. Defaults to `'/api/errors'`. */
-  endpoint: v.optional(UrlStringSchema, DEFAULT_BEACON_URL),
-});
 
 // =============================================================================
 // API
@@ -66,7 +49,7 @@ export function beaconError(
 
   if (!capturedResult.ok) return capturedResult;
 
-  const endpointResult: Result<Str> = safeParse(UrlStringSchema, endpoint);
+  const endpointResult: Result<Str> = safeParse(StrSchema, endpoint);
 
   if (!endpointResult.ok) return endpointResult;
 

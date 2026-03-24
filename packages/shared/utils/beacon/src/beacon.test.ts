@@ -16,24 +16,26 @@ import { beaconError } from './beacon';
 
 const makeAppError = (): AppError =>
   ({
-    code: 'INTERNAL.UNEXPECTED' as Str,
-    message: 'Something went wrong' as Str,
-    id: '550e8400-e29b-41d4-a716-446655440000' as Str,
-    timestamp: '2026-03-05T12:00:00.000Z' as Str,
-    stack: 'Error: boom\n    at foo.ts:1:1' as Str,
-  }) as AppError;
+    code: 'INTERNAL.UNEXPECTED',
+    message: 'Something went wrong',
+    id: '550e8400-e29b-41d4-a716-446655440000',
+    timestamp: '2026-03-05T12:00:00.000Z',
+    stack: 'Error: boom\n    at foo.ts:1:1',
+    severity: 'error',
+    httpStatus: 500,
+  }) as AppError; // cast safe: test fixture with all required fields
 
 const makeCaptured = (overrides?: Partial<CapturedError>): CapturedError =>
   ({
-    type: 'uncaughtException' as CapturedErrorType,
-    id: '550e8400-e29b-41d4-a716-446655440000' as Str,
+    type: 'uncaughtException',
+    id: '660e8400-e29b-41d4-a716-446655440000',
     error: makeAppError(),
     original: new Error('boom'),
-    environment: 'browser' as const,
-    timestamp: '2026-03-05T12:00:00.000Z' as Str,
-    fatal: false as Bool,
+    environment: 'browser',
+    timestamp: '2026-03-05T12:00:00.000Z',
+    fatal: false,
     ...overrides,
-  }) as CapturedError;
+  }) as CapturedError; // cast safe: test fixture with all required fields
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -179,29 +181,26 @@ describe('beaconError', () => {
     expect(url).toBe('/api/v2/errors');
   });
 
-  it('returns ok when toBeaconPayload fails (invalid payload rejected by schema)', () => {
-    // Mock toBeaconPayload to simulate a validation failure by providing
-    // a CapturedError whose type is invalid (forces safeParse rejection)
+  it('returns error when CapturedError type is invalid', () => {
     const captured: CapturedError = makeCaptured({
       type: 'not-a-real-type' as CapturedErrorType,
     });
     const result: Result<Void> = beaconError(captured, '/api/errors');
 
-    // beaconError is fire-and-forget — always returns ok regardless
-    expect(result.ok).toBe(true);
+    expect(result.ok).toBe(false);
   });
 
-  it('handles JSON.stringify throwing gracefully', () => {
-    const originalStringify = JSON.stringify;
-    JSON.stringify = () => {
+  it('returns error when safeStringify fails', () => {
+    const originalStringify: typeof JSON.stringify = JSON.stringify;
+    JSON.stringify = (): Str => {
       throw new Error('circular reference');
     };
 
     const captured: CapturedError = makeCaptured();
     const result: Result<Void> = beaconError(captured, '/api/errors');
 
-    // Catch block swallows the error — still returns ok
-    expect(result.ok).toBe(true);
+    // safeStringify failure returns err, not ok
+    expect(result.ok).toBe(false);
 
     JSON.stringify = originalStringify;
   });

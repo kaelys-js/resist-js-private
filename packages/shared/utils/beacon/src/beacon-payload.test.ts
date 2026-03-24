@@ -300,19 +300,13 @@ describe('toBeaconPayload', () => {
     expect(validated.ok).toBe(true);
   });
 
-  it('returns error result when error has no code field (formatErrorSafe accesses error.code)', () => {
-    // formatErrorSafe always returns ok, so the !safeError.ok branch in toBeaconPayload
-    // is a defensive guard. We verify the happy path works with a minimal error that
-    // still has the required code field, and document that the guard exists.
+  it('returns error result when error has invalid code field', () => {
+    // With safeParse validation at entry, invalid CapturedError data is rejected
     const captured: CapturedError = makeCaptured({
       error: makeAppError({ code: '' as KnownErrorCode }),
     });
     const result: Result<BeaconPayload> = toBeaconPayload(captured);
-    // Even with empty code, formatErrorSafe still succeeds (it copies code as-is)
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      // message is replaced with code (which is empty)
-      expect(result.data.error.message).toBe('');
-    }
+
+    expect(result.ok).toBe(false);
   });
 });
