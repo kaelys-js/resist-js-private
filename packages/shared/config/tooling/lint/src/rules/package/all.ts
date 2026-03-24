@@ -9,8 +9,10 @@ import noPeerDeps from './no-peer-deps.ts';
 import noRootOnlyScripts from './no-root-only-scripts.ts';
 import noTscDependency from './no-tsc-dependency.ts';
 import noWorkspaceDep from './no-workspace-dep.ts';
+import noVitestConfig from './no-vitest-config.ts';
 import noWorkspaceSelfRef from './no-workspace-self-ref.ts';
 import requireProjectTest from './require-project-test.ts';
+import requireSharedConfig from './require-shared-config.ts';
 import requireStandardScripts from './require-standard-scripts.ts';
 import requireTsgo from './require-tsgo.ts';
 import validProjectRef from './valid-project-ref.ts';
@@ -27,6 +29,8 @@ export const PACKAGE_RULES: PackageJsonRule[] = [
   noHoisedDep,
   noPeerDeps,
   noWorkspaceSelfRef,
+  noVitestConfig,
   validProjectRef,
   validTsconfig,
+  requireSharedConfig,
 ];

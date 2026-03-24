@@ -12,6 +12,14 @@ import type { Result } from '@/schemas/result/result';
 // Mocks — mock the shared utilities, not raw node:* modules
 // ---------------------------------------------------------------------------
 
+/** Git metadata shape returned by getGitInfo. */
+interface MockGitInfo {
+  commit: Str;
+  commitFull: Str;
+  branch: Str;
+  dirty: boolean;
+}
+
 /** Helper to create a success Result. */
 function mockOk<T>(data: T): Result<T> {
   return Object.freeze({ ok: true as const, data, error: null }) as Result<T>;
@@ -26,18 +34,19 @@ function mockErr(code: Str): Result<never> {
   }) as Result<never>;
 }
 
-const execSyncSafeMock = vi.fn((): Result<Str> => mockOk(''));
-const readFileMock = vi.fn((): Result<Str> => mockOk('{}'));
-const parseJsonWithCommentsMock = vi.fn((): Result<Record<Str, unknown>> => mockOk({}));
+const getGitInfoMock = vi.fn((): Result<MockGitInfo> => mockOk({
+  commit: 'abc1234',
+  commitFull: 'abc1234def5678901234567890abcdef12345678',
+  branch: 'main',
+  dirty: false,
+}));
+const getPackageVersionMock = vi.fn((): Result<Str> => mockOk('1.2.3'));
 const safeStringifyMock = vi.fn((data: unknown): Result<Str> => mockOk(JSON.stringify(data)));
 
-vi.mock('@/utils/core/shell', () => ({
-  execSyncSafe: (...args: unknown[]): Result<Str> => execSyncSafeMock(...args),
-}));
-
-vi.mock('@/utils/core/fs', () => ({
-  readFile: (...args: unknown[]): Result<Str> => readFileMock(...args),
-  parseJsonWithComments: (...args: unknown[]): Result<Record<Str, unknown>> => parseJsonWithCommentsMock(...args),
+vi.mock('@/utils/core/git', () => ({
+  getGitInfo: (...args: unknown[]): Result<MockGitInfo> => getGitInfoMock(...args),
+  getPackageVersion: (...args: unknown[]): Result<Str> => getPackageVersionMock(...args),
+  GitInfoSchema: {},
 }));
 
 vi.mock('@/utils/core/object', () => ({
@@ -49,21 +58,16 @@ const { createViteConfig } = await import('./index.ts');
 beforeEach(() => {
   vi.clearAllMocks();
 
-  // Default: git commands succeed
-  execSyncSafeMock.mockImplementation((cmd: unknown): Result<Str> => {
-    const command: Str = cmd as Str;
-    if (command.includes('--short HEAD')) return mockOk('abc1234');
-    if (command.includes('rev-parse HEAD')) return mockOk('abc1234def5678901234567890abcdef12345678');
-    if (command.includes('--abbrev-ref HEAD')) return mockOk('main');
-    if (command.includes('--porcelain')) return mockOk('');
-    return mockOk('');
-  });
+  // Default: getGitInfo succeeds
+  getGitInfoMock.mockReturnValue(mockOk({
+    commit: 'abc1234',
+    commitFull: 'abc1234def5678901234567890abcdef12345678',
+    branch: 'main',
+    dirty: false,
+  }));
 
-  // Default: readFile succeeds
-  readFileMock.mockReturnValue(mockOk('{"version":"1.2.3"}'));
-
-  // Default: parseJsonWithComments succeeds
-  parseJsonWithCommentsMock.mockReturnValue(mockOk({ version: '1.2.3' }));
+  // Default: getPackageVersion succeeds
+  getPackageVersionMock.mockReturnValue(mockOk('1.2.3'));
 
   // Default: safeStringify succeeds
   safeStringifyMock.mockImplementation((data: unknown): Result<Str> => mockOk(JSON.stringify(data)));
@@ -125,22 +129,17 @@ describe('createViteConfig', () => {
   });
 
   it('throws when git is unavailable', () => {
-    execSyncSafeMock.mockReturnValue(mockErr('IO.EXEC_FAILED'));
+    getGitInfoMock.mockReturnValue(mockErr('IO.EXEC_FAILED'));
     expect(() => createViteConfig({ plugins: [] })).toThrow();
   });
 
   it('throws when package.json is missing', () => {
-    readFileMock.mockReturnValue(mockErr('IO.READ_FAILED'));
+    getPackageVersionMock.mockReturnValue(mockErr('IO.READ_FAILED'));
     expect(() => createViteConfig({ plugins: [] })).toThrow();
   });
 
-  it('throws when package.json has no version field', () => {
-    parseJsonWithCommentsMock.mockReturnValue(mockOk({}));
-    expect(() => createViteConfig({ plugins: [] })).toThrow();
-  });
-
-  it('throws when package.json has empty version', () => {
-    parseJsonWithCommentsMock.mockReturnValue(mockOk({ version: '' }));
+  it('throws when package version is invalid', () => {
+    getPackageVersionMock.mockReturnValue(mockErr('CONFIG.INVALID'));
     expect(() => createViteConfig({ plugins: [] })).toThrow();
   });
 

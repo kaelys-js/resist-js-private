@@ -5,51 +5,86 @@
  */
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import type { Str } from '@/schemas/common';
+import type { Str, Path } from '@/schemas/common';
+import type { Result } from '@/schemas/result/result';
 
 // ---------------------------------------------------------------------------
 // Mocks
 // ---------------------------------------------------------------------------
 
-vi.mock('node:child_process', () => ({
-  execSync: vi.fn(() => Buffer.from('abc1234\n')),
+const MOCK_TSCONFIG_JSON: string = JSON.stringify({
+  compilerOptions: {
+    paths: {
+      '@/schemas/common': ['./packages/shared/schemas/common/src/index.ts'],
+      '@/utils/core/*': ['./packages/shared/utils/core/src/*.ts'],
+      '@/locale/svelte': ['./packages/shared/locale/src/svelte.svelte.ts'],
+    },
+  },
+});
+
+vi.mock('@/utils/core/workspace', () => ({
+  findWorkspaceRoot: vi.fn((): Result<Path> => ({
+    ok: true,
+    data: '/mock/root' as Path,
+    error: null,
+  })),
 }));
 
-vi.mock('node:fs', () => ({
-  readFileSync: vi.fn((filePath: string) => {
-    if (filePath.endsWith('tsconfig.json')) {
-      return JSON.stringify({
-        compilerOptions: {
-          paths: {
-            '@/schemas/common': ['./packages/shared/schemas/common/src/index.ts'],
-            '@/utils/core/*': ['./packages/shared/utils/core/src/*.ts'],
-            '@/locale/svelte': ['./packages/shared/locale/src/svelte.svelte.ts'],
-          },
-        },
-      });
-    }
-    return '';
-  }),
-  writeFileSync: vi.fn(),
-  existsSync: vi.fn((p: string) => {
-    // Return true for pnpm-workspace.yaml at simulated root
-    if (p.endsWith('pnpm-workspace.yaml')) return true;
-    return false;
-  }),
+vi.mock('@/utils/core/fs', () => ({
+  readFile: vi.fn((): Result<Str> => ({
+    ok: true,
+    data: MOCK_TSCONFIG_JSON as Str,
+    error: null,
+  })),
+  parseJsonWithComments: vi.fn(<T>(content: string): Result<T> => ({
+    ok: true,
+    data: JSON.parse(content) as T,
+    error: null,
+  })),
+}));
+
+vi.mock('@/utils/core/shell', () => ({
+  execSyncSafe: vi.fn((): Result<Str> => ({
+    ok: true,
+    data: 'abc1234' as Str,
+    error: null,
+  })),
+}));
+
+vi.mock('@/utils/core/path', () => ({
+  joinPath: vi.fn((segments: string[]): Result<Path> => ({
+    ok: true,
+    data: segments.join('/') as Path,
+    error: null,
+  })),
+  resolvePath: vi.fn((segments: string[]): Result<Path> => ({
+    ok: true,
+    data: segments.join('/') as Path,
+    error: null,
+  })),
 }));
 
 vi.mock('@sveltejs/vite-plugin-svelte', () => ({
   vitePreprocess: vi.fn(() => ({ name: 'vitePreprocess' })),
 }));
 
-const { createSvelteConfig, TEMPLATE_PATHS } = await import('./index.js');
-const { execSync } = await import('node:child_process');
-const { readFileSync } = await import('node:fs');
+const { createSvelteConfig, TEMPLATE_PATHS } = await import('./index.ts');
+const { execSyncSafe } = await import('@/utils/core/shell');
+const { readFile } = await import('@/utils/core/fs');
 
 beforeEach(() => {
   vi.clearAllMocks();
   // Re-set default mocks
-  (execSync as ReturnType<typeof vi.fn>).mockReturnValue(Buffer.from('abc1234\n'));
+  (execSyncSafe as ReturnType<typeof vi.fn>).mockReturnValue({
+    ok: true,
+    data: 'abc1234' as Str,
+    error: null,
+  });
+  (readFile as ReturnType<typeof vi.fn>).mockReturnValue({
+    ok: true,
+    data: MOCK_TSCONFIG_JSON as Str,
+    error: null,
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -126,12 +161,14 @@ describe('createSvelteConfig', () => {
     expect(config.kit.alias['$custom']).toBe('/path/to/custom');
   });
 
-  it('falls back to unknown when git is unavailable', () => {
-    (execSync as ReturnType<typeof vi.fn>).mockImplementation(() => {
-      throw new Error('git not found');
+  it('throws when git is unavailable', () => {
+    const gitError = { code: 'IO.EXEC_FAILED', message: 'git not found' };
+    (execSyncSafe as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: false,
+      data: null,
+      error: gitError,
     });
-    const config = createSvelteConfig({ adapter: mockAdapter });
-    expect(config.kit.version.name).toBe('unknown');
+    expect(() => createSvelteConfig({ adapter: mockAdapter })).toThrow();
   });
 
   it('spreads extraKit into kit config', () => {
@@ -153,11 +190,10 @@ describe('createSvelteConfig', () => {
   });
 
   it('handles tsconfig with no paths field', () => {
-    (readFileSync as ReturnType<typeof vi.fn>).mockImplementation((filePath: string) => {
-      if (filePath.endsWith('tsconfig.json')) {
-        return JSON.stringify({ compilerOptions: {} });
-      }
-      return '';
+    (readFile as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: JSON.stringify({ compilerOptions: {} }),
+      error: null,
     });
 
     const config = createSvelteConfig({ adapter: mockAdapter });
