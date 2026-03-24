@@ -366,7 +366,9 @@ describe('typescript/no-empty-catch', () => {
   }
 }`;
     const results: LintResult[] = await lint(noEmptyCatch, code);
-    expect(results.some((r: LintResult): boolean => r.message.includes('return err()'))).toBe(false);
+    expect(results.some((r: LintResult): boolean => r.message.includes('return err()'))).toBe(
+      false,
+    );
   });
 
   it('passes catch with full fromUnknownError + err pattern', async () => {
@@ -402,7 +404,9 @@ describe('typescript/no-empty-catch', () => {
   }
 }`;
     const results: LintResult[] = await lint(noEmptyCatch, code);
-    expect(results.some((r: LintResult): boolean => r.message.includes('specific error code'))).toBe(true);
+    expect(
+      results.some((r: LintResult): boolean => r.message.includes('specific error code')),
+    ).toBe(true);
   });
 
   it('passes err() with cause and specific code', async () => {
@@ -413,6 +417,26 @@ describe('typescript/no-empty-catch', () => {
 }`;
     const results: LintResult[] = await lint(noEmptyCatch, code);
     expect(results.length).toBe(0);
+  });
+
+  it('skips err() check for catch nested inside non-Result arrow function within Result function', async () => {
+    const code: string = `export function initFetchBreadcrumbs(skipUrls: readonly Str[]): Result<Void> {
+  globalThis.fetch = async (input: RequestInfo | URL, init: RequestInit | undefined): Promise<Response> => {
+    try {
+      const response: Response = await original(input, init);
+      return response;
+    } catch (error: unknown) {
+      // Fetch threw — record breadcrumb then re-throw
+      const cause = fromUnknownError(error);
+      throw new Error(cause.message, { cause });
+    }
+  };
+  return ok(VoidSchema, undefined);
+}`;
+    const results: LintResult[] = await lint(noEmptyCatch, code);
+    expect(results.some((r: LintResult): boolean => r.message.includes('return err()'))).toBe(
+      false,
+    );
   });
 });
 

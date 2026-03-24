@@ -151,8 +151,19 @@ const rule: TypeScriptRule = {
 
         // Check for err() return pattern — only in functions returning Result
         // Functions returning Promise<Response> or other non-Result types can't use err()
-        const beforeFunc: string = context.content.slice(Math.max(0, node.start - 3000), node.start);
-        const isResultFunc: boolean = /\):\s*(?:Promise<\s*)?Result\b/.test(beforeFunc);
+        const beforeFunc: string = context.content.slice(
+          Math.max(0, node.start - 3000),
+          node.start,
+        );
+        // Find the NEAREST enclosing function return type, not just any in the window
+        const returnTypeMatches: RegExpMatchArray[] = [
+          ...beforeFunc.matchAll(/\):\s*(?:Promise<\s*)?(\w+)/g),
+        ];
+        const nearestReturnType: string =
+          returnTypeMatches.length > 0
+            ? (returnTypeMatches[returnTypeMatches.length - 1]![1] ?? '')
+            : '';
+        const isResultFunc: boolean = nearestReturnType === 'Result';
 
         if (isResultFunc && !hasErrReturn(bodyText)) {
           results.push({
@@ -178,7 +189,8 @@ const rule: TypeScriptRule = {
               line: node.loc.start.line,
               column: node.loc.start.column + 1,
               severity: 'error',
-              message: 'err() in catch block should include { cause: fromUnknownError(error) } in meta',
+              message:
+                'err() in catch block should include { cause: fromUnknownError(error) } in meta',
               ruleId: 'typescript/no-empty-catch',
               tip: 'Pass the converted error as cause: err(ERRORS.X.Y, { cause: appError })',
             });

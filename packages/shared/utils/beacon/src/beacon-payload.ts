@@ -80,7 +80,9 @@ export const BeaconPayloadSchema = v.strictObject({
   /** What kind of runtime error was captured. */
   type: CapturedErrorTypeSchema,
   /** PII-stripped AppError (message replaced with code, stack/meta/source removed). */
-  error: v.lazy((): v.GenericSchema<AppError> => AppErrorSchema as unknown as v.GenericSchema<AppError>), // cast safe: AppErrorSchema IS GenericSchema<AppError>, circular ref requires lazy + cast
+  error: v.lazy(
+    (): v.GenericSchema<AppError> => AppErrorSchema as unknown as v.GenericSchema<AppError>, // cast safe: AppErrorSchema IS GenericSchema<AppError>, circular ref requires lazy + cast
+  ),
   /** Runtime environment where the error was captured. */
   environment: _BeaconRuntimeKindSchema,
   /** ISO 8601 timestamp when the error was captured. */
@@ -130,7 +132,8 @@ export function toBeaconPayload(captured: CapturedError): Result<BeaconPayload> 
 
   if (!safeError.ok) return safeError;
 
-  const rawPayload: Record<Str, unknown> = { // cast safe: building untyped object for schema validation
+  // cast safe: all fields validated by CapturedErrorSchema + formatErrorSafe above
+  const payload: BeaconPayload = {
     id: capturedResult.data.id,
     type: capturedResult.data.type,
     error: safeError.data,
@@ -142,8 +145,10 @@ export function toBeaconPayload(captured: CapturedError): Result<BeaconPayload> 
     }),
     ...(capturedResult.data.tags !== undefined && { tags: capturedResult.data.tags }),
     ...(capturedResult.data.release !== undefined && { release: capturedResult.data.release }),
-    ...(capturedResult.data.fingerprint !== undefined && { fingerprint: capturedResult.data.fingerprint }),
-  };
+    ...(capturedResult.data.fingerprint !== undefined && {
+      fingerprint: capturedResult.data.fingerprint,
+    }),
+  } as BeaconPayload; // cast safe: all fields validated by CapturedErrorSchema + formatErrorSafe above
 
-  return ok(BeaconPayloadSchema, rawPayload);
+  return ok(BeaconPayloadSchema, payload);
 }
