@@ -27,7 +27,7 @@ import {
 } from '@/schemas/common';
 import { type Result, ok, okUnchecked } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
-import type { BuiltLocale } from './template';
+import type { BuiltLocale } from '@/locale/template';
 import type { LocaleRegistry } from '@/locale/registry';
 
 // =============================================================================
@@ -40,9 +40,6 @@ import type { LocaleRegistry } from '@/locale/registry';
  * Exposes the same API as {@link LocaleRegistry} but with reactive
  * `locale` and `t` properties that trigger re-renders when the
  * active locale changes.
- *
- * Irreducible TS type: contains function-typed properties and generic `TSchema`.
- * Valibot validates data shapes, not function signatures.
  *
  * @template TSchema - The Valibot schema defining the locale string structure.
  *
@@ -91,8 +88,8 @@ export type LocaleStore<TSchema extends v.GenericSchema> = {
  * locale changes via `store.setLocale()`, all dependent components re-render.
  *
  * @template TSchema - The Valibot schema defining the locale string structure.
- * @param registry - A locale registry created by `createLocaleRegistry()`.
- * @returns `Result<LocaleStore<TSchema>>` — the reactive store, or an error if
+ * @param {LocaleRegistry<TSchema>} registry - A locale registry created by `createLocaleRegistry()`.
+ * @returns {Result<LocaleStore<TSchema>>} The reactive store, or an error if
  *   the registry's active locale can't be resolved.
  *
  * @example
@@ -120,12 +117,14 @@ export function createLocaleStore<TSchema extends v.GenericSchema>(
 ): Result<LocaleStore<TSchema>> {
   // Get initial active locale
   const activeResult: Result<Str> = registry.active();
+
   if (!activeResult.ok) {
     return activeResult;
   }
 
   // Get initial built strings
   const initialStringsResult: Result<BuiltLocale<TSchema>> = registry.t();
+
   if (!initialStringsResult.ok) {
     return initialStringsResult;
   }
@@ -133,8 +132,8 @@ export function createLocaleStore<TSchema extends v.GenericSchema>(
   // Reactive state — Svelte 5 runes
   let currentLocale: Str = $state(activeResult.data);
   let currentStrings: BuiltLocale<TSchema> = $state(
-    initialStringsResult.data as BuiltLocale<TSchema>,
-  ); // Irreducible: DeepReadonly mangles function-typed BuiltLocale properties; runtime value is correct
+    initialStringsResult.data as BuiltLocale<TSchema>, // Irreducible: DeepReadonly mangles function-typed BuiltLocale properties; runtime value is correct
+  );
 
   const store: LocaleStore<TSchema> = {
     get locale(): Str {
@@ -147,16 +146,19 @@ export function createLocaleStore<TSchema extends v.GenericSchema>(
 
     setLocale: (code: Str): Result<Void> => {
       const codeResult: Result<Str> = safeParse(StrSchema, code);
+
       if (!codeResult.ok) {
         return codeResult;
       }
 
       const setResult: Result<Void> = registry.setActive(codeResult.data);
+
       if (!setResult.ok) {
         return setResult;
       }
 
       const stringsResult: Result<BuiltLocale<TSchema>> = registry.t();
+
       if (!stringsResult.ok) {
         return stringsResult;
       }
@@ -177,6 +179,7 @@ export function createLocaleStore<TSchema extends v.GenericSchema>(
 
     set: (code: Str, raw: RawLocaleStrings): Result<Void> => {
       const setResult: Result<Void> = registry.set(code, raw);
+
       if (!setResult.ok) {
         return setResult;
       }
@@ -184,6 +187,7 @@ export function createLocaleStore<TSchema extends v.GenericSchema>(
       // If we just updated the active locale, refresh reactive state
       if (code === currentLocale) {
         const stringsResult: Result<BuiltLocale<TSchema>> = registry.t();
+
         if (!stringsResult.ok) {
           return stringsResult;
         }
@@ -200,5 +204,3 @@ export function createLocaleStore<TSchema extends v.GenericSchema>(
 
   return okUnchecked<LocaleStore<TSchema>>(store);
 }
-
-export { t } from './t';

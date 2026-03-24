@@ -19,6 +19,7 @@ import requireTypeAnnotation from './require-type-annotation.ts';
 import noDefaultParams from './no-default-params.ts';
 import noGenericFunctionType from './no-generic-function-type.ts';
 import noUnionParams from './no-union-params.ts';
+import requireFunctionSchema from './require-function-schema.ts';
 
 /** All TypeScript lint rules. */
 export const TYPESCRIPT_RULES: TypeScriptRule[] = [
@@ -36,4 +37,5 @@ export const TYPESCRIPT_RULES: TypeScriptRule[] = [
   noDefaultParams,
   noGenericFunctionType,
   noUnionParams,
+  requireFunctionSchema,
 ];
