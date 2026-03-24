@@ -5,6 +5,8 @@
  * At load time, raw template strings are transformed into callable locale objects
  * where every key is a function `(params?) => Result<Str>`.
  *
+ * @module
+ *
  * Two-phase design:
  * 1. **Schema phase** — `messageTemplate()` creates Valibot schemas that validate
  *    raw strings in en.ts (placeholder presence/absence). `v.InferOutput` gives `string`.
@@ -31,8 +33,6 @@
  * strings.greeting({ name: 'Alice' }); // => ok('Hello, Alice!')
  * strings.farewell();                   // => ok('Goodbye!')
  * ```
- *
- * @module
  */
 
 import * as v from 'valibot';
@@ -83,7 +83,9 @@ const ESCAPE_SENTINEL_SUFFIX: Str = '\u0000';
 
 /** Valibot schema for an escaped literal entry. */
 const EscapedLiteralSchema = v.strictObject({
+  /** Unique sentinel string replacing the literal in the template. */
   sentinel: StrSchema,
+  /** Original literal text (e.g., `'{escaped}'`). */
   literal: StrSchema,
 });
 
@@ -92,7 +94,9 @@ type EscapedLiteral = v.InferOutput<typeof EscapedLiteralSchema>;
 
 /** Valibot schema for the result of escaping ICU literals. */
 const EscapeResultSchema = v.strictObject({
+  /** Template text with sentinels replacing escaped literals. */
   text: StrSchema,
+  /** Array of sentinel → original literal mappings. */
   literals: v.array(EscapedLiteralSchema),
 });
 
@@ -155,7 +159,7 @@ function escapeICULiterals(template: Str): Result<EscapeResult> {
     i++;
   }
 
-  return okUnchecked<EscapeResult>({ text: result, literals });
+  return ok(EscapeResultSchema, { text: result, literals });
 }
 
 /**
@@ -208,7 +212,7 @@ type ParamSchemas = Record<string, v.GenericSchema>;
  * @param locale - The current BCP 47 locale tag. May be `undefined`.
  * @returns `Result<Str>` — the transformed value, or a validation error.
  */
-type FormatterFn = (value: Str, locale: Str | undefined) => Result<Str>;
+type FormatterFn = (value: Str, locale: OptionalStr) => Result<Str>;
 
 /**
  * Map of formatter names to formatter functions.
@@ -228,9 +232,9 @@ export type FormatterMap = Readonly<Record<Str, FormatterFn>>;
  * @param locale - Optional BCP 47 locale tag for locale-aware transforms.
  * @returns `FormatterMap` — built-in formatter map.
  */
-function builtInFormatters(locale: Str | undefined): FormatterMap {
+function builtInFormatters(locale: OptionalStr): FormatterMap {
   return {
-    upper: (value: Str, loc: Str | undefined): Result<Str> => {
+    upper: (value: Str, loc: OptionalStr): Result<Str> => {
       const valueResult: Result<Str> = safeParse(StrSchema, value);
       if (!valueResult.ok) {
         return valueResult;
@@ -241,13 +245,13 @@ function builtInFormatters(locale: Str | undefined): FormatterMap {
           return locResult;
         }
       }
-      const effectiveLocale: Str | undefined = loc ?? locale;
+      const effectiveLocale: OptionalStr = loc ?? locale;
       const transformed: Str = effectiveLocale
         ? valueResult.data.toLocaleUpperCase(effectiveLocale)
         : valueResult.data.toUpperCase();
       return ok(StrSchema, transformed);
     },
-    lower: (value: Str, loc: Str | undefined): Result<Str> => {
+    lower: (value: Str, loc: OptionalStr): Result<Str> => {
       const valueResult: Result<Str> = safeParse(StrSchema, value);
       if (!valueResult.ok) {
         return valueResult;
@@ -258,13 +262,13 @@ function builtInFormatters(locale: Str | undefined): FormatterMap {
           return locResult;
         }
       }
-      const effectiveLocale: Str | undefined = loc ?? locale;
+      const effectiveLocale: OptionalStr = loc ?? locale;
       const transformed: Str = effectiveLocale
         ? valueResult.data.toLocaleLowerCase(effectiveLocale)
         : valueResult.data.toLowerCase();
       return ok(StrSchema, transformed);
     },
-    capitalize: (value: Str, loc: Str | undefined): Result<Str> => {
+    capitalize: (value: Str, loc: OptionalStr): Result<Str> => {
       const valueResult: Result<Str> = safeParse(StrSchema, value);
       if (!valueResult.ok) {
         return valueResult;
@@ -278,14 +282,14 @@ function builtInFormatters(locale: Str | undefined): FormatterMap {
       if (valueResult.data.length === 0) {
         return ok(StrSchema, valueResult.data);
       }
-      const effectiveLocale: Str | undefined = loc ?? locale;
+      const effectiveLocale: OptionalStr = loc ?? locale;
       const first: Str = effectiveLocale
-        ? valueResult.data[0]!.toLocaleUpperCase(effectiveLocale) // oxlint-disable-line typescript/no-non-null-assertion -- guarded by length === 0 early return above
-        : valueResult.data[0]!.toUpperCase(); // oxlint-disable-line typescript/no-non-null-assertion -- guarded by length === 0 early return above
+        ? valueResult.data.charAt(0).toLocaleUpperCase(effectiveLocale)
+        : valueResult.data.charAt(0).toUpperCase();
       const rest: Str = valueResult.data.slice(1);
       return ok(StrSchema, first + rest);
     },
-    title: (value: Str, loc: Str | undefined): Result<Str> => {
+    title: (value: Str, loc: OptionalStr): Result<Str> => {
       const valueResult: Result<Str> = safeParse(StrSchema, value);
       if (!valueResult.ok) {
         return valueResult;
@@ -296,14 +300,14 @@ function builtInFormatters(locale: Str | undefined): FormatterMap {
           return locResult;
         }
       }
-      const effectiveLocale: Str | undefined = loc ?? locale;
+      const effectiveLocale: OptionalStr = loc ?? locale;
       // String.replace callback returns Str (required by JS API) — pure string
       // operations inside cannot fail, so no Result propagation needed here.
       const transformed: Str = valueResult.data.replaceAll(/\S+/g, (word: Str): Str => {
         return effectiveLocale
-          ? word[0]!.toLocaleUpperCase(effectiveLocale) + // oxlint-disable-line typescript/no-non-null-assertion -- regex \S+ guarantees word is non-empty
+          ? word.charAt(0).toLocaleUpperCase(effectiveLocale) +
               word.slice(1).toLocaleLowerCase(effectiveLocale)
-          : word[0]!.toUpperCase() + word.slice(1).toLowerCase(); // oxlint-disable-line typescript/no-non-null-assertion -- regex \S+ guarantees word is non-empty
+          : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       });
       return ok(StrSchema, transformed);
     },
@@ -348,7 +352,7 @@ export type TemplateSchema<TParams extends ParamSchemas = ParamSchemas> = v.Gene
  * const tmpl = messageTemplate({ count: NonNegativeIntegerSchema, path: StrSchema });
  * ```
  */
-export function messageTemplate(): TemplateSchema<Record<string, never>>;
+export function messageTemplate(): TemplateSchema<Record<Str, never>>;
 export function messageTemplate<TParams extends ParamSchemas>(
   params: TParams,
 ): TemplateSchema<TParams>;
@@ -364,7 +368,7 @@ export function messageTemplate<TParams extends ParamSchemas>(
       : v.pipe(
           v.string(),
           v.check(
-            (val: string): boolean => {
+            (val: Str): Bool => {
               const foundResult: Result<Set<Str>> = extractPlaceholders(val);
               if (!foundResult.ok) {
                 return false;
@@ -811,7 +815,7 @@ function resolveSelectOrdinal(count: Num, body: Str, locale?: Str): Result<Str> 
 function replaceSelectBlocks(
   template: Str,
   params: Record<Str, unknown>,
-  locale: Str | undefined,
+  locale: OptionalStr,
   depth: Num,
   escapedLiterals: readonly EscapedLiteral[],
   formatters?: FormatterMap,
@@ -830,8 +834,7 @@ function replaceSelectBlocks(
       const selectMatch: NullableRegExpMatchArray = remaining.match(/^(\w+)\s*,\s*select\s*,\s*/);
 
       if (selectMatch && selectMatch[1]) {
-        // oxlint-disable-next-line prefer-destructuring
-        const key: Str = selectMatch[1];
+        const [, key]: Str[] = selectMatch;
         const bodyStart: Num = i + 1 + selectMatch[0].length;
 
         let braceDepth: Num = 1;
@@ -898,7 +901,7 @@ function replaceSelectBlocks(
 function replaceSelectOrdinalBlocks(
   template: Str,
   params: Record<Str, unknown>,
-  locale: Str | undefined,
+  locale: OptionalStr,
   depth: Num,
   escapedLiterals: readonly EscapedLiteral[],
   formatters?: FormatterMap,
@@ -925,8 +928,7 @@ function replaceSelectOrdinalBlocks(
       );
 
       if (ordinalMatch && ordinalMatch[1]) {
-        // oxlint-disable-next-line prefer-destructuring
-        const key: Str = ordinalMatch[1];
+        const [, key]: Str[] = ordinalMatch;
         const bodyStart: Num = i + 1 + ordinalMatch[0].length;
 
         let braceDepth: Num = 1;
@@ -1024,7 +1026,7 @@ function replaceMessageRefs(
   // Collect all matches first to avoid infinite replacement loops
   const replacements: Array<{
     readonly full: Str;
-    readonly modifier: Str | undefined;
+    readonly modifier: OptionalStr;
     readonly key: Str;
   }> = [];
   let match: NullableRegExpExecArray = refRegex.exec(result);
@@ -1080,7 +1082,7 @@ function replaceMessageRefs(
 function renderMessageInternal(
   template: Str,
   params: Record<Str, unknown>,
-  locale: Str | undefined,
+  locale: OptionalStr,
   depth: Num,
   escapedLiterals: readonly EscapedLiteral[],
   resolver?: (key: Str) => Result<Str>,
@@ -1175,7 +1177,7 @@ function renderMessageInternal(
   const simpleMatches: Array<{
     readonly full: Str;
     readonly key: Str;
-    readonly pipes: Str | undefined;
+    readonly pipes: OptionalStr;
   }> = [];
   let simpleMatch: NullableRegExpExecArray = simplePlaceholderRegex.exec(result);
   while (simpleMatch !== null) {
@@ -1291,7 +1293,7 @@ export function renderMessage(
 function replacePluralBlocks(
   template: Str,
   params: Record<Str, unknown>,
-  locale: Str | undefined,
+  locale: OptionalStr,
   depth: Num,
   escapedLiterals: readonly EscapedLiteral[],
   formatters?: FormatterMap,
@@ -1316,8 +1318,7 @@ function replacePluralBlocks(
       const pluralMatch: NullableRegExpMatchArray = remaining.match(/^(\w+)\s*,\s*plural\s*,\s*/);
 
       if (pluralMatch && pluralMatch[1]) {
-        // oxlint-disable-next-line prefer-destructuring
-        const key: Str = pluralMatch[1];
+        const [, key]: Str[] = pluralMatch;
         const bodyStart: Num = i + 1 + pluralMatch[0].length;
 
         let braceDepth: Num = 1;
@@ -1520,7 +1521,7 @@ function resolveRange(count: Num, body: Str): Result<Str> {
 function replaceRangeBlocks(
   template: Str,
   params: Record<Str, unknown>,
-  locale: Str | undefined,
+  locale: OptionalStr,
   depth: Num,
   escapedLiterals: readonly EscapedLiteral[],
   formatters?: FormatterMap,
@@ -1545,8 +1546,7 @@ function replaceRangeBlocks(
       const rangeMatch: NullableRegExpMatchArray = remaining.match(/^(\w+)\s*,\s*range\s*,\s*/);
 
       if (rangeMatch && rangeMatch[1]) {
-        // oxlint-disable-next-line prefer-destructuring
-        const key: Str = rangeMatch[1];
+        const [, key]: Str[] = rangeMatch;
         const bodyStart: Num = i + 1 + rangeMatch[0].length;
 
         let braceDepth: Num = 1;
@@ -1651,11 +1651,9 @@ function replaceNumberBlocks(
       );
 
       if (numberMatch && numberMatch[1]) {
-        // oxlint-disable-next-line prefer-destructuring
-        const key: Str = numberMatch[1];
+        const [, key]: Str[] = numberMatch;
         const value: Num = Number(params[key]);
-        // oxlint-disable-next-line prefer-destructuring
-        const styleArg: OptionalStr = numberMatch[2];
+        const [, , styleArg]: (OptionalStr)[] = numberMatch;
         let options: Intl.NumberFormatOptions | undefined;
 
         if (styleArg && styleArg.startsWith('::')) {
@@ -1727,12 +1725,7 @@ function replaceDateTimeBlocks(
       );
 
       if (dtMatch && dtMatch[1] && dtMatch[2]) {
-        // oxlint-disable-next-line prefer-destructuring
-        const key: Str = dtMatch[1];
-        // oxlint-disable-next-line prefer-destructuring
-        const kind: Str = dtMatch[2];
-        // oxlint-disable-next-line prefer-destructuring
-        const rawStyleArg: Str | undefined = dtMatch[3];
+        const [, key, kind, rawStyleArg]: (OptionalStr)[] = dtMatch;
         const rawValue: unknown = params[key];
         const dateValue: Date | Num = rawValue instanceof Date ? rawValue : Number(rawValue);
 
@@ -1883,7 +1876,7 @@ export function buildLocale<TSchema extends v.GenericSchema>(
  * @returns `Result<RawLocaleStrings>` — the built entries object.
  */
 function buildLocaleEntries(
-  entries: Record<string, v.GenericSchema>,
+  entries: Record<Str, v.GenericSchema>,
   rawStrs: RawLocaleStrings,
   context?: RawLocaleStrings,
   locale?: Str,
@@ -2005,7 +1998,7 @@ function buildLocaleEntries(
  * @returns `NullableSchemaEntries` — the entries record, or `null` if not an object schema.
  */
 function getSchemaEntries(schema: v.GenericSchema): NullableSchemaEntries {
-  const s: Record<string, unknown> = schema as unknown as Record<string, unknown>; // Dynamic schema introspection requires cast
+  const s: Record<Str, unknown> = schema as unknown as Record<Str, unknown>; // cast safe: dynamic schema introspection requires cast
 
   // Object schemas have an `entries` property
   if (s.entries && typeof s.entries === 'object') {
@@ -2026,7 +2019,7 @@ function getSchemaEntries(schema: v.GenericSchema): NullableSchemaEntries {
 
   // Intersect schemas — merge entries from all options
   if (Array.isArray(s.options)) {
-    const merged: Record<string, v.GenericSchema> = {};
+    const merged: Record<Str, v.GenericSchema> = {};
     let found: Bool = false;
     for (const option of s.options) {
       if (typeof option === 'object' && option !== null) {
