@@ -88,7 +88,7 @@ function shouldLint(filePath: string): boolean {
     return false;
   } // Skip declaration files
   const ext: string = extname(filePath);
-  return ext === '.ts';
+  return ext === '.ts' || ext === '.mjs';
 }
 
 /**

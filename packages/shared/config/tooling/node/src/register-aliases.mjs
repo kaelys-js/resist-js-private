@@ -21,6 +21,7 @@ const ROOT = pathResolve(thisDir, '..', '..', '..', '..', '..', '..');
 
 // Read tsconfig.json paths
 const aliasMap = {};
+
 try {
   const tsconfigPath = join(ROOT, 'tsconfig.json');
   const tsconfig = JSON.parse(readFileSync(tsconfigPath, 'utf8'));
@@ -28,6 +29,7 @@ try {
 
   for (const [alias, targets] of Object.entries(paths)) {
     const [first] = Array.isArray(targets) ? targets : [];
+
     if (first) {
       aliasMap[alias] = first;
     }

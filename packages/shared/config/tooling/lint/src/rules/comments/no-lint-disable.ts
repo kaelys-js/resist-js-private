@@ -44,7 +44,7 @@ const rule: TypeScriptRule = {
   id: 'comments/no-lint-disable',
   description:
     'Forbids lint-suppression comments (eslint-disable, oxlint-ignore, @ts-ignore, etc.)',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
+  patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
 
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {

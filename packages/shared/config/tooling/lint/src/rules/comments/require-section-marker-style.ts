@@ -110,7 +110,7 @@ function buildCanonical(title: string): string {
 const rule: TypeScriptRule = {
   id: 'comments/require-section-marker-style',
   description: 'Section markers must use the canonical // === style',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
+  patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

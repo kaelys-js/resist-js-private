@@ -14,7 +14,7 @@ const EXEMPT_PATHS: readonly RegExp[] = [/\.test\.ts$/, /\.spec\.ts$/];
 const rule: TypeScriptRule = {
   id: 'jsdoc/require-module',
   description: 'Every TypeScript file must have a top-level /** @module */ JSDoc comment',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
+  patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
