@@ -2,7 +2,7 @@
  * Secret Validation Schemas
  *
  * Valibot schemas for validating secret structure per category.
- * Includes rich primitive validators (SecretKey, ApiKey, DatabaseUrl, etc.)
+ * Includes rich primitive validators (SecretKeySchema, ApiKeySchema, DatabaseUrlSchema, etc.)
  * and per-folder schemas for both global and product secrets.
  *
  * Adapted from `_INTEGRATE/env-management/config/schemas.ts`.
@@ -14,30 +14,32 @@
 
 import * as v from 'valibot';
 
+import type { Str } from '@/schemas/common';
+
 // =============================================================================
 // Primitive Validators (from _INTEGRATE/env-management/config/schemas.ts)
 // =============================================================================
 
 /** Non-empty secret value. */
-const NonEmptyString = v.pipe(v.string(), v.minLength(1, 'Value cannot be empty'));
+const NonEmptyStringSchema = v.pipe(v.string(), v.minLength(1, 'Value cannot be empty'));
 
 /**
  * Cryptographic secret key — minimum 32 characters.
  * Used for JWT secrets, encryption keys, etc.
  */
-const SecretKey = v.pipe(v.string(), v.minLength(32, 'Secret keys must be at least 32 characters'));
+const SecretKeySchema = v.pipe(v.string(), v.minLength(32, 'Secret keys must be at least 32 characters'));
 
 /**
  * External service API key — minimum 8 characters.
  * Used for third-party service tokens.
  */
-const ApiKey = v.pipe(v.string(), v.minLength(8, 'API keys must be at least 8 characters'));
+const ApiKeySchema = v.pipe(v.string(), v.minLength(8, 'API keys must be at least 8 characters'));
 
 /**
  * Database connection URL with protocol validation.
  * Supports postgres, mysql, sqlite, libsql, mongodb.
  */
-const DatabaseUrl = v.pipe(
+const DatabaseUrlSchema = v.pipe(
   v.string(),
   v.regex(
     /^(postgres|postgresql|mysql|sqlite|libsql|mongodb(\+srv)?):\/\/.+/i,
@@ -46,13 +48,13 @@ const DatabaseUrl = v.pipe(
 );
 
 /** URL string. */
-const UrlString = v.pipe(v.string(), v.url('Must be a valid URL'));
+const UrlStringSchema = v.pipe(v.string(), v.url('Must be a valid URL'));
 
 /**
  * Duration string (e.g., "15m", "1h", "7d").
  * Used for JWT token expiry configuration.
  */
-const DurationString = v.pipe(
+const DurationStringSchema = v.pipe(
   v.string(),
   v.regex(/^\d+[smhd]$/, 'Must be a duration like "15m" or "7d"'),
 );
@@ -64,51 +66,51 @@ const DurationString = v.pipe(
 /** Cloudflare secrets (global /cloudflare folder). */
 export const CloudflareSecretsSchema = v.strictObject({
   /** Cloudflare API token with required permissions. */
-  CLOUDFLARE_API_TOKEN: v.pipe(ApiKey),
+  CLOUDFLARE_API_TOKEN: v.pipe(ApiKeySchema),
   /** Cloudflare account ID. */
-  CLOUDFLARE_ACCOUNT_ID: NonEmptyString,
+  CLOUDFLARE_ACCOUNT_ID: NonEmptyStringSchema,
   /** Cloudflare zone ID (optional, per-product). */
-  CLOUDFLARE_ZONE_ID: v.optional(NonEmptyString),
+  CLOUDFLARE_ZONE_ID: v.optional(NonEmptyStringSchema),
 });
 
 /** GitHub secrets (global /github folder). */
 export const GitHubSecretsSchema = v.strictObject({
   /** GitHub personal access token. */
-  GITHUB_PAT: v.pipe(ApiKey),
+  GITHUB_PAT: v.pipe(ApiKeySchema),
   /** GitHub OAuth client ID. */
-  GITHUB_OAUTH_CLIENT_ID: NonEmptyString,
+  GITHUB_OAUTH_CLIENT_ID: NonEmptyStringSchema,
   /** GitHub OAuth client secret. */
-  GITHUB_OAUTH_CLIENT_SECRET: NonEmptyString,
+  GITHUB_OAUTH_CLIENT_SECRET: NonEmptyStringSchema,
   /** GitHub App ID (optional, if using GitHub App auth). */
-  GITHUB_APP_ID: v.optional(NonEmptyString),
+  GITHUB_APP_ID: v.optional(NonEmptyStringSchema),
   /** GitHub App private key (optional). */
-  GITHUB_APP_PRIVATE_KEY: v.optional(NonEmptyString),
+  GITHUB_APP_PRIVATE_KEY: v.optional(NonEmptyStringSchema),
 });
 
 /** GitLab secrets (global /gitlab folder). */
 export const GitLabSecretsSchema = v.strictObject({
   /** GitLab access token. */
-  GITLAB_TOKEN: v.pipe(ApiKey),
+  GITLAB_TOKEN: v.pipe(ApiKeySchema),
   /** GitLab OAuth application ID. */
-  GITLAB_OAUTH_APP_ID: NonEmptyString,
+  GITLAB_OAUTH_APP_ID: NonEmptyStringSchema,
   /** GitLab OAuth application secret. */
-  GITLAB_OAUTH_APP_SECRET: NonEmptyString,
+  GITLAB_OAUTH_APP_SECRET: NonEmptyStringSchema,
 });
 
 /** Turbo Remote Cache secrets (global /turbo folder). */
 export const TurboSecretsSchema = v.strictObject({
   /** Turborepo remote cache token. */
-  TURBO_TOKEN: v.pipe(ApiKey),
+  TURBO_TOKEN: v.pipe(ApiKeySchema),
   /** Turborepo team slug. */
-  TURBO_TEAM: NonEmptyString,
+  TURBO_TEAM: NonEmptyStringSchema,
   /** Turborepo API URL (optional, for self-hosted). */
-  TURBO_API: v.optional(UrlString),
+  TURBO_API: v.optional(UrlStringSchema),
 });
 
 /** DevEnv/Hetzner secrets (global /devenv folder). */
 export const DevEnvSecretsSchema = v.strictObject({
   /** Hetzner Cloud API token. */
-  HETZNER_TOKEN: v.pipe(ApiKey),
+  HETZNER_TOKEN: v.pipe(ApiKeySchema),
 });
 
 // =============================================================================
@@ -118,57 +120,57 @@ export const DevEnvSecretsSchema = v.strictObject({
 /** Database secrets (product /api folder — database layer). */
 export const DatabaseSecretsSchema = v.strictObject({
   /** D1 database ID (Cloudflare). */
-  D1_DATABASE_ID: NonEmptyString,
+  D1_DATABASE_ID: NonEmptyStringSchema,
   /** KV namespace ID (Cloudflare). */
-  KV_NAMESPACE_ID: NonEmptyString,
+  KV_NAMESPACE_ID: NonEmptyStringSchema,
   /** Primary database connection URL (optional, for non-D1 databases). */
-  DATABASE_URL: v.optional(DatabaseUrl),
+  DATABASE_URL: v.optional(DatabaseUrlSchema),
   /** Database auth token (for Turso/LibSQL). */
-  DATABASE_AUTH_TOKEN: v.optional(v.pipe(ApiKey)),
+  DATABASE_AUTH_TOKEN: v.optional(v.pipe(ApiKeySchema)),
   /** Read replica URL (optional). */
-  DATABASE_REPLICA_URL: v.optional(DatabaseUrl),
+  DATABASE_REPLICA_URL: v.optional(DatabaseUrlSchema),
 });
 
 /** Authentication secrets (product /api folder — auth layer). */
 export const AuthSecretsSchema = v.strictObject({
   /** API-level secret key. */
-  API_SECRET_KEY: v.pipe(SecretKey),
+  API_SECRET_KEY: v.pipe(SecretKeySchema),
   /** JWT signing secret for access tokens (min 32 chars). */
-  JWT_SECRET: v.optional(v.pipe(SecretKey)),
+  JWT_SECRET: v.optional(v.pipe(SecretKeySchema)),
   /** JWT signing secret for refresh tokens (min 32 chars). */
-  JWT_REFRESH_SECRET: v.optional(v.pipe(SecretKey)),
+  JWT_REFRESH_SECRET: v.optional(v.pipe(SecretKeySchema)),
   /** JWT issuer identifier. */
-  JWT_ISSUER: v.optional(NonEmptyString),
+  JWT_ISSUER: v.optional(NonEmptyStringSchema),
   /** JWT audience identifier. */
-  JWT_AUDIENCE: v.optional(NonEmptyString),
+  JWT_AUDIENCE: v.optional(NonEmptyStringSchema),
   /** Access token expiry duration (e.g., "15m", "1h"). */
-  JWT_ACCESS_EXPIRY: v.optional(DurationString),
+  JWT_ACCESS_EXPIRY: v.optional(DurationStringSchema),
   /** Refresh token expiry duration (e.g., "7d", "30d"). */
-  JWT_REFRESH_EXPIRY: v.optional(DurationString),
+  JWT_REFRESH_EXPIRY: v.optional(DurationStringSchema),
 });
 
 /** Payment processing secrets (product /app folder — Lemon Squeezy). */
 export const PaymentSecretsSchema = v.strictObject({
   /** Lemon Squeezy API key. */
-  LEMON_SQUEEZY_API_KEY: v.pipe(ApiKey),
+  LEMON_SQUEEZY_API_KEY: v.pipe(ApiKeySchema),
   /** Lemon Squeezy webhook signing secret (optional). */
-  LEMON_SQUEEZY_WEBHOOK_SECRET: v.optional(NonEmptyString),
+  LEMON_SQUEEZY_WEBHOOK_SECRET: v.optional(NonEmptyStringSchema),
 });
 
 /** RevenueCat in-app purchase secrets (product /app folder). */
 export const RevenueCatSecretsSchema = v.strictObject({
   /** RevenueCat API key. */
-  REVENUECAT_API_KEY: v.pipe(ApiKey),
+  REVENUECAT_API_KEY: v.pipe(ApiKeySchema),
   /** RevenueCat webhook authorization header (optional). */
-  REVENUECAT_WEBHOOK_AUTH: v.optional(NonEmptyString),
+  REVENUECAT_WEBHOOK_AUTH: v.optional(NonEmptyStringSchema),
 });
 
 /** Analytics secrets (product /app folder — PostHog). */
 export const AnalyticsSecretsSchema = v.strictObject({
   /** PostHog analytics API key. */
-  POSTHOG_API_KEY: v.pipe(ApiKey),
+  POSTHOG_API_KEY: v.pipe(ApiKeySchema),
   /** PostHog host URL (optional, for self-hosted). */
-  POSTHOG_HOST: v.optional(UrlString),
+  POSTHOG_HOST: v.optional(UrlStringSchema),
 });
 
 /** Email service secrets (product /marketing folder — Resend). */
@@ -176,7 +178,7 @@ export const EmailSecretsSchema = v.strictObject({
   /** Resend email API key (must start with `re_`). */
   RESEND_API_KEY: v.pipe(v.string(), v.startsWith('re_', 'Resend API key must start with re_')),
   /** Google Analytics measurement ID. */
-  GA_MEASUREMENT_ID: NonEmptyString,
+  GA_MEASUREMENT_ID: NonEmptyStringSchema,
   /** Default from email address (optional). */
   EMAIL_FROM: v.optional(v.pipe(v.string(), v.email())),
   /** Default reply-to email address (optional). */
@@ -186,21 +188,21 @@ export const EmailSecretsSchema = v.strictObject({
 /** Status page secrets (product /status folder). */
 export const StatusSecretsSchema = v.strictObject({
   /** Status page monitoring token. */
-  STATUS_PAGE_TOKEN: v.pipe(ApiKey),
+  STATUS_PAGE_TOKEN: v.pipe(ApiKeySchema),
 });
 
 /** Storage secrets (product — optional S3/R2 bindings). */
 export const StorageSecretsSchema = v.strictObject({
   /** S3/R2 access key ID. */
-  S3_ACCESS_KEY_ID: v.optional(NonEmptyString),
+  S3_ACCESS_KEY_ID: v.optional(NonEmptyStringSchema),
   /** S3/R2 secret access key. */
-  S3_SECRET_ACCESS_KEY: v.optional(v.pipe(ApiKey)),
+  S3_SECRET_ACCESS_KEY: v.optional(v.pipe(ApiKeySchema)),
   /** S3/R2 bucket name. */
-  S3_BUCKET: v.optional(NonEmptyString),
+  S3_BUCKET: v.optional(NonEmptyStringSchema),
   /** S3/R2 endpoint URL. */
-  S3_ENDPOINT: v.optional(UrlString),
+  S3_ENDPOINT: v.optional(UrlStringSchema),
   /** S3/R2 region. */
-  S3_REGION: v.optional(NonEmptyString),
+  S3_REGION: v.optional(NonEmptyStringSchema),
 });
 
 // =============================================================================
@@ -289,7 +291,7 @@ export type AllSecrets = v.InferOutput<typeof AllSecretsSchema>;
  * @remarks Used by `secrets validate` to validate global secrets.
  */
 export const GLOBAL_SECRET_SCHEMAS: Readonly<
-  Record<string, v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>
+  Record<Str, v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>
 > = {
   '/cloudflare': CloudflareSecretsSchema,
   '/turbo': TurboSecretsSchema,
@@ -302,7 +304,7 @@ export const GLOBAL_SECRET_SCHEMAS: Readonly<
  * @remarks Used by `secrets validate` to validate per-product secrets.
  */
 export const PRODUCT_SECRET_SCHEMAS: Readonly<
-  Record<string, v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>
+  Record<Str, v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>
 > = {
   '/api': DatabaseSecretsSchema,
   '/auth': AuthSecretsSchema,

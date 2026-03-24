@@ -66,6 +66,13 @@ function extractExportedFunctions(content: string): string[] {
     names.push(arrowMatch[1]);
     arrowMatch = arrowRegex.exec(content);
   }
+  // Also catch exported type aliases
+  const typeRegex: RegExp = /export\s+type\s+(\w+)\s*[=<]/g;
+  let typeMatch: RegExpExecArray | null = typeRegex.exec(content);
+  while (typeMatch) {
+    names.push(typeMatch[1]);
+    typeMatch = typeRegex.exec(content);
+  }
   return names;
 }
 

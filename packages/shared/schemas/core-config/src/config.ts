@@ -8,6 +8,7 @@
 
 import * as v from 'valibot';
 
+import type { Bool } from '@/schemas/common';
 import { BusinessObjectSchema } from '@/schemas/core-config/business';
 import { EnvironmentNameSchema } from '@/schemas/core-config/environment';
 import { FormatSchema } from '@/schemas/core-config/format';
@@ -102,10 +103,11 @@ export const CoreConfigObjectSchema = v.strictObject({
   environment: v.optional(EnvironmentNameSchema, 'development'),
 });
 
+/** Full CoreConfig schema with cross-field validation. See {@link CoreConfigObjectSchema}. */
 export const CoreConfigSchema = v.pipe(
   CoreConfigObjectSchema,
   v.check(
-    (input: v.InferOutput<typeof CoreConfigObjectSchema>) =>
+    (input: v.InferOutput<typeof CoreConfigObjectSchema>): Bool =>
       input.locales.includes(input.defaultLocale),
     'defaultLocale must be included in the locales array',
   ),

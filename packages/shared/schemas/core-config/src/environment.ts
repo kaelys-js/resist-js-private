@@ -8,6 +8,12 @@
 
 import * as v from 'valibot';
 
+import { UrlStringSchema } from '@/schemas/common';
+
+// =============================================================================
+// Schemas
+// =============================================================================
+
 // =============================================================================
 // Environment Name
 // =============================================================================
@@ -59,7 +65,7 @@ export const EnvironmentSchema = v.strictObject({
   /** Environment name */
   name: EnvironmentNameSchema,
   /** Base URL for this environment */
-  baseUrl: v.optional(v.pipe(v.string(), v.url())),
+  baseUrl: v.optional(UrlStringSchema),
   /** Enable debug mode */
   debug: v.optional(v.boolean(), false),
 });
