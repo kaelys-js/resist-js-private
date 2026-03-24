@@ -4,9 +4,11 @@
  * @module
  */
 
+import { strict as assert } from 'node:assert';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import type { Adapter } from '@sveltejs/kit';
 import type { Str, Path } from '@/schemas/common';
-import type { Result } from '@/schemas/result/result';
+import type { Result, DeepReadonly } from '@/schemas/result/result';
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -38,7 +40,7 @@ vi.mock('@/utils/core/fs', () => ({
   })),
   parseJsonWithComments: vi.fn(<T>(content: string): Result<T> => ({
     ok: true,
-    data: JSON.parse(content) as T,
+    data: JSON.parse(content) as DeepReadonly<T>, // cast safe: test fixture
     error: null,
   })),
 }));
@@ -106,7 +108,7 @@ describe('TEMPLATE_PATHS', () => {
 // ---------------------------------------------------------------------------
 
 describe('createSvelteConfig', () => {
-  const mockAdapter = { name: 'test-adapter' };
+  const mockAdapter: Adapter = { name: 'test-adapter', adapt: vi.fn() };
 
   it('returns config with preprocess', () => {
     const config = createSvelteConfig({ adapter: mockAdapter });
@@ -115,16 +117,21 @@ describe('createSvelteConfig', () => {
 
   it('includes kit.adapter from provided adapter', () => {
     const config = createSvelteConfig({ adapter: mockAdapter });
+    assert(config.kit, 'kit should be defined');
     expect(config.kit.adapter).toBe(mockAdapter);
   });
 
   it('includes kit.version.name from git commit', () => {
     const config = createSvelteConfig({ adapter: mockAdapter });
+    assert(config.kit, 'kit should be defined');
+    assert(config.kit.version, 'kit.version should be defined');
     expect(config.kit.version.name).toBe('abc1234');
   });
 
   it('includes kit.alias with tsconfig-derived aliases', () => {
     const config = createSvelteConfig({ adapter: mockAdapter });
+    assert(config.kit, 'kit should be defined');
+    assert(config.kit.alias, 'kit.alias should be defined');
     const aliases: Record<Str, Str> = config.kit.alias;
     // Should have entries from tsconfig paths mock
     expect(aliases).toHaveProperty('@/schemas/common');
@@ -133,6 +140,8 @@ describe('createSvelteConfig', () => {
 
   it('strips .ts extension from non-wildcard aliases but keeps .svelte.ts', () => {
     const config = createSvelteConfig({ adapter: mockAdapter });
+    assert(config.kit, 'kit should be defined');
+    assert(config.kit.alias, 'kit.alias should be defined');
     const aliases: Record<Str, Str> = config.kit.alias;
     // Non-wildcard: should have stripped .ts
     const commonPath: Str = aliases['@/schemas/common'] as Str;
@@ -144,12 +153,15 @@ describe('createSvelteConfig', () => {
 
   it('includes kit.files pointing to shared templates', () => {
     const config = createSvelteConfig({ adapter: mockAdapter });
+    assert(config.kit, 'kit should be defined');
+    assert(config.kit.files, 'kit.files should be defined');
     expect(config.kit.files.appTemplate).toBe(TEMPLATE_PATHS.appHtml);
     expect(config.kit.files.errorTemplate).toBe(TEMPLATE_PATHS.errorHtml);
   });
 
   it('disables CSP when enableCsp is false', () => {
     const config = createSvelteConfig({ adapter: mockAdapter, enableCsp: false });
+    assert(config.kit, 'kit should be defined');
     expect(config.kit).not.toHaveProperty('csp');
   });
 
@@ -158,6 +170,8 @@ describe('createSvelteConfig', () => {
       adapter: mockAdapter,
       extraAliases: { '$custom': '/path/to/custom' },
     });
+    assert(config.kit, 'kit should be defined');
+    assert(config.kit.alias, 'kit.alias should be defined');
     expect(config.kit.alias['$custom']).toBe('/path/to/custom');
   });
 
@@ -176,6 +190,7 @@ describe('createSvelteConfig', () => {
       adapter: mockAdapter,
       extraKit: { serviceWorker: { register: false } },
     });
+    assert(config.kit, 'kit should be defined');
     expect(config.kit.serviceWorker).toEqual({ register: false });
   });
 
@@ -184,6 +199,8 @@ describe('createSvelteConfig', () => {
       adapter: mockAdapter,
       files: { appTemplate: '/custom/app.html' },
     });
+    assert(config.kit, 'kit should be defined');
+    assert(config.kit.files, 'kit.files should be defined');
     expect(config.kit.files.appTemplate).toBe('/custom/app.html');
     // errorTemplate should still use shared default
     expect(config.kit.files.errorTemplate).toBe(TEMPLATE_PATHS.errorHtml);
@@ -198,6 +215,7 @@ describe('createSvelteConfig', () => {
 
     const config = createSvelteConfig({ adapter: mockAdapter });
     // Should still work — aliases will be empty from tsconfig, but extraAliases can add
+    assert(config.kit, 'kit should be defined');
     expect(config.kit.alias).toBeDefined();
   });
 
@@ -206,6 +224,7 @@ describe('createSvelteConfig', () => {
     // so CSP should be undefined even with enableCsp=true (default)
     const config = createSvelteConfig({ adapter: mockAdapter });
     // CSP is only defined in production mode
+    assert(config.kit, 'kit should be defined');
     expect(config.kit.csp).toBeUndefined();
   });
 });

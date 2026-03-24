@@ -350,17 +350,31 @@ describe('configExists', () => {
 });
 
 describe('defineConfig', () => {
-  it('returns the same object passed in', () => {
-    const input = { company: { name: 'Test' } } as Partial<CoreConfig>;
+  it('returns validated config for valid input', () => {
+    const input: Partial<CoreConfig> = {};
     const output = defineConfig(input);
-    expect(output).toBe(input);
+    expect(output).toEqual(input);
+  });
+
+  it('throws for invalid config shape', () => {
+    const input = { company: { name: 'Test' } } as Partial<CoreConfig>;
+    expect(() => defineConfig(input)).toThrow();
   });
 });
 
 describe('defineProductConfig', () => {
-  it('returns the same object passed in', () => {
-    const input = { id: 'test', name: 'Test Product' };
+  it('returns validated config for valid input', () => {
+    const input = {
+      id: 'test-product',
+      name: 'Test Product',
+      layers: { api: true, app: true, marketing: true, status: true, assets: true },
+    };
     const output = defineProductConfig(input as never);
-    expect(output).toBe(input);
+    expect(output).toMatchObject(input);
+  });
+
+  it('throws for invalid config shape', () => {
+    const input = { id: 'x', name: '' };
+    expect(() => defineProductConfig(input as never)).toThrow();
   });
 });

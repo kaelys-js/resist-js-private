@@ -9,5 +9,8 @@
     "qa:test:coverage": "pnpm -w exec vitest run --project config-tooling-svelte --coverage",
     "qa:benchmark": "pnpm -w exec vitest bench --project config-tooling-svelte",
     "qa:type-check": "tsgo --noEmit"
+  },
+  "devDependencies": {
+    "@sveltejs/kit": "^2.53.2"
   }
 }

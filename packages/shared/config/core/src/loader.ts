@@ -14,6 +14,8 @@
  * @module
  */
 
+import * as v from 'valibot';
+
 import { defaults } from '@/config/core/defaults';
 import {
   BoolSchema,
@@ -25,9 +27,9 @@ import {
   type Path,
   type Void,
 } from '@/schemas/common';
-import { CoreConfigSchema, type CoreConfig } from '@/schemas/core-config/config';
-import type { ProductConfig } from '@/schemas/core-config/product';
-import { ERRORS, type Result, err, ok } from '@/schemas/result/result';
+import { CoreConfigObjectSchema, CoreConfigSchema, type CoreConfig } from '@/schemas/core-config/config';
+import { ProductConfigSchema, type ProductConfig } from '@/schemas/core-config/product';
+import { ERRORS, type Result, err, ok, okUnchecked } from '@/schemas/result/result';
 import { log } from '@/utils/core/logger';
 import { deepFreeze, deepMerge, type DeepReadonly } from '@/utils/core/object';
 import { joinPath, pathExists } from '@/utils/core/path';
@@ -39,17 +41,19 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
 // Local Type Aliases
 // =============================================================================
 
-type NullableCoreConfigInstance = DeepReadonly<CoreConfig> | null;
-
 /** Default config filename — resolved once at module load from static defaults. */
-const DEFAULT_CONFIG_FILENAME: Filename = safeParse(FilenameSchema, defaults.tooling.paths.configFilename).data as Filename;
+const filenameResult: Result<Filename> = safeParse(FilenameSchema, defaults.tooling.paths.configFilename);
+if (!filenameResult.ok) throw filenameResult.error; // integration boundary: module initialization requires valid filename
+// cast safe: safeParse validates and narrows to Filename
+const DEFAULT_CONFIG_FILENAME: Filename = filenameResult.data;
 
 // =============================================================================
 // Config Singleton
 // =============================================================================
 
 /** Cached frozen config singleton. Populated by {@link loadConfig}. */
-let instance: NullableCoreConfigInstance = null;
+// cast safe: initial state before loadConfig
+let instance: Result<DeepReadonly<CoreConfig>> = err(ERRORS.CONFIG.NOT_FOUND);
 
 /**
  * Load and validate the root config from the workspace root.
@@ -62,7 +66,7 @@ let instance: NullableCoreConfigInstance = null;
  * - If the config file is missing on disk, logs a warning and caches defaults.
  * - Never throws — all failures are returned as `Result` errors.
  *
- * @returns `Promise<Result<DeepReadonly<CoreConfig>>>` — the validated, frozen
+ * @returns {Promise<Result<DeepReadonly<CoreConfig>>>} The validated, frozen
  *          config, or a structured error (`CONFIG.NOT_FOUND`, `CONFIG.LOAD_FAILED`,
  *          `CONFIG.INVALID`).
  *
@@ -74,11 +78,7 @@ let instance: NullableCoreConfigInstance = null;
  * ```
  */
 export async function loadConfig(): Promise<Result<DeepReadonly<CoreConfig>>> {
-  if (instance) {
-    const cached: Result<CoreConfig> = safeParse(CoreConfigSchema, instance);
-    if (!cached.ok) return cached;
-    return cached;
-  }
+  if (instance.ok) return instance;
 
   if (!nodePath) {
     // Non-Node runtimes (browser, CF Worker) can't discover config files from
@@ -108,10 +108,8 @@ export async function loadConfig(): Promise<Result<DeepReadonly<CoreConfig>>> {
     log.warn(
       `{yellow}{bold}${DEFAULT_CONFIG_FILENAME}{/}{/} not found — using built-in defaults. Run {bold}pnpm tool config init{/} to create one.`,
     );
-    instance = deepFreeze(defaults);
-    const defaultsValidated: Result<CoreConfig> = safeParse(CoreConfigSchema, instance);
-    if (!defaultsValidated.ok) return defaultsValidated;
-    return defaultsValidated;
+    instance = okUnchecked(deepFreeze(defaults));
+    return instance;
   }
 
   let userConfig: Partial<CoreConfig> = {};
@@ -122,7 +120,7 @@ export async function loadConfig(): Promise<Result<DeepReadonly<CoreConfig>>> {
     // Type narrowing: rawConfig is validated by safeParse(CoreConfigSchema, merged) below.
     // The cast bridges dynamic import (unknown) to deepMerge's parameter type.
     if (typeof rawConfig === 'object' && rawConfig !== null) {
-      userConfig = rawConfig as Partial<CoreConfig>;
+      userConfig = rawConfig as Partial<CoreConfig>; // cast safe: runtime guard above + safeParse validates merged result below
     }
   } catch (error: unknown) {
     // Framework-internal: config/core has no access to CLI locale system
@@ -133,7 +131,7 @@ export async function loadConfig(): Promise<Result<DeepReadonly<CoreConfig>>> {
   }
 
   // Deep merge: defaults first, user config wins
-  const merged = deepMerge(defaults, userConfig);
+  const merged: unknown = deepMerge(defaults, userConfig);
 
   // Validate against schema
   const validated: Result<CoreConfig> = safeParse(CoreConfigSchema, merged);
@@ -146,11 +144,8 @@ export async function loadConfig(): Promise<Result<DeepReadonly<CoreConfig>>> {
     });
   }
 
-  instance = deepFreeze(validated.data);
-
-  const finalValidated: Result<CoreConfig> = safeParse(CoreConfigSchema, instance);
-  if (!finalValidated.ok) return finalValidated;
-  return finalValidated;
+  instance = okUnchecked(deepFreeze(validated.data));
+  return instance;
 }
 
 /**
@@ -163,7 +158,7 @@ export async function loadConfig(): Promise<Result<DeepReadonly<CoreConfig>>> {
  * In CLI context, `dispatchTool()` guarantees `loadConfig()` runs first,
  * so this will always succeed after bootstrap.
  *
- * @returns `Result<DeepReadonly<CoreConfig>>` — the cached config,
+ * @returns {Result<DeepReadonly<CoreConfig>>} The cached config,
  *          or `CONFIG.NOT_FOUND` if not loaded.
  *
  * @example
@@ -174,16 +169,7 @@ export async function loadConfig(): Promise<Result<DeepReadonly<CoreConfig>>> {
  * ```
  */
 export function getConfig(): Result<DeepReadonly<CoreConfig>> {
-  if (!instance) {
-    // Framework-internal: config/core has no access to CLI locale system
-    return err(ERRORS.CONFIG.NOT_FOUND, {
-      meta: { reason: 'loadConfig not called' },
-    });
-  }
-
-  const validated: Result<CoreConfig> = safeParse(CoreConfigSchema, instance);
-  if (!validated.ok) return validated;
-  return validated;
+  return instance;
 }
 
 /**
@@ -192,7 +178,7 @@ export function getConfig(): Result<DeepReadonly<CoreConfig>> {
  * Clears the cached config so `loadConfig()` will re-read from disk
  * on next call. Primarily useful in test fixtures.
  *
- * @returns `Result<Void>` — always succeeds.
+ * @returns {Result<Void>} Always succeeds.
  *
  * @example
  * ```typescript
@@ -202,7 +188,7 @@ export function getConfig(): Result<DeepReadonly<CoreConfig>> {
  * ```
  */
 export function resetConfig(): Result<Void> {
-  instance = null;
+  instance = err(ERRORS.CONFIG.NOT_FOUND);
   return ok(VoidSchema, undefined);
 }
 
@@ -219,8 +205,8 @@ export function resetConfig(): Result<Void> {
  * After calling `setConfig()`, `getConfig()` returns the cached config.
  * `loadConfig()` also returns the cached config (singleton check at top).
  *
- * @param config - Partial config object with user overrides.
- * @returns `Result<DeepReadonly<CoreConfig>>` — the validated, frozen config.
+ * @param {Partial<CoreConfig>} config - Partial config object with user overrides.
+ * @returns {Result<DeepReadonly<CoreConfig>>} The validated, frozen config.
  *
  * @example
  * ```typescript
@@ -234,7 +220,7 @@ export function resetConfig(): Result<Void> {
  * ```
  */
 export function setConfig(config: Partial<CoreConfig>): Result<DeepReadonly<CoreConfig>> {
-  const merged = deepMerge(defaults, config);
+  const merged: unknown = deepMerge(defaults, config);
   const validated: Result<CoreConfig> = safeParse(CoreConfigSchema, merged);
 
   if (!validated.ok) {
@@ -244,10 +230,8 @@ export function setConfig(config: Partial<CoreConfig>): Result<DeepReadonly<Core
     });
   }
 
-  instance = deepFreeze(validated.data);
-  const finalValidated: Result<CoreConfig> = safeParse(CoreConfigSchema, instance);
-  if (!finalValidated.ok) return finalValidated;
-  return finalValidated;
+  instance = okUnchecked(deepFreeze(validated.data));
+  return instance;
 }
 
 /**
@@ -256,14 +240,16 @@ export function setConfig(config: Partial<CoreConfig>): Result<DeepReadonly<Core
  * Discovers the workspace root via `findWorkspaceRoot()`.
  * Returns an error result if the workspace root cannot be found.
  *
- * @returns `Result<Bool>` — `true` or `false` for file existence,
+ * @returns {Result<Bool>} `true` or `false` for file existence,
  *          or `CONFIG.NOT_FOUND` if workspace root missing.
  *
  * @example
  * ```typescript
  * const result = configExists();
  * if (!result.ok) return result;
- * if (result.data) { // config file exists }
+ * if (result.data) {
+ *   // config file exists
+ * }
  * ```
  */
 export function configExists(): Result<Bool> {
@@ -290,8 +276,8 @@ export function configExists(): Result<Bool> {
  * @remarks Identity function for DX/type-checking only — does not return `Result`
  *   because it performs no operations that can fail.
  *
- * @param config - Partial config object with user overrides.
- * @returns The same config object, typed for `CoreConfig`.
+ * @param {Partial<CoreConfig>} config - Partial config object with user overrides.
+ * @returns {Partial<CoreConfig>} The validated config object.
  *
  * @example
  * ```typescript
@@ -311,7 +297,9 @@ export function configExists(): Result<Bool> {
  * ```
  */
 export function defineConfig(config: Partial<CoreConfig>): Partial<CoreConfig> {
-  return config;
+  const result: Result<Partial<CoreConfig>> = safeParse(v.partial(CoreConfigObjectSchema), config);
+  if (!result.ok) throw result.error; // integration boundary: config file validation
+  return result.data as Partial<CoreConfig>; // cast safe: safeParse validates
 }
 
 /**
@@ -324,8 +312,8 @@ export function defineConfig(config: Partial<CoreConfig>): Partial<CoreConfig> {
  * @remarks Identity function for DX/type-checking only — does not return `Result`
  *   because it performs no operations that can fail.
  *
- * @param config - Product config object.
- * @returns The same config object, typed for `ProductConfig`.
+ * @param {ProductConfig} config - Product config object.
+ * @returns {ProductConfig} The validated config object.
  *
  * @example
  * ```typescript
@@ -340,5 +328,7 @@ export function defineConfig(config: Partial<CoreConfig>): Partial<CoreConfig> {
  * ```
  */
 export function defineProductConfig(config: ProductConfig): ProductConfig {
-  return config;
+  const result: Result<ProductConfig> = safeParse(ProductConfigSchema, config);
+  if (!result.ok) throw result.error; // integration boundary: config file validation
+  return result.data;
 }

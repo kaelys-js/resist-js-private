@@ -36,6 +36,9 @@ import { resolvePath, joinPath } from '@/utils/core/path';
 /** Inferred options type from {@link CreateSvelteConfigOptionsSchema}. */
 type CreateSvelteConfigOptions = v.InferOutput<typeof CreateSvelteConfigOptionsSchema>;
 
+/** Inferred input type from {@link CreateSvelteConfigOptionsSchema}. */
+export type CreateSvelteConfigInput = v.InferInput<typeof CreateSvelteConfigOptionsSchema>;
+
 /** Schema for tsconfig.json compiler options. */
 const TsconfigCompilerOptionsSchema = v.strictObject({
   /** Path alias mappings (e.g., `@/foo` -> `./packages/foo/src/index.ts`). */
@@ -104,6 +107,13 @@ type TsconfigJson = v.InferOutput<typeof TsconfigJsonSchema>;
 
 /** CSP configuration type from SvelteKit. */
 type CspConfig = NonNullable<Config['kit']>['csp'];
+
+/** Individual CSP source value type from SvelteKit directives. */
+type CspSource = NonNullable<NonNullable<CspConfig>['directives']>['connect-src'] extends
+  | Array<infer S>
+  | undefined
+  ? S
+  : never;
 
 // =============================================================================
 // Schemas
@@ -212,9 +222,10 @@ function buildAliasesFromTsconfig(root: Path): Result<Record<Str, Str>> {
   if (!jsonResult.ok) return jsonResult;
   const tsconfigResult: Result<TsconfigJson> = safeParse(TsconfigJsonSchema, jsonResult.data);
   if (!tsconfigResult.ok) return tsconfigResult;
-  const tsconfig: TsconfigJson = tsconfigResult.data;
-  if (!tsconfig.compilerOptions?.paths) return okUnchecked<Record<Str, Str>>({});
-  const { paths }: { paths: Record<Str, Str[]> } = tsconfig.compilerOptions;
+  const tsconfig: TsconfigJson = tsconfigResult.data as TsconfigJson; // cast safe: safeParse validates
+  const compilerOptions: TsconfigJson['compilerOptions'] = tsconfig.compilerOptions;
+  if (!compilerOptions?.paths) return okUnchecked<Record<Str, Str>>({});
+  const paths: Record<Str, Str[]> = compilerOptions.paths;
 
   const aliases: Record<Str, Str> = {};
 
@@ -266,7 +277,7 @@ const PRODUCTION_CSP: CspConfig = {
     'img-src': ['self' as const, 'data:', 'blob:'],
     'font-src': ['self' as const],
     // cast safe: SvelteKit CSP types accept string union, ws:/wss: are valid CSP source values
-    'connect-src': ['self' as const, 'ws:' as Str, 'wss:' as Str],
+    'connect-src': ['self' as const, 'ws:' as CspSource, 'wss:' as CspSource],
     'worker-src': ['self' as const, 'blob:'],
     'child-src': ['self' as const, 'blob:'],
     'frame-ancestors': ['none' as const],
@@ -289,7 +300,7 @@ const IS_PRODUCTION: Bool = process.env.NODE_ENV === 'production';
  * Auto-reads aliases from root tsconfig.json so they never go out of sync.
  * Includes CSP, git versioning, and vitePreprocess by default.
  *
- * @param {CreateSvelteConfigOptions} options - Configuration options validated against {@link CreateSvelteConfigOptionsSchema}.
+ * @param {CreateSvelteConfigInput} options - Configuration options validated against {@link CreateSvelteConfigOptionsSchema}.
  * @returns {Config} Complete SvelteKit config.
  *
  * @example
@@ -311,7 +322,7 @@ const IS_PRODUCTION: Bool = process.env.NODE_ENV === 'production';
  * });
  * ```
  */
-export function createSvelteConfig(options: CreateSvelteConfigOptions): Config {
+export function createSvelteConfig(options: CreateSvelteConfigInput): Config {
   // integration boundary: SvelteKit doesn't understand Result
   const optionsResult: Result<CreateSvelteConfigOptions> = safeParse(
     CreateSvelteConfigOptionsSchema,
@@ -319,7 +330,7 @@ export function createSvelteConfig(options: CreateSvelteConfigOptions): Config {
   );
   if (!optionsResult.ok) throw optionsResult.error; // integration boundary: SvelteKit doesn't understand Result
 
-  const { adapter, enableCsp, extraAliases, files, extraKit }: CreateSvelteConfigOptions = optionsResult.data;
+  const { adapter, enableCsp, extraAliases, files, extraKit }: CreateSvelteConfigOptions = optionsResult.data as CreateSvelteConfigOptions; // cast safe: safeParse validates
 
   const rootResult: Result<Path> = findWorkspaceRoot(undefined, 'pnpm-workspace.yaml' as Filename); // cast safe: literal string to branded Filename
   if (!rootResult.ok) throw rootResult.error; // integration boundary: SvelteKit doesn't understand Result

@@ -9,8 +9,8 @@
  */
 
 import * as v from 'valibot';
-import type { Plugin } from 'vite';
-import { NameSchema, PathSchema, type Str } from '@/schemas/common';
+import type { Plugin, ViteDevServer } from 'vite';
+import { NameSchema, PathSchema, type Void } from '@/schemas/common';
 
 // =============================================================================
 // Schema
@@ -61,9 +61,9 @@ export function createLazyPlugin({ name, modulePath, setupFn }: LazyPluginOption
     name,
     apply: 'serve' as const, // cast safe: Vite literal union type
 
-    async configureServer(server): Promise<void> {
-      // cast safe: ssrLoadModule returns Record with unknown function signatures
-      const mod: Record<Str, (...args: unknown[]) => unknown> = await server.ssrLoadModule(modulePath) as Record<Str, (...args: unknown[]) => unknown>;
+    async configureServer(server: ViteDevServer): Promise<void> {
+      // cast safe: ssrLoadModule returns Record with setup function signatures
+      const mod: Record<string, (server: ViteDevServer) => Void> = await server.ssrLoadModule(modulePath) as Record<string, (server: ViteDevServer) => Void>;
       // integration boundary: Vite plugin setup — setupFn validated by schema regex
       mod[setupFn]?.(server);
     },
