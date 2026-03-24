@@ -21,11 +21,16 @@
 
 import * as v from 'valibot';
 import { defineConfig, type UserConfig, type PluginOption } from 'vite';
+
 import type { Str, Bool, Path } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import { getGitInfo, getPackageVersion, type GitInfo } from '@/utils/core/git';
 import { safeStringify } from '@/utils/core/object';
+
+// =============================================================================
+// Helpers
+// =============================================================================
 
 /**
  * Stringify a value for Vite define injection.
@@ -44,9 +49,12 @@ import { safeStringify } from '@/utils/core/object';
  */
 function jsonDefine(value: unknown): Str {
   const result: Result<Str> = safeStringify(value);
+
   if (!result.ok) {
+    // integration boundary: Vite config must not silently fail
     throw result.error;
-  } // integration boundary: Vite config must not silently fail
+  }
+
   return result.data;
 }
 
@@ -107,23 +115,29 @@ export function createViteConfig(options: CreateViteConfigInput): UserConfig {
     CreateViteConfigOptionsSchema,
     options,
   );
+
   if (!optionsResult.ok) {
+    // integration boundary: Vite doesn't understand Result
     throw optionsResult.error;
-  } // integration boundary: Vite doesn't understand Result
+  }
 
   const { plugins, ssrNoExternal, extraDefines, extraConfig }: CreateViteConfigOptions =
     optionsResult.data as CreateViteConfigOptions; // cast safe: safeParse validates and fills defaults
 
   const gitResult: Result<GitInfo> = getGitInfo();
+
   if (!gitResult.ok) {
+    // integration boundary: Vite doesn't understand Result
     throw gitResult.error;
-  } // integration boundary: Vite doesn't understand Result
+  }
 
   // cast safe: string literal is a valid non-empty path
   const versionResult: Result<Str> = getPackageVersion('./package.json' as Path);
+
   if (!versionResult.ok) {
+    // integration boundary: Vite doesn't understand Result
     throw versionResult.error;
-  } // integration boundary: Vite doesn't understand Result
+  }
 
   const git: GitInfo = gitResult.data;
   const version: Str = versionResult.data;

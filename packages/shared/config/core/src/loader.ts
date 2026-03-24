@@ -50,9 +50,12 @@ const filenameResult: Result<Filename> = safeParse(
   FilenameSchema,
   defaults.tooling.paths.configFilename,
 );
+
 if (!filenameResult.ok) {
+  // integration boundary: module initialization requires valid filename
   throw filenameResult.error;
-} // integration boundary: module initialization requires valid filename
+}
+
 // cast safe: safeParse validates and narrows to Filename
 const DEFAULT_CONFIG_FILENAME: Filename = filenameResult.data;
 
@@ -106,17 +109,21 @@ export async function loadConfig(): Promise<Result<DeepReadonly<CoreConfig>>> {
   }
 
   const rootResult: Result<Path> = findWorkspaceRoot();
+
   if (!rootResult.ok) {
     return rootResult;
   }
 
   const configPathResult: Result<Path> = joinPath([rootResult.data, DEFAULT_CONFIG_FILENAME]);
+
   if (!configPathResult.ok) {
     return configPathResult;
   }
+
   const configPath: Path = configPathResult.data;
 
   const existsResult: Result<Bool> = pathExists(configPath);
+
   if (!existsResult.ok) {
     return existsResult;
   }
@@ -133,7 +140,9 @@ export async function loadConfig(): Promise<Result<DeepReadonly<CoreConfig>>> {
 
   try {
     const module: DynamicModule = await import(configPath);
+
     const rawConfig: unknown = module.default ?? module;
+
     // Type narrowing: rawConfig is validated by safeParse(CoreConfigSchema, merged) below.
     // The cast bridges dynamic import (unknown) to deepMerge's parameter type.
     if (typeof rawConfig === 'object' && rawConfig !== null) {
@@ -275,12 +284,15 @@ export function configExists(): Result<Bool> {
     // irrelevant when using setConfig() — always returns false.
     return ok(BoolSchema, false);
   }
+
   const rootResult: Result<Path> = findWorkspaceRoot();
+
   if (!rootResult.ok) {
     return rootResult;
   }
 
   const configPathResult: Result<Path> = joinPath([rootResult.data, DEFAULT_CONFIG_FILENAME]);
+
   if (!configPathResult.ok) {
     return configPathResult;
   }
@@ -319,9 +331,12 @@ export function configExists(): Result<Bool> {
  */
 export function defineConfig(config: Partial<CoreConfig>): Partial<CoreConfig> {
   const result: Result<Partial<CoreConfig>> = safeParse(v.partial(CoreConfigObjectSchema), config);
+
   if (!result.ok) {
+    // integration boundary: config file validation
     throw result.error;
-  } // integration boundary: config file validation
+  }
+
   return result.data as Partial<CoreConfig>; // cast safe: safeParse validates
 }
 
@@ -352,8 +367,11 @@ export function defineConfig(config: Partial<CoreConfig>): Partial<CoreConfig> {
  */
 export function defineProductConfig(config: ProductConfig): ProductConfig {
   const result: Result<ProductConfig> = safeParse(ProductConfigSchema, config);
+
   if (!result.ok) {
+    // integration boundary: config file validation
     throw result.error;
-  } // integration boundary: config file validation
+  }
+
   return result.data;
 }
