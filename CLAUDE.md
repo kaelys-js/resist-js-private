@@ -13,6 +13,7 @@
 - **NEVER chain more than 3 tool calls without responding to the user.** After every 3rd tool call, stop and check if the user sent a message. If they did, respond FIRST.
 - **Basic edits take 1 tool call, not 5.** If you know what to change, make the edit. Do not re-read, re-investigate, or re-debug what you already know.
 - **NEVER apologize.** State facts, explain actions, move on. Apologies waste time.
+- **Commit after every changelog implementation.** Reduces post-compaction file modification notes. More commits = less context bloat after compaction.
 
 ## Browser Tools
 
