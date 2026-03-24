@@ -222,10 +222,9 @@ function buildAliasesFromTsconfig(root: Path): Result<Record<Str, Str>> {
   if (!jsonResult.ok) return jsonResult;
   const tsconfigResult: Result<TsconfigJson> = safeParse(TsconfigJsonSchema, jsonResult.data);
   if (!tsconfigResult.ok) return tsconfigResult;
-  const tsconfig: TsconfigJson = tsconfigResult.data as TsconfigJson; // cast safe: safeParse validates
-  const compilerOptions: TsconfigJson['compilerOptions'] = tsconfig.compilerOptions;
+  const { compilerOptions }: TsconfigJson = tsconfigResult.data as TsconfigJson; // cast safe: safeParse validates
   if (!compilerOptions?.paths) return okUnchecked<Record<Str, Str>>({});
-  const paths: Record<Str, Str[]> = compilerOptions.paths;
+  const paths: Record<Str, Str[]> = compilerOptions.paths as Record<Str, Str[]>; // cast safe: guarded by line above
 
   const aliases: Record<Str, Str> = {};
 
