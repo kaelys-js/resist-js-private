@@ -11,6 +11,7 @@ import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
 import noLintDisable from './no-lint-disable.ts';
 import requireSectionMarkerStyle from './require-section-marker-style.ts';
 import requireSectionOrder from './require-section-order.ts';
+import requireBlankLineGroups from './require-blank-line-groups.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -264,5 +265,64 @@ type Foo = { x: Str };
 `;
     const results: LintResult[] = await lint(requireSectionOrder, code);
     expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// comments/require-blank-line-groups
+// =============================================================================
+
+describe('comments/require-blank-line-groups', () => {
+  it('flags missing blank line between const and if', async () => {
+    const code: string = `function foo(): void {
+  const x: Num = 1;
+  if (x > 0) {
+    return;
+  }
+}`;
+    const results: LintResult[] = await lint(requireBlankLineGroups, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('blank line');
+  });
+
+  it('passes when blank line exists between const and if', async () => {
+    const code: string = `function foo(): void {
+  const x: Num = 1;
+
+  if (x > 0) {
+    return;
+  }
+}`;
+    const results: LintResult[] = await lint(requireBlankLineGroups, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows adjacent single-line guard clauses', async () => {
+    const code: string = `function foo(): void {
+  if (!a.ok) { return a; }
+  if (!b.ok) { return b; }
+}`;
+    const results: LintResult[] = await lint(requireBlankLineGroups, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows adjacent declarations (same group)', async () => {
+    const code: string = `function foo(): void {
+  const x: Num = 1;
+  const y: Num = 2;
+}`;
+    const results: LintResult[] = await lint(requireBlankLineGroups, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags missing blank line between if block and const', async () => {
+    const code: string = `function foo(): void {
+  if (true) {
+    doSomething();
+  }
+  const x: Num = 1;
+}`;
+    const results: LintResult[] = await lint(requireBlankLineGroups, code);
+    expect(results.length).toBe(1);
   });
 });
