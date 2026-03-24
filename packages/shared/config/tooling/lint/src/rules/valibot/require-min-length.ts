@@ -23,7 +23,8 @@ const rule: TypeScriptRule = {
 
       const prop = callee.property as AstNode | undefined;
       const obj = callee.object as AstNode | undefined;
-      if ((obj?.name as string) !== 'v' || (prop?.name as string) !== 'strictObject') return results;
+      if ((obj?.name as string) !== 'v' || (prop?.name as string) !== 'strictObject')
+        return results;
 
       const args = node.arguments as AstNode[] | undefined;
       if (!args || args.length === 0) return results;
@@ -52,7 +53,10 @@ const rule: TypeScriptRule = {
             message: `Bare v.string() on field '${keyName}' — use v.pipe(v.string(), v.minLength(1)) or stricter`,
             ruleId: 'valibot/require-min-length',
             tip: 'Empty strings are rarely valid. Add v.minLength(1) at minimum.',
-            fix: { range: { start: value.start, end: value.end }, text: 'v.pipe(v.string(), v.minLength(1))' },
+            fix: {
+              range: { start: value.start, end: value.end },
+              text: 'v.pipe(v.string(), v.minLength(1))',
+            },
           });
         }
 
@@ -65,7 +69,10 @@ const rule: TypeScriptRule = {
             message: `v.optional(v.string()) on field '${keyName}' allows empty strings — use v.optional(v.pipe(v.string(), v.minLength(1)))`,
             ruleId: 'valibot/require-min-length',
             tip: 'When a value IS provided, it should not be empty.',
-            fix: { range: { start: value.start, end: value.end }, text: 'v.optional(v.pipe(v.string(), v.minLength(1)))' },
+            fix: {
+              range: { start: value.start, end: value.end },
+              text: 'v.optional(v.pipe(v.string(), v.minLength(1)))',
+            },
           });
         }
       }

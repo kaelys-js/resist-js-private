@@ -41,7 +41,8 @@ vi.mock('@/utils/core/shell', () => ({
 
 vi.mock('@/utils/core/fs', () => ({
   readFile: (...args: unknown[]): Result<Str> => readFileMock(...args),
-  parseJsonWithComments: (...args: unknown[]): Result<Record<Str, unknown>> => parseJsonWithCommentsMock(...args),
+  parseJsonWithComments: (...args: unknown[]): Result<Record<Str, unknown>> =>
+    parseJsonWithCommentsMock(...args),
 }));
 
 vi.mock('@/utils/core/path', () => ({
@@ -149,11 +150,16 @@ describe('getGitInfo', () => {
     execSyncSafeMock.mockImplementation((): Result<Str> => {
       callCount++;
       switch (callCount) {
-        case 1: return mockOk('a1b2c3d');                                      // short
-        case 2: return mockOk('abc1234def5678901234567890abcdef12345678');      // full
-        case 3: return mockOk('main');                                         // branch
-        case 4: return mockOk('');                                             // porcelain
-        default: return mockOk('');
+        case 1:
+          return mockOk('a1b2c3d'); // short
+        case 2:
+          return mockOk('abc1234def5678901234567890abcdef12345678'); // full
+        case 3:
+          return mockOk('main'); // branch
+        case 4:
+          return mockOk(''); // porcelain
+        default:
+          return mockOk('');
       }
     });
 

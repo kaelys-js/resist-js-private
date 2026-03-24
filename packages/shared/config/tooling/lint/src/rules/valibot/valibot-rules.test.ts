@@ -309,7 +309,9 @@ const Schema = v.strictObject({
 });
 `;
     const results: LintResult[] = await lint(requireFieldDocs, code);
-    const orphaned: LintResult[] = results.filter((r: LintResult) => r.message.includes('orphaned'));
+    const orphaned: LintResult[] = results.filter((r: LintResult) =>
+      r.message.includes('orphaned'),
+    );
     expect(orphaned.length).toBe(1);
   });
 
@@ -373,7 +375,9 @@ const Schema = v.strictObject({
     await runTypeScriptRules('unique2.ts', code2, [noDuplicateSchema]);
 
     const finalResults: LintResult[] = noDuplicateSchema.finalize?.() ?? [];
-    const uniqueResults: LintResult[] = finalResults.filter((r: LintResult) => r.message.includes('uniqueField'));
+    const uniqueResults: LintResult[] = finalResults.filter((r: LintResult) =>
+      r.message.includes('uniqueField'),
+    );
     expect(uniqueResults.length).toBe(0);
   });
 });
@@ -462,7 +466,9 @@ const Schema = v.strictObject({
 });
 `;
     const results: LintResult[] = await lint(preferSharedSchema, code);
-    const nameResults: LintResult[] = results.filter((r: LintResult) => r.message.includes('NameSchema'));
+    const nameResults: LintResult[] = results.filter((r: LintResult) =>
+      r.message.includes('NameSchema'),
+    );
     expect(nameResults.length).toBe(1);
   });
 
@@ -475,7 +481,9 @@ const Schema = v.strictObject({
 });
 `;
     const results: LintResult[] = await lint(preferSharedSchema, code);
-    const familyResults: LintResult[] = results.filter((r: LintResult) => r.message.includes('CssFontFamilySchema'));
+    const familyResults: LintResult[] = results.filter((r: LintResult) =>
+      r.message.includes('CssFontFamilySchema'),
+    );
     expect(familyResults.length).toBe(1);
   });
 

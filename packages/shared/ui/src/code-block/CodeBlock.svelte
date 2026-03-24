@@ -271,7 +271,10 @@
   });
 </script>
 
-<div class={cn('group/codeblock relative max-w-full rounded-md text-sm', validated.class)} {...restProps}>
+<div
+  class={cn('group/codeblock relative max-w-full rounded-md text-sm', validated.class)}
+  {...restProps}
+>
   <!-- Header bar: language chip + line count + options menu -->
   <div class="flex items-center justify-between border-b px-3 py-1.5">
     <div class="flex items-center gap-2">

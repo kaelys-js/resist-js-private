@@ -154,8 +154,20 @@ describe('extractTokens', () => {
 describe('groupTokens', () => {
   it('groups tokens by category with correct labels', () => {
     const tokens: DesignToken[] = [
-      { name: 'background', variable: '--background', value: 'x', category: 'color', tailwindClass: '' },
-      { name: 'sidebar', variable: '--sidebar', value: 'x', category: 'sidebar-color', tailwindClass: '' },
+      {
+        name: 'background',
+        variable: '--background',
+        value: 'x',
+        category: 'color',
+        tailwindClass: '',
+      },
+      {
+        name: 'sidebar',
+        variable: '--sidebar',
+        value: 'x',
+        category: 'sidebar-color',
+        tailwindClass: '',
+      },
       { name: 'radius', variable: '--radius', value: 'x', category: 'radius', tailwindClass: '' },
     ];
     const groups: TokenGroup[] = groupTokens(tokens);
@@ -171,7 +183,13 @@ describe('groupTokens', () => {
 
   it('filters out empty categories', () => {
     const tokens: DesignToken[] = [
-      { name: 'background', variable: '--background', value: 'x', category: 'color', tailwindClass: '' },
+      {
+        name: 'background',
+        variable: '--background',
+        value: 'x',
+        category: 'color',
+        tailwindClass: '',
+      },
     ];
     const groups: TokenGroup[] = groupTokens(tokens);
     expect(groups).toHaveLength(1);
@@ -185,7 +203,13 @@ describe('groupTokens', () => {
 
   it('preserves category order: color → sidebar-color → radius → typography → animation', () => {
     const tokens: DesignToken[] = [
-      { name: 'animate-x', variable: '--animate-x', value: 'x', category: 'animation', tailwindClass: '' },
+      {
+        name: 'animate-x',
+        variable: '--animate-x',
+        value: 'x',
+        category: 'animation',
+        tailwindClass: '',
+      },
       { name: 'bg', variable: '--bg', value: 'x', category: 'color', tailwindClass: '' },
       { name: 'radius', variable: '--radius', value: 'x', category: 'radius', tailwindClass: '' },
     ];

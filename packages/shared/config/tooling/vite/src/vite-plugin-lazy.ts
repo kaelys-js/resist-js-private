@@ -23,7 +23,11 @@ const LazyPluginOptionsSchema = v.strictObject({
   /** Module path to load via ssrLoadModule (relative to project root). */
   modulePath: PathSchema,
   /** Name of the setup function exported by the module. */
-  setupFn: v.pipe(v.string(), v.minLength(1), v.regex(/^[a-zA-Z_]\w*$/, 'Must be a valid JS identifier')),
+  setupFn: v.pipe(
+    v.string(),
+    v.minLength(1),
+    v.regex(/^[a-zA-Z_]\w*$/, 'Must be a valid JS identifier'),
+  ),
 });
 
 /** Options for creating a lazy Vite plugin. See {@link LazyPluginOptionsSchema}. */
@@ -63,7 +67,9 @@ export function createLazyPlugin({ name, modulePath, setupFn }: LazyPluginOption
 
     async configureServer(server: ViteDevServer): Promise<void> {
       // cast safe: ssrLoadModule returns Record with setup function signatures
-      const mod: Record<Str, (server: ViteDevServer) => Void> = await server.ssrLoadModule(modulePath) as Record<Str, (server: ViteDevServer) => Void>; // cast safe: ssrLoadModule returns ES module object
+      const mod: Record<Str, (server: ViteDevServer) => Void> = (await server.ssrLoadModule(
+        modulePath,
+      )) as Record<Str, (server: ViteDevServer) => Void>; // cast safe: ssrLoadModule returns ES module object
       // integration boundary: Vite plugin setup — setupFn validated by schema regex
       mod[setupFn]?.(server);
     },

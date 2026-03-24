@@ -47,8 +47,9 @@
 
   const DEVTOOLS_KEY = getDevtoolsKey(APP_NAME);
 
-  const debugFields: FieldDescriptor[] =
-    discoverDebugFields(DebugStateSchema.entries as unknown as Record<Str, Record<Str, unknown>>);
+  const debugFields: FieldDescriptor[] = discoverDebugFields(
+    DebugStateSchema.entries as unknown as Record<Str, Record<Str, unknown>>,
+  );
 
   const urlOverrideEntries: Array<[Str, unknown]> = $derived(
     Object.entries(debugStore.urlOverrides),

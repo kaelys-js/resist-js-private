@@ -13,8 +13,16 @@ import {
   isValidAppKey,
   isValidFeatureFlag,
 } from '$lib/utils/url-params';
-import { createDevtoolsAPI, getDevtoolsKey, type DevtoolsAPI } from '@/utils/devtools/devtools-api.svelte';
-import { activateDebugServices, syncDebugServices, type DebugServicesHandle } from '@/utils/devtools/init.svelte';
+import {
+  createDevtoolsAPI,
+  getDevtoolsKey,
+  type DevtoolsAPI,
+} from '@/utils/devtools/devtools-api.svelte';
+import {
+  activateDebugServices,
+  syncDebugServices,
+  type DebugServicesHandle,
+} from '@/utils/devtools/init.svelte';
 import { diffSnapshot, formatTimestamp } from '@/utils/devtools/console-styles';
 import { shouldLog } from '@/utils/devtools/state-logger.svelte';
 import { APP_NAME, URL_PARAM_PREFIX } from '$lib/config/app-meta';
@@ -126,12 +134,17 @@ const createMockDebugStore = (enabled: Bool, logLevel = 'info') => ({
 const testConfig: DevtoolsConfig = {
   appName: APP_NAME,
   urlParamPrefix: URL_PARAM_PREFIX,
-  appPreferencesSchema: AppPreferencesSchema.entries as unknown as Record<Str, Record<Str, unknown>>,
+  appPreferencesSchema: AppPreferencesSchema.entries as unknown as Record<
+    Str,
+    Record<Str, unknown>
+  >,
   featureFlagsSchema: FeatureFlagsSchema.entries as unknown as Record<Str, Record<Str, unknown>>,
   debugStateSchema: DebugStateSchema.entries as unknown as Record<Str, Record<Str, unknown>>,
   goto: vi.fn(async () => {}),
-  isValidAppKey: (key: Str) => key in (AppPreferencesSchema.entries as unknown as Record<Str, unknown>),
-  isValidFeatureFlag: (key: Str) => key in (FeatureFlagsSchema.entries as unknown as Record<Str, unknown>),
+  isValidAppKey: (key: Str) =>
+    key in (AppPreferencesSchema.entries as unknown as Record<Str, unknown>),
+  isValidFeatureFlag: (key: Str) =>
+    key in (FeatureFlagsSchema.entries as unknown as Record<Str, unknown>),
 };
 
 let editorStore: ReturnType<typeof createMockEditorStore>;
@@ -763,7 +776,12 @@ describe('orchestrator lifecycle', () => {
     const disabledStore = createMockDebugStore(false);
 
     // Start disabled
-    let handle: DebugServicesHandle | null = syncDebugServices(editorStore, disabledStore, testConfig, null);
+    let handle: DebugServicesHandle | null = syncDebugServices(
+      editorStore,
+      disabledStore,
+      testConfig,
+      null,
+    );
     expect(handle).toBeNull();
     expect(devtoolsGlobal()).toBeUndefined();
 
@@ -1073,6 +1091,8 @@ describe('full debug activation flow', () => {
     const debugStore = createMockDebugStore(true);
     activateDebugServices(editorStore, debugStore, testConfig);
 
-    expect((window as unknown as Record<Str, unknown>)[getDevtoolsKey(APP_NAME)]).toBe(devtoolsGlobal());
+    expect((window as unknown as Record<Str, unknown>)[getDevtoolsKey(APP_NAME)]).toBe(
+      devtoolsGlobal(),
+    );
   });
 });

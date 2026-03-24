@@ -210,7 +210,9 @@ export function foo({ name, age }: Options): void {}
 export function foo({ plugins }: Options): void {}
 `;
     const results: LintResult[] = await lint(requireParam, code);
-    const stale: LintResult[] = results.filter((r: LintResult) => r.message.includes('does not match'));
+    const stale: LintResult[] = results.filter((r: LintResult) =>
+      r.message.includes('does not match'),
+    );
     expect(stale.length).toBe(0);
   });
 });
@@ -693,7 +695,9 @@ const FooSchema = v.strictObject({ name: v.string() });
 /** No link needed in tests. */
 export type Foo = v.InferOutput<typeof FooSchema>;
 `;
-    const results: LintResult[] = await runTypeScriptRules('foo.test.ts', code, [requireSchemaLink]);
+    const results: LintResult[] = await runTypeScriptRules('foo.test.ts', code, [
+      requireSchemaLink,
+    ]);
     expect(results.length).toBe(0);
   });
 });

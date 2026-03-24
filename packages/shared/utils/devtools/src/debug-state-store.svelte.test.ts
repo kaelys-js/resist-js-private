@@ -54,9 +54,7 @@ describe('createDebugStore', () => {
   });
 
   it('parses URL params when URL and prefix provided', () => {
-    const url = new URL(
-      `http://localhost?${URL_PREFIX}debug=true&${URL_PREFIX}logLevel=trace`,
-    );
+    const url = new URL(`http://localhost?${URL_PREFIX}debug=true&${URL_PREFIX}logLevel=trace`);
     const result = createDebugStore({ url, urlParamPrefix: URL_PREFIX });
     if (!result.ok) throw new Error('should be ok');
     expect(result.data.urlOverrides).toEqual({ debug: 'true', logLevel: 'trace' });

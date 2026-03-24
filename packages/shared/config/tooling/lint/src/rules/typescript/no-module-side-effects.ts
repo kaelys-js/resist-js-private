@@ -82,7 +82,8 @@ const rule: TypeScriptRule = {
             line: statement.loc.start.line,
             column: statement.loc.start.column + 1,
             severity: 'error',
-            message: 'Top-level throw crashes the process on import — wrap in a function returning Result',
+            message:
+              'Top-level throw crashes the process on import — wrap in a function returning Result',
             ruleId: 'typescript/no-module-side-effects',
             tip: 'Move this into an exported function that returns err() instead of throwing',
           });
@@ -90,13 +91,18 @@ const rule: TypeScriptRule = {
         }
 
         // Flag top-level if-statements containing throws (unless integration boundary)
-        if (statement.type === 'IfStatement' && containsThrow(statement) && !isIntegrationBoundaryIf(statement, context)) {
+        if (
+          statement.type === 'IfStatement' &&
+          containsThrow(statement) &&
+          !isIntegrationBoundaryIf(statement, context)
+        ) {
           results.push({
             file: context.file,
             line: statement.loc.start.line,
             column: statement.loc.start.column + 1,
             severity: 'error',
-            message: 'Top-level conditional throw crashes the process on import — wrap in a function returning Result',
+            message:
+              'Top-level conditional throw crashes the process on import — wrap in a function returning Result',
             ruleId: 'typescript/no-module-side-effects',
             tip: 'Move this validation into an exported function that returns err() instead of throwing',
           });
@@ -112,7 +118,8 @@ const rule: TypeScriptRule = {
               line: statement.loc.start.line,
               column: statement.loc.start.column + 1,
               severity: 'error',
-              message: 'Top-level function call executes on import — consider wrapping in an exported function',
+              message:
+                'Top-level function call executes on import — consider wrapping in an exported function',
               ruleId: 'typescript/no-module-side-effects',
               tip: 'Module-level calls run before consumers can handle errors',
             });

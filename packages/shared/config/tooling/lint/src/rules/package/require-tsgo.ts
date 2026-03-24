@@ -21,7 +21,10 @@ const rule: PackageJsonRule = {
     if (script.includes('svelte-check')) return results;
     if (script.includes('tsc') && !script.includes('tsgo')) {
       results.push({
-        file: context.file, line: 1, column: 1, severity: 'error',
+        file: context.file,
+        line: 1,
+        column: 1,
+        severity: 'error',
         message: `qa:type-check uses 'tsc' — use 'tsgo --noEmit' instead`,
         ruleId: 'package/require-tsgo',
         tip: 'Replace tsc with tsgo for faster type checking',

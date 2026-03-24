@@ -11,7 +11,12 @@ import { dirname, join } from 'node:path';
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
 
 const NO_FIX = { range: { start: 0, end: 0 }, text: '' };
-const TEST_SCRIPTS: readonly string[] = ['qa:test', 'qa:test:unit', 'qa:test:coverage', 'qa:benchmark'];
+const TEST_SCRIPTS: readonly string[] = [
+  'qa:test',
+  'qa:test:unit',
+  'qa:test:coverage',
+  'qa:benchmark',
+];
 
 const rule: PackageJsonRule = {
   id: 'package/require-project-test',
@@ -27,7 +32,10 @@ const rule: PackageJsonRule = {
       if (!script) continue;
       if (script === 'vitest run' || script === 'vitest bench' || script.includes('cd ..')) {
         results.push({
-          file: context.file, line: 1, column: 1, severity: 'error',
+          file: context.file,
+          line: 1,
+          column: 1,
+          severity: 'error',
           message: `'${key}' uses bare vitest — use 'pnpm -w exec vitest run --project <name>'`,
           ruleId: 'package/require-project-test',
           tip: 'Use pnpm -w exec to run from workspace root with the correct project filter',

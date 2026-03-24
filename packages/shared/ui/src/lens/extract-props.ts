@@ -591,7 +591,8 @@ export function buildBaseProps(propsMeta: PropMeta[]): Record<string, unknown> {
       const firstMock: string = prop.mockValues[0] ?? '';
       if (firstMock.startsWith('{') && firstMock.endsWith('}')) {
         // Object literal in @values — parse as placeholder object
-        const placeholder: Record<string, string> | null = buildPlaceholderFromDefinition(firstMock);
+        const placeholder: Record<string, string> | null =
+          buildPlaceholderFromDefinition(firstMock);
         if (placeholder) {
           base[prop.name] = placeholder;
         } else {
@@ -911,7 +912,10 @@ function findPropsBlock(source: string): PropsBlock | null {
           .replace(/\s*=\s*$/, '')
           .trim();
         // Skip if the only destructured items are rest elements (schema-based path handles these)
-        const stripped: string = destructuring.replaceAll(/\/\*[\s\S]*?\*\//g, '').replaceAll(/\/\/[^\n]*/g, '').trim();
+        const stripped: string = destructuring
+          .replaceAll(/\/\*[\s\S]*?\*\//g, '')
+          .replaceAll(/\/\/[^\n]*/g, '')
+          .trim();
         const hasNamedProps: boolean = !/^\.\.\.\w+\s*,?\s*$/.test(stripped);
         if (typeAnnotation && hasNamedProps) {
           return { destructuring, typeAnnotation };

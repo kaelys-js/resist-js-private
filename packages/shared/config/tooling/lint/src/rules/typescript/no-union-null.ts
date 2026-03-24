@@ -54,7 +54,8 @@ const rule: TypeScriptRule = {
             line: node.loc.start.line,
             column: node.loc.start.column + 1,
             severity: 'error',
-            message: "Use NullableStr/NullableNum/NullableBool from @/schemas/common instead of '| null'",
+            message:
+              "Use NullableStr/NullableNum/NullableBool from @/schemas/common instead of '| null'",
             ruleId: 'typescript/no-union-null',
             tip: 'Import the appropriate Nullable type from @/schemas/common',
             fix: { range: { start: node.start, end: node.end }, text: '' },

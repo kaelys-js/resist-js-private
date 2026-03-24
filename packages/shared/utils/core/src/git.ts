@@ -202,7 +202,9 @@ export function getPackageVersion(packageJsonPath: Path): Result<Str> {
   const fileResult: Result<Str> = readFile(pathResult.data);
   if (!fileResult.ok) return fileResult;
 
-  const parsed: Result<Record<Str, unknown>> = parseJsonWithComments<Record<Str, unknown>>(fileResult.data);
+  const parsed: Result<Record<Str, unknown>> = parseJsonWithComments<Record<Str, unknown>>(
+    fileResult.data,
+  );
   if (!parsed.ok) return parsed;
 
   const { version }: Record<Str, unknown> = parsed.data;

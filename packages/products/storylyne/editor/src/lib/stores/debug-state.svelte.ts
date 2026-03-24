@@ -10,7 +10,10 @@
 
 import type { Str } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
-import { createDebugStore as createSharedDebugStore, type DebugStore } from '@/utils/devtools/debug-state-store.svelte';
+import {
+  createDebugStore as createSharedDebugStore,
+  type DebugStore,
+} from '@/utils/devtools/debug-state-store.svelte';
 import { storageKey, URL_PARAM_PREFIX } from '$lib/config/app-meta';
 
 export type { DebugStore } from '@/utils/devtools/debug-state-store.svelte';

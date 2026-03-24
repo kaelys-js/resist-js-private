@@ -39,8 +39,15 @@ vi.mock('@/utils/core/path', () => ({
 }));
 
 // Must import after mocks
-const { loadConfig, getConfig, resetConfig, setConfig, configExists, defineConfig, defineProductConfig } =
-  await import('./loader');
+const {
+  loadConfig,
+  getConfig,
+  resetConfig,
+  setConfig,
+  configExists,
+  defineConfig,
+  defineProductConfig,
+} = await import('./loader');
 const { findWorkspaceRoot } = await import('@/utils/core/workspace');
 const { joinPath, pathExists } = await import('@/utils/core/path');
 const { log } = await import('@/utils/core/logger');

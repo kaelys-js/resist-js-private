@@ -99,7 +99,9 @@ const rule: TypeScriptRule = {
           if (!id.typeAnnotation) {
             // Skip for-of destructuring when the iterable is a typed variable
             // e.g. `for (const [a, b] of typedArray)` — types flow from the iterable
-            const beforeDecl: string = context.content.slice(Math.max(0, node.start - 20), node.start).trimEnd();
+            const beforeDecl: string = context.content
+              .slice(Math.max(0, node.start - 20), node.start)
+              .trimEnd();
             const isForOf: boolean = /for\s*(?:await\s*)?\(\s*$/.test(beforeDecl);
             if (!isForOf) {
               const kind: string = id.type === 'ArrayPattern' ? 'array' : 'object';
@@ -127,7 +129,9 @@ const rule: TypeScriptRule = {
         if (hasTypeAnnotation(decl)) continue;
 
         // Skip for-of loop variables — types flow from the iterable
-        const beforeDecl: string = context.content.slice(Math.max(0, node.start - 20), node.start).trimEnd();
+        const beforeDecl: string = context.content
+          .slice(Math.max(0, node.start - 20), node.start)
+          .trimEnd();
         if (/for\s*(?:await\s*)?\(\s*$/.test(beforeDecl)) continue;
 
         // Skip if the init is a type assertion (as X) — the type is explicit

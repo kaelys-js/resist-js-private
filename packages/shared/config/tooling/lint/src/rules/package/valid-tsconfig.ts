@@ -14,7 +14,10 @@ import { dirname, join } from 'node:path';
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
 
 /** Dummy fix for package.json rules. */
-const NO_FIX: { range: { start: number; end: number }; text: string } = { range: { start: 0, end: 0 }, text: '' };
+const NO_FIX: { range: { start: number; end: number }; text: string } = {
+  range: { start: 0, end: 0 },
+  text: '',
+};
 
 /** Compiler options that must NOT be overridden in sub-packages. */
 const PROTECTED_OPTIONS: readonly string[] = ['strict', 'target', 'module', 'moduleResolution'];
@@ -97,7 +100,10 @@ const rule: PackageJsonRule = {
 
     // Must have include with "src"
     const include: unknown = tsconfig.include;
-    if (!Array.isArray(include) || !include.some((entry: unknown): boolean => typeof entry === 'string' && entry.includes('src'))) {
+    if (
+      !Array.isArray(include) ||
+      !include.some((entry: unknown): boolean => typeof entry === 'string' && entry.includes('src'))
+    ) {
       results.push({
         file: tsconfigPath,
         line: 1,
@@ -111,7 +117,10 @@ const rule: PackageJsonRule = {
     }
 
     // Must not override protected compiler options
-    const compilerOptions: Record<string, unknown> = (tsconfig.compilerOptions ?? {}) as Record<string, unknown>;
+    const compilerOptions: Record<string, unknown> = (tsconfig.compilerOptions ?? {}) as Record<
+      string,
+      unknown
+    >;
     for (const opt of PROTECTED_OPTIONS) {
       if (opt in compilerOptions) {
         results.push({

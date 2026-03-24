@@ -46,9 +46,25 @@ const TsconfigCompilerOptionsSchema = v.strictObject({
   /** Enable all strict type-checking options. */
   strict: v.optional(v.boolean()),
   /** ECMAScript target version. */
-  target: v.optional(v.picklist(['ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', 'ES2021', 'ES2022', 'ES2023', 'ES2024', 'ESNext'])),
+  target: v.optional(
+    v.picklist([
+      'ES2015',
+      'ES2016',
+      'ES2017',
+      'ES2018',
+      'ES2019',
+      'ES2020',
+      'ES2021',
+      'ES2022',
+      'ES2023',
+      'ES2024',
+      'ESNext',
+    ]),
+  ),
   /** Module system. */
-  module: v.optional(v.picklist(['ESNext', 'CommonJS', 'NodeNext', 'Node16', 'ES2015', 'ES2020', 'ES2022'])),
+  module: v.optional(
+    v.picklist(['ESNext', 'CommonJS', 'NodeNext', 'Node16', 'ES2015', 'ES2020', 'ES2022']),
+  ),
   /** Module resolution strategy. */
   moduleResolution: v.optional(v.picklist(['bundler', 'node', 'nodenext', 'node16', 'classic'])),
   /** Allow importing JSON modules. */
@@ -96,10 +112,14 @@ const TsconfigJsonSchema = v.strictObject({
   /** Explicit list of files to include. */
   files: v.optional(v.array(v.string())),
   /** Project references. */
-  references: v.optional(v.array(v.strictObject({
-    /** Path to referenced tsconfig. */
-    path: PathSchema,
-  }))),
+  references: v.optional(
+    v.array(
+      v.strictObject({
+        /** Path to referenced tsconfig. */
+        path: PathSchema,
+      }),
+    ),
+  ),
 });
 
 /** Inferred tsconfig.json type. See {@link TsconfigJsonSchema}. */
@@ -138,7 +158,10 @@ const CreateSvelteConfigOptionsSchema = v.strictObject({
     {},
   ),
   /** Additional kit options to merge. */
-  extraKit: v.optional(v.custom<Partial<NonNullable<Config['kit']>>>((): Bool => true), {}), // cast safe: external SvelteKit type
+  extraKit: v.optional(
+    v.custom<Partial<NonNullable<Config['kit']>>>((): Bool => true),
+    {},
+  ), // cast safe: external SvelteKit type
 });
 
 // =============================================================================
@@ -254,7 +277,6 @@ function buildAliasesFromTsconfig(root: Path): Result<Record<Str, Str>> {
   return okUnchecked<Record<Str, Str>>(aliases);
 }
 
-
 // =============================================================================
 // CSP directives
 // =============================================================================
@@ -329,7 +351,8 @@ export function createSvelteConfig(options: CreateSvelteConfigInput): Config {
   );
   if (!optionsResult.ok) throw optionsResult.error; // integration boundary: SvelteKit doesn't understand Result
 
-  const { adapter, enableCsp, extraAliases, files, extraKit }: CreateSvelteConfigOptions = optionsResult.data as CreateSvelteConfigOptions; // cast safe: safeParse validates
+  const { adapter, enableCsp, extraAliases, files, extraKit }: CreateSvelteConfigOptions =
+    optionsResult.data as CreateSvelteConfigOptions; // cast safe: safeParse validates
 
   const rootResult: Result<Path> = findWorkspaceRoot(undefined, 'pnpm-workspace.yaml' as Filename); // cast safe: literal string to branded Filename
   if (!rootResult.ok) throw rootResult.error; // integration boundary: SvelteKit doesn't understand Result

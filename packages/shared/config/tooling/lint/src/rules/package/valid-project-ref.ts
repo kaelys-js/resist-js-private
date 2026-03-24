@@ -13,7 +13,10 @@ import { resolve } from 'node:path';
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
 
 /** Dummy fix for package.json rules. */
-const NO_FIX: { range: { start: number; end: number }; text: string } = { range: { start: 0, end: 0 }, text: '' };
+const NO_FIX: { range: { start: number; end: number }; text: string } = {
+  range: { start: 0, end: 0 },
+  text: '',
+};
 
 /** Cached set of valid vitest project names. */
 let validProjects: ReadonlySet<string> | null = null;
@@ -45,7 +48,12 @@ function getValidProjects(): ReadonlySet<string> {
 }
 
 /** Scripts to check for --project references. */
-const PROJECT_SCRIPTS: readonly string[] = ['qa:test', 'qa:test:unit', 'qa:test:coverage', 'qa:benchmark'];
+const PROJECT_SCRIPTS: readonly string[] = [
+  'qa:test',
+  'qa:test:unit',
+  'qa:test:coverage',
+  'qa:benchmark',
+];
 
 /** Rule definition. */
 const rule: PackageJsonRule = {

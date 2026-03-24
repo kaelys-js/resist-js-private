@@ -101,7 +101,13 @@ const sharedPathAliases: Array<{ find: string; replacement: string }> = [
 ];
 
 /** Directories to skip when scanning for tsconfig.json files. */
-const TSCONFIG_SKIP_DIRS: ReadonlySet<string> = new Set(['_INTEGRATE', 'node_modules', '.git', 'dist', '.svelte-kit']);
+const TSCONFIG_SKIP_DIRS: ReadonlySet<string> = new Set([
+  '_INTEGRATE',
+  'node_modules',
+  '.git',
+  'dist',
+  '.svelte-kit',
+]);
 
 export default defineConfig({
   plugins: [tsconfigPaths({ skip: (dir: string): boolean => TSCONFIG_SKIP_DIRS.has(dir) })],
@@ -324,7 +330,13 @@ export default defineConfig({
           environment: 'jsdom',
           globals: true,
           include: ['src/**/*.test.ts'],
-          exclude: ['e2e/**', 'node_modules/**', '.svelte-kit/**', 'src/routes/**/server.test.ts', 'src/routes/**/*.server.test.ts'],
+          exclude: [
+            'e2e/**',
+            'node_modules/**',
+            '.svelte-kit/**',
+            'src/routes/**/server.test.ts',
+            'src/routes/**/*.server.test.ts',
+          ],
           setupFiles: ['./src/test-setup-component.ts'],
           alias: [
             { find: '$lib', replacement: path.join(storylyneEditorSrc, 'lib') },

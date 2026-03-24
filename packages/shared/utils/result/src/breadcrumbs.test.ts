@@ -15,7 +15,12 @@ beforeEach(() => {
 
 describe('addBreadcrumb', () => {
   it('adds a breadcrumb with auto-timestamp', () => {
-    const result = addBreadcrumb({ type: 'http', category: 'fetch', message: 'GET /api', level: 'info' });
+    const result = addBreadcrumb({
+      type: 'http',
+      category: 'fetch',
+      message: 'GET /api',
+      level: 'info',
+    });
     expect(result.ok).toBe(true);
 
     const crumbs: Result<readonly Breadcrumb[]> = getBreadcrumbs();
@@ -28,7 +33,13 @@ describe('addBreadcrumb', () => {
 
   it('preserves provided timestamp', () => {
     const ts = '2026-03-05T12:00:00.000Z';
-    addBreadcrumb({ type: 'navigation', category: 'route', message: '/ → /editor', level: 'info', timestamp: ts });
+    addBreadcrumb({
+      type: 'navigation',
+      category: 'route',
+      message: '/ → /editor',
+      level: 'info',
+      timestamp: ts,
+    });
 
     const crumbs: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(crumbs.ok).toBe(true);
@@ -40,7 +51,12 @@ describe('addBreadcrumb', () => {
   it('evicts oldest when exceeding MAX_BREADCRUMBS', () => {
     // Add 101 breadcrumbs (max is 100)
     for (let i = 0; i < 101; i++) {
-      addBreadcrumb({ type: 'http', category: 'fetch', message: `req-${String(i)}`, level: 'info' });
+      addBreadcrumb({
+        type: 'http',
+        category: 'fetch',
+        message: `req-${String(i)}`,
+        level: 'info',
+      });
     }
 
     const crumbs: Result<readonly Breadcrumb[]> = getBreadcrumbs();

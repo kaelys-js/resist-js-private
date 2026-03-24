@@ -28,14 +28,25 @@ const TEST_FONT_FAMILIES: CssFontFamily =
 
 const TEST_FONT_FACES: FontFaceEntry[] = [
   { family: 'Inter' as Name, style: 'normal', weight: '100 900', src: '/fonts/inter-latin.woff2' }, // cast safe: test fixture
-  { family: 'Rajdhani' as Name, style: 'normal', weight: '600', src: '/fonts/rajdhani-latin-600.woff2' }, // cast safe: test fixture
-  { family: 'Rajdhani' as Name, style: 'normal', weight: '700', src: '/fonts/rajdhani-latin-700.woff2' }, // cast safe: test fixture
+  {
+    family: 'Rajdhani' as Name,
+    style: 'normal',
+    weight: '600',
+    src: '/fonts/rajdhani-latin-600.woff2',
+  }, // cast safe: test fixture
+  {
+    family: 'Rajdhani' as Name,
+    style: 'normal',
+    weight: '700',
+    src: '/fonts/rajdhani-latin-700.woff2',
+  }, // cast safe: test fixture
 ];
 
 // cast safe: test fixture literals to branded LocaleString
 const TEST_LOCALE = {
   serverError: 'Something went wrong' as LocaleString,
-  serverErrorDescription: "Oops! Something broke on our end. We're looking into it." as LocaleString,
+  serverErrorDescription:
+    "Oops! Something broke on our end. We're looking into it." as LocaleString,
   goHome: 'Go to homepage' as LocaleString,
   copied: 'Copied!' as LocaleString,
   copyFailed: 'Copy failed' as LocaleString,

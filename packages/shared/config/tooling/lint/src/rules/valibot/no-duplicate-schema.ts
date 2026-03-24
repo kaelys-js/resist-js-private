@@ -82,7 +82,11 @@ const rule: TypeScriptRule = {
         }
 
         const files: Set<string> = FIELD_MAP.get(signature) as Set<string>;
-        const locations = FIELD_LOCATIONS.get(signature) as { file: string; line: number; column: number }[];
+        const locations = FIELD_LOCATIONS.get(signature) as {
+          file: string;
+          line: number;
+          column: number;
+        }[];
 
         if (!files.has(context.file)) {
           files.add(context.file);
@@ -105,9 +109,15 @@ const rule: TypeScriptRule = {
 
     for (const [signature, files] of FIELD_MAP.entries()) {
       if (files.size >= threshold) {
-        const locations = FIELD_LOCATIONS.get(signature) as { file: string; line: number; column: number }[];
+        const locations = FIELD_LOCATIONS.get(signature) as {
+          file: string;
+          line: number;
+          column: number;
+        }[];
         const [firstLocation] = locations;
-        const fileList: string = [...files].map((f: string) => f.replace(/.*packages\//, 'packages/')).join(', ');
+        const fileList: string = [...files]
+          .map((f: string) => f.replace(/.*packages\//, 'packages/'))
+          .join(', ');
 
         results.push({
           file: firstLocation.file,

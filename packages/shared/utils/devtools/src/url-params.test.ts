@@ -51,14 +51,19 @@ describe('parseDebugParams', () => {
   });
 
   it('extracts single prefixed param', () => {
-    const result = parseDebugParams(new URL(`http://localhost?${URL_PREFIX}debug=true`), URL_PREFIX);
+    const result = parseDebugParams(
+      new URL(`http://localhost?${URL_PREFIX}debug=true`),
+      URL_PREFIX,
+    );
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toEqual({ debug: 'true' });
   });
 
   it('extracts multiple prefixed params', () => {
     const result = parseDebugParams(
-      new URL(`http://localhost?${URL_PREFIX}debug=true&${URL_PREFIX}logLevel=trace&${URL_PREFIX}theme=midnight`),
+      new URL(
+        `http://localhost?${URL_PREFIX}debug=true&${URL_PREFIX}logLevel=trace&${URL_PREFIX}theme=midnight`,
+      ),
       URL_PREFIX,
     );
     expect(result.ok).toBe(true);
@@ -189,12 +194,17 @@ describe('applyUrlOverrides', () => {
   });
 
   it('applies multiple overrides in one call', () => {
-    applyUrlOverrides(appStore, debugStore, {
-      debug: 'true',
-      logLevel: 'trace',
-      theme: 'midnight',
-      'ff.settings': 'false',
-    }, config);
+    applyUrlOverrides(
+      appStore,
+      debugStore,
+      {
+        debug: 'true',
+        logLevel: 'trace',
+        theme: 'midnight',
+        'ff.settings': 'false',
+      },
+      config,
+    );
     expect(debugStore.setEnabled).toHaveBeenCalledWith(true);
     expect(debugStore.setLogLevel).toHaveBeenCalledWith('trace');
     expect(appStore.setTheme).toHaveBeenCalledWith('midnight');
@@ -202,9 +212,14 @@ describe('applyUrlOverrides', () => {
   });
 
   it('converts mockDataDelay to number', () => {
-    applyUrlOverrides(appStore, debugStore, {
-      mockDataDelay: '500',
-    }, config);
+    applyUrlOverrides(
+      appStore,
+      debugStore,
+      {
+        mockDataDelay: '500',
+      },
+      config,
+    );
     expect(appStore.setMockDataDelay).toHaveBeenCalledWith(500);
   });
 
@@ -214,7 +229,12 @@ describe('applyUrlOverrides', () => {
       setTheme: 'not-a-function' as unknown,
     };
     // Should not throw — the typeof setter === 'function' guard protects
-    const result = applyUrlOverrides(brokenStore as never, debugStore, { theme: 'midnight' }, config);
+    const result = applyUrlOverrides(
+      brokenStore as never,
+      debugStore,
+      { theme: 'midnight' },
+      config,
+    );
     expect(result.ok).toBe(true);
   });
 });

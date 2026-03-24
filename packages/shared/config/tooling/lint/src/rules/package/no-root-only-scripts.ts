@@ -21,7 +21,10 @@ const rule: PackageJsonRule = {
     for (const forbidden of ROOT_ONLY_SCRIPTS) {
       if (scripts[forbidden]) {
         results.push({
-          file: context.file, line: 1, column: 1, severity: 'error',
+          file: context.file,
+          line: 1,
+          column: 1,
+          severity: 'error',
           message: `Script '${forbidden}' should only be in workspace root, not sub-package '${context.pkg.name ?? ''}'`,
           ruleId: 'package/no-root-only-scripts',
           tip: 'Remove this script — formatting and linting run workspace-wide from root',

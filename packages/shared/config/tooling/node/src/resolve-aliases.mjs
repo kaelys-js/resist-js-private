@@ -44,7 +44,7 @@ export function initialize(data) {
  */
 export function resolve(specifier, context, nextResolve) {
   // Handle extensionless relative imports (Vite convention, Node ESM requires extensions)
-  const hasKnownExt = KNOWN_EXTENSIONS.some(ext => specifier.endsWith(ext));
+  const hasKnownExt = KNOWN_EXTENSIONS.some((ext) => specifier.endsWith(ext));
   if ((specifier.startsWith('./') || specifier.startsWith('../')) && !hasKnownExt) {
     const parentUrl = context.parentURL;
     if (parentUrl) {

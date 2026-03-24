@@ -115,10 +115,9 @@ describe('renderMessage', () => {
   });
 
   it('renders ICU select block with other fallback', () => {
-    const result = renderMessage(
-      '{role, select, admin {Admin} user {User} other {Guest}}',
-      { role: 'unknown' },
-    );
+    const result = renderMessage('{role, select, admin {Admin} user {User} other {Guest}}', {
+      role: 'unknown',
+    });
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBe('Guest');
   });

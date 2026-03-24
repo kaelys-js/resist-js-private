@@ -151,7 +151,11 @@ describe('detectFromNavigator', () => {
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBe('ja');
 
-    Object.defineProperty(globalThis, 'navigator', { value: original, writable: true, configurable: true });
+    Object.defineProperty(globalThis, 'navigator', {
+      value: original,
+      writable: true,
+      configurable: true,
+    });
   });
 
   it('returns null when navigator is undefined', () => {
@@ -162,7 +166,11 @@ describe('detectFromNavigator', () => {
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBeNull();
 
-    Object.defineProperty(globalThis, 'navigator', { value: original, writable: true, configurable: true });
+    Object.defineProperty(globalThis, 'navigator', {
+      value: original,
+      writable: true,
+      configurable: true,
+    });
   });
 });
 
@@ -224,21 +232,13 @@ describe('detectFromUrlQuery', () => {
 
 describe('detectFromCookie', () => {
   it('extracts locale from cookie value', () => {
-    const result: Result<NullableStr> = detectFromCookie(
-      'lang=ja; theme=dark',
-      'lang',
-      AVAILABLE,
-    );
+    const result: Result<NullableStr> = detectFromCookie('lang=ja; theme=dark', 'lang', AVAILABLE);
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBe('ja');
   });
 
   it('returns null when cookie name not found', () => {
-    const result: Result<NullableStr> = detectFromCookie(
-      'theme=dark',
-      'lang',
-      AVAILABLE,
-    );
+    const result: Result<NullableStr> = detectFromCookie('theme=dark', 'lang', AVAILABLE);
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBeNull();
   });
@@ -253,9 +253,7 @@ describe('detectLocale', () => {
     const result: Result<Str> = detectLocale({
       available: [...AVAILABLE],
       fallback: 'en',
-      sources: [
-        { kind: 'header', value: 'ja,en;q=0.9' },
-      ],
+      sources: [{ kind: 'header', value: 'ja,en;q=0.9' }],
     });
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBe('ja');
@@ -265,9 +263,7 @@ describe('detectLocale', () => {
     const result: Result<Str> = detectLocale({
       available: [...AVAILABLE],
       fallback: 'en',
-      sources: [
-        { kind: 'header', value: 'pt-BR' },
-      ],
+      sources: [{ kind: 'header', value: 'pt-BR' }],
     });
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBe('en');

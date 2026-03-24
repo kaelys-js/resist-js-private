@@ -72,7 +72,12 @@ function containsDataAccess(node: AstNode, objectName: string): boolean {
   for (const key of Object.keys(node)) {
     if (key === 'type' || key === 'start' || key === 'end' || key === 'loc') continue;
     const child = node[key];
-    if (child && typeof child === 'object' && 'type' in (child as object) && containsDataAccess(child as AstNode, objectName)) {
+    if (
+      child &&
+      typeof child === 'object' &&
+      'type' in (child as object) &&
+      containsDataAccess(child as AstNode, objectName)
+    ) {
       return true;
     }
   }

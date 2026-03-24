@@ -14,11 +14,7 @@ import type { AppError, Result } from '@/schemas/result/result';
 import type { Breadcrumb, CapturedError, CapturedErrorType } from '@/schemas/result/captured-error';
 import { safeParse } from '@/utils/result/safe';
 import { clearBreadcrumbs, getBreadcrumbs, addBreadcrumb } from '@/utils/result/breadcrumbs';
-import {
-  BeaconPayloadSchema,
-  toBeaconPayload,
-  type BeaconPayload,
-} from './beacon-payload';
+import { BeaconPayloadSchema, toBeaconPayload, type BeaconPayload } from './beacon-payload';
 import { beaconError } from './beacon';
 import {
   addNavigationBreadcrumb,

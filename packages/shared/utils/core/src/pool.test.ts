@@ -10,21 +10,21 @@ import { runPool, type PoolTask, type PoolResult } from './pool';
 
 // ── Helpers ─────────────────────────────────────────────────────────────
 
-const delay = (ms: number, value: string): PoolTask<string> => () =>
-  new Promise((resolve) => setTimeout(() => resolve(value), ms));
+const delay =
+  (ms: number, value: string): PoolTask<string> =>
+  () =>
+    new Promise((resolve) => setTimeout(() => resolve(value), ms));
 
-const failing = (ms: number, msg: string): PoolTask<string> => () =>
-  new Promise((_, reject) => setTimeout(() => reject(new Error(msg)), ms));
+const failing =
+  (ms: number, msg: string): PoolTask<string> =>
+  () =>
+    new Promise((_, reject) => setTimeout(() => reject(new Error(msg)), ms));
 
 // ── Happy path ──────────────────────────────────────────────────────────
 
 describe('runPool — success', () => {
   it('runs all tasks and returns results in order', async () => {
-    const tasks: PoolTask<string>[] = [
-      delay(10, 'a'),
-      delay(5, 'b'),
-      delay(15, 'c'),
-    ];
+    const tasks: PoolTask<string>[] = [delay(10, 'a'), delay(5, 'b'), delay(15, 'c')];
     const result: PoolResult<string> = await runPool(tasks, {
       concurrency: 2 as PositiveInteger,
       failFast: false,
@@ -36,10 +36,7 @@ describe('runPool — success', () => {
   });
 
   it('returns success=true when all tasks pass', async () => {
-    const tasks: PoolTask<number>[] = [
-      () => Promise.resolve(1),
-      () => Promise.resolve(2),
-    ];
+    const tasks: PoolTask<number>[] = [() => Promise.resolve(1), () => Promise.resolve(2)];
     const result: PoolResult<number> = await runPool(tasks, {
       concurrency: 4 as PositiveInteger,
       failFast: false,
@@ -110,10 +107,7 @@ describe('runPool — fail-fast', () => {
 describe('runPool — callbacks', () => {
   it('calls onTaskComplete for each successful task', async () => {
     const onComplete = vi.fn();
-    const tasks: PoolTask<string>[] = [
-      () => Promise.resolve('x'),
-      () => Promise.resolve('y'),
-    ];
+    const tasks: PoolTask<string>[] = [() => Promise.resolve('x'), () => Promise.resolve('y')];
     await runPool(tasks, {
       concurrency: 2 as PositiveInteger,
       failFast: false,
@@ -176,9 +170,7 @@ describe('runPool — edge cases', () => {
   });
 
   it('handles task that throws non-Error value', async () => {
-    const tasks: PoolTask<string>[] = [
-      () => Promise.reject('string error'),
-    ];
+    const tasks: PoolTask<string>[] = [() => Promise.reject('string error')];
     const result: PoolResult<string> = await runPool(tasks, {
       concurrency: 1 as PositiveInteger,
       failFast: false,

@@ -25,45 +25,57 @@ const MOCK_TSCONFIG_JSON: string = JSON.stringify({
 });
 
 vi.mock('@/utils/core/workspace', () => ({
-  findWorkspaceRoot: vi.fn((): Result<Path> => ({
-    ok: true,
-    data: '/mock/root' as Path,
-    error: null,
-  })),
+  findWorkspaceRoot: vi.fn(
+    (): Result<Path> => ({
+      ok: true,
+      data: '/mock/root' as Path,
+      error: null,
+    }),
+  ),
 }));
 
 vi.mock('@/utils/core/fs', () => ({
-  readFile: vi.fn((): Result<Str> => ({
-    ok: true,
-    data: MOCK_TSCONFIG_JSON as Str,
-    error: null,
-  })),
-  parseJsonWithComments: vi.fn(<T>(content: string): Result<T> => ({
-    ok: true,
-    data: JSON.parse(content) as DeepReadonly<T>, // cast safe: test fixture
-    error: null,
-  })),
+  readFile: vi.fn(
+    (): Result<Str> => ({
+      ok: true,
+      data: MOCK_TSCONFIG_JSON as Str,
+      error: null,
+    }),
+  ),
+  parseJsonWithComments: vi.fn(
+    <T>(content: string): Result<T> => ({
+      ok: true,
+      data: JSON.parse(content) as DeepReadonly<T>, // cast safe: test fixture
+      error: null,
+    }),
+  ),
 }));
 
 vi.mock('@/utils/core/shell', () => ({
-  execSyncSafe: vi.fn((): Result<Str> => ({
-    ok: true,
-    data: 'abc1234' as Str,
-    error: null,
-  })),
+  execSyncSafe: vi.fn(
+    (): Result<Str> => ({
+      ok: true,
+      data: 'abc1234' as Str,
+      error: null,
+    }),
+  ),
 }));
 
 vi.mock('@/utils/core/path', () => ({
-  joinPath: vi.fn((segments: string[]): Result<Path> => ({
-    ok: true,
-    data: segments.join('/') as Path,
-    error: null,
-  })),
-  resolvePath: vi.fn((segments: string[]): Result<Path> => ({
-    ok: true,
-    data: segments.join('/') as Path,
-    error: null,
-  })),
+  joinPath: vi.fn(
+    (segments: string[]): Result<Path> => ({
+      ok: true,
+      data: segments.join('/') as Path,
+      error: null,
+    }),
+  ),
+  resolvePath: vi.fn(
+    (segments: string[]): Result<Path> => ({
+      ok: true,
+      data: segments.join('/') as Path,
+      error: null,
+    }),
+  ),
 }));
 
 vi.mock('@sveltejs/vite-plugin-svelte', () => ({
@@ -174,7 +186,7 @@ describe('createSvelteConfig', () => {
   it('merges extraAliases into kit.alias', () => {
     const config = createSvelteConfig({
       adapter: mockAdapter,
-      extraAliases: { '$custom': '/path/to/custom' },
+      extraAliases: { $custom: '/path/to/custom' },
     });
     assert.ok(config.kit, 'kit should be defined');
     assert.ok(config.kit.alias, 'kit.alias should be defined');

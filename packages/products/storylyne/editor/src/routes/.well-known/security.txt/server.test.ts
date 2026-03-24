@@ -9,13 +9,17 @@ import { GET } from './+server';
 
 describe('GET /.well-known/security.txt', () => {
   it('returns 200 with text/plain content type', () => {
-    const response: Response = GET({ url: new URL('http://localhost/.well-known/security.txt') } as never);
+    const response: Response = GET({
+      url: new URL('http://localhost/.well-known/security.txt'),
+    } as never);
     expect(response.status).toBe(200);
     expect(response.headers.get('Content-Type')).toBe('text/plain; charset=utf-8');
   });
 
   it('body contains all RFC 9116 fields', async () => {
-    const response: Response = GET({ url: new URL('http://localhost/.well-known/security.txt') } as never);
+    const response: Response = GET({
+      url: new URL('http://localhost/.well-known/security.txt'),
+    } as never);
     const body: string = await response.text();
     expect(body).toContain('Contact:');
     expect(body).toContain('Expires:');
@@ -25,7 +29,9 @@ describe('GET /.well-known/security.txt', () => {
   });
 
   it('Expires date is approximately 1 year from now', async () => {
-    const response: Response = GET({ url: new URL('http://localhost/.well-known/security.txt') } as never);
+    const response: Response = GET({
+      url: new URL('http://localhost/.well-known/security.txt'),
+    } as never);
     const body: string = await response.text();
     const expiresLine: string | undefined = body.split('\n').find((l) => l.startsWith('Expires:'));
     expect(expiresLine).toBeDefined();

@@ -120,8 +120,12 @@ function containsDataAccess(node: AstNode, varName: string): boolean {
  */
 function isFallbackValue(node: AstNode): boolean {
   // String/number/boolean literals
-  if (node.type === 'Literal' || node.type === 'StringLiteral' ||
-      node.type === 'NumericLiteral' || node.type === 'BooleanLiteral') {
+  if (
+    node.type === 'Literal' ||
+    node.type === 'StringLiteral' ||
+    node.type === 'NumericLiteral' ||
+    node.type === 'BooleanLiteral'
+  ) {
     return true;
   }
   // Object literal (fallback object)

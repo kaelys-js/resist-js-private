@@ -50,7 +50,8 @@ const rule: TypeScriptRule = {
 
       const prop = callee.property as AstNode | undefined;
       const obj = callee.object as AstNode | undefined;
-      if ((obj?.name as string) !== 'v' || (prop?.name as string) !== 'strictObject') return results;
+      if ((obj?.name as string) !== 'v' || (prop?.name as string) !== 'strictObject')
+        return results;
 
       const args = node.arguments as AstNode[] | undefined;
       if (!args || args.length === 0) return results;

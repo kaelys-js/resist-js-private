@@ -104,9 +104,7 @@ function getExportedFunctionNames(ast: AstNode): string[] {
  */
 function getUntestedFunctions(testPath: string, functionNames: string[]): string[] {
   const testContent: string = readFileSync(testPath, 'utf8');
-  return functionNames.filter(
-    (name: string): boolean => !testContent.includes(name),
-  );
+  return functionNames.filter((name: string): boolean => !testContent.includes(name));
 }
 
 /**
@@ -155,15 +153,17 @@ const rule: TypeScriptRule = {
 
       // Test file exists — check that every exported function is referenced
       const untested: string[] = getUntestedFunctions(testPath, functionNames);
-      return untested.map((name: string): LintResult => ({
-        file: context.file,
-        line: 1,
-        column: 1,
-        severity: 'error',
-        message: `Exported function '${name}' has no test cases in ${basename(testPath)}`,
-        ruleId: 'testing/require-colocated-tests',
-        tip: `Add tests for '${name}' in ${basename(testPath)}`,
-      }));
+      return untested.map(
+        (name: string): LintResult => ({
+          file: context.file,
+          line: 1,
+          column: 1,
+          severity: 'error',
+          message: `Exported function '${name}' has no test cases in ${basename(testPath)}`,
+          ruleId: 'testing/require-colocated-tests',
+          tip: `Add tests for '${name}' in ${basename(testPath)}`,
+        }),
+      );
     },
   },
 };

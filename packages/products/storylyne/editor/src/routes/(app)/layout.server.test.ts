@@ -29,21 +29,30 @@ function makeUrl(search: string = ''): URL {
 
 describe('(app) +layout.server load', () => {
   it('returns null user and empty scenes when no user in locals', () => {
-    const result = (load as (event: Record<string, unknown>) => unknown)({ locals: makeLocals(null), url: makeUrl() });
+    const result = (load as (event: Record<string, unknown>) => unknown)({
+      locals: makeLocals(null),
+      url: makeUrl(),
+    });
     expect(result.user).toBeNull();
     expect(result.project).toBeNull();
     expect(result.scenes).toEqual([]);
   });
 
   it('returns user and project promise when authenticated', () => {
-    const result = (load as (event: Record<string, unknown>) => unknown)({ locals: makeLocals(), url: makeUrl() });
+    const result = (load as (event: Record<string, unknown>) => unknown)({
+      locals: makeLocals(),
+      url: makeUrl(),
+    });
     expect(result.user).toBe(MOCK_USER);
     expect(result.project).toBeInstanceOf(Promise);
     expect(result.scenes).toBeInstanceOf(Promise);
   });
 
   it('project promise resolves to project data', async () => {
-    const result = (load as (event: Record<string, unknown>) => unknown)({ locals: makeLocals(), url: makeUrl() });
+    const result = (load as (event: Record<string, unknown>) => unknown)({
+      locals: makeLocals(),
+      url: makeUrl(),
+    });
     const project = await result.project;
     expect(project).not.toBeNull();
     expect(project.id).toBeDefined();
@@ -51,7 +60,10 @@ describe('(app) +layout.server load', () => {
   });
 
   it('scenes promise resolves to scene array', async () => {
-    const result = (load as (event: Record<string, unknown>) => unknown)({ locals: makeLocals(), url: makeUrl() });
+    const result = (load as (event: Record<string, unknown>) => unknown)({
+      locals: makeLocals(),
+      url: makeUrl(),
+    });
     const scenes = await result.scenes;
     expect(Array.isArray(scenes)).toBe(true);
     expect(scenes.length).toBeGreaterThan(0);

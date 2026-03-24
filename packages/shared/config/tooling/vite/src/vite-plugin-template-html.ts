@@ -15,7 +15,18 @@
 
 import * as v from 'valibot';
 import type { Plugin, UserConfig, ConfigEnv } from 'vite';
-import { PathSchema, NameSchema, LocaleStringSchema, CssFontFamilySchema, type NonNegativeInteger, type NullableStr, type Num, type Path, type Str, type Void } from '@/schemas/common';
+import {
+  PathSchema,
+  NameSchema,
+  LocaleStringSchema,
+  CssFontFamilySchema,
+  type NonNegativeInteger,
+  type NullableStr,
+  type Num,
+  type Path,
+  type Str,
+  type Void,
+} from '@/schemas/common';
 import { ok, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import { readFile, writeFile } from '@/utils/core/fs';
@@ -84,7 +95,9 @@ export const AppHtmlConfigSchema = v.strictObject({
   /** Absolute path to the app.html template file. */
   templatePath: PathSchema,
   /** localStorage key prefix (defaults to `appName.toLowerCase()`). */
-  storagePrefix: v.optional(v.pipe(v.string(), v.minLength(1), v.maxLength(50), v.regex(/^[a-zA-Z][\w-]*$/))),
+  storagePrefix: v.optional(
+    v.pipe(v.string(), v.minLength(1), v.maxLength(50), v.regex(/^[a-zA-Z][\w-]*$/)),
+  ),
 });
 
 /** Configuration for the app HTML template plugin. See {@link AppHtmlConfigSchema}. */

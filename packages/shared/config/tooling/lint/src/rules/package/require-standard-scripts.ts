@@ -9,7 +9,13 @@
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
 
 const NO_FIX = { range: { start: 0, end: 0 }, text: '' };
-const REQUIRED_SCRIPTS: readonly string[] = ['clean', 'qa:test', 'qa:test:coverage', 'qa:benchmark', 'qa:type-check'];
+const REQUIRED_SCRIPTS: readonly string[] = [
+  'clean',
+  'qa:test',
+  'qa:test:coverage',
+  'qa:benchmark',
+  'qa:type-check',
+];
 
 const rule: PackageJsonRule = {
   id: 'package/require-standard-scripts',
@@ -26,7 +32,10 @@ const rule: PackageJsonRule = {
     for (const required of REQUIRED_SCRIPTS) {
       if (!scripts[required]) {
         results.push({
-          file: context.file, line: 1, column: 1, severity: 'error',
+          file: context.file,
+          line: 1,
+          column: 1,
+          severity: 'error',
           message: `Missing required script '${required}' in package '${name}'`,
           ruleId: 'package/require-standard-scripts',
           tip: `Add "${required}" to scripts in package.json`,

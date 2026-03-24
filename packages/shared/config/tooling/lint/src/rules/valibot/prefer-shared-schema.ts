@@ -20,7 +20,11 @@ const SCHEMA_SUGGESTIONS: readonly { pattern: RegExp; schema: string; source: st
   { pattern: /[Cc]ommand|[Cc]md$/, schema: 'CommandSchema', source: '@/schemas/common' },
   { pattern: /[Hh]ostname|[Hh]ost$/, schema: 'HostnameSchema', source: '@/schemas/common' },
   { pattern: /[Nn]ame$|[Tt]itle$/, schema: 'NameSchema', source: '@/schemas/common' },
-  { pattern: /[Pp]refix$|[Ss]uffix$/, schema: 'v.pipe(v.string(), v.minLength(1), v.maxLength(50))', source: 'inline' },
+  {
+    pattern: /[Pp]refix$|[Ss]uffix$/,
+    schema: 'v.pipe(v.string(), v.minLength(1), v.maxLength(50))',
+    source: 'inline',
+  },
   { pattern: /[Ff]amily$|[Ff]amilies$/, schema: 'CssFontFamilySchema', source: '@/schemas/common' },
 ];
 
@@ -72,7 +76,8 @@ const rule: TypeScriptRule = {
 
       const prop = callee.property as AstNode | undefined;
       const obj = callee.object as AstNode | undefined;
-      if ((obj?.name as string) !== 'v' || (prop?.name as string) !== 'strictObject') return results;
+      if ((obj?.name as string) !== 'v' || (prop?.name as string) !== 'strictObject')
+        return results;
 
       const args = node.arguments as AstNode[] | undefined;
       if (!args || args.length === 0) return results;

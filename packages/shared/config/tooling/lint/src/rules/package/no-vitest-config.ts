@@ -14,7 +14,10 @@ import { dirname, join } from 'node:path';
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
 
 /** Dummy fix for package.json rules. */
-const NO_FIX: { range: { start: number; end: number }; text: string } = { range: { start: 0, end: 0 }, text: '' };
+const NO_FIX: { range: { start: number; end: number }; text: string } = {
+  range: { start: 0, end: 0 },
+  text: '',
+};
 
 /** Packages exempt from this rule (have legitimate standalone vitest configs). */
 const EXEMPT_PACKAGES: readonly string[] = ['@/cli'];

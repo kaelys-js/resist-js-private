@@ -565,7 +565,11 @@ function process(name: string): void {
 
   it('flags interface in config/tooling/svelte path (no longer exempt)', async () => {
     const code: string = `interface TsconfigJson { paths?: Record<string, string[]>; }`;
-    const results: LintResult[] = await lint(noBareDataTypes, code, 'packages/shared/config/tooling/svelte/src/index.ts');
+    const results: LintResult[] = await lint(
+      noBareDataTypes,
+      code,
+      'packages/shared/config/tooling/svelte/src/index.ts',
+    );
     expect(results.length).toBeGreaterThan(0);
   });
 });
