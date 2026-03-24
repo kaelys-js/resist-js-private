@@ -16,6 +16,7 @@ import noDuplicateSchema from './no-duplicate-schema.ts';
 import noGenericStringSchema from './no-generic-string-schema.ts';
 import requireGenericSchema from './require-generic-schema.ts';
 import preferTemplateLiteral from './prefer-template-literal.ts';
+import requireSchemaSuffix from './require-schema-suffix.ts';
 
 /** All Valibot lint rules. */
 export const VALIBOT_RULES: TypeScriptRule[] = [
@@ -30,4 +31,5 @@ export const VALIBOT_RULES: TypeScriptRule[] = [
   noGenericStringSchema,
   requireGenericSchema,
   preferTemplateLiteral,
+  requireSchemaSuffix,
 ];

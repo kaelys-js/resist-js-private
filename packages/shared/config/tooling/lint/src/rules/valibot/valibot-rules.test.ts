@@ -19,6 +19,7 @@ import noDuplicateSchema from './no-duplicate-schema.ts';
 import noGenericStringSchema from './no-generic-string-schema.ts';
 import requireGenericSchema from './require-generic-schema.ts';
 import preferTemplateLiteral from './prefer-template-literal.ts';
+import requireSchemaSuffix from './require-schema-suffix.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -782,6 +783,44 @@ describe('valibot/prefer-template-literal', () => {
   it('passes regex with feature branch character class', async () => {
     const code: string = `const Schema = v.pipe(v.string(), v.regex(/^feature\\/[a-z0-9-]+$/));`;
     const results: LintResult[] = await lint(preferTemplateLiteral, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/require-schema-suffix
+// =============================================================================
+
+describe('valibot/require-schema-suffix', () => {
+  it('flags schema declaration without Schema suffix', async () => {
+    const code: string = `import * as v from 'valibot';\nconst Foo = v.strictObject({});`;
+    const results: LintResult[] = await lint(requireSchemaSuffix, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain("'Foo'");
+    expect(results[0].message).toContain("'FooSchema'");
+  });
+
+  it('passes schema declaration with Schema suffix', async () => {
+    const code: string = `import * as v from 'valibot';\nconst FooSchema = v.strictObject({});`;
+    const results: LintResult[] = await lint(requireSchemaSuffix, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags v.pipe without Schema suffix', async () => {
+    const code: string = `import * as v from 'valibot';\nconst MyRegex = v.pipe(v.string(), v.regex(/^a$/));`;
+    const results: LintResult[] = await lint(requireSchemaSuffix, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes v.pipe with Schema suffix', async () => {
+    const code: string = `import * as v from 'valibot';\nconst MyRegexSchema = v.pipe(v.string(), v.regex(/^a$/));`;
+    const results: LintResult[] = await lint(requireSchemaSuffix, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips ALL_CAPS constants', async () => {
+    const code: string = `import * as v from 'valibot';\nconst DEFAULT_LOCALE = v.picklist(['en', 'ja']);`;
+    const results: LintResult[] = await lint(requireSchemaSuffix, code);
     expect(results.length).toBe(0);
   });
 });
