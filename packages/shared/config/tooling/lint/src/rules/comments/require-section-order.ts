@@ -39,7 +39,7 @@ function isExempt(filePath: string): boolean {
 const rule: TypeScriptRule = {
   id: 'comments/require-section-order',
   description: 'File sections marked with // === headers must follow canonical order',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
+  patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

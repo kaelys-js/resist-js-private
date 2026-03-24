@@ -41,7 +41,7 @@ function classifyImport(source: string): number {
 const rule: TypeScriptRule = {
   id: 'imports/require-import-groups',
   description: 'Require blank lines between import groups (node, external, workspace)',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
+  patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

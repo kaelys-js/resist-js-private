@@ -99,7 +99,7 @@ function areBothGuardClauses(first: AstNode, second: AstNode): boolean {
 const rule: TypeScriptRule = {
   id: 'comments/require-blank-line-groups',
   description: 'Require blank lines between declaration and control flow statement groups',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
+  patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
 
   visitor: {
     BlockStatement(node: AstNode, context: VisitorContext): LintResult[] {
