@@ -54,6 +54,12 @@ const CALLBACK_PATTERN: RegExp = /Function|=>/;
 /** Pattern matching external types that cannot be validated via safeParse. */
 const EXTERNAL_TYPE_PATTERN: RegExp = /\bIntl\.\w|^Date$|^Date\s*\|/;
 
+/** Pattern matching Valibot schema types — these ARE validators, not data to validate. */
+const SCHEMA_TYPE_PATTERN: RegExp = /GenericSchema|BaseSchema|BaseIssue|GenericSchemaAsync/;
+
+/** Pattern matching upstream-validated collection types. */
+const UPSTREAM_VALIDATED_PATTERN: RegExp = /FormatterMap|FormatterFn|RawLocaleStrings/;
+
 /**
  * Check if a parameter's type annotation indicates a callback function.
  *
@@ -87,10 +93,10 @@ function isCallbackParam(param: AstNode, context: VisitorContext): boolean {
  * @returns {boolean} Whether a safeParse call includes this parameter
  */
 function isParamValidated(paramName: string, bodyText: string): boolean {
-  // Match safeParse(SomeSchema, paramName) or safeParse(SomeSchema, [...paramName]) or .safeParse(paramName) or .parse(paramName)
+  // Match safeParse(schema, paramName) — schema may contain nested commas (e.g., v.record(v.string(), v.unknown()))
   const patterns: RegExp[] = [
-    new RegExp(`safeParse\\s*\\([^,]+,\\s*${paramName}\\s*[),]`),
-    new RegExp(`safeParse\\s*\\([^,]+,\\s*\\[\\.\\.\\.${paramName}\\]\\s*[),]`),
+    new RegExp(`safeParse\\s*\\([\\s\\S]*?,\\s*${paramName}\\s*[),]`),
+    new RegExp(`safeParse\\s*\\([\\s\\S]*?,\\s*\\[\\.\\.\\.${paramName}\\]\\s*[),]`),
     new RegExp(`\\.safeParse\\s*\\(\\s*${paramName}\\s*[),]`),
     new RegExp(`\\.parse\\s*\\(\\s*${paramName}\\s*[),]`),
   ];
@@ -144,6 +150,31 @@ function checkFunction(
       continue;
     }
 
+    // Skip schema-typed params — these ARE validators, not data to validate
+    const typeAnnotationNode = (param.typeAnnotation as AstNode | undefined)?.typeAnnotation as AstNode | undefined;
+    if (typeAnnotationNode) {
+      const typeStr: string = context.content.slice(typeAnnotationNode.start, typeAnnotationNode.end);
+
+      if (SCHEMA_TYPE_PATTERN.test(typeStr)) {
+        continue;
+      }
+
+      if (UPSTREAM_VALIDATED_PATTERN.test(typeStr)) {
+        continue;
+      }
+
+      // Check if param type is a generic type param that extends a schema type
+      // e.g., schema: TSchema where <TSchema extends v.GenericSchema>
+      const typeParams = node.typeParameters as AstNode | undefined;
+      if (typeParams) {
+        const typeParamsText: string = context.content.slice(typeParams.start, typeParams.end);
+
+        if (SCHEMA_TYPE_PATTERN.test(typeParamsText) && typeParamsText.includes(typeStr)) {
+          continue;
+        }
+      }
+    }
+
     const paramName: string | null = getParamName(param);
     if (!paramName) {
       continue;
@@ -161,7 +192,32 @@ function checkFunction(
     );
     const isMethodValidated: boolean = methodResultPattern.test(bodyText);
 
-    if (!isParamValidated(paramName, bodyText) && !isIndirectlyValidated && !isMethodValidated) {
+    // Check if another param is a schema and validates this param: safeParse(schemaParam, thisParam)
+    let isSchemaValidated: boolean = false;
+
+    for (const otherParam of params) {
+      const otherTypeNode = (otherParam.typeAnnotation as AstNode | undefined)?.typeAnnotation as AstNode | undefined;
+
+      if (otherTypeNode) {
+        const otherTypeStr: string = context.content.slice(otherTypeNode.start, otherTypeNode.end);
+
+        if (SCHEMA_TYPE_PATTERN.test(otherTypeStr)) {
+          const otherName: string | null = getParamName(otherParam);
+
+          if (otherName) {
+            const schemaValidationPattern: RegExp = new RegExp(
+              `safeParse\\s*\\(\\s*${otherName}\\s*,\\s*${paramName}\\s*[),]`,
+            );
+
+            if (schemaValidationPattern.test(bodyText)) {
+              isSchemaValidated = true;
+            }
+          }
+        }
+      }
+    }
+
+    if (!isParamValidated(paramName, bodyText) && !isIndirectlyValidated && !isMethodValidated && !isSchemaValidated) {
       results.push({
         file: context.file,
         line: node.loc.start.line,

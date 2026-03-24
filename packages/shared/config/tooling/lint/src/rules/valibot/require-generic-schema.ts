@@ -37,6 +37,12 @@ const rule: TypeScriptRule = {
         return [];
       }
 
+      // Skip intersection types where InferOutput is one arm — generic params come from the & arm
+      const typeAnnotation = node.typeAnnotation as AstNode | undefined;
+      if (typeAnnotation?.type === 'TSIntersectionType') {
+        return [];
+      }
+
       const typeText: string = context.content.slice(node.start, node.end);
       const inferMatch: RegExpMatchArray | null = typeText.match(INFER_OUTPUT_PATTERN);
 

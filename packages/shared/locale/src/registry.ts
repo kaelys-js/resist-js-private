@@ -593,7 +593,7 @@ export function createNamespacedRegistry(
       context: options.context,
       fallbackLocales: options.fallbackLocales ? [...options.fallbackLocales] : undefined,
       strict: options.strict,
-      formatters: options.formatters,
+      formatters: options.formatters as FormatterMap | undefined, // cast safe: schema validates function signatures at registration time
     });
 
     if (!subResult.ok) {
@@ -703,7 +703,7 @@ export function createNamespacedRegistry(
         context: options.context,
         fallbackLocales: options.fallbackLocales ? [...options.fallbackLocales] : undefined,
         strict: options.strict,
-        formatters: options.formatters,
+        formatters: options.formatters as FormatterMap | undefined, // cast safe: schema validates function signatures at registration time
       });
 
       if (!subResult.ok) {
