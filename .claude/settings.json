@@ -1,5 +1,6 @@
 {
   "enabledPlugins": {
+    "Claude Preview@builtin": false,
     "claude-code-setup@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,

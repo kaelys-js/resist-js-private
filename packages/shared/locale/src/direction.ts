@@ -15,7 +15,7 @@
 
 import * as v from 'valibot';
 
-import { StrSchema, type Str } from '@/schemas/common';
+import { StrSchema, type Str, type OptionalStr } from '@/schemas/common';
 import { type Result, ok } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 
@@ -26,7 +26,7 @@ import { safeParse } from '@/utils/result/safe';
 /** Valibot schema for text direction values. */
 export const TextDirectionSchema = v.picklist(['ltr', 'rtl']);
 
-/** Text direction: `'ltr'` (left-to-right) or `'rtl'` (right-to-left). */
+/** Text direction: `'ltr'` (left-to-right) or `'rtl'` (right-to-left). See {@link TextDirectionSchema}. */
 export type TextDirection = v.InferOutput<typeof TextDirectionSchema>;
 
 // =============================================================================
@@ -83,8 +83,8 @@ const RTL_SCRIPTS: ReadonlySet<Str> = new Set([
  *    uses the platform's own text info data.
  * 2. Otherwise falls back to static sets of known RTL languages and scripts.
  *
- * @param locale - BCP 47 locale tag (e.g., `'ar'`, `'he-IL'`, `'en-US'`). Validated via `StrSchema`.
- * @returns `Result<TextDirection>` — `'ltr'` or `'rtl'`.
+ * @param {Str} locale - BCP 47 locale tag (e.g., `'ar'`, `'he-IL'`, `'en-US'`). Validated via `StrSchema`.
+ * @returns {Result<TextDirection>} `'ltr'` or `'rtl'`.
  *
  * @example
  * ```typescript
@@ -105,17 +105,17 @@ export function getTextDirection(locale: Str): Result<TextDirection> {
     // getTextInfo() — Node 21+, Chrome 99+
     if (
       'getTextInfo' in intlLocale &&
-      typeof (intlLocale as Record<Str, unknown>).getTextInfo === 'function'
+      typeof (intlLocale as Record<Str, unknown>).getTextInfo === 'function' // cast safe: guarded by 'getTextInfo' in intlLocale
     ) {
-      const textInfo = (
-        intlLocale as Record<Str, unknown> & { getTextInfo: () => { direction: Str } }
-      ).getTextInfo(); // Irreducible: getTextInfo not in all TS lib targets
+      const textInfo: { direction: Str } = (
+        intlLocale as Record<Str, unknown> & { getTextInfo: () => { direction: Str } } // cast safe: irreducible — getTextInfo not in all TS lib targets
+      ).getTextInfo();
       if (textInfo.direction === 'rtl') return ok(TextDirectionSchema, 'rtl');
       return ok(TextDirectionSchema, 'ltr');
     }
     // textInfo property (Safari)
     if ('textInfo' in intlLocale) {
-      const { textInfo } = intlLocale as Record<Str, unknown> & { textInfo: { direction: Str } }; // Irreducible: same reason
+      const { textInfo }: { textInfo: { direction: Str } } = intlLocale as Record<Str, unknown> & { textInfo: { direction: Str } }; // cast safe: irreducible — textInfo property not in all TS lib targets
       if (textInfo?.direction === 'rtl') return ok(TextDirectionSchema, 'rtl');
       return ok(TextDirectionSchema, 'ltr');
     }
@@ -127,7 +127,7 @@ export function getTextDirection(locale: Str): Result<TextDirection> {
   const normalized: Str = localeResult.data.toLowerCase();
   const parts: Str[] = normalized.split('-');
   const lang: Str = parts[0] ?? '';
-  const script: Str | undefined =
+  const script: OptionalStr =
     parts.length >= 2 && (parts[1] ?? '').length === 4 ? parts[1] : undefined;
 
   // Check script subtag first (most specific)
