@@ -14,19 +14,21 @@
 
 import * as v from 'valibot';
 
-import type { Str } from '@/schemas/common';
+import { IsoTimestampSchema, SemverSchema, UuidSchema, type Str } from '@/schemas/common';
 import {
   type CapturedError,
+  CapturedErrorSchema,
   BreadcrumbSchema,
   CapturedErrorTypeSchema,
   ErrorFingerprintSchema,
 } from '@/schemas/result/captured-error';
+import { safeParse } from '@/utils/result/safe';
 import {
   type AppError,
   AppErrorSchema,
   ErrorTagsSchema,
   type Result,
-  okUnchecked,
+  ok,
 } from '@/schemas/result/result';
 import { formatErrorSafe } from '@/utils/result/format';
 
@@ -74,15 +76,15 @@ const _BeaconRuntimeKindSchema = v.picklist([
  */
 export const BeaconPayloadSchema = v.strictObject({
   /** UUID v4 unique to this error event. Correlation ID. */
-  id: v.pipe(v.string(), v.uuid()),
+  id: UuidSchema,
   /** What kind of runtime error was captured. */
   type: CapturedErrorTypeSchema,
   /** PII-stripped AppError (message replaced with code, stack/meta/source removed). */
-  error: v.lazy(() => AppErrorSchema as unknown as v.GenericSchema<AppError>),
+  error: v.lazy((): v.GenericSchema<AppError> => AppErrorSchema as unknown as v.GenericSchema<AppError>), // cast safe: AppErrorSchema IS GenericSchema<AppError>, circular ref requires lazy + cast
   /** Runtime environment where the error was captured. */
   environment: _BeaconRuntimeKindSchema,
   /** ISO 8601 timestamp when the error was captured. */
-  timestamp: v.pipe(v.string(), v.isoTimestamp()),
+  timestamp: IsoTimestampSchema,
   /** Whether this error is fatal. */
   fatal: v.boolean(),
   /** Trail of events leading up to the error. */
@@ -90,7 +92,7 @@ export const BeaconPayloadSchema = v.strictObject({
   /** Indexed string tags for filtering (service, route, side). */
   tags: v.optional(ErrorTagsSchema),
   /** Software release version. */
-  release: v.optional(v.string()),
+  release: v.optional(SemverSchema),
   /** Fingerprint for error grouping/deduplication. */
   fingerprint: v.optional(ErrorFingerprintSchema),
 });
@@ -108,8 +110,8 @@ export type BeaconPayload = v.InferOutput<typeof BeaconPayloadSchema>;
  * Strips PII from the error via `formatErrorSafe`, then builds a
  * `BeaconPayload` containing only the safe subset of fields.
  *
- * @param captured - The full CapturedError envelope.
- * @returns `Result<BeaconPayload>` — the PII-free wire payload.
+ * @param {CapturedError} captured - The full CapturedError envelope.
+ * @returns {Result<BeaconPayload>} The PII-free wire payload.
  *
  * @example
  * ```typescript
@@ -120,23 +122,28 @@ export type BeaconPayload = v.InferOutput<typeof BeaconPayloadSchema>;
  * ```
  */
 export function toBeaconPayload(captured: CapturedError): Result<BeaconPayload> {
-  const safeError: Result<AppError> = formatErrorSafe(captured.error as AppError);
+  const capturedResult: Result<CapturedError> = safeParse(CapturedErrorSchema, captured);
+
+  if (!capturedResult.ok) return capturedResult;
+
+  const safeError: Result<AppError> = formatErrorSafe(capturedResult.data.error as AppError); // cast safe: CapturedError.error is AppError after validation
+
   if (!safeError.ok) return safeError;
 
   const payload: BeaconPayload = {
-    id: captured.id as Str,
-    type: captured.type,
-    error: safeError.data as AppError,
-    environment: captured.environment,
-    timestamp: captured.timestamp as Str,
-    fatal: captured.fatal,
-    ...(captured.breadcrumbs !== undefined && {
-      breadcrumbs: captured.breadcrumbs as typeof captured.breadcrumbs,
+    id: capturedResult.data.id as Str, // cast safe: validated UUID string
+    type: capturedResult.data.type,
+    error: safeError.data as AppError, // cast safe: formatErrorSafe returns validated AppError
+    environment: capturedResult.data.environment,
+    timestamp: capturedResult.data.timestamp as Str, // cast safe: validated ISO timestamp
+    fatal: capturedResult.data.fatal,
+    ...(capturedResult.data.breadcrumbs !== undefined && {
+      breadcrumbs: capturedResult.data.breadcrumbs as typeof capturedResult.data.breadcrumbs, // cast safe: validated breadcrumb array
     }),
-    ...(captured.tags !== undefined && { tags: captured.tags }),
-    ...(captured.release !== undefined && { release: captured.release }),
-    ...(captured.fingerprint !== undefined && { fingerprint: captured.fingerprint }),
+    ...(capturedResult.data.tags !== undefined && { tags: capturedResult.data.tags }),
+    ...(capturedResult.data.release !== undefined && { release: capturedResult.data.release }),
+    ...(capturedResult.data.fingerprint !== undefined && { fingerprint: capturedResult.data.fingerprint }),
   };
 
-  return okUnchecked<BeaconPayload>(payload);
+  return ok(BeaconPayloadSchema, payload);
 }
