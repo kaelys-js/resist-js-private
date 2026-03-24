@@ -1,0 +1,10 @@
+{
+  "name": "@/config/tooling/node",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf dist coverage .turbo",
+    "qa:type-check": "tsgo --noEmit"
+  }
+}

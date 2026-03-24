@@ -80,6 +80,19 @@ describe('typescript/require-type-annotation', () => {
     const results: LintResult[] = await lint(requireTypeAnnotation, code);
     expect(results.length).toBe(0);
   });
+
+  it('flags destructured array without type annotation', async () => {
+    const code: string = `const [target] = targets;`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('array');
+  });
+
+  it('passes destructured array with type annotation', async () => {
+    const code: string = `const [target]: string[] = targets;`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -480,6 +493,12 @@ function process(name: string): void {
 `;
     const results: LintResult[] = await lint(noBareDataTypes, code);
     expect(results.length).toBe(0);
+  });
+
+  it('flags interface in config/tooling/svelte path (no longer exempt)', async () => {
+    const code: string = `interface TsconfigJson { paths?: Record<string, string[]>; }`;
+    const results: LintResult[] = await lint(noBareDataTypes, code, 'packages/shared/config/tooling/svelte/src/index.ts');
+    expect(results.length).toBeGreaterThan(0);
   });
 });
 

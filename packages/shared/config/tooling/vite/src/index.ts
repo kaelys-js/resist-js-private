@@ -21,95 +21,11 @@
 
 import * as v from 'valibot';
 import { defineConfig, type UserConfig, type PluginOption } from 'vite';
-import type { Str, Bool, Command, Path } from '@/schemas/common';
-import { ok, err, ERRORS, type Result } from '@/schemas/result/result';
+import type { Str, Bool, Path } from '@/schemas/common';
+import type { Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
-import { execSyncSafe } from '@/utils/core/shell';
-import { readFile, parseJsonWithComments } from '@/utils/core/fs';
+import { getGitInfo, getPackageVersion, type GitInfo, GitInfoSchema } from '@/utils/core/git';
 import { safeStringify } from '@/utils/core/object';
-
-// =============================================================================
-// Git metadata
-// =============================================================================
-
-/** Schema for git metadata used in build-time injection. */
-const GitInfoSchema = v.strictObject({
-  /** Short commit hash (7 characters). */
-  commit: v.pipe(v.string(), v.length(7)),
-  /** Full commit hash (40 characters). */
-  commitFull: v.pipe(v.string(), v.length(40)),
-  /** Current branch name. */
-  branch: v.pipe(v.string(), v.minLength(1), v.maxLength(255)),
-  /** Whether the working tree has uncommitted changes. */
-  dirty: v.boolean(),
-});
-
-/** Git metadata for build-time injection. */
-type GitInfo = v.InferOutput<typeof GitInfoSchema>;
-
-/**
- * Reads git metadata for build-time injection.
- *
- * Uses the shared execSyncSafe utility for type-safe command execution.
- * Returns a Result so callers can handle failures explicitly.
- *
- * @returns {Result<GitInfo>} Git commit (short + full), branch name, and dirty flag
- *
- * @example
- * ```typescript
- * const result = getGitInfo();
- * if (!result.ok) return result;
- * console.log(result.data.commit);
- * ```
- */
-function getGitInfo(): Result<GitInfo> {
-  const commitResult: Result<Str> = execSyncSafe('git rev-parse --short HEAD' as Command); // cast safe: literal is non-empty
-  if (!commitResult.ok) return commitResult;
-
-  const fullResult: Result<Str> = execSyncSafe('git rev-parse HEAD' as Command); // cast safe: literal is non-empty
-  if (!fullResult.ok) return fullResult;
-
-  const branchResult: Result<Str> = execSyncSafe('git rev-parse --abbrev-ref HEAD' as Command); // cast safe: literal is non-empty
-  if (!branchResult.ok) return branchResult;
-
-  const porcelainResult: Result<Str> = execSyncSafe('git status --porcelain' as Command); // cast safe: literal is non-empty
-  if (!porcelainResult.ok) return porcelainResult;
-
-  return ok(GitInfoSchema, {
-    commit: commitResult.data,
-    commitFull: fullResult.data,
-    branch: branchResult.data,
-    dirty: porcelainResult.data.trim().length > 0,
-  });
-}
-
-/**
- * Reads the package version from the calling product's package.json.
- *
- * Uses the shared readFile and parseJsonWithComments utilities.
- *
- * @returns {Result<Str>} Package version string
- *
- * @example
- * ```typescript
- * const result = getPackageVersion();
- * if (!result.ok) return result;
- * console.log(result.data);
- * ```
- */
-function getPackageVersion(): Result<Str> {
-  const fileResult: Result<Str> = readFile('./package.json' as Path); // cast safe: literal is non-empty
-  if (!fileResult.ok) return fileResult;
-
-  const parsed: Result<Record<Str, unknown>> = parseJsonWithComments<Record<Str, unknown>>(fileResult.data);
-  if (!parsed.ok) return parsed;
-
-  const { version }: Record<Str, unknown> = parsed.data;
-  if (typeof version !== 'string' || version.length === 0) {
-    return err(ERRORS.CONFIG.INVALID, { meta: { field: 'version', file: './package.json' } });
-  }
-  return ok(v.string(), version);
-}
 
 /**
  * Stringify a value for Vite define injection.
@@ -187,12 +103,13 @@ export function createViteConfig(
   );
   if (!optionsResult.ok) throw optionsResult.error; // integration boundary: Vite doesn't understand Result
 
-  const { plugins, ssrNoExternal, extraDefines, extraConfig } = optionsResult.data;
+  const { plugins, ssrNoExternal, extraDefines, extraConfig }: CreateViteConfigOptions = optionsResult.data;
 
   const gitResult: Result<GitInfo> = getGitInfo();
   if (!gitResult.ok) throw gitResult.error; // integration boundary: Vite doesn't understand Result
 
-  const versionResult: Result<Str> = getPackageVersion();
+  // cast safe: string literal is a valid non-empty path
+  const versionResult: Result<Str> = getPackageVersion('./package.json' as Path);
   if (!versionResult.ok) throw versionResult.error; // integration boundary: Vite doesn't understand Result
 
   const git: GitInfo = gitResult.data;

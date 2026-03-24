@@ -38,7 +38,24 @@ const rule: TypeScriptRule = {
         const id = decl.id as AstNode | undefined;
         if (!id) continue;
 
-        // Only check simple Identifier bindings (skip destructuring for now)
+        if (id.type === 'ArrayPattern' || id.type === 'ObjectPattern') {
+          if (!id.typeAnnotation) {
+            const kind: string = id.type === 'ArrayPattern' ? 'array' : 'object';
+            results.push({
+              file: context.file,
+              line: node.loc.start.line,
+              column: node.loc.start.column + 1,
+              severity: 'error',
+              message: `Destructured ${kind} declaration is missing a type annotation`,
+              ruleId: 'typescript/require-type-annotation',
+              tip: `Add a type annotation after the destructuring pattern`,
+              fix: { range: { start: id.end, end: id.end }, text: ': TYPE' },
+            });
+          }
+          continue;
+        }
+
+        // Only check simple Identifier bindings (skip other patterns)
         if (id.type !== 'Identifier') continue;
 
         const name: string = (id.name as string) ?? '';

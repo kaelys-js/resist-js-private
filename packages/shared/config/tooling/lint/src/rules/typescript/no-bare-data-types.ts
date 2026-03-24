@@ -15,7 +15,6 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 /** File paths exempt from this rule (tooling internals, test harness, etc.). */
 const EXEMPT_PATHS: readonly RegExp[] = [
   /config\/tooling\/lint\/src\/framework\//,
-  /config\/tooling\/svelte\//,
   /config\/test\/src\/harness\//,
   /extensions\/vscode/,
   /\.test\.ts$/,

@@ -16,6 +16,8 @@ import noHoisedDep from './no-hoisted-dep.ts';
 import noPeerDeps from './no-peer-deps.ts';
 import validProjectRef from './valid-project-ref.ts';
 import noWorkspaceSelfRef from './no-workspace-self-ref.ts';
+import noVitestConfig from './no-vitest-config.ts';
+import requireSharedConfig from './require-shared-config.ts';
 
 function ctx(overrides: Partial<PackageJsonContext> & { pkg?: Partial<PackageJsonContext['pkg']> } = {}): PackageJsonContext {
   return {
@@ -408,6 +410,66 @@ describe('package/no-workspace-self-ref', () => {
     const results: LintResult[] = noWorkspaceSelfRef.check(ctx({
       isRoot: true,
       pkg: { dependencies: { '@/schemas/common': 'workspace:*' } },
+    }));
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// package/no-vitest-config
+// =============================================================================
+
+describe('package/no-vitest-config', () => {
+  it('flags sub-package with vitest.config.ts', () => {
+    const results: LintResult[] = noVitestConfig.check(ctx({
+      file: '/Users/coleb/Desktop/webforge/packages/shared/utils/cli/package.json',
+      pkg: { name: '@/cli' },
+    }));
+    // @/cli is exempt
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for root package', () => {
+    const results: LintResult[] = noVitestConfig.check(ctx({
+      isRoot: true,
+    }));
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for package without vitest.config.ts', () => {
+    const results: LintResult[] = noVitestConfig.check(ctx({
+      file: '/Users/coleb/Desktop/webforge/packages/shared/schemas/common/package.json',
+      pkg: { name: '@/schemas/common' },
+    }));
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// package/require-shared-config
+// =============================================================================
+
+describe('package/require-shared-config', () => {
+  it('passes for package with correct svelte.config.ts', () => {
+    const results: LintResult[] = requireSharedConfig.check(ctx({
+      file: '/Users/coleb/Desktop/webforge/packages/products/storylyne/editor/package.json',
+      pkg: { name: '@storylyne/editor' },
+    }));
+    const svelteErrors: LintResult[] = results.filter((r: LintResult): boolean => r.message.includes('svelte.config'));
+    expect(svelteErrors.length).toBe(0);
+  });
+
+  it('passes for root package', () => {
+    const results: LintResult[] = requireSharedConfig.check(ctx({
+      isRoot: true,
+    }));
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for package without config files', () => {
+    const results: LintResult[] = requireSharedConfig.check(ctx({
+      file: '/Users/coleb/Desktop/webforge/packages/shared/schemas/common/package.json',
+      pkg: { name: '@/schemas/common' },
     }));
     expect(results.length).toBe(0);
   });
