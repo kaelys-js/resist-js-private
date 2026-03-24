@@ -13,19 +13,29 @@ import type { Result } from '@/schemas/result/result';
 // ---------------------------------------------------------------------------
 
 /** Git metadata shape returned by getGitInfo. */
-interface MockGitInfo {
+type MockGitInfo = {
   commit: Str;
   commitFull: Str;
   branch: Str;
   dirty: boolean;
-}
+};
 
-/** Helper to create a success Result. */
+/**
+ * Helper to create a success Result.
+ *
+ * @param {T} data - The success data to wrap
+ * @returns {Result<T>} A frozen success Result
+ */
 function mockOk<T>(data: T): Result<T> {
   return Object.freeze({ ok: true as const, data, error: null }) as Result<T>;
 }
 
-/** Helper to create a failure Result. */
+/**
+ * Helper to create a failure Result.
+ *
+ * @param {Str} code - The error code
+ * @returns {Result<never>} A frozen failure Result
+ */
 function mockErr(code: Str): Result<never> {
   return Object.freeze({
     ok: false as const,
@@ -44,13 +54,13 @@ const getPackageVersionMock = vi.fn((): Result<Str> => mockOk('1.2.3'));
 const safeStringifyMock = vi.fn((data: unknown): Result<Str> => mockOk(JSON.stringify(data)));
 
 vi.mock('@/utils/core/git', () => ({
-  getGitInfo: (...args: unknown[]): Result<MockGitInfo> => getGitInfoMock(...args),
-  getPackageVersion: (...args: unknown[]): Result<Str> => getPackageVersionMock(...args),
+  getGitInfo: (): Result<MockGitInfo> => getGitInfoMock(),
+  getPackageVersion: (): Result<Str> => getPackageVersionMock(),
   GitInfoSchema: {},
 }));
 
 vi.mock('@/utils/core/object', () => ({
-  safeStringify: (...args: unknown[]): Result<Str> => safeStringifyMock(...args),
+  safeStringify: (data: unknown): Result<Str> => safeStringifyMock(data),
 }));
 
 const { createViteConfig } = await import('./index.ts');

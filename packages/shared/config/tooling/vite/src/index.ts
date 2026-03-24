@@ -24,7 +24,7 @@ import { defineConfig, type UserConfig, type PluginOption } from 'vite';
 import type { Str, Bool, Path } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
-import { getGitInfo, getPackageVersion, type GitInfo, GitInfoSchema } from '@/utils/core/git';
+import { getGitInfo, getPackageVersion, type GitInfo } from '@/utils/core/git';
 import { safeStringify } from '@/utils/core/object';
 
 /**
@@ -67,13 +67,16 @@ const CreateViteConfigOptionsSchema = v.strictObject({
 /** Options for the shared Vite configuration factory. See {@link CreateViteConfigOptionsSchema}. */
 export type CreateViteConfigOptions = v.InferOutput<typeof CreateViteConfigOptionsSchema>;
 
+/** Input type for {@link createViteConfig} — optional fields may be omitted. */
+export type CreateViteConfigInput = v.InferInput<typeof CreateViteConfigOptionsSchema>;
+
 /**
  * Create a complete Vite configuration.
  *
  * Provides git metadata defines, server watch ignores, and SSR config.
  * Each product supplies its own plugins and optional overrides.
  *
- * @param {CreateViteConfigOptions} options - Configuration options (validated via {@link CreateViteConfigOptionsSchema})
+ * @param {CreateViteConfigInput} options - Configuration options (validated via {@link CreateViteConfigOptionsSchema})
  * @returns {UserConfig} Vite UserConfig via defineConfig
  *
  * @example
@@ -95,7 +98,7 @@ export type CreateViteConfigOptions = v.InferOutput<typeof CreateViteConfigOptio
  * ```
  */
 export function createViteConfig(
-  options: CreateViteConfigOptions,
+  options: CreateViteConfigInput,
 ): UserConfig {
   const optionsResult: Result<CreateViteConfigOptions> = safeParse(
     CreateViteConfigOptionsSchema,
@@ -103,7 +106,7 @@ export function createViteConfig(
   );
   if (!optionsResult.ok) throw optionsResult.error; // integration boundary: Vite doesn't understand Result
 
-  const { plugins, ssrNoExternal, extraDefines, extraConfig }: CreateViteConfigOptions = optionsResult.data;
+  const { plugins, ssrNoExternal, extraDefines, extraConfig }: CreateViteConfigOptions = optionsResult.data as CreateViteConfigOptions; // cast safe: safeParse validates and fills defaults
 
   const gitResult: Result<GitInfo> = getGitInfo();
   if (!gitResult.ok) throw gitResult.error; // integration boundary: Vite doesn't understand Result
@@ -116,7 +119,7 @@ export function createViteConfig(
   const version: Str = versionResult.data;
 
   return defineConfig({
-    plugins,
+    plugins: [...plugins],
     define: {
       __APP_VERSION__: jsonDefine(version),
       __GIT_COMMIT__: jsonDefine(git.commit),
@@ -134,7 +137,7 @@ export function createViteConfig(
       },
     },
     ssr: {
-      noExternal: ssrNoExternal,
+      noExternal: [...ssrNoExternal],
     },
     ...extraConfig,
   });

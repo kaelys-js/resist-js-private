@@ -17,6 +17,7 @@ import requireNonNegativeInteger from './require-non-negative-integer.ts';
 import requireReturnType from './require-return-type.ts';
 import requireTypeAnnotation from './require-type-annotation.ts';
 import noDefaultParams from './no-default-params.ts';
+import noGenericFunctionType from './no-generic-function-type.ts';
 
 /** All TypeScript lint rules. */
 export const TYPESCRIPT_RULES: TypeScriptRule[] = [
@@ -32,4 +33,5 @@ export const TYPESCRIPT_RULES: TypeScriptRule[] = [
   noUnionNull,
   requireNonNegativeInteger,
   noDefaultParams,
+  noGenericFunctionType,
 ];

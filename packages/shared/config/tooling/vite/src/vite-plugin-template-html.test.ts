@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Path, Str } from '@/schemas/common';
+import type { Path, Str, Name, CssFontFamily, LocaleString } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import {
   deriveErrorIdPrefix,
@@ -17,27 +17,30 @@ import {
 // Test fixtures
 // =============================================================================
 
-const TEST_APP_NAME: Str = 'TestApp';
+// cast safe: test fixture literals to branded types
+const TEST_APP_NAME: Name = 'TestApp' as Name;
 
 const TEST_TEMPLATE_PATH: Path = '/tmp/test-template.html' as Path;
 
-const TEST_FONT_FAMILIES: Str =
-  "'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'";
+// cast safe: test fixture literal to branded CssFontFamily
+const TEST_FONT_FAMILIES: CssFontFamily =
+  "'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" as CssFontFamily;
 
 const TEST_FONT_FACES: FontFaceEntry[] = [
-  { family: 'Inter', style: 'normal', weight: '100 900', src: '/fonts/inter-latin.woff2' },
-  { family: 'Rajdhani', style: 'normal', weight: '600', src: '/fonts/rajdhani-latin-600.woff2' },
-  { family: 'Rajdhani', style: 'normal', weight: '700', src: '/fonts/rajdhani-latin-700.woff2' },
+  { family: 'Inter' as Name, style: 'normal', weight: '100 900', src: '/fonts/inter-latin.woff2' }, // cast safe: test fixture
+  { family: 'Rajdhani' as Name, style: 'normal', weight: '600', src: '/fonts/rajdhani-latin-600.woff2' }, // cast safe: test fixture
+  { family: 'Rajdhani' as Name, style: 'normal', weight: '700', src: '/fonts/rajdhani-latin-700.woff2' }, // cast safe: test fixture
 ];
 
+// cast safe: test fixture literals to branded LocaleString
 const TEST_LOCALE = {
-  serverError: 'Something went wrong',
-  serverErrorDescription: "Oops! Something broke on our end. We're looking into it.",
-  goHome: 'Go to homepage',
-  copied: 'Copied!',
-  copyFailed: 'Copy failed',
-  copyErrorId: 'Copy error ID to clipboard',
-  errorId: 'Reference: {id}',
+  serverError: 'Something went wrong' as LocaleString,
+  serverErrorDescription: "Oops! Something broke on our end. We're looking into it." as LocaleString,
+  goHome: 'Go to homepage' as LocaleString,
+  copied: 'Copied!' as LocaleString,
+  copyFailed: 'Copy failed' as LocaleString,
+  copyErrorId: 'Copy error ID to clipboard' as LocaleString,
+  errorId: 'Reference: {id}' as LocaleString,
 };
 
 const TEST_ERROR_CONFIG: ErrorHtmlConfig = {

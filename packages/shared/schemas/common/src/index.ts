@@ -559,6 +559,33 @@ export const NameSchema = v.pipe(
 export type Name = v.InferOutput<typeof NameSchema>;
 
 // =============================================================================
+// CSS Font Family Schema
+// =============================================================================
+
+/**
+ * Schema for CSS font-family stack strings (e.g. `"'Inter', sans-serif"`).
+ *
+ * Validates non-empty strings containing valid CSS font-family characters:
+ * letters, digits, spaces, commas, quotes, hyphens, and parentheses.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(CssFontFamilySchema, "'Inter', sans-serif");
+ * if (result.ok) result.data; // "'Inter', sans-serif"
+ * ```
+ */
+export const CssFontFamilySchema = v.pipe(
+  v.string(),
+  v.minLength(1, 'Font family must not be empty'),
+  v.regex(/^[\w\s,'"()-]+$/, 'Font family contains invalid characters'),
+  v.brand('CssFontFamily'),
+);
+
+/** Inferred output type of {@link CssFontFamilySchema}. A CSS font-family stack string. */
+export type CssFontFamily = v.InferOutput<typeof CssFontFamilySchema>;
+
+// =============================================================================
 // Product Name Schema
 // =============================================================================
 

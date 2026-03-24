@@ -40,7 +40,7 @@ function isIntegrationBoundaryThrow(node: AstNode, context: VisitorContext): boo
   if (lineIdx < 0 || lineIdx >= lines.length) return false;
 
   const currentLine: string = lines[lineIdx];
-  return /\/\/.*integration boundary/i.test(currentLine);
+  return /\/\/.*integration boundary:\s*\S+/i.test(currentLine);
 }
 
 const rule: TypeScriptRule = {

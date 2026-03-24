@@ -15,7 +15,7 @@
 
 import * as v from 'valibot';
 import type { Plugin } from 'vite';
-import { PathSchema, type NonNegativeInteger, type NullableStr, type Num, type Path, type Str, type Void } from '@/schemas/common';
+import { PathSchema, NameSchema, LocaleStringSchema, CssFontFamilySchema, type NonNegativeInteger, type NullableStr, type Num, type Path, type Str, type Void } from '@/schemas/common';
 import { ok, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import { readFile, writeFile } from '@/utils/core/fs';
@@ -27,7 +27,7 @@ import { readFile, writeFile } from '@/utils/core/fs';
 /** Valibot schema for a single @font-face entry for CSS generation. */
 export const FontFaceEntrySchema = v.strictObject({
   /** Font family name (e.g. 'Inter'). */
-  family: v.pipe(v.string(), v.minLength(1)),
+  family: NameSchema,
   /** Font style (e.g. 'normal', 'italic'). */
   style: v.picklist(['normal', 'italic', 'oblique']),
   /** Font weight (e.g. '400', '100 900'). */
@@ -48,9 +48,9 @@ export type FontFaceEntryArray = v.InferOutput<typeof FontFaceEntryArraySchema>;
 /** Valibot schema for the error HTML template plugin configuration. */
 export const ErrorHtmlConfigSchema = v.strictObject({
   /** Application display name. */
-  appName: v.pipe(v.string(), v.minLength(1)),
-  /** CSS font-family stack string. */
-  fontFamilies: v.pipe(v.string(), v.minLength(1)),
+  appName: NameSchema,
+  /** CSS font-family stack string (e.g. "'Inter', sans-serif"). */
+  fontFamilies: CssFontFamilySchema,
   /** Font face entries for inline @font-face CSS. */
   fontFaces: v.array(FontFaceEntrySchema),
   /** Absolute path to the error.html template file. */
@@ -58,19 +58,19 @@ export const ErrorHtmlConfigSchema = v.strictObject({
   /** Locale strings for the error page. */
   locale: v.strictObject({
     /** Server error heading (e.g. "Something went wrong"). */
-    serverError: v.pipe(v.string(), v.minLength(1)),
+    serverError: LocaleStringSchema,
     /** Server error description text. */
-    serverErrorDescription: v.pipe(v.string(), v.minLength(1)),
+    serverErrorDescription: LocaleStringSchema,
     /** "Go home" link text. */
-    goHome: v.pipe(v.string(), v.minLength(1)),
+    goHome: LocaleStringSchema,
     /** "Copied!" feedback text. */
-    copied: v.pipe(v.string(), v.minLength(1)),
+    copied: LocaleStringSchema,
     /** "Copy failed" feedback text. */
-    copyFailed: v.pipe(v.string(), v.minLength(1)),
+    copyFailed: LocaleStringSchema,
     /** "Copy error ID" button label. */
-    copyErrorId: v.pipe(v.string(), v.minLength(1)),
+    copyErrorId: LocaleStringSchema,
     /** Error ID template with `{id}` placeholder (e.g. "Reference: {id}"). */
-    errorId: v.pipe(v.string(), v.minLength(1)),
+    errorId: LocaleStringSchema,
   }),
 });
 
@@ -80,11 +80,11 @@ export type ErrorHtmlConfig = v.InferOutput<typeof ErrorHtmlConfigSchema>;
 /** Valibot schema for the app HTML template plugin configuration. */
 export const AppHtmlConfigSchema = v.strictObject({
   /** Application display name. */
-  appName: v.pipe(v.string(), v.minLength(1)),
+  appName: NameSchema,
   /** Absolute path to the app.html template file. */
   templatePath: PathSchema,
   /** localStorage key prefix (defaults to `appName.toLowerCase()`). */
-  storagePrefix: v.optional(v.pipe(v.string(), v.minLength(1))),
+  storagePrefix: v.optional(v.pipe(v.string(), v.minLength(1), v.maxLength(50), v.regex(/^[a-zA-Z][\w-]*$/))),
 });
 
 /** Configuration for the app HTML template plugin. See {@link AppHtmlConfigSchema}. */
@@ -124,7 +124,7 @@ const ph: (key: `{{${Str}}}`) => TemplatePlaceholder = (key: `{{${Str}}}`): Temp
 /**
  * Generates inline `@font-face` CSS from font face entries.
  *
- * @param {FontFaceEntryArray} fontFaces - Array of font face entries.
+ * @param {readonly FontFaceEntry[]} fontFaces - Array of font face entries.
  * @returns {Result<CssStr>} CSS string containing all @font-face declarations.
  *
  * @example
@@ -133,7 +133,7 @@ const ph: (key: `{{${Str}}}`) => TemplatePlaceholder = (key: `{{${Str}}}`): Temp
  * // => { ok: true, data: '@font-face { font-family: \'Inter\'; ... }' }
  * ```
  */
-export function generateFontFaceCss(fontFaces: FontFaceEntryArray): Result<CssStr> {
+export function generateFontFaceCss(fontFaces: readonly FontFaceEntry[]): Result<CssStr> {
   const validated: Result<FontFaceEntryArray> = safeParse(FontFaceEntryArraySchema, fontFaces);
   if (!validated.ok) return validated;
 

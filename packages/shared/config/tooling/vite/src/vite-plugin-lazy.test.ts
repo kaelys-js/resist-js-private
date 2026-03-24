@@ -5,6 +5,7 @@
  */
 
 import { describe, expect, it, vi } from 'vitest';
+import type { Name, Path } from '@/schemas/common';
 
 const { createLazyPlugin } = await import('./vite-plugin-lazy.ts');
 
@@ -15,8 +16,8 @@ const { createLazyPlugin } = await import('./vite-plugin-lazy.ts');
 describe('createLazyPlugin', () => {
   it('returns plugin with correct name', () => {
     const plugin = createLazyPlugin({
-      name: 'test-plugin',
-      modulePath: './src/test.ts',
+      name: 'test-plugin' as Name, // cast safe: test fixture
+      modulePath: './src/test.ts' as Path, // cast safe: test fixture
       setupFn: 'setup',
     });
     expect(plugin.name).toBe('test-plugin');
@@ -24,8 +25,8 @@ describe('createLazyPlugin', () => {
 
   it('applies only to serve mode', () => {
     const plugin = createLazyPlugin({
-      name: 'test-plugin',
-      modulePath: './src/test.ts',
+      name: 'test-plugin' as Name, // cast safe: test fixture
+      modulePath: './src/test.ts' as Path, // cast safe: test fixture
       setupFn: 'setup',
     });
     expect(plugin.apply).toBe('serve');
@@ -33,8 +34,8 @@ describe('createLazyPlugin', () => {
 
   it('has configureServer hook', () => {
     const plugin = createLazyPlugin({
-      name: 'test-plugin',
-      modulePath: './src/test.ts',
+      name: 'test-plugin' as Name, // cast safe: test fixture
+      modulePath: './src/test.ts' as Path, // cast safe: test fixture
       setupFn: 'setup',
     });
     expect(plugin.configureServer).toBeTypeOf('function');
@@ -47,8 +48,8 @@ describe('createLazyPlugin', () => {
     };
 
     const plugin = createLazyPlugin({
-      name: 'test-plugin',
-      modulePath: './src/test.ts',
+      name: 'test-plugin' as Name, // cast safe: test fixture
+      modulePath: './src/test.ts' as Path, // cast safe: test fixture
       setupFn: 'mySetup',
     });
 
