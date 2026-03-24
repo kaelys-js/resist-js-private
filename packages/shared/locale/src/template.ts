@@ -1562,8 +1562,8 @@ function replaceDateTimeBlocks(
           }
           formatResult =
             kind === 'time'
-              ? formatTime(dateValue, locale ?? 'en', style)
-              : formatDate(dateValue, locale ?? 'en', style);
+              ? formatTime(dateValue, locale ?? 'en', style, undefined)
+              : formatDate(dateValue, locale ?? 'en', style, undefined);
         }
 
         if (!formatResult.ok) return formatResult;

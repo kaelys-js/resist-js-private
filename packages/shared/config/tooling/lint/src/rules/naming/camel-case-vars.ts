@@ -47,6 +47,18 @@ const rule: TypeScriptRule = {
         // Allow PascalCase schema names (codebase convention: StrSchema, PathSchema, etc.)
         if (name.endsWith('Schema')) continue;
 
+        // Allow PascalCase constructor references (typed with constructor type or name ending in Ctor/Constructor/Format)
+        const typeAnnotation = (id as AstNode & { typeAnnotation?: AstNode }).typeAnnotation as
+          | AstNode
+          | undefined;
+        if (typeAnnotation) {
+          const typeText: string = context.content.slice(typeAnnotation.start, typeAnnotation.end);
+          // Direct constructor type: `new (...)`
+          if (/\bnew\s*\(/.test(typeText)) continue;
+          // Type reference to a constructor alias: `: SomeCtor` or `: SomeConstructor` or `: SomeFormat`
+          if (/:\s*[A-Z]\w*(Ctor|Constructor|Format)\s*$/.test(typeText)) continue;
+        }
+
         if (!CAMEL_CASE_RE.test(name)) {
           results.push({
             file: context.file,

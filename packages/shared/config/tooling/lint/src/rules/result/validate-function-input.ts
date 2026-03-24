@@ -48,6 +48,9 @@ function getParamName(param: AstNode): string | null {
 /** Pattern matching substrings that indicate a callback parameter type. */
 const CALLBACK_PATTERN: RegExp = /Function|=>/;
 
+/** Pattern matching external types that cannot be validated via safeParse. */
+const EXTERNAL_TYPE_PATTERN: RegExp = /\bIntl\.\w|^Date$|^Date\s*\|/;
+
 /**
  * Check if a parameter's type annotation indicates a callback function.
  *
@@ -61,7 +64,10 @@ function isCallbackParam(param: AstNode, context: VisitorContext): boolean {
     | undefined;
   if (!typeAnnotation) return false;
 
-  return CALLBACK_PATTERN.test(context.content.slice(typeAnnotation.start, typeAnnotation.end));
+  const typeText: string = context.content.slice(typeAnnotation.start, typeAnnotation.end);
+  if (CALLBACK_PATTERN.test(typeText)) return true;
+  if (EXTERNAL_TYPE_PATTERN.test(typeText)) return true;
+  return false;
 }
 
 /**

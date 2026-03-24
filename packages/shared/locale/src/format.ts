@@ -20,11 +20,12 @@ import {
   StrSchema,
   type NullableRegExpMatchArray,
   type Num,
+  type OptionalStr,
   type Str,
   type StrArray,
 } from '@/schemas/common';
 import { ERRORS, type Result, err, ok, okUnchecked } from '@/schemas/result/result';
-import { safeParse } from '@/utils/result/safe';
+import { fromUnknownError, safeParse } from '@/utils/result/safe';
 
 // =============================================================================
 // Schemas
@@ -33,7 +34,7 @@ import { safeParse } from '@/utils/result/safe';
 /** Valibot schema for date/time format style names. */
 export const DateTimeStyleSchema = v.picklist(['short', 'medium', 'long', 'full']);
 
-/** A date/time format style: `'short'`, `'medium'`, `'long'`, or `'full'`. */
+/** A date/time format style: `'short'`, `'medium'`, `'long'`, or `'full'`. See {@link DateTimeStyleSchema}. */
 export type DateTimeStyle = v.InferOutput<typeof DateTimeStyleSchema>;
 
 /** Valibot schema for format kind (date vs time). */
@@ -49,20 +50,28 @@ type FormatKind = v.InferOutput<typeof FormatKindSchema>;
 /**
  * Maps shorthand style names to `Intl.DateTimeFormatOptions`.
  *
- * @param style - One of `'short'`, `'medium'`, `'long'`, `'full'`. Typed via `DateTimeStyleSchema`.
- * @param kind - `'date'` for date-only, `'time'` for time-only. Typed via `FormatKindSchema`.
- * @returns Intl.DateTimeFormatOptions for the given style.
+ * @param {DateTimeStyle} style - One of `'short'`, `'medium'`, `'long'`, `'full'`. Typed via `DateTimeStyleSchema`.
+ * @param {FormatKind} kind - `'date'` for date-only, `'time'` for time-only. Typed via `FormatKindSchema`.
+ * @returns {Result<Intl.DateTimeFormatOptions>} Intl.DateTimeFormatOptions for the given style.
  */
-function styleToOptions(style: DateTimeStyle, kind: FormatKind): Intl.DateTimeFormatOptions {
-  if (kind === 'time') {
+function styleToOptions(
+  style: DateTimeStyle,
+  kind: FormatKind,
+): Result<Intl.DateTimeFormatOptions> {
+  const styleResult: Result<DateTimeStyle> = safeParse(DateTimeStyleSchema, style);
+  if (!styleResult.ok) return styleResult;
+  const kindResult: Result<FormatKind> = safeParse(FormatKindSchema, kind);
+  if (!kindResult.ok) return kindResult;
+
+  if (kindResult.data === 'time') {
     const map: Record<Str, Intl.DateTimeFormatOptions> = {
       short: { hour: 'numeric', minute: 'numeric' },
       medium: { hour: 'numeric', minute: 'numeric', second: 'numeric' },
       long: { hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' },
       full: { hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'long' },
     };
-    // oxlint-disable-next-line typescript/no-non-null-assertion -- 'medium' is a literal key in map, always exists
-    return (map[style] ?? map['medium'])!;
+    const opts: Intl.DateTimeFormatOptions = map[styleResult.data] ?? map['medium'] ?? {}; // cast safe: all 4 picklist values are keys in map
+    return okUnchecked<Intl.DateTimeFormatOptions>(opts);
   }
   // date
   const map: Record<Str, Intl.DateTimeFormatOptions> = {
@@ -71,18 +80,21 @@ function styleToOptions(style: DateTimeStyle, kind: FormatKind): Intl.DateTimeFo
     long: { year: 'numeric', month: 'long', day: 'numeric' },
     full: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
   };
-  // oxlint-disable-next-line typescript/no-non-null-assertion -- 'medium' is a literal key in map, always exists
-  return (map[style] ?? map['medium'])!;
+  const opts: Intl.DateTimeFormatOptions = map[styleResult.data] ?? map['medium'] ?? {}; // cast safe: all 4 picklist values are keys in map
+  return okUnchecked<Intl.DateTimeFormatOptions>(opts);
 }
 
 /**
  * Coerces a `Date | Num` value into a `Date` object.
  *
- * @param value - A `Date` object or a Unix timestamp in milliseconds.
- * @returns A `Date` object.
+ * @param {Date | Num} value - A `Date` object or a Unix timestamp in milliseconds.
+ * @returns {Result<Date>} A `Date` object wrapped in Result.
  */
-function toDate(value: Date | Num): Date {
-  return value instanceof Date ? value : new Date(value);
+function toDate(value: Date | Num): Result<Date> {
+  if (value instanceof Date) return okUnchecked<Date>(value);
+  const numResult: Result<Num> = safeParse(NumSchema, value);
+  if (!numResult.ok) return numResult;
+  return okUnchecked<Date>(new Date(numResult.data));
 }
 
 // =============================================================================
@@ -92,10 +104,10 @@ function toDate(value: Date | Num): Date {
 /**
  * Formats a number using `Intl.NumberFormat`.
  *
- * @param value - The number to format. Validated via `NumSchema`.
- * @param locale - BCP 47 locale tag. Validated via `StrSchema`.
- * @param options - `Intl.NumberFormatOptions` (style, currency, notation, etc.). Optional.
- * @returns `Result<Str>` — the formatted number string, or an error.
+ * @param {Num} value - The number to format. Validated via `NumSchema`.
+ * @param {Str} locale - BCP 47 locale tag. Validated via `StrSchema`.
+ * @param {Intl.NumberFormatOptions | undefined} options - `Intl.NumberFormatOptions` (style, currency, notation, etc.). Optional.
+ * @returns {Result<Str>} The formatted number string, or an error.
  *
  * @example
  * ```typescript
@@ -121,12 +133,10 @@ export function formatNumber(
     const formatted: Str = formatter.format(valueResult.data);
     return ok(StrSchema, formatted);
   } catch (error: unknown) {
+    // Intl.NumberFormat constructor or format() threw — convert to typed error
     return err(ERRORS.LOCALE.FORMAT_FAILED, {
-      meta: {
-        type: 'number',
-        locale: localeResult.data,
-        reason: error instanceof Error ? error.message : String(error),
-      },
+      meta: { type: 'number', locale: localeResult.data },
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -134,10 +144,10 @@ export function formatNumber(
 /**
  * Formats a number as currency using `Intl.NumberFormat`.
  *
- * @param value - The monetary amount. Validated via `NumSchema`.
- * @param locale - BCP 47 locale tag. Validated via `StrSchema`.
- * @param currency - ISO 4217 currency code (e.g., `'USD'`, `'EUR'`). Validated via `StrSchema`.
- * @returns `Result<Str>` — the formatted currency string, or an error.
+ * @param {Num} value - The monetary amount. Validated via `NumSchema`.
+ * @param {Str} locale - BCP 47 locale tag. Validated via `StrSchema`.
+ * @param {Str} currency - ISO 4217 currency code (e.g., `'USD'`, `'EUR'`). Validated via `StrSchema`.
+ * @returns {Result<Str>} The formatted currency string, or an error.
  *
  * @example
  * ```typescript
@@ -169,11 +179,11 @@ export function formatCurrency(value: Num, locale: Str, currency: Str): Result<S
 /**
  * Formats a date using `Intl.DateTimeFormat`.
  *
- * @param value - Date to format (`Date` object or Unix timestamp in milliseconds).
- * @param locale - BCP 47 locale tag. Validated via `StrSchema`.
- * @param style - Predefined format. Typed via `DateTimeStyleSchema`. Optional.
- * @param options - `Intl.DateTimeFormatOptions`. Overrides `style` if both provided. Optional.
- * @returns `Result<Str>` — the formatted date string, or an error.
+ * @param {Date | Num} value - Date to format (`Date` object or Unix timestamp in milliseconds).
+ * @param {Str} locale - BCP 47 locale tag. Validated via `StrSchema`.
+ * @param {DateTimeStyle | undefined} style - Predefined format. Typed via `DateTimeStyleSchema`. Optional.
+ * @param {Intl.DateTimeFormatOptions | undefined} options - `Intl.DateTimeFormatOptions`. Overrides `style` if both provided. Optional.
+ * @returns {Result<Str>} The formatted date string, or an error.
  *
  * @example
  * ```typescript
@@ -187,29 +197,38 @@ export function formatCurrency(value: Num, locale: Str, currency: Str): Result<S
 export function formatDate(
   value: Date | Num,
   locale: Str,
-  style?: DateTimeStyle,
-  options?: Intl.DateTimeFormatOptions,
+  style: DateTimeStyle | undefined,
+  options: Intl.DateTimeFormatOptions | undefined,
 ): Result<Str> {
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
   if (!localeResult.ok) return localeResult;
+  if (style !== undefined) {
+    const styleResult: Result<DateTimeStyle> = safeParse(DateTimeStyleSchema, style);
+    if (!styleResult.ok) return styleResult;
+  }
+  const dateResult: Result<Date> = toDate(value);
+  if (!dateResult.ok) return dateResult;
 
   try {
-    const dateObj: Date = toDate(value);
-    const formatOptions: Intl.DateTimeFormatOptions =
-      options ?? (style ? styleToOptions(style, 'date') : {});
+    let formatOptions: Intl.DateTimeFormatOptions = {};
+    if (options) {
+      formatOptions = options;
+    } else if (style) {
+      const styleOptsResult: Result<Intl.DateTimeFormatOptions> = styleToOptions(style, 'date');
+      if (!styleOptsResult.ok) return styleOptsResult;
+      formatOptions = styleOptsResult.data;
+    }
     const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
       localeResult.data,
       formatOptions,
     );
-    const formatted: Str = formatter.format(dateObj);
+    const formatted: Str = formatter.format(dateResult.data);
     return ok(StrSchema, formatted);
   } catch (error: unknown) {
+    // Intl.DateTimeFormat threw — convert to typed error
     return err(ERRORS.LOCALE.FORMAT_FAILED, {
-      meta: {
-        type: 'date',
-        locale: localeResult.data,
-        reason: error instanceof Error ? error.message : String(error),
-      },
+      meta: { type: 'date', locale: localeResult.data },
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -217,11 +236,11 @@ export function formatDate(
 /**
  * Formats only the time portion using `Intl.DateTimeFormat`.
  *
- * @param value - Date to format (`Date` object or Unix timestamp in milliseconds).
- * @param locale - BCP 47 locale tag. Validated via `StrSchema`.
- * @param style - Time format style. Typed via `DateTimeStyleSchema`. Optional. Defaults to `'medium'`.
- * @param options - `Intl.DateTimeFormatOptions`. Overrides `style` if provided. Optional.
- * @returns `Result<Str>` — the formatted time string, or an error.
+ * @param {Date | Num} value - Date to format (`Date` object or Unix timestamp in milliseconds).
+ * @param {Str} locale - BCP 47 locale tag. Validated via `StrSchema`.
+ * @param {DateTimeStyle | undefined} style - Time format style. Typed via `DateTimeStyleSchema`. Optional. Defaults to `'medium'`.
+ * @param {Intl.DateTimeFormatOptions | undefined} options - `Intl.DateTimeFormatOptions`. Overrides `style` if provided. Optional.
+ * @returns {Result<Str>} The formatted time string, or an error.
  *
  * @example
  * ```typescript
@@ -235,29 +254,41 @@ export function formatDate(
 export function formatTime(
   value: Date | Num,
   locale: Str,
-  style?: DateTimeStyle,
-  options?: Intl.DateTimeFormatOptions,
+  style: DateTimeStyle | undefined,
+  options: Intl.DateTimeFormatOptions | undefined,
 ): Result<Str> {
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
   if (!localeResult.ok) return localeResult;
+  if (style !== undefined) {
+    const styleResult: Result<DateTimeStyle> = safeParse(DateTimeStyleSchema, style);
+    if (!styleResult.ok) return styleResult;
+  }
+  const dateResult: Result<Date> = toDate(value);
+  if (!dateResult.ok) return dateResult;
 
   try {
-    const dateObj: Date = toDate(value);
-    const formatOptions: Intl.DateTimeFormatOptions =
-      options ?? styleToOptions(style ?? 'medium', 'time');
+    let formatOptions: Intl.DateTimeFormatOptions;
+    if (options) {
+      formatOptions = options;
+    } else {
+      const styleOptsResult: Result<Intl.DateTimeFormatOptions> = styleToOptions(
+        style ?? 'medium',
+        'time',
+      );
+      if (!styleOptsResult.ok) return styleOptsResult;
+      formatOptions = styleOptsResult.data;
+    }
     const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
       localeResult.data,
       formatOptions,
     );
-    const formatted: Str = formatter.format(dateObj);
+    const formatted: Str = formatter.format(dateResult.data);
     return ok(StrSchema, formatted);
   } catch (error: unknown) {
+    // Intl.DateTimeFormat threw — convert to typed error
     return err(ERRORS.LOCALE.FORMAT_FAILED, {
-      meta: {
-        type: 'time',
-        locale: localeResult.data,
-        reason: error instanceof Error ? error.message : String(error),
-      },
+      meta: { type: 'time', locale: localeResult.data },
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -278,19 +309,19 @@ export const RelativeTimeUnitSchema = v.picklist([
   'year',
 ]);
 
-/** A relative time unit. */
+/** A relative time unit. See {@link RelativeTimeUnitSchema}. */
 export type RelativeTimeUnit = v.InferOutput<typeof RelativeTimeUnitSchema>;
 
 /** Valibot schema for relative time numeric option. */
 export const RelativeTimeNumericSchema = v.picklist(['always', 'auto']);
 
-/** Relative time numeric display. `'auto'` uses "yesterday" instead of "1 day ago". */
+/** Relative time numeric display. `'auto'` uses "yesterday" instead of "1 day ago". See {@link RelativeTimeNumericSchema}. */
 export type RelativeTimeNumeric = v.InferOutput<typeof RelativeTimeNumericSchema>;
 
 /** Valibot schema for relative time style. */
 export const RelativeTimeStyleSchema = v.picklist(['long', 'short', 'narrow']);
 
-/** Relative time style. */
+/** Relative time style. See {@link RelativeTimeStyleSchema}. */
 export type RelativeTimeStyle = v.InferOutput<typeof RelativeTimeStyleSchema>;
 
 // =============================================================================
@@ -300,12 +331,12 @@ export type RelativeTimeStyle = v.InferOutput<typeof RelativeTimeStyleSchema>;
 /**
  * Formats a relative time value using `Intl.RelativeTimeFormat`.
  *
- * @param value - The numeric offset (negative for past, positive for future). Validated via `NumSchema`.
- * @param unit - The time unit. Validated via `RelativeTimeUnitSchema`.
- * @param locale - BCP 47 locale tag. Validated via `StrSchema`.
- * @param numeric - `'always'` (default) or `'auto'`. `'auto'` uses "yesterday" instead of "1 day ago".
- * @param style - `'long'` (default), `'short'`, or `'narrow'`.
- * @returns `Result<Str>` — the formatted relative time string, or an error.
+ * @param {Num} value - The numeric offset (negative for past, positive for future). Validated via `NumSchema`.
+ * @param {RelativeTimeUnit} unit - The time unit. Validated via `RelativeTimeUnitSchema`.
+ * @param {Str} locale - BCP 47 locale tag. Validated via `StrSchema`.
+ * @param {RelativeTimeNumeric | undefined} numeric - `'always'` (default) or `'auto'`. `'auto'` uses "yesterday" instead of "1 day ago".
+ * @param {RelativeTimeStyle | undefined} style - `'long'` (default), `'short'`, or `'narrow'`.
+ * @returns {Result<Str>} The formatted relative time string, or an error.
  *
  * @example
  * ```typescript
@@ -323,8 +354,8 @@ export function formatRelativeTime(
   value: Num,
   unit: RelativeTimeUnit,
   locale: Str,
-  numeric?: RelativeTimeNumeric,
-  style?: RelativeTimeStyle,
+  numeric: RelativeTimeNumeric | undefined,
+  style: RelativeTimeStyle | undefined,
 ): Result<Str> {
   const valueResult: Result<Num> = safeParse(NumSchema, value);
   if (!valueResult.ok) return valueResult;
@@ -352,12 +383,10 @@ export function formatRelativeTime(
     const formatted: Str = formatter.format(valueResult.data, unitResult.data);
     return ok(StrSchema, formatted);
   } catch (error: unknown) {
+    // Intl.RelativeTimeFormat threw — convert to typed error
     return err(ERRORS.LOCALE.FORMAT_FAILED, {
-      meta: {
-        type: 'relativeTime',
-        locale: localeResult.data,
-        reason: error instanceof Error ? error.message : String(error),
-      },
+      meta: { type: 'relativeTime', locale: localeResult.data },
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -369,13 +398,13 @@ export function formatRelativeTime(
 /** Valibot schema for list format type. */
 export const ListFormatTypeSchema = v.picklist(['conjunction', 'disjunction', 'unit']);
 
-/** List format type: `'conjunction'` ("and"), `'disjunction'` ("or"), `'unit'`. */
+/** List format type: `'conjunction'` ("and"), `'disjunction'` ("or"), `'unit'`. See {@link ListFormatTypeSchema}. */
 export type ListFormatType = v.InferOutput<typeof ListFormatTypeSchema>;
 
 /** Valibot schema for list format style. */
 export const ListFormatStyleSchema = v.picklist(['long', 'short', 'narrow']);
 
-/** List format style. */
+/** List format style. See {@link ListFormatStyleSchema}. */
 export type ListFormatStyle = v.InferOutput<typeof ListFormatStyleSchema>;
 
 // =============================================================================
@@ -385,11 +414,11 @@ export type ListFormatStyle = v.InferOutput<typeof ListFormatStyleSchema>;
 /**
  * Formats a list of strings using `Intl.ListFormat`.
  *
- * @param items - Array of strings to format. Validated via `StrArraySchema`.
- * @param locale - BCP 47 locale tag. Validated via `StrSchema`.
- * @param type - List type: `'conjunction'` (default, "and"), `'disjunction'` ("or"), `'unit'`.
- * @param style - Display style: `'long'` (default), `'short'`, `'narrow'`.
- * @returns `Result<Str>` — the formatted list string, or an error.
+ * @param {readonly Str[]} items - Array of strings to format. Validated via `StrArraySchema`.
+ * @param {Str} locale - BCP 47 locale tag. Validated via `StrSchema`.
+ * @param {ListFormatType | undefined} type - List type: `'conjunction'` (default, "and"), `'disjunction'` ("or"), `'unit'`.
+ * @param {ListFormatStyle | undefined} style - Display style: `'long'` (default), `'short'`, `'narrow'`.
+ * @returns {Result<Str>} The formatted list string, or an error.
  *
  * @example
  * ```typescript
@@ -406,8 +435,8 @@ export type ListFormatStyle = v.InferOutput<typeof ListFormatStyleSchema>;
 export function formatList(
   items: readonly Str[],
   locale: Str,
-  type?: ListFormatType,
-  style?: ListFormatStyle,
+  type: ListFormatType | undefined,
+  style: ListFormatStyle | undefined,
 ): Result<Str> {
   const itemsResult: Result<StrArray> = safeParse(StrArraySchema, [...items]);
   if (!itemsResult.ok) return itemsResult;
@@ -430,12 +459,10 @@ export function formatList(
     const formatted: Str = formatter.format(itemsResult.data);
     return ok(StrSchema, formatted);
   } catch (error: unknown) {
+    // Intl.ListFormat threw — convert to typed error
     return err(ERRORS.LOCALE.FORMAT_FAILED, {
-      meta: {
-        type: 'list',
-        locale: localeResult.data,
-        reason: error instanceof Error ? error.message : String(error),
-      },
+      meta: { type: 'list', locale: localeResult.data },
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -449,12 +476,12 @@ export function formatList(
  *
  * Intelligently omits redundant parts (e.g., same month only shown once).
  *
- * @param start - Start date (`Date` object or Unix timestamp in ms).
- * @param end - End date (`Date` object or Unix timestamp in ms).
- * @param locale - BCP 47 locale tag. Validated via `StrSchema`.
- * @param style - Predefined format. Typed via `DateTimeStyleSchema`. Optional.
- * @param options - `Intl.DateTimeFormatOptions`. Overrides `style` if both provided. Optional.
- * @returns `Result<Str>` — the formatted date range string, or an error.
+ * @param {Date | Num} start - Start date (`Date` object or Unix timestamp in ms).
+ * @param {Date | Num} end - End date (`Date` object or Unix timestamp in ms).
+ * @param {Str} locale - BCP 47 locale tag. Validated via `StrSchema`.
+ * @param {DateTimeStyle | undefined} style - Predefined format. Typed via `DateTimeStyleSchema`. Optional.
+ * @param {Intl.DateTimeFormatOptions | undefined} options - `Intl.DateTimeFormatOptions`. Overrides `style` if both provided. Optional.
+ * @returns {Result<Str>} The formatted date range string, or an error.
  *
  * @example
  * ```typescript
@@ -472,30 +499,40 @@ export function formatDateRange(
   start: Date | Num,
   end: Date | Num,
   locale: Str,
-  style?: DateTimeStyle,
-  options?: Intl.DateTimeFormatOptions,
+  style: DateTimeStyle | undefined,
+  options: Intl.DateTimeFormatOptions | undefined,
 ): Result<Str> {
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
   if (!localeResult.ok) return localeResult;
+  if (style !== undefined) {
+    const styleResult: Result<DateTimeStyle> = safeParse(DateTimeStyleSchema, style);
+    if (!styleResult.ok) return styleResult;
+  }
+  const startResult: Result<Date> = toDate(start);
+  if (!startResult.ok) return startResult;
+  const endResult: Result<Date> = toDate(end);
+  if (!endResult.ok) return endResult;
 
   try {
-    const startDate: Date = toDate(start);
-    const endDate: Date = toDate(end);
-    const formatOptions: Intl.DateTimeFormatOptions =
-      options ?? (style ? styleToOptions(style, 'date') : {});
+    let formatOptions: Intl.DateTimeFormatOptions = {};
+    if (options) {
+      formatOptions = options;
+    } else if (style) {
+      const styleOptsResult: Result<Intl.DateTimeFormatOptions> = styleToOptions(style, 'date');
+      if (!styleOptsResult.ok) return styleOptsResult;
+      formatOptions = styleOptsResult.data;
+    }
     const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
       localeResult.data,
       formatOptions,
     );
-    const formatted: Str = formatter.formatRange(startDate, endDate);
+    const formatted: Str = formatter.formatRange(startResult.data, endResult.data);
     return ok(StrSchema, formatted);
   } catch (error: unknown) {
+    // Intl.DateTimeFormat.formatRange threw — convert to typed error
     return err(ERRORS.LOCALE.FORMAT_FAILED, {
-      meta: {
-        type: 'dateRange',
-        locale: localeResult.data,
-        reason: error instanceof Error ? error.message : String(error),
-      },
+      meta: { type: 'dateRange', locale: localeResult.data },
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -514,13 +551,13 @@ export const DisplayNameTypeSchema = v.picklist([
   'dateTimeField',
 ]);
 
-/** Display name type for `Intl.DisplayNames`. */
+/** Display name type for `Intl.DisplayNames`. See {@link DisplayNameTypeSchema}. */
 export type DisplayNameType = v.InferOutput<typeof DisplayNameTypeSchema>;
 
 /** Valibot schema for display name style. */
 export const DisplayNameStyleSchema = v.picklist(['long', 'short', 'narrow']);
 
-/** Display name style. */
+/** Display name style. See {@link DisplayNameStyleSchema}. */
 export type DisplayNameStyle = v.InferOutput<typeof DisplayNameStyleSchema>;
 
 // =============================================================================
@@ -531,11 +568,11 @@ export type DisplayNameStyle = v.InferOutput<typeof DisplayNameStyleSchema>;
  * Formats a code (language, region, currency, etc.) into its display name
  * using `Intl.DisplayNames`.
  *
- * @param code - The code to display (e.g., `'en'`, `'US'`, `'EUR'`). Validated via `StrSchema`.
- * @param locale - BCP 47 locale tag for the output language. Validated via `StrSchema`.
- * @param type - What the code represents. Validated via `DisplayNameTypeSchema`.
- * @param style - Display style. Validated via `DisplayNameStyleSchema`. Optional, defaults to `'long'`.
- * @returns `Result<Str>` — the display name, or an error if the code is unknown.
+ * @param {Str} code - The code to display (e.g., `'en'`, `'US'`, `'EUR'`). Validated via `StrSchema`.
+ * @param {Str} locale - BCP 47 locale tag for the output language. Validated via `StrSchema`.
+ * @param {DisplayNameType} type - What the code represents. Validated via `DisplayNameTypeSchema`.
+ * @param {DisplayNameStyle | undefined} style - Display style. Validated via `DisplayNameStyleSchema`. Optional, defaults to `'long'`.
+ * @returns {Result<Str>} The display name, or an error if the code is unknown.
  *
  * @example
  * ```typescript
@@ -556,7 +593,7 @@ export function formatDisplayName(
   code: Str,
   locale: Str,
   type: DisplayNameType,
-  style?: DisplayNameStyle,
+  style: DisplayNameStyle | undefined,
 ): Result<Str> {
   const codeResult: Result<Str> = safeParse(StrSchema, code);
   if (!codeResult.ok) return codeResult;
@@ -574,7 +611,7 @@ export function formatDisplayName(
       type: typeResult.data,
       style: style ?? 'long',
     });
-    const displayName: Str | undefined = formatter.of(codeResult.data);
+    const displayName: OptionalStr = formatter.of(codeResult.data);
     if (displayName === undefined) {
       return err(ERRORS.LOCALE.FORMAT_FAILED, {
         meta: {
@@ -586,12 +623,10 @@ export function formatDisplayName(
     }
     return ok(StrSchema, displayName);
   } catch (error: unknown) {
+    // Intl.DisplayNames threw — convert to typed error
     return err(ERRORS.LOCALE.FORMAT_FAILED, {
-      meta: {
-        type: 'displayName',
-        locale: localeResult.data,
-        reason: error instanceof Error ? error.message : String(error),
-      },
+      meta: { type: 'displayName', locale: localeResult.data },
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -606,10 +641,10 @@ export function formatDisplayName(
  * Convenience wrapper for `formatNumber(value, locale, { style: 'percent' })`.
  * Input value is a decimal fraction (e.g., `0.25` for 25%).
  *
- * @param value - The decimal fraction to format as percent. Validated via `NumSchema`.
- * @param locale - BCP 47 locale tag. Validated via `StrSchema`.
- * @param options - Additional `Intl.NumberFormatOptions` to merge with `{ style: 'percent' }`. Optional.
- * @returns `Result<Str>` — the formatted percentage string, or an error.
+ * @param {Num} value - The decimal fraction to format as percent. Validated via `NumSchema`.
+ * @param {Str} locale - BCP 47 locale tag. Validated via `StrSchema`.
+ * @param {Intl.NumberFormatOptions | undefined} options - Additional `Intl.NumberFormatOptions` to merge with `{ style: 'percent' }`. Optional.
+ * @returns {Result<Str>} The formatted percentage string, or an error.
  *
  * @example
  * ```typescript
@@ -623,7 +658,7 @@ export function formatDisplayName(
 export function formatPercent(
   value: Num,
   locale: Str,
-  options?: Intl.NumberFormatOptions,
+  options: Intl.NumberFormatOptions | undefined,
 ): Result<Str> {
   const valueResult: Result<Num> = safeParse(NumSchema, value);
   if (!valueResult.ok) return valueResult;
@@ -643,7 +678,7 @@ export function formatPercent(
 /** Valibot schema for Intl.NumberFormat unit display modes. */
 export const UnitDisplaySchema = v.picklist(['long', 'short', 'narrow']);
 
-/** Unit display mode. */
+/** Unit display mode. See {@link UnitDisplaySchema}. */
 export type UnitDisplay = v.InferOutput<typeof UnitDisplaySchema>;
 
 // =============================================================================
@@ -657,12 +692,12 @@ export type UnitDisplay = v.InferOutput<typeof UnitDisplaySchema>;
  * sanctioned single unit identifier (e.g., `'kilometer'`, `'kilogram'`, `'celsius'`)
  * or a compound unit (e.g., `'kilometer-per-hour'`).
  *
- * @param value - The numeric value. Validated via `NumSchema`.
- * @param unit - The unit identifier (e.g., `'kilometer-per-hour'`). Validated via `StrSchema`.
- * @param locale - BCP 47 locale tag. Validated via `StrSchema`.
- * @param unitDisplay - `'long'` (default), `'short'`, or `'narrow'`.
- * @param options - Additional `Intl.NumberFormatOptions` to merge. Optional.
- * @returns `Result<Str>` — the formatted unit string, or an error.
+ * @param {Num} value - The numeric value. Validated via `NumSchema`.
+ * @param {Str} unit - The unit identifier (e.g., `'kilometer-per-hour'`). Validated via `StrSchema`.
+ * @param {Str} locale - BCP 47 locale tag. Validated via `StrSchema`.
+ * @param {UnitDisplay | undefined} unitDisplay - `'long'` (default), `'short'`, or `'narrow'`.
+ * @param {Intl.NumberFormatOptions | undefined} options - Additional `Intl.NumberFormatOptions` to merge. Optional.
+ * @returns {Result<Str>} The formatted unit string, or an error.
  *
  * @example
  * ```typescript
@@ -680,8 +715,8 @@ export function formatUnit(
   value: Num,
   unit: Str,
   locale: Str,
-  unitDisplay?: UnitDisplay,
-  options?: Intl.NumberFormatOptions,
+  unitDisplay: UnitDisplay | undefined,
+  options: Intl.NumberFormatOptions | undefined,
 ): Result<Str> {
   const valueResult: Result<Num> = safeParse(NumSchema, value);
   if (!valueResult.ok) return valueResult;
@@ -709,7 +744,7 @@ export function formatUnit(
 /** Valibot schema for duration format style. */
 export const DurationStyleSchema = v.picklist(['long', 'short', 'narrow', 'digital']);
 
-/** Duration format style. */
+/** Duration format style. See {@link DurationStyleSchema}. */
 export type DurationStyle = v.InferOutput<typeof DurationStyleSchema>;
 
 /**
@@ -717,19 +752,29 @@ export type DurationStyle = v.InferOutput<typeof DurationStyleSchema>;
  * All fields are optional — only included units are formatted.
  */
 export const DurationInputSchema = v.strictObject({
+  /** Number of years. */
   years: v.optional(NumSchema),
+  /** Number of months. */
   months: v.optional(NumSchema),
+  /** Number of weeks. */
   weeks: v.optional(NumSchema),
+  /** Number of days. */
   days: v.optional(NumSchema),
+  /** Number of hours. */
   hours: v.optional(NumSchema),
+  /** Number of minutes. */
   minutes: v.optional(NumSchema),
+  /** Number of seconds. */
   seconds: v.optional(NumSchema),
+  /** Number of milliseconds. */
   milliseconds: v.optional(NumSchema),
+  /** Number of microseconds. */
   microseconds: v.optional(NumSchema),
+  /** Number of nanoseconds. */
   nanoseconds: v.optional(NumSchema),
 });
 
-/** Duration input object. */
+/** Duration input object. See {@link DurationInputSchema}. */
 export type DurationInput = v.InferOutput<typeof DurationInputSchema>;
 
 // =============================================================================
@@ -742,10 +787,10 @@ export type DurationInput = v.InferOutput<typeof DurationInputSchema>;
  * Returns an error if `Intl.DurationFormat` is not available in the runtime
  * (Node < 22.6, older browsers).
  *
- * @param duration - Duration object with optional unit fields. Validated via `DurationInputSchema`.
- * @param locale - BCP 47 locale tag. Validated via `StrSchema`.
- * @param style - `'long'` (default), `'short'`, `'narrow'`, or `'digital'`.
- * @returns `Result<Str>` — the formatted duration string, or an error.
+ * @param {DurationInput} duration - Duration object with optional unit fields. Validated via `DurationInputSchema`.
+ * @param {Str} locale - BCP 47 locale tag. Validated via `StrSchema`.
+ * @param {DurationStyle | undefined} style - `'long'` (default), `'short'`, `'narrow'`, or `'digital'`.
+ * @returns {Result<Str>} The formatted duration string, or an error.
  *
  * @example
  * ```typescript
@@ -762,7 +807,7 @@ export type DurationInput = v.InferOutput<typeof DurationInputSchema>;
 export function formatDuration(
   duration: DurationInput,
   locale: Str,
-  style?: DurationStyle,
+  style: DurationStyle | undefined,
 ): Result<Str> {
   const durationResult: Result<DurationInput> = safeParse(DurationInputSchema, duration);
   if (!durationResult.ok) return durationResult;
@@ -786,22 +831,24 @@ export function formatDuration(
   }
 
   try {
-    const DurationFormat = (Intl as Record<Str, unknown>).DurationFormat as new (
-      locale: Str,
-      options?: { style?: Str },
-    ) => { format: (duration: DurationInput) => Str }; // Irreducible: Intl.DurationFormat not in TS lib es2024 — runtime-guarded by 'DurationFormat' in Intl check above
-    const formatter = new DurationFormat(localeResult.data, {
+    // cast safe: irreducible — Intl.DurationFormat not in TS lib es2024, runtime-guarded above
+    // cast safe: irreducible — Intl.DurationFormat not in TS lib, runtime-guarded by 'DurationFormat' in Intl check above
+    type DurationFormatInstance = { format: (d: DurationInput) => Str };
+    type DurationFormatCtor = new (l: Str, o: { style: Str }) => DurationFormatInstance;
+    const intlRecord: Record<Str, unknown> = Intl as Record<Str, unknown>; // cast safe: accessing non-standard Intl property
+    // eslint camelCase conflict: constructor refs must be PascalCase (new-cap) but vars must be camelCase
+    // cast safe: runtime-guarded by 'DurationFormat' in Intl check above
+    const DurationFormat: DurationFormatCtor = intlRecord.DurationFormat as DurationFormatCtor;
+    const instance: DurationFormatInstance = new DurationFormat(localeResult.data, {
       style: style ?? 'long',
     });
-    const formatted: Str = formatter.format(durationResult.data);
+    const formatted: Str = instance.format(durationResult.data);
     return ok(StrSchema, formatted);
   } catch (error: unknown) {
+    // Intl.DurationFormat threw — convert to typed error
     return err(ERRORS.LOCALE.FORMAT_FAILED, {
-      meta: {
-        type: 'duration',
-        locale: localeResult.data,
-        reason: error instanceof Error ? error.message : String(error),
-      },
+      meta: { type: 'duration', locale: localeResult.data },
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -828,8 +875,14 @@ export function formatDuration(
  *
  * Unknown tokens are silently ignored for forward compatibility.
  *
- * @param skeleton - The skeleton string (without `::` prefix). Validated via `StrSchema`.
- * @returns `Result<Intl.NumberFormatOptions>` — parsed options, or a validation error.
+ * @param {Str} skeleton - The skeleton string (without `::` prefix). Validated via `StrSchema`.
+ * @returns {Result<Intl.NumberFormatOptions>} Parsed options, or a validation error.
+ *
+ * @example
+ * ```typescript
+ * const result = parseNumberSkeleton('currency/USD .00');
+ * // ok({ style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })
+ * ```
  */
 export function parseNumberSkeleton(skeleton: Str): Result<Intl.NumberFormatOptions> {
   const skeletonResult: Result<Str> = safeParse(StrSchema, skeleton);
@@ -950,8 +1003,14 @@ export function parseNumberSkeleton(skeleton: Str): Result<Intl.NumberFormatOpti
  *
  * Unknown symbols are silently ignored for forward compatibility.
  *
- * @param skeleton - The skeleton string (without `::` prefix). Validated via `StrSchema`.
- * @returns `Result<Intl.DateTimeFormatOptions>` — parsed options, or a validation error.
+ * @param {Str} skeleton - The skeleton string (without `::` prefix). Validated via `StrSchema`.
+ * @returns {Result<Intl.DateTimeFormatOptions>} Parsed options, or a validation error.
+ *
+ * @example
+ * ```typescript
+ * const result = parseDateTimeSkeleton('yyyyMMdd');
+ * // ok({ year: 'numeric', month: '2-digit', day: '2-digit' })
+ * ```
  */
 export function parseDateTimeSkeleton(skeleton: Str): Result<Intl.DateTimeFormatOptions> {
   const skeletonResult: Result<Str> = safeParse(StrSchema, skeleton);
@@ -962,8 +1021,7 @@ export function parseDateTimeSkeleton(skeleton: Str): Result<Intl.DateTimeFormat
   let i: Num = 0;
 
   while (i < s.length) {
-    // oxlint-disable-next-line typescript/no-non-null-assertion -- guarded by i < s.length in while condition
-    const ch: Str = s[i]!;
+    const ch: Str = s.charAt(i);
     let count: Num = 0;
     while (i < s.length && s[i] === ch) {
       count++;
