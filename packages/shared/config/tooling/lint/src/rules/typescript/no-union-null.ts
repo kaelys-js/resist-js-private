@@ -47,8 +47,49 @@ const rule: TypeScriptRule = {
       const types = node.types as AstNode[] | undefined;
       if (!types) return results;
 
+      // Only flag when the non-null/undefined type has a shared Optional/Nullable wrapper
+      // Base types (Str/string, Num/number, Bool/boolean) have wrappers; custom types don't
+      const BASE_TYPE_NODES: ReadonlySet<string> = new Set([
+        'TSStringKeyword',
+        'TSNumberKeyword',
+        'TSBooleanKeyword',
+      ]);
+      const BASE_TYPE_NAMES: ReadonlySet<string> = new Set([
+        'Str',
+        'Num',
+        'Bool',
+        'Path',
+        'Command',
+        'Hostname',
+        'Port',
+        'Filename',
+        'Void',
+        'PositiveInteger',
+        'NonNegativeInteger',
+      ]);
+
+      /**
+       * Check if a union member is a base type that has a shared Nullable/Optional wrapper.
+       *
+       * @param {AstNode} member - AST node to check
+       * @returns {boolean} Whether the member is a base type
+       */
+      function isBaseType(member: AstNode): boolean {
+        if (BASE_TYPE_NODES.has(member.type)) return true;
+        if (member.type === 'TSTypeReference') {
+          const typeName = (member.typeName as AstNode | undefined)?.name as string | undefined;
+          if (typeName && BASE_TYPE_NAMES.has(typeName)) return true;
+        }
+        return false;
+      }
+
+      const otherTypes: AstNode[] = types.filter(
+        (t: AstNode): boolean => t.type !== 'TSNullKeyword' && t.type !== 'TSUndefinedKeyword',
+      );
+      const hasBaseType: boolean = otherTypes.some(isBaseType);
+
       for (const member of types) {
-        if (member.type === 'TSNullKeyword') {
+        if (member.type === 'TSNullKeyword' && hasBaseType) {
           results.push({
             file: context.file,
             line: node.loc.start.line,
@@ -61,7 +102,7 @@ const rule: TypeScriptRule = {
             fix: { range: { start: node.start, end: node.end }, text: '' },
           });
         }
-        if (member.type === 'TSUndefinedKeyword') {
+        if (member.type === 'TSUndefinedKeyword' && hasBaseType) {
           results.push({
             file: context.file,
             line: node.loc.start.line,

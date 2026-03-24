@@ -170,6 +170,22 @@ const rule: TypeScriptRule = {
       // Only flag bare object literal types: type X = { ... }
       if (typeAnnotation.type !== 'TSTypeLiteral') return [];
 
+      // Skip if all members are function signatures (constructor/class interfaces, not data)
+      const members = typeAnnotation.members as AstNode[] | undefined;
+      if (members && members.length > 0) {
+        const allMethods: boolean = members.every((m: AstNode): boolean => {
+          if (m.type === 'TSMethodSignature') return true;
+          if (m.type === 'TSPropertySignature') {
+            const memberType = (m.typeAnnotation as AstNode | undefined)?.typeAnnotation as
+              | AstNode
+              | undefined;
+            if (memberType?.type === 'TSFunctionType') return true;
+          }
+          return false;
+        });
+        if (allMethods) return [];
+      }
+
       const name: string = ((node.id as AstNode)?.name as string) ?? 'unknown'; // cast safe: AST property
 
       return [
