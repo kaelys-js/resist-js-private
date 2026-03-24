@@ -109,9 +109,26 @@ function getAllExports(pkgDir: string): string[] {
  */
 function extractReadmeApiFunctions(readme: string): string[] {
   const names: string[] = [];
-  // Match table rows: | `functionName` | or | functionName |
-  const regex: RegExp = /\|\s*`?(\w+)`?\s*\|/g;
-  let match: RegExpExecArray | null = regex.exec(readme);
+
+  // Only scan the API Reference section — not the entire README
+  const apiMatch: RegExpMatchArray | null = readme.match(/^#{2,3}\s+(?:API|API Reference)\s*$/im);
+  if (!apiMatch || apiMatch.index === undefined) {
+    return names;
+  }
+
+  const apiStart: number = apiMatch.index;
+  // Find the next top-level ## heading after the API section (or end of file)
+  const afterApi: string = readme.slice(apiStart + apiMatch[0].length);
+  const nextSectionMatch: RegExpMatchArray | null = afterApi.match(/^## [^#]/m);
+  const apiEnd: number = nextSectionMatch?.index !== undefined
+    ? apiStart + apiMatch[0].length + nextSectionMatch.index
+    : readme.length;
+  const apiSection: string = readme.slice(apiStart, apiEnd);
+
+  // Match FIRST column of table rows: | `functionName` | or | functionName |
+  // Only match the first cell (export name), not description cells
+  const regex: RegExp = /^\|[ \t]*`?(\w+)`?[ \t]*\|/gm;
+  let match: RegExpExecArray | null = regex.exec(apiSection);
   while (match) {
     const name: string = match[1];
     // Skip table headers and common non-function words
@@ -122,7 +139,7 @@ function extractReadmeApiFunctions(readme: string): string[] {
     ) {
       names.push(name);
     }
-    match = regex.exec(readme);
+    match = regex.exec(apiSection);
   }
   return [...new Set(names)];
 }

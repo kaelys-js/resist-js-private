@@ -45,6 +45,8 @@ This package has six source files at separate import paths. No barrel re-exports
 | `src/direction.ts` | `@/locale/direction` | Text direction detection (LTR/RTL) |
 | `src/registry.ts` | `@/locale/registry` | Locale registry — multi-locale management |
 | `src/detect.ts` | `@/locale/detect` | Locale detection from browser, URL, cookie, header |
+| `src/display.ts` | `@/locale/display` | Language display names for locale selectors |
+| `src/og.ts` | `@/locale/og` | OpenGraph locale tag conversion |
 | `src/svelte.svelte.ts` | `@/locale/svelte` | Svelte 5 reactive adapter |
 
 ## API Reference
@@ -129,6 +131,22 @@ This package has six source files at separate import paths. No barrel re-exports
 | `getTextDirection(locale)` | Function | Returns `'ltr'` or `'rtl'` for a locale |
 | `TextDirectionSchema` | Schema | `v.picklist(['ltr', 'rtl'])` |
 | `TextDirection` | Type | `'ltr' \| 'rtl'` |
+
+### Display Names (`@/locale/display`)
+
+| Export | Kind | Description |
+|--------|------|-------------|
+| `getLanguageDisplayName(locale, displayLocale?)` | Function | Get the display name of a language in a target locale |
+| `getLanguageDisplayNames(locales, displayLocale?)` | Function | Get display names for multiple languages |
+| `LanguageDisplayInfoSchema` | Schema | Schema for language display info (code, name, nativeName) |
+| `LanguageDisplayInfo` | Type | Inferred language display info type |
+
+### OpenGraph Locale (`@/locale/og`)
+
+| Export | Kind | Description |
+|--------|------|-------------|
+| `toOgLocale(locale)` | Function | Convert BCP 47 locale tag to OpenGraph locale format (e.g., `en_US`) |
+| `OgLocaleSchema` | Schema | Schema for OpenGraph locale strings (e.g., `en_US`, `ja_JP`) |
 
 ### Svelte Adapter (`@/locale/svelte`)
 
