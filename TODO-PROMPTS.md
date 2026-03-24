@@ -1,8 +1,15 @@
+COMMIT EVERYTHING UNSTAGED AND THEN:
+
 This: /Users/coleb/Desktop/webforge/packages/shared/[TARGET_PATH]
 
 Run the custom linter against this file/directory and fix every error and warning found.
 
-1. Run `pnpm -w run qa:lint 2>&1 | grep "[TARGET_PATH]"` to get all lint errors
+1. Run ALL FOUR QA checks and collect ALL errors:
+   - `pnpm -w run qa:lint 2>&1 | grep "[TARGET_PATH]"` (oxlint)
+   - `npx tsx packages/shared/config/tooling/lint/src/cli.ts [TARGET_PATH]` (custom lint)
+   - `cd [TARGET_PACKAGE] && pnpm qa:type-check 2>&1 | grep "error TS"` (type-check)
+   - `npx vitest run --project [PROJECT_NAME] 2>&1` (tests)
+   Present ALL errors from ALL FOUR checks before proposing fixes.
 2. For EACH error/warning found:
    - Read the source file at the flagged line
    - Read the rule that flagged it at packages/shared/config/tooling/lint/src/rules/
@@ -14,7 +21,12 @@ Run the custom linter against this file/directory and fix every error and warnin
    - For each error: the rule ID, line number, current code, why it's wrong, and the exact fix
    - Clearly mark which are code fixes vs rule fixes
 4. After approval, implement ALL fixes
-5. After implementation, re-run `pnpm -w run qa:lint 2>&1 | grep "[TARGET_PATH]"` and confirm ZERO errors/warnings remain for the target (DO THE same for qa:type-check and qa:test)
+5. After implementation, re-run ALL FOUR checks and confirm ZERO errors in EACH:
+   - `pnpm -w run qa:lint 2>&1 | grep "[TARGET_PATH]"` → 0 errors
+   - `npx tsx packages/shared/config/tooling/lint/src/cli.ts [TARGET_PATH]` → 0 errors
+   - `cd [TARGET_PACKAGE] && pnpm qa:type-check 2>&1 | grep "error TS"` → 0 errors
+   - `npx vitest run --project [PROJECT_NAME]` → all pass
+   If ANY check has errors, fix them and re-run ALL checks again.
 6. Run `npx vitest run --project lint` to confirm all rule tests still pass (210+ must pass)
 
 DO NOT weaken assertions, skip errors, or dismiss warnings as "acceptable." Every single diagnostic must be resolved — either fix the code or fix the rule.

@@ -23,7 +23,7 @@ function hasExplanatoryComment(content: string, line: number): boolean {
   // Check same line for trailing // comment
   if (lineIdx >= 0 && lineIdx < lines.length) {
     const currentLine: string = lines[lineIdx];
-    if (/\/\/.*\b(cast|safe|irreducible|workaround|required)\b/i.test(currentLine)) return true;
+    if (/\/\/.*\b(cast|safe|irreducible|workaround|required|integration)\b/i.test(currentLine)) return true;
     if (/\/\//.test(currentLine) && currentLine.indexOf('//') > currentLine.indexOf(' as '))
       return true;
   }

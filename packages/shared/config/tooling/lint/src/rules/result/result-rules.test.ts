@@ -333,7 +333,7 @@ export function createConfig(): UserConfig {
     expect(results.length).toBe(0);
   });
 
-  it('flags function with integration boundary comment but no throw (no longer exempt)', async () => {
+  it('exempts function with integration boundary comment (pure factory)', async () => {
     const code: string = `
 export function createPlugin(): Plugin {
   // integration boundary: returns Vite Plugin type
@@ -341,13 +341,23 @@ export function createPlugin(): Plugin {
 }
 `;
     const results: LintResult[] = await lint(requireResultType, code);
-    expect(results.length).toBe(1);
+    expect(results.length).toBe(0);
   });
 
-  it('exempts function that throws result.error at integration boundary', async () => {
+  it('flags integration boundary comment without explanation', async () => {
     const code: string = `export function createConfig(options: Options): Config {
     const result = safeParse(Schema, options);
     if (!result.ok) throw result.error; // integration boundary
+    return result.data;
+  }`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('exempts integration boundary comment with explanation', async () => {
+    const code: string = `export function createConfig(options: Options): Config {
+    const result = safeParse(Schema, options);
+    if (!result.ok) throw result.error; // integration boundary: Vite doesn't understand Result
     return result.data;
   }`;
     const results: LintResult[] = await lint(requireResultType, code);

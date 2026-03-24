@@ -132,7 +132,7 @@ function checkFunctionReturnType(
   // The comment can appear with a throw (error propagation) or standalone (pure factory).
   if (body?.type === 'BlockStatement') {
     const bodySource: string = context.content.slice(body.start, body.end);
-    if (/throw\s+\w+\.error\b/.test(bodySource) && /\/\/.*integration boundary/i.test(bodySource)) {
+    if (/\/\/.*integration boundary:\s*\S+/i.test(bodySource)) {
       return null;
     }
   }

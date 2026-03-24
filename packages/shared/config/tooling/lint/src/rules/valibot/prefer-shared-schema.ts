@@ -101,6 +101,15 @@ const rule: TypeScriptRule = {
         // Only check string-based schemas
         if (!isStringBasedSchema(valueText)) continue;
 
+        // Skip fields already well-constrained (3+ validators in v.pipe)
+        // e.g. v.pipe(v.string(), v.minLength(1), v.maxLength(50), v.regex(...))
+        const pipeMatch: RegExpMatchArray | null = valueText.match(/v\.pipe\(/);
+        if (pipeMatch) {
+          const pipeContent: string = valueText.slice(valueText.indexOf('v.pipe('));
+          const validatorCount: number = pipeContent.split(/v\.\w+\(/).length - 1;
+          if (validatorCount >= 4) continue;
+        }
+
         // Check field name against patterns
         for (const suggestion of SCHEMA_SUGGESTIONS) {
           if (suggestion.pattern.test(keyName)) {

@@ -23,6 +23,7 @@ import noBareDataTypes from './no-bare-data-types.ts';
 import noUnionNull from './no-union-null.ts';
 import requireNonNegativeInteger from './require-non-negative-integer.ts';
 import noDefaultParams from './no-default-params.ts';
+import noGenericFunctionType from './no-generic-function-type.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -752,5 +753,48 @@ describe('typescript/no-default-params', () => {
     const code: string = `function multi(a: string = '', b: number = 0): void {}`;
     const results: LintResult[] = await lint(noDefaultParams, code);
     expect(results.length).toBe(2);
+  });
+});
+
+// =============================================================================
+// typescript/no-generic-function-type
+// =============================================================================
+
+describe('typescript/no-generic-function-type', () => {
+  it('flags ...args: unknown[] in function type', async () => {
+    const code: string = `type Handler = (...args: unknown[]) => void;`;
+    const results: LintResult[] = await lint(noGenericFunctionType, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('unknown[]');
+  });
+
+  it('passes function type with specific params', async () => {
+    const code: string = `type Handler = (name: string, count: number) => void;`;
+    const results: LintResult[] = await lint(noGenericFunctionType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes function type with typed rest params', async () => {
+    const code: string = `type Logger = (...messages: string[]) => void;`;
+    const results: LintResult[] = await lint(noGenericFunctionType, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// typescript/require-type-annotation — FunctionExpression
+// =============================================================================
+
+describe('typescript/require-type-annotation — FunctionExpression', () => {
+  it('flags untyped parameter in object method', async () => {
+    const code: string = `const obj = { handler: function(server) { return; } };`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.some((r: LintResult): boolean => r.message.includes("'server'"))).toBe(true);
+  });
+
+  it('passes typed parameter in object method', async () => {
+    const code: string = `const obj: Obj = { handler: function(server: Server): void { return; } };`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.some((r: LintResult): boolean => r.message.includes("'server'"))).toBe(false);
   });
 });
