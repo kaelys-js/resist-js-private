@@ -133,10 +133,13 @@ type DetectLocaleOptions = v.InferOutput<typeof DetectLocaleOptionsSchema>;
  */
 export function matchLocale(tag: Str, available: readonly Str[]): Result<NullableStr> {
   const tagResult: Result<Str> = safeParse(StrSchema, tag);
+
   if (!tagResult.ok) {
     return tagResult;
   }
+
   const availableResult: Result<StrArray> = safeParse(StrArraySchema, [...available]);
+
   if (!availableResult.ok) {
     return availableResult;
   }
@@ -152,6 +155,7 @@ export function matchLocale(tag: Str, available: readonly Str[]): Result<Nullabl
 
   // Base language fallback (e.g., 'en-US' → 'en')
   const baseLang: Str = normalized.split('-')[0] ?? normalized;
+
   for (const code of availableResult.data) {
     if (code.toLowerCase() === baseLang) {
       return ok(NullableStrSchema, code);
@@ -181,6 +185,7 @@ export function matchLocale(tag: Str, available: readonly Str[]): Result<Nullabl
  */
 export function detectFromNavigator(available: readonly Str[]): Result<NullableStr> {
   const availableResult: Result<StrArray> = safeParse(StrArraySchema, [...available]);
+
   if (!availableResult.ok) {
     return availableResult;
   }
@@ -195,6 +200,7 @@ export function detectFromNavigator(available: readonly Str[]): Result<NullableS
 
   for (const lang of languages) {
     const matchResult: Result<NullableStr> = matchLocale(lang, availableResult.data);
+
     if (!matchResult.ok) {
       return matchResult;
     }
@@ -226,10 +232,13 @@ export function detectFromAcceptLanguage(
   available: readonly Str[],
 ): Result<NullableStr> {
   const headerResult: Result<Str> = safeParse(StrSchema, header);
+
   if (!headerResult.ok) {
     return headerResult;
   }
+
   const availableResult: Result<StrArray> = safeParse(StrArraySchema, [...available]);
+
   if (!availableResult.ok) {
     return availableResult;
   }
@@ -240,12 +249,15 @@ export function detectFromAcceptLanguage(
     .map((part: Str): QualityEntry => {
       const [lang, ...rest]: Str[] = part.trim().split(';');
       let quality: Num = 1;
+
       for (const param of rest) {
         const qMatch: NullableStr = param.trim().match(/^q=(\d+(?:\.\d+)?)$/)?.[1] ?? null;
+
         if (qMatch !== null) {
           quality = Number(qMatch);
         }
       }
+
       return { lang: (lang ?? '').trim(), quality };
     })
     .filter((entry: QualityEntry): Bool => entry.lang.length > 0)
@@ -253,6 +265,7 @@ export function detectFromAcceptLanguage(
 
   for (const entry of entries) {
     const matchResult: Result<NullableStr> = matchLocale(entry.lang, availableResult.data);
+
     if (!matchResult.ok) {
       return matchResult;
     }
@@ -284,25 +297,34 @@ export function detectFromUrlPath(
   available: readonly Str[],
 ): Result<NullableStr> {
   const urlResult: Result<Str> = safeParse(StrSchema, url);
+
   if (!urlResult.ok) {
     return urlResult;
   }
+
   const indexResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, segmentIndex);
+
   if (!indexResult.ok) {
     return indexResult;
   }
+
   const availableResult: Result<StrArray> = safeParse(StrArraySchema, [...available]);
+
   if (!availableResult.ok) {
     return availableResult;
   }
 
   try {
     const parsed: URL = new URL(urlResult.data);
+
     const segments: Str[] = parsed.pathname.split('/').filter((s: Str): Bool => s.length > 0);
+
     const segment: OptionalStr = segments[Number(indexResult.data)]; // cast safe: NonNegativeInteger is number at runtime
+
     if (!segment) {
       return ok(NullableStrSchema, null);
     }
+
     return matchLocale(segment, availableResult.data);
   } catch (error: unknown) {
     // Invalid URL format — convert to typed error and propagate
@@ -330,24 +352,32 @@ export function detectFromUrlQuery(
   available: readonly Str[],
 ): Result<NullableStr> {
   const urlResult: Result<Str> = safeParse(StrSchema, url);
+
   if (!urlResult.ok) {
     return urlResult;
   }
+
   const paramResult: Result<Str> = safeParse(StrSchema, paramName);
+
   if (!paramResult.ok) {
     return paramResult;
   }
+
   const availableResult: Result<StrArray> = safeParse(StrArraySchema, [...available]);
+
   if (!availableResult.ok) {
     return availableResult;
   }
 
   try {
     const parsed: URL = new URL(urlResult.data);
+
     const value: NullableStr = parsed.searchParams.get(paramResult.data);
+
     if (!value) {
       return ok(NullableStrSchema, null);
     }
+
     return matchLocale(value, availableResult.data);
   } catch (error: unknown) {
     // Invalid URL format — convert to typed error and propagate
@@ -375,26 +405,36 @@ export function detectFromCookie(
   available: readonly Str[],
 ): Result<NullableStr> {
   const headerResult: Result<Str> = safeParse(StrSchema, cookieHeader);
+
   if (!headerResult.ok) {
     return headerResult;
   }
+
   const nameResult: Result<Str> = safeParse(StrSchema, cookieName);
+
   if (!nameResult.ok) {
     return nameResult;
   }
+
   const availableResult: Result<StrArray> = safeParse(StrArraySchema, [...available]);
+
   if (!availableResult.ok) {
     return availableResult;
   }
 
   const cookies: Str[] = headerResult.data.split(';').map((s: Str): Str => s.trim());
+
   for (const cookie of cookies) {
     const eqIndex: Num = cookie.indexOf('=');
+
     if (eqIndex === -1) {
       continue;
     }
+
     const name: Str = cookie.slice(0, eqIndex).trim();
+
     const value: Str = cookie.slice(eqIndex + 1).trim();
+
     if (name === nameResult.data) {
       return matchLocale(value, availableResult.data);
     }
@@ -430,6 +470,7 @@ export function detectFromCookie(
  */
 export function detectLocale(options: DetectLocaleOptions): Result<Str> {
   const optionsResult: Result<DetectLocaleOptions> = safeParse(DetectLocaleOptionsSchema, options);
+
   if (!optionsResult.ok) {
     return optionsResult;
   }
@@ -488,6 +529,7 @@ export function detectLocale(options: DetectLocaleOptions): Result<Str> {
       case 'storage': {
         if (typeof globalThis.localStorage?.getItem === 'function') {
           const stored: NullableStr = globalThis.localStorage.getItem(source.key);
+
           if (stored) {
             matchResult = matchLocale(stored, validated.available);
           } else {

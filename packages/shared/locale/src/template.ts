@@ -2160,7 +2160,8 @@ function buildLocaleEntries(
         if (typeof item === 'object' && item !== null) {
           const rendered: RawLocaleStrings = {};
 
-          for (const [fieldKey, fieldValue] of Object.entries(item as Record<Str, unknown>)) { // cast safe: guarded by typeof === 'object' && !== null above
+          for (const [fieldKey, fieldValue] of Object.entries(item as Record<Str, unknown>)) {
+            // cast safe: guarded by typeof === 'object' && !== null above
             // cast safe: typeof item === 'object' guard above
             // Runtime-guarded by typeof === 'object' check above
             if (typeof fieldValue === 'string') {
