@@ -73,6 +73,7 @@ vi.mock('@sveltejs/vite-plugin-svelte', () => ({
 const { createSvelteConfig, TEMPLATE_PATHS } = await import('./index.ts');
 const { execSyncSafe } = await import('@/utils/core/shell');
 const { readFile } = await import('@/utils/core/fs');
+const { findWorkspaceRoot } = await import('@/utils/core/workspace');
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -85,6 +86,11 @@ beforeEach(() => {
   (readFile as ReturnType<typeof vi.fn>).mockReturnValue({
     ok: true,
     data: MOCK_TSCONFIG_JSON as Str,
+    error: null,
+  });
+  (findWorkspaceRoot as ReturnType<typeof vi.fn>).mockReturnValue({
+    ok: true,
+    data: '/mock/root' as Path,
     error: null,
   });
 });
@@ -226,5 +232,63 @@ describe('createSvelteConfig', () => {
     // CSP is only defined in production mode
     assert.ok(config.kit, 'kit should be defined');
     expect(config.kit.csp).toBeUndefined();
+  });
+
+  // --- Error paths ---
+
+  it('throws when options are invalid (missing adapter)', () => {
+    expect(() => createSvelteConfig({} as Parameters<typeof createSvelteConfig>[0])).toThrow();
+  });
+
+  it('throws when workspace root is not found', () => {
+    (findWorkspaceRoot as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: false,
+      data: null,
+      error: { code: 'WORKSPACE.ROOT_NOT_FOUND', message: 'not found' },
+    });
+    expect(() => createSvelteConfig({ adapter: mockAdapter })).toThrow();
+  });
+
+  it('throws when tsconfig cannot be read', () => {
+    (readFile as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: false,
+      data: null,
+      error: { code: 'IO.READ_FAILED', message: 'not found' },
+    });
+    expect(() => createSvelteConfig({ adapter: mockAdapter })).toThrow();
+  });
+
+  // --- Edge cases ---
+
+  it('uses custom errorTemplate when files.errorTemplate provided', () => {
+    const config = createSvelteConfig({
+      adapter: mockAdapter,
+      files: { errorTemplate: '/custom/error.html' },
+    });
+    assert.ok(config.kit, 'kit should be defined');
+    assert.ok(config.kit.files, 'kit.files should be defined');
+    expect(config.kit.files.errorTemplate).toBe('/custom/error.html');
+    expect(config.kit.files.appTemplate).toBe(TEMPLATE_PATHS.appHtml);
+  });
+
+  it('skips alias entries with empty targets array', () => {
+    (readFile as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: JSON.stringify({ compilerOptions: { paths: { '@/empty': [] } } }),
+      error: null,
+    });
+    const config = createSvelteConfig({ adapter: mockAdapter });
+    assert.ok(config.kit, 'kit should be defined');
+    assert.ok(config.kit.alias, 'kit.alias should be defined');
+    expect(config.kit.alias['@/empty']).toBeUndefined();
+  });
+
+  it('strips *.ts from wildcard alias targets', () => {
+    const config = createSvelteConfig({ adapter: mockAdapter });
+    assert.ok(config.kit, 'kit should be defined');
+    assert.ok(config.kit.alias, 'kit.alias should be defined');
+    const wildcardPath: Str = config.kit.alias['@/utils/core/*'] as Str;
+    expect(wildcardPath).not.toMatch(/\*\.ts$/);
+    expect(wildcardPath).toMatch(/\*$/);
   });
 });

@@ -158,6 +158,10 @@ describe('createViteConfig', () => {
     expect(() => createViteConfig({ plugins: [] })).toThrow();
   });
 
+  it('throws when options are invalid (missing plugins)', () => {
+    expect(() => createViteConfig({} as Parameters<typeof createViteConfig>[0])).toThrow();
+  });
+
   it('server.watch.ignored includes standard directories', () => {
     const config = createViteConfig({ plugins: [] });
     const ignored = config.server?.watch?.ignored as Str[];

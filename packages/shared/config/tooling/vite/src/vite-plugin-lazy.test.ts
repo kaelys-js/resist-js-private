@@ -58,4 +58,20 @@ describe('createLazyPlugin', () => {
     expect(mockServer.ssrLoadModule).toHaveBeenCalledWith('./src/test.ts');
     expect(setupFn).toHaveBeenCalledWith(mockServer);
   });
+
+  it('does not throw when setup function is missing from module', async () => {
+    const mockServer = {
+      ssrLoadModule: vi.fn(() => ({})),
+    };
+
+    const plugin = createLazyPlugin({
+      name: 'test-plugin' as Name, // cast safe: test fixture
+      modulePath: './src/test.ts' as Path, // cast safe: test fixture
+      setupFn: 'nonExistent',
+    });
+
+    await expect(
+      (plugin as { configureServer: (server: unknown) => Promise<void> }).configureServer(mockServer),
+    ).resolves.toBeUndefined();
+  });
 });
