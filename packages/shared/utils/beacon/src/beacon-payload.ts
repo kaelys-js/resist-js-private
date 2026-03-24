@@ -28,7 +28,6 @@ import {
   AppErrorSchema,
   ErrorTagsSchema,
   type Result,
-  ok,
 } from '@/schemas/result/result';
 import { formatErrorSafe } from '@/utils/result/format';
 
@@ -130,20 +129,20 @@ export function toBeaconPayload(captured: CapturedError): Result<BeaconPayload> 
 
   if (!safeError.ok) return safeError;
 
-  const payload: BeaconPayload = {
-    id: capturedResult.data.id as Str, // cast safe: validated UUID string
+  const rawPayload: Record<Str, unknown> = { // cast safe: building untyped object for schema validation
+    id: capturedResult.data.id,
     type: capturedResult.data.type,
-    error: safeError.data as AppError, // cast safe: formatErrorSafe returns validated AppError
+    error: safeError.data,
     environment: capturedResult.data.environment,
-    timestamp: capturedResult.data.timestamp as Str, // cast safe: validated ISO timestamp
+    timestamp: capturedResult.data.timestamp,
     fatal: capturedResult.data.fatal,
     ...(capturedResult.data.breadcrumbs !== undefined && {
-      breadcrumbs: capturedResult.data.breadcrumbs as typeof capturedResult.data.breadcrumbs, // cast safe: validated breadcrumb array
+      breadcrumbs: capturedResult.data.breadcrumbs,
     }),
     ...(capturedResult.data.tags !== undefined && { tags: capturedResult.data.tags }),
     ...(capturedResult.data.release !== undefined && { release: capturedResult.data.release }),
     ...(capturedResult.data.fingerprint !== undefined && { fingerprint: capturedResult.data.fingerprint }),
   };
 
-  return ok(BeaconPayloadSchema, payload);
+  return safeParse(BeaconPayloadSchema, rawPayload);
 }

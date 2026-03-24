@@ -67,7 +67,7 @@ afterEach(() => {
 describe('beaconError', () => {
   it('sends PII-stripped error via navigator.sendBeacon', () => {
     const captured: CapturedError = makeCaptured();
-    const result: Result<Void> = beaconError(captured);
+    const result: Result<Void> = beaconError(captured, '/api/errors');
 
     expect(result.ok).toBe(true);
     expect(sendBeaconSpy).toHaveBeenCalledOnce();
@@ -79,7 +79,7 @@ describe('beaconError', () => {
 
   it('strips PII from error payload', async () => {
     const captured: CapturedError = makeCaptured();
-    beaconError(captured);
+    beaconError(captured, '/api/errors');
 
     const blob: Blob = sendBeaconSpy.mock.calls[0]![1] as Blob;
     const text: Str = (await blob.text()) as Str;
@@ -93,7 +93,7 @@ describe('beaconError', () => {
 
   it('uses text/plain Blob to avoid CORS preflight', () => {
     const captured: CapturedError = makeCaptured();
-    beaconError(captured);
+    beaconError(captured, '/api/errors');
 
     expect(sendBeaconSpy).toHaveBeenCalledOnce();
     const blob: Blob = sendBeaconSpy.mock.calls[0]![1] as Blob;
@@ -104,7 +104,7 @@ describe('beaconError', () => {
   it('skips beaconing in dev mode', () => {
     import.meta.env.DEV = true;
     const captured: CapturedError = makeCaptured();
-    const result: Result<Void> = beaconError(captured);
+    const result: Result<Void> = beaconError(captured, '/api/errors');
 
     expect(result.ok).toBe(true);
     expect(sendBeaconSpy).not.toHaveBeenCalled();
@@ -113,7 +113,7 @@ describe('beaconError', () => {
   it('handles sendBeacon returning false (queue full)', () => {
     sendBeaconSpy.mockReturnValueOnce(false);
     const captured: CapturedError = makeCaptured();
-    const result: Result<Void> = beaconError(captured);
+    const result: Result<Void> = beaconError(captured, '/api/errors');
 
     // Still returns ok — fire-and-forget, queue full is non-critical
     expect(result.ok).toBe(true);
@@ -126,7 +126,7 @@ describe('beaconError', () => {
       configurable: true,
     });
     const captured: CapturedError = makeCaptured();
-    const result: Result<Void> = beaconError(captured);
+    const result: Result<Void> = beaconError(captured, '/api/errors');
 
     // Returns ok — no beacon available is non-critical
     expect(result.ok).toBe(true);
@@ -136,7 +136,7 @@ describe('beaconError', () => {
     // biome-ignore lint/performance/noDelete: test requires removing navigator
     delete (globalThis as Record<Str, unknown>).navigator;
     const captured: CapturedError = makeCaptured();
-    const result: Result<Void> = beaconError(captured);
+    const result: Result<Void> = beaconError(captured, '/api/errors');
 
     expect(result.ok).toBe(true);
   });
@@ -154,7 +154,7 @@ describe('beaconError', () => {
       tags: { service: 'editor-client', side: 'client' },
     });
 
-    beaconError(captured);
+    beaconError(captured, '/api/errors');
 
     expect(sendBeaconSpy).toHaveBeenCalledOnce();
     const blob: Blob = sendBeaconSpy.mock.calls[0]![1] as Blob;
@@ -185,7 +185,7 @@ describe('beaconError', () => {
     const captured: CapturedError = makeCaptured({
       type: 'not-a-real-type' as CapturedErrorType,
     });
-    const result: Result<Void> = beaconError(captured);
+    const result: Result<Void> = beaconError(captured, '/api/errors');
 
     // beaconError is fire-and-forget — always returns ok regardless
     expect(result.ok).toBe(true);
@@ -198,7 +198,7 @@ describe('beaconError', () => {
     };
 
     const captured: CapturedError = makeCaptured();
-    const result: Result<Void> = beaconError(captured);
+    const result: Result<Void> = beaconError(captured, '/api/errors');
 
     // Catch block swallows the error — still returns ok
     expect(result.ok).toBe(true);
