@@ -1367,6 +1367,13 @@ export function renderMessage(
   if (!templateResult.ok) {
     return templateResult;
   }
+
+  const paramsResult: Result<Record<Str, unknown>> = safeParse(v.record(v.string(), v.unknown()), params);
+
+  if (!paramsResult.ok) {
+    return paramsResult;
+  }
+
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
 
