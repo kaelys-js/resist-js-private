@@ -382,6 +382,12 @@ describe('imports/no-js-extension', () => {
     const results: LintResult[] = await lint(noJsExtension, code, 'my-module.test.ts');
     expect(results.length).toBe(0);
   });
+
+  it('allows bare npm package names ending in .js', async () => {
+    const code: string = `import { initPerfume } from 'perfume.js';`;
+    const results: LintResult[] = await lint(noJsExtension, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
