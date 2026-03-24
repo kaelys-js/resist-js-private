@@ -440,15 +440,15 @@ export function detectLocale(options: DetectLocaleOptions): Result<Str> {
         break;
       }
       case 'storage': {
-        if (globalThis.localStorage === undefined) {
-          continue;
-        } else {
+        if (typeof globalThis.localStorage?.getItem === 'function') {
           const stored: NullableStr = globalThis.localStorage.getItem(source.key);
           if (stored) {
             matchResult = matchLocale(stored, validated.available);
           } else {
             continue;
           }
+        } else {
+          continue;
         }
         break;
       }
