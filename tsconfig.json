@@ -38,7 +38,7 @@
       "@/schemas/core-config/*": ["./packages/shared/schemas/core-config/src/*.ts"],
       "@/config/*": ["./packages/shared/config/core/src/*.ts"],
       "@/config/core/*": ["./packages/shared/config/core/src/*.ts"],
-      "@/test-presets/*": ["./packages/shared/config/test/src/*.ts"],
+      "@/test-presets/*": ["./packages/shared/config/test/src/presets/*.ts"],
       "@/test-presets/harness": ["./packages/shared/config/test/src/harness/index.ts"],
       "@/test-presets/harness/*": ["./packages/shared/config/test/src/harness/*.ts"],
       "@/ui": ["./packages/shared/ui/src/index.ts"],
