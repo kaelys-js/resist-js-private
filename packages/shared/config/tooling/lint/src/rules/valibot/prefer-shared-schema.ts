@@ -19,6 +19,8 @@ const SCHEMA_SUGGESTIONS: ReadonlyArray<{ pattern: RegExp; schema: string; sourc
   { pattern: /[Vv]ersion$/, schema: 'SemverSchema', source: '@/schemas/common' },
   { pattern: /[Cc]ommand|[Cc]md$/, schema: 'CommandSchema', source: '@/schemas/common' },
   { pattern: /[Hh]ostname|[Hh]ost$/, schema: 'HostnameSchema', source: '@/schemas/common' },
+  { pattern: /[Mm]eta[Tt]itle$/, schema: 'MetaTitleSchema', source: '@/schemas/common' },
+  { pattern: /[Mm]eta[Dd]escription$/, schema: 'MetaDescriptionSchema', source: '@/schemas/common' },
   { pattern: /[Nn]ame$|[Tt]itle$/, schema: 'NameSchema', source: '@/schemas/common' },
   {
     pattern: /[Pp]refix$|[Ss]uffix$/,
@@ -26,6 +28,38 @@ const SCHEMA_SUGGESTIONS: ReadonlyArray<{ pattern: RegExp; schema: string; sourc
     source: 'inline',
   },
   { pattern: /[Ff]amily$|[Ff]amilies$/, schema: 'CssFontFamilySchema', source: '@/schemas/common' },
+  { pattern: /[Ee]mail$/, schema: 'EmailSchema', source: '@/schemas/common' },
+  { pattern: /^id$|Id$|[Ss]essionId$/, schema: 'UuidSchema', source: '@/schemas/common' },
+  { pattern: /[Tt]imestamp$|[Dd]ateTime$/, schema: 'IsoTimestampSchema', source: '@/schemas/common' },
+  { pattern: /[Cc]ommit$|[Cc]ommitHash$/, schema: 'GitCommitShortSchema', source: '@/schemas/common' },
+  { pattern: /[Cc]ommitFull$/, schema: 'GitCommitFullSchema', source: '@/schemas/common' },
+  { pattern: /[Bb]ranch$/, schema: 'GitBranchSchema', source: '@/schemas/common' },
+  { pattern: /[Ww]eight$/, schema: 'CssFontWeightSchema', source: '@/schemas/common' },
+  { pattern: /[Ss]uite$|[Ss]ervice$/, schema: 'NameSchema', source: '@/schemas/common' },
+  { pattern: /[Dd]escription$/, schema: 'DescriptionSchema', source: '@/schemas/common' },
+  { pattern: /[Tt]ag$|[Kk]eyword$/, schema: 'TagSchema', source: '@/schemas/common' },
+  { pattern: /[Ss]lug$/, schema: 'SlugSchema', source: '@/schemas/common' },
+  { pattern: /[Cc]olor$|[Cc]olour$/, schema: 'HexColorSchema', source: '@/schemas/common' },
+  { pattern: /[Ss]tatus[Cc]ode$/, schema: 'HttpStatusCodeSchema', source: '@/schemas/common' },
+  { pattern: /[Cc]ontent[Tt]ype$|[Mm]ime[Tt]ype$/, schema: 'MimeTypeSchema', source: '@/schemas/common' },
+  { pattern: /[Dd]uration$|[Ee]xpiry$|[Tt]tl$/, schema: 'DurationSchema', source: '@/schemas/common' },
+  { pattern: /[Cc]ountry[Cc]ode$/, schema: 'CountryCodeSchema', source: '@/schemas/common' },
+  { pattern: /[Cc]urrency[Cc]ode$|[Cc]urrency$/, schema: 'CurrencyCodeSchema', source: '@/schemas/common' },
+  { pattern: /[Tt]imezone$|[Tt]z$/, schema: 'TimezoneSchema', source: '@/schemas/common' },
+  { pattern: /[Cc]ron$|[Ss]chedule$/, schema: 'CronExpressionSchema', source: '@/schemas/common' },
+  { pattern: /[Pp]assword$/, schema: 'PasswordSchema', source: '@/schemas/common' },
+  { pattern: /[Tt]oken$/, schema: 'BearerTokenSchema', source: '@/schemas/common' },
+  { pattern: /[Ff]eature[Ff]lag$/, schema: 'FeatureFlagSchema', source: '@/schemas/common' },
+  { pattern: /[Cc]anonical[Uu]rl$/, schema: 'CanonicalUrlSchema', source: '@/schemas/common' },
+  { pattern: /[Ll]ocale[Tt]ag$|[Ll]ang[Tt]ag$/, schema: 'BCP47TagSchema', source: '@/schemas/common' },
+  { pattern: /[Tt]ranslation[Kk]ey$|[Ii]18n[Kk]ey$/, schema: 'TranslationKeySchema', source: '@/schemas/common' },
+  { pattern: /[Ee]rror[Cc]ode$/, schema: 'ErrorCodeSchema', source: '@/schemas/common' },
+  { pattern: /[Cc]orrelation[Ii]d$|[Rr]equest[Ii]d$|[Tt]race[Ii]d$/, schema: 'CorrelationIdSchema', source: '@/schemas/common' },
+  { pattern: /[Ee]xtension$|[Ee]xt$/, schema: 'FileExtensionSchema', source: '@/schemas/common' },
+  { pattern: /[Ss]earch[Qq]uery$|[Qq]uery$/, schema: 'SearchQuerySchema', source: '@/schemas/common' },
+  { pattern: /[Cc]omment$/, schema: 'CommentSchema', source: '@/schemas/common' },
+  { pattern: /[Ss]ummary$/, schema: 'SummarySchema', source: '@/schemas/common' },
+  { pattern: /[Yy]ear$/, schema: 'YearSchema', source: '@/schemas/common' },
 ];
 
 /** File path patterns exempt from this rule. */
@@ -52,17 +86,17 @@ function isExempt(filePath: string): boolean {
  * @param {string} valueText - Source text of the property value
  * @returns {boolean} Whether the value is a string-based schema
  */
-function isStringBasedSchema(valueText: string): boolean {
-  if (valueText === 'v.string()') {
+function isPrimitiveSchema(valueText: string): boolean {
+  if (valueText === 'v.string()' || valueText === 'v.number()') {
     return true;
   }
-  if (valueText.startsWith('v.pipe(v.string()')) {
+  if (valueText.startsWith('v.pipe(v.string()') || valueText.startsWith('v.pipe(v.number()')) {
     return true;
   }
-  if (valueText.startsWith('v.optional(v.string()')) {
+  if (valueText.startsWith('v.optional(v.string()') || valueText.startsWith('v.optional(v.number()')) {
     return true;
   }
-  if (valueText.startsWith('v.optional(v.pipe(v.string()')) {
+  if (valueText.startsWith('v.optional(v.pipe(v.string()') || valueText.startsWith('v.optional(v.pipe(v.number()')) {
     return true;
   }
   return false;
@@ -131,7 +165,7 @@ const rule: TypeScriptRule = {
         }
 
         // Only check string-based schemas
-        if (!isStringBasedSchema(valueText)) {
+        if (!isPrimitiveSchema(valueText)) {
           continue;
         }
 
