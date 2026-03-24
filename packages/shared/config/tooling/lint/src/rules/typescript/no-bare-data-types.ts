@@ -223,6 +223,12 @@ const rule: TypeScriptRule = {
         return [];
       }
 
+      // Skip generic type aliases — type parameters have no runtime representation,
+      // so the type can't be expressed as a Valibot schema
+      if (node.typeParameters) {
+        return [];
+      }
+
       // Skip if all members are function signatures (constructor/class interfaces, not data)
       if (isAllMethodsType(typeAnnotation)) {
         return [];

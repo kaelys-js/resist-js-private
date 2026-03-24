@@ -152,7 +152,13 @@ function checkFunction(
     );
     const isIndirectlyValidated: boolean = indirectPattern.test(bodyText);
 
-    if (!isParamValidated(paramName, bodyText) && !isIndirectlyValidated) {
+    // Check method-call validation: const x: Result<T> = param.method()
+    const methodResultPattern: RegExp = new RegExp(
+      `const\\s+\\w+\\s*:\\s*Result[^=]*=\\s*${paramName}\\.\\w+\\s*\\(`,
+    );
+    const isMethodValidated: boolean = methodResultPattern.test(bodyText);
+
+    if (!isParamValidated(paramName, bodyText) && !isIndirectlyValidated && !isMethodValidated) {
       results.push({
         file: context.file,
         line: node.loc.start.line,

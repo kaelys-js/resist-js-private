@@ -944,3 +944,25 @@ const opts: Options = parsed.data.options ?? {};
     expect(results.length).toBe(1);
   });
 });
+
+// =============================================================================
+// result/validate-function-input — method-call validation
+// =============================================================================
+
+describe('result/validate-function-input — method-call validation', () => {
+  it('passes when parameter is validated via method call returning Result', async () => {
+    const code: string = `
+import { type Result } from '@/schemas/result/result';
+export function createStore(registry: Registry): Result<Store> {
+  const activeResult: Result<Str> = registry.active();
+  if (!activeResult.ok) { return activeResult; }
+  return ok(StoreSchema, {});
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const registryErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'registry'"),
+    );
+    expect(registryErrors.length).toBe(0);
+  });
+});

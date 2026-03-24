@@ -25,6 +25,7 @@ import requireNonNegativeInteger from './require-non-negative-integer.ts';
 import noDefaultParams from './no-default-params.ts';
 import noGenericFunctionType from './no-generic-function-type.ts';
 import noUnionParams from './no-union-params.ts';
+import requireFunctionSchema from './require-function-schema.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -600,6 +601,18 @@ function process(name: string): void {
     const results: LintResult[] = await lint(noBareDataTypes, code);
     expect(results.length).toBe(0);
   });
+
+  it('passes generic type alias (type parameters have no runtime representation)', async () => {
+    const code: string = `type Store<T> = { value: T; get: () => T };`;
+    const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('still flags non-generic bare type alias', async () => {
+    const code: string = `type Config = { host: string; port: number };`;
+    const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(1);
+  });
 });
 
 // =============================================================================
@@ -935,6 +948,37 @@ describe('typescript/no-union-params', () => {
   it('does not flag non-exported functions', async () => {
     const code: string = `function foo(x: Str | undefined): void {}`;
     const results: LintResult[] = await lint(noUnionParams, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// typescript/require-function-schema
+// =============================================================================
+
+describe('typescript/require-function-schema', () => {
+  it('flags v.custom with function type parameter', async () => {
+    const code: string = `const schema = v.strictObject({ handler: v.custom<() => void>(() => true) });`;
+    const results: LintResult[] = await lint(requireFunctionSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('functionSchema()');
+  });
+
+  it('flags v.custom with arrow function type parameter', async () => {
+    const code: string = `const schema = v.strictObject({ cb: v.custom<(x: Str) => Result<Void>>(() => true) });`;
+    const results: LintResult[] = await lint(requireFunctionSchema, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes v.custom with non-function type parameter', async () => {
+    const code: string = `const schema = v.strictObject({ adapter: v.custom<Adapter>(() => true) });`;
+    const results: LintResult[] = await lint(requireFunctionSchema, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes functionSchema() usage', async () => {
+    const code: string = `const schema = v.strictObject({ handler: functionSchema() });`;
+    const results: LintResult[] = await lint(requireFunctionSchema, code);
     expect(results.length).toBe(0);
   });
 });
