@@ -8,7 +8,7 @@
 
 import * as v from 'valibot';
 
-import type { Bool } from '@/schemas/common';
+import { EmailSchema, type Bool } from '@/schemas/common';
 
 // =============================================================================
 // Primitive Schemas
@@ -169,7 +169,7 @@ export const CompanySchema = v.strictObject({
   /** Primary domain (e.g., "example.com") */
   domain: DomainSchema,
   /** Support email address */
-  supportEmail: v.pipe(v.string(), v.email()),
+  supportEmail: EmailSchema,
   /** License type (e.g., "MIT", "Apache-2.0") */
   license: v.optional(SpdxLicenseSchema, 'MIT'),
   /** Company emails for various purposes */

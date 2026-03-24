@@ -547,7 +547,9 @@ const Schema = v.strictObject({
   it('does not flag support as PortSchema', async () => {
     const code: string = `const Schema = v.strictObject({ support: v.pipe(v.string(), v.email()) });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
-    const portResults: LintResult[] = results.filter((r: LintResult) => r.message.includes('PortSchema'));
+    const portResults: LintResult[] = results.filter((r: LintResult) =>
+      r.message.includes('PortSchema'),
+    );
     expect(portResults.length).toBe(0);
   });
 
@@ -767,6 +769,18 @@ describe('valibot/prefer-template-literal', () => {
 
   it('passes v.pipe with v.minLength only', async () => {
     const code: string = `const Schema = v.pipe(v.string(), v.minLength(1));`;
+    const results: LintResult[] = await lint(preferTemplateLiteral, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes regex with character class ranges', async () => {
+    const code: string = `const Schema = v.pipe(v.string(), v.regex(/^[a-z0-9][a-z0-9.-]*\\.[a-z]{2,}$/));`;
+    const results: LintResult[] = await lint(preferTemplateLiteral, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes regex with feature branch character class', async () => {
+    const code: string = `const Schema = v.pipe(v.string(), v.regex(/^feature\\/[a-z0-9-]+$/));`;
     const results: LintResult[] = await lint(preferTemplateLiteral, code);
     expect(results.length).toBe(0);
   });

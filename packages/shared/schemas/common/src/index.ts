@@ -486,7 +486,12 @@ export type GitCommitFull = v.InferOutput<typeof GitCommitFullSchema>;
  * if (result.ok) result.data; // branch name
  * ```
  */
-export const GitBranchSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(255), v.brand('GitBranch'));
+export const GitBranchSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(255),
+  v.brand('GitBranch'),
+);
 
 /** Inferred output type of {@link GitBranchSchema}. A git branch name (1-255 chars). */
 export type GitBranch = v.InferOutput<typeof GitBranchSchema>;
@@ -501,7 +506,11 @@ export type GitBranch = v.InferOutput<typeof GitBranchSchema>;
  * if (result.ok) result.data; // '400'
  * ```
  */
-export const CssFontWeightSchema = v.pipe(v.string(), v.regex(/^\d{1,3}(\s+\d{1,3})?$/), v.brand('CssFontWeight'));
+export const CssFontWeightSchema = v.pipe(
+  v.string(),
+  v.regex(/^\d{1,3}(\s+\d{1,3})?$/),
+  v.brand('CssFontWeight'),
+);
 
 /** Inferred output type of {@link CssFontWeightSchema}. A CSS font-weight value. */
 export type CssFontWeight = v.InferOutput<typeof CssFontWeightSchema>;
@@ -520,7 +529,11 @@ export type CssFontWeight = v.InferOutput<typeof CssFontWeightSchema>;
  * if (result.ok) result.data; // '15m'
  * ```
  */
-export const DurationSchema = v.pipe(v.string(), v.regex(/^\d+[smhd]$/, 'Must be a duration like "15m" or "7d"'), v.brand('Duration'));
+export const DurationSchema = v.pipe(
+  v.string(),
+  v.regex(/^\d+[smhd]$/, 'Must be a duration like "15m" or "7d"'),
+  v.brand('Duration'),
+);
 
 /** Inferred output type of {@link DurationSchema}. A duration string. */
 export type Duration = v.InferOutput<typeof DurationSchema>;
@@ -535,7 +548,11 @@ export type Duration = v.InferOutput<typeof DurationSchema>;
  * if (result.ok) result.data; // '2026-03-24'
  * ```
  */
-export const DateOnlySchema = v.pipe(v.string(), v.regex(/^\d{4}-\d{2}-\d{2}$/), v.brand('DateOnly'));
+export const DateOnlySchema = v.pipe(
+  v.string(),
+  v.regex(/^\d{4}-\d{2}-\d{2}$/),
+  v.brand('DateOnly'),
+);
 
 /** Inferred output type of {@link DateOnlySchema}. A YYYY-MM-DD date string. */
 export type DateOnly = v.InferOutput<typeof DateOnlySchema>;
@@ -553,7 +570,12 @@ export type DateOnly = v.InferOutput<typeof DateOnlySchema>;
 export const TimezoneSchema = v.pipe(
   v.string(),
   v.check((s: string): boolean => {
-    try { Intl.DateTimeFormat(undefined, { timeZone: s }); return true; } catch { return false; }
+    try {
+      Intl.DateTimeFormat(undefined, { timeZone: s });
+      return true;
+    } catch {
+      return false;
+    }
   }, 'Must be a valid IANA timezone'),
   v.brand('Timezone'),
 );
@@ -571,7 +593,11 @@ export type Timezone = v.InferOutput<typeof TimezoneSchema>;
  * if (result.ok) result.data; // '0 9 * * 1-5'
  * ```
  */
-export const CronExpressionSchema = v.pipe(v.string(), v.regex(/^(\S+\s+){4}\S+$/), v.brand('CronExpression'));
+export const CronExpressionSchema = v.pipe(
+  v.string(),
+  v.regex(/^(\S+\s+){4}\S+$/),
+  v.brand('CronExpression'),
+);
 
 /** Inferred output type of {@link CronExpressionSchema}. A 5-field cron expression. */
 export type CronExpression = v.InferOutput<typeof CronExpressionSchema>;
@@ -605,7 +631,13 @@ export type Description = v.InferOutput<typeof DescriptionSchema>;
  * if (result.ok) result.data; // 'web-development'
  * ```
  */
-export const TagSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(50), v.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), v.brand('Tag'));
+export const TagSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(50),
+  v.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  v.brand('Tag'),
+);
 
 /** Inferred output type of {@link TagSchema}. A lowercase tag/keyword string. */
 export type Tag = v.InferOutput<typeof TagSchema>;
@@ -620,7 +652,13 @@ export type Tag = v.InferOutput<typeof TagSchema>;
  * if (result.ok) result.data; // 'my-project'
  * ```
  */
-export const SlugSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(100), v.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), v.brand('Slug'));
+export const SlugSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(100),
+  v.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  v.brand('Slug'),
+);
 
 /** Inferred output type of {@link SlugSchema}. A URL-friendly slug. */
 export type Slug = v.InferOutput<typeof SlugSchema>;
@@ -635,7 +673,11 @@ export type Slug = v.InferOutput<typeof SlugSchema>;
  * if (result.ok) result.data; // 'DATABASE_URL'
  * ```
  */
-export const EnvVarNameSchema = v.pipe(v.string(), v.regex(/^[A-Z][A-Z0-9_]*$/), v.brand('EnvVarName'));
+export const EnvVarNameSchema = v.pipe(
+  v.string(),
+  v.regex(/^[A-Z][A-Z0-9_]*$/),
+  v.brand('EnvVarName'),
+);
 
 /** Inferred output type of {@link EnvVarNameSchema}. A SCREAMING_SNAKE_CASE env var name. */
 export type EnvVarName = v.InferOutput<typeof EnvVarNameSchema>;
@@ -653,7 +695,12 @@ export type EnvVarName = v.InferOutput<typeof EnvVarNameSchema>;
 export const JsonStringSchema = v.pipe(
   v.string(),
   v.check((s: string): boolean => {
-    try { JSON.parse(s); return true; } catch { return false; }
+    try {
+      JSON.parse(s);
+      return true;
+    } catch {
+      return false;
+    }
   }, 'Must be valid JSON'),
   v.brand('JsonString'),
 );
@@ -675,7 +722,11 @@ export type JsonString = v.InferOutput<typeof JsonStringSchema>;
  * if (result.ok) result.data; // '#ff5733'
  * ```
  */
-export const HexColorSchema = v.pipe(v.string(), v.regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/), v.brand('HexColor'));
+export const HexColorSchema = v.pipe(
+  v.string(),
+  v.regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/),
+  v.brand('HexColor'),
+);
 
 /** Inferred output type of {@link HexColorSchema}. A hex color string. */
 export type HexColor = v.InferOutput<typeof HexColorSchema>;
@@ -690,7 +741,13 @@ export type HexColor = v.InferOutput<typeof HexColorSchema>;
  * if (result.ok) result.data; // 200
  * ```
  */
-export const HttpStatusCodeSchema = v.pipe(v.number(), v.integer(), v.minValue(100), v.maxValue(599), v.brand('HttpStatusCode'));
+export const HttpStatusCodeSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(100),
+  v.maxValue(599),
+  v.brand('HttpStatusCode'),
+);
 
 /** Inferred output type of {@link HttpStatusCodeSchema}. An HTTP status code (100-599). */
 export type HttpStatusCode = v.InferOutput<typeof HttpStatusCodeSchema>;
@@ -705,7 +762,11 @@ export type HttpStatusCode = v.InferOutput<typeof HttpStatusCodeSchema>;
  * if (result.ok) result.data; // 'application/json'
  * ```
  */
-export const MimeTypeSchema = v.pipe(v.string(), v.regex(/^[a-z]+\/[a-z0-9.+-]+$/), v.brand('MimeType'));
+export const MimeTypeSchema = v.pipe(
+  v.string(),
+  v.regex(/^[a-z]+\/[a-z0-9.+-]+$/),
+  v.brand('MimeType'),
+);
 
 /** Inferred output type of {@link MimeTypeSchema}. A MIME type string. */
 export type MimeType = v.InferOutput<typeof MimeTypeSchema>;
@@ -720,7 +781,11 @@ export type MimeType = v.InferOutput<typeof MimeTypeSchema>;
  * if (result.ok) result.data; // 'SGVsbG8gV29ybGQ='
  * ```
  */
-export const Base64Schema = v.pipe(v.string(), v.regex(/^[A-Za-z0-9+/]*={0,2}$/), v.brand('Base64'));
+export const Base64Schema = v.pipe(
+  v.string(),
+  v.regex(/^[A-Za-z0-9+/]*={0,2}$/),
+  v.brand('Base64'),
+);
 
 /** Inferred output type of {@link Base64Schema}. A base64-encoded string. */
 export type Base64 = v.InferOutput<typeof Base64Schema>;
@@ -735,7 +800,12 @@ export type Base64 = v.InferOutput<typeof Base64Schema>;
  * if (result.ok) result.data; // 64-char hex hash
  * ```
  */
-export const Sha256Schema = v.pipe(v.string(), v.length(64), v.regex(/^[0-9a-f]+$/), v.brand('Sha256'));
+export const Sha256Schema = v.pipe(
+  v.string(),
+  v.length(64),
+  v.regex(/^[0-9a-f]+$/),
+  v.brand('Sha256'),
+);
 
 /** Inferred output type of {@link Sha256Schema}. A 64-character SHA-256 hex hash. */
 export type Sha256 = v.InferOutput<typeof Sha256Schema>;
@@ -750,7 +820,11 @@ export type Sha256 = v.InferOutput<typeof Sha256Schema>;
  * if (result.ok) result.data; // JWT string
  * ```
  */
-export const JwtSchema = v.pipe(v.string(), v.regex(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/), v.brand('Jwt'));
+export const JwtSchema = v.pipe(
+  v.string(),
+  v.regex(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/),
+  v.brand('Jwt'),
+);
 
 /** Inferred output type of {@link JwtSchema}. A JWT token string. */
 export type Jwt = v.InferOutput<typeof JwtSchema>;
@@ -769,7 +843,12 @@ export type Jwt = v.InferOutput<typeof JwtSchema>;
  * if (result.ok) result.data; // 'US'
  * ```
  */
-export const CountryCodeSchema = v.pipe(v.string(), v.length(2), v.regex(/^[A-Z]{2}$/), v.brand('CountryCode'));
+export const CountryCodeSchema = v.pipe(
+  v.string(),
+  v.length(2),
+  v.regex(/^[A-Z]{2}$/),
+  v.brand('CountryCode'),
+);
 
 /** Inferred output type of {@link CountryCodeSchema}. An ISO 3166-1 alpha-2 country code. */
 export type CountryCode = v.InferOutput<typeof CountryCodeSchema>;
@@ -784,7 +863,13 @@ export type CountryCode = v.InferOutput<typeof CountryCodeSchema>;
  * if (result.ok) result.data; // 'en'
  * ```
  */
-export const LanguageCodeSchema = v.pipe(v.string(), v.minLength(2), v.maxLength(3), v.regex(/^[a-z]{2,3}$/), v.brand('LanguageCode'));
+export const LanguageCodeSchema = v.pipe(
+  v.string(),
+  v.minLength(2),
+  v.maxLength(3),
+  v.regex(/^[a-z]{2,3}$/),
+  v.brand('LanguageCode'),
+);
 
 /** Inferred output type of {@link LanguageCodeSchema}. An ISO 639-1 language code. */
 export type LanguageCode = v.InferOutput<typeof LanguageCodeSchema>;
@@ -799,7 +884,12 @@ export type LanguageCode = v.InferOutput<typeof LanguageCodeSchema>;
  * if (result.ok) result.data; // 'USD'
  * ```
  */
-export const CurrencyCodeSchema = v.pipe(v.string(), v.length(3), v.regex(/^[A-Z]{3}$/), v.brand('CurrencyCode'));
+export const CurrencyCodeSchema = v.pipe(
+  v.string(),
+  v.length(3),
+  v.regex(/^[A-Z]{3}$/),
+  v.brand('CurrencyCode'),
+);
 
 /** Inferred output type of {@link CurrencyCodeSchema}. An ISO 4217 currency code. */
 export type CurrencyCode = v.InferOutput<typeof CurrencyCodeSchema>;
@@ -818,7 +908,11 @@ export type CurrencyCode = v.InferOutput<typeof CurrencyCodeSchema>;
  * if (result.ok) result.data; // 'node:22-alpine'
  * ```
  */
-export const DockerImageTagSchema = v.pipe(v.string(), v.regex(/^[a-z0-9._/-]+(?::[a-z0-9._-]+)?$/), v.brand('DockerImageTag'));
+export const DockerImageTagSchema = v.pipe(
+  v.string(),
+  v.regex(/^[a-z0-9._/-]+(?::[a-z0-9._-]+)?$/),
+  v.brand('DockerImageTag'),
+);
 
 /** Inferred output type of {@link DockerImageTagSchema}. A Docker image:tag string. */
 export type DockerImageTag = v.InferOutput<typeof DockerImageTagSchema>;
@@ -851,7 +945,12 @@ export type GlobPattern = v.InferOutput<typeof GlobPatternSchema>;
 export const RegexPatternSchema = v.pipe(
   v.string(),
   v.check((s: string): boolean => {
-    try { new RegExp(s); return true; } catch { return false; }
+    try {
+      new RegExp(s);
+      return true;
+    } catch {
+      return false;
+    }
   }, 'Must be a valid regex pattern'),
   v.brand('RegexPattern'),
 );
@@ -873,7 +972,12 @@ export type RegexPattern = v.InferOutput<typeof RegexPatternSchema>;
  * if (result.ok) result.data; // 1711296000
  * ```
  */
-export const UnixTimestampSchema = v.pipe(v.number(), v.integer(), v.minValue(0), v.brand('UnixTimestamp'));
+export const UnixTimestampSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(0),
+  v.brand('UnixTimestamp'),
+);
 
 /** Inferred output type of {@link UnixTimestampSchema}. */
 export type UnixTimestamp = v.InferOutput<typeof UnixTimestampSchema>;
@@ -888,7 +992,12 @@ export type UnixTimestamp = v.InferOutput<typeof UnixTimestampSchema>;
  * if (result.ok) result.data; // 1711296000000
  * ```
  */
-export const MillisecondTimestampSchema = v.pipe(v.number(), v.integer(), v.minValue(0), v.brand('MillisecondTimestamp'));
+export const MillisecondTimestampSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(0),
+  v.brand('MillisecondTimestamp'),
+);
 
 /** Inferred output type of {@link MillisecondTimestampSchema}. */
 export type MillisecondTimestamp = v.InferOutput<typeof MillisecondTimestampSchema>;
@@ -903,7 +1012,11 @@ export type MillisecondTimestamp = v.InferOutput<typeof MillisecondTimestampSche
  * if (result.ok) result.data; // '14:30:00'
  * ```
  */
-export const TimeOnlySchema = v.pipe(v.string(), v.regex(/^\d{2}:\d{2}(:\d{2})?$/), v.brand('TimeOnly'));
+export const TimeOnlySchema = v.pipe(
+  v.string(),
+  v.regex(/^\d{2}:\d{2}(:\d{2})?$/),
+  v.brand('TimeOnly'),
+);
 
 /** Inferred output type of {@link TimeOnlySchema}. */
 export type TimeOnly = v.InferOutput<typeof TimeOnlySchema>;
@@ -918,7 +1031,13 @@ export type TimeOnly = v.InferOutput<typeof TimeOnlySchema>;
  * if (result.ok) result.data; // 2026
  * ```
  */
-export const YearSchema = v.pipe(v.number(), v.integer(), v.minValue(1900), v.maxValue(2100), v.brand('Year'));
+export const YearSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(1900),
+  v.maxValue(2100),
+  v.brand('Year'),
+);
 
 /** Inferred output type of {@link YearSchema}. */
 export type Year = v.InferOutput<typeof YearSchema>;
@@ -937,7 +1056,12 @@ export type Year = v.InferOutput<typeof YearSchema>;
  * if (result.ok) result.data; // 'https://example.com'
  * ```
  */
-export const HttpsUrlSchema = v.pipe(v.string(), v.url(), v.startsWith('https://'), v.brand('HttpsUrl'));
+export const HttpsUrlSchema = v.pipe(
+  v.string(),
+  v.url(),
+  v.startsWith('https://'),
+  v.brand('HttpsUrl'),
+);
 
 /** Inferred output type of {@link HttpsUrlSchema}. */
 export type HttpsUrl = v.InferOutput<typeof HttpsUrlSchema>;
@@ -1031,7 +1155,12 @@ export type Content = v.InferOutput<typeof ContentSchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const SearchQuerySchema = v.pipe(v.string(), v.minLength(1), v.maxLength(200), v.brand('SearchQuery'));
+export const SearchQuerySchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(200),
+  v.brand('SearchQuery'),
+);
 
 /** Inferred output type of {@link SearchQuerySchema}. */
 export type SearchQuery = v.InferOutput<typeof SearchQuerySchema>;
@@ -1046,7 +1175,12 @@ export type SearchQuery = v.InferOutput<typeof SearchQuerySchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const CommentSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(5000), v.brand('Comment'));
+export const CommentSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(5000),
+  v.brand('Comment'),
+);
 
 /** Inferred output type of {@link CommentSchema}. */
 export type Comment = v.InferOutput<typeof CommentSchema>;
@@ -1065,7 +1199,12 @@ export type Comment = v.InferOutput<typeof CommentSchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const MetaTitleSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(60), v.brand('MetaTitle'));
+export const MetaTitleSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(60),
+  v.brand('MetaTitle'),
+);
 
 /** Inferred output type of {@link MetaTitleSchema}. */
 export type MetaTitle = v.InferOutput<typeof MetaTitleSchema>;
@@ -1080,7 +1219,12 @@ export type MetaTitle = v.InferOutput<typeof MetaTitleSchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const MetaDescriptionSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(160), v.brand('MetaDescription'));
+export const MetaDescriptionSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(160),
+  v.brand('MetaDescription'),
+);
 
 /** Inferred output type of {@link MetaDescriptionSchema}. */
 export type MetaDescription = v.InferOutput<typeof MetaDescriptionSchema>;
@@ -1095,19 +1239,38 @@ export type MetaDescription = v.InferOutput<typeof MetaDescriptionSchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const CanonicalUrlSchema = v.pipe(v.string(), v.url(), v.startsWith('https://'), v.brand('CanonicalUrl'));
+export const CanonicalUrlSchema = v.pipe(
+  v.string(),
+  v.url(),
+  v.startsWith('https://'),
+  v.brand('CanonicalUrl'),
+);
 
 /** Inferred output type of {@link CanonicalUrlSchema}. */
 export type CanonicalUrl = v.InferOutput<typeof CanonicalUrlSchema>;
 
 /** Schema for Open Graph type values. */
-export const OpenGraphTypeSchema = v.picklist(['website', 'article', 'profile', 'product', 'video.other', 'music.song']);
+export const OpenGraphTypeSchema = v.picklist([
+  'website',
+  'article',
+  'profile',
+  'product',
+  'video.other',
+  'music.song',
+]);
 
 /** Inferred output type of {@link OpenGraphTypeSchema}. */
 export type OpenGraphType = v.InferOutput<typeof OpenGraphTypeSchema>;
 
 /** Schema for robots meta directives. */
-export const RobotsDirectiveSchema = v.picklist(['index', 'noindex', 'follow', 'nofollow', 'none', 'all']);
+export const RobotsDirectiveSchema = v.picklist([
+  'index',
+  'noindex',
+  'follow',
+  'nofollow',
+  'none',
+  'all',
+]);
 
 /** Inferred output type of {@link RobotsDirectiveSchema}. */
 export type RobotsDirective = v.InferOutput<typeof RobotsDirectiveSchema>;
@@ -1126,7 +1289,12 @@ export type RobotsDirective = v.InferOutput<typeof RobotsDirectiveSchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const PasswordSchema = v.pipe(v.string(), v.minLength(8), v.maxLength(128), v.brand('Password'));
+export const PasswordSchema = v.pipe(
+  v.string(),
+  v.minLength(8),
+  v.maxLength(128),
+  v.brand('Password'),
+);
 
 /** Inferred output type of {@link PasswordSchema}. */
 export type Password = v.InferOutput<typeof PasswordSchema>;
@@ -1141,7 +1309,11 @@ export type Password = v.InferOutput<typeof PasswordSchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const BearerTokenSchema = v.pipe(v.string(), v.regex(/^Bearer\s+\S+$/), v.brand('BearerToken'));
+export const BearerTokenSchema = v.pipe(
+  v.string(),
+  v.regex(/^Bearer\s+\S+$/),
+  v.brand('BearerToken'),
+);
 
 /** Inferred output type of {@link BearerTokenSchema}. */
 export type BearerToken = v.InferOutput<typeof BearerTokenSchema>;
@@ -1171,7 +1343,12 @@ export type Md5 = v.InferOutput<typeof Md5Schema>;
  * if (result.ok) result.data;
  * ```
  */
-export const Sha512Schema = v.pipe(v.string(), v.length(128), v.regex(/^[0-9a-f]+$/), v.brand('Sha512'));
+export const Sha512Schema = v.pipe(
+  v.string(),
+  v.length(128),
+  v.regex(/^[0-9a-f]+$/),
+  v.brand('Sha512'),
+);
 
 /** Inferred output type of {@link Sha512Schema}. */
 export type Sha512 = v.InferOutput<typeof Sha512Schema>;
@@ -1186,7 +1363,11 @@ export type Sha512 = v.InferOutput<typeof Sha512Schema>;
  * if (result.ok) result.data;
  * ```
  */
-export const FeatureFlagSchema = v.pipe(v.string(), v.regex(/^[a-z][a-z0-9-]*$/), v.brand('FeatureFlag'));
+export const FeatureFlagSchema = v.pipe(
+  v.string(),
+  v.regex(/^[a-z][a-z0-9-]*$/),
+  v.brand('FeatureFlag'),
+);
 
 /** Inferred output type of {@link FeatureFlagSchema}. */
 export type FeatureFlag = v.InferOutput<typeof FeatureFlagSchema>;
@@ -1205,7 +1386,11 @@ export type FeatureFlag = v.InferOutput<typeof FeatureFlagSchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const BCP47TagSchema = v.pipe(v.string(), v.regex(/^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?$/), v.brand('BCP47Tag'));
+export const BCP47TagSchema = v.pipe(
+  v.string(),
+  v.regex(/^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?$/),
+  v.brand('BCP47Tag'),
+);
 
 /** Inferred output type of {@link BCP47TagSchema}. */
 export type BCP47Tag = v.InferOutput<typeof BCP47TagSchema>;
@@ -1220,7 +1405,11 @@ export type BCP47Tag = v.InferOutput<typeof BCP47TagSchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const TranslationKeySchema = v.pipe(v.string(), v.regex(/^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)*$/), v.brand('TranslationKey'));
+export const TranslationKeySchema = v.pipe(
+  v.string(),
+  v.regex(/^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)*$/),
+  v.brand('TranslationKey'),
+);
 
 /** Inferred output type of {@link TranslationKeySchema}. */
 export type TranslationKey = v.InferOutput<typeof TranslationKeySchema>;
@@ -1245,7 +1434,11 @@ export type PluralCategory = v.InferOutput<typeof PluralCategorySchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const ErrorCodeSchema = v.pipe(v.string(), v.regex(/^[A-Z][A-Z_]*\.[A-Z][A-Z_]*$/), v.brand('ErrorCode'));
+export const ErrorCodeSchema = v.pipe(
+  v.string(),
+  v.regex(/^[A-Z][A-Z_]*\.[A-Z][A-Z_]*$/),
+  v.brand('ErrorCode'),
+);
 
 /** Inferred output type of {@link ErrorCodeSchema}. */
 export type ErrorCode = v.InferOutput<typeof ErrorCodeSchema>;
@@ -1275,7 +1468,12 @@ export type CorrelationId = v.InferOutput<typeof CorrelationIdSchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const LogMessageSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(5000), v.brand('LogMessage'));
+export const LogMessageSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(5000),
+  v.brand('LogMessage'),
+);
 
 /** Inferred output type of {@link LogMessageSchema}. */
 export type LogMessage = v.InferOutput<typeof LogMessageSchema>;
@@ -1294,7 +1492,11 @@ export type LogMessage = v.InferOutput<typeof LogMessageSchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const FileExtensionSchema = v.pipe(v.string(), v.regex(/^\.[a-z0-9]+$/), v.brand('FileExtension'));
+export const FileExtensionSchema = v.pipe(
+  v.string(),
+  v.regex(/^\.[a-z0-9]+$/),
+  v.brand('FileExtension'),
+);
 
 /** Inferred output type of {@link FileExtensionSchema}. */
 export type FileExtension = v.InferOutput<typeof FileExtensionSchema>;
@@ -1348,7 +1550,11 @@ export type RelativePath = v.InferOutput<typeof RelativePathSchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const CssLengthSchema = v.pipe(v.string(), v.regex(/^-?\d+(\.\d+)?(px|rem|em|%|vh|vw|dvh|dvw|ch|ex)$/), v.brand('CssLength'));
+export const CssLengthSchema = v.pipe(
+  v.string(),
+  v.regex(/^-?\d+(\.\d+)?(px|rem|em|%|vh|vw|dvh|dvw|ch|ex)$/),
+  v.brand('CssLength'),
+);
 
 /** Inferred output type of {@link CssLengthSchema}. */
 export type CssLength = v.InferOutput<typeof CssLengthSchema>;
@@ -1363,7 +1569,11 @@ export type CssLength = v.InferOutput<typeof CssLengthSchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const CssClassListSchema = v.pipe(v.string(), v.regex(/^[a-zA-Z_-][\w-]*(\s+[a-zA-Z_-][\w-]*)*$/), v.brand('CssClassList'));
+export const CssClassListSchema = v.pipe(
+  v.string(),
+  v.regex(/^[a-zA-Z_-][\w-]*(\s+[a-zA-Z_-][\w-]*)*$/),
+  v.brand('CssClassList'),
+);
 
 /** Inferred output type of {@link CssClassListSchema}. */
 export type CssClassList = v.InferOutput<typeof CssClassListSchema>;
@@ -1378,7 +1588,11 @@ export type CssClassList = v.InferOutput<typeof CssClassListSchema>;
  * if (result.ok) result.data;
  * ```
  */
-export const HslColorSchema = v.pipe(v.string(), v.regex(/^hsl\(\d{1,3},\s*\d{1,3}%,\s*\d{1,3}%\)$/), v.brand('HslColor'));
+export const HslColorSchema = v.pipe(
+  v.string(),
+  v.regex(/^hsl\(\d{1,3},\s*\d{1,3}%,\s*\d{1,3}%\)$/),
+  v.brand('HslColor'),
+);
 
 /** Inferred output type of {@link HslColorSchema}. */
 export type HslColor = v.InferOutput<typeof HslColorSchema>;

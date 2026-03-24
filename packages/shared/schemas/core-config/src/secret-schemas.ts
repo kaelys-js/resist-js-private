@@ -27,7 +27,10 @@ const NonEmptyStringSchema = v.pipe(v.string(), v.minLength(1, 'Value cannot be 
  * Cryptographic secret key — minimum 32 characters.
  * Used for JWT secrets, encryption keys, etc.
  */
-const SecretKeySchema = v.pipe(v.string(), v.minLength(32, 'Secret keys must be at least 32 characters'));
+const SecretKeySchema = v.pipe(
+  v.string(),
+  v.minLength(32, 'Secret keys must be at least 32 characters'),
+);
 
 /**
  * External service API key — minimum 8 characters.
