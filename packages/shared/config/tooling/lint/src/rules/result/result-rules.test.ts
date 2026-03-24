@@ -462,6 +462,18 @@ export function processItems(items: unknown, onDone: () => void): Result<void> {
     const results: LintResult[] = await lint(validateFunctionInput, code);
     expect(results.length).toBe(0);
   });
+
+  it('passes when parameter is validated via spread [...param]', async () => {
+    const code: string = `
+export function detectFromNavigator(available: readonly string[]): Result<string> {
+  const availableResult = safeParse(StrArraySchema, [...available]);
+  if (!availableResult.ok) return availableResult;
+  return ok(StrSchema, availableResult.data[0]);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
