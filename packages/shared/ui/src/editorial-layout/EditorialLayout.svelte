@@ -33,7 +33,9 @@
   const validated: EditorialLayoutProps = $derived.by(() => {
     const rawProps: EditorialLayoutProps = stripSvelteProps(allProps);
     const result = safeParse(EditorialLayoutPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as EditorialLayoutProps;
   });

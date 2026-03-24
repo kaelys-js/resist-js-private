@@ -23,13 +23,19 @@ const rule: PackageJsonRule = {
   description: 'Test scripts must use pnpm -w exec vitest run --project <name>',
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
-    if (context.isRoot) return results;
+    if (context.isRoot) {
+      return results;
+    }
     const dir: string = dirname(context.file);
-    if (existsSync(join(dir, 'vitest.config.ts'))) return results;
+    if (existsSync(join(dir, 'vitest.config.ts'))) {
+      return results;
+    }
     const scripts: Record<string, string> = context.pkg.scripts ?? {};
     for (const key of TEST_SCRIPTS) {
       const script: string | undefined = scripts[key];
-      if (!script) continue;
+      if (!script) {
+        continue;
+      }
       if (script === 'vitest run' || script === 'vitest bench' || script.includes('cd ..')) {
         results.push({
           file: context.file,

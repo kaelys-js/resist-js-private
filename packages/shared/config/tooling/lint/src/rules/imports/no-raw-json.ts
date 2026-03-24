@@ -49,17 +49,25 @@ function isExempt(filePath: string): boolean {
 function checkJsonAccess(node: AstNode, context: VisitorContext): LintResult[] {
   const results: LintResult[] = [];
 
-  if (isExempt(context.file)) return results;
+  if (isExempt(context.file)) {
+    return results;
+  }
 
   const object = node.object as AstNode | undefined;
   const property = node.property as AstNode | undefined;
-  if (!object || !property) return results;
+  if (!object || !property) {
+    return results;
+  }
 
   const objectName: string = (object.name as string) ?? '';
   const propertyName: string = (property.name as string) ?? '';
 
-  if (objectName !== 'JSON') return results;
-  if (propertyName !== 'stringify' && propertyName !== 'parse') return results;
+  if (objectName !== 'JSON') {
+    return results;
+  }
+  if (propertyName !== 'stringify' && propertyName !== 'parse') {
+    return results;
+  }
 
   const alternative: string = ALTERNATIVES[propertyName] ?? '';
 

@@ -33,7 +33,9 @@
   const validated: LoadingButtonProps = $derived.by(() => {
     const rawProps: LoadingButtonProps = stripSvelteProps(allProps);
     const result = safeParse(LoadingButtonPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as LoadingButtonProps;
   });

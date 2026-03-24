@@ -222,7 +222,9 @@ export type NonNegativeInteger = v.InferOutput<typeof NonNegativeIntegerSchema>;
  */
 export const DEFAULT_TERMINAL_WIDTH: NonNegativeInteger = (() => {
   const r = v.safeParse(NonNegativeIntegerSchema, 80);
-  if (!r.success) throw new Error('BUG: DEFAULT_TERMINAL_WIDTH schema validation failed');
+  if (!r.success) {
+    throw new Error('BUG: DEFAULT_TERMINAL_WIDTH schema validation failed');
+  }
   return r.output;
 })();
 
@@ -238,7 +240,9 @@ export const DEFAULT_TERMINAL_WIDTH: NonNegativeInteger = (() => {
  */
 export const DEFAULT_JSON_INDENT: NonNegativeInteger = (() => {
   const r = v.safeParse(NonNegativeIntegerSchema, 2);
-  if (!r.success) throw new Error('BUG: DEFAULT_JSON_INDENT schema validation failed');
+  if (!r.success) {
+    throw new Error('BUG: DEFAULT_JSON_INDENT schema validation failed');
+  }
   return r.output;
 })();
 
@@ -293,7 +297,9 @@ export type PositiveInteger = v.InferOutput<typeof PositiveIntegerSchema>;
  */
 export const DEFAULT_PROGRESS_BAR_WIDTH: PositiveInteger = (() => {
   const r = v.safeParse(PositiveIntegerSchema, 20);
-  if (!r.success) throw new Error('BUG: DEFAULT_PROGRESS_BAR_WIDTH schema validation failed');
+  if (!r.success) {
+    throw new Error('BUG: DEFAULT_PROGRESS_BAR_WIDTH schema validation failed');
+  }
   return r.output;
 })();
 
@@ -684,7 +690,9 @@ export type ExitCode = v.InferOutput<typeof ExitCodeSchema>;
  */
 export const DEFAULT_EXIT_CODE: ExitCode = (() => {
   const r = v.safeParse(ExitCodeSchema, 0);
-  if (!r.success) throw new Error('BUG: DEFAULT_EXIT_CODE schema validation failed');
+  if (!r.success) {
+    throw new Error('BUG: DEFAULT_EXIT_CODE schema validation failed');
+  }
   return r.output;
 })();
 
@@ -698,7 +706,9 @@ export const DEFAULT_EXIT_CODE: ExitCode = (() => {
  */
 export const FAILURE_EXIT_CODE: ExitCode = (() => {
   const r = v.safeParse(ExitCodeSchema, 1);
-  if (!r.success) throw new Error('BUG: FAILURE_EXIT_CODE schema validation failed');
+  if (!r.success) {
+    throw new Error('BUG: FAILURE_EXIT_CODE schema validation failed');
+  }
   return r.output;
 })();
 

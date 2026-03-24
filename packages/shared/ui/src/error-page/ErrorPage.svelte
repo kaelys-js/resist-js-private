@@ -78,7 +78,9 @@
   const validated: ErrorPageProps = $derived.by(() => {
     const rawProps: ErrorPageProps = stripSvelteProps(restProps);
     const result = safeParse(ErrorPagePropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ErrorPageProps;
   });
@@ -125,7 +127,9 @@
   }
 
   async function handleCopyClick(): Promise<Void> {
-    if (!validated.errorId) return;
+    if (!validated.errorId) {
+      return;
+    }
     const success: Bool = validated.copyOverride
       ? await validated.copyOverride(validated.errorId)
       : await copyToClipboard(validated.errorId);
@@ -152,8 +156,12 @@
 
   const tooltipText: Str = $derived.by(() => {
     const state: typeof copyState = copyState;
-    if (state === 'success') return validated.labels.copied;
-    if (state === 'failed') return validated.labels.copyFailed;
+    if (state === 'success') {
+      return validated.labels.copied;
+    }
+    if (state === 'failed') {
+      return validated.labels.copyFailed;
+    }
     return validated.labels.clickToCopy;
   });
 

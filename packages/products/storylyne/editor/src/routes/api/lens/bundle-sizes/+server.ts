@@ -88,7 +88,9 @@ function findSvelteFiles(baseDir: Str): Array<{ dir: Str; filePath: Str }> {
     const entryPath: Str = join(baseDir, entry) as Str;
     try {
       const stat = statSync(entryPath);
-      if (!stat.isDirectory()) continue;
+      if (!stat.isDirectory()) {
+        continue;
+      }
     } catch {
       /* Stat failed — skip */
       continue;
@@ -104,7 +106,9 @@ function findSvelteFiles(baseDir: Str): Array<{ dir: Str; filePath: Str }> {
     }
 
     for (const file of files) {
-      if (!file.endsWith('.svelte')) continue;
+      if (!file.endsWith('.svelte')) {
+        continue;
+      }
       results.push({
         dir: entry as Str,
         filePath: join(entryPath, file) as Str,

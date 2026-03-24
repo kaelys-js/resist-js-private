@@ -33,7 +33,9 @@
   const validated: BlobAnimationProps = $derived.by(() => {
     const rawProps: BlobAnimationProps = stripSvelteProps(allProps);
     const result = safeParse(BlobAnimationPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as BlobAnimationProps;
   });

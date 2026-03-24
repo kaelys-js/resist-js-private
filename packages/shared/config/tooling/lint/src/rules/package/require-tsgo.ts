@@ -17,8 +17,12 @@ const rule: PackageJsonRule = {
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
     const script: string | undefined = context.pkg.scripts?.['qa:type-check'];
-    if (!script) return results;
-    if (script.includes('svelte-check')) return results;
+    if (!script) {
+      return results;
+    }
+    if (script.includes('svelte-check')) {
+      return results;
+    }
     if (script.includes('tsc') && !script.includes('tsgo')) {
       results.push({
         file: context.file,

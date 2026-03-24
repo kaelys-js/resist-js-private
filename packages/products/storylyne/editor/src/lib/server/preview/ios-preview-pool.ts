@@ -116,7 +116,9 @@ export class IosPreviewCapturePool {
    * @param quality - JPEG quality hint (0-100)
    */
   start(onFrame: (jpeg: Buffer) => void, quality: Num): void {
-    if (this.running) return;
+    if (this.running) {
+      return;
+    }
 
     this.running = true;
     this.frames = 0 as Num;
@@ -131,7 +133,9 @@ export class IosPreviewCapturePool {
    * Stop the capture loop.
    */
   stop(): void {
-    if (!this.running) return;
+    if (!this.running) {
+      return;
+    }
 
     this.running = false;
 
@@ -156,7 +160,9 @@ export class IosPreviewCapturePool {
    * Schedule the next frame capture after the interval.
    */
   private scheduleNextCapture(): void {
-    if (!this.running) return;
+    if (!this.running) {
+      return;
+    }
 
     const intervalMs: Num = Math.round(1000 / (this.targetFps as number)) as Num;
     this.timerId = setTimeout(async (): Promise<void> => {
@@ -171,7 +177,9 @@ export class IosPreviewCapturePool {
    * when multiple slots are in-flight.
    */
   private async captureFrame(): Promise<void> {
-    if (!this.running) return;
+    if (!this.running) {
+      return;
+    }
 
     const captureNum: Num = this.captureId;
     this.captureId = ((this.captureId as number) + 1) as Num;

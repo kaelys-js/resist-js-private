@@ -45,22 +45,30 @@ function isExemptFile(filePath: string): boolean {
 function getExportedFunctionNames(ast: AstNode): string[] {
   const names: string[] = [];
   const body = ast.body as AstNode[] | undefined;
-  if (!body) return names;
+  if (!body) {
+    return names;
+  }
 
   for (const node of body) {
     if (node.type === 'ExportNamedDeclaration') {
       const declaration = node.declaration as AstNode | undefined; // cast safe: AST property
-      if (!declaration) continue;
+      if (!declaration) {
+        continue;
+      }
 
       if (declaration.type === 'FunctionDeclaration') {
         const id = declaration.id as AstNode | undefined; // cast safe: AST property
         const name: string = (id?.name as string) ?? ''; // cast safe: AST name
-        if (name) names.push(name);
+        if (name) {
+          names.push(name);
+        }
       }
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined; // cast safe: AST property
-        if (!declarations) continue;
+        if (!declarations) {
+          continue;
+        }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined; // cast safe: AST property
@@ -70,7 +78,9 @@ function getExportedFunctionNames(ast: AstNode): string[] {
           ) {
             const id = decl.id as AstNode | undefined; // cast safe: AST property
             const name: string = (id?.name as string) ?? ''; // cast safe: AST name
-            if (name) names.push(name);
+            if (name) {
+              names.push(name);
+            }
           }
         }
       }
@@ -78,7 +88,9 @@ function getExportedFunctionNames(ast: AstNode): string[] {
 
     if (node.type === 'ExportDefaultDeclaration') {
       const declaration = node.declaration as AstNode | undefined; // cast safe: AST property
-      if (!declaration) continue;
+      if (!declaration) {
+        continue;
+      }
 
       if (
         declaration.type === 'FunctionDeclaration' ||
@@ -126,10 +138,14 @@ const rule: TypeScriptRule = {
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
-      if (isExemptFile(context.file)) return [];
+      if (isExemptFile(context.file)) {
+        return [];
+      }
 
       const functionNames: string[] = getExportedFunctionNames(node);
-      if (functionNames.length === 0) return [];
+      if (functionNames.length === 0) {
+        return [];
+      }
 
       const testPath: string = getTestFilePath(context.file);
 

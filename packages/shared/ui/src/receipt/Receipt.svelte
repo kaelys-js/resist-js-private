@@ -33,7 +33,9 @@
   const validated: ReceiptProps = $derived.by(() => {
     const rawProps: ReceiptProps = stripSvelteProps(allProps);
     const result = safeParse(ReceiptPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ReceiptProps;
   });

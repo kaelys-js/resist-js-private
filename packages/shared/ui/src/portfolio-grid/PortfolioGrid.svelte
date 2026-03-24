@@ -33,7 +33,9 @@
   const validated: PortfolioGridProps = $derived.by(() => {
     const rawProps: PortfolioGridProps = stripSvelteProps(allProps);
     const result = safeParse(PortfolioGridPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as PortfolioGridProps;
   });

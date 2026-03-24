@@ -42,7 +42,9 @@
   const validated: CopyButtonProps = $derived.by(() => {
     const rawProps: CopyButtonProps = stripSvelteProps(restProps);
     const result = safeParse(CopyButtonPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as CopyButtonProps;
   });
@@ -54,8 +56,12 @@
   /** Tooltip text derived from the current copy state. */
   const tooltipText: Str = $derived.by((): Str => {
     const state: typeof copyState = copyState;
-    if (state === 'success') return 'Copied!';
-    if (state === 'failed') return 'Copy failed';
+    if (state === 'success') {
+      return 'Copied!';
+    }
+    if (state === 'failed') {
+      return 'Copy failed';
+    }
     return validated.label ?? 'Copy to clipboard';
   });
 

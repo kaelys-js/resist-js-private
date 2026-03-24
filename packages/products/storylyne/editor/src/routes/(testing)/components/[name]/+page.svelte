@@ -192,7 +192,9 @@
   $effect(() => {
     // Subscribe to `name` so this re-runs on navigation
     const _n: Str = name;
-    if (!_n) return;
+    if (!_n) {
+      return;
+    }
     try {
       const stored: Str | null = localStorage.getItem(storageKey('lens-pinned'));
       if (stored) {
@@ -244,7 +246,9 @@
   // Read initial watch state from localStorage
   $effect(() => {
     const _n: Str = name;
-    if (!_n) return;
+    if (!_n) {
+      return;
+    }
     try {
       const stored: Str | null = localStorage.getItem(storageKey('lens-watched'));
       if (stored) {
@@ -335,7 +339,9 @@
 
   /** Lens compatibility result for the current component, computed from loaded data. */
   const lensCompat: LensCompatibility | null = $derived.by((): LensCompatibility | null => {
-    if (loading || !rawSource) return null;
+    if (loading || !rawSource) {
+      return null;
+    }
     const currentName: Str = name;
     const hasLensTs: boolean = Object.keys(lensModules).some(
       (k: Str): boolean => extractDir(k) === currentName,
@@ -437,11 +443,21 @@
    */
   function relativeDate(dateStr: Str): Str {
     const delta: Num = (Date.now() - new Date(dateStr as string).getTime()) as Num;
-    if (delta < 60_000) return 'just now' as Str;
-    if (delta < 3_600_000) return `${Math.floor((delta as number) / 60_000)}m ago` as Str;
-    if (delta < 86_400_000) return `${Math.floor((delta as number) / 3_600_000)}h ago` as Str;
-    if (delta < 604_800_000) return `${Math.floor((delta as number) / 86_400_000)}d ago` as Str;
-    if (delta < 2_592_000_000) return `${Math.floor((delta as number) / 604_800_000)}w ago` as Str;
+    if (delta < 60_000) {
+      return 'just now' as Str;
+    }
+    if (delta < 3_600_000) {
+      return `${Math.floor((delta as number) / 60_000)}m ago` as Str;
+    }
+    if (delta < 86_400_000) {
+      return `${Math.floor((delta as number) / 3_600_000)}h ago` as Str;
+    }
+    if (delta < 604_800_000) {
+      return `${Math.floor((delta as number) / 86_400_000)}d ago` as Str;
+    }
+    if (delta < 2_592_000_000) {
+      return `${Math.floor((delta as number) / 604_800_000)}w ago` as Str;
+    }
     return `${Math.floor((delta as number) / 2_592_000_000)}mo ago` as Str;
   }
 
@@ -588,7 +604,9 @@
         // 1. Load raw source for prop/variant extraction
         const sourceKey: Str | undefined = findPrimaryKey(currentName, rawSources);
         if (!sourceKey) {
-          if (!cancelled) loadError = `No source found for "${currentName}"`;
+          if (!cancelled) {
+            loadError = `No source found for "${currentName}"`;
+          }
           return;
         }
 
@@ -613,7 +631,9 @@
 
         if (compKey) {
           const mod: unknown = await componentModules[compKey]?.();
-          if (cancelled) return;
+          if (cancelled) {
+            return;
+          }
           // Glob modules export { default: Component } — cast from unknown
           const m = mod as Record<Str, unknown>;
           PrimaryComponent = m.default as Component;
@@ -625,7 +645,9 @@
         );
         if (lensKey) {
           const lensMod: unknown = await lensModules[lensKey]?.();
-          if (cancelled) return;
+          if (cancelled) {
+            return;
+          }
           const lm = lensMod as Record<Str, unknown>;
           const examples: unknown = lm.default ?? lm.examples ?? [];
           if (Array.isArray(examples)) {
@@ -647,7 +669,9 @@
               }
             } else {
               // Error propagates to loadError — renders visible error state
-              if (!cancelled) loadError = `Invalid lens metadata: ${metaResult.error.message}`;
+              if (!cancelled) {
+                loadError = `Invalid lens metadata: ${metaResult.error.message}`;
+              }
               return;
             }
           }
@@ -670,7 +694,9 @@
             );
           if (childCompKey) {
             const childMod: unknown = await componentModules[childCompKey]?.();
-            if (cancelled) return;
+            if (cancelled) {
+              return;
+            }
             const cm = childMod as Record<Str, unknown>;
             childComponent = cm.default as Component;
           }
@@ -699,7 +725,9 @@
             const stem: Str = extractStem(k);
 
             const mod: unknown = await exampleLiveModules[k]?.();
-            if (cancelled) return;
+            if (cancelled) {
+              return;
+            }
             const m = mod as Record<Str, unknown>;
             newComponents.set(stem, m.default as Component);
 
@@ -722,9 +750,13 @@
         }
       } catch {
         /* Load failed — show error state instead of blank page */
-        if (!cancelled) loadError = `Failed to load component "${currentName}"`;
+        if (!cancelled) {
+          loadError = `Failed to load component "${currentName}"`;
+        }
       } finally {
-        if (!cancelled) loading = false;
+        if (!cancelled) {
+          loading = false;
+        }
       }
     })();
 
@@ -772,7 +804,9 @@
   const hasExamples: Bool = $derived(lensExamples.length > 0);
   /** Compound components require parent context — silence auto-preview console warnings. */
   const isCompound: Bool = $derived.by((): Bool => {
-    if (!lensMeta) return false;
+    if (!lensMeta) {
+      return false;
+    }
     return lensMeta.tags.includes('compound');
   });
 
@@ -798,7 +832,9 @@
 
   /** Raw docs.md content for the current component (if exists). */
   const docsContent: Str | null = $derived.by((): Str | null => {
-    if (!name) return null;
+    if (!name) {
+      return null;
+    }
     const key: Str | undefined = Object.keys(docsModules).find(
       (k: Str): boolean => extractDir(k) === name,
     );
@@ -841,10 +877,14 @@
     (async (): Promise<void> => {
       try {
         const response: Response = await fetch('/api/lens/bundle-sizes');
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
         if (response.ok) {
           const data: unknown = await response.json();
-          if (cancelled) return;
+          if (cancelled) {
+            return;
+          }
           // Server returns Record<string, { compiled, gzip }> — safe to assign
           bundleSizes = data as Record<Str, { compiled: Num; gzip: Num }>;
         }
@@ -860,7 +900,9 @@
   // Fetch changelog from server API (non-blocking, populates async)
   $effect(() => {
     const currentName: Str = name;
-    if (!currentName) return;
+    if (!currentName) {
+      return;
+    }
     let cancelled: Bool = false;
     changelog = [];
     changelogTotal = 0 as Num;
@@ -876,10 +918,14 @@
     (async (): Promise<void> => {
       try {
         const response: Response = await fetch(`/api/lens/changelog/${currentName}`);
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
         if (response.ok) {
           const data: unknown = await response.json();
-          if (cancelled) return;
+          if (cancelled) {
+            return;
+          }
           // Server returns { entries, total, repoUrl, componentPath, diffAnchor }
           const body: {
             entries: ChangelogEntry[];
@@ -905,7 +951,9 @@
       } catch {
         changelogError = 'Failed to load changelog — network error' as Str;
       } finally {
-        if (!cancelled) changelogLoading = false;
+        if (!cancelled) {
+          changelogLoading = false;
+        }
       }
     })();
     return (): void => {
@@ -1096,16 +1144,24 @@
       filtered = filtered.toSorted((a, b) => {
         const aReq: Bool = !a.optional && !a.default;
         const bReq: Bool = !b.optional && !b.default;
-        if (aReq && !bReq) return -1;
-        if (!aReq && bReq) return 1;
+        if (aReq && !bReq) {
+          return -1;
+        }
+        if (!aReq && bReq) {
+          return 1;
+        }
         return 0;
       });
     } else if (propsSort === 'required-last') {
       filtered = filtered.toSorted((a, b) => {
         const aReq: Bool = !a.optional && !a.default;
         const bReq: Bool = !b.optional && !b.default;
-        if (aReq && !bReq) return 1;
-        if (!aReq && bReq) return -1;
+        if (aReq && !bReq) {
+          return 1;
+        }
+        if (!aReq && bReq) {
+          return -1;
+        }
         return 0;
       });
     } else if (propsSort === 'type-asc') {
@@ -1120,16 +1176,24 @@
       filtered = filtered.toSorted((a, b) => {
         const aHas: Bool = Boolean(a.default);
         const bHas: Bool = Boolean(b.default);
-        if (aHas && !bHas) return -1;
-        if (!aHas && bHas) return 1;
+        if (aHas && !bHas) {
+          return -1;
+        }
+        if (!aHas && bHas) {
+          return 1;
+        }
         return (a.default || '').localeCompare(b.default || '');
       });
     } else if (propsSort === 'default-desc') {
       filtered = filtered.toSorted((a, b) => {
         const aHas: Bool = Boolean(a.default);
         const bHas: Bool = Boolean(b.default);
-        if (aHas && !bHas) return 1;
-        if (!aHas && bHas) return -1;
+        if (aHas && !bHas) {
+          return 1;
+        }
+        if (!aHas && bHas) {
+          return -1;
+        }
         return (b.default || '').localeCompare(a.default || '');
       });
     } else if (propsSort === 'description-asc') {
@@ -1182,7 +1246,9 @@
 
   /** Current sort direction for PropsTable header indicators. */
   const propsSortDirection: PropsTableSortDirection = $derived.by(() => {
-    if (propsSort === 'default') return 'none';
+    if (propsSort === 'default') {
+      return 'none';
+    }
     return descModes.has(propsSort) ? 'desc' : 'asc';
   });
 
@@ -1333,8 +1399,11 @@
       '|------|----------|------|---------|-------------|',
       ...propsData.map((p): Str => {
         let required: Str = 'Yes';
-        if (p.optional) required = 'No';
-        else if (p.default) required = 'No';
+        if (p.optional) {
+          required = 'No';
+        } else if (p.default) {
+          required = 'No';
+        }
         return `| ${p.name} | ${required} | ${p.type || '—'} | ${p.default || '—'} | ${p.description || '—'} |`;
       }),
     ];
@@ -1351,8 +1420,11 @@
     const header: Str = 'Name,Required,Type,Default,Description';
     const rows: Str[] = propsData.map((p): Str => {
       let required: Str = 'Yes';
-      if (p.optional) required = 'No';
-      else if (p.default) required = 'No';
+      if (p.optional) {
+        required = 'No';
+      } else if (p.default) {
+        required = 'No';
+      }
       const desc: Str = (p.description || '').replaceAll('"', '""');
       const type: Str = (p.type || '').replaceAll('"', '""');
       const def: Str = (p.default || '').replaceAll('"', '""');
@@ -1390,8 +1462,11 @@
   function propsToHtml(propsData: typeof props): Str {
     const rows: Str[] = propsData.map((p): Str => {
       let required: Str = 'Yes';
-      if (p.optional) required = 'No';
-      else if (p.default) required = 'No';
+      if (p.optional) {
+        required = 'No';
+      } else if (p.default) {
+        required = 'No';
+      }
       return `<tr><td>${p.name}</td><td>${required}</td><td>${p.type || '—'}</td><td>${p.default || '—'}</td><td>${p.description || '—'}</td></tr>`;
     });
     return `<table>\n<thead><tr><th>Name</th><th>Required</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>\n<tbody>\n${rows.join('\n')}\n</tbody>\n</table>`;
@@ -1426,7 +1501,9 @@
           schema = `v.picklist([${members.join(', ')}])`;
         }
       }
-      if (p.optional || p.default) schema = `v.optional(${schema})`;
+      if (p.optional || p.default) {
+        schema = `v.optional(${schema})`;
+      }
       return `${comment}  ${p.name}: ${schema},`;
     });
     const typeName: Str = name.replaceAll(/[^a-zA-Z0-9]/g, '');
@@ -1655,7 +1732,9 @@
    */
   type RelatedFile = { key: Str; label: Str; lang: Str; source: Str };
   const relatedFiles: RelatedFile[] = $derived.by((): RelatedFile[] => {
-    if (!name) return [];
+    if (!name) {
+      return [];
+    }
     const files: RelatedFile[] = [];
     /* Co-located .ts files */
     for (const [key, src] of Object.entries(rawTsSources)) {
@@ -1684,7 +1763,9 @@
 
   /** Source code of the currently active file tab (primary or related). */
   const activeFileSource: Str = $derived.by((): Str => {
-    if (!activeSourceFile) return rawSource;
+    if (!activeSourceFile) {
+      return rawSource;
+    }
     const found: RelatedFile | undefined = relatedFiles.find(
       (f: RelatedFile): boolean => f.key === activeSourceFile,
     );
@@ -1693,7 +1774,9 @@
 
   /** Language of the currently active file tab. */
   const activeFileLang: Str = $derived.by((): Str => {
-    if (!activeSourceFile) return 'svelte' as Str;
+    if (!activeSourceFile) {
+      return 'svelte' as Str;
+    }
     const found: RelatedFile | undefined = relatedFiles.find(
       (f: RelatedFile): boolean => f.key === activeSourceFile,
     );
@@ -1702,7 +1785,9 @@
 
   /** Label of the currently active file tab. */
   const activeFileLabel: Str = $derived.by((): Str => {
-    if (!activeSourceFile) return `${toTitle(name)}.svelte` as Str;
+    if (!activeSourceFile) {
+      return `${toTitle(name)}.svelte` as Str;
+    }
     const found: RelatedFile | undefined = relatedFiles.find(
       (f: RelatedFile): boolean => f.key === activeSourceFile,
     );
@@ -2010,8 +2095,12 @@
    * @returns Status character
    */
   function testStatusIcon(passed: Bool | null): Str {
-    if (passed === true) return '\u2713' as Str;
-    if (passed === false) return '\u2717' as Str;
+    if (passed === true) {
+      return '\u2713' as Str;
+    }
+    if (passed === false) {
+      return '\u2717' as Str;
+    }
     return '?' as Str;
   }
 
@@ -2022,8 +2111,12 @@
    * @returns Status emoji
    */
   function testStatusEmoji(passed: Bool | null): Str {
-    if (passed === true) return '\u2705' as Str;
-    if (passed === false) return '\u274C' as Str;
+    if (passed === true) {
+      return '\u2705' as Str;
+    }
+    if (passed === false) {
+      return '\u274C' as Str;
+    }
     return '\u23F3' as Str;
   }
 
@@ -2074,7 +2167,9 @@
    */
   type DocHeading = { level: Num; text: Str; slug: Str };
   const docHeadings: DocHeading[] = $derived.by((): DocHeading[] => {
-    if (!docsContent) return [];
+    if (!docsContent) {
+      return [];
+    }
     const headings: DocHeading[] = [];
     const lines: Str[] = docsContent.split('\n') as Str[];
     for (const line of lines) {
@@ -2094,7 +2189,9 @@
 
   /** Estimated reading time in minutes. */
   const docsReadingTime: Num = $derived.by((): Num => {
-    if (!docsContent) return 0 as Num;
+    if (!docsContent) {
+      return 0 as Num;
+    }
     const wordCount: Num = docsContent.split(/\s+/).length as Num;
     /* Average reading speed: ~200 words per minute */
     return Math.max(1, Math.ceil((wordCount as number) / 200)) as Num;
@@ -2102,7 +2199,9 @@
 
   /** Word count of the documentation. */
   const docsWordCount: Num = $derived.by((): Num => {
-    if (!docsContent) return 0 as Num;
+    if (!docsContent) {
+      return 0 as Num;
+    }
     return docsContent.split(/\s+/).filter((w: Str): boolean => w.length > 0).length as Num;
   });
 
@@ -2223,7 +2322,9 @@
    */
   type DocSegment = { type: 'text'; html: Str } | { type: 'code'; lang: Str; code: Str };
   const docSegments: DocSegment[] = $derived.by((): DocSegment[] => {
-    if (!docsContent) return [];
+    if (!docsContent) {
+      return [];
+    }
     const segments: DocSegment[] = [];
     const fenceRegex: RegExp = /```(\w+)?\n([\s\S]*?)```/g;
     let lastIndex: Num = 0 as Num;
@@ -2257,7 +2358,9 @@
    * @param action - The export action to perform
    */
   async function handleDocsExport(action: Str): Promise<void> {
-    if (!docsContent) return;
+    if (!docsContent) {
+      return;
+    }
     try {
       if (action === 'copy-markdown') {
         await navigator.clipboard.writeText(docsContent);
@@ -2419,8 +2522,11 @@
     if (props.length > 0) {
       const propsRows: Str[] = props.map((p): Str => {
         let required: Str = 'Yes';
-        if (p.optional) required = 'No';
-        else if (p.default) required = 'No';
+        if (p.optional) {
+          required = 'No';
+        } else if (p.default) {
+          required = 'No';
+        }
         return `| ${p.name} | ${required} | ${p.type || '—'} | ${p.default || '—'} | ${p.description || '—'} |`;
       });
       sections.push(
@@ -2444,11 +2550,18 @@
     // Dependencies
     if (hasDeps) {
       sections.push('', '## Dependencies', '');
-      if (deps.internal.length > 0) sections.push(`**Internal:** ${deps.internal.join(', ')}`);
-      if (deps.workspace.length > 0) sections.push(`**Workspace:** ${deps.workspace.join(', ')}`);
-      if (deps.external.length > 0) sections.push(`**External:** ${deps.external.join(', ')}`);
-      if (usedBy.length > 0)
+      if (deps.internal.length > 0) {
+        sections.push(`**Internal:** ${deps.internal.join(', ')}`);
+      }
+      if (deps.workspace.length > 0) {
+        sections.push(`**Workspace:** ${deps.workspace.join(', ')}`);
+      }
+      if (deps.external.length > 0) {
+        sections.push(`**External:** ${deps.external.join(', ')}`);
+      }
+      if (usedBy.length > 0) {
         sections.push(`**Used by:** ${usedBy.map((r) => r.component).join(', ')}`);
+      }
     }
 
     // Changelog
@@ -2512,15 +2625,21 @@
     async function scrollToAndHighlight(id: Str): Promise<void> {
       // Open the parent section if collapsed — map prefixed IDs to their section
       let sectionId: Str = id;
-      if (id.startsWith('prop-')) sectionId = 'props' as Str;
-      else if (id.startsWith('variant-')) sectionId = 'variants' as Str;
-      else if (id.startsWith('example-')) sectionId = 'examples' as Str;
+      if (id.startsWith('prop-')) {
+        sectionId = 'props' as Str;
+      } else if (id.startsWith('variant-')) {
+        sectionId = 'variants' as Str;
+      } else if (id.startsWith('example-')) {
+        sectionId = 'examples' as Str;
+      }
       if (sectionOpen[sectionId] === false) {
         sectionOpen[sectionId] = true;
       }
       await tick();
       const el: HTMLElement | null = document.querySelector(`#${CSS.escape(id)}`);
-      if (!el) return;
+      if (!el) {
+        return;
+      }
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       // Wait for smooth scroll to finish, then glow
       setTimeout((): void => {
@@ -2560,7 +2679,9 @@
       const hashId: Str = decodeURIComponent(window.location.hash.slice(1)) as Str;
       const hashInterval: ReturnType<typeof setInterval> = setInterval(async (): Promise<void> => {
         // Wait until the page has finished loading before attempting to scroll
-        if (loading) return;
+        if (loading) {
+          return;
+        }
         clearInterval(hashInterval);
         // Extra tick to ensure DOM has rendered after loading = false
         await tick();

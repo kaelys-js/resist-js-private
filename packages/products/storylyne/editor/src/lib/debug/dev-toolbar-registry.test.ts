@@ -238,7 +238,9 @@ describe('generateDebugUrl', () => {
   it('builds URL with app-prefixed params from store state', () => {
     const editorResult = createEditorStore();
     const debugResult = createDebugStore();
-    if (!editorResult.ok || !debugResult.ok) throw new Error('Store creation failed');
+    if (!editorResult.ok || !debugResult.ok) {
+      throw new Error('Store creation failed');
+    }
 
     const url = generateDebugUrl(editorResult.data, debugResult.data, testConfig);
     expect(url).toContain(`${URL_PARAM_PREFIX}debug=`);
@@ -250,7 +252,9 @@ describe('generateDebugUrl', () => {
   it('includes feature flag overrides for non-default flags', () => {
     const editorResult = createEditorStore();
     const debugResult = createDebugStore();
-    if (!editorResult.ok || !debugResult.ok) throw new Error('Store creation failed');
+    if (!editorResult.ok || !debugResult.ok) {
+      throw new Error('Store creation failed');
+    }
 
     // Disable a flag
     editorResult.data.setFeature('settings', false);
@@ -262,7 +266,9 @@ describe('generateDebugUrl', () => {
   it('uses provided base URL', () => {
     const editorResult = createEditorStore();
     const debugResult = createDebugStore();
-    if (!editorResult.ok || !debugResult.ok) throw new Error('Store creation failed');
+    if (!editorResult.ok || !debugResult.ok) {
+      throw new Error('Store creation failed');
+    }
 
     const url = generateDebugUrl(
       editorResult.data,
@@ -276,7 +282,9 @@ describe('generateDebugUrl', () => {
   it('uses window.location.href as default base when available', () => {
     const editorResult = createEditorStore();
     const debugResult = createDebugStore();
-    if (!editorResult.ok || !debugResult.ok) throw new Error('Store creation failed');
+    if (!editorResult.ok || !debugResult.ok) {
+      throw new Error('Store creation failed');
+    }
 
     const url = generateDebugUrl(editorResult.data, debugResult.data, testConfig);
     // In test env, window.location.href is 'http://localhost:3000/' or similar

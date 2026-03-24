@@ -13,7 +13,9 @@
   );
 
   const themeContents = $derived.by(() => {
-    if (!colorConfig || colorConfig.length === 0) return;
+    if (!colorConfig || colorConfig.length === 0) {
+      return;
+    }
 
     const parts = [];
     for (let [_theme, prefix] of Object.entries(THEMES)) {

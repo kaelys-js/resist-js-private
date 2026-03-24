@@ -33,7 +33,9 @@
   const validated: PaperProps = $derived.by(() => {
     const rawProps: PaperProps = stripSvelteProps(allProps);
     const result = safeParse(PaperPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as PaperProps;
   });

@@ -33,7 +33,9 @@
   const validated: TreemapChartProps = $derived.by(() => {
     const rawProps: TreemapChartProps = stripSvelteProps(allProps);
     const result = safeParse(TreemapChartPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as TreemapChartProps;
   });

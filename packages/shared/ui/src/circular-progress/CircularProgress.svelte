@@ -33,7 +33,9 @@
   const validated: CircularProgressProps = $derived.by(() => {
     const rawProps: CircularProgressProps = stripSvelteProps(allProps);
     const result = safeParse(CircularProgressPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as CircularProgressProps;
   });

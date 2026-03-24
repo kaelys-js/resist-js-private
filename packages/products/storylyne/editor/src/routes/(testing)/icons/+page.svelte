@@ -304,7 +304,9 @@
   function getIconCategories(name: Str): Str[] {
     const cats: Str[] = [];
     for (const rule of CATEGORY_RULES) {
-      if (rule.test(name)) cats.push(rule.category);
+      if (rule.test(name)) {
+        cats.push(rule.category);
+      }
     }
     return cats;
   }
@@ -320,7 +322,9 @@
     if (cats.length > 0) {
       categorizedIcons.add(name);
       for (const cat of cats) {
-        if (!categoryMap.has(cat)) categoryMap.set(cat, new Set());
+        if (!categoryMap.has(cat)) {
+          categoryMap.set(cat, new Set());
+        }
         categoryMap.get(cat)?.add(name);
       }
     }
@@ -336,8 +340,12 @@
   const allCategories: Array<{ name: Str; count: Num }> = [...categoryMap.entries()]
     .map(([name, icons]) => ({ name, count: icons.size as Num }))
     .toSorted((a, b) => {
-      if (a.name === 'Other') return 1;
-      if (b.name === 'Other') return -1;
+      if (a.name === 'Other') {
+        return 1;
+      }
+      if (b.name === 'Other') {
+        return -1;
+      }
       return a.name.localeCompare(b.name);
     });
 
@@ -557,7 +565,9 @@
       for (const cat of activeCategories) {
         const catIcons: Set<Str> | undefined = categoryMap.get(cat);
         if (catIcons) {
-          for (const icon of catIcons) unionSet.add(icon);
+          for (const icon of catIcons) {
+            unionSet.add(icon);
+          }
         }
       }
       result = result.filter((name) => unionSet.has(name)) as Str[];
@@ -607,10 +617,12 @@
 
   /** Grid column classes based on density. */
   const gridCols: Str = $derived.by((): Str => {
-    if (gridDensity === 'compact')
+    if (gridDensity === 'compact') {
       return 'grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12' as Str;
-    if (gridDensity === 'large')
+    }
+    if (gridDensity === 'large') {
       return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5' as Str;
+    }
     return 'grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8' as Str;
   });
 
@@ -645,20 +657,32 @@
    */
   const effectiveIconColor: Str = $derived.by((): Str => {
     /* Custom hex color always wins */
-    if (iconColor !== 'currentColor') return iconColor;
+    if (iconColor !== 'currentColor') {
+      return iconColor;
+    }
 
     const themePrimary: { light: Str; dark: Str } | undefined = THEME_PRIMARY[activeTheme];
 
     /* Theme + explicit mode — use the theme's mode-specific primary */
-    if (themePrimary && previewBg === 'dark') return themePrimary.dark;
-    if (themePrimary && previewBg === 'light') return themePrimary.light;
+    if (themePrimary && previewBg === 'dark') {
+      return themePrimary.dark;
+    }
+    if (themePrimary && previewBg === 'light') {
+      return themePrimary.light;
+    }
 
     /* Theme + auto mode — use the theme's light primary (var(--primary) from CSS) */
-    if (themePrimary) return 'var(--primary)' as Str;
+    if (themePrimary) {
+      return 'var(--primary)' as Str;
+    }
 
     /* No theme, explicit mode — use appropriate foreground color */
-    if (previewBg === 'dark') return DARK_FOREGROUND;
-    if (previewBg === 'light') return LIGHT_FOREGROUND;
+    if (previewBg === 'dark') {
+      return DARK_FOREGROUND;
+    }
+    if (previewBg === 'light') {
+      return LIGHT_FOREGROUND;
+    }
 
     /* Default — inherit from page */
     return 'currentColor' as Str;
@@ -685,7 +709,9 @@
 
   /** Active theme display label for the submenu trigger badge. */
   const activeThemeLabel: Str = $derived.by((): Str => {
-    if (activeTheme === '') return '' as Str;
+    if (activeTheme === '') {
+      return '' as Str;
+    }
     const preset: ThemePreset | undefined = THEME_PRESETS.find((p) => p.id === activeTheme);
     return preset ? (preset.label as Str) : ('' as Str);
   });
@@ -694,8 +720,12 @@
   const headerSubtitle: Str = $derived.by((): Str => {
     if (searchQuery.length > 0 || activeCategories.length > 0) {
       const parts: Str[] = [];
-      if (activeCategories.length > 0) parts.push(activeCategories.join(', ') as Str);
-      if (searchQuery.length > 0) parts.push(`"${searchQuery}"` as Str);
+      if (activeCategories.length > 0) {
+        parts.push(activeCategories.join(', ') as Str);
+      }
+      if (searchQuery.length > 0) {
+        parts.push(`"${searchQuery}"` as Str);
+      }
       return `${filteredNames.length.toLocaleString()} of ${data.names.length.toLocaleString()} icons${parts.length > 0 ? ` · ${parts.join(' · ')}` : ''}` as Str;
     }
     return `${data.names.length.toLocaleString()} Lucide icons available in the library` as Str;
@@ -759,19 +789,25 @@
 
   /** Plain-text versions for clipboard copy. */
   const importSvelte: Str = $derived.by((): Str => {
-    if (!selectedIcon) return '' as Str;
+    if (!selectedIcon) {
+      return '' as Str;
+    }
     const pascal: Str = toPascal(selectedIcon);
     return `import ${pascal} from '@lucide/svelte/icons/${selectedIcon}';` as Str;
   });
 
   const usageExample: Str = $derived.by((): Str => {
-    if (!selectedIcon) return '' as Str;
+    if (!selectedIcon) {
+      return '' as Str;
+    }
     const pascal: Str = toPascal(selectedIcon);
     return `<${pascal} class="size-4" />` as Str;
   });
 
   const usageCss: Str = $derived.by((): Str => {
-    if (!selectedIcon) return '' as Str;
+    if (!selectedIcon) {
+      return '' as Str;
+    }
     return `<i data-lucide="${selectedIcon}"></i>` as Str;
   });
 
@@ -889,18 +925,38 @@
   /* ------------------------------------------------------------------ */
 
   $effect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {
+      return;
+    }
 
     const params: URLSearchParams = new URLSearchParams();
-    if (searchQuery) params.set('q', searchQuery);
-    if (activeCategories.length > 0) params.set('categories', activeCategories.join(','));
-    if (selectedIcon) params.set('icon', selectedIcon);
-    if (gridDensity !== DEFAULT_DENSITY) params.set('density', gridDensity);
-    if (previewSize !== DEFAULT_SIZE) params.set('size', String(previewSize));
-    if (strokeWidth !== DEFAULT_STROKE) params.set('stroke', String(strokeWidth));
-    if (iconColor !== DEFAULT_COLOR) params.set('color', iconColor);
-    if (previewBg !== DEFAULT_BG) params.set('bg', previewBg);
-    if (activeTheme !== DEFAULT_THEME) params.set('theme', activeTheme);
+    if (searchQuery) {
+      params.set('q', searchQuery);
+    }
+    if (activeCategories.length > 0) {
+      params.set('categories', activeCategories.join(','));
+    }
+    if (selectedIcon) {
+      params.set('icon', selectedIcon);
+    }
+    if (gridDensity !== DEFAULT_DENSITY) {
+      params.set('density', gridDensity);
+    }
+    if (previewSize !== DEFAULT_SIZE) {
+      params.set('size', String(previewSize));
+    }
+    if (strokeWidth !== DEFAULT_STROKE) {
+      params.set('stroke', String(strokeWidth));
+    }
+    if (iconColor !== DEFAULT_COLOR) {
+      params.set('color', iconColor);
+    }
+    if (previewBg !== DEFAULT_BG) {
+      params.set('bg', previewBg);
+    }
+    if (activeTheme !== DEFAULT_THEME) {
+      params.set('theme', activeTheme);
+    }
 
     const qs: Str = params.toString() as Str;
     const newUrl: Str = `${window.location.pathname}${qs ? `?${qs}` : ''}` as Str;
@@ -942,7 +998,9 @@
     if (confirmingReset) {
       resetDefaults();
       confirmingReset = false as Bool;
-      if (confirmResetTimer) clearTimeout(confirmResetTimer);
+      if (confirmResetTimer) {
+        clearTimeout(confirmResetTimer);
+      }
     } else {
       confirmingReset = true as Bool;
       confirmResetTimer = setTimeout((): void => {
@@ -973,7 +1031,9 @@
    */
   function categorySamples(catName: Str): Str[] {
     const icons: Set<Str> | undefined = categoryMap.get(catName);
-    if (!icons) return [];
+    if (!icons) {
+      return [];
+    }
     return [...icons] as Str[];
   }
 
@@ -983,9 +1043,13 @@
    * @param name - Kebab-case icon name
    */
   async function loadIcon(name: Str): Promise<void> {
-    if (iconCache.has(name) || loadingIcons.has(name)) return;
+    if (iconCache.has(name) || loadingIcons.has(name)) {
+      return;
+    }
     const loader = iconLoaders.get(name);
-    if (!loader) return;
+    if (!loader) {
+      return;
+    }
 
     loadingIcons.add(name);
     try {
@@ -1094,7 +1158,9 @@
    * Download the selected icon as an SVG file.
    */
   function downloadSelectedSvg(): void {
-    if (!selectedIcon || !selectedSvgMarkup) return;
+    if (!selectedIcon || !selectedSvgMarkup) {
+      return;
+    }
     const blob: Blob = new Blob([selectedSvgMarkup], { type: 'image/svg+xml' });
     const url: Str = URL.createObjectURL(blob) as Str;
     const a: HTMLAnchorElement = document.createElement('a');
@@ -1192,8 +1258,12 @@
    * @returns Estimated column count
    */
   function estimateColumns(): Num {
-    if (gridDensity === 'compact') return 10 as Num;
-    if (gridDensity === 'large') return 4 as Num;
+    if (gridDensity === 'compact') {
+      return 10 as Num;
+    }
+    if (gridDensity === 'large') {
+      return 4 as Num;
+    }
     return 6 as Num;
   }
 
@@ -1235,7 +1305,9 @@
     }
 
     /* Arrow keys for grid navigation (only when not in an input) */
-    if (isInput) return;
+    if (isInput) {
+      return;
+    }
 
     const cols: Num = estimateColumns();
     const total: Num = displayNames.length as Num;
@@ -1257,7 +1329,9 @@
     } else if (e.key === 'Enter' && (focusedIndex as number) >= 0) {
       e.preventDefault();
       const name: Str | undefined = displayNames[focusedIndex as number];
-      if (name) selectIcon(name);
+      if (name) {
+        selectIcon(name);
+      }
     }
   }
 
@@ -1265,7 +1339,9 @@
    * Scroll the focused icon card into view when focusedIndex changes.
    */
   $effect(() => {
-    if ((focusedIndex as number) < 0) return;
+    if ((focusedIndex as number) < 0) {
+      return;
+    }
     const card: HTMLElement | null = document.querySelector(`[data-grid-index="${focusedIndex}"]`);
     card?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   });

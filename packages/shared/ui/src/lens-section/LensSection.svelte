@@ -63,7 +63,9 @@
   const rawProps: LensSectionProps = $props();
   const validated: LensSectionProps = $derived.by(() => {
     const result = safeParse(LensSectionPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as LensSectionProps;
   });
@@ -79,7 +81,9 @@
 
   /** Text to copy — prefers codeText prop, falls back to DOM text. */
   const copyText: Str = $derived.by((): Str => {
-    if (validated.codeText) return validated.codeText;
+    if (validated.codeText) {
+      return validated.codeText;
+    }
     const ref: HTMLDivElement | undefined = codeRef;
     return ref?.textContent ?? '';
   });

@@ -73,12 +73,16 @@ export function functionSchema<
   TReturn = unknown,
 >(): v.GenericSchema<FnType<TArgs, TReturn>> {
   return v.custom<FnType<TArgs, TReturn>>((val: unknown): boolean => {
-    if (typeof val !== 'function') return false;
+    if (typeof val !== 'function') {
+      return false;
+    }
 
     // Reject class constructors — they look like functions but
     // have different semantics (must be called with `new`)
     const str: Str = val.toString();
-    if (str.startsWith('class ') || str.startsWith('class{')) return false;
+    if (str.startsWith('class ') || str.startsWith('class{')) {
+      return false;
+    }
 
     return true;
   }, 'Expected a callable function (not a class constructor)');

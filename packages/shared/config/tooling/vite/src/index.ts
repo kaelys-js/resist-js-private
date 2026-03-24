@@ -44,7 +44,9 @@ import { safeStringify } from '@/utils/core/object';
  */
 function jsonDefine(value: unknown): Str {
   const result: Result<Str> = safeStringify(value);
-  if (!result.ok) throw result.error; // integration boundary: Vite config must not silently fail
+  if (!result.ok) {
+    throw result.error;
+  } // integration boundary: Vite config must not silently fail
   return result.data;
 }
 
@@ -105,17 +107,23 @@ export function createViteConfig(options: CreateViteConfigInput): UserConfig {
     CreateViteConfigOptionsSchema,
     options,
   );
-  if (!optionsResult.ok) throw optionsResult.error; // integration boundary: Vite doesn't understand Result
+  if (!optionsResult.ok) {
+    throw optionsResult.error;
+  } // integration boundary: Vite doesn't understand Result
 
   const { plugins, ssrNoExternal, extraDefines, extraConfig }: CreateViteConfigOptions =
     optionsResult.data as CreateViteConfigOptions; // cast safe: safeParse validates and fills defaults
 
   const gitResult: Result<GitInfo> = getGitInfo();
-  if (!gitResult.ok) throw gitResult.error; // integration boundary: Vite doesn't understand Result
+  if (!gitResult.ok) {
+    throw gitResult.error;
+  } // integration boundary: Vite doesn't understand Result
 
   // cast safe: string literal is a valid non-empty path
   const versionResult: Result<Str> = getPackageVersion('./package.json' as Path);
-  if (!versionResult.ok) throw versionResult.error; // integration boundary: Vite doesn't understand Result
+  if (!versionResult.ok) {
+    throw versionResult.error;
+  } // integration boundary: Vite doesn't understand Result
 
   const git: GitInfo = gitResult.data;
   const version: Str = versionResult.data;

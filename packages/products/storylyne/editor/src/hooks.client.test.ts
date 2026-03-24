@@ -126,7 +126,9 @@ describe('handleError', () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     const validationErr = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input');
-    if (validationErr.ok) throw new Error('err() should return error');
+    if (validationErr.ok) {
+      throw new Error('err() should return error');
+    }
 
     const result: App.Error = callHandleError({
       error: validationErr.error,
@@ -278,7 +280,9 @@ describe('handleError', () => {
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
       help: 'Check the field format',
     });
-    if (result.ok) throw new Error('err() should return error');
+    if (result.ok) {
+      throw new Error('err() should return error');
+    }
 
     callHandleError({
       error: result.error,
@@ -307,7 +311,9 @@ describe('handleError', () => {
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
       source: { pointer: '/data/email', parameter: 'email' },
     });
-    if (result.ok) throw new Error('err() should return error');
+    if (result.ok) {
+      throw new Error('err() should return error');
+    }
 
     callHandleError({
       error: result.error,
@@ -333,12 +339,16 @@ describe('handleError', () => {
 
     const related1 = err(ERRORS.VALIDATION.MISSING_FIELD, 'Missing name');
     const related2 = err(ERRORS.VALIDATION.INVALID_FORMAT, 'Bad email');
-    if (related1.ok || related2.ok) throw new Error('err() should return error');
+    if (related1.ok || related2.ok) {
+      throw new Error('err() should return error');
+    }
 
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Multiple issues', {
       related: [related1.error, related2.error],
     });
-    if (result.ok) throw new Error('err() should return error');
+    if (result.ok) {
+      throw new Error('err() should return error');
+    }
 
     callHandleError({
       error: result.error,
@@ -364,11 +374,15 @@ describe('handleError', () => {
 
     // Create an error with a cause chain
     const innerErr = err(ERRORS.VALIDATION.INVALID_FORMAT, 'bad email');
-    if (innerErr.ok) throw new Error('err() should return error');
+    if (innerErr.ok) {
+      throw new Error('err() should return error');
+    }
     const outerErr = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'validation failed', {
       cause: innerErr.error,
     });
-    if (outerErr.ok) throw new Error('err() should return error');
+    if (outerErr.ok) {
+      throw new Error('err() should return error');
+    }
 
     callHandleError({
       error: outerErr.error,

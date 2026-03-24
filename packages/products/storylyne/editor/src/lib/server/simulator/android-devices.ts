@@ -130,10 +130,14 @@ export function parseConfigIni(content: Str): Record<Str, Str> {
 
   for (const line of (content as string).split('\n')) {
     const trimmed: Str = line.trim() as Str;
-    if (!(trimmed as string) || (trimmed as string).startsWith('#')) continue;
+    if (!(trimmed as string) || (trimmed as string).startsWith('#')) {
+      continue;
+    }
 
     const eqIndex: Num = (trimmed as string).indexOf('=') as Num;
-    if ((eqIndex as number) < 0) continue;
+    if ((eqIndex as number) < 0) {
+      continue;
+    }
 
     const key: Str = (trimmed as string).slice(0, eqIndex as number).trim() as Str;
     const value: Str = (trimmed as string).slice((eqIndex as number) + 1).trim() as Str;
@@ -154,7 +158,9 @@ export function parseConfigIni(content: Str): Record<Str, Str> {
 function extractApiLevel(config: Record<Str, Str>): Num {
   const sysdir: Str = config['image.sysdir.1'] ?? ('' as Str);
   const match: RegExpMatchArray | null = (sysdir as string).match(/android-(\d+)/);
-  if (!match?.[1]) return 0 as Num;
+  if (!match?.[1]) {
+    return 0 as Num;
+  }
   return Number.parseInt(match[1], 10) as Num;
 }
 
@@ -350,18 +356,26 @@ export function filterPhoneAndTabletProfiles(profiles: DeviceProfile[]): DeviceP
 
     /* Exclude by device ID prefix */
     for (const prefix of EXCLUDED_PREFIXES) {
-      if (id.startsWith(prefix as string)) return false;
+      if (id.startsWith(prefix as string)) {
+        return false;
+      }
     }
 
     /* Exclude by exact ID match */
-    if (EXCLUDED_EXACT.has(id as Str)) return false;
+    if (EXCLUDED_EXACT.has(id as Str)) {
+      return false;
+    }
 
     /* Exclude legacy Pixel devices */
-    if (LEGACY_PIXELS.has(id as Str)) return false;
+    if (LEGACY_PIXELS.has(id as Str)) {
+      return false;
+    }
 
     /* Exclude legacy screen size profiles */
     for (const sizePrefix of EXCLUDED_SIZE_PREFIXES) {
-      if (id.startsWith(sizePrefix as string)) return false;
+      if (id.startsWith(sizePrefix as string)) {
+        return false;
+      }
     }
 
     return true;
@@ -432,7 +446,9 @@ export async function listSystemImages(avdmanagerPath: Str): Promise<Str[]> {
         /* Extract the package identifier (first column, pipe-separated) */
         const parts: string[] = trimmed.split('|');
         const pkg: Str = (parts[0] ?? '').trim() as Str;
-        if (pkg) images.push(pkg);
+        if (pkg) {
+          images.push(pkg);
+        }
       }
     }
     return images;
@@ -516,13 +532,17 @@ export async function getAndroidDeviceProfiles(
   /* Collect device IDs from existing AVDs for deduplication */
   const existingDeviceIds: Set<Str> = new Set<Str>();
   for (const device of existingDevices) {
-    if (device.deviceId) existingDeviceIds.add(device.deviceId);
+    if (device.deviceId) {
+      existingDeviceIds.add(device.deviceId);
+    }
   }
 
   /* Build uncreated device entries from profiles */
   const uncreatedDevices: AndroidDevice[] = [];
   for (const profile of profiles) {
-    if (existingDeviceIds.has(profile.deviceId)) continue;
+    if (existingDeviceIds.has(profile.deviceId)) {
+      continue;
+    }
 
     const dims = DEVICE_DIMENSIONS.get(profile.deviceId);
     uncreatedDevices.push({
@@ -588,8 +608,11 @@ export async function createAvd(
         '--force',
       ],
       (error: Error | null) => {
-        if (error) reject(error);
-        else resolve();
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
       },
     );
     /* Decline custom hardware profile prompt */

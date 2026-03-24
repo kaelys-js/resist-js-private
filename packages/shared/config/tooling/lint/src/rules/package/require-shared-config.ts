@@ -20,12 +20,12 @@ const NO_FIX: { range: { start: number; end: number }; text: string } = {
 };
 
 /** Config files to check and their required import patterns. */
-const CONFIG_CHECKS: readonly {
+const CONFIG_CHECKS: ReadonlyArray<{
   file: string;
   pattern: RegExp;
   required: string;
   description: string;
-}[] = [
+}> = [
   {
     file: 'svelte.config.ts',
     pattern: /createSvelteConfig.*from\s+['"]@\/config\/tooling\/svelte['"]/,
@@ -59,14 +59,18 @@ const rule: PackageJsonRule = {
    */
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
-    if (context.isRoot) return results;
+    if (context.isRoot) {
+      return results;
+    }
 
     const name: string = context.pkg.name ?? '<unnamed>';
     const dir: string = dirname(context.file);
 
     for (const configCheck of CONFIG_CHECKS) {
       const configPath: string = join(dir, configCheck.file);
-      if (!existsSync(configPath)) continue;
+      if (!existsSync(configPath)) {
+        continue;
+      }
 
       let content: string;
       try {

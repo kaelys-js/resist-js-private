@@ -164,7 +164,9 @@
   const activeOrientation: Str = $derived(active.orientation ?? 'default');
   const activeOrientationLabel: Str = $derived.by((): Str => {
     const id: Str = activeOrientation;
-    if (id === 'default') return '' as Str;
+    if (id === 'default') {
+      return '' as Str;
+    }
     if (id === 'custom') {
       const deg: Num = active.customRotation ?? 0;
       return `${deg}°` as Str;
@@ -177,11 +179,17 @@
   const activeSim: Str = $derived(active.sim ?? 'none');
   const activeSimLabel: Str = $derived.by((): Str => {
     const sim: Str = activeSim;
-    if (sim === 'none') return '' as Str;
+    if (sim === 'none') {
+      return '' as Str;
+    }
     const color = COLOR_VISION_ITEMS.find((i) => i.id === sim);
-    if (color) return color.label;
+    if (color) {
+      return color.label;
+    }
     const vision = VISION_ITEMS.find((i) => i.id === sim);
-    if (vision) return vision.label;
+    if (vision) {
+      return vision.label;
+    }
     return '' as Str;
   });
   const activeDir: Str = $derived(active.dir ?? 'auto');
@@ -2629,8 +2637,12 @@
     ...new Set(filteredBgPresets.map((p) => p.category)),
   ]);
   const activeBgLabel: Str = $derived.by((): Str => {
-    if (activeBg === 'default') return '' as Str;
-    if (activeBg.startsWith('#')) return activeBg as Str;
+    if (activeBg === 'default') {
+      return '' as Str;
+    }
+    if (activeBg.startsWith('#')) {
+      return activeBg as Str;
+    }
     const preset = BG_PRESETS.find((p) => p.id === activeBg);
     return preset ? (preset.label as Str) : ('' as Str);
   });
@@ -2650,8 +2662,12 @@
     ...new Set(filteredOutlinePresets.map((p) => p.category)),
   ]);
   const activeOutlineLabel: Str = $derived.by((): Str => {
-    if (activeOutline === 'none') return '' as Str;
-    if (activeOutline.startsWith('#')) return activeOutline as Str;
+    if (activeOutline === 'none') {
+      return '' as Str;
+    }
+    if (activeOutline.startsWith('#')) {
+      return activeOutline as Str;
+    }
     const preset = OUTLINE_PRESETS.find((p) => p.id === activeOutline);
     return preset ? (preset.label as Str) : ('' as Str);
   });
@@ -2672,8 +2688,12 @@
         }),
   );
   const activeGridLabel: Str = $derived.by((): Str => {
-    if (activeGrid === 'none') return '' as Str;
-    if (activeGrid.startsWith('#')) return activeGrid as Str;
+    if (activeGrid === 'none') {
+      return '' as Str;
+    }
+    if (activeGrid.startsWith('#')) {
+      return activeGrid as Str;
+    }
     const preset = GRID_PRESETS.find((p) => p.id === activeGrid);
     return preset ? (preset.label as Str) : ('' as Str);
   });
@@ -2705,7 +2725,9 @@
         }),
   );
   const activeModeLabel: Str = $derived.by((): Str => {
-    if (activeMode === 'auto') return '' as Str;
+    if (activeMode === 'auto') {
+      return '' as Str;
+    }
     const preset = MODE_PRESETS.find((p) => p.id === activeMode);
     return preset ? (preset.label as Str) : ('' as Str);
   });
@@ -2725,7 +2747,9 @@
     ...new Set(filteredThemePresets.map((p) => p.category)),
   ]);
   const activeThemeLabel: Str = $derived.by((): Str => {
-    if (activeTheme === '') return '' as Str;
+    if (activeTheme === '') {
+      return '' as Str;
+    }
     const preset = THEME_PRESETS.find((p) => p.id === activeTheme);
     return preset ? (preset.label as Str) : ('' as Str);
   });
@@ -2754,7 +2778,9 @@
     networkSearchQuery.length === 0
       ? NETWORK_PRESETS
       : NETWORK_PRESETS.filter((item) => {
-          if (item.id === 'none') return true;
+          if (item.id === 'none') {
+            return true;
+          }
           const q: Str = networkSearchQuery.toLowerCase() as Str;
           return (
             item.label.toLowerCase().includes(q) ||
@@ -2767,8 +2793,12 @@
     ...new Set(filteredNetworkPresets.filter((p) => p.category).map((p) => p.category)),
   ]);
   const activeNetworkLabel: Str = $derived.by(() => {
-    if (activeNetworkSim === 'none') return '' as Str;
-    if (activeNetworkSim === 'custom') return `Custom ${activeCustomNetwork.delay}ms` as Str;
+    if (activeNetworkSim === 'none') {
+      return '' as Str;
+    }
+    if (activeNetworkSim === 'custom') {
+      return `Custom ${activeCustomNetwork.delay}ms` as Str;
+    }
     const found = NETWORK_PRESETS.find((p) => p.id === activeNetworkSim);
     return (found?.label ?? '') as Str;
   });
@@ -2790,9 +2820,12 @@
     ...new Set(filteredViewportPresets.map((p) => p.category)),
   ]);
   const activeViewportLabel: Str = $derived.by((): Str => {
-    if (activeViewport === 'auto') return '' as Str;
-    if (activeViewport === 'custom')
+    if (activeViewport === 'auto') {
+      return '' as Str;
+    }
+    if (activeViewport === 'custom') {
       return `${activeCustomViewport.w}×${activeCustomViewport.h}` as Str;
+    }
     const found = VIEWPORT_PRESETS.find((p) => p.id === activeViewport);
     return found ? (found.label as Str) : ('' as Str);
   });
@@ -2838,7 +2871,9 @@
     ...new Set(filteredDirPresets.map((p) => p.category)),
   ]);
   const activeDirLabel: Str = $derived.by((): Str => {
-    if (activeDir === 'auto') return '' as Str;
+    if (activeDir === 'auto') {
+      return '' as Str;
+    }
     const base = DIR_PRESETS.find((p) => p.category === 'Base' && p.dir === activeDir);
     return base ? (base.label as Str) : ('' as Str);
   });

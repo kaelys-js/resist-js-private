@@ -23,7 +23,9 @@ describe('VisuallyHiddenPropsSchema', () => {
   it('accepts empty props and fills defaults', () => {
     const result = safeParse(VisuallyHiddenPropsSchema, {});
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data.as).toBe('span' as Str);
     expect(result.data.focusable).toBe(false as Bool);
   });
@@ -60,7 +62,9 @@ describe('VisuallyHiddenPropsSchema', () => {
       focusable: true as Bool,
     });
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data.focusable).toBe(true as Bool);
   });
 
@@ -69,7 +73,9 @@ describe('VisuallyHiddenPropsSchema', () => {
       class: 'my-custom-class' as Str,
     });
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data.class).toBe('my-custom-class' as Str);
   });
 
@@ -117,7 +123,9 @@ describe('type exports', () => {
   it('Props has defaults filled in', () => {
     const result = safeParse(VisuallyHiddenPropsSchema, {});
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     const props: VisuallyHiddenProps = result.data;
     expect(props.as).toBeDefined();
     expect(props.focusable).toBeDefined();

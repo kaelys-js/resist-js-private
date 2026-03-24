@@ -20,7 +20,7 @@ import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../fram
 const NO_FIX = { range: { start: 0, end: 0 }, text: '' };
 
 /** Required README sections (heading text patterns). */
-const REQUIRED_SECTIONS: readonly { pattern: RegExp; label: string }[] = [
+const REQUIRED_SECTIONS: ReadonlyArray<{ pattern: RegExp; label: string }> = [
   { pattern: /^#{2,3}\s+(source files|files)\s*$/im, label: 'Source Files / Files' },
   { pattern: /^#{2,3}\s+(api|api reference)\s*$/im, label: 'API / API Reference' },
   { pattern: /^#{2,3}\s+(usage|quick start)\s*$/im, label: 'Usage / Quick Start' },
@@ -77,7 +77,9 @@ function extractExportedFunctions(content: string): string[] {
  */
 function getAllExports(pkgDir: string): string[] {
   const srcDir: string = join(pkgDir, 'src');
-  if (!existsSync(srcDir)) return [];
+  if (!existsSync(srcDir)) {
+    return [];
+  }
 
   const names: string[] = [];
   const files: string[] = readdirSync(srcDir).filter(
@@ -123,8 +125,12 @@ const rule: PackageJsonRule = {
   description: 'Every sub-package must have a validated README.md',
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
-    if (context.isRoot) return results;
-    if (isExempt(context.file)) return results;
+    if (context.isRoot) {
+      return results;
+    }
+    if (isExempt(context.file)) {
+      return results;
+    }
 
     const pkgDir: string = dirname(context.file);
     const readmePath: string = join(pkgDir, 'README.md');
@@ -211,7 +217,7 @@ const rule: PackageJsonRule = {
 
     // Functions documented but not in source (stale)
     for (const name of readmeFunctions) {
-      if (sourceExports.length > 0 && !sourceExports.includes(name) && !/Schema$/.test(name)) {
+      if (sourceExports.length > 0 && !sourceExports.includes(name) && !name.endsWith('Schema')) {
         results.push({
           file: readmePath,
           line: 1,

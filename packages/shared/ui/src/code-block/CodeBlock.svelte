@@ -58,7 +58,9 @@
   const validated: CodeBlockProps = $derived.by(() => {
     const rawProps: CodeBlockProps = stripSvelteProps(restProps);
     const result = safeParse(CodeBlockPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as CodeBlockProps;
   });
@@ -119,14 +121,20 @@
   /** Display language label (capitalize first letter). */
   const langLabel: Str = $derived.by((): Str => {
     const lang: Str = validated.lang ?? 'text';
-    if (lang === 'typescript') return 'TypeScript' as Str;
-    if (lang === 'javascript') return 'JavaScript' as Str;
+    if (lang === 'typescript') {
+      return 'TypeScript' as Str;
+    }
+    if (lang === 'javascript') {
+      return 'JavaScript' as Str;
+    }
     return (lang.charAt(0).toUpperCase() + lang.slice(1)) as Str;
   });
 
   /** Search matches — array of line indices (0-based) that contain the query. */
   const searchMatches: Num[] = $derived.by((): Num[] => {
-    if (!searchQuery || searchQuery.length === 0) return [];
+    if (!searchQuery || searchQuery.length === 0) {
+      return [];
+    }
     const q: Str = searchQuery.toLowerCase() as Str;
     const matches: Num[] = [];
     for (let i: Num = 0 as Num; i < lines.length; i++) {
@@ -159,7 +167,9 @@
    * Navigate to the next search match.
    */
   function nextMatch(): Void {
-    if (matchCount === 0) return;
+    if (matchCount === 0) {
+      return;
+    }
     currentMatchIndex = (((currentMatchIndex as number) + 1) % (matchCount as number)) as Num;
     scrollToMatch();
   }
@@ -168,7 +178,9 @@
    * Navigate to the previous search match.
    */
   function prevMatch(): Void {
-    if (matchCount === 0) return;
+    if (matchCount === 0) {
+      return;
+    }
     currentMatchIndex = (((currentMatchIndex as number) - 1 + (matchCount as number)) %
       (matchCount as number)) as Num;
     scrollToMatch();
@@ -178,7 +190,9 @@
    * Scroll the current match line into view within the code container.
    */
   function scrollToMatch(): Void {
-    if (!codeContainerRef || matchCount === 0) return;
+    if (!codeContainerRef || matchCount === 0) {
+      return;
+    }
     const lineIndex: Num = searchMatches[currentMatchIndex as number] as Num;
     const lineEl: Element | null = codeContainerRef.querySelector(
       `[data-line="${(lineIndex as number) + 1}"]`,
@@ -195,7 +209,9 @@
    * @returns HTML string with highlighted matches
    */
   function highlightMatches(line: Str): Str {
-    if (!searchQuery || searchQuery.length === 0) return escapeHtml(line);
+    if (!searchQuery || searchQuery.length === 0) {
+      return escapeHtml(line);
+    }
     const escaped: Str = escapeHtml(line);
     const q: Str = escapeHtml(searchQuery);
     const regex: RegExp = new RegExp(escapeRegex(q), 'gi');
@@ -246,13 +262,17 @@
     (async (): Promise<void> => {
       try {
         const { codeToHtml } = await import('shiki');
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
 
         const html: Str = await codeToHtml(currentCode, {
           lang: currentLang,
           theme: currentDark ? 'github-dark' : 'github-light',
         });
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
 
         highlightedHtml = html;
       } catch {
@@ -261,7 +281,9 @@
           highlightedHtml = '';
         }
       } finally {
-        if (!cancelled) loading = false;
+        if (!cancelled) {
+          loading = false;
+        }
       }
     })();
 

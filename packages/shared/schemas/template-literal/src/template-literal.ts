@@ -89,10 +89,14 @@ export function templateLiteral<const TParts extends readonly TemplateLiteralPar
   message?: v.ErrorMessage<TemplateLiteralIssue>,
 ): Result<TemplateLiteralSchema<TParts, InferTemplateLiteralParts<TParts>, typeof message>> {
   const regexResult: Result<RegExp> = buildRegex(parts);
-  if (!regexResult.ok) return regexResult;
+  if (!regexResult.ok) {
+    return regexResult;
+  }
 
   const expectsResult: Result<Str> = buildExpects(parts);
-  if (!expectsResult.ok) return expectsResult;
+  if (!expectsResult.ok) {
+    return expectsResult;
+  }
 
   const regex: RegExp = regexResult.data;
   const expects: Str = expectsResult.data;

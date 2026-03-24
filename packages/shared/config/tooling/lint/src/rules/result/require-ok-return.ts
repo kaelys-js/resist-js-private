@@ -25,19 +25,29 @@ function isValidResultReturn(returnText: string): boolean {
   const trimmed: string = returnText.trim();
 
   // ok(), okUnchecked(), err() calls
-  if (OK_RETURN_PATTERNS.some((p: RegExp): boolean => p.test(trimmed))) return true;
+  if (OK_RETURN_PATTERNS.some((p: RegExp): boolean => p.test(trimmed))) {
+    return true;
+  }
 
   // Returning a variable (identifier) — presumed to already be a Result
-  if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(trimmed)) return true;
+  if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(trimmed)) {
+    return true;
+  }
 
   // Returning a property access like result.data or obj.result — presumed Result
-  if (/^[a-zA-Z_$][a-zA-Z0-9_$.]*$/.test(trimmed)) return true;
+  if (/^[a-zA-Z_$][a-zA-Z0-9_$.]*$/.test(trimmed)) {
+    return true;
+  }
 
   // Returning a function call result (e.g., safeParse(...), someHelper(...))
-  if (/^[a-zA-Z_$][a-zA-Z0-9_$]*\s*\(/.test(trimmed)) return true;
+  if (/^[a-zA-Z_$][a-zA-Z0-9_$]*\s*\(/.test(trimmed)) {
+    return true;
+  }
 
   // Returning an await expression
-  if (/^await\s+/.test(trimmed)) return true;
+  if (/^await\s+/.test(trimmed)) {
+    return true;
+  }
 
   return false;
 }
@@ -57,11 +67,15 @@ function isInsideCatch(ret: AstNode, funcBody: AstNode, context: VisitorContext)
   // Count unmatched catch blocks — simplified heuristic
   const catchCloseCount: number = (textBefore.match(/catch\s*\([^)]*\)\s*\{/g) ?? []).length;
 
-  if (catchCloseCount === 0) return false;
+  if (catchCloseCount === 0) {
+    return false;
+  }
 
   // Check if the return is within the last catch block's braces
   const lastCatchIndex: number = textBefore.lastIndexOf('catch');
-  if (lastCatchIndex === -1) return false;
+  if (lastCatchIndex === -1) {
+    return false;
+  }
 
   const afterCatch: string = textBefore.slice(lastCatchIndex);
   const openBraces: number = (afterCatch.match(/\{/g) ?? []).length;
@@ -84,16 +98,22 @@ function isAfterErrorGuard(ret: AstNode, funcBody: AstNode, context: VisitorCont
 
   // Check if the nearest if-statement before this return checks !result.ok
   const lastIfIndex: number = textBefore.lastIndexOf('if');
-  if (lastIfIndex === -1) return false;
+  if (lastIfIndex === -1) {
+    return false;
+  }
 
   const afterIf: string = textBefore.slice(lastIfIndex);
   const isErrorGuard: boolean = /if\s*\(\s*![\w]+\.ok\s*\)/.test(afterIf);
-  if (!isErrorGuard) return false;
+  if (!isErrorGuard) {
+    return false;
+  }
 
   // If the guard body contains return/throw, it's an early-return guard.
   // Code AFTER an early-return guard is the SUCCESS path, not error path.
   const guardBody: string = afterIf.slice(0, afterIf.indexOf(';') + 1);
-  if (/\breturn\b/.test(guardBody) || /\bthrow\b/.test(guardBody)) return false;
+  if (/\breturn\b/.test(guardBody) || /\bthrow\b/.test(guardBody)) {
+    return false;
+  }
 
   return true;
 }
@@ -108,10 +128,14 @@ function isAfterErrorGuard(ret: AstNode, funcBody: AstNode, context: VisitorCont
  */
 function extractResultTypeParam(node: AstNode, context: VisitorContext): string | null {
   const returnType = node.returnType as AstNode | undefined;
-  if (!returnType) return null;
+  if (!returnType) {
+    return null;
+  }
 
   const typeAnnotation = returnType.typeAnnotation as AstNode | undefined;
-  if (!typeAnnotation) return null;
+  if (!typeAnnotation) {
+    return null;
+  }
 
   const typeText: string = context.content.slice(typeAnnotation.start, typeAnnotation.end);
 
@@ -119,12 +143,16 @@ function extractResultTypeParam(node: AstNode, context: VisitorContext): string 
   const match: RegExpExecArray | null =
     /Result<(\w+)>/.exec(typeText) ?? /Promise<Result<(\w+)>>/.exec(typeText);
 
-  if (!match) return null;
+  if (!match) {
+    return null;
+  }
 
   const [, typeName] = match;
 
   // Skip void — no schema needed
-  if (typeName === 'void') return null;
+  if (typeName === 'void') {
+    return null;
+  }
 
   return typeName;
 }
@@ -143,13 +171,17 @@ function hasMatchingSchema(typeName: string, context: VisitorContext): boolean {
   // Check imports
   for (const imp of context.imports) {
     for (const spec of imp.specifiers) {
-      if (spec.local === schemaName || spec.imported === schemaName) return true;
+      if (spec.local === schemaName || spec.imported === schemaName) {
+        return true;
+      }
     }
   }
 
   // Check if declared in file as const/let/var
   const declPattern: RegExp = new RegExp(`(?:const|let|var)\\s+${schemaName}\\s*=`);
-  if (declPattern.test(context.content)) return true;
+  if (declPattern.test(context.content)) {
+    return true;
+  }
 
   return false;
 }
@@ -163,10 +195,14 @@ function hasMatchingSchema(typeName: string, context: VisitorContext): boolean {
  */
 function hasResultReturnType(node: AstNode, context: VisitorContext): boolean {
   const returnType = node.returnType as AstNode | undefined;
-  if (!returnType) return false;
+  if (!returnType) {
+    return false;
+  }
 
   const typeAnnotation = returnType.typeAnnotation as AstNode | undefined;
-  if (!typeAnnotation) return false;
+  if (!typeAnnotation) {
+    return false;
+  }
 
   const typeText: string = context.content.slice(typeAnnotation.start, typeAnnotation.end);
   return (
@@ -244,10 +280,14 @@ function collectReturnStatements(body: AstNode): AstNode[] {
 function checkFunction(node: AstNode, context: VisitorContext, funcName?: string): LintResult[] {
   const results: LintResult[] = [];
 
-  if (!hasResultReturnType(node, context)) return results;
+  if (!hasResultReturnType(node, context)) {
+    return results;
+  }
 
   const body = node.body as AstNode | undefined;
-  if (!body) return results;
+  if (!body) {
+    return results;
+  }
 
   const name: string = funcName ?? ((node.id as AstNode)?.name as string) ?? 'anonymous';
   const returnStmts: AstNode[] = collectReturnStatements(body);
@@ -256,7 +296,9 @@ function checkFunction(node: AstNode, context: VisitorContext, funcName?: string
 
   for (const ret of returnStmts) {
     const argument = ret.argument as AstNode | undefined;
-    if (!argument) continue; // bare `return;` — might be in void branch
+    if (!argument) {
+      continue;
+    } // bare `return;` — might be in void branch
 
     const returnText: string = context.content.slice(argument.start, argument.end);
     const trimmedReturn: string = returnText.trim();
@@ -354,7 +396,9 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const declaration = node.declaration as AstNode | undefined;
-      if (!declaration) return results;
+      if (!declaration) {
+        return results;
+      }
 
       if (declaration.type === 'FunctionDeclaration') {
         results.push(...checkFunction(declaration, context));
@@ -362,7 +406,9 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
-        if (!declarations) return results;
+        if (!declarations) {
+          return results;
+        }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;
@@ -382,7 +428,9 @@ const rule: TypeScriptRule = {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       // Skip exported functions — already handled by ExportNamedDeclaration
       const before: string = context.content.slice(Math.max(0, node.start - 20), node.start);
-      if (/export\s+(default\s+)?$/.test(before)) return [];
+      if (/export\s+(default\s+)?$/.test(before)) {
+        return [];
+      }
 
       return checkFunction(node, context);
     },

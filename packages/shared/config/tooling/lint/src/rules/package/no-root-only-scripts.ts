@@ -16,7 +16,9 @@ const rule: PackageJsonRule = {
   description: 'qa:format, qa:format:check, qa:lint belong only in workspace root',
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
-    if (context.isRoot) return results;
+    if (context.isRoot) {
+      return results;
+    }
     const scripts: Record<string, string> = context.pkg.scripts ?? {};
     for (const forbidden of ROOT_ONLY_SCRIPTS) {
       if (scripts[forbidden]) {

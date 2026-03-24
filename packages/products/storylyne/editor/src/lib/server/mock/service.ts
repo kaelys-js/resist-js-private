@@ -22,7 +22,9 @@ import { MOCK_PROJECT, MOCK_SCENES } from './data';
  * @returns A promise that resolves after the specified delay
  */
 function sleep(ms: Num): Promise<Void> {
-  if (ms <= 0) return Promise.resolve(undefined);
+  if (ms <= 0) {
+    return Promise.resolve(undefined);
+  }
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });

@@ -85,7 +85,9 @@ export function buildSdkPaths(sdkRoot: Str): AndroidSdkPaths {
  */
 export function parseAdbVersion(output: Str): Str | null {
   const match: RegExpMatchArray | null = (output as string).match(/Version\s+(\d+\.\d+\.\d+)/);
-  if (!match?.[1]) return null;
+  if (!match?.[1]) {
+    return null;
+  }
   return match[1] as Str;
 }
 
@@ -105,10 +107,14 @@ export function parseAdbVersion(output: Str): Str | null {
 function detectSdkRoot(): Str {
   /* Explicit env vars take priority — trust the user */
   const envHome: Str = (process.env.ANDROID_HOME ?? '') as Str;
-  if (envHome) return envHome;
+  if (envHome) {
+    return envHome;
+  }
 
   const envRoot: Str = (process.env.ANDROID_SDK_ROOT ?? '') as Str;
-  if (envRoot) return envRoot;
+  if (envRoot) {
+    return envRoot;
+  }
 
   /* Probe common default locations — return first that exists */
   const home: Str = (process.env.HOME ?? '') as Str;

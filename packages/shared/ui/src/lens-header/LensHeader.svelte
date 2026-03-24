@@ -140,7 +140,9 @@
   const validated: LensHeaderProps = $derived.by(() => {
     const rawProps: LensHeaderProps = stripSvelteProps(restProps);
     const result = safeParse(LensHeaderPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as LensHeaderProps;
   });
@@ -229,8 +231,12 @@
      */
     function onKeydown(e: KeyboardEvent): Void {
       const tag: Str = (document.activeElement?.tagName ?? '') as Str;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-      if ((document.activeElement as HTMLElement)?.isContentEditable) return;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+        return;
+      }
+      if ((document.activeElement as HTMLElement)?.isContentEditable) {
+        return;
+      }
       if (e.key === 'ArrowLeft' && validated.prevComponent) {
         e.preventDefault();
         window.location.href = `/components/${validated.prevComponent}`;

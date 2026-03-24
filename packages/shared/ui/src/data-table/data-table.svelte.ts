@@ -60,8 +60,11 @@ export function createSvelteTable<TData extends RowData>(options: TableOptions<T
         state: mergeObjects(state, options.state || {}),
 
         onStateChange: (updater: Updater<TableState>) => {
-          if (typeof updater === 'function') state = updater(state);
-          else state = mergeObjects(state, updater);
+          if (typeof updater === 'function') {
+            state = updater(state);
+          } else {
+            state = mergeObjects(state, updater);
+          }
 
           options.onStateChange?.(updater);
         },
@@ -101,7 +104,9 @@ export function mergeObjects<Sources extends readonly MaybeThunk<any>[]>(
   const findSourceWithKey = (key: PropertyKey) => {
     for (let i = sources.length - 1; i >= 0; i--) {
       const obj = resolveThunk(sources[i]);
-      if (obj && key in obj) return obj;
+      if (obj && key in obj) {
+        return obj;
+      }
     }
   };
 
@@ -132,7 +137,9 @@ export function mergeObjects<Sources extends readonly MaybeThunk<any>[]>(
 
     getOwnPropertyDescriptor(_, key) {
       const src = findSourceWithKey(key);
-      if (!src) return;
+      if (!src) {
+        return;
+      }
       return {
         configurable: true,
         enumerable: true,

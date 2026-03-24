@@ -18,7 +18,9 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
-      if (!callee) return results;
+      if (!callee) {
+        return results;
+      }
 
       if (callee.type === 'StaticMemberExpression' || callee.type === 'MemberExpression') {
         const object = callee.object as AstNode | undefined;

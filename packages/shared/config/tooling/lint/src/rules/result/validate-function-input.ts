@@ -62,11 +62,17 @@ function isCallbackParam(param: AstNode, context: VisitorContext): boolean {
   const typeAnnotation = (param.typeAnnotation as AstNode | undefined)?.typeAnnotation as
     | AstNode
     | undefined;
-  if (!typeAnnotation) return false;
+  if (!typeAnnotation) {
+    return false;
+  }
 
   const typeText: string = context.content.slice(typeAnnotation.start, typeAnnotation.end);
-  if (CALLBACK_PATTERN.test(typeText)) return true;
-  if (EXTERNAL_TYPE_PATTERN.test(typeText)) return true;
+  if (CALLBACK_PATTERN.test(typeText)) {
+    return true;
+  }
+  if (EXTERNAL_TYPE_PATTERN.test(typeText)) {
+    return true;
+  }
   return false;
 }
 
@@ -107,26 +113,38 @@ function checkFunction(
 
   // Only check exported functions and handler-pattern functions
   const isHandler: boolean = HANDLER_PATTERNS.some((p: RegExp): boolean => p.test(name));
-  if (!isHandler && !isExported) return results;
+  if (!isHandler && !isExported) {
+    return results;
+  }
 
   const params = node.params as AstNode[] | undefined;
-  if (!params || params.length === 0) return results;
+  if (!params || params.length === 0) {
+    return results;
+  }
 
   const body = node.body as AstNode | undefined;
-  if (!body) return results;
+  if (!body) {
+    return results;
+  }
 
   const bodyText: string = context.content.slice(body.start, body.end);
 
   // Check each parameter individually
   for (const param of params) {
     // Skip destructured params (ObjectPattern, ArrayPattern) — check the whole call
-    if (param.type === 'ObjectPattern' || param.type === 'ArrayPattern') continue;
+    if (param.type === 'ObjectPattern' || param.type === 'ArrayPattern') {
+      continue;
+    }
 
     // Skip callback parameters (type annotation contains =>)
-    if (isCallbackParam(param, context)) continue;
+    if (isCallbackParam(param, context)) {
+      continue;
+    }
 
     const paramName: string | null = getParamName(param);
-    if (!paramName) continue;
+    if (!paramName) {
+      continue;
+    }
 
     // Check indirect validation: param passed to a function, result then safeParsed
     const indirectPattern: RegExp = new RegExp(
@@ -164,7 +182,9 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const declaration = node.declaration as AstNode | undefined;
-      if (!declaration) return results;
+      if (!declaration) {
+        return results;
+      }
 
       if (declaration.type === 'FunctionDeclaration') {
         const name: string = ((declaration.id as AstNode)?.name as string) ?? '';
@@ -173,7 +193,9 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
-        if (!declarations) return results;
+        if (!declarations) {
+          return results;
+        }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;
@@ -192,11 +214,15 @@ const rule: TypeScriptRule = {
 
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const name: string = ((node.id as AstNode)?.name as string) ?? '';
-      if (!name) return [];
+      if (!name) {
+        return [];
+      }
 
       // Skip if this function is inside an export — already handled by ExportNamedDeclaration
       const before: string = context.content.slice(Math.max(0, node.start - 20), node.start);
-      if (/export\s+(default\s+)?$/.test(before)) return [];
+      if (/export\s+(default\s+)?$/.test(before)) {
+        return [];
+      }
 
       return checkFunction(node, name, context, false);
     },
@@ -205,11 +231,15 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const declarations = node.declarations as AstNode[] | undefined;
-      if (!declarations) return results;
+      if (!declarations) {
+        return results;
+      }
 
       for (const declarator of declarations) {
         const init = declarator.init as AstNode | undefined;
-        if (!init) continue;
+        if (!init) {
+          continue;
+        }
 
         if (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression') {
           const name: string = ((declarator.id as AstNode)?.name as string) ?? '';

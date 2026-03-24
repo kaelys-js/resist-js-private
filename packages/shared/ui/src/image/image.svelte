@@ -33,7 +33,9 @@
   const validated: ImageProps = $derived.by(() => {
     const rawProps: ImageProps = stripSvelteProps(allProps);
     const result = safeParse(ImagePropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ImageProps;
   });

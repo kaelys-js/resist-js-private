@@ -33,7 +33,9 @@
   const validated: GroupAvatarProps = $derived.by(() => {
     const rawProps: GroupAvatarProps = stripSvelteProps(allProps);
     const result = safeParse(GroupAvatarPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as GroupAvatarProps;
   });

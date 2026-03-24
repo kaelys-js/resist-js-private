@@ -19,11 +19,15 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 function getJsDoc(node: AstNode, content: string): string | null {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
-  if (!trimmed.endsWith('*/')) return null;
+  if (!trimmed.endsWith('*/')) {
+    return null;
+  }
 
   const docEnd: number = trimmed.length;
   const docStart: number = trimmed.lastIndexOf('/**');
-  if (docStart === -1) return null;
+  if (docStart === -1) {
+    return null;
+  }
 
   return trimmed.slice(docStart, docEnd);
 }
@@ -71,15 +75,20 @@ function getParamType(param: AstNode, content: string): string | null {
   // AssignmentPattern (default values): check the left side
   if (param.type === 'AssignmentPattern') {
     const left = param.left as AstNode | undefined;
-    if (left) target = left;
+    if (left) {
+      target = left;
+    }
   }
 
   const typeAnnotation = target.typeAnnotation as AstNode | undefined;
-  if (!typeAnnotation) return null;
+  if (!typeAnnotation) {
+    return null;
+  }
 
   const innerType = typeAnnotation.typeAnnotation as AstNode | undefined;
-  if (!innerType)
+  if (!innerType) {
     return content.slice(typeAnnotation.start, typeAnnotation.end).replace(/^:\s*/, '');
+  }
 
   return content.slice(innerType.start, innerType.end);
 }
@@ -109,11 +118,15 @@ function checkFunction(
 ): LintResult[] {
   const results: LintResult[] = [];
   const jsDoc: string | null = getJsDoc(exportNode, context.content);
-  if (!jsDoc) return results;
+  if (!jsDoc) {
+    return results;
+  }
 
   const docParams: DocParam[] = extractDocParams(jsDoc);
   const params = funcNode.params as AstNode[] | undefined;
-  if (!params) return results;
+  if (!params) {
+    return results;
+  }
 
   // Build a map of actual param name → type
   const actualTypes: Map<string, string> = new Map();
@@ -124,24 +137,34 @@ function checkFunction(
       name = (param.name as string) ?? null;
     } else if (param.type === 'AssignmentPattern') {
       const left = param.left as AstNode | undefined;
-      if (left?.type === 'Identifier') name = (left.name as string) ?? null;
+      if (left?.type === 'Identifier') {
+        name = (left.name as string) ?? null;
+      }
     } else if (param.type === 'RestElement') {
       const arg = param.argument as AstNode | undefined;
-      if (arg?.type === 'Identifier') name = (arg.name as string) ?? null;
+      if (arg?.type === 'Identifier') {
+        name = (arg.name as string) ?? null;
+      }
     }
 
     if (name) {
       const type: string | null = getParamType(param, context.content);
-      if (type) actualTypes.set(name, type);
+      if (type) {
+        actualTypes.set(name, type);
+      }
     }
   }
 
   // Check each @param {Type} against actual type
   for (const docParam of docParams) {
-    if (!docParam.type) continue; // No type in JSDoc — nothing to check
+    if (!docParam.type) {
+      continue;
+    } // No type in JSDoc — nothing to check
 
     const actualType: string | undefined = actualTypes.get(docParam.name);
-    if (!actualType) continue; // Param not found — handled by require-param
+    if (!actualType) {
+      continue;
+    } // Param not found — handled by require-param
 
     const normalizedDoc: string = normalizeType(docParam.type);
     const normalizedActual: string = normalizeType(actualType);
@@ -172,7 +195,9 @@ const rule: TypeScriptRule = {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declaration = node.declaration as AstNode | undefined;
-      if (!declaration) return results;
+      if (!declaration) {
+        return results;
+      }
 
       if (declaration.type === 'FunctionDeclaration') {
         results.push(...checkFunction(declaration, node, context));
@@ -180,7 +205,9 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
-        if (!declarations) return results;
+        if (!declarations) {
+          return results;
+        }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;

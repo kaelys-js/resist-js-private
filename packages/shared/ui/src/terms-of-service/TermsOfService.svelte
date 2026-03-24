@@ -33,7 +33,9 @@
   const validated: TermsOfServiceProps = $derived.by(() => {
     const rawProps: TermsOfServiceProps = stripSvelteProps(allProps);
     const result = safeParse(TermsOfServicePropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as TermsOfServiceProps;
   });

@@ -33,7 +33,9 @@
   const validated: SegmentedButtonProps = $derived.by(() => {
     const rawProps: SegmentedButtonProps = stripSvelteProps(allProps);
     const result = safeParse(SegmentedButtonPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as SegmentedButtonProps;
   });

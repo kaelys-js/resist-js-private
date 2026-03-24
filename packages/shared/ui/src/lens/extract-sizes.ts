@@ -40,7 +40,9 @@ export function extractSourceSizes(
 
   for (const [key, source] of Object.entries(allSources)) {
     const dir: Str = extractDirFn(key);
-    if (!dir) continue;
+    if (!dir) {
+      continue;
+    }
     sizes[dir] = ((sizes[dir] ?? 0) + source.length) as Num;
   }
 
@@ -64,7 +66,11 @@ export function extractSourceSizes(
  * ```
  */
 export function formatBytes(bytes: Num): Str {
-  if (bytes < 1024) return `${String(bytes)} B` as Str;
-  if (bytes < 1_048_576) return `${(bytes / 1024).toFixed(1)} kB` as Str;
+  if (bytes < 1024) {
+    return `${String(bytes)} B` as Str;
+  }
+  if (bytes < 1_048_576) {
+    return `${(bytes / 1024).toFixed(1)} kB` as Str;
+  }
   return `${(bytes / 1_048_576).toFixed(1)} MB` as Str;
 }

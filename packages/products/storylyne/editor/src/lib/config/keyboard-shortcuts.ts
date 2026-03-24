@@ -249,10 +249,16 @@ export const DEFAULT_SHORTCUTS: ShortcutRegistry = {
  */
 export function isEditableTarget(e: KeyboardEvent): Bool {
   const { target } = e;
-  if (!(target instanceof HTMLElement)) return false;
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
   const tag: Str = target.tagName;
-  if (tag === 'INPUT' || tag === 'TEXTAREA') return true;
-  if (target.isContentEditable || target.contentEditable === 'true') return true;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') {
+    return true;
+  }
+  if (target.isContentEditable || target.contentEditable === 'true') {
+    return true;
+  }
   return false;
 }
 
@@ -282,13 +288,19 @@ export function isEditableTarget(e: KeyboardEvent): Bool {
  * ```
  */
 export function matchesShortcut(e: KeyboardEvent, shortcut: KeyboardShortcut): Bool {
-  if (!shortcut.enabled) return false;
+  if (!shortcut.enabled) {
+    return false;
+  }
 
   // Escape always works, even in inputs
-  if (shortcut.key !== 'Escape' && isEditableTarget(e)) return false;
+  if (shortcut.key !== 'Escape' && isEditableTarget(e)) {
+    return false;
+  }
 
   // Key match (case-sensitive for letters, case-insensitive for special keys)
-  if (e.key !== shortcut.key) return false;
+  if (e.key !== shortcut.key) {
+    return false;
+  }
 
   // Check required modifiers are ALL pressed
   const mods: readonly ModifierKey[] = shortcut.modifiers;
@@ -300,14 +312,24 @@ export function matchesShortcut(e: KeyboardEvent, shortcut: KeyboardShortcut): B
 
   if (hasCmdOrCtrl) {
     // cmdOrCtrl: exactly one of Ctrl/Meta must be pressed (not both, not neither)
-    if (e.ctrlKey === e.metaKey) return false;
+    if (e.ctrlKey === e.metaKey) {
+      return false;
+    }
   } else {
-    if (wantCtrl !== e.ctrlKey) return false;
-    if (wantMeta !== e.metaKey) return false;
+    if (wantCtrl !== e.ctrlKey) {
+      return false;
+    }
+    if (wantMeta !== e.metaKey) {
+      return false;
+    }
   }
 
-  if (wantShift !== e.shiftKey) return false;
-  if (wantAlt !== e.altKey) return false;
+  if (wantShift !== e.shiftKey) {
+    return false;
+  }
+  if (wantAlt !== e.altKey) {
+    return false;
+  }
 
   return true;
 }
@@ -356,8 +378,11 @@ export function formatShortcut(shortcut: KeyboardShortcut): Str {
 
   // Special key display names
   let keyDisplay: Str = shortcut.key;
-  if (shortcut.key === 'Escape') keyDisplay = 'Esc';
-  else if (shortcut.key === ' ') keyDisplay = 'Space';
+  if (shortcut.key === 'Escape') {
+    keyDisplay = 'Esc';
+  } else if (shortcut.key === ' ') {
+    keyDisplay = 'Space';
+  }
 
   const labels: Str[] = mods.map((m) => (IS_MAC ? MAC_SYMBOLS[m] : PC_LABELS[m]));
   labels.push(keyDisplay);
@@ -410,17 +435,23 @@ export function detectConflicts(registry: ShortcutRegistry): ShortcutConflict[] 
       const b: KeyboardShortcut = entries[j];
 
       // Same key?
-      if (a.key !== b.key) continue;
+      if (a.key !== b.key) {
+        continue;
+      }
 
       // Same modifiers (order-independent)?
       const aMods: Str = [...a.modifiers].toSorted().join(',');
       const bMods: Str = [...b.modifiers].toSorted().join(',');
-      if (aMods !== bMods) continue;
+      if (aMods !== bMods) {
+        continue;
+      }
 
       // Context overlap? (global overlaps everything, same context overlaps)
       const overlaps: Bool =
         a.context === 'global' || b.context === 'global' || a.context === b.context;
-      if (!overlaps) continue;
+      if (!overlaps) {
+        continue;
+      }
 
       conflicts.push({
         a: a.id,
@@ -454,7 +485,9 @@ export function detectConflicts(registry: ShortcutRegistry): ShortcutConflict[] 
 export function getAllShortcuts(registry: ShortcutRegistry): KeyboardShortcut[] {
   return Object.values(registry).toSorted((a, b) => {
     const contextCmp: Num = a.context.localeCompare(b.context);
-    if (contextCmp !== 0) return contextCmp;
+    if (contextCmp !== 0) {
+      return contextCmp;
+    }
     return a.label.localeCompare(b.label);
   });
 }
@@ -488,7 +521,9 @@ export function updateShortcut(
   modifiers: readonly ModifierKey[],
 ): Result<ShortcutRegistry> {
   const idResult: Result<ShortcutId> = safeParse(ShortcutIdSchema, id);
-  if (!idResult.ok) return err(ERRORS.VALIDATION.SCHEMA_FAILED, `Unknown shortcut ID: ${id}`);
+  if (!idResult.ok) {
+    return err(ERRORS.VALIDATION.SCHEMA_FAILED, `Unknown shortcut ID: ${id}`);
+  }
 
   const validId: ShortcutId = idResult.data;
   const existing: KeyboardShortcut = registry[validId];
@@ -532,7 +567,9 @@ export function updateShortcut(
  */
 export function resetShortcut(registry: ShortcutRegistry, id: Str): Result<ShortcutRegistry> {
   const idResult: Result<ShortcutId> = safeParse(ShortcutIdSchema, id);
-  if (!idResult.ok) return err(ERRORS.VALIDATION.SCHEMA_FAILED, `Unknown shortcut ID: ${id}`);
+  if (!idResult.ok) {
+    return err(ERRORS.VALIDATION.SCHEMA_FAILED, `Unknown shortcut ID: ${id}`);
+  }
 
   const validId: ShortcutId = idResult.data;
   const existing: KeyboardShortcut = registry[validId];

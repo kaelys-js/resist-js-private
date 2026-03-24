@@ -27,7 +27,9 @@ let validProjects: ReadonlySet<string> | null = null;
  * @returns {ReadonlySet<string>} Set of valid project names
  */
 function getValidProjects(): ReadonlySet<string> {
-  if (validProjects) return validProjects;
+  if (validProjects) {
+    return validProjects;
+  }
 
   try {
     const configPath: string = resolve('vitest.config.ts');
@@ -68,20 +70,28 @@ const rule: PackageJsonRule = {
    */
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
-    if (context.isRoot) return results;
+    if (context.isRoot) {
+      return results;
+    }
 
     const scripts: Record<string, string> = context.pkg.scripts ?? {};
     const projects: ReadonlySet<string> = getValidProjects();
-    if (projects.size === 0) return results;
+    if (projects.size === 0) {
+      return results;
+    }
 
     const name: string = context.pkg.name ?? '<unnamed>';
 
     for (const key of PROJECT_SCRIPTS) {
       const script: string | undefined = scripts[key];
-      if (!script) continue;
+      if (!script) {
+        continue;
+      }
 
       const projectMatch: RegExpMatchArray | null = script.match(/--project\s+(\S+)/);
-      if (!projectMatch) continue;
+      if (!projectMatch) {
+        continue;
+      }
 
       const projectName: string = projectMatch[1];
       if (!projects.has(projectName)) {

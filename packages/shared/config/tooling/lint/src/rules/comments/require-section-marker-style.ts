@@ -56,11 +56,17 @@ function extractBlockTitle(line1: string, line2: string, line3: string): string 
   const l2: string = line2.trim();
   const l3: string = line3.trim();
 
-  if (!BLOCK_MARKER_PATTERN.test(l1)) return null;
-  if (!BLOCK_MARKER_PATTERN.test(l3)) return null;
+  if (!BLOCK_MARKER_PATTERN.test(l1)) {
+    return null;
+  }
+  if (!BLOCK_MARKER_PATTERN.test(l3)) {
+    return null;
+  }
 
   const titleMatch: RegExpMatchArray | null = l2.match(BLOCK_TITLE_PATTERN);
-  if (!titleMatch) return null;
+  if (!titleMatch) {
+    return null;
+  }
 
   return titleMatch[1].trim();
 }
@@ -78,9 +84,15 @@ function extractDashTitle(line1: string, line2: string, line3: string): string |
   const l2: string = line2.trim();
   const l3: string = line3.trim();
 
-  if (!DASH_LINE_PATTERN.test(l1)) return null;
-  if (!DASH_LINE_PATTERN.test(l3)) return null;
-  if (!l2.startsWith('//')) return null;
+  if (!DASH_LINE_PATTERN.test(l1)) {
+    return null;
+  }
+  if (!DASH_LINE_PATTERN.test(l3)) {
+    return null;
+  }
+  if (!l2.startsWith('//')) {
+    return null;
+  }
 
   return l2.replace(/^\/\/\s*/, '').trim();
 }

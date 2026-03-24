@@ -33,7 +33,9 @@ const ALLOWED_DISABLES: ReadonlySet<string> = new Set(['max-lines', 'max-lines-p
 function isAllowedDisable(line: string): boolean {
   // Check if any allowed disable target appears in the line
   for (const allowed of ALLOWED_DISABLES) {
-    if (line.includes(allowed)) return true;
+    if (line.includes(allowed)) {
+      return true;
+    }
   }
   return false;
 }

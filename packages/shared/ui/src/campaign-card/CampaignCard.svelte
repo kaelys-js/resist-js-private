@@ -33,7 +33,9 @@
   const validated: CampaignCardProps = $derived.by(() => {
     const rawProps: CampaignCardProps = stripSvelteProps(allProps);
     const result = safeParse(CampaignCardPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as CampaignCardProps;
   });

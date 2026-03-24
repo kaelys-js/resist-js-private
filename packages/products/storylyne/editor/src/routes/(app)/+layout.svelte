@@ -50,7 +50,9 @@
   if (data.user) {
     store.setUserName(data.user.displayName);
     store.setUserEmail(data.user.email);
-    if (data.user.avatarUrl) store.setUserAvatar(data.user.avatarUrl);
+    if (data.user.avatarUrl) {
+      store.setUserAvatar(data.user.avatarUrl);
+    }
   }
 
   // Hydrate locale from server-detected value (cookie → Accept-Language → 'en').
@@ -100,7 +102,9 @@
   // Reactive debug service lifecycle — watches debugStore.debug.enabled
   let debugHandle: DebugServicesHandle | null = $state(null);
   $effect(() => {
-    if (!debugStore) return;
+    if (!debugStore) {
+      return;
+    }
     debugHandle = syncDebugServices(store, debugStore, getDevtoolsConfig(), debugHandle);
   });
 
@@ -184,7 +188,9 @@
 
   // Compute initial sidebar percentage from saved pixel width to prevent flash on load.
   function getInitialSidebarPercent(): Num {
-    if (typeof window === 'undefined') return 20;
+    if (typeof window === 'undefined') {
+      return 20;
+    }
     // Clean stale PaneForge internal storage that bypasses our adapter.
     localStorage.removeItem(`paneforge:${STORAGE_PREFIX}:sidebar-width`);
     const saved: Str | null = localStorage.getItem(SIDEBAR_PX_KEY);
@@ -211,7 +217,9 @@
   // Param types match PaneGroupStorage interface contract (Str = string, Void ⊂ void).
   const paneStorage: PaneGroupStorage = {
     getItem(_name: Str): Str | null {
-      if (typeof window === 'undefined') return null;
+      if (typeof window === 'undefined') {
+        return null;
+      }
       const savedPx: Str | null = localStorage.getItem(SIDEBAR_PX_KEY);
       const sidebarPx: Num = savedPx ? Number(savedPx) : SIDEBAR_DEFAULT_PX;
       currentSidebarPx = sidebarPx;
@@ -220,7 +228,9 @@
       return JSON.stringify([sidebarPercent, 100 - sidebarPercent]);
     },
     setItem(_name: Str, value: Str): Void {
-      if (typeof window === 'undefined') return;
+      if (typeof window === 'undefined') {
+        return;
+      }
       try {
         const layout: Num[] = JSON.parse(value);
         const viewportWidth: Num = window.innerWidth;
@@ -235,9 +245,13 @@
   };
 
   function handleSidebarResize(size: Num): Void {
-    if (!providerEl) return;
+    if (!providerEl) {
+      return;
+    }
     const groupEl: Element | null = providerEl.querySelector('[data-pane-group]');
-    if (!groupEl) return;
+    if (!groupEl) {
+      return;
+    }
     const widthPx: Num = Math.round(groupEl.clientWidth * (size / 100));
     currentSidebarPx = widthPx;
     providerEl.style.setProperty('--sidebar-width', `${widthPx}px`);
@@ -247,11 +261,15 @@
   }
 
   function handleCollapse(): Void {
-    if (store.app.sidebarOpen) store.setSidebarOpen(false);
+    if (store.app.sidebarOpen) {
+      store.setSidebarOpen(false);
+    }
   }
 
   function handleExpand(): Void {
-    if (!store.app.sidebarOpen) store.setSidebarOpen(true);
+    if (!store.app.sidebarOpen) {
+      store.setSidebarOpen(true);
+    }
   }
 
   function handleSidebarOpenChange(open: Bool): Void {
@@ -267,7 +285,9 @@
   // !w-auto overrides the component's w-full so flex-col stretch respects margins
   // (w-full = width:100% ignores margins in a column flex, causing 8px overflow).
   const insetClass: Str = $derived.by(() => {
-    if (!useResizable) return '';
+    if (!useResizable) {
+      return '';
+    }
     return store.app.sidebarOpen
       ? 'md:m-2 md:ms-0 md:!w-auto md:rounded-xl md:shadow-sm'
       : 'md:m-2 md:!w-auto md:rounded-xl md:shadow-sm';
@@ -275,7 +295,9 @@
 
   function handleDoubleClickResize(): Void {
     const groupEl: Element | null | undefined = providerEl?.querySelector('[data-pane-group]');
-    if (!groupEl) return;
+    if (!groupEl) {
+      return;
+    }
     const defaultPercent: Num = (SIDEBAR_DEFAULT_PX / groupEl.clientWidth) * 100;
     sidebarPane?.resize(defaultPercent);
   }
@@ -285,15 +307,21 @@
   // would change proportionally when the browser window is resized.
   let resizeRafId: Num = 0;
   $effect(() => {
-    if (!useResizable || !providerEl) return;
+    if (!useResizable || !providerEl) {
+      return;
+    }
     const groupEl: Element | null = providerEl.querySelector('[data-pane-group]');
-    if (!groupEl) return;
+    if (!groupEl) {
+      return;
+    }
 
     const observer: ResizeObserver = new ResizeObserver(() => {
       cancelAnimationFrame(resizeRafId);
       resizeRafId = requestAnimationFrame(() => {
         const groupWidth: Num = groupEl instanceof HTMLElement ? groupEl.clientWidth : 0;
-        if (groupWidth === 0) return;
+        if (groupWidth === 0) {
+          return;
+        }
         // Resize PaneForge pane to maintain the saved pixel width.
         const targetPercent: Num = (currentSidebarPx / groupWidth) * 100;
         const currentSize: Num | undefined = sidebarPane?.getSize();
@@ -328,7 +356,9 @@
   // Persist mock data delay to a cookie so the server can read it on next request.
   $effect(() => {
     const delay: Num = store.app.mockDataDelay;
-    if (!browser) return;
+    if (!browser) {
+      return;
+    }
     setPreferenceCookie(STORAGE_PREFIX, 'mockDataDelay', String(delay));
   });
 
@@ -337,7 +367,9 @@
   // the correct state during SSR — prevents expanded→collapsed flash.
   $effect(() => {
     const open: Bool = store.app.sidebarOpen;
-    if (!browser) return;
+    if (!browser) {
+      return;
+    }
     setPreferenceCookie(STORAGE_PREFIX, 'sidebar-open', String(open));
   });
 
@@ -346,7 +378,9 @@
   // sync the PaneForge pane to match.
   $effect(() => {
     const wantOpen: Bool = store.app.sidebarOpen;
-    if (!useResizable) return;
+    if (!useResizable) {
+      return;
+    }
     if (wantOpen) {
       sidebarPane?.expand();
     } else {
@@ -373,7 +407,9 @@
   const ogLocale: Str = $derived.by(() => {
     const r = toOgLocale(store.app.locale);
     // UI boundary — $derived must produce a value; error logged below
-    if (!r.ok) log.warn(`OG locale resolution failed (${r.error.code})`);
+    if (!r.ok) {
+      log.warn(`OG locale resolution failed (${r.error.code})`);
+    }
     return r.ok ? r.data : 'en_US';
   });
 
@@ -405,7 +441,9 @@
         errorTitleMap[page.status] ?? (() => t(localeStore.t.errors.genericTitle, 'Error'));
       return titleFn();
     }
-    if (activeSceneName) return activeSceneName;
+    if (activeSceneName) {
+      return activeSceneName;
+    }
     return t(localeStore.t.header.home, 'Home');
   });
 

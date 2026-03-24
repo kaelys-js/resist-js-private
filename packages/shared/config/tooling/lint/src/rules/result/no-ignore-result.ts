@@ -66,7 +66,9 @@ function getCallExpression(node: AstNode): AstNode | null {
  */
 function getFunctionName(node: AstNode): string | null {
   const callee = node.callee as AstNode | undefined;
-  if (!callee) return null;
+  if (!callee) {
+    return null;
+  }
 
   if (callee.type === 'Identifier') {
     return (callee.name as string) ?? null;
@@ -121,13 +123,19 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const expression = node.expression as AstNode | undefined;
-      if (!expression) return results;
+      if (!expression) {
+        return results;
+      }
 
       const callExpr: AstNode | null = getCallExpression(expression);
-      if (!callExpr) return results;
+      if (!callExpr) {
+        return results;
+      }
 
       const funcName: string | null = getFunctionName(callExpr);
-      if (!funcName) return results;
+      if (!funcName) {
+        return results;
+      }
 
       if (!likelyReturnsResult(funcName, context)) {
         return results;

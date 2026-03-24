@@ -160,10 +160,16 @@ export function arity(constraint: ArityConstraint): Result<v.CheckAction<FnType,
       NonNegativeIntegerSchema,
       fn.length,
     );
-    if (!lenParsed.success) return false;
+    if (!lenParsed.success) {
+      return false;
+    }
     const len: NonNegativeInteger = lenParsed.output;
-    if (min !== undefined && len < min) return false;
-    if (max !== undefined && len > max) return false;
+    if (min !== undefined && len < min) {
+      return false;
+    }
+    if (max !== undefined && len > max) {
+      return false;
+    }
     return true;
   }, description);
 

@@ -33,7 +33,9 @@
   const validated: RidgelinePlotProps = $derived.by(() => {
     const rawProps: RidgelinePlotProps = stripSvelteProps(allProps);
     const result = safeParse(RidgelinePlotPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as RidgelinePlotProps;
   });

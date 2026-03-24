@@ -33,7 +33,9 @@
   const validated: SplitButtonProps = $derived.by(() => {
     const rawProps: SplitButtonProps = stripSvelteProps(allProps);
     const result = safeParse(SplitButtonPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as SplitButtonProps;
   });

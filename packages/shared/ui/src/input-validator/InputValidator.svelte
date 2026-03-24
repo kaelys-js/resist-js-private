@@ -33,7 +33,9 @@
   const validated: InputValidatorProps = $derived.by(() => {
     const rawProps: InputValidatorProps = stripSvelteProps(allProps);
     const result = safeParse(InputValidatorPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as InputValidatorProps;
   });

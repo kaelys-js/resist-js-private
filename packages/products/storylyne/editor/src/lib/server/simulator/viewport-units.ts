@@ -76,11 +76,15 @@ export function buildViewportUnitsScript(): Str {
  * const units = parseViewportUnitsResult('{"svh":7.12,"lvh":8.44,"dvh":7.12}');
  */
 export function parseViewportUnitsResult(json: Str): ViewportUnits | null {
-  if (!(json as string)) return null;
+  if (!(json as string)) {
+    return null;
+  }
 
   try {
     const parsed: unknown = JSON.parse(json as string);
-    if (typeof parsed !== 'object' || parsed === null) return null;
+    if (typeof parsed !== 'object' || parsed === null) {
+      return null;
+    }
 
     const obj: Record<string, unknown> = parsed as Record<string, unknown>;
     if (typeof obj.svh !== 'number' || typeof obj.lvh !== 'number' || typeof obj.dvh !== 'number') {

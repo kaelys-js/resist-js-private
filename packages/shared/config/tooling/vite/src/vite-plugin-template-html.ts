@@ -148,7 +148,9 @@ const ph: (key: `{{${Str}}}`) => TemplatePlaceholder = (key: `{{${Str}}}`): Temp
  */
 export function generateFontFaceCss(fontFaces: readonly FontFaceEntry[]): Result<CssStr> {
   const validated: Result<FontFaceEntryArray> = safeParse(FontFaceEntryArraySchema, fontFaces);
-  if (!validated.ok) return validated;
+  if (!validated.ok) {
+    return validated;
+  }
 
   const result: Str = validated.data
     .map(
@@ -175,10 +177,14 @@ export function generateFontFaceCss(fontFaces: readonly FontFaceEntry[]): Result
  */
 export function deriveErrorIdPrefix(template: Str): Result<Str> {
   const validated: Result<Str> = safeParse(v.string(), template);
-  if (!validated.ok) return validated;
+  if (!validated.ok) {
+    return validated;
+  }
 
   const rawIdx: Num = validated.data.indexOf('{id}');
-  if (rawIdx < 0) return ok(v.string(), validated.data);
+  if (rawIdx < 0) {
+    return ok(v.string(), validated.data);
+  }
   const idx: NonNegativeInteger = rawIdx as NonNegativeInteger; // cast safe: checked >= 0
   return ok(v.string(), validated.data.slice(0, idx));
 }
@@ -198,16 +204,24 @@ export function deriveErrorIdPrefix(template: Str): Result<Str> {
  */
 export function resolveErrorHtml(template: Str, config: ErrorHtmlConfig): Result<Str> {
   const tplResult: Result<Str> = safeParse(v.string(), template);
-  if (!tplResult.ok) return tplResult;
+  if (!tplResult.ok) {
+    return tplResult;
+  }
 
   const cfgResult: Result<ErrorHtmlConfig> = safeParse(ErrorHtmlConfigSchema, config);
-  if (!cfgResult.ok) return cfgResult;
+  if (!cfgResult.ok) {
+    return cfgResult;
+  }
 
   const fontCssResult: Result<CssStr> = generateFontFaceCss(cfgResult.data.fontFaces);
-  if (!fontCssResult.ok) return fontCssResult;
+  if (!fontCssResult.ok) {
+    return fontCssResult;
+  }
 
   const errorIdPrefixResult: Result<Str> = deriveErrorIdPrefix(cfgResult.data.locale.errorId);
-  if (!errorIdPrefixResult.ok) return errorIdPrefixResult;
+  if (!errorIdPrefixResult.ok) {
+    return errorIdPrefixResult;
+  }
 
   const replacements: Record<TemplatePlaceholder, Str> = {
     [ph('{{APP_NAME}}')]: cfgResult.data.appName,
@@ -245,10 +259,14 @@ export function resolveErrorHtml(template: Str, config: ErrorHtmlConfig): Result
  */
 export function resolveAppHtml(template: Str, config: AppHtmlConfig): Result<Str> {
   const tplResult: Result<Str> = safeParse(v.string(), template);
-  if (!tplResult.ok) return tplResult;
+  if (!tplResult.ok) {
+    return tplResult;
+  }
 
   const cfgResult: Result<AppHtmlConfig> = safeParse(AppHtmlConfigSchema, config);
-  if (!cfgResult.ok) return cfgResult;
+  if (!cfgResult.ok) {
+    return cfgResult;
+  }
 
   const prefix: Str = cfgResult.data.storagePrefix ?? cfgResult.data.appName.toLowerCase();
   const result: Str = tplResult.data
@@ -286,7 +304,9 @@ export function resolveAppHtml(template: Str, config: AppHtmlConfig): Result<Str
 export function templateErrorHtml(config: ErrorHtmlConfig): Plugin {
   // integration boundary: returns Vite Plugin type
   const configResult: Result<ErrorHtmlConfig> = safeParse(ErrorHtmlConfigSchema, config);
-  if (!configResult.ok) throw configResult.error; // integration boundary: Vite plugin callback
+  if (!configResult.ok) {
+    throw configResult.error;
+  } // integration boundary: Vite plugin callback
 
   let originalContent: NullableStr = null;
   const errorHtmlPath: Path = configResult.data.templatePath;
@@ -295,7 +315,9 @@ export function templateErrorHtml(config: ErrorHtmlConfig): Plugin {
     // integration boundary: Vite plugin callback
     if (originalContent !== null && errorHtmlPath) {
       const writeResult: Result<Void> = writeFile(errorHtmlPath, originalContent);
-      if (!writeResult.ok) throw writeResult.error; // integration boundary: Vite plugin callback
+      if (!writeResult.ok) {
+        throw writeResult.error;
+      } // integration boundary: Vite plugin callback
       originalContent = null;
     }
     return undefined;
@@ -307,18 +329,26 @@ export function templateErrorHtml(config: ErrorHtmlConfig): Plugin {
     enforce: 'pre',
 
     config(_viteConfig: UserConfig, env: ConfigEnv) {
-      if (env.command !== 'build') return;
+      if (env.command !== 'build') {
+        return;
+      }
 
       const fileResult: Result<Str> = readFile(errorHtmlPath);
-      if (!fileResult.ok) throw fileResult.error; // integration boundary: Vite plugin callback
+      if (!fileResult.ok) {
+        throw fileResult.error;
+      } // integration boundary: Vite plugin callback
 
       originalContent = fileResult.data;
 
       const resolved: Result<Str> = resolveErrorHtml(originalContent, config);
-      if (!resolved.ok) throw resolved.error; // integration boundary: Vite plugin callback
+      if (!resolved.ok) {
+        throw resolved.error;
+      } // integration boundary: Vite plugin callback
 
       const writeResult: Result<Void> = writeFile(errorHtmlPath, resolved.data);
-      if (!writeResult.ok) throw writeResult.error; // integration boundary: Vite plugin callback
+      if (!writeResult.ok) {
+        throw writeResult.error;
+      } // integration boundary: Vite plugin callback
 
       // Safety net: restore on abrupt process exit (e.g. Ctrl+C, SIGTERM)
       process.on('exit', restore);
@@ -351,7 +381,9 @@ export function templateErrorHtml(config: ErrorHtmlConfig): Plugin {
 export function templateAppHtml(config: AppHtmlConfig): Plugin {
   // integration boundary: returns Vite Plugin type
   const configResult: Result<AppHtmlConfig> = safeParse(AppHtmlConfigSchema, config);
-  if (!configResult.ok) throw configResult.error; // integration boundary: Vite plugin callback
+  if (!configResult.ok) {
+    throw configResult.error;
+  } // integration boundary: Vite plugin callback
 
   let originalContent: NullableStr = null;
   const appHtmlPath: Path = configResult.data.templatePath;
@@ -360,7 +392,9 @@ export function templateAppHtml(config: AppHtmlConfig): Plugin {
     // integration boundary: Vite plugin callback
     if (originalContent !== null && appHtmlPath) {
       const writeResult: Result<Void> = writeFile(appHtmlPath, originalContent);
-      if (!writeResult.ok) throw writeResult.error; // integration boundary: Vite plugin callback
+      if (!writeResult.ok) {
+        throw writeResult.error;
+      } // integration boundary: Vite plugin callback
       originalContent = null;
     }
     return undefined;
@@ -372,18 +406,26 @@ export function templateAppHtml(config: AppHtmlConfig): Plugin {
     enforce: 'pre',
 
     config(_viteConfig: UserConfig, env: ConfigEnv) {
-      if (env.command !== 'build') return;
+      if (env.command !== 'build') {
+        return;
+      }
 
       const fileResult: Result<Str> = readFile(appHtmlPath);
-      if (!fileResult.ok) throw fileResult.error; // integration boundary: Vite plugin callback
+      if (!fileResult.ok) {
+        throw fileResult.error;
+      } // integration boundary: Vite plugin callback
 
       originalContent = fileResult.data;
 
       const resolved: Result<Str> = resolveAppHtml(originalContent, config);
-      if (!resolved.ok) throw resolved.error; // integration boundary: Vite plugin callback
+      if (!resolved.ok) {
+        throw resolved.error;
+      } // integration boundary: Vite plugin callback
 
       const writeResult: Result<Void> = writeFile(appHtmlPath, resolved.data);
-      if (!writeResult.ok) throw writeResult.error; // integration boundary: Vite plugin callback
+      if (!writeResult.ok) {
+        throw writeResult.error;
+      } // integration boundary: Vite plugin callback
 
       process.on('exit', restore);
     },

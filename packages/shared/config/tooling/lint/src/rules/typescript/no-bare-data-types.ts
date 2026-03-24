@@ -41,12 +41,16 @@ function isExemptFile(filePath: string): boolean {
 function getFuncName(funcNode: AstNode, context: VisitorContext): string {
   // Named function declaration
   const id = funcNode.id as AstNode | undefined;
-  if (id?.name) return id.name as string;
+  if (id?.name) {
+    return id.name as string;
+  }
 
   // Arrow/function expression assigned to a variable — look backwards for `const name =`
   const before: string = context.content.slice(Math.max(0, funcNode.start - 100), funcNode.start);
   const varMatch: RegExpMatchArray | null = before.match(/(?:const|let|var)\s+(\w+)\s*=\s*$/);
-  if (varMatch) return varMatch[1];
+  if (varMatch) {
+    return varMatch[1];
+  }
 
   return '<anonymous>';
 }
@@ -60,12 +64,18 @@ function getFuncName(funcNode: AstNode, context: VisitorContext): string {
  */
 function checkReturnType(funcNode: AstNode, context: VisitorContext): LintResult[] {
   const returnType = funcNode.returnType as AstNode | undefined;
-  if (!returnType) return [];
+  if (!returnType) {
+    return [];
+  }
 
   const typeAnnotation = returnType.typeAnnotation as AstNode | undefined;
-  if (!typeAnnotation) return [];
+  if (!typeAnnotation) {
+    return [];
+  }
 
-  if (typeAnnotation.type !== 'TSTypeLiteral') return [];
+  if (typeAnnotation.type !== 'TSTypeLiteral') {
+    return [];
+  }
 
   const funcName: string = getFuncName(funcNode, context);
 
@@ -96,14 +106,20 @@ function checkReturnType(funcNode: AstNode, context: VisitorContext): LintResult
 function checkParamTypes(funcNode: AstNode, context: VisitorContext): LintResult[] {
   const results: LintResult[] = [];
   const params = funcNode.params as AstNode[] | undefined;
-  if (!params) return results;
+  if (!params) {
+    return results;
+  }
 
   for (const param of params) {
     const typeAnnotation = (param.typeAnnotation as AstNode | undefined)?.typeAnnotation as
       | AstNode
       | undefined; // cast safe: AST property chain
-    if (!typeAnnotation) continue;
-    if (typeAnnotation.type !== 'TSTypeLiteral') continue;
+    if (!typeAnnotation) {
+      continue;
+    }
+    if (typeAnnotation.type !== 'TSTypeLiteral') {
+      continue;
+    }
 
     const paramName: string =
       (param.name as string) ?? ((param.left as AstNode | undefined)?.name as string) ?? 'param'; // cast safe: AST property
@@ -134,12 +150,20 @@ function checkParamTypes(funcNode: AstNode, context: VisitorContext): LintResult
  */
 function isAllMethodsType(typeNode: AstNode): boolean {
   const members = typeNode.members as AstNode[] | undefined;
-  if (!members || members.length === 0) return false;
+  if (!members || members.length === 0) {
+    return false;
+  }
   return members.every((m: AstNode): boolean => {
-    if (m.type === 'TSMethodSignature') return true;
+    if (m.type === 'TSMethodSignature') {
+      return true;
+    }
     if (m.type === 'TSPropertySignature') {
-      const memberType = (m.typeAnnotation as AstNode | undefined)?.typeAnnotation as AstNode | undefined;
-      if (memberType?.type === 'TSFunctionType') return true;
+      const memberType = (m.typeAnnotation as AstNode | undefined)?.typeAnnotation as
+        | AstNode
+        | undefined;
+      if (memberType?.type === 'TSFunctionType') {
+        return true;
+      }
     }
     return false;
   });
@@ -152,7 +176,9 @@ const rule: TypeScriptRule = {
 
   visitor: {
     TSInterfaceDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
-      if (isExemptFile(context.file)) return [];
+      if (isExemptFile(context.file)) {
+        return [];
+      }
 
       const name: string = ((node.id as AstNode)?.name as string) ?? 'unknown'; // cast safe: AST property
 
@@ -161,7 +187,9 @@ const rule: TypeScriptRule = {
         Math.max(0, node.start - 5),
         Math.min(context.content.length, node.end + 5),
       );
-      if (/extends\s+.*(?:Base|Valibot|Schema)/.test(bodyText)) return [];
+      if (/extends\s+.*(?:Base|Valibot|Schema)/.test(bodyText)) {
+        return [];
+      }
 
       return [
         {
@@ -181,16 +209,24 @@ const rule: TypeScriptRule = {
     },
 
     TSTypeAliasDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
-      if (isExemptFile(context.file)) return [];
+      if (isExemptFile(context.file)) {
+        return [];
+      }
 
       const typeAnnotation = node.typeAnnotation as AstNode | undefined; // cast safe: AST property
-      if (!typeAnnotation) return [];
+      if (!typeAnnotation) {
+        return [];
+      }
 
       // Only flag bare object literal types: type X = { ... }
-      if (typeAnnotation.type !== 'TSTypeLiteral') return [];
+      if (typeAnnotation.type !== 'TSTypeLiteral') {
+        return [];
+      }
 
       // Skip if all members are function signatures (constructor/class interfaces, not data)
-      if (isAllMethodsType(typeAnnotation)) return [];
+      if (isAllMethodsType(typeAnnotation)) {
+        return [];
+      }
 
       const name: string = ((node.id as AstNode)?.name as string) ?? 'unknown'; // cast safe: AST property
 
@@ -212,35 +248,50 @@ const rule: TypeScriptRule = {
     },
 
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
-      if (isExemptFile(context.file)) return [];
+      if (isExemptFile(context.file)) {
+        return [];
+      }
       return [...checkReturnType(node, context), ...checkParamTypes(node, context)];
     },
 
     ArrowFunctionExpression(node: AstNode, context: VisitorContext): LintResult[] {
-      if (isExemptFile(context.file)) return [];
+      if (isExemptFile(context.file)) {
+        return [];
+      }
       return [...checkReturnType(node, context), ...checkParamTypes(node, context)];
     },
 
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
-      if (isExemptFile(context.file)) return [];
+      if (isExemptFile(context.file)) {
+        return [];
+      }
       const results: LintResult[] = [];
       const declarations = node.declarations as AstNode[] | undefined;
-      if (!declarations) return results;
+      if (!declarations) {
+        return results;
+      }
 
       for (const decl of declarations) {
         const id = decl.id as AstNode | undefined;
-        if (!id) continue;
+        if (!id) {
+          continue;
+        }
 
         // Get type annotation — works for both simple identifiers and destructured patterns
-        const annotation = (id.typeAnnotation as AstNode | undefined)?.typeAnnotation as AstNode | undefined;
-        if (!annotation || annotation.type !== 'TSTypeLiteral') continue;
+        const annotation = (id.typeAnnotation as AstNode | undefined)?.typeAnnotation as
+          | AstNode
+          | undefined;
+        if (!annotation || annotation.type !== 'TSTypeLiteral') {
+          continue;
+        }
 
         // Skip all-method types (constructor/class interfaces)
-        if (isAllMethodsType(annotation)) continue;
+        if (isAllMethodsType(annotation)) {
+          continue;
+        }
 
-        const name: string = id.type === 'Identifier'
-          ? ((id.name as string) ?? '<variable>')
-          : '<destructured>';
+        const name: string =
+          id.type === 'Identifier' ? ((id.name as string) ?? '<variable>') : '<destructured>';
 
         results.push({
           file: context.file,
@@ -257,23 +308,31 @@ const rule: TypeScriptRule = {
     },
 
     TSAsExpression(node: AstNode, context: VisitorContext): LintResult[] {
-      if (isExemptFile(context.file)) return [];
+      if (isExemptFile(context.file)) {
+        return [];
+      }
 
       const typeAnnotation = node.typeAnnotation as AstNode | undefined;
-      if (!typeAnnotation || typeAnnotation.type !== 'TSTypeLiteral') return [];
+      if (!typeAnnotation || typeAnnotation.type !== 'TSTypeLiteral') {
+        return [];
+      }
 
       // Skip all-method types
-      if (isAllMethodsType(typeAnnotation)) return [];
+      if (isAllMethodsType(typeAnnotation)) {
+        return [];
+      }
 
-      return [{
-        file: context.file,
-        line: node.loc.start.line,
-        column: node.loc.start.column + 1,
-        severity: 'error',
-        message: 'Cast uses inline object type — define a Valibot schema instead',
-        ruleId: 'typescript/no-bare-data-types',
-        tip: 'Create a named schema and use the inferred type for the cast',
-      }];
+      return [
+        {
+          file: context.file,
+          line: node.loc.start.line,
+          column: node.loc.start.column + 1,
+          severity: 'error',
+          message: 'Cast uses inline object type — define a Valibot schema instead',
+          ruleId: 'typescript/no-bare-data-types',
+          tip: 'Create a named schema and use the inferred type for the cast',
+        },
+      ];
     },
   },
 };

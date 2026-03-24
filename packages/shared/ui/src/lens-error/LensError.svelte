@@ -34,7 +34,9 @@
   const validated: LensErrorProps = $derived.by(() => {
     const rawProps: LensErrorProps = stripSvelteProps(restProps);
     const result = safeParse(LensErrorPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as LensErrorProps;
   });

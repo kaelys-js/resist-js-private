@@ -68,7 +68,9 @@
   const validated: LanguageSwitcherProps = $derived.by(() => {
     const rawProps: LanguageSwitcherProps = stripSvelteProps(restProps);
     const result = safeParse(LanguageSwitcherPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as LanguageSwitcherProps;
   });
@@ -92,7 +94,9 @@
   }
 
   function handleSubOpenChange(open: Bool): Void {
-    if (!open) searchQuery = '';
+    if (!open) {
+      searchQuery = '';
+    }
   }
 
   /**

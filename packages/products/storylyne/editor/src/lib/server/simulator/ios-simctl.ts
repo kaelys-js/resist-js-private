@@ -125,11 +125,15 @@ function lookupDimensions(deviceTypeIdentifier: Str): DeviceDimensions {
 
   /* Try exact match first */
   const exact: DeviceDimensions | undefined = DEVICE_DIMENSIONS.get(suffix);
-  if (exact) return exact;
+  if (exact) {
+    return exact;
+  }
 
   /* Try prefix match (handles variants like iPad-Pro-13-inch-M5-12GB) */
   for (const [key, dims] of DEVICE_DIMENSIONS) {
-    if (suffix.startsWith(key)) return dims;
+    if (suffix.startsWith(key)) {
+      return dims;
+    }
   }
 
   /* Default fallback — iPhone-sized */
@@ -207,13 +211,17 @@ export async function listSimulatorDevices(): Promise<SimulatorDevice[]> {
 
   for (const [runtimeId, devices] of Object.entries(devicesMap)) {
     /* Only include iOS runtimes */
-    if (!runtimeId.includes('iOS')) continue;
+    if (!runtimeId.includes('iOS')) {
+      continue;
+    }
 
     const runtimeVersion: Str = parseRuntimeVersion(runtimeId as Str);
 
     for (const raw of devices) {
       const d: Record<Str, unknown> = raw as Record<Str, unknown>;
-      if (d.isAvailable !== true) continue;
+      if (d.isAvailable !== true) {
+        continue;
+      }
 
       const deviceTypeId: Str = (d.deviceTypeIdentifier ?? '') as Str;
       const dims: DeviceDimensions = lookupDimensions(deviceTypeId);

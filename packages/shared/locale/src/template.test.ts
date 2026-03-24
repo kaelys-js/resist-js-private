@@ -48,31 +48,41 @@ describe('renderMessage', () => {
   it('renders plain string with no placeholders', () => {
     const result = renderMessage('Hello, world!', {});
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('Hello, world!');
+    if (result.ok) {
+      expect(result.data).toBe('Hello, world!');
+    }
   });
 
   it('renders single placeholder', () => {
     const result = renderMessage('Hello, {name}!', { name: 'Alice' });
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('Hello, Alice!');
+    if (result.ok) {
+      expect(result.data).toBe('Hello, Alice!');
+    }
   });
 
   it('renders multiple placeholders', () => {
     const result = renderMessage('{greeting}, {name}!', { greeting: 'Hi', name: 'Bob' });
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('Hi, Bob!');
+    if (result.ok) {
+      expect(result.data).toBe('Hi, Bob!');
+    }
   });
 
   it('renders same placeholder multiple times', () => {
     const result = renderMessage('{name} is {name}', { name: 'Alice' });
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('Alice is Alice');
+    if (result.ok) {
+      expect(result.data).toBe('Alice is Alice');
+    }
   });
 
   it('handles numeric values', () => {
     const result = renderMessage('Count: {count}', { count: 42 });
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('Count: 42');
+    if (result.ok) {
+      expect(result.data).toBe('Count: 42');
+    }
   });
 
   it('renders ICU plural block', () => {
@@ -82,7 +92,9 @@ describe('renderMessage', () => {
       'en',
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('1 item');
+    if (result.ok) {
+      expect(result.data).toBe('1 item');
+    }
   });
 
   it('renders ICU plural block with other', () => {
@@ -92,7 +104,9 @@ describe('renderMessage', () => {
       'en',
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('5 items');
+    if (result.ok) {
+      expect(result.data).toBe('5 items');
+    }
   });
 
   it('renders ICU plural block with =0', () => {
@@ -102,7 +116,9 @@ describe('renderMessage', () => {
       'en',
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('no items');
+    if (result.ok) {
+      expect(result.data).toBe('no items');
+    }
   });
 
   it('renders ICU select block', () => {
@@ -111,7 +127,9 @@ describe('renderMessage', () => {
       { gender: 'female' },
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('She said hello');
+    if (result.ok) {
+      expect(result.data).toBe('She said hello');
+    }
   });
 
   it('renders ICU select block with other fallback', () => {
@@ -119,13 +137,17 @@ describe('renderMessage', () => {
       role: 'unknown',
     });
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('Guest');
+    if (result.ok) {
+      expect(result.data).toBe('Guest');
+    }
   });
 
   it('renders number format block', () => {
     const result = renderMessage('{price, number}', { price: 1234.56 }, 'en-US');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('1,234');
+    if (result.ok) {
+      expect(result.data).toContain('1,234');
+    }
   });
 
   it('renders date format block', () => {
@@ -135,43 +157,57 @@ describe('renderMessage', () => {
       'en-US',
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('Jun');
+    if (result.ok) {
+      expect(result.data).toContain('Jun');
+    }
   });
 
   it('renders escaped single quotes as literal text', () => {
     const result = renderMessage("It''s a test", {});
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe("It's a test");
+    if (result.ok) {
+      expect(result.data).toBe("It's a test");
+    }
   });
 
   it('renders escaped braces via single quotes', () => {
     const result = renderMessage("Use '{name}' literally", { name: 'Alice' });
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('Use {name} literally');
+    if (result.ok) {
+      expect(result.data).toBe('Use {name} literally');
+    }
   });
 
   it('applies upper case modifier via pipe syntax', () => {
     const result = renderMessage('{name|upper}', { name: 'alice' }, 'en');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('ALICE');
+    if (result.ok) {
+      expect(result.data).toBe('ALICE');
+    }
   });
 
   it('applies lower case modifier via pipe syntax', () => {
     const result = renderMessage('{name|lower}', { name: 'ALICE' }, 'en');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('alice');
+    if (result.ok) {
+      expect(result.data).toBe('alice');
+    }
   });
 
   it('applies capitalize case modifier via pipe syntax', () => {
     const result = renderMessage('{name|capitalize}', { name: 'alice' }, 'en');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('Alice');
+    if (result.ok) {
+      expect(result.data).toBe('Alice');
+    }
   });
 
   it('handles escaped single quotes (double single quote = literal quote)', () => {
     const result = renderMessage("It''s a test", {});
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain("'");
+    if (result.ok) {
+      expect(result.data).toContain("'");
+    }
   });
 });
 
@@ -189,12 +225,16 @@ describe('buildLocale', () => {
 
     const result = buildLocale(Schema, raw);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as Record<string, () => { ok: boolean; data?: string }>;
     const greetResult = built.greeting!();
     expect(greetResult.ok).toBe(true);
-    if (greetResult.ok) expect(greetResult.data).toBe('Hello');
+    if (greetResult.ok) {
+      expect(greetResult.data).toBe('Hello');
+    }
   });
 
   it('transforms messageTemplate strings into parameterized functions', () => {
@@ -205,7 +245,9 @@ describe('buildLocale', () => {
 
     const result = buildLocale(Schema, raw);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as Record<
       string,
@@ -213,7 +255,9 @@ describe('buildLocale', () => {
     >;
     const greetResult = built.greeting!({ name: 'Alice' });
     expect(greetResult.ok).toBe(true);
-    if (greetResult.ok) expect(greetResult.data).toBe('Hello, Alice!');
+    if (greetResult.ok) {
+      expect(greetResult.data).toBe('Hello, Alice!');
+    }
   });
 
   it('handles nested schema objects', () => {
@@ -232,14 +276,18 @@ describe('buildLocale', () => {
 
     const result = buildLocale(Schema, raw);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as {
       errors: Record<string, () => { ok: boolean; data?: string }>;
     };
     const notFoundResult = built.errors.notFound!();
     expect(notFoundResult.ok).toBe(true);
-    if (notFoundResult.ok) expect(notFoundResult.data).toBe('Not found');
+    if (notFoundResult.ok) {
+      expect(notFoundResult.data).toBe('Not found');
+    }
   });
 
   it('applies context substitution at build time', () => {
@@ -251,12 +299,16 @@ describe('buildLocale', () => {
 
     const result = buildLocale(Schema, raw, context);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as Record<string, () => { ok: boolean; data?: string }>;
     const welcomeResult = built.welcome!();
     expect(welcomeResult.ok).toBe(true);
-    if (welcomeResult.ok) expect(welcomeResult.data).toBe('Welcome to TestApp');
+    if (welcomeResult.ok) {
+      expect(welcomeResult.data).toBe('Welcome to TestApp');
+    }
   });
 
   it('returns error for non-object schema', () => {
@@ -272,7 +324,9 @@ describe('buildLocale', () => {
 
     const result = buildLocale(Schema, raw, undefined, 'de-DE');
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as Record<
       string,
@@ -280,6 +334,8 @@ describe('buildLocale', () => {
     >;
     const countResult = built.count!({ n: 1234.5 });
     expect(countResult.ok).toBe(true);
-    if (countResult.ok) expect(countResult.data).toContain('1.234');
+    if (countResult.ok) {
+      expect(countResult.data).toContain('1.234');
+    }
   });
 });

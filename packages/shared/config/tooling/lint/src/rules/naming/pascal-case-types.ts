@@ -52,10 +52,14 @@ const rule: TypeScriptRule = {
     TSTypeAliasDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const id = node.id as AstNode | undefined;
-      if (!id || id.type !== 'Identifier') return results;
+      if (!id || id.type !== 'Identifier') {
+        return results;
+      }
 
       const name: string = (id.name as string) ?? '';
-      if (!name || PASCAL_CASE_RE.test(name)) return results;
+      if (!name || PASCAL_CASE_RE.test(name)) {
+        return results;
+      }
 
       results.push(createResult(node, id, 'Type', context));
       return results;
@@ -64,10 +68,14 @@ const rule: TypeScriptRule = {
     TSInterfaceDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const id = node.id as AstNode | undefined;
-      if (!id || id.type !== 'Identifier') return results;
+      if (!id || id.type !== 'Identifier') {
+        return results;
+      }
 
       const name: string = (id.name as string) ?? '';
-      if (!name || PASCAL_CASE_RE.test(name)) return results;
+      if (!name || PASCAL_CASE_RE.test(name)) {
+        return results;
+      }
 
       results.push(createResult(node, id, 'Interface', context));
       return results;
@@ -76,10 +84,14 @@ const rule: TypeScriptRule = {
     TSEnumDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const id = node.id as AstNode | undefined;
-      if (!id || id.type !== 'Identifier') return results;
+      if (!id || id.type !== 'Identifier') {
+        return results;
+      }
 
       const name: string = (id.name as string) ?? '';
-      if (!name || PASCAL_CASE_RE.test(name)) return results;
+      if (!name || PASCAL_CASE_RE.test(name)) {
+        return results;
+      }
 
       results.push(createResult(node, id, 'Enum', context));
       return results;

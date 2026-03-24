@@ -50,7 +50,9 @@ function mockEvent(
     request: {
       headers: {
         get: (name: Str): NullableStr => {
-          if (name === 'accept-language') return acceptLanguage;
+          if (name === 'accept-language') {
+            return acceptLanguage;
+          }
           const lower: Str = name.toLowerCase();
           return extraHeaders[lower] ?? null;
         },
@@ -80,7 +82,9 @@ function mockResolve(): {
   return {
     resolve,
     getTransformed: (html: Str): Str => {
-      if (!transformer) throw new Error('transformPageChunk not set');
+      if (!transformer) {
+        throw new Error('transformPageChunk not set');
+      }
       return transformer({ html });
     },
   };
@@ -534,7 +538,9 @@ describe('handleError', () => {
     const validationErr = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
       meta: { field: 'email' },
     });
-    if (validationErr.ok) throw new Error('err() should return error');
+    if (validationErr.ok) {
+      throw new Error('err() should return error');
+    }
     const { result } = callServerHandleError({
       error: validationErr.error,
       status: 500,
@@ -612,7 +618,9 @@ describe('enhanced logCapturedError fields', () => {
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
       help: 'Check field format',
     });
-    if (result.ok) throw new Error('err() should return error');
+    if (result.ok) {
+      throw new Error('err() should return error');
+    }
     callServerHandleError({
       error: result.error,
       status: 400,
@@ -628,7 +636,9 @@ describe('enhanced logCapturedError fields', () => {
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
       source: { pointer: '/data/email', parameter: 'email' },
     });
-    if (result.ok) throw new Error('err() should return error');
+    if (result.ok) {
+      throw new Error('err() should return error');
+    }
     callServerHandleError({
       error: result.error,
       status: 400,
@@ -645,11 +655,15 @@ describe('enhanced logCapturedError fields', () => {
   it('logs related errors when present on AppError', () => {
     const related1 = err(ERRORS.VALIDATION.MISSING_FIELD, 'Field too long');
     const related2 = err(ERRORS.VALIDATION.INVALID_FORMAT, 'Bad format');
-    if (related1.ok || related2.ok) throw new Error('err() should return error');
+    if (related1.ok || related2.ok) {
+      throw new Error('err() should return error');
+    }
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Multiple issues', {
       related: [related1.error, related2.error],
     });
-    if (result.ok) throw new Error('err() should return error');
+    if (result.ok) {
+      throw new Error('err() should return error');
+    }
     callServerHandleError({
       error: result.error,
       status: 400,

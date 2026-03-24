@@ -33,7 +33,9 @@
   const validated: PermissionMatrixProps = $derived.by(() => {
     const rawProps: PermissionMatrixProps = stripSvelteProps(allProps);
     const result = safeParse(PermissionMatrixPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as PermissionMatrixProps;
   });

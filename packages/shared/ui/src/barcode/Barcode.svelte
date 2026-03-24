@@ -33,7 +33,9 @@
   const validated: BarcodeProps = $derived.by(() => {
     const rawProps: BarcodeProps = stripSvelteProps(allProps);
     const result = safeParse(BarcodePropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as BarcodeProps;
   });

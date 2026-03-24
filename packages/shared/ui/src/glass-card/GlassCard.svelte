@@ -33,7 +33,9 @@
   const validated: GlassCardProps = $derived.by(() => {
     const rawProps: GlassCardProps = stripSvelteProps(allProps);
     const result = safeParse(GlassCardPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as GlassCardProps;
   });

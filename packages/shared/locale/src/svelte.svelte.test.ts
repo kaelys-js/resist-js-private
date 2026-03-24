@@ -22,7 +22,9 @@ function makeRegistry() {
     defaultLocale: 'en',
     locales: { en, es, ja },
   });
-  if (!result.ok) throw new Error('Registry creation failed');
+  if (!result.ok) {
+    throw new Error('Registry creation failed');
+  }
   return result.data;
 }
 
@@ -40,14 +42,18 @@ describe('createLocaleStore', () => {
   it('store.locale returns active locale code', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
-    if (!result.ok) throw new Error('setup failed');
+    if (!result.ok) {
+      throw new Error('setup failed');
+    }
     expect(result.data.locale).toBe('en');
   });
 
   it('store.t returns built strings object', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
-    if (!result.ok) throw new Error('setup failed');
+    if (!result.ok) {
+      throw new Error('setup failed');
+    }
     expect(result.data.t).toBeDefined();
     expect(typeof result.data.t).toBe('object');
   });
@@ -55,7 +61,9 @@ describe('createLocaleStore', () => {
   it('store.setLocale switches locale', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
-    if (!result.ok) throw new Error('setup failed');
+    if (!result.ok) {
+      throw new Error('setup failed');
+    }
 
     const setResult = result.data.setLocale('es');
     expect(setResult.ok).toBe(true);
@@ -65,7 +73,9 @@ describe('createLocaleStore', () => {
   it('store.setLocale returns error for unknown locale', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
-    if (!result.ok) throw new Error('setup failed');
+    if (!result.ok) {
+      throw new Error('setup failed');
+    }
 
     const setResult = result.data.setLocale('fr');
     expect(setResult.ok).toBe(false);
@@ -76,7 +86,9 @@ describe('createLocaleStore', () => {
   it('store.list returns available locale codes', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
-    if (!result.ok) throw new Error('setup failed');
+    if (!result.ok) {
+      throw new Error('setup failed');
+    }
 
     const listResult = result.data.list();
     expect(listResult.ok).toBe(true);
@@ -90,21 +102,29 @@ describe('createLocaleStore', () => {
   it('store.has returns true for existing locale', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
-    if (!result.ok) throw new Error('setup failed');
+    if (!result.ok) {
+      throw new Error('setup failed');
+    }
 
     const hasResult = result.data.has('es');
     expect(hasResult.ok).toBe(true);
-    if (hasResult.ok) expect(hasResult.data).toBe(true);
+    if (hasResult.ok) {
+      expect(hasResult.data).toBe(true);
+    }
   });
 
   it('store.has returns false for missing locale', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
-    if (!result.ok) throw new Error('setup failed');
+    if (!result.ok) {
+      throw new Error('setup failed');
+    }
 
     const hasResult = result.data.has('fr');
     expect(hasResult.ok).toBe(true);
-    if (hasResult.ok) expect(hasResult.data).toBe(false);
+    if (hasResult.ok) {
+      expect(hasResult.data).toBe(false);
+    }
   });
 
   it('store.set adds a locale', () => {
@@ -113,34 +133,46 @@ describe('createLocaleStore', () => {
       defaultLocale: 'en',
       locales: { en },
     });
-    if (!registry.ok) throw new Error('setup failed');
+    if (!registry.ok) {
+      throw new Error('setup failed');
+    }
 
     const storeResult = createLocaleStore(registry.data);
-    if (!storeResult.ok) throw new Error('setup failed');
+    if (!storeResult.ok) {
+      throw new Error('setup failed');
+    }
 
     const setResult = storeResult.data.set('es', es);
     expect(setResult.ok).toBe(true);
 
     const hasResult = storeResult.data.has('es');
-    if (hasResult.ok) expect(hasResult.data).toBe(true);
+    if (hasResult.ok) {
+      expect(hasResult.data).toBe(true);
+    }
   });
 
   it('store.remove removes a non-active locale', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
-    if (!result.ok) throw new Error('setup failed');
+    if (!result.ok) {
+      throw new Error('setup failed');
+    }
 
     const removeResult = result.data.remove('ja');
     expect(removeResult.ok).toBe(true);
 
     const hasResult = result.data.has('ja');
-    if (hasResult.ok) expect(hasResult.data).toBe(false);
+    if (hasResult.ok) {
+      expect(hasResult.data).toBe(false);
+    }
   });
 
   it('store.remove rejects removing active locale', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
-    if (!result.ok) throw new Error('setup failed');
+    if (!result.ok) {
+      throw new Error('setup failed');
+    }
 
     const removeResult = result.data.remove('en');
     expect(removeResult.ok).toBe(false);

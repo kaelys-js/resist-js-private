@@ -33,7 +33,9 @@
   const validated: PolarChartProps = $derived.by(() => {
     const rawProps: PolarChartProps = stripSvelteProps(allProps);
     const result = safeParse(PolarChartPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as PolarChartProps;
   });

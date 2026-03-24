@@ -143,7 +143,9 @@
       .map(([, v]: [Str, Str]): Str => v);
     for (const src of sources) {
       const desc: Str | undefined = extractComponentDescription(src);
-      if (desc) return desc;
+      if (desc) {
+        return desc;
+      }
     }
     return '' as Str;
   }
@@ -243,11 +245,13 @@
           toTitle(n)
             .toLowerCase()
             .includes(q as string)
-        )
+        ) {
           return true;
+        }
         const meta: LensMeta | undefined = metaByName.get(n);
-        if (meta?.tags?.some((t: Str): boolean => t.toLowerCase().includes(q as string)))
+        if (meta?.tags?.some((t: Str): boolean => t.toLowerCase().includes(q as string))) {
           return true;
+        }
         return getDescription(n)
           .toLowerCase()
           .includes(q as string);
@@ -277,15 +281,23 @@
 
   /** Human-readable label for the current view mode. */
   const viewModeLabel: Str = $derived.by((): Str => {
-    if (viewMode === 'table') return 'Table' as Str;
-    if (viewMode === 'compact') return 'Dense Grid' as Str;
-    if (viewMode === 'list') return 'List' as Str;
+    if (viewMode === 'table') {
+      return 'Table' as Str;
+    }
+    if (viewMode === 'compact') {
+      return 'Dense Grid' as Str;
+    }
+    if (viewMode === 'list') {
+      return 'List' as Str;
+    }
     return 'Grid' as Str;
   });
 
   /** Human-readable label for the active sort (field + direction arrow). */
   const sortLabel: Str = $derived.by((): Str => {
-    if (!sortField) return '' as Str;
+    if (!sortField) {
+      return '' as Str;
+    }
     const names: Record<Str, Str> = {
       name: 'Name' as Str,
       category: 'Category' as Str,
@@ -407,7 +419,9 @@
       sortField = '' as Str;
       sortDir = 'asc';
       confirmingReset = false as Bool;
-      if (confirmResetTimer) clearTimeout(confirmResetTimer);
+      if (confirmResetTimer) {
+        clearTimeout(confirmResetTimer);
+      }
     } else {
       confirmingReset = true as Bool;
       confirmResetTimer = setTimeout((): void => {

@@ -98,7 +98,9 @@ const RTL_SCRIPTS: ReadonlySet<Str> = new Set([
  */
 export function getTextDirection(locale: Str): Result<TextDirection> {
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
-  if (!localeResult.ok) return localeResult;
+  if (!localeResult.ok) {
+    return localeResult;
+  }
 
   // Strategy 1: Use Intl.Locale.getTextInfo() if available
   try {
@@ -111,7 +113,9 @@ export function getTextDirection(locale: Str): Result<TextDirection> {
       const textInfo: { direction: Str } = (
         intlLocale as Record<Str, unknown> & { getTextInfo: () => { direction: Str } } // cast safe: irreducible — getTextInfo not in all TS lib targets
       ).getTextInfo();
-      if (textInfo.direction === 'rtl') return ok(TextDirectionSchema, 'rtl');
+      if (textInfo.direction === 'rtl') {
+        return ok(TextDirectionSchema, 'rtl');
+      }
       return ok(TextDirectionSchema, 'ltr');
     }
     // textInfo property (Safari)
@@ -119,7 +123,9 @@ export function getTextDirection(locale: Str): Result<TextDirection> {
       const { textInfo }: { textInfo: { direction: Str } } = intlLocale as Record<Str, unknown> & {
         textInfo: { direction: Str };
       }; // cast safe: irreducible — textInfo property not in all TS lib targets
-      if (textInfo?.direction === 'rtl') return ok(TextDirectionSchema, 'rtl');
+      if (textInfo?.direction === 'rtl') {
+        return ok(TextDirectionSchema, 'rtl');
+      }
       return ok(TextDirectionSchema, 'ltr');
     }
   } catch {

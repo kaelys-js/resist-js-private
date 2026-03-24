@@ -33,7 +33,9 @@
   const validated: UserListProps = $derived.by(() => {
     const rawProps: UserListProps = stripSvelteProps(allProps);
     const result = safeParse(UserListPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as UserListProps;
   });

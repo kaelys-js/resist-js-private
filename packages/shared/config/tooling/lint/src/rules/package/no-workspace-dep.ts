@@ -44,13 +44,19 @@ const rule: PackageJsonRule = {
    */
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
-    if (context.isRoot) return results;
+    if (context.isRoot) {
+      return results;
+    }
 
     const name: string = context.pkg.name ?? '<unnamed>';
 
     // Exempt template and vscode packages — they may build independently
-    if (name.startsWith('@{')) return results;
-    if (name.includes('vscode')) return results;
+    if (name.startsWith('@{')) {
+      return results;
+    }
+    if (name.includes('vscode')) {
+      return results;
+    }
 
     const devDeps: Record<string, string> = context.pkg.devDependencies ?? {};
 

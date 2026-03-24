@@ -33,7 +33,9 @@
   const validated: KeyValueListProps = $derived.by(() => {
     const rawProps: KeyValueListProps = stripSvelteProps(allProps);
     const result = safeParse(KeyValueListPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as KeyValueListProps;
   });

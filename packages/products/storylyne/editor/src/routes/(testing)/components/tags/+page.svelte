@@ -158,15 +158,23 @@
 
   /** Current view mode display label. */
   const viewModeLabel: Str = $derived.by((): Str => {
-    if (viewMode === 'grid') return 'Grid' as Str;
-    if (viewMode === 'table') return 'Table' as Str;
-    if (viewMode === 'compact') return 'Dense Chips' as Str;
+    if (viewMode === 'grid') {
+      return 'Grid' as Str;
+    }
+    if (viewMode === 'table') {
+      return 'Table' as Str;
+    }
+    if (viewMode === 'compact') {
+      return 'Dense Chips' as Str;
+    }
     return 'List' as Str;
   });
 
   /** Current sort display label (field + direction arrow, or empty if default). */
   const sortLabel: Str = $derived.by((): Str => {
-    if (!sortField) return '' as Str;
+    if (!sortField) {
+      return '' as Str;
+    }
     const names: Record<string, string> = {
       name: 'Tag',
       count: 'Components',
@@ -268,7 +276,9 @@
       sortField = '' as Str;
       sortDir = 'asc';
       confirmingReset = false as Bool;
-      if (confirmResetTimer) clearTimeout(confirmResetTimer);
+      if (confirmResetTimer) {
+        clearTimeout(confirmResetTimer);
+      }
     } else {
       confirmingReset = true as Bool;
       confirmResetTimer = setTimeout((): void => {

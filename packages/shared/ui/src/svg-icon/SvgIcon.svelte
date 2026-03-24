@@ -33,7 +33,9 @@
   const validated: SvgIconProps = $derived.by(() => {
     const rawProps: SvgIconProps = stripSvelteProps(allProps);
     const result = safeParse(SvgIconPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as SvgIconProps;
   });

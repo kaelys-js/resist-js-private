@@ -181,7 +181,9 @@ describe('URL parsing → override application flow', () => {
 
     const parseResult = parseDebugParams(url);
     expect(parseResult.ok).toBe(true);
-    if (!parseResult.ok) return;
+    if (!parseResult.ok) {
+      return;
+    }
 
     applyUrlOverrides(editorStore, debugStore, parseResult.data);
 
@@ -1024,7 +1026,9 @@ describe('full debug activation flow', () => {
     );
     const parseResult = parseDebugParams(url);
     expect(parseResult.ok).toBe(true);
-    if (!parseResult.ok) return;
+    if (!parseResult.ok) {
+      return;
+    }
 
     // 2. Create stores
     const debugStore = createMockDebugStore(false);

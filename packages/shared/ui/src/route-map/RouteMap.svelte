@@ -33,7 +33,9 @@
   const validated: RouteMapProps = $derived.by(() => {
     const rawProps: RouteMapProps = stripSvelteProps(allProps);
     const result = safeParse(RouteMapPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as RouteMapProps;
   });

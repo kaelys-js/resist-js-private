@@ -33,7 +33,9 @@
   const validated: PanoramaViewerProps = $derived.by(() => {
     const rawProps: PanoramaViewerProps = stripSvelteProps(allProps);
     const result = safeParse(PanoramaViewerPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as PanoramaViewerProps;
   });

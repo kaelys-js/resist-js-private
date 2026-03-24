@@ -33,7 +33,9 @@
   const validated: BulletChartProps = $derived.by(() => {
     const rawProps: BulletChartProps = stripSvelteProps(allProps);
     const result = safeParse(BulletChartPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as BulletChartProps;
   });

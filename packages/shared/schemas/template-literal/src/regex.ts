@@ -208,7 +208,9 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
         };
         if (typeof requirement === 'string') {
           const escapedResult: Result<Str> = escapeRegex(requirement);
-          if (!escapedResult.ok) return escapedResult;
+          if (!escapedResult.ok) {
+            return escapedResult;
+          }
           pattern = `${escapedResult.data}${String.raw`[\s\S]*`}`;
         }
         break;
@@ -219,7 +221,9 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
         };
         if (typeof requirement === 'string') {
           const escapedResult: Result<Str> = escapeRegex(requirement);
-          if (!escapedResult.ok) return escapedResult;
+          if (!escapedResult.ok) {
+            return escapedResult;
+          }
           pattern = `${String.raw`[\s\S]*`}${escapedResult.data}`;
         }
         break;
@@ -301,7 +305,9 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
       const escapedParts: Str[] = [];
       for (const opt of options) {
         const escapedResult: Result<Str> = escapeRegex(String(opt));
-        if (!escapedResult.ok) return escapedResult;
+        if (!escapedResult.ok) {
+          return escapedResult;
+        }
         escapedParts.push(escapedResult.data);
       }
       return ok(v.string(), `(?:${escapedParts.join('|')})`);
@@ -315,7 +321,9 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
       const escapedParts: Str[] = [];
       for (const val of values) {
         const escapedResult: Result<Str> = escapeRegex(String(val));
-        if (!escapedResult.ok) return escapedResult;
+        if (!escapedResult.ok) {
+          return escapedResult;
+        }
         escapedParts.push(escapedResult.data);
       }
       return ok(v.string(), `(?:${escapedParts.join('|')})`);
@@ -328,7 +336,9 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
       const unionParts: Str[] = [];
       for (const opt of options) {
         const optResult: Result<Str> = schemaToRegex(opt);
-        if (!optResult.ok) return optResult;
+        if (!optResult.ok) {
+          return optResult;
+        }
         unionParts.push(optResult.data);
       }
       return ok(v.string(), `(?:${unionParts.join('|')})`);
@@ -339,7 +349,9 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
         readonly wrapped: v.GenericSchema;
       };
       const innerResult: Result<Str> = schemaToRegex(wrapped);
-      if (!innerResult.ok) return innerResult;
+      if (!innerResult.ok) {
+        return innerResult;
+      }
       return ok(v.string(), `(?:${innerResult.data}|undefined)`);
     }
 
@@ -348,7 +360,9 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
         readonly wrapped: v.GenericSchema;
       };
       const innerResult: Result<Str> = schemaToRegex(wrapped);
-      if (!innerResult.ok) return innerResult;
+      if (!innerResult.ok) {
+        return innerResult;
+      }
       return ok(v.string(), `(?:${innerResult.data}|null)`);
     }
 
@@ -357,7 +371,9 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
         readonly wrapped: v.GenericSchema;
       };
       const innerResult: Result<Str> = schemaToRegex(wrapped);
-      if (!innerResult.ok) return innerResult;
+      if (!innerResult.ok) {
+        return innerResult;
+      }
       return ok(v.string(), `(?:${innerResult.data}|null|undefined)`);
     }
 
@@ -381,7 +397,9 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
         if (pipe.length > 0) {
           const baseSchema: v.GenericSchema = pipe[0] as v.GenericSchema;
           const baseResult: Result<Str> = schemaToRegex(baseSchema);
-          if (!baseResult.ok) return baseResult;
+          if (!baseResult.ok) {
+            return baseResult;
+          }
           // Introspect remaining pipe items for tighter patterns
           const pipeItems: readonly unknown[] = pipe.slice(1);
           return _introspectPipe(pipeItems, baseResult.data);
@@ -416,11 +434,15 @@ export function buildRegex(parts: readonly TemplateLiteralPart[]): Result<RegExp
   for (const part of parts) {
     if (typeof part === 'string') {
       const escapedResult: Result<Str> = escapeRegex(part);
-      if (!escapedResult.ok) return escapedResult;
+      if (!escapedResult.ok) {
+        return escapedResult;
+      }
       pattern += escapedResult.data;
     } else {
       const schemaResult: Result<Str> = schemaToRegex(part as v.GenericSchema);
-      if (!schemaResult.ok) return schemaResult;
+      if (!schemaResult.ok) {
+        return schemaResult;
+      }
       pattern += schemaResult.data;
     }
   }

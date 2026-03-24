@@ -33,7 +33,9 @@
   const validated: SmoothCursorProps = $derived.by(() => {
     const rawProps: SmoothCursorProps = stripSvelteProps(allProps);
     const result = safeParse(SmoothCursorPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as SmoothCursorProps;
   });

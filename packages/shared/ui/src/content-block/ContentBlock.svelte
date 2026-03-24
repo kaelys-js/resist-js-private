@@ -33,7 +33,9 @@
   const validated: ContentBlockProps = $derived.by(() => {
     const rawProps: ContentBlockProps = stripSvelteProps(allProps);
     const result = safeParse(ContentBlockPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ContentBlockProps;
   });

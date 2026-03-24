@@ -33,7 +33,9 @@
   const validated: LiveRegionProps = $derived.by(() => {
     const rawProps: LiveRegionProps = stripSvelteProps(allProps);
     const result = safeParse(LiveRegionPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as LiveRegionProps;
   });

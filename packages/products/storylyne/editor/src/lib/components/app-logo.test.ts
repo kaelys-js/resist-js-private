@@ -10,7 +10,9 @@ import AppLogo from '@/ui/app-logo/AppLogo.svelte';
  */
 function queryImg(container: HTMLElement): HTMLImageElement {
   const img: HTMLImageElement | null = container.querySelector('img.logo-img');
-  if (!img) throw new Error('Logo img not found');
+  if (!img) {
+    throw new Error('Logo img not found');
+  }
   return img;
 }
 

@@ -57,7 +57,9 @@ const rule: TypeScriptRule = {
     CatchClause(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const body = node.body as AstNode | undefined;
-      if (!body) return results;
+      if (!body) {
+        return results;
+      }
 
       // Check if body has statements
       const stmts = body.body as AstNode[] | undefined;

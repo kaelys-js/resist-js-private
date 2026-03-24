@@ -60,7 +60,9 @@ function acquireSlot(): Promise<() => void> {
   const release = (): void => {
     activeCaptureCount = ((activeCaptureCount as number) - 1) as Num;
     const next: (() => void) | undefined = waitQueue.shift();
-    if (next) next();
+    if (next) {
+      next();
+    }
   };
 
   if ((activeCaptureCount as number) < (MAX_CONCURRENT as number)) {
@@ -84,7 +86,9 @@ function acquireSlot(): Promise<() => void> {
  */
 async function getOrLaunchBrowser(engine: Str): Promise<Browser> {
   const cached: Browser | undefined = browserCache.get(engine);
-  if (cached?.isConnected()) return cached;
+  if (cached?.isConnected()) {
+    return cached;
+  }
 
   // Dynamic import — avoids Vite static analysis of native playwright binaries
   const pw = await import('playwright');
@@ -114,8 +118,12 @@ async function getOrLaunchBrowser(engine: Str): Promise<Browser> {
  * @returns Capitalized display name
  */
 function engineDisplayName(engine: Str): Str {
-  if (engine === 'firefox') return 'Firefox' as Str;
-  if (engine === 'webkit') return 'WebKit' as Str;
+  if (engine === 'firefox') {
+    return 'Firefox' as Str;
+  }
+  if (engine === 'webkit') {
+    return 'WebKit' as Str;
+  }
   return 'Chromium' as Str;
 }
 
@@ -210,9 +218,15 @@ export const GET: RequestHandler = async ({ url }) => {
 
   const isolateUrl: URL = new URL(`/isolate/${component}`, url.origin);
   isolateUrl.searchParams.set('screenshot', '1');
-  if (cardStylesParam) isolateUrl.searchParams.set('s', cardStylesParam);
-  if (variant) isolateUrl.searchParams.set('variant', variant);
-  if (option) isolateUrl.searchParams.set('option', option);
+  if (cardStylesParam) {
+    isolateUrl.searchParams.set('s', cardStylesParam);
+  }
+  if (variant) {
+    isolateUrl.searchParams.set('variant', variant);
+  }
+  if (option) {
+    isolateUrl.searchParams.set('option', option);
+  }
 
   /* ---- Acquire semaphore slot & capture ---- */
 
@@ -286,7 +300,9 @@ export const GET: RequestHandler = async ({ url }) => {
       /* Collect console messages — strip %c CSS format specifiers */
       page.on('console', (msg: ConsoleMessage): void => {
         const cleaned: Str = stripConsoleFormatting(msg.text() as Str);
-        if (!cleaned) return;
+        if (!cleaned) {
+          return;
+        }
         consoleLogs.push({
           level: msg.type() as Str,
           text: cleaned,
@@ -340,8 +356,12 @@ export const GET: RequestHandler = async ({ url }) => {
           result.domInteractive = Math.round(nav.domInteractive - nav.startTime);
           result.responseEnd = Math.round(nav.responseEnd - nav.startTime);
         }
-        if (fp) result.firstPaint = Math.round(fp.startTime);
-        if (fcp) result.firstContentfulPaint = Math.round(fcp.startTime);
+        if (fp) {
+          result.firstPaint = Math.round(fp.startTime);
+        }
+        if (fcp) {
+          result.firstContentfulPaint = Math.round(fcp.startTime);
+        }
 
         return result;
       })) as Record<Str, Num>;

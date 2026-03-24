@@ -33,7 +33,9 @@
   const validated: HighlightProps = $derived.by(() => {
     const rawProps: HighlightProps = stripSvelteProps(allProps);
     const result = safeParse(HighlightPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as HighlightProps;
   });

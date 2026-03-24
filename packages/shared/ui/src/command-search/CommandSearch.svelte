@@ -95,7 +95,9 @@
 
   /** Register Cmd+K / Ctrl+K keyboard shortcut. */
   $effect(() => {
-    if (!enableShortcut) return;
+    if (!enableShortcut) {
+      return;
+    }
 
     function handleKeydown(e: KeyboardEvent): Void {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {

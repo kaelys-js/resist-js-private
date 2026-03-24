@@ -33,7 +33,9 @@
   const validated: ConfidenceMeterProps = $derived.by(() => {
     const rawProps: ConfidenceMeterProps = stripSvelteProps(allProps);
     const result = safeParse(ConfidenceMeterPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ConfidenceMeterProps;
   });

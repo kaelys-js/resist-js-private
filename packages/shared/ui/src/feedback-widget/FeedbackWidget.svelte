@@ -33,7 +33,9 @@
   const validated: FeedbackWidgetProps = $derived.by(() => {
     const rawProps: FeedbackWidgetProps = stripSvelteProps(allProps);
     const result = safeParse(FeedbackWidgetPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as FeedbackWidgetProps;
   });

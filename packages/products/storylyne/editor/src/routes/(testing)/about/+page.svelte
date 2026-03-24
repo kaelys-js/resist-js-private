@@ -344,14 +344,20 @@
 
   /** Current view mode display label. */
   const viewModeLabel: Str = $derived.by((): Str => {
-    if (viewMode === 'sections') return 'Sections' as Str;
-    if (viewMode === 'cards') return 'Cards' as Str;
+    if (viewMode === 'sections') {
+      return 'Sections' as Str;
+    }
+    if (viewMode === 'cards') {
+      return 'Cards' as Str;
+    }
     return 'Compact' as Str;
   });
 
   /** Current sort display label (field + direction arrow, or empty if default). */
   const sortLabel: Str = $derived.by((): Str => {
-    if (!sortField) return '' as Str;
+    if (!sortField) {
+      return '' as Str;
+    }
     const arrow: Str = (sortDir === 'asc' ? '\u2191' : '\u2193') as Str;
     return `Name ${arrow}` as Str;
   });
@@ -426,7 +432,9 @@
     if (confirmingReset) {
       resetDefaults();
       confirmingReset = false as Bool;
-      if (confirmResetTimer) clearTimeout(confirmResetTimer);
+      if (confirmResetTimer) {
+        clearTimeout(confirmResetTimer);
+      }
     } else {
       confirmingReset = true as Bool;
       confirmResetTimer = setTimeout((): void => {

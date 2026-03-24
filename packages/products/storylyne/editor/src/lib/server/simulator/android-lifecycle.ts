@@ -128,7 +128,9 @@ export async function waitForBoot(
 
   /* Initial check */
   const initialCheck: Bool = await checkOnce();
-  if (initialCheck) return true as Bool;
+  if (initialCheck) {
+    return true as Bool;
+  }
 
   /* Poll with recursive async calls — each iteration awaits delay + check */
   return pollBoot(checkOnce, bootPollDelay, deadline);
@@ -154,7 +156,9 @@ async function pollBoot(
   await delay();
 
   const ready: Bool = await check();
-  if (ready) return true as Bool;
+  if (ready) {
+    return true as Bool;
+  }
 
   return pollBoot(check, delay, deadline);
 }

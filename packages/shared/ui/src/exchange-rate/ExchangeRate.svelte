@@ -33,7 +33,9 @@
   const validated: ExchangeRateProps = $derived.by(() => {
     const rawProps: ExchangeRateProps = stripSvelteProps(allProps);
     const result = safeParse(ExchangeRatePropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ExchangeRateProps;
   });

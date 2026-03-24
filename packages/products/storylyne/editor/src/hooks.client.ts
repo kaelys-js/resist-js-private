@@ -100,7 +100,9 @@ function analyticsTracker(options: AnalyticsTrackerOptions): Void {
   }
 
   // Skip non-vital meta-metrics (navigationTiming, networkInformation are objects, not numbers)
-  if (typeof data !== 'number') return;
+  if (typeof data !== 'number') {
+    return;
+  }
 
   // Null rating means Perfume.js didn't evaluate a threshold — default to 'good'
   const safeRating: VitalsMetric['rating'] = rating ?? 'good';
@@ -162,10 +164,16 @@ function extractSource(stack: Str): SourceLocation {
   const lines: Str[] = stack.split('\n');
   for (const line of lines) {
     const trimmed: Str = line.trim();
-    if (!trimmed.startsWith('at ')) continue;
+    if (!trimmed.startsWith('at ')) {
+      continue;
+    }
     // Skip internal frames — we want the application call site, not library internals
-    if (trimmed.includes('node_modules') || trimmed.includes('node:internal')) continue;
-    if (trimmed.includes('packages/shared/')) continue;
+    if (trimmed.includes('node_modules') || trimmed.includes('node:internal')) {
+      continue;
+    }
+    if (trimmed.includes('packages/shared/')) {
+      continue;
+    }
 
     // Browser URL (any format): http://host/path?query:line:col
     const urlMatch: RegExpMatchArray | null = trimmed.match(
@@ -289,7 +297,9 @@ function decodeVLQ(encoded: Str): Num[] {
   let value: Num = 0;
   for (const char of encoded) {
     const digit: Num = VLQ_CHARS.indexOf(char);
-    if (digit === -1) continue;
+    if (digit === -1) {
+      continue;
+    }
     const hasContinuation: Bool = (digit & 32) !== 0;
     value += (digit & 31) << shift;
     if (hasContinuation) {
@@ -319,7 +329,9 @@ const _sourceMapCache: Map<Str, SourceMapV3 | null> = new Map<Str, SourceMapV3 |
  * @returns Parsed source map, or null if unavailable
  */
 async function fetchSourceMap(fileUrl: Str): Promise<SourceMapV3 | null> {
-  if (_sourceMapCache.has(fileUrl)) return _sourceMapCache.get(fileUrl) ?? null;
+  if (_sourceMapCache.has(fileUrl)) {
+    return _sourceMapCache.get(fileUrl) ?? null;
+  }
 
   try {
     const response: Response = await fetch(fileUrl);
@@ -393,10 +405,14 @@ async function resolveSourcePosition(
   genCol: Num,
 ): Promise<ResolvedPosition | null> {
   const map: SourceMapV3 | null = await fetchSourceMap(fileUrl);
-  if (!map) return null;
+  if (!map) {
+    return null;
+  }
 
   const mappingLines: Str[] = map.mappings.split(';');
-  if (genLine < 1 || genLine > mappingLines.length) return null;
+  if (genLine < 1 || genLine > mappingLines.length) {
+    return null;
+  }
 
   // Delta-encoded state that persists across all lines
   let sourceIndex: Num = 0;
@@ -406,10 +422,14 @@ async function resolveSourcePosition(
   // Process all lines before the target to maintain delta state
   for (let i: Num = 0; i < genLine - 1; i++) {
     const lineMapping: Str = mappingLines[i] ?? '';
-    if (!lineMapping) continue;
+    if (!lineMapping) {
+      continue;
+    }
     const segments: Str[] = lineMapping.split(',');
     for (const segment of segments) {
-      if (!segment) continue;
+      if (!segment) {
+        continue;
+      }
       const decoded: Num[] = decodeVLQ(segment);
       // decoded[0] = generated column delta (resets per line, but we don't need it here)
       if (decoded.length >= 4) {
@@ -422,14 +442,18 @@ async function resolveSourcePosition(
 
   // Process the target line to find the best matching segment
   const targetLineMapping: Str = mappingLines[genLine - 1] ?? '';
-  if (!targetLineMapping) return null;
+  if (!targetLineMapping) {
+    return null;
+  }
 
   const targetSegments: Str[] = targetLineMapping.split(',');
   let genColAccum: Num = 0;
   let bestMatch: ResolvedPosition | null = null;
 
   for (const segment of targetSegments) {
-    if (!segment) continue;
+    if (!segment) {
+      continue;
+    }
     const decoded: Num[] = decodeVLQ(segment);
     genColAccum += decoded[0] ?? 0;
     if (decoded.length >= 4) {
@@ -670,7 +694,9 @@ export const handleError: HandleClientError = ({ error, status, message }) => {
       },
     );
     // err() always returns ok:false — narrow for type safety.
-    if (result.ok) return { message, errorId: '' };
+    if (result.ok) {
+      return { message, errorId: '' };
+    }
     appError = result.error;
   } else {
     appError = extracted;

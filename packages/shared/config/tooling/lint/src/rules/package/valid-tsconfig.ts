@@ -35,14 +35,22 @@ const rule: PackageJsonRule = {
    */
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
-    if (context.isRoot) return results;
+    if (context.isRoot) {
+      return results;
+    }
 
     const name: string = context.pkg.name ?? '<unnamed>';
 
     // Exempt VS Code extensions and directory groupings
-    if (name.includes('vscode')) return results;
-    if (name === '@/products') return results;
-    if (name.startsWith('@{')) return results;
+    if (name.includes('vscode')) {
+      return results;
+    }
+    if (name === '@/products') {
+      return results;
+    }
+    if (name.startsWith('@{')) {
+      return results;
+    }
 
     const dir: string = dirname(context.file);
     const tsconfigPath: string = join(dir, 'tsconfig.json');
@@ -82,7 +90,9 @@ const rule: PackageJsonRule = {
     const extendsStr: string = typeof extendsValue === 'string' ? extendsValue : '';
 
     // SvelteKit packages extend .svelte-kit/tsconfig.json — exempt from root-extends check
-    if (extendsStr.includes('.svelte-kit')) return results;
+    if (extendsStr.includes('.svelte-kit')) {
+      return results;
+    }
 
     // Must extend root tsconfig
     if (!extendsStr.endsWith('tsconfig.json') || !extendsStr.includes('..')) {
@@ -99,7 +109,7 @@ const rule: PackageJsonRule = {
     }
 
     // Must have include with "src"
-    const include: unknown = tsconfig.include;
+    const { include } = tsconfig;
     if (
       !Array.isArray(include) ||
       !include.some((entry: unknown): boolean => typeof entry === 'string' && entry.includes('src'))

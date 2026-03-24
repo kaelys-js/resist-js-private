@@ -78,9 +78,15 @@ const SKIP_DIRS: ReadonlySet<string> = new Set([
  * @returns Whether the file should be linted
  */
 function shouldLint(filePath: string): boolean {
-  if (filePath.endsWith('.svelte.ts')) return true;
-  if (filePath.endsWith('.test.ts')) return false; // Skip test files
-  if (filePath.endsWith('.d.ts')) return false; // Skip declaration files
+  if (filePath.endsWith('.svelte.ts')) {
+    return true;
+  }
+  if (filePath.endsWith('.test.ts')) {
+    return false;
+  } // Skip test files
+  if (filePath.endsWith('.d.ts')) {
+    return false;
+  } // Skip declaration files
   const ext: string = extname(filePath);
   return ext === '.ts';
 }
@@ -103,7 +109,9 @@ function collectFiles(dir: string): string[] {
   }
 
   for (const entry of entries) {
-    if (SKIP_DIRS.has(entry.name)) continue;
+    if (SKIP_DIRS.has(entry.name)) {
+      continue;
+    }
 
     const fullPath: string = join(dir, entry.name);
 
@@ -132,7 +140,9 @@ function collectPackageJsonFiles(dir: string): string[] {
     return files;
   }
   for (const entry of entries) {
-    if (SKIP_DIRS.has(entry.name)) continue;
+    if (SKIP_DIRS.has(entry.name)) {
+      continue;
+    }
     const fullPath: string = join(dir, entry.name);
     if (entry.isDirectory()) {
       files.push(...collectPackageJsonFiles(fullPath));
@@ -240,7 +250,9 @@ async function main(): Promise<number> {
   }
 
   if (allFiles.length === 0) {
-    if (!jsonOutput) process.stdout.write('No lintable files found.\n');
+    if (!jsonOutput) {
+      process.stdout.write('No lintable files found.\n');
+    }
     return 0;
   }
 
@@ -268,7 +280,9 @@ async function main(): Promise<number> {
       }),
     );
 
-    if (applicableRules.length === 0) continue;
+    if (applicableRules.length === 0) {
+      continue;
+    }
     tasks.push({ filePath, content, applicableRules });
   }
 
@@ -317,7 +331,9 @@ async function main(): Promise<number> {
   if (autoFix && allResults.length > 0) {
     const fixesByFile: Map<string, LintFix[]> = new Map();
     for (const result of allResults) {
-      if (!result.fix) continue;
+      if (!result.fix) {
+        continue;
+      }
       const existing: LintFix[] = fixesByFile.get(result.file) ?? [];
       existing.push(result.fix);
       fixesByFile.set(result.file, existing);
@@ -370,7 +386,9 @@ async function main(): Promise<number> {
 
   // Exit with error if any errors found (unless --warn-only)
   const hasErrors: boolean = allResults.some((r: LintResult) => r.severity === 'error');
-  if (warnOnly) return 0;
+  if (warnOnly) {
+    return 0;
+  }
   return hasErrors ? 1 : 0;
 }
 

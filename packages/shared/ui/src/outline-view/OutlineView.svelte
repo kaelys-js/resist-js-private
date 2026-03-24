@@ -33,7 +33,9 @@
   const validated: OutlineViewProps = $derived.by(() => {
     const rawProps: OutlineViewProps = stripSvelteProps(allProps);
     const result = safeParse(OutlineViewPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as OutlineViewProps;
   });

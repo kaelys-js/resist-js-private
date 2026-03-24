@@ -33,7 +33,9 @@
   const validated: MessageReactionProps = $derived.by(() => {
     const rawProps: MessageReactionProps = stripSvelteProps(allProps);
     const result = safeParse(MessageReactionPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as MessageReactionProps;
   });

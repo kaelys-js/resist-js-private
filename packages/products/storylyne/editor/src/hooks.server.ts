@@ -73,10 +73,16 @@ function extractSource(stack: Str): Str {
   const lines: Str[] = stack.split('\n');
   for (const line of lines) {
     const trimmed: Str = line.trim();
-    if (!trimmed.startsWith('at ')) continue;
+    if (!trimmed.startsWith('at ')) {
+      continue;
+    }
     // Skip internal frames — we want the application call site, not library internals
-    if (trimmed.includes('node_modules') || trimmed.includes('node:internal')) continue;
-    if (trimmed.includes('packages/shared/')) continue;
+    if (trimmed.includes('node_modules') || trimmed.includes('node:internal')) {
+      continue;
+    }
+    if (trimmed.includes('packages/shared/')) {
+      continue;
+    }
     const match: RegExpMatchArray | null = trimmed.match(/\(?(\/[^)]+):(\d+):(\d+)\)?$/);
     if (match) {
       const [, fullPath, lineNo, colNo] = match;
@@ -162,7 +168,9 @@ function logCapturedError(captured: CapturedError): Void {
  */
 function resolveAuth(url: URL): ServerUser | null {
   const authParam: Str | null = url.searchParams.get(`${URL_PARAM_PREFIX}auth`);
-  if (authParam === 'false') return null;
+  if (authParam === 'false') {
+    return null;
+  }
   return MOCK_USER;
 }
 
@@ -344,7 +352,9 @@ export const handleError: HandleServerError = ({ error, event, status, message }
       },
     );
     // err() always returns ok:false — narrow for type safety.
-    if (result.ok) return { message, errorId: '' };
+    if (result.ok) {
+      return { message, errorId: '' };
+    }
     appError = result.error;
   } else {
     appError = extracted;

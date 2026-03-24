@@ -292,7 +292,9 @@
   /** Filtered outline style options based on search query. */
   const filteredDebugOutlineStyles = $derived.by(() => {
     const q: Str = (debugOutlineSettingsSearch as string).toLowerCase() as Str;
-    if (!q) return DEBUG_OUTLINE_STYLES;
+    if (!q) {
+      return DEBUG_OUTLINE_STYLES;
+    }
     return DEBUG_OUTLINE_STYLES.filter(
       (s) =>
         (s.label as string).toLowerCase().includes(q as string) ||
@@ -303,7 +305,9 @@
   /** Filtered outline width options based on search query. */
   const filteredDebugOutlineWidths = $derived.by(() => {
     const q: Str = (debugOutlineSettingsSearch as string).toLowerCase() as Str;
-    if (!q) return DEBUG_OUTLINE_WIDTHS;
+    if (!q) {
+      return DEBUG_OUTLINE_WIDTHS;
+    }
     return DEBUG_OUTLINE_WIDTHS.filter((w) =>
       (w.label as string).toLowerCase().includes(q as string),
     );
@@ -853,7 +857,9 @@
         const canvas: HTMLCanvasElement | null = document.querySelector(
           `[data-live-canvas="${cardKey}"]`,
         );
-        if (canvas) canvas.focus();
+        if (canvas) {
+          canvas.focus();
+        }
       });
     }
   }
@@ -885,10 +891,14 @@
     const canvas: HTMLCanvasElement | null = document.querySelector(
       `[data-live-canvas="${cardKey}"]`,
     );
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
 
     canvas.toBlob((blob: Blob | null): void => {
-      if (!blob) return;
+      if (!blob) {
+        return;
+      }
 
       const imageUrl: Str = URL.createObjectURL(blob) as Str;
       const engine: Str = liveViewEngine[cardKey] ?? ('chromium' as Str);
@@ -973,7 +983,9 @@
       const canvas: HTMLCanvasElement | null = document.querySelector(
         `[data-live-canvas="${cardKey}"]`,
       );
-      if (!canvas) return;
+      if (!canvas) {
+        return;
+      }
 
       const blob: Blob = new Blob([data], { type: 'image/jpeg' });
       const bitmap: ImageBitmap = await createImageBitmap(blob);
@@ -1033,7 +1045,9 @@
     liveViewPendingMove[cardKey] = msg;
 
     // Only schedule one rAF per card
-    if (liveViewMoveRaf[cardKey] !== undefined) return;
+    if (liveViewMoveRaf[cardKey] !== undefined) {
+      return;
+    }
 
     liveViewMoveRaf[cardKey] = requestAnimationFrame((): void => {
       liveViewMoveRaf[cardKey] = undefined;
@@ -1068,10 +1082,18 @@
    */
   function getModifiers(event: MouseEvent | KeyboardEvent): Num {
     let mods: Num = 0 as Num;
-    if (event.altKey) mods = ((mods as number) | 1) as Num;
-    if (event.ctrlKey) mods = ((mods as number) | 2) as Num;
-    if (event.metaKey) mods = ((mods as number) | 4) as Num;
-    if (event.shiftKey) mods = ((mods as number) | 8) as Num;
+    if (event.altKey) {
+      mods = ((mods as number) | 1) as Num;
+    }
+    if (event.ctrlKey) {
+      mods = ((mods as number) | 2) as Num;
+    }
+    if (event.metaKey) {
+      mods = ((mods as number) | 4) as Num;
+    }
+    if (event.shiftKey) {
+      mods = ((mods as number) | 8) as Num;
+    }
     return mods;
   }
 
@@ -1089,7 +1111,9 @@
    */
   async function isWebCodecsSupported(): Promise<boolean> {
     try {
-      if (typeof VideoDecoder === 'undefined') return false;
+      if (typeof VideoDecoder === 'undefined') {
+        return false;
+      }
       const support = await VideoDecoder.isConfigSupported({
         codec: 'avc1.42001e', // H.264 Baseline Level 3.0
       });
@@ -1248,10 +1272,14 @@
    */
   function decodeH264Frame(cardKey: Str, data: ArrayBuffer): void {
     const decoder: VideoDecoder | undefined = liveViewDecoder[cardKey];
-    if (!decoder || decoder.state !== 'configured') return;
+    if (!decoder || decoder.state !== 'configured') {
+      return;
+    }
 
     const view: Uint8Array = new Uint8Array(data);
-    if (view.length < 2) return;
+    if (view.length < 2) {
+      return;
+    }
 
     const firstByte: number = view[0] ?? 0;
     const isKeyframe: boolean = (firstByte & 0x01) !== 0;
@@ -1305,13 +1333,17 @@
       i = (idx + 1) as Num;
     }
 
-    if (nalStarts.length === 0) return data;
+    if (nalStarts.length === 0) {
+      return data;
+    }
 
     // Calculate total size: each NAL gets a 4-byte length prefix
     let totalSize: Num = 0 as Num;
     for (let n: Num = 0 as Num; (n as number) < nalStarts.length; n = ((n as number) + 1) as Num) {
       const start = nalStarts[n as number];
-      if (start === undefined) continue;
+      if (start === undefined) {
+        continue;
+      }
       const nalBodyStart: number = (start.offset as number) + (start.headerLen as number);
       const next = nalStarts[(n as number) + 1];
       const nalBodyEnd: number = next === undefined ? data.length : (next.offset as number);
@@ -1324,7 +1356,9 @@
 
     for (let n: Num = 0 as Num; (n as number) < nalStarts.length; n = ((n as number) + 1) as Num) {
       const start = nalStarts[n as number];
-      if (start === undefined) continue;
+      if (start === undefined) {
+        continue;
+      }
       const nalBodyStart: number = (start.offset as number) + (start.headerLen as number);
       const next = nalStarts[(n as number) + 1];
       const nalBodyEnd: number = next === undefined ? data.length : (next.offset as number);
@@ -1369,8 +1403,12 @@
    * @returns Tailwind text color class
    */
   function budgetColor(level: BudgetLevel): Str {
-    if (level === 'green') return 'text-emerald-500';
-    if (level === 'yellow') return 'text-amber-500';
+    if (level === 'green') {
+      return 'text-emerald-500';
+    }
+    if (level === 'yellow') {
+      return 'text-amber-500';
+    }
     return 'text-red-500';
   }
 
@@ -1383,10 +1421,16 @@
    */
   function healthPercent(stats: LensStatsData): Num {
     const { budgets }: { budgets: MetricBudget[] } = stats;
-    if (budgets.length === 0) return 100 as Num;
+    if (budgets.length === 0) {
+      return 100 as Num;
+    }
     const total: Num = budgets.reduce((sum: Num, b: MetricBudget): Num => {
-      if (b.level === 'green') return (sum + 100) as Num;
-      if (b.level === 'yellow') return (sum + 50) as Num;
+      if (b.level === 'green') {
+        return (sum + 100) as Num;
+      }
+      if (b.level === 'yellow') {
+        return (sum + 50) as Num;
+      }
       return sum;
     }, 0 as Num);
     return Math.round((total as number) / budgets.length) as Num;
@@ -1820,15 +1864,23 @@
    * @returns A one-line error cause string
    */
   function getErrorCause(error: unknown): Str {
-    if (!silent) log.warn('Component preview error', { error });
-    if (error instanceof Error) return error.message;
+    if (!silent) {
+      log.warn('Component preview error', { error });
+    }
+    if (error instanceof Error) {
+      return error.message;
+    }
     if (typeof error === 'object' && error !== null) {
       // Cast once for property access — error is an unknown object from svelte:boundary
       const obj: Record<Str, unknown> = error as Record<Str, unknown>;
       const code: Str = typeof obj.code === 'string' ? obj.code : '';
       const msg: Str = typeof obj.message === 'string' ? obj.message : '';
-      if (msg) return code ? `[${code}] ${msg}` : msg;
-      if (code) return code;
+      if (msg) {
+        return code ? `[${code}] ${msg}` : msg;
+      }
+      if (code) {
+        return code;
+      }
     }
     return String(error);
   }
@@ -1847,7 +1899,9 @@
         name: error.name,
         message: error.message,
       };
-      if (error.stack) errorObj.stack = error.stack;
+      if (error.stack) {
+        errorObj.stack = error.stack;
+      }
       return JSON.stringify(errorObj, null, 2);
     }
     if (typeof error === 'object' && error !== null) {
@@ -1934,7 +1988,9 @@
       let maxH: Num = 0;
       for (const child of portalEl.children) {
         const rect: DOMRect = child.getBoundingClientRect();
-        if (rect.height > maxH) maxH = rect.height;
+        if (rect.height > maxH) {
+          maxH = rect.height;
+        }
       }
       cardPortalHeights[currentKey] = maxH;
     }
@@ -1943,7 +1999,9 @@
     function observePortalChildren(): Void {
       resizeObserver?.disconnect();
       const portalEl: HTMLElement | null = node.querySelector('[data-lens-portal]');
-      if (!portalEl) return;
+      if (!portalEl) {
+        return;
+      }
       resizeObserver = new ResizeObserver((): void => {
         requestAnimationFrame(measure);
       });
@@ -3331,7 +3389,9 @@
     networkSearchQuery.length === 0
       ? NETWORK_PRESETS
       : NETWORK_PRESETS.filter((item) => {
-          if (item.id === 'none') return true;
+          if (item.id === 'none') {
+            return true;
+          }
           const q: Str = networkSearchQuery.toLowerCase() as Str;
           return (
             item.label.toLowerCase().includes(q) ||
@@ -3637,8 +3697,12 @@
    */
   function getOutlineColor(key: Str): Str {
     const id: Str = cardOutlines[key] ?? 'none';
-    if (id === 'none') return '';
-    if (id.startsWith('#') || id.startsWith('rgb')) return id;
+    if (id === 'none') {
+      return '';
+    }
+    if (id.startsWith('#') || id.startsWith('rgb')) {
+      return id;
+    }
     const preset = OUTLINE_PRESETS.find((p) => p.id === id);
     return preset?.color ?? '';
   }
@@ -3681,8 +3745,12 @@
    */
   function getGridColor(key: Str): Str {
     const id: Str = cardGrids[key] ?? 'none';
-    if (id === 'none') return '';
-    if (id.startsWith('#') || id.startsWith('rgb')) return id;
+    if (id === 'none') {
+      return '';
+    }
+    if (id.startsWith('#') || id.startsWith('rgb')) {
+      return id;
+    }
     const preset = GRID_PRESETS.find((p) => p.id === id);
     return preset?.color ?? '';
   }
@@ -3695,8 +3763,12 @@
    */
   function getGridFillColor(key: Str): Str {
     const id: Str = cardGridFills[key] ?? 'none';
-    if (id === 'none') return '';
-    if (id.startsWith('#') || id.startsWith('rgb')) return id;
+    if (id === 'none') {
+      return '';
+    }
+    if (id.startsWith('#') || id.startsWith('rgb')) {
+      return id;
+    }
     const preset = GRID_FILL_PRESETS.find((p) => p.id === id);
     return preset?.color ?? '';
   }
@@ -3709,7 +3781,9 @@
    */
   function getGridStyle(key: Str): Str {
     const color: Str = getGridColor(key);
-    if (!color) return '';
+    if (!color) {
+      return '';
+    }
     const size: Num = cardGridSizes[key] ?? GRID_DEFAULT_SIZE;
     const fillColor: Str = getGridFillColor(key);
     const fillStyle: Str = fillColor ? `; background-color: ${fillColor}` : '';
@@ -3734,7 +3808,9 @@
    */
   function getOrientationStyle(key: Str): Str {
     const deg: Num = getOrientationDeg(key);
-    if (deg === 0) return '';
+    if (deg === 0) {
+      return '';
+    }
     return `transform: rotate(${deg}deg); transform-origin: center center`;
   }
 
@@ -3746,8 +3822,12 @@
    */
   function getOrientationDeg(key: Str): Num {
     const id: Str = cardOrientations[key] ?? 'default';
-    if (id === 'default') return 0 as Num;
-    if (id === 'custom') return (cardCustomRotation[key] ?? 0) as Num;
+    if (id === 'default') {
+      return 0 as Num;
+    }
+    if (id === 'custom') {
+      return (cardCustomRotation[key] ?? 0) as Num;
+    }
     const preset = ORIENTATION_PRESETS.find((p) => p.id === id);
     return (preset?.rotation ?? 0) as Num;
   }
@@ -3773,7 +3853,9 @@
    * @returns CSS padding style string or empty
    */
   function getOrientationPadding(key: Str): Str {
-    if (!hasNonAxisRotation(key)) return '';
+    if (!hasNonAxisRotation(key)) {
+      return '';
+    }
     const deg: Num = getOrientationDeg(key);
     const normalized: Num = ((((deg as number) % 360) + 360) % 360) as Num;
     const rad: Num = (((normalized as number) * Math.PI) / 180) as Num;
@@ -3790,7 +3872,9 @@
    */
   function isLandscapeOrientation(key: Str): Bool {
     const id: Str = cardOrientations[key] ?? 'default';
-    if (id === 'default') return false;
+    if (id === 'default') {
+      return false;
+    }
     if (id === 'custom') {
       const deg: Num = cardCustomRotation[key] ?? 0;
       return deg === 90 || deg === 270;
@@ -3832,28 +3916,50 @@
   function collectCardStyles(key: Str): Record<Str, Str> {
     const s: Record<Str, Str> = {};
     const bg: Str = getBackgroundStyle(key);
-    if (bg) s.bg = bg;
+    if (bg) {
+      s.bg = bg;
+    }
     const zoom: Str = getZoomStyle(key);
-    if (zoom) s.zoom = zoom;
+    if (zoom) {
+      s.zoom = zoom;
+    }
     const outline: Str = cardOutlines[key] ?? 'none';
-    if (outline !== 'none') s.outlineColor = getOutlineColor(key);
+    if (outline !== 'none') {
+      s.outlineColor = getOutlineColor(key);
+    }
     const grid: Str = getGridStyle(key);
-    if (grid) s.grid = grid;
+    if (grid) {
+      s.grid = grid;
+    }
     const orient: Str = getOrientationStyle(key);
-    if (orient) s.orient = orient;
+    if (orient) {
+      s.orient = orient;
+    }
     const mode: Str = cardModes[key] ?? 'auto';
-    if (mode !== 'auto') s.mode = mode;
+    if (mode !== 'auto') {
+      s.mode = mode;
+    }
     const theme: Str = cardThemes[key] ?? '';
-    if (theme) s.theme = theme;
+    if (theme) {
+      s.theme = theme;
+    }
     const mp: Str = getMediaPrefClasses(key);
-    if (mp) s.mp = mp;
+    if (mp) {
+      s.mp = mp;
+    }
     const sim: Str = cardSimulations[key] ?? 'none';
     if (sim !== 'none') {
       s.simId = sim;
-      if (sim in COLOR_MATRICES) s.simMatrix = COLOR_MATRICES[sim] ?? '';
-      if (sim in CSS_FILTERS) s.simCss = CSS_FILTERS[sim] ?? '';
+      if (sim in COLOR_MATRICES) {
+        s.simMatrix = COLOR_MATRICES[sim] ?? '';
+      }
+      if (sim in CSS_FILTERS) {
+        s.simCss = CSS_FILTERS[sim] ?? '';
+      }
     }
-    if (hasTunnelVision(key)) s.tunnel = '1';
+    if (hasTunnelVision(key)) {
+      s.tunnel = '1';
+    }
     const net: Str = cardNetworkSim[key] ?? 'none';
     if (net !== 'none') {
       if (net === 'custom') {
@@ -3878,23 +3984,39 @@
       }
     } else if (vp === 'custom') {
       const dims = cardCustomViewports[key];
-      if (dims) s.vp = `${dims.w}x${dims.h}`;
+      if (dims) {
+        s.vp = `${dims.w}x${dims.h}`;
+      }
     } else {
       const preset = VIEWPORT_PRESETS.find((p) => p.id === vp);
-      if (preset) s.vp = `${preset.width}x${preset.height}`;
+      if (preset) {
+        s.vp = `${preset.width}x${preset.height}`;
+      }
     }
     const dir: Str = cardTextDir[key] ?? 'auto';
-    if (dir !== 'auto') s.dir = dir;
+    if (dir !== 'auto') {
+      s.dir = dir;
+    }
     const fontSize: Num = cardFontSize[key] ?? 0;
-    if (fontSize > 0) s.fontSize = `${fontSize}px (${(fontSize / 16).toFixed(2)}x)`;
+    if (fontSize > 0) {
+      s.fontSize = `${fontSize}px (${(fontSize / 16).toFixed(2)}x)`;
+    }
     if (cardDebugOutline[key]) {
       s.debugOutline = '1';
       const outStyle: Str = cardDebugOutlineStyle[key] ?? DEBUG_OUTLINE_DEFAULT_STYLE;
-      if (outStyle !== DEBUG_OUTLINE_DEFAULT_STYLE) s.debugOutlineStyle = outStyle;
+      if (outStyle !== DEBUG_OUTLINE_DEFAULT_STYLE) {
+        s.debugOutlineStyle = outStyle;
+      }
     }
-    if (cardMeasureActive[key]) s.measure = '1';
-    if (cardInspectActive[key]) s.inspect = '1';
-    if (cardConsoleOpen[key]) s.console = '1';
+    if (cardMeasureActive[key]) {
+      s.measure = '1';
+    }
+    if (cardInspectActive[key]) {
+      s.inspect = '1';
+    }
+    if (cardConsoleOpen[key]) {
+      s.console = '1';
+    }
     return s;
   }
 
@@ -3918,10 +4040,16 @@
    * @returns Absolute isolation URL string
    */
   function buildIsolationUrl(key: Str, variantKey: Str, option: Str): Str {
-    if (!componentName) return '';
+    if (!componentName) {
+      return '';
+    }
     const params: URLSearchParams = new URLSearchParams();
-    if (variantKey) params.set('variant', variantKey);
-    if (option) params.set('option', option);
+    if (variantKey) {
+      params.set('variant', variantKey);
+    }
+    if (option) {
+      params.set('option', option);
+    }
     const styles: Record<Str, Str> = collectCardStyles(key);
     if (Object.keys(styles).length > 0) {
       params.set('s', btoa(JSON.stringify(styles)));
@@ -3939,7 +4067,9 @@
    */
   function openIsolation(key: Str, variantKey: Str, option: Str): Void {
     const url: Str = buildIsolationUrl(key, variantKey, option);
-    if (url) window.open(url, '_blank');
+    if (url) {
+      window.open(url, '_blank');
+    }
   }
 
   /** Whether "link copied" feedback is currently showing. */
@@ -3963,7 +4093,9 @@
    */
   async function copyIsolationUrl(key: Str, variantKey: Str, option: Str): Promise<void> {
     const path: Str = buildIsolationUrl(key, variantKey, option);
-    if (!path) return;
+    if (!path) {
+      return;
+    }
     const url: Str = `${window.location.origin}${path}`;
     await navigator.clipboard.writeText(url);
     linkCopied = true;
@@ -3991,9 +4123,15 @@
    */
   function getSimulationFilter(key: Str): Str {
     const sim: Str = cardSimulations[key] ?? 'none';
-    if (sim === 'none') return '';
-    if (sim in COLOR_MATRICES) return `filter: url(#${filterId(key)})`;
-    if (sim in CSS_FILTERS) return `filter: ${CSS_FILTERS[sim]}`;
+    if (sim === 'none') {
+      return '';
+    }
+    if (sim in COLOR_MATRICES) {
+      return `filter: url(#${filterId(key)})`;
+    }
+    if (sim in CSS_FILTERS) {
+      return `filter: ${CSS_FILTERS[sim]}`;
+    }
     return '';
   }
 
@@ -4005,9 +4143,13 @@
    */
   function getBackgroundStyle(key: Str): Str {
     const bgId: Str = cardBackgrounds[key] ?? 'default';
-    if (bgId === 'default') return '';
+    if (bgId === 'default') {
+      return '';
+    }
     // Check if it's a custom hex color
-    if (bgId.startsWith('#')) return `background-color: ${bgId}`;
+    if (bgId.startsWith('#')) {
+      return `background-color: ${bgId}`;
+    }
     const preset: { id: Str; label: Str; style: Str } | undefined = BG_PRESETS.find(
       (p) => p.id === bgId,
     );
@@ -4022,7 +4164,9 @@
    */
   function getZoomStyle(key: Str): Str {
     const zoom: Num = cardZoom[key] ?? 1;
-    if (zoom === 1) return '';
+    if (zoom === 1) {
+      return '';
+    }
     return `zoom: ${zoom}`;
   }
 
@@ -4062,7 +4206,9 @@
    */
   function getFontSizeVars(key: Str): Str {
     const targetPx: Num = cardFontSize[key] ?? 0;
-    if (targetPx <= 0) return '';
+    if (targetPx <= 0) {
+      return '';
+    }
     const scale: Num = targetPx / 16;
     return TW_TEXT_VARS.map((v) => `${v.prop}: ${(v.rem * scale).toFixed(4)}rem`).join('; ');
   }
@@ -4269,7 +4415,9 @@
     const match: RegExpMatchArray | null = (rgba as string).match(
       /rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([\d.]*)\)/,
     );
-    if (!match) return rgba;
+    if (!match) {
+      return rgba;
+    }
     const baseAlpha: Num = (match[4] ? Number.parseFloat(match[4]) : 1) as Num;
     const adjusted: Num = ((baseAlpha as number) * ((opacityPct as number) / 100)) as Num;
     return `rgba(${match[1]},${match[2]},${match[3]},${adjusted})` as Str;
@@ -4298,10 +4446,14 @@
       idx = ((idx as number) + 1) as Num
     ) {
       /* Skip disabled categories (default = enabled when not in map) */
-      if (cats[idx] === false) continue;
+      if (cats[idx] === false) {
+        continue;
+      }
 
       const entry = DEBUG_OUTLINE_LEGEND[idx as number];
-      if (!entry) continue;
+      if (!entry) {
+        continue;
+      }
       const outlineStyle: Str = colorBlind ? entry.cbStyle : style;
       /* Dim non-hovered categories when one is being hovered */
       const dimmed: Bool = ((hoverIdx as number) >= 0 && idx !== hoverIdx) as Bool;
@@ -4329,7 +4481,9 @@
    * @returns Number of matching elements
    */
   function countElements(container: Element, selectors: readonly Str[]): Num {
-    if (!container) return 0 as Num;
+    if (!container) {
+      return 0 as Num;
+    }
     const selector: Str = selectors.join(',') as Str;
     try {
       return container.querySelectorAll(selector as string).length as Num;
@@ -4347,13 +4501,19 @@
    */
   function highlightFirstElement(cardKey: Str, categoryIdx: Num): Void {
     const container: Element | null = document.querySelector(`[data-lens-debug="${cardKey}"]`);
-    if (!container) return;
+    if (!container) {
+      return;
+    }
     const entry = DEBUG_OUTLINE_LEGEND[categoryIdx as number];
-    if (!entry) return;
+    if (!entry) {
+      return;
+    }
     const selector: Str = entry.selectors.join(',') as Str;
     try {
       const el: Element | null = container.querySelector(selector as string);
-      if (!el) return;
+      if (!el) {
+        return;
+      }
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       /* Flash animation via temporary class */
       (el as HTMLElement).style.setProperty('animation', 'lens-debug-flash 0.6s ease-out');
@@ -4423,10 +4583,18 @@
    * @returns Formatted string representation
    */
   function serializeArg(val: unknown): Str {
-    if (val === null) return 'null';
-    if (val === undefined) return 'undefined';
-    if (typeof val === 'string') return val;
-    if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+    if (val === null) {
+      return 'null';
+    }
+    if (val === undefined) {
+      return 'undefined';
+    }
+    if (typeof val === 'string') {
+      return val;
+    }
+    if (typeof val === 'number' || typeof val === 'boolean') {
+      return String(val);
+    }
     try {
       return JSON.stringify(val, null, 2);
     } catch {
@@ -4442,12 +4610,16 @@
    * @returns Source location string like "Button.svelte:15" or empty string
    */
   function getSvelteMeta(el: Element | null): Str {
-    if (!el) return '';
+    if (!el) {
+      return '';
+    }
     /* __svelte_meta is attached by Svelte 5 compiler in dev mode */
     const svelteMeta = (el as unknown as Record<Str, unknown>).__svelte_meta as
       | { loc?: { file?: Str; line?: Num } }
       | undefined;
-    if (!svelteMeta?.loc?.file) return '';
+    if (!svelteMeta?.loc?.file) {
+      return '';
+    }
     const file: Str = svelteMeta.loc.file.split('/').pop() ?? svelteMeta.loc.file;
     return `${file}:${svelteMeta.loc.line ?? '?'}`;
   }
@@ -4465,7 +4637,9 @@
     queueMicrotask((): void => {
       const logs: ConsoleLogEntry[] = cardConsoleLogs[key] ?? [];
       logs.push(entry);
-      if (logs.length > CONSOLE_MAX_ENTRIES) logs.splice(0, logs.length - CONSOLE_MAX_ENTRIES);
+      if (logs.length > CONSOLE_MAX_ENTRIES) {
+        logs.splice(0, logs.length - CONSOLE_MAX_ENTRIES);
+      }
       cardConsoleLogs[key] = logs;
     });
   }
@@ -4547,7 +4721,9 @@
     function handleEvent(e: Event): void {
       // Skip events from portaled content (tooltips, dialogs, dropdowns) — they fire
       // during Svelte reactive updates and cause state_unsafe_mutation
-      if (e.target instanceof Element && e.target.closest('[data-lens-portal]')) return;
+      if (e.target instanceof Element && e.target.closest('[data-lens-portal]')) {
+        return;
+      }
       const ts: Num = Math.round((performance.now() - mountTime) * 100) / 100;
       const target: Element | null = e.target instanceof Element ? e.target : null;
       const tag: Str = target?.tagName.toLowerCase() ?? '?';
@@ -4556,10 +4732,13 @@
           ? `.${target.className.split(/\s+/).slice(0, 3).join('.')}`
           : '';
       let detail: Str = '';
-      if (e instanceof KeyboardEvent) detail = `key: ${e.key}`;
-      else if (e instanceof InputEvent || e.target instanceof HTMLInputElement) {
+      if (e instanceof KeyboardEvent) {
+        detail = `key: ${e.key}`;
+      } else if (e instanceof InputEvent || e.target instanceof HTMLInputElement) {
         const inp = e.target as HTMLInputElement | null;
-        if (inp) detail = `value: ${inp.value?.slice(0, 80) ?? ''}`;
+        if (inp) {
+          detail = `value: ${inp.value?.slice(0, 80) ?? ''}`;
+        }
       }
       pushConsoleLog(key, {
         type: 'event',
@@ -4585,7 +4764,9 @@
         (m: MutationRecord): boolean =>
           !(m.target instanceof Element && m.target.closest('[data-lens-portal]')),
       );
-      if (cardMutations.length === 0) return;
+      if (cardMutations.length === 0) {
+        return;
+      }
 
       const now: Num = performance.now();
       const delta: Num = Math.round((now - lastMutationTime) * 100) / 100;
@@ -4606,7 +4787,9 @@
       const mutCap: Num = Math.min(cardMutations.length, 10);
       for (let i: Num = 0; i < mutCap; i++) {
         const m: MutationRecord | undefined = cardMutations[i];
-        if (!m) continue;
+        if (!m) {
+          continue;
+        }
         const target: Element | null =
           m.target instanceof Element ? m.target : m.target.parentElement;
         const tag: Str = target?.tagName.toLowerCase() ?? '?';
@@ -4638,8 +4821,12 @@
           const added: Num = m.addedNodes.length;
           const removed: Num = m.removedNodes.length;
           const parts: Str[] = [];
-          if (added > 0) parts.push(`+${added} added`);
-          if (removed > 0) parts.push(`-${removed} removed`);
+          if (added > 0) {
+            parts.push(`+${added} added`);
+          }
+          if (removed > 0) {
+            parts.push(`-${removed} removed`);
+          }
           pushConsoleLog(key, {
             type: 'mutation',
             level: 'mutation',
@@ -4701,14 +4888,30 @@
    * @returns CSS class string
    */
   function getConsoleColor(level: ConsoleLogEntry['level']): Str {
-    if (level === 'error') return 'text-red-500';
-    if (level === 'warn') return 'text-amber-500';
-    if (level === 'info') return 'text-blue-400';
-    if (level === 'debug') return 'text-muted-foreground/60';
-    if (level === 'event') return 'text-violet-400';
-    if (level === 'mutation') return 'text-teal-400';
-    if (level === 'lifecycle') return 'text-emerald-400';
-    if (level === 'render') return 'text-indigo-400';
+    if (level === 'error') {
+      return 'text-red-500';
+    }
+    if (level === 'warn') {
+      return 'text-amber-500';
+    }
+    if (level === 'info') {
+      return 'text-blue-400';
+    }
+    if (level === 'debug') {
+      return 'text-muted-foreground/60';
+    }
+    if (level === 'event') {
+      return 'text-violet-400';
+    }
+    if (level === 'mutation') {
+      return 'text-teal-400';
+    }
+    if (level === 'lifecycle') {
+      return 'text-emerald-400';
+    }
+    if (level === 'render') {
+      return 'text-indigo-400';
+    }
     return 'text-muted-foreground';
   }
 
@@ -4719,14 +4922,30 @@
    * @returns Full-word label string
    */
   function getConsoleLabel(level: ConsoleLogEntry['level']): Str {
-    if (level === 'error') return 'Error';
-    if (level === 'warn') return 'Warn';
-    if (level === 'info') return 'Info';
-    if (level === 'debug') return 'Debug';
-    if (level === 'event') return 'Event';
-    if (level === 'mutation') return 'Mutation';
-    if (level === 'lifecycle') return 'Lifecycle';
-    if (level === 'render') return 'Render';
+    if (level === 'error') {
+      return 'Error';
+    }
+    if (level === 'warn') {
+      return 'Warn';
+    }
+    if (level === 'info') {
+      return 'Info';
+    }
+    if (level === 'debug') {
+      return 'Debug';
+    }
+    if (level === 'event') {
+      return 'Event';
+    }
+    if (level === 'mutation') {
+      return 'Mutation';
+    }
+    if (level === 'lifecycle') {
+      return 'Lifecycle';
+    }
+    if (level === 'render') {
+      return 'Render';
+    }
     return 'Log';
   }
 
@@ -4817,8 +5036,12 @@
    */
   function formatConsoleTs(ms: Num): Str {
     const n: number = ms as number;
-    if (n < 1000) return `+${n}ms` as Str;
-    if (n < 60_000) return `+${(n / 1000).toFixed(1)}s` as Str;
+    if (n < 1000) {
+      return `+${n}ms` as Str;
+    }
+    if (n < 60_000) {
+      return `+${(n / 1000).toFixed(1)}s` as Str;
+    }
     const minutes: number = Math.floor(n / 60_000);
     const seconds: number = Math.floor((n % 60_000) / 1000);
     return `+${minutes}m ${seconds}s` as Str;
@@ -4946,7 +5169,9 @@
   /** Console levels filtered by level filter search query. */
   const filteredConsoleLevels = $derived.by(() => {
     const q: Str = (consoleLevelFilterSearch as string).toLowerCase() as Str;
-    if (!q) return CONSOLE_LEVELS;
+    if (!q) {
+      return CONSOLE_LEVELS;
+    }
     return CONSOLE_LEVELS.filter((l) => (l.label as string).toLowerCase().includes(q as string));
   });
 
@@ -5381,10 +5606,13 @@
     let depth: Num = 0 as Num;
     while (current && (depth as number) < (maxDepth as number)) {
       let segment: Str = current.tagName.toLowerCase() as Str;
-      if (current.id) segment = `${segment}#${current.id}` as Str;
-      else if (current.className && typeof current.className === 'string') {
+      if (current.id) {
+        segment = `${segment}#${current.id}` as Str;
+      } else if (current.className && typeof current.className === 'string') {
         const firstClass: Str = current.className.split(/\s+/)[0] ?? ('' as Str);
-        if (firstClass) segment = `${segment}.${firstClass}` as Str;
+        if (firstClass) {
+          segment = `${segment}.${firstClass}` as Str;
+        }
       }
       parts.unshift(segment);
       current = current.parentElement;
@@ -5421,9 +5649,13 @@
       i = ((i as number) + 1) as Num
     ) {
       const attr: Attr | null = el.attributes.item(i as number);
-      if (!attr) continue;
+      if (!attr) {
+        continue;
+      }
       const name: Str = attr.name as Str;
-      if (name === 'class' || name === 'id' || name === 'style') continue;
+      if (name === 'class' || name === 'id' || name === 'style') {
+        continue;
+      }
       const isPrefix: Bool = INSPECT_ATTR_PREFIXES.some((p) =>
         (name as string).startsWith(p as string),
       ) as Bool;
@@ -5435,21 +5667,37 @@
     /* --- Accessibility info --- */
     const a11y: Record<Str, Str> = {};
     const role: Str = (el.getAttribute('role') ?? '') as Str;
-    if (role) a11y['role'] = role;
+    if (role) {
+      a11y['role'] = role;
+    }
     const ariaLabel: Str = (el.getAttribute('aria-label') ?? '') as Str;
-    if (ariaLabel) a11y['aria-label'] = ariaLabel;
+    if (ariaLabel) {
+      a11y['aria-label'] = ariaLabel;
+    }
     const ariaDescribedby: Str = (el.getAttribute('aria-describedby') ?? '') as Str;
-    if (ariaDescribedby) a11y['aria-describedby'] = ariaDescribedby;
+    if (ariaDescribedby) {
+      a11y['aria-describedby'] = ariaDescribedby;
+    }
     const ariaLabelledby: Str = (el.getAttribute('aria-labelledby') ?? '') as Str;
-    if (ariaLabelledby) a11y['aria-labelledby'] = ariaLabelledby;
+    if (ariaLabelledby) {
+      a11y['aria-labelledby'] = ariaLabelledby;
+    }
     const ariaHidden: Str = (el.getAttribute('aria-hidden') ?? '') as Str;
-    if (ariaHidden) a11y['aria-hidden'] = ariaHidden;
+    if (ariaHidden) {
+      a11y['aria-hidden'] = ariaHidden;
+    }
     const ariaExpanded: Str = (el.getAttribute('aria-expanded') ?? '') as Str;
-    if (ariaExpanded) a11y['aria-expanded'] = ariaExpanded;
+    if (ariaExpanded) {
+      a11y['aria-expanded'] = ariaExpanded;
+    }
     const ariaPressed: Str = (el.getAttribute('aria-pressed') ?? '') as Str;
-    if (ariaPressed) a11y['aria-pressed'] = ariaPressed;
+    if (ariaPressed) {
+      a11y['aria-pressed'] = ariaPressed;
+    }
     const tabIdx: Str = (el.getAttribute('tabindex') ?? '') as Str;
-    if (tabIdx) a11y['tabindex'] = tabIdx;
+    if (tabIdx) {
+      a11y['tabindex'] = tabIdx;
+    }
     /* Computed accessible name via the element's labels or aria */
     if (el instanceof HTMLElement && el.title && !a11y['aria-label']) {
       a11y['accessible-name'] = el.title as Str;
@@ -5506,9 +5754,13 @@
    * @param key - Card key
    */
   function handleMeasureMove(e: MouseEvent, key: Str): Void {
-    if (!cardMeasureActive[key]) return;
+    if (!cardMeasureActive[key]) {
+      return;
+    }
     const container: HTMLDivElement | undefined = cardPreviewRefs[key];
-    if (!container) return;
+    if (!container) {
+      return;
+    }
     const target: Element | null = document.elementFromPoint(e.clientX, e.clientY);
     if (!target || target === container || !container.contains(target)) {
       cardMeasureData[key] = null;
@@ -5533,9 +5785,13 @@
    * @param key - Card key
    */
   async function handleMeasureClick(e: MouseEvent, key: Str): Promise<void> {
-    if (!cardMeasureActive[key]) return;
+    if (!cardMeasureActive[key]) {
+      return;
+    }
     const m = cardMeasureData[key];
-    if (!m) return;
+    if (!m) {
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
     const parts: Str[] = [
@@ -5597,11 +5853,17 @@
    * @param key - Card key
    */
   function handleInspectClick(e: MouseEvent, key: Str): Void {
-    if (!cardInspectActive[key]) return;
+    if (!cardInspectActive[key]) {
+      return;
+    }
     const container: HTMLDivElement | undefined = cardPreviewRefs[key];
-    if (!container) return;
+    if (!container) {
+      return;
+    }
     const target: Element | null = document.elementFromPoint(e.clientX, e.clientY);
-    if (!target || target === container || !container.contains(target)) return;
+    if (!target || target === container || !container.contains(target)) {
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
     cardInspectedEl[key] = collectInspectData(target);
@@ -5633,7 +5895,9 @@
       settings.push({ label: 'Accessibility', value: simItem?.label ?? sim });
     }
     const zoom: Num = cardZoom[key] ?? 1;
-    if (zoom !== 1) settings.push({ label: 'Zoom', value: getZoomLabel(key) });
+    if (zoom !== 1) {
+      settings.push({ label: 'Zoom', value: getZoomLabel(key) });
+    }
     const grid: Str = cardGrids[key] ?? 'none';
     if (grid !== 'none') {
       const gridPreset = GRID_PRESETS.find((p) => p.id === grid);
@@ -5698,8 +5962,9 @@
     if (viewport !== 'auto') {
       if (viewport === 'custom') {
         const dims = cardCustomViewports[key];
-        if (dims)
+        if (dims) {
           settings.push({ label: 'Viewport', value: `Custom (${dims.w} \u00D7 ${dims.h})` });
+        }
       } else {
         const vpPreset = VIEWPORT_PRESETS.find((p) => p.id === viewport);
         settings.push({
@@ -5715,24 +5980,28 @@
     if ((cardNetworkSim[key] ?? 'none') === 'custom' && customNet) {
       // Replace preset entry with custom
       const netIdx: Num = settings.findIndex((s) => s.label === 'Network');
-      if (netIdx >= 0)
+      if (netIdx >= 0) {
         settings[netIdx] = { label: 'Network', value: `Custom (${customNet.delay}ms)` };
-      else settings.push({ label: 'Network', value: `Custom (${customNet.delay}ms)` });
+      } else {
+        settings.push({ label: 'Network', value: `Custom (${customNet.delay}ms)` });
+      }
     }
     // Text direction
     const dir: Str = cardTextDir[key] ?? 'auto';
-    if (dir !== 'auto')
+    if (dir !== 'auto') {
       settings.push({
         label: 'Direction',
         value: dir === 'inherit' ? 'Inherit' : dir.toUpperCase(),
       });
+    }
     // Font size
     const fontSize: Num = cardFontSize[key] ?? 0;
-    if (fontSize > 0)
+    if (fontSize > 0) {
       settings.push({
         label: 'Font Size',
         value: `${fontSize}px (${(fontSize / 16).toFixed(1)}x)`,
       });
+    }
     // Dev tools
     if (cardDebugOutline[key]) {
       const cats: Record<Num, Bool> = cardDebugCategories[key] ?? {};
@@ -5740,17 +6009,28 @@
       const outStyle: Str = cardDebugOutlineStyle[key] ?? DEBUG_OUTLINE_DEFAULT_STYLE;
       const outOpacity: Num = cardDebugOutlineOpacity[key] ?? DEBUG_OUTLINE_DEFAULT_OPACITY;
       const parts: Str[] = ['On' as Str];
-      if ((disabledCount as number) > 0)
+      if ((disabledCount as number) > 0) {
         parts.push(
           `${DEBUG_OUTLINE_LEGEND.length - (disabledCount as number)}/${DEBUG_OUTLINE_LEGEND.length} categories` as Str,
         );
-      if (outStyle !== DEBUG_OUTLINE_DEFAULT_STYLE) parts.push(outStyle);
-      if ((outOpacity as number) < 100) parts.push(`${outOpacity}%` as Str);
-      if (cardDebugColorBlind[key]) parts.push('CB' as Str);
+      }
+      if (outStyle !== DEBUG_OUTLINE_DEFAULT_STYLE) {
+        parts.push(outStyle);
+      }
+      if ((outOpacity as number) < 100) {
+        parts.push(`${outOpacity}%` as Str);
+      }
+      if (cardDebugColorBlind[key]) {
+        parts.push('CB' as Str);
+      }
       settings.push({ label: 'Debug Outline', value: parts.join(', ') });
     }
-    if (cardMeasureActive[key]) settings.push({ label: 'Measure', value: 'On' });
-    if (cardInspectActive[key]) settings.push({ label: 'Inspect', value: 'On' });
+    if (cardMeasureActive[key]) {
+      settings.push({ label: 'Measure', value: 'On' });
+    }
+    if (cardInspectActive[key]) {
+      settings.push({ label: 'Inspect', value: 'On' });
+    }
     if (cardConsoleOpen[key]) {
       const logCount: Num = (cardConsoleLogs[key] ?? []).length;
       settings.push({ label: 'Console', value: logCount > 0 ? `${logCount} entries` : 'Open' });
@@ -5793,7 +6073,9 @@
    * @param value - New preference value
    */
   function setMediaPref(key: Str, pref: Str, value: Str): Void {
-    if (!cardMediaPrefs[key]) cardMediaPrefs[key] = {};
+    if (!cardMediaPrefs[key]) {
+      cardMediaPrefs[key] = {};
+    }
     cardMediaPrefs[key] = { ...cardMediaPrefs[key], [pref]: value };
   }
 
@@ -5805,23 +6087,55 @@
    */
   function getMediaPrefClasses(key: Str): Str {
     const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
-    if (!prefs) return '';
+    if (!prefs) {
+      return '';
+    }
     const classes: Str[] = [];
-    if (prefs['reduced-motion'] === 'reduce') classes.push('lens-reduced-motion');
-    if (prefs['contrast'] === 'more') classes.push('lens-contrast-more');
-    if (prefs['contrast'] === 'less') classes.push('lens-contrast-less');
-    if (prefs['reduced-transparency'] === 'reduce') classes.push('lens-reduced-transparency');
-    if (prefs['forced-colors'] === 'active') classes.push('lens-forced-colors');
-    if (prefs['color-scheme'] === 'light') classes.push('lens-color-scheme-light');
-    if (prefs['color-scheme'] === 'dark') classes.push('lens-color-scheme-dark');
-    if (prefs['inverted-colors'] === 'inverted') classes.push('lens-inverted-colors');
-    if (prefs['reduced-data'] === 'reduce') classes.push('lens-reduced-data');
-    if (prefs['color-gamut'] === 'srgb') classes.push('lens-gamut-srgb');
-    if (prefs['color-gamut'] === 'p3') classes.push('lens-gamut-p3');
-    if (prefs['color-gamut'] === 'rec2020') classes.push('lens-gamut-rec2020');
-    if (prefs['display-mode'] === 'standalone') classes.push('lens-display-standalone');
-    if (prefs['display-mode'] === 'fullscreen') classes.push('lens-display-fullscreen');
-    if (prefs['display-mode'] === 'minimal-ui') classes.push('lens-display-minimal-ui');
+    if (prefs['reduced-motion'] === 'reduce') {
+      classes.push('lens-reduced-motion');
+    }
+    if (prefs['contrast'] === 'more') {
+      classes.push('lens-contrast-more');
+    }
+    if (prefs['contrast'] === 'less') {
+      classes.push('lens-contrast-less');
+    }
+    if (prefs['reduced-transparency'] === 'reduce') {
+      classes.push('lens-reduced-transparency');
+    }
+    if (prefs['forced-colors'] === 'active') {
+      classes.push('lens-forced-colors');
+    }
+    if (prefs['color-scheme'] === 'light') {
+      classes.push('lens-color-scheme-light');
+    }
+    if (prefs['color-scheme'] === 'dark') {
+      classes.push('lens-color-scheme-dark');
+    }
+    if (prefs['inverted-colors'] === 'inverted') {
+      classes.push('lens-inverted-colors');
+    }
+    if (prefs['reduced-data'] === 'reduce') {
+      classes.push('lens-reduced-data');
+    }
+    if (prefs['color-gamut'] === 'srgb') {
+      classes.push('lens-gamut-srgb');
+    }
+    if (prefs['color-gamut'] === 'p3') {
+      classes.push('lens-gamut-p3');
+    }
+    if (prefs['color-gamut'] === 'rec2020') {
+      classes.push('lens-gamut-rec2020');
+    }
+    if (prefs['display-mode'] === 'standalone') {
+      classes.push('lens-display-standalone');
+    }
+    if (prefs['display-mode'] === 'fullscreen') {
+      classes.push('lens-display-fullscreen');
+    }
+    if (prefs['display-mode'] === 'minimal-ui') {
+      classes.push('lens-display-minimal-ui');
+    }
     return classes.join(' ');
   }
 
@@ -5833,7 +6147,9 @@
    */
   function hasMediaPrefs(key: Str): Bool {
     const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
-    if (!prefs) return false;
+    if (!prefs) {
+      return false;
+    }
     return MEDIA_PREF_GROUPS.some((g) => {
       const val: Str = prefs[g.pref] ?? g.defaultValue;
       return val !== g.defaultValue;
@@ -5894,7 +6210,9 @@
    */
   function getViewportFrameStyle(key: Str): Str {
     const preset = getViewportPreset(key);
-    if (!preset) return '';
+    if (!preset) {
+      return '';
+    }
     return `width: ${preset.width}px; border-radius: ${getViewportRadius(preset.category)}`;
   }
 
@@ -5909,7 +6227,9 @@
     // transform creates a containing block for position:fixed children,
     // keeping components like Sidebar/Dialog contained inside the card
     const preset = getViewportPreset(key);
-    if (!preset) return 'transform: translateZ(0)';
+    if (!preset) {
+      return 'transform: translateZ(0)';
+    }
     return `transform: translateZ(0); height: ${preset.height}px`;
   }
 
@@ -5933,10 +6253,14 @@
     key: Str,
   ): { id: Str; label: Str; width: Num; height: Num; category: Str } | null {
     const id: Str = cardViewports[key] ?? 'auto';
-    if (id === 'auto') return null;
+    if (id === 'auto') {
+      return null;
+    }
     if (id === 'custom') {
       const dims = cardCustomViewports[key];
-      if (!dims) return null;
+      if (!dims) {
+        return null;
+      }
       return { id: 'custom', label: 'Custom', width: dims.w, height: dims.h, category: 'Custom' };
     }
     return VIEWPORT_PRESETS.find((p) => p.id === id) ?? null;
@@ -6109,7 +6433,9 @@
    * Cached after first call.
    */
   async function fetchPlaywrightDevices(): Promise<void> {
-    if (devicesLoaded) return;
+    if (devicesLoaded) {
+      return;
+    }
     try {
       const res: Response = await fetch('/api/lens/screenshot/devices');
       if (res.ok) {
@@ -6130,7 +6456,9 @@
    * Cached after first call.
    */
   async function fetchIosDevices(): Promise<void> {
-    if (iosDevicesLoaded) return;
+    if (iosDevicesLoaded) {
+      return;
+    }
     try {
       const res: Response = await fetch('/api/lens/screenshot/ios/devices');
       if (res.ok) {
@@ -6152,7 +6480,9 @@
    * @param force - Skip cache and re-fetch (after AVD creation)
    */
   async function fetchAndroidDevices(force?: boolean): Promise<void> {
-    if (androidDevicesLoaded && !force) return;
+    if (androidDevicesLoaded && !force) {
+      return;
+    }
     try {
       const res: Response = await fetch('/api/lens/screenshot/android/devices');
       if (res.ok) {
@@ -6238,21 +6568,35 @@
    * @returns Category label for grouping
    */
   function inferDeviceCategory(name: Str): Str {
-    if (name.includes('iPhone')) return 'Phones' as Str;
-    if (name.includes('iPad')) return 'Tablets' as Str;
-    if (name.includes('Pixel') || name.includes('Galaxy') || name.includes('Moto'))
+    if (name.includes('iPhone')) {
       return 'Phones' as Str;
-    if (name.includes('Galaxy Tab')) return 'Tablets' as Str;
-    if (name.includes('Kindle') || name.includes('Nook')) return 'E-Readers' as Str;
-    if (name.includes('Blackberry') || name.includes('Nokia') || name.includes('LG'))
+    }
+    if (name.includes('iPad')) {
+      return 'Tablets' as Str;
+    }
+    if (name.includes('Pixel') || name.includes('Galaxy') || name.includes('Moto')) {
       return 'Phones' as Str;
-    if (name.includes('Desktop')) return 'Desktop' as Str;
+    }
+    if (name.includes('Galaxy Tab')) {
+      return 'Tablets' as Str;
+    }
+    if (name.includes('Kindle') || name.includes('Nook')) {
+      return 'E-Readers' as Str;
+    }
+    if (name.includes('Blackberry') || name.includes('Nokia') || name.includes('LG')) {
+      return 'Phones' as Str;
+    }
+    if (name.includes('Desktop')) {
+      return 'Desktop' as Str;
+    }
     return 'Other' as Str;
   }
 
   /** Filtered Playwright devices based on search query. */
   const filteredPlaywrightDevices: PlaywrightDevice[] = $derived.by((): PlaywrightDevice[] => {
-    if (!browserSearchQuery) return playwrightDevices;
+    if (!browserSearchQuery) {
+      return playwrightDevices;
+    }
     const q: Str = browserSearchQuery.toLowerCase() as Str;
     return playwrightDevices.filter((d: PlaywrightDevice): boolean =>
       d.name.toLowerCase().includes(q),
@@ -6271,7 +6615,9 @@
   /** Filtered iOS devices based on search query. */
   const filteredIosDevices: Array<Record<Str, unknown>> = $derived.by(
     (): Array<Record<Str, unknown>> => {
-      if (!browserSearchQuery) return iosDevices;
+      if (!browserSearchQuery) {
+        return iosDevices;
+      }
       const q: Str = browserSearchQuery.toLowerCase() as Str;
       return iosDevices.filter((d: Record<Str, unknown>): boolean => {
         const name: Str = ((d.name as string) ?? '').toLowerCase() as Str;
@@ -6284,7 +6630,9 @@
   /** Filtered Android devices based on search query. */
   const filteredAndroidDevices: Array<Record<Str, unknown>> = $derived.by(
     (): Array<Record<Str, unknown>> => {
-      if (!browserSearchQuery) return androidDevices;
+      if (!browserSearchQuery) {
+        return androidDevices;
+      }
       const q: Str = browserSearchQuery.toLowerCase() as Str;
       return androidDevices.filter((d: Record<Str, unknown>): boolean => {
         const name: Str = ((d.name as string) ?? '').toLowerCase() as Str;
@@ -6305,7 +6653,9 @@
 
   /** Popular devices filtered from loaded Playwright devices. */
   const popularPlaywrightDevices: PlaywrightDevice[] = $derived.by((): PlaywrightDevice[] => {
-    if (browserSearchQuery) return []; /* hide popular when searching */
+    if (browserSearchQuery) {
+      return [];
+    } /* hide popular when searching */
     return POPULAR_DEVICE_NAMES.map((name: Str): PlaywrightDevice | undefined =>
       playwrightDevices.find((d: PlaywrightDevice): boolean => d.name === name),
     ).filter((d: PlaywrightDevice | undefined): d is PlaywrightDevice => d !== undefined);
@@ -6319,10 +6669,18 @@
    */
   function relativeTime(ts: Num): Str {
     const delta: Num = (Date.now() - (ts as number)) as Num;
-    if (delta < 5000) return 'just now' as Str;
-    if (delta < 60_000) return `${Math.floor((delta as number) / 1000)}s ago` as Str;
-    if (delta < 3_600_000) return `${Math.floor((delta as number) / 60_000)}m ago` as Str;
-    if (delta < 86_400_000) return `${Math.floor((delta as number) / 3_600_000)}h ago` as Str;
+    if (delta < 5000) {
+      return 'just now' as Str;
+    }
+    if (delta < 60_000) {
+      return `${Math.floor((delta as number) / 1000)}s ago` as Str;
+    }
+    if (delta < 3_600_000) {
+      return `${Math.floor((delta as number) / 60_000)}m ago` as Str;
+    }
+    if (delta < 86_400_000) {
+      return `${Math.floor((delta as number) / 3_600_000)}h ago` as Str;
+    }
     return `${Math.floor((delta as number) / 86_400_000)}d ago` as Str;
   }
 
@@ -6334,7 +6692,9 @@
    * @param option - Variant option value
    */
   async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promise<void> {
-    if (!componentName) return;
+    if (!componentName) {
+      return;
+    }
     cardScreenCapturing[key] = true;
     cardScreenError[key] = '' as Str;
 
@@ -6345,8 +6705,12 @@
     /* Build shared params used by all engines */
     const params: URLSearchParams = new URLSearchParams();
     params.set('component', componentName);
-    if (variantKey) params.set('variant', variantKey);
-    if (option) params.set('option', option);
+    if (variantKey) {
+      params.set('variant', variantKey);
+    }
+    if (option) {
+      params.set('option', option);
+    }
 
     /* Pass current card styles */
     const styles: Record<Str, Str> = collectCardStyles(key);
@@ -6370,15 +6734,22 @@
     let endpoint: Str;
     if (source === 'ios-simulator') {
       endpoint = '/api/lens/screenshot/ios' as Str;
-      if (device) params.set('device', device);
+      if (device) {
+        params.set('device', device);
+      }
 
       /* iOS accessibility settings */
       const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
       if (prefs) {
-        if (prefs['reduced-motion'] === 'reduce') params.set('reduceMotion', 'true');
-        if (prefs['prefers-contrast'] === 'more') params.set('increaseContrast', 'true');
-        if (prefs['prefers-reduced-transparency'] === 'reduce')
+        if (prefs['reduced-motion'] === 'reduce') {
+          params.set('reduceMotion', 'true');
+        }
+        if (prefs['prefers-contrast'] === 'more') {
+          params.set('increaseContrast', 'true');
+        }
+        if (prefs['prefers-reduced-transparency'] === 'reduce') {
           params.set('reduceTransparency', 'true');
+        }
       }
 
       /* Map font size to iOS Dynamic Type content size */
@@ -6386,18 +6757,28 @@
       if (fontSize > 0) {
         /* Approximate mapping: <14px → XS, 14–15 → S, 16 → M, 17–19 → L, 20–23 → XL, 24–27 → XXL, 28+ → XXXL */
         let contentSize: Str = 'UICTContentSizeCategoryL' as Str;
-        if (fontSize < 14) contentSize = 'UICTContentSizeCategoryXS' as Str;
-        else if (fontSize < 16) contentSize = 'UICTContentSizeCategoryS' as Str;
-        else if (fontSize < 17) contentSize = 'UICTContentSizeCategoryM' as Str;
-        else if (fontSize < 20) contentSize = 'UICTContentSizeCategoryL' as Str;
-        else if (fontSize < 24) contentSize = 'UICTContentSizeCategoryXL' as Str;
-        else if (fontSize < 28) contentSize = 'UICTContentSizeCategoryXXL' as Str;
-        else contentSize = 'UICTContentSizeCategoryAccessibilityXXXL' as Str;
+        if (fontSize < 14) {
+          contentSize = 'UICTContentSizeCategoryXS' as Str;
+        } else if (fontSize < 16) {
+          contentSize = 'UICTContentSizeCategoryS' as Str;
+        } else if (fontSize < 17) {
+          contentSize = 'UICTContentSizeCategoryM' as Str;
+        } else if (fontSize < 20) {
+          contentSize = 'UICTContentSizeCategoryL' as Str;
+        } else if (fontSize < 24) {
+          contentSize = 'UICTContentSizeCategoryXL' as Str;
+        } else if (fontSize < 28) {
+          contentSize = 'UICTContentSizeCategoryXXL' as Str;
+        } else {
+          contentSize = 'UICTContentSizeCategoryAccessibilityXXXL' as Str;
+        }
         params.set('contentSize', contentSize);
       }
     } else if (source === 'android-emulator') {
       endpoint = '/api/lens/screenshot/android' as Str;
-      if (device) params.set('avd', device);
+      if (device) {
+        params.set('avd', device);
+      }
 
       /* Android accessibility settings */
       const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
@@ -6415,7 +6796,9 @@
       endpoint = '/api/lens/screenshot' as Str;
       /* Playwright-specific params */
       params.set('browser', browser);
-      if (device) params.set('device', device);
+      if (device) {
+        params.set('device', device);
+      }
 
       /* Viewport dimensions (Playwright only) */
       const vp: Str = cardViewports[key] ?? 'auto';
@@ -6462,10 +6845,14 @@
       if (netSim !== 'none') {
         if (netSim === 'custom') {
           const custom = cardCustomNetwork[key];
-          if (custom) params.set('networkThrottle', String(custom.delay));
+          if (custom) {
+            params.set('networkThrottle', String(custom.delay));
+          }
         } else {
           const preset = NETWORK_PRESETS.find((p) => p.id === netSim);
-          if (preset) params.set('networkThrottle', String(preset.delay));
+          if (preset) {
+            params.set('networkThrottle', String(preset.delay));
+          }
         }
       }
     }
@@ -6637,7 +7024,9 @@
    * @param option - Variant option value
    */
   async function captureParallel(key: Str, variantKey: Str, option: Str): Promise<void> {
-    if (!componentName) return;
+    if (!componentName) {
+      return;
+    }
     cardScreenCapturing[key] = true;
 
     const sources: ScreenshotSource[] = ['playwright' as ScreenshotSource];
@@ -6721,12 +7110,15 @@
       `Captured: ${new Date(capture.timestamp as number).toISOString()}` as Str,
     ];
     if (capture.performance) {
-      if (capture.performance.firstPaint !== undefined)
+      if (capture.performance.firstPaint !== undefined) {
         lines.push(`First Paint: ${capture.performance.firstPaint}ms` as Str);
-      if (capture.performance.domContentLoaded !== undefined)
+      }
+      if (capture.performance.domContentLoaded !== undefined) {
         lines.push(`DCL: ${capture.performance.domContentLoaded}ms` as Str);
-      if (capture.performance.load !== undefined)
+      }
+      if (capture.performance.load !== undefined) {
         lines.push(`Load: ${capture.performance.load}ms` as Str);
+      }
     }
     if (capture.consoleLogs.length > 0) {
       const errors: Num = capture.consoleLogs.filter((l) => l.level === 'error').length as Num;
@@ -6792,7 +7184,9 @@
   function removeScreenshot(key: Str, index: Num): Void {
     const captures: ScreenshotCapture[] = cardScreenshots[key] ?? [];
     const removed: ScreenshotCapture | undefined = captures[index];
-    if (removed) URL.revokeObjectURL(removed.imageUrl);
+    if (removed) {
+      URL.revokeObjectURL(removed.imageUrl);
+    }
     cardScreenshots[key] = captures.filter((_: ScreenshotCapture, i: Num): boolean => i !== index);
   }
 
@@ -7120,7 +7514,9 @@
    */
   async function handleScreenshotExportAll(key: Str, formatId: Str): Promise<void> {
     const captures: ScreenshotCapture[] = cardScreenshots[key] ?? [];
-    if (captures.length === 0) return;
+    if (captures.length === 0) {
+      return;
+    }
 
     /**
      * Fetch all capture blobs in parallel and return filename→data pairs.
@@ -7185,10 +7581,14 @@
    */
   function getAllCardKeys(): Str[] {
     const variants = meta?.variants ?? [];
-    if (variants.length === 0) return ['default'];
+    if (variants.length === 0) {
+      return ['default'];
+    }
     const keys: Str[] = [];
     for (const v of variants) {
-      if (!v.key) continue;
+      if (!v.key) {
+        continue;
+      }
       for (const opt of v.options) {
         keys.push(`${v.key}:${opt}`);
       }
@@ -7204,7 +7604,9 @@
   function applySettingsToAll(sourceKey: Str): Void {
     const keys: Str[] = getAllCardKeys();
     for (const key of keys) {
-      if (key === sourceKey) continue;
+      if (key === sourceKey) {
+        continue;
+      }
       cardSimulations[key] = cardSimulations[sourceKey] ?? 'none';
       cardBackgrounds[key] = cardBackgrounds[sourceKey] ?? 'default';
       cardZoom[key] = cardZoom[sourceKey] ?? 1;
@@ -7250,27 +7652,39 @@
    * @param value - Setting value
    */
   function handleCardSetting(key: Str, name: Str, value: unknown): Void {
-    if (name === 'bg') setBackground(key, value as Str);
-    else if (name === 'zoom') setZoom(key, value as Num);
-    else if (name === 'outline') setOutline(key, value as Str);
-    else if (name === 'outlineThickness') {
+    if (name === 'bg') {
+      setBackground(key, value as Str);
+    } else if (name === 'zoom') {
+      setZoom(key, value as Num);
+    } else if (name === 'outline') {
+      setOutline(key, value as Str);
+    } else if (name === 'outlineThickness') {
       cardOutlineThickness[key] = value as Num;
-    } else if (name === 'grid') setGrid(key, value as Str);
-    else if (name === 'gridSize') setGridSize(key, value as Num);
-    else if (name === 'gridFill') setGridFill(key, value as Str);
-    else if (name === 'orientation') setOrientation(key, value as Str);
-    else if (name === 'customRotation') {
+    } else if (name === 'grid') {
+      setGrid(key, value as Str);
+    } else if (name === 'gridSize') {
+      setGridSize(key, value as Num);
+    } else if (name === 'gridFill') {
+      setGridFill(key, value as Str);
+    } else if (name === 'orientation') {
+      setOrientation(key, value as Str);
+    } else if (name === 'customRotation') {
       cardCustomRotation[key] = value as Num;
-    } else if (name === 'mode') setCardMode(key, value as Str);
-    else if (name === 'theme') setCardTheme(key, value as Str);
-    else if (name === 'sim') toggleSimulation(key, value as Str);
-    else if (name === 'dir') {
+    } else if (name === 'mode') {
+      setCardMode(key, value as Str);
+    } else if (name === 'theme') {
+      setCardTheme(key, value as Str);
+    } else if (name === 'sim') {
+      toggleSimulation(key, value as Str);
+    } else if (name === 'dir') {
       cardTextDir[key] = value as Str;
     } else if (name === 'fontSize') {
       cardFontSize[key] = value as Num;
-    } else if (name === 'networkSim') setNetworkSim(key, value as Str);
-    else if (name === 'viewport') setViewport(key, value as Str);
-    else if (name === 'mediaPref') {
+    } else if (name === 'networkSim') {
+      setNetworkSim(key, value as Str);
+    } else if (name === 'viewport') {
+      setViewport(key, value as Str);
+    } else if (name === 'mediaPref') {
       const mp = value as { pref: Str; value: Str };
       setMediaPref(key, mp.pref, mp.value);
     } else if (name === 'customNetworkDelay') {
@@ -7317,7 +7731,9 @@
 
   /* -- Section-level event listener -- */
   $effect(() => {
-    if (!sectionId) return;
+    if (!sectionId) {
+      return;
+    }
     const onSectionSetting = (e: Event): void => {
       /* CustomEvent detail — cast required because DOM Event has no .detail */
       const {
@@ -7325,9 +7741,13 @@
         setting,
         value,
       } = (e as CustomEvent<{ sectionId: Str; setting: Str; value: unknown }>).detail;
-      if (sid !== sectionId) return;
+      if (sid !== sectionId) {
+        return;
+      }
       if (setting === 'reset') {
-        for (const key of getAllCardKeys()) resetCard(key);
+        for (const key of getAllCardKeys()) {
+          resetCard(key);
+        }
         return;
       }
       for (const key of getAllCardKeys()) {
@@ -7342,11 +7762,15 @@
 
   /* -- Section-level export event listener -- */
   $effect(() => {
-    if (!sectionId) return;
+    if (!sectionId) {
+      return;
+    }
     const onSectionExport = async (e: Event): Promise<void> => {
       const { sectionId: sid, exportId } = (e as CustomEvent<{ sectionId: Str; exportId: Str }>)
         .detail;
-      if (sid !== sectionId) return;
+      if (sid !== sectionId) {
+        return;
+      }
       if (exportId === 'stats') {
         const allStats: Record<Str, LensStatsData> = cardStats;
         const report: Str = JSON.stringify(
@@ -7383,21 +7807,33 @@
    */
   async function handleExport(key: Str, formatId: Str): Promise<void> {
     const el: HTMLDivElement | undefined = cardPreviewRefs[key];
-    if (!el) return;
+    if (!el) {
+      return;
+    }
     exportInProgress = formatId;
     const filename: Str = componentName ?? tagName ?? 'component';
-    if (formatId === 'png') await exportPng(el, filename);
-    else if (formatId === 'jpeg') await exportJpeg(el, filename);
-    else if (formatId === 'svg') await exportSvg(el, filename);
-    else if (formatId === 'webp') await exportWebp(el, filename);
-    else if (formatId === 'html') downloadHtml(el, filename);
-    else if (formatId === 'copy-image') await copyImageToClipboard(el);
-    else if (formatId === 'copy-html') await copyHtml(el);
-    else if (formatId === 'copy-svelte') {
+    if (formatId === 'png') {
+      await exportPng(el, filename);
+    } else if (formatId === 'jpeg') {
+      await exportJpeg(el, filename);
+    } else if (formatId === 'svg') {
+      await exportSvg(el, filename);
+    } else if (formatId === 'webp') {
+      await exportWebp(el, filename);
+    } else if (formatId === 'html') {
+      downloadHtml(el, filename);
+    } else if (formatId === 'copy-image') {
+      await copyImageToClipboard(el);
+    } else if (formatId === 'copy-html') {
+      await copyHtml(el);
+    } else if (formatId === 'copy-svelte') {
       const snippet: Str = codeText ?? codeSnippet('', '');
-      if (snippet) await navigator.clipboard.writeText(snippet);
-    } else if (formatId === 'copy-data-uri') await copyDataUri(el);
-    else if (formatId === 'standalone-html' && componentName) {
+      if (snippet) {
+        await navigator.clipboard.writeText(snippet);
+      }
+    } else if (formatId === 'copy-data-uri') {
+      await copyDataUri(el);
+    } else if (formatId === 'standalone-html' && componentName) {
       const mode: Str = (cardModes[key] ?? 'auto') as Str;
       const isDark: Bool = mode === 'dark' || (mode === 'auto' && pageIsDark);
       const activeTheme: Str = (cardThemes[key] ?? '') as Str;
@@ -7419,8 +7855,12 @@
    * @returns A Svelte code snippet string
    */
   function codeSnippet(variantKey: Str, option: Str): Str {
-    if (!tagName) return '';
-    if (!variantKey) return `<${tagName}>${label}</${tagName}>`;
+    if (!tagName) {
+      return '';
+    }
+    if (!variantKey) {
+      return `<${tagName}>${label}</${tagName}>`;
+    }
     // Dotted key: show as nested prop syntax
     if (variantKey.includes('.')) {
       const [parent, child]: Str[] = variantKey.split('.');
@@ -7440,13 +7880,21 @@
    * @returns A placeholder value matching the type
    */
   function defaultForType(type: Str, accepts: Str): unknown {
-    if (type === 'Bool' || type === 'boolean') return false;
-    if (type === 'Num' || type === 'number') return 0;
-    if (type.endsWith('[]')) return ['example'];
+    if (type === 'Bool' || type === 'boolean') {
+      return false;
+    }
+    if (type === 'Num' || type === 'number') {
+      return 0;
+    }
+    if (type.endsWith('[]')) {
+      return ['example'];
+    }
     // Pick first accepted value if available
     if (accepts && accepts !== '—' && accepts.includes(', ')) {
       const [first]: Str[] = accepts.split(', ');
-      if (first) return first;
+      if (first) {
+        return first;
+      }
     }
     return 'example';
   }

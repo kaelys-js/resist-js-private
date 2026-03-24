@@ -53,7 +53,9 @@ let repoUrlCache: Str | null = null;
  * @returns GitHub repo URL or empty string if not available
  */
 function detectRepoUrl(): Str {
-  if (repoUrlCache !== null) return repoUrlCache;
+  if (repoUrlCache !== null) {
+    return repoUrlCache;
+  }
   try {
     const remote: Str = execSync('git remote get-url origin', {
       encoding: 'utf8',
@@ -144,7 +146,9 @@ function countTotalCommits(componentDir: Str): Num {
 function getChangelog(componentName: Str): { entries: ChangelogEntry[]; total: Num } {
   const cached: ChangelogEntry[] | undefined = cache.get(componentName);
   const cachedTotal: Num | undefined = totalCache.get(componentName);
-  if (cached && cachedTotal !== undefined) return { entries: cached, total: cachedTotal };
+  if (cached && cachedTotal !== undefined) {
+    return { entries: cached, total: cachedTotal };
+  }
 
   const uiSrcDir: Str = resolveUiSrcDir();
   const componentDir: Str = join(uiSrcDir, componentName) as Str;
@@ -164,7 +168,9 @@ function getChangelog(componentName: Str): { entries: ChangelogEntry[]; total: N
       { encoding: 'utf8', timeout: 10_000 },
     ).trim() as Str;
 
-    if (!output) return { entries: [], total: 0 as Num };
+    if (!output) {
+      return { entries: [], total: 0 as Num };
+    }
 
     const total: Num = countTotalCommits(componentDir);
 
@@ -173,7 +179,9 @@ function getChangelog(componentName: Str): { entries: ChangelogEntry[]; total: N
       .filter((record: Str): boolean => record.trim().length > 0)
       .map((record: Str): ChangelogEntry | null => {
         const parts: Str[] = record.trim().split(FIELD_SEP) as Str[];
-        if (parts.length < 5) return null;
+        if (parts.length < 5) {
+          return null;
+        }
         return {
           hash: (parts[0] ?? '') as Str,
           message: (parts[1] ?? '') as Str,
@@ -224,7 +232,9 @@ function computeDiffAnchor(componentName: Str, componentPath: Str): Str {
   try {
     const files: Str[] = readdirSync(componentDir) as Str[];
     const svelteFiles: Str[] = files.filter((f: Str): boolean => f.endsWith('.svelte'));
-    if (svelteFiles.length === 0) return '' as Str;
+    if (svelteFiles.length === 0) {
+      return '' as Str;
+    }
 
     /* Prefer the file matching the PascalCase directory name */
     const primaryName: Str = `${toPascalCase(componentName)}.svelte` as Str;

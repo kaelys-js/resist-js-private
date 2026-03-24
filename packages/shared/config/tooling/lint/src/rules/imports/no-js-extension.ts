@@ -36,11 +36,15 @@ function isExempt(filePath: string): boolean {
 function checkJsExtension(node: AstNode, context: VisitorContext): LintResult[] {
   const results: LintResult[] = [];
 
-  if (isExempt(context.file)) return results;
+  if (isExempt(context.file)) {
+    return results;
+  }
 
   const source = node.source as AstNode | undefined;
   const value: string | undefined = (source as { value?: string } | undefined)?.value;
-  if (!value) return results;
+  if (!value) {
+    return results;
+  }
 
   if (value.endsWith('.js')) {
     const fixedPath: string = value.replace(/\.js$/, '.ts');

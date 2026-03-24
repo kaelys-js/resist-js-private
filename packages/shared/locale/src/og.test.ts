@@ -23,7 +23,9 @@ describe('toOgLocale', () => {
   ] as const)('converts %s → %s', (input: Str, expected: Str) => {
     const result = toOgLocale(input);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(expected);
+    if (result.ok) {
+      expect(result.data).toBe(expected);
+    }
   });
 
   it('handles locales not in the original hardcoded list', () => {
@@ -38,13 +40,17 @@ describe('toOgLocale', () => {
   it('handles Russian locale dynamically', () => {
     const result = toOgLocale('ru');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('ru_RU');
+    if (result.ok) {
+      expect(result.data).toBe('ru_RU');
+    }
   });
 
   it('handles Arabic locale dynamically', () => {
     const result = toOgLocale('ar');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('ar_EG');
+    if (result.ok) {
+      expect(result.data).toBe('ar_EG');
+    }
   });
 
   it('output always matches xx_YY format', () => {
@@ -63,13 +69,17 @@ describe('toOgLocale', () => {
   it('returns LOCALE.INVALID_LOCALE for empty string', () => {
     const result = toOgLocale('');
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
+    if (!result.ok) {
+      expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
+    }
   });
 
   it('returns LOCALE.INVALID_LOCALE for invalid locale string', () => {
     const result = toOgLocale('not-a-locale-!!!');
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
+    if (!result.ok) {
+      expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
+    }
   });
 
   it('returns error for non-string input', () => {
@@ -80,6 +90,8 @@ describe('toOgLocale', () => {
   it('handles locale with existing region (e.g., en-GB)', () => {
     const result = toOgLocale('en-GB');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('en_GB');
+    if (result.ok) {
+      expect(result.data).toBe('en_GB');
+    }
   });
 });

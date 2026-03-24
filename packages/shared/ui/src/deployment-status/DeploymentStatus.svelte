@@ -33,7 +33,9 @@
   const validated: DeploymentStatusProps = $derived.by(() => {
     const rawProps: DeploymentStatusProps = stripSvelteProps(allProps);
     const result = safeParse(DeploymentStatusPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as DeploymentStatusProps;
   });

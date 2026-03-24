@@ -33,7 +33,9 @@
   const validated: AnimatedNumberProps = $derived.by(() => {
     const rawProps: AnimatedNumberProps = stripSvelteProps(allProps);
     const result = safeParse(AnimatedNumberPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as AnimatedNumberProps;
   });

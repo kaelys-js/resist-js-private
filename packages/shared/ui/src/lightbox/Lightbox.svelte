@@ -33,7 +33,9 @@
   const validated: LightboxProps = $derived.by(() => {
     const rawProps: LightboxProps = stripSvelteProps(allProps);
     const result = safeParse(LightboxPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as LightboxProps;
   });

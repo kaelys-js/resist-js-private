@@ -151,7 +151,9 @@ export function releaseSimulator(udid: Str): void {
  */
 export async function removeFromPool(udid: Str): Promise<void> {
   const entry: PoolEntry | undefined = poolEntries.get(udid);
-  if (!entry) return;
+  if (!entry) {
+    return;
+  }
 
   if (entry.bootedByPool) {
     await shutdownSimulator(udid);
@@ -221,7 +223,9 @@ export async function drainPool(): Promise<void> {
 function countInUse(): Num {
   let count: Num = 0 as Num;
   for (const entry of poolEntries.values()) {
-    if (entry.inUse) count = (count + 1) as Num;
+    if (entry.inUse) {
+      count = (count + 1) as Num;
+    }
   }
   return count;
 }

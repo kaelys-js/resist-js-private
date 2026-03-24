@@ -149,7 +149,9 @@ export function stopDebugProxy(): Bool {
  * @returns `true` if proxy process exists and hasn't exited
  */
 export function isProxyRunning(): Bool {
-  if (!proxyProcess) return false as Bool;
+  if (!proxyProcess) {
+    return false as Bool;
+  }
   return (proxyProcess.exitCode === null) as Bool;
 }
 
@@ -183,7 +185,9 @@ export function getProxyPort(): Num {
 export function parseInspectablePages(json: Str): InspectablePage[] {
   try {
     const parsed: unknown = JSON.parse(json as string);
-    if (!Array.isArray(parsed)) return [];
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
 
     return parsed
       .filter((entry: unknown): entry is Record<string, unknown> => {
@@ -213,11 +217,15 @@ export function parseInspectablePages(json: Str): InspectablePage[] {
  * const isolatePage = pages.find(p => p.url.includes('/isolate/'));
  */
 export async function getInspectablePages(port: Num = proxyPort): Promise<InspectablePage[]> {
-  if (port === 0) return [];
+  if (port === 0) {
+    return [];
+  }
 
   try {
     const response: Response = await fetch(`http://localhost:${port}/json`);
-    if (!response.ok) return [];
+    if (!response.ok) {
+      return [];
+    }
     const text: Str = (await response.text()) as Str;
     return parseInspectablePages(text);
   } catch {

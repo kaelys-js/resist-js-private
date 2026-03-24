@@ -20,7 +20,9 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
  */
 function getReturnTypeInsertPos(funcNode: AstNode, content: string): number {
   const params = funcNode.params as AstNode[] | undefined;
-  if (!params) return -1;
+  if (!params) {
+    return -1;
+  }
 
   // Find the closing paren after the last param
   const lastParam: AstNode | undefined = params.at(-1);
@@ -28,7 +30,9 @@ function getReturnTypeInsertPos(funcNode: AstNode, content: string): number {
 
   // Search for ')' after the last param
   const parenIdx: number = content.indexOf(')', searchStart);
-  if (parenIdx === -1) return -1;
+  if (parenIdx === -1) {
+    return -1;
+  }
 
   return parenIdx + 1;
 }
@@ -41,7 +45,9 @@ const rule: TypeScriptRule = {
   visitor: {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      if (node.returnType) return results;
+      if (node.returnType) {
+        return results;
+      }
 
       const funcName: string = ((node.id as AstNode | undefined)?.name as string) ?? '<anonymous>';
       const insertPos: number = getReturnTypeInsertPos(node, context.content);
@@ -65,7 +71,9 @@ const rule: TypeScriptRule = {
 
     ArrowFunctionExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      if (node.returnType) return results;
+      if (node.returnType) {
+        return results;
+      }
 
       const insertPos: number = getReturnTypeInsertPos(node, context.content);
 

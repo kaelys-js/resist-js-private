@@ -33,7 +33,9 @@
   const validated: SkeletonTextProps = $derived.by(() => {
     const rawProps: SkeletonTextProps = stripSvelteProps(allProps);
     const result = safeParse(SkeletonTextPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as SkeletonTextProps;
   });

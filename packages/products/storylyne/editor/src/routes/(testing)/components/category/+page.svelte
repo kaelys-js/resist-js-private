@@ -141,18 +141,32 @@
 
   /** Human-readable label for the current view mode. */
   const viewModeLabel: Str = $derived.by((): Str => {
-    if (viewMode === 'table') return 'Table' as Str;
-    if (viewMode === 'compact') return 'Dense' as Str;
-    if (viewMode === 'list') return 'List' as Str;
+    if (viewMode === 'table') {
+      return 'Table' as Str;
+    }
+    if (viewMode === 'compact') {
+      return 'Dense' as Str;
+    }
+    if (viewMode === 'list') {
+      return 'List' as Str;
+    }
     return 'Grid' as Str;
   });
 
   /** Human-readable label for the active sort, or empty when default. */
   const sortLabel: Str = $derived.by((): Str => {
-    if (sortField === 'name') return 'Category' as Str;
-    if (sortField === 'count') return 'Components' as Str;
-    if (sortField === 'description') return 'Description' as Str;
-    if (sortField === 'components') return 'Sample Components' as Str;
+    if (sortField === 'name') {
+      return 'Category' as Str;
+    }
+    if (sortField === 'count') {
+      return 'Components' as Str;
+    }
+    if (sortField === 'description') {
+      return 'Description' as Str;
+    }
+    if (sortField === 'components') {
+      return 'Sample Components' as Str;
+    }
     return '' as Str;
   });
 
@@ -189,7 +203,9 @@
    * @returns Numeric comparison value
    */
   function getSortValue(a: CategoryGroup, b: CategoryGroup): Num {
-    if (sortField === 'name') return a.label.localeCompare(b.label) as Num;
+    if (sortField === 'name') {
+      return a.label.localeCompare(b.label) as Num;
+    }
     if (sortField === 'count') {
       return (a.components.length - b.components.length) as Num;
     }
@@ -224,7 +240,9 @@
               .toLowerCase()
               .includes(q as string),
           );
-          if (nameMatch) return g;
+          if (nameMatch) {
+            return g;
+          }
           if (matchedComponents.length > 0) {
             return { ...g, components: matchedComponents };
           }
@@ -376,7 +394,9 @@
       searchQuery = '' as Str;
       activeCategories = [];
       confirmingReset = false as Bool;
-      if (confirmResetTimer) clearTimeout(confirmResetTimer);
+      if (confirmResetTimer) {
+        clearTimeout(confirmResetTimer);
+      }
     } else {
       confirmingReset = true as Bool;
       confirmResetTimer = setTimeout((): void => {

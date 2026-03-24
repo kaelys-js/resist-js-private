@@ -53,7 +53,9 @@ type MaximizedLocaleData = v.InferOutput<typeof MaximizedLocaleDataSchema>;
  */
 export function toOgLocale(locale: Str): Result<Str> {
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
-  if (!localeResult.ok) return localeResult;
+  if (!localeResult.ok) {
+    return localeResult;
+  }
 
   try {
     const intlLocale: Intl.Locale = new Intl.Locale(localeResult.data);
@@ -62,7 +64,9 @@ export function toOgLocale(locale: Str): Result<Str> {
       language: maximized.language,
       region: maximized.region,
     });
-    if (!localeDataResult.ok) return localeDataResult;
+    if (!localeDataResult.ok) {
+      return localeDataResult;
+    }
     const { language, region }: MaximizedLocaleData = localeDataResult.data;
     if (!region) {
       return err(ERRORS.LOCALE.INVALID_LOCALE, `Cannot resolve region for locale: ${locale}`);

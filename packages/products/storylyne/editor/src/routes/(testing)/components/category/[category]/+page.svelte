@@ -148,19 +148,35 @@
 
   /** Human-readable label for the current view mode. */
   const viewModeLabel: Str = $derived.by((): Str => {
-    if (viewMode === 'compact') return 'Dense' as Str;
-    if (viewMode === 'list') return 'List' as Str;
-    if (viewMode === 'table') return 'Table' as Str;
+    if (viewMode === 'compact') {
+      return 'Dense' as Str;
+    }
+    if (viewMode === 'list') {
+      return 'List' as Str;
+    }
+    if (viewMode === 'table') {
+      return 'Table' as Str;
+    }
     return 'Grid' as Str;
   });
 
   /** Human-readable label for the active sort, or empty when default. */
   const sortLabel: Str = $derived.by((): Str => {
-    if (sortField === 'name') return 'Name' as Str;
-    if (sortField === 'tag-count') return 'Tags' as Str;
-    if (sortField === 'description') return 'Desc' as Str;
-    if (sortField === 'compatibility') return 'Compat' as Str;
-    if (sortField === 'status') return 'Status' as Str;
+    if (sortField === 'name') {
+      return 'Name' as Str;
+    }
+    if (sortField === 'tag-count') {
+      return 'Tags' as Str;
+    }
+    if (sortField === 'description') {
+      return 'Desc' as Str;
+    }
+    if (sortField === 'compatibility') {
+      return 'Compat' as Str;
+    }
+    if (sortField === 'status') {
+      return 'Status' as Str;
+    }
     return '' as Str;
   });
 
@@ -172,7 +188,9 @@
    * @returns Numeric comparison value
    */
   function getSortValue(a: Str, b: Str): Num {
-    if (sortField === 'name') return a.localeCompare(b) as Num;
+    if (sortField === 'name') {
+      return a.localeCompare(b) as Num;
+    }
     if (sortField === 'tag-count') {
       return ((metaByName.get(a)?.tags?.length ?? 0) -
         (metaByName.get(b)?.tags?.length ?? 0)) as Num;
@@ -207,9 +225,13 @@
       const q: Str = searchQuery.toLowerCase() as Str;
       names = names.filter((n: Str): boolean => {
         const label: Str = toTitle(n).toLowerCase() as Str;
-        if (label.includes(q)) return true;
+        if (label.includes(q)) {
+          return true;
+        }
         const meta: LensMeta | undefined = metaByName.get(n);
-        if (meta?.tags?.some((t: Str): boolean => t.toLowerCase().includes(q))) return true;
+        if (meta?.tags?.some((t: Str): boolean => t.toLowerCase().includes(q))) {
+          return true;
+        }
         const desc: Str = getDescription(n).toLowerCase() as Str;
         return desc.includes(q);
       });
@@ -260,7 +282,9 @@
       .map(([, v]: [Str, Str]): Str => v);
     for (const src of sources) {
       const desc: Str | undefined = extractComponentDescription(src);
-      if (desc) return desc;
+      if (desc) {
+        return desc;
+      }
     }
     return '' as Str;
   }
@@ -375,7 +399,9 @@
       sortField = '' as Str;
       sortDir = 'asc';
       confirmingReset = false as Bool;
-      if (confirmResetTimer) clearTimeout(confirmResetTimer);
+      if (confirmResetTimer) {
+        clearTimeout(confirmResetTimer);
+      }
     } else {
       confirmingReset = true as Bool;
       confirmResetTimer = setTimeout((): void => {

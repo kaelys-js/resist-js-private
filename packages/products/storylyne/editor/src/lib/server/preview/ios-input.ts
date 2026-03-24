@@ -226,10 +226,14 @@ const KEY_MAP: Record<Str, Str> = {
  */
 function mapKeyToSimctl(key: Str): Str {
   const mapped: Str | undefined = KEY_MAP[key];
-  if (mapped !== undefined) return mapped;
+  if (mapped !== undefined) {
+    return mapped;
+  }
 
   /* Single character keys are passed as-is */
-  if ((key as string).length === 1) return key;
+  if ((key as string).length === 1) {
+    return key;
+  }
 
   /* Unknown keys are passed through */
   return key;

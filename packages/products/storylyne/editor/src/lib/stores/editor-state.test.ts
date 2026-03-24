@@ -39,7 +39,9 @@ describe('EditorStore', () => {
 
   it('store.app has correct defaults', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     expect(store.app.appName).toBe(APP_NAME);
@@ -51,7 +53,9 @@ describe('EditorStore', () => {
 
   it('store.features has all 15 flags true by default', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     expect(store.features.settings).toBe(true);
@@ -75,7 +79,9 @@ describe('EditorStore', () => {
 
   it("setTheme('midnight') updates store.app.theme", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setTheme('midnight');
@@ -85,7 +91,9 @@ describe('EditorStore', () => {
 
   it("setTheme('invalid') returns error Result, state unchanged", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setTheme('invalid');
@@ -97,7 +105,9 @@ describe('EditorStore', () => {
 
   it("setMode('dark') updates store.app.mode", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setMode('dark');
@@ -107,7 +117,9 @@ describe('EditorStore', () => {
 
   it("setMode('invalid') returns error Result", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setMode('invalid');
@@ -119,7 +131,9 @@ describe('EditorStore', () => {
 
   it("setLocale('ja') updates store.app.locale", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setLocale('ja');
@@ -129,7 +143,9 @@ describe('EditorStore', () => {
 
   it("setLocale('xx') returns error Result", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setLocale('xx');
@@ -141,7 +157,9 @@ describe('EditorStore', () => {
 
   it("setAppName('My Editor') updates store.app.appName", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setAppName('My Editor');
@@ -151,7 +169,9 @@ describe('EditorStore', () => {
 
   it("setAppName('') returns error Result (minLength 1)", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setAppName('');
@@ -163,7 +183,9 @@ describe('EditorStore', () => {
 
   it('setSidebarOpen(false) updates store.app.sidebarOpen', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setSidebarOpen(false);
@@ -175,7 +197,9 @@ describe('EditorStore', () => {
 
   it("setFeature('settings', false) updates store.features.settings", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setFeature('settings', false);
@@ -185,7 +209,9 @@ describe('EditorStore', () => {
 
   it("setFeature('nonexistent', false) returns error Result", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setFeature('nonexistent', false);
@@ -196,7 +222,9 @@ describe('EditorStore', () => {
 
   it("setSubscriptionPlan('free') sets plan and disables 10 feature flags", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setSubscriptionPlan('free');
@@ -223,7 +251,9 @@ describe('EditorStore', () => {
 
   it("setSubscriptionPlan('starter') sets plan and disables 3 feature flags", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setSubscriptionPlan('starter');
@@ -241,7 +271,9 @@ describe('EditorStore', () => {
 
   it("setSubscriptionPlan('pro') sets plan and enables all flags", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     // First switch to free to disable some
@@ -259,7 +291,9 @@ describe('EditorStore', () => {
 
   it("setSubscriptionPlan('enterprise') enables all flags", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setSubscriptionPlan('enterprise');
@@ -270,7 +304,9 @@ describe('EditorStore', () => {
 
   it("setSubscriptionPlan('invalid') returns error, state unchanged", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const setResult = store.setSubscriptionPlan('invalid');
@@ -280,7 +316,9 @@ describe('EditorStore', () => {
 
   it("after setSubscriptionPlan('free'), individual setFeature still works", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     store.setSubscriptionPlan('free');
@@ -294,7 +332,9 @@ describe('EditorStore', () => {
 
   it('setSubscriptionPlan persists to localStorage', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     store.setSubscriptionPlan('starter');
@@ -311,7 +351,9 @@ describe('EditorStore', () => {
 
   it(`save() writes to localStorage key '${storageKey('editor-state')}'`, () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     const saveResult = store.save();
@@ -346,7 +388,9 @@ describe('EditorStore', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
 
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     expect(store.app.appName).toBe('Custom');
@@ -362,7 +406,9 @@ describe('EditorStore', () => {
     localStorage.setItem(STORAGE_KEY, 'not-valid-json{{{');
 
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     // Should fall back to defaults when localStorage is corrupted
@@ -375,7 +421,9 @@ describe('EditorStore', () => {
 
   it('setTheme() triggers auto-save (localStorage updated)', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     store.setTheme('midnight');
@@ -406,7 +454,9 @@ describe('EditorStore', () => {
     ];
     for (const theme of themes) {
       const result = createEditorStore();
-      if (!result.ok) throw new Error('Store creation failed');
+      if (!result.ok) {
+        throw new Error('Store creation failed');
+      }
       const setResult = result.data.setTheme(theme);
       expect(setResult.ok, `theme '${theme}' should be accepted`).toBe(true);
       expect(result.data.app.theme).toBe(theme);
@@ -417,7 +467,9 @@ describe('EditorStore', () => {
 
   it("setMode('light') updates store.app.mode", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const setResult = result.data.setMode('light');
     expect(setResult.ok).toBe(true);
     expect(result.data.app.mode).toBe('light');
@@ -425,7 +477,9 @@ describe('EditorStore', () => {
 
   it("setMode('system') updates store.app.mode", () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     result.data.setMode('dark');
     const setResult = result.data.setMode('system');
     expect(setResult.ok).toBe(true);
@@ -438,7 +492,9 @@ describe('EditorStore', () => {
     const locales: readonly Str[] = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es'];
     for (const locale of locales) {
       const result = createEditorStore();
-      if (!result.ok) throw new Error('Store creation failed');
+      if (!result.ok) {
+        throw new Error('Store creation failed');
+      }
       const setResult = result.data.setLocale(locale);
       expect(setResult.ok, `locale '${locale}' should be accepted`).toBe(true);
       expect(result.data.app.locale).toBe(locale);
@@ -449,7 +505,9 @@ describe('EditorStore', () => {
 
   it('setAppName() accepts unicode characters', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const setResult = result.data.setAppName('ウェブフォージ');
     expect(setResult.ok).toBe(true);
     expect(result.data.app.appName).toBe('ウェブフォージ');
@@ -457,7 +515,9 @@ describe('EditorStore', () => {
 
   it('setAppName() accepts single character', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const setResult = result.data.setAppName('X');
     expect(setResult.ok).toBe(true);
     expect(result.data.app.appName).toBe('X');
@@ -467,7 +527,9 @@ describe('EditorStore', () => {
 
   it('setSidebarOpen(true) on already-true is ok', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const setResult = result.data.setSidebarOpen(true);
     expect(setResult.ok).toBe(true);
     expect(result.data.app.sidebarOpen).toBe(true);
@@ -494,7 +556,9 @@ describe('EditorStore', () => {
       'appNameInSidebar',
     ];
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
 
     for (const flag of flags) {
@@ -512,7 +576,9 @@ describe('EditorStore', () => {
 
   it('save/load round-trip preserves non-default values', () => {
     const r1 = createEditorStore();
-    if (!r1.ok) throw new Error('Store creation failed');
+    if (!r1.ok) {
+      throw new Error('Store creation failed');
+    }
     const s1 = r1.data;
 
     s1.setAppName('Custom');
@@ -525,7 +591,9 @@ describe('EditorStore', () => {
 
     // New store loads from localStorage
     const r2 = createEditorStore();
-    if (!r2.ok) throw new Error('Store creation failed');
+    if (!r2.ok) {
+      throw new Error('Store creation failed');
+    }
     const s2 = r2.data;
 
     expect(s2.app.appName).toBe('Custom');
@@ -540,7 +608,9 @@ describe('EditorStore', () => {
   it('load() with empty localStorage keeps defaults', () => {
     storage.clear();
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     expect(result.data.app.appName).toBe(APP_NAME);
     expect(result.data.app.mode).toBe('system');
   });
@@ -549,13 +619,17 @@ describe('EditorStore', () => {
 
   it('createEditorStore() resets state to defaults (ignoring stale module state)', () => {
     const r1 = createEditorStore();
-    if (!r1.ok) throw new Error('Store creation failed');
+    if (!r1.ok) {
+      throw new Error('Store creation failed');
+    }
     r1.data.setTheme('midnight');
     r1.data.setLocale('ja');
     storage.clear(); // clear so load() doesn't re-hydrate
 
     const r2 = createEditorStore();
-    if (!r2.ok) throw new Error('Store creation failed');
+    if (!r2.ok) {
+      throw new Error('Store creation failed');
+    }
     expect(r2.data.app.theme).toBe('');
     expect(r2.data.app.locale).toBe('en');
   });

@@ -33,7 +33,9 @@
   const validated: CrossSellProps = $derived.by(() => {
     const rawProps: CrossSellProps = stripSvelteProps(allProps);
     const result = safeParse(CrossSellPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as CrossSellProps;
   });

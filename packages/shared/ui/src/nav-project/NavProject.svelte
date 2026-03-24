@@ -38,7 +38,9 @@
   const validated: NavProjectProps = $derived.by(() => {
     const rawProps: NavProjectProps = stripSvelteProps(restProps);
     const result = safeParse(NavProjectPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as NavProjectProps;
   });

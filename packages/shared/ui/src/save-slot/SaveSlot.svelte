@@ -33,7 +33,9 @@
   const validated: SaveSlotProps = $derived.by(() => {
     const rawProps: SaveSlotProps = stripSvelteProps(allProps);
     const result = safeParse(SaveSlotPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as SaveSlotProps;
   });

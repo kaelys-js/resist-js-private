@@ -33,7 +33,9 @@
   const validated: SectionProps = $derived.by(() => {
     const rawProps: SectionProps = stripSvelteProps(allProps);
     const result = safeParse(SectionPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as SectionProps;
   });

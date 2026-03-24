@@ -50,7 +50,9 @@ const filenameResult: Result<Filename> = safeParse(
   FilenameSchema,
   defaults.tooling.paths.configFilename,
 );
-if (!filenameResult.ok) throw filenameResult.error; // integration boundary: module initialization requires valid filename
+if (!filenameResult.ok) {
+  throw filenameResult.error;
+} // integration boundary: module initialization requires valid filename
 // cast safe: safeParse validates and narrows to Filename
 const DEFAULT_CONFIG_FILENAME: Filename = filenameResult.data;
 
@@ -85,7 +87,9 @@ let instance: Result<DeepReadonly<CoreConfig>> = err(ERRORS.CONFIG.NOT_FOUND);
  * ```
  */
 export async function loadConfig(): Promise<Result<DeepReadonly<CoreConfig>>> {
-  if (instance.ok) return instance;
+  if (instance.ok) {
+    return instance;
+  }
 
   if (!nodePath) {
     // Non-Node runtimes (browser, CF Worker) can't discover config files from
@@ -102,14 +106,20 @@ export async function loadConfig(): Promise<Result<DeepReadonly<CoreConfig>>> {
   }
 
   const rootResult: Result<Path> = findWorkspaceRoot();
-  if (!rootResult.ok) return rootResult;
+  if (!rootResult.ok) {
+    return rootResult;
+  }
 
   const configPathResult: Result<Path> = joinPath([rootResult.data, DEFAULT_CONFIG_FILENAME]);
-  if (!configPathResult.ok) return configPathResult;
+  if (!configPathResult.ok) {
+    return configPathResult;
+  }
   const configPath: Path = configPathResult.data;
 
   const existsResult: Result<Bool> = pathExists(configPath);
-  if (!existsResult.ok) return existsResult;
+  if (!existsResult.ok) {
+    return existsResult;
+  }
   if (!existsResult.data) {
     // Framework-internal: config/core has no access to CLI locale/styling system
     log.warn(
@@ -266,10 +276,14 @@ export function configExists(): Result<Bool> {
     return ok(BoolSchema, false);
   }
   const rootResult: Result<Path> = findWorkspaceRoot();
-  if (!rootResult.ok) return rootResult;
+  if (!rootResult.ok) {
+    return rootResult;
+  }
 
   const configPathResult: Result<Path> = joinPath([rootResult.data, DEFAULT_CONFIG_FILENAME]);
-  if (!configPathResult.ok) return configPathResult;
+  if (!configPathResult.ok) {
+    return configPathResult;
+  }
 
   return pathExists(configPathResult.data);
 }
@@ -305,7 +319,9 @@ export function configExists(): Result<Bool> {
  */
 export function defineConfig(config: Partial<CoreConfig>): Partial<CoreConfig> {
   const result: Result<Partial<CoreConfig>> = safeParse(v.partial(CoreConfigObjectSchema), config);
-  if (!result.ok) throw result.error; // integration boundary: config file validation
+  if (!result.ok) {
+    throw result.error;
+  } // integration boundary: config file validation
   return result.data as Partial<CoreConfig>; // cast safe: safeParse validates
 }
 
@@ -336,6 +352,8 @@ export function defineConfig(config: Partial<CoreConfig>): Partial<CoreConfig> {
  */
 export function defineProductConfig(config: ProductConfig): ProductConfig {
   const result: Result<ProductConfig> = safeParse(ProductConfigSchema, config);
-  if (!result.ok) throw result.error; // integration boundary: config file validation
+  if (!result.ok) {
+    throw result.error;
+  } // integration boundary: config file validation
   return result.data;
 }

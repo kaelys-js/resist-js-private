@@ -81,7 +81,9 @@ export class PageDirtyDetector implements DirtyDetector {
    * Idempotent — calling multiple times only injects once.
    */
   async install(): Promise<void> {
-    if (this.installed) return;
+    if (this.installed) {
+      return;
+    }
     this.installed = true;
 
     await this.page.evaluate((): void => {
@@ -122,7 +124,9 @@ export class PageDirtyDetector implements DirtyDetector {
    * @returns True if page needs re-capture
    */
   async isDirty(): Promise<boolean> {
-    if (this.page.isClosed()) return true;
+    if (this.page.isClosed()) {
+      return true;
+    }
 
     try {
       const dirty: unknown = await this.page.evaluate((): boolean => {

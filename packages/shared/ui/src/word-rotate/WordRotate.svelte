@@ -33,7 +33,9 @@
   const validated: WordRotateProps = $derived.by(() => {
     const rawProps: WordRotateProps = stripSvelteProps(allProps);
     const result = safeParse(WordRotatePropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as WordRotateProps;
   });

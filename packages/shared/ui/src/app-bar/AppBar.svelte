@@ -33,7 +33,9 @@
   const validated: AppBarProps = $derived.by(() => {
     const rawProps: AppBarProps = stripSvelteProps(allProps);
     const result = safeParse(AppBarPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as AppBarProps;
   });

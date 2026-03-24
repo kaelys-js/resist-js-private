@@ -121,7 +121,9 @@ export class CdpScreencastProvider {
    * @param quality - JPEG quality (0-100)
    */
   async start(quality: Num): Promise<void> {
-    if (this.running) return;
+    if (this.running) {
+      return;
+    }
 
     this.running = true;
     this.frames = 0 as Num;
@@ -148,7 +150,9 @@ export class CdpScreencastProvider {
    * Sends `Page.stopScreencast` and removes the frame event listener.
    */
   async stop(): Promise<void> {
-    if (!this.running) return;
+    if (!this.running) {
+      return;
+    }
 
     this.running = false;
     this.frames = 0 as Num;
@@ -198,7 +202,9 @@ export class CdpScreencastProvider {
    */
   private startCursorPolling(): void {
     this.cursorTimerId = setInterval(async (): Promise<void> => {
-      if (!this.running) return;
+      if (!this.running) {
+        return;
+      }
 
       await this.pollCursor();
     }, CURSOR_POLL_MS as number);

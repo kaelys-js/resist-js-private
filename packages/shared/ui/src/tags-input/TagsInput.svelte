@@ -33,7 +33,9 @@
   const validated: TagsInputProps = $derived.by(() => {
     const rawProps: TagsInputProps = stripSvelteProps(allProps);
     const result = safeParse(TagsInputPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as TagsInputProps;
   });

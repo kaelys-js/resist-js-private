@@ -186,7 +186,9 @@
       badge,
       children,
     });
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     return result.data as AvatarProps;
   });
 
@@ -198,8 +200,12 @@
    */
   function getInitials(fullName: Str): Str {
     const parts: Str[] = (fullName as string).trim().split(/\s+/) as Str[];
-    if (parts.length === 0) return '' as Str;
-    if (parts.length === 1) return (parts[0] as string).charAt(0).toUpperCase() as Str;
+    if (parts.length === 0) {
+      return '' as Str;
+    }
+    if (parts.length === 1) {
+      return (parts[0] as string).charAt(0).toUpperCase() as Str;
+    }
     return ((parts[0] as string).charAt(0).toUpperCase() +
       (parts.at(-1) as string).charAt(0).toUpperCase()) as Str;
   }
@@ -233,18 +239,30 @@
   /** Explicit border-radius override class — takes precedence over `shape` when set. */
   const radiusClass: Str = $derived.by((): Str => {
     const r: typeof validated.radius = validated.radius;
-    if (r === 'none') return 'rounded-none' as Str;
-    if (r === 'sm') return 'rounded-sm' as Str;
-    if (r === 'md') return 'rounded-md' as Str;
-    if (r === 'lg') return 'rounded-lg' as Str;
+    if (r === 'none') {
+      return 'rounded-none' as Str;
+    }
+    if (r === 'sm') {
+      return 'rounded-sm' as Str;
+    }
+    if (r === 'md') {
+      return 'rounded-md' as Str;
+    }
+    if (r === 'lg') {
+      return 'rounded-lg' as Str;
+    }
     // 'full' is the default — don't override, let shape handle it
     return '' as Str;
   });
 
   /** Status indicator color. */
   const statusColor: Str = $derived.by((): Str => {
-    if (validated.active === 'active') return 'bg-emerald-500' as Str;
-    if (validated.active === 'inactive') return 'bg-gray-400' as Str;
+    if (validated.active === 'active') {
+      return 'bg-emerald-500' as Str;
+    }
+    if (validated.active === 'inactive') {
+      return 'bg-gray-400' as Str;
+    }
     return '' as Str;
   });
 </script>

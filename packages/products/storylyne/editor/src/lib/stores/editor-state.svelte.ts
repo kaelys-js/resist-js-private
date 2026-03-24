@@ -144,7 +144,9 @@ export type EditorStore = {
  * @returns `Result<Void>` — ok on success, error if serialization or write fails
  */
 function save(): Result<Void> {
-  if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
+  if (typeof window === 'undefined') {
+    return okUnchecked<Void>(undefined);
+  }
   try {
     const data = { app: { ..._app }, features: { ..._features } };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -161,14 +163,20 @@ function save(): Result<Void> {
  *   error if JSON parse or schema validation fails
  */
 function load(): Result<Void> {
-  if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
+  if (typeof window === 'undefined') {
+    return okUnchecked<Void>(undefined);
+  }
   try {
     const raw: Str | null = localStorage.getItem(STORAGE_KEY);
-    if (raw === null) return okUnchecked<Void>(undefined);
+    if (raw === null) {
+      return okUnchecked<Void>(undefined);
+    }
 
     const parsed: unknown = JSON.parse(raw);
     const result = safeParse(EditorStateSchema, parsed);
-    if (!result.ok) return result;
+    if (!result.ok) {
+      return result;
+    }
 
     _app = { ...result.data.app };
     _features = { ...result.data.features };
@@ -191,7 +199,9 @@ function load(): Result<Void> {
 function setAppName(name: Str): Result<Void> {
   const nameSchema = v.pipe(v.string(), v.minLength(1));
   const result = safeParse(nameSchema, name);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
 
   _app = { ..._app, appName: result.data };
   return save();
@@ -206,12 +216,16 @@ function setAppName(name: Str): Result<Void> {
 function setTheme(theme: Str): Result<Void> {
   const themeSchema = v.picklist([...SUPPORTED_THEMES]);
   const result = safeParse(themeSchema, theme);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
 
   _app = { ..._app, theme: result.data };
   // Persist theme to cookie so hooks.server.ts can inject it via transformPageChunk
   // to prevent theme flash during hydration.
-  if (typeof document !== 'undefined') setPreferenceCookie(STORAGE_PREFIX, 'theme', result.data);
+  if (typeof document !== 'undefined') {
+    setPreferenceCookie(STORAGE_PREFIX, 'theme', result.data);
+  }
   return save();
 }
 
@@ -224,7 +238,9 @@ function setTheme(theme: Str): Result<Void> {
 function setMode(mode: Str): Result<Void> {
   const modeSchema = v.picklist([...SUPPORTED_MODES]);
   const result = safeParse(modeSchema, mode);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
 
   _app = { ..._app, mode: result.data };
   return save();
@@ -239,7 +255,9 @@ function setMode(mode: Str): Result<Void> {
 function setLocale(locale: Str): Result<Void> {
   const localeSchema = v.picklist([...SUPPORTED_LOCALES]);
   const result = safeParse(localeSchema, locale);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
 
   _app = { ..._app, locale: result.data };
   return save();
@@ -253,7 +271,9 @@ function setLocale(locale: Str): Result<Void> {
  */
 function setSidebarOpen(open: Bool): Result<Void> {
   const result = safeParse(v.boolean(), open);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
 
   _app = { ..._app, sidebarOpen: result.data };
   return save();
@@ -268,7 +288,9 @@ function setSidebarOpen(open: Bool): Result<Void> {
 function setUserName(name: Str): Result<Void> {
   const nameSchema = v.pipe(v.string(), v.minLength(1));
   const result = safeParse(nameSchema, name);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
 
   _app = { ..._app, userName: result.data };
   return save();
@@ -282,7 +304,9 @@ function setUserName(name: Str): Result<Void> {
  */
 function setUserEmail(email: Str): Result<Void> {
   const result = safeParse(v.string(), email);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
 
   _app = { ..._app, userEmail: result.data };
   return save();
@@ -296,7 +320,9 @@ function setUserEmail(email: Str): Result<Void> {
  */
 function setUserAvatar(url: Str): Result<Void> {
   const result = safeParse(v.string(), url);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
 
   _app = { ..._app, userAvatar: result.data };
   return save();
@@ -311,7 +337,9 @@ function setUserAvatar(url: Str): Result<Void> {
 function setMockDataDelay(ms: Num): Result<Void> {
   const msSchema = v.pipe(v.number(), v.minValue(0), v.maxValue(10_000));
   const result = safeParse(msSchema, ms);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
 
   _app = { ..._app, mockDataDelay: result.data };
   return save();
@@ -326,7 +354,9 @@ function setMockDataDelay(ms: Num): Result<Void> {
 function setSubscriptionPlan(plan: Str): Result<Void> {
   const planSchema = v.picklist([...SUPPORTED_PLANS]);
   const result = safeParse(planSchema, plan);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
 
   _app = { ..._app, subscriptionPlan: result.data };
   _features = applyPlanPreset(result.data);
@@ -346,7 +376,9 @@ function setFeature(flag: Str, enabled: Bool): Result<Void> {
   }
 
   const boolResult = safeParse(v.boolean(), enabled);
-  if (!boolResult.ok) return boolResult;
+  if (!boolResult.ok) {
+    return boolResult;
+  }
 
   _features = { ..._features, [flag]: boolResult.data };
   return save();
@@ -425,7 +457,9 @@ let _singleton: EditorStore | null = null;
  */
 export function initEditorStore(): EditorStore {
   const result = createEditorStore();
-  if (!result.ok) throw new Error(`EditorStore creation failed: ${result.error.message}`);
+  if (!result.ok) {
+    throw new Error(`EditorStore creation failed: ${result.error.message}`);
+  }
   _singleton = result.data;
   return _singleton;
 }

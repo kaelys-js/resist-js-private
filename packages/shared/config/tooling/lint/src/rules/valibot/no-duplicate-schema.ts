@@ -16,7 +16,10 @@ const EXEMPT_PATTERNS: readonly RegExp[] = [/\.test\.ts$/, /\.spec\.ts$/, /schem
 const FIELD_MAP: Map<string, Set<string>> = new Map();
 
 /** Store the first occurrence location for reporting. */
-const FIELD_LOCATIONS: Map<string, { file: string; line: number; column: number }[]> = new Map();
+const FIELD_LOCATIONS: Map<
+  string,
+  Array<{ file: string; line: number; column: number }>
+> = new Map();
 
 /**
  * Normalize schema text by stripping whitespace for comparison.
@@ -36,10 +39,14 @@ const rule: TypeScriptRule = {
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
-      if (EXEMPT_PATTERNS.some((p: RegExp) => p.test(context.file))) return [];
+      if (EXEMPT_PATTERNS.some((p: RegExp) => p.test(context.file))) {
+        return [];
+      }
 
       const callee = node.callee as AstNode | undefined;
-      if (!callee) return [];
+      if (!callee) {
+        return [];
+      }
 
       if (callee.type !== 'StaticMemberExpression' && callee.type !== 'MemberExpression') {
         return [];
@@ -49,29 +56,47 @@ const rule: TypeScriptRule = {
       const property = callee.property as AstNode | undefined;
       const propName: string = (property?.name as string) ?? '';
 
-      if (propName !== 'strictObject') return [];
-      if (!context.isImportedFrom((object?.name as string) ?? '', 'valibot')) return [];
+      if (propName !== 'strictObject') {
+        return [];
+      }
+      if (!context.isImportedFrom((object?.name as string) ?? '', 'valibot')) {
+        return [];
+      }
 
       const args = node.arguments as AstNode[] | undefined;
-      if (!args || args.length === 0) return [];
+      if (!args || args.length === 0) {
+        return [];
+      }
 
       const [schemaObj] = args;
-      if (schemaObj.type !== 'ObjectExpression') return [];
+      if (schemaObj.type !== 'ObjectExpression') {
+        return [];
+      }
 
       const properties = schemaObj.properties as AstNode[] | undefined;
-      if (!properties) return [];
+      if (!properties) {
+        return [];
+      }
 
       for (const prop of properties) {
-        if (prop.type === 'SpreadElement') continue;
+        if (prop.type === 'SpreadElement') {
+          continue;
+        }
 
         const key = prop.key as AstNode | undefined;
-        if (!key) continue;
+        if (!key) {
+          continue;
+        }
 
         const keyName: string = (key.name as string) ?? '';
-        if (!keyName) continue;
+        if (!keyName) {
+          continue;
+        }
 
         const value = prop.value as AstNode | undefined;
-        if (!value) continue;
+        if (!value) {
+          continue;
+        }
 
         const valueText: string = normalize(context.getNodeText(value));
         const signature: string = `${keyName}:${valueText}`;
@@ -82,11 +107,11 @@ const rule: TypeScriptRule = {
         }
 
         const files: Set<string> = FIELD_MAP.get(signature) as Set<string>;
-        const locations = FIELD_LOCATIONS.get(signature) as {
+        const locations = FIELD_LOCATIONS.get(signature) as Array<{
           file: string;
           line: number;
           column: number;
-        }[];
+        }>;
 
         if (!files.has(context.file)) {
           files.add(context.file);
@@ -109,11 +134,11 @@ const rule: TypeScriptRule = {
 
     for (const [signature, files] of FIELD_MAP.entries()) {
       if (files.size >= threshold) {
-        const locations = FIELD_LOCATIONS.get(signature) as {
+        const locations = FIELD_LOCATIONS.get(signature) as Array<{
           file: string;
           line: number;
           column: number;
-        }[];
+        }>;
         const [firstLocation] = locations;
         const fileList: string = [...files]
           .map((f: string) => f.replace(/.*packages\//, 'packages/'))

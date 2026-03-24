@@ -26,7 +26,9 @@ describe('LanguageDisplayInfoSchema', () => {
       exonym: 'Japanese' as Str,
     });
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data.code).toBe('ja' as Str);
     expect(result.data.endonym).toBe('日本語' as Str);
     expect(result.data.exonym).toBe('Japanese' as Str);
@@ -50,7 +52,9 @@ describe('getLanguageDisplayName', () => {
   it('returns endonym and exonym for Japanese viewed from English', () => {
     const result = getLanguageDisplayName('ja' as Str, 'en' as Str);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data.code).toBe('ja' as Str);
     expect(result.data.endonym).toBe('日本語' as Str);
     expect(result.data.exonym).toBe('Japanese' as Str);
@@ -59,7 +63,9 @@ describe('getLanguageDisplayName', () => {
   it('returns matching endonym/exonym for English viewed from English', () => {
     const result = getLanguageDisplayName('en' as Str, 'en' as Str);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data.endonym).toBe('English' as Str);
     expect(result.data.exonym).toBe('English' as Str);
   });
@@ -67,27 +73,35 @@ describe('getLanguageDisplayName', () => {
   it('returns French exonym when viewed from French locale', () => {
     const result = getLanguageDisplayName('ja' as Str, 'fr' as Str);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data.exonym).toBe('japonais' as Str);
   });
 
   it('returns German exonym when viewed from German locale', () => {
     const result = getLanguageDisplayName('ja' as Str, 'de' as Str);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data.exonym).toBe('Japanisch' as Str);
   });
 
   it('returns LOCALE.INVALID_LOCALE for empty code', () => {
     const result = getLanguageDisplayName('' as Str, 'en' as Str);
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
+    if (!result.ok) {
+      expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
+    }
   });
 
   it('returns LOCALE.INVALID_LOCALE for empty currentLocale', () => {
     const result = getLanguageDisplayName('en' as Str, '' as Str);
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
+    if (!result.ok) {
+      expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
+    }
   });
 
   it('returns a result for unknown language codes (Node returns code as-is)', () => {
@@ -118,14 +132,18 @@ describe('getLanguageDisplayNames', () => {
   it('returns display info for all provided locale codes', () => {
     const result = getLanguageDisplayNames(TEST_LOCALES, 'en' as Str);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toHaveLength(TEST_LOCALES.length);
   });
 
   it('each entry has code, endonym, and exonym', () => {
     const result = getLanguageDisplayNames(TEST_LOCALES, 'en' as Str);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     for (const entry of result.data) {
       expect(entry.code).toBeTruthy();
       expect(entry.endonym).toBeTruthy();
@@ -136,7 +154,9 @@ describe('getLanguageDisplayNames', () => {
   it('English entry has matching endonym and exonym when viewed from English', () => {
     const result = getLanguageDisplayNames(TEST_LOCALES, 'en' as Str);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     const english: LanguageDisplayInfo | undefined = result.data.find(
       (l: LanguageDisplayInfo) => l.code === ('en' as Str),
     );
@@ -147,7 +167,9 @@ describe('getLanguageDisplayNames', () => {
   it('Japanese entry has different endonym and exonym when viewed from English', () => {
     const result = getLanguageDisplayNames(TEST_LOCALES, 'en' as Str);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     const japanese: LanguageDisplayInfo | undefined = result.data.find(
       (l: LanguageDisplayInfo) => l.code === ('ja' as Str),
     );
@@ -164,7 +186,9 @@ describe('getLanguageDisplayNames', () => {
   it('returns empty array for empty input', () => {
     const result = getLanguageDisplayNames([], 'en' as Str);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toHaveLength(0);
   });
 });

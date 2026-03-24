@@ -709,7 +709,9 @@ describe('integration: full customization workflow', () => {
     // Step 2: Update DEV_FLAGS_PANEL to Ctrl+8 (no conflict)
     const step2 = updateShortcut(registry, 'DEV_FLAGS_PANEL', '8', ['ctrl']);
     expect(step2.ok).toBe(true);
-    if (step2.ok) registry = step2.data;
+    if (step2.ok) {
+      registry = step2.data;
+    }
 
     // Step 3: Try to set DEV_APP_PANEL to Ctrl+8 too (conflict!)
     const step3 = updateShortcut(registry, 'DEV_APP_PANEL', '8', ['ctrl']);
@@ -718,7 +720,9 @@ describe('integration: full customization workflow', () => {
     // Step 4: Reset DEV_FLAGS_PANEL back to default
     const step4 = resetShortcut(registry, 'DEV_FLAGS_PANEL');
     expect(step4.ok).toBe(true);
-    if (step4.ok) registry = step4.data;
+    if (step4.ok) {
+      registry = step4.data;
+    }
 
     // Step 5: Now Ctrl+8 is free, DEV_APP_PANEL can use it
     const step5 = updateShortcut(registry, 'DEV_APP_PANEL', '8', ['ctrl']);

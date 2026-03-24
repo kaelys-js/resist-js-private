@@ -69,16 +69,20 @@ export type LanguageDisplayInfo = v.InferOutput<typeof LanguageDisplayInfoSchema
  */
 export function getLanguageDisplayName(code: Str, currentLocale: Str): Result<LanguageDisplayInfo> {
   const codeResult: Result<Str> = safeParse(StrSchema, code);
-  if (!codeResult.ok)
+  if (!codeResult.ok) {
     return err(ERRORS.LOCALE.INVALID_LOCALE, 'Language code must be a valid string');
-  if (codeResult.data.length === 0)
+  }
+  if (codeResult.data.length === 0) {
     return err(ERRORS.LOCALE.INVALID_LOCALE, 'Language code must be non-empty');
+  }
 
   const localeResult: Result<Str> = safeParse(StrSchema, currentLocale);
-  if (!localeResult.ok)
+  if (!localeResult.ok) {
     return err(ERRORS.LOCALE.INVALID_LOCALE, 'Current locale must be a valid string');
-  if (localeResult.data.length === 0)
+  }
+  if (localeResult.data.length === 0) {
     return err(ERRORS.LOCALE.INVALID_LOCALE, 'Current locale must be non-empty');
+  }
 
   const endonymDisplay: Intl.DisplayNames = new Intl.DisplayNames([codeResult.data], {
     type: 'language',
@@ -124,14 +128,20 @@ export function getLanguageDisplayNames(
   currentLocale: Str,
 ): Result<LanguageDisplayInfo[]> {
   const codesResult: Result<StrArray> = safeParse(StrArraySchema, [...codes]);
-  if (!codesResult.ok) return codesResult;
+  if (!codesResult.ok) {
+    return codesResult;
+  }
   const localeResult: Result<Str> = safeParse(StrSchema, currentLocale);
-  if (!localeResult.ok) return localeResult;
+  if (!localeResult.ok) {
+    return localeResult;
+  }
 
   const results: LanguageDisplayInfo[] = [];
   for (const code of codesResult.data) {
     const result: Result<LanguageDisplayInfo> = getLanguageDisplayName(code, localeResult.data);
-    if (!result.ok) return result;
+    if (!result.ok) {
+      return result;
+    }
     results.push(result.data);
   }
   return ok(v.array(LanguageDisplayInfoSchema), results);

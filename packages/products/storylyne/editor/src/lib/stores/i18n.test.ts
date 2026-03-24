@@ -18,21 +18,27 @@ describe('localeStore initialization', () => {
   it('lists all 7 supported locales', () => {
     const result = localeStore.list();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect([...result.data].toSorted()).toEqual([...SUPPORTED].toSorted());
   });
 
   it("has('en') returns true", () => {
     const result = localeStore.has('en');
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toBe(true);
   });
 
   it("has('xx') returns false", () => {
     const result = localeStore.has('xx');
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toBe(false);
   });
 });
@@ -151,7 +157,9 @@ describe('description contains app name', () => {
       const descFn = localeStore.t.meta.description as (p: { appName: Str }) => Result<Str>;
       const result = descFn({ appName: APP_NAME });
       expect(result.ok).toBe(true);
-      if (!result.ok) return;
+      if (!result.ok) {
+        return;
+      }
       expect(result.data).toContain(APP_NAME);
     });
   }

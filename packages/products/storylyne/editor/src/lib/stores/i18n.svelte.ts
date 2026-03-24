@@ -31,11 +31,15 @@ const localeModules: Record<string, Record<string, RawLocaleStrings>> = import.m
 const locales: Record<string, RawLocaleStrings> = {};
 for (const [path, mod] of Object.entries(localeModules)) {
   const match: RegExpMatchArray | null = path.match(/\/(\w+)\.ts$/);
-  if (!match) continue;
+  if (!match) {
+    continue;
+  }
   const [, code]: RegExpMatchArray = match;
   // Each locale file exports a single named const — grab the first export value
   const [data]: RawLocaleStrings[] = Object.values(mod);
-  if (data) locales[code] = data;
+  if (data) {
+    locales[code] = data;
+  }
 }
 
 const registryResult = createLocaleRegistry({
@@ -46,13 +50,15 @@ const registryResult = createLocaleRegistry({
   fallbackLocales: ['en'],
 });
 
-if (!registryResult.ok)
+if (!registryResult.ok) {
   throw new Error(
     `Locale registry failed: ${registryResult.error.code} — ${registryResult.error.message}`,
   );
+}
 
 const storeResult = createLocaleStore<typeof EditorLocaleSchema>(registryResult.data);
-if (!storeResult.ok)
+if (!storeResult.ok) {
   throw new Error(`Locale store failed: ${storeResult.error.code} — ${storeResult.error.message}`);
+}
 
 export const localeStore = storeResult.data;

@@ -393,7 +393,9 @@ export class PreviewSessionManager {
    */
   async destroySession(id: Str): Promise<void> {
     const session: PreviewSession | undefined = this.sessions.get(id);
-    if (!session) return;
+    if (!session) {
+      return;
+    }
 
     this.sessions.delete(id);
 

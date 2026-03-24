@@ -303,9 +303,15 @@
    * @returns The string value to sort by
    */
   function getSortValue(entry: BrowserEntry, field: Str): Str {
-    if (field === 'name') return entry.name;
-    if (field === 'version') return entry.minVersion;
-    if (field === 'engine') return entry.engine;
+    if (field === 'name') {
+      return entry.name;
+    }
+    if (field === 'version') {
+      return entry.minVersion;
+    }
+    if (field === 'engine') {
+      return entry.engine;
+    }
     return entry.notes;
   }
 
@@ -376,14 +382,20 @@
 
   /** Current view mode display label. */
   const viewModeLabel: Str = $derived.by((): Str => {
-    if (viewMode === 'table') return 'Table' as Str;
-    if (viewMode === 'cards') return 'Cards' as Str;
+    if (viewMode === 'table') {
+      return 'Table' as Str;
+    }
+    if (viewMode === 'cards') {
+      return 'Cards' as Str;
+    }
     return 'List' as Str;
   });
 
   /** Current sort display label (field + direction arrow, or empty if default). */
   const sortLabel: Str = $derived.by((): Str => {
-    if (!sortField) return '' as Str;
+    if (!sortField) {
+      return '' as Str;
+    }
     const names: Record<string, string> = {
       name: 'Name',
       version: 'Version',
@@ -465,7 +477,9 @@
     if (confirmingReset) {
       resetDefaults();
       confirmingReset = false as Bool;
-      if (confirmResetTimer) clearTimeout(confirmResetTimer);
+      if (confirmResetTimer) {
+        clearTimeout(confirmResetTimer);
+      }
     } else {
       confirmingReset = true as Bool;
       confirmResetTimer = setTimeout((): void => {
@@ -497,8 +511,12 @@
    * @returns Human-readable status label
    */
   function statusLabel(status: SupportStatus): Str {
-    if (status === 'supported') return 'Supported' as Str;
-    if (status === 'partial') return 'Partial' as Str;
+    if (status === 'supported') {
+      return 'Supported' as Str;
+    }
+    if (status === 'partial') {
+      return 'Partial' as Str;
+    }
     return 'Unsupported' as Str;
   }
 

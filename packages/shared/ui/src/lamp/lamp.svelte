@@ -33,7 +33,9 @@
   const validated: LampProps = $derived.by(() => {
     const rawProps: LampProps = stripSvelteProps(allProps);
     const result = safeParse(LampPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as LampProps;
   });

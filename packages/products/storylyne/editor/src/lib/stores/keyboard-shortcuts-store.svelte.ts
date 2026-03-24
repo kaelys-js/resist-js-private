@@ -55,7 +55,9 @@ let _registry: ShortcutRegistry = $state(resetAllShortcuts());
  * @returns `Result<Void>` — ok on success, error if write fails
  */
 function save(): Result<Void> {
-  if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
+  if (typeof window === 'undefined') {
+    return okUnchecked<Void>(undefined);
+  }
   try {
     localStorage.setItem(SHORTCUTS_STORAGE_KEY, JSON.stringify(_registry));
     return okUnchecked<Void>(undefined);
@@ -73,10 +75,14 @@ function save(): Result<Void> {
  * @returns `Result<Void>` — ok on success or when no saved state exists
  */
 function load(): Result<Void> {
-  if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
+  if (typeof window === 'undefined') {
+    return okUnchecked<Void>(undefined);
+  }
   try {
     const raw: Str | null = localStorage.getItem(SHORTCUTS_STORAGE_KEY);
-    if (!raw) return okUnchecked<Void>(undefined);
+    if (!raw) {
+      return okUnchecked<Void>(undefined);
+    }
 
     const parsed: unknown = JSON.parse(raw);
     // v.record(picklist, schema) infers partial — keys are optional in Valibot record output
@@ -198,7 +204,9 @@ export const shortcutStore: KeyboardShortcutsStore = {
     // eslint-disable-next-line unicorn/prefer-structured-clone -- structuredClone throws on Svelte 5 $state proxies
     const plain: ShortcutRegistry = JSON.parse(JSON.stringify(_registry)) as ShortcutRegistry;
     const result: Result<ShortcutRegistry> = updateShortcut(plain, id, key, modifiers);
-    if (!result.ok) return result;
+    if (!result.ok) {
+      return result;
+    }
     _registry = result.data;
     save();
     return okUnchecked<Void>(undefined);
@@ -209,7 +217,9 @@ export const shortcutStore: KeyboardShortcutsStore = {
     // eslint-disable-next-line unicorn/prefer-structured-clone -- structuredClone throws on Svelte 5 $state proxies
     const plain: ShortcutRegistry = JSON.parse(JSON.stringify(_registry)) as ShortcutRegistry;
     const result: Result<ShortcutRegistry> = resetShortcut(plain, id);
-    if (!result.ok) return result;
+    if (!result.ok) {
+      return result;
+    }
     _registry = result.data;
     save();
     return okUnchecked<Void>(undefined);

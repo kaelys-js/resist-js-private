@@ -33,7 +33,9 @@
   const validated: ColorSwatchProps = $derived.by(() => {
     const rawProps: ColorSwatchProps = stripSvelteProps(allProps);
     const result = safeParse(ColorSwatchPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ColorSwatchProps;
   });

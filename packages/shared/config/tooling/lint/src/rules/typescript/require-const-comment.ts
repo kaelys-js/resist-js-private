@@ -21,12 +21,16 @@ function hasPrecedingComment(node: AstNode, content: string): boolean {
   const trimmed: string = before.trimEnd();
 
   // Check for JSDoc or block comment ending
-  if (trimmed.endsWith('*/')) return true;
+  if (trimmed.endsWith('*/')) {
+    return true;
+  }
 
   // Check for single-line comment on the preceding line
   const lastNewline: number = trimmed.lastIndexOf('\n');
   const lastLine: string = lastNewline === -1 ? trimmed : trimmed.slice(lastNewline + 1);
-  if (lastLine.trim().startsWith('//')) return true;
+  if (lastLine.trim().startsWith('//')) {
+    return true;
+  }
 
   return false;
 }
@@ -41,7 +45,9 @@ const rule: TypeScriptRule = {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const body = node.body as AstNode[] | undefined;
-      if (!body) return results;
+      if (!body) {
+        return results;
+      }
 
       for (const stmt of body) {
         let varDecl: AstNode | null = null;
@@ -58,7 +64,9 @@ const rule: TypeScriptRule = {
           }
         }
 
-        if (!varDecl) continue;
+        if (!varDecl) {
+          continue;
+        }
 
         if (!hasPrecedingComment(varDecl, context.content)) {
           // Get the const name(s)

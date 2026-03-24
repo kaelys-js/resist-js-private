@@ -18,7 +18,9 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 function isResultType(node: AstNode): boolean {
   if (node.type === 'TSTypeReference') {
     const typeName = node.typeName as AstNode | undefined;
-    if (!typeName) return false;
+    if (!typeName) {
+      return false;
+    }
 
     const name: string = (typeName.name as string) ?? '';
     return name === 'Result' || name === 'Ok' || name === 'Err';
@@ -27,7 +29,9 @@ function isResultType(node: AstNode): boolean {
   // Handle union types like Ok<T> | Err
   if (node.type === 'TSUnionType') {
     const types = node.types as AstNode[] | undefined;
-    if (!types) return false;
+    if (!types) {
+      return false;
+    }
 
     return types.some((t: AstNode): boolean => {
       if (t.type === 'TSTypeReference') {
@@ -49,20 +53,30 @@ function isResultType(node: AstNode): boolean {
  * @returns {boolean} Whether the type is Promise<Result<...>>
  */
 function isPromiseOfResult(node: AstNode): boolean {
-  if (node.type !== 'TSTypeReference') return false;
+  if (node.type !== 'TSTypeReference') {
+    return false;
+  }
 
   const typeName = node.typeName as AstNode | undefined;
-  if (!typeName) return false;
+  if (!typeName) {
+    return false;
+  }
 
   const name: string = (typeName.name as string) ?? '';
-  if (name !== 'Promise') return false;
+  if (name !== 'Promise') {
+    return false;
+  }
 
   // oxc-parser uses `typeArguments` (not `typeParameters`) for generic args
   const typeArgs = (node.typeArguments ?? node.typeParameters) as AstNode | undefined;
-  if (!typeArgs) return false;
+  if (!typeArgs) {
+    return false;
+  }
 
   const params = typeArgs.params as AstNode[] | undefined;
-  if (!params || params.length === 0) return false;
+  if (!params || params.length === 0) {
+    return false;
+  }
 
   return isResultType(params[0]);
 }
@@ -89,23 +103,35 @@ function checkFunctionReturnType(
   funcName?: string,
 ): LintResult | null {
   const returnType = node.returnType as AstNode | undefined;
-  if (!returnType) return null;
+  if (!returnType) {
+    return null;
+  }
 
   const typeAnnotation = returnType.typeAnnotation as AstNode | undefined;
-  if (!typeAnnotation) return null;
+  if (!typeAnnotation) {
+    return null;
+  }
 
   const name: string = funcName ?? ((node.id as AstNode)?.name as string) ?? 'anonymous';
 
-  if (isResultType(typeAnnotation)) return null;
-  if (isPromiseOfResult(typeAnnotation)) return null;
+  if (isResultType(typeAnnotation)) {
+    return null;
+  }
+  if (isPromiseOfResult(typeAnnotation)) {
+    return null;
+  }
 
   // Check if void/Promise<void> — these don't need Result
   const typeText: string = context.content.slice(typeAnnotation.start, typeAnnotation.end);
-  if (typeText === 'void' || typeText === 'Promise<void>') return null;
+  if (typeText === 'void' || typeText === 'Promise<void>') {
+    return null;
+  }
 
   // Exempt boolean return types from pure predicate functions (is*, has*, can*, should*)
   const isPredicate: boolean = PREDICATE_PATTERNS.some((p: RegExp): boolean => p.test(name));
-  if (isPredicate && (typeText === 'boolean' || typeText === 'Bool')) return null;
+  if (isPredicate && (typeText === 'boolean' || typeText === 'Bool')) {
+    return null;
+  }
 
   // Exempt identity functions: single `return paramName;` body
   // But NOT if the function matches predicate patterns (is*, has*, etc.) —
@@ -162,16 +188,22 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const declaration = node.declaration as AstNode | undefined;
-      if (!declaration) return results;
+      if (!declaration) {
+        return results;
+      }
 
       if (declaration.type === 'FunctionDeclaration') {
         const result: LintResult | null = checkFunctionReturnType(declaration, context);
-        if (result) results.push(result);
+        if (result) {
+          results.push(result);
+        }
       }
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
-        if (!declarations) return results;
+        if (!declarations) {
+          return results;
+        }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;
@@ -181,7 +213,9 @@ const rule: TypeScriptRule = {
           ) {
             const funcName: string = ((decl.id as AstNode)?.name as string) ?? '';
             const result: LintResult | null = checkFunctionReturnType(init, context, funcName);
-            if (result) results.push(result);
+            if (result) {
+              results.push(result);
+            }
           }
         }
       }
@@ -196,10 +230,14 @@ const rule: TypeScriptRule = {
       const beforeFunc: string = context.content
         .slice(Math.max(0, node.start - 20), node.start)
         .trim();
-      if (beforeFunc.endsWith('export') || beforeFunc.endsWith('default')) return results;
+      if (beforeFunc.endsWith('export') || beforeFunc.endsWith('default')) {
+        return results;
+      }
 
       const result: LintResult | null = checkFunctionReturnType(node, context);
-      if (result) results.push(result);
+      if (result) {
+        results.push(result);
+      }
       return results;
     },
 
@@ -207,7 +245,9 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const declaration = node.declaration as AstNode | undefined;
-      if (!declaration) return results;
+      if (!declaration) {
+        return results;
+      }
 
       if (
         declaration.type === 'FunctionDeclaration' ||
@@ -215,7 +255,9 @@ const rule: TypeScriptRule = {
         declaration.type === 'FunctionExpression'
       ) {
         const result: LintResult | null = checkFunctionReturnType(declaration, context);
-        if (result) results.push(result);
+        if (result) {
+          results.push(result);
+        }
       }
 
       return results;

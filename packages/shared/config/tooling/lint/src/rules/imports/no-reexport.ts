@@ -39,7 +39,9 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const source = node.source as AstNode | undefined;
-      if (!source) return results;
+      if (!source) {
+        return results;
+      }
 
       const value: string = ((source as { value?: string } | undefined)?.value as string) ?? '';
 

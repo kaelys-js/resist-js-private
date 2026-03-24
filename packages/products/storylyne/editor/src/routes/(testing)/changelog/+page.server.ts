@@ -47,7 +47,9 @@ let repoUrlCache: Str | null = null;
  * @returns HTTPS repo URL or empty string
  */
 function detectRepoUrl(): Str {
-  if (repoUrlCache !== null) return repoUrlCache;
+  if (repoUrlCache !== null) {
+    return repoUrlCache;
+  }
   try {
     const remote: Str = execSync('git remote get-url origin', {
       encoding: 'utf8',
@@ -154,7 +156,9 @@ export const load: PageServerLoad = () => {
     const bodyBlocks: Str[] = bodyRaw.split(COMMIT_SEP).filter(Boolean) as Str[];
     for (const block of bodyBlocks) {
       const sepIdx: number = block.indexOf(FIELD_SEP);
-      if (sepIdx < 0) continue;
+      if (sepIdx < 0) {
+        continue;
+      }
       const bHash: Str = block.slice(0, sepIdx).trim() as Str;
       const bBody: Str = block.slice(sepIdx + FIELD_SEP.length).trim() as Str;
       if (bHash && bBody) {
@@ -170,11 +174,15 @@ export const load: PageServerLoad = () => {
 
   for (const block of commits) {
     const lines: Str[] = block.trim().split('\n') as Str[];
-    if (lines.length === 0) continue;
+    if (lines.length === 0) {
+      continue;
+    }
 
     const headerLine: Str = lines[0] ?? ('' as Str);
     const parts: Str[] = headerLine.split(FIELD_SEP) as Str[];
-    if (parts.length < 4) continue;
+    if (parts.length < 4) {
+      continue;
+    }
 
     const [hash = '' as Str, message = '' as Str, author = '' as Str, dateRaw = '' as Str] =
       parts as Str[];

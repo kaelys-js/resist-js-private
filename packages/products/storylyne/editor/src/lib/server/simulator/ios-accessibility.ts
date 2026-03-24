@@ -144,7 +144,9 @@ export async function applyAccessibilitySettings(
   settings: IosAccessibilitySettings,
 ): Promise<Num> {
   const commands: SimctlCommand[] = buildAccessibilityCommands(udid, settings);
-  if (commands.length === 0) return 0 as Num;
+  if (commands.length === 0) {
+    return 0 as Num;
+  }
 
   let successCount: Num = 0 as Num;
 

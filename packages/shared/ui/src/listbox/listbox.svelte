@@ -33,7 +33,9 @@
   const validated: ListboxProps = $derived.by(() => {
     const rawProps: ListboxProps = stripSvelteProps(allProps);
     const result = safeParse(ListboxPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ListboxProps;
   });

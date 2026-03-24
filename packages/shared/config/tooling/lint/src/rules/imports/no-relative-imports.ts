@@ -21,7 +21,9 @@ function checkRelativeSource(node: AstNode, context: VisitorContext): LintResult
 
   const source = node.source as AstNode | undefined;
   const value: string | undefined = (source as { value?: string } | undefined)?.value;
-  if (!value) return results;
+  if (!value) {
+    return results;
+  }
 
   if (value.startsWith('./') || value.startsWith('../')) {
     results.push({

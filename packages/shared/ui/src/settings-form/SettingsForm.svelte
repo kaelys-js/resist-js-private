@@ -33,7 +33,9 @@
   const validated: SettingsFormProps = $derived.by(() => {
     const rawProps: SettingsFormProps = stripSvelteProps(allProps);
     const result = safeParse(SettingsFormPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as SettingsFormProps;
   });
