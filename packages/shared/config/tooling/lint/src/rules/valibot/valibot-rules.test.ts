@@ -501,6 +501,188 @@ const Schema = v.strictObject({
     expect(results.length).toBeGreaterThanOrEqual(1);
     expect(results[0].message).toContain('storagePrefix');
   });
+
+  it('suggests EmailSchema for field named email', async () => {
+    const code: string = `const Schema = v.strictObject({ email: v.pipe(v.string(), v.email()) });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('EmailSchema');
+  });
+
+  it('suggests UuidSchema for field named sessionId', async () => {
+    const code: string = `const Schema = v.strictObject({ sessionId: v.pipe(v.string(), v.uuid()) });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('UuidSchema');
+  });
+
+  it('suggests IsoTimestampSchema for field named timestamp', async () => {
+    const code: string = `const Schema = v.strictObject({ timestamp: v.pipe(v.string(), v.isoTimestamp()) });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('IsoTimestampSchema');
+  });
+
+  it('suggests GitCommitShortSchema for field named commit', async () => {
+    const code: string = `const Schema = v.strictObject({ commit: v.pipe(v.string(), v.length(7)) });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('GitCommitShortSchema');
+  });
+
+  it('suggests GitBranchSchema for field named branch', async () => {
+    const code: string = `const Schema = v.strictObject({ branch: v.pipe(v.string(), v.minLength(1)) });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('GitBranchSchema');
+  });
+
+  it('suggests NameSchema for field named service', async () => {
+    const code: string = `const Schema = v.strictObject({ service: v.pipe(v.string(), v.minLength(1)) });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('NameSchema');
+  });
+
+  it('does not flag support as PortSchema', async () => {
+    const code: string = `const Schema = v.strictObject({ support: v.pipe(v.string(), v.email()) });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    const portResults: LintResult[] = results.filter((r: LintResult) => r.message.includes('PortSchema'));
+    expect(portResults.length).toBe(0);
+  });
+
+  it('suggests DescriptionSchema for field named description', async () => {
+    const code: string = `const Schema = v.strictObject({ description: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('DescriptionSchema');
+  });
+
+  it('suggests DurationSchema for field named cacheTtl', async () => {
+    const code: string = `const Schema = v.strictObject({ cacheTtl: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('DurationSchema');
+  });
+
+  it('suggests SlugSchema for field named projectSlug', async () => {
+    const code: string = `const Schema = v.strictObject({ projectSlug: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('SlugSchema');
+  });
+
+  it('suggests HexColorSchema for field named backgroundColor', async () => {
+    const code: string = `const Schema = v.strictObject({ backgroundColor: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('HexColorSchema');
+  });
+
+  it('suggests CountryCodeSchema for field named countryCode', async () => {
+    const code: string = `const Schema = v.strictObject({ countryCode: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('CountryCodeSchema');
+  });
+
+  it('suggests CronExpressionSchema for field named schedule', async () => {
+    const code: string = `const Schema = v.strictObject({ schedule: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('CronExpressionSchema');
+  });
+
+  it('suggests TimezoneSchema for field named timezone', async () => {
+    const code: string = `const Schema = v.strictObject({ timezone: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('TimezoneSchema');
+  });
+
+  it('suggests CurrencyCodeSchema for field named currency', async () => {
+    const code: string = `const Schema = v.strictObject({ currency: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('CurrencyCodeSchema');
+  });
+
+  it('suggests HttpStatusCodeSchema for field named statusCode', async () => {
+    const code: string = `const Schema = v.strictObject({ statusCode: v.number() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('HttpStatusCodeSchema');
+  });
+
+  it('suggests MimeTypeSchema for field named contentType', async () => {
+    const code: string = `const Schema = v.strictObject({ contentType: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('MimeTypeSchema');
+  });
+
+  it('suggests TagSchema for field named keyword', async () => {
+    const code: string = `const Schema = v.strictObject({ keyword: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('TagSchema');
+  });
+
+  it('suggests PasswordSchema for field named password', async () => {
+    const code: string = `const Schema = v.strictObject({ password: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('PasswordSchema');
+  });
+
+  it('suggests FeatureFlagSchema for field named featureFlag', async () => {
+    const code: string = `const Schema = v.strictObject({ featureFlag: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('FeatureFlagSchema');
+  });
+
+  it('suggests MetaTitleSchema for field named metaTitle', async () => {
+    const code: string = `const Schema = v.strictObject({ metaTitle: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('MetaTitleSchema');
+  });
+
+  it('suggests ErrorCodeSchema for field named errorCode', async () => {
+    const code: string = `const Schema = v.strictObject({ errorCode: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('ErrorCodeSchema');
+  });
+
+  it('suggests TranslationKeySchema for field named translationKey', async () => {
+    const code: string = `const Schema = v.strictObject({ translationKey: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('TranslationKeySchema');
+  });
+
+  it('suggests YearSchema for field named year', async () => {
+    const code: string = `const Schema = v.strictObject({ year: v.number() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('YearSchema');
+  });
+
+  it('suggests SearchQuerySchema for field named searchQuery', async () => {
+    const code: string = `const Schema = v.strictObject({ searchQuery: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('SearchQuerySchema');
+  });
+
+  it('suggests CommentSchema for field named comment', async () => {
+    const code: string = `const Schema = v.strictObject({ comment: v.string() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('CommentSchema');
+  });
 });
 
 // =============================================================================

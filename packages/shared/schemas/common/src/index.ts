@@ -398,6 +398,992 @@ export const NeverSchema = v.never();
 export type Never = v.InferOutput<typeof NeverSchema>;
 
 // =============================================================================
+// Validated String Schemas (email, UUID, timestamp, git)
+// =============================================================================
+
+/**
+ * Schema for email addresses.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(EmailSchema, 'user@example.com');
+ * if (result.ok) result.data; // 'user@example.com'
+ * ```
+ */
+export const EmailSchema = v.pipe(v.string(), v.email(), v.brand('Email'));
+
+/** Inferred output type of {@link EmailSchema}. A validated email address. */
+export type Email = v.InferOutput<typeof EmailSchema>;
+
+/**
+ * Schema for UUID v4 strings.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(UuidSchema, '550e8400-e29b-41d4-a716-446655440000');
+ * if (result.ok) result.data; // UUID string
+ * ```
+ */
+export const UuidSchema = v.pipe(v.string(), v.uuid(), v.brand('Uuid'));
+
+/** Inferred output type of {@link UuidSchema}. A validated UUID string. */
+export type Uuid = v.InferOutput<typeof UuidSchema>;
+
+/**
+ * Schema for ISO 8601 timestamp strings.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(IsoTimestampSchema, '2026-03-24T12:00:00Z');
+ * if (result.ok) result.data; // ISO timestamp
+ * ```
+ */
+export const IsoTimestampSchema = v.pipe(v.string(), v.isoTimestamp(), v.brand('IsoTimestamp'));
+
+/** Inferred output type of {@link IsoTimestampSchema}. A validated ISO 8601 timestamp. */
+export type IsoTimestamp = v.InferOutput<typeof IsoTimestampSchema>;
+
+/**
+ * Schema for short git commit hashes (7 characters).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(GitCommitShortSchema, 'abc1234');
+ * if (result.ok) result.data; // 7-char hash
+ * ```
+ */
+export const GitCommitShortSchema = v.pipe(v.string(), v.length(7), v.brand('GitCommitShort'));
+
+/** Inferred output type of {@link GitCommitShortSchema}. A 7-character git commit hash. */
+export type GitCommitShort = v.InferOutput<typeof GitCommitShortSchema>;
+
+/**
+ * Schema for full git commit hashes (40 characters).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(GitCommitFullSchema, 'abc1234def5678abc1234def5678abc1234def567');
+ * if (result.ok) result.data; // 40-char hash
+ * ```
+ */
+export const GitCommitFullSchema = v.pipe(v.string(), v.length(40), v.brand('GitCommitFull'));
+
+/** Inferred output type of {@link GitCommitFullSchema}. A 40-character git commit hash. */
+export type GitCommitFull = v.InferOutput<typeof GitCommitFullSchema>;
+
+/**
+ * Schema for git branch names (1-255 characters).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(GitBranchSchema, 'main');
+ * if (result.ok) result.data; // branch name
+ * ```
+ */
+export const GitBranchSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(255), v.brand('GitBranch'));
+
+/** Inferred output type of {@link GitBranchSchema}. A git branch name (1-255 chars). */
+export type GitBranch = v.InferOutput<typeof GitBranchSchema>;
+
+/**
+ * Schema for CSS font-weight values (e.g., `'400'`, `'100 900'`).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(CssFontWeightSchema, '400');
+ * if (result.ok) result.data; // '400'
+ * ```
+ */
+export const CssFontWeightSchema = v.pipe(v.string(), v.regex(/^\d{1,3}(\s+\d{1,3})?$/), v.brand('CssFontWeight'));
+
+/** Inferred output type of {@link CssFontWeightSchema}. A CSS font-weight value. */
+export type CssFontWeight = v.InferOutput<typeof CssFontWeightSchema>;
+
+// =============================================================================
+// Duration & Time Schemas
+// =============================================================================
+
+/**
+ * Schema for duration strings (e.g., `'15m'`, `'1h'`, `'7d'`).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(DurationSchema, '15m');
+ * if (result.ok) result.data; // '15m'
+ * ```
+ */
+export const DurationSchema = v.pipe(v.string(), v.regex(/^\d+[smhd]$/, 'Must be a duration like "15m" or "7d"'), v.brand('Duration'));
+
+/** Inferred output type of {@link DurationSchema}. A duration string. */
+export type Duration = v.InferOutput<typeof DurationSchema>;
+
+/**
+ * Schema for date-only strings (YYYY-MM-DD).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(DateOnlySchema, '2026-03-24');
+ * if (result.ok) result.data; // '2026-03-24'
+ * ```
+ */
+export const DateOnlySchema = v.pipe(v.string(), v.regex(/^\d{4}-\d{2}-\d{2}$/), v.brand('DateOnly'));
+
+/** Inferred output type of {@link DateOnlySchema}. A YYYY-MM-DD date string. */
+export type DateOnly = v.InferOutput<typeof DateOnlySchema>;
+
+/**
+ * Schema for IANA timezone strings (e.g., `'America/New_York'`).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(TimezoneSchema, 'America/New_York');
+ * if (result.ok) result.data; // 'America/New_York'
+ * ```
+ */
+export const TimezoneSchema = v.pipe(
+  v.string(),
+  v.check((s: string): boolean => {
+    try { Intl.DateTimeFormat(undefined, { timeZone: s }); return true; } catch { return false; }
+  }, 'Must be a valid IANA timezone'),
+  v.brand('Timezone'),
+);
+
+/** Inferred output type of {@link TimezoneSchema}. A valid IANA timezone. */
+export type Timezone = v.InferOutput<typeof TimezoneSchema>;
+
+/**
+ * Schema for cron expressions (5-field format).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(CronExpressionSchema, '0 9 * * 1-5');
+ * if (result.ok) result.data; // '0 9 * * 1-5'
+ * ```
+ */
+export const CronExpressionSchema = v.pipe(v.string(), v.regex(/^(\S+\s+){4}\S+$/), v.brand('CronExpression'));
+
+/** Inferred output type of {@link CronExpressionSchema}. A 5-field cron expression. */
+export type CronExpression = v.InferOutput<typeof CronExpressionSchema>;
+
+// =============================================================================
+// Text & Content Schemas
+// =============================================================================
+
+/**
+ * Schema for descriptions (max 500 characters).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(DescriptionSchema, 'A monorepo for web products');
+ * if (result.ok) result.data; // 'A monorepo for web products'
+ * ```
+ */
+export const DescriptionSchema = v.pipe(v.string(), v.maxLength(500), v.brand('Description'));
+
+/** Inferred output type of {@link DescriptionSchema}. A description string (max 500 chars). */
+export type Description = v.InferOutput<typeof DescriptionSchema>;
+
+/**
+ * Schema for tags/keywords (lowercase alphanumeric with hyphens, max 50 chars).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(TagSchema, 'web-development');
+ * if (result.ok) result.data; // 'web-development'
+ * ```
+ */
+export const TagSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(50), v.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), v.brand('Tag'));
+
+/** Inferred output type of {@link TagSchema}. A lowercase tag/keyword string. */
+export type Tag = v.InferOutput<typeof TagSchema>;
+
+/**
+ * Schema for URL-friendly slugs (lowercase, hyphens, no spaces).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(SlugSchema, 'my-project');
+ * if (result.ok) result.data; // 'my-project'
+ * ```
+ */
+export const SlugSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(100), v.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), v.brand('Slug'));
+
+/** Inferred output type of {@link SlugSchema}. A URL-friendly slug. */
+export type Slug = v.InferOutput<typeof SlugSchema>;
+
+/**
+ * Schema for environment variable names (SCREAMING_SNAKE_CASE).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(EnvVarNameSchema, 'DATABASE_URL');
+ * if (result.ok) result.data; // 'DATABASE_URL'
+ * ```
+ */
+export const EnvVarNameSchema = v.pipe(v.string(), v.regex(/^[A-Z][A-Z0-9_]*$/), v.brand('EnvVarName'));
+
+/** Inferred output type of {@link EnvVarNameSchema}. A SCREAMING_SNAKE_CASE env var name. */
+export type EnvVarName = v.InferOutput<typeof EnvVarNameSchema>;
+
+/**
+ * Schema for valid JSON strings (parseable by JSON.parse).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(JsonStringSchema, '{"key": "value"}');
+ * if (result.ok) result.data; // '{"key": "value"}'
+ * ```
+ */
+export const JsonStringSchema = v.pipe(
+  v.string(),
+  v.check((s: string): boolean => {
+    try { JSON.parse(s); return true; } catch { return false; }
+  }, 'Must be valid JSON'),
+  v.brand('JsonString'),
+);
+
+/** Inferred output type of {@link JsonStringSchema}. A valid JSON string. */
+export type JsonString = v.InferOutput<typeof JsonStringSchema>;
+
+// =============================================================================
+// Security & Auth Schemas
+// =============================================================================
+
+/**
+ * Schema for hex colors (#fff, #ffffff, #ffffffff).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(HexColorSchema, '#ff5733');
+ * if (result.ok) result.data; // '#ff5733'
+ * ```
+ */
+export const HexColorSchema = v.pipe(v.string(), v.regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/), v.brand('HexColor'));
+
+/** Inferred output type of {@link HexColorSchema}. A hex color string. */
+export type HexColor = v.InferOutput<typeof HexColorSchema>;
+
+/**
+ * Schema for HTTP status codes (100-599).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(HttpStatusCodeSchema, 200);
+ * if (result.ok) result.data; // 200
+ * ```
+ */
+export const HttpStatusCodeSchema = v.pipe(v.number(), v.integer(), v.minValue(100), v.maxValue(599), v.brand('HttpStatusCode'));
+
+/** Inferred output type of {@link HttpStatusCodeSchema}. An HTTP status code (100-599). */
+export type HttpStatusCode = v.InferOutput<typeof HttpStatusCodeSchema>;
+
+/**
+ * Schema for MIME types (e.g., `'application/json'`, `'text/html'`).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(MimeTypeSchema, 'application/json');
+ * if (result.ok) result.data; // 'application/json'
+ * ```
+ */
+export const MimeTypeSchema = v.pipe(v.string(), v.regex(/^[a-z]+\/[a-z0-9.+-]+$/), v.brand('MimeType'));
+
+/** Inferred output type of {@link MimeTypeSchema}. A MIME type string. */
+export type MimeType = v.InferOutput<typeof MimeTypeSchema>;
+
+/**
+ * Schema for base64-encoded strings.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(Base64Schema, 'SGVsbG8gV29ybGQ=');
+ * if (result.ok) result.data; // 'SGVsbG8gV29ybGQ='
+ * ```
+ */
+export const Base64Schema = v.pipe(v.string(), v.regex(/^[A-Za-z0-9+/]*={0,2}$/), v.brand('Base64'));
+
+/** Inferred output type of {@link Base64Schema}. A base64-encoded string. */
+export type Base64 = v.InferOutput<typeof Base64Schema>;
+
+/**
+ * Schema for SHA-256 hex hashes (64 characters).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(Sha256Schema, 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
+ * if (result.ok) result.data; // 64-char hex hash
+ * ```
+ */
+export const Sha256Schema = v.pipe(v.string(), v.length(64), v.regex(/^[0-9a-f]+$/), v.brand('Sha256'));
+
+/** Inferred output type of {@link Sha256Schema}. A 64-character SHA-256 hex hash. */
+export type Sha256 = v.InferOutput<typeof Sha256Schema>;
+
+/**
+ * Schema for JWT tokens (three base64url segments separated by dots).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(JwtSchema, 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.abc123');
+ * if (result.ok) result.data; // JWT string
+ * ```
+ */
+export const JwtSchema = v.pipe(v.string(), v.regex(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/), v.brand('Jwt'));
+
+/** Inferred output type of {@link JwtSchema}. A JWT token string. */
+export type Jwt = v.InferOutput<typeof JwtSchema>;
+
+// =============================================================================
+// i18n Schemas
+// =============================================================================
+
+/**
+ * Schema for ISO 3166-1 alpha-2 country codes (e.g., `'US'`, `'GB'`, `'JP'`).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(CountryCodeSchema, 'US');
+ * if (result.ok) result.data; // 'US'
+ * ```
+ */
+export const CountryCodeSchema = v.pipe(v.string(), v.length(2), v.regex(/^[A-Z]{2}$/), v.brand('CountryCode'));
+
+/** Inferred output type of {@link CountryCodeSchema}. An ISO 3166-1 alpha-2 country code. */
+export type CountryCode = v.InferOutput<typeof CountryCodeSchema>;
+
+/**
+ * Schema for ISO 639-1 language codes (e.g., `'en'`, `'ja'`, `'pt'`).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(LanguageCodeSchema, 'en');
+ * if (result.ok) result.data; // 'en'
+ * ```
+ */
+export const LanguageCodeSchema = v.pipe(v.string(), v.minLength(2), v.maxLength(3), v.regex(/^[a-z]{2,3}$/), v.brand('LanguageCode'));
+
+/** Inferred output type of {@link LanguageCodeSchema}. An ISO 639-1 language code. */
+export type LanguageCode = v.InferOutput<typeof LanguageCodeSchema>;
+
+/**
+ * Schema for ISO 4217 currency codes (e.g., `'USD'`, `'EUR'`, `'JPY'`).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(CurrencyCodeSchema, 'USD');
+ * if (result.ok) result.data; // 'USD'
+ * ```
+ */
+export const CurrencyCodeSchema = v.pipe(v.string(), v.length(3), v.regex(/^[A-Z]{3}$/), v.brand('CurrencyCode'));
+
+/** Inferred output type of {@link CurrencyCodeSchema}. An ISO 4217 currency code. */
+export type CurrencyCode = v.InferOutput<typeof CurrencyCodeSchema>;
+
+// =============================================================================
+// Infrastructure Schemas
+// =============================================================================
+
+/**
+ * Schema for Docker image tags (e.g., `'nginx:latest'`, `'node:22-alpine'`).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(DockerImageTagSchema, 'node:22-alpine');
+ * if (result.ok) result.data; // 'node:22-alpine'
+ * ```
+ */
+export const DockerImageTagSchema = v.pipe(v.string(), v.regex(/^[a-z0-9._/-]+(?::[a-z0-9._-]+)?$/), v.brand('DockerImageTag'));
+
+/** Inferred output type of {@link DockerImageTagSchema}. A Docker image:tag string. */
+export type DockerImageTag = v.InferOutput<typeof DockerImageTagSchema>;
+
+/**
+ * Schema for glob patterns (non-empty string).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(GlobPatternSchema, '**\/*.ts');
+ * if (result.ok) result.data; // '**\/*.ts'
+ * ```
+ */
+export const GlobPatternSchema = v.pipe(v.string(), v.minLength(1), v.brand('GlobPattern'));
+
+/** Inferred output type of {@link GlobPatternSchema}. A glob pattern string. */
+export type GlobPattern = v.InferOutput<typeof GlobPatternSchema>;
+
+/**
+ * Schema for regex patterns (must be a valid RegExp).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(RegexPatternSchema, '^[a-z]+$');
+ * if (result.ok) result.data; // '^[a-z]+$'
+ * ```
+ */
+export const RegexPatternSchema = v.pipe(
+  v.string(),
+  v.check((s: string): boolean => {
+    try { new RegExp(s); return true; } catch { return false; }
+  }, 'Must be a valid regex pattern'),
+  v.brand('RegexPattern'),
+);
+
+/** Inferred output type of {@link RegexPatternSchema}. A valid regex pattern string. */
+export type RegexPattern = v.InferOutput<typeof RegexPatternSchema>;
+
+// =============================================================================
+// Timestamp Schemas
+// =============================================================================
+
+/**
+ * Schema for Unix timestamps (seconds since epoch).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(UnixTimestampSchema, 1711296000);
+ * if (result.ok) result.data; // 1711296000
+ * ```
+ */
+export const UnixTimestampSchema = v.pipe(v.number(), v.integer(), v.minValue(0), v.brand('UnixTimestamp'));
+
+/** Inferred output type of {@link UnixTimestampSchema}. */
+export type UnixTimestamp = v.InferOutput<typeof UnixTimestampSchema>;
+
+/**
+ * Schema for millisecond timestamps (Date.now() format).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(MillisecondTimestampSchema, Date.now());
+ * if (result.ok) result.data; // 1711296000000
+ * ```
+ */
+export const MillisecondTimestampSchema = v.pipe(v.number(), v.integer(), v.minValue(0), v.brand('MillisecondTimestamp'));
+
+/** Inferred output type of {@link MillisecondTimestampSchema}. */
+export type MillisecondTimestamp = v.InferOutput<typeof MillisecondTimestampSchema>;
+
+/**
+ * Schema for time-only strings (HH:MM or HH:MM:SS).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(TimeOnlySchema, '14:30:00');
+ * if (result.ok) result.data; // '14:30:00'
+ * ```
+ */
+export const TimeOnlySchema = v.pipe(v.string(), v.regex(/^\d{2}:\d{2}(:\d{2})?$/), v.brand('TimeOnly'));
+
+/** Inferred output type of {@link TimeOnlySchema}. */
+export type TimeOnly = v.InferOutput<typeof TimeOnlySchema>;
+
+/**
+ * Schema for 4-digit years (1900-2100).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(YearSchema, 2026);
+ * if (result.ok) result.data; // 2026
+ * ```
+ */
+export const YearSchema = v.pipe(v.number(), v.integer(), v.minValue(1900), v.maxValue(2100), v.brand('Year'));
+
+/** Inferred output type of {@link YearSchema}. */
+export type Year = v.InferOutput<typeof YearSchema>;
+
+// =============================================================================
+// URL Variant Schemas
+// =============================================================================
+
+/**
+ * Schema for HTTPS URLs (must start with https://).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(HttpsUrlSchema, 'https://example.com');
+ * if (result.ok) result.data; // 'https://example.com'
+ * ```
+ */
+export const HttpsUrlSchema = v.pipe(v.string(), v.url(), v.startsWith('https://'), v.brand('HttpsUrl'));
+
+/** Inferred output type of {@link HttpsUrlSchema}. */
+export type HttpsUrl = v.InferOutput<typeof HttpsUrlSchema>;
+
+/**
+ * Schema for relative URLs (must start with /).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(RelativeUrlSchema, '/api/users');
+ * if (result.ok) result.data; // '/api/users'
+ * ```
+ */
+export const RelativeUrlSchema = v.pipe(v.string(), v.startsWith('/'), v.brand('RelativeUrl'));
+
+/** Inferred output type of {@link RelativeUrlSchema}. */
+export type RelativeUrl = v.InferOutput<typeof RelativeUrlSchema>;
+
+/**
+ * Schema for data: URIs (inline data).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(DataUriSchema, 'data:image/png;base64,iVBOR...');
+ * if (result.ok) result.data; // data URI string
+ * ```
+ */
+export const DataUriSchema = v.pipe(v.string(), v.startsWith('data:'), v.brand('DataUri'));
+
+/** Inferred output type of {@link DataUriSchema}. */
+export type DataUri = v.InferOutput<typeof DataUriSchema>;
+
+// =============================================================================
+// Text Length Variant Schemas
+// =============================================================================
+
+/**
+ * Schema for titles (1-200 characters, longer than Name).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(TitleSchema, 'Getting Started with WebForge');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const TitleSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(200), v.brand('Title'));
+
+/** Inferred output type of {@link TitleSchema}. */
+export type Title = v.InferOutput<typeof TitleSchema>;
+
+/**
+ * Schema for summaries (max 1000 characters).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(SummarySchema, 'A brief overview of the feature...');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const SummarySchema = v.pipe(v.string(), v.maxLength(1000), v.brand('Summary'));
+
+/** Inferred output type of {@link SummarySchema}. */
+export type Summary = v.InferOutput<typeof SummarySchema>;
+
+/**
+ * Schema for long-form content (max 50000 characters).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(ContentSchema, markdownBody);
+ * if (result.ok) result.data;
+ * ```
+ */
+export const ContentSchema = v.pipe(v.string(), v.maxLength(50_000), v.brand('Content'));
+
+/** Inferred output type of {@link ContentSchema}. */
+export type Content = v.InferOutput<typeof ContentSchema>;
+
+/**
+ * Schema for search queries (1-200 characters).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(SearchQuerySchema, 'valibot schema');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const SearchQuerySchema = v.pipe(v.string(), v.minLength(1), v.maxLength(200), v.brand('SearchQuery'));
+
+/** Inferred output type of {@link SearchQuerySchema}. */
+export type SearchQuery = v.InferOutput<typeof SearchQuerySchema>;
+
+/**
+ * Schema for user comments (1-5000 characters).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(CommentSchema, 'Great article!');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const CommentSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(5000), v.brand('Comment'));
+
+/** Inferred output type of {@link CommentSchema}. */
+export type Comment = v.InferOutput<typeof CommentSchema>;
+
+// =============================================================================
+// SEO Schemas
+// =============================================================================
+
+/**
+ * Schema for meta titles (1-60 characters, Google truncation limit).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(MetaTitleSchema, 'WebForge - Build Better');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const MetaTitleSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(60), v.brand('MetaTitle'));
+
+/** Inferred output type of {@link MetaTitleSchema}. */
+export type MetaTitle = v.InferOutput<typeof MetaTitleSchema>;
+
+/**
+ * Schema for meta descriptions (1-160 characters, Google truncation limit).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(MetaDescriptionSchema, 'Build type-safe web apps with WebForge');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const MetaDescriptionSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(160), v.brand('MetaDescription'));
+
+/** Inferred output type of {@link MetaDescriptionSchema}. */
+export type MetaDescription = v.InferOutput<typeof MetaDescriptionSchema>;
+
+/**
+ * Schema for canonical URLs (absolute HTTPS URL).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(CanonicalUrlSchema, 'https://example.com/page');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const CanonicalUrlSchema = v.pipe(v.string(), v.url(), v.startsWith('https://'), v.brand('CanonicalUrl'));
+
+/** Inferred output type of {@link CanonicalUrlSchema}. */
+export type CanonicalUrl = v.InferOutput<typeof CanonicalUrlSchema>;
+
+/** Schema for Open Graph type values. */
+export const OpenGraphTypeSchema = v.picklist(['website', 'article', 'profile', 'product', 'video.other', 'music.song']);
+
+/** Inferred output type of {@link OpenGraphTypeSchema}. */
+export type OpenGraphType = v.InferOutput<typeof OpenGraphTypeSchema>;
+
+/** Schema for robots meta directives. */
+export const RobotsDirectiveSchema = v.picklist(['index', 'noindex', 'follow', 'nofollow', 'none', 'all']);
+
+/** Inferred output type of {@link RobotsDirectiveSchema}. */
+export type RobotsDirective = v.InferOutput<typeof RobotsDirectiveSchema>;
+
+// =============================================================================
+// Auth & Security Schemas
+// =============================================================================
+
+/**
+ * Schema for passwords (8-128 characters).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(PasswordSchema, 'MySecureP4ss!');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const PasswordSchema = v.pipe(v.string(), v.minLength(8), v.maxLength(128), v.brand('Password'));
+
+/** Inferred output type of {@link PasswordSchema}. */
+export type Password = v.InferOutput<typeof PasswordSchema>;
+
+/**
+ * Schema for Bearer token authorization header values.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(BearerTokenSchema, 'Bearer eyJhbGci...');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const BearerTokenSchema = v.pipe(v.string(), v.regex(/^Bearer\s+\S+$/), v.brand('BearerToken'));
+
+/** Inferred output type of {@link BearerTokenSchema}. */
+export type BearerToken = v.InferOutput<typeof BearerTokenSchema>;
+
+/**
+ * Schema for MD5 hex hashes (32 characters).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(Md5Schema, 'd41d8cd98f00b204e9800998ecf8427e');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const Md5Schema = v.pipe(v.string(), v.length(32), v.regex(/^[0-9a-f]+$/), v.brand('Md5'));
+
+/** Inferred output type of {@link Md5Schema}. */
+export type Md5 = v.InferOutput<typeof Md5Schema>;
+
+/**
+ * Schema for SHA-512 hex hashes (128 characters).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(Sha512Schema, 'cf83e1357eefb8bd...');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const Sha512Schema = v.pipe(v.string(), v.length(128), v.regex(/^[0-9a-f]+$/), v.brand('Sha512'));
+
+/** Inferred output type of {@link Sha512Schema}. */
+export type Sha512 = v.InferOutput<typeof Sha512Schema>;
+
+/**
+ * Schema for feature flag names (kebab-case).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(FeatureFlagSchema, 'dark-mode');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const FeatureFlagSchema = v.pipe(v.string(), v.regex(/^[a-z][a-z0-9-]*$/), v.brand('FeatureFlag'));
+
+/** Inferred output type of {@link FeatureFlagSchema}. */
+export type FeatureFlag = v.InferOutput<typeof FeatureFlagSchema>;
+
+// =============================================================================
+// Locale Schemas (shared)
+// =============================================================================
+
+/**
+ * Schema for BCP 47 locale tags (e.g., `'en'`, `'en-US'`, `'zh-Hans-CN'`).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(BCP47TagSchema, 'en-US');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const BCP47TagSchema = v.pipe(v.string(), v.regex(/^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?$/), v.brand('BCP47Tag'));
+
+/** Inferred output type of {@link BCP47TagSchema}. */
+export type BCP47Tag = v.InferOutput<typeof BCP47TagSchema>;
+
+/**
+ * Schema for translation keys (dot-separated, e.g., `'app.header.title'`).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(TranslationKeySchema, 'app.header.title');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const TranslationKeySchema = v.pipe(v.string(), v.regex(/^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)*$/), v.brand('TranslationKey'));
+
+/** Inferred output type of {@link TranslationKeySchema}. */
+export type TranslationKey = v.InferOutput<typeof TranslationKeySchema>;
+
+/** Schema for CLDR plural categories. */
+export const PluralCategorySchema = v.picklist(['zero', 'one', 'two', 'few', 'many', 'other']);
+
+/** Inferred output type of {@link PluralCategorySchema}. */
+export type PluralCategory = v.InferOutput<typeof PluralCategorySchema>;
+
+// =============================================================================
+// Error & Logging Schemas
+// =============================================================================
+
+/**
+ * Schema for structured error codes (DOMAIN.CODE format).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(ErrorCodeSchema, 'IO.READ_FAILED');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const ErrorCodeSchema = v.pipe(v.string(), v.regex(/^[A-Z][A-Z_]*\.[A-Z][A-Z_]*$/), v.brand('ErrorCode'));
+
+/** Inferred output type of {@link ErrorCodeSchema}. */
+export type ErrorCode = v.InferOutput<typeof ErrorCodeSchema>;
+
+/**
+ * Schema for correlation/trace IDs (UUID format for request tracing).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(CorrelationIdSchema, '550e8400-e29b-41d4-a716-446655440000');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const CorrelationIdSchema = v.pipe(v.string(), v.uuid(), v.brand('CorrelationId'));
+
+/** Inferred output type of {@link CorrelationIdSchema}. */
+export type CorrelationId = v.InferOutput<typeof CorrelationIdSchema>;
+
+/**
+ * Schema for log messages (1-5000 characters).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(LogMessageSchema, 'User login successful');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const LogMessageSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(5000), v.brand('LogMessage'));
+
+/** Inferred output type of {@link LogMessageSchema}. */
+export type LogMessage = v.InferOutput<typeof LogMessageSchema>;
+
+// =============================================================================
+// File System Schemas (extended)
+// =============================================================================
+
+/**
+ * Schema for file extensions (e.g., `'.ts'`, `'.json'`).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(FileExtensionSchema, '.ts');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const FileExtensionSchema = v.pipe(v.string(), v.regex(/^\.[a-z0-9]+$/), v.brand('FileExtension'));
+
+/** Inferred output type of {@link FileExtensionSchema}. */
+export type FileExtension = v.InferOutput<typeof FileExtensionSchema>;
+
+/**
+ * Schema for absolute file paths (must start with /).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(AbsolutePathSchema, '/usr/local/bin/node');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const AbsolutePathSchema = v.pipe(v.string(), v.startsWith('/'), v.brand('AbsolutePath'));
+
+/** Inferred output type of {@link AbsolutePathSchema}. */
+export type AbsolutePath = v.InferOutput<typeof AbsolutePathSchema>;
+
+/**
+ * Schema for relative file paths (must not start with /).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(RelativePathSchema, 'src/index.ts');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const RelativePathSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.check((s: string): boolean => !s.startsWith('/'), 'Must be a relative path (no leading /)'),
+  v.brand('RelativePath'),
+);
+
+/** Inferred output type of {@link RelativePathSchema}. */
+export type RelativePath = v.InferOutput<typeof RelativePathSchema>;
+
+// =============================================================================
+// CSS Schemas (extended)
+// =============================================================================
+
+/**
+ * Schema for CSS length values (e.g., `'16px'`, `'1.5rem'`, `'100%'`).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(CssLengthSchema, '16px');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const CssLengthSchema = v.pipe(v.string(), v.regex(/^-?\d+(\.\d+)?(px|rem|em|%|vh|vw|dvh|dvw|ch|ex)$/), v.brand('CssLength'));
+
+/** Inferred output type of {@link CssLengthSchema}. */
+export type CssLength = v.InferOutput<typeof CssLengthSchema>;
+
+/**
+ * Schema for CSS class lists (space-separated class names).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(CssClassListSchema, 'btn btn-primary');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const CssClassListSchema = v.pipe(v.string(), v.regex(/^[a-zA-Z_-][\w-]*(\s+[a-zA-Z_-][\w-]*)*$/), v.brand('CssClassList'));
+
+/** Inferred output type of {@link CssClassListSchema}. */
+export type CssClassList = v.InferOutput<typeof CssClassListSchema>;
+
+/**
+ * Schema for HSL color values (e.g., `'hsl(210, 50%, 80%)'`).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(HslColorSchema, 'hsl(210, 50%, 80%)');
+ * if (result.ok) result.data;
+ * ```
+ */
+export const HslColorSchema = v.pipe(v.string(), v.regex(/^hsl\(\d{1,3},\s*\d{1,3}%,\s*\d{1,3}%\)$/), v.brand('HslColor'));
+
+/** Inferred output type of {@link HslColorSchema}. */
+export type HslColor = v.InferOutput<typeof HslColorSchema>;
+
+// =============================================================================
 // Network & Environment Schemas
 // =============================================================================
 
