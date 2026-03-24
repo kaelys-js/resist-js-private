@@ -981,4 +981,14 @@ describe('typescript/require-function-schema', () => {
     const results: LintResult[] = await lint(requireFunctionSchema, code);
     expect(results.length).toBe(0);
   });
+
+  it('exempts schemas/common path (circular dependency)', async () => {
+    const code: string = `const Schema = v.custom<() => void>(() => true);`;
+    const results: LintResult[] = await lint(
+      requireFunctionSchema,
+      code,
+      'packages/shared/schemas/common/src/index.ts',
+    );
+    expect(results.length).toBe(0);
+  });
 });

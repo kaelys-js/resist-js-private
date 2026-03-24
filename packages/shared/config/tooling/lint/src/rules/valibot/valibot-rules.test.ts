@@ -17,6 +17,8 @@ import preferSharedSchema from './prefer-shared-schema.ts';
 import requireMinLength from './require-min-length.ts';
 import noDuplicateSchema from './no-duplicate-schema.ts';
 import noGenericStringSchema from './no-generic-string-schema.ts';
+import requireGenericSchema from './require-generic-schema.ts';
+import preferTemplateLiteral from './prefer-template-literal.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -498,5 +500,83 @@ const Schema = v.strictObject({
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBeGreaterThanOrEqual(1);
     expect(results[0].message).toContain('storagePrefix');
+  });
+});
+
+// =============================================================================
+// valibot/require-generic-schema
+// =============================================================================
+
+describe('valibot/require-generic-schema', () => {
+  it('flags non-generic schema used by generic type', async () => {
+    const code: string = `
+const FooBaseSchema = v.strictObject({ name: v.string() });
+type Foo<T> = v.InferOutput<typeof FooBaseSchema> & { data: T };
+`;
+    const results: LintResult[] = await lint(requireGenericSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('FooBaseSchema');
+    expect(results[0].message).toContain('generic()');
+  });
+
+  it('passes schema created with generic()', async () => {
+    const code: string = `
+const FooSchema = generic(<T>(s: v.GenericSchema<T>) => v.strictObject({ data: s }));
+type Foo<T> = v.InferOutput<ReturnType<typeof FooSchema<T>>>;
+`;
+    const results: LintResult[] = await lint(requireGenericSchema, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes non-generic type alias', async () => {
+    const code: string = `
+const FooSchema = v.strictObject({ name: v.string() });
+type Foo = v.InferOutput<typeof FooSchema>;
+`;
+    const results: LintResult[] = await lint(requireGenericSchema, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/prefer-template-literal
+// =============================================================================
+
+describe('valibot/prefer-template-literal', () => {
+  it('warns on v.pipe(v.string(), v.regex()) with decomposable pattern', async () => {
+    const code: string = `const Schema = v.pipe(v.string(), v.regex(/^prefix_\\d+$/));`;
+    const results: LintResult[] = await lint(preferTemplateLiteral, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('templateLiteral()');
+  });
+
+  it('warns on key:value pattern', async () => {
+    const code: string = `const Schema = v.pipe(v.string(), v.regex(/^.+:.+$/));`;
+    const results: LintResult[] = await lint(preferTemplateLiteral, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes templateLiteral usage', async () => {
+    const code: string = `const Schema = templateLiteral(['prefix_', v.number()]);`;
+    const results: LintResult[] = await lint(preferTemplateLiteral, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes v.pipe with v.email (no regex)', async () => {
+    const code: string = `const Schema = v.pipe(v.string(), v.email());`;
+    const results: LintResult[] = await lint(preferTemplateLiteral, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes complex regex with optional group', async () => {
+    const code: string = `const Schema = v.pipe(v.string(), v.regex(/^\\d{1,3}(\\s+\\d{1,3})?$/));`;
+    const results: LintResult[] = await lint(preferTemplateLiteral, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes v.pipe with v.minLength only', async () => {
+    const code: string = `const Schema = v.pipe(v.string(), v.minLength(1));`;
+    const results: LintResult[] = await lint(preferTemplateLiteral, code);
+    expect(results.length).toBe(0);
   });
 });

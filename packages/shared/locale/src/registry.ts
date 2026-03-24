@@ -27,6 +27,8 @@ import {
   VoidSchema,
 } from '@/schemas/common';
 import { ERRORS, type Result, err, ok, okUnchecked } from '@/schemas/result/result';
+import { functionSchema } from '@/schemas/function/function';
+import { args } from '@/schemas/function/args';
 import { safeParse } from '@/utils/result/safe';
 
 import { type BuiltLocale, type FormatterMap, buildLocale } from '@/locale/template';
@@ -492,7 +494,7 @@ const NamespacedRegistryOptionsSchema = v.strictObject({
   /** When `false`, allows partial locale files. Default: `true`. */
   strict: v.optional(BoolSchema),
   /** Optional custom formatters for pipe syntax and message ref modifiers. */
-  formatters: v.optional(v.custom<FormatterMap>((): Bool => true)), // cast safe: FormatterMap contains function types
+  formatters: v.optional(v.record(StrSchema, v.pipe(functionSchema(), args(v.tuple([StrSchema, v.optional(StrSchema)]))))),
 });
 
 /** Options for creating a namespaced locale registry. See {@link NamespacedRegistryOptionsSchema}. */
