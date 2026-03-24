@@ -73,6 +73,10 @@
           {
             "type": "command",
             "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-check-user-messages.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-lint-rule-edit.sh"
           }
         ]
       },
