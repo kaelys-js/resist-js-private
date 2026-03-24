@@ -4,9 +4,11 @@
  * Forbids `throw` statements. Use `return err(ERRORS.DOMAIN.CODE, message)`
  * instead to maintain the Result pattern.
  *
- * Exception: `throw result.error` is allowed at integration boundaries
- * (where the caller doesn't understand Result) when the line contains
- * an `// integration boundary` comment.
+ * Exception: throws are allowed at integration boundaries (where the caller
+ * doesn't understand Result) when the line or surrounding block contains
+ * an `// integration boundary: <reason>` comment. Allowed forms:
+ * - `throw result.error` — re-throw the original error
+ * - `throw new Error(...)` — wrap with a descriptive message
  *
  * @module
  */
@@ -14,10 +16,34 @@
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
 /**
+ * Check if a line (or its surrounding IfStatement block) contains an
+ * `// integration boundary: <reason>` comment.
+ *
+ * @param {AstNode} node - The ThrowStatement node
+ * @param {VisitorContext} context - Visitor context
+ * @returns {boolean} Whether this line has an integration boundary comment
+ */
+function hasIntegrationBoundaryComment(node: AstNode, context: VisitorContext): boolean {
+  const lines: string[] = context.content.split('\n');
+  const lineIdx: number = node.loc.start.line - 1;
+  if (lineIdx < 0 || lineIdx >= lines.length) return false;
+
+  const currentLine: string = lines[lineIdx];
+  if (/\/\/.*integration boundary:\s*\S+/i.test(currentLine)) return true;
+
+  // Check the line immediately above (comment may be on its own line above the throw)
+  if (lineIdx > 0 && /\/\/.*integration boundary:\s*\S+/i.test(lines[lineIdx - 1])) return true;
+
+  return false;
+}
+
+/**
  * Check if a throw is an allowed integration boundary throw.
  *
- * Allowed when throwing `.error` property AND the line has
- * an `// integration boundary` comment.
+ * Allowed when the throw has an `// integration boundary: <reason>` comment
+ * on its line or the line immediately above, AND the argument is either:
+ * - `.error` property access (e.g., `throw result.error`)
+ * - `new Error(...)` constructor
  *
  * @param {AstNode} node - The ThrowStatement node
  * @param {VisitorContext} context - Visitor context
@@ -27,20 +53,19 @@ function isIntegrationBoundaryThrow(node: AstNode, context: VisitorContext): boo
   const argument = node.argument as AstNode | undefined;
   if (!argument) return false;
 
-  // Must be throwing `.error` property (e.g., result.error)
+  // Check if the argument is `.error` property access (e.g., result.error)
   const isErrorAccess: boolean =
     (argument.type === 'MemberExpression' || argument.type === 'StaticMemberExpression') &&
     ((argument.property as AstNode | undefined)?.name as string) === 'error';
 
-  if (!isErrorAccess) return false;
+  // Check if the argument is `new Error(...)` constructor
+  const isNewError: boolean =
+    argument.type === 'NewExpression' &&
+    ((argument.callee as AstNode | undefined)?.name as string) === 'Error';
 
-  // Must have `// integration boundary` comment on the same line
-  const lines: string[] = context.content.split('\n');
-  const lineIdx: number = node.loc.start.line - 1;
-  if (lineIdx < 0 || lineIdx >= lines.length) return false;
+  if (!isErrorAccess && !isNewError) return false;
 
-  const currentLine: string = lines[lineIdx];
-  return /\/\/.*integration boundary:\s*\S+/i.test(currentLine);
+  return hasIntegrationBoundaryComment(node, context);
 }
 
 const rule: TypeScriptRule = {

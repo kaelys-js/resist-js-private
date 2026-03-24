@@ -362,10 +362,25 @@ describe('typescript/no-throw', () => {
     expect(results.length).toBe(1);
   });
 
-  it('still flags throw new Error even with integration boundary comment', async () => {
+  it('still flags throw new Error with integration boundary comment missing colon+reason', async () => {
     const code: string = `throw new Error('fail'); // integration boundary`;
     const results: LintResult[] = await lint(noThrow, code);
     expect(results.length).toBe(1);
+  });
+
+  it('allows throw new Error with proper integration boundary comment', async () => {
+    const code: string = `throw new Error('fail'); // integration boundary: module initialization requires valid defaults`;
+    const results: LintResult[] = await lint(noThrow, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows throw new Error with integration boundary comment on line above', async () => {
+    const code: string = `
+// integration boundary: module initialization requires valid defaults
+throw new Error('fail');
+`;
+    const results: LintResult[] = await lint(noThrow, code);
+    expect(results.length).toBe(0);
   });
 });
 
@@ -592,6 +607,29 @@ function example() {
 `;
     const results: LintResult[] = await lint(noModuleSideEffects, code);
     expect(results.length).toBe(0);
+  });
+
+  it('passes top-level if-throw with integration boundary comment', async () => {
+    const code: string = `
+const parsed = safeParse(Schema, data);
+if (!parsed.ok) {
+  // integration boundary: module initialization requires valid defaults
+  throw new Error('validation failed');
+}
+`;
+    const results: LintResult[] = await lint(noModuleSideEffects, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('still flags top-level if-throw without integration boundary comment', async () => {
+    const code: string = `
+const parsed = safeParse(Schema, data);
+if (!parsed.ok) {
+  throw new Error('validation failed');
+}
+`;
+    const results: LintResult[] = await lint(noModuleSideEffects, code);
+    expect(results.length).toBe(1);
   });
 });
 

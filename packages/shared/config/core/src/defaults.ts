@@ -7,8 +7,10 @@
  * @module
  */
 
+import type * as v from 'valibot';
+
 import { CoreConfigObjectSchema, type CoreConfig } from '@/schemas/core-config/config';
-import type { DeepReadonly } from '@/schemas/result/result';
+import type { DeepReadonly, Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 
 /**
@@ -41,7 +43,7 @@ import { safeParse } from '@/utils/result/safe';
  * defaults.versions.node; // => '24.13.0'
  * ```
  */
-const _defaultsInput = {
+const defaultsInput: v.InferInput<typeof CoreConfigObjectSchema> = {
   // -------------------------------------------------------------------------
   // Business Configuration
   // -------------------------------------------------------------------------
@@ -226,11 +228,12 @@ const _defaultsInput = {
 };
 
 /** Parsed and validated defaults with all schema defaults filled in. */
-const _parsed = safeParse(CoreConfigObjectSchema, _defaultsInput);
+const parsed: Result<CoreConfig> = safeParse(CoreConfigObjectSchema, defaultsInput);
 
-if (!_parsed.ok) {
-  throw new Error(`Default config validation failed: ${_parsed.error.message}`);
+if (!parsed.ok) {
+  // integration boundary: module initialization requires valid defaults
+  throw new Error(`Default config validation failed: ${parsed.error.message}`);
 }
 
 /** Fully-resolved default configuration values for the entire monorepo. */
-export const defaults: DeepReadonly<CoreConfig> = _parsed.data;
+export const defaults: DeepReadonly<CoreConfig> = parsed.data;

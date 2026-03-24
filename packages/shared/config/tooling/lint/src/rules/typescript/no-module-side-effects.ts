@@ -24,6 +24,27 @@ function containsThrow(statement: AstNode): boolean {
   return source.includes('"type":"ThrowStatement"');
 }
 
+/**
+ * Check if a top-level if-statement's throw is annotated with an integration boundary comment.
+ *
+ * Scans all lines spanned by the statement for `// integration boundary: ...`.
+ *
+ * @param {AstNode} statement - The IfStatement node
+ * @param {VisitorContext} context - Visitor context
+ * @returns {boolean} Whether the statement is an integration boundary
+ */
+function isIntegrationBoundaryIf(statement: AstNode, context: VisitorContext): boolean {
+  const lines: string[] = context.content.split('\n');
+  const startLine: number = statement.loc.start.line - 1;
+  const endLine: number = statement.loc.end.line - 1;
+
+  for (let i: number = startLine; i <= endLine && i < lines.length; i++) {
+    if (/\/\/.*integration boundary:\s*\S+/i.test(lines[i])) return true;
+  }
+
+  return false;
+}
+
 const rule: TypeScriptRule = {
   id: 'typescript/no-module-side-effects',
   description: 'Top-level code must not throw or execute side-effect calls on import',
@@ -68,8 +89,8 @@ const rule: TypeScriptRule = {
           continue;
         }
 
-        // Flag top-level if-statements containing throws
-        if (statement.type === 'IfStatement' && containsThrow(statement)) {
+        // Flag top-level if-statements containing throws (unless integration boundary)
+        if (statement.type === 'IfStatement' && containsThrow(statement) && !isIntegrationBoundaryIf(statement, context)) {
           results.push({
             file: context.file,
             line: statement.loc.start.line,

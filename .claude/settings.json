@@ -31,6 +31,15 @@
             "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-commit-verify.sh"
           }
         ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-agent-approval.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [
