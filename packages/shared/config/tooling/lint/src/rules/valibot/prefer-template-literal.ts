@@ -45,6 +45,11 @@ function isDecomposable(source: string): boolean {
   // Strip anchors
   const inner: string = source.slice(1, -1);
 
+  // Reject character classes — templateLiteral() can't express [a-z], [0-9], etc.
+  if (/\[[^\]]*-[^\]]*\]/.test(inner)) {
+    return false;
+  }
+
   // Reject complex features
   if (/\(\?[=!<]/.test(inner)) {
     return false; // Lookaheads/lookbehinds

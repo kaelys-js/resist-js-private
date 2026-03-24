@@ -10,6 +10,8 @@
 
 import * as v from 'valibot';
 
+import { DescriptionSchema } from '@/schemas/common';
+
 import { CiSchema } from '@/schemas/core-config/tooling';
 
 // =============================================================================
@@ -104,7 +106,7 @@ export const ProductConfigSchema = v.strictObject({
   /** Human-readable product display name. */
   name: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(100)),
   /** Product description. */
-  description: v.optional(v.pipe(v.string(), v.maxLength(500)), ''),
+  description: v.optional(DescriptionSchema, ''),
   /** Product-specific domain (optional, defaults to subdomain of company domain). */
   domain: v.optional(
     v.pipe(v.string(), v.maxLength(253), v.regex(/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/i)),

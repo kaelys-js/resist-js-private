@@ -866,7 +866,10 @@ export const InfisicalSchema = v.strictObject({
   /** Infisical server Docker image version (default: '0.151.0'). */
   serverVersion: v.optional(PinnedVersionSchema, '0.151.0'),
   /** Infisical "global" project slug (default: 'global'). */
-  globalProjectSlug: v.optional(v.pipe(v.string(), v.minLength(1), v.maxLength(50), v.regex(/^[a-z0-9-]+$/)), 'global'),
+  globalProjectSlug: v.optional(
+    v.pipe(v.string(), v.minLength(1), v.maxLength(50), v.regex(/^[a-z0-9-]+$/)),
+    'global',
+  ),
   /** Authentication configuration. */
   auth: v.optional(InfisicalAuthSchema, {}),
   /** Docker Compose configuration (bootstrap mode). */
