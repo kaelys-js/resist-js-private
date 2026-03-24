@@ -9,6 +9,9 @@
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
+/** File paths exempt from this rule (test infrastructure, test files). */
+const EXEMPT_PATHS: readonly RegExp[] = [/config\/test\//, /\.test\.ts$/, /\.spec\.ts$/];
+
 /**
  * Check if a type annotation is a Result type.
  *
@@ -187,6 +190,10 @@ const rule: TypeScriptRule = {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
 
+      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
+        return results;
+      }
+
       const declaration = node.declaration as AstNode | undefined;
       if (!declaration) {
         return results;
@@ -226,6 +233,10 @@ const rule: TypeScriptRule = {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
 
+      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
+        return results;
+      }
+
       // Skip exported functions — handled by ExportNamedDeclaration/ExportDefaultDeclaration
       const beforeFunc: string = context.content
         .slice(Math.max(0, node.start - 20), node.start)
@@ -243,6 +254,10 @@ const rule: TypeScriptRule = {
 
     ExportDefaultDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
+
+      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
+        return results;
+      }
 
       const declaration = node.declaration as AstNode | undefined;
       if (!declaration) {

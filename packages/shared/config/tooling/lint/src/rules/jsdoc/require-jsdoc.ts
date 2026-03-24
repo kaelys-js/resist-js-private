@@ -8,6 +8,9 @@
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
+/** File paths exempt from this rule (test files). */
+const EXEMPT_PATHS: readonly RegExp[] = [/\.test\.ts$/, /\.spec\.ts$/];
+
 /**
  * Check whether a node has a leading JSDoc comment in the source.
  *
@@ -45,6 +48,11 @@ const rule: TypeScriptRule = {
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
+
+      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
+        return results;
+      }
+
       const declaration = node.declaration as AstNode | undefined;
       if (!declaration) {
         return results;

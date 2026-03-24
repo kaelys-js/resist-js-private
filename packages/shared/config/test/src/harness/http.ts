@@ -1,6 +1,8 @@
 /**
  * HTTP Request/Response factories for testing Cloudflare Workers and API handlers.
  *
+ * @module
+ *
  * Cloudflare Workers use the standard Web `Request`/`Response` API (not Node.js
  * `req`/`res`). These factories eliminate the boilerplate of constructing
  * `Request` and `Response` objects in tests.
@@ -34,9 +36,11 @@
  *   });
  * });
  * ```
- *
- * @module
  */
+
+// =============================================================================
+// Types
+// =============================================================================
 
 /**
  * Options for constructing a test `Request`.
@@ -89,6 +93,10 @@ export type CreateRequestOptions = {
   baseUrl?: string;
 };
 
+// =============================================================================
+// API
+// =============================================================================
+
 /**
  * Create a `Request` object for testing Workers/API handlers.
  *
@@ -97,10 +105,10 @@ export type CreateRequestOptions = {
  * - Relative URLs are resolved against `baseUrl` (default: `http://localhost`)
  * - Full URLs are used as-is
  *
- * @param method - HTTP method (GET, POST, PUT, DELETE, PATCH, etc.)
- * @param url - URL path (e.g., '/api/users') or full URL
- * @param options - Body, headers, and base URL configuration
- * @returns A standard Web `Request` object
+ * @param {string} method - HTTP method (GET, POST, PUT, DELETE, PATCH, etc.)
+ * @param {string} url - URL path (e.g., '/api/users') or full URL
+ * @param {CreateRequestOptions} options - Body, headers, and base URL configuration
+ * @returns {Request} A standard Web `Request` object
  *
  * @example
  * ```typescript
@@ -130,10 +138,10 @@ export function createRequest(
   url: string,
   options: CreateRequestOptions = {},
 ): Request {
-  const { body, headers = {}, baseUrl = 'http://localhost' } = options;
+  const { body, headers = {}, baseUrl = 'http://localhost' }: CreateRequestOptions = options;
 
   // Resolve URL: use as-is if it's already absolute, otherwise prepend baseUrl
-  const fullUrl =
+  const fullUrl: string =
     url.startsWith('http://') || url.startsWith('https://') ? url : `${baseUrl}${url}`;
 
   const init: RequestInit = {
@@ -147,7 +155,8 @@ export function createRequest(
     } else {
       init.body = JSON.stringify(body);
       // Set Content-Type if not explicitly provided
-      const headerRecord = init.headers as Record<string, string>;
+      const headerRecord = init.headers as Record<string, string>; // cast safe: headers initialized as plain object above
+
       if (!headerRecord['Content-Type'] && !headerRecord['content-type']) {
         headerRecord['Content-Type'] = 'application/json';
       }
@@ -178,9 +187,9 @@ export type CreateResponseOptions = {
  * Objects are automatically JSON-serialized with the `Content-Type: application/json`
  * header. Strings are sent as-is. `null`/`undefined` means no body.
  *
- * @param body - Response body. Objects are JSON-serialized; strings sent as-is.
- * @param options - Status code and header configuration
- * @returns A standard Web `Response` object
+ * @param {unknown} body - Response body. Objects are JSON-serialized; strings sent as-is.
+ * @param {CreateResponseOptions} options - Status code and header configuration
+ * @returns {Response} A standard Web `Response` object
  *
  * @example
  * ```typescript
@@ -205,7 +214,7 @@ export type CreateResponseOptions = {
  * ```
  */
 export function createResponse(body?: unknown, options: CreateResponseOptions = {}): Response {
-  const { status = 200, headers = {} } = options;
+  const { status = 200, headers = {} }: CreateResponseOptions = options;
 
   let responseBody: string | null = null;
   const responseHeaders: Record<string, string> = { ...headers };
@@ -233,8 +242,8 @@ export function createResponse(body?: unknown, options: CreateResponseOptions = 
  * Convenience wrapper that avoids writing `(await res.json()) as T` in every test.
  *
  * @typeParam T - Expected shape of the JSON response. Default: `unknown`.
- * @param response - The response to parse
- * @returns The parsed JSON body, cast to type `T`
+ * @param {Response} response - The response to parse
+ * @returns {Promise<T>} The parsed JSON body, cast to type `T`
  * @throws If the response body is not valid JSON
  *
  * @example
@@ -250,5 +259,5 @@ export function createResponse(body?: unknown, options: CreateResponseOptions = 
  * ```
  */
 export async function parseJson<T = unknown>(response: Response): Promise<T> {
-  return (await response.json()) as T;
+  return (await response.json()) as T; // cast safe: caller provides T matching expected JSON shape
 }

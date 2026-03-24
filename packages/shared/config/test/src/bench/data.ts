@@ -1,6 +1,8 @@
 /**
  * Benchmark data generators for creating consistent, reproducible test data at scale.
  *
+ * @module
+ *
  * Use these utilities to generate data outside of `bench()` calls so the generation
  * cost is excluded from the measurement. Data is deterministic (based on index/position)
  * so benchmarks produce consistent results across runs.
@@ -29,20 +31,49 @@
  *   });
  * });
  * ```
- *
- * @module
  */
+
+// =============================================================================
+// Types
+// =============================================================================
+
+/**
+ * Options for generating file paths.
+ */
+export type GenerateFilePathsOptions = {
+  /**
+   * File extensions to cycle through.
+   * @default ['.ts', '.js', '.json', '.svelte']
+   */
+  extensions?: string[];
+
+  /**
+   * Maximum directory nesting depth.
+   * @default 4
+   */
+  maxDepth?: number;
+
+  /**
+   * Base directory prefix for all paths.
+   * @default 'src'
+   */
+  base?: string;
+};
+
+// =============================================================================
+// Constants
+// =============================================================================
 
 /**
  * Character set used for generating random strings.
  * Includes lowercase letters and digits for realistic-looking data.
  */
-const CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
+const CHARS: string = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
 /**
  * Directory name segments used for generating realistic file paths.
  */
-const DIR_SEGMENTS = [
+const DIR_SEGMENTS: readonly string[] = [
   'src',
   'lib',
   'utils',
@@ -68,7 +99,7 @@ const DIR_SEGMENTS = [
 /**
  * File name stems used for generating realistic file paths.
  */
-const FILE_NAMES = [
+const FILE_NAMES: readonly string[] = [
   'index',
   'main',
   'app',
@@ -91,21 +122,27 @@ const FILE_NAMES = [
   'formatter',
 ];
 
+// =============================================================================
+// API
+// =============================================================================
+
 /**
  * Generate a deterministic string from an index and target length.
  * Not cryptographically random — optimized for speed and reproducibility.
  *
- * @param index - Seed index for deterministic generation
- * @param length - Target length of the generated string
- * @returns A deterministic string of the specified length
+ * @param {number} index - Seed index for deterministic generation
+ * @param {number} length - Target length of the generated string
+ * @returns {string} A deterministic string of the specified length
  */
 function deterministicString(index: number, length: number): string {
   const chars: string[] = [];
-  let seed = index;
-  for (let i = 0; i < length; i++) {
+  let seed: number = index;
+
+  for (let i: number = 0; i < length; i++) {
     chars.push(CHARS[seed % CHARS.length] ?? '');
     seed = (seed * 31 + 7) % 2_147_483_647;
   }
+
   return chars.join('');
 }
 
@@ -115,9 +152,9 @@ function deterministicString(index: number, length: number): string {
  * Strings are generated using a fast deterministic algorithm (not `Math.random()`),
  * so the same `count` and `length` always produce the same output.
  *
- * @param count - Number of strings to generate
- * @param length - Length of each string in characters. Default: `80`
- * @returns Array of generated strings
+ * @param {number} count - Number of strings to generate
+ * @param {number} length - Length of each string in characters. Default: `80`
+ * @returns {string[]} Array of generated strings
  *
  * @example
  * ```typescript
@@ -135,36 +172,15 @@ function deterministicString(index: number, length: number): string {
  * });
  * ```
  */
-export function generateStrings(count: number, length = 80): string[] {
+export function generateStrings(count: number, length: number = 80): string[] {
   const result: string[] = [];
-  for (let i = 0; i < count; i++) {
+
+  for (let i: number = 0; i < count; i++) {
     result.push(deterministicString(i, length));
   }
+
   return result;
 }
-
-/**
- * Options for generating file paths.
- */
-export type GenerateFilePathsOptions = {
-  /**
-   * File extensions to cycle through.
-   * @default ['.ts', '.js', '.json', '.svelte']
-   */
-  extensions?: string[];
-
-  /**
-   * Maximum directory nesting depth.
-   * @default 4
-   */
-  maxDepth?: number;
-
-  /**
-   * Base directory prefix for all paths.
-   * @default 'src'
-   */
-  base?: string;
-};
 
 /**
  * Generate realistic-looking file paths for benchmarking file processing code.
@@ -173,9 +189,9 @@ export type GenerateFilePathsOptions = {
  * and file names (`index`, `config`, `handler`, etc.) with configurable
  * extensions and nesting depth.
  *
- * @param count - Number of paths to generate
- * @param options - Path generation configuration
- * @returns Array of file path strings (e.g., `'src/utils/helpers/parser.ts'`)
+ * @param {number} count - Number of paths to generate
+ * @param {GenerateFilePathsOptions} options - Path generation configuration
+ * @returns {string[]} Array of file path strings (e.g., `'src/utils/helpers/parser.ts'`)
  *
  * @example
  * ```typescript
@@ -198,26 +214,33 @@ export type GenerateFilePathsOptions = {
  * ```
  */
 export function generateFilePaths(count: number, options: GenerateFilePathsOptions = {}): string[] {
-  const { extensions = ['.ts', '.js', '.json', '.svelte'], maxDepth = 4, base = 'src' } = options;
+  const {
+    extensions = ['.ts', '.js', '.json', '.svelte'],
+    maxDepth = 4,
+    base = 'src',
+  }: GenerateFilePathsOptions = options;
 
   const result: string[] = [];
-  for (let i = 0; i < count; i++) {
+
+  for (let i: number = 0; i < count; i++) {
     // Deterministic depth: 1 to maxDepth
-    const depth = (i % maxDepth) + 1;
+    const depth: number = (i % maxDepth) + 1;
 
     const segments: string[] = [base];
-    let seed = i;
-    for (let d = 0; d < depth - 1; d++) {
+    let seed: number = i;
+
+    for (let d: number = 0; d < depth - 1; d++) {
       segments.push(DIR_SEGMENTS[seed % DIR_SEGMENTS.length] ?? '');
       seed = (seed * 31 + 7) % 2_147_483_647;
     }
 
-    const fileName = FILE_NAMES[seed % FILE_NAMES.length];
-    const ext = extensions[i % extensions.length];
+    const fileName: string | undefined = FILE_NAMES[seed % FILE_NAMES.length];
+    const ext: string | undefined = extensions[i % extensions.length];
     segments.push(`${fileName}${ext}`);
 
     result.push(segments.join('/'));
   }
+
   return result;
 }
 
@@ -228,9 +251,9 @@ export function generateFilePaths(count: number, options: GenerateFilePathsOptio
  * a clean API for generating benchmark datasets.
  *
  * @typeParam T - The type of objects to generate
- * @param count - Number of objects to generate
- * @param factory - Function that creates one object given its index (0-based)
- * @returns Array of generated objects
+ * @param {number} count - Number of objects to generate
+ * @param {(index: number) => T} factory - Function that creates one object given its index (0-based)
+ * @returns {T[]} Array of generated objects
  *
  * @example
  * ```typescript
@@ -257,7 +280,7 @@ export function generateFilePaths(count: number, options: GenerateFilePathsOptio
  * ```
  */
 export function generateObjects<T>(count: number, factory: (index: number) => T): T[] {
-  return Array.from({ length: count }, (_, i) => factory(i));
+  return Array.from({ length: count }, (_: unknown, i: number): T => factory(i));
 }
 
 /**
@@ -266,9 +289,9 @@ export function generateObjects<T>(count: number, factory: (index: number) => T)
  * Generates a string by repeating a pattern until the target size is reached.
  * Useful for benchmarking parsers, serializers, and I/O operations.
  *
- * @param bytes - Target size in bytes (characters for ASCII patterns)
- * @param pattern - Repeating character or string. Default: `'x'`
- * @returns A string of approximately the requested byte size
+ * @param {number} bytes - Target size in bytes (characters for ASCII patterns)
+ * @param {string} pattern - Repeating character or string. Default: `'x'`
+ * @returns {string} A string of approximately the requested byte size
  *
  * @example
  * ```typescript
@@ -289,7 +312,7 @@ export function generateObjects<T>(count: number, factory: (index: number) => T)
  * });
  * ```
  */
-export function generatePayload(bytes: number, pattern = 'x'): string {
+export function generatePayload(bytes: number, pattern: string = 'x'): string {
   if (pattern.length === 0) {
     throw new Error('generatePayload: pattern must not be empty');
   }
@@ -298,7 +321,8 @@ export function generatePayload(bytes: number, pattern = 'x'): string {
     return pattern.repeat(bytes);
   }
 
-  const repetitions = Math.ceil(bytes / pattern.length);
+  const repetitions: number = Math.ceil(bytes / pattern.length);
+
   return pattern.repeat(repetitions).slice(0, bytes);
 }
 
@@ -311,9 +335,9 @@ export function generatePayload(bytes: number, pattern = 'x'): string {
  *
  * Total nodes: approximately `breadth^depth` (exponential — keep depth small).
  *
- * @param depth - Number of nesting levels. Keep ≤ 8 to avoid excessive memory.
- * @param breadth - Number of children per node. Default: `3`
- * @returns A nested object tree
+ * @param {number} depth - Number of nesting levels. Keep ≤ 8 to avoid excessive memory.
+ * @param {number} breadth - Number of children per node. Default: `3`
+ * @returns {Record<string, unknown>} A nested object tree
  *
  * @example
  * ```typescript
@@ -334,14 +358,16 @@ export function generatePayload(bytes: number, pattern = 'x'): string {
  * });
  * ```
  */
-export function generateNestedObjects(depth: number, breadth = 3): Record<string, unknown> {
+export function generateNestedObjects(depth: number, breadth: number = 3): Record<string, unknown> {
   if (depth <= 0) {
     return { value: 'leaf' };
   }
 
   const node: Record<string, unknown> = {};
-  for (let i = 0; i < breadth; i++) {
+
+  for (let i: number = 0; i < breadth; i++) {
     node[`child_${i}`] = generateNestedObjects(depth - 1, breadth);
   }
+
   return node;
 }

@@ -1368,7 +1368,10 @@ export function renderMessage(
     return templateResult;
   }
 
-  const paramsResult: Result<Record<Str, unknown>> = safeParse(v.record(v.string(), v.unknown()), params);
+  const paramsResult: Result<Record<Str, unknown>> = safeParse(
+    v.record(v.string(), v.unknown()),
+    params,
+  );
 
   if (!paramsResult.ok) {
     return paramsResult;
@@ -1805,7 +1808,7 @@ function replaceNumberBlocks(
       if (numberMatch && numberMatch[1]) {
         const [, key]: Str[] = numberMatch;
         const value: Num = Number(params[key]);
-        const [, , styleArg]: (OptionalStr)[] = numberMatch;
+        const [, , styleArg]: OptionalStr[] = numberMatch;
         let options: Intl.NumberFormatOptions | undefined;
 
         if (styleArg && styleArg.startsWith('::')) {
@@ -1881,7 +1884,7 @@ function replaceDateTimeBlocks(
       );
 
       if (dtMatch && dtMatch[1] && dtMatch[2]) {
-        const [, key, kind, rawStyleArg]: (OptionalStr)[] = dtMatch;
+        const [, key, kind, rawStyleArg]: OptionalStr[] = dtMatch;
         const rawValue: unknown = params[key];
         const dateValue: Date | Num = rawValue instanceof Date ? rawValue : Number(rawValue);
 
@@ -2133,7 +2136,8 @@ function buildLocaleEntries(
         if (typeof item === 'object' && item !== null) {
           const rendered: RawLocaleStrings = {};
 
-          for (const [fieldKey, fieldValue] of Object.entries(item as Record<Str, unknown>)) { // cast safe: typeof item === 'object' guard above
+          for (const [fieldKey, fieldValue] of Object.entries(item as Record<Str, unknown>)) {
+            // cast safe: typeof item === 'object' guard above
             // Runtime-guarded by typeof === 'object' check above
             if (typeof fieldValue === 'string') {
               const renderResult: Result<Str> = renderMessage(fieldValue, context);
@@ -2189,7 +2193,9 @@ function getSchemaEntries(schema: v.GenericSchema): NullableSchemaEntries {
   if (Array.isArray(s.pipe)) {
     for (const item of s.pipe) {
       if (typeof item === 'object' && item !== null) {
-        const entries: Record<Str, v.GenericSchema> | undefined = getSchemaEntries(item as v.GenericSchema); // cast safe: runtime-guarded by typeof check
+        const entries: Record<Str, v.GenericSchema> | undefined = getSchemaEntries(
+          item as v.GenericSchema,
+        ); // cast safe: runtime-guarded by typeof check
 
         if (entries) {
           return entries;

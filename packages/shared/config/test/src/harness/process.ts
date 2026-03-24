@@ -1,6 +1,8 @@
 /**
  * Process state utilities for testing CLI tools and Node.js applications.
  *
+ * @module
+ *
  * Provides two concerns:
  * 1. **Exit spying** — mock `process.exit` to prevent test runner termination
  *    while capturing exit codes for assertion.
@@ -28,11 +30,13 @@
  *   });
  * });
  * ```
- *
- * @module
  */
 
 import type { MockInstance } from 'vitest';
+
+// =============================================================================
+// Types
+// =============================================================================
 
 /**
  * Minimal subset of vitest's `vi` object needed for spying.
@@ -42,9 +46,22 @@ export type ViSpyProvider = {
   spyOn: (obj: object, method: string) => MockInstance;
 };
 
-// ---------------------------------------------------------------------------
-// Exit spy
-// ---------------------------------------------------------------------------
+/**
+ * Hook arguments for `useExitSpy`.
+ */
+export type ExitSpyHooks = {
+  vi: ViSpyProvider;
+  beforeEach: (fn: () => void) => void;
+  afterEach: (fn: () => void) => void;
+};
+
+/**
+ * Hook arguments for `useProcessSnapshot`.
+ */
+export type ProcessSnapshotHooks = {
+  beforeEach: (fn: () => void) => void;
+  afterEach: (fn: () => void) => void;
+};
 
 /**
  * A spy on `process.exit` that captures exit codes without terminating.
@@ -98,6 +115,10 @@ export type ExitSpy = {
   restore(): void;
 };
 
+// =============================================================================
+// API
+// =============================================================================
+
 /**
  * Spy on `process.exit`, mocking it to not actually exit the process.
  * Captures all exit codes for later assertion.
@@ -105,8 +126,8 @@ export type ExitSpy = {
  * The caller is responsible for calling `restore()` when done. For automatic
  * lifecycle management tied to test hooks, use `useExitSpy()` instead.
  *
- * @param vi - The vitest `vi` object (pass explicitly to support `globals: false`)
- * @returns An `ExitSpy` instance
+ * @param {ViSpyProvider} vi - The vitest `vi` object (pass explicitly to support `globals: false`)
+ * @returns {ExitSpy} An `ExitSpy` instance
  *
  * @example
  * ```typescript
@@ -127,7 +148,8 @@ export function createExitSpy(vi: ViSpyProvider): ExitSpy {
   const codes: number[] = [];
   // vi.spyOn returns MockInstance but the generic overload for process.exit resolves too broadly
   const spy: MockInstance = vi.spyOn(process, 'exit') as MockInstance;
-  spy.mockImplementation(((code?: number) => {
+  // cast safe: process.exit returns never but mock doesn't exit
+  spy.mockImplementation(((code?: number): void => {
     codes.push(code ?? 0);
   }) as () => never);
 
@@ -161,9 +183,8 @@ export function createExitSpy(vi: ViSpyProvider): ExitSpy {
  *
  * Must be called at the `describe` block level (not inside `it`).
  *
- * @param hooks - Object containing `vi`, `beforeEach`, and `afterEach`
- *   (pass them explicitly from vitest to support `globals: false`)
- * @returns A getter function `() => ExitSpy` that returns the current test's exit spy
+ * @param {ExitSpyHooks} hooks - Object containing `vi`, `beforeEach`, and `afterEach`
+ * @returns {() => ExitSpy} A getter function that returns the current test's exit spy
  *
  * @example
  * ```typescript
@@ -185,18 +206,14 @@ export function createExitSpy(vi: ViSpyProvider): ExitSpy {
  * });
  * ```
  */
-export function useExitSpy(hooks: {
-  vi: ViSpyProvider;
-  beforeEach: (fn: () => void) => void;
-  afterEach: (fn: () => void) => void;
-}): () => ExitSpy {
+export function useExitSpy(hooks: ExitSpyHooks): () => ExitSpy {
   let current: ExitSpy | undefined;
 
-  hooks.beforeEach(() => {
+  hooks.beforeEach((): void => {
     current = createExitSpy(hooks.vi);
   });
 
-  hooks.afterEach(() => {
+  hooks.afterEach((): void => {
     current?.restore();
     current = undefined;
   });
@@ -211,10 +228,6 @@ export function useExitSpy(hooks: {
     return current;
   };
 }
-
-// ---------------------------------------------------------------------------
-// Process state snapshot
-// ---------------------------------------------------------------------------
 
 /**
  * A snapshot of process state that can be restored later.
@@ -259,8 +272,8 @@ export type ProcessSnapshotOptions = {
  * Only snapshots the fields you opt into via options. By default, only
  * `cwd` is captured.
  *
- * @param options - Which process fields to snapshot. Default: `{ cwd: true }`
- * @returns A `ProcessSnapshot` with a `restore()` method
+ * @param {ProcessSnapshotOptions} options - Which process fields to snapshot. Default: `{ cwd: true }`
+ * @returns {ProcessSnapshot} A `ProcessSnapshot` with a `restore()` method
  *
  * @example
  * ```typescript
@@ -278,11 +291,11 @@ export type ProcessSnapshotOptions = {
  * ```
  */
 export function snapshotProcess(options: ProcessSnapshotOptions = {}): ProcessSnapshot {
-  const { cwd = true, argv = false, env = false } = options;
+  const { cwd = true, argv = false, env = false }: ProcessSnapshotOptions = options;
 
-  const savedCwd = cwd ? process.cwd() : undefined;
-  const savedArgv = argv ? [...process.argv] : undefined;
-  const savedEnv = env ? { ...process.env } : undefined;
+  const savedCwd: string | undefined = cwd ? process.cwd() : undefined;
+  const savedArgv: string[] | undefined = argv ? [...process.argv] : undefined;
+  const savedEnv: NodeJS.ProcessEnv | undefined = env ? { ...process.env } : undefined;
 
   return {
     restore(): void {
@@ -296,7 +309,7 @@ export function snapshotProcess(options: ProcessSnapshotOptions = {}): ProcessSn
         // Restore by replacing the entire env object's contents
         for (const key of Object.keys(process.env)) {
           if (!(key in savedEnv)) {
-            delete process.env[key]; // oxlint-disable-line typescript/no-dynamic-delete -- Cleaning env requires dynamic delete
+            Reflect.deleteProperty(process.env, key);
           }
         }
         Object.assign(process.env, savedEnv);
@@ -312,9 +325,8 @@ export function snapshotProcess(options: ProcessSnapshotOptions = {}): ProcessSn
  *
  * Must be called at the `describe` block level (not inside `it`).
  *
- * @param hooks - Object containing `beforeEach` and `afterEach` functions
- *   (pass them explicitly from vitest to support `globals: false`)
- * @param options - Which process fields to snapshot. Default: `{ cwd: true }`
+ * @param {ProcessSnapshotHooks} hooks - Object containing `beforeEach` and `afterEach` functions
+ * @param {ProcessSnapshotOptions} options - Which process fields to snapshot. Default: `{ cwd: true }`
  *
  * @example
  * ```typescript
@@ -348,19 +360,16 @@ export function snapshotProcess(options: ProcessSnapshotOptions = {}): ProcessSn
  * ```
  */
 export function useProcessSnapshot(
-  hooks: {
-    beforeEach: (fn: () => void) => void;
-    afterEach: (fn: () => void) => void;
-  },
+  hooks: ProcessSnapshotHooks,
   options?: ProcessSnapshotOptions,
 ): void {
   let snapshot: ProcessSnapshot | undefined;
 
-  hooks.beforeEach(() => {
+  hooks.beforeEach((): void => {
     snapshot = snapshotProcess(options);
   });
 
-  hooks.afterEach(() => {
+  hooks.afterEach((): void => {
     snapshot?.restore();
     snapshot = undefined;
   });

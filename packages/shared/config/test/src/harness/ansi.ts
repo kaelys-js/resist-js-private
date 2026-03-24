@@ -9,12 +9,18 @@
  * ```typescript
  * import { stripAnsi, ANSI_REGEX } from '@/test-presets/harness/ansi';
  *
- * const colored = '\x1b[31mError:\x1b[0m file not found';
+ * const colored: Str = '\x1b[31mError:\x1b[0m file not found';
  * expect(stripAnsi(colored)).toBe('Error: file not found');
  * ```
  *
  * @module
  */
+
+import type { Str } from '@/schemas/common';
+
+// =============================================================================
+// Constants
+// =============================================================================
 
 /**
  * Regex matching all ANSI escape sequences (SGR parameters, cursor movement,
@@ -28,31 +34,35 @@
  *
  * @example
  * ```typescript
- * const hasAnsi = ANSI_REGEX.test('\x1b[31mred\x1b[0m');
+ * const hasAnsi: boolean = ANSI_REGEX.test('\x1b[31mred\x1b[0m');
  * // true
  * ```
  */
-export const ANSI_REGEX = new RegExp(
+export const ANSI_REGEX: RegExp = new RegExp(
   `[${String.fromCodePoint(0x1b)}${String.fromCodePoint(0x9b)}][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><~]`,
   'g',
 );
 
+// =============================================================================
+// API
+// =============================================================================
+
 /**
  * Strip all ANSI escape codes from a string, returning plain visible text.
  *
- * @param text - String potentially containing ANSI escape sequences
- * @returns The input string with all ANSI sequences removed
+ * @param {Str} text - String potentially containing ANSI escape sequences
+ * @returns {Str} The input string with all ANSI sequences removed
  *
  * @example
  * ```typescript
  * import { stripAnsi } from '@/test-presets/harness/ansi';
  *
- * const result = formatPath('/src/index.ts'); // may include color codes
- * const visible = stripAnsi(result);
+ * const result: Str = formatPath('/src/index.ts');
+ * const visible: Str = stripAnsi(result);
  * expect(visible).toBe('/src/index.ts');
  * expect(visible.length).toBe(14);
  * ```
  */
-export function stripAnsi(text: string): string {
+export function stripAnsi(text: Str): Str {
   return text.replace(ANSI_REGEX, '');
 }
