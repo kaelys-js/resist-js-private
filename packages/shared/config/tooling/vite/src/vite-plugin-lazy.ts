@@ -10,7 +10,7 @@
 
 import * as v from 'valibot';
 import type { Plugin, ViteDevServer } from 'vite';
-import { NameSchema, PathSchema, type Void } from '@/schemas/common';
+import { NameSchema, PathSchema, type Str, type Void } from '@/schemas/common';
 
 // =============================================================================
 // Schema
@@ -63,7 +63,7 @@ export function createLazyPlugin({ name, modulePath, setupFn }: LazyPluginOption
 
     async configureServer(server: ViteDevServer): Promise<void> {
       // cast safe: ssrLoadModule returns Record with setup function signatures
-      const mod: Record<string, (server: ViteDevServer) => Void> = await server.ssrLoadModule(modulePath) as Record<string, (server: ViteDevServer) => Void>;
+      const mod: Record<Str, (server: ViteDevServer) => Void> = await server.ssrLoadModule(modulePath) as Record<Str, (server: ViteDevServer) => Void>; // cast safe: ssrLoadModule returns ES module object
       // integration boundary: Vite plugin setup — setupFn validated by schema regex
       mod[setupFn]?.(server);
     },

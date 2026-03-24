@@ -40,6 +40,10 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
       if (isExempt(context.file)) return results;
 
+      // Skip unions inside conditional type extends clauses (type-level pattern matching)
+      const before: string = context.content.slice(Math.max(0, node.start - 30), node.start).trim();
+      if (/extends\s*$/.test(before)) return results;
+
       const types = node.types as AstNode[] | undefined;
       if (!types) return results;
 

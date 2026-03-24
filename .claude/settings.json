@@ -29,6 +29,14 @@
           {
             "type": "command",
             "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-commit-verify.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-qa-commands.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-git-add-all.sh"
           }
         ]
       },
