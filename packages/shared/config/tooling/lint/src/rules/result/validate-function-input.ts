@@ -72,9 +72,10 @@ function isCallbackParam(param: AstNode, context: VisitorContext): boolean {
  * @returns {boolean} Whether a safeParse call includes this parameter
  */
 function isParamValidated(paramName: string, bodyText: string): boolean {
-  // Match safeParse(SomeSchema, paramName) or .safeParse(paramName) or .parse(paramName)
+  // Match safeParse(SomeSchema, paramName) or safeParse(SomeSchema, [...paramName]) or .safeParse(paramName) or .parse(paramName)
   const patterns: RegExp[] = [
     new RegExp(`safeParse\\s*\\([^,]+,\\s*${paramName}\\s*[),]`),
+    new RegExp(`safeParse\\s*\\([^,]+,\\s*\\[\\.\\.\\.${paramName}\\]\\s*[),]`),
     new RegExp(`\\.safeParse\\s*\\(\\s*${paramName}\\s*[),]`),
     new RegExp(`\\.parse\\s*\\(\\s*${paramName}\\s*[),]`),
   ];
