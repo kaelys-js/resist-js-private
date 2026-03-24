@@ -218,7 +218,10 @@ export type NonNegativeInteger = v.InferOutput<typeof NonNegativeIntegerSchema>;
  * ```
  */
 export const DEFAULT_TERMINAL_WIDTH: NonNegativeInteger = ((): NonNegativeInteger => {
-  const r: v.SafeParseResult<typeof NonNegativeIntegerSchema> = v.safeParse(NonNegativeIntegerSchema, 80);
+  const r: v.SafeParseResult<typeof NonNegativeIntegerSchema> = v.safeParse(
+    NonNegativeIntegerSchema,
+    80,
+  );
 
   if (!r.success) {
     throw new Error('BUG: DEFAULT_TERMINAL_WIDTH schema validation failed');
@@ -237,7 +240,10 @@ export const DEFAULT_TERMINAL_WIDTH: NonNegativeInteger = ((): NonNegativeIntege
  * ```
  */
 export const DEFAULT_JSON_INDENT: NonNegativeInteger = ((): NonNegativeInteger => {
-  const r: v.SafeParseResult<typeof NonNegativeIntegerSchema> = v.safeParse(NonNegativeIntegerSchema, 2);
+  const r: v.SafeParseResult<typeof NonNegativeIntegerSchema> = v.safeParse(
+    NonNegativeIntegerSchema,
+    2,
+  );
 
   if (!r.success) {
     throw new Error('BUG: DEFAULT_JSON_INDENT schema validation failed');
@@ -1637,7 +1643,13 @@ export type Port = v.InferOutput<typeof PortSchema>;
  * if (result.ok) result.data; // ['192.168.1.42', '10.0.0.5']
  * ```
  */
-export const Ipv4AddressArraySchema = v.array(v.pipe(v.string(), v.ipv4()));
+export const Ipv4Schema = v.pipe(v.string(), v.ipv4());
+
+/** Inferred output type of {@link Ipv4Schema}. A single IPv4 address string. */
+export type Ipv4 = v.InferOutput<typeof Ipv4Schema>;
+
+/** Schema for an array of IPv4 addresses. See {@link Ipv4Schema}. */
+export const Ipv4AddressArraySchema = v.array(Ipv4Schema);
 
 /** Inferred output type of {@link Ipv4AddressArraySchema}. An array of IPv4 address strings. */
 export type Ipv4AddressArray = v.InferOutput<typeof Ipv4AddressArraySchema>;
@@ -3210,7 +3222,9 @@ export type LogEntry = v.InferOutput<typeof LogEntrySchema>;
  * const result = safeParse(AbortSignalSchema, controller.signal);
  * ```
  */
-export const AbortSignalSchema = v.custom<AbortSignal>((val): val is AbortSignal => val instanceof AbortSignal);
+export const AbortSignalSchema = v.custom<AbortSignal>(
+  (val): val is AbortSignal => val instanceof AbortSignal,
+);
 
 /** Inferred output type of {@link AbortSignalSchema}. */
 export type AbortSignalType = v.InferOutput<typeof AbortSignalSchema>;
@@ -3550,7 +3564,12 @@ export type DiscountPercent = v.InferOutput<typeof DiscountPercentSchema>;
  * const result = v.safeParse(PaginationLimitSchema, 25);
  * ```
  */
-export const PaginationLimitSchema = v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(100));
+export const PaginationLimitSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(1),
+  v.maxValue(100),
+);
 
 /** Inferred output type of {@link PaginationLimitSchema}. */
 export type PaginationLimit = v.InferOutput<typeof PaginationLimitSchema>;
@@ -3589,7 +3608,16 @@ export type SortDirection = v.InferOutput<typeof SortDirectionSchema>;
  * const result = v.safeParse(FilterOperatorSchema, 'eq');
  * ```
  */
-export const FilterOperatorSchema = v.picklist(['eq', 'ne', 'gt', 'lt', 'gte', 'lte', 'in', 'contains']);
+export const FilterOperatorSchema = v.picklist([
+  'eq',
+  'ne',
+  'gt',
+  'lt',
+  'gte',
+  'lte',
+  'in',
+  'contains',
+]);
 
 /** Inferred output type of {@link FilterOperatorSchema}. */
 export type FilterOperator = v.InferOutput<typeof FilterOperatorSchema>;
@@ -3619,7 +3647,12 @@ export type Phone = v.InferOutput<typeof PhoneSchema>;
  * const result = v.safeParse(UsernameSchema, 'john_doe');
  * ```
  */
-export const UsernameSchema = v.pipe(v.string(), v.minLength(3), v.maxLength(30), v.regex(/^[a-zA-Z0-9_-]+$/));
+export const UsernameSchema = v.pipe(
+  v.string(),
+  v.minLength(3),
+  v.maxLength(30),
+  v.regex(/^[a-zA-Z0-9_-]+$/),
+);
 
 /** Inferred output type of {@link UsernameSchema}. */
 export type Username = v.InferOutput<typeof UsernameSchema>;

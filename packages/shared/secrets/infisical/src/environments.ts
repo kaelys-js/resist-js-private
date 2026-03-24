@@ -10,14 +10,7 @@
  * @module
  */
 
-import {
-  BoolSchema,
-  NumSchema,
-  StrSchema,
-  type Bool,
-  type Num,
-  type Str,
-} from '@/schemas/common';
+import { BoolSchema, NumSchema, StrSchema, type Bool, type Num, type Str } from '@/schemas/common';
 import {
   StandardEnvironmentSchema,
   type StandardEnvironment,

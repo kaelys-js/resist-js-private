@@ -120,9 +120,10 @@ function extractReadmeApiFunctions(readme: string): string[] {
   // Find the next top-level ## heading after the API section (or end of file)
   const afterApi: string = readme.slice(apiStart + apiMatch[0].length);
   const nextSectionMatch: RegExpMatchArray | null = afterApi.match(/^## [^#]/m);
-  const apiEnd: number = nextSectionMatch?.index !== undefined
-    ? apiStart + apiMatch[0].length + nextSectionMatch.index
-    : readme.length;
+  const apiEnd: number =
+    nextSectionMatch?.index !== undefined
+      ? apiStart + apiMatch[0].length + nextSectionMatch.index
+      : readme.length;
   const apiSection: string = readme.slice(apiStart, apiEnd);
 
   // Match FIRST column of table rows: | `functionName` | or | functionName |

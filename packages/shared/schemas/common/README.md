@@ -449,6 +449,62 @@ if (result.ok) {
 | `CapacitorPlatformSchema` | Schema | Capacitor platform |
 | `CapacitorPlatform` | Type | Capacitor platform type |
 
+### Commerce & Pricing
+
+| Export | Kind | Description |
+|--------|------|-------------|
+| `PriceSchema` | Schema | Non-negative price value |
+| `Price` | Type | Inferred price type |
+| `QuantitySchema` | Schema | Positive integer quantity |
+| `Quantity` | Type | Inferred quantity type |
+| `PercentageSchema` | Schema | Percentage 0-100 |
+| `Percentage` | Type | Inferred percentage type |
+| `DiscountPercentSchema` | Schema | Discount percentage 0-100 |
+| `DiscountPercent` | Type | Inferred discount type |
+
+### API & Pagination
+
+| Export | Kind | Description |
+|--------|------|-------------|
+| `PaginationLimitSchema` | Schema | Page size 1-100 |
+| `PaginationLimit` | Type | Inferred limit type |
+| `PaginationOffsetSchema` | Schema | Non-negative offset |
+| `PaginationOffset` | Type | Inferred offset type |
+| `SortDirectionSchema` | Schema | Picklist: asc, desc |
+| `SortDirection` | Type | Inferred direction type |
+| `FilterOperatorSchema` | Schema | Picklist: eq, ne, gt, lt, gte, lte, in, contains |
+| `FilterOperator` | Type | Inferred operator type |
+
+### User & Identity
+
+| Export | Kind | Description |
+|--------|------|-------------|
+| `PhoneSchema` | Schema | E.164 phone number |
+| `Phone` | Type | Inferred phone type |
+| `UsernameSchema` | Schema | Username 3-30 chars, alphanumeric |
+| `Username` | Type | Inferred username type |
+
+### Analytics & Events
+
+| Export | Kind | Description |
+|--------|------|-------------|
+| `EventNameSchema` | Schema | Snake_case event name |
+| `EventName` | Type | Inferred event name type |
+
+### Package Management
+
+| Export | Kind | Description |
+|--------|------|-------------|
+| `NpmPackageNameSchema` | Schema | Valid npm package name |
+| `NpmPackageName` | Type | Inferred package name type |
+
+### Networking (Single IP)
+
+| Export | Kind | Description |
+|--------|------|-------------|
+| `Ipv4Schema` | Schema | Single IPv4 address |
+| `Ipv4` | Type | Inferred IPv4 type |
+
 ### Conventions
 
 Every schema follows the naming pattern:
