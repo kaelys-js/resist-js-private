@@ -21,6 +21,7 @@ import {
   NameSchema,
   LocaleStringSchema,
   CssFontFamilySchema,
+  CssFontWeightSchema,
   type NonNegativeInteger,
   type NullableStr,
   type Num,
@@ -43,7 +44,7 @@ export const FontFaceEntrySchema = v.strictObject({
   /** Font style (e.g. 'normal', 'italic'). */
   style: v.picklist(['normal', 'italic', 'oblique']),
   /** Font weight (e.g. '400', '100 900'). */
-  weight: v.pipe(v.string(), v.regex(/^\d{1,3}(\s+\d{1,3})?$/)),
+  weight: CssFontWeightSchema,
   /** Path to the font file (e.g. '/fonts/inter-latin.woff2'). */
   src: v.pipe(v.string(), v.minLength(1), v.startsWith('/')),
 });

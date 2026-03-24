@@ -59,8 +59,8 @@ export function createNodeTestConfig(rawOptions: NodeTestOptions): ViteUserConfi
     throw optionsResult.error; // integration boundary: vitest config doesn't understand Result
   }
 
-  // cast safe: safeParse validates, shallow destructure into mutable bindings
   const { packageName, dirname, include, coverageExclude }: NodeTestOptions =
+    // cast safe: safeParse validates, shallow destructure into mutable bindings
     optionsResult.data as NodeTestOptions;
   const alias: Record<Str, Str> =
     packageName && dirname ? { [packageName]: resolve(dirname, './src') } : {};
