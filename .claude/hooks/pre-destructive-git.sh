@@ -1,45 +1,36 @@
 #!/bin/bash
 # PreToolUse hook for Bash — blocks destructive git commands without user permission.
-# Intercepts: git stash, git reset --hard, git checkout ., git clean -f, git checkout -- .
+# Changed from "deny" to "ask" so the user can approve if intended.
 
 INPUT=$(cat)
 
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 
-# Check for destructive git commands
-BLOCKED=false
 REASON=""
 
 if [[ "$COMMAND" == *"git stash"* ]]; then
-  BLOCKED=true
   REASON="git stash can lose uncommitted work"
-fi
-
-if [[ "$COMMAND" == *"git reset --hard"* ]]; then
-  BLOCKED=true
+elif [[ "$COMMAND" == *"git reset --hard"* ]]; then
   REASON="git reset --hard discards all changes permanently"
-fi
-
-if [[ "$COMMAND" == *"git checkout ."* ]] || [[ "$COMMAND" == *"git checkout -- ."* ]]; then
-  BLOCKED=true
+elif [[ "$COMMAND" == *"git reset"* ]] && [[ "$COMMAND" != *"git reset --soft"* ]]; then
+  REASON="git reset can discard staged changes"
+elif [[ "$COMMAND" == *"git checkout ."* ]] || [[ "$COMMAND" == *"git checkout -- ."* ]]; then
   REASON="git checkout . discards all unstaged changes"
+elif [[ "$COMMAND" == *"git clean"* ]]; then
+  REASON="git clean deletes untracked files"
+elif [[ "$COMMAND" == *"git restore ."* ]] || [[ "$COMMAND" == *"git restore --staged"* ]]; then
+  REASON="git restore discards changes"
+elif [[ "$COMMAND" == *"git revert"* ]]; then
+  REASON="git revert creates a commit that undoes previous work"
+elif [[ "$COMMAND" == *"git branch -D"* ]] || [[ "$COMMAND" == *"git branch -d"* ]]; then
+  REASON="git branch -D/-d deletes branches"
+elif [[ "$COMMAND" == *"git push --force"* ]] || [[ "$COMMAND" == *"git push -f"* ]]; then
+  REASON="git push --force overwrites remote history"
 fi
 
-if [[ "$COMMAND" == *"git clean -f"* ]]; then
-  BLOCKED=true
-  REASON="git clean -f deletes untracked files permanently"
-fi
-
-if [[ "$COMMAND" == *"git restore ."* ]]; then
-  BLOCKED=true
-  REASON="git restore . discards all unstaged changes"
-fi
-
-if [ "$BLOCKED" = true ]; then
-  cat << EOF >&2
-{"hookSpecificOutput": {"permissionDecision": "deny"}, "systemMessage": "⛔ BLOCKED: Destructive git command detected. Reason: $REASON. You MUST ask the user for explicit permission before running this command. NEVER run destructive git commands without permission."}
-EOF
-  exit 2
+if [ -n "$REASON" ]; then
+  echo "{\"decision\": \"ask\", \"message\": \"⚠️ Destructive git command: $REASON. Approve?\"}"
+  exit 0
 fi
 
 exit 0
