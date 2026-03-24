@@ -78,14 +78,26 @@ describe('getLanguageDisplayName', () => {
     expect(result.data.exonym).toBe('Japanisch' as Str);
   });
 
-  it('returns error for empty code', () => {
+  it('returns LOCALE.INVALID_LOCALE for empty code', () => {
     const result = getLanguageDisplayName('' as Str, 'en' as Str);
     expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
   });
 
-  it('returns error for empty currentLocale', () => {
+  it('returns LOCALE.INVALID_LOCALE for empty currentLocale', () => {
     const result = getLanguageDisplayName('en' as Str, '' as Str);
     expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
+  });
+
+  it('returns a result for unknown language codes (Node returns code as-is)', () => {
+    const result = getLanguageDisplayName('zzz' as Str, 'en' as Str);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.code).toBe('zzz');
+      // Node 25 returns the code as-is for unknown languages
+      expect(result.data.endonym).toBe('zzz');
+    }
   });
 });
 

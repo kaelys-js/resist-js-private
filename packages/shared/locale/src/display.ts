@@ -19,31 +19,42 @@
  */
 
 import * as v from 'valibot';
-import type { Str } from '@/schemas/common';
-import { ERRORS, err, type Result, okUnchecked } from '@/schemas/result/result';
+import {
+  StrSchema,
+  StrArraySchema,
+  type Str,
+  type OptionalStr,
+  type StrArray,
+} from '@/schemas/common';
+import { ERRORS, err, ok, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 
 /**
  * Schema for a language's display name information.
  */
 export const LanguageDisplayInfoSchema = v.strictObject({
-  /** BCP 47 language code (e.g., `'ja'`, `'fr'`). */
-  code: v.string(),
-  /** Native name of the language (e.g., `'日本語'` for Japanese). */
-  endonym: v.string(),
-  /** Name of the language in the current display locale (e.g., `'Japanese'`). */
-  exonym: v.string(),
+  /** BCP 47 language code (e.g., `'ja'`, `'fr'`). 2-11 chars, lowercase alpha + hyphens. */
+  code: v.pipe(
+    v.string(),
+    v.minLength(2),
+    v.maxLength(11),
+    v.regex(/^[a-z]{2,3}(-[A-Za-z0-9]{1,8})*$/),
+  ),
+  /** Native name of the language (e.g., `'日本語'` for Japanese). 1-100 chars. */
+  endonym: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
+  /** Name of the language in the current display locale (e.g., `'Japanese'`). 1-100 chars. */
+  exonym: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
 });
 
-/** A language's native name (endonym) and name in the current locale (exonym). */
+/** A language's native name (endonym) and name in the current locale (exonym). See {@link LanguageDisplayInfoSchema}. */
 export type LanguageDisplayInfo = v.InferOutput<typeof LanguageDisplayInfoSchema>;
 
 /**
  * Gets the endonym and exonym for a single language code.
  *
- * @param code - BCP 47 language code (e.g., 'ja', 'fr')
- * @param currentLocale - The locale to generate the exonym in (e.g., 'en')
- * @returns Result containing code, endonym, and exonym
+ * @param {Str} code - BCP 47 language code (e.g., 'ja', 'fr')
+ * @param {Str} currentLocale - The locale to generate the exonym in (e.g., 'en')
+ * @returns {Result<LanguageDisplayInfo>} Result containing code, endonym, and exonym
  *
  * @example
  * ```typescript
@@ -57,18 +68,27 @@ export type LanguageDisplayInfo = v.InferOutput<typeof LanguageDisplayInfoSchema
  * ```
  */
 export function getLanguageDisplayName(code: Str, currentLocale: Str): Result<LanguageDisplayInfo> {
-  const codeResult = safeParse(v.pipe(v.string(), v.minLength(1)), code);
-  if (!codeResult.ok) return err(ERRORS.LOCALE.INVALID_LOCALE, 'Language code must be non-empty');
+  const codeResult: Result<Str> = safeParse(StrSchema, code);
+  if (!codeResult.ok)
+    return err(ERRORS.LOCALE.INVALID_LOCALE, 'Language code must be a valid string');
+  if (codeResult.data.length === 0)
+    return err(ERRORS.LOCALE.INVALID_LOCALE, 'Language code must be non-empty');
 
-  const localeResult = safeParse(v.pipe(v.string(), v.minLength(1)), currentLocale);
+  const localeResult: Result<Str> = safeParse(StrSchema, currentLocale);
   if (!localeResult.ok)
+    return err(ERRORS.LOCALE.INVALID_LOCALE, 'Current locale must be a valid string');
+  if (localeResult.data.length === 0)
     return err(ERRORS.LOCALE.INVALID_LOCALE, 'Current locale must be non-empty');
 
-  const endonymDisplay = new Intl.DisplayNames([codeResult.data], { type: 'language' });
-  const exonymDisplay = new Intl.DisplayNames([localeResult.data], { type: 'language' });
+  const endonymDisplay: Intl.DisplayNames = new Intl.DisplayNames([codeResult.data], {
+    type: 'language',
+  });
+  const exonymDisplay: Intl.DisplayNames = new Intl.DisplayNames([localeResult.data], {
+    type: 'language',
+  });
 
-  const endonym: Str | undefined = endonymDisplay.of(codeResult.data);
-  const exonym: Str | undefined = exonymDisplay.of(codeResult.data);
+  const endonym: OptionalStr = endonymDisplay.of(codeResult.data);
+  const exonym: OptionalStr = exonymDisplay.of(codeResult.data);
 
   if (!endonym || !exonym) {
     return err(
@@ -77,15 +97,15 @@ export function getLanguageDisplayName(code: Str, currentLocale: Str): Result<La
     );
   }
 
-  return okUnchecked<LanguageDisplayInfo>({ code: codeResult.data, endonym, exonym });
+  return ok(LanguageDisplayInfoSchema, { code: codeResult.data, endonym, exonym });
 }
 
 /**
  * Gets display name information for multiple language codes.
  *
- * @param codes - Array of BCP 47 language codes
- * @param currentLocale - The locale to generate exonyms in
- * @returns Result containing an array of LanguageDisplayInfo
+ * @param {readonly Str[]} codes - Array of BCP 47 language codes
+ * @param {Str} currentLocale - The locale to generate exonyms in
+ * @returns {Result<LanguageDisplayInfo[]>} Result containing an array of LanguageDisplayInfo
  *
  * @example
  * ```typescript
@@ -103,11 +123,16 @@ export function getLanguageDisplayNames(
   codes: readonly Str[],
   currentLocale: Str,
 ): Result<LanguageDisplayInfo[]> {
+  const codesResult: Result<StrArray> = safeParse(StrArraySchema, [...codes]);
+  if (!codesResult.ok) return codesResult;
+  const localeResult: Result<Str> = safeParse(StrSchema, currentLocale);
+  if (!localeResult.ok) return localeResult;
+
   const results: LanguageDisplayInfo[] = [];
-  for (const code of codes) {
-    const result = getLanguageDisplayName(code, currentLocale);
+  for (const code of codesResult.data) {
+    const result: Result<LanguageDisplayInfo> = getLanguageDisplayName(code, localeResult.data);
     if (!result.ok) return result;
     results.push(result.data);
   }
-  return okUnchecked<LanguageDisplayInfo[]>(results);
+  return ok(v.array(LanguageDisplayInfoSchema), results);
 }
