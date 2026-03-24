@@ -1811,7 +1811,7 @@ function replaceDateTimeBlocks(
  * - **Parameterized template**: wraps in `(params) => Result<Str>` that
  *   validates each param via `safeParse` before rendering
  *
- * @param {v.GenericSchema} schema - The Valibot locale schema (e.g., `SyncStringsSchema`).
+ * @param {TSchema} schema - The Valibot locale schema (e.g., `SyncStringsSchema`).
  * @param {RawLocaleStrings} rawStrs - The raw locale strings object (e.g., imported `en`).
  * @param {RawLocaleStrings} context - Optional context values substituted into plain strings and array elements
  *   at build time. Context placeholders use `{key}` syntax (same as `renderMessage`).
@@ -1965,7 +1965,7 @@ function buildLocaleEntries(
     } else if (typeof rawValue === 'string') {
       // Plain string — apply context substitution if provided, then wrap
       const value: Str = context
-        ? (() => {
+        ? ((): Str => {
             const r: Result<Str> = renderMessage(rawValue, context);
             if (!r.ok) {
               return rawValue;
@@ -1978,7 +1978,7 @@ function buildLocaleEntries(
       };
     } else if (Array.isArray(rawValue) && context) {
       // Array of objects — apply context to string fields in each element
-      result[key] = rawValue.map((item: unknown) => {
+      result[key] = rawValue.map((item: unknown): unknown => {
         if (typeof item === 'object' && item !== null) {
           const rendered: RawLocaleStrings = {};
           for (const [fieldKey, fieldValue] of Object.entries(item as Record<Str, unknown>)) { // cast safe: typeof item === 'object' guard above
@@ -2032,7 +2032,7 @@ function getSchemaEntries(schema: v.GenericSchema): NullableSchemaEntries {
   if (Array.isArray(s.pipe)) {
     for (const item of s.pipe) {
       if (typeof item === 'object' && item !== null) {
-        const entries = getSchemaEntries(item as v.GenericSchema); // Runtime-guarded by typeof check
+        const entries: Record<Str, v.GenericSchema> | undefined = getSchemaEntries(item as v.GenericSchema); // cast safe: runtime-guarded by typeof check
         if (entries) {
           return entries;
         }
