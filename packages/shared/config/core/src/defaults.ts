@@ -112,8 +112,6 @@ const defaultsInput: v.InferInput<typeof CoreConfigObjectSchema> = {
     },
     coder: {
       enabled: true,
-      accessUrl: '',
-      repoUrl: '',
       resources: {
         cpu: 4,
         memoryGb: 8,
@@ -125,7 +123,6 @@ const defaultsInput: v.InferInput<typeof CoreConfigObjectSchema> = {
       serverType: 'cx32',
       location: 'fsn1',
       arch: 'amd64',
-      dotfilesRepo: '',
     },
     ci: {
       enabled: true,

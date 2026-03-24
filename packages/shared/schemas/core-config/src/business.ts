@@ -8,6 +8,8 @@
 
 import * as v from 'valibot';
 
+import type { Bool } from '@/schemas/common';
+
 // =============================================================================
 // Primitive Schemas
 // =============================================================================
@@ -285,7 +287,7 @@ export const BusinessObjectSchema = v.strictObject({
 export const BusinessSchema = v.pipe(
   BusinessObjectSchema,
   v.check(
-    (input: v.InferOutput<typeof BusinessObjectSchema>) =>
+    (input: v.InferOutput<typeof BusinessObjectSchema>): Bool =>
       input.locales.includes(input.defaultLocale),
     'defaultLocale must be included in the locales array',
   ),

@@ -9,6 +9,9 @@
 - **When told to "explain yourself" — stop all work.** Answer what you did, why it was wrong, what you should have done. Wait for permission.
 - **QA runs after responding to user.** If the user is waiting for an answer, respond first, then run QA.
 - **NEVER dismiss failing tests** — every test failure must be investigated and fixed. Never say "pre-existing" or "unrelated" without proving it (git blame, run on base branch).
+- **NEVER chain more than 3 tool calls without responding to the user.** After every 3rd tool call, stop and check if the user sent a message. If they did, respond FIRST.
+- **Basic edits take 1 tool call, not 5.** If you know what to change, make the edit. Do not re-read, re-investigate, or re-debug what you already know.
+- **NEVER apologize.** State facts, explain actions, move on. Apologies waste time.
 
 ## Browser Tools
 

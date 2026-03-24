@@ -15,7 +15,7 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 const SCHEMA_SUGGESTIONS: ReadonlyArray<{ pattern: RegExp; schema: string; source: string }> = [
   { pattern: /[Pp]ath|[Dd]ir|[Ff]ile/, schema: 'PathSchema', source: '@/schemas/common' },
   { pattern: /[Uu]rl|URL|[Ee]ndpoint/, schema: 'UrlStringSchema', source: '@/schemas/common' },
-  { pattern: /[Pp]ort$/, schema: 'PortSchema', source: '@/schemas/common' },
+  { pattern: /^port$|Port$|_port$/, schema: 'PortSchema', source: '@/schemas/common' },
   { pattern: /[Vv]ersion$/, schema: 'SemverSchema', source: '@/schemas/common' },
   { pattern: /[Cc]ommand|[Cc]md$/, schema: 'CommandSchema', source: '@/schemas/common' },
   { pattern: /[Hh]ostname|[Hh]ost$/, schema: 'HostnameSchema', source: '@/schemas/common' },

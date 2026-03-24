@@ -8,7 +8,14 @@
 
 import * as v from 'valibot';
 
-import { PortSchema } from '@/schemas/common';
+import {
+  HostnameSchema,
+  NameSchema,
+  PathSchema,
+  PortSchema,
+  UrlStringSchema,
+  type Str,
+} from '@/schemas/common';
 import { StandardEnvironmentSchema } from '@/schemas/core-config/environment';
 import { PinnedVersionSchema } from '@/schemas/core-config/versions';
 
@@ -153,9 +160,9 @@ export const DevProxySchema = v.strictObject({
   /** Port offsets for each service type within a product */
   serviceOffsets: v.optional(ServiceOffsetsSchema),
   /** Named tunnel for persistent URLs (requires `cloudflared tunnel create`). Leave empty for ephemeral quick tunnels. */
-  tunnelName: v.optional(v.string(), ''),
+  tunnelName: v.optional(NameSchema),
   /** Custom hostname for named tunnel (requires DNS setup). */
-  tunnelHostname: v.optional(v.string(), ''),
+  tunnelHostname: v.optional(HostnameSchema),
 });
 
 /** Inferred output type of {@link DevProxySchema}. */
@@ -220,17 +227,17 @@ export type Formatting = v.InferOutput<typeof FormattingSchema>;
  */
 export const PathsSchema = v.strictObject({
   /** Directory containing product packages */
-  productsDir: v.optional(v.string(), 'packages/products'),
+  productsDir: v.optional(PathSchema, 'packages/products'),
   /** Directory containing the product template */
-  productTemplateDir: v.optional(v.string(), 'packages/products-template'),
+  productTemplateDir: v.optional(PathSchema, 'packages/products-template'),
   /** Directory containing CLI tools source */
-  cliToolsDir: v.optional(v.string(), 'packages/shared/utils/cli/src/tools'),
+  cliToolsDir: v.optional(PathSchema, 'packages/shared/utils/cli/src/tools'),
   /** Directory for cached tooling schemas */
-  schemasDir: v.optional(v.string(), 'packages/shared/schemas/tooling'),
+  schemasDir: v.optional(PathSchema, 'packages/shared/schemas/tooling'),
   /** Root config filename (without path) */
-  configFilename: v.optional(v.string(), 'resist.config.ts'),
+  configFilename: v.optional(PathSchema, 'resist.config.ts'),
   /** Marker directory for CLI state (relative to workspace root) */
-  markerDir: v.optional(v.string(), '.resist'),
+  markerDir: v.optional(PathSchema, '.resist'),
 });
 
 /** Inferred output type of {@link PathsSchema}. */
@@ -246,7 +253,7 @@ export type Paths = v.InferOutput<typeof PathsSchema>;
  * const filename: Str = DEFAULT_CONFIG_FILENAME; // 'resist.config.ts'
  * ```
  */
-export const DEFAULT_CONFIG_FILENAME = 'resist.config.ts';
+export const DEFAULT_CONFIG_FILENAME: Str = 'resist.config.ts';
 
 // =============================================================================
 // Package Manager
@@ -510,7 +517,7 @@ export type RegistryAuthMethod = v.InferOutput<typeof RegistryAuthMethodSchema>;
  */
 export const ContainerRegistrySchema = v.strictObject({
   /** Registry URL (e.g., `ghcr.io`, `registry.example.com`, `<account>.dkr.ecr.<region>.amazonaws.com`). */
-  url: v.optional(v.pipe(v.string(), v.minLength(1)), 'ghcr.io'),
+  url: v.optional(HostnameSchema, 'ghcr.io'),
   /** Namespace/organization for the image (e.g., GitHub org, AWS account). */
   namespace: v.optional(v.string(), ''),
   /** Authentication method for the registry. */
@@ -619,9 +626,9 @@ export const CoderSchema = v.strictObject({
   /** Enable Coder configuration file generation (default: true) */
   enabled: v.optional(v.boolean(), true),
   /** Coder deployment access URL (e.g., https://coder.example.com) */
-  accessUrl: v.optional(v.string(), ''),
+  accessUrl: v.optional(UrlStringSchema),
   /** Git repo URL for workspace cloning (falls back to repo.urls.repo if empty) */
-  repoUrl: v.optional(v.string(), ''),
+  repoUrl: v.optional(UrlStringSchema),
   /** Default workspace resource limits (developers can override per-workspace) */
   resources: v.optional(CoderResourcesSchema, {}),
   /** Container registry for workspace images (required for remote deploy). */
@@ -635,7 +642,7 @@ export const CoderSchema = v.strictObject({
   /** IDE for Coder workspace (default: vscode-web). */
   ide: v.optional(CoderIdeSchema, 'vscode-web'),
   /** Git URL for user dotfiles repo (cloned into workspace on startup). */
-  dotfilesRepo: v.optional(v.string(), ''),
+  dotfilesRepo: v.optional(PathSchema),
 });
 
 /** Inferred output type of {@link CoderSchema}. */
@@ -725,9 +732,9 @@ export type InfisicalAuth = v.InferOutput<typeof InfisicalAuthSchema>;
 /** Valibot schema for Infisical Docker Compose configuration. */
 export const InfisicalDockerSchema = v.strictObject({
   /** Docker Compose file path (default: 'docker-compose.infisical.yml'). */
-  composeFile: v.optional(v.pipe(v.string(), v.minLength(1)), 'docker-compose.infisical.yml'),
+  composeFile: v.optional(PathSchema, 'docker-compose.infisical.yml'),
   /** Docker Compose service name (default: 'infisical'). */
-  service: v.optional(v.pipe(v.string(), v.minLength(1)), 'infisical'),
+  service: v.optional(NameSchema, 'infisical'),
 });
 
 /** Inferred output type of {@link InfisicalDockerSchema}. */
@@ -740,7 +747,9 @@ export const InfisicalEnvironmentsSchema = v.strictObject({
   /** Git branch → environment mapping for auto-detection. */
   branchMapping: v.optional(
     v.strictObject({
+      /** Environment for `main` branch. */
       main: v.optional(StandardEnvironmentSchema, 'production'),
+      /** Environment for `staging` branch. */
       staging: v.optional(StandardEnvironmentSchema, 'staging'),
     }),
     {},
@@ -756,16 +765,16 @@ export const InfisicalMachineIdentitySchema = v.strictObject({
    * Identity name. Supports `${provider}` placeholder (replaced with git provider name).
    * @example 'coder-vps' or '${provider}-ci'
    */
-  name: v.pipe(v.string(), v.minLength(1)),
+  name: NameSchema,
   /** Infisical role (default: 'member'). */
-  role: v.optional(v.pipe(v.string(), v.minLength(1)), 'member'),
+  role: v.optional(v.picklist(['member', 'admin', 'viewer']), 'member'),
 });
 
 /** Inferred output type of {@link InfisicalMachineIdentitySchema}. */
 export type InfisicalMachineIdentity = v.InferOutput<typeof InfisicalMachineIdentitySchema>;
 
 /** Default CI identity name placeholder — `${provider}` replaced with git provider at runtime. */
-const PROVIDER_CI_IDENTITY: string = ['$', '{provider}-ci'].join('');
+const PROVIDER_CI_IDENTITY: Str = ['$', '{provider}-ci'].join('');
 
 /** Valibot schema for Infisical provisioning configuration. */
 export const InfisicalProvisionSchema = v.strictObject({
@@ -853,11 +862,11 @@ export type InfisicalProvision = v.InferOutput<typeof InfisicalProvisionSchema>;
  */
 export const InfisicalSchema = v.strictObject({
   /** Self-hosted Infisical server URL (default: 'http://localhost:8080'). */
-  siteUrl: v.optional(v.pipe(v.string(), v.url()), 'http://localhost:8080'),
+  siteUrl: v.optional(UrlStringSchema, 'http://localhost:8080'),
   /** Infisical server Docker image version (default: '0.151.0'). */
   serverVersion: v.optional(PinnedVersionSchema, '0.151.0'),
   /** Infisical "global" project slug (default: 'global'). */
-  globalProjectSlug: v.optional(v.pipe(v.string(), v.minLength(1)), 'global'),
+  globalProjectSlug: v.optional(v.pipe(v.string(), v.minLength(1), v.maxLength(50), v.regex(/^[a-z0-9-]+$/)), 'global'),
   /** Authentication configuration. */
   auth: v.optional(InfisicalAuthSchema, {}),
   /** Docker Compose configuration (bootstrap mode). */
