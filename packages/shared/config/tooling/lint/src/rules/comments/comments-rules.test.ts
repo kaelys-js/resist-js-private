@@ -10,6 +10,7 @@ import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
 
 import noLintDisable from './no-lint-disable.ts';
 import requireSectionMarkerStyle from './require-section-marker-style.ts';
+import requireSectionOrder from './require-section-order.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -203,5 +204,65 @@ const x: number = 1;
     expect(results[0].fix).toBeDefined();
     expect(results[0].fix.text).toContain('// =');
     expect(results[0].fix.text).toContain('My Section');
+  });
+});
+
+// =============================================================================
+// comments/require-section-order
+// =============================================================================
+
+describe('comments/require-section-order', () => {
+  it('passes correct section order', async () => {
+    const code: string = `
+// =============================================================================
+// Types
+// =============================================================================
+type Foo = { x: Str };
+
+// =============================================================================
+// Constants
+// =============================================================================
+const MAX: Num = 10;
+
+// =============================================================================
+// Helpers
+// =============================================================================
+function helper(): Void { return undefined; }
+
+// =============================================================================
+// Exported Functions
+// =============================================================================
+export function main(): Void { return undefined; }
+`;
+    const results: LintResult[] = await lint(requireSectionOrder, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags wrong section order', async () => {
+    const code: string = `
+// =============================================================================
+// Exported Functions
+// =============================================================================
+export function main(): Void { return undefined; }
+
+// =============================================================================
+// Types
+// =============================================================================
+type Foo = { x: Str };
+`;
+    const results: LintResult[] = await lint(requireSectionOrder, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('Types');
+  });
+
+  it('skips files with fewer than 2 sections', async () => {
+    const code: string = `
+// =============================================================================
+// Types
+// =============================================================================
+type Foo = { x: Str };
+`;
+    const results: LintResult[] = await lint(requireSectionOrder, code);
+    expect(results.length).toBe(0);
   });
 });

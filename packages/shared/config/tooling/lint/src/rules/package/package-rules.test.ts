@@ -17,6 +17,7 @@ import noPeerDeps from './no-peer-deps.ts';
 import validProjectRef from './valid-project-ref.ts';
 import noWorkspaceSelfRef from './no-workspace-self-ref.ts';
 import noVitestConfig from './no-vitest-config.ts';
+import requireReadme from './require-readme.ts';
 import requireSharedConfig from './require-shared-config.ts';
 
 function ctx(overrides: Partial<PackageJsonContext> & { pkg?: Partial<PackageJsonContext['pkg']> } = {}): PackageJsonContext {
@@ -470,6 +471,63 @@ describe('package/require-shared-config', () => {
     const results: LintResult[] = requireSharedConfig.check(ctx({
       file: '/Users/coleb/Desktop/webforge/packages/shared/schemas/common/package.json',
       pkg: { name: '@/schemas/common' },
+    }));
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// package/require-readme
+// =============================================================================
+
+describe('package/require-readme', () => {
+  it('skips root package.json', () => {
+    const results: LintResult[] = requireReadme.check(ctx({
+      file: '/Users/coleb/Desktop/webforge/package.json',
+      pkg: { name: 'webforge' },
+      isRoot: true,
+    }));
+    expect(results.length).toBe(0);
+  });
+
+  it('flags missing README', () => {
+    const results: LintResult[] = requireReadme.check(ctx({
+      file: '/tmp/nonexistent-pkg-abc123/package.json',
+      pkg: { name: '@/test-pkg' },
+    }));
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('missing README.md');
+  });
+
+  it('validates existing README has required sections', () => {
+    // Use @/config which has a README
+    const results: LintResult[] = requireReadme.check(ctx({
+      file: '/Users/coleb/Desktop/webforge/packages/shared/config/core/package.json',
+      pkg: { name: '@/config' },
+    }));
+    // Should pass — README has Files, API, Usage sections
+    const missingSection: LintResult | undefined = results.find(
+      (r: LintResult): boolean => r.message.includes('missing required section'),
+    );
+    expect(missingSection).toBeUndefined();
+  });
+
+  it('validates README title matches package name', () => {
+    // @/config README title is "# @/config" which matches
+    const results: LintResult[] = requireReadme.check(ctx({
+      file: '/Users/coleb/Desktop/webforge/packages/shared/config/core/package.json',
+      pkg: { name: '@/config' },
+    }));
+    const titleMismatch: LintResult | undefined = results.find(
+      (r: LintResult): boolean => r.message.includes('does not match package name'),
+    );
+    expect(titleMismatch).toBeUndefined();
+  });
+
+  it('skips exempt paths', () => {
+    const results: LintResult[] = requireReadme.check(ctx({
+      file: '/Users/coleb/Desktop/webforge/packages/shared/config/test/package.json',
+      pkg: { name: '@/test-presets' },
     }));
     expect(results.length).toBe(0);
   });
