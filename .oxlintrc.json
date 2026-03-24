@@ -95,6 +95,7 @@
     "max-lines-per-function": "off",
     "no-unused-vars": "error",
     "no-console": "error",
+    "curly": "error",
     "eqeqeq": "error",
     "no-var": "error",
     "prefer-const": "error",
