@@ -494,7 +494,12 @@ const NamespacedRegistryOptionsSchema = v.strictObject({
   /** When `false`, allows partial locale files. Default: `true`. */
   strict: v.optional(BoolSchema),
   /** Optional custom formatters for pipe syntax and message ref modifiers. */
-  formatters: v.optional(v.record(StrSchema, v.pipe(functionSchema(), args(v.tuple([StrSchema, v.optional(StrSchema)]))))),
+  formatters: v.optional(
+    v.record(
+      StrSchema,
+      v.pipe(functionSchema(), args(v.tuple([StrSchema, v.optional(StrSchema)]))),
+    ),
+  ),
 });
 
 /** Options for creating a namespaced locale registry. See {@link NamespacedRegistryOptionsSchema}. */

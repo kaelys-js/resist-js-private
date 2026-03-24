@@ -18,10 +18,10 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 
 /** File path patterns exempt from this rule. */
 const EXEMPT_PATTERNS: readonly RegExp[] = [
-	/\.test\.ts$/,
-	/\.spec\.ts$/,
-	/config\/tooling\/lint\//,
-	/schemas\/template-literal\//,
+  /\.test\.ts$/,
+  /\.spec\.ts$/,
+  /config\/tooling\/lint\//,
+  /schemas\/template-literal\//,
 ];
 
 /**
@@ -37,104 +37,112 @@ const EXEMPT_PATTERNS: readonly RegExp[] = [
  * @returns {boolean} Whether the pattern could use templateLiteral()
  */
 function isDecomposable(source: string): boolean {
-	// Must be anchored
-	if (!source.startsWith('^') || !source.endsWith('$')) {
-		return false;
-	}
+  // Must be anchored
+  if (!source.startsWith('^') || !source.endsWith('$')) {
+    return false;
+  }
 
-	// Strip anchors
-	const inner: string = source.slice(1, -1);
+  // Strip anchors
+  const inner: string = source.slice(1, -1);
 
-	// Reject complex features
-	if (/\(\?[=!<]/.test(inner)) {
-		return false; // Lookaheads/lookbehinds
-	}
-	if (/\\[1-9]/.test(inner)) {
-		return false; // Backreferences
-	}
-	if (/\([^)]*\)\?/.test(inner)) {
-		return false; // Optional groups
-	}
+  // Reject complex features
+  if (/\(\?[=!<]/.test(inner)) {
+    return false; // Lookaheads/lookbehinds
+  }
+  if (/\\[1-9]/.test(inner)) {
+    return false; // Backreferences
+  }
+  if (/\([^)]*\)\?/.test(inner)) {
+    return false; // Optional groups
+  }
 
-	// Must have at least one literal segment (any non-special character not in a character class)
-	// A "literal segment" is any fixed character between dynamic parts (e.g., '_' in prefix_\d+, ':' in .+:.+)
-	const stripped: string = inner.replaceAll(/\[[^\]]*\]/g, '').replaceAll(/\\[dDwWsSbB]/g, '').replaceAll(/[.+*?{}()|\\]/g, '');
-	const hasLiteral: boolean = stripped.length > 0;
+  // Must have at least one literal segment (any non-special character not in a character class)
+  // A "literal segment" is any fixed character between dynamic parts (e.g., '_' in prefix_\d+, ':' in .+:.+)
+  const stripped: string = inner
+    .replaceAll(/\[[^\]]*\]/g, '')
+    .replaceAll(/\\[dDwWsSbB]/g, '')
+    .replaceAll(/[.+*?{}()|\\]/g, '');
+  const hasLiteral: boolean = stripped.length > 0;
 
-	// Must have at least one dynamic segment
-	const hasDynamic: boolean = /\\[dDwWsS]|\.\+|\.\*|\[[^\]]+\][+*]/.test(inner);
+  // Must have at least one dynamic segment
+  const hasDynamic: boolean = /\\[dDwWsS]|\.\+|\.\*|\[[^\]]+\][+*]/.test(inner);
 
-	return hasLiteral && hasDynamic;
+  return hasLiteral && hasDynamic;
 }
 
 /** Rule definition. */
 const rule: TypeScriptRule = {
-	id: 'valibot/prefer-template-literal',
-	description: 'Prefer templateLiteral() over v.pipe(v.string(), v.regex()) for structured string patterns',
-	patterns: ['**/*.ts', '**/*.svelte.ts'],
+  id: 'valibot/prefer-template-literal',
+  description:
+    'Prefer templateLiteral() over v.pipe(v.string(), v.regex()) for structured string patterns',
+  patterns: ['**/*.ts', '**/*.svelte.ts'],
 
-	visitor: {
-		CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
-			if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
-				return [];
-			}
+  visitor: {
+    CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
+      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
+        return [];
+      }
 
-			const callee = node.callee as AstNode | undefined;
-			if (!callee) {
-				return [];
-			}
+      const callee = node.callee as AstNode | undefined;
+      if (!callee) {
+        return [];
+      }
 
-			// Check for v.pipe() calls
-			if (
-				(callee.type === 'MemberExpression' || callee.type === 'StaticMemberExpression') &&
-				(callee.property as AstNode | undefined)?.name === 'pipe'
-			) {
-				const pipeArgs = node.arguments as AstNode[] | undefined;
-				if (!pipeArgs || pipeArgs.length < 2) {
-					return [];
-				}
+      // Check for v.pipe() calls
+      if (
+        (callee.type === 'MemberExpression' || callee.type === 'StaticMemberExpression') &&
+        (callee.property as AstNode | undefined)?.name === 'pipe'
+      ) {
+        const pipeArgs = node.arguments as AstNode[] | undefined;
+        if (!pipeArgs || pipeArgs.length < 2) {
+          return [];
+        }
 
-				// First arg must be v.string()
-				const firstArg: AstNode = pipeArgs[0];
-				const firstArgText: string = context.content.slice(firstArg.start, firstArg.end);
-				if (!firstArgText.includes('string()')) {
-					return [];
-				}
+        // First arg must be v.string()
+        const firstArg: AstNode = pipeArgs[0];
+        const firstArgText: string = context.content.slice(firstArg.start, firstArg.end);
+        if (!firstArgText.includes('string()')) {
+          return [];
+        }
 
-				// Find v.regex() in the remaining args
-				for (let i: number = 1; i < pipeArgs.length; i++) {
-					const arg: AstNode = pipeArgs[i];
-					const argText: string = context.content.slice(arg.start, arg.end);
+        // Find v.regex() in the remaining args
+        for (let i: number = 1; i < pipeArgs.length; i++) {
+          const arg: AstNode = pipeArgs[i];
+          const argText: string = context.content.slice(arg.start, arg.end);
 
-					if (!argText.includes('regex(')) {
-						continue;
-					}
+          if (!argText.includes('regex(')) {
+            continue;
+          }
 
-					// Extract the regex pattern
-					const regexMatch: RegExpMatchArray | null = argText.match(/regex\s*\(\s*\/(.+?)\/[gimsuy]*\s*[,)]/);
-					if (!regexMatch) {
-						continue;
-					}
+          // Extract the regex pattern
+          const regexMatch: RegExpMatchArray | null = argText.match(
+            /regex\s*\(\s*\/(.+?)\/[gimsuy]*\s*[,)]/,
+          );
+          if (!regexMatch) {
+            continue;
+          }
 
-					const regexSource: string = regexMatch[1];
+          const regexSource: string = regexMatch[1];
 
-					if (isDecomposable(regexSource)) {
-						return [{
-							file: context.file,
-							line: node.loc.start.line,
-							column: node.loc.start.column + 1,
-							severity: 'warning',
-							message: `Consider using templateLiteral() from @/schemas/template-literal instead of v.regex(/${regexSource}/)`,
-							ruleId: 'valibot/prefer-template-literal',
-							tip: 'templateLiteral() provides exact TypeScript type inference, composable parts, better errors, and record key support',
-						}];
-					}
-				}
-			}
+          if (isDecomposable(regexSource)) {
+            return [
+              {
+                file: context.file,
+                line: node.loc.start.line,
+                column: node.loc.start.column + 1,
+                severity: 'warning',
+                message: `Consider using templateLiteral() from @/schemas/template-literal instead of v.regex(/${regexSource}/)`,
+                ruleId: 'valibot/prefer-template-literal',
+                tip: 'templateLiteral() provides exact TypeScript type inference, composable parts, better errors, and record key support',
+              },
+            ];
+          }
+        }
+      }
 
-			return [];
-		},
-	},
+      return [];
+    },
+  },
 };
 
 export default rule;
