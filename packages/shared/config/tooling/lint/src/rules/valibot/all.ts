@@ -14,6 +14,8 @@ import requireMinLength from './require-min-length.ts';
 import requireStrictObject from './require-strict-object.ts';
 import noDuplicateSchema from './no-duplicate-schema.ts';
 import noGenericStringSchema from './no-generic-string-schema.ts';
+import requireGenericSchema from './require-generic-schema.ts';
+import preferTemplateLiteral from './prefer-template-literal.ts';
 
 /** All Valibot lint rules. */
 export const VALIBOT_RULES: TypeScriptRule[] = [
@@ -26,4 +28,6 @@ export const VALIBOT_RULES: TypeScriptRule[] = [
   preferSharedSchema,
   noDuplicateSchema,
   noGenericStringSchema,
+  requireGenericSchema,
+  preferTemplateLiteral,
 ];

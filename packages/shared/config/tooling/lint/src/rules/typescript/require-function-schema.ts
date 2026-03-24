@@ -17,6 +17,8 @@ const EXEMPT_PATTERNS: readonly RegExp[] = [
   /\.test\.ts$/,
   /\.spec\.ts$/,
   /config\/tooling\/lint\//,
+  /schemas\/common\//, // Circular dependency: schemas/common ← schemas/function ← schemas/common
+  /schemas\/function\//, // Internal implementation uses v.custom to avoid self-reference
 ];
 
 /** Pattern to detect function type parameters in v.custom<...>. */

@@ -32,6 +32,7 @@ import {
   type LogContext,
   LogContextSchema,
   type LogEntry,
+  LogEntrySchema,
   LogLevelSchema,
   OutputFormatSchema,
   StrSchema,
@@ -48,6 +49,8 @@ import {
   type Void,
 } from '@/schemas/common';
 import { ERRORS, err, ok, okUnchecked, type AppError, type Result } from '@/schemas/result/result';
+import { functionSchema } from '@/schemas/function/function';
+import { args } from '@/schemas/function/args';
 import { safeStringify } from '@/utils/core/object';
 import { getOutputFormat, setOutputFormat } from '@/utils/core/output-context';
 import { fromUnknownError, safeParse } from '@/utils/result/safe';
@@ -510,7 +513,7 @@ export const BufferConfigSchema = v.strictObject({
   /** Maximum time in ms before auto-flushing. Default: 5000. 0 disables. */
   flushIntervalMs: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
   /** Callback invoked with buffered entries on flush. */
-  onFlush: v.custom<(entries: readonly LogEntry[]) => void>((value) => typeof value === 'function'),
+  onFlush: v.pipe(functionSchema(), args(v.tuple([v.array(LogEntrySchema)]))),
 });
 
 /** Inferred output type of {@link BufferConfigSchema}. */
