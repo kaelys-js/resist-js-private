@@ -92,15 +92,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/update-session-tasks.sh"
-          },
-          {
-            "type": "command",
             "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/post-changelog-remind.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/session-state-reminder.sh"
           }
         ]
       },
