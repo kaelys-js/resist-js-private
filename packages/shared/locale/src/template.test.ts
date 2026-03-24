@@ -339,3 +339,39 @@ describe('buildLocale', () => {
     }
   });
 });
+
+// =============================================================================
+// Error path coverage
+// =============================================================================
+
+describe('error paths', () => {
+  it('renderMessage returns error for invalid template (non-string)', () => {
+    const result = renderMessage(123 as unknown as string, {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('renderMessage returns error for invalid params (non-object)', () => {
+    const result = renderMessage('Hello', 'not-an-object' as unknown as Record<string, unknown>);
+    expect(result.ok).toBe(false);
+  });
+
+  it('buildLocale returns error for non-object schema', () => {
+    const result = buildLocale(v.string(), 'not an object' as unknown as Record<string, unknown>);
+    expect(result.ok).toBe(false);
+  });
+
+  it('renderMessage handles missing placeholder gracefully', () => {
+    const result = renderMessage('Hello {name}', {});
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      // Missing placeholder renders as empty string
+      expect(result.data).toBe('Hello ');
+    }
+  });
+
+  it('buildLocale with empty schema returns empty object', () => {
+    const EmptySchema = v.strictObject({});
+    const result = buildLocale(EmptySchema, {});
+    expect(result.ok).toBe(true);
+  });
+});
