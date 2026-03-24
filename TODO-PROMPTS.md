@@ -3,36 +3,41 @@
 
   This: /Users/coleb/Desktop/webforge/packages/shared/[TARGET_PATH]
 
-  Run ALL FIVE QA checks and fix every error and warning found.
+  Run ALL SIX QA checks, fix every error, and verify 100% test coverage.
 
-  1. Run ALL FIVE checks and collect ALL errors:
+  1. Run ALL SIX checks and collect ALL errors:
     - `pnpm -w run qa:lint 2>&1 | grep "[TARGET_PATH]"` (oxlint)
-    - `pnpm -w run qa:lint:custom 2>&1 | grep "[TARGET_PATH]"` (custom lint — WITHOUT --warn-only)
+    - `pnpm -w run qa:lint:custom -- [TARGET_PATH]` (custom lint — WITHOUT --warn-only)
     - `pnpm -r --filter [PACKAGE_NAME] run qa:type-check 2>&1` (type-check)
     - `pnpm -r --filter [PACKAGE_NAME] run qa:test 2>&1` (tests)
     - `pnpm -w run qa:format:check 2>&1 | grep "[TARGET_PATH]"` (formatting)
-    Present ALL errors from ALL FIVE checks before proposing fixes.
+    - `pnpm -r --filter @/lint run qa:test 2>&1` (lint rule tests — all must pass)
+    Present ALL errors from ALL SIX checks before proposing fixes.
   2. For EACH error/warning found:
     - Read the source file at the flagged line
     - Read the rule that flagged it at packages/shared/config/tooling/lint/src/rules/
     - Determine: is this a TRUE POSITIVE (real code issue) or FALSE POSITIVE (rule bug)?
     - If TRUE POSITIVE: propose the exact code fix with before/after
     - If FALSE POSITIVE: propose the exact rule fix with before/after (and add to rule tests)
-  3. Present a detailed changelog with:
-    - Every error grouped by file
-    - For each error: the rule ID, line number, current code, why it's wrong, and the exact fix
-    - Clearly mark which are code fixes vs rule fixes
-  4. After approval, implement ALL fixes
-  5. After implementation, re-run ALL FIVE checks and confirm ZERO errors in EACH:
+  3. Read the source file and its test file. Trace EVERY branch (if/else, try/catch, ternary, ??, ||, conditional spread). For each branch:
+    - Verify a test exists that covers it
+    - If missing: add the test with exact assertions (use toBe, not toContain)
+    - Verify error paths return exact error codes (e.g., toBe('IO.READ_FAILED'), not toContain('IO'))
+  4. Present a detailed changelog with:
+    - Every QA error grouped by file with rule ID, line, current code, and exact fix
+    - Every missing test branch with the exact test to add
+    - Clearly mark which are code fixes vs rule fixes vs test additions
+  5. After approval, implement ALL fixes
+  6. After implementation, re-run ALL SIX checks and confirm ZERO errors in EACH:
     - `pnpm -w run qa:lint 2>&1 | grep "[TARGET_PATH]"` → 0 errors
-    - `pnpm -w run qa:lint:custom 2>&1 | grep "[TARGET_PATH]"` → 0 errors
+    - `pnpm -w run qa:lint:custom -- [TARGET_PATH]` → 0 errors
     - `pnpm -r --filter [PACKAGE_NAME] run qa:type-check` → 0 errors
     - `pnpm -r --filter [PACKAGE_NAME] run qa:test` → all pass
     - `pnpm -w run qa:format:check 2>&1 | grep "[TARGET_PATH]"` → 0 errors
+    - `pnpm -r --filter @/lint run qa:test` → all pass
     If ANY check has errors, fix them and re-run ALL checks again.
-  6. Run `pnpm -r --filter @/config/tooling/lint run qa:test` to confirm all lint rule tests still pass
 
-  DO NOT weaken assertions, skip errors, or dismiss warnings as "acceptable." Every single diagnostic must be resolved — either fix the code or fix the rule.
+  DO NOT weaken assertions, skip errors, or dismiss warnings as "acceptable." Every single diagnostic must be resolved — either fix the code or fix the rule. DO NOT skip ANY branch — trace every if/else, try/catch, ternary, ??, ||. Use exact error codes in assertions.
 
   CRITICAL: Re-Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
 
