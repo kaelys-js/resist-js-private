@@ -568,4 +568,133 @@ describe('createNamespacedRegistry', () => {
     const result = reg.data.setLocale('unknown', 'es', es);
     expect(result.ok).toBe(false);
   });
+
+  it('hasNamespace returns true for existing namespace', () => {
+    const reg = createNamespacedRegistry({
+      defaultLocale: 'en',
+      namespaces: {
+        common: { schema: TestSchema, locales: { en } },
+      },
+    });
+    if (!reg.ok) {
+      throw new Error('setup failed');
+    }
+
+    const result = reg.data.hasNamespace('common');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
+  });
+
+  it('hasNamespace returns false for missing namespace', () => {
+    const reg = createNamespacedRegistry({
+      defaultLocale: 'en',
+      namespaces: {
+        common: { schema: TestSchema, locales: { en } },
+      },
+    });
+    if (!reg.ok) {
+      throw new Error('setup failed');
+    }
+
+    const result = reg.data.hasNamespace('unknown');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(false);
+    }
+  });
+
+  it('list returns empty array when no registries exist', () => {
+    const reg = createNamespacedRegistry({
+      defaultLocale: 'en',
+      namespaces: {},
+    });
+    if (!reg.ok) {
+      throw new Error('setup failed');
+    }
+
+    const result = reg.data.list();
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toEqual([]);
+    }
+  });
+});
+
+// =============================================================================
+// Error code assertions
+// =============================================================================
+
+describe('exact error codes', () => {
+  it('createLocaleRegistry returns LOCALE.INVALID_LOCALE for missing default', () => {
+    const result = createLocaleRegistry({
+      schema: TestSchema,
+      defaultLocale: 'xx',
+      locales: { en },
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
+    }
+  });
+
+  it('createLocaleRegistry returns LOCALE.INVALID_FALLBACK for missing fallback', () => {
+    const result = createLocaleRegistry({
+      schema: TestSchema,
+      defaultLocale: 'en',
+      locales: { en },
+      fallbackLocales: ['xx'],
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('LOCALE.INVALID_FALLBACK');
+    }
+  });
+
+  it('createLocaleRegistry returns LOCALE.VALIDATION_FAILED for invalid locale data', () => {
+    const result = createLocaleRegistry({
+      schema: TestSchema,
+      defaultLocale: 'en',
+      locales: { en: { greeting: 123 } as unknown as Record<string, string> },
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('LOCALE.VALIDATION_FAILED');
+    }
+  });
+
+  it('registry.setActive returns LOCALE.INVALID_LOCALE for unknown code', () => {
+    const reg = createLocaleRegistry({
+      schema: TestSchema,
+      defaultLocale: 'en',
+      locales: { en },
+    });
+    if (!reg.ok) {
+      throw new Error('setup failed');
+    }
+
+    const result = reg.data.setActive('xx');
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
+    }
+  });
+
+  it('registry.remove returns LOCALE.REMOVE_DENIED for active locale', () => {
+    const reg = createLocaleRegistry({
+      schema: TestSchema,
+      defaultLocale: 'en',
+      locales: { en, es },
+    });
+    if (!reg.ok) {
+      throw new Error('setup failed');
+    }
+
+    const result = reg.data.remove('en');
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('LOCALE.REMOVE_DENIED');
+    }
+  });
 });

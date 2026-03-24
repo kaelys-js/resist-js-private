@@ -85,6 +85,38 @@ function getFunctionName(node: AstNode): string | null {
 }
 
 /**
+ * Check if a call expression is a method on a native collection (Map, Set, Array).
+ * Native collection methods like Map.delete(), Set.delete() return boolean, not Result.
+ *
+ * @param {AstNode} callNode - The CallExpression node
+ * @param {VisitorContext} context - The visitor context
+ * @returns {boolean} Whether the call is on a native collection
+ */
+function isNativeCollectionMethod(callNode: AstNode, context: VisitorContext): boolean {
+  const callee = callNode.callee as AstNode | undefined;
+  if (!callee) {
+    return false;
+  }
+  if (callee.type !== 'MemberExpression' && callee.type !== 'StaticMemberExpression') {
+    return false;
+  }
+
+  const object = callee.object as AstNode | undefined;
+  if (!object || object.type !== 'Identifier') {
+    return false;
+  }
+
+  const objectName: string = (object.name as string) ?? '';
+
+  // Check if the variable is typed as Map<...>, Set<...>, or Array
+  const typePattern: RegExp = new RegExp(
+    `(?:const|let)\\s+${objectName}\\s*(?::\\s*(?:Map|Set|WeakMap|WeakSet|ReadonlyMap|ReadonlySet)\\s*<|=\\s*new\\s+(?:Map|Set|WeakMap|WeakSet)\\s*[<(])`,
+  );
+
+  return typePattern.test(context.content);
+}
+
+/**
  * Check if a function likely returns a Result based on name and file context.
  *
  * @param {string} funcName - The function name
@@ -138,6 +170,11 @@ const rule: TypeScriptRule = {
       }
 
       if (!likelyReturnsResult(funcName, context)) {
+        return results;
+      }
+
+      // Skip native collection methods (Map.delete, Set.delete, etc.) — they return boolean, not Result
+      if (isNativeCollectionMethod(callExpr, context)) {
         return results;
       }
 
