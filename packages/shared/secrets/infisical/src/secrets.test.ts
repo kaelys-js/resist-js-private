@@ -6,7 +6,11 @@
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { Str, Bool, Void, OptionalStr } from '@/schemas/common';
-import type { AllSecrets, GlobalSecrets, ProductSecrets } from '@/schemas/core-config/secret-schemas';
+import type {
+  AllSecrets,
+  GlobalSecrets,
+  ProductSecrets,
+} from '@/schemas/core-config/secret-schemas';
 import type { Result } from '@/schemas/result/result';
 
 // ---------------------------------------------------------------------------

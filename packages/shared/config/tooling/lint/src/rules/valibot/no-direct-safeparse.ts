@@ -41,7 +41,10 @@ const rule: TypeScriptRule = {
         ) {
           // Exempt v.safeParse() inside v.check/v.transform/v.rawCheck callbacks
           // These are valibot pipeline stages where v.safeParse is correct (returns boolean-compatible)
-          const beforeCall: string = context.content.slice(Math.max(0, node.start - 500), node.start);
+          const beforeCall: string = context.content.slice(
+            Math.max(0, node.start - 500),
+            node.start,
+          );
           const lastCallback: number = Math.max(
             beforeCall.lastIndexOf('v.check('),
             beforeCall.lastIndexOf('v.transform('),

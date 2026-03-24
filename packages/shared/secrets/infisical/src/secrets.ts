@@ -185,10 +185,7 @@ export async function getSecrets<T extends v.GenericSchema>(
  * result.data; // => 'postgres://...'
  * ```
  */
-export async function getSecret(
-  key: Str,
-  options: GetSecretOptions,
-): Promise<Result<Str>> {
+export async function getSecret(key: Str, options: GetSecretOptions): Promise<Result<Str>> {
   const keyResult: Result<Str> = safeParse(StrSchema, key);
 
   if (!keyResult.ok) return keyResult;
@@ -259,7 +256,10 @@ export async function getSecret(
 export async function getGlobalSecrets(
   options: GetGlobalSecretsOptions,
 ): Promise<Result<GlobalSecrets>> {
-  const optionsResult: Result<GetGlobalSecretsOptions> = safeParse(GetGlobalSecretsOptionsSchema, options);
+  const optionsResult: Result<GetGlobalSecretsOptions> = safeParse(
+    GetGlobalSecretsOptionsSchema,
+    options,
+  );
 
   if (!optionsResult.ok) return optionsResult;
 
@@ -328,10 +328,7 @@ export async function getAllSecrets(options: GetSecretsOptions): Promise<Result<
  * result.data; // => true or false
  * ```
  */
-export async function hasSecret(
-  key: Str,
-  options: GetSecretOptions,
-): Promise<Result<Bool>> {
+export async function hasSecret(key: Str, options: GetSecretOptions): Promise<Result<Bool>> {
   const keyResult: Result<Str> = safeParse(StrSchema, key);
 
   if (!keyResult.ok) return keyResult;
@@ -340,7 +337,10 @@ export async function hasSecret(
 
   if (!optionsResult.ok) return optionsResult;
 
-  const result: Result<Str> = await getSecret(keyResult.data, optionsResult.data as GetSecretOptions); // cast safe: DeepReadonly preserves value
+  const result: Result<Str> = await getSecret(
+    keyResult.data,
+    optionsResult.data as GetSecretOptions,
+  ); // cast safe: DeepReadonly preserves value
 
   return ok(BoolSchema, result.ok);
 }

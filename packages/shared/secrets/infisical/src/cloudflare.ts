@@ -141,7 +141,8 @@ export function createSecretsProxy(env: unknown): ProductSecrets {
     return validated;
   }
 
-  return new Proxy({} as ProductSecrets, { // cast safe: empty object is immediately proxied and never accessed directly
+  return new Proxy({} as ProductSecrets, {
+    // cast safe: empty object is immediately proxied and never accessed directly
     get(_target: ProductSecrets, prop: Str): unknown {
       const secrets: ProductSecrets = ensureValidated();
 
@@ -311,10 +312,9 @@ export function hasRequiredSecrets(
   env: unknown,
   keys: readonly (keyof ProductSecrets)[],
 ): Result<Bool> {
-  const keysResult: Result<(keyof ProductSecrets)[]> = safeParse(
-    v.array(ProductSecretsKeySchema),
-    [...keys],
-  );
+  const keysResult: Result<(keyof ProductSecrets)[]> = safeParse(v.array(ProductSecretsKeySchema), [
+    ...keys,
+  ]);
 
   if (!keysResult.ok) return keysResult;
 

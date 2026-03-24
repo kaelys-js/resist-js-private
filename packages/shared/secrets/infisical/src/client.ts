@@ -30,10 +30,7 @@ import {
   type Void,
 } from '@/schemas/common';
 import type { CoreConfig } from '@/schemas/core-config/config';
-import {
-  InfisicalAuthMethodSchema,
-  type InfisicalAuthMethod,
-} from '@/schemas/core-config/tooling';
+import { InfisicalAuthMethodSchema, type InfisicalAuthMethod } from '@/schemas/core-config/tooling';
 import { ERRORS, err, ok, okUnchecked, type AppError, type Result } from '@/schemas/result/result';
 import { fromUnknownError, safeParse } from '@/utils/result/safe';
 import { safeStringify } from '@/utils/core/object';
@@ -139,21 +136,28 @@ export function resolveOptions(options: ClientOptions): Result<ResolvedOptions> 
   if (!configResult.ok) return configResult;
 
   const config: DeepReadonly<CoreConfig> = configResult.data;
-  const infisicalConfig: DeepReadonly<CoreConfig['tooling']['infisical']> = config.tooling.infisical;
+  const infisicalConfig: DeepReadonly<CoreConfig['tooling']['infisical']> =
+    config.tooling.infisical;
 
   const cacheTtlEnv: Str = process.env[ENV_VARS.CACHE_TTL] ?? '';
   const rawCacheTtl: Num = cacheTtlEnv // cast safe: parseInt returns number, schema validates below
     ? parseInt(cacheTtlEnv, 10)
     : (infisicalConfig.auth.cacheTtlSeconds as Num) * 1000; // cast safe: DeepReadonly number is still number
 
-  const cacheTtlResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, rawCacheTtl);
+  const cacheTtlResult: Result<NonNegativeInteger> = safeParse(
+    NonNegativeIntegerSchema,
+    rawCacheTtl,
+  );
 
   if (!cacheTtlResult.ok) return cacheTtlResult;
 
   const parsedCacheTtl: NonNegativeInteger = cacheTtlResult.data;
 
   const resolved: ResolvedOptions = {
-    siteUrl: validatedOptions?.siteUrl ?? process.env[ENV_VARS.SITE_URL] ?? (infisicalConfig.siteUrl as unknown as Str), // cast safe: DeepReadonly branded Str → Str, value unchanged
+    siteUrl:
+      validatedOptions?.siteUrl ??
+      process.env[ENV_VARS.SITE_URL] ??
+      (infisicalConfig.siteUrl as unknown as Str), // cast safe: DeepReadonly branded Str → Str, value unchanged
     accessToken: validatedOptions?.accessToken ?? process.env[ENV_VARS.TOKEN] ?? '',
     clientId: validatedOptions?.clientId ?? process.env[ENV_VARS.CLIENT_ID] ?? '',
     clientSecret: validatedOptions?.clientSecret ?? process.env[ENV_VARS.CLIENT_SECRET] ?? '',
