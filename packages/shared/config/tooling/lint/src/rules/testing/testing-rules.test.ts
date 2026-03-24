@@ -5,6 +5,8 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
 import { runTypeScriptRules } from '../../framework/oxc-runner.ts';
 import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
 
@@ -144,5 +146,37 @@ export default function handler(req: Request): Response {
       '/tmp/nonexistent-dir-abc123/handler.ts',
     );
     expect(results.length).toBe(1);
+  });
+
+  it('flags untested exported function when test file exists but misses function', async () => {
+    const tmpDir: string = join('/tmp', `lint-test-${Date.now()}`);
+    mkdirSync(tmpDir, { recursive: true });
+    const srcPath: string = join(tmpDir, 'utils.ts');
+    const testPath: string = join(tmpDir, 'utils.test.ts');
+
+    // Test file only tests funcA, not funcB
+    writeFileSync(testPath, `describe('funcA', () => { it('works', () => {}); });`);
+
+    const code: string = `export function funcA(): Void { return undefined; }\nexport function funcB(): Void { return undefined; }`;
+    const results: LintResult[] = await lint(requireColocatedTests, code, srcPath);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('funcB');
+
+    rmSync(tmpDir, { recursive: true });
+  });
+
+  it('passes when all exported functions are referenced in test file', async () => {
+    const tmpDir: string = join('/tmp', `lint-test-${Date.now()}`);
+    mkdirSync(tmpDir, { recursive: true });
+    const srcPath: string = join(tmpDir, 'utils.ts');
+    const testPath: string = join(tmpDir, 'utils.test.ts');
+
+    writeFileSync(testPath, `describe('funcA', () => {}); describe('funcB', () => {});`);
+
+    const code: string = `export function funcA(): Void { return undefined; }\nexport function funcB(): Void { return undefined; }`;
+    const results: LintResult[] = await lint(requireColocatedTests, code, srcPath);
+    expect(results.length).toBe(0);
+
+    rmSync(tmpDir, { recursive: true });
   });
 });

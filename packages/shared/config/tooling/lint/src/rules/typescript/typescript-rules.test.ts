@@ -198,6 +198,39 @@ const z: Bool = false;
     const results: LintResult[] = await lint(noBuiltinTypes, code);
     expect(results.length).toBe(0);
   });
+
+  it('reports string inside Record generic', async () => {
+    const code: string = `const x: Record<string, Str> = {};`;
+    const results: LintResult[] = await lint(noBuiltinTypes, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('Str');
+  });
+
+  it('reports number inside Array generic', async () => {
+    const code: string = `const x: Array<number> = [];`;
+    const results: LintResult[] = await lint(noBuiltinTypes, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('Num');
+  });
+
+  it('reports multiple builtins inside Map generic', async () => {
+    const code: string = `const x: Map<string, number> = new Map();`;
+    const results: LintResult[] = await lint(noBuiltinTypes, code);
+    expect(results.length).toBe(2);
+  });
+
+  it('reports void in function type return', async () => {
+    const code: string = `type Handler = () => void;`;
+    const results: LintResult[] = await lint(noBuiltinTypes, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('Void');
+  });
+
+  it('passes Void in function type return', async () => {
+    const code: string = `type Handler = () => Void;`;
+    const results: LintResult[] = await lint(noBuiltinTypes, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
