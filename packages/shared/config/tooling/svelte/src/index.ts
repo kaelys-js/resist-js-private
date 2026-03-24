@@ -21,9 +21,8 @@
 import * as v from 'valibot';
 import type { Config, Adapter } from '@sveltejs/kit';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import type { Str, Bool, Path } from '@/schemas/common';
-import { PathSchema } from '@/schemas/common';
-import { type Result, ERRORS, err, okUnchecked } from '@/schemas/result/result';
+import { PathSchema, type Str, type Bool, type Path, type Filename } from '@/schemas/common';
+import { type Result, okUnchecked } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import { findWorkspaceRoot } from '@/utils/core/workspace';
 import { readFile, parseJsonWithComments } from '@/utils/core/fs';
@@ -37,14 +36,70 @@ import { resolvePath, joinPath } from '@/utils/core/path';
 /** Inferred options type from {@link CreateSvelteConfigOptionsSchema}. */
 type CreateSvelteConfigOptions = v.InferOutput<typeof CreateSvelteConfigOptionsSchema>;
 
-/** Tsconfig structure for reading `compilerOptions.paths`. */
-const TsconfigJsonSchema = v.strictObject({
-  /** TypeScript compiler options containing path aliases. */
-  compilerOptions: v.optional(v.strictObject({
-    /** Path alias mappings (e.g., `@/foo` -> `./packages/foo/src/index.ts`). */
-    paths: v.optional(v.record(v.string(), v.array(v.string()))),
-  })),
+/** Schema for tsconfig.json compiler options. */
+const TsconfigCompilerOptionsSchema = v.strictObject({
+  /** Path alias mappings (e.g., `@/foo` -> `./packages/foo/src/index.ts`). */
+  paths: v.optional(v.record(v.string(), v.array(v.string()))),
+  /** Enable all strict type-checking options. */
+  strict: v.optional(v.boolean()),
+  /** ECMAScript target version. */
+  target: v.optional(v.picklist(['ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', 'ES2021', 'ES2022', 'ES2023', 'ES2024', 'ESNext'])),
+  /** Module system. */
+  module: v.optional(v.picklist(['ESNext', 'CommonJS', 'NodeNext', 'Node16', 'ES2015', 'ES2020', 'ES2022'])),
+  /** Module resolution strategy. */
+  moduleResolution: v.optional(v.picklist(['bundler', 'node', 'nodenext', 'node16', 'classic'])),
+  /** Allow importing JSON modules. */
+  resolveJsonModule: v.optional(v.boolean()),
+  /** Emit interop helpers for ES module default imports. */
+  esModuleInterop: v.optional(v.boolean()),
+  /** Skip type-checking declaration files. */
+  skipLibCheck: v.optional(v.boolean()),
+  /** Ensure consistent casing in file names. */
+  forceConsistentCasingInFileNames: v.optional(v.boolean()),
+  /** Generate .d.ts declaration files. */
+  declaration: v.optional(v.boolean()),
+  /** Generate .d.ts.map sourcemap files. */
+  declarationMap: v.optional(v.boolean()),
+  /** Generate .js.map sourcemap files. */
+  sourceMap: v.optional(v.boolean()),
+  /** Ensure each file can be transpiled independently. */
+  isolatedModules: v.optional(v.boolean()),
+  /** Preserve import/export syntax. */
+  verbatimModuleSyntax: v.optional(v.boolean()),
+  /** Add undefined to index signatures. */
+  noUncheckedIndexedAccess: v.optional(v.boolean()),
+  /** Report errors for fallthrough cases in switch. */
+  noFallthroughCasesInSwitch: v.optional(v.boolean()),
+  /** Ensure overriding members use override keyword. */
+  noImplicitOverride: v.optional(v.boolean()),
+  /** Enforce using indexed accessors for keys declared with index signatures. */
+  noPropertyAccessFromIndexSignature: v.optional(v.boolean()),
+  /** Allow imports to include .ts extensions. */
+  allowImportingTsExtensions: v.optional(v.boolean()),
+  /** Do not emit output files. */
+  noEmit: v.optional(v.boolean()),
 });
+
+/** Schema for tsconfig.json root structure. */
+const TsconfigJsonSchema = v.strictObject({
+  /** Compiler options. */
+  compilerOptions: v.optional(TsconfigCompilerOptionsSchema),
+  /** File patterns to exclude. */
+  exclude: v.optional(v.array(v.string())),
+  /** File patterns to include. */
+  include: v.optional(v.array(v.string())),
+  /** Base tsconfig to extend. */
+  extends: v.optional(PathSchema),
+  /** Explicit list of files to include. */
+  files: v.optional(v.array(v.string())),
+  /** Project references. */
+  references: v.optional(v.array(v.strictObject({
+    /** Path to referenced tsconfig. */
+    path: PathSchema,
+  }))),
+});
+
+/** Inferred tsconfig.json type. See {@link TsconfigJsonSchema}. */
 type TsconfigJson = v.InferOutput<typeof TsconfigJsonSchema>;
 
 /** CSP configuration type from SvelteKit. */
@@ -159,13 +214,13 @@ function buildAliasesFromTsconfig(root: Path): Result<Record<Str, Str>> {
   if (!tsconfigResult.ok) return tsconfigResult;
   const tsconfig: TsconfigJson = tsconfigResult.data;
   if (!tsconfig.compilerOptions?.paths) return okUnchecked<Record<Str, Str>>({});
-  const paths: Record<Str, Str[]> = tsconfig.compilerOptions.paths;
+  const { paths }: { paths: Record<Str, Str[]> } = tsconfig.compilerOptions;
 
   const aliases: Record<Str, Str> = {};
 
-  for (const entry of Object.entries(paths)) {
-    const [alias, targets] = entry as [Str, Str[]];
-    const [target] = targets as Str[];
+  const pathEntries: Array<[Str, Str[]]> = Object.entries(paths);
+  for (const [alias, targets] of pathEntries) {
+    const [target]: Str[] = targets;
     if (!target) continue;
 
     let resolved: Str = target;
@@ -266,7 +321,7 @@ export function createSvelteConfig(options: CreateSvelteConfigOptions): Config {
 
   const { adapter, enableCsp, extraAliases, files, extraKit }: CreateSvelteConfigOptions = optionsResult.data;
 
-  const rootResult: Result<Path> = findWorkspaceRoot();
+  const rootResult: Result<Path> = findWorkspaceRoot(undefined, 'pnpm-workspace.yaml' as Filename); // cast safe: literal string to branded Filename
   if (!rootResult.ok) throw rootResult.error; // integration boundary: SvelteKit doesn't understand Result
   const root: Path = rootResult.data;
 
