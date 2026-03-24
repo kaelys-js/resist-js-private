@@ -149,8 +149,12 @@ const rule: TypeScriptRule = {
           });
         }
 
-        // Check for err() return pattern
-        if (!hasErrReturn(bodyText)) {
+        // Check for err() return pattern — only in functions returning Result
+        // Functions returning Promise<Response> or other non-Result types can't use err()
+        const beforeFunc: string = context.content.slice(Math.max(0, node.start - 3000), node.start);
+        const isResultFunc: boolean = /\):\s*(?:Promise<\s*)?Result\b/.test(beforeFunc);
+
+        if (isResultFunc && !hasErrReturn(bodyText)) {
           results.push({
             file: context.file,
             line: node.loc.start.line,
@@ -166,8 +170,8 @@ const rule: TypeScriptRule = {
           });
         }
 
-        // Check that fromUnknownError result is passed as cause in err() meta
-        if (hasFromUnknownError(bodyText) && hasErrReturn(bodyText)) {
+        // Check that fromUnknownError result is passed as cause in err() meta (Result functions only)
+        if (isResultFunc && hasFromUnknownError(bodyText) && hasErrReturn(bodyText)) {
           if (!/err\s*\([^)]*cause/.test(bodyText) && !/\{\s*cause/.test(bodyText)) {
             results.push({
               file: context.file,
@@ -181,8 +185,8 @@ const rule: TypeScriptRule = {
           }
         }
 
-        // Check that err() uses a specific error code, not generic INTERNAL.UNEXPECTED
-        if (/err\s*\(\s*ERRORS\.INTERNAL\.UNEXPECTED/.test(bodyText)) {
+        // Check that err() uses a specific error code, not generic INTERNAL.UNEXPECTED (Result functions only)
+        if (isResultFunc && /err\s*\(\s*ERRORS\.INTERNAL\.UNEXPECTED/.test(bodyText)) {
           results.push({
             file: context.file,
             line: node.loc.start.line,
