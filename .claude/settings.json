@@ -78,6 +78,17 @@
       }
     ],
     "PostToolUse": [],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/stop-preview-override.sh"
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "matcher": "startup",

@@ -1,33 +1,71 @@
 /**
- * Error Reporting Breadcrumbs
- *
- * Populates the global breadcrumb trail (from `@/utils/result/breadcrumbs`)
- * with navigation and fetch events. These breadcrumbs are automatically
- * included in `CapturedError` envelopes and sent via the error beacon.
- *
- * Two categories of breadcrumbs:
- *
- * 1. **Navigation** — route changes tracked via `addNavigationBreadcrumb()`,
- *    called from the app's layout component which has access to router lifecycle.
- *
- * 2. **Fetch** — HTTP requests tracked by wrapping `globalThis.fetch` via
- *    `initFetchBreadcrumbs()`, called once during client initialization.
+ * Error Reporting Breadcrumbs — navigation and fetch event tracking.
  *
  * @module
  */
 
-import type { Str, Void } from '@/schemas/common';
+import * as v from 'valibot';
+
+import { NullableStrSchema, StrSchema, VoidSchema, type Bool, type NullableStr, type Str, type Void } from '@/schemas/common';
 import type { BreadcrumbLevel } from '@/schemas/result/captured-error';
+import { type AppError, type Result, ok, err, ERRORS } from '@/schemas/result/result';
 import { addBreadcrumb } from '@/utils/result/breadcrumbs';
-
-/** Original fetch reference, saved for teardown. */
-let _originalFetch: typeof globalThis.fetch | null = null;
-
-/** Default fetch endpoints to skip (avoids recursion with beacon endpoint). */
-const DEFAULT_SKIP_URLS: readonly string[] = ['/api/errors'];
+import { fromUnknownError } from '@/utils/result/error-utils';
+import { safeParse } from '@/utils/result/safe';
 
 // =============================================================================
-// Navigation Breadcrumbs
+// Schemas
+// =============================================================================
+
+/** Original fetch reference, saved for teardown. */
+let originalFetch: typeof globalThis.fetch | null = null; // cast safe: nullable state for lazy init
+
+/** Default fetch endpoints to skip (avoids recursion with beacon endpoint). */
+const DEFAULT_SKIP_URLS: readonly Str[] = ['/api/errors'];
+
+/** Schema for initFetchBreadcrumbs options. */
+const FetchBreadcrumbOptionsSchema = v.strictObject({
+	/** URL substrings to skip breadcrumb recording for. */
+	skipUrls: v.optional(v.array(StrSchema), ['/api/errors']),
+});
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+/**
+ * Extracts the URL string from a fetch input.
+ *
+ * @param {RequestInfo | URL} input - The fetch input (string, URL, or Request).
+ * @returns {Result<Str>} The URL as a string.
+ */
+function extractUrl(input: RequestInfo | URL): Result<Str> {
+	if (typeof input === 'string') return ok(StrSchema, input);
+
+	if (input instanceof URL) return ok(StrSchema, input.pathname);
+
+	if (input instanceof Request) return ok(StrSchema, input.url);
+
+	return ok(StrSchema, '(unknown)');
+}
+
+/**
+ * Extracts the HTTP method from a fetch input.
+ *
+ * @param {RequestInfo | URL} input - The fetch input.
+ * @param {RequestInit | undefined} init - The fetch init options.
+ * @returns {Result<Str>} The HTTP method (defaults to 'GET').
+ */
+function extractMethod(input: RequestInfo | URL, init: RequestInit | undefined): Result<Str> {
+	if (init?.method) return ok(StrSchema, init.method.toUpperCase());
+
+	if (input instanceof Request) return ok(StrSchema, input.method.toUpperCase());
+
+	return ok(StrSchema, 'GET');
+}
+
+// =============================================================================
+// API
 // =============================================================================
 
 /**
@@ -36,14 +74,15 @@ const DEFAULT_SKIP_URLS: readonly string[] = ['/api/errors'];
  * Called from the app's layout component on route changes (via `beforeNavigate`
  * or `afterNavigate`). `from` is null on initial page load.
  *
- * @param from - The URL path being navigated away from (null on initial load).
- * @param to - The URL path being navigated to.
+ * @param {NullableStr} from - The URL path being navigated away from (null on initial load).
+ * @param {Str} to - The URL path being navigated to.
+ * @returns {Result<Void>} Success or validation error.
  *
  * @example
  * ```typescript
  * import { addNavigationBreadcrumb } from '@/utils/beacon/breadcrumbs';
  *
- * afterNavigate(({ from, to }) => {
+ * afterNavigate(({ from, to }): Void => {
  *   addNavigationBreadcrumb(
  *     from?.url.pathname ?? null,
  *     to?.url.pathname ?? '/',
@@ -51,19 +90,26 @@ const DEFAULT_SKIP_URLS: readonly string[] = ['/api/errors'];
  * });
  * ```
  */
-export function addNavigationBreadcrumb(from: Str | null, to: Str): Void {
-  const fromLabel: Str = (from ?? '(initial)') as Str;
-  addBreadcrumb({
-    type: 'navigation',
-    category: 'route',
-    message: `${fromLabel} → ${to}`,
-    level: 'info',
-  });
-}
+export function addNavigationBreadcrumb(from: NullableStr, to: Str): Result<Void> {
+	const fromResult: Result<NullableStr> = safeParse(NullableStrSchema, from);
 
-// =============================================================================
-// Fetch Breadcrumbs
-// =============================================================================
+	if (!fromResult.ok) return fromResult;
+
+	const toResult: Result<Str> = safeParse(StrSchema, to);
+
+	if (!toResult.ok) return toResult;
+
+	const fromLabel: Str = (fromResult.data ?? '(initial)') as Str; // cast safe: string concatenation
+
+	addBreadcrumb({
+		type: 'navigation',
+		category: 'route',
+		message: `${fromLabel} → ${toResult.data}`,
+		level: 'info',
+	});
+
+	return ok(VoidSchema, undefined);
+}
 
 /**
  * Wraps `globalThis.fetch` to add HTTP breadcrumbs for every request.
@@ -75,9 +121,8 @@ export function addNavigationBreadcrumb(from: Str | null, to: Str): Void {
  * Call once during client initialization. Call
  * `teardownFetchBreadcrumbs()` to restore the original `fetch`.
  *
- * @param skipUrls - URL substrings to skip breadcrumb recording for.
- *   Defaults to `['/api/errors']`. Use to exclude beacon endpoints or
- *   other high-frequency internal routes from breadcrumb recording.
+ * @param {readonly Str[]} skipUrls - URL substrings to skip breadcrumb recording for.
+ * @returns {Result<Void>} Success or error.
  *
  * @example
  * ```typescript
@@ -90,85 +135,90 @@ export function addNavigationBreadcrumb(from: Str | null, to: Str): Void {
  * initFetchBreadcrumbs(['/api/errors', '/api/v2/errors', '/healthz']);
  * ```
  */
-export function initFetchBreadcrumbs(skipUrls: readonly string[] = DEFAULT_SKIP_URLS): Void {
-  // Already initialized — skip
-  if (_originalFetch !== null) return;
+export function initFetchBreadcrumbs(skipUrls: readonly Str[]): Result<Void> {
+	const skipUrlsResult: Result<readonly Str[]> = safeParse(v.array(StrSchema), skipUrls);
 
-  _originalFetch = globalThis.fetch;
-  const original: typeof fetch = _originalFetch;
+	if (!skipUrlsResult.ok) return skipUrlsResult;
 
-  globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-    const url: Str = extractUrl(input);
-    const method: Str = extractMethod(input, init);
+	// Already initialized — skip
+	if (originalFetch !== null) {
+		return ok(VoidSchema, undefined);
+	}
 
-    // Skip configured endpoints to avoid infinite recursion
-    if (skipUrls.some((skip) => url.includes(skip))) {
-      return original(input, init);
-    }
+	originalFetch = globalThis.fetch;
+	const original: typeof fetch = originalFetch;
+	const urls: readonly Str[] = skipUrlsResult.data;
 
-    try {
-      const response: Response = await original(input, init);
-      const level: BreadcrumbLevel = response.ok ? 'info' : 'error';
-      addBreadcrumb({
-        type: 'http',
-        category: 'fetch',
-        message: `${method} ${url} → ${String(response.status)}`,
-        level,
-        data: { method, url, status_code: response.status },
-      });
-      return response;
-    } catch (error: unknown) {
-      const message: Str = (error instanceof Error ? error.message : 'Unknown error') as Str;
-      addBreadcrumb({
-        type: 'http',
-        category: 'fetch',
-        message: `${method} ${url} → ${message}`,
-        level: 'warning',
-        data: { method, url, error: message },
-      });
-      throw error;
-    }
-  };
+	globalThis.fetch = async (input: RequestInfo | URL, init: RequestInit | undefined): Promise<Response> => {
+		const urlResult: Result<Str> = extractUrl(input);
+
+		if (!urlResult.ok) return original(input, init);
+
+		const methodResult: Result<Str> = extractMethod(input, init);
+
+		if (!methodResult.ok) return original(input, init);
+
+		const url: Str = urlResult.data;
+		const method: Str = methodResult.data;
+
+		// Skip configured endpoints to avoid infinite recursion
+		if (urls.some((skip: Str): Bool => url.includes(skip))) {
+			return original(input, init);
+		}
+
+		try {
+			const response: Response = await original(input, init);
+			const level: BreadcrumbLevel = response.ok ? 'info' : 'error';
+
+			addBreadcrumb({
+				type: 'http',
+				category: 'fetch',
+				message: `${method} ${url} → ${String(response.status)}`,
+				level,
+				data: { method, url, status_code: response.status },
+			});
+
+			return response;
+		} catch (error: unknown) {
+			// Fetch threw — record breadcrumb then re-throw as structured error
+			const cause: AppError = fromUnknownError(error);
+
+			addBreadcrumb({
+				type: 'http',
+				category: 'fetch',
+				message: `${method} ${url} → ${cause.message}`,
+				level: 'warning',
+				data: { method, url, error: cause.message },
+			});
+
+			// integration boundary: fetch API contract requires throw on network errors
+			throw new Error(cause.message, { cause });
+		}
+	};
+
+	return ok(VoidSchema, undefined);
 }
 
 /**
  * Restores the original `globalThis.fetch`, removing the breadcrumb wrapper.
  *
  * Safe to call multiple times — no-op if not initialized.
- */
-export function teardownFetchBreadcrumbs(): Void {
-  if (_originalFetch !== null) {
-    globalThis.fetch = _originalFetch;
-    _originalFetch = null;
-  }
-}
-
-// =============================================================================
-// Helpers
-// =============================================================================
-
-/**
- * Extracts the URL string from a fetch input.
  *
- * @param input - The fetch input (string, URL, or Request).
- * @returns The URL as a string.
+ * @returns {Result<Void>} Success.
+ *
+ * @example
+ * ```typescript
+ * import { teardownFetchBreadcrumbs } from '@/utils/beacon/breadcrumbs';
+ *
+ * teardownFetchBreadcrumbs();
+ * ```
  */
-function extractUrl(input: RequestInfo | URL): Str {
-  if (typeof input === 'string') return input as Str;
-  if (input instanceof URL) return input.pathname as Str;
-  if (input instanceof Request) return input.url as Str;
-  return '(unknown)' as Str;
+export function teardownFetchBreadcrumbs(): Result<Void> {
+	if (originalFetch !== null) {
+		globalThis.fetch = originalFetch;
+		originalFetch = null;
+	}
+
+	return ok(VoidSchema, undefined);
 }
 
-/**
- * Extracts the HTTP method from a fetch input.
- *
- * @param input - The fetch input.
- * @param init - The fetch init options.
- * @returns The HTTP method (defaults to 'GET').
- */
-function extractMethod(input: RequestInfo | URL, init?: RequestInit): Str {
-  if (init?.method) return init.method.toUpperCase() as Str;
-  if (input instanceof Request) return input.method.toUpperCase() as Str;
-  return 'GET' as Str;
-}
