@@ -165,6 +165,34 @@ const rule: TypeScriptRule = {
             },
           });
         }
+
+        // Check that fromUnknownError result is passed as cause in err() meta
+        if (hasFromUnknownError(bodyText) && hasErrReturn(bodyText)) {
+          if (!/err\s*\([^)]*cause/.test(bodyText) && !/\{\s*cause/.test(bodyText)) {
+            results.push({
+              file: context.file,
+              line: node.loc.start.line,
+              column: node.loc.start.column + 1,
+              severity: 'error',
+              message: 'err() in catch block should include { cause: fromUnknownError(error) } in meta',
+              ruleId: 'typescript/no-empty-catch',
+              tip: 'Pass the converted error as cause: err(ERRORS.X.Y, { cause: appError })',
+            });
+          }
+        }
+
+        // Check that err() uses a specific error code, not generic INTERNAL.UNEXPECTED
+        if (/err\s*\(\s*ERRORS\.INTERNAL\.UNEXPECTED/.test(bodyText)) {
+          results.push({
+            file: context.file,
+            line: node.loc.start.line,
+            column: node.loc.start.column + 1,
+            severity: 'error',
+            message: 'Use a specific error code in catch block, not ERRORS.INTERNAL.UNEXPECTED',
+            ruleId: 'typescript/no-empty-catch',
+            tip: 'Use a domain-specific code: ERRORS.IO.READ_FAILED, ERRORS.NETWORK.PORT_UNAVAILABLE, etc.',
+          });
+        }
       }
 
       return results;

@@ -364,6 +364,36 @@ describe('typescript/no-empty-catch', () => {
     const results: LintResult[] = await lint(noEmptyCatch, code);
     expect(results.length).toBe(0);
   });
+
+  it('flags err() without cause in meta', async () => {
+    const code: string = `try { } catch (e: unknown) {
+  /* handled */
+  const appError = fromUnknownError(e);
+  return err(ERRORS.IO.READ_FAILED);
+}`;
+    const results: LintResult[] = await lint(noEmptyCatch, code);
+    expect(results.some((r: LintResult): boolean => r.message.includes('cause'))).toBe(true);
+  });
+
+  it('flags generic INTERNAL.UNEXPECTED error code', async () => {
+    const code: string = `try { } catch (e: unknown) {
+  /* handled */
+  const appError = fromUnknownError(e);
+  return err(ERRORS.INTERNAL.UNEXPECTED, { cause: appError });
+}`;
+    const results: LintResult[] = await lint(noEmptyCatch, code);
+    expect(results.some((r: LintResult): boolean => r.message.includes('specific error code'))).toBe(true);
+  });
+
+  it('passes err() with cause and specific code', async () => {
+    const code: string = `try { } catch (e: unknown) {
+  /* Convert error */
+  const appError = fromUnknownError(e);
+  return err(ERRORS.IO.WRITE_FAILED, { cause: appError });
+}`;
+    const results: LintResult[] = await lint(noEmptyCatch, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
