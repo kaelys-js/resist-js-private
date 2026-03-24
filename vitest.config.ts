@@ -67,6 +67,10 @@ const sharedPathAliases: Array<{ find: string; replacement: string }> = [
     replacement: `${path.resolve(root, 'packages/shared/schemas/core-config/src')}/`,
   },
   {
+    find: '@/secrets/infisical/',
+    replacement: `${path.resolve(root, 'packages/shared/secrets/infisical/src')}/`,
+  },
+  {
     find: '@/config/core/',
     replacement: `${path.resolve(root, 'packages/shared/config/core/src')}/`,
   },
@@ -302,6 +306,14 @@ export default defineConfig({
         test: {
           name: 'config-tooling-svelte',
           root: 'packages/shared/config/tooling/svelte',
+          include: ['src/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'secrets-infisical',
+          root: 'packages/shared/secrets/infisical',
           include: ['src/**/*.test.ts'],
         },
       },

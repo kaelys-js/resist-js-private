@@ -478,8 +478,12 @@ export const ERRORS = _deepFreeze({
     SCHEMA_FAILED: 'VALIDATION.SCHEMA_FAILED',
     /** A required field is missing from the input. */
     MISSING_FIELD: 'VALIDATION.MISSING_FIELD',
+    /** A required field is absent (e.g., secret key not set, env var missing). */
+    REQUIRED_FIELD: 'VALIDATION.REQUIRED_FIELD',
     /** A field value does not match the expected format. */
     INVALID_FORMAT: 'VALIDATION.INVALID_FORMAT',
+    /** A field value has the wrong type. */
+    INVALID_TYPE: 'VALIDATION.INVALID_TYPE',
   },
   /** Configuration loading and parsing errors. */
   CONFIG: {
@@ -734,8 +738,12 @@ const ERROR_MESSAGES: Partial<Record<KnownErrorCode, (meta?: ErrorMeta) => strin
       : `Schema validation failed${meta?.flag ? ` for flag '${meta.flag}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
   [ERRORS.VALIDATION.MISSING_FIELD]: (meta) =>
     `Required field missing${meta?.field ? `: ${meta.field}` : ''}${meta?.locale ? ` in locale '${meta.locale}'` : ''}${meta?.location ? `. Add to ${meta.location}` : ''}`,
+  [ERRORS.VALIDATION.REQUIRED_FIELD]: (meta) =>
+    `Required field is absent${meta?.field ? `: ${meta.field}` : ''}${meta?.hint ? `. ${meta.hint}` : ''}`,
   [ERRORS.VALIDATION.INVALID_FORMAT]: (meta) =>
     `Format mismatch${meta?.field ? ` on ${meta.field}` : ''}${meta?.reason ? `: ${meta.reason}` : ''}${meta?.template ? ` in template "${meta.template}"` : ''}${meta?.missingVariables && Array.isArray(meta.missingVariables) ? `: undefined variables: ${meta.missingVariables.map(String).join(', ')}` : ''}`,
+  [ERRORS.VALIDATION.INVALID_TYPE]: (meta) =>
+    `Invalid type${meta?.field ? ` on ${meta.field}` : ''}${meta?.expected ? `: expected ${meta.expected}` : ''}${meta?.received ? `, got ${meta.received}` : ''}`,
   [ERRORS.CONFIG.LOAD_FAILED]: (meta) =>
     `Failed to load config${meta?.configPath ? `: ${meta.configPath}` : ''}`,
   [ERRORS.CONFIG.NOT_FOUND]: (meta) =>
@@ -925,7 +933,9 @@ const ERROR_DEFAULTS: Partial<
   // VALIDATION
   [ERRORS.VALIDATION.SCHEMA_FAILED]: { severity: 'error', httpStatus: 400 },
   [ERRORS.VALIDATION.MISSING_FIELD]: { severity: 'error', httpStatus: 400 },
+  [ERRORS.VALIDATION.REQUIRED_FIELD]: { severity: 'error', httpStatus: 400 },
   [ERRORS.VALIDATION.INVALID_FORMAT]: { severity: 'error', httpStatus: 400 },
+  [ERRORS.VALIDATION.INVALID_TYPE]: { severity: 'error', httpStatus: 400 },
   // CONFIG
   [ERRORS.CONFIG.LOAD_FAILED]: { severity: 'error', httpStatus: 500 },
   [ERRORS.CONFIG.NOT_FOUND]: { severity: 'error', httpStatus: 500 },
