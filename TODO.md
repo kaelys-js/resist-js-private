@@ -1,6 +1,16 @@
-- [Lint]
-  - New Rules
-    - Review utils/core/src
+shared/utils/devtools
+shared/schemas/function
+shared/schemas/generic
+shared/schemas/result
+shared/schemas/template-literal
+shared/utils/result
+shared/utils/core
+shared/ui/src/utils
+shared/ui/src/lens
+shared/ui/src/*/lens.ts -> shared/ui/src/components
+shared/config/tooling/lint
+shared/utils/cli
+products/storylyne
 
 - [Lens]
     - Lens Blocks
