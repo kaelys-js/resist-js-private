@@ -63,8 +63,12 @@ export const load: LayoutServerLoad = ({ locals, url }) => {
   // scenes load; if project is null, scenes resolve to empty immediately.
   const scenesPromise: Promise<readonly ServerScene[]> = (async () => {
     const project = await projectPromise;
-    if (!project) return [] as readonly ServerScene[];
-    if (emptyScenes) return [] as readonly ServerScene[];
+    if (!project) {
+      return [] as readonly ServerScene[];
+    }
+    if (emptyScenes) {
+      return [] as readonly ServerScene[];
+    }
     const result = await locals.db.scenes.getByProject(project.id);
     return result.ok ? result.data : ([] as readonly ServerScene[]);
   })();

@@ -120,11 +120,15 @@ export function createLocaleStore<TSchema extends v.GenericSchema>(
 ): Result<LocaleStore<TSchema>> {
   // Get initial active locale
   const activeResult: Result<Str> = registry.active();
-  if (!activeResult.ok) return activeResult;
+  if (!activeResult.ok) {
+    return activeResult;
+  }
 
   // Get initial built strings
   const initialStringsResult: Result<BuiltLocale<TSchema>> = registry.t();
-  if (!initialStringsResult.ok) return initialStringsResult;
+  if (!initialStringsResult.ok) {
+    return initialStringsResult;
+  }
 
   // Reactive state — Svelte 5 runes
   let currentLocale: Str = $state(activeResult.data);
@@ -143,13 +147,19 @@ export function createLocaleStore<TSchema extends v.GenericSchema>(
 
     setLocale: (code: Str): Result<Void> => {
       const codeResult: Result<Str> = safeParse(StrSchema, code);
-      if (!codeResult.ok) return codeResult;
+      if (!codeResult.ok) {
+        return codeResult;
+      }
 
       const setResult: Result<Void> = registry.setActive(codeResult.data);
-      if (!setResult.ok) return setResult;
+      if (!setResult.ok) {
+        return setResult;
+      }
 
       const stringsResult: Result<BuiltLocale<TSchema>> = registry.t();
-      if (!stringsResult.ok) return stringsResult;
+      if (!stringsResult.ok) {
+        return stringsResult;
+      }
 
       currentLocale = codeResult.data;
       currentStrings = stringsResult.data as BuiltLocale<TSchema>; // Irreducible: DeepReadonly mangles function-typed BuiltLocale properties
@@ -167,12 +177,16 @@ export function createLocaleStore<TSchema extends v.GenericSchema>(
 
     set: (code: Str, raw: RawLocaleStrings): Result<Void> => {
       const setResult: Result<Void> = registry.set(code, raw);
-      if (!setResult.ok) return setResult;
+      if (!setResult.ok) {
+        return setResult;
+      }
 
       // If we just updated the active locale, refresh reactive state
       if (code === currentLocale) {
         const stringsResult: Result<BuiltLocale<TSchema>> = registry.t();
-        if (!stringsResult.ok) return stringsResult;
+        if (!stringsResult.ok) {
+          return stringsResult;
+        }
         currentStrings = stringsResult.data as BuiltLocale<TSchema>; // Irreducible: DeepReadonly mangles function-typed BuiltLocale properties
       }
 

@@ -33,7 +33,9 @@
   const validated: WelcomeScreenProps = $derived.by(() => {
     const rawProps: WelcomeScreenProps = stripSvelteProps(allProps);
     const result = safeParse(WelcomeScreenPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as WelcomeScreenProps;
   });

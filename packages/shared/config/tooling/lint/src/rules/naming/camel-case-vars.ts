@@ -32,20 +32,30 @@ const rule: TypeScriptRule = {
       // Skip top-level const — handled by constant-screaming-case rule
       // We only check let/var, and non-top-level const
       const declarations = node.declarations as AstNode[] | undefined;
-      if (!declarations) return results;
+      if (!declarations) {
+        return results;
+      }
 
       for (const decl of declarations) {
         const id = decl.id as AstNode | undefined;
-        if (!id || id.type !== 'Identifier') continue;
+        if (!id || id.type !== 'Identifier') {
+          continue;
+        }
 
         const name: string = (id.name as string) ?? '';
-        if (!name || ALLOWED_NAMES.has(name)) continue;
+        if (!name || ALLOWED_NAMES.has(name)) {
+          continue;
+        }
 
         // Allow SCREAMING_SNAKE for top-level const (handled by other rule)
-        if (kind === 'const' && SCREAMING_SNAKE_RE.test(name)) continue;
+        if (kind === 'const' && SCREAMING_SNAKE_RE.test(name)) {
+          continue;
+        }
 
         // Allow PascalCase schema names (codebase convention: StrSchema, PathSchema, etc.)
-        if (name.endsWith('Schema')) continue;
+        if (name.endsWith('Schema')) {
+          continue;
+        }
 
         // Allow PascalCase constructor references (typed with constructor type or name ending in Ctor/Constructor/Format)
         const typeAnnotation = (id as AstNode & { typeAnnotation?: AstNode }).typeAnnotation as
@@ -54,9 +64,13 @@ const rule: TypeScriptRule = {
         if (typeAnnotation) {
           const typeText: string = context.content.slice(typeAnnotation.start, typeAnnotation.end);
           // Direct constructor type: `new (...)`
-          if (/\bnew\s*\(/.test(typeText)) continue;
+          if (/\bnew\s*\(/.test(typeText)) {
+            continue;
+          }
           // Type reference to a constructor alias: `: SomeCtor` or `: SomeConstructor` or `: SomeFormat`
-          if (/:\s*[A-Z]\w*(Ctor|Constructor|Format)\s*$/.test(typeText)) continue;
+          if (/:\s*[A-Z]\w*(Ctor|Constructor|Format)\s*$/.test(typeText)) {
+            continue;
+          }
         }
 
         if (!CAMEL_CASE_RE.test(name)) {
@@ -82,10 +96,14 @@ const rule: TypeScriptRule = {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const id = node.id as AstNode | undefined;
-      if (!id || id.type !== 'Identifier') return results;
+      if (!id || id.type !== 'Identifier') {
+        return results;
+      }
 
       const name: string = (id.name as string) ?? '';
-      if (!name || ALLOWED_NAMES.has(name)) return results;
+      if (!name || ALLOWED_NAMES.has(name)) {
+        return results;
+      }
 
       if (!CAMEL_CASE_RE.test(name)) {
         results.push({

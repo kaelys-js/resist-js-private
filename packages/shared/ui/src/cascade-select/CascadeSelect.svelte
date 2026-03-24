@@ -33,7 +33,9 @@
   const validated: CascadeSelectProps = $derived.by(() => {
     const rawProps: CascadeSelectProps = stripSvelteProps(allProps);
     const result = safeParse(CascadeSelectPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as CascadeSelectProps;
   });

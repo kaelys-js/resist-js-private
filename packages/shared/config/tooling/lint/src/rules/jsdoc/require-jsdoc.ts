@@ -18,7 +18,9 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 function hasJsDoc(node: AstNode, content: string): boolean {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
-  if (!trimmed.endsWith('*/')) return false;
+  if (!trimmed.endsWith('*/')) {
+    return false;
+  }
   const closeIdx: number = trimmed.lastIndexOf('*/');
   const openIdx: number = trimmed.lastIndexOf('/**');
   return openIdx !== -1 && openIdx < closeIdx;
@@ -44,7 +46,9 @@ const rule: TypeScriptRule = {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declaration = node.declaration as AstNode | undefined;
-      if (!declaration) return results;
+      if (!declaration) {
+        return results;
+      }
 
       if (declaration.type === 'FunctionDeclaration' && !hasJsDoc(node, context.content)) {
         const name: string = getFunctionName(declaration) ?? '<anonymous>';
@@ -78,7 +82,9 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
-        if (!declarations) return results;
+        if (!declarations) {
+          return results;
+        }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;

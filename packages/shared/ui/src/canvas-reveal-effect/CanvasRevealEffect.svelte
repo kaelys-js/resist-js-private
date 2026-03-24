@@ -33,7 +33,9 @@
   const validated: CanvasRevealEffectProps = $derived.by(() => {
     const rawProps: CanvasRevealEffectProps = stripSvelteProps(allProps);
     const result = safeParse(CanvasRevealEffectPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as CanvasRevealEffectProps;
   });

@@ -64,7 +64,9 @@
    * @returns Raw CSS source string
    */
   function getCssSource(): Str {
-    if (typeof cssRaw === 'string') return cssRaw;
+    if (typeof cssRaw === 'string') {
+      return cssRaw;
+    }
     const entries: Array<[Str, unknown]> = Object.entries(cssRaw as Record<Str, unknown>);
     const [first]: Array<[Str, unknown]> = entries;
     return (first ? String(first[1]) : '') as Str;
@@ -372,14 +374,20 @@
 
   /** Current view mode display label. */
   const viewModeLabel: Str = $derived.by((): Str => {
-    if (viewMode === 'table') return 'Table' as Str;
-    if (viewMode === 'compact') return 'Compact' as Str;
+    if (viewMode === 'table') {
+      return 'Table' as Str;
+    }
+    if (viewMode === 'compact') {
+      return 'Compact' as Str;
+    }
     return 'List' as Str;
   });
 
   /** Current sort display label (field + direction arrow, or empty if default). */
   const sortLabel: Str = $derived.by((): Str => {
-    if (!sortField) return '' as Str;
+    if (!sortField) {
+      return '' as Str;
+    }
     const names: Record<string, string> = { name: 'Name', value: 'Value', category: 'Category' };
     const arrow: Str = (sortDir === 'asc' ? '↑' : '↓') as Str;
     return `${names[sortField] ?? sortField} ${arrow}` as Str;
@@ -473,7 +481,9 @@
     if (confirmingReset) {
       resetDefaults();
       confirmingReset = false as Bool;
-      if (confirmResetTimer) clearTimeout(confirmResetTimer);
+      if (confirmResetTimer) {
+        clearTimeout(confirmResetTimer);
+      }
     } else {
       confirmingReset = true as Bool;
       confirmResetTimer = setTimeout((): void => {

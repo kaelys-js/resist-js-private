@@ -33,7 +33,9 @@
   const rawProps: LensPortalScopeProps = $props();
   const validated: LensPortalScopeProps = $derived.by(() => {
     const result = safeParse(LensPortalScopePropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as LensPortalScopeProps;
   });
@@ -44,7 +46,9 @@
   let anchorEl: HTMLDivElement | undefined = $state(undefined);
 
   $effect(() => {
-    if (!anchorEl) return;
+    if (!anchorEl) {
+      return;
+    }
     const div: HTMLDivElement = document.createElement('div');
     // Position off-flow so it doesn't affect layout
     div.style.position = 'absolute';
@@ -70,7 +74,9 @@
 
   /** Sync mode class + data-theme attribute on the body-level portal div. */
   $effect(() => {
-    if (!portalEl) return;
+    if (!portalEl) {
+      return;
+    }
     // Reset classes — mirror page dark state when mode is auto + theme is set
     portalEl.className = cn(
       validated.mode === 'dark' && 'dark',

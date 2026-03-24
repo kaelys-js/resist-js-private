@@ -33,7 +33,9 @@
   const validated: MasterDetailProps = $derived.by(() => {
     const rawProps: MasterDetailProps = stripSvelteProps(allProps);
     const result = safeParse(MasterDetailPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as MasterDetailProps;
   });

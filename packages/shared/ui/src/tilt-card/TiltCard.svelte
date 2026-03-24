@@ -33,7 +33,9 @@
   const validated: TiltCardProps = $derived.by(() => {
     const rawProps: TiltCardProps = stripSvelteProps(allProps);
     const result = safeParse(TiltCardPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as TiltCardProps;
   });

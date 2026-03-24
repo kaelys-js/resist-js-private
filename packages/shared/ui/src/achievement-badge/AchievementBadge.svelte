@@ -33,7 +33,9 @@
   const validated: AchievementBadgeProps = $derived.by(() => {
     const rawProps: AchievementBadgeProps = stripSvelteProps(allProps);
     const result = safeParse(AchievementBadgePropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as AchievementBadgeProps;
   });

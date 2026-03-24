@@ -151,7 +151,9 @@
   const buildInfo: BuildInfo | null = buildInfoResult.ok ? buildInfoResult.data : null;
 
   async function copyBuildInfo(): Promise<Void> {
-    if (!buildInfo) return;
+    if (!buildInfo) {
+      return;
+    }
     try {
       const dirtyLabel: Str = t(
         buildInfo.dirty

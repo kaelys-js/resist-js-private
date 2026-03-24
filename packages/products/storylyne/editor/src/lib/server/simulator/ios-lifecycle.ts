@@ -82,7 +82,9 @@ export function waitForBoot(udid: Str, timeoutMs: Num = BOOT_TIMEOUT_MS): Promis
       throw new Error(`Simulator ${udid} did not boot within ${timeoutMs}ms`);
     }
     const state: Str = await getDeviceState(udid);
-    if (state === 'Booted') return true as Bool;
+    if (state === 'Booted') {
+      return true as Bool;
+    }
     await sleep(BOOT_POLL_INTERVAL_MS);
     return poll();
   };

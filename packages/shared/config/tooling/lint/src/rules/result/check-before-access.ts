@@ -57,7 +57,9 @@ function getIdentifierName(node: AstNode): string | null {
  * @returns {boolean} Whether it's likely a Result variable
  */
 function isLikelyResultVariable(name: string, content: string): boolean {
-  if (RESULT_NAME_PATTERNS.some((p: RegExp): boolean => p.test(name))) return true;
+  if (RESULT_NAME_PATTERNS.some((p: RegExp): boolean => p.test(name))) {
+    return true;
+  }
 
   // Check type annotation: `const varName: Result<...>` or `const varName: Promise<Result<...>>`
   const typePattern: RegExp = new RegExp(
@@ -81,7 +83,9 @@ function hasOkCheckBefore(varName: string, node: AstNode, context: VisitorContex
   // Find where the variable was declared (handles optional type annotations)
   const declPattern: RegExp = new RegExp(`(?:const|let|var)\\s+${varName}\\s*(?::[^=]*)?=`, 'g');
   const declMatch: RegExpExecArray | null = declPattern.exec(beforeCode);
-  if (!declMatch) return false;
+  if (!declMatch) {
+    return false;
+  }
 
   // Get code between declaration and current node
   const codeSinceDeclare: string = beforeCode.slice(declMatch.index);
@@ -142,13 +146,19 @@ function checkAccess(node: AstNode, context: VisitorContext): LintResult[] {
   const results: LintResult[] = [];
 
   const property = node.property as AstNode | undefined;
-  if (!property) return results;
+  if (!property) {
+    return results;
+  }
 
   const propertyName: string = (property.name as string) ?? (property.value as string) ?? '';
-  if (propertyName !== 'data' && propertyName !== 'error') return results;
+  if (propertyName !== 'data' && propertyName !== 'error') {
+    return results;
+  }
 
   const object = node.object as AstNode | undefined;
-  if (!object) return results;
+  if (!object) {
+    return results;
+  }
 
   const objectName: string | null = getIdentifierName(object);
 
@@ -172,13 +182,17 @@ function checkAccess(node: AstNode, context: VisitorContext): LintResult[] {
     return results;
   }
 
-  if (!isLikelyResultVariable(objectName, context.content)) return results;
+  if (!isLikelyResultVariable(objectName, context.content)) {
+    return results;
+  }
 
   // Check if file imports from Result modules
   const hasResultImport: boolean = context.imports.some(
     (imp) => imp.source.includes('result') || imp.source.includes('Result'),
   );
-  if (!hasResultImport) return results;
+  if (!hasResultImport) {
+    return results;
+  }
 
   if (!hasOkCheckBefore(objectName, node, context)) {
     results.push({

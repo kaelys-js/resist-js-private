@@ -33,7 +33,9 @@
   const validated: IconButtonProps = $derived.by(() => {
     const rawProps: IconButtonProps = stripSvelteProps(allProps);
     const result = safeParse(IconButtonPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as IconButtonProps;
   });

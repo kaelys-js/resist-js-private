@@ -33,7 +33,9 @@
   const validated: GaugeProps = $derived.by(() => {
     const rawProps: GaugeProps = stripSvelteProps(allProps);
     const result = safeParse(GaugePropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as GaugeProps;
   });

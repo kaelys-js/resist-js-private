@@ -30,12 +30,18 @@ const rule: PackageJsonRule = {
    */
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
-    if (context.isRoot) return results;
-    if (context.pkg.private !== true) return results;
+    if (context.isRoot) {
+      return results;
+    }
+    if (context.pkg.private !== true) {
+      return results;
+    }
 
     const peers: Record<string, string> = context.pkg.peerDependencies ?? {};
     const peerNames: string[] = Object.keys(peers);
-    if (peerNames.length === 0) return results;
+    if (peerNames.length === 0) {
+      return results;
+    }
 
     const name: string = context.pkg.name ?? '<unnamed>';
     results.push({

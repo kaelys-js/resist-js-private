@@ -105,10 +105,18 @@
    */
   function detectEntryType(message: Str, isNew: boolean): EntryType {
     const msg: Str = message.toLowerCase() as Str;
-    if (msg.includes('breaking') || msg.includes('break')) return 'breaking';
-    if (msg.includes('deprecat')) return 'deprecated';
-    if (msg.includes('fix') || msg.includes('bug') || msg.includes('patch')) return 'fixed';
-    if (isNew) return 'added';
+    if (msg.includes('breaking') || msg.includes('break')) {
+      return 'breaking';
+    }
+    if (msg.includes('deprecat')) {
+      return 'deprecated';
+    }
+    if (msg.includes('fix') || msg.includes('bug') || msg.includes('patch')) {
+      return 'fixed';
+    }
+    if (isNew) {
+      return 'added';
+    }
     return 'updated';
   }
 
@@ -164,13 +172,23 @@
       const entryType: EntryType = detectEntryType(entry.message as Str, entry.isNew);
 
       /* Filter by type */
-      if (activeFilters.size > 0 && !activeFilters.has(entryType as Str)) return false;
+      if (activeFilters.size > 0 && !activeFilters.has(entryType as Str)) {
+        return false;
+      }
 
       /* Filter by search query */
-      if (query.length === 0) return true;
-      if (entry.message.toLowerCase().includes(query)) return true;
-      if (entry.author.toLowerCase().includes(query)) return true;
-      if (entry.components.some((c) => c.toLowerCase().includes(query))) return true;
+      if (query.length === 0) {
+        return true;
+      }
+      if (entry.message.toLowerCase().includes(query)) {
+        return true;
+      }
+      if (entry.author.toLowerCase().includes(query)) {
+        return true;
+      }
+      if (entry.components.some((c) => c.toLowerCase().includes(query))) {
+        return true;
+      }
       return false;
     };
 
@@ -309,7 +327,9 @@
 
   /** Filtered export options. */
   const filteredExports: ExportOption[] = $derived.by((): ExportOption[] => {
-    if (!exportSearch) return EXPORT_OPTIONS;
+    if (!exportSearch) {
+      return EXPORT_OPTIONS;
+    }
     const q: Str = exportSearch.toLowerCase() as Str;
     return EXPORT_OPTIONS.filter(
       (o: ExportOption): boolean =>
@@ -326,7 +346,9 @@
 
   /** Filtered view mode options. */
   const filteredViewModes = $derived.by(() => {
-    if (!viewModeSearch) return VIEW_MODES;
+    if (!viewModeSearch) {
+      return VIEW_MODES;
+    }
     const q: Str = viewModeSearch.toLowerCase() as Str;
     return VIEW_MODES.filter(
       (o) => o.label.toLowerCase().includes(q) || o.description.toLowerCase().includes(q),
@@ -358,15 +380,23 @@
 
   /** Current view mode display label. */
   const viewModeLabel: Str = $derived.by((): Str => {
-    if (viewMode === 'timeline') return 'Timeline' as Str;
-    if (viewMode === 'table') return 'Table' as Str;
-    if (viewMode === 'compact') return 'Compact' as Str;
+    if (viewMode === 'timeline') {
+      return 'Timeline' as Str;
+    }
+    if (viewMode === 'table') {
+      return 'Table' as Str;
+    }
+    if (viewMode === 'compact') {
+      return 'Compact' as Str;
+    }
     return 'List' as Str;
   });
 
   /** Current sort display label (field + direction arrow, or empty if default). */
   const sortLabel: Str = $derived.by((): Str => {
-    if (!sortField) return '' as Str;
+    if (!sortField) {
+      return '' as Str;
+    }
     const names: Record<string, string> = {
       date: 'Date',
       type: 'Type',
@@ -424,11 +454,21 @@
     const diffHr: number = Math.floor(diffMin / 60);
     const diffDay: number = Math.floor(diffHr / 24);
 
-    if (diffMin < 1) return 'just now' as Str;
-    if (diffMin < 60) return `${diffMin}m ago` as Str;
-    if (diffHr < 24) return `${diffHr}h ago` as Str;
-    if (diffDay < 7) return `${diffDay}d ago` as Str;
-    if (diffDay < 30) return `${Math.floor(diffDay / 7)}w ago` as Str;
+    if (diffMin < 1) {
+      return 'just now' as Str;
+    }
+    if (diffMin < 60) {
+      return `${diffMin}m ago` as Str;
+    }
+    if (diffHr < 24) {
+      return `${diffHr}h ago` as Str;
+    }
+    if (diffDay < 7) {
+      return `${diffDay}d ago` as Str;
+    }
+    if (diffDay < 30) {
+      return `${Math.floor(diffDay / 7)}w ago` as Str;
+    }
     return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) as Str;
   }
 
@@ -525,7 +565,9 @@
     if (confirmingReset) {
       resetDefaults();
       confirmingReset = false as Bool;
-      if (confirmResetTimer) clearTimeout(confirmResetTimer);
+      if (confirmResetTimer) {
+        clearTimeout(confirmResetTimer);
+      }
     } else {
       confirmingReset = true as Bool;
       confirmResetTimer = setTimeout((): void => {

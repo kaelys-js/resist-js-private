@@ -61,7 +61,9 @@ function getOkAccessVariable(node: AstNode): string | null {
     const operator = node.operator as string | undefined;
     if (operator === '!') {
       const argument = node.argument as AstNode | undefined;
-      if (argument) return getOkAccessVariable(argument);
+      if (argument) {
+        return getOkAccessVariable(argument);
+      }
     }
   }
 
@@ -92,7 +94,9 @@ function accessesData(node: AstNode, varName: string): boolean {
  * @returns {boolean} Whether .data access was found
  */
 function containsDataAccess(node: AstNode, varName: string): boolean {
-  if (accessesData(node, varName)) return true;
+  if (accessesData(node, varName)) {
+    return true;
+  }
 
   for (const key of Object.keys(node)) {
     const value = node[key] as unknown;
@@ -100,11 +104,15 @@ function containsDataAccess(node: AstNode, varName: string): boolean {
       if (Array.isArray(value)) {
         for (const item of value) {
           if (item && typeof item === 'object' && 'type' in item) {
-            if (containsDataAccess(item as AstNode, varName)) return true;
+            if (containsDataAccess(item as AstNode, varName)) {
+              return true;
+            }
           }
         }
       } else if ('type' in (value as Record<string, unknown>)) {
-        if (containsDataAccess(value as AstNode, varName)) return true;
+        if (containsDataAccess(value as AstNode, varName)) {
+          return true;
+        }
       }
     }
   }
@@ -129,11 +137,17 @@ function isFallbackValue(node: AstNode): boolean {
     return true;
   }
   // Object literal (fallback object)
-  if (node.type === 'ObjectExpression') return true;
+  if (node.type === 'ObjectExpression') {
+    return true;
+  }
   // Array literal
-  if (node.type === 'ArrayExpression') return true;
+  if (node.type === 'ArrayExpression') {
+    return true;
+  }
   // Template literal
-  if (node.type === 'TemplateLiteral') return true;
+  if (node.type === 'TemplateLiteral') {
+    return true;
+  }
   return false;
 }
 
@@ -151,17 +165,25 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       // Exempt Svelte reactive contexts
-      if (isInReactiveContext(node, context)) return results;
+      if (isInReactiveContext(node, context)) {
+        return results;
+      }
 
       const test = node.test as AstNode | undefined;
-      if (!test) return results;
+      if (!test) {
+        return results;
+      }
 
       const varName: string | null = getOkAccessVariable(test);
-      if (!varName) return results;
+      if (!varName) {
+        return results;
+      }
 
       const consequent = node.consequent as AstNode | undefined;
       const alternate = node.alternate as AstNode | undefined;
-      if (!consequent || !alternate) return results;
+      if (!consequent || !alternate) {
+        return results;
+      }
 
       // Check if one branch uses .data and the other has a fallback
       const consequentHasData: boolean = containsDataAccess(consequent, varName);
@@ -215,17 +237,25 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       // Exempt Svelte reactive contexts
-      if (isInReactiveContext(node, context)) return results;
+      if (isInReactiveContext(node, context)) {
+        return results;
+      }
 
       const test = node.test as AstNode | undefined;
-      if (!test) return results;
+      if (!test) {
+        return results;
+      }
 
       const varName: string | null = getOkAccessVariable(test);
-      if (!varName) return results;
+      if (!varName) {
+        return results;
+      }
 
       const consequent = node.consequent as AstNode | undefined;
       const alternate = node.alternate as AstNode | undefined;
-      if (!consequent || !alternate) return results;
+      if (!consequent || !alternate) {
+        return results;
+      }
 
       // Check: result.ok ? result.data : fallback
       if (containsDataAccess(consequent, varName) && isFallbackValue(alternate)) {
@@ -258,25 +288,37 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       // Exempt Svelte reactive contexts
-      if (isInReactiveContext(node, context)) return results;
+      if (isInReactiveContext(node, context)) {
+        return results;
+      }
 
       const operator = node.operator as string | undefined;
-      if (operator !== '??') return results;
+      if (operator !== '??') {
+        return results;
+      }
 
       const left = node.left as AstNode | undefined;
       const right = node.right as AstNode | undefined;
-      if (!left || !right) return results;
+      if (!left || !right) {
+        return results;
+      }
 
       // Check if right side is a literal fallback
-      if (!isFallbackValue(right)) return results;
+      if (!isFallbackValue(right)) {
+        return results;
+      }
 
       // Check if left is a chain containing .data (e.g., parsed.data.version)
       const leftText: string = context.content.slice(left.start, left.end);
-      if (!leftText.includes('.data.') && !leftText.includes('.data)')) return results;
+      if (!leftText.includes('.data.') && !leftText.includes('.data)')) {
+        return results;
+      }
 
       // Extract the Result variable name (first identifier before .data)
       const dataMatch: RegExpMatchArray | null = leftText.match(/(\w+)\.data/);
-      if (!dataMatch) return results;
+      if (!dataMatch) {
+        return results;
+      }
 
       const varName: string = dataMatch[1];
 

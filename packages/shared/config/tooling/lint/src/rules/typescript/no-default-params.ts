@@ -29,7 +29,9 @@ function checkParams(
 ): LintResult[] {
   const results: LintResult[] = [];
   const params = funcNode.params as AstNode[] | undefined;
-  if (!params) return results;
+  if (!params) {
+    return results;
+  }
 
   for (const param of params) {
     // Check for default values (AssignmentPattern: param = value)
@@ -101,9 +103,15 @@ function checkParams(
  * @returns {string} The parameter name
  */
 function getParamName(node: AstNode): string {
-  if (node.type === 'Identifier') return (node.name as string) ?? '<unknown>';
-  if (node.type === 'ObjectPattern') return '<destructured>';
-  if (node.type === 'ArrayPattern') return '<destructured>';
+  if (node.type === 'Identifier') {
+    return (node.name as string) ?? '<unknown>';
+  }
+  if (node.type === 'ObjectPattern') {
+    return '<destructured>';
+  }
+  if (node.type === 'ArrayPattern') {
+    return '<destructured>';
+  }
   return '<unknown>';
 }
 
@@ -116,12 +124,16 @@ const rule: TypeScriptRule = {
 
   visitor: {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
-      if (EXEMPT_PATTERNS.some((p: RegExp) => p.test(context.file))) return [];
+      if (EXEMPT_PATTERNS.some((p: RegExp) => p.test(context.file))) {
+        return [];
+      }
       return checkParams(node, context, node.loc.start.line, node.loc.start.column + 1);
     },
 
     ArrowFunctionExpression(node: AstNode, context: VisitorContext): LintResult[] {
-      if (EXEMPT_PATTERNS.some((p: RegExp) => p.test(context.file))) return [];
+      if (EXEMPT_PATTERNS.some((p: RegExp) => p.test(context.file))) {
+        return [];
+      }
       return checkParams(node, context, node.loc.start.line, node.loc.start.column + 1);
     },
   },

@@ -57,8 +57,12 @@
   } = $props();
 
   const monthFormat = $derived.by(() => {
-    if (monthFormatProp) return monthFormatProp;
-    if (captionLayout.startsWith('dropdown')) return 'short';
+    if (monthFormatProp) {
+      return monthFormatProp;
+    }
+    if (captionLayout.startsWith('dropdown')) {
+      return 'short';
+    }
     return 'long';
   });
 </script>

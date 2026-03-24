@@ -19,11 +19,15 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 function getJsDoc(node: AstNode, content: string): string | null {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
-  if (!trimmed.endsWith('*/')) return null;
+  if (!trimmed.endsWith('*/')) {
+    return null;
+  }
 
   const docEnd: number = trimmed.length;
   const docStart: number = trimmed.lastIndexOf('/**');
-  if (docStart === -1) return null;
+  if (docStart === -1) {
+    return null;
+  }
 
   return trimmed.slice(docStart, docEnd);
 }
@@ -38,7 +42,9 @@ function getJsDoc(node: AstNode, content: string): string | null {
 function getJsDocEndOffset(node: AstNode, content: string): number {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
-  if (!trimmed.endsWith('*/')) return -1;
+  if (!trimmed.endsWith('*/')) {
+    return -1;
+  }
   return trimmed.length - 2;
 }
 
@@ -81,18 +87,24 @@ function extractFunctionParamNames(params: AstNode[]): string[] {
   for (const param of params) {
     if (param.type === 'Identifier') {
       const name: string | undefined = param.name as string | undefined;
-      if (name) names.push(name);
+      if (name) {
+        names.push(name);
+      }
     } else if (param.type === 'AssignmentPattern') {
       const left = param.left as AstNode | undefined;
       if (left?.type === 'Identifier') {
         const name: string | undefined = left.name as string | undefined;
-        if (name) names.push(name);
+        if (name) {
+          names.push(name);
+        }
       }
     } else if (param.type === 'RestElement') {
       const argument = param.argument as AstNode | undefined;
       if (argument?.type === 'Identifier') {
         const name: string | undefined = argument.name as string | undefined;
-        if (name) names.push(name);
+        if (name) {
+          names.push(name);
+        }
       }
     } else if (param.type === 'ObjectPattern' || param.type === 'ArrayPattern') {
       names.push(`__destructured_${names.length}`);
@@ -116,10 +128,14 @@ function checkFunction(
 ): LintResult[] {
   const results: LintResult[] = [];
   const jsDoc: string | null = getJsDoc(exportNode, context.content);
-  if (!jsDoc) return results;
+  if (!jsDoc) {
+    return results;
+  }
 
   const params = funcNode.params as AstNode[] | undefined;
-  if (!params || params.length === 0) return results;
+  if (!params || params.length === 0) {
+    return results;
+  }
 
   const docEntries: ParamEntry[] = extractParamEntries(jsDoc);
   const docParamNames: string[] = docEntries.map((e: ParamEntry): string => e.name);
@@ -128,7 +144,9 @@ function checkFunction(
   const funcName: string = ((funcNode.id as AstNode | undefined)?.name as string) ?? '<anonymous>';
 
   for (const paramName of funcParamNames) {
-    if (paramName.startsWith('__destructured_')) continue;
+    if (paramName.startsWith('__destructured_')) {
+      continue;
+    }
 
     if (!docParamNames.includes(paramName)) {
       const fixText: string = ` * @param {Type} ${paramName} - Description\n `;
@@ -172,10 +190,14 @@ function checkFunction(
 
   for (const docName of docParamNames) {
     // Skip dot-notation params (e.g., root0.plugins) — used for destructured params
-    if (docName.includes('.')) continue;
+    if (docName.includes('.')) {
+      continue;
+    }
 
     // Skip rootN pattern when function has destructured params (oxlint convention)
-    if (/^root\d+$/.test(docName) && hasDestructuredParams) continue;
+    if (/^root\d+$/.test(docName) && hasDestructuredParams) {
+      continue;
+    }
 
     if (!funcParamNames.includes(docName)) {
       results.push({
@@ -203,7 +225,9 @@ const rule: TypeScriptRule = {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declaration = node.declaration as AstNode | undefined;
-      if (!declaration) return results;
+      if (!declaration) {
+        return results;
+      }
 
       if (declaration.type === 'FunctionDeclaration') {
         results.push(...checkFunction(declaration, node, context));
@@ -211,7 +235,9 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
-        if (!declarations) return results;
+        if (!declarations) {
+          return results;
+        }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;

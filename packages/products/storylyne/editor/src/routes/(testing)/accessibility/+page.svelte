@@ -301,7 +301,9 @@
         const statusDiff: number =
           ((statusOrder[a.status] ?? (4 as Num)) as number) -
           ((statusOrder[b.status] ?? (4 as Num)) as number);
-        if (statusDiff !== 0) return statusDiff;
+        if (statusDiff !== 0) {
+          return statusDiff;
+        }
         /* Secondary sort: highest pass rate first within same status group */
         return (b.passRate as number) - (a.passRate as number);
       });
@@ -341,7 +343,9 @@
   const categoryStats: Array<{ label: Str; passing: Num; total: Num }> = $derived.by(() => {
     const categories: Map<Str, { pass: Num; total: Num }> = new Map();
     for (const r of auditResult.rules) {
-      if (r.status === 'not-applicable') continue;
+      if (r.status === 'not-applicable') {
+        continue;
+      }
       const std: Str = r.category;
       const existing = categories.get(std) ?? { pass: 0 as Num, total: 0 as Num };
       categories.set(std, {
@@ -369,14 +373,20 @@
 
   /** Current view mode display label. */
   const viewModeLabel: Str = $derived.by((): Str => {
-    if (viewMode === 'table') return 'Table' as Str;
-    if (viewMode === 'cards') return 'Cards' as Str;
+    if (viewMode === 'table') {
+      return 'Table' as Str;
+    }
+    if (viewMode === 'cards') {
+      return 'Cards' as Str;
+    }
     return 'List' as Str;
   });
 
   /** Current sort display label (field + direction arrow, or empty if default). */
   const sortLabel: Str = $derived.by((): Str => {
-    if (!sortField) return '' as Str;
+    if (!sortField) {
+      return '' as Str;
+    }
     const names: Record<string, string> = {
       name: 'Name',
       standard: 'Standard',
@@ -405,7 +415,9 @@
    * @returns Comparison number (-1, 0, 1 style)
    */
   function compareSortField(a: A11yRuleResult, b: A11yRuleResult, field: Str): number {
-    if (field === 'name') return a.label.localeCompare(b.label);
+    if (field === 'name') {
+      return a.label.localeCompare(b.label);
+    }
     if (field === 'status') {
       const order: Record<Str, Num> = {
         fail: 0 as Num,
@@ -417,12 +429,24 @@
         ((order[a.status] ?? (4 as Num)) as number) - ((order[b.status] ?? (4 as Num)) as number)
       );
     }
-    if (field === 'coverage') return (a.passRate as number) - (b.passRate as number);
-    if (field === 'wcag') return a.wcag.localeCompare(b.wcag, undefined, { numeric: true });
-    if (field === 'category') return a.category.localeCompare(b.category);
-    if (field === 'standard') return a.standard.localeCompare(b.standard);
-    if (field === 'evidence') return a.evidence.localeCompare(b.evidence);
-    if (field === 'failing-files') return (a.failCount as number) - (b.failCount as number);
+    if (field === 'coverage') {
+      return (a.passRate as number) - (b.passRate as number);
+    }
+    if (field === 'wcag') {
+      return a.wcag.localeCompare(b.wcag, undefined, { numeric: true });
+    }
+    if (field === 'category') {
+      return a.category.localeCompare(b.category);
+    }
+    if (field === 'standard') {
+      return a.standard.localeCompare(b.standard);
+    }
+    if (field === 'evidence') {
+      return a.evidence.localeCompare(b.evidence);
+    }
+    if (field === 'failing-files') {
+      return (a.failCount as number) - (b.failCount as number);
+    }
     return 0;
   }
 
@@ -512,7 +536,9 @@
     if (confirmingReset) {
       resetDefaults();
       confirmingReset = false as Bool;
-      if (confirmResetTimer) clearTimeout(confirmResetTimer);
+      if (confirmResetTimer) {
+        clearTimeout(confirmResetTimer);
+      }
     } else {
       confirmingReset = true as Bool;
       confirmResetTimer = setTimeout((): void => {
@@ -528,9 +554,15 @@
    * @returns Tailwind class string
    */
   function statusClasses(status: Str): Str {
-    if (status === 'pass') return 'bg-green-500/10 text-green-600 dark:text-green-400' as Str;
-    if (status === 'fail') return 'bg-red-500/10 text-red-600 dark:text-red-400' as Str;
-    if (status === 'warning') return 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400' as Str;
+    if (status === 'pass') {
+      return 'bg-green-500/10 text-green-600 dark:text-green-400' as Str;
+    }
+    if (status === 'fail') {
+      return 'bg-red-500/10 text-red-600 dark:text-red-400' as Str;
+    }
+    if (status === 'warning') {
+      return 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400' as Str;
+    }
     return 'bg-gray-500/10 text-muted-foreground' as Str;
   }
 
@@ -541,9 +573,15 @@
    * @returns Human-readable label
    */
   function statusLabel(status: Str): Str {
-    if (status === 'pass') return 'Pass' as Str;
-    if (status === 'fail') return 'Fail' as Str;
-    if (status === 'warning') return 'Warning' as Str;
+    if (status === 'pass') {
+      return 'Pass' as Str;
+    }
+    if (status === 'fail') {
+      return 'Fail' as Str;
+    }
+    if (status === 'warning') {
+      return 'Warning' as Str;
+    }
     return 'Manual' as Str;
   }
 

@@ -33,9 +33,15 @@ const STRIP_KEYS: ReadonlySet<Str> = new Set(['children', 'child']);
 export function stripSvelteProps<T extends Record<Str, unknown>>(props: T): T {
   const result: Record<Str, unknown> = {};
   for (const [key, value] of Object.entries(props)) {
-    if (STRIP_KEYS.has(key)) continue;
-    if (key.startsWith('$$')) continue;
-    if (key.startsWith('data-') || key.startsWith('aria-')) continue;
+    if (STRIP_KEYS.has(key)) {
+      continue;
+    }
+    if (key.startsWith('$$')) {
+      continue;
+    }
+    if (key.startsWith('data-') || key.startsWith('aria-')) {
+      continue;
+    }
     result[key] = value;
   }
   return result as T;
@@ -165,7 +171,9 @@ const INSTANCE_JSDOC_RE: RegExp = /<script\s+lang="ts">\s*\/\*\*\s*([\s\S]*?)\*\
  */
 export function extractComponentDescription(src: Str): Str | undefined {
   const match: RegExpExecArray | null = INSTANCE_JSDOC_RE.exec(src);
-  if (!match?.[1]) return undefined;
+  if (!match?.[1]) {
+    return undefined;
+  }
   const firstLine: Str | undefined = match[1]
     .split('\n')
     .map((l: Str): Str => l.replace(/^\s*\*\s?/, '').trim())
@@ -234,12 +242,17 @@ function matchBrace(source: Str, openIdx: Num): Num {
       inStr = null;
       continue;
     }
-    if (inStr) continue;
+    if (inStr) {
+      continue;
+    }
 
-    if (ch === '{') depth = ((depth as number) + 1) as Num;
-    else if (ch === '}') {
+    if (ch === '{') {
+      depth = ((depth as number) + 1) as Num;
+    } else if (ch === '}') {
       depth = ((depth as number) - 1) as Num;
-      if ((depth as number) === 0) return i;
+      if ((depth as number) === 0) {
+        return i;
+      }
     }
   }
 
@@ -265,17 +278,25 @@ function findTypeBlocks(source: Str): TypeBlock[] {
     let braceIdx: Num = -1 as Num;
     for (let i: Num = afterEq; (i as number) < source.length; i = ((i as number) + 1) as Num) {
       const ch: Str = source[i as number] ?? '';
-      if (ch === '<' || ch === '(') depth = ((depth as number) + 1) as Num;
-      else if (ch === '>' || ch === ')') depth = ((depth as number) - 1) as Num;
-      else if (ch === '{' && (depth as number) === 0) {
+      if (ch === '<' || ch === '(') {
+        depth = ((depth as number) + 1) as Num;
+      } else if (ch === '>' || ch === ')') {
+        depth = ((depth as number) - 1) as Num;
+      } else if (ch === '{' && (depth as number) === 0) {
         braceIdx = i;
         break;
-      } else if (ch === ';' && (depth as number) === 0) break;
+      } else if (ch === ';' && (depth as number) === 0) {
+        break;
+      }
     }
 
-    if ((braceIdx as number) === -1) continue;
+    if ((braceIdx as number) === -1) {
+      continue;
+    }
     const closeIdx: Num = matchBrace(source, braceIdx);
-    if ((closeIdx as number) === -1) continue;
+    if ((closeIdx as number) === -1) {
+      continue;
+    }
     blocks.push({
       name,
       body: source.slice((braceIdx as number) + 1, closeIdx as number) as Str,
@@ -304,12 +325,17 @@ function parseFields(body: Str): FieldInfo[] {
 
   for (const line of lines) {
     const t: Str = line.trim() as Str;
-    if (!t) continue;
+    if (!t) {
+      continue;
+    }
 
     if ((skipDepth as number) > 0) {
       for (const ch of t) {
-        if (ch === '{' || ch === '(') skipDepth = ((skipDepth as number) + 1) as Num;
-        else if (ch === '}' || ch === ')') skipDepth = ((skipDepth as number) - 1) as Num;
+        if (ch === '{' || ch === '(') {
+          skipDepth = ((skipDepth as number) + 1) as Num;
+        } else if (ch === '}' || ch === ')') {
+          skipDepth = ((skipDepth as number) - 1) as Num;
+        }
       }
       if ((skipDepth as number) <= 0) {
         skipDepth = 0 as Num;
@@ -322,7 +348,9 @@ function parseFields(body: Str): FieldInfo[] {
       inJSDoc = true;
       jsdocBuf = [];
       const after: Str = t.slice(3).trim() as Str;
-      if (after) jsdocBuf.push(after);
+      if (after) {
+        jsdocBuf.push(after);
+      }
       continue;
     }
 
@@ -332,13 +360,17 @@ function parseFields(body: Str): FieldInfo[] {
           .slice(0, -2)
           .replace(/^\*\s*/, '')
           .trim() as Str;
-        if (before) jsdocBuf.push(before);
+        if (before) {
+          jsdocBuf.push(before);
+        }
         pendingJSDoc = jsdocBuf.filter(Boolean).join(' ') as Str;
         inJSDoc = false;
         jsdocBuf = [];
       } else {
         const content: Str = t.replace(/^\*\s*/, '').trim() as Str;
-        if (content) jsdocBuf.push(content);
+        if (content) {
+          jsdocBuf.push(content);
+        }
       }
       continue;
     }
@@ -361,8 +393,11 @@ function parseFields(body: Str): FieldInfo[] {
 
       let bal: Num = 0 as Num;
       for (const ch of fieldType) {
-        if (ch === '{' || ch === '(') bal = ((bal as number) + 1) as Num;
-        else if (ch === '}' || ch === ')') bal = ((bal as number) - 1) as Num;
+        if (ch === '{' || ch === '(') {
+          bal = ((bal as number) + 1) as Num;
+        } else if (ch === '}' || ch === ')') {
+          bal = ((bal as number) - 1) as Num;
+        }
       }
       if ((bal as number) > 0) {
         skipDepth = bal;
@@ -377,8 +412,11 @@ function parseFields(body: Str): FieldInfo[] {
 
     let lineBal: Num = 0 as Num;
     for (const ch of t) {
-      if (ch === '{' || ch === '(') lineBal = ((lineBal as number) + 1) as Num;
-      else if (ch === '}' || ch === ')') lineBal = ((lineBal as number) - 1) as Num;
+      if (ch === '{' || ch === '(') {
+        lineBal = ((lineBal as number) + 1) as Num;
+      } else if (ch === '}' || ch === ')') {
+        lineBal = ((lineBal as number) - 1) as Num;
+      }
     }
     if ((lineBal as number) > 0) {
       skipDepth = lineBal;
@@ -510,16 +548,23 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
     // Rule 2: No inline object types in Props
     const r2Blocks: TypeBlock[] = findTypeBlocks(input.source);
     for (const block of r2Blocks) {
-      if (!block.name.endsWith('Props')) continue;
+      if (!block.name.endsWith('Props')) {
+        continue;
+      }
       const lines: Str[] = block.body.split('\n');
       let skipDepth: Num = 0 as Num;
       for (const line of lines) {
         const t: Str = line.trim() as Str;
-        if (!t) continue;
+        if (!t) {
+          continue;
+        }
         if ((skipDepth as number) > 0) {
           for (const ch of t) {
-            if (ch === '{' || ch === '(') skipDepth = ((skipDepth as number) + 1) as Num;
-            else if (ch === '}' || ch === ')') skipDepth = ((skipDepth as number) - 1) as Num;
+            if (ch === '{' || ch === '(') {
+              skipDepth = ((skipDepth as number) + 1) as Num;
+            } else if (ch === '}' || ch === ')') {
+              skipDepth = ((skipDepth as number) - 1) as Num;
+            }
           }
           continue;
         }
@@ -637,8 +682,12 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
     // Rule 14: safeParse + stripSvelteProps
     if (input.source.includes('v.strictObject(')) {
       const missing: Str[] = [];
-      if (!input.source.includes('safeParse(')) missing.push('safeParse' as Str);
-      if (!input.source.includes('stripSvelteProps(')) missing.push('stripSvelteProps' as Str);
+      if (!input.source.includes('safeParse(')) {
+        missing.push('safeParse' as Str);
+      }
+      if (!input.source.includes('stripSvelteProps(')) {
+        missing.push('stripSvelteProps' as Str);
+      }
       if (missing.length > 0) {
         violations.push({
           rule: 14 as Num,
@@ -657,8 +706,11 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
       if (bareMatch) {
         const primitive: Str = (bareMatch[1] ?? '') as Str;
         let schema: Str = 'NumSchema' as Str;
-        if (primitive === 'string') schema = 'StrSchema' as Str;
-        else if (primitive === 'boolean') schema = 'BoolSchema' as Str;
+        if (primitive === 'string') {
+          schema = 'StrSchema' as Str;
+        } else if (primitive === 'boolean') {
+          schema = 'BoolSchema' as Str;
+        }
         violations.push({
           rule: 15 as Num,
           message: `Uses bare v.${primitive}() instead of ${schema}` as Str,
@@ -699,8 +751,12 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
     const valuesMatches: RegExpMatchArray[] = [...input.source.matchAll(/@values\s+(.+)/g)];
     for (const vm of valuesMatches) {
       const valuesStr: Str = ((vm[1] ?? '') as string).trim() as Str;
-      if ((valuesStr as string).startsWith('{') || (valuesStr as string).startsWith('(')) continue;
-      if (/[()<>]/.test(valuesStr as string)) continue;
+      if ((valuesStr as string).startsWith('{') || (valuesStr as string).startsWith('(')) {
+        continue;
+      }
+      if (/[()<>]/.test(valuesStr as string)) {
+        continue;
+      }
       if (/'[^']+'/g.test(valuesStr as string)) {
         violations.push({
           rule: 18 as Num,
@@ -801,7 +857,9 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
     const deadProps: string[] = [];
     for (const prop of input.props) {
       const propName: string = (prop as { name: string }).name;
-      if (!propName || alwaysUsedProps.has(propName)) continue;
+      if (!propName || alwaysUsedProps.has(propName)) {
+        continue;
+      }
       // Check if prop name appears in instance script or template via validated.propName,
       // direct propName reference, or Snippet render ({@render propName()})
       const nameRe: RegExp = new RegExp(`\\b${propName}\\b`);
@@ -822,7 +880,9 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
     const propNames: Set<string> = new Set(input.props.map((p) => p.name as string));
     const invalidRequires: string[] = [];
     for (const prop of input.props) {
-      if (!prop.requires || prop.requires.length === 0) continue;
+      if (!prop.requires || prop.requires.length === 0) {
+        continue;
+      }
       for (const req of prop.requires) {
         if (!propNames.has(req.prop as string)) {
           invalidRequires.push(

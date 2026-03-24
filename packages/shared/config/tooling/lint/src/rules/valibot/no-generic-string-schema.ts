@@ -43,39 +43,58 @@ const rule: TypeScriptRule = {
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      if (EXEMPT_PATTERNS.some((p: RegExp) => p.test(context.file))) return results;
+      if (EXEMPT_PATTERNS.some((p: RegExp) => p.test(context.file))) {
+        return results;
+      }
 
       const callee = node.callee as AstNode | undefined;
-      if (!callee) return results;
+      if (!callee) {
+        return results;
+      }
 
       const prop = callee.property as AstNode | undefined;
       const obj = callee.object as AstNode | undefined;
-      if ((obj?.name as string) !== 'v' || (prop?.name as string) !== 'strictObject')
+      if ((obj?.name as string) !== 'v' || (prop?.name as string) !== 'strictObject') {
         return results;
+      }
 
       const args = node.arguments as AstNode[] | undefined;
-      if (!args || args.length === 0) return results;
+      if (!args || args.length === 0) {
+        return results;
+      }
 
       const objArg: AstNode = args[0];
-      if (objArg.type !== 'ObjectExpression') return results;
+      if (objArg.type !== 'ObjectExpression') {
+        return results;
+      }
 
       const properties = objArg.properties as AstNode[] | undefined;
-      if (!properties) return results;
+      if (!properties) {
+        return results;
+      }
 
       for (const property of properties) {
-        if (property.type !== 'ObjectProperty' && property.type !== 'Property') continue;
+        if (property.type !== 'ObjectProperty' && property.type !== 'Property') {
+          continue;
+        }
 
         const keyNode = property.key as AstNode | undefined;
         const keyName: string = (keyNode?.name as string) ?? (keyNode?.value as string) ?? '';
-        if (!keyName) continue;
+        if (!keyName) {
+          continue;
+        }
 
         const value = property.value as AstNode | undefined;
-        if (!value) continue;
+        if (!value) {
+          continue;
+        }
 
         const valueText: string = context.content.slice(value.start, value.end).trim();
 
         // Skip if already using a shared schema reference
-        if (valueText.includes('Schema') && !valueText.startsWith('v.')) continue;
+        if (valueText.includes('Schema') && !valueText.startsWith('v.')) {
+          continue;
+        }
 
         if (isGenericStringSchema(valueText)) {
           results.push({

@@ -33,7 +33,9 @@
   const validated: WishlistButtonProps = $derived.by(() => {
     const rawProps: WishlistButtonProps = stripSvelteProps(allProps);
     const result = safeParse(WishlistButtonPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as WishlistButtonProps;
   });

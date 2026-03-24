@@ -33,7 +33,9 @@
   const validated: ToastProps = $derived.by(() => {
     const rawProps: ToastProps = stripSvelteProps(allProps);
     const result = safeParse(ToastPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ToastProps;
   });

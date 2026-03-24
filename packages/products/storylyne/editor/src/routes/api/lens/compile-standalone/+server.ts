@@ -88,8 +88,12 @@ function collectComponentSources(componentDir: Str, uiSrcDir: Str): Map<Str, Str
 
   while (queue.length > 0) {
     const dir: Str | undefined = queue.shift();
-    if (!dir) continue;
-    if (visited.has(dir)) continue;
+    if (!dir) {
+      continue;
+    }
+    if (visited.has(dir)) {
+      continue;
+    }
     visited.add(dir);
 
     let entries: string[];
@@ -514,12 +518,16 @@ function extractThemeVars(editorSrcDir: Str, darkMode: Bool, theme: Str): Str {
   const blocks: Str[] = [];
   // Extract :root block (always needed)
   const rootMatch: RegExpMatchArray | null = appCss.match(/:root\s*\{[^}]+\}/);
-  if (rootMatch) blocks.push(rootMatch[0] as Str);
+  if (rootMatch) {
+    blocks.push(rootMatch[0] as Str);
+  }
 
   // Extract .dark block if in dark mode
   if (darkMode) {
     const darkMatch: RegExpMatchArray | null = appCss.match(/\.dark\s*\{[^}]+\}/);
-    if (darkMatch) blocks.push(darkMatch[0] as Str);
+    if (darkMatch) {
+      blocks.push(darkMatch[0] as Str);
+    }
   }
 
   // Extract theme-specific blocks
@@ -572,8 +580,12 @@ function assembleHtml(
   componentName: Str,
 ): Str {
   const htmlAttrs: Str[] = ['lang="en"' as Str];
-  if (darkMode) htmlAttrs.push('class="dark"' as Str);
-  if (theme) htmlAttrs.push(`data-theme="${theme}"` as Str);
+  if (darkMode) {
+    htmlAttrs.push('class="dark"' as Str);
+  }
+  if (theme) {
+    htmlAttrs.push(`data-theme="${theme}"` as Str);
+  }
 
   return `<!DOCTYPE html>
 <html ${htmlAttrs.join(' ')}>

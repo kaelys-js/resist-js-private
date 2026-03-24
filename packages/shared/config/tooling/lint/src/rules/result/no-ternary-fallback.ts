@@ -22,14 +22,20 @@ const REACTIVE_CONTEXT_PATTERN: RegExp = /\$derived\.by|\$effect/;
  * @returns {string | null} The object name if it's `x.ok`, or null
  */
 function getOkAccessObject(node: AstNode): string | null {
-  if (node.type !== 'StaticMemberExpression' && node.type !== 'MemberExpression') return null;
+  if (node.type !== 'StaticMemberExpression' && node.type !== 'MemberExpression') {
+    return null;
+  }
 
   const property = node.property as AstNode | undefined;
   const propName: string = (property?.name as string) ?? '';
-  if (propName !== 'ok') return null;
+  if (propName !== 'ok') {
+    return null;
+  }
 
   const object = node.object as AstNode | undefined;
-  if (!object) return null;
+  if (!object) {
+    return null;
+  }
 
   if (object.type === 'Identifier') {
     return (object.name as string) ?? null;
@@ -46,14 +52,20 @@ function getOkAccessObject(node: AstNode): string | null {
  * @returns {boolean} Whether the node is `objectName.data`
  */
 function isDataAccess(node: AstNode, objectName: string): boolean {
-  if (node.type !== 'StaticMemberExpression' && node.type !== 'MemberExpression') return false;
+  if (node.type !== 'StaticMemberExpression' && node.type !== 'MemberExpression') {
+    return false;
+  }
 
   const property = node.property as AstNode | undefined;
   const propName: string = (property?.name as string) ?? '';
-  if (propName !== 'data') return false;
+  if (propName !== 'data') {
+    return false;
+  }
 
   const object = node.object as AstNode | undefined;
-  if (!object || object.type !== 'Identifier') return false;
+  if (!object || object.type !== 'Identifier') {
+    return false;
+  }
 
   return (object.name as string) === objectName;
 }
@@ -66,11 +78,15 @@ function isDataAccess(node: AstNode, objectName: string): boolean {
  * @returns {boolean} Whether a .data access was found
  */
 function containsDataAccess(node: AstNode, objectName: string): boolean {
-  if (isDataAccess(node, objectName)) return true;
+  if (isDataAccess(node, objectName)) {
+    return true;
+  }
 
   // Check all child nodes
   for (const key of Object.keys(node)) {
-    if (key === 'type' || key === 'start' || key === 'end' || key === 'loc') continue;
+    if (key === 'type' || key === 'start' || key === 'end' || key === 'loc') {
+      continue;
+    }
     const child = node[key];
     if (
       child &&
@@ -106,17 +122,25 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const test = node.test as AstNode | undefined;
-      if (!test) return results;
+      if (!test) {
+        return results;
+      }
 
       // Check if test is `x.ok`
       const objectName: string | null = getOkAccessObject(test);
-      if (!objectName) return results;
+      if (!objectName) {
+        return results;
+      }
 
       // Check if consequent accesses `x.data`
       const consequent = node.consequent as AstNode | undefined;
-      if (!consequent) return results;
+      if (!consequent) {
+        return results;
+      }
 
-      if (!containsDataAccess(consequent, objectName)) return results;
+      if (!containsDataAccess(consequent, objectName)) {
+        return results;
+      }
 
       // Check for Svelte reactive context exemption ($derived.by / $effect)
       if (isInReactiveContext(context.content, node.start)) {

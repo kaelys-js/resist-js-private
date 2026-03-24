@@ -24,25 +24,35 @@ import type { VariantKeyMeta, VariantMeta } from './types.js';
  * @returns VariantMeta with all variant keys, or null if no tv() call found
  */
 export function extractVariants(source: string): VariantMeta | null {
-  if (!source) return null;
+  if (!source) {
+    return null;
+  }
 
   // Find `tv({` in the source
   const tvIdx: number = source.indexOf('tv({');
-  if (tvIdx === -1) return null;
+  if (tvIdx === -1) {
+    return null;
+  }
 
   // Find the opening brace of the tv() argument
   const tvBraceIdx: number = source.indexOf('{', tvIdx + 2);
-  if (tvBraceIdx === -1) return null;
+  if (tvBraceIdx === -1) {
+    return null;
+  }
 
   // Find the matching closing brace
   const tvEndIdx: number = findMatchingBrace(source, tvBraceIdx);
-  if (tvEndIdx === -1) return null;
+  if (tvEndIdx === -1) {
+    return null;
+  }
 
   const tvBody: string = source.slice(tvBraceIdx + 1, tvEndIdx);
 
   // Extract the `variants: { ... }` block
   const variantsBlock: string | null = extractBlock(tvBody, 'variants');
-  if (!variantsBlock) return null;
+  if (!variantsBlock) {
+    return null;
+  }
 
   // Extract the `defaultVariants: { ... }` block
   const defaultsBlock: string | null = extractBlock(tvBody, 'defaultVariants');
@@ -81,12 +91,17 @@ function findMatchingBrace(source: string, openIdx: number): number {
       inString = null;
       continue;
     }
-    if (inString) continue;
+    if (inString) {
+      continue;
+    }
 
-    if (ch === '{') depth++;
-    else if (ch === '}') {
+    if (ch === '{') {
+      depth++;
+    } else if (ch === '}') {
       depth--;
-      if (depth === 0) return i;
+      if (depth === 0) {
+        return i;
+      }
     }
   }
 
@@ -105,13 +120,19 @@ function findMatchingBrace(source: string, openIdx: number): number {
 function extractBlock(body: string, keyName: string): string | null {
   const keyPattern: RegExp = new RegExp(`${keyName}\\s*:\\s*\\{`);
   const match: RegExpExecArray | null = keyPattern.exec(body);
-  if (!match) return null;
+  if (!match) {
+    return null;
+  }
 
   const braceIdx: number = body.indexOf('{', (match.index ?? 0) + keyName.length);
-  if (braceIdx === -1) return null;
+  if (braceIdx === -1) {
+    return null;
+  }
 
   const endIdx: number = findMatchingBrace(body, braceIdx);
-  if (endIdx === -1) return null;
+  if (endIdx === -1) {
+    return null;
+  }
 
   return body.slice(braceIdx + 1, endIdx);
 }
@@ -130,7 +151,9 @@ function parseDefaults(block: string): Map<string, string> {
   while ((match = regex.exec(block)) !== null) {
     const key: string = match[1] ?? '';
     const value: string = match[2] ?? '';
-    if (key) defaults.set(key, value);
+    if (key) {
+      defaults.set(key, value);
+    }
   }
   return defaults;
 }
@@ -155,14 +178,20 @@ function parseVariantKeys(block: string, defaults: Map<string, string>): Variant
 
   while ((match = keyRegex.exec(block)) !== null) {
     const key: string = match[1] ?? '';
-    if (!key) continue;
+    if (!key) {
+      continue;
+    }
 
     // Find the opening brace for this variant's options
     const braceIdx: number = block.indexOf('{', (match.index ?? 0) + key.length);
-    if (braceIdx === -1) continue;
+    if (braceIdx === -1) {
+      continue;
+    }
 
     const endIdx: number = findMatchingBrace(block, braceIdx);
-    if (endIdx === -1) continue;
+    if (endIdx === -1) {
+      continue;
+    }
 
     const optionsBlock: string = block.slice(braceIdx + 1, endIdx);
 
@@ -209,7 +238,9 @@ function parseOptionNames(block: string): string[] {
     const quotedMatch: RegExpExecArray | null = /^(['"])([^'"]+)\1\s*:/.exec(block.slice(i));
     if (quotedMatch) {
       const name: string = quotedMatch[2] ?? '';
-      if (name) names.push(name);
+      if (name) {
+        names.push(name);
+      }
       i += (quotedMatch[0] ?? '').length;
       // Skip the value after the colon (may be a string)
       i = skipValue(block, i);
@@ -220,7 +251,9 @@ function parseOptionNames(block: string): string[] {
     const identMatch: RegExpExecArray | null = /^(\w+)\s*:/.exec(block.slice(i));
     if (identMatch) {
       const name: string = identMatch[1] ?? '';
-      if (name) names.push(name);
+      if (name) {
+        names.push(name);
+      }
       i += (identMatch[0] ?? '').length;
       // Skip the value after the colon (may be a string)
       i = skipValue(block, i);
@@ -247,7 +280,9 @@ function skipValue(block: string, start: number): number {
   let i: number = start;
 
   // Skip whitespace
-  while (i < block.length && /\s/.test(block[i] ?? '')) i++;
+  while (i < block.length && /\s/.test(block[i] ?? '')) {
+    i++;
+  }
 
   const ch: string = block[i] ?? '';
   // If the value is a string literal, skip it entirely
@@ -255,7 +290,9 @@ function skipValue(block: string, start: number): number {
     const quote: string = ch;
     i++; // skip opening quote
     while (i < block.length && block[i] !== quote) {
-      if (block[i] === '\\') i++; // skip escaped chars
+      if (block[i] === '\\') {
+        i++;
+      } // skip escaped chars
       i++;
     }
     i++; // skip closing quote

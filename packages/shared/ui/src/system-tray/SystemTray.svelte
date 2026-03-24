@@ -33,7 +33,9 @@
   const validated: SystemTrayProps = $derived.by(() => {
     const rawProps: SystemTrayProps = stripSvelteProps(allProps);
     const result = safeParse(SystemTrayPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as SystemTrayProps;
   });

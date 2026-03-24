@@ -56,7 +56,9 @@
   }
 
   function onSelect() {
-    if (!carouselState.api) return;
+    if (!carouselState.api) {
+      return;
+    }
     carouselState.selectedIndex = carouselState.api.selectedScrollSnap();
     carouselState.canScrollNext = carouselState.api.canScrollNext();
     carouselState.canScrollPrev = carouselState.api.canScrollPrev();

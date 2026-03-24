@@ -105,10 +105,18 @@ function downloadBlob(blob: Blob, filename: Str): void {
  * @returns CSS hex color string
  */
 function dotFillColor(node: ChainExportNode): Str {
-  if (node.parentId === '') return '#fecdd3';
-  if (node.category === 'utility') return '#e2e8f0';
-  if (node.category === 'workspace') return '#fde68a';
-  if (node.category === 'external') return '#a7f3d0';
+  if (node.parentId === '') {
+    return '#fecdd3';
+  }
+  if (node.category === 'utility') {
+    return '#e2e8f0';
+  }
+  if (node.category === 'workspace') {
+    return '#fde68a';
+  }
+  if (node.category === 'external') {
+    return '#a7f3d0';
+  }
   return '#e0e7ff';
 }
 
@@ -119,7 +127,9 @@ function dotFillColor(node: ChainExportNode): Str {
  * @returns Mermaid label string (empty if default)
  */
 function mermaidEdgeLabel(kind: Str): Str {
-  if (kind === 'default') return '';
+  if (kind === 'default') {
+    return '';
+  }
   return `|${kind}|`;
 }
 
@@ -311,7 +321,9 @@ function extractCssCustomProperties(isDark: Bool, theme: Str): Str {
       }
 
       for (const rule of cssRules) {
-        if (!(rule instanceof CSSStyleRule)) continue;
+        if (!(rule instanceof CSSStyleRule)) {
+          continue;
+        }
         const sel: Str = rule.selectorText;
 
         // Collect :root vars (base theme)
@@ -321,7 +333,9 @@ function extractCssCustomProperties(isDark: Bool, theme: Str): Str {
         // Collect theme-specific vars
         const isThemeRule: Bool = theme !== '' && sel.includes(`[data-theme="${theme}"]`);
 
-        if (!isRoot && !isDarkRule && !isThemeRule) continue;
+        if (!isRoot && !isDarkRule && !isThemeRule) {
+          continue;
+        }
 
         // Extract only custom property declarations
         const props: Str[] = [];
@@ -364,19 +378,31 @@ function buildSelfContainedHtml(element: HTMLElement): Str {
   const cssVars: Str = extractCssCustomProperties(isDark, theme);
 
   const htmlAttrs: Str[] = ['lang="en"'];
-  if (isDark) htmlAttrs.push('class="dark"');
-  if (theme) htmlAttrs.push(`data-theme="${theme}"`);
+  if (isDark) {
+    htmlAttrs.push('class="dark"');
+  }
+  if (theme) {
+    htmlAttrs.push(`data-theme="${theme}"`);
+  }
 
   const bodyStyles: Str[] = ['margin: 0', 'padding: 16px'];
-  if (bgColor) bodyStyles.push(`background-color: ${bgColor}`);
-  if (textColor) bodyStyles.push(`color: ${textColor}`);
-  if (colorScheme) bodyStyles.push(`color-scheme: ${colorScheme}`);
+  if (bgColor) {
+    bodyStyles.push(`background-color: ${bgColor}`);
+  }
+  if (textColor) {
+    bodyStyles.push(`color: ${textColor}`);
+  }
+  if (colorScheme) {
+    bodyStyles.push(`color-scheme: ${colorScheme}`);
+  }
 
   const headParts: Str[] = [
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
   ];
-  if (cssVars) headParts.push(`<style>\n${cssVars}\n</style>`);
+  if (cssVars) {
+    headParts.push(`<style>\n${cssVars}\n</style>`);
+  }
 
   return [
     '<!DOCTYPE html>',
@@ -455,7 +481,9 @@ export function copyChainMermaid(nodes: ChainExportNode[]): Promise<Bool> {
 
   // Add edges
   for (const node of nodes) {
-    if (node.parentId === '') continue;
+    if (node.parentId === '') {
+      continue;
+    }
     const fromId: Str = nodeIds.get(node.parentId) ?? node.parentId;
     const toId: Str = nodeIds.get(node.id) ?? node.id;
     const label: Str = mermaidEdgeLabel(node.kind);
@@ -494,7 +522,9 @@ export function copyChainDot(nodes: ChainExportNode[], componentName: Str): Prom
 
   // Define edges
   for (const node of nodes) {
-    if (node.parentId === '') continue;
+    if (node.parentId === '') {
+      continue;
+    }
     const fromId: Str = nodeIds.get(node.parentId) ?? node.parentId;
     const toId: Str = nodeIds.get(node.id) ?? node.id;
     const attrs: Str = node.kind === 'default' ? '' : `label="${node.kind}"`;
@@ -546,7 +576,9 @@ export function copyChainPlantUml(nodes: ChainExportNode[], componentName: Str):
   lines.push('');
 
   for (const node of nodes) {
-    if (node.parentId === '') continue;
+    if (node.parentId === '') {
+      continue;
+    }
     const fromId: Str = nodeIds.get(node.parentId) ?? node.parentId;
     const toId: Str = nodeIds.get(node.id) ?? node.id;
     const label: Str = node.kind === 'default' ? '' : ` : ${node.kind}`;

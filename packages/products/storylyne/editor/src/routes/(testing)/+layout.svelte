@@ -267,7 +267,9 @@
     if (sourceKey) {
       const src: Str = rawSources[sourceKey] ?? '';
       const jsdocDesc: Str | undefined = extractComponentDescription(src);
-      if (jsdocDesc) componentKeywords.push(jsdocDesc);
+      if (jsdocDesc) {
+        componentKeywords.push(jsdocDesc);
+      }
     }
     globalSearchItems.push({
       value: n,
@@ -318,8 +320,12 @@
       if (componentProps.length > 0) {
         for (const prop of componentProps) {
           const propKeywords: Str[] = [n];
-          if (prop.type) propKeywords.push(prop.type);
-          if (prop.description) propKeywords.push(prop.description);
+          if (prop.type) {
+            propKeywords.push(prop.type);
+          }
+          if (prop.description) {
+            propKeywords.push(prop.description);
+          }
           globalSearchItems.push({
             value: `${n}/prop/${prop.name}`,
             label: prop.name,
@@ -364,7 +370,9 @@
       if (examples && examples.length > 0) {
         for (const ex of examples) {
           const exKeywords: Str[] = [n, ex.name];
-          if (ex.description) exKeywords.push(ex.description);
+          if (ex.description) {
+            exKeywords.push(ex.description);
+          }
           globalSearchItems.push({
             value: `${n}/example/${ex.name}`,
             label: ex.title,
@@ -397,7 +405,9 @@
       const seenInternal: Set<Str> = new Set();
       if (deps.internal.length > 0) {
         for (const dep of deps.internal) {
-          if (seenInternal.has(dep.component)) continue;
+          if (seenInternal.has(dep.component)) {
+            continue;
+          }
           seenInternal.add(dep.component);
           globalSearchItems.push({
             value: `${n}/dep/internal/${dep.component}`,
@@ -411,7 +421,9 @@
       const seenWorkspace: Set<Str> = new Set();
       if (deps.workspace.length > 0) {
         for (const dep of deps.workspace) {
-          if (seenWorkspace.has(dep.path)) continue;
+          if (seenWorkspace.has(dep.path)) {
+            continue;
+          }
           seenWorkspace.add(dep.path);
           globalSearchItems.push({
             value: `${n}/dep/workspace/${dep.path}`,
@@ -425,7 +437,9 @@
       const seenExternal: Set<Str> = new Set();
       if (deps.external.length > 0) {
         for (const dep of deps.external) {
-          if (seenExternal.has(dep.path)) continue;
+          if (seenExternal.has(dep.path)) {
+            continue;
+          }
           seenExternal.add(dep.path);
           globalSearchItems.push({
             value: `${n}/dep/external/${dep.path}`,
@@ -559,7 +573,9 @@
   function toWorkspacePath(globPath: Str): Str {
     const s: string = globPath as string;
     const sharedIdx: number = s.indexOf('/shared/');
-    if (sharedIdx >= 0) return s.slice(sharedIdx + 1) as Str;
+    if (sharedIdx >= 0) {
+      return s.slice(sharedIdx + 1) as Str;
+    }
     return `editor${s}` as Str;
   }
 
@@ -698,17 +714,39 @@
   /** Page title for breadcrumb display on new pages. */
   const currentPageTitle: Str = $derived.by((): Str => {
     const path: Str = page.url.pathname as Str;
-    if (path === '/getting-started') return 'Getting Started' as Str;
-    if (path === '/changelog') return "What's New" as Str;
-    if (path === '/icons') return 'Icons' as Str;
-    if (path === '/components/all') return 'All Components' as Str;
-    if (path === '/components/category') return 'Categories' as Str;
-    if (path === '/components/tags') return 'Tags' as Str;
-    if (path === '/browser-support') return 'Browser Support' as Str;
-    if (path === '/about') return 'About' as Str;
-    if (path === '/support') return 'Support' as Str;
-    if (path === '/styling') return 'Styling' as Str;
-    if (path === '/accessibility') return 'Accessibility' as Str;
+    if (path === '/getting-started') {
+      return 'Getting Started' as Str;
+    }
+    if (path === '/changelog') {
+      return "What's New" as Str;
+    }
+    if (path === '/icons') {
+      return 'Icons' as Str;
+    }
+    if (path === '/components/all') {
+      return 'All Components' as Str;
+    }
+    if (path === '/components/category') {
+      return 'Categories' as Str;
+    }
+    if (path === '/components/tags') {
+      return 'Tags' as Str;
+    }
+    if (path === '/browser-support') {
+      return 'Browser Support' as Str;
+    }
+    if (path === '/about') {
+      return 'About' as Str;
+    }
+    if (path === '/support') {
+      return 'Support' as Str;
+    }
+    if (path === '/styling') {
+      return 'Styling' as Str;
+    }
+    if (path === '/accessibility') {
+      return 'Accessibility' as Str;
+    }
     return '' as Str;
   });
 
@@ -749,7 +787,9 @@
   $effect(() => {
     try {
       const stored: Str | null = localStorage.getItem(storageKey('lens-hide-incompatible'));
-      if (stored === 'true') hideIncompatible = true;
+      if (stored === 'true') {
+        hideIncompatible = true;
+      }
     } catch {
       /* localStorage unavailable (SSR/incognito) — default false is fine */
     }
@@ -866,7 +906,9 @@
   // Uses untrack() to read recentComponents without subscribing, preventing infinite loop
   // Only adds valid components (must exist in componentNames) to prevent phantom entries
   $effect(() => {
-    if (!currentName || currentName.length === 0 || !componentNames.includes(currentName)) return;
+    if (!currentName || currentName.length === 0 || !componentNames.includes(currentName)) {
+      return;
+    }
     const current: Str[] = untrack(() => recentComponents);
     const filtered: Str[] = current.filter((n: Str): boolean => n !== currentName);
     recentComponents = [currentName, ...filtered].slice(0, MAX_RECENT);
@@ -874,7 +916,9 @@
 
   // Persist recent to localStorage on change
   $effect(() => {
-    if (recentComponents.length === 0) return;
+    if (recentComponents.length === 0) {
+      return;
+    }
     try {
       localStorage.setItem(storageKey('lens-recent'), JSON.stringify(recentComponents));
     } catch {
@@ -987,7 +1031,9 @@
 
   /** Total design token count for the sidebar badge. */
   const tokenCount: number = $derived.by(() => {
-    if (!cssRawSource) return 0;
+    if (!cssRawSource) {
+      return 0;
+    }
     const sets: ThemeTokenSet[] = extractTokens(cssRawSource);
     const rootSet: ThemeTokenSet | undefined = sets.find(
       (s: ThemeTokenSet): boolean => s.selector === ':root',
@@ -1000,7 +1046,9 @@
    * Also scrolls the active sidebar item into view after a short delay.
    */
   $effect(() => {
-    if (!currentName) return;
+    if (!currentName) {
+      return;
+    }
     const meta: LensMeta | undefined = metaByName.get(currentName);
     const cat: Str = (meta?.category ?? 'display') as Str;
     // Ensure the parent "Components" group is open
@@ -1132,8 +1180,12 @@
      */
     function onSlashKey(e: KeyboardEvent): void {
       const tag: Str = (document.activeElement?.tagName ?? '') as Str;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-      if ((document.activeElement as HTMLElement)?.isContentEditable) return;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+        return;
+      }
+      if ((document.activeElement as HTMLElement)?.isContentEditable) {
+        return;
+      }
       if (e.key === '/') {
         e.preventDefault();
         const filterInput: HTMLInputElement | null =
@@ -1163,14 +1215,20 @@
      */
     function onArrowNav(e: KeyboardEvent): void {
       const tag: Str = (document.activeElement?.tagName ?? '') as Str;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+        return;
+      }
 
-      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'Enter') return;
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'Enter') {
+        return;
+      }
 
       const buttons: HTMLElement[] = [
         ...document.querySelectorAll('[data-sidebar="menu-button"] a'),
       ] as HTMLElement[];
-      if (buttons.length === 0) return;
+      if (buttons.length === 0) {
+        return;
+      }
 
       const currentIdx: Num = buttons.indexOf(document.activeElement as HTMLElement) as Num;
 
@@ -1232,7 +1290,9 @@
     if (confirmClearPinned) {
       clearAllPinned();
       confirmClearPinned = false;
-      if (confirmPinnedTimer) clearTimeout(confirmPinnedTimer);
+      if (confirmPinnedTimer) {
+        clearTimeout(confirmPinnedTimer);
+      }
     } else {
       confirmClearPinned = true;
       confirmPinnedTimer = setTimeout((): void => {
@@ -1249,7 +1309,9 @@
     if (confirmClearRecent) {
       clearRecent();
       confirmClearRecent = false;
-      if (confirmRecentTimer) clearTimeout(confirmRecentTimer);
+      if (confirmRecentTimer) {
+        clearTimeout(confirmRecentTimer);
+      }
     } else {
       confirmClearRecent = true;
       confirmRecentTimer = setTimeout((): void => {
@@ -1561,7 +1623,9 @@
     /** When true, push to notification center but skip toast popup. */
     silent?: boolean;
   }): void {
-    if (!isTypeEnabled(opts.type)) return;
+    if (!isTypeEnabled(opts.type)) {
+      return;
+    }
     const notif: LensNotification = pushNotification(opts);
     const prefs: NotificationPreferences = getPreferences();
     if (prefs.showToasts && !opts.silent) {
@@ -1601,13 +1665,23 @@
   function relativeTime(iso: Str): Str {
     const diff: number = Date.now() - new Date(iso).getTime();
     const mins: number = Math.floor(diff / 60_000);
-    if (mins < 1) return 'Just now' as Str;
-    if (mins < 60) return `${mins}m ago` as Str;
+    if (mins < 1) {
+      return 'Just now' as Str;
+    }
+    if (mins < 60) {
+      return `${mins}m ago` as Str;
+    }
     const hours: number = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago` as Str;
+    if (hours < 24) {
+      return `${hours}h ago` as Str;
+    }
     const days: number = Math.floor(hours / 24);
-    if (days === 1) return 'Yesterday' as Str;
-    if (days < 7) return `${days}d ago` as Str;
+    if (days === 1) {
+      return 'Yesterday' as Str;
+    }
+    if (days < 7) {
+      return `${days}d ago` as Str;
+    }
     return `${Math.floor(days / 7)}w ago` as Str;
   }
 
@@ -1636,7 +1710,9 @@
 
   // Persist watched to localStorage on change
   $effect(() => {
-    if (watchedComponents.size === 0) return;
+    if (watchedComponents.size === 0) {
+      return;
+    }
     try {
       localStorage.setItem(storageKey('lens-watched'), JSON.stringify([...watchedComponents]));
     } catch {
@@ -1713,7 +1789,9 @@
 
   // Generate notifications for component status and dependency changes
   $effect(() => {
-    if (!currentName || currentName.length === 0 || !componentNames.includes(currentName)) return;
+    if (!currentName || currentName.length === 0 || !componentNames.includes(currentName)) {
+      return;
+    }
     const meta: LensMeta | undefined = metaByName.get(currentName);
 
     // Status notification for watched components
@@ -1742,8 +1820,12 @@
   let compatNotifsGenerated: boolean = $state(false);
 
   $effect(() => {
-    if (compatNotifsGenerated) return;
-    if (componentNames.length === 0) return;
+    if (compatNotifsGenerated) {
+      return;
+    }
+    if (componentNames.length === 0) {
+      return;
+    }
     compatNotifsGenerated = true;
 
     // Clear stale compatibility notifications from previous sessions before regenerating
@@ -1754,7 +1836,9 @@
       return c !== undefined && !c.compatible;
     });
 
-    if (incompatible.length === 0) return;
+    if (incompatible.length === 0) {
+      return;
+    }
 
     // Summary toast — always fires regardless of notification preferences
     const topNames: Str = incompatible.slice(0, 5).map(toTitle).join(', ') as Str;

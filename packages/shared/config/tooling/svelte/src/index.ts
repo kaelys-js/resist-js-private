@@ -200,9 +200,13 @@ type TemplatePaths = v.InferOutput<typeof TemplatePathsSchema>;
  */
 function resolveTemplatePaths(): TemplatePaths {
   const appHtmlResult: Result<Path> = resolveTemplatePath('templates/app.html');
-  if (!appHtmlResult.ok) throw appHtmlResult.error; // integration boundary: module init
+  if (!appHtmlResult.ok) {
+    throw appHtmlResult.error;
+  } // integration boundary: module init
   const errorHtmlResult: Result<Path> = resolveTemplatePath('templates/error.html');
-  if (!errorHtmlResult.ok) throw errorHtmlResult.error; // integration boundary: module init
+  if (!errorHtmlResult.ok) {
+    throw errorHtmlResult.error;
+  } // integration boundary: module init
 
   return {
     appHtml: appHtmlResult.data,
@@ -236,17 +240,27 @@ export const TEMPLATE_PATHS: TemplatePaths = resolveTemplatePaths();
  */
 function buildAliasesFromTsconfig(root: Path): Result<Record<Str, Str>> {
   const tsconfigPathResult: Result<Path> = joinPath([root, 'tsconfig.json']);
-  if (!tsconfigPathResult.ok) return tsconfigPathResult;
+  if (!tsconfigPathResult.ok) {
+    return tsconfigPathResult;
+  }
 
   const rawResult: Result<Str> = readFile(tsconfigPathResult.data);
-  if (!rawResult.ok) return rawResult;
+  if (!rawResult.ok) {
+    return rawResult;
+  }
 
   const jsonResult: Result<unknown> = parseJsonWithComments(rawResult.data);
-  if (!jsonResult.ok) return jsonResult;
+  if (!jsonResult.ok) {
+    return jsonResult;
+  }
   const tsconfigResult: Result<TsconfigJson> = safeParse(TsconfigJsonSchema, jsonResult.data);
-  if (!tsconfigResult.ok) return tsconfigResult;
+  if (!tsconfigResult.ok) {
+    return tsconfigResult;
+  }
   const { compilerOptions }: TsconfigJson = tsconfigResult.data as TsconfigJson; // cast safe: safeParse validates
-  if (!compilerOptions?.paths) return okUnchecked<Record<Str, Str>>({});
+  if (!compilerOptions?.paths) {
+    return okUnchecked<Record<Str, Str>>({});
+  }
   const paths: Record<Str, Str[]> = compilerOptions.paths as Record<Str, Str[]>; // cast safe: guarded by line above
 
   const aliases: Record<Str, Str> = {};
@@ -254,7 +268,9 @@ function buildAliasesFromTsconfig(root: Path): Result<Record<Str, Str>> {
   const pathEntries: Array<[Str, Str[]]> = Object.entries(paths);
   for (const [alias, targets] of pathEntries) {
     const [target]: Str[] = targets;
-    if (!target) continue;
+    if (!target) {
+      continue;
+    }
 
     let resolved: Str = target;
 
@@ -269,7 +285,9 @@ function buildAliasesFromTsconfig(root: Path): Result<Record<Str, Str>> {
     }
 
     const resolvedPathResult: Result<Path> = joinPath([root, resolved]);
-    if (!resolvedPathResult.ok) return resolvedPathResult;
+    if (!resolvedPathResult.ok) {
+      return resolvedPathResult;
+    }
 
     aliases[alias] = resolvedPathResult.data;
   }
@@ -349,21 +367,29 @@ export function createSvelteConfig(options: CreateSvelteConfigInput): Config {
     CreateSvelteConfigOptionsSchema,
     options,
   );
-  if (!optionsResult.ok) throw optionsResult.error; // integration boundary: SvelteKit doesn't understand Result
+  if (!optionsResult.ok) {
+    throw optionsResult.error;
+  } // integration boundary: SvelteKit doesn't understand Result
 
   const { adapter, enableCsp, extraAliases, files, extraKit }: CreateSvelteConfigOptions =
     optionsResult.data as CreateSvelteConfigOptions; // cast safe: safeParse validates
 
   const rootResult: Result<Path> = findWorkspaceRoot(undefined, 'pnpm-workspace.yaml' as Filename); // cast safe: literal string to branded Filename
-  if (!rootResult.ok) throw rootResult.error; // integration boundary: SvelteKit doesn't understand Result
+  if (!rootResult.ok) {
+    throw rootResult.error;
+  } // integration boundary: SvelteKit doesn't understand Result
   const root: Path = rootResult.data;
 
   const aliasesResult: Result<Record<Str, Str>> = buildAliasesFromTsconfig(root);
-  if (!aliasesResult.ok) throw aliasesResult.error; // integration boundary: SvelteKit doesn't understand Result
+  if (!aliasesResult.ok) {
+    throw aliasesResult.error;
+  } // integration boundary: SvelteKit doesn't understand Result
   const aliases: Record<Str, Str> = aliasesResult.data;
 
   const gitResult: Result<Str> = getGitCommitShort();
-  if (!gitResult.ok) throw gitResult.error; // integration boundary: SvelteKit doesn't understand Result
+  if (!gitResult.ok) {
+    throw gitResult.error;
+  } // integration boundary: SvelteKit doesn't understand Result
   const gitCommit: Str = gitResult.data;
 
   const config: Config = {

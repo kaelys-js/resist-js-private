@@ -59,9 +59,13 @@ function styleToOptions(
   kind: FormatKind,
 ): Result<Intl.DateTimeFormatOptions> {
   const styleResult: Result<DateTimeStyle> = safeParse(DateTimeStyleSchema, style);
-  if (!styleResult.ok) return styleResult;
+  if (!styleResult.ok) {
+    return styleResult;
+  }
   const kindResult: Result<FormatKind> = safeParse(FormatKindSchema, kind);
-  if (!kindResult.ok) return kindResult;
+  if (!kindResult.ok) {
+    return kindResult;
+  }
 
   if (kindResult.data === 'time') {
     const map: Record<Str, Intl.DateTimeFormatOptions> = {
@@ -91,9 +95,13 @@ function styleToOptions(
  * @returns {Result<Date>} A `Date` object wrapped in Result.
  */
 function toDate(value: Date | Num): Result<Date> {
-  if (value instanceof Date) return okUnchecked<Date>(value);
+  if (value instanceof Date) {
+    return okUnchecked<Date>(value);
+  }
   const numResult: Result<Num> = safeParse(NumSchema, value);
-  if (!numResult.ok) return numResult;
+  if (!numResult.ok) {
+    return numResult;
+  }
   return okUnchecked<Date>(new Date(numResult.data));
 }
 
@@ -124,9 +132,13 @@ export function formatNumber(
   options: Intl.NumberFormatOptions | undefined,
 ): Result<Str> {
   const valueResult: Result<Num> = safeParse(NumSchema, value);
-  if (!valueResult.ok) return valueResult;
+  if (!valueResult.ok) {
+    return valueResult;
+  }
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
-  if (!localeResult.ok) return localeResult;
+  if (!localeResult.ok) {
+    return localeResult;
+  }
 
   try {
     const formatter: Intl.NumberFormat = new Intl.NumberFormat(localeResult.data, options);
@@ -160,11 +172,17 @@ export function formatNumber(
  */
 export function formatCurrency(value: Num, locale: Str, currency: Str): Result<Str> {
   const valueResult: Result<Num> = safeParse(NumSchema, value);
-  if (!valueResult.ok) return valueResult;
+  if (!valueResult.ok) {
+    return valueResult;
+  }
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
-  if (!localeResult.ok) return localeResult;
+  if (!localeResult.ok) {
+    return localeResult;
+  }
   const currencyResult: Result<Str> = safeParse(StrSchema, currency);
-  if (!currencyResult.ok) return currencyResult;
+  if (!currencyResult.ok) {
+    return currencyResult;
+  }
 
   return formatNumber(valueResult.data, localeResult.data, {
     style: 'currency',
@@ -201,13 +219,19 @@ export function formatDate(
   options: Intl.DateTimeFormatOptions | undefined,
 ): Result<Str> {
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
-  if (!localeResult.ok) return localeResult;
+  if (!localeResult.ok) {
+    return localeResult;
+  }
   if (style !== undefined) {
     const styleResult: Result<DateTimeStyle> = safeParse(DateTimeStyleSchema, style);
-    if (!styleResult.ok) return styleResult;
+    if (!styleResult.ok) {
+      return styleResult;
+    }
   }
   const dateResult: Result<Date> = toDate(value);
-  if (!dateResult.ok) return dateResult;
+  if (!dateResult.ok) {
+    return dateResult;
+  }
 
   try {
     let formatOptions: Intl.DateTimeFormatOptions = {};
@@ -215,7 +239,9 @@ export function formatDate(
       formatOptions = options;
     } else if (style) {
       const styleOptsResult: Result<Intl.DateTimeFormatOptions> = styleToOptions(style, 'date');
-      if (!styleOptsResult.ok) return styleOptsResult;
+      if (!styleOptsResult.ok) {
+        return styleOptsResult;
+      }
       formatOptions = styleOptsResult.data;
     }
     const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
@@ -258,13 +284,19 @@ export function formatTime(
   options: Intl.DateTimeFormatOptions | undefined,
 ): Result<Str> {
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
-  if (!localeResult.ok) return localeResult;
+  if (!localeResult.ok) {
+    return localeResult;
+  }
   if (style !== undefined) {
     const styleResult: Result<DateTimeStyle> = safeParse(DateTimeStyleSchema, style);
-    if (!styleResult.ok) return styleResult;
+    if (!styleResult.ok) {
+      return styleResult;
+    }
   }
   const dateResult: Result<Date> = toDate(value);
-  if (!dateResult.ok) return dateResult;
+  if (!dateResult.ok) {
+    return dateResult;
+  }
 
   try {
     let formatOptions: Intl.DateTimeFormatOptions;
@@ -275,7 +307,9 @@ export function formatTime(
         style ?? 'medium',
         'time',
       );
-      if (!styleOptsResult.ok) return styleOptsResult;
+      if (!styleOptsResult.ok) {
+        return styleOptsResult;
+      }
       formatOptions = styleOptsResult.data;
     }
     const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
@@ -358,21 +392,31 @@ export function formatRelativeTime(
   style: RelativeTimeStyle | undefined,
 ): Result<Str> {
   const valueResult: Result<Num> = safeParse(NumSchema, value);
-  if (!valueResult.ok) return valueResult;
+  if (!valueResult.ok) {
+    return valueResult;
+  }
   const unitResult: Result<RelativeTimeUnit> = safeParse(RelativeTimeUnitSchema, unit);
-  if (!unitResult.ok) return unitResult;
+  if (!unitResult.ok) {
+    return unitResult;
+  }
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
-  if (!localeResult.ok) return localeResult;
+  if (!localeResult.ok) {
+    return localeResult;
+  }
   if (numeric !== undefined) {
     const numericResult: Result<RelativeTimeNumeric> = safeParse(
       RelativeTimeNumericSchema,
       numeric,
     );
-    if (!numericResult.ok) return numericResult;
+    if (!numericResult.ok) {
+      return numericResult;
+    }
   }
   if (style !== undefined) {
     const styleResult: Result<RelativeTimeStyle> = safeParse(RelativeTimeStyleSchema, style);
-    if (!styleResult.ok) return styleResult;
+    if (!styleResult.ok) {
+      return styleResult;
+    }
   }
 
   try {
@@ -439,16 +483,24 @@ export function formatList(
   style: ListFormatStyle | undefined,
 ): Result<Str> {
   const itemsResult: Result<StrArray> = safeParse(StrArraySchema, [...items]);
-  if (!itemsResult.ok) return itemsResult;
+  if (!itemsResult.ok) {
+    return itemsResult;
+  }
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
-  if (!localeResult.ok) return localeResult;
+  if (!localeResult.ok) {
+    return localeResult;
+  }
   if (type !== undefined) {
     const typeResult: Result<ListFormatType> = safeParse(ListFormatTypeSchema, type);
-    if (!typeResult.ok) return typeResult;
+    if (!typeResult.ok) {
+      return typeResult;
+    }
   }
   if (style !== undefined) {
     const styleResult: Result<ListFormatStyle> = safeParse(ListFormatStyleSchema, style);
-    if (!styleResult.ok) return styleResult;
+    if (!styleResult.ok) {
+      return styleResult;
+    }
   }
 
   try {
@@ -503,15 +555,23 @@ export function formatDateRange(
   options: Intl.DateTimeFormatOptions | undefined,
 ): Result<Str> {
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
-  if (!localeResult.ok) return localeResult;
+  if (!localeResult.ok) {
+    return localeResult;
+  }
   if (style !== undefined) {
     const styleResult: Result<DateTimeStyle> = safeParse(DateTimeStyleSchema, style);
-    if (!styleResult.ok) return styleResult;
+    if (!styleResult.ok) {
+      return styleResult;
+    }
   }
   const startResult: Result<Date> = toDate(start);
-  if (!startResult.ok) return startResult;
+  if (!startResult.ok) {
+    return startResult;
+  }
   const endResult: Result<Date> = toDate(end);
-  if (!endResult.ok) return endResult;
+  if (!endResult.ok) {
+    return endResult;
+  }
 
   try {
     let formatOptions: Intl.DateTimeFormatOptions = {};
@@ -519,7 +579,9 @@ export function formatDateRange(
       formatOptions = options;
     } else if (style) {
       const styleOptsResult: Result<Intl.DateTimeFormatOptions> = styleToOptions(style, 'date');
-      if (!styleOptsResult.ok) return styleOptsResult;
+      if (!styleOptsResult.ok) {
+        return styleOptsResult;
+      }
       formatOptions = styleOptsResult.data;
     }
     const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
@@ -596,14 +658,22 @@ export function formatDisplayName(
   style: DisplayNameStyle | undefined,
 ): Result<Str> {
   const codeResult: Result<Str> = safeParse(StrSchema, code);
-  if (!codeResult.ok) return codeResult;
+  if (!codeResult.ok) {
+    return codeResult;
+  }
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
-  if (!localeResult.ok) return localeResult;
+  if (!localeResult.ok) {
+    return localeResult;
+  }
   const typeResult: Result<DisplayNameType> = safeParse(DisplayNameTypeSchema, type);
-  if (!typeResult.ok) return typeResult;
+  if (!typeResult.ok) {
+    return typeResult;
+  }
   if (style !== undefined) {
     const styleResult: Result<DisplayNameStyle> = safeParse(DisplayNameStyleSchema, style);
-    if (!styleResult.ok) return styleResult;
+    if (!styleResult.ok) {
+      return styleResult;
+    }
   }
 
   try {
@@ -661,9 +731,13 @@ export function formatPercent(
   options: Intl.NumberFormatOptions | undefined,
 ): Result<Str> {
   const valueResult: Result<Num> = safeParse(NumSchema, value);
-  if (!valueResult.ok) return valueResult;
+  if (!valueResult.ok) {
+    return valueResult;
+  }
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
-  if (!localeResult.ok) return localeResult;
+  if (!localeResult.ok) {
+    return localeResult;
+  }
 
   return formatNumber(valueResult.data, localeResult.data, {
     style: 'percent',
@@ -719,14 +793,22 @@ export function formatUnit(
   options: Intl.NumberFormatOptions | undefined,
 ): Result<Str> {
   const valueResult: Result<Num> = safeParse(NumSchema, value);
-  if (!valueResult.ok) return valueResult;
+  if (!valueResult.ok) {
+    return valueResult;
+  }
   const unitResult: Result<Str> = safeParse(StrSchema, unit);
-  if (!unitResult.ok) return unitResult;
+  if (!unitResult.ok) {
+    return unitResult;
+  }
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
-  if (!localeResult.ok) return localeResult;
+  if (!localeResult.ok) {
+    return localeResult;
+  }
   if (unitDisplay !== undefined) {
     const displayResult: Result<UnitDisplay> = safeParse(UnitDisplaySchema, unitDisplay);
-    if (!displayResult.ok) return displayResult;
+    if (!displayResult.ok) {
+      return displayResult;
+    }
   }
 
   return formatNumber(valueResult.data, localeResult.data, {
@@ -810,12 +892,18 @@ export function formatDuration(
   style: DurationStyle | undefined,
 ): Result<Str> {
   const durationResult: Result<DurationInput> = safeParse(DurationInputSchema, duration);
-  if (!durationResult.ok) return durationResult;
+  if (!durationResult.ok) {
+    return durationResult;
+  }
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
-  if (!localeResult.ok) return localeResult;
+  if (!localeResult.ok) {
+    return localeResult;
+  }
   if (style !== undefined) {
     const styleResult: Result<DurationStyle> = safeParse(DurationStyleSchema, style);
-    if (!styleResult.ok) return styleResult;
+    if (!styleResult.ok) {
+      return styleResult;
+    }
   }
 
   // Check runtime support — Intl.DurationFormat is ES2025, not available in all runtimes
@@ -886,13 +974,17 @@ export function formatDuration(
  */
 export function parseNumberSkeleton(skeleton: Str): Result<Intl.NumberFormatOptions> {
   const skeletonResult: Result<Str> = safeParse(StrSchema, skeleton);
-  if (!skeletonResult.ok) return skeletonResult;
+  if (!skeletonResult.ok) {
+    return skeletonResult;
+  }
 
   const tokens: Str[] = skeletonResult.data.trim().split(/\s+/);
   const options: Intl.NumberFormatOptions = {};
 
   for (const token of tokens) {
-    if (token === '') continue;
+    if (token === '') {
+      continue;
+    }
 
     if (token.startsWith('currency/')) {
       options.style = 'currency';
@@ -1014,7 +1106,9 @@ export function parseNumberSkeleton(skeleton: Str): Result<Intl.NumberFormatOpti
  */
 export function parseDateTimeSkeleton(skeleton: Str): Result<Intl.DateTimeFormatOptions> {
   const skeletonResult: Result<Str> = safeParse(StrSchema, skeleton);
-  if (!skeletonResult.ok) return skeletonResult;
+  if (!skeletonResult.ok) {
+    return skeletonResult;
+  }
 
   const options: Intl.DateTimeFormatOptions = {};
   const s: Str = skeletonResult.data.trim();
@@ -1034,10 +1128,15 @@ export function parseDateTimeSkeleton(skeleton: Str): Result<Intl.DateTimeFormat
         break;
       }
       case 'M': {
-        if (count >= 4) options.month = 'long';
-        else if (count === 3) options.month = 'short';
-        else if (count === 2) options.month = '2-digit';
-        else options.month = 'numeric';
+        if (count >= 4) {
+          options.month = 'long';
+        } else if (count === 3) {
+          options.month = 'short';
+        } else if (count === 2) {
+          options.month = '2-digit';
+        } else {
+          options.month = 'numeric';
+        }
         break;
       }
       case 'd': {

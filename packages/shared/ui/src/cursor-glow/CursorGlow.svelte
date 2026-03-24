@@ -33,7 +33,9 @@
   const validated: CursorGlowProps = $derived.by(() => {
     const rawProps: CursorGlowProps = stripSvelteProps(allProps);
     const result = safeParse(CursorGlowPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as CursorGlowProps;
   });

@@ -81,7 +81,9 @@ export function resolve(specifier, context, nextResolve) {
   let bestTarget = '';
 
   for (const [alias, target] of Object.entries(aliasMap)) {
-    if (!alias.endsWith('/*')) continue;
+    if (!alias.endsWith('/*')) {
+      continue;
+    }
     const prefix = alias.slice(0, -1); // '@/utils/core/' (remove *)
     if (specifier.startsWith(prefix) && alias.length > bestAlias.length) {
       bestAlias = alias;

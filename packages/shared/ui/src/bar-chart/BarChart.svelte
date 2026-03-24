@@ -33,7 +33,9 @@
   const validated: BarChartProps = $derived.by(() => {
     const rawProps: BarChartProps = stripSvelteProps(allProps);
     const result = safeParse(BarChartPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as BarChartProps;
   });

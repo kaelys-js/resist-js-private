@@ -33,7 +33,9 @@
   const validated: NotificationProps = $derived.by(() => {
     const rawProps: NotificationProps = stripSvelteProps(allProps);
     const result = safeParse(NotificationPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as NotificationProps;
   });

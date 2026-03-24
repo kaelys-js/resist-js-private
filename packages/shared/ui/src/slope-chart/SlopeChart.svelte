@@ -33,7 +33,9 @@
   const validated: SlopeChartProps = $derived.by(() => {
     const rawProps: SlopeChartProps = stripSvelteProps(allProps);
     const result = safeParse(SlopeChartPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as SlopeChartProps;
   });

@@ -66,7 +66,9 @@ export function parseConsoleMessage(rawMessage: Str): CapturedConsoleMessage | n
       unknown
     >;
 
-    if (parsed.method !== 'Console.messageAdded') return null;
+    if (parsed.method !== 'Console.messageAdded') {
+      return null;
+    }
 
     const params: Record<string, unknown> = (parsed.params ?? {}) as Record<string, unknown>;
     const message: Record<string, unknown> = (params.message ?? {}) as Record<string, unknown>;

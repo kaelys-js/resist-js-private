@@ -57,7 +57,9 @@ describe('app.html meta tags use placeholders', () => {
     if (metaContents) {
       for (const meta of metaContents) {
         // Skip viewport, color-scheme, robots, format-detection, mobile-web-app-capable, status-bar-style
-        if (/content="(width|light dark|noindex|telephone|yes|default|{{)/.test(meta)) continue;
+        if (/content="(width|light dark|noindex|telephone|yes|default|{{)/.test(meta)) {
+          continue;
+        }
         // Hardcoded product names should not appear — only {{APP_NAME}} placeholders
         expect(meta).not.toMatch(/content="[A-Z][a-z]+"/);
       }

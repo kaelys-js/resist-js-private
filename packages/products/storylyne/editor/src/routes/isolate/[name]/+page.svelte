@@ -53,10 +53,14 @@
   /** Decoded card styles from the `s` base64 JSON param. */
   const cardStyles: Record<Str, Str> = $derived.by((): Record<Str, Str> => {
     const raw: Str = page.url.searchParams.get('s') ?? '';
-    if (!raw) return {};
+    if (!raw) {
+      return {};
+    }
     try {
       const parsed: unknown = JSON.parse(atob(raw));
-      if (typeof parsed === 'object' && parsed !== null) return parsed as Record<Str, Str>;
+      if (typeof parsed === 'object' && parsed !== null) {
+        return parsed as Record<Str, Str>;
+      }
     } catch {
       /* Malformed state param — ignore and render defaults */
     }
@@ -89,7 +93,9 @@
       try {
         const sourceKey: Str | undefined = findPrimaryKey(currentName, rawSources);
         if (!sourceKey) {
-          if (!cancelled) loadError = `No source found for "${currentName}"`;
+          if (!cancelled) {
+            loadError = `No source found for "${currentName}"`;
+          }
           return;
         }
 
@@ -108,7 +114,9 @@
 
         if (compKey) {
           const mod: unknown = await componentModules[compKey]?.();
-          if (cancelled) return;
+          if (cancelled) {
+            return;
+          }
           // Glob modules export { default: Component } — cast from unknown
           const m = mod as Record<Str, unknown>;
           PrimaryComponent = m.default as Component;
@@ -117,9 +125,13 @@
         }
       } catch {
         /* Load failed — show error state instead of blank page */
-        if (!cancelled) loadError = `Failed to load component "${currentName}"`;
+        if (!cancelled) {
+          loadError = `Failed to load component "${currentName}"`;
+        }
       } finally {
-        if (!cancelled) loading = false;
+        if (!cancelled) {
+          loading = false;
+        }
       }
     })();
 
@@ -132,7 +144,9 @@
 
   /** Build variant props from URL query params. */
   const variantProps: Record<Str, Str | boolean | number> = $derived.by(() => {
-    if (!variantParam || !optionParam) return {};
+    if (!variantParam || !optionParam) {
+      return {};
+    }
     if (optionParam === 'true' || optionParam === 'false') {
       return { [variantParam]: optionParam === 'true' };
     }
@@ -151,15 +165,23 @@
 
   /** Color mode class. */
   const modeClass: Str = $derived.by((): Str => {
-    if (cardStyles.mode === 'dark') return 'dark';
-    if (cardStyles.mode === 'light') return 'lens-force-light';
+    if (cardStyles.mode === 'dark') {
+      return 'dark';
+    }
+    if (cardStyles.mode === 'light') {
+      return 'lens-force-light';
+    }
     return '';
   });
 
   /** Color-scheme style for correct system colours in light/dark. */
   const colorSchemeStyle: Str = $derived.by((): Str => {
-    if (cardStyles.mode === 'light') return 'color-scheme: light';
-    if (cardStyles.mode === 'dark') return 'color-scheme: dark';
+    if (cardStyles.mode === 'light') {
+      return 'color-scheme: light';
+    }
+    if (cardStyles.mode === 'dark') {
+      return 'color-scheme: dark';
+    }
     return '';
   });
 
@@ -171,15 +193,27 @@
   /** Inline styles for the content wrapper (zoom, orientation, outline, sim filter, font size). */
   const contentStyle: Str = $derived.by((): Str => {
     const parts: Str[] = [];
-    if (cardStyles.zoom) parts.push(cardStyles.zoom);
-    if (cardStyles.orient) parts.push(cardStyles.orient);
-    if (cardStyles.outlineColor) parts.push(`--lens-outline-color: ${cardStyles.outlineColor}`);
-    if (cardStyles.simMatrix) parts.push(`filter: url(#${filterId})`);
-    if (cardStyles.simCss) parts.push(`filter: ${cardStyles.simCss}`);
+    if (cardStyles.zoom) {
+      parts.push(cardStyles.zoom);
+    }
+    if (cardStyles.orient) {
+      parts.push(cardStyles.orient);
+    }
+    if (cardStyles.outlineColor) {
+      parts.push(`--lens-outline-color: ${cardStyles.outlineColor}`);
+    }
+    if (cardStyles.simMatrix) {
+      parts.push(`filter: url(#${filterId})`);
+    }
+    if (cardStyles.simCss) {
+      parts.push(`filter: ${cardStyles.simCss}`);
+    }
     /* fontSize is stored as "14px (0.88x)" — extract the px value */
     if (cardStyles.fontSize) {
       const pxMatch: RegExpMatchArray | null = cardStyles.fontSize.match(/^(\d+(?:\.\d+)?)px/);
-      if (pxMatch) parts.push(`font-size: ${pxMatch[1]}px`);
+      if (pxMatch) {
+        parts.push(`font-size: ${pxMatch[1]}px`);
+      }
     }
     return parts.join('; ');
   });
@@ -188,7 +222,9 @@
   const textDir: 'auto' | 'ltr' | 'rtl' | undefined = $derived.by(
     (): 'auto' | 'ltr' | 'rtl' | undefined => {
       const d: Str = cardStyles.dir ?? '';
-      if (d === 'rtl' || d === 'ltr' || d === 'auto') return d;
+      if (d === 'rtl' || d === 'ltr' || d === 'auto') {
+        return d;
+      }
       return undefined;
     },
   );
@@ -196,11 +232,15 @@
   /** Viewport width × height from state. */
   const vpDimensions: { w: Num; h: Num } | null = $derived.by((): { w: Num; h: Num } | null => {
     const { vp } = cardStyles;
-    if (!vp) return null;
+    if (!vp) {
+      return null;
+    }
     const [wStr, hStr] = vp.split('x');
     const w: Num = Number(wStr);
     const h: Num = Number(hStr);
-    if (Number.isNaN(w) || Number.isNaN(h)) return null;
+    if (Number.isNaN(w) || Number.isNaN(h)) {
+      return null;
+    }
     return { w, h };
   });
 

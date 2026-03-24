@@ -33,7 +33,9 @@
   const validated: AbsoluteCenterProps = $derived.by(() => {
     const rawProps: AbsoluteCenterProps = stripSvelteProps(allProps);
     const result = safeParse(AbsoluteCenterPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as AbsoluteCenterProps;
   });

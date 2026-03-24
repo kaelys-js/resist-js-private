@@ -33,7 +33,9 @@
   const validated: SavedFiltersProps = $derived.by(() => {
     const rawProps: SavedFiltersProps = stripSvelteProps(allProps);
     const result = safeParse(SavedFiltersPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as SavedFiltersProps;
   });

@@ -45,7 +45,9 @@ describe('Result system', () => {
 
     function outer(): Result<Str> {
       const result: Result<Str> = inner();
-      if (!result.ok) return result;
+      if (!result.ok) {
+        return result;
+      }
       return okUnchecked(result.data);
     }
 

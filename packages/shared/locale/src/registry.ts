@@ -192,7 +192,9 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
 ): Result<LocaleRegistry<TSchema>> {
   // Validate defaultLocale
   const defaultLocaleResult: Result<Str> = safeParse(StrSchema, options.defaultLocale);
-  if (!defaultLocaleResult.ok) return defaultLocaleResult;
+  if (!defaultLocaleResult.ok) {
+    return defaultLocaleResult;
+  }
 
   // Validate that defaultLocale exists in provided locales
   if (!(defaultLocaleResult.data in options.locales)) {
@@ -224,7 +226,9 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
 
   for (const [code, raw] of Object.entries(options.locales)) {
     const codeResult: Result<Str> = safeParse(StrSchema, code);
-    if (!codeResult.ok) return codeResult;
+    if (!codeResult.ok) {
+      return codeResult;
+    }
 
     const isDefault: Bool = codeResult.data === defaultLocaleResult.data;
 
@@ -260,7 +264,9 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
   // Non-strict mode: fill missing keys from fallback chain
   if (!isStrict) {
     for (const [code, builtLocale] of built) {
-      if (code === defaultLocaleResult.data) continue; // Default is always complete
+      if (code === defaultLocaleResult.data) {
+        continue;
+      } // Default is always complete
 
       let merged: Record<Str, unknown> = builtLocale as unknown as Record<Str, unknown>; // Irreducible: builtLocale is an object built by buildLocale — no generic Valibot schema
       for (const fallbackCode of fallbackChain) {
@@ -283,7 +289,9 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
 
     setActive: (code: Str): Result<Void> => {
       const codeResult: Result<Str> = safeParse(StrSchema, code);
-      if (!codeResult.ok) return codeResult;
+      if (!codeResult.ok) {
+        return codeResult;
+      }
 
       if (!built.has(codeResult.data)) {
         return err(ERRORS.LOCALE.INVALID_LOCALE, {
@@ -304,7 +312,9 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
 
     get: (code: Str): Result<BuiltLocale<TSchema>> => {
       const codeResult: Result<Str> = safeParse(StrSchema, code);
-      if (!codeResult.ok) return codeResult;
+      if (!codeResult.ok) {
+        return codeResult;
+      }
 
       const locale: BuiltLocale<TSchema> | undefined = built.get(codeResult.data);
       if (!locale) {
@@ -321,13 +331,17 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
 
     has: (code: Str): Result<Bool> => {
       const codeResult: Result<Str> = safeParse(StrSchema, code);
-      if (!codeResult.ok) return codeResult;
+      if (!codeResult.ok) {
+        return codeResult;
+      }
       return ok(BoolSchema, built.has(codeResult.data));
     },
 
     set: (code: Str, raw: RawLocaleStrings): Result<Void> => {
       const codeResult: Result<Str> = safeParse(StrSchema, code);
-      if (!codeResult.ok) return codeResult;
+      if (!codeResult.ok) {
+        return codeResult;
+      }
 
       // Validate raw strings against schema
       const parseResult: Result<unknown> = safeParse(options.schema, raw);
@@ -373,7 +387,9 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
 
     remove: (code: Str): Result<Void> => {
       const codeResult: Result<Str> = safeParse(StrSchema, code);
-      if (!codeResult.ok) return codeResult;
+      if (!codeResult.ok) {
+        return codeResult;
+      }
 
       // Cannot remove active locale
       if (codeResult.data === activeCode) {
@@ -510,14 +526,18 @@ export function createNamespacedRegistry(
   options: NamespacedRegistryOptions,
 ): Result<NamespacedRegistry> {
   const defaultLocaleResult: Result<Str> = safeParse(StrSchema, options.defaultLocale);
-  if (!defaultLocaleResult.ok) return defaultLocaleResult;
+  if (!defaultLocaleResult.ok) {
+    return defaultLocaleResult;
+  }
 
   const registries = new Map<Str, LocaleRegistry<v.GenericSchema>>();
 
   // Create a sub-registry for each namespace
   for (const [name, definition] of Object.entries(options.namespaces)) {
     const nameResult: Result<Str> = safeParse(StrSchema, name);
-    if (!nameResult.ok) return nameResult;
+    if (!nameResult.ok) {
+      return nameResult;
+    }
 
     const subResult: Result<LocaleRegistry<v.GenericSchema>> = createLocaleRegistry({
       schema: definition.schema,
@@ -528,7 +548,9 @@ export function createNamespacedRegistry(
       strict: options.strict,
       formatters: options.formatters,
     });
-    if (!subResult.ok) return subResult;
+    if (!subResult.ok) {
+      return subResult;
+    }
 
     registries.set(nameResult.data, subResult.data as LocaleRegistry<v.GenericSchema>); // Irreducible: DeepReadonly mangles function-typed properties; runtime value is already a LocaleRegistry
   }
@@ -543,15 +565,21 @@ export function createNamespacedRegistry(
 
     setActive: (code: Str): Result<Void> => {
       const codeResult: Result<Str> = safeParse(StrSchema, code);
-      if (!codeResult.ok) return codeResult;
+      if (!codeResult.ok) {
+        return codeResult;
+      }
 
       // Propagate to all namespaces that have this locale
       for (const [_name, subRegistry] of registries) {
         const hasResult: Result<Bool> = subRegistry.has(codeResult.data);
-        if (!hasResult.ok) return hasResult;
+        if (!hasResult.ok) {
+          return hasResult;
+        }
         if (hasResult.data) {
           const setResult: Result<Void> = subRegistry.setActive(codeResult.data);
-          if (!setResult.ok) return setResult;
+          if (!setResult.ok) {
+            return setResult;
+          }
         }
       }
 
@@ -560,19 +588,25 @@ export function createNamespacedRegistry(
     },
 
     list: (): Result<StrArray> => {
-      if (registries.size === 0) return ok(StrArraySchema, []);
+      if (registries.size === 0) {
+        return ok(StrArraySchema, []);
+      }
 
       // Intersection of all namespace locale lists
       let intersection: Set<Str> | undefined = undefined;
       for (const [_name, subRegistry] of registries) {
         const listResult: Result<StrArray> = subRegistry.list();
-        if (!listResult.ok) return listResult;
+        if (!listResult.ok) {
+          return listResult;
+        }
         const codes = new Set<Str>(listResult.data);
         if (intersection === undefined) {
           intersection = codes;
         } else {
           for (const code of intersection) {
-            if (!codes.has(code)) intersection.delete(code);
+            if (!codes.has(code)) {
+              intersection.delete(code);
+            }
           }
         }
       }
@@ -582,7 +616,9 @@ export function createNamespacedRegistry(
 
     ns: (namespace: Str): Result<BuiltLocale<v.GenericSchema>> => {
       const nsResult: Result<Str> = safeParse(StrSchema, namespace);
-      if (!nsResult.ok) return nsResult;
+      if (!nsResult.ok) {
+        return nsResult;
+      }
 
       const subRegistry: LocaleRegistry<v.GenericSchema> | undefined = registries.get(
         nsResult.data,
@@ -598,7 +634,9 @@ export function createNamespacedRegistry(
 
     addNamespace: (name: Str, definition: NamespaceDefinition<v.GenericSchema>): Result<Void> => {
       const nameResult: Result<Str> = safeParse(StrSchema, name);
-      if (!nameResult.ok) return nameResult;
+      if (!nameResult.ok) {
+        return nameResult;
+      }
 
       const subResult: Result<LocaleRegistry<v.GenericSchema>> = createLocaleRegistry({
         schema: definition.schema,
@@ -609,7 +647,9 @@ export function createNamespacedRegistry(
         strict: options.strict,
         formatters: options.formatters,
       });
-      if (!subResult.ok) return subResult;
+      if (!subResult.ok) {
+        return subResult;
+      }
 
       registries.set(nameResult.data, subResult.data as LocaleRegistry<v.GenericSchema>); // Irreducible: DeepReadonly mangles function-typed properties; runtime value is already a LocaleRegistry
       return ok(VoidSchema, undefined);
@@ -617,7 +657,9 @@ export function createNamespacedRegistry(
 
     removeNamespace: (name: Str): Result<Void> => {
       const nameResult: Result<Str> = safeParse(StrSchema, name);
-      if (!nameResult.ok) return nameResult;
+      if (!nameResult.ok) {
+        return nameResult;
+      }
 
       if (!registries.has(nameResult.data)) {
         return err(ERRORS.LOCALE.INVALID_LOCALE, {
@@ -631,7 +673,9 @@ export function createNamespacedRegistry(
 
     hasNamespace: (name: Str): Result<Bool> => {
       const nameResult: Result<Str> = safeParse(StrSchema, name);
-      if (!nameResult.ok) return nameResult;
+      if (!nameResult.ok) {
+        return nameResult;
+      }
       return ok(BoolSchema, registries.has(nameResult.data));
     },
 
@@ -641,9 +685,13 @@ export function createNamespacedRegistry(
 
     setLocale: (namespace: Str, code: Str, raw: RawLocaleStrings): Result<Void> => {
       const nsResult: Result<Str> = safeParse(StrSchema, namespace);
-      if (!nsResult.ok) return nsResult;
+      if (!nsResult.ok) {
+        return nsResult;
+      }
       const codeResult: Result<Str> = safeParse(StrSchema, code);
-      if (!codeResult.ok) return codeResult;
+      if (!codeResult.ok) {
+        return codeResult;
+      }
 
       const subRegistry: LocaleRegistry<v.GenericSchema> | undefined = registries.get(
         nsResult.data,

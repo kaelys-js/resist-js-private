@@ -33,7 +33,9 @@
   const validated: ChipProps = $derived.by(() => {
     const rawProps: ChipProps = stripSvelteProps(allProps);
     const result = safeParse(ChipPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ChipProps;
   });

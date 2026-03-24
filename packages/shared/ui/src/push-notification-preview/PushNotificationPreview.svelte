@@ -35,7 +35,9 @@
   const validated: PushNotificationPreviewProps = $derived.by(() => {
     const rawProps: PushNotificationPreviewProps = stripSvelteProps(allProps);
     const result = safeParse(PushNotificationPreviewPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as PushNotificationPreviewProps;
   });

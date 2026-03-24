@@ -38,14 +38,20 @@ const rule: TypeScriptRule = {
   visitor: {
     TSUnionType(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      if (isExempt(context.file)) return results;
+      if (isExempt(context.file)) {
+        return results;
+      }
 
       // Skip unions inside conditional type extends clauses (type-level pattern matching)
       const before: string = context.content.slice(Math.max(0, node.start - 30), node.start).trim();
-      if (/extends\s*$/.test(before)) return results;
+      if (/extends\s*$/.test(before)) {
+        return results;
+      }
 
       const types = node.types as AstNode[] | undefined;
-      if (!types) return results;
+      if (!types) {
+        return results;
+      }
 
       // Only flag when the non-null/undefined type has a shared Optional/Nullable wrapper
       // Base types (Str/string, Num/number, Bool/boolean) have wrappers; custom types don't
@@ -75,10 +81,14 @@ const rule: TypeScriptRule = {
        * @returns {boolean} Whether the member is a base type
        */
       function isBaseType(member: AstNode): boolean {
-        if (BASE_TYPE_NODES.has(member.type)) return true;
+        if (BASE_TYPE_NODES.has(member.type)) {
+          return true;
+        }
         if (member.type === 'TSTypeReference') {
           const typeName = (member.typeName as AstNode | undefined)?.name as string | undefined;
-          if (typeName && BASE_TYPE_NAMES.has(typeName)) return true;
+          if (typeName && BASE_TYPE_NAMES.has(typeName)) {
+            return true;
+          }
         }
         return false;
       }

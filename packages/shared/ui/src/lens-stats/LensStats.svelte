@@ -137,8 +137,12 @@
    * @returns Budget level
    */
   function evaluateBudget(value: Num, greenMax: Num, yellowMax: Num): BudgetLevel {
-    if (value <= greenMax) return 'green';
-    if (value <= yellowMax) return 'yellow';
+    if (value <= greenMax) {
+      return 'green';
+    }
+    if (value <= yellowMax) {
+      return 'yellow';
+    }
     return 'red';
   }
 
@@ -164,7 +168,9 @@
     let maxDepth: Num = 0;
     for (const childEl of el.children) {
       const childDepth: Num = calcDomDepth(childEl);
-      if (childDepth > maxDepth) maxDepth = childDepth;
+      if (childDepth > maxDepth) {
+        maxDepth = childDepth;
+      }
     }
     return maxDepth + 1;
   }
@@ -178,7 +184,9 @@
   function countTextNodes(el: Element): Num {
     let count: Num = 0;
     const walker: TreeWalker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-    while (walker.nextNode()) count++;
+    while (walker.nextNode()) {
+      count++;
+    }
     return count;
   }
 
@@ -189,13 +197,23 @@
    * @returns True if element has aria-label, aria-labelledby, or associated label
    */
   function hasAccessibleLabel(el: Element): Bool {
-    if (el.getAttribute('aria-label')) return true;
-    if (el.getAttribute('aria-labelledby')) return true;
-    if (el.getAttribute('title')) return true;
+    if (el.getAttribute('aria-label')) {
+      return true;
+    }
+    if (el.getAttribute('aria-labelledby')) {
+      return true;
+    }
+    if (el.getAttribute('title')) {
+      return true;
+    }
     const id: Str | null = el.getAttribute('id');
-    if (id && document.querySelector(`label[for="${id}"]`)) return true;
+    if (id && document.querySelector(`label[for="${id}"]`)) {
+      return true;
+    }
     /* Check for wrapping <label> */
-    if (el.closest('label')) return true;
+    if (el.closest('label')) {
+      return true;
+    }
     return false;
   }
 
@@ -207,12 +225,18 @@
    */
   function getParentContext(el: Element): Str {
     const parent: Element | null = el.parentElement;
-    if (!parent) return '';
+    if (!parent) {
+      return '';
+    }
     const tag: Str = parent.tagName.toLowerCase();
     const cls: Str = parent.className ? String(parent.className).slice(0, 30) : '';
     const role: Str | null = parent.getAttribute('role');
-    if (role) return `<${tag} role="${role}">`;
-    if (cls) return `<${tag} class="${cls}">`;
+    if (role) {
+      return `<${tag} role="${role}">`;
+    }
+    if (cls) {
+      return `<${tag} class="${cls}">`;
+    }
     return `<${tag}>`;
   }
 
@@ -410,7 +434,9 @@
    * @returns RGB tuple [r, g, b] with values 0-255, or null if parsing fails
    */
   function parseColorToRgb(color: Str): [Num, Num, Num] | null {
-    if (!color || color === 'transparent' || color === 'rgba(0, 0, 0, 0)') return null;
+    if (!color || color === 'transparent' || color === 'rgba(0, 0, 0, 0)') {
+      return null;
+    }
     const rgbMatch: RegExpMatchArray | null = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
     if (rgbMatch) {
       return [Number(rgbMatch[1]), Number(rgbMatch[2]), Number(rgbMatch[3])];
@@ -469,7 +495,9 @@
       const style: CSSStyleDeclaration = getComputedStyle(current);
       const bg: Str = style.backgroundColor;
       const rgb: [Num, Num, Num] | null = parseColorToRgb(bg);
-      if (rgb) return rgb;
+      if (rgb) {
+        return rgb;
+      }
       current = current.parentElement;
     }
     /* Default to white if no background found */
@@ -488,9 +516,13 @@
     const textElements: Element[] = [...root.querySelectorAll('*')]
       .filter((el: Element): boolean => {
         const text: Str = (el.textContent ?? '').trim();
-        if (text.length === 0) return false;
+        if (text.length === 0) {
+          return false;
+        }
         /* Only check leaf-ish elements with direct text content */
-        if (el.children.length > 3) return false;
+        if (el.children.length > 3) {
+          return false;
+        }
         return true;
       })
       .slice(0, 20);
@@ -499,7 +531,9 @@
       const style: CSSStyleDeclaration = getComputedStyle(el);
       const textRgb: [Num, Num, Num] | null = parseColorToRgb(style.color);
       const bgRgb: [Num, Num, Num] | null = getEffectiveBackground(el);
-      if (!textRgb || !bgRgb) continue;
+      if (!textRgb || !bgRgb) {
+        continue;
+      }
 
       const ratio: Num = Math.round(contrastRatio(textRgb, bgRgb) * 100) / 100;
       const fontSize: Num = Number.parseFloat(style.fontSize);
@@ -532,7 +566,9 @@
   function countImagesWithoutAlt(root: HTMLDivElement): Num {
     let count: Num = 0;
     for (const img of root.querySelectorAll('img')) {
-      if (!img.hasAttribute('alt')) count++;
+      if (!img.hasAttribute('alt')) {
+        count++;
+      }
     }
     return count;
   }
@@ -559,7 +595,9 @@
     ]);
 
     for (const el of root.querySelectorAll('*')) {
-      if (issues.length >= 10) break;
+      if (issues.length >= 10) {
+        break;
+      }
       const tag: Str = el.tagName.toLowerCase();
       const text: Str = (el.textContent ?? '').trim().slice(0, 40);
       const role: Str | null = el.getAttribute('role');
@@ -693,7 +731,9 @@
         } catch {
           /* Cross-origin stylesheet — cannot read rules, skip */
         }
-        if (hasReducedMotionOverride) break;
+        if (hasReducedMotionOverride) {
+          break;
+        }
       }
     } catch {
       /* StyleSheets API unavailable — leave as false */
@@ -735,7 +775,9 @@
     const rolesSet: Set<Str> = new Set<Str>();
     for (const roleEl of root.querySelectorAll('[role]')) {
       const role: Str | null = roleEl.getAttribute('role');
-      if (role) rolesSet.add(role);
+      if (role) {
+        rolesSet.add(role);
+      }
     }
 
     const buttons: NodeListOf<Element> = root.querySelectorAll('button, [role="button"]');
@@ -789,8 +831,12 @@
   function worstLevel(budgets: MetricBudget[]): BudgetLevel {
     let worst: BudgetLevel = 'green';
     for (const b of budgets) {
-      if (b.level === 'red') return 'red';
-      if (b.level === 'yellow') worst = 'yellow';
+      if (b.level === 'red') {
+        return 'red';
+      }
+      if (b.level === 'yellow') {
+        worst = 'yellow';
+      }
     }
     return worst;
   }
@@ -853,7 +899,9 @@
    * @returns Human-readable tag + class string
    */
   function describeElement(el: Node | null): Str {
-    if (!el || !(el instanceof Element)) return '(unknown)';
+    if (!el || !(el instanceof Element)) {
+      return '(unknown)';
+    }
     const tag: Str = el.tagName.toLowerCase();
     const cls: Str = el.className ? String(el.className).slice(0, 40) : '';
     return cls ? `<${tag} class="${cls}">` : `<${tag}>`;
@@ -910,7 +958,9 @@
               value?: number;
               sources?: Array<{ node?: Node }>;
             } = entry;
-            if (shift.hadRecentInput) continue;
+            if (shift.hadRecentInput) {
+              continue;
+            }
 
             const shiftValue: Num = shift.value ?? 0;
             const sources: Array<{ node?: Node }> = shift.sources ?? [];
@@ -1077,7 +1127,9 @@
     return {
       vitals,
       cleanup: (): Void => {
-        for (const obs of observers) obs.disconnect();
+        for (const obs of observers) {
+          obs.disconnect();
+        }
       },
     };
   }
@@ -1087,10 +1139,11 @@
   /* ------------------------------------------------------------------ */
 
   onMount((): (() => void) => {
-    if (!wrapperRef)
+    if (!wrapperRef) {
       return (): Void => {
         /* no-op — wrapper ref not available at mount */
       };
+    }
 
     const mountStart: Num = performance.now();
 
@@ -1122,7 +1175,9 @@
       console.warn = origWarn;
       console.error = origError;
 
-      if (!wrapperRef) return;
+      if (!wrapperRef) {
+        return;
+      }
 
       /* DOM stats */
       const allNodes: NodeListOf<Element> = wrapperRef.querySelectorAll('*');
@@ -1577,7 +1632,9 @@
         const obs: MutationObserver | undefined = (
           wrapperRef as HTMLDivElement & { __lensObserver?: MutationObserver }
         ).__lensObserver;
-        if (obs) obs.disconnect();
+        if (obs) {
+          obs.disconnect();
+        }
       }
     };
   });

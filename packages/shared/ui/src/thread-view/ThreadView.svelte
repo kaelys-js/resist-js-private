@@ -33,7 +33,9 @@
   const validated: ThreadViewProps = $derived.by(() => {
     const rawProps: ThreadViewProps = stripSvelteProps(allProps);
     const result = safeParse(ThreadViewPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ThreadViewProps;
   });

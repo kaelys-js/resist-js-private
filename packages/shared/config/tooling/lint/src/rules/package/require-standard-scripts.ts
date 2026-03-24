@@ -22,12 +22,22 @@ const rule: PackageJsonRule = {
   description: 'Sub-packages must have all standard scripts',
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
-    if (context.isRoot) return results;
+    if (context.isRoot) {
+      return results;
+    }
     const name: string = context.pkg.name ?? '<unnamed>';
-    if (name.startsWith('@{')) return results; // Template packages
-    if (name === '@/products') return results; // Directory grouping
-    if (name === '@/test-presets') return results; // Test infrastructure
-    if (name.includes('vscode')) return results; // VS Code extensions
+    if (name.startsWith('@{')) {
+      return results;
+    } // Template packages
+    if (name === '@/products') {
+      return results;
+    } // Directory grouping
+    if (name === '@/test-presets') {
+      return results;
+    } // Test infrastructure
+    if (name.includes('vscode')) {
+      return results;
+    } // VS Code extensions
     const scripts: Record<string, string> = context.pkg.scripts ?? {};
     for (const required of REQUIRED_SCRIPTS) {
       if (!scripts[required]) {

@@ -25,7 +25,9 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
  */
 function getReturnedName(returnNode: AstNode): string | null {
   const argument = returnNode.argument as AstNode | undefined;
-  if (!argument) return null;
+  if (!argument) {
+    return null;
+  }
   if (argument.type === 'Identifier') {
     return (argument.name as string) ?? null;
   }
@@ -43,22 +45,30 @@ const rule: TypeScriptRule = {
 
       // Check if condition is `!varName.ok`
       const test = node.test as AstNode | undefined;
-      if (!test) return results;
+      if (!test) {
+        return results;
+      }
 
       // Match: !varName.ok
       let guardedVarName: string | null = null;
 
       if (test.type === 'UnaryExpression') {
         const operator = test.operator as string | undefined;
-        if (operator !== '!') return results;
+        if (operator !== '!') {
+          return results;
+        }
 
         const argument = test.argument as AstNode | undefined;
-        if (!argument) return results;
+        if (!argument) {
+          return results;
+        }
 
         if (argument.type === 'MemberExpression' || argument.type === 'StaticMemberExpression') {
           const prop = argument.property as AstNode | undefined;
           const propName: string = (prop?.name as string) ?? '';
-          if (propName !== 'ok') return results;
+          if (propName !== 'ok') {
+            return results;
+          }
 
           const obj = argument.object as AstNode | undefined;
           if (obj?.type === 'Identifier') {
@@ -67,25 +77,35 @@ const rule: TypeScriptRule = {
         }
       }
 
-      if (!guardedVarName) return results;
+      if (!guardedVarName) {
+        return results;
+      }
 
       // Check if the consequent (if-body) returns the same variable
       const consequent = node.consequent as AstNode | undefined;
-      if (!consequent) return results;
+      if (!consequent) {
+        return results;
+      }
 
       let guardReturn: string | null = null;
 
       // Handle both block and non-block consequent
       if (consequent.type === 'BlockStatement') {
         const body = consequent.body as AstNode[] | undefined;
-        if (!body || body.length !== 1) return results;
-        if (body[0].type !== 'ReturnStatement') return results;
+        if (!body || body.length !== 1) {
+          return results;
+        }
+        if (body[0].type !== 'ReturnStatement') {
+          return results;
+        }
         guardReturn = getReturnedName(body[0]);
       } else if (consequent.type === 'ReturnStatement') {
         guardReturn = getReturnedName(consequent);
       }
 
-      if (guardReturn !== guardedVarName) return results;
+      if (guardReturn !== guardedVarName) {
+        return results;
+      }
 
       // Now check the NEXT statement after this if
       // We need to find the next sibling in the parent block

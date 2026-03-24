@@ -112,7 +112,9 @@ type EscapeResult = v.InferOutput<typeof EscapeResultSchema>;
  */
 function escapeICULiterals(template: Str): Result<EscapeResult> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
-  if (!templateResult.ok) return templateResult;
+  if (!templateResult.ok) {
+    return templateResult;
+  }
 
   const literals: EscapedLiteral[] = [];
   let result: Str = '';
@@ -165,7 +167,9 @@ function escapeICULiterals(template: Str): Result<EscapeResult> {
  */
 function restoreEscapedLiterals(template: Str, literals: readonly EscapedLiteral[]): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
-  if (!templateResult.ok) return templateResult;
+  if (!templateResult.ok) {
+    return templateResult;
+  }
 
   let result: Str = templateResult.data;
   for (const entry of literals) {
@@ -228,10 +232,14 @@ function builtInFormatters(locale: Str | undefined): FormatterMap {
   return {
     upper: (value: Str, loc: Str | undefined): Result<Str> => {
       const valueResult: Result<Str> = safeParse(StrSchema, value);
-      if (!valueResult.ok) return valueResult;
+      if (!valueResult.ok) {
+        return valueResult;
+      }
       if (loc !== undefined) {
         const locResult: Result<Str> = safeParse(StrSchema, loc);
-        if (!locResult.ok) return locResult;
+        if (!locResult.ok) {
+          return locResult;
+        }
       }
       const effectiveLocale: Str | undefined = loc ?? locale;
       const transformed: Str = effectiveLocale
@@ -241,10 +249,14 @@ function builtInFormatters(locale: Str | undefined): FormatterMap {
     },
     lower: (value: Str, loc: Str | undefined): Result<Str> => {
       const valueResult: Result<Str> = safeParse(StrSchema, value);
-      if (!valueResult.ok) return valueResult;
+      if (!valueResult.ok) {
+        return valueResult;
+      }
       if (loc !== undefined) {
         const locResult: Result<Str> = safeParse(StrSchema, loc);
-        if (!locResult.ok) return locResult;
+        if (!locResult.ok) {
+          return locResult;
+        }
       }
       const effectiveLocale: Str | undefined = loc ?? locale;
       const transformed: Str = effectiveLocale
@@ -254,12 +266,18 @@ function builtInFormatters(locale: Str | undefined): FormatterMap {
     },
     capitalize: (value: Str, loc: Str | undefined): Result<Str> => {
       const valueResult: Result<Str> = safeParse(StrSchema, value);
-      if (!valueResult.ok) return valueResult;
+      if (!valueResult.ok) {
+        return valueResult;
+      }
       if (loc !== undefined) {
         const locResult: Result<Str> = safeParse(StrSchema, loc);
-        if (!locResult.ok) return locResult;
+        if (!locResult.ok) {
+          return locResult;
+        }
       }
-      if (valueResult.data.length === 0) return ok(StrSchema, valueResult.data);
+      if (valueResult.data.length === 0) {
+        return ok(StrSchema, valueResult.data);
+      }
       const effectiveLocale: Str | undefined = loc ?? locale;
       const first: Str = effectiveLocale
         ? valueResult.data[0]!.toLocaleUpperCase(effectiveLocale) // oxlint-disable-line typescript/no-non-null-assertion -- guarded by length === 0 early return above
@@ -269,10 +287,14 @@ function builtInFormatters(locale: Str | undefined): FormatterMap {
     },
     title: (value: Str, loc: Str | undefined): Result<Str> => {
       const valueResult: Result<Str> = safeParse(StrSchema, value);
-      if (!valueResult.ok) return valueResult;
+      if (!valueResult.ok) {
+        return valueResult;
+      }
       if (loc !== undefined) {
         const locResult: Result<Str> = safeParse(StrSchema, loc);
-        if (!locResult.ok) return locResult;
+        if (!locResult.ok) {
+          return locResult;
+        }
       }
       const effectiveLocale: Str | undefined = loc ?? locale;
       // String.replace callback returns Str (required by JS API) — pure string
@@ -344,13 +366,19 @@ export function messageTemplate<TParams extends ParamSchemas>(
           v.check(
             (val: string): boolean => {
               const foundResult: Result<Set<Str>> = extractPlaceholders(val);
-              if (!foundResult.ok) return false;
+              if (!foundResult.ok) {
+                return false;
+              }
               const found: ReadonlySet<Str> = foundResult.data;
               for (const key of expectedKeys) {
-                if (!found.has(key)) return false;
+                if (!found.has(key)) {
+                  return false;
+                }
               }
               for (const key of found) {
-                if (!expectedKeys.has(key)) return false;
+                if (!expectedKeys.has(key)) {
+                  return false;
+                }
               }
               return true;
             },
@@ -374,7 +402,9 @@ export function messageTemplate<TParams extends ParamSchemas>(
 function getTemplateParams(schema: v.GenericSchema): NullableParamSchemas {
   const schemaRecord: Record<symbol, unknown> = schema as unknown as Record<symbol, unknown>; // Symbol indexing requires cast
   const params: unknown = schemaRecord[TEMPLATE_PARAMS];
-  if (params && typeof params === 'object') return params as NullableParamSchemas; // Runtime-guarded
+  if (params && typeof params === 'object') {
+    return params as NullableParamSchemas;
+  } // Runtime-guarded
   return null;
 }
 
@@ -477,11 +507,15 @@ type IntersectBuiltLocale<TOptions extends readonly v.GenericSchema[]> = TOption
  */
 function extractPlaceholders(template: Str): Result<Set<Str>> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
-  if (!templateResult.ok) return templateResult;
+  if (!templateResult.ok) {
+    return templateResult;
+  }
 
   // Strip escaped literals before scanning for placeholders
   const escapeResult: Result<EscapeResult> = escapeICULiterals(templateResult.data);
-  if (!escapeResult.ok) return escapeResult;
+  if (!escapeResult.ok) {
+    return escapeResult;
+  }
   const cleanTemplate: Str = escapeResult.data.text;
 
   const found: Set<Str> = new Set<Str>();
@@ -494,26 +528,40 @@ function extractPlaceholders(template: Str): Result<Set<Str>> {
 
   let match: NullableRegExpExecArray;
   while ((match = simpleRegex.exec(cleanTemplate)) !== null) {
-    if (match[1]) found.add(match[1]);
+    if (match[1]) {
+      found.add(match[1]);
+    }
   }
   while ((match = pluralRegex.exec(cleanTemplate)) !== null) {
-    if (match[1]) found.add(match[1]);
+    if (match[1]) {
+      found.add(match[1]);
+    }
   }
   while ((match = selectRegex.exec(cleanTemplate)) !== null) {
-    if (match[1]) found.add(match[1]);
+    if (match[1]) {
+      found.add(match[1]);
+    }
   }
   while ((match = selectOrdinalRegex.exec(cleanTemplate)) !== null) {
-    if (match[1]) found.add(match[1]);
+    if (match[1]) {
+      found.add(match[1]);
+    }
   }
   while ((match = numberRegex.exec(cleanTemplate)) !== null) {
-    if (match[1]) found.add(match[1]);
+    if (match[1]) {
+      found.add(match[1]);
+    }
   }
   while ((match = dateTimeRegex.exec(cleanTemplate)) !== null) {
-    if (match[1]) found.add(match[1]);
+    if (match[1]) {
+      found.add(match[1]);
+    }
   }
   const rangeRegex = /\{(\w+)\s*,\s*range/g;
   while ((match = rangeRegex.exec(cleanTemplate)) !== null) {
-    if (match[1]) found.add(match[1]);
+    if (match[1]) {
+      found.add(match[1]);
+    }
   }
   return okUnchecked<Set<Str>>(found);
 }
@@ -536,23 +584,33 @@ function extractPlaceholders(template: Str): Result<Set<Str>> {
  */
 function resolvePlural(count: Num, body: Str, locale?: Str): Result<Str> {
   const countResult: Result<Num> = safeParse(NumSchema, count);
-  if (!countResult.ok) return countResult;
+  if (!countResult.ok) {
+    return countResult;
+  }
   const bodyResult: Result<Str> = safeParse(StrSchema, body);
-  if (!bodyResult.ok) return bodyResult;
+  if (!bodyResult.ok) {
+    return bodyResult;
+  }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
-    if (!localeResult.ok) return localeResult;
+    if (!localeResult.ok) {
+      return localeResult;
+    }
   }
 
   const parsed: Result<PluralParseResult> = parsePluralBranches(bodyResult.data);
-  if (!parsed.ok) return parsed;
+  if (!parsed.ok) {
+    return parsed;
+  }
 
   const pluralOffset: Num = parsed.data.offset;
   const adjustedCount: Num = countResult.data - pluralOffset;
 
   // Exact match uses original count for matching, adjusted count for # replacement
   const exact: OptionalStr = parsed.data.branches.get(`=${countResult.data}`);
-  if (exact !== undefined) return ok(StrSchema, exact.replaceAll('#', String(adjustedCount)));
+  if (exact !== undefined) {
+    return ok(StrSchema, exact.replaceAll('#', String(adjustedCount)));
+  }
 
   // Keyword match uses adjusted count for both rule selection and # replacement
   const rules: Intl.PluralRules = new Intl.PluralRules(locale ?? undefined, { type: 'cardinal' });
@@ -578,7 +636,9 @@ type PluralParseResult = {
  */
 function parsePluralBranches(body: Str): Result<PluralParseResult> {
   const bodyResult: Result<Str> = safeParse(StrSchema, body);
-  if (!bodyResult.ok) return bodyResult;
+  if (!bodyResult.ok) {
+    return bodyResult;
+  }
 
   const branches: Map<Str, Str> = new Map<Str, Str>();
   let trimmed: Str = bodyResult.data.trim();
@@ -596,8 +656,12 @@ function parsePluralBranches(body: Str): Result<PluralParseResult> {
 
   while (i < trimmed.length) {
     // Skip whitespace
-    while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) i++;
-    if (i >= trimmed.length) break;
+    while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) {
+      i++;
+    }
+    if (i >= trimmed.length) {
+      break;
+    }
 
     // Read keyword (e.g., "one", "other", "=0")
     let keyword: Str = '';
@@ -605,20 +669,27 @@ function parsePluralBranches(body: Str): Result<PluralParseResult> {
       keyword += trimmed[i];
       i++;
     }
-    if (!keyword) break;
+    if (!keyword) {
+      break;
+    }
 
     // Skip whitespace
-    while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) i++;
+    while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) {
+      i++;
+    }
 
     // Read brace-delimited body
-    if (i >= trimmed.length || trimmed[i] !== '{') break;
+    if (i >= trimmed.length || trimmed[i] !== '{') {
+      break;
+    }
     i++; // skip opening brace
 
     let depth: Num = 1;
     let branchBody: Str = '';
     while (i < trimmed.length && depth > 0) {
-      if (trimmed[i] === '{') depth++;
-      else if (trimmed[i] === '}') {
+      if (trimmed[i] === '{') {
+        depth++;
+      } else if (trimmed[i] === '}') {
         depth--;
         if (depth === 0) {
           i++;
@@ -649,12 +720,18 @@ function parsePluralBranches(body: Str): Result<PluralParseResult> {
  */
 function resolveSelect(value: Str, body: Str): Result<Str> {
   const valueResult: Result<Str> = safeParse(StrSchema, value);
-  if (!valueResult.ok) return valueResult;
+  if (!valueResult.ok) {
+    return valueResult;
+  }
   const bodyResult: Result<Str> = safeParse(StrSchema, body);
-  if (!bodyResult.ok) return bodyResult;
+  if (!bodyResult.ok) {
+    return bodyResult;
+  }
 
   const branches: Result<PluralParseResult> = parsePluralBranches(bodyResult.data);
-  if (!branches.ok) return branches;
+  if (!branches.ok) {
+    return branches;
+  }
 
   // Exact match, then `other` fallback
   const branch: Str =
@@ -679,23 +756,33 @@ function resolveSelect(value: Str, body: Str): Result<Str> {
  */
 function resolveSelectOrdinal(count: Num, body: Str, locale?: Str): Result<Str> {
   const countResult: Result<Num> = safeParse(NumSchema, count);
-  if (!countResult.ok) return countResult;
+  if (!countResult.ok) {
+    return countResult;
+  }
   const bodyResult: Result<Str> = safeParse(StrSchema, body);
-  if (!bodyResult.ok) return bodyResult;
+  if (!bodyResult.ok) {
+    return bodyResult;
+  }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
-    if (!localeResult.ok) return localeResult;
+    if (!localeResult.ok) {
+      return localeResult;
+    }
   }
 
   const parsed: Result<PluralParseResult> = parsePluralBranches(bodyResult.data);
-  if (!parsed.ok) return parsed;
+  if (!parsed.ok) {
+    return parsed;
+  }
 
   const pluralOffset: Num = parsed.data.offset;
   const adjustedCount: Num = countResult.data - pluralOffset;
 
   // Exact match uses original count for matching, adjusted count for # replacement
   const exact: OptionalStr = parsed.data.branches.get(`=${countResult.data}`);
-  if (exact !== undefined) return ok(StrSchema, exact.replaceAll('#', String(adjustedCount)));
+  if (exact !== undefined) {
+    return ok(StrSchema, exact.replaceAll('#', String(adjustedCount)));
+  }
 
   // Ordinal keyword match via Intl.PluralRules — uses adjusted count
   const rules: Intl.PluralRules = new Intl.PluralRules(locale ?? undefined, { type: 'ordinal' });
@@ -730,7 +817,9 @@ function replaceSelectBlocks(
   formatters?: FormatterMap,
 ): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
-  if (!templateResult.ok) return templateResult;
+  if (!templateResult.ok) {
+    return templateResult;
+  }
 
   let result: Str = '';
   let i: Num = 0;
@@ -748,15 +837,20 @@ function replaceSelectBlocks(
         let braceDepth: Num = 1;
         let j: Num = bodyStart;
         while (j < templateResult.data.length && braceDepth > 0) {
-          if (templateResult.data[j] === '{') braceDepth++;
-          else if (templateResult.data[j] === '}') braceDepth--;
+          if (templateResult.data[j] === '{') {
+            braceDepth++;
+          } else if (templateResult.data[j] === '}') {
+            braceDepth--;
+          }
           j++;
         }
 
         const body: Str = templateResult.data.slice(bodyStart, j - 1);
         const value: Str = String(params[key] ?? '');
         const resolvedResult: Result<Str> = resolveSelect(value, body);
-        if (!resolvedResult.ok) return resolvedResult;
+        if (!resolvedResult.ok) {
+          return resolvedResult;
+        }
 
         // Recursively process the resolved branch for inner ICU blocks
         const recursiveResult: Result<Str> = renderMessageInternal(
@@ -768,7 +862,9 @@ function replaceSelectBlocks(
           undefined,
           formatters,
         );
-        if (!recursiveResult.ok) return recursiveResult;
+        if (!recursiveResult.ok) {
+          return recursiveResult;
+        }
         result += recursiveResult.data;
         i = j;
         continue;
@@ -808,10 +904,14 @@ function replaceSelectOrdinalBlocks(
   formatters?: FormatterMap,
 ): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
-  if (!templateResult.ok) return templateResult;
+  if (!templateResult.ok) {
+    return templateResult;
+  }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
-    if (!localeResult.ok) return localeResult;
+    if (!localeResult.ok) {
+      return localeResult;
+    }
   }
 
   let result: Str = '';
@@ -832,15 +932,20 @@ function replaceSelectOrdinalBlocks(
         let braceDepth: Num = 1;
         let j: Num = bodyStart;
         while (j < templateResult.data.length && braceDepth > 0) {
-          if (templateResult.data[j] === '{') braceDepth++;
-          else if (templateResult.data[j] === '}') braceDepth--;
+          if (templateResult.data[j] === '{') {
+            braceDepth++;
+          } else if (templateResult.data[j] === '}') {
+            braceDepth--;
+          }
           j++;
         }
 
         const body: Str = templateResult.data.slice(bodyStart, j - 1);
         const count: Num = Number(params[key]);
         const resolvedResult: Result<Str> = resolveSelectOrdinal(count, body, locale);
-        if (!resolvedResult.ok) return resolvedResult;
+        if (!resolvedResult.ok) {
+          return resolvedResult;
+        }
 
         // Recursively process the resolved branch for inner ICU blocks
         const recursiveResult: Result<Str> = renderMessageInternal(
@@ -852,7 +957,9 @@ function replaceSelectOrdinalBlocks(
           undefined,
           formatters,
         );
-        if (!recursiveResult.ok) return recursiveResult;
+        if (!recursiveResult.ok) {
+          return recursiveResult;
+        }
         result += recursiveResult.data;
         i = j;
         continue;
@@ -893,7 +1000,9 @@ function replaceMessageRefs(
   locale?: Str,
   formatters?: FormatterMap,
 ): Result<Str> {
-  if (!resolver) return ok(StrSchema, template);
+  if (!resolver) {
+    return ok(StrSchema, template);
+  }
   if (depth > MAX_ICU_DEPTH) {
     return err(ERRORS.LOCALE.FORMAT_FAILED, {
       meta: {
@@ -904,7 +1013,9 @@ function replaceMessageRefs(
   }
 
   const templateResult: Result<Str> = safeParse(StrSchema, template);
-  if (!templateResult.ok) return templateResult;
+  if (!templateResult.ok) {
+    return templateResult;
+  }
 
   // Match @:key or @.modifier:key or @.modifier:path.to.key
   const refRegex = /@(?:\.([\w]+))?:([\w]+(?:\.[\w]+)*)/g;
@@ -931,7 +1042,9 @@ function replaceMessageRefs(
 
   for (const replacement of replacements) {
     const resolvedResult: Result<Str> = resolver(replacement.key);
-    if (!resolvedResult.ok) return resolvedResult;
+    if (!resolvedResult.ok) {
+      return resolvedResult;
+    }
 
     let resolved: Str = resolvedResult.data;
 
@@ -939,7 +1052,9 @@ function replaceMessageRefs(
       const formatter: FormatterFn | undefined = effectiveFormatters[replacement.modifier];
       if (formatter) {
         const fmtResult: Result<Str> = formatter(resolved, locale);
-        if (!fmtResult.ok) return fmtResult;
+        if (!fmtResult.ok) {
+          return fmtResult;
+        }
         resolved = fmtResult.data;
       }
     }
@@ -979,7 +1094,9 @@ function renderMessageInternal(
 
   // 0. Message references — resolve @:key and @.modifier:key before ICU processing
   const refResult: Result<Str> = replaceMessageRefs(template, resolver, depth, locale, formatters);
-  if (!refResult.ok) return refResult;
+  if (!refResult.ok) {
+    return refResult;
+  }
 
   // 1. Select blocks
   const selectResult: Result<Str> = replaceSelectBlocks(
@@ -990,7 +1107,9 @@ function renderMessageInternal(
     escapedLiterals,
     formatters,
   );
-  if (!selectResult.ok) return selectResult;
+  if (!selectResult.ok) {
+    return selectResult;
+  }
 
   // 2. Select ordinal blocks
   const ordinalResult: Result<Str> = replaceSelectOrdinalBlocks(
@@ -1001,7 +1120,9 @@ function renderMessageInternal(
     escapedLiterals,
     formatters,
   );
-  if (!ordinalResult.ok) return ordinalResult;
+  if (!ordinalResult.ok) {
+    return ordinalResult;
+  }
 
   // 3. Plural blocks
   const pluralResult: Result<Str> = replacePluralBlocks(
@@ -1012,7 +1133,9 @@ function renderMessageInternal(
     escapedLiterals,
     formatters,
   );
-  if (!pluralResult.ok) return pluralResult;
+  if (!pluralResult.ok) {
+    return pluralResult;
+  }
 
   // 3.5. Range blocks
   const rangeResult: Result<Str> = replaceRangeBlocks(
@@ -1023,15 +1146,21 @@ function renderMessageInternal(
     escapedLiterals,
     formatters,
   );
-  if (!rangeResult.ok) return rangeResult;
+  if (!rangeResult.ok) {
+    return rangeResult;
+  }
 
   // 4. Number blocks
   const numberResult: Result<Str> = replaceNumberBlocks(rangeResult.data, params, locale);
-  if (!numberResult.ok) return numberResult;
+  if (!numberResult.ok) {
+    return numberResult;
+  }
 
   // 5. Date/time blocks
   const dateTimeResult: Result<Str> = replaceDateTimeBlocks(numberResult.data, params, locale);
-  if (!dateTimeResult.ok) return dateTimeResult;
+  if (!dateTimeResult.ok) {
+    return dateTimeResult;
+  }
 
   // 6. Simple {name} and {name|formatter1|formatter2} placeholders
   // Uses match-then-replace pattern for proper Result error propagation
@@ -1068,7 +1197,9 @@ function renderMessageInternal(
         const formatter: FormatterFn | undefined = effectiveFormatters[pipeName];
         if (formatter) {
           const fmtResult: Result<Str> = formatter(value, locale);
-          if (!fmtResult.ok) return fmtResult;
+          if (!fmtResult.ok) {
+            return fmtResult;
+          }
           value = fmtResult.data;
         }
       }
@@ -1110,15 +1241,21 @@ export function renderMessage(
   formatters?: FormatterMap,
 ): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
-  if (!templateResult.ok) return templateResult;
+  if (!templateResult.ok) {
+    return templateResult;
+  }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
-    if (!localeResult.ok) return localeResult;
+    if (!localeResult.ok) {
+      return localeResult;
+    }
   }
 
   // 0. Escape ICU literals — replace '...' and '' with sentinels
   const escapeResult: Result<EscapeResult> = escapeICULiterals(templateResult.data);
-  if (!escapeResult.ok) return escapeResult;
+  if (!escapeResult.ok) {
+    return escapeResult;
+  }
 
   // Run internal pipeline
   const renderResult: Result<Str> = renderMessageInternal(
@@ -1130,7 +1267,9 @@ export function renderMessage(
     resolver,
     formatters,
   );
-  if (!renderResult.ok) return renderResult;
+  if (!renderResult.ok) {
+    return renderResult;
+  }
 
   // Restore escaped literals
   return restoreEscapedLiterals(renderResult.data, escapeResult.data.literals);
@@ -1158,10 +1297,14 @@ function replacePluralBlocks(
   formatters?: FormatterMap,
 ): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
-  if (!templateResult.ok) return templateResult;
+  if (!templateResult.ok) {
+    return templateResult;
+  }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
-    if (!localeResult.ok) return localeResult;
+    if (!localeResult.ok) {
+      return localeResult;
+    }
   }
 
   let result: Str = '';
@@ -1180,15 +1323,20 @@ function replacePluralBlocks(
         let braceDepth: Num = 1;
         let j: Num = bodyStart;
         while (j < templateResult.data.length && braceDepth > 0) {
-          if (templateResult.data[j] === '{') braceDepth++;
-          else if (templateResult.data[j] === '}') braceDepth--;
+          if (templateResult.data[j] === '{') {
+            braceDepth++;
+          } else if (templateResult.data[j] === '}') {
+            braceDepth--;
+          }
           j++;
         }
 
         const body: Str = templateResult.data.slice(bodyStart, j - 1);
         const count: Num = Number(params[key]);
         const resolvedResult: Result<Str> = resolvePlural(count, body, locale);
-        if (!resolvedResult.ok) return resolvedResult;
+        if (!resolvedResult.ok) {
+          return resolvedResult;
+        }
 
         // Recursively process the resolved branch for inner ICU blocks
         const recursiveResult: Result<Str> = renderMessageInternal(
@@ -1200,7 +1348,9 @@ function replacePluralBlocks(
           undefined,
           formatters,
         );
-        if (!recursiveResult.ok) return recursiveResult;
+        if (!recursiveResult.ok) {
+          return recursiveResult;
+        }
         result += recursiveResult.data;
         i = j;
         continue;
@@ -1241,7 +1391,9 @@ type RangeBranch = v.InferOutput<typeof RangeBranchSchema>;
  */
 function parseRangeBranches(body: Str): Result<readonly RangeBranch[]> {
   const bodyResult: Result<Str> = safeParse(StrSchema, body);
-  if (!bodyResult.ok) return bodyResult;
+  if (!bodyResult.ok) {
+    return bodyResult;
+  }
 
   const branches: RangeBranch[] = [];
   const trimmed: Str = bodyResult.data.trim();
@@ -1249,11 +1401,17 @@ function parseRangeBranches(body: Str): Result<readonly RangeBranch[]> {
 
   while (i < trimmed.length) {
     // Skip whitespace
-    while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) i++;
-    if (i >= trimmed.length) break;
+    while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) {
+      i++;
+    }
+    if (i >= trimmed.length) {
+      break;
+    }
 
     // Expect '('
-    if (trimmed[i] !== '(') break;
+    if (trimmed[i] !== '(') {
+      break;
+    }
     i++;
 
     // Read range spec until ')'
@@ -1262,22 +1420,29 @@ function parseRangeBranches(body: Str): Result<readonly RangeBranch[]> {
       rangeSpec += trimmed[i];
       i++;
     }
-    if (i >= trimmed.length) break;
+    if (i >= trimmed.length) {
+      break;
+    }
     i++; // skip ')'
 
     // Skip whitespace
-    while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) i++;
+    while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) {
+      i++;
+    }
 
     // Expect '{'
-    if (i >= trimmed.length || trimmed[i] !== '{') break;
+    if (i >= trimmed.length || trimmed[i] !== '{') {
+      break;
+    }
     i++;
 
     // Read branch body with brace depth counting
     let braceDepth: Num = 1;
     let branchBody: Str = '';
     while (i < trimmed.length && braceDepth > 0) {
-      if (trimmed[i] === '{') braceDepth++;
-      else if (trimmed[i] === '}') {
+      if (trimmed[i] === '{') {
+        braceDepth++;
+      } else if (trimmed[i] === '}') {
         braceDepth--;
         if (braceDepth === 0) {
           i++;
@@ -1317,12 +1482,18 @@ function parseRangeBranches(body: Str): Result<readonly RangeBranch[]> {
  */
 function resolveRange(count: Num, body: Str): Result<Str> {
   const countResult: Result<Num> = safeParse(NumSchema, count);
-  if (!countResult.ok) return countResult;
+  if (!countResult.ok) {
+    return countResult;
+  }
   const bodyResult: Result<Str> = safeParse(StrSchema, body);
-  if (!bodyResult.ok) return bodyResult;
+  if (!bodyResult.ok) {
+    return bodyResult;
+  }
 
   const branchesResult: Result<readonly RangeBranch[]> = parseRangeBranches(bodyResult.data);
-  if (!branchesResult.ok) return branchesResult;
+  if (!branchesResult.ok) {
+    return branchesResult;
+  }
 
   for (const branch of branchesResult.data) {
     if (countResult.data >= branch.min && countResult.data <= branch.max) {
@@ -1355,10 +1526,14 @@ function replaceRangeBlocks(
   formatters?: FormatterMap,
 ): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
-  if (!templateResult.ok) return templateResult;
+  if (!templateResult.ok) {
+    return templateResult;
+  }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
-    if (!localeResult.ok) return localeResult;
+    if (!localeResult.ok) {
+      return localeResult;
+    }
   }
 
   let result: Str = '';
@@ -1377,15 +1552,20 @@ function replaceRangeBlocks(
         let braceDepth: Num = 1;
         let j: Num = bodyStart;
         while (j < templateResult.data.length && braceDepth > 0) {
-          if (templateResult.data[j] === '{') braceDepth++;
-          else if (templateResult.data[j] === '}') braceDepth--;
+          if (templateResult.data[j] === '{') {
+            braceDepth++;
+          } else if (templateResult.data[j] === '}') {
+            braceDepth--;
+          }
           j++;
         }
 
         const body: Str = templateResult.data.slice(bodyStart, j - 1);
         const count: Num = Number(params[key]);
         const resolvedResult: Result<Str> = resolveRange(count, body);
-        if (!resolvedResult.ok) return resolvedResult;
+        if (!resolvedResult.ok) {
+          return resolvedResult;
+        }
 
         // Recursively process the resolved branch for inner ICU blocks
         const recursiveResult: Result<Str> = renderMessageInternal(
@@ -1397,7 +1577,9 @@ function replaceRangeBlocks(
           undefined,
           formatters,
         );
-        if (!recursiveResult.ok) return recursiveResult;
+        if (!recursiveResult.ok) {
+          return recursiveResult;
+        }
         result += recursiveResult.data;
         i = j;
         continue;
@@ -1447,10 +1629,14 @@ function replaceNumberBlocks(
   locale?: Str,
 ): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
-  if (!templateResult.ok) return templateResult;
+  if (!templateResult.ok) {
+    return templateResult;
+  }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
-    if (!localeResult.ok) return localeResult;
+    if (!localeResult.ok) {
+      return localeResult;
+    }
   }
 
   let result: Str = '';
@@ -1475,14 +1661,18 @@ function replaceNumberBlocks(
         if (styleArg && styleArg.startsWith('::')) {
           const skeletonStr: Str = styleArg.slice(2).trim();
           const skeletonResult: Result<Intl.NumberFormatOptions> = parseNumberSkeleton(skeletonStr);
-          if (!skeletonResult.ok) return skeletonResult;
+          if (!skeletonResult.ok) {
+            return skeletonResult;
+          }
           options = skeletonResult.data;
         } else if (styleArg) {
           options = numberStyleToOptions(styleArg);
         }
 
         const formatResult: Result<Str> = formatNumber(value, locale ?? 'en', options);
-        if (!formatResult.ok) return formatResult;
+        if (!formatResult.ok) {
+          return formatResult;
+        }
         result += formatResult.data;
         i += 1 + numberMatch[0].length;
         continue;
@@ -1515,10 +1705,14 @@ function replaceDateTimeBlocks(
   locale?: Str,
 ): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
-  if (!templateResult.ok) return templateResult;
+  if (!templateResult.ok) {
+    return templateResult;
+  }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
-    if (!localeResult.ok) return localeResult;
+    if (!localeResult.ok) {
+      return localeResult;
+    }
   }
 
   let result: Str = '';
@@ -1548,7 +1742,9 @@ function replaceDateTimeBlocks(
           const skeletonStr: Str = rawStyleArg.slice(2).trim();
           const skeletonResult: Result<Intl.DateTimeFormatOptions> =
             parseDateTimeSkeleton(skeletonStr);
-          if (!skeletonResult.ok) return skeletonResult;
+          if (!skeletonResult.ok) {
+            return skeletonResult;
+          }
           formatResult =
             kind === 'time'
               ? formatTime(dateValue, locale ?? 'en', undefined, skeletonResult.data)
@@ -1558,7 +1754,9 @@ function replaceDateTimeBlocks(
           let style: DateTimeStyle | undefined = undefined;
           if (rawStyleArg !== undefined) {
             const styleResult: Result<DateTimeStyle> = safeParse(DateTimeStyleSchema, rawStyleArg);
-            if (styleResult.ok) style = styleResult.data;
+            if (styleResult.ok) {
+              style = styleResult.data;
+            }
           }
           formatResult =
             kind === 'time'
@@ -1566,7 +1764,9 @@ function replaceDateTimeBlocks(
               : formatDate(dateValue, locale ?? 'en', style, undefined);
         }
 
-        if (!formatResult.ok) return formatResult;
+        if (!formatResult.ok) {
+          return formatResult;
+        }
         result += formatResult.data;
         i += 1 + dtMatch[0].length;
         continue;
@@ -1661,7 +1861,9 @@ export function buildLocale<TSchema extends v.GenericSchema>(
     resolver,
     formatters,
   );
-  if (!builtResult.ok) return builtResult;
+  if (!builtResult.ok) {
+    return builtResult;
+  }
 
   // Populate the mutable ref so the resolver closure can access the built entries
   builtRef.data = builtResult.data;
@@ -1704,7 +1906,9 @@ function buildLocaleEntries(
         resolver,
         formatters,
       ); // Runtime-guarded by typeof check above
-      if (!nestedResult.ok) return nestedResult;
+      if (!nestedResult.ok) {
+        return nestedResult;
+      }
       result[key] = nestedResult.data;
       continue;
     }
@@ -1737,7 +1941,9 @@ function buildLocaleEntries(
           resolver,
           formatters,
         );
-        if (!renderedResult.ok) return renderedResult;
+        if (!renderedResult.ok) {
+          return renderedResult;
+        }
         return ok(StrSchema, renderedResult.data);
       };
     } else if (typeof rawValue === 'string') {
@@ -1745,7 +1951,9 @@ function buildLocaleEntries(
       const value: Str = context
         ? (() => {
             const r: Result<Str> = renderMessage(rawValue, context);
-            if (!r.ok) return rawValue; // Fallback to raw — context substitution failure is non-fatal
+            if (!r.ok) {
+              return rawValue;
+            } // Fallback to raw — context substitution failure is non-fatal
             return r.data;
           })()
         : rawValue;
@@ -1809,7 +2017,9 @@ function getSchemaEntries(schema: v.GenericSchema): NullableSchemaEntries {
     for (const item of s.pipe) {
       if (typeof item === 'object' && item !== null) {
         const entries = getSchemaEntries(item as v.GenericSchema); // Runtime-guarded by typeof check
-        if (entries) return entries;
+        if (entries) {
+          return entries;
+        }
       }
     }
   }
@@ -1827,7 +2037,9 @@ function getSchemaEntries(schema: v.GenericSchema): NullableSchemaEntries {
         }
       }
     }
-    if (found) return merged;
+    if (found) {
+      return merged;
+    }
   }
 
   return null;

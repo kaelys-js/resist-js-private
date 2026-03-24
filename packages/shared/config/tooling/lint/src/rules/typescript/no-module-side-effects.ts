@@ -39,7 +39,9 @@ function isIntegrationBoundaryIf(statement: AstNode, context: VisitorContext): b
   const endLine: number = statement.loc.end.line - 1;
 
   for (let i: number = startLine; i <= endLine && i < lines.length; i++) {
-    if (/\/\/.*integration boundary:\s*\S+/i.test(lines[i])) return true;
+    if (/\/\/.*integration boundary:\s*\S+/i.test(lines[i])) {
+      return true;
+    }
   }
 
   return false;
@@ -54,7 +56,9 @@ const rule: TypeScriptRule = {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const body = node.body as AstNode[] | undefined;
-      if (!body) return results;
+      if (!body) {
+        return results;
+      }
 
       for (const statement of body) {
         // Skip imports, exports, type declarations, variable/function/class declarations

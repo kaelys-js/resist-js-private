@@ -33,7 +33,9 @@
   const validated: DebugPanelProps = $derived.by(() => {
     const rawProps: DebugPanelProps = stripSvelteProps(allProps);
     const result = safeParse(DebugPanelPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as DebugPanelProps;
   });

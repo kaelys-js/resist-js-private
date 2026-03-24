@@ -54,7 +54,9 @@
   );
 
   const errorIdLabel: Str = $derived.by(() => {
-    if (!errorId) return '';
+    if (!errorId) {
+      return '';
+    }
     // Locale DeepReadonly workaround — parametric locale function needs cast
     const result: Result<Str> = (localeStore.t.errors.errorId as (p: { id: Str }) => Result<Str>)({
       id: errorId,

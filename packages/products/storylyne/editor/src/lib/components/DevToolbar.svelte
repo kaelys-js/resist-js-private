@@ -52,7 +52,9 @@
   const POS_KEY: Str = storageKey('dev-toolbar-pos');
 
   function loadPos(): { x: Num; b: Num } {
-    if (typeof window === 'undefined') return { x: 0, b: 16 };
+    if (typeof window === 'undefined') {
+      return { x: 0, b: 16 };
+    }
     try {
       const raw: Str | null = localStorage.getItem(POS_KEY);
       if (raw) {
@@ -99,10 +101,14 @@
   }
 
   function onDragMove(e: PointerEvent): Void {
-    if (!dragging) return;
+    if (!dragging) {
+      return;
+    }
     const dx: Num = e.clientX - dragStartClientX;
     const dy: Num = e.clientY - dragStartClientY;
-    if (!didDrag && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+    if (!didDrag && Math.abs(dx) < 4 && Math.abs(dy) < 4) {
+      return;
+    }
     didDrag = true;
     posX = Math.max(24, Math.min(window.innerWidth - 24, dragOriginX + dx));
     posBottom = Math.max(8, Math.min(window.innerHeight - 48, dragOriginBottom - dy));
@@ -110,7 +116,9 @@
 
   function onDragEnd(): Void {
     dragging = false;
-    if (didDrag) savePos();
+    if (didDrag) {
+      savePos();
+    }
   }
 
   // ── Clamp position on viewport resize ─────────────────────────────────
@@ -130,7 +138,9 @@
         posBottom = Math.max(8, maxB);
         changed = true;
       }
-      if (changed) savePos();
+      if (changed) {
+        savePos();
+      }
     }
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
@@ -152,7 +162,9 @@
         system: localeStore.t.settings.system as LocaleFn,
       };
       const fn: LocaleFn | undefined = lookup[mode];
-      if (!fn) return mode;
+      if (!fn) {
+        return mode;
+      }
       return t(fn, MODE_FALLBACKS[mode] ?? mode);
     })(),
   );
@@ -312,12 +324,16 @@
 
   // Move focus into panel content when a panel opens.
   $effect(() => {
-    if (!activePanel) return;
+    if (!activePanel) {
+      return;
+    }
     requestAnimationFrame(() => {
       const panelEl: HTMLElement | null = document.querySelector(
         '[data-testid="dev-toolbar"] [data-testid^="dev-toolbar-panel"]',
       );
-      if (!panelEl) return;
+      if (!panelEl) {
+        return;
+      }
       const focusable: HTMLElement | null = panelEl.querySelector(
         'button, [tabindex="0"], input, select, textarea, a[href]',
       );
@@ -355,7 +371,9 @@
       }
 
       // Panel/action shortcuts: only active when toolbar is open
-      if (!toolbarOpen) return;
+      if (!toolbarOpen) {
+        return;
+      }
 
       if (shortcutStore.matches(e, 'DEV_FLAGS_PANEL')) {
         e.preventDefault();

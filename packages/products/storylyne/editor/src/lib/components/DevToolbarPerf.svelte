@@ -48,7 +48,9 @@
    * @returns Formatted string (e.g. "2450ms" or "0.05")
    */
   function formatValue(name: Str, value: Num): Str {
-    if (TIMING_METRICS.has(name)) return `${Math.round(value)}ms`;
+    if (TIMING_METRICS.has(name)) {
+      return `${Math.round(value)}ms`;
+    }
     return String(value);
   }
 
@@ -59,9 +61,15 @@
    * @returns Tailwind class string
    */
   function ratingClass(rating: Str): Str {
-    if (rating === 'good') return 'bg-green-500/20 text-green-400';
-    if (rating === 'needsImprovement') return 'bg-yellow-500/20 text-yellow-400';
-    if (rating === 'poor') return 'bg-red-500/20 text-red-400';
+    if (rating === 'good') {
+      return 'bg-green-500/20 text-green-400';
+    }
+    if (rating === 'needsImprovement') {
+      return 'bg-yellow-500/20 text-yellow-400';
+    }
+    if (rating === 'poor') {
+      return 'bg-red-500/20 text-red-400';
+    }
     return 'bg-muted text-muted-foreground';
   }
 
@@ -72,10 +80,15 @@
    * @returns Localized friendly label
    */
   function friendlyRating(rating: Str): Str {
-    if (rating === 'good') return t(localeStore.t.devToolbar.ratingGood, 'Good');
-    if (rating === 'needsImprovement')
+    if (rating === 'good') {
+      return t(localeStore.t.devToolbar.ratingGood, 'Good');
+    }
+    if (rating === 'needsImprovement') {
       return t(localeStore.t.devToolbar.ratingNeedsWork, 'Needs Work');
-    if (rating === 'poor') return t(localeStore.t.devToolbar.ratingPoor, 'Poor');
+    }
+    if (rating === 'poor') {
+      return t(localeStore.t.devToolbar.ratingPoor, 'Poor');
+    }
     return rating;
   }
 
@@ -197,9 +210,15 @@
    * @returns Localized friendly label
    */
   function friendlyQuality(quality: Str): Str {
-    if (quality === 'fast') return t(localeStore.t.devToolbar.qualityFast, 'Fast');
-    if (quality === 'medium') return t(localeStore.t.devToolbar.qualityMedium, 'Medium');
-    if (quality === 'slow') return t(localeStore.t.devToolbar.qualitySlow, 'Slow');
+    if (quality === 'fast') {
+      return t(localeStore.t.devToolbar.qualityFast, 'Fast');
+    }
+    if (quality === 'medium') {
+      return t(localeStore.t.devToolbar.qualityMedium, 'Medium');
+    }
+    if (quality === 'slow') {
+      return t(localeStore.t.devToolbar.qualitySlow, 'Slow');
+    }
     return t(localeStore.t.devToolbar.qualityUnknown, 'Unknown');
   }
 
@@ -210,9 +229,15 @@
    * @returns Tailwind background color class
    */
   function qualityDotClass(quality: Str): Str {
-    if (quality === 'fast') return 'bg-green-400';
-    if (quality === 'medium') return 'bg-yellow-400';
-    if (quality === 'slow') return 'bg-red-400';
+    if (quality === 'fast') {
+      return 'bg-green-400';
+    }
+    if (quality === 'medium') {
+      return 'bg-yellow-400';
+    }
+    if (quality === 'slow') {
+      return 'bg-red-400';
+    }
     return 'bg-muted-foreground';
   }
 
@@ -223,10 +248,18 @@
    * @returns Friendly display string
    */
   function friendlyEffectiveType(type: Str): Str {
-    if (type === '4g') return '4G LTE';
-    if (type === '3g') return '3G';
-    if (type === '2g') return '2G';
-    if (type === 'slow-2g') return 'Slow 2G';
+    if (type === '4g') {
+      return '4G LTE';
+    }
+    if (type === '3g') {
+      return '3G';
+    }
+    if (type === '2g') {
+      return '2G';
+    }
+    if (type === 'slow-2g') {
+      return 'Slow 2G';
+    }
     return '—';
   }
 

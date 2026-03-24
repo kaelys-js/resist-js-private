@@ -25,7 +25,9 @@ let oxcParseSync: ((filename: string, source: string) => { errors: unknown[] }) 
  * @returns {Promise<boolean>} Whether the parser is available
  */
 async function ensureParser(): Promise<boolean> {
-  if (oxcParseSync) return true;
+  if (oxcParseSync) {
+    return true;
+  }
   try {
     const oxc = await import('oxc-parser');
     oxcParseSync = oxc.parseSync as typeof oxcParseSync;
@@ -52,11 +54,15 @@ await ensureParser();
 function getJsDoc(node: AstNode, content: string): string | null {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
-  if (!trimmed.endsWith('*/')) return null;
+  if (!trimmed.endsWith('*/')) {
+    return null;
+  }
 
   const closeIdx: number = trimmed.lastIndexOf('*/');
   const openIdx: number = trimmed.lastIndexOf('/**');
-  if (openIdx === -1 || openIdx >= closeIdx) return null;
+  if (openIdx === -1 || openIdx >= closeIdx) {
+    return null;
+  }
 
   return trimmed.slice(openIdx, closeIdx + 2);
 }
@@ -206,21 +212,29 @@ function checkFunction(
 ): LintResult[] {
   const results: LintResult[] = [];
   const docComment: string | null = getJsDoc(exportNode, context.content);
-  if (!docComment) return results;
+  if (!docComment) {
+    return results;
+  }
 
   // Only check if @example exists
-  if (!/@example\b/.test(docComment)) return results;
+  if (!/@example\b/.test(docComment)) {
+    return results;
+  }
 
   const fencedBlocks: string[] = extractTypescriptBlocks(docComment);
   const unfencedBlocks: string[] =
     fencedBlocks.length === 0 ? extractUnfencedBlocks(docComment) : [];
   const blocks: string[] = [...fencedBlocks, ...unfencedBlocks];
-  if (blocks.length === 0) return results;
+  if (blocks.length === 0) {
+    return results;
+  }
 
   const funcName: string = ((funcNode.id as AstNode | undefined)?.name as string) ?? '<anonymous>';
 
   for (const block of blocks) {
-    if (!oxcParseSync) continue;
+    if (!oxcParseSync) {
+      continue;
+    }
 
     try {
       // Wrap in async function to allow top-level return/await in examples
@@ -275,7 +289,9 @@ const rule: TypeScriptRule = {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declaration = node.declaration as AstNode | undefined; // cast safe: AST property extraction
-      if (!declaration) return results;
+      if (!declaration) {
+        return results;
+      }
 
       if (declaration.type === 'FunctionDeclaration') {
         results.push(...checkFunction(declaration, node, context));
@@ -283,7 +299,9 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined; // cast safe: AST property extraction
-        if (!declarations) return results;
+        if (!declarations) {
+          return results;
+        }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined; // cast safe: AST property extraction

@@ -18,7 +18,9 @@
       SUPPORTED_LOCALES,
       store.app.locale,
     );
-    if (!result.ok) return [];
+    if (!result.ok) {
+      return [];
+    }
     // Spread to unfreeze — Result.data is deep-frozen via Object.freeze
     return [...result.data];
   });

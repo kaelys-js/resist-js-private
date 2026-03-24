@@ -33,7 +33,9 @@
   const validated: PreferencesPaneProps = $derived.by(() => {
     const rawProps: PreferencesPaneProps = stripSvelteProps(allProps);
     const result = safeParse(PreferencesPanePropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as PreferencesPaneProps;
   });

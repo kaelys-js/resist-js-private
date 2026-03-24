@@ -15,10 +15,14 @@ const localeModules: Record<Str, Record<Str, EditorLocaleRaw>> = import.meta.glo
 const ALL_LOCALES: Record<Str, EditorLocaleRaw> = {};
 for (const [path, mod] of Object.entries(localeModules)) {
   const match: RegExpMatchArray | null = path.match(/\/(\w+)\.ts$/);
-  if (!match) continue;
+  if (!match) {
+    continue;
+  }
   const [, code]: RegExpMatchArray = match;
   const [data]: EditorLocaleRaw[] = Object.values(mod);
-  if (data) ALL_LOCALES[code] = data;
+  if (data) {
+    ALL_LOCALES[code] = data;
+  }
 }
 
 const LOCALE_CODES: readonly Str[] = Object.keys(ALL_LOCALES);
@@ -143,7 +147,9 @@ describe('namespace coverage', () => {
 
 describe('localized meta.description', () => {
   for (const code of LOCALE_CODES) {
-    if (code === 'en') continue;
+    if (code === 'en') {
+      continue;
+    }
     it(`${code}.meta.description differs from en`, () => {
       expect(ALL_LOCALES[code]!.meta.description).not.toBe(enLocale.meta.description);
     });

@@ -33,7 +33,9 @@
   const validated: GeolocationProps = $derived.by(() => {
     const rawProps: GeolocationProps = stripSvelteProps(allProps);
     const result = safeParse(GeolocationPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as GeolocationProps;
   });

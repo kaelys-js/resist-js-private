@@ -26,13 +26,19 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 function hasIntegrationBoundaryComment(node: AstNode, context: VisitorContext): boolean {
   const lines: string[] = context.content.split('\n');
   const lineIdx: number = node.loc.start.line - 1;
-  if (lineIdx < 0 || lineIdx >= lines.length) return false;
+  if (lineIdx < 0 || lineIdx >= lines.length) {
+    return false;
+  }
 
   const currentLine: string = lines[lineIdx];
-  if (/\/\/.*integration boundary:\s*\S+/i.test(currentLine)) return true;
+  if (/\/\/.*integration boundary:\s*\S+/i.test(currentLine)) {
+    return true;
+  }
 
   // Check the line immediately above (comment may be on its own line above the throw)
-  if (lineIdx > 0 && /\/\/.*integration boundary:\s*\S+/i.test(lines[lineIdx - 1])) return true;
+  if (lineIdx > 0 && /\/\/.*integration boundary:\s*\S+/i.test(lines[lineIdx - 1])) {
+    return true;
+  }
 
   return false;
 }
@@ -51,7 +57,9 @@ function hasIntegrationBoundaryComment(node: AstNode, context: VisitorContext): 
  */
 function isIntegrationBoundaryThrow(node: AstNode, context: VisitorContext): boolean {
   const argument = node.argument as AstNode | undefined;
-  if (!argument) return false;
+  if (!argument) {
+    return false;
+  }
 
   // Check if the argument is `.error` property access (e.g., result.error)
   const isErrorAccess: boolean =
@@ -63,7 +71,9 @@ function isIntegrationBoundaryThrow(node: AstNode, context: VisitorContext): boo
     argument.type === 'NewExpression' &&
     ((argument.callee as AstNode | undefined)?.name as string) === 'Error';
 
-  if (!isErrorAccess && !isNewError) return false;
+  if (!isErrorAccess && !isNewError) {
+    return false;
+  }
 
   return hasIntegrationBoundaryComment(node, context);
 }
@@ -76,7 +86,9 @@ const rule: TypeScriptRule = {
   visitor: {
     ThrowStatement(node: AstNode, context: VisitorContext): LintResult[] {
       // Allow throw result.error at integration boundaries
-      if (isIntegrationBoundaryThrow(node, context)) return [];
+      if (isIntegrationBoundaryThrow(node, context)) {
+        return [];
+      }
 
       return [
         {

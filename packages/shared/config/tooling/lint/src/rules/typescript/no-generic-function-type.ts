@@ -35,10 +35,14 @@ const rule: TypeScriptRule = {
   visitor: {
     TSFunctionType(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      if (isExempt(context.file)) return results;
+      if (isExempt(context.file)) {
+        return results;
+      }
 
       const params = node.params as AstNode[] | undefined;
-      if (!params) return results;
+      if (!params) {
+        return results;
+      }
 
       for (const param of params) {
         // Check for rest parameter with unknown[] type: ...args: unknown[]

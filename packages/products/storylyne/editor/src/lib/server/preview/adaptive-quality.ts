@@ -155,7 +155,9 @@ export class AdaptiveQualityController {
    * @returns True if this frame should be skipped
    */
   shouldSkipFrame(): boolean {
-    if ((this.skipRate as number) === 0) return false;
+    if ((this.skipRate as number) === 0) {
+      return false;
+    }
 
     this.frameCounter = (((this.frameCounter as number) + 1) %
       ((this.skipRate as number) + 1)) as Num;

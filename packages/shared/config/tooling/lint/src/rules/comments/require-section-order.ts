@@ -11,7 +11,7 @@
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
 /** Canonical section order — earlier index = must appear first. */
-const SECTION_ORDER: readonly { pattern: RegExp; label: string }[] = [
+const SECTION_ORDER: ReadonlyArray<{ pattern: RegExp; label: string }> = [
   { pattern: /type|schema|interface/i, label: 'Types/Schemas' },
   { pattern: /constant|config/i, label: 'Constants' },
   { pattern: /helper|internal|util/i, label: 'Helpers' },
@@ -44,11 +44,13 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      if (isExempt(context.file)) return results;
+      if (isExempt(context.file)) {
+        return results;
+      }
 
       // Extract all // === section headers with their line numbers
       const lines: string[] = context.content.split('\n');
-      const sections: { line: number; name: string; orderIndex: number }[] = [];
+      const sections: Array<{ line: number; name: string; orderIndex: number }> = [];
 
       for (let i: number = 0; i < lines.length; i++) {
         const match: RegExpMatchArray | null = lines[i].match(/^\/\/\s*={3,}\s*$/);
@@ -74,7 +76,9 @@ const rule: TypeScriptRule = {
       }
 
       // Check order: each section's orderIndex must be >= previous
-      if (sections.length < 2) return results;
+      if (sections.length < 2) {
+        return results;
+      }
 
       let maxOrder: number = sections[0].orderIndex;
       for (let i: number = 1; i < sections.length; i++) {

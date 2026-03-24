@@ -112,7 +112,9 @@ describe('generateFontFaceCss', () => {
   it('generates @font-face declarations for all entries', () => {
     const result = generateFontFaceCss(TEST_FONT_FACES);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     const css = result.data;
     expect(css).toContain("font-family: 'Inter'");
     expect(css).toContain("font-family: 'Rajdhani'");
@@ -127,7 +129,9 @@ describe('generateFontFaceCss', () => {
   it('produces valid @font-face blocks', () => {
     const result = generateFontFaceCss(TEST_FONT_FACES);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     const css = result.data;
     const blockCount: number = (css.match(/@font-face/g) ?? []).length;
     expect(blockCount).toBe(3);
@@ -143,21 +147,27 @@ describe('deriveErrorIdPrefix', () => {
   it('extracts prefix before {id} placeholder', () => {
     const result: Result<Str> = deriveErrorIdPrefix('Reference: {id}');
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toBe('Reference: ');
   });
 
   it('returns full string when no {id} placeholder exists', () => {
     const result: Result<Str> = deriveErrorIdPrefix('No placeholder here');
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toBe('No placeholder here');
   });
 
   it('handles empty prefix', () => {
     const result: Result<Str> = deriveErrorIdPrefix('{id}');
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toBe('');
   });
 });
@@ -183,7 +193,9 @@ var failed = '{{errors.copyFailed}}';
   it('replaces all known placeholders', () => {
     const result: Result<Str> = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).not.toContain('{{');
     expect(result.data).not.toContain('}}');
   });
@@ -191,14 +203,18 @@ var failed = '{{errors.copyFailed}}';
   it('inserts app name', () => {
     const result: Result<Str> = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toContain(TEST_APP_NAME);
   });
 
   it('inserts font-family stack', () => {
     const result: Result<Str> = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toContain("'Inter'");
     expect(result.data).toContain('ui-sans-serif');
   });
@@ -206,7 +222,9 @@ var failed = '{{errors.copyFailed}}';
   it('inserts @font-face CSS', () => {
     const result: Result<Str> = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toContain('@font-face');
     expect(result.data).toContain('/fonts/inter-latin.woff2');
   });
@@ -214,7 +232,9 @@ var failed = '{{errors.copyFailed}}';
   it('inserts locale error strings', () => {
     const result: Result<Str> = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toContain('Something went wrong');
     expect(result.data).toContain('Go to homepage');
     expect(result.data).toContain('Copied!');
@@ -223,7 +243,9 @@ var failed = '{{errors.copyFailed}}';
   it('derives error ID prefix from parameterized locale string', () => {
     const result: Result<Str> = resolveErrorHtml(TEMPLATE, TEST_ERROR_CONFIG);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toContain("var prefix = 'Reference: '");
   });
 });
@@ -269,14 +291,18 @@ var m = localStorage.getItem('{{STORAGE_PREFIX}}:mode');
   it('replaces all APP_NAME placeholders', () => {
     const result: Result<Str> = resolveAppHtml(APP_TEMPLATE, TEST_APP_CONFIG);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).not.toContain('{{APP_NAME}}');
   });
 
   it('inserts app name', () => {
     const result: Result<Str> = resolveAppHtml(APP_TEMPLATE, TEST_APP_CONFIG);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toContain(`content="${TEST_APP_NAME}"`);
     expect(result.data).toContain(`'[${TEST_APP_NAME}]`);
   });
@@ -284,7 +310,9 @@ var m = localStorage.getItem('{{STORAGE_PREFIX}}:mode');
   it('replaces STORAGE_PREFIX with lowercased app name by default', () => {
     const result: Result<Str> = resolveAppHtml(APP_TEMPLATE, TEST_APP_CONFIG);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).not.toContain('{{STORAGE_PREFIX}}');
     expect(result.data).toContain("'testapp:mode'");
   });
@@ -293,7 +321,9 @@ var m = localStorage.getItem('{{STORAGE_PREFIX}}:mode');
     const appConfig: AppHtmlConfig = { ...TEST_APP_CONFIG, storagePrefix: 'my-app' };
     const result: Result<Str> = resolveAppHtml(APP_TEMPLATE, appConfig);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toContain("'my-app:mode'");
   });
 });

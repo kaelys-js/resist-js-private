@@ -23,16 +23,20 @@ function hasExplanatoryComment(content: string, line: number): boolean {
   // Check same line for trailing // comment
   if (lineIdx >= 0 && lineIdx < lines.length) {
     const currentLine: string = lines[lineIdx];
-    if (/\/\/.*\b(cast|safe|irreducible|workaround|required|integration)\b/i.test(currentLine))
+    if (/\/\/.*\b(cast|safe|irreducible|workaround|required|integration)\b/i.test(currentLine)) {
       return true;
-    if (/\/\//.test(currentLine) && currentLine.indexOf('//') > currentLine.indexOf(' as '))
+    }
+    if (/\/\//.test(currentLine) && currentLine.indexOf('//') > currentLine.indexOf(' as ')) {
       return true;
+    }
   }
 
   // Check preceding line for a // comment
   if (lineIdx > 0) {
     const prevLine: string = lines[lineIdx - 1].trim();
-    if (prevLine.startsWith('//')) return true;
+    if (prevLine.startsWith('//')) {
+      return true;
+    }
   }
 
   return false;
@@ -51,7 +55,9 @@ const rule: TypeScriptRule = {
       const typeAnnotation = node.typeAnnotation as AstNode | undefined;
       if (typeAnnotation?.type === 'TSTypeReference') {
         const typeName = typeAnnotation.typeName as AstNode | undefined;
-        if ((typeName?.name as string) === 'const') return results;
+        if ((typeName?.name as string) === 'const') {
+          return results;
+        }
       }
 
       if (!hasExplanatoryComment(context.content, node.loc.start.line)) {

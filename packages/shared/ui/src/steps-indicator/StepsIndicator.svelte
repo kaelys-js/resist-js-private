@@ -33,7 +33,9 @@
   const validated: StepsIndicatorProps = $derived.by(() => {
     const rawProps: StepsIndicatorProps = stripSvelteProps(allProps);
     const result = safeParse(StepsIndicatorPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as StepsIndicatorProps;
   });

@@ -85,9 +85,15 @@ const TAILWIND_MAP: Record<Str, Str> = {
  * @returns Token category
  */
 function classifyToken(name: Str): TokenCategory {
-  if (name.startsWith('sidebar')) return 'sidebar-color';
-  if (name === 'radius') return 'radius';
-  if (name.startsWith('font-') || name.startsWith('animate-')) return 'animation';
+  if (name.startsWith('sidebar')) {
+    return 'sidebar-color';
+  }
+  if (name === 'radius') {
+    return 'radius';
+  }
+  if (name.startsWith('font-') || name.startsWith('animate-')) {
+    return 'animation';
+  }
   return 'color';
 }
 

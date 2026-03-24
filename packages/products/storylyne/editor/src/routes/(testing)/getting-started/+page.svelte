@@ -196,7 +196,9 @@ ${'<'}/script>
 
   /** Filtered export options. */
   const filteredExports = $derived.by(() => {
-    if (!exportSearch) return EXPORT_OPTIONS;
+    if (!exportSearch) {
+      return EXPORT_OPTIONS;
+    }
     const q: Str = exportSearch.toLowerCase() as Str;
     return EXPORT_OPTIONS.filter(
       (o) => o.label.toLowerCase().includes(q) || o.description.toLowerCase().includes(q),
@@ -217,7 +219,9 @@ ${'<'}/script>
     if (confirmingReset) {
       pkgManager = 'pnpm' as Str;
       confirmingReset = false as Bool;
-      if (confirmResetTimer) clearTimeout(confirmResetTimer);
+      if (confirmResetTimer) {
+        clearTimeout(confirmResetTimer);
+      }
     } else {
       confirmingReset = true as Bool;
       confirmResetTimer = setTimeout((): void => {

@@ -69,18 +69,26 @@ export function parseEvalResponse(rawResponse: Str): boolean {
     >;
 
     /* Check for error response */
-    if ('error' in parsed) return false;
+    if ('error' in parsed) {
+      return false;
+    }
 
     const result: Record<string, unknown> = ((parsed.result as Record<string, unknown>) ?? {})
       .result as Record<string, unknown>;
 
-    if (!result) return false;
+    if (!result) {
+      return false;
+    }
 
     /* Boolean true */
-    if (result.type === 'boolean' && result.value === true) return true;
+    if (result.type === 'boolean' && result.value === true) {
+      return true;
+    }
 
     /* String "true" */
-    if (result.type === 'string' && result.value === 'true') return true;
+    if (result.type === 'string' && result.value === 'true') {
+      return true;
+    }
 
     return false;
   } catch {
@@ -166,7 +174,9 @@ export async function waitForPageReady(
 
   /* Cleanup */
   clearTimeout(timeout);
-  if (pollTimer) clearInterval(pollTimer);
+  if (pollTimer) {
+    clearInterval(pollTimer);
+  }
   try {
     ws.close();
   } catch {

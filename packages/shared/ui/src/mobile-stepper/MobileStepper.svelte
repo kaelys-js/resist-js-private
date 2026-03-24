@@ -33,7 +33,9 @@
   const validated: MobileStepperProps = $derived.by(() => {
     const rawProps: MobileStepperProps = stripSvelteProps(allProps);
     const result = safeParse(MobileStepperPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as MobileStepperProps;
   });

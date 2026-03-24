@@ -33,7 +33,9 @@
   const validated: ToolbarProps = $derived.by(() => {
     const rawProps: ToolbarProps = stripSvelteProps(allProps);
     const result = safeParse(ToolbarPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ToolbarProps;
   });

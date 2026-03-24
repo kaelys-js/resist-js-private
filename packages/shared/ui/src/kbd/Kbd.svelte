@@ -174,7 +174,9 @@
       ...dataProps,
       children,
     });
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     return result.data as KbdProps;
   });
 

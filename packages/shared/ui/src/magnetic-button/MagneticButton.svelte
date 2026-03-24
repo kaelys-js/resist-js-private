@@ -33,7 +33,9 @@
   const validated: MagneticButtonProps = $derived.by(() => {
     const rawProps: MagneticButtonProps = stripSvelteProps(allProps);
     const result = safeParse(MagneticButtonPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as MagneticButtonProps;
   });

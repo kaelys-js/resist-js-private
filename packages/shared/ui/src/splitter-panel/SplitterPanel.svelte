@@ -33,7 +33,9 @@
   const validated: SplitterPanelProps = $derived.by(() => {
     const rawProps: SplitterPanelProps = stripSvelteProps(allProps);
     const result = safeParse(SplitterPanelPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as SplitterPanelProps;
   });

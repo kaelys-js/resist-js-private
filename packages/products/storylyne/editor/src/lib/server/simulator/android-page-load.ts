@@ -141,7 +141,9 @@ export async function waitForPageReady(
   const storedInterval: ReturnType<typeof setInterval> | undefined = (
     ws as unknown as Record<string, ReturnType<typeof setInterval>>
   ).__interval;
-  if (storedInterval) clearInterval(storedInterval);
+  if (storedInterval) {
+    clearInterval(storedInterval);
+  }
   try {
     ws.close();
   } catch {

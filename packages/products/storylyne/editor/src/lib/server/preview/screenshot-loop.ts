@@ -137,7 +137,9 @@ export class ScreenshotLoopProvider {
    * @param quality - JPEG quality (0-100)
    */
   start(quality: Num): void {
-    if (this.running) return;
+    if (this.running) {
+      return;
+    }
 
     this.running = true;
     this.frames = 0 as Num;
@@ -151,7 +153,9 @@ export class ScreenshotLoopProvider {
    * Stop the screenshot capture loop.
    */
   stop(): void {
-    if (!this.running) return;
+    if (!this.running) {
+      return;
+    }
 
     this.running = false;
     this.frames = 0 as Num;
@@ -171,7 +175,9 @@ export class ScreenshotLoopProvider {
    * Schedule the next frame capture after the interval.
    */
   private scheduleNextCapture(): void {
-    if (!this.running) return;
+    if (!this.running) {
+      return;
+    }
 
     const intervalMs: Num = Math.round(1000 / (this.targetFps as number)) as Num;
     this.timerId = setTimeout(async (): Promise<void> => {
@@ -186,7 +192,9 @@ export class ScreenshotLoopProvider {
    * stop the loop.
    */
   private async captureFrame(): Promise<void> {
-    if (!this.running) return;
+    if (!this.running) {
+      return;
+    }
 
     // Stop if page is closed
     if (this.page.isClosed()) {
@@ -235,7 +243,9 @@ export class ScreenshotLoopProvider {
    */
   private startCursorPolling(): void {
     this.cursorTimerId = setInterval(async (): Promise<void> => {
-      if (!this.running || this.page.isClosed()) return;
+      if (!this.running || this.page.isClosed()) {
+        return;
+      }
 
       await this.pollCursor();
     }, CURSOR_POLL_MS as number);

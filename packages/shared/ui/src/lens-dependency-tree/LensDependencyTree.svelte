@@ -150,7 +150,9 @@
   const validated: LensDependencyTreeProps = $derived.by(() => {
     const rawProps: LensDependencyTreeProps = stripSvelteProps(restProps);
     const result = safeParse(LensDependencyTreePropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as LensDependencyTreeProps;
   });
@@ -275,11 +277,17 @@
    * @param e - Mouse event
    */
   function onCanvasPointerDown(e: MouseEvent): Void {
-    if (e.button !== 0) return;
+    if (e.button !== 0) {
+      return;
+    }
     const target: HTMLElement = e.target as HTMLElement;
     // Skip drag when clicking interactive elements so node links/buttons still work
-    if (target.closest('a, button, [role="button"]')) return;
-    if (!chainCanvasRef) return;
+    if (target.closest('a, button, [role="button"]')) {
+      return;
+    }
+    if (!chainCanvasRef) {
+      return;
+    }
     isDragging = true;
     dragStartX = e.clientX;
     dragStartY = e.clientY;
@@ -294,7 +302,9 @@
    * @param e - Mouse event
    */
   function onCanvasPointerMove(e: MouseEvent): Void {
-    if (!isDragging || !chainCanvasRef) return;
+    if (!isDragging || !chainCanvasRef) {
+      return;
+    }
     const dx: Num = e.clientX - dragStartX;
     const dy: Num = e.clientY - dragStartY;
     chainCanvasRef.scrollLeft = scrollStartX - dx;
@@ -321,9 +331,13 @@
    * @param e - Wheel event from the canvas container
    */
   function onCanvasWheel(e: WheelEvent): Void {
-    if (!e.ctrlKey && !e.metaKey) return;
+    if (!e.ctrlKey && !e.metaKey) {
+      return;
+    }
     e.preventDefault();
-    if (!chainCanvasRef) return;
+    if (!chainCanvasRef) {
+      return;
+    }
 
     const oldZoom: Num = chainZoom;
     // Normalize deltaY across browsers (line vs pixel mode)
@@ -331,7 +345,9 @@
     // Exponential zoom factor — small delta = tiny change, large delta = bigger change
     const factor: Num = (1.002 ** -delta) as Num;
     const newZoom: Num = Math.min(Math.max(oldZoom * factor, ZOOM_MIN), ZOOM_MAX) as Num;
-    if (newZoom === oldZoom) return;
+    if (newZoom === oldZoom) {
+      return;
+    }
 
     // Cursor position relative to the scroll viewport
     const rect: DOMRect = chainCanvasRef.getBoundingClientRect();
@@ -347,7 +363,9 @@
 
     // After DOM updates, adjust scroll so content point stays under cursor
     requestAnimationFrame((): Void => {
-      if (!chainCanvasRef) return;
+      if (!chainCanvasRef) {
+        return;
+      }
       chainCanvasRef.scrollLeft = contentX * newZoom - cursorX;
       chainCanvasRef.scrollTop = contentY * newZoom - cursorY;
     });
@@ -360,7 +378,9 @@
    */
   $effect(() => {
     const el: HTMLDivElement | undefined = chainCanvasRef;
-    if (!el) return;
+    if (!el) {
+      return;
+    }
     el.addEventListener('wheel', onCanvasWheel, { passive: false });
     return (): Void => {
       el.removeEventListener('wheel', onCanvasWheel);
@@ -399,9 +419,15 @@
    * @returns Display label
    */
   function kindLabel(kind: Str): Str {
-    if (kind === 'type') return 'type-only';
-    if (kind === 'namespace') return 'namespace';
-    if (kind === 'default') return 'default export';
+    if (kind === 'type') {
+      return 'type-only';
+    }
+    if (kind === 'namespace') {
+      return 'namespace';
+    }
+    if (kind === 'default') {
+      return 'default export';
+    }
     return '';
   }
 
@@ -412,9 +438,15 @@
    * @returns Tailwind classes
    */
   function kindClass(kind: Str): Str {
-    if (kind === 'type') return 'bg-blue-500/10 text-blue-600 dark:text-blue-400';
-    if (kind === 'namespace') return 'bg-violet-500/10 text-violet-600 dark:text-violet-400';
-    if (kind === 'default') return 'bg-orange-500/10 text-orange-600 dark:text-orange-400';
+    if (kind === 'type') {
+      return 'bg-blue-500/10 text-blue-600 dark:text-blue-400';
+    }
+    if (kind === 'namespace') {
+      return 'bg-violet-500/10 text-violet-600 dark:text-violet-400';
+    }
+    if (kind === 'default') {
+      return 'bg-orange-500/10 text-orange-600 dark:text-orange-400';
+    }
     return '';
   }
 
@@ -429,7 +461,9 @@
    */
   function sourceChip(component: Str): Str {
     const entry = sizes[component];
-    if (!entry) return '';
+    if (!entry) {
+      return '';
+    }
     return `${formatBytes(entry.source as Num)} source` as Str;
   }
 
@@ -441,10 +475,15 @@
    */
   function bundledChip(component: Str): Str {
     const entry = sizes[component];
-    if (!entry) return '';
-    if (entry.gzip !== undefined) return `${formatBytes(entry.gzip as Num)} production` as Str;
-    if (entry.compiled !== undefined)
+    if (!entry) {
+      return '';
+    }
+    if (entry.gzip !== undefined) {
+      return `${formatBytes(entry.gzip as Num)} production` as Str;
+    }
+    if (entry.compiled !== undefined) {
       return `${formatBytes(entry.compiled as Num)} minified` as Str;
+    }
     return '';
   }
 
@@ -531,20 +570,28 @@
    * @returns Array of child chain nodes
    */
   function buildChain(component: Str, depth: Num, visited: Set<Str>): ChainNode[] {
-    if ((chainMaxDepthLimit !== -1 && depth >= chainMaxDepthLimit) || !component) return [];
+    if ((chainMaxDepthLimit !== -1 && depth >= chainMaxDepthLimit) || !component) {
+      return [];
+    }
 
     const sourceKey: Str | undefined = findPrimaryKey(component, rawSources);
-    if (!sourceKey) return [];
+    if (!sourceKey) {
+      return [];
+    }
 
     const source: Str = rawSources[sourceKey] ?? '';
-    if (!source) return [];
+    if (!source) {
+      return [];
+    }
 
     const deps: DepTree = extractDeps(source);
     const nodes: ChainNode[] = [];
 
     // UI component deps — recursive
     for (const dep of deps.internal) {
-      if (!dep.component || !knownSet.has(dep.component)) continue;
+      if (!dep.component || !knownSet.has(dep.component)) {
+        continue;
+      }
       const isCircular: boolean = visited.has(dep.component);
       const childVisited: Set<Str> = new Set([...visited, dep.component]);
       nodes.push({
@@ -557,7 +604,9 @@
 
     // Internal utility deps — leaf nodes
     for (const dep of deps.internal) {
-      if (dep.component !== '' && knownSet.has(dep.component)) continue;
+      if (dep.component !== '' && knownSet.has(dep.component)) {
+        continue;
+      }
       nodes.push({ component: dep.path, kind: dep.kind, category: 'utility', children: [] });
     }
 
@@ -577,7 +626,9 @@
   /** The full dependency chain tree rooted at the current component. */
   const dependencyChain: ChainNode[] = $derived.by((): ChainNode[] => {
     const current: Str = validated.currentComponent ?? '';
-    if (!current || Object.keys(rawSources).length === 0) return [];
+    if (!current || Object.keys(rawSources).length === 0) {
+      return [];
+    }
     const visited: Set<Str> = new Set([current]);
     return buildChain(current, 0 as Num, visited);
   });
@@ -635,7 +686,9 @@
    * @returns Number of leaf slots needed
    */
   function subtreeWidth(node: ChainNode): Num {
-    if (node.children.length === 0) return 1 as Num;
+    if (node.children.length === 0) {
+      return 1 as Num;
+    }
     let total: Num = 0 as Num;
     for (const child of node.children) {
       total = (total + subtreeWidth(child)) as Num;
@@ -663,7 +716,9 @@
     for (const child of children) {
       totalSlots = (totalSlots + subtreeWidth(child)) as Num;
     }
-    if (totalSlots === 0) totalSlots = 1 as Num;
+    if (totalSlots === 0) {
+      totalSlots = 1 as Num;
+    }
 
     const fullWidth: Num = (totalSlots * (NODE_W + GAP_X) - GAP_X) as Num;
 
@@ -736,7 +791,9 @@
     // Compute max depth for height
     let maxY: Num = 0 as Num;
     for (const node of nodes) {
-      if (node.y > maxY) maxY = node.y;
+      if (node.y > maxY) {
+        maxY = node.y;
+      }
     }
 
     return {
@@ -790,7 +847,9 @@
     const dx: number = cx2 - cx1;
     const dy: number = cy2 - cy1;
     const dist: number = Math.hypot(dx, dy);
-    if (dist < 1) return { x1: cx1 as Num, y1: cy1 as Num, x2: cx2 as Num, y2: cy2 as Num };
+    if (dist < 1) {
+      return { x1: cx1 as Num, y1: cy1 as Num, x2: cx2 as Num, y2: cy2 as Num };
+    }
 
     const hw: number = (w as number) / 2;
     const hh: number = (h as number) / 2;
@@ -844,7 +903,9 @@
     }
     while (bfsQueue.length > 0) {
       const entry: BfsEntry | undefined = bfsQueue.shift();
-      if (!entry) continue;
+      if (!entry) {
+        continue;
+      }
       allEntries.push(entry);
       for (const child of entry.chain.children) {
         const childId: Str = `${child.component}-${String(idCounter)}` as Str;
@@ -894,7 +955,9 @@
         i = ((i as number) + 1) as Num
       ) {
         const entry: BfsEntry | undefined = items[i as number];
-        if (!entry) continue;
+        if (!entry) {
+          continue;
+        }
         const angle: Num = ((2 * Math.PI * (i as number)) / (count as number) - Math.PI / 2) as Num;
         const x: Num = (centerX + radius * Math.cos(angle) - NODE_W / 2) as Num;
         const y: Num = (centerY + radius * Math.sin(angle) - NODE_H / 2) as Num;
@@ -927,8 +990,12 @@
     let minX: Num = 0 as Num;
     let minY: Num = 0 as Num;
     for (const n of nodes) {
-      if (n.x < minX) minX = n.x;
-      if (n.y < minY) minY = n.y;
+      if (n.x < minX) {
+        minX = n.x;
+      }
+      if (n.y < minY) {
+        minY = n.y;
+      }
     }
     const offsetX: Num = (-minX + GAP_X) as Num;
     const offsetY: Num = (-minY + GAP_Y) as Num;
@@ -946,8 +1013,12 @@
     let maxX: Num = 0 as Num;
     let maxYVal: Num = 0 as Num;
     for (const n of nodes) {
-      if (n.x + NODE_W > maxX) maxX = (n.x + NODE_W) as Num;
-      if (n.y + NODE_H > maxYVal) maxYVal = (n.y + NODE_H) as Num;
+      if (n.x + NODE_W > maxX) {
+        maxX = (n.x + NODE_W) as Num;
+      }
+      if (n.y + NODE_H > maxYVal) {
+        maxYVal = (n.y + NODE_H) as Num;
+      }
     }
 
     return {
@@ -1012,7 +1083,9 @@
     );
     while (bfsQueue.length > 0) {
       const item: QItem | undefined = bfsQueue.shift();
-      if (!item) continue;
+      if (!item) {
+        continue;
+      }
       const nodeId: Str = `${item.chain.component}-${String(idCounter)}` as Str;
       idCounter = (idCounter + 1) as Num;
       // Random initial position to break symmetry
@@ -1045,10 +1118,14 @@
       // Repulsion between all pairs
       for (let i: number = 0; i < flatNodes.length; i++) {
         const ni: FlatNode | undefined = flatNodes[i];
-        if (!ni) continue;
+        if (!ni) {
+          continue;
+        }
         for (let j: number = i + 1; j < flatNodes.length; j++) {
           const nj: FlatNode | undefined = flatNodes[j];
-          if (!nj) continue;
+          if (!nj) {
+            continue;
+          }
           const dx: number = (ni.x as number) - (nj.x as number);
           const dy: number = (ni.y as number) - (nj.y as number);
           const dist: number = Math.max(Math.hypot(dx, dy), 1);
@@ -1066,10 +1143,14 @@
       for (const edge of edges) {
         const fromIdx: number = flatNodes.findIndex((n: FlatNode): boolean => n.id === edge.from);
         const toIdx: number = flatNodes.findIndex((n: FlatNode): boolean => n.id === edge.to);
-        if (fromIdx < 0 || toIdx < 0) continue;
+        if (fromIdx < 0 || toIdx < 0) {
+          continue;
+        }
         const fromNode: FlatNode | undefined = flatNodes[fromIdx];
         const toNode: FlatNode | undefined = flatNodes[toIdx];
-        if (!fromNode || !toNode) continue;
+        if (!fromNode || !toNode) {
+          continue;
+        }
         const dx: number = (toNode.x as number) - (fromNode.x as number);
         const dy: number = (toNode.y as number) - (fromNode.y as number);
         const dist: number = Math.max(Math.hypot(dx, dy), 1);
@@ -1085,7 +1166,9 @@
       // Apply velocities with damping, pin root at 0,0
       for (let i: number = 0; i < flatNodes.length; i++) {
         const node: FlatNode | undefined = flatNodes[i];
-        if (!node) continue;
+        if (!node) {
+          continue;
+        }
         const curVx: number = vx[i] ?? 0;
         const curVy: number = vy[i] ?? 0;
         if (node.id === 'root') {
@@ -1107,10 +1190,14 @@
       let moved: boolean = false;
       for (let i: number = 0; i < flatNodes.length; i++) {
         const a: FlatNode | undefined = flatNodes[i];
-        if (!a) continue;
+        if (!a) {
+          continue;
+        }
         for (let j: number = i + 1; j < flatNodes.length; j++) {
           const b: FlatNode | undefined = flatNodes[j];
-          if (!b) continue;
+          if (!b) {
+            continue;
+          }
           const overlapX: number = PAD_W - Math.abs((a.x as number) - (b.x as number));
           const overlapY: number = PAD_H - Math.abs((a.y as number) - (b.y as number));
           if (overlapX > 0 && overlapY > 0) {
@@ -1118,19 +1205,29 @@
             if (overlapX < overlapY) {
               const pushX: number = overlapX / 2 + 1;
               const signX: number = (a.x as number) >= (b.x as number) ? 1 : -1;
-              if (a.id !== 'root') a.x = ((a.x as number) + signX * pushX) as Num;
-              if (b.id !== 'root') b.x = ((b.x as number) - signX * pushX) as Num;
+              if (a.id !== 'root') {
+                a.x = ((a.x as number) + signX * pushX) as Num;
+              }
+              if (b.id !== 'root') {
+                b.x = ((b.x as number) - signX * pushX) as Num;
+              }
             } else {
               const pushY: number = overlapY / 2 + 1;
               const signY: number = (a.y as number) >= (b.y as number) ? 1 : -1;
-              if (a.id !== 'root') a.y = ((a.y as number) + signY * pushY) as Num;
-              if (b.id !== 'root') b.y = ((b.y as number) - signY * pushY) as Num;
+              if (a.id !== 'root') {
+                a.y = ((a.y as number) + signY * pushY) as Num;
+              }
+              if (b.id !== 'root') {
+                b.y = ((b.y as number) - signY * pushY) as Num;
+              }
             }
             moved = true;
           }
         }
       }
-      if (!moved) break;
+      if (!moved) {
+        break;
+      }
     }
 
     // Convert to LayoutNode[] + Connector[]
@@ -1138,8 +1235,12 @@
     let minX: number = Infinity;
     let minY: number = Infinity;
     for (const n of flatNodes) {
-      if ((n.x as number) < minX) minX = n.x as number;
-      if ((n.y as number) < minY) minY = n.y as number;
+      if ((n.x as number) < minX) {
+        minX = n.x as number;
+      }
+      if ((n.y as number) < minY) {
+        minY = n.y as number;
+      }
     }
     const offsetX: Num = (-minX + GAP_X) as Num;
     const offsetY: Num = (-minY + GAP_Y) as Num;
@@ -1164,7 +1265,9 @@
       const to: LayoutNode | undefined = layoutNodes.find(
         (n: LayoutNode): boolean => n.id === edge.to,
       );
-      if (!from || !to) continue;
+      if (!from || !to) {
+        continue;
+      }
       const clipped = clipLineToEdge(from.x, from.y, to.x, to.y, NODE_W, NODE_H);
       layoutConnectors.push({
         ...clipped,
@@ -1177,8 +1280,12 @@
     let maxX: number = 0;
     let maxY: number = 0;
     for (const n of layoutNodes) {
-      if ((n.x as number) + (NODE_W as number) > maxX) maxX = (n.x as number) + (NODE_W as number);
-      if ((n.y as number) + (NODE_H as number) > maxY) maxY = (n.y as number) + (NODE_H as number);
+      if ((n.x as number) + (NODE_W as number) > maxX) {
+        maxX = (n.x as number) + (NODE_W as number);
+      }
+      if ((n.y as number) + (NODE_H as number) > maxY) {
+        maxY = (n.y as number) + (NODE_H as number);
+      }
     }
 
     return {
@@ -1192,9 +1299,15 @@
   /** Computed graph layout from the dependency chain, using current layout mode. */
   const graphLayout = $derived.by(() => {
     const current: Str = validated.currentComponent ?? '';
-    if (!current || dependencyChain.length === 0) return null;
-    if (chainLayout === 'radial') return layoutRadial(current, dependencyChain);
-    if (chainLayout === 'force') return layoutForce(current, dependencyChain);
+    if (!current || dependencyChain.length === 0) {
+      return null;
+    }
+    if (chainLayout === 'radial') {
+      return layoutRadial(current, dependencyChain);
+    }
+    if (chainLayout === 'force') {
+      return layoutForce(current, dependencyChain);
+    }
     return layoutGraph(current, dependencyChain);
   });
 
@@ -1203,7 +1316,9 @@
    * A node is hidden if ANY of its ancestors is in the collapsed set.
    */
   const hiddenNodeIds: Set<Str> = $derived.by((): Set<Str> => {
-    if (!graphLayout) return new Set();
+    if (!graphLayout) {
+      return new Set();
+    }
     const layout = graphLayout;
     const hidden: Set<Str> = new Set<Str>();
 
@@ -1237,7 +1352,9 @@
 
   /** Visible connectors (both endpoints must be visible). */
   const visibleConnectors: Connector[] = $derived.by((): Connector[] => {
-    if (!graphLayout) return [];
+    if (!graphLayout) {
+      return [];
+    }
     const visIds: Set<Str> = new Set(visibleNodes.map((n: LayoutNode): Str => n.id));
     return graphLayout.connectors.filter(
       (conn: Connector): boolean => visIds.has(conn.fromId) && visIds.has(conn.toId),
@@ -1347,11 +1464,15 @@
    */
   function centerOnRoot(): void {
     requestAnimationFrame((): void => {
-      if (!chainCanvasRef || !graphLayout) return;
+      if (!chainCanvasRef || !graphLayout) {
+        return;
+      }
       const root: LayoutNode | undefined = graphLayout.nodes.find(
         (n: LayoutNode): boolean => n.id === 'root',
       );
-      if (!root) return;
+      if (!root) {
+        return;
+      }
       const rect: DOMRect = chainCanvasRef.getBoundingClientRect();
       const rootCenterX: number = ((root.x as number) + NODE_W / 2) * (chainZoom as number);
       const rootCenterY: number = ((root.y as number) + NODE_H / 2) * (chainZoom as number);
@@ -1497,7 +1618,9 @@
    * @returns Array of chain export nodes
    */
   function buildExportNodes(): ChainExportNode[] {
-    if (!graphLayout) return [];
+    if (!graphLayout) {
+      return [];
+    }
     return graphLayout.nodes.map(
       (node: LayoutNode): ChainExportNode => ({
         id: node.id,
@@ -1532,12 +1655,20 @@
       await copyChainMarkdown(buildExportNodes(), name);
     } else {
       const el: HTMLDivElement | undefined = chainGraphRef;
-      if (!el) return;
-      if (formatId === 'png') await exportPng(el, filename);
-      else if (formatId === 'jpeg') await exportJpeg(el, filename);
-      else if (formatId === 'svg') await exportSvg(el, filename);
-      else if (formatId === 'webp') await exportWebp(el, filename);
-      else if (formatId === 'copy-image') await copyImageToClipboard(el);
+      if (!el) {
+        return;
+      }
+      if (formatId === 'png') {
+        await exportPng(el, filename);
+      } else if (formatId === 'jpeg') {
+        await exportJpeg(el, filename);
+      } else if (formatId === 'svg') {
+        await exportSvg(el, filename);
+      } else if (formatId === 'webp') {
+        await exportWebp(el, filename);
+      } else if (formatId === 'copy-image') {
+        await copyImageToClipboard(el);
+      }
     }
     chainExportFeedback = formatId;
     setTimeout((): Void => {
@@ -1606,11 +1737,15 @@
    * @returns Maximum depth reached
    */
   function maxChainDepth(nodes: ChainNode[], depth: Num): Num {
-    if (nodes.length === 0) return depth;
+    if (nodes.length === 0) {
+      return depth;
+    }
     let max: Num = depth;
     for (const node of nodes) {
       const d: Num = maxChainDepth(node.children, (depth + 1) as Num);
-      if (d > max) max = d;
+      if (d > max) {
+        max = d;
+      }
     }
     return max;
   }
@@ -1630,12 +1765,16 @@
 
   /** Whether all expandable nodes are currently collapsed. */
   const chainAllCollapsed: Bool = $derived.by((): Bool => {
-    if (!graphLayout) return false;
+    if (!graphLayout) {
+      return false;
+    }
     const layout = graphLayout;
     const expandable: LayoutNode[] = layout.nodes.filter((n: LayoutNode): boolean => {
       return layout.nodes.some((c: LayoutNode): boolean => c.parentId === n.id);
     });
-    if (expandable.length === 0) return false;
+    if (expandable.length === 0) {
+      return false;
+    }
     return expandable.every((n: LayoutNode): boolean => chainCollapsedNodes[n.id] === true);
   });
 
@@ -1643,7 +1782,9 @@
    * Toggle all nodes between collapsed and expanded.
    */
   function toggleCollapseAll(): Void {
-    if (!graphLayout) return;
+    if (!graphLayout) {
+      return;
+    }
     const shouldCollapse: Bool = !chainAllCollapsed;
     const next: Record<Str, Bool> = {};
     for (const node of graphLayout.nodes) {
@@ -1664,7 +1805,9 @@
 
   /** Set of node IDs that match the search query. */
   const chainMatchedNodeIds: Set<Str> = $derived.by((): Set<Str> => {
-    if (!graphLayout || chainNodeSearch.length === 0) return new Set();
+    if (!graphLayout || chainNodeSearch.length === 0) {
+      return new Set();
+    }
     const q: Str = chainNodeSearch.toLowerCase() as Str;
     const matched: Set<Str> = new Set<Str>();
     for (const node of graphLayout.nodes) {
@@ -1688,15 +1831,23 @@
    * the canvas to center the first matched node.
    */
   $effect(() => {
-    if (chainMatchedNodeIds.size === 0 || !chainCanvasRef || !graphLayout) return;
+    if (chainMatchedNodeIds.size === 0 || !chainCanvasRef || !graphLayout) {
+      return;
+    }
     const firstId: Str | undefined = chainMatchedNodeIds.values().next().value;
-    if (!firstId) return;
+    if (!firstId) {
+      return;
+    }
     const matchedNode: LayoutNode | undefined = graphLayout.nodes.find(
       (n: LayoutNode): boolean => n.id === firstId,
     );
-    if (!matchedNode) return;
+    if (!matchedNode) {
+      return;
+    }
     requestAnimationFrame((): void => {
-      if (!chainCanvasRef) return;
+      if (!chainCanvasRef) {
+        return;
+      }
       const rect: DOMRect = chainCanvasRef.getBoundingClientRect();
       const centerX: number = ((matchedNode.x as number) + NODE_W / 2) * (chainZoom as number);
       const centerY: number = ((matchedNode.y as number) + NODE_H / 2) * (chainZoom as number);
@@ -1711,7 +1862,9 @@
 
   /** Set of node IDs in the path from hovered node up to root. */
   const highlightedPathIds: Set<Str> = $derived.by((): Set<Str> => {
-    if (!graphLayout || hoveredNodeId === '') return new Set();
+    if (!graphLayout || hoveredNodeId === '') {
+      return new Set();
+    }
     const pathIds: Set<Str> = new Set<Str>();
     let currentId: Str = hoveredNodeId;
     const nodeMap: Map<Str, LayoutNode> = new Map(
@@ -1721,7 +1874,9 @@
       pathIds.add(currentId);
       const node: LayoutNode | undefined = nodeMap.get(currentId);
       if (!node || node.parentId === '') {
-        if (node) pathIds.add('root' as Str);
+        if (node) {
+          pathIds.add('root' as Str);
+        }
         break;
       }
       currentId = node.parentId;
@@ -1735,7 +1890,9 @@
 
   /** Map of node ID to transitive descendant count. */
   const transitiveCountMap: Map<Str, Num> = $derived.by((): Map<Str, Num> => {
-    if (!graphLayout) return new Map();
+    if (!graphLayout) {
+      return new Map();
+    }
     const layout = graphLayout;
     const countMap: Map<Str, Num> = new Map();
 
@@ -1746,7 +1903,9 @@
      * @returns Total descendant count
      */
     function countDescendants(nodeId: Str): Num {
-      if (countMap.has(nodeId)) return countMap.get(nodeId) ?? (0 as Num);
+      if (countMap.has(nodeId)) {
+        return countMap.get(nodeId) ?? (0 as Num);
+      }
       const children: LayoutNode[] = layout.nodes.filter(
         (n: LayoutNode): boolean => n.parentId === nodeId,
       );
@@ -1775,7 +1934,9 @@
    * @returns Sorted copy of the list
    */
   function sortDeps(depList: DepEntry[]): DepEntry[] {
-    if (depSortMode === 'default') return depList;
+    if (depSortMode === 'default') {
+      return depList;
+    }
     const sorted: DepEntry[] = [...depList];
     if (depSortMode === 'alpha') {
       sorted.sort((a: DepEntry, b: DepEntry): number => {
@@ -1849,14 +2010,26 @@
    */
   function getCategoryColor(category: Str): Str {
     if (chainColorBlindMode) {
-      if (category === 'utility') return 'border-blue-600/40 bg-blue-600/5' as Str;
-      if (category === 'workspace') return 'border-orange-500/40 bg-orange-500/5' as Str;
-      if (category === 'external') return 'border-purple-600/40 bg-purple-600/5' as Str;
+      if (category === 'utility') {
+        return 'border-blue-600/40 bg-blue-600/5' as Str;
+      }
+      if (category === 'workspace') {
+        return 'border-orange-500/40 bg-orange-500/5' as Str;
+      }
+      if (category === 'external') {
+        return 'border-purple-600/40 bg-purple-600/5' as Str;
+      }
       return '' as Str;
     }
-    if (category === 'utility') return 'border-slate-500/40 bg-slate-500/5' as Str;
-    if (category === 'workspace') return 'border-amber-500/40 bg-amber-500/5' as Str;
-    if (category === 'external') return 'border-emerald-500/40 bg-emerald-500/5' as Str;
+    if (category === 'utility') {
+      return 'border-slate-500/40 bg-slate-500/5' as Str;
+    }
+    if (category === 'workspace') {
+      return 'border-amber-500/40 bg-amber-500/5' as Str;
+    }
+    if (category === 'external') {
+      return 'border-emerald-500/40 bg-emerald-500/5' as Str;
+    }
     return '' as Str;
   }
 
@@ -1868,14 +2041,26 @@
    */
   function getCategoryDotColor(category: Str): Str {
     if (chainColorBlindMode) {
-      if (category === 'utility') return 'bg-blue-600/40' as Str;
-      if (category === 'workspace') return 'bg-orange-500/40' as Str;
-      if (category === 'external') return 'bg-purple-600/40' as Str;
+      if (category === 'utility') {
+        return 'bg-blue-600/40' as Str;
+      }
+      if (category === 'workspace') {
+        return 'bg-orange-500/40' as Str;
+      }
+      if (category === 'external') {
+        return 'bg-purple-600/40' as Str;
+      }
       return 'bg-primary/40' as Str;
     }
-    if (category === 'utility') return 'bg-slate-500/40' as Str;
-    if (category === 'workspace') return 'bg-amber-500/40' as Str;
-    if (category === 'external') return 'bg-emerald-500/40' as Str;
+    if (category === 'utility') {
+      return 'bg-slate-500/40' as Str;
+    }
+    if (category === 'workspace') {
+      return 'bg-amber-500/40' as Str;
+    }
+    if (category === 'external') {
+      return 'bg-emerald-500/40' as Str;
+    }
     return 'bg-primary/40' as Str;
   }
 </script>

@@ -22,10 +22,14 @@ const rule: TypeScriptRule = {
       // Only check files named index.ts
       const parts: string[] = context.file.split('/');
       const filename: string = parts.at(-1) ?? '';
-      if (filename !== 'index.ts') return results;
+      if (filename !== 'index.ts') {
+        return results;
+      }
 
       const body = node.body as AstNode[] | undefined;
-      if (!body) return results;
+      if (!body) {
+        return results;
+      }
 
       // Check for re-export statements
       let hasReexport: boolean = false;

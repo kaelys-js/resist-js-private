@@ -15,13 +15,17 @@ describe('parseDebugParams', () => {
   it('returns empty overrides for URL with no prefixed params', () => {
     const result = parseDebugParams(new URL('http://localhost'));
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({});
+    if (result.ok) {
+      expect(result.data).toEqual({});
+    }
   });
 
   it('extracts single prefixed param', () => {
     const result = parseDebugParams(new URL(`http://localhost?${URL_PARAM_PREFIX}debug=true`));
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({ debug: 'true' });
+    if (result.ok) {
+      expect(result.data).toEqual({ debug: 'true' });
+    }
   });
 
   it('extracts multiple prefixed params', () => {
@@ -45,7 +49,9 @@ describe('parseDebugParams', () => {
       new URL(`http://localhost?foo=bar&${URL_PARAM_PREFIX}debug=true&baz=qux`),
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({ debug: 'true' });
+    if (result.ok) {
+      expect(result.data).toEqual({ debug: 'true' });
+    }
   });
 
   it('handles feature flag params with ff. prefix', () => {
@@ -53,13 +59,17 @@ describe('parseDebugParams', () => {
       new URL(`http://localhost?${URL_PARAM_PREFIX}ff.settings=false`),
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({ 'ff.settings': 'false' });
+    if (result.ok) {
+      expect(result.data).toEqual({ 'ff.settings': 'false' });
+    }
   });
 
   it('handles empty value', () => {
     const result = parseDebugParams(new URL(`http://localhost?${URL_PARAM_PREFIX}debug=`));
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({ debug: '' });
+    if (result.ok) {
+      expect(result.data).toEqual({ debug: '' });
+    }
   });
 
   it('handles URL with hash and path', () => {
@@ -67,7 +77,9 @@ describe('parseDebugParams', () => {
       new URL(`http://localhost/editor?${URL_PARAM_PREFIX}debug=true#section`),
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({ debug: 'true' });
+    if (result.ok) {
+      expect(result.data).toEqual({ debug: 'true' });
+    }
   });
 });
 

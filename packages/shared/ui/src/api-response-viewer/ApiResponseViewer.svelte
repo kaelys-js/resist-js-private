@@ -33,7 +33,9 @@
   const validated: ApiResponseViewerProps = $derived.by(() => {
     const rawProps: ApiResponseViewerProps = stripSvelteProps(allProps);
     const result = safeParse(ApiResponseViewerPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ApiResponseViewerProps;
   });

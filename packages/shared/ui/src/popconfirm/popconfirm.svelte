@@ -33,7 +33,9 @@
   const validated: PopconfirmProps = $derived.by(() => {
     const rawProps: PopconfirmProps = stripSvelteProps(allProps);
     const result = safeParse(PopconfirmPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as PopconfirmProps;
   });

@@ -75,7 +75,9 @@
   const validated: PropsTableProps = $derived.by(() => {
     const rawProps: PropsTableProps = stripSvelteProps(allProps);
     const result = safeParse(PropsTablePropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // Cast to mutable — Result.data is deep-frozen via Object.freeze but component only reads, never mutates
     return result.data as PropsTableProps;
   });
@@ -106,8 +108,12 @@
    * @returns Padding class string
    */
   function densityPadding(): Str {
-    if (tableDensity === 'compact') return 'px-3 py-0.5' as Str;
-    if (tableDensity === 'spacious') return 'px-4 py-3' as Str;
+    if (tableDensity === 'compact') {
+      return 'px-3 py-0.5' as Str;
+    }
+    if (tableDensity === 'spacious') {
+      return 'px-4 py-3' as Str;
+    }
     return 'px-4 py-2' as Str;
   }
 
@@ -117,8 +123,12 @@
    * @returns Padding class string for nested rows
    */
   function nestedDensityPadding(): Str {
-    if (tableDensity === 'compact') return 'px-3 py-0.5' as Str;
-    if (tableDensity === 'spacious') return 'px-4 py-2' as Str;
+    if (tableDensity === 'compact') {
+      return 'px-3 py-0.5' as Str;
+    }
+    if (tableDensity === 'spacious') {
+      return 'px-4 py-2' as Str;
+    }
     return 'px-4 py-1.5' as Str;
   }
 
@@ -214,7 +224,9 @@
    * @param column - The column to sort by
    */
   function handleColumnSort(column: PropsTableSortColumn): Void {
-    if (!onsort) return;
+    if (!onsort) {
+      return;
+    }
     if (sortColumn === column) {
       // Cycle direction
       if (sortDirection === 'asc') {
@@ -247,7 +259,9 @@
    * @returns True if the prop has no default and is not optional
    */
   function isRequired(prop: PropMeta): Bool {
-    if (prop.optional) return false;
+    if (prop.optional) {
+      return false;
+    }
     return !prop.default;
   }
 
@@ -320,11 +334,19 @@
    * @returns True if the type is non-trivial
    */
   function isComplexType(type: Str): Bool {
-    if (!type || type === '—') return false;
-    if (/^(string|number|boolean|Str|Num|Bool|Void)$/.test(type)) return false;
-    if (/^'[^']*'$/.test(type)) return false;
+    if (!type || type === '—') {
+      return false;
+    }
+    if (/^(string|number|boolean|Str|Num|Bool|Void)$/.test(type)) {
+      return false;
+    }
+    if (/^'[^']*'$/.test(type)) {
+      return false;
+    }
     // Union types get their own pretty rendering — not "complex"
-    if (isUnionType(type)) return false;
+    if (isUnionType(type)) {
+      return false;
+    }
     return true;
   }
 
@@ -416,11 +438,15 @@
    * @returns A plain-English explanation
    */
   function explainType(type: Str): Str {
-    if (type === 'Snippet') return 'A Svelte snippet — a reusable template block passed as a prop.';
-    if (type === 'Component')
+    if (type === 'Snippet') {
+      return 'A Svelte snippet — a reusable template block passed as a prop.';
+    }
+    if (type === 'Component') {
       return 'A Svelte component reference that can be rendered dynamically.';
-    if (type === 'Snippet | undefined')
+    }
+    if (type === 'Snippet | undefined') {
       return 'An optional Svelte snippet — a reusable template block.';
+    }
 
     if (type.includes("['")) {
       const parent: Str = type.split("['")[0] ?? '';
@@ -437,7 +463,9 @@
       const allLiterals: Bool = options.every(
         (o: Str): boolean => o.startsWith("'") || o === 'undefined' || o === 'null',
       );
-      if (allLiterals) return `Accepts one of: ${type}`;
+      if (allLiterals) {
+        return `Accepts one of: ${type}`;
+      }
       return `A union type — can be any of: ${options.join(', ')}`;
     }
 
@@ -551,9 +579,13 @@
    * @returns True if it looks like a comma-separated union
    */
   function isAcceptsUnion(accepts: Str): Bool {
-    if (!accepts || accepts === '—') return false;
+    if (!accepts || accepts === '—') {
+      return false;
+    }
     // "text", "number", "true / false" are not unions
-    if (/^(text|number|true \/ false|true, false)$/.test(accepts)) return false;
+    if (/^(text|number|true \/ false|true, false)$/.test(accepts)) {
+      return false;
+    }
     return accepts.includes(', ');
   }
 
@@ -588,8 +620,12 @@
    */
   function sortTooltip(col: Str): Str {
     if (sortColumn === col) {
-      if (sortDirection === 'asc') return 'Click to sort descending' as Str;
-      if (sortDirection === 'desc') return 'Click to clear sort' as Str;
+      if (sortDirection === 'asc') {
+        return 'Click to sort descending' as Str;
+      }
+      if (sortDirection === 'desc') {
+        return 'Click to clear sort' as Str;
+      }
     }
     return 'Click to sort ascending' as Str;
   }

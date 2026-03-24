@@ -188,7 +188,9 @@ function scriptFiles(sources: Map<Str, Str>): SourceEntry[] {
  * @returns 'warning' if >= 80, else 'fail'. Never returns 'pass' — pass is determined by failCount === 0 in buildResult.
  */
 function statusFromRate(passRate: Num): A11yStatus {
-  if ((passRate as number) >= 80) return 'warning';
+  if ((passRate as number) >= 80) {
+    return 'warning';
+  }
   return 'fail';
 }
 
@@ -200,13 +202,27 @@ function statusFromRate(passRate: Num): A11yStatus {
  * @returns Standard name string
  */
 function determineStandard(id: Str, category: Str): Str {
-  if ((id as string).startsWith('section-508')) return 'Section 508' as Str;
-  if ((id as string).startsWith('en-301-549')) return 'EN 301 549' as Str;
-  if (category === 'ARIA' || (id as string).startsWith('aria-')) return 'WAI-ARIA' as Str;
-  if ((id as string).startsWith('html-')) return 'WHATWG' as Str;
-  if ((id as string).startsWith('ohara-')) return 'Best Practice' as Str;
-  if ((id as string).startsWith('webaim-')) return 'WebAIM' as Str;
-  if ((id as string).startsWith('a11yproject-')) return 'A11Y Project' as Str;
+  if ((id as string).startsWith('section-508')) {
+    return 'Section 508' as Str;
+  }
+  if ((id as string).startsWith('en-301-549')) {
+    return 'EN 301 549' as Str;
+  }
+  if (category === 'ARIA' || (id as string).startsWith('aria-')) {
+    return 'WAI-ARIA' as Str;
+  }
+  if ((id as string).startsWith('html-')) {
+    return 'WHATWG' as Str;
+  }
+  if ((id as string).startsWith('ohara-')) {
+    return 'Best Practice' as Str;
+  }
+  if ((id as string).startsWith('webaim-')) {
+    return 'WebAIM' as Str;
+  }
+  if ((id as string).startsWith('a11yproject-')) {
+    return 'A11Y Project' as Str;
+  }
   return 'WCAG 2.1 AA' as Str;
 }
 
@@ -218,7 +234,9 @@ function determineStandard(id: Str, category: Str): Str {
  * @returns Percentage 0-100 (defaults to 100 if total is 0)
  */
 function computePassRate(passCount: Num, total: Num): Num {
-  if ((total as number) === 0) return 100 as Num;
+  if ((total as number) === 0) {
+    return 100 as Num;
+  }
   return Math.round(((passCount as number) / (total as number)) * 100) as Num;
 }
 
@@ -358,7 +376,9 @@ function parseOklchLightness(css: Str): Map<Str, Num> {
  * @returns Truncated snippet as Str
  */
 function truncSnippet(snippet: Str, max: Num = 80 as Num): Str {
-  if ((snippet as string).length <= (max as number)) return snippet;
+  if ((snippet as string).length <= (max as number)) {
+    return snippet;
+  }
   return `${(snippet as string).slice(0, max as number)}...` as Str;
 }
 
@@ -521,7 +541,9 @@ const A11Y_RULES: A11yRule[] = [
         const src: string = content as string;
         const hasInteractive: boolean = interactivePattern.test(src);
         const hasNonSemanticLink: boolean = nonSemanticLinkPattern.test(src);
-        if (!hasInteractive && !hasNonSemanticLink) continue;
+        if (!hasInteractive && !hasNonSemanticLink) {
+          continue;
+        }
         if (/aria-/.test(src)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -590,7 +612,9 @@ const A11Y_RULES: A11yRule[] = [
         }
         rolePattern.lastIndex = 0;
 
-        if (!hasRoles) continue;
+        if (!hasRoles) {
+          continue;
+        }
         if (allValid) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -657,7 +681,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!inputPattern.test(content as string)) continue;
+        if (!inputPattern.test(content as string)) {
+          continue;
+        }
         if (labelPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -719,7 +745,9 @@ const A11Y_RULES: A11yRule[] = [
         const src: string = content as string;
         const hasInteractive: boolean = interactivePattern.test(src);
         const hasNonSemanticLink: boolean = nonSemanticLinkPattern.test(src);
-        if (!hasInteractive && !hasNonSemanticLink) continue;
+        if (!hasInteractive && !hasNonSemanticLink) {
+          continue;
+        }
         if (/aria-/.test(src)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -780,7 +808,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!interactivePattern.test(content as string)) continue;
+        if (!interactivePattern.test(content as string)) {
+          continue;
+        }
         const hasNegative: boolean = negativeTabindex.test(content as string);
         const hasRoving: boolean = rovingPattern.test(content as string);
         if (!hasNegative || hasRoving) {
@@ -842,7 +872,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!widgetPattern.test(content as string)) continue;
+        if (!widgetPattern.test(content as string)) {
+          continue;
+        }
         if (keydownPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -899,7 +931,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!overlayPattern.test(content as string)) continue;
+        if (!overlayPattern.test(content as string)) {
+          continue;
+        }
         if (escapePattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -958,7 +992,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!buttonLikePattern.test(content as string)) continue;
+        if (!buttonLikePattern.test(content as string)) {
+          continue;
+        }
         /* Native <button> handles Enter/Space automatically */
         if (/<button\b/.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
@@ -1024,7 +1060,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!dialogPattern.test(content as string)) continue;
+        if (!dialogPattern.test(content as string)) {
+          continue;
+        }
         if (trapPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -1173,7 +1211,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!groupPattern.test(content as string)) continue;
+        if (!groupPattern.test(content as string)) {
+          continue;
+        }
         if (rovingPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -1296,7 +1336,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!overlayPattern.test(content as string)) continue;
+        if (!overlayPattern.test(content as string)) {
+          continue;
+        }
         if (restorePattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -1452,7 +1494,9 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of files) {
         const lightness: Map<Str, Num> = parseOklchLightness(content as Str);
-        if (lightness.size === 0) continue;
+        if (lightness.size === 0) {
+          continue;
+        }
 
         let filePass: boolean = true;
         let checkedAny: boolean = false;
@@ -1460,7 +1504,9 @@ const A11Y_RULES: A11yRule[] = [
         for (const pair of contrastPairs) {
           const fgL: Num | undefined = lightness.get(pair.fg);
           const bgL: Num | undefined = lightness.get(pair.bg);
-          if (fgL === undefined || bgL === undefined) continue;
+          if (fgL === undefined || bgL === undefined) {
+            continue;
+          }
           checkedAny = true;
           const ratio: Num = oklchContrast(fgL, bgL);
           if ((ratio as number) < 4.5) {
@@ -1468,7 +1514,9 @@ const A11Y_RULES: A11yRule[] = [
           }
         }
 
-        if (!checkedAny) continue;
+        if (!checkedAny) {
+          continue;
+        }
         if (filePass) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -1518,11 +1566,15 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of files) {
         const lightness: Map<Str, Num> = parseOklchLightness(content as Str);
-        if (lightness.size === 0) continue;
+        if (lightness.size === 0) {
+          continue;
+        }
 
         const fgL: Num | undefined = lightness.get('foreground' as Str);
         const bgL: Num | undefined = lightness.get('background' as Str);
-        if (fgL === undefined || bgL === undefined) continue;
+        if (fgL === undefined || bgL === undefined) {
+          continue;
+        }
 
         const ratio: Num = oklchContrast(fgL, bgL);
         if ((ratio as number) >= 3) {
@@ -1574,26 +1626,36 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of files) {
         const lightness: Map<Str, Num> = parseOklchLightness(content as Str);
-        if (lightness.size === 0) continue;
+        if (lightness.size === 0) {
+          continue;
+        }
 
         const borderL: Num | undefined = lightness.get('border' as Str);
         const inputL: Num | undefined = lightness.get('input' as Str);
         const bgL: Num | undefined = lightness.get('background' as Str);
-        if (bgL === undefined) continue;
+        if (bgL === undefined) {
+          continue;
+        }
 
         let componentPass: boolean = true;
         let checkedAny: boolean = false;
 
         if (borderL !== undefined) {
           checkedAny = true;
-          if ((oklchContrast(borderL, bgL) as number) < 3) componentPass = false;
+          if ((oklchContrast(borderL, bgL) as number) < 3) {
+            componentPass = false;
+          }
         }
         if (inputL !== undefined) {
           checkedAny = true;
-          if ((oklchContrast(inputL, bgL) as number) < 3) componentPass = false;
+          if ((oklchContrast(inputL, bgL) as number) < 3) {
+            componentPass = false;
+          }
         }
 
-        if (!checkedAny) continue;
+        if (!checkedAny) {
+          continue;
+        }
         if (componentPass) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -1644,7 +1706,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!statusColorPattern.test(content as string)) continue;
+        if (!statusColorPattern.test(content as string)) {
+          continue;
+        }
         if (companionPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -1908,7 +1972,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!animPattern.test(content as string)) continue;
+        if (!animPattern.test(content as string)) {
+          continue;
+        }
         if (pausePattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -2018,7 +2084,9 @@ const A11Y_RULES: A11yRule[] = [
         const src: string = content as string;
         const hasInteractive: boolean = interactivePattern.test(src);
         const hasNonSemanticLink: boolean = nonSemanticLinkPattern.test(src);
-        if (!hasInteractive && !hasNonSemanticLink) continue;
+        if (!hasInteractive && !hasNonSemanticLink) {
+          continue;
+        }
         if (ariaLabelPattern.test(src)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -2077,7 +2145,9 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of files) {
         const src: string = content as string;
-        if (!dynamicMechanism.test(src) || !statusContent.test(src)) continue;
+        if (!dynamicMechanism.test(src) || !statusContent.test(src)) {
+          continue;
+        }
         if (livePattern.test(src)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -2130,7 +2200,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!clickDivPattern.test(content as string)) continue;
+        if (!clickDivPattern.test(content as string)) {
+          continue;
+        }
         if (rolePattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -2182,7 +2254,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!inputPattern.test(content as string)) continue;
+        if (!inputPattern.test(content as string)) {
+          continue;
+        }
         if (labelAssocPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -2235,7 +2309,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!toastPattern.test(content as string)) continue;
+        if (!toastPattern.test(content as string)) {
+          continue;
+        }
         if (statusPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -2290,7 +2366,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!buttonFilePattern.test(filename as string)) continue;
+        if (!buttonFilePattern.test(filename as string)) {
+          continue;
+        }
         const hasNative: boolean = nativeButtonPattern.test(content as string);
         const hasDisabled: boolean = disabledPattern.test(content as string);
         if (hasNative && hasDisabled) {
@@ -2346,9 +2424,12 @@ const A11Y_RULES: A11yRule[] = [
         if (
           !dialogFilePattern.test(filename as string) &&
           !dialogFilePattern.test(content as string)
-        )
+        ) {
           continue;
-        if (!/role="dialog"|<dialog/.test(content as string)) continue;
+        }
+        if (!/role="dialog"|<dialog/.test(content as string)) {
+          continue;
+        }
 
         const allPresent: boolean = requiredPatterns.every((p) => p.test(content as string));
         if (allPresent) {
@@ -2402,9 +2483,12 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!menuFilePattern.test(filename as string) && !menuRolePattern.test(content as string))
+        if (!menuFilePattern.test(filename as string) && !menuRolePattern.test(content as string)) {
           continue;
-        if (!menuRolePattern.test(content as string)) continue;
+        }
+        if (!menuRolePattern.test(content as string)) {
+          continue;
+        }
 
         if (arrowKeyPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
@@ -2457,10 +2541,15 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!tooltipPattern.test(filename as string) && !tooltipPattern.test(content as string))
+        if (!tooltipPattern.test(filename as string) && !tooltipPattern.test(content as string)) {
           continue;
-        if (!tooltipRolePattern.test(content as string) && !tooltipPattern.test(content as string))
+        }
+        if (
+          !tooltipRolePattern.test(content as string) &&
+          !tooltipPattern.test(content as string)
+        ) {
           continue;
+        }
 
         const hasRole: boolean = tooltipRolePattern.test(content as string);
         const hasDescribedBy: boolean = describedByPattern.test(content as string);
@@ -2513,7 +2602,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!tabsPattern.test(content as string)) continue;
+        if (!tabsPattern.test(content as string)) {
+          continue;
+        }
         /* Check for arrow key support */
         const hasArrows: boolean = /ArrowLeft|ArrowRight|onkeydown|on:keydown/.test(
           content as string,
@@ -2570,8 +2661,12 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!accordionPattern.test(filename as string) && !accordionPattern.test(content as string))
+        if (
+          !accordionPattern.test(filename as string) &&
+          !accordionPattern.test(content as string)
+        ) {
           continue;
+        }
         const hasExpanded: boolean = expandedPattern.test(content as string);
         const hasControls: boolean = controlsPattern.test(content as string);
         if (hasExpanded && hasControls) {
@@ -2627,7 +2722,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!selectPattern.test(content as string)) continue;
+        if (!selectPattern.test(content as string)) {
+          continue;
+        }
         /* Native <select> has built-in a11y */
         if (/<select\b/.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
@@ -2686,8 +2783,12 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!toastFilePattern.test(filename as string) && !toastFilePattern.test(content as string))
+        if (
+          !toastFilePattern.test(filename as string) &&
+          !toastFilePattern.test(content as string)
+        ) {
           continue;
+        }
         if (statusPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -2944,7 +3045,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!iconPattern.test(filename as string) && !/<svg/.test(content as string)) continue;
+        if (!iconPattern.test(filename as string) && !/<svg/.test(content as string)) {
+          continue;
+        }
         if (ariaPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -3047,7 +3150,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!mediaPattern.test(content as string)) continue;
+        if (!mediaPattern.test(content as string)) {
+          continue;
+        }
         if (trackPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -3100,7 +3205,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!videoPattern.test(content as string)) continue;
+        if (!videoPattern.test(content as string)) {
+          continue;
+        }
         if (captionPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -3224,7 +3331,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!tabindexPattern.test(content as string)) continue;
+        if (!tabindexPattern.test(content as string)) {
+          continue;
+        }
         /* Dialogs/modals with tabindex need escape handlers */
         if (dialogModalPattern.test(content as string)) {
           if (escapePattern.test(content as string)) {
@@ -3284,7 +3393,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!timerPattern.test(content as string)) continue;
+        if (!timerPattern.test(content as string)) {
+          continue;
+        }
         if (controlPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -3530,7 +3641,9 @@ const A11Y_RULES: A11yRule[] = [
         }
         idPattern.lastIndex = 0;
 
-        if (ids.size === 0) continue;
+        if (ids.size === 0) {
+          continue;
+        }
         if (hasDupe) {
           fail = ((fail as number) + 1) as Num;
           failing.push(filename);
@@ -3582,7 +3695,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!videoPattern.test(content as string)) continue;
+        if (!videoPattern.test(content as string)) {
+          continue;
+        }
         if (descriptionPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -3717,7 +3832,9 @@ const A11Y_RULES: A11yRule[] = [
       const linkPattern: RegExp = /<a\b[^>]*>([^<]*)<\/a>/g;
 
       for (const [filename, content] of files) {
-        if (!/<a\b/.test(content as string)) continue;
+        if (!/<a\b/.test(content as string)) {
+          continue;
+        }
         let hasBadLink: boolean = false;
         let match: RegExpExecArray | null = linkPattern.exec(content as string);
 
@@ -3808,7 +3925,9 @@ const A11Y_RULES: A11yRule[] = [
         }
         headingPattern.lastIndex = 0;
 
-        if (levels.length === 0) continue;
+        if (levels.length === 0) {
+          continue;
+        }
 
         /* Check for skipped levels */
         let skipped: boolean = false;
@@ -3885,7 +4004,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!focusHandlerPattern.test(content as string)) continue;
+        if (!focusHandlerPattern.test(content as string)) {
+          continue;
+        }
         if (contextChangePattern.test(content as string)) {
           fail = ((fail as number) + 1) as Num;
           failing.push(filename);
@@ -3936,7 +4057,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!inputHandlerPattern.test(content as string)) continue;
+        if (!inputHandlerPattern.test(content as string)) {
+          continue;
+        }
         if (navPattern.test(content as string)) {
           fail = ((fail as number) + 1) as Num;
           failing.push(filename);
@@ -4118,7 +4241,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!inputPattern.test(content as string)) continue;
+        if (!inputPattern.test(content as string)) {
+          continue;
+        }
         if (errorPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -4170,7 +4295,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!inputPattern.test(content as string)) continue;
+        if (!inputPattern.test(content as string)) {
+          continue;
+        }
         if (labelPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -4222,7 +4349,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!formPattern.test(content as string)) continue;
+        if (!formPattern.test(content as string)) {
+          continue;
+        }
         if (errorMsgPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -4293,7 +4422,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!singleKeyPattern.test(content as string)) continue;
+        if (!singleKeyPattern.test(content as string)) {
+          continue;
+        }
         if (remapPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -4362,7 +4493,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!downEventPattern.test(content as string)) continue;
+        if (!downEventPattern.test(content as string)) {
+          continue;
+        }
         /* Allow mousedown for drag interactions */
         if (dragPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
@@ -4417,7 +4550,9 @@ const A11Y_RULES: A11yRule[] = [
       const visibleTextPattern: RegExp = />([^<{]+)</;
 
       for (const [filename, content] of files) {
-        if (!/aria-label="/.test(content as string)) continue;
+        if (!/aria-label="/.test(content as string)) {
+          continue;
+        }
         /* Components that use aria-label should be reviewed */
         const hasVisibleText: boolean = visibleTextPattern.test(content as string);
         if (hasVisibleText) {
@@ -4499,7 +4634,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!personalInputPattern.test(content as string)) continue;
+        if (!personalInputPattern.test(content as string)) {
+          continue;
+        }
         if (autocompletePattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -4668,7 +4805,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!hoverContentPattern.test(content as string)) continue;
+        if (!hoverContentPattern.test(content as string)) {
+          continue;
+        }
         if (dismissPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -4726,7 +4865,9 @@ const A11Y_RULES: A11yRule[] = [
       for (const [filename, content] of files) {
         /* Strip JSDoc comments before matching to avoid false positives from documentation. */
         const stripped: string = (content as string).replaceAll(/\/\*\*[\s\S]*?\*\//g, '');
-        if (!statusInTemplatePattern.test(stripped)) continue;
+        if (!statusInTemplatePattern.test(stripped)) {
+          continue;
+        }
         if (livePattern.test(stripped)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -4800,7 +4941,9 @@ const A11Y_RULES: A11yRule[] = [
         }
         rolePattern.lastIndex = 0;
 
-        if (!hasRoles) continue;
+        if (!hasRoles) {
+          continue;
+        }
         if (allValid) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -4875,7 +5018,9 @@ const A11Y_RULES: A11yRule[] = [
         }
         booleanAriaPattern.lastIndex = 0;
 
-        if (!hasAria) continue;
+        if (!hasAria) {
+          continue;
+        }
         if (allValid) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -4947,7 +5092,9 @@ const A11Y_RULES: A11yRule[] = [
         }
         rolePattern.lastIndex = 0;
 
-        if (!hasProhibitedRoles) continue;
+        if (!hasProhibitedRoles) {
+          continue;
+        }
         if (allValid) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -5002,7 +5149,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!formPattern.test(content as string)) continue;
+        if (!formPattern.test(content as string)) {
+          continue;
+        }
         if (groupPattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -5054,7 +5203,9 @@ const A11Y_RULES: A11yRule[] = [
       const findings: A11yFileFinding[] = [];
 
       for (const [filename, content] of files) {
-        if (!tablePattern.test(content as string)) continue;
+        if (!tablePattern.test(content as string)) {
+          continue;
+        }
         if (thPattern.test(content as string) && scopePattern.test(content as string)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -5163,8 +5314,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const files: SourceEntry[] = svelteFiles(sources);
-      if (files.length === 0)
+      if (files.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -5248,8 +5400,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.5' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const files: SourceEntry[] = svelteFiles(sources);
-      if (files.length === 0)
+      if (files.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       const validValues: Set<Str> = new Set([
         'off',
         'on',
@@ -5342,8 +5495,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -5368,8 +5522,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const files: SourceEntry[] = svelteFiles(sources);
-      if (files.length === 0)
+      if (files.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       const parentChildMap: Array<[Str, Str]> = [
         ['role="list"', 'role="listitem"'],
         ['role="menu"', 'role="menuitem"'],
@@ -5431,8 +5586,9 @@ const A11Y_RULES: A11yRule[] = [
           }
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -5457,8 +5613,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const files: SourceEntry[] = svelteFiles(sources);
-      if (files.length === 0)
+      if (files.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       const childParentMap: Array<[Str, Str[]]> = [
         ['role="listitem"', ['role="list"']],
         ['role="menuitem"', ['role="menu"', 'role="menubar"']],
@@ -5479,7 +5636,9 @@ const A11Y_RULES: A11yRule[] = [
             const hasParent: boolean = parents.some((p: Str) =>
               (content as string).includes(p as string),
             );
-            if (!hasParent) fileFailed = true;
+            if (!hasParent) {
+              fileFailed = true;
+            }
           }
         }
         if (fileFailed) {
@@ -5507,8 +5666,9 @@ const A11Y_RULES: A11yRule[] = [
           }
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -5533,8 +5693,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.1.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const files: SourceEntry[] = svelteFiles(sources);
-      if (files.length === 0)
+      if (files.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       const badAlts: RegExp =
         /alt="(image|photo|picture|graphic|icon|logo|banner|placeholder|untitled|img|pic)\b/gi;
       const fileExtAlt: RegExp = /alt="[^"]*\.\w{2,4}"/g;
@@ -5544,7 +5705,9 @@ const A11Y_RULES: A11yRule[] = [
       const failing: Str[] = [];
       const findings: A11yFileFinding[] = [];
       for (const [filename, content] of files) {
-        if (!/<img[\s>]/.test(content as string)) continue;
+        if (!/<img[\s>]/.test(content as string)) {
+          continue;
+        }
         const hasBad: boolean =
           badAlts.test(content as string) || fileExtAlt.test(content as string);
         badAlts.lastIndex = 0;
@@ -5580,8 +5743,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -5606,17 +5770,22 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const files: SourceEntry[] = svelteFiles(sources);
-      if (files.length === 0)
+      if (files.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
       const failing: Str[] = [];
       const findings: A11yFileFinding[] = [];
       for (const [filename, content] of files) {
-        if (!/<table[\s>]/.test(content as string)) continue;
+        if (!/<table[\s>]/.test(content as string)) {
+          continue;
+        }
         const hasTh: boolean = /<th[\s>]/.test(content as string);
-        if (!hasTh) continue;
+        if (!hasTh) {
+          continue;
+        }
         /* th without scope is a violation in data tables */
         const thWithoutScope: boolean = /<th(?![^>]*scope=)[^>]*>/.test(content as string);
         if (thWithoutScope) {
@@ -5645,8 +5814,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -5670,8 +5840,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const files: SourceEntry[] = svelteFiles(sources);
-      if (files.length === 0)
+      if (files.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -5680,7 +5851,9 @@ const A11Y_RULES: A11yRule[] = [
       const radioCheckboxGroup: RegExp = /type="(radio|checkbox)"/g;
       for (const [filename, content] of files) {
         const matches: RegExpMatchArray | null = (content as string).match(radioCheckboxGroup);
-        if (!matches || matches.length < 2) continue;
+        if (!matches || matches.length < 2) {
+          continue;
+        }
         /* Multiple radio/checkbox inputs — should have fieldset+legend */
         const hasFieldset: boolean = /<fieldset[\s>]/.test(content as string);
         const hasLegend: boolean = /<legend[\s>]/.test(content as string);
@@ -5704,8 +5877,9 @@ const A11Y_RULES: A11yRule[] = [
           });
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -5730,15 +5904,17 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.4.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const allCss: SourceEntry[] = cssFiles(sources);
-      if (allCss.length === 0)
+      if (allCss.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
       const failing: Str[] = [];
       for (const [filename, content] of allCss) {
-        if (!/(^|\s)a[\s{,:]/.test(content as string) && !/\ba\s*\{/.test(content as string))
+        if (!/(^|\s)a[\s{,:]/.test(content as string) && !/\ba\s*\{/.test(content as string)) {
           continue;
+        }
         /* Check if links have underline or other non-color distinguisher */
         const hasUnderline: boolean = /text-decoration.*underline|underline/.test(
           content as string,
@@ -5753,8 +5929,9 @@ const A11Y_RULES: A11yRule[] = [
           failing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -5777,8 +5954,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.1.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const files: SourceEntry[] = svelteFiles(sources);
-      if (files.length === 0)
+      if (files.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -5787,7 +5965,9 @@ const A11Y_RULES: A11yRule[] = [
       const svgTag: RegExp = /<svg[\s>]/g;
       for (const [filename, content] of files) {
         const matches: RegExpMatchArray | null = (content as string).match(svgTag);
-        if (!matches) continue;
+        if (!matches) {
+          continue;
+        }
         /* SVGs should have aria-hidden="true" (decorative) or role="img" + aria-label */
         const hasAriaHidden: boolean = /<svg[^>]*aria-hidden="true"/.test(content as string);
         const hasRoleImg: boolean = /<svg[^>]*role="img"/.test(content as string);
@@ -5820,8 +6000,9 @@ const A11Y_RULES: A11yRule[] = [
           });
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -5845,15 +6026,18 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '2.4.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const files: SourceEntry[] = svelteFiles(sources);
-      if (files.length === 0)
+      if (files.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
       const failing: Str[] = [];
       const findings: A11yFileFinding[] = [];
       for (const [filename, content] of files) {
-        if (!/<iframe[\s>]/.test(content as string)) continue;
+        if (!/<iframe[\s>]/.test(content as string)) {
+          continue;
+        }
         const iframeWithoutTitle: boolean = /<iframe(?![^>]*title=)[^>]*>/.test(content as string);
         if (iframeWithoutTitle) {
           fail = ((fail as number) + 1) as Num;
@@ -5874,8 +6058,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -5899,8 +6084,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '2.5.5' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const files: SourceEntry[] = svelteFiles(sources);
-      if (files.length === 0)
+      if (files.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -5938,8 +6124,9 @@ const A11Y_RULES: A11yRule[] = [
           }
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -5963,8 +6150,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const files: SourceEntry[] = svelteFiles(sources);
-      if (files.length === 0)
+      if (files.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -5978,7 +6166,9 @@ const A11Y_RULES: A11yRule[] = [
           headings.push(Number.parseInt(match[1] as string, 10) as Num);
         }
         headingPattern.lastIndex = 0;
-        if (headings.length < 2) continue;
+        if (headings.length < 2) {
+          continue;
+        }
         let skipped: boolean = false;
         let skipPrev: Num = 0 as Num;
         let skipCurr: Num = 0 as Num;
@@ -6013,8 +6203,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -6038,8 +6229,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const layouts: SourceEntry[] = layoutFiles(sources);
-      if (layouts.length === 0)
+      if (layouts.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -6140,7 +6332,9 @@ const A11Y_RULES: A11yRule[] = [
       for (const [filename, content] of svelte) {
         const str: string = content as string;
         const hasAutoplay: boolean = /<(?:video|audio)[^>]*\bautoplay\b/.test(str);
-        if (!hasAutoplay) continue;
+        if (!hasAutoplay) {
+          continue;
+        }
         const hasPauseBtn: boolean = /pause|controls/.test(str);
         if (hasPauseBtn) {
           pass = ((pass as number) + 1) as Num;
@@ -6184,8 +6378,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -6198,7 +6393,9 @@ const A11Y_RULES: A11yRule[] = [
         const ids: string[] = [];
         let match: RegExpExecArray | null = idPattern.exec(str);
         while (match !== null) {
-          if (match[1] !== undefined) ids.push(match[1]);
+          if (match[1] !== undefined) {
+            ids.push(match[1]);
+          }
           match = idPattern.exec(str);
         }
         const seen: Set<string> = new Set();
@@ -6248,8 +6445,9 @@ const A11Y_RULES: A11yRule[] = [
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
       const videoFiles: SourceEntry[] = svelte.filter(([, c]) => /<video[\s>]/.test(c as string));
-      if (videoFiles.length === 0)
+      if (videoFiles.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -6351,8 +6549,9 @@ const A11Y_RULES: A11yRule[] = [
         }
       }
 
-      if ((linksWithHidden as number) === 0 && !foundDefinition)
+      if ((linksWithHidden as number) === 0 && !foundDefinition) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
 
       const pass: Num = passing.length as Num;
       const fail: Num = failing.length as Num;
@@ -6381,8 +6580,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -6459,8 +6659,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -6530,8 +6731,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -6585,8 +6787,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.3' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -6647,8 +6850,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -6717,8 +6921,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -6773,8 +6978,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -6835,8 +7041,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.1.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -6847,7 +7054,9 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of svelte) {
         const str: string = content as string;
-        if (!/<img\b/.test(str)) continue;
+        if (!/<img\b/.test(str)) {
+          continue;
+        }
         const matches: RegExpMatchArray | null = str.match(imgNoAlt);
         if (matches !== null && matches.length > 0) {
           fail = ((fail as number) + 1) as Num;
@@ -6888,8 +7097,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.1.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -6900,7 +7110,9 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of svelte) {
         const str: string = content as string;
-        if (!/<img\b/.test(str)) continue;
+        if (!/<img\b/.test(str)) {
+          continue;
+        }
         if (emptyAltWithRole.test(str) || emptyAltWithRole2.test(str)) {
           fail = ((fail as number) + 1) as Num;
           failing.push(filename);
@@ -6943,8 +7155,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7000,8 +7213,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7054,8 +7268,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7067,10 +7282,14 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of svelte) {
         const str: string = content as string;
-        if (!/<details\b/.test(str)) continue;
+        if (!/<details\b/.test(str)) {
+          continue;
+        }
         const hasDetails: boolean = detailsPattern.test(str);
         detailsPattern.lastIndex = 0;
-        if (!hasDetails) continue;
+        if (!hasDetails) {
+          continue;
+        }
         if (detailsSummaryFirst.test(str)) {
           pass = ((pass as number) + 1) as Num;
           passing.push(filename);
@@ -7111,8 +7330,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7123,7 +7343,9 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of svelte) {
         const str: string = content as string;
-        if (!/<button\b/.test(str)) continue;
+        if (!/<button\b/.test(str)) {
+          continue;
+        }
         const matches: RegExpMatchArray | null = str.match(buttonNoType);
         if (matches !== null && matches.length > 0) {
           fail = ((fail as number) + 1) as Num;
@@ -7165,8 +7387,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7231,8 +7454,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7242,7 +7466,9 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of svelte) {
         const str: string = content as string;
-        if (!/<form\b/.test(str)) continue;
+        if (!/<form\b/.test(str)) {
+          continue;
+        }
         if (formNoName.test(str)) {
           fail = ((fail as number) + 1) as Num;
           failing.push(filename);
@@ -7282,8 +7508,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7293,7 +7520,9 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of svelte) {
         const str: string = content as string;
-        if (!/<section\b/.test(str)) continue;
+        if (!/<section\b/.test(str)) {
+          continue;
+        }
         if (sectionNoName.test(str)) {
           fail = ((fail as number) + 1) as Num;
           failing.push(filename);
@@ -7335,8 +7564,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7349,7 +7579,9 @@ const A11Y_RULES: A11yRule[] = [
         const levels: number[] = [];
         let match: RegExpExecArray | null = headingPattern.exec(str);
         while (match !== null) {
-          if (match[1] !== undefined) levels.push(Number.parseInt(match[1], 10));
+          if (match[1] !== undefined) {
+            levels.push(Number.parseInt(match[1], 10));
+          }
           match = headingPattern.exec(str);
         }
         if (levels.length < 2) {
@@ -7407,8 +7639,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '2.4.3' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7471,7 +7704,9 @@ const A11Y_RULES: A11yRule[] = [
       for (const [filename, content] of css) {
         const str: string = content as string;
         const hasSrOnly: boolean = /\.sr-only|\.visually-hidden|visually-hidden/.test(str);
-        if (!hasSrOnly) continue;
+        if (!hasSrOnly) {
+          continue;
+        }
         foundPattern = true;
         /* Bad patterns */
         const usesTextIndent: boolean = /text-indent\s*:\s*-\d{3,}/.test(str);
@@ -7497,8 +7732,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if (!foundPattern)
+      if (!foundPattern) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -7534,7 +7770,9 @@ const A11Y_RULES: A11yRule[] = [
         const hasFocusableHidden: boolean =
           /<a\b[^>]*(?:sr-only|visually-hidden|VisuallyHidden)/.test(str) ||
           /(?:sr-only|visually-hidden|VisuallyHidden)[^>]*<\/a>/.test(str);
-        if (!hasFocusableHidden) continue;
+        if (!hasFocusableHidden) {
+          continue;
+        }
         hasSkipLinks = true;
         /* Check if the component or its CSS has :not(:focus) variant */
         const hasFocusReveal: boolean =
@@ -7573,8 +7811,9 @@ const A11Y_RULES: A11yRule[] = [
         }
       }
 
-      if (!hasSkipLinks)
+      if (!hasSkipLinks) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
 
       const pass: Num = passing.length as Num;
       const fail: Num = failing.length as Num;
@@ -7601,8 +7840,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7663,8 +7903,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7676,7 +7917,9 @@ const A11Y_RULES: A11yRule[] = [
       for (const [filename, content] of svelte) {
         const str: string = content as string;
         const hasDialog: boolean = /<dialog\b/.test(str) || /role=["']dialog["']/.test(str);
-        if (!hasDialog) continue;
+        if (!hasDialog) {
+          continue;
+        }
         if (dialogNoName.test(str) || roleDialogNoName.test(str)) {
           fail = ((fail as number) + 1) as Num;
           failing.push(filename);
@@ -7696,8 +7939,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -7721,8 +7965,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '2.4.3' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7732,7 +7977,9 @@ const A11Y_RULES: A11yRule[] = [
       for (const [filename, content] of svelte) {
         const str: string = content as string;
         const hasDialog: boolean = /<dialog\b/.test(str) || /role=["']dialog["']/.test(str);
-        if (!hasDialog) continue;
+        if (!hasDialog) {
+          continue;
+        }
         /* Check for focus management code */
         const hasFocusReturn: boolean =
           /\.focus\(\)/.test(str) ||
@@ -7754,8 +8001,9 @@ const A11Y_RULES: A11yRule[] = [
           });
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -7832,8 +8080,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7886,8 +8135,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '2.4.6' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7956,8 +8206,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.1.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -7968,7 +8219,9 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of svelte) {
         const str: string = content as string;
-        if (!str.includes('alt=')) continue;
+        if (!str.includes('alt=')) {
+          continue;
+        }
         const match: RegExpMatchArray | null = str.match(badPrefixRe);
         if (match) {
           fail = ((fail as number) + 1) as Num;
@@ -7986,8 +8239,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -8011,8 +8265,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '2.4.4' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -8024,12 +8279,16 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of svelte) {
         const str: string = content as string;
-        if (!str.includes('<a')) continue;
+        if (!str.includes('<a')) {
+          continue;
+        }
         let found: boolean = false;
         const emptyMatches: RegExpMatchArray[] = [...str.matchAll(emptyLinkRe)];
         for (const [tag] of emptyMatches) {
           /* Skip if it has aria-label, aria-labelledby, or title */
-          if (/aria-label|aria-labelledby|title=/.test(tag)) continue;
+          if (/aria-label|aria-labelledby|title=/.test(tag)) {
+            continue;
+          }
           found = true;
           findings.push({
             file: filename,
@@ -8041,7 +8300,9 @@ const A11Y_RULES: A11yRule[] = [
         }
         const selfCloseMatches: RegExpMatchArray[] = [...str.matchAll(selfCloseLinkRe)];
         for (const [tag] of selfCloseMatches) {
-          if (/aria-label|aria-labelledby|title=/.test(tag)) continue;
+          if (/aria-label|aria-labelledby|title=/.test(tag)) {
+            continue;
+          }
           found = true;
           findings.push({
             file: filename,
@@ -8059,8 +8320,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -8084,8 +8346,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -8096,19 +8359,25 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of svelte) {
         const str: string = content as string;
-        if (!str.includes('<button')) continue;
+        if (!str.includes('<button')) {
+          continue;
+        }
         let found: boolean = false;
         const matches: RegExpMatchArray[] = [...str.matchAll(emptyBtnRe)];
         for (const [tag] of matches) {
           /* Skip if it has aria-label, aria-labelledby, or title */
-          if (/aria-label|aria-labelledby|title=/.test(tag)) continue;
+          if (/aria-label|aria-labelledby|title=/.test(tag)) {
+            continue;
+          }
           /* Skip if the content between tags has visible text (not just SVG) */
           const innerContent: string = tag
             .replace(/<button[^>]*>/, '')
             .replace(/<\/button>/, '')
             .replaceAll(/<svg[\s\S]*?<\/svg>/g, '')
             .trim();
-          if (innerContent.length > 0) continue;
+          if (innerContent.length > 0) {
+            continue;
+          }
           found = true;
           findings.push({
             file: filename,
@@ -8127,8 +8396,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -8152,8 +8422,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '2.4.4' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -8164,7 +8435,9 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of svelte) {
         const str: string = content as string;
-        if (!str.includes('<a')) continue;
+        if (!str.includes('<a')) {
+          continue;
+        }
         const matches: RegExpMatchArray[] = [...str.matchAll(badTextRe)];
         if (matches.length > 0) {
           fail = ((fail as number) + 1) as Num;
@@ -8183,8 +8456,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -8208,8 +8482,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -8221,12 +8496,16 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of svelte) {
         const str: string = content as string;
-        if (!str.includes('title=')) continue;
+        if (!str.includes('title=')) {
+          continue;
+        }
         let found: boolean = false;
         const matches: RegExpMatchArray[] = [...str.matchAll(titleOnlyRe)];
         for (const [tag, elName] of matches) {
           /* Skip if it has another naming mechanism */
-          if (/aria-label=|aria-labelledby=|alt=/.test(tag)) continue;
+          if (/aria-label=|aria-labelledby=|alt=/.test(tag)) {
+            continue;
+          }
           /* For <a> and <button>, text content inside counts — but we can only check the opening tag here */
           /* Flag only self-closing or attribute-only patterns */
           if (
@@ -8252,8 +8531,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -8284,8 +8564,9 @@ const A11Y_RULES: A11yRule[] = [
       const css: SourceEntry[] = cssFiles(sources);
       const svelte: SourceEntry[] = svelteFiles(sources);
       const all: SourceEntry[] = [...css, ...svelte];
-      if (all.length === 0)
+      if (all.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -8296,12 +8577,16 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of all) {
         const str: string = content as string;
-        if (!str.includes(':focus')) continue;
+        if (!str.includes(':focus')) {
+          continue;
+        }
         const matches: RegExpMatchArray[] = [...str.matchAll(focusOutlineRe)];
         let found: boolean = false;
         for (const [ruleBlock] of matches) {
           /* Check if there is a replacement indicator */
-          if (/box-shadow|border-color|outline-offset|outline:.*\d+px/.test(ruleBlock)) continue;
+          if (/box-shadow|border-color|outline-offset|outline:.*\d+px/.test(ruleBlock)) {
+            continue;
+          }
           found = true;
           findings.push({
             file: filename,
@@ -8320,8 +8605,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -8345,8 +8631,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.4.4' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -8378,8 +8665,9 @@ const A11Y_RULES: A11yRule[] = [
           }
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -8403,8 +8691,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.4.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -8414,7 +8703,9 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of svelte) {
         const str: string = content as string;
-        if (!str.includes('autoplay')) continue;
+        if (!str.includes('autoplay')) {
+          continue;
+        }
         const matches: RegExpMatchArray[] = [...str.matchAll(autoplayRe)];
         if (matches.length > 0) {
           fail = ((fail as number) + 1) as Num;
@@ -8434,8 +8725,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -8459,8 +8751,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -8488,8 +8781,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -8513,8 +8807,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -8542,8 +8837,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -8572,8 +8868,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '4.1.2' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -8585,12 +8882,16 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of svelte) {
         const str: string = content as string;
-        if (!str.includes('title=')) continue;
+        if (!str.includes('title=')) {
+          continue;
+        }
         let found: boolean = false;
         const matches: RegExpMatchArray[] = [...str.matchAll(titleRe)];
         for (const [tag, elName] of matches) {
           /* Skip if element has other accessible naming */
-          if (/aria-label=|aria-labelledby=|alt=/.test(tag)) continue;
+          if (/aria-label=|aria-labelledby=|alt=/.test(tag)) {
+            continue;
+          }
           /* Skip if it has visible text content (opening tag only check) */
           if (
             elName === 'img' ||
@@ -8617,8 +8918,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -8642,8 +8944,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '3.2.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -8670,8 +8973,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -8695,8 +8999,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -8707,7 +9012,9 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of svelte) {
         const str: string = content as string;
-        if (!/<(article|section|aside)/.test(str)) continue;
+        if (!/<(article|section|aside)/.test(str)) {
+          continue;
+        }
         let found: boolean = false;
         const sectionMatches: RegExpMatchArray[] = [...str.matchAll(sectionRe)];
         for (const sectionMatch of sectionMatches) {
@@ -8734,8 +9041,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -8759,8 +9067,9 @@ const A11Y_RULES: A11yRule[] = [
     wcag: '1.3.1' as Str,
     check(sources: Map<Str, Str>): A11yRuleResult {
       const svelte: SourceEntry[] = svelteFiles(sources);
-      if (svelte.length === 0)
+      if (svelte.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -8801,8 +9110,9 @@ const A11Y_RULES: A11yRule[] = [
           });
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,
@@ -8828,8 +9138,9 @@ const A11Y_RULES: A11yRule[] = [
       const css: SourceEntry[] = cssFiles(sources);
       const svelte: SourceEntry[] = svelteFiles(sources);
       const all: SourceEntry[] = [...css, ...svelte];
-      if (all.length === 0)
+      if (all.length === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       let pass: Num = 0 as Num;
       let fail: Num = 0 as Num;
       const passing: Str[] = [];
@@ -8839,18 +9150,25 @@ const A11Y_RULES: A11yRule[] = [
 
       for (const [filename, content] of all) {
         const str: string = content as string;
-        if (!str.includes('::selection')) continue;
+        if (!str.includes('::selection')) {
+          continue;
+        }
         let found: boolean = false;
         const matches: RegExpMatchArray[] = [...str.matchAll(selectionRe)];
         for (const [fullMatch, rawBody] of matches) {
           const body: string = rawBody ?? '';
           const hasColor: boolean = /\bcolor\s*:/.test(body);
           const hasBg: boolean = /background(?:-color)?\s*:/.test(body);
-          if (hasColor && hasBg) continue;
+          if (hasColor && hasBg) {
+            continue;
+          }
           found = true;
           let missing: string = 'background';
-          if (!hasColor && !hasBg) missing = 'color and background';
-          else if (!hasColor) missing = 'color';
+          if (!hasColor && !hasBg) {
+            missing = 'color and background';
+          } else if (!hasColor) {
+            missing = 'color';
+          }
           findings.push({
             file: filename,
             problem:
@@ -8868,8 +9186,9 @@ const A11Y_RULES: A11yRule[] = [
           passing.push(filename);
         }
       }
-      if ((pass as number) === 0 && (fail as number) === 0)
+      if ((pass as number) === 0 && (fail as number) === 0) {
         return notApplicableResult(this.id, this.label, this.description, this.category, this.wcag);
+      }
       return buildResult(
         this,
         pass,

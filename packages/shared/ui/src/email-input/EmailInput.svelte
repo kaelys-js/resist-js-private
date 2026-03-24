@@ -33,7 +33,9 @@
   const validated: EmailInputProps = $derived.by(() => {
     const rawProps: EmailInputProps = stripSvelteProps(allProps);
     const result = safeParse(EmailInputPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as EmailInputProps;
   });

@@ -33,7 +33,9 @@
   const validated: GlowEffectProps = $derived.by(() => {
     const rawProps: GlowEffectProps = stripSvelteProps(allProps);
     const result = safeParse(GlowEffectPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as GlowEffectProps;
   });

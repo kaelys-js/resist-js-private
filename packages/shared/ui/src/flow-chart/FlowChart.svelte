@@ -33,7 +33,9 @@
   const validated: FlowChartProps = $derived.by(() => {
     const rawProps: FlowChartProps = stripSvelteProps(allProps);
     const result = safeParse(FlowChartPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as FlowChartProps;
   });

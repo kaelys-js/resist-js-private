@@ -33,7 +33,9 @@
   const validated: ColorSliderProps = $derived.by(() => {
     const rawProps: ColorSliderProps = stripSvelteProps(allProps);
     const result = safeParse(ColorSliderPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ColorSliderProps;
   });

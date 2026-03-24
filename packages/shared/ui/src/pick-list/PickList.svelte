@@ -33,7 +33,9 @@
   const validated: PickListProps = $derived.by(() => {
     const rawProps: PickListProps = stripSvelteProps(allProps);
     const result = safeParse(PickListPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as PickListProps;
   });

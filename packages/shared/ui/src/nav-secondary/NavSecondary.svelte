@@ -42,7 +42,9 @@
   const validated: NavSecondaryProps = $derived.by(() => {
     const rawProps: NavSecondaryProps = stripSvelteProps(allProps);
     const result = safeParse(NavSecondaryPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // Cast to mutable — Result.data is deep-frozen via Object.freeze but component only reads, never mutates
     return result.data as NavSecondaryProps;
   });

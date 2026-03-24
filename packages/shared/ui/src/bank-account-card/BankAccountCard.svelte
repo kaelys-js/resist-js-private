@@ -33,7 +33,9 @@
   const validated: BankAccountCardProps = $derived.by(() => {
     const rawProps: BankAccountCardProps = stripSvelteProps(allProps);
     const result = safeParse(BankAccountCardPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as BankAccountCardProps;
   });

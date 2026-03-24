@@ -121,7 +121,9 @@
   /** Total design token count (sum across all theme sets). */
   const tokenCount: Num = (() => {
     const entries: Array<[Str, Str]> = Object.entries(cssRawModules);
-    if (entries.length === 0) return 0 as Num;
+    if (entries.length === 0) {
+      return 0 as Num;
+    }
     const [, css]: [Str, Str] = entries[0] as [Str, Str];
     const sets: ThemeTokenSet[] = extractTokens(css);
     return sets.reduce(
@@ -149,7 +151,9 @@
   function toWorkspacePath(globPath: Str): Str {
     const s: string = globPath as string;
     const sharedIdx: number = s.indexOf('/shared/');
-    if (sharedIdx >= 0) return s.slice(sharedIdx + 1) as Str;
+    if (sharedIdx >= 0) {
+      return s.slice(sharedIdx + 1) as Str;
+    }
     return `editor${s}` as Str;
   }
 
@@ -214,7 +218,9 @@
     (name: Str, idx: Num): { rule: Num; name: Str; count: Num } => {
       const count: Num = componentNames.filter((n: Str): boolean => {
         const compat: LensCompatibility | undefined = compatByName.get(n);
-        if (!compat) return false;
+        if (!compat) {
+          return false;
+        }
         return compat.violations.some((v) => v.rule === idx);
       }).length as Num;
       return { rule: idx, name, count };
@@ -282,7 +288,9 @@
   // UI boundary — $derived must produce a value; fallback if data not loaded
   const iconCount: Num = $derived.by((): Num => {
     const count: unknown = $page.data?.iconCount;
-    if (typeof count === 'number') return count as Num;
+    if (typeof count === 'number') {
+      return count as Num;
+    }
     log.warn('iconCount not available from layout data');
     return 0 as Num;
   });

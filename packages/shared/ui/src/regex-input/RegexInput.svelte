@@ -33,7 +33,9 @@
   const validated: RegexInputProps = $derived.by(() => {
     const rawProps: RegexInputProps = stripSvelteProps(allProps);
     const result = safeParse(RegexInputPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as RegexInputProps;
   });

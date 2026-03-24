@@ -30,7 +30,9 @@ let parseSync: ((filename: string, source: string) => { program: unknown }) | nu
  * @returns Whether the parser is available
  */
 async function ensureOxcParser(): Promise<boolean> {
-  if (parseSync) return true;
+  if (parseSync) {
+    return true;
+  }
 
   try {
     const oxc = await import('oxc-parser');
@@ -94,7 +96,9 @@ function offsetToLoc(offset: number, lineStarts: number[]): { line: number; colu
  * @param lineStarts - Line start offsets
  */
 function patchLoc(node: unknown, lineStarts: number[]): void {
-  if (!node || typeof node !== 'object') return;
+  if (!node || typeof node !== 'object') {
+    return;
+  }
 
   const astNode: AstNode = node as AstNode; // Cast safe: guarded by type check
 
@@ -106,7 +110,9 @@ function patchLoc(node: unknown, lineStarts: number[]): void {
   }
 
   for (const key of Object.keys(astNode)) {
-    if (key === 'loc') continue;
+    if (key === 'loc') {
+      continue;
+    }
     const value: unknown = astNode[key];
 
     if (Array.isArray(value)) {
@@ -130,7 +136,9 @@ function patchLoc(node: unknown, lineStarts: number[]): void {
  * @param callback - Called for every node that has a `type` property
  */
 export function walkNode(node: unknown, callback: (node: AstNode) => void): void {
-  if (!node || typeof node !== 'object') return;
+  if (!node || typeof node !== 'object') {
+    return;
+  }
 
   const astNode: AstNode = node as AstNode; // Cast safe: guarded by type check below
 
@@ -165,10 +173,14 @@ function extractImports(ast: AstNode): ImportInfo[] {
   const imports: ImportInfo[] = [];
 
   walkNode(ast, (node: AstNode) => {
-    if (node.type !== 'ImportDeclaration') return;
+    if (node.type !== 'ImportDeclaration') {
+      return;
+    }
 
     const source: string | undefined = (node.source as { value?: string })?.value;
-    if (!source) return;
+    if (!source) {
+      return;
+    }
 
     const specifiers: ImportSpecifier[] = [];
     const nodeSpecifiers: AstNode[] | undefined = node.specifiers as AstNode[] | undefined;
@@ -234,10 +246,16 @@ function createVisitorContext(
 
     isImportedFrom(identifier: string, moduleName: string): boolean {
       for (const imp of imports) {
-        if (imp.source !== moduleName) continue;
+        if (imp.source !== moduleName) {
+          continue;
+        }
         for (const spec of imp.specifiers) {
-          if (spec.local === identifier) return true;
-          if (spec.isNamespace && identifier.startsWith(`${spec.local}.`)) return true;
+          if (spec.local === identifier) {
+            return true;
+          }
+          if (spec.isNamespace && identifier.startsWith(`${spec.local}.`)) {
+            return true;
+          }
         }
       }
       return false;
@@ -262,10 +280,14 @@ export async function runTypeScriptRules(
   content: string,
   rules: TypeScriptRule[],
 ): Promise<LintResult[]> {
-  if (rules.length === 0) return [];
+  if (rules.length === 0) {
+    return [];
+  }
 
   const hasParser: boolean = await ensureOxcParser();
-  if (!hasParser || !parseSync) return [];
+  if (!hasParser || !parseSync) {
+    return [];
+  }
 
   let ast: AstNode;
   try {
@@ -292,10 +314,14 @@ export async function runTypeScriptRules(
   walkNode(ast, (node: AstNode) => {
     for (const rule of rules) {
       const visitorFn = rule.visitor[node.type as keyof typeof rule.visitor];
-      if (!visitorFn) continue;
+      if (!visitorFn) {
+        continue;
+      }
 
       const context: VisitorContext | undefined = contexts.get(rule.id);
-      if (!context) continue;
+      if (!context) {
+        continue;
+      }
 
       try {
         const ruleResults: LintResult[] = visitorFn(node, context);

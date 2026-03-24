@@ -19,11 +19,15 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 function getJsDoc(node: AstNode, content: string): string | null {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
-  if (!trimmed.endsWith('*/')) return null;
+  if (!trimmed.endsWith('*/')) {
+    return null;
+  }
 
   const docEnd: number = trimmed.length;
   const docStart: number = trimmed.lastIndexOf('/**');
-  if (docStart === -1) return null;
+  if (docStart === -1) {
+    return null;
+  }
 
   return trimmed.slice(docStart, docEnd);
 }
@@ -38,7 +42,9 @@ function getJsDoc(node: AstNode, content: string): string | null {
 function getJsDocEndOffset(node: AstNode, content: string): number {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
-  if (!trimmed.endsWith('*/')) return -1;
+  if (!trimmed.endsWith('*/')) {
+    return -1;
+  }
   return trimmed.length - 2;
 }
 
@@ -57,7 +63,9 @@ function checkFunction(
 ): LintResult[] {
   const results: LintResult[] = [];
   const jsDoc: string | null = getJsDoc(exportNode, context.content);
-  if (!jsDoc) return results;
+  if (!jsDoc) {
+    return results;
+  }
 
   const funcName: string = ((funcNode.id as AstNode | undefined)?.name as string) ?? '<anonymous>';
   const hasExample: boolean = /@example\b/.test(jsDoc);
@@ -108,7 +116,9 @@ const rule: TypeScriptRule = {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declaration = node.declaration as AstNode | undefined;
-      if (!declaration) return results;
+      if (!declaration) {
+        return results;
+      }
 
       if (declaration.type === 'FunctionDeclaration') {
         results.push(...checkFunction(declaration, node, context));
@@ -116,7 +126,9 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
-        if (!declarations) return results;
+        if (!declarations) {
+          return results;
+        }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;

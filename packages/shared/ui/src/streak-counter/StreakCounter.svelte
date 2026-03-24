@@ -33,7 +33,9 @@
   const validated: StreakCounterProps = $derived.by(() => {
     const rawProps: StreakCounterProps = stripSvelteProps(allProps);
     const result = safeParse(StreakCounterPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as StreakCounterProps;
   });

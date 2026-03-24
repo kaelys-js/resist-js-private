@@ -92,12 +92,17 @@ function matchBrace(source: string, openIdx: number): number {
       inStr = null;
       continue;
     }
-    if (inStr) continue;
+    if (inStr) {
+      continue;
+    }
 
-    if (ch === '{') depth++;
-    else if (ch === '}') {
+    if (ch === '{') {
+      depth++;
+    } else if (ch === '}') {
       depth--;
-      if (depth === 0) return i;
+      if (depth === 0) {
+        return i;
+      }
     }
   }
 
@@ -127,17 +132,25 @@ function findTypeBlocks(source: string): TypeBlock[] {
     let braceIdx: number = -1;
     for (let i: number = afterEq; i < source.length; i++) {
       const ch: string = source[i] ?? '';
-      if (ch === '<' || ch === '(') depth++;
-      else if (ch === '>' || ch === ')') depth--;
-      else if (ch === '{' && depth === 0) {
+      if (ch === '<' || ch === '(') {
+        depth++;
+      } else if (ch === '>' || ch === ')') {
+        depth--;
+      } else if (ch === '{' && depth === 0) {
         braceIdx = i;
         break;
-      } else if (ch === ';' && depth === 0) break;
+      } else if (ch === ';' && depth === 0) {
+        break;
+      }
     }
 
-    if (braceIdx === -1) continue;
+    if (braceIdx === -1) {
+      continue;
+    }
     const closeIdx: number = matchBrace(source, braceIdx);
-    if (closeIdx === -1) continue;
+    if (closeIdx === -1) {
+      continue;
+    }
     blocks.push({ name, body: source.slice(braceIdx + 1, closeIdx) });
   }
 
@@ -166,13 +179,18 @@ function parseFields(body: string): FieldInfo[] {
 
   for (const line of lines) {
     const t: string = line.trim();
-    if (!t) continue;
+    if (!t) {
+      continue;
+    }
 
     // Skip nested blocks (inline objects, multi-line functions)
     if (skipDepth > 0) {
       for (const ch of t) {
-        if (ch === '{' || ch === '(') skipDepth++;
-        else if (ch === '}' || ch === ')') skipDepth--;
+        if (ch === '{' || ch === '(') {
+          skipDepth++;
+        } else if (ch === '}' || ch === ')') {
+          skipDepth--;
+        }
       }
       if (skipDepth <= 0) {
         skipDepth = 0;
@@ -186,7 +204,9 @@ function parseFields(body: string): FieldInfo[] {
       inJSDoc = true;
       jsdocBuf = [];
       const after: string = t.slice(3).trim();
-      if (after) jsdocBuf.push(after);
+      if (after) {
+        jsdocBuf.push(after);
+      }
       continue;
     }
 
@@ -197,13 +217,17 @@ function parseFields(body: string): FieldInfo[] {
           .slice(0, -2)
           .replace(/^\*\s*/, '')
           .trim();
-        if (before) jsdocBuf.push(before);
+        if (before) {
+          jsdocBuf.push(before);
+        }
         pendingJSDoc = jsdocBuf.filter(Boolean).join(' ');
         inJSDoc = false;
         jsdocBuf = [];
       } else {
         const content: string = t.replace(/^\*\s*/, '').trim();
-        if (content) jsdocBuf.push(content);
+        if (content) {
+          jsdocBuf.push(content);
+        }
       }
       continue;
     }
@@ -230,8 +254,11 @@ function parseFields(body: string): FieldInfo[] {
       // Check for unbalanced braces/parens (multi-line type)
       let bal: number = 0;
       for (const ch of fieldType) {
-        if (ch === '{' || ch === '(') bal++;
-        else if (ch === '}' || ch === ')') bal--;
+        if (ch === '{' || ch === '(') {
+          bal++;
+        } else if (ch === '}' || ch === ')') {
+          bal--;
+        }
       }
       if (bal > 0) {
         skipDepth = bal;
@@ -247,8 +274,11 @@ function parseFields(body: string): FieldInfo[] {
     // Unmatched line — check for lone opening brace
     let lineBal: number = 0;
     for (const ch of t) {
-      if (ch === '{' || ch === '(') lineBal++;
-      else if (ch === '}' || ch === ')') lineBal--;
+      if (ch === '{' || ch === '(') {
+        lineBal++;
+      } else if (ch === '}' || ch === ')') {
+        lineBal--;
+      }
     }
     if (lineBal > 0) {
       skipDepth = lineBal;
@@ -293,19 +323,26 @@ describe('Lens lint', () => {
     for (const file of svelteFiles) {
       const source: string = readFileSync(file, 'utf8');
       for (const block of findTypeBlocks(source)) {
-        if (!block.name.endsWith('Props')) continue;
+        if (!block.name.endsWith('Props')) {
+          continue;
+        }
 
         const lines: string[] = block.body.split('\n');
         let skipDepth: number = 0;
 
         for (const line of lines) {
           const t: string = line.trim();
-          if (!t) continue;
+          if (!t) {
+            continue;
+          }
 
           if (skipDepth > 0) {
             for (const ch of t) {
-              if (ch === '{' || ch === '(') skipDepth++;
-              else if (ch === '}' || ch === ')') skipDepth--;
+              if (ch === '{' || ch === '(') {
+                skipDepth++;
+              } else if (ch === '}' || ch === ')') {
+                skipDepth--;
+              }
             }
             continue;
           }
@@ -351,13 +388,17 @@ describe('Lens lint', () => {
 
       // Only enforce on components that define their own type blocks
       // (shadcn sub-component wrappers with no type defs are excluded)
-      if (findTypeBlocks(source).length === 0) continue;
+      if (findTypeBlocks(source).length === 0) {
+        continue;
+      }
 
       // Find instance <script lang="ts"> (not module)
       const scriptMatch: RegExpMatchArray | null = source.match(
         /<script\s+lang=["']ts["']>([\s\S]*?)<\/script>/,
       );
-      if (!scriptMatch) continue;
+      if (!scriptMatch) {
+        continue;
+      }
       const content: string = scriptMatch[1] ?? '';
       // Check for a JSDoc block anywhere in the script (may appear after imports)
       if (!/\/\*\*[\s\S]*?\*\//.test(content)) {
@@ -402,7 +443,9 @@ describe('Lens lint', () => {
       for (const dir of componentDirs) {
         const lensPath: string = join(UI_SRC, dir, 'lens.ts');
         const files: string[] = readdirSync(join(UI_SRC, dir));
-        if (!files.includes('lens.ts')) continue;
+        if (!files.includes('lens.ts')) {
+          continue;
+        }
 
         const source: string = readFileSync(lensPath, 'utf8');
 
@@ -536,12 +579,16 @@ describe('Lens lint', () => {
       const primaryFile: string | undefined = files.find(
         (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
       );
-      if (!primaryFile) continue;
+      if (!primaryFile) {
+        continue;
+      }
 
       const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
 
       // Skip placeholder components explicitly marked for future implementation
-      if (source.includes('@convert-to-lens')) continue;
+      if (source.includes('@convert-to-lens')) {
+        continue;
+      }
 
       const props: PropMeta[] = extractProps(source);
       const variants: VariantMeta | null = extractVariants(source);
@@ -630,10 +677,14 @@ describe('Lens lint', () => {
       const primaryFile: string | undefined = files.find(
         (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
       );
-      if (!primaryFile) continue;
+      if (!primaryFile) {
+        continue;
+      }
 
       const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
-      if (source.includes('@convert-to-lens')) continue;
+      if (source.includes('@convert-to-lens')) {
+        continue;
+      }
 
       if (!source.includes('v.strictObject(')) {
         violations.push(`${dir}/${primaryFile}`);
@@ -650,7 +701,9 @@ describe('Lens lint', () => {
 
     for (const file of svelteFiles) {
       const source: string = readFileSync(file, 'utf8');
-      if (source.includes('@convert-to-lens')) continue;
+      if (source.includes('@convert-to-lens')) {
+        continue;
+      }
 
       // Remove v.strictObject( to avoid false positives
       const cleaned: string = source.replaceAll('v.strictObject(', '');
@@ -681,16 +734,26 @@ describe('Lens lint', () => {
       const primaryFile: string | undefined = files.find(
         (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
       );
-      if (!primaryFile) continue;
+      if (!primaryFile) {
+        continue;
+      }
 
       const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
-      if (source.includes('@convert-to-lens')) continue;
+      if (source.includes('@convert-to-lens')) {
+        continue;
+      }
       // Only check components that have a v.strictObject schema
-      if (!source.includes('v.strictObject(')) continue;
+      if (!source.includes('v.strictObject(')) {
+        continue;
+      }
 
       const missing: string[] = [];
-      if (!source.includes('safeParse(')) missing.push('safeParse');
-      if (!source.includes('stripSvelteProps(')) missing.push('stripSvelteProps');
+      if (!source.includes('safeParse(')) {
+        missing.push('safeParse');
+      }
+      if (!source.includes('stripSvelteProps(')) {
+        missing.push('stripSvelteProps');
+      }
 
       if (missing.length > 0) {
         violations.push(`${dir}/${primaryFile} — missing ${missing.join(', ')}`);
@@ -711,21 +774,28 @@ describe('Lens lint', () => {
 
     for (const file of svelteFiles) {
       const source: string = readFileSync(file, 'utf8');
-      if (source.includes('@convert-to-lens')) continue;
+      if (source.includes('@convert-to-lens')) {
+        continue;
+      }
 
       // Extract module script block
       const moduleMatch: RegExpMatchArray | null = source.match(
         /<script[^>]*\bmodule\b[^>]*>[\s\S]*?<\/script>/,
       );
-      if (!moduleMatch) continue;
+      if (!moduleMatch) {
+        continue;
+      }
 
       const [moduleSource]: RegExpMatchArray = moduleMatch;
       const match: RegExpMatchArray | null = moduleSource.match(BARE_PRIMITIVE_RE);
       if (match) {
         const primitive: string = match[1] ?? '';
         let schema: string = 'NumSchema';
-        if (primitive === 'string') schema = 'StrSchema';
-        else if (primitive === 'boolean') schema = 'BoolSchema';
+        if (primitive === 'string') {
+          schema = 'StrSchema';
+        } else if (primitive === 'boolean') {
+          schema = 'BoolSchema';
+        }
         violations.push(`${rel(file)} — uses bare v.${primitive}() instead of ${schema}`);
       }
     }
@@ -744,11 +814,15 @@ describe('Lens lint', () => {
 
     for (const dir of dirs) {
       const lensPath: string = join(UI_SRC, dir, 'lens.ts');
-      if (!existsSync(lensPath)) continue;
+      if (!existsSync(lensPath)) {
+        continue;
+      }
 
       const lensSource: string = readFileSync(lensPath, 'utf8');
       const nameMatches: RegExpMatchArray[] = [...lensSource.matchAll(/name:\s*'([^']+)'/g)];
-      if (nameMatches.length === 0) continue;
+      if (nameMatches.length === 0) {
+        continue;
+      }
 
       const examplesDir: string = join(UI_SRC, dir, 'examples');
       const exampleFiles: string[] = existsSync(examplesDir)
@@ -789,7 +863,9 @@ describe('Lens lint', () => {
           const source: string = readFileSync(join(dirPath, f), 'utf8');
           return /\btv\s*\(\s*\{/.test(source);
         });
-      if (!usesTv) continue;
+      if (!usesTv) {
+        continue;
+      }
 
       const lensPath: string = join(dirPath, 'lens.ts');
       if (!existsSync(lensPath)) {
@@ -813,14 +889,20 @@ describe('Lens lint', () => {
 
     for (const file of svelteFiles) {
       const source: string = readFileSync(file, 'utf8');
-      if (source.includes('@convert-to-lens')) continue;
+      if (source.includes('@convert-to-lens')) {
+        continue;
+      }
 
       const valuesMatches: RegExpMatchArray[] = [...source.matchAll(/@values\s+(.+)/g)];
       for (const match of valuesMatches) {
         const valuesStr: string = (match[1] ?? '').trim();
         /* Skip object/snippet literals and code examples — they legitimately contain quotes */
-        if (valuesStr.startsWith('{') || valuesStr.startsWith('(')) continue;
-        if (/[()<>]/.test(valuesStr)) continue;
+        if (valuesStr.startsWith('{') || valuesStr.startsWith('(')) {
+          continue;
+        }
+        if (/[()<>]/.test(valuesStr)) {
+          continue;
+        }
         /* Check for single-quoted values like 'default', 'sm' in comma-separated lists */
         if (/'[^']+'/g.test(valuesStr)) {
           violations.push(`${rel(file)} — @values has quoted strings: ${valuesStr}`);
@@ -850,11 +932,17 @@ describe('Lens lint', () => {
       const primaryFile: string | undefined = files.find(
         (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
       );
-      if (!primaryFile) continue;
+      if (!primaryFile) {
+        continue;
+      }
 
       const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
-      if (source.includes('@convert-to-lens')) continue;
-      if (!source.includes('v.strictObject(')) continue;
+      if (source.includes('@convert-to-lens')) {
+        continue;
+      }
+      if (!source.includes('v.strictObject(')) {
+        continue;
+      }
 
       /*
        * Detect v.optional(v.picklist([...]))  — NO default (closing is `]))`)
@@ -906,11 +994,17 @@ describe('Lens lint', () => {
       const primaryFile: string | undefined = files.find(
         (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
       );
-      if (!primaryFile) continue;
+      if (!primaryFile) {
+        continue;
+      }
 
       const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
-      if (source.includes('@convert-to-lens')) continue;
-      if (!source.includes('v.strictObject(')) continue;
+      if (source.includes('@convert-to-lens')) {
+        continue;
+      }
+      if (!source.includes('v.strictObject(')) {
+        continue;
+      }
 
       if (!source.includes('...restProps')) {
         violations.push(`${dir}/${primaryFile} — missing ...restProps destructure in $props()`);
@@ -939,16 +1033,26 @@ describe('Lens lint', () => {
       const primaryFile: string | undefined = files.find(
         (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
       );
-      if (!primaryFile) continue;
+      if (!primaryFile) {
+        continue;
+      }
 
       const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
-      if (source.includes('@convert-to-lens')) continue;
-      if (!source.includes('v.strictObject(')) continue;
-      if (!source.includes('...restProps')) continue;
+      if (source.includes('@convert-to-lens')) {
+        continue;
+      }
+      if (!source.includes('v.strictObject(')) {
+        continue;
+      }
+      if (!source.includes('...restProps')) {
+        continue;
+      }
 
       /* Check template section (after </script>) for {...restProps} */
       const templateStart: number = source.lastIndexOf('</script>');
-      if (templateStart === -1) continue;
+      if (templateStart === -1) {
+        continue;
+      }
       const template: string = source.slice(templateStart);
 
       if (!template.includes('{...restProps}')) {
@@ -980,12 +1084,20 @@ describe('Lens lint', () => {
       const primaryFile: string | undefined = files.find(
         (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
       );
-      if (!primaryFile) continue;
+      if (!primaryFile) {
+        continue;
+      }
 
       const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
-      if (source.includes('@convert-to-lens')) continue;
-      if (!source.includes('v.strictObject(')) continue;
-      if (!source.includes('stripSvelteProps(')) continue;
+      if (source.includes('@convert-to-lens')) {
+        continue;
+      }
+      if (!source.includes('v.strictObject(')) {
+        continue;
+      }
+      if (!source.includes('stripSvelteProps(')) {
+        continue;
+      }
 
       /*
        * Detect the pattern: stripSvelteProps({ ..., children, ... }) or
@@ -1035,14 +1147,22 @@ describe('Lens lint', () => {
       const primaryFile: string | undefined = files.find(
         (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
       );
-      if (!primaryFile) continue;
+      if (!primaryFile) {
+        continue;
+      }
 
       const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
-      if (source.includes('@convert-to-lens')) continue;
-      if (!source.includes('v.strictObject(')) continue;
+      if (source.includes('@convert-to-lens')) {
+        continue;
+      }
+      if (!source.includes('v.strictObject(')) {
+        continue;
+      }
 
       const props: PropMeta[] = extractProps(source);
-      if (props.length === 0) continue;
+      if (props.length === 0) {
+        continue;
+      }
 
       /* Check usage in instance script + template (everything after module script).
        * Strip JSDoc comments so prop names mentioned only in docs don't count as usage. */
@@ -1052,7 +1172,9 @@ describe('Lens lint', () => {
 
       const dead: string[] = [];
       for (const prop of props) {
-        if (!prop.name || ALWAYS_USED.has(prop.name)) continue;
+        if (!prop.name || ALWAYS_USED.has(prop.name)) {
+          continue;
+        }
         const nameRe: RegExp = new RegExp(`\\b${prop.name}\\b`);
         if (!nameRe.test(usageSource)) {
           dead.push(prop.name);
@@ -1086,19 +1208,29 @@ describe('Lens lint', () => {
       const primaryFile: string | undefined = files.find(
         (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
       );
-      if (!primaryFile) continue;
+      if (!primaryFile) {
+        continue;
+      }
 
       const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
-      if (source.includes('@convert-to-lens')) continue;
-      if (!source.includes('v.strictObject(')) continue;
+      if (source.includes('@convert-to-lens')) {
+        continue;
+      }
+      if (!source.includes('v.strictObject(')) {
+        continue;
+      }
 
       const props: PropMeta[] = extractProps(source);
-      if (props.length === 0) continue;
+      if (props.length === 0) {
+        continue;
+      }
 
       const propNames: Set<string> = new Set(props.map((p) => p.name as string));
 
       for (const prop of props) {
-        if (!prop.requires || prop.requires.length === 0) continue;
+        if (!prop.requires || prop.requires.length === 0) {
+          continue;
+        }
         for (const req of prop.requires) {
           if (!propNames.has(req.prop as string)) {
             violations.push(

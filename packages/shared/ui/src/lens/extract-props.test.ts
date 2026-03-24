@@ -659,7 +659,9 @@ const validated = $derived.by(() => {
         const source: string = readFileSync(filePath, 'utf8');
 
         // Only check schema-based components (safeParse pattern)
-        if (!source.includes('safeParse(') || !source.includes('$props()')) continue;
+        if (!source.includes('safeParse(') || !source.includes('$props()')) {
+          continue;
+        }
 
         const props: PropMeta[] = extractProps(source);
         for (const prop of props) {

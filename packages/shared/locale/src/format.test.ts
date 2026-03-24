@@ -146,25 +146,33 @@ describe('formatNumber', () => {
   it('formats integer with en-US locale', () => {
     const result = formatNumber(1_234_567, 'en-US', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('1,234,567');
+    if (result.ok) {
+      expect(result.data).toBe('1,234,567');
+    }
   });
 
   it('formats decimal with en-US locale', () => {
     const result = formatNumber(1234.56, 'en-US', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('1,234');
+    if (result.ok) {
+      expect(result.data).toContain('1,234');
+    }
   });
 
   it('formats with de-DE locale', () => {
     const result = formatNumber(1234.56, 'de-DE', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('1.234');
+    if (result.ok) {
+      expect(result.data).toContain('1.234');
+    }
   });
 
   it('applies custom options', () => {
     const result = formatNumber(0.42, 'en-US', { style: 'percent' });
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('42');
+    if (result.ok) {
+      expect(result.data).toContain('42');
+    }
   });
 });
 
@@ -185,13 +193,17 @@ describe('formatCurrency', () => {
   it('formats EUR with de-DE locale', () => {
     const result = formatCurrency(1234.56, 'de-DE', 'EUR');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('1.234,56');
+    if (result.ok) {
+      expect(result.data).toContain('1.234,56');
+    }
   });
 
   it('formats JPY (no decimals)', () => {
     const result = formatCurrency(1234, 'ja-JP', 'JPY');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('1,234');
+    if (result.ok) {
+      expect(result.data).toContain('1,234');
+    }
   });
 });
 
@@ -205,19 +217,25 @@ describe('formatDate', () => {
   it('formats with short style', () => {
     const result = formatDate(testDate, 'en-US', 'short', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('2');
+    if (result.ok) {
+      expect(result.data).toContain('2');
+    }
   });
 
   it('formats with long style', () => {
     const result = formatDate(testDate, 'en-US', 'long', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('February');
+    if (result.ok) {
+      expect(result.data).toContain('February');
+    }
   });
 
   it('formats with custom options', () => {
     const result = formatDate(testDate, 'en-US', undefined, { year: 'numeric', month: '2-digit' });
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('02');
+    if (result.ok) {
+      expect(result.data).toContain('02');
+    }
   });
 
   it('accepts Unix timestamp', () => {
@@ -236,7 +254,9 @@ describe('formatTime', () => {
   it('formats with short style', () => {
     const result = formatTime(testDate, 'en-US', 'short', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toMatch(/\d{1,2}:\d{2}/);
+    if (result.ok) {
+      expect(result.data).toMatch(/\d{1,2}:\d{2}/);
+    }
   });
 
   it('formats with medium style', () => {
@@ -253,19 +273,25 @@ describe('formatRelativeTime', () => {
   it('formats past time', () => {
     const result = formatRelativeTime(-3, 'day', 'en', undefined, undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('3 days ago');
+    if (result.ok) {
+      expect(result.data).toContain('3 days ago');
+    }
   });
 
   it('formats future time', () => {
     const result = formatRelativeTime(2, 'hour', 'en', undefined, undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('in 2 hours');
+    if (result.ok) {
+      expect(result.data).toContain('in 2 hours');
+    }
   });
 
   it('formats with auto numeric (yesterday)', () => {
     const result = formatRelativeTime(-1, 'day', 'en', 'auto', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('yesterday');
+    if (result.ok) {
+      expect(result.data).toBe('yesterday');
+    }
   });
 
   it('rejects invalid unit', () => {
@@ -282,25 +308,33 @@ describe('formatList', () => {
   it('formats conjunction list (and)', () => {
     const result = formatList(['Alice', 'Bob', 'Charlie'], 'en', undefined, undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('Alice, Bob, and Charlie');
+    if (result.ok) {
+      expect(result.data).toBe('Alice, Bob, and Charlie');
+    }
   });
 
   it('formats disjunction list (or)', () => {
     const result = formatList(['Alice', 'Bob', 'Charlie'], 'en', 'disjunction', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('Alice, Bob, or Charlie');
+    if (result.ok) {
+      expect(result.data).toBe('Alice, Bob, or Charlie');
+    }
   });
 
   it('formats two items', () => {
     const result = formatList(['Alice', 'Bob'], 'en', undefined, undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('Alice and Bob');
+    if (result.ok) {
+      expect(result.data).toBe('Alice and Bob');
+    }
   });
 
   it('formats single item', () => {
     const result = formatList(['Alice'], 'en', undefined, undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('Alice');
+    if (result.ok) {
+      expect(result.data).toBe('Alice');
+    }
   });
 });
 
@@ -336,19 +370,25 @@ describe('formatDisplayName', () => {
   it('formats language display name', () => {
     const result = formatDisplayName('en', 'en', 'language', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('English');
+    if (result.ok) {
+      expect(result.data).toBe('English');
+    }
   });
 
   it('formats region display name', () => {
     const result = formatDisplayName('US', 'en', 'region', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('United States');
+    if (result.ok) {
+      expect(result.data).toBe('United States');
+    }
   });
 
   it('formats currency display name', () => {
     const result = formatDisplayName('USD', 'en', 'currency', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('Dollar');
+    if (result.ok) {
+      expect(result.data).toContain('Dollar');
+    }
   });
 });
 
@@ -360,19 +400,25 @@ describe('formatPercent', () => {
   it('formats 0.5 as 50%', () => {
     const result = formatPercent(0.5, 'en-US', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('50');
+    if (result.ok) {
+      expect(result.data).toContain('50');
+    }
   });
 
   it('formats 0 as 0%', () => {
     const result = formatPercent(0, 'en-US', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('0');
+    if (result.ok) {
+      expect(result.data).toContain('0');
+    }
   });
 
   it('formats 1 as 100%', () => {
     const result = formatPercent(1, 'en-US', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('100');
+    if (result.ok) {
+      expect(result.data).toContain('100');
+    }
   });
 });
 
@@ -384,13 +430,17 @@ describe('formatUnit', () => {
   it('formats kilometer', () => {
     const result = formatUnit(42, 'kilometer', 'en', undefined, undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('42');
+    if (result.ok) {
+      expect(result.data).toContain('42');
+    }
   });
 
   it('formats kilogram with long display', () => {
     const result = formatUnit(5, 'kilogram', 'en', 'long', undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('kilogram');
+    if (result.ok) {
+      expect(result.data).toContain('kilogram');
+    }
   });
 });
 
@@ -439,19 +489,25 @@ describe('parseNumberSkeleton', () => {
   it('parses .00 as minimumFractionDigits', () => {
     const result = parseNumberSkeleton('.00');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.minimumFractionDigits).toBe(2);
+    if (result.ok) {
+      expect(result.data.minimumFractionDigits).toBe(2);
+    }
   });
 
   it('parses percent as style percent', () => {
     const result = parseNumberSkeleton('percent');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.style).toBe('percent');
+    if (result.ok) {
+      expect(result.data.style).toBe('percent');
+    }
   });
 
   it('parses compact-short', () => {
     const result = parseNumberSkeleton('compact-short');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.notation).toBe('compact');
+    if (result.ok) {
+      expect(result.data.notation).toBe('compact');
+    }
   });
 
   it('returns ok for empty skeleton', () => {
@@ -468,19 +524,25 @@ describe('parseDateTimeSkeleton', () => {
   it('parses yyyy as year: numeric', () => {
     const result = parseDateTimeSkeleton('yyyy');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.year).toBe('numeric');
+    if (result.ok) {
+      expect(result.data.year).toBe('numeric');
+    }
   });
 
   it('parses MM as month: 2-digit', () => {
     const result = parseDateTimeSkeleton('MM');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.month).toBe('2-digit');
+    if (result.ok) {
+      expect(result.data.month).toBe('2-digit');
+    }
   });
 
   it('parses dd as day: 2-digit', () => {
     const result = parseDateTimeSkeleton('dd');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.day).toBe('2-digit');
+    if (result.ok) {
+      expect(result.data.day).toBe('2-digit');
+    }
   });
 
   it('returns ok for empty skeleton', () => {
@@ -491,37 +553,49 @@ describe('parseDateTimeSkeleton', () => {
   it('parses yy as year: 2-digit', () => {
     const result = parseDateTimeSkeleton('yy');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.year).toBe('2-digit');
+    if (result.ok) {
+      expect(result.data.year).toBe('2-digit');
+    }
   });
 
   it('parses MMM as month: short', () => {
     const result = parseDateTimeSkeleton('MMM');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.month).toBe('short');
+    if (result.ok) {
+      expect(result.data.month).toBe('short');
+    }
   });
 
   it('parses MMMM as month: long', () => {
     const result = parseDateTimeSkeleton('MMMM');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.month).toBe('long');
+    if (result.ok) {
+      expect(result.data.month).toBe('long');
+    }
   });
 
   it('parses M as month: numeric', () => {
     const result = parseDateTimeSkeleton('M');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.month).toBe('numeric');
+    if (result.ok) {
+      expect(result.data.month).toBe('numeric');
+    }
   });
 
   it('parses EEEE as weekday: long', () => {
     const result = parseDateTimeSkeleton('EEEE');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.weekday).toBe('long');
+    if (result.ok) {
+      expect(result.data.weekday).toBe('long');
+    }
   });
 
   it('parses E as weekday: short', () => {
     const result = parseDateTimeSkeleton('E');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.weekday).toBe('short');
+    if (result.ok) {
+      expect(result.data.weekday).toBe('short');
+    }
   });
 
   it('parses h as hour 12h numeric', () => {
@@ -545,25 +619,33 @@ describe('parseDateTimeSkeleton', () => {
   it('parses mm as minute: 2-digit', () => {
     const result = parseDateTimeSkeleton('mm');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.minute).toBe('2-digit');
+    if (result.ok) {
+      expect(result.data.minute).toBe('2-digit');
+    }
   });
 
   it('parses ss as second: 2-digit', () => {
     const result = parseDateTimeSkeleton('ss');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.second).toBe('2-digit');
+    if (result.ok) {
+      expect(result.data.second).toBe('2-digit');
+    }
   });
 
   it('parses z as timeZoneName: short', () => {
     const result = parseDateTimeSkeleton('z');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.timeZoneName).toBe('short');
+    if (result.ok) {
+      expect(result.data.timeZoneName).toBe('short');
+    }
   });
 
   it('parses zzzz as timeZoneName: long', () => {
     const result = parseDateTimeSkeleton('zzzz');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.timeZoneName).toBe('long');
+    if (result.ok) {
+      expect(result.data.timeZoneName).toBe('long');
+    }
   });
 
   it('ignores unknown symbols', () => {
@@ -620,55 +702,73 @@ describe('parseNumberSkeleton — extended tokens', () => {
   it('parses scientific', () => {
     const result = parseNumberSkeleton('scientific');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.notation).toBe('scientific');
+    if (result.ok) {
+      expect(result.data.notation).toBe('scientific');
+    }
   });
 
   it('parses engineering', () => {
     const result = parseNumberSkeleton('engineering');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.notation).toBe('engineering');
+    if (result.ok) {
+      expect(result.data.notation).toBe('engineering');
+    }
   });
 
   it('parses sign-always', () => {
     const result = parseNumberSkeleton('sign-always');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.signDisplay).toBe('always');
+    if (result.ok) {
+      expect(result.data.signDisplay).toBe('always');
+    }
   });
 
   it('parses sign-never', () => {
     const result = parseNumberSkeleton('sign-never');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.signDisplay).toBe('never');
+    if (result.ok) {
+      expect(result.data.signDisplay).toBe('never');
+    }
   });
 
   it('parses sign-except-zero', () => {
     const result = parseNumberSkeleton('sign-except-zero');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.signDisplay).toBe('exceptZero');
+    if (result.ok) {
+      expect(result.data.signDisplay).toBe('exceptZero');
+    }
   });
 
   it('parses sign-auto', () => {
     const result = parseNumberSkeleton('sign-auto');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.signDisplay).toBe('auto');
+    if (result.ok) {
+      expect(result.data.signDisplay).toBe('auto');
+    }
   });
 
   it('parses group-off', () => {
     const result = parseNumberSkeleton('group-off');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.useGrouping).toBe(false);
+    if (result.ok) {
+      expect(result.data.useGrouping).toBe(false);
+    }
   });
 
   it('parses integer', () => {
     const result = parseNumberSkeleton('integer');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.maximumFractionDigits).toBe(0);
+    if (result.ok) {
+      expect(result.data.maximumFractionDigits).toBe(0);
+    }
   });
 
   it('parses .## as max fraction digits', () => {
     const result = parseNumberSkeleton('.##');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.maximumFractionDigits).toBe(2);
+    if (result.ok) {
+      expect(result.data.maximumFractionDigits).toBe(2);
+    }
   });
 
   it('parses .00## as mixed fraction digits', () => {
@@ -683,7 +783,9 @@ describe('parseNumberSkeleton — extended tokens', () => {
   it('ignores unknown tokens', () => {
     const result = parseNumberSkeleton('unknown-token .00');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.minimumFractionDigits).toBe(2);
+    if (result.ok) {
+      expect(result.data.minimumFractionDigits).toBe(2);
+    }
   });
 });
 
@@ -705,7 +807,9 @@ describe('error paths', () => {
   it('formatTime with undefined style defaults to medium', () => {
     const result = formatTime(new Date('2026-02-23T14:30:00'), 'en-US', undefined, undefined);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain(':30');
+    if (result.ok) {
+      expect(result.data).toContain(':30');
+    }
   });
 
   it('formatDate with both style and options undefined uses empty options', () => {
@@ -742,7 +846,9 @@ describe('error paths', () => {
   it('formatPercent with custom options', () => {
     const result = formatPercent(0.256, 'en-US', { minimumFractionDigits: 1 });
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('25.6');
+    if (result.ok) {
+      expect(result.data).toContain('25.6');
+    }
   });
 
   it('formatList with narrow style', () => {

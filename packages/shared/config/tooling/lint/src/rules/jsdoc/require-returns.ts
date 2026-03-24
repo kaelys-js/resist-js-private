@@ -22,11 +22,15 @@ const VOID_TYPES: ReadonlySet<string> = new Set(['void', 'Void', 'undefined', 'n
 function getJsDoc(node: AstNode, content: string): string | null {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
-  if (!trimmed.endsWith('*/')) return null;
+  if (!trimmed.endsWith('*/')) {
+    return null;
+  }
 
   const docEnd: number = trimmed.length;
   const docStart: number = trimmed.lastIndexOf('/**');
-  if (docStart === -1) return null;
+  if (docStart === -1) {
+    return null;
+  }
 
   return trimmed.slice(docStart, docEnd);
 }
@@ -41,7 +45,9 @@ function getJsDoc(node: AstNode, content: string): string | null {
 function getJsDocEndOffset(node: AstNode, content: string): number {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
-  if (!trimmed.endsWith('*/')) return -1;
+  if (!trimmed.endsWith('*/')) {
+    return -1;
+  }
   return trimmed.length - 2;
 }
 
@@ -54,10 +60,14 @@ function getJsDocEndOffset(node: AstNode, content: string): number {
  */
 function getReturnType(funcNode: AstNode, content: string): string | null {
   const returnType = funcNode.returnType as AstNode | undefined;
-  if (!returnType) return null;
+  if (!returnType) {
+    return null;
+  }
 
   const typeAnnotation = returnType.typeAnnotation as AstNode | undefined;
-  if (!typeAnnotation) return content.slice(returnType.start, returnType.end).replace(/^:\s*/, '');
+  if (!typeAnnotation) {
+    return content.slice(returnType.start, returnType.end).replace(/^:\s*/, '');
+  }
 
   return content.slice(typeAnnotation.start, typeAnnotation.end);
 }
@@ -70,9 +80,13 @@ function getReturnType(funcNode: AstNode, content: string): string | null {
  */
 function requiresReturnsTag(returnType: string): boolean {
   const trimmed: string = returnType.trim();
-  if (VOID_TYPES.has(trimmed)) return false;
+  if (VOID_TYPES.has(trimmed)) {
+    return false;
+  }
   const promiseMatch: RegExpMatchArray | null = trimmed.match(/^Promise<(.+)>$/);
-  if (promiseMatch && VOID_TYPES.has(promiseMatch[1].trim())) return false;
+  if (promiseMatch && VOID_TYPES.has(promiseMatch[1].trim())) {
+    return false;
+  }
   return true;
 }
 
@@ -112,11 +126,17 @@ function checkFunction(
 ): LintResult[] {
   const results: LintResult[] = [];
   const jsDoc: string | null = getJsDoc(exportNode, context.content);
-  if (!jsDoc) return results;
+  if (!jsDoc) {
+    return results;
+  }
 
   const returnType: string | null = getReturnType(funcNode, context.content);
-  if (!returnType) return results;
-  if (!requiresReturnsTag(returnType)) return results;
+  if (!returnType) {
+    return results;
+  }
+  if (!requiresReturnsTag(returnType)) {
+    return results;
+  }
 
   const funcName: string = ((funcNode.id as AstNode | undefined)?.name as string) ?? '<anonymous>';
   const hasReturns: boolean = /@returns\b/.test(jsDoc);
@@ -184,7 +204,9 @@ const rule: TypeScriptRule = {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declaration = node.declaration as AstNode | undefined;
-      if (!declaration) return results;
+      if (!declaration) {
+        return results;
+      }
 
       if (declaration.type === 'FunctionDeclaration') {
         results.push(...checkFunction(declaration, node, context));
@@ -192,7 +214,9 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
-        if (!declarations) return results;
+        if (!declarations) {
+          return results;
+        }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;

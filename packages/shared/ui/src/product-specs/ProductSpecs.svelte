@@ -33,7 +33,9 @@
   const validated: ProductSpecsProps = $derived.by(() => {
     const rawProps: ProductSpecsProps = stripSvelteProps(allProps);
     const result = safeParse(ProductSpecsPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ProductSpecsProps;
   });

@@ -72,7 +72,9 @@ function checkTypeNode(node: AstNode, context: VisitorContext, results: LintResu
     const replacement: string | undefined = BUILTIN_REPLACEMENTS.get(builtin);
 
     // Allow void inside Promise<void>
-    if (builtin === 'void' && isInsidePromiseVoid(node, context.content)) return;
+    if (builtin === 'void' && isInsidePromiseVoid(node, context.content)) {
+      return;
+    }
 
     if (replacement) {
       results.push({
@@ -92,7 +94,9 @@ function checkTypeNode(node: AstNode, context: VisitorContext, results: LintResu
 
   // Recurse into child nodes that are type-related
   const typeAnnotation = node.typeAnnotation as AstNode | undefined;
-  if (typeAnnotation) checkTypeNode(typeAnnotation, context, results);
+  if (typeAnnotation) {
+    checkTypeNode(typeAnnotation, context, results);
+  }
 
   // Union/intersection members
   const types = node.types as AstNode[] | undefined;
@@ -117,18 +121,24 @@ function checkTypeNode(node: AstNode, context: VisitorContext, results: LintResu
 
   // Array element type
   const elementType = node.elementType as AstNode | undefined; // cast safe: AST property
-  if (elementType) checkTypeNode(elementType, context, results);
+  if (elementType) {
+    checkTypeNode(elementType, context, results);
+  }
 
   // Function type return type
   const returnType = node.returnType as AstNode | undefined; // cast safe: AST property
-  if (returnType) checkTypeNode(returnType, context, results);
+  if (returnType) {
+    checkTypeNode(returnType, context, results);
+  }
 
   // Function type parameters
   const fnParams = node.params as AstNode[] | undefined; // cast safe: AST property
   if (fnParams && (node.type === 'TSFunctionType' || node.type === 'TSMethodSignature')) {
     for (const p of fnParams) {
       const paramAnnotation = p.typeAnnotation as AstNode | undefined; // cast safe: AST property
-      if (paramAnnotation) checkTypeNode(paramAnnotation, context, results);
+      if (paramAnnotation) {
+        checkTypeNode(paramAnnotation, context, results);
+      }
     }
   }
 }

@@ -33,7 +33,9 @@
   const validated: RainbowButtonProps = $derived.by(() => {
     const rawProps: RainbowButtonProps = stripSvelteProps(allProps);
     const result = safeParse(RainbowButtonPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as RainbowButtonProps;
   });

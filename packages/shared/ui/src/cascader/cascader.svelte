@@ -33,7 +33,9 @@
   const validated: CascaderProps = $derived.by(() => {
     const rawProps: CascaderProps = stripSvelteProps(allProps);
     const result = safeParse(CascaderPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as CascaderProps;
   });

@@ -132,7 +132,9 @@ export async function applyAccessibilitySettings(
   settings: AndroidAccessibilitySettings,
 ): Promise<void> {
   const commands: AccessibilityCommand[] = buildAccessibilityCommands(adbPath, serial, settings);
-  if (commands.length === 0) return;
+  if (commands.length === 0) {
+    return;
+  }
 
   const executions: Array<Promise<unknown>> = commands.map((cmd: AccessibilityCommand) =>
     execFileAsync(adbPath as string, cmd.args as string[]),

@@ -13,7 +13,9 @@ describe('AppPreferencesSchema', () => {
   it('accepts empty object and fills all defaults', () => {
     const result = safeParse(AppPreferencesSchema, {});
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     const prefs: AppPreferences = result.data;
     expect(prefs.appName).toBe(APP_NAME);
     expect(prefs.theme).toBe('');
@@ -33,7 +35,9 @@ describe('AppPreferencesSchema', () => {
       mockDataDelay: 500,
     });
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data.appName).toBe('My Editor');
     expect(result.data.theme).toBe('midnight');
     expect(result.data.mode).toBe('dark');
@@ -96,7 +100,9 @@ describe('FeatureFlagsSchema', () => {
   it('accepts empty object with all 15 defaults true', () => {
     const result = safeParse(FeatureFlagsSchema, {});
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     const flags: FeatureFlags = result.data;
     expect(flags.settings).toBe(true);
     expect(flags.themeSelection).toBe(true);
@@ -122,7 +128,9 @@ describe('FeatureFlagsSchema', () => {
   it('has exactly 28 flag keys', () => {
     const result = safeParse(FeatureFlagsSchema, {});
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(Object.keys(result.data)).toHaveLength(28);
   });
 
@@ -133,7 +141,9 @@ describe('FeatureFlagsSchema', () => {
       appIconInSidebar: false,
     });
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data.breadcrumb).toBe(false);
     expect(result.data.sidebarToggle).toBe(false);
     expect(result.data.appIconInSidebar).toBe(false);
@@ -148,7 +158,9 @@ describe('FeatureFlagsSchema', () => {
       sceneList: false,
     });
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data.settings).toBe(false);
     expect(result.data.sceneList).toBe(false);
     expect(result.data.themeSelection).toBe(true);
@@ -179,7 +191,9 @@ describe('EditorStateSchema', () => {
       features: { settings: false },
     });
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data.app.appName).toBe('Test');
     expect(result.data.app.theme).toBe('forest');
     expect(result.data.features.settings).toBe(false);
@@ -189,7 +203,9 @@ describe('EditorStateSchema', () => {
   it('accepts empty nested objects (all defaults)', () => {
     const result = safeParse(EditorStateSchema, { app: {}, features: {} });
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data.app.appName).toBe(APP_NAME);
     expect(result.data.features.sidebar).toBe(true);
   });

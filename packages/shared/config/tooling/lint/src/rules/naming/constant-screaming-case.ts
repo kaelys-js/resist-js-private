@@ -22,19 +22,25 @@ const SCREAMING_SNAKE_RE: RegExp = /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/;
  * @returns {boolean} Whether the init represents a constant value
  */
 function isConstantLikeInit(init: AstNode): boolean {
-  if (LITERAL_TYPES.has(init.type)) return true;
+  if (LITERAL_TYPES.has(init.type)) {
+    return true;
+  }
 
   // Negative number literal: -42
   if (init.type === 'UnaryExpression') {
     const argument = init.argument as AstNode | undefined;
-    if (argument && LITERAL_TYPES.has(argument.type)) return true;
+    if (argument && LITERAL_TYPES.has(argument.type)) {
+      return true;
+    }
   }
 
   // new Set(...) or new Map(...)
   if (init.type === 'NewExpression') {
     const callee = init.callee as AstNode | undefined;
     const calleeName: string = (callee?.name as string) ?? '';
-    if (calleeName === 'Set' || calleeName === 'Map') return true;
+    if (calleeName === 'Set' || calleeName === 'Map') {
+      return true;
+    }
   }
 
   // Array of literals: [1, 2, 3]
@@ -57,7 +63,9 @@ const rule: TypeScriptRule = {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const body = node.body as AstNode[] | undefined;
-      if (!body) return results;
+      if (!body) {
+        return results;
+      }
 
       for (const stmt of body) {
         let varDecl: AstNode | null = null;
@@ -72,23 +80,35 @@ const rule: TypeScriptRule = {
           }
         }
 
-        if (!varDecl) continue;
+        if (!varDecl) {
+          continue;
+        }
 
         const declarations = varDecl.declarations as AstNode[] | undefined;
-        if (!declarations) continue;
+        if (!declarations) {
+          continue;
+        }
 
         for (const decl of declarations) {
           const id = decl.id as AstNode | undefined;
-          if (!id || id.type !== 'Identifier') continue;
+          if (!id || id.type !== 'Identifier') {
+            continue;
+          }
 
           const name: string = (id.name as string) ?? '';
-          if (!name) continue;
+          if (!name) {
+            continue;
+          }
 
           const init = decl.init as AstNode | undefined;
-          if (!init) continue;
+          if (!init) {
+            continue;
+          }
 
           // Only flag constant-like initializers
-          if (!isConstantLikeInit(init)) continue;
+          if (!isConstantLikeInit(init)) {
+            continue;
+          }
 
           if (!SCREAMING_SNAKE_RE.test(name)) {
             results.push({

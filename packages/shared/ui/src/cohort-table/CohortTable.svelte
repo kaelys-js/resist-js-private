@@ -33,7 +33,9 @@
   const validated: CohortTableProps = $derived.by(() => {
     const rawProps: CohortTableProps = stripSvelteProps(allProps);
     const result = safeParse(CohortTablePropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as CohortTableProps;
   });

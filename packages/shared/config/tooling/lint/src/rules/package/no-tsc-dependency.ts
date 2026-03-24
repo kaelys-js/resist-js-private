@@ -15,11 +15,17 @@ const rule: PackageJsonRule = {
   description: 'Packages using tsgo should not depend on typescript',
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
-    if (context.isRoot) return results;
+    if (context.isRoot) {
+      return results;
+    }
     const name: string = context.pkg.name ?? '';
-    if (name.includes('vscode')) return results;
+    if (name.includes('vscode')) {
+      return results;
+    }
     const typeCheck: string | undefined = context.pkg.scripts?.['qa:type-check'];
-    if (typeCheck?.includes('svelte-check')) return results;
+    if (typeCheck?.includes('svelte-check')) {
+      return results;
+    }
     const hasTsDep: boolean = Boolean(
       context.pkg.devDependencies?.['typescript'] ?? context.pkg.dependencies?.['typescript'],
     );

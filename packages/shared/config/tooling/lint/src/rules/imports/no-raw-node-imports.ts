@@ -58,18 +58,26 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       // Skip exempt files
-      if (isExempt(context.file)) return results;
+      if (isExempt(context.file)) {
+        return results;
+      }
 
       // Skip type-only imports
       const importKind = node.importKind as string | undefined;
-      if (importKind === 'type') return results;
+      if (importKind === 'type') {
+        return results;
+      }
 
       const source = node.source as AstNode | undefined;
       const value: string | undefined = (source as { value?: string } | undefined)?.value;
-      if (!value) return results;
+      if (!value) {
+        return results;
+      }
 
       // Only flag node:* imports
-      if (!value.startsWith('node:')) return results;
+      if (!value.startsWith('node:')) {
+        return results;
+      }
 
       const alternative: string = ALTERNATIVES[value] ?? '@/utils/core';
 

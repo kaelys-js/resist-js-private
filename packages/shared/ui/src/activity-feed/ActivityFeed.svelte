@@ -33,7 +33,9 @@
   const validated: ActivityFeedProps = $derived.by(() => {
     const rawProps: ActivityFeedProps = stripSvelteProps(allProps);
     const result = safeParse(ActivityFeedPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ActivityFeedProps;
   });

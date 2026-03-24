@@ -24,7 +24,9 @@ import type { PropMeta, TypeField, VariantKeyMeta } from './types.js';
 function isFunctionType(type: string, typeDefinition?: string): boolean {
   // Array-of-object types can have inner fields with function validators
   // (e.g., v.custom<Component>(...)) — those are NOT function types themselves
-  if (type.endsWith('[]')) return false;
+  if (type.endsWith('[]')) {
+    return false;
+  }
   return (
     type === 'Snippet' ||
     type === 'Component' ||
@@ -88,7 +90,9 @@ const SKIP_PROPS: ReadonlySet<string> = new Set(['ref', 'class', 'children', 'ch
  * @returns Array of PropMeta for user-facing props
  */
 export function extractProps(source: string, supplementarySources?: string[]): PropMeta[] {
-  if (!source) return [];
+  if (!source) {
+    return [];
+  }
 
   const block: PropsBlock | null = findPropsBlock(source);
 
@@ -122,7 +126,9 @@ export function extractProps(source: string, supplementarySources?: string[]): P
 
   const result: PropMeta[] = [];
   for (const raw of rawProps) {
-    if (SKIP_PROPS.has(raw.name)) continue;
+    if (SKIP_PROPS.has(raw.name)) {
+      continue;
+    }
 
     const inlineType: string = inlineTypes.get(raw.name) ?? '';
     let resolvedType: string = inlineType || inferType(raw.defaultValue);
@@ -163,7 +169,9 @@ export function extractProps(source: string, supplementarySources?: string[]): P
   // Fallback: if destructuring yielded no props but a schema exists, use schema-based extraction
   if (result.length === 0) {
     const schemaFallback: PropMeta[] = extractSchemaBasedProps(source, supplementarySources);
-    if (schemaFallback.length > 0) return schemaFallback;
+    if (schemaFallback.length > 0) {
+      return schemaFallback;
+    }
   }
 
   // Fallback: if any props lack defaults, check for a Valibot schema in the same file
@@ -207,18 +215,26 @@ export function extractProps(source: string, supplementarySources?: string[]): P
  */
 function extractSchemaBasedProps(source: string, supplementarySources?: string[]): PropMeta[] {
   // Must have $props() somewhere
-  if (!source.includes('$props()')) return [];
+  if (!source.includes('$props()')) {
+    return [];
+  }
 
   // Find schema name from safeParse(XxxSchema, ...) in the instance script
   const safeParseMatch: RegExpMatchArray | null = source.match(/safeParse\(\s*(\w+Schema)\s*,/);
-  if (!safeParseMatch) return [];
+  if (!safeParseMatch) {
+    return [];
+  }
 
   const schemaName: string = safeParseMatch[1] ?? '';
-  if (!schemaName) return [];
+  if (!schemaName) {
+    return [];
+  }
 
   // Resolve the schema to field types and descriptions
   const resolved: ResolvedTypeDef | null = resolveValibotSchema(source, schemaName);
-  if (!resolved) return [];
+  if (!resolved) {
+    return [];
+  }
 
   // Combine primary source with supplementary sources for type resolution
   const combinedSource: string = supplementarySources
@@ -227,7 +243,9 @@ function extractSchemaBasedProps(source: string, supplementarySources?: string[]
 
   const result: PropMeta[] = [];
   for (const [fieldName, fieldDef] of resolved.fields) {
-    if (SKIP_PROPS.has(fieldName)) continue;
+    if (SKIP_PROPS.has(fieldName)) {
+      continue;
+    }
 
     const readableType: string = fieldDef.type;
     const rawTypeDef: string | undefined = resolveTypeDefinition(readableType, combinedSource);
@@ -272,18 +290,24 @@ function extractSchemaBasedProps(source: string, supplementarySources?: string[]
  * @returns Component description, or empty string
  */
 export function extractDescription(source: string): string {
-  if (!source) return '';
+  if (!source) {
+    return '';
+  }
 
   // Find the instance <script> block (not <script module>)
   const scriptMatch: RegExpMatchArray | null = source.match(
     /<script\s+lang=["']ts["']>([\s\S]*?)<\/script>/,
   );
-  if (!scriptMatch) return '';
+  if (!scriptMatch) {
+    return '';
+  }
   const scriptContent: string = scriptMatch[1] ?? '';
 
   // Find the first JSDoc block
   const jsdocMatch: RegExpMatchArray | null = scriptContent.match(/\/\*\*\s*\n([\s\S]*?)\*\//);
-  if (!jsdocMatch) return '';
+  if (!jsdocMatch) {
+    return '';
+  }
 
   // Extract lines, remove * prefix, filter out @tags
   const lines: string[] = (jsdocMatch[1] ?? '')
@@ -293,9 +317,15 @@ export function extractDescription(source: string): string {
   // Collect first paragraph (stop at blank line or @tag)
   const desc: string[] = [];
   for (const line of lines) {
-    if (line.startsWith('@')) break;
-    if (line === '' && desc.length > 0) break;
-    if (line !== '') desc.push(line);
+    if (line.startsWith('@')) {
+      break;
+    }
+    if (line === '' && desc.length > 0) {
+      break;
+    }
+    if (line !== '') {
+      desc.push(line);
+    }
   }
 
   return desc.join(' ');
@@ -315,7 +345,9 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
   const variants: VariantKeyMeta[] = [];
 
   for (const { type, name, default: defaultVal, typeDefinition, mockValues, requires } of props) {
-    if (!type) continue;
+    if (!type) {
+      continue;
+    }
 
     /** Requires entries for this prop (undefined if empty, for clean output). */
     const reqEntries: { prop: string; value: string }[] | undefined =
@@ -347,7 +379,9 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
     }
 
     // Skip function types without @values — can't render Snippet/Component/callback as string variants
-    if (isFunctionType(type, typeDefinition)) continue;
+    if (isFunctionType(type, typeDefinition)) {
+      continue;
+    }
 
     // Boolean props: render true/false
     if (type === 'boolean' || type === 'Bool') {
@@ -413,13 +447,19 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
   // Skip array-typed props — their typeFields are inner item fields (from unwrapping
   // v.array()), and dotted variants would produce Objects where Arrays are expected.
   for (const prop of props) {
-    if (!prop.typeFields || prop.typeFields.length === 0) continue;
-    if (prop.type.endsWith('[]')) continue;
+    if (!prop.typeFields || prop.typeFields.length === 0) {
+      continue;
+    }
+    if (prop.type.endsWith('[]')) {
+      continue;
+    }
     const isRecordParent: boolean =
       prop.type.startsWith('Record<') || (prop.typeDefinition?.startsWith('Record<') ?? false);
     for (const tf of prop.typeFields) {
       // Skip [key] placeholder for Record types — the key isn't a real field
-      if (isRecordParent && tf.field === '[key]') continue;
+      if (isRecordParent && tf.field === '[key]') {
+        continue;
+      }
       const parsed: TypeFieldVariantResult = parseTypeFieldAccepts(tf);
       if (parsed.options.length > 1) {
         // Record value sub-fields need special coercion in the renderer
@@ -476,7 +516,9 @@ function parseTypeFieldAccepts(tf: TypeField): TypeFieldVariantResult {
         return {
           options: tf.mockValues.map((mv: string): string => {
             const parsed: unknown = tryParseJsLiteral(mv);
-            if (parsed === undefined) return mv;
+            if (parsed === undefined) {
+              return mv;
+            }
             return JSON.stringify(parsed);
           }),
           coerce: 'array',
@@ -497,7 +539,9 @@ function parseTypeFieldAccepts(tf: TypeField): TypeFieldVariantResult {
       .split(', ')
       .map((s: string): string => s.trim())
       .filter(Boolean);
-    if (items.length > 1) return { options: items, coerce: undefined };
+    if (items.length > 1) {
+      return { options: items, coerce: undefined };
+    }
   }
 
   // Number fields — generate example values
@@ -574,13 +618,17 @@ export function buildBaseProps(propsMeta: PropMeta[]): Record<string, unknown> {
     } else if (prop.type.startsWith('{ ')) {
       // Inline object type summary — construct placeholder with empty string values
       const placeholder: Record<string, string> | null = buildPlaceholderObject(prop.type);
-      if (placeholder) base[prop.name] = placeholder;
+      if (placeholder) {
+        base[prop.name] = placeholder;
+      }
     } else if (prop.typeDefinition?.startsWith('{')) {
       // Named type resolving to object — extract field names from definition body
       const placeholder: Record<string, string> | null = buildPlaceholderFromDefinition(
         prop.typeDefinition,
       );
-      if (placeholder) base[prop.name] = placeholder;
+      if (placeholder) {
+        base[prop.name] = placeholder;
+      }
     } else if (
       prop.mockValues &&
       prop.mockValues.length > 0 &&
@@ -613,13 +661,17 @@ export function buildBaseProps(propsMeta: PropMeta[]): Record<string, unknown> {
  * @returns Object with each key set to empty string, or null if not a summary
  */
 function buildPlaceholderObject(typeSummary: string): Record<string, string> | null {
-  if (!typeSummary.startsWith('{ ') || !typeSummary.endsWith(' }')) return null;
+  if (!typeSummary.startsWith('{ ') || !typeSummary.endsWith(' }')) {
+    return null;
+  }
   const inner: string = typeSummary.slice(2, -2);
   const keys: string[] = inner
     .split(',')
     .map((k: string): string => k.trim())
     .filter((k: string): boolean => k.length > 0);
-  if (keys.length === 0) return null;
+  if (keys.length === 0) {
+    return null;
+  }
   const obj: Record<string, string> = {};
   for (const key of keys) {
     obj[key] = '';
@@ -637,7 +689,9 @@ function buildPlaceholderObject(typeSummary: string): Record<string, string> | n
 // eslint-disable-next-line jsdoc/require-returns -- false positive: @returns IS present; oxlint misparses due to star-slash in string/regex literals
 function buildPlaceholderFromDefinition(definition: string): Record<string, string> | null {
   const inner: string = definition.slice(1, -1).trim();
-  if (!inner) return null;
+  if (!inner) {
+    return null;
+  }
 
   const obj: Record<string, string> = {};
   const lines: string[] = inner.split('\n');
@@ -647,14 +701,18 @@ function buildPlaceholderFromDefinition(definition: string): Record<string, stri
 
   for (const line of lines) {
     const trimmed: string = line.trim();
-    if (!trimmed) continue;
+    if (!trimmed) {
+      continue;
+    }
 
     // Multi-line JSDoc start
     if (trimmed.startsWith(JSDOC_OPEN) && !trimmed.endsWith(JSDOC_CLOSE)) {
       inJSDoc = true;
       jsdocLines = [];
       const afterOpen: string = trimmed.slice(3).trim();
-      if (afterOpen) jsdocLines.push(afterOpen);
+      if (afterOpen) {
+        jsdocLines.push(afterOpen);
+      }
       continue;
     }
 
@@ -665,14 +723,18 @@ function buildPlaceholderFromDefinition(definition: string): Record<string, stri
           .slice(0, -2)
           .replace(/^\*\s*/, '')
           .trim();
-        if (beforeClose) jsdocLines.push(beforeClose);
+        if (beforeClose) {
+          jsdocLines.push(beforeClose);
+        }
         pendingDescription = jsdocLines.join(' ').trim();
         inJSDoc = false;
         jsdocLines = [];
         continue;
       }
       const content: string = trimmed.replace(/^\*\s*/, '').trim();
-      if (content) jsdocLines.push(content);
+      if (content) {
+        jsdocLines.push(content);
+      }
       continue;
     }
 
@@ -712,7 +774,9 @@ function parseStringLiteralUnion(typeStr: string): string[] | null {
   const literals: string[] = [];
 
   for (const part of parts) {
-    if (part === 'undefined' || part === 'null') continue;
+    if (part === 'undefined' || part === 'null') {
+      continue;
+    }
     if (part.startsWith("'") && part.endsWith("'")) {
       literals.push(part.slice(1, -1));
     } else {
@@ -824,7 +888,9 @@ function extractValuesTag(text: string): ValuesTagResult {
   const strippedText: string = text.replaceAll(/@requires\s+\w+:(?:"[^"]+"|(\S+))/g, '').trim();
 
   const valuesIdx: number = strippedText.indexOf('@values');
-  if (valuesIdx === -1) return { description: strippedText, mockValues: [], requires };
+  if (valuesIdx === -1) {
+    return { description: strippedText, mockValues: [], requires };
+  }
 
   const description: string = strippedText.slice(0, valuesIdx).trim();
   const afterTag: string = strippedText.slice(valuesIdx + 7).trim();
@@ -866,7 +932,9 @@ function splitValuesRespectingBrackets(raw: string): string[] {
     } else if (ch === ',' && depth === 0 && raw[i + 1] === ' ') {
       // Split on ", " (comma-space) — preserves commas within values like $1,234.56
       const trimmed: string = current.trim();
-      if (trimmed.length > 0) result.push(trimmed);
+      if (trimmed.length > 0) {
+        result.push(trimmed);
+      }
       current = '';
       i++; // skip the space after comma
     } else {
@@ -874,7 +942,9 @@ function splitValuesRespectingBrackets(raw: string): string[] {
     }
   }
   const trimmed: string = current.trim();
-  if (trimmed.length > 0) result.push(trimmed);
+  if (trimmed.length > 0) {
+    result.push(trimmed);
+  }
   return result;
 }
 
@@ -893,7 +963,9 @@ function findPropsBlock(source: string): PropsBlock | null {
   // 2. Validated: const raw = $props(); safeParse(...); const/let { ... }: Type = var.data
 
   const propsStart: number = source.indexOf('$props()');
-  if (propsStart === -1) return null;
+  if (propsStart === -1) {
+    return null;
+  }
 
   // --- Pattern 1: Direct destructuring before $props() ---
   const letIdx: number = source.lastIndexOf('let {', propsStart);
@@ -982,12 +1054,17 @@ function findMatchingBrace(source: string, openIdx: number): number {
       inString = null;
       continue;
     }
-    if (inString) continue;
+    if (inString) {
+      continue;
+    }
 
-    if (ch === '{') depth++;
-    else if (ch === '}') {
+    if (ch === '{') {
+      depth++;
+    } else if (ch === '}') {
       depth--;
-      if (depth === 0) return i;
+      if (depth === 0) {
+        return i;
+      }
     }
   }
 
@@ -1007,12 +1084,16 @@ function findMatchingBrace(source: string, openIdx: number): number {
 function resolveNamedType(source: string, typeAnnotation: string): ResolvedTypeDef | null {
   // Only resolve simple identifiers (e.g., `ErrorPageProps`, `ButtonProps`)
   const typeName: string = typeAnnotation.trim();
-  if (!typeName || !/^\w+$/.test(typeName)) return null;
+  if (!typeName || !/^\w+$/.test(typeName)) {
+    return null;
+  }
 
   // Find `type <name> = ...` in the source
   const typeDefRegex: RegExp = new RegExp(`type\\s+${typeName}\\s*=\\s*`);
   const match: RegExpExecArray | null = typeDefRegex.exec(source);
-  if (!match) return null;
+  if (!match) {
+    return null;
+  }
 
   const afterEquals: number = (match.index ?? 0) + match[0].length;
   const afterEqualsText: string = source.slice(afterEquals, afterEquals + 200).trim();
@@ -1024,7 +1105,9 @@ function resolveNamedType(source: string, typeAnnotation: string): ResolvedTypeD
   if (inferMatch) {
     const schemaName: string = inferMatch[1] ?? '';
     const resolved: ResolvedTypeDef | null = resolveValibotSchema(source, schemaName);
-    if (resolved) return resolved;
+    if (resolved) {
+      return resolved;
+    }
   }
 
   // --- TypeScript type path: type X = { ... } or SomeType & { ... } ---
@@ -1037,11 +1120,15 @@ function resolveNamedType(source: string, typeAnnotation: string): ResolvedTypeD
     const ch: string = source[pos] ?? '';
 
     // Stop at semicollon or next top-level statement
-    if (ch === ';') break;
+    if (ch === ';') {
+      break;
+    }
 
     if (ch === '{') {
       const closeIdx: number = findMatchingBrace(source, pos);
-      if (closeIdx === -1) break;
+      if (closeIdx === -1) {
+        break;
+      }
 
       const blockBody: string = source.slice(pos + 1, closeIdx);
       parseTypeBlockFields(blockBody, types, fields);
@@ -1052,7 +1139,9 @@ function resolveNamedType(source: string, typeAnnotation: string): ResolvedTypeD
     pos++;
   }
 
-  if (types.size === 0 && fields.size === 0) return null;
+  if (types.size === 0 && fields.size === 0) {
+    return null;
+  }
   return { types, fields };
 }
 
@@ -1072,15 +1161,21 @@ function resolveValibotSchema(source: string, schemaName: string): ResolvedTypeD
     `(?:const|export\\s+const)\\s+${schemaName}\\s*=\\s*v\\.(?:strictObject|objectWithRest|looseObject)\\s*\\(`,
   );
   const schemaMatch: RegExpExecArray | null = schemaRegex.exec(source);
-  if (!schemaMatch) return null;
+  if (!schemaMatch) {
+    return null;
+  }
 
   const parenStart: number = (schemaMatch.index ?? 0) + schemaMatch[0].length - 1;
   // Find the opening `{` of the schema fields object
   const braceStart: number = source.indexOf('{', parenStart);
-  if (braceStart === -1) return null;
+  if (braceStart === -1) {
+    return null;
+  }
 
   const braceEnd: number = findMatchingBrace(source, braceStart);
-  if (braceEnd === -1) return null;
+  if (braceEnd === -1) {
+    return null;
+  }
 
   const schemaBody: string = source.slice(braceStart + 1, braceEnd);
   return parseValibotSchemaFields(schemaBody);
@@ -1109,7 +1204,9 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
   for (let idx: number = 0; idx < lines.length; idx++) {
     const line: string = lines[idx] ?? '';
     const trimmed: string = line.trim();
-    if (!trimmed) continue;
+    if (!trimmed) {
+      continue;
+    }
 
     // JSDoc collection (same as parseTypeBlockFields)
     if (trimmed.startsWith(JSDOC_OPEN)) {
@@ -1135,7 +1232,9 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
           .replace(/\*\/.*$/, '')
           .replace(/^\*\s?/, '')
           .trim();
-        if (beforeClose) jsdocLines.push(beforeClose);
+        if (beforeClose) {
+          jsdocLines.push(beforeClose);
+        }
         const fullDoc: string = jsdocLines.join(' ');
         const parsed: ValuesTagResult = extractValuesTag(fullDoc);
         pendingDescription = parsed.description;
@@ -1145,7 +1244,9 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
         continue;
       }
       const cleaned: string = trimmed.replace(/^\*\s?/, '').trim();
-      if (cleaned) jsdocLines.push(cleaned);
+      if (cleaned) {
+        jsdocLines.push(cleaned);
+      }
       continue;
     }
 
@@ -1160,8 +1261,11 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
       // Count brace/paren depth to detect multiline validators
       let depth: number = 0;
       for (const ch of expr) {
-        if (ch === '(' || ch === '{' || ch === '[') depth++;
-        else if (ch === ')' || ch === '}' || ch === ']') depth--;
+        if (ch === '(' || ch === '{' || ch === '[') {
+          depth++;
+        } else if (ch === ')' || ch === '}' || ch === ']') {
+          depth--;
+        }
       }
 
       // If unbalanced, accumulate subsequent lines until balanced
@@ -1170,8 +1274,11 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
           const nextLine: string = lines[li] ?? '';
           expr += `\n${nextLine}`;
           for (const ch of nextLine) {
-            if (ch === '(' || ch === '{' || ch === '[') depth++;
-            else if (ch === ')' || ch === '}' || ch === ']') depth--;
+            if (ch === '(' || ch === '{' || ch === '[') {
+              depth++;
+            } else if (ch === ')' || ch === '}' || ch === ']') {
+              depth--;
+            }
           }
           // Advance outer loop past consumed lines
           idx = li;
@@ -1215,9 +1322,11 @@ function splitFirstTopLevelComma(input: string): [string, string | undefined] {
   let depth: number = 0;
   for (let i: number = 0; i < input.length; i++) {
     const ch: string = input[i] ?? '';
-    if (ch === '(' || ch === '[' || ch === '{') depth++;
-    else if (ch === ')' || ch === ']' || ch === '}') depth--;
-    else if (ch === ',' && depth === 0) {
+    if (ch === '(' || ch === '[' || ch === '{') {
+      depth++;
+    } else if (ch === ')' || ch === ']' || ch === '}') {
+      depth--;
+    } else if (ch === ',' && depth === 0) {
       return [input.slice(0, i).trim(), input.slice(i + 1).trim()];
     }
   }
@@ -1235,10 +1344,14 @@ function splitFirstTopLevelComma(input: string): [string, string | undefined] {
  */
 function extractOptionalDefault(validatorExpr: string): string | undefined {
   const trimmed: string = validatorExpr.trim();
-  if (!trimmed.startsWith('v.optional(')) return undefined;
+  if (!trimmed.startsWith('v.optional(')) {
+    return undefined;
+  }
   const inner: string = trimmed.slice('v.optional('.length, -1);
   const [, defaultPart] = splitFirstTopLevelComma(inner);
-  if (!defaultPart) return undefined;
+  if (!defaultPart) {
+    return undefined;
+  }
   // Clean up: strip trailing commas, `as Type` casts, whitespace
   const cleaned: string = defaultPart
     .trim()
@@ -1278,13 +1391,19 @@ function valibotToReadableType(expr: string): string {
   }
 
   // v.string() → string
-  if (trimmed === 'v.string()') return 'string';
+  if (trimmed === 'v.string()') {
+    return 'string';
+  }
 
   // v.number() → number
-  if (trimmed === 'v.number()') return 'number';
+  if (trimmed === 'v.number()') {
+    return 'number';
+  }
 
   // v.boolean() → boolean
-  if (trimmed === 'v.boolean()') return 'boolean';
+  if (trimmed === 'v.boolean()') {
+    return 'boolean';
+  }
 
   // v.picklist([...]) → extract literal union
   const picklistMatch: RegExpMatchArray | null = trimmed.match(/^v\.picklist\(\[([^\]]*)\]\)/);
@@ -1299,7 +1418,9 @@ function valibotToReadableType(expr: string): string {
 
   // v.custom<Type>(...) → extract the generic parameter
   const customMatch: RegExpMatchArray | null = trimmed.match(/^v\.custom<(.+?)>\(/);
-  if (customMatch) return customMatch[1] ?? 'unknown';
+  if (customMatch) {
+    return customMatch[1] ?? 'unknown';
+  }
 
   // v.array(v.xxx()) → extract inner type and append []
   // Use [\s\S] instead of . to match across newlines from inlined multiline schemas
@@ -1361,17 +1482,24 @@ function parseTypeBlockFields(
 
   for (const line of lines) {
     const trimmed: string = line.trim();
-    if (!trimmed) continue;
+    if (!trimmed) {
+      continue;
+    }
 
     // Collecting field names inside a nested object type body
     if (skipDepth > 0) {
       // Extract field names from nested body lines (e.g. `goHome: Str;`)
       const nestedField: RegExpMatchArray | null = trimmed.match(/^(\w+)\??\s*:/);
-      if (nestedField && nestedField[1]) nestedKeys.push(nestedField[1]);
+      if (nestedField && nestedField[1]) {
+        nestedKeys.push(nestedField[1]);
+      }
 
       for (const ch of trimmed) {
-        if (ch === '{' || ch === '(') skipDepth++;
-        else if (ch === '}' || ch === ')') skipDepth--;
+        if (ch === '{' || ch === '(') {
+          skipDepth++;
+        } else if (ch === '}' || ch === ')') {
+          skipDepth--;
+        }
       }
       // Balanced — record with summarized field names and reset
       if (skipDepth === 0) {
@@ -1398,7 +1526,9 @@ function parseTypeBlockFields(
       inJSDoc = true;
       jsdocLines = [];
       const afterOpen: string = trimmed.slice(3).trim();
-      if (afterOpen) jsdocLines.push(afterOpen);
+      if (afterOpen) {
+        jsdocLines.push(afterOpen);
+      }
       continue;
     }
 
@@ -1409,14 +1539,18 @@ function parseTypeBlockFields(
           .slice(0, -2)
           .replace(/^\*\s*/, '')
           .trim();
-        if (beforeClose) jsdocLines.push(beforeClose);
+        if (beforeClose) {
+          jsdocLines.push(beforeClose);
+        }
         pendingDescription = jsdocLines.join(' ').trim();
         inJSDoc = false;
         jsdocLines = [];
         continue;
       }
       const content: string = trimmed.replace(/^\*\s*/, '').trim();
-      if (content) jsdocLines.push(content);
+      if (content) {
+        jsdocLines.push(content);
+      }
       continue;
     }
 
@@ -1482,7 +1616,9 @@ function parseDestructuring(destructuring: string): RawProp[] {
 
   for (const rawLine of rawLines) {
     const t: string = rawLine.trim();
-    if (!t) continue;
+    if (!t) {
+      continue;
+    }
 
     // Don't split JSDoc comments on commas
     if (t.startsWith('/**') || t.startsWith('*') || t.endsWith('*/')) {
@@ -1494,7 +1630,9 @@ function parseDestructuring(destructuring: string): RawProp[] {
     const parts: string[] = splitTopLevel(t, ',');
     for (const part of parts) {
       const p: string = part.trim();
-      if (p) segments.push(p);
+      if (p) {
+        segments.push(p);
+      }
     }
   }
 
@@ -1504,7 +1642,9 @@ function parseDestructuring(destructuring: string): RawProp[] {
   let jsdocLines: string[] = [];
 
   for (const trimmed of segments) {
-    if (!trimmed) continue;
+    if (!trimmed) {
+      continue;
+    }
 
     // Multi-line JSDoc start
     if (trimmed.startsWith(JSDOC_OPEN) && !trimmed.endsWith(JSDOC_CLOSE)) {
@@ -1512,7 +1652,9 @@ function parseDestructuring(destructuring: string): RawProp[] {
       jsdocLines = [];
       // Extract text after /** on the opening line
       const afterOpen: string = trimmed.slice(3).trim();
-      if (afterOpen) jsdocLines.push(afterOpen);
+      if (afterOpen) {
+        jsdocLines.push(afterOpen);
+      }
       continue;
     }
 
@@ -1524,7 +1666,9 @@ function parseDestructuring(destructuring: string): RawProp[] {
           .slice(0, -2)
           .replace(/^\*\s*/, '')
           .trim();
-        if (beforeClose) jsdocLines.push(beforeClose);
+        if (beforeClose) {
+          jsdocLines.push(beforeClose);
+        }
         pendingDescription = jsdocLines.join(' ').trim();
         inJSDoc = false;
         jsdocLines = [];
@@ -1532,7 +1676,9 @@ function parseDestructuring(destructuring: string): RawProp[] {
       }
       // Middle line — strip leading * and whitespace
       const content: string = trimmed.replace(/^\*\s*/, '').trim();
-      if (content) jsdocLines.push(content);
+      if (content) {
+        jsdocLines.push(content);
+      }
       continue;
     }
 
@@ -1604,7 +1750,9 @@ function parseDestructuring(destructuring: string): RawProp[] {
  */
 function parseInlineTypes(typeAnnotation: string): Map<string, string> {
   const types: Map<string, string> = new Map();
-  if (!typeAnnotation) return types;
+  if (!typeAnnotation) {
+    return types;
+  }
 
   // Find the outermost `{ ... }` blocks that are part of inline object types.
   // Split on top-level `&` first, then parse blocks starting with `{`.
@@ -1612,18 +1760,24 @@ function parseInlineTypes(typeAnnotation: string): Map<string, string> {
 
   for (const part of parts) {
     const trimmed: string = part.trim();
-    if (!trimmed.startsWith('{')) continue;
+    if (!trimmed.startsWith('{')) {
+      continue;
+    }
 
     // Remove outer braces
     const inner: string = trimmed.slice(1, -1).trim();
-    if (!inner) continue;
+    if (!inner) {
+      continue;
+    }
 
     // Parse field definitions: fieldName?: TypeExpression;
     // Use line-by-line parsing to handle complex types (generics with nested braces)
     const fieldLines: string[] = inner.split(';');
     for (const fieldLine of fieldLines) {
       const ft: string = fieldLine.trim();
-      if (!ft) continue;
+      if (!ft) {
+        continue;
+      }
 
       // Match: fieldName?: TypeExpression
       const fieldMatch: RegExpMatchArray | null = ft.match(/^(\w+)\??\s*:\s*(.+)$/);
@@ -1657,9 +1811,11 @@ function splitTopLevel(str: string, delimiter: string): string[] {
 
   for (let i: number = 0; i < str.length; i++) {
     const ch: string = str[i] ?? '';
-    if (ch === '<' || ch === '{' || ch === '(' || ch === '[') depth++;
-    else if (ch === '>' || ch === '}' || ch === ')' || ch === ']') depth--;
-    else if (ch === delimiter && depth === 0) {
+    if (ch === '<' || ch === '{' || ch === '(' || ch === '[') {
+      depth++;
+    } else if (ch === '>' || ch === '}' || ch === ')' || ch === ']') {
+      depth--;
+    } else if (ch === delimiter && depth === 0) {
       parts.push(str.slice(start, i));
       start = i + 1;
     }
@@ -1679,22 +1835,30 @@ function splitTopLevel(str: string, delimiter: string): string[] {
  * @returns The parent type name, or empty string if none found
  */
 function extractInheritedTypeName(typeAnnotation: string): string {
-  if (!typeAnnotation) return '';
+  if (!typeAnnotation) {
+    return '';
+  }
 
   const parts: string[] = splitTopLevel(typeAnnotation, '&');
   for (const part of parts) {
     const t: string = part.trim();
-    if (t.startsWith('{')) continue;
+    if (t.startsWith('{')) {
+      continue;
+    }
 
     // Extract innermost type from generics like WithElementRef<HTMLAnchorAttributes>
     const innerMatch: RegExpMatchArray | null = t.match(/<([^<>]+)>/);
     if (innerMatch) {
       const inner: string = (innerMatch[1] ?? '').trim();
-      if (/^\w+$/.test(inner)) return inner;
+      if (/^\w+$/.test(inner)) {
+        return inner;
+      }
     }
 
     // Use the type name itself if no generics (e.g., `SomeBaseType`)
-    if (/^\w+$/.test(t)) return t;
+    if (/^\w+$/.test(t)) {
+      return t;
+    }
   }
 
   return '';
@@ -1722,7 +1886,9 @@ function findStatementEnd(source: string, start: number): number {
     // Skip block comments: /* ... */
     if (!inString && ch === '/' && next === '*') {
       const closeIdx: number = source.indexOf('*/', i + 2);
-      if (closeIdx === -1) return source.length;
+      if (closeIdx === -1) {
+        return source.length;
+      }
       i = closeIdx + 1; // skip past */
       continue;
     }
@@ -1730,7 +1896,9 @@ function findStatementEnd(source: string, start: number): number {
     // Skip line comments: // ...
     if (!inString && ch === '/' && next === '/') {
       const nlIdx: number = source.indexOf('\n', i + 2);
-      if (nlIdx === -1) return source.length;
+      if (nlIdx === -1) {
+        return source.length;
+      }
       i = nlIdx;
       continue;
     }
@@ -1744,13 +1912,20 @@ function findStatementEnd(source: string, start: number): number {
       inString = null;
       continue;
     }
-    if (inString) continue;
+    if (inString) {
+      continue;
+    }
 
     // Bracket depth (skip angle brackets — they break on Svelte HTML templates)
-    if (ch === '{' || ch === '(' || ch === '[') depth++;
-    else if (ch === '}' || ch === ')' || ch === ']') depth--;
+    if (ch === '{' || ch === '(' || ch === '[') {
+      depth++;
+    } else if (ch === '}' || ch === ')' || ch === ']') {
+      depth--;
+    }
 
-    if (depth === 0 && ch === ';') return i;
+    if (depth === 0 && ch === ';') {
+      return i;
+    }
   }
 
   return source.length;
@@ -1769,7 +1944,9 @@ function findStatementEnd(source: string, start: number): number {
  * @returns The resolved definition string, or undefined if not resolvable
  */
 function resolveTypeDefinition(typeName: string, source: string): string | undefined {
-  if (!typeName || !source) return undefined;
+  if (!typeName || !source) {
+    return undefined;
+  }
 
   // Strip array notation (e.g. SearchItem[] → SearchItem) before lookup
   const isArray: boolean = typeName.endsWith('[]');
@@ -1785,13 +1962,19 @@ function resolveTypeDefinition(typeName: string, source: string): string | undef
   }
 
   // Skip indexed access types — can't resolve without full TS
-  if (baseTypeName.includes("['")) return undefined;
+  if (baseTypeName.includes("['")) {
+    return undefined;
+  }
 
   // Skip union types — they ARE the definition already (after nullable strip)
-  if (baseTypeName.includes(' | ')) return undefined;
+  if (baseTypeName.includes(' | ')) {
+    return undefined;
+  }
 
   // Skip generic types (Record<K,V>, Map<K,V>, etc.) — no type alias to resolve
-  if (baseTypeName.includes('<')) return undefined;
+  if (baseTypeName.includes('<')) {
+    return undefined;
+  }
 
   // PRIORITY: Try schema-const resolution FIRST — `const <Name>Schema = v.strictObject(...)`
   // Schema-const definitions have richer metadata (JSDoc, @values, nested schemas) than
@@ -1825,7 +2008,9 @@ function resolveTypeDefinition(typeName: string, source: string): string | undef
 
   const end: number = findStatementEnd(source, afterEquals);
   const definition: string = source.slice(afterEquals, end).trim();
-  if (!definition || definition === typeName) return undefined;
+  if (!definition || definition === typeName) {
+    return undefined;
+  }
 
   // Resolve Valibot inferred types: v.InferOutput<typeof SchemaName> → schema RHS
   const inferMatch: RegExpMatchArray | null = definition.match(/^v\.InferOutput<typeof\s+(\w+)>/);
@@ -1833,7 +2018,9 @@ function resolveTypeDefinition(typeName: string, source: string): string | undef
     const schemaName: string = inferMatch[1] ?? '';
     if (schemaName) {
       const resolved: string | undefined = resolveConstDefinition(schemaName, source);
-      if (resolved) return resolved;
+      if (resolved) {
+        return resolved;
+      }
     }
   }
 
@@ -1877,7 +2064,9 @@ function parseTypeFieldsForDisplay(definition: string, source?: string): TypeFie
     const resolved: string | undefined = resolveConstDefinition(trimmed, source);
     if (resolved) {
       const nestedFields: TypeField[] | undefined = parseTypeFieldsForDisplay(resolved, source);
-      if (nestedFields && nestedFields.length > 0) return nestedFields;
+      if (nestedFields && nestedFields.length > 0) {
+        return nestedFields;
+      }
     }
   }
 
@@ -1964,13 +2153,19 @@ function parseValibotObjectFields(body: string, source?: string): TypeField[] {
 
   while (pos < body.length) {
     // Skip whitespace
-    while (pos < body.length && /\s/.test(body[pos] ?? '')) pos++;
-    if (pos >= body.length) break;
+    while (pos < body.length && /\s/.test(body[pos] ?? '')) {
+      pos++;
+    }
+    if (pos >= body.length) {
+      break;
+    }
 
     // JSDoc comment: /** ... */
     if (body.slice(pos, pos + 3) === JSDOC_OPEN) {
       const closeIdx: number = body.indexOf(JSDOC_CLOSE, pos + 3);
-      if (closeIdx === -1) break;
+      if (closeIdx === -1) {
+        break;
+      }
       const commentBody: string = body.slice(pos + 3, closeIdx);
       const rawDoc: string = commentBody
         .split('\n')
@@ -2025,10 +2220,15 @@ function parseValibotObjectFields(body: string, source?: string): TypeField[] {
         inString = null;
         continue;
       }
-      if (inString) continue;
+      if (inString) {
+        continue;
+      }
 
-      if (ch === '(' || ch === '[' || ch === '{') depth++;
-      else if (ch === ')' || ch === ']' || ch === '}') depth--;
+      if (ch === '(' || ch === '[' || ch === '{') {
+        depth++;
+      } else if (ch === ')' || ch === ']' || ch === '}') {
+        depth--;
+      }
 
       if (depth === 0 && ch === ',') {
         valueEnd = i;
@@ -2110,10 +2310,18 @@ function humanizeValibotExpr(expr: string): string {
   const t: string = expr.trim();
 
   // Primitives
-  if (t === 'v.string()' || t === 'StrSchema') return 'text';
-  if (t === 'v.number()' || t === 'NumSchema') return 'number';
-  if (t === 'v.boolean()' || t === 'BoolSchema') return 'true / false';
-  if (t === 'v.any()' || t === 'v.unknown()') return 'any value';
+  if (t === 'v.string()' || t === 'StrSchema') {
+    return 'text';
+  }
+  if (t === 'v.number()' || t === 'NumSchema') {
+    return 'number';
+  }
+  if (t === 'v.boolean()' || t === 'BoolSchema') {
+    return 'true / false';
+  }
+  if (t === 'v.any()' || t === 'v.unknown()') {
+    return 'any value';
+  }
 
   // Literals
   const litMatch: RegExpMatchArray | null = t.match(/^v\.literal\((.+)\)$/);
@@ -2140,7 +2348,9 @@ function humanizeValibotExpr(expr: string): string {
     const hints: string[] = [];
     for (let i: number = 1; i < args.length; i++) {
       const hint: string = humanizeValidator(args[i] ?? '');
-      if (hint) hints.push(hint);
+      if (hint) {
+        hints.push(hint);
+      }
     }
     return hints.length > 0 ? `${base} (${hints.join(', ')})` : base;
   }
@@ -2174,7 +2384,9 @@ function humanizeValibotExpr(expr: string): string {
   }
 
   // Nested strictObject — just say "object"
-  if (t.startsWith('v.strictObject(') || t.startsWith('v.object(')) return 'object';
+  if (t.startsWith('v.strictObject(') || t.startsWith('v.object(')) {
+    return 'object';
+  }
 
   // Record — show key → value types
   if (t.startsWith('v.record(')) {
@@ -2185,11 +2397,15 @@ function humanizeValibotExpr(expr: string): string {
   }
 
   // Tuple
-  if (t.startsWith('v.tuple(')) return 'fixed list';
+  if (t.startsWith('v.tuple(')) {
+    return 'fixed list';
+  }
 
   // Fallback — extract human-readable name from v.xxx(...) pattern
   const fnMatch: RegExpMatchArray | null = t.match(/^v\.(\w+)\(/);
-  if (fnMatch) return fnMatch[1] ?? t;
+  if (fnMatch) {
+    return fnMatch[1] ?? t;
+  }
   return t;
 }
 
@@ -2202,17 +2418,33 @@ function humanizeValibotExpr(expr: string): string {
 function humanizeValidator(validator: string): string {
   const t: string = validator.trim();
   const minLen: RegExpMatchArray | null = t.match(/^v\.minLength\((\d+)\)$/);
-  if (minLen) return `min ${minLen[1]}`;
+  if (minLen) {
+    return `min ${minLen[1]}`;
+  }
   const maxLen: RegExpMatchArray | null = t.match(/^v\.maxLength\((\d+)\)$/);
-  if (maxLen) return `max ${maxLen[1]}`;
+  if (maxLen) {
+    return `max ${maxLen[1]}`;
+  }
   const minVal: RegExpMatchArray | null = t.match(/^v\.minValue\((\d+)\)$/);
-  if (minVal) return `min ${minVal[1]}`;
+  if (minVal) {
+    return `min ${minVal[1]}`;
+  }
   const maxVal: RegExpMatchArray | null = t.match(/^v\.maxValue\((\d+)\)$/);
-  if (maxVal) return `max ${maxVal[1]}`;
-  if (t === 'v.url()') return 'URL format';
-  if (t === 'v.email()') return 'email format';
-  if (t.startsWith('v.regex(')) return 'pattern';
-  if (t === 'v.readonly()') return 'read-only';
+  if (maxVal) {
+    return `max ${maxVal[1]}`;
+  }
+  if (t === 'v.url()') {
+    return 'URL format';
+  }
+  if (t === 'v.email()') {
+    return 'email format';
+  }
+  if (t.startsWith('v.regex(')) {
+    return 'pattern';
+  }
+  if (t === 'v.readonly()') {
+    return 'read-only';
+  }
   return '';
 }
 
@@ -2229,15 +2461,19 @@ function splitPipeArgs(str: string): string[] {
 
   for (let i: number = 0; i < str.length; i++) {
     const ch: string = str[i] ?? '';
-    if (ch === '(' || ch === '[' || ch === '{') depth++;
-    else if (ch === ')' || ch === ']' || ch === '}') depth--;
-    else if (ch === ',' && depth === 0) {
+    if (ch === '(' || ch === '[' || ch === '{') {
+      depth++;
+    } else if (ch === ')' || ch === ']' || ch === '}') {
+      depth--;
+    } else if (ch === ',' && depth === 0) {
       result.push(str.slice(start, i).trim());
       start = i + 1;
     }
   }
   const last: string = str.slice(start).trim();
-  if (last) result.push(last);
+  if (last) {
+    result.push(last);
+  }
   return result;
 }
 
@@ -2256,12 +2492,16 @@ function resolveConstDefinition(constName: string, source: string): string | und
     `(?:export\\s+)?const\\s+${constName.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)}\\s*=\\s*`,
   );
   const match: RegExpExecArray | null = constRegex.exec(source);
-  if (!match) return undefined;
+  if (!match) {
+    return undefined;
+  }
 
   const afterEquals: number = (match.index ?? 0) + match[0].length;
   const end: number = findStatementEnd(source, afterEquals);
   const definition: string = source.slice(afterEquals, end).trim();
-  if (!definition) return undefined;
+  if (!definition) {
+    return undefined;
+  }
 
   // Inline nested schema references (one level deep to avoid infinite recursion)
   return inlineSchemaReferences(definition, source, constName);
@@ -2281,7 +2521,9 @@ function resolveConstDefinition(constName: string, source: string): string | und
 function inlineSchemaReferences(definition: string, source: string, parentName: string): string {
   return definition.replaceAll(/\b(\w+Schema)\b/g, (_match: string, name: string): string => {
     // Skip self-references and the Valibot namespace prefix
-    if (name === parentName) return name;
+    if (name === parentName) {
+      return name;
+    }
     const resolved: string | undefined = resolveConstDefinitionShallow(name, source);
     return resolved ?? name;
   });
@@ -2299,12 +2541,16 @@ function resolveConstDefinitionShallow(constName: string, source: string): strin
     `(?:export\\s+)?const\\s+${constName.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)}\\s*=\\s*`,
   );
   const match: RegExpExecArray | null = constRegex.exec(source);
-  if (!match) return undefined;
+  if (!match) {
+    return undefined;
+  }
 
   const afterEquals: number = (match.index ?? 0) + match[0].length;
   const end: number = findStatementEnd(source, afterEquals);
   const definition: string = source.slice(afterEquals, end).trim();
-  if (!definition) return undefined;
+  if (!definition) {
+    return undefined;
+  }
   return definition;
 }
 
@@ -2318,38 +2564,56 @@ function resolveConstDefinitionShallow(constName: string, source: string): strin
 function resolveVariantValues(variantKey: string, source: string): string | undefined {
   // Find tv({ in the source
   const tvIdx: number = source.indexOf('tv({');
-  if (tvIdx === -1) return undefined;
+  if (tvIdx === -1) {
+    return undefined;
+  }
 
   const tvBraceIdx: number = source.indexOf('{', tvIdx + 2);
-  if (tvBraceIdx === -1) return undefined;
+  if (tvBraceIdx === -1) {
+    return undefined;
+  }
 
   const tvEndIdx: number = findMatchingBrace(source, tvBraceIdx);
-  if (tvEndIdx === -1) return undefined;
+  if (tvEndIdx === -1) {
+    return undefined;
+  }
 
   const tvBody: string = source.slice(tvBraceIdx + 1, tvEndIdx);
 
   // Find variants: { ... }
   const variantsMatch: RegExpExecArray | null = /variants\s*:\s*\{/.exec(tvBody);
-  if (!variantsMatch) return undefined;
+  if (!variantsMatch) {
+    return undefined;
+  }
 
   const variantsBraceIdx: number = tvBody.indexOf('{', (variantsMatch.index ?? 0) + 8);
-  if (variantsBraceIdx === -1) return undefined;
+  if (variantsBraceIdx === -1) {
+    return undefined;
+  }
 
   const variantsEndIdx: number = findMatchingBraceInner(tvBody, variantsBraceIdx);
-  if (variantsEndIdx === -1) return undefined;
+  if (variantsEndIdx === -1) {
+    return undefined;
+  }
 
   const variantsBlock: string = tvBody.slice(variantsBraceIdx + 1, variantsEndIdx);
 
   // Find the specific variant key: keyName: { ... }
   const keyRegex: RegExp = new RegExp(`${variantKey}\\s*:\\s*\\{`);
   const keyMatch: RegExpExecArray | null = keyRegex.exec(variantsBlock);
-  if (!keyMatch) return undefined;
+  if (!keyMatch) {
+    return undefined;
+  }
 
   const keyBraceIdx: number = variantsBlock.indexOf('{', (keyMatch.index ?? 0) + variantKey.length);
-  if (keyBraceIdx === -1) return undefined;
+  if (keyBraceIdx === -1) {
+    return undefined;
+  }
 
   const keyEndIdx: number = findMatchingBraceInner(variantsBlock, keyBraceIdx);
-  if (keyEndIdx === -1) return undefined;
+  if (keyEndIdx === -1) {
+    return undefined;
+  }
 
   const optionsBlock: string = variantsBlock.slice(keyBraceIdx + 1, keyEndIdx);
 
@@ -2359,10 +2623,14 @@ function resolveVariantValues(variantKey: string, source: string): string | unde
   let optMatch: RegExpExecArray | null;
   while ((optMatch = optionRegex.exec(optionsBlock)) !== null) {
     const name: string = optMatch[1] ?? optMatch[2] ?? '';
-    if (name) options.push(name);
+    if (name) {
+      options.push(name);
+    }
   }
 
-  if (options.length === 0) return undefined;
+  if (options.length === 0) {
+    return undefined;
+  }
   return options.map((o: string): string => `'${o}'`).join(' | ');
 }
 
@@ -2389,12 +2657,17 @@ function findMatchingBraceInner(str: string, openIdx: number): number {
       inString = null;
       continue;
     }
-    if (inString) continue;
+    if (inString) {
+      continue;
+    }
 
-    if (ch === '{') depth++;
-    else if (ch === '}') {
+    if (ch === '{') {
+      depth++;
+    } else if (ch === '}') {
       depth--;
-      if (depth === 0) return i;
+      if (depth === 0) {
+        return i;
+      }
     }
   }
 
@@ -2408,13 +2681,19 @@ function findMatchingBraceInner(str: string, openIdx: number): number {
  * @returns Inferred type string, or empty if cannot infer
  */
 function inferType(defaultValue: string): string {
-  if (!defaultValue) return '';
+  if (!defaultValue) {
+    return '';
+  }
 
   // Boolean
-  if (defaultValue === 'true' || defaultValue === 'false') return 'boolean';
+  if (defaultValue === 'true' || defaultValue === 'false') {
+    return 'boolean';
+  }
 
   // Number
-  if (/^-?\d+(\.\d+)?$/.test(defaultValue)) return 'number';
+  if (/^-?\d+(\.\d+)?$/.test(defaultValue)) {
+    return 'number';
+  }
 
   // String literal (single or double quotes)
   if (
@@ -2425,7 +2704,9 @@ function inferType(defaultValue: string): string {
   }
 
   // null/undefined
-  if (defaultValue === 'null' || defaultValue === 'undefined') return '';
+  if (defaultValue === 'null' || defaultValue === 'undefined') {
+    return '';
+  }
 
   return '';
 }

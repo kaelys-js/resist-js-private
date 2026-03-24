@@ -40,7 +40,9 @@
   const validated: SiteHeaderProps = $derived.by(() => {
     const rawProps: SiteHeaderProps = stripSvelteProps(restProps);
     const result = safeParse(SiteHeaderPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as SiteHeaderProps;
   });

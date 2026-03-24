@@ -148,7 +148,9 @@ function validateArgs(
 ): unknown | null {
   const result: v.SafeParseResult<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>> =
     v.safeParse(argsSchema, argsArray);
-  if (result.success) return null;
+  if (result.success) {
+    return null;
+  }
 
   const message: Str = `${fnName}: parameter validation failed — ${v.flatten(result.issues).nested ? JSON.stringify(v.flatten(result.issues).nested) : result.issues.map((i: v.BaseIssue<unknown>) => i.message).join('; ')}`;
 
@@ -185,11 +187,15 @@ function validateReturn(
 ): unknown {
   // Result-aware: validate .data inside ok Results
   if (isResult(value)) {
-    if (!value.ok) return value; // pass through error Results
+    if (!value.ok) {
+      return value;
+    } // pass through error Results
 
     const result: v.SafeParseResult<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>> =
       v.safeParse(returnsSchema, value.data);
-    if (result.success) return value;
+    if (result.success) {
+      return value;
+    }
 
     const message: Str = `${fnName}: return value (.data) validation failed — ${result.issues.map((i: v.BaseIssue<unknown>) => i.message).join('; ')}`;
 
@@ -206,7 +212,9 @@ function validateReturn(
   // Non-Result: validate the raw return value
   const result: v.SafeParseResult<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>> =
     v.safeParse(returnsSchema, value);
-  if (result.success) return value;
+  if (result.success) {
+    return value;
+  }
 
   const message: Str = `${fnName}: return value validation failed — ${result.issues.map((i: v.BaseIssue<unknown>) => i.message).join('; ')}`;
 
@@ -256,14 +264,18 @@ export function createWrapper<TArgs extends unknown[], TReturn>(
     // 1. Validate arguments
     if (argsSchema) {
       const argError: unknown | null = validateArgs(argsSchema, fnArgs, fnName, onError);
-      if (argError !== null) return argError as TReturn;
+      if (argError !== null) {
+        return argError as TReturn;
+      }
     }
 
     // 2. Call original
     const result: TReturn = original.call(this, ...fnArgs);
 
     // 3. Validate return
-    if (!returnsSchema) return result;
+    if (!returnsSchema) {
+      return result;
+    }
 
     // 4. Handle async (Promise) returns
     if (result instanceof Promise) {

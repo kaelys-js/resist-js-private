@@ -96,7 +96,9 @@ const ALL_ENABLED: FeatureFlags = Object.fromEntries(
  */
 export function getPresetForPlan(plan: Str): Partial<FeatureFlags> {
   // Validate against known plans — unknown plans get no restrictions
-  if (!SUPPORTED_PLANS.includes(plan as Plan)) return {};
+  if (!SUPPORTED_PLANS.includes(plan as Plan)) {
+    return {};
+  }
   return { ...PLAN_PRESETS[plan as Plan] };
 }
 

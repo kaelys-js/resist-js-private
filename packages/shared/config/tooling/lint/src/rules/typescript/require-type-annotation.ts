@@ -86,14 +86,20 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       // Skip `declare` statements
-      if (node.declare) return results;
+      if (node.declare) {
+        return results;
+      }
 
       const declarations = node.declarations as AstNode[] | undefined;
-      if (!declarations) return results;
+      if (!declarations) {
+        return results;
+      }
 
       for (const decl of declarations) {
         const id = decl.id as AstNode | undefined;
-        if (!id) continue;
+        if (!id) {
+          continue;
+        }
 
         if (id.type === 'ArrayPattern' || id.type === 'ObjectPattern') {
           if (!id.typeAnnotation) {
@@ -121,25 +127,35 @@ const rule: TypeScriptRule = {
         }
 
         // Only check simple Identifier bindings (skip other patterns)
-        if (id.type !== 'Identifier') continue;
+        if (id.type !== 'Identifier') {
+          continue;
+        }
 
         const name: string = (id.name as string) ?? '';
 
         // Skip if it has a type annotation
-        if (hasTypeAnnotation(decl)) continue;
+        if (hasTypeAnnotation(decl)) {
+          continue;
+        }
 
         // Skip for-of loop variables — types flow from the iterable
         const beforeDecl: string = context.content
           .slice(Math.max(0, node.start - 20), node.start)
           .trimEnd();
-        if (/for\s*(?:await\s*)?\(\s*$/.test(beforeDecl)) continue;
+        if (/for\s*(?:await\s*)?\(\s*$/.test(beforeDecl)) {
+          continue;
+        }
 
         // Skip if the init is a type assertion (as X) — the type is explicit
         const init = decl.init as AstNode | undefined;
-        if (init?.type === 'TSAsExpression' || init?.type === 'TSSatisfiesExpression') continue;
+        if (init?.type === 'TSAsExpression' || init?.type === 'TSSatisfiesExpression') {
+          continue;
+        }
 
         // Allow Valibot schema declarations — complex inferred types (codebase convention)
-        if (name.endsWith('Schema') && init?.type === 'CallExpression') continue;
+        if (name.endsWith('Schema') && init?.type === 'CallExpression') {
+          continue;
+        }
 
         // Insert `: TYPE` after the identifier name
         const insertPos: number = id.end;
@@ -161,14 +177,18 @@ const rule: TypeScriptRule = {
 
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const params = node.params as AstNode[] | undefined; // cast safe: AST params property
-      if (!params) return [];
+      if (!params) {
+        return [];
+      }
       const funcName: string = ((node.id as AstNode | undefined)?.name as string) ?? '<anonymous>'; // cast safe: AST id/name
       return checkParams(params, funcName, context);
     },
 
     FunctionExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const params = node.params as AstNode[] | undefined; // cast safe: AST params property
-      if (!params) return [];
+      if (!params) {
+        return [];
+      }
       // Derive name from parent property key if this is a method in an object literal
       const funcName: string = ((node.id as AstNode | undefined)?.name as string) ?? '<method>'; // cast safe: AST id/name
       return checkParams(params, funcName, context);

@@ -27,19 +27,27 @@ const rule: TypeScriptRule = {
       const filename: string = parts.at(-1) ?? '';
 
       // Exempt .svelte.ts files
-      if (filename.endsWith('.svelte.ts')) return results;
+      if (filename.endsWith('.svelte.ts')) {
+        return results;
+      }
 
       // Exempt .test.ts files
-      if (filename.endsWith('.test.ts')) return results;
+      if (filename.endsWith('.test.ts')) {
+        return results;
+      }
 
       // Exempt .config.ts, .d.ts files
-      if (filename.endsWith('.config.ts') || filename.endsWith('.d.ts')) return results;
+      if (filename.endsWith('.config.ts') || filename.endsWith('.d.ts')) {
+        return results;
+      }
 
       // Remove .ts extension
       const baseName: string = filename.replace(/\.ts$/, '');
 
       // Exempt SvelteKit convention files
-      if (baseName.startsWith('+')) return results;
+      if (baseName.startsWith('+')) {
+        return results;
+      }
 
       if (!KEBAB_CASE_RE.test(baseName)) {
         results.push({

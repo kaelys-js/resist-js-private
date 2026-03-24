@@ -33,7 +33,9 @@
   const validated: SystemStatusProps = $derived.by(() => {
     const rawProps: SystemStatusProps = stripSvelteProps(allProps);
     const result = safeParse(SystemStatusPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as SystemStatusProps;
   });

@@ -50,7 +50,9 @@
   const validated: ModeToggleProps = $derived.by(() => {
     const rawProps: ModeToggleProps = stripSvelteProps(restProps);
     const result = safeParse(ModeTogglePropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as ModeToggleProps;
   });

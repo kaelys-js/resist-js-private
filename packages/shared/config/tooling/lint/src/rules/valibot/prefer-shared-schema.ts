@@ -12,7 +12,7 @@
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
 /** Map of field name patterns to suggested shared schemas. */
-const SCHEMA_SUGGESTIONS: readonly { pattern: RegExp; schema: string; source: string }[] = [
+const SCHEMA_SUGGESTIONS: ReadonlyArray<{ pattern: RegExp; schema: string; source: string }> = [
   { pattern: /[Pp]ath|[Dd]ir|[Ff]ile/, schema: 'PathSchema', source: '@/schemas/common' },
   { pattern: /[Uu]rl|URL|[Ee]ndpoint/, schema: 'UrlStringSchema', source: '@/schemas/common' },
   { pattern: /[Pp]ort$/, schema: 'PortSchema', source: '@/schemas/common' },
@@ -53,10 +53,18 @@ function isExempt(filePath: string): boolean {
  * @returns {boolean} Whether the value is a string-based schema
  */
 function isStringBasedSchema(valueText: string): boolean {
-  if (valueText === 'v.string()') return true;
-  if (valueText.startsWith('v.pipe(v.string()')) return true;
-  if (valueText.startsWith('v.optional(v.string()')) return true;
-  if (valueText.startsWith('v.optional(v.pipe(v.string()')) return true;
+  if (valueText === 'v.string()') {
+    return true;
+  }
+  if (valueText.startsWith('v.pipe(v.string()')) {
+    return true;
+  }
+  if (valueText.startsWith('v.optional(v.string()')) {
+    return true;
+  }
+  if (valueText.startsWith('v.optional(v.pipe(v.string()')) {
+    return true;
+  }
   return false;
 }
 
@@ -69,42 +77,63 @@ const rule: TypeScriptRule = {
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      if (isExempt(context.file)) return results;
+      if (isExempt(context.file)) {
+        return results;
+      }
 
       const callee = node.callee as AstNode | undefined;
-      if (!callee) return results;
+      if (!callee) {
+        return results;
+      }
 
       const prop = callee.property as AstNode | undefined;
       const obj = callee.object as AstNode | undefined;
-      if ((obj?.name as string) !== 'v' || (prop?.name as string) !== 'strictObject')
+      if ((obj?.name as string) !== 'v' || (prop?.name as string) !== 'strictObject') {
         return results;
+      }
 
       const args = node.arguments as AstNode[] | undefined;
-      if (!args || args.length === 0) return results;
+      if (!args || args.length === 0) {
+        return results;
+      }
 
       const objArg: AstNode = args[0];
-      if (objArg.type !== 'ObjectExpression') return results;
+      if (objArg.type !== 'ObjectExpression') {
+        return results;
+      }
 
       const properties = objArg.properties as AstNode[] | undefined;
-      if (!properties) return results;
+      if (!properties) {
+        return results;
+      }
 
       for (const property of properties) {
-        if (property.type !== 'ObjectProperty' && property.type !== 'Property') continue;
+        if (property.type !== 'ObjectProperty' && property.type !== 'Property') {
+          continue;
+        }
 
         const keyNode = property.key as AstNode | undefined;
         const keyName: string = (keyNode?.name as string) ?? (keyNode?.value as string) ?? '';
-        if (!keyName) continue;
+        if (!keyName) {
+          continue;
+        }
 
         const value = property.value as AstNode | undefined;
-        if (!value) continue;
+        if (!value) {
+          continue;
+        }
 
         const valueText: string = context.content.slice(value.start, value.end).trim();
 
         // Skip if already using a shared schema (e.g., PathSchema, PortSchema)
-        if (valueText.includes('Schema') && !valueText.startsWith('v.')) continue;
+        if (valueText.includes('Schema') && !valueText.startsWith('v.')) {
+          continue;
+        }
 
         // Only check string-based schemas
-        if (!isStringBasedSchema(valueText)) continue;
+        if (!isStringBasedSchema(valueText)) {
+          continue;
+        }
 
         // Skip fields already well-constrained (3+ validators in v.pipe)
         // e.g. v.pipe(v.string(), v.minLength(1), v.maxLength(50), v.regex(...))
@@ -112,7 +141,9 @@ const rule: TypeScriptRule = {
         if (pipeMatch) {
           const pipeContent: string = valueText.slice(valueText.indexOf('v.pipe('));
           const validatorCount: number = pipeContent.split(/v\.\w+\(/).length - 1;
-          if (validatorCount >= 4) continue;
+          if (validatorCount >= 4) {
+            continue;
+          }
         }
 
         // Check field name against patterns

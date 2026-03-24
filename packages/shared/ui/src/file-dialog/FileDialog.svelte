@@ -33,7 +33,9 @@
   const validated: FileDialogProps = $derived.by(() => {
     const rawProps: FileDialogProps = stripSvelteProps(allProps);
     const result = safeParse(FileDialogPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as FileDialogProps;
   });

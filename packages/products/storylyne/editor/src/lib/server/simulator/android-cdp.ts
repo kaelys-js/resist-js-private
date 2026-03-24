@@ -154,7 +154,9 @@ export async function captureConsoleLogs(
     const page: Record<string, unknown> | undefined = (
       targets as Array<Record<string, unknown>>
     ).find((t: Record<string, unknown>): boolean => t.type === 'page');
-    if (!page?.webSocketDebuggerUrl) return entries;
+    if (!page?.webSocketDebuggerUrl) {
+      return entries;
+    }
     wsUrl = page.webSocketDebuggerUrl as Str;
   } catch {
     /* Chrome not reachable via CDP */
@@ -169,7 +171,9 @@ export async function captureConsoleLogs(
 
   ws.on('message', (data: Buffer | string) => {
     const msg: CdpMessage | null = parseCdpResponse(data.toString() as Str);
-    if (!msg) return;
+    if (!msg) {
+      return;
+    }
 
     if (msg.method === 'Log.entryAdded' && msg.params) {
       const entry: Record<string, unknown> = (msg.params.entry ?? {}) as Record<string, unknown>;

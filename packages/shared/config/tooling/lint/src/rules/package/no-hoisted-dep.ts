@@ -32,12 +32,14 @@ const rule: PackageJsonRule = {
    */
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
-    if (context.isRoot) return results;
+    if (context.isRoot) {
+      return results;
+    }
 
     const name: string = context.pkg.name ?? '<unnamed>';
     const allDeps: Record<string, string> = {
-      ...(context.pkg.dependencies ?? {}),
-      ...(context.pkg.devDependencies ?? {}),
+      ...context.pkg.dependencies,
+      ...context.pkg.devDependencies,
     };
 
     for (const dep of Object.keys(allDeps)) {

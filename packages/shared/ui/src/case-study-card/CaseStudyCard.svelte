@@ -33,7 +33,9 @@
   const validated: CaseStudyCardProps = $derived.by(() => {
     const rawProps: CaseStudyCardProps = stripSvelteProps(allProps);
     const result = safeParse(CaseStudyCardPropsSchema, rawProps);
-    if (!result.ok) throw result.error;
+    if (!result.ok) {
+      throw result.error;
+    }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
     return result.data as CaseStudyCardProps;
   });
