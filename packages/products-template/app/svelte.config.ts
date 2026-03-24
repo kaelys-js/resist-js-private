@@ -8,8 +8,9 @@
  */
 
 import adapter from '@sveltejs/adapter-static';
-import { createSvelteConfig } from '@/config/tooling/svelte';
 import type { Config } from '@sveltejs/kit';
+
+import { createSvelteConfig } from '@/config/tooling/svelte';
 
 /** Product template SvelteKit configuration. */
 const config: Config = createSvelteConfig({
