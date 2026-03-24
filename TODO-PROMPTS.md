@@ -3,14 +3,15 @@
 
   This: /Users/coleb/Desktop/webforge/packages/shared/[TARGET_PATH]
 
-  Run the custom linter against this file/directory and fix every error and warning found.
+  Run ALL FIVE QA checks and fix every error and warning found.
 
-  1. Run ALL FOUR QA checks and collect ALL errors:
-    - `pnpm -w run qa:lint 2>&1 | grep "[TARGET_PATH]"` (oxlint + custom lint combined)
-    - `pnpm -r --filter [PACKAGE_NAME] run qa:type-check 2>&1 | grep "error TS"` (type-check)
+  1. Run ALL FIVE checks and collect ALL errors:
+    - `pnpm -w run qa:lint 2>&1 | grep "[TARGET_PATH]"` (oxlint)
+    - `pnpm -w run qa:lint:custom 2>&1 | grep "[TARGET_PATH]"` (custom lint — WITHOUT --warn-only)
+    - `pnpm -r --filter [PACKAGE_NAME] run qa:type-check 2>&1` (type-check)
     - `pnpm -r --filter [PACKAGE_NAME] run qa:test 2>&1` (tests)
     - `pnpm -w run qa:format:check 2>&1 | grep "[TARGET_PATH]"` (formatting)
-    Present ALL errors from ALL FOUR checks before proposing fixes.
+    Present ALL errors from ALL FIVE checks before proposing fixes.
   2. For EACH error/warning found:
     - Read the source file at the flagged line
     - Read the rule that flagged it at packages/shared/config/tooling/lint/src/rules/
@@ -22,13 +23,14 @@
     - For each error: the rule ID, line number, current code, why it's wrong, and the exact fix
     - Clearly mark which are code fixes vs rule fixes
   4. After approval, implement ALL fixes
-  5. After implementation, re-run ALL FOUR checks and confirm ZERO errors in EACH:
+  5. After implementation, re-run ALL FIVE checks and confirm ZERO errors in EACH:
     - `pnpm -w run qa:lint 2>&1 | grep "[TARGET_PATH]"` → 0 errors
-    - `pnpm -r --filter [PACKAGE_NAME] run qa:type-check 2>&1 | grep "error TS"` → 0 errors
+    - `pnpm -w run qa:lint:custom 2>&1 | grep "[TARGET_PATH]"` → 0 errors
+    - `pnpm -r --filter [PACKAGE_NAME] run qa:type-check` → 0 errors
     - `pnpm -r --filter [PACKAGE_NAME] run qa:test` → all pass
     - `pnpm -w run qa:format:check 2>&1 | grep "[TARGET_PATH]"` → 0 errors
     If ANY check has errors, fix them and re-run ALL checks again.
-  6. Run `pnpm -r --filter @/config/tooling/lint run qa:test` to confirm all rule tests still pass (210+ must pass)
+  6. Run `pnpm -r --filter @/config/tooling/lint run qa:test` to confirm all lint rule tests still pass
 
   DO NOT weaken assertions, skip errors, or dismiss warnings as "acceptable." Every single diagnostic must be resolved — either fix the code or fix the rule.
 
