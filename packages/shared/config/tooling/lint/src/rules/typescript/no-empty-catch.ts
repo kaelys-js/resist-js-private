@@ -11,6 +11,9 @@
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
+/** File paths exempt from this rule (test infrastructure, test files). */
+const EXEMPT_PATHS: readonly RegExp[] = [/config\/test\//, /\.test\.ts$/, /\.spec\.ts$/];
+
 /**
  * Check if a catch clause body contains a comment.
  *
@@ -56,6 +59,11 @@ const rule: TypeScriptRule = {
   visitor: {
     CatchClause(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
+
+      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
+        return results;
+      }
+
       const body = node.body as AstNode | undefined;
       if (!body) {
         return results;

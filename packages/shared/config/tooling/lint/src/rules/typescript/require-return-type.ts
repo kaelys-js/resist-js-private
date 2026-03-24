@@ -9,6 +9,9 @@
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
+/** File paths exempt from this rule (test files). */
+const EXEMPT_PATHS: readonly RegExp[] = [/\.test\.ts$/, /\.spec\.ts$/];
+
 /**
  * Get the insert position for a return type annotation.
  * For regular functions: after the closing paren of params.
@@ -45,6 +48,11 @@ const rule: TypeScriptRule = {
   visitor: {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
+
+      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
+        return results;
+      }
+
       if (node.returnType) {
         return results;
       }

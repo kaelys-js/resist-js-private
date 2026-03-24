@@ -1,6 +1,8 @@
 /**
  * Fake timer/clock utilities for testing time-dependent code.
  *
+ * @module
+ *
  * Wraps vitest's `vi.useFakeTimers()` / `vi.useRealTimers()` with a cleaner
  * interface that handles setup, teardown, and provides ergonomic methods for
  * advancing time.
@@ -30,9 +32,11 @@
  *   });
  * });
  * ```
- *
- * @module
  */
+
+// =============================================================================
+// Types
+// =============================================================================
 
 /**
  * Minimal subset of vitest's `vi` object needed for fake timers.
@@ -45,6 +49,16 @@ export type ViFakeTimerProvider = {
   advanceTimersByTimeAsync: (ms: number) => Promise<void>;
   runAllTimers: () => void;
   runAllTimersAsync: () => Promise<void>;
+};
+
+/**
+ * Hook arguments for `useFakeClock` — the vitest `vi` object plus
+ * `beforeEach` and `afterEach` hook registration functions.
+ */
+export type FakeClockHooks = {
+  vi: ViFakeTimerProvider;
+  beforeEach: (fn: () => void) => void;
+  afterEach: (fn: () => void) => void;
 };
 
 /**
@@ -89,6 +103,10 @@ export type FakeClock = {
   restore(): void;
 };
 
+// =============================================================================
+// API
+// =============================================================================
+
 /**
  * Create a fake clock that replaces real timers with vitest's fake timer
  * implementation.
@@ -96,10 +114,10 @@ export type FakeClock = {
  * The caller is responsible for calling `restore()` when done. For automatic
  * lifecycle management tied to test hooks, use `useFakeClock()` instead.
  *
- * @param vi - The vitest `vi` object (pass explicitly to support `globals: false`)
- * @param now - Optional fixed "current time" as a Date or Unix timestamp (ms).
+ * @param {ViFakeTimerProvider} vi - The vitest `vi` object (pass explicitly to support `globals: false`)
+ * @param {Date | number} now - Optional fixed "current time" as a Date or Unix timestamp (ms).
  *   If provided, `Date.now()` and `new Date()` will return this time.
- * @returns A `FakeClock` instance
+ * @returns {FakeClock} A `FakeClock` instance
  *
  * @example
  * ```typescript
@@ -117,7 +135,7 @@ export type FakeClock = {
  * ```
  */
 export function createFakeClock(vi: ViFakeTimerProvider, now?: Date | number): FakeClock {
-  const timerOptions =
+  const timerOptions: { now: number } | undefined =
     now === undefined ? undefined : { now: now instanceof Date ? now.getTime() : now };
   vi.useFakeTimers(timerOptions);
 
@@ -143,10 +161,9 @@ export function createFakeClock(vi: ViFakeTimerProvider, now?: Date | number): F
  *
  * Must be called at the `describe` block level (not inside `it`).
  *
- * @param hooks - Object containing `vi`, `beforeEach`, and `afterEach`
- *   (pass them explicitly from vitest to support `globals: false`)
- * @param now - Optional fixed "current time" as a Date or Unix timestamp (ms)
- * @returns A getter function `() => FakeClock` that returns the current test's clock
+ * @param {FakeClockHooks} hooks - Object containing `vi`, `beforeEach`, and `afterEach`
+ * @param {Date | number} now - Optional fixed "current time" as a Date or Unix timestamp (ms)
+ * @returns {() => FakeClock} A getter function that returns the current test's clock
  *
  * @example
  * ```typescript
@@ -183,21 +200,14 @@ export function createFakeClock(vi: ViFakeTimerProvider, now?: Date | number): F
  * });
  * ```
  */
-export function useFakeClock(
-  hooks: {
-    vi: ViFakeTimerProvider;
-    beforeEach: (fn: () => void) => void;
-    afterEach: (fn: () => void) => void;
-  },
-  now?: Date | number,
-): () => FakeClock {
+export function useFakeClock(hooks: FakeClockHooks, now?: Date | number): () => FakeClock {
   let current: FakeClock | undefined;
 
-  hooks.beforeEach(() => {
+  hooks.beforeEach((): void => {
     current = createFakeClock(hooks.vi, now);
   });
 
-  hooks.afterEach(() => {
+  hooks.afterEach((): void => {
     current?.restore();
     current = undefined;
   });

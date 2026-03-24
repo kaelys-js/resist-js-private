@@ -1,6 +1,8 @@
 /**
  * Console capture utilities for testing CLI output.
  *
+ * @module
+ *
  * Replaces the verbose pattern of manually spying on `console.log`/`console.error`,
  * capturing calls into arrays, and joining them for assertions. Provides a structured
  * `ConsoleSpy` object with pre-joined output properties for direct assertion.
@@ -28,11 +30,13 @@
  *   });
  * });
  * ```
- *
- * @module
  */
 
 import type { MockInstance } from 'vitest';
+
+// =============================================================================
+// Types
+// =============================================================================
 
 /**
  * Minimal subset of vitest's `vi` object needed for console spying.
@@ -149,15 +153,28 @@ export type ConsoleSpyOptions = {
 type ConsoleMethod = 'log' | 'error' | 'warn';
 
 /**
+ * Hook arguments for `useConsoleSpy`.
+ */
+export type ConsoleSpyHooks = {
+  vi: ViSpyProvider;
+  beforeEach: (fn: () => void) => void;
+  afterEach: (fn: () => void) => void;
+};
+
+// =============================================================================
+// API
+// =============================================================================
+
+/**
  * Create a console spy that captures output from `console.log`, `console.error`,
  * and/or `console.warn`.
  *
  * The caller is responsible for calling `restore()` when done. For automatic
  * lifecycle management tied to test hooks, use `useConsoleSpy()` instead.
  *
- * @param vi - The vitest `vi` object (pass explicitly to support `globals: false`)
- * @param options - Configuration for which methods to spy on and passthrough behavior
- * @returns A `ConsoleSpy` instance
+ * @param {ViSpyProvider} vi - The vitest `vi` object (pass explicitly to support `globals: false`)
+ * @param {ConsoleSpyOptions} options - Configuration for which methods to spy on and passthrough behavior
+ * @returns {ConsoleSpy} A `ConsoleSpy` instance
  *
  * @example
  * ```typescript
@@ -176,7 +193,7 @@ type ConsoleMethod = 'log' | 'error' | 'warn';
  * ```
  */
 export function createConsoleSpy(vi: ViSpyProvider, options: ConsoleSpyOptions = {}): ConsoleSpy {
-  const { methods = ['log', 'error'], passthrough = false } = options;
+  const { methods = ['log', 'error'], passthrough = false }: ConsoleSpyOptions = options;
 
   const logs: string[] = [];
   const errors: string[] = [];
@@ -191,10 +208,10 @@ export function createConsoleSpy(vi: ViSpyProvider, options: ConsoleSpyOptions =
   const spies: Partial<Record<ConsoleMethod, MockInstance>> = {};
 
   for (const method of methods) {
-    const original = console[method].bind(console);
+    const original: typeof console.log = console[method].bind(console);
     // vi.spyOn returns MockInstance but the generic overload resolves too broadly
     const spy: MockInstance = vi.spyOn(console, method) as MockInstance;
-    spy.mockImplementation((...args: unknown[]) => {
+    spy.mockImplementation((...args: unknown[]): void => {
       buckets[method].push(args.map(String).join(' '));
       if (passthrough) {
         original(...args);
@@ -216,6 +233,7 @@ export function createConsoleSpy(vi: ViSpyProvider, options: ConsoleSpyOptions =
 
     get output(): string {
       const all: string[] = [];
+
       for (const method of methods) {
         all.push(...buckets[method]);
       }
@@ -263,10 +281,9 @@ export function createConsoleSpy(vi: ViSpyProvider, options: ConsoleSpyOptions =
  *
  * Must be called at the `describe` block level (not inside `it`).
  *
- * @param hooks - Object containing `vi`, `beforeEach`, and `afterEach`
- *   (pass them explicitly from vitest to support `globals: false`)
- * @param options - Configuration for which methods to spy on and passthrough behavior
- * @returns A getter function `() => ConsoleSpy` that returns the current test's spy
+ * @param {ConsoleSpyHooks} hooks - Object containing `vi`, `beforeEach`, and `afterEach`
+ * @param {ConsoleSpyOptions} options - Configuration for which methods to spy on and passthrough behavior
+ * @returns {() => ConsoleSpy} A getter function that returns the current test's spy
  *
  * @example
  * ```typescript
@@ -300,20 +317,16 @@ export function createConsoleSpy(vi: ViSpyProvider, options: ConsoleSpyOptions =
  * ```
  */
 export function useConsoleSpy(
-  hooks: {
-    vi: ViSpyProvider;
-    beforeEach: (fn: () => void) => void;
-    afterEach: (fn: () => void) => void;
-  },
+  hooks: ConsoleSpyHooks,
   options?: ConsoleSpyOptions,
 ): () => ConsoleSpy {
   let current: ConsoleSpy | undefined;
 
-  hooks.beforeEach(() => {
+  hooks.beforeEach((): void => {
     current = createConsoleSpy(hooks.vi, options);
   });
 
-  hooks.afterEach(() => {
+  hooks.afterEach((): void => {
     current?.restore();
     current = undefined;
   });

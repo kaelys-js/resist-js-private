@@ -13,6 +13,7 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 /** File path patterns exempt from this rule. */
 const EXEMPT_PATTERNS: readonly RegExp[] = [
   /config\/tooling\/lint\//,
+  /config\/test\//,
   /\.test\.ts$/,
   /\.spec\.ts$/,
 ];

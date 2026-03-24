@@ -1,6 +1,8 @@
 /**
  * Temporary directory utilities for test lifecycle management.
  *
+ * @module
+ *
  * Eliminates the repetitive pattern of `mkdtempSync` + `rmSync` in beforeEach/afterEach
  * hooks. Provides a managed `TempDir` object with convenience methods for writing,
  * reading, and resolving paths relative to the temp directory.
@@ -25,13 +27,23 @@
  *   });
  * });
  * ```
- *
- * @module
  */
 
 import { mkdtempSync, rmSync, writeFileSync, readFileSync, mkdirSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
+
+// =============================================================================
+// Types
+// =============================================================================
+
+/**
+ * Hook arguments for `useTempDir`.
+ */
+export type TempDirHooks = {
+  beforeEach: (fn: () => void) => void;
+  afterEach: (fn: () => void) => void;
+};
 
 /**
  * A managed temporary directory with convenience methods for file operations.
@@ -126,14 +138,18 @@ export type TempDir = {
   cleanup(): void;
 };
 
+// =============================================================================
+// API
+// =============================================================================
+
 /**
  * Create a managed temporary directory.
  *
  * The caller is responsible for calling `cleanup()` when done. For automatic
  * lifecycle management tied to test hooks, use `useTempDir()` instead.
  *
- * @param prefix - Prefix for the temp directory name. Default: `'test-'`
- * @returns A `TempDir` instance with convenience methods
+ * @param {string} prefix - Prefix for the temp directory name. Default: `'test-'`
+ * @returns {TempDir} A `TempDir` instance with convenience methods
  *
  * @example
  * ```typescript
@@ -148,15 +164,16 @@ export type TempDir = {
  * }
  * ```
  */
-export function createTempDir(prefix = 'test-'): TempDir {
-  const path = mkdtempSync(join(tmpdir(), prefix));
+export function createTempDir(prefix: string = 'test-'): TempDir {
+  const path: string = mkdtempSync(join(tmpdir(), prefix));
 
   return {
     path,
 
     write(relativePath: string, content: string): string {
-      const fullPath = join(path, relativePath);
-      const dir = dirname(fullPath);
+      const fullPath: string = join(path, relativePath);
+      const dir: string = dirname(fullPath);
+
       if (!existsSync(dir)) {
         mkdirSync(dir, { recursive: true });
       }
@@ -165,7 +182,7 @@ export function createTempDir(prefix = 'test-'): TempDir {
     },
 
     mkdir(relativePath: string): string {
-      const fullPath = join(path, relativePath);
+      const fullPath: string = join(path, relativePath);
       mkdirSync(fullPath, { recursive: true });
       return fullPath;
     },
@@ -195,10 +212,9 @@ export function createTempDir(prefix = 'test-'): TempDir {
  *
  * Must be called at the `describe` block level (not inside `it`).
  *
- * @param hooks - Object containing `beforeEach` and `afterEach` functions
- *   (pass them explicitly from vitest to support `globals: false`)
- * @param prefix - Prefix for the temp directory name. Default: `'test-'`
- * @returns A getter function `() => TempDir` that returns the current test's temp dir
+ * @param {TempDirHooks} hooks - Object containing `beforeEach` and `afterEach` functions
+ * @param {string} prefix - Prefix for the temp directory name. Default: `'test-'`
+ * @returns {() => TempDir} A getter function that returns the current test's temp dir
  *
  * @example
  * ```typescript
@@ -224,20 +240,14 @@ export function createTempDir(prefix = 'test-'): TempDir {
  * });
  * ```
  */
-export function useTempDir(
-  hooks: {
-    beforeEach: (fn: () => void) => void;
-    afterEach: (fn: () => void) => void;
-  },
-  prefix = 'test-',
-): () => TempDir {
+export function useTempDir(hooks: TempDirHooks, prefix: string = 'test-'): () => TempDir {
   let current: TempDir | undefined;
 
-  hooks.beforeEach(() => {
+  hooks.beforeEach((): void => {
     current = createTempDir(prefix);
   });
 
-  hooks.afterEach(() => {
+  hooks.afterEach((): void => {
     current?.cleanup();
     current = undefined;
   });

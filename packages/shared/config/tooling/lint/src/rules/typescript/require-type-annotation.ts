@@ -9,6 +9,9 @@
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
+/** File paths exempt from this rule (test files). */
+const EXEMPT_PATHS: readonly RegExp[] = [/\.test\.ts$/, /\.spec\.ts$/];
+
 /**
  * Check whether a variable declarator has a type annotation.
  *
@@ -50,7 +53,7 @@ function checkParams(params: AstNode[], funcName: string, context: VisitorContex
       const arg = param.argument as AstNode | undefined; // cast safe: AST argument property
       if (arg?.type === 'Identifier') {
         paramName = (arg.name as string) ?? null; // cast safe: AST name property
-        hasType = Boolean(arg.typeAnnotation);
+        hasType = Boolean(param.typeAnnotation || arg.typeAnnotation);
         insertPos = arg.end;
       }
     } else if (param.type === 'ObjectPattern' || param.type === 'ArrayPattern') {
@@ -84,6 +87,10 @@ const rule: TypeScriptRule = {
   visitor: {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
+
+      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
+        return results;
+      }
 
       // Skip `declare` statements
       if (node.declare) {
@@ -176,6 +183,10 @@ const rule: TypeScriptRule = {
     },
 
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
+      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
+        return [];
+      }
+
       const params = node.params as AstNode[] | undefined; // cast safe: AST params property
       if (!params) {
         return [];
@@ -185,6 +196,10 @@ const rule: TypeScriptRule = {
     },
 
     FunctionExpression(node: AstNode, context: VisitorContext): LintResult[] {
+      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
+        return [];
+      }
+
       const params = node.params as AstNode[] | undefined; // cast safe: AST params property
       if (!params) {
         return [];

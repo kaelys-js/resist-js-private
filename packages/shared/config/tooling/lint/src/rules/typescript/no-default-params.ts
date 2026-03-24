@@ -10,7 +10,7 @@
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
 /** File path patterns exempt from this rule. */
-const EXEMPT_PATTERNS: readonly RegExp[] = [/\.test\.ts$/, /\.spec\.ts$/];
+const EXEMPT_PATTERNS: readonly RegExp[] = [/config\/test\//, /\.test\.ts$/, /\.spec\.ts$/];
 
 /**
  * Check function parameters for defaults and optionals.

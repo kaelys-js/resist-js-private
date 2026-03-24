@@ -1,5 +1,7 @@
 /**
- * Async testing utilities for polling, retrying, timeout, and cancellation patterns.
+ * Async testing utilities for polling, retrying, timeout, and cancellation.
+ *
+ * @module
  *
  * Provides standard helpers inspired by Testing Library's async utilities, adapted
  * for general-purpose use across Node.js, Workers, and browser environments.
@@ -28,9 +30,11 @@
  *   });
  * });
  * ```
- *
- * @module
  */
+
+// =============================================================================
+// Types
+// =============================================================================
 
 /**
  * Options for `waitFor` polling behavior.
@@ -50,16 +54,36 @@ export type WaitForOptions = {
 };
 
 /**
+ * Options for `retry` behavior.
+ */
+export type RetryOptions = {
+  /**
+   * Maximum number of attempts (including the first).
+   * @default 3
+   */
+  maxAttempts?: number;
+
+  /**
+   * Delay between attempts (milliseconds). Applied after each failed attempt.
+   * @default 0
+   */
+  delay?: number;
+};
+
+// =============================================================================
+// API
+// =============================================================================
+
+/**
  * Retry a callback until it succeeds (does not throw) or the timeout is reached.
  *
  * Useful for asserting eventual conditions in async code — similar to
  * Testing Library's `waitFor`. The callback should contain assertions
  * (e.g., `expect(...)`) that throw on failure.
  *
- * @param callback - Function to retry. Should throw if the condition is not yet met.
- *   Can be sync or async.
- * @param options - Polling configuration (timeout, interval)
- * @returns Resolves when the callback succeeds; rejects with the last error on timeout
+ * @param {() => void | Promise<void>} callback - Function to retry. Should throw if the condition is not yet met.
+ * @param {WaitForOptions} options - Polling configuration (timeout, interval)
+ * @returns {Promise<void>} Resolves when the callback succeeds; rejects with the last error on timeout
  *
  * @example
  * ```typescript
@@ -81,17 +105,18 @@ export async function waitFor(
   callback: () => void | Promise<void>,
   options: WaitForOptions = {},
 ): Promise<void> {
-  const { timeout = 1000, interval = 50 } = options;
-  const deadline = Date.now() + timeout;
+  const { timeout = 1000, interval = 50 }: WaitForOptions = options;
+  const deadline: number = Date.now() + timeout;
   let lastError: unknown;
 
   while (Date.now() < deadline) {
     try {
       await callback();
       return;
-    } catch (error) {
+    } catch (error: unknown) {
       lastError = error;
-      await new Promise((resolve) => {
+
+      await new Promise((resolve: (value: unknown) => void): void => {
         setTimeout(resolve, interval);
       });
     }
@@ -100,27 +125,10 @@ export async function waitFor(
   // One final attempt after timeout
   try {
     await callback();
-  } catch (error) {
+  } catch (error: unknown) {
     throw lastError ?? error;
   }
 }
-
-/**
- * Options for `retry` behavior.
- */
-export type RetryOptions = {
-  /**
-   * Maximum number of attempts (including the first).
-   * @default 3
-   */
-  maxAttempts?: number;
-
-  /**
-   * Delay between attempts (milliseconds). Applied after each failed attempt.
-   * @default 0
-   */
-  delay?: number;
-};
 
 /**
  * Retry an async function up to `maxAttempts` times, with an optional delay
@@ -131,10 +139,9 @@ export type RetryOptions = {
  * file locks, race conditions).
  *
  * @typeParam T - Return type of the function
- * @param fn - Function to retry. Can return a value or a promise.
- * @param options - Retry configuration (maxAttempts, delay)
- * @returns The result of the first successful invocation
- * @throws The error from the last failed attempt if all attempts are exhausted
+ * @param {() => T | Promise<T>} fn - Function to retry. Can return a value or a promise.
+ * @param {RetryOptions} options - Retry configuration (maxAttempts, delay)
+ * @returns {Promise<T>} The result of the first successful invocation
  *
  * @example
  * ```typescript
@@ -148,16 +155,17 @@ export type RetryOptions = {
  * ```
  */
 export async function retry<T>(fn: () => T | Promise<T>, options: RetryOptions = {}): Promise<T> {
-  const { maxAttempts = 3, delay = 0 } = options;
+  const { maxAttempts = 3, delay = 0 }: RetryOptions = options;
   let lastError: unknown;
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+  for (let attempt: number = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await fn();
-    } catch (error) {
+    } catch (error: unknown) {
       lastError = error;
+
       if (attempt < maxAttempts && delay > 0) {
-        await new Promise((resolve) => {
+        await new Promise((resolve: (value: unknown) => void): void => {
           setTimeout(resolve, delay);
         });
       }
@@ -175,11 +183,10 @@ export async function retry<T>(fn: () => T | Promise<T>, options: RetryOptions =
  * Use `withAbort` if you need cancellation.
  *
  * @typeParam T - Resolved type of the promise
- * @param promise - The promise to wrap
- * @param ms - Timeout duration in milliseconds
- * @param message - Optional custom error message. Default: `'Operation timed out after {ms}ms'`
- * @returns The resolved value of the original promise
- * @throws Error with the timeout message if the deadline is exceeded
+ * @param {Promise<T>} promise - The promise to wrap
+ * @param {number} ms - Timeout duration in milliseconds
+ * @param {string} message - Optional custom error message
+ * @returns {Promise<T>} The resolved value of the original promise
  *
  * @example
  * ```typescript
@@ -208,11 +215,13 @@ export async function withTimeout<T>(
 ): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
 
-  const timeout = new Promise<never>((_resolve, reject) => {
-    timer = setTimeout(() => {
-      reject(new Error(message ?? `Operation timed out after ${ms}ms`));
-    }, ms);
-  });
+  const timeout: Promise<never> = new Promise<never>(
+    (_resolve: (value: never) => void, reject: (reason: unknown) => void): void => {
+      timer = setTimeout((): void => {
+        reject(new Error(message ?? `Operation timed out after ${ms}ms`));
+      }, ms);
+    },
+  );
 
   try {
     return await Promise.race([promise, timeout]);
@@ -231,14 +240,11 @@ export async function withTimeout<T>(
  * its signal, and call `controller.abort()` to simulate user cancellation.
  *
  * The original promise is NOT cancelled — it continues running in the background.
- * This matches the standard `AbortSignal` contract (signals don't cancel work,
- * they signal that the result is no longer needed).
  *
  * @typeParam T - Resolved type of the promise
- * @param promise - The promise to wrap
- * @param signal - An `AbortSignal` to monitor
- * @returns The resolved value of the original promise
- * @throws The abort reason if the signal is aborted before resolution
+ * @param {Promise<T>} promise - The promise to wrap
+ * @param {AbortSignal} signal - An `AbortSignal` to monitor
+ * @returns {Promise<T>} The resolved value of the original promise
  *
  * @example
  * ```typescript
@@ -266,15 +272,17 @@ export function withAbort<T>(promise: Promise<T>, signal: AbortSignal): Promise<
     return Promise.reject(signal.reason ?? new Error('Aborted'));
   }
 
-  const abortPromise = new Promise<never>((_resolve, reject) => {
-    signal.addEventListener(
-      'abort',
-      () => {
-        reject(signal.reason ?? new Error('Aborted'));
-      },
-      { once: true },
-    );
-  });
+  const abortPromise: Promise<never> = new Promise<never>(
+    (_resolve: (value: never) => void, reject: (reason: unknown) => void): void => {
+      signal.addEventListener(
+        'abort',
+        (): void => {
+          reject(signal.reason ?? new Error('Aborted'));
+        },
+        { once: true },
+      );
+    },
+  );
 
   return Promise.race([promise, abortPromise]);
 }

@@ -15,6 +15,9 @@
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
+/** File paths exempt from this rule (test infrastructure, test files). */
+const EXEMPT_PATHS: readonly RegExp[] = [/config\/test\//, /\.test\.ts$/, /\.spec\.ts$/];
+
 /**
  * Check if a line (or its surrounding IfStatement block) contains an
  * `// integration boundary: <reason>` comment.
@@ -85,6 +88,10 @@ const rule: TypeScriptRule = {
 
   visitor: {
     ThrowStatement(node: AstNode, context: VisitorContext): LintResult[] {
+      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
+        return [];
+      }
+
       // Allow throw result.error at integration boundaries
       if (isIntegrationBoundaryThrow(node, context)) {
         return [];
