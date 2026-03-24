@@ -3483,6 +3483,182 @@ export const TeardownFnSchema = v.custom<() => Void>(
 export type TeardownFn = v.InferOutput<typeof TeardownFnSchema>;
 
 // =============================================================================
+// Commerce & Pricing
+// =============================================================================
+
+/**
+ * Schema for non-negative price values with 2-decimal precision.
+ *
+ * @example
+ * ```typescript
+ * const result = v.safeParse(PriceSchema, 9.99);
+ * ```
+ */
+export const PriceSchema = v.pipe(v.number(), v.minValue(0));
+
+/** Inferred output type of {@link PriceSchema}. */
+export type Price = v.InferOutput<typeof PriceSchema>;
+
+/**
+ * Schema for positive integer quantity.
+ *
+ * @example
+ * ```typescript
+ * const result = v.safeParse(QuantitySchema, 5);
+ * ```
+ */
+export const QuantitySchema = v.pipe(v.number(), v.integer(), v.minValue(1));
+
+/** Inferred output type of {@link QuantitySchema}. */
+export type Quantity = v.InferOutput<typeof QuantitySchema>;
+
+/**
+ * Schema for percentage values (0-100).
+ *
+ * @example
+ * ```typescript
+ * const result = v.safeParse(PercentageSchema, 50);
+ * ```
+ */
+export const PercentageSchema = v.pipe(v.number(), v.minValue(0), v.maxValue(100));
+
+/** Inferred output type of {@link PercentageSchema}. */
+export type Percentage = v.InferOutput<typeof PercentageSchema>;
+
+/**
+ * Schema for discount percentage (0-100).
+ *
+ * @example
+ * ```typescript
+ * const result = v.safeParse(DiscountPercentSchema, 20);
+ * ```
+ */
+export const DiscountPercentSchema = v.pipe(v.number(), v.minValue(0), v.maxValue(100));
+
+/** Inferred output type of {@link DiscountPercentSchema}. */
+export type DiscountPercent = v.InferOutput<typeof DiscountPercentSchema>;
+
+// =============================================================================
+// API & Pagination
+// =============================================================================
+
+/**
+ * Schema for pagination page size (1-100).
+ *
+ * @example
+ * ```typescript
+ * const result = v.safeParse(PaginationLimitSchema, 25);
+ * ```
+ */
+export const PaginationLimitSchema = v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(100));
+
+/** Inferred output type of {@link PaginationLimitSchema}. */
+export type PaginationLimit = v.InferOutput<typeof PaginationLimitSchema>;
+
+/**
+ * Schema for pagination offset (non-negative integer).
+ *
+ * @example
+ * ```typescript
+ * const result = v.safeParse(PaginationOffsetSchema, 50);
+ * ```
+ */
+export const PaginationOffsetSchema = v.pipe(v.number(), v.integer(), v.minValue(0));
+
+/** Inferred output type of {@link PaginationOffsetSchema}. */
+export type PaginationOffset = v.InferOutput<typeof PaginationOffsetSchema>;
+
+/**
+ * Schema for sort direction.
+ *
+ * @example
+ * ```typescript
+ * const result = v.safeParse(SortDirectionSchema, 'asc');
+ * ```
+ */
+export const SortDirectionSchema = v.picklist(['asc', 'desc']);
+
+/** Inferred output type of {@link SortDirectionSchema}. */
+export type SortDirection = v.InferOutput<typeof SortDirectionSchema>;
+
+/**
+ * Schema for query filter operators.
+ *
+ * @example
+ * ```typescript
+ * const result = v.safeParse(FilterOperatorSchema, 'eq');
+ * ```
+ */
+export const FilterOperatorSchema = v.picklist(['eq', 'ne', 'gt', 'lt', 'gte', 'lte', 'in', 'contains']);
+
+/** Inferred output type of {@link FilterOperatorSchema}. */
+export type FilterOperator = v.InferOutput<typeof FilterOperatorSchema>;
+
+// =============================================================================
+// User & Identity
+// =============================================================================
+
+/**
+ * Schema for E.164 phone numbers.
+ *
+ * @example
+ * ```typescript
+ * const result = v.safeParse(PhoneSchema, '+14155551234');
+ * ```
+ */
+export const PhoneSchema = v.pipe(v.string(), v.regex(/^\+[1-9]\d{1,14}$/));
+
+/** Inferred output type of {@link PhoneSchema}. */
+export type Phone = v.InferOutput<typeof PhoneSchema>;
+
+/**
+ * Schema for usernames (3-30 chars, alphanumeric + underscores/hyphens).
+ *
+ * @example
+ * ```typescript
+ * const result = v.safeParse(UsernameSchema, 'john_doe');
+ * ```
+ */
+export const UsernameSchema = v.pipe(v.string(), v.minLength(3), v.maxLength(30), v.regex(/^[a-zA-Z0-9_-]+$/));
+
+/** Inferred output type of {@link UsernameSchema}. */
+export type Username = v.InferOutput<typeof UsernameSchema>;
+
+// =============================================================================
+// Analytics & Events
+// =============================================================================
+
+/**
+ * Schema for analytics event names (snake_case).
+ *
+ * @example
+ * ```typescript
+ * const result = v.safeParse(EventNameSchema, 'page_view');
+ * ```
+ */
+export const EventNameSchema = v.pipe(v.string(), v.regex(/^[a-z][a-z0-9_]*$/));
+
+/** Inferred output type of {@link EventNameSchema}. */
+export type EventName = v.InferOutput<typeof EventNameSchema>;
+
+// =============================================================================
+// Package Management
+// =============================================================================
+
+/**
+ * Schema for valid npm package names.
+ *
+ * @example
+ * ```typescript
+ * const result = v.safeParse(NpmPackageNameSchema, '@scope/package');
+ * ```
+ */
+export const NpmPackageNameSchema = v.pipe(v.string(), v.regex(/^(@[a-z0-9-]+\/)?[a-z0-9.-]+$/));
+
+/** Inferred output type of {@link NpmPackageNameSchema}. */
+export type NpmPackageName = v.InferOutput<typeof NpmPackageNameSchema>;
+
+// =============================================================================
 // HTTP
 // =============================================================================
 
