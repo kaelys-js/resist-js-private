@@ -39,6 +39,7 @@ import * as v from 'valibot';
 
 import {
   NumSchema,
+  RawLocaleStringsSchema,
   StrSchema,
   type Bool,
   type HandlebarsValue,
@@ -234,10 +235,10 @@ export type FormatterMap = Readonly<Record<Str, FormatterFn>>;
  * (handles Turkish İ/ı, Greek final sigma, etc.).
  *
  * @param locale - Optional BCP 47 locale tag for locale-aware transforms.
- * @returns `FormatterMap` — built-in formatter map.
+ * @returns {Result<FormatterMap>} Built-in formatter map.
  */
-function builtInFormatters(locale: OptionalStr): FormatterMap {
-  return {
+function builtInFormatters(locale: OptionalStr): Result<FormatterMap> {
+  return okUnchecked<FormatterMap>({
     upper: (value: Str, loc: OptionalStr): Result<Str> => {
       const valueResult: Result<Str> = safeParse(StrSchema, value);
 
@@ -331,7 +332,7 @@ function builtInFormatters(locale: OptionalStr): FormatterMap {
 
       return ok(StrSchema, transformed);
     },
-  };
+  });
 }
 
 /**
@@ -677,11 +678,16 @@ function resolvePlural(count: Num, body: Str, locale?: Str): Result<Str> {
   return ok(StrSchema, branch.replaceAll('#', String(adjustedCount)));
 }
 
-/** Result of parsing plural branches — includes branch map and optional offset. */
-type PluralParseResult = {
-  readonly branches: Map<Str, Str>;
-  readonly offset: Num;
-};
+/** Schema for parsed plural branches. */
+const PluralParseResultSchema = v.strictObject({
+  /** Map of plural category → template string. */
+  branches: v.custom<Map<Str, Str>>((val: unknown): Bool => val instanceof Map), // cast safe: Map validated by instanceof
+  /** Plural offset value (default 0). */
+  offset: NumSchema,
+});
+
+/** Result of parsing plural branches. See {@link PluralParseResultSchema}. */
+type PluralParseResult = v.InferOutput<typeof PluralParseResultSchema>;
 
 /**
  * Parses plural branch definitions and optional `offset:N` from a plural body string.
@@ -765,7 +771,7 @@ function parsePluralBranches(body: Str): Result<PluralParseResult> {
     branches.set(keyword, branchBody);
   }
 
-  return okUnchecked<PluralParseResult>({ branches, offset });
+  return ok(PluralParseResultSchema, { branches, offset });
 }
 
 // =============================================================================
@@ -1118,8 +1124,14 @@ function replaceMessageRefs(
     match = refRegex.exec(result);
   }
 
+  const builtInResult: Result<FormatterMap> = builtInFormatters(locale);
+
+  if (!builtInResult.ok) {
+    return builtInResult;
+  }
+
   const effectiveFormatters: FormatterMap = {
-    ...builtInFormatters(locale),
+    ...builtInResult.data,
     ...formatters,
   };
 
@@ -1259,8 +1271,14 @@ function renderMessageInternal(
   // Uses match-then-replace pattern for proper Result error propagation
   // (String.replace callbacks return Str, cannot propagate Result<Str>)
   let result: Str = dateTimeResult.data;
+  const builtInResult2: Result<FormatterMap> = builtInFormatters(locale);
+
+  if (!builtInResult2.ok) {
+    return builtInResult2;
+  }
+
   const effectiveFormatters: FormatterMap = {
-    ...builtInFormatters(locale),
+    ...builtInResult2.data,
     ...formatters,
   };
 
@@ -1959,7 +1977,13 @@ export function buildLocale<TSchema extends v.GenericSchema>(
   // Create a mutable container for the built result — the resolver closure
   // captures this by reference. Safe because resolver is only called at runtime
   // (when a user invokes a locale function), by which time `builtRef` is populated.
-  const builtRef: { data: RawLocaleStrings } = { data: {} };
+  /** Schema for the mutable built result container. */
+  const BuiltRefSchema = v.strictObject({
+    /** Built locale data populated during build phase. */
+    data: RawLocaleStringsSchema,
+  });
+
+  const builtRef: v.InferOutput<typeof BuiltRefSchema> = { data: {} };
 
   // Resolver for @:key message references — walks dot-separated key paths.
   const resolver: (key: Str) => Result<Str> = (key: Str): Result<Str> => {
@@ -2106,7 +2130,12 @@ function buildLocaleEntries(
             // Runtime-guarded by typeof === 'object' check above
             if (typeof fieldValue === 'string') {
               const renderResult: Result<Str> = renderMessage(fieldValue, context);
-              rendered[fieldKey] = renderResult.ok ? renderResult.data : fieldValue;
+
+              if (renderResult.ok) {
+                rendered[fieldKey] = renderResult.data;
+              } else {
+                rendered[fieldKey] = fieldValue;
+              }
             } else {
               rendered[fieldKey] = fieldValue;
             }
