@@ -725,12 +725,12 @@ describe('error paths', () => {
   });
 
   it('formatRelativeTime returns error for invalid numeric', () => {
-    const result = formatRelativeTime(1, 'day', 'en', 'invalid' as Str, undefined);
+    const result = formatRelativeTime(1, 'day', 'en', 'invalid' as unknown as undefined, undefined);
     expect(result.ok).toBe(false);
   });
 
   it('formatRelativeTime returns error for invalid style', () => {
-    const result = formatRelativeTime(1, 'day', 'en', undefined, 'invalid' as Str);
+    const result = formatRelativeTime(1, 'day', 'en', undefined, 'invalid' as unknown as undefined);
     expect(result.ok).toBe(false);
   });
 

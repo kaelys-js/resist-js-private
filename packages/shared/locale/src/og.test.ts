@@ -60,13 +60,20 @@ describe('toOgLocale', () => {
     }
   });
 
-  it('returns error for empty string', () => {
+  it('returns LOCALE.INVALID_LOCALE for empty string', () => {
     const result = toOgLocale('');
     expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
   });
 
-  it('returns error for invalid locale string', () => {
+  it('returns LOCALE.INVALID_LOCALE for invalid locale string', () => {
     const result = toOgLocale('not-a-locale-!!!');
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
+  });
+
+  it('returns error for non-string input', () => {
+    const result = toOgLocale(123 as unknown as Str);
     expect(result.ok).toBe(false);
   });
 

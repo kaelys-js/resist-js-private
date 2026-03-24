@@ -126,6 +126,25 @@ function checkParamTypes(funcNode: AstNode, context: VisitorContext): LintResult
   return results;
 }
 
+/**
+ * Check if a TSTypeLiteral contains only method/function signatures (not data).
+ *
+ * @param {AstNode} typeNode - TSTypeLiteral AST node
+ * @returns {boolean} Whether all members are methods
+ */
+function isAllMethodsType(typeNode: AstNode): boolean {
+  const members = typeNode.members as AstNode[] | undefined;
+  if (!members || members.length === 0) return false;
+  return members.every((m: AstNode): boolean => {
+    if (m.type === 'TSMethodSignature') return true;
+    if (m.type === 'TSPropertySignature') {
+      const memberType = (m.typeAnnotation as AstNode | undefined)?.typeAnnotation as AstNode | undefined;
+      if (memberType?.type === 'TSFunctionType') return true;
+    }
+    return false;
+  });
+}
+
 const rule: TypeScriptRule = {
   id: 'typescript/no-bare-data-types',
   description: 'Data types must use Valibot schemas, not interface/type literals',
@@ -171,20 +190,7 @@ const rule: TypeScriptRule = {
       if (typeAnnotation.type !== 'TSTypeLiteral') return [];
 
       // Skip if all members are function signatures (constructor/class interfaces, not data)
-      const members = typeAnnotation.members as AstNode[] | undefined;
-      if (members && members.length > 0) {
-        const allMethods: boolean = members.every((m: AstNode): boolean => {
-          if (m.type === 'TSMethodSignature') return true;
-          if (m.type === 'TSPropertySignature') {
-            const memberType = (m.typeAnnotation as AstNode | undefined)?.typeAnnotation as
-              | AstNode
-              | undefined;
-            if (memberType?.type === 'TSFunctionType') return true;
-          }
-          return false;
-        });
-        if (allMethods) return [];
-      }
+      if (isAllMethodsType(typeAnnotation)) return [];
 
       const name: string = ((node.id as AstNode)?.name as string) ?? 'unknown'; // cast safe: AST property
 
@@ -213,6 +219,61 @@ const rule: TypeScriptRule = {
     ArrowFunctionExpression(node: AstNode, context: VisitorContext): LintResult[] {
       if (isExemptFile(context.file)) return [];
       return [...checkReturnType(node, context), ...checkParamTypes(node, context)];
+    },
+
+    VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
+      if (isExemptFile(context.file)) return [];
+      const results: LintResult[] = [];
+      const declarations = node.declarations as AstNode[] | undefined;
+      if (!declarations) return results;
+
+      for (const decl of declarations) {
+        const id = decl.id as AstNode | undefined;
+        if (!id) continue;
+
+        // Get type annotation — works for both simple identifiers and destructured patterns
+        const annotation = (id.typeAnnotation as AstNode | undefined)?.typeAnnotation as AstNode | undefined;
+        if (!annotation || annotation.type !== 'TSTypeLiteral') continue;
+
+        // Skip all-method types (constructor/class interfaces)
+        if (isAllMethodsType(annotation)) continue;
+
+        const name: string = id.type === 'Identifier'
+          ? ((id.name as string) ?? '<variable>')
+          : '<destructured>';
+
+        results.push({
+          file: context.file,
+          line: node.loc.start.line,
+          column: id.loc.start.column + 1,
+          severity: 'error',
+          message: `${name === '<destructured>' ? 'Destructured' : `Variable '${name}'`} uses inline object type — define a Valibot schema instead`,
+          ruleId: 'typescript/no-bare-data-types',
+          tip: 'Create a named schema: const XSchema = v.strictObject({ ... }); type X = v.InferOutput<typeof XSchema>',
+        });
+      }
+
+      return results;
+    },
+
+    TSAsExpression(node: AstNode, context: VisitorContext): LintResult[] {
+      if (isExemptFile(context.file)) return [];
+
+      const typeAnnotation = node.typeAnnotation as AstNode | undefined;
+      if (!typeAnnotation || typeAnnotation.type !== 'TSTypeLiteral') return [];
+
+      // Skip all-method types
+      if (isAllMethodsType(typeAnnotation)) return [];
+
+      return [{
+        file: context.file,
+        line: node.loc.start.line,
+        column: node.loc.start.column + 1,
+        severity: 'error',
+        message: 'Cast uses inline object type — define a Valibot schema instead',
+        ruleId: 'typescript/no-bare-data-types',
+        tip: 'Create a named schema and use the inferred type for the cast',
+      }];
     },
   },
 };

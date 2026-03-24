@@ -573,6 +573,33 @@ function process(name: string): void {
     );
     expect(results.length).toBeGreaterThan(0);
   });
+
+  it('flags inline object type on variable annotation', async () => {
+    const code: string = `const config: { host: string; port: number } = { host: 'localhost', port: 3000 };`;
+    const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('inline object');
+  });
+
+  it('flags inline object type on destructured annotation', async () => {
+    const code: string = `const { a, b }: { a: string; b: number } = data;`;
+    const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('Destructured');
+  });
+
+  it('flags inline object type on as cast', async () => {
+    const code: string = `const x: unknown = data as { foo: string };`;
+    const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('Cast');
+  });
+
+  it('passes variable with named type', async () => {
+    const code: string = `const config: Config = { host: 'localhost', port: 3000 };`;
+    const results: LintResult[] = await lint(noBareDataTypes, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
