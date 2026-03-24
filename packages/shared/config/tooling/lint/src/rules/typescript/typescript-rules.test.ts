@@ -24,6 +24,7 @@ import noUnionNull from './no-union-null.ts';
 import requireNonNegativeInteger from './require-non-negative-integer.ts';
 import noDefaultParams from './no-default-params.ts';
 import noGenericFunctionType from './no-generic-function-type.ts';
+import noUnionParams from './no-union-params.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -871,5 +872,42 @@ describe('typescript/require-type-annotation — FunctionExpression', () => {
     const code: string = `const obj: Obj = { handler: function(server: Server): void { return; } };`;
     const results: LintResult[] = await lint(requireTypeAnnotation, code);
     expect(results.some((r: LintResult): boolean => r.message.includes("'server'"))).toBe(false);
+  });
+});
+
+// =============================================================================
+// typescript/no-union-params
+// =============================================================================
+
+describe('typescript/no-union-params', () => {
+  it('flags parameter with Str | undefined union', async () => {
+    const code: string = `export function foo(x: Str | undefined): void {}`;
+    const results: LintResult[] = await lint(noUnionParams, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('union type');
+  });
+
+  it('flags parameter with Style | undefined union', async () => {
+    const code: string = `export function foo(style: DateTimeStyle | undefined): void {}`;
+    const results: LintResult[] = await lint(noUnionParams, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes parameter without union type', async () => {
+    const code: string = `export function foo(x: Str): void {}`;
+    const results: LintResult[] = await lint(noUnionParams, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes Date | Num union (exempt external pattern)', async () => {
+    const code: string = `export function foo(value: Date | Num): void {}`;
+    const results: LintResult[] = await lint(noUnionParams, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does not flag non-exported functions', async () => {
+    const code: string = `function foo(x: Str | undefined): void {}`;
+    const results: LintResult[] = await lint(noUnionParams, code);
+    expect(results.length).toBe(0);
   });
 });
