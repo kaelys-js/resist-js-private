@@ -116,6 +116,7 @@ type EscapeResult = v.InferOutput<typeof EscapeResultSchema>;
  */
 function escapeICULiterals(template: Str): Result<EscapeResult> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
+
   if (!templateResult.ok) {
     return templateResult;
   }
@@ -138,6 +139,7 @@ function escapeICULiterals(template: Str): Result<EscapeResult> {
 
       // '{...}' or other quoted region
       const closeIndex: Num = src.indexOf("'", i + 1);
+
       if (closeIndex !== -1) {
         const sentinel: Str = `${ESCAPE_SENTINEL_PREFIX}${literals.length}${ESCAPE_SENTINEL_SUFFIX}`;
         const literalText: Str = src.slice(i + 1, closeIndex);
@@ -171,11 +173,13 @@ function escapeICULiterals(template: Str): Result<EscapeResult> {
  */
 function restoreEscapedLiterals(template: Str, literals: readonly EscapedLiteral[]): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
+
   if (!templateResult.ok) {
     return templateResult;
   }
 
   let result: Str = templateResult.data;
+
   for (const entry of literals) {
     while (result.includes(entry.sentinel)) {
       result = result.replace(entry.sentinel, entry.literal);
@@ -236,45 +240,55 @@ function builtInFormatters(locale: OptionalStr): FormatterMap {
   return {
     upper: (value: Str, loc: OptionalStr): Result<Str> => {
       const valueResult: Result<Str> = safeParse(StrSchema, value);
+
       if (!valueResult.ok) {
         return valueResult;
       }
       if (loc !== undefined) {
         const locResult: Result<Str> = safeParse(StrSchema, loc);
+
         if (!locResult.ok) {
           return locResult;
         }
       }
+
       const effectiveLocale: OptionalStr = loc ?? locale;
       const transformed: Str = effectiveLocale
         ? valueResult.data.toLocaleUpperCase(effectiveLocale)
         : valueResult.data.toUpperCase();
+
       return ok(StrSchema, transformed);
     },
     lower: (value: Str, loc: OptionalStr): Result<Str> => {
       const valueResult: Result<Str> = safeParse(StrSchema, value);
+
       if (!valueResult.ok) {
         return valueResult;
       }
       if (loc !== undefined) {
         const locResult: Result<Str> = safeParse(StrSchema, loc);
+
         if (!locResult.ok) {
           return locResult;
         }
       }
+
       const effectiveLocale: OptionalStr = loc ?? locale;
       const transformed: Str = effectiveLocale
         ? valueResult.data.toLocaleLowerCase(effectiveLocale)
         : valueResult.data.toLowerCase();
+
       return ok(StrSchema, transformed);
     },
     capitalize: (value: Str, loc: OptionalStr): Result<Str> => {
       const valueResult: Result<Str> = safeParse(StrSchema, value);
+
       if (!valueResult.ok) {
         return valueResult;
       }
       if (loc !== undefined) {
         const locResult: Result<Str> = safeParse(StrSchema, loc);
+
         if (!locResult.ok) {
           return locResult;
         }
@@ -282,24 +296,29 @@ function builtInFormatters(locale: OptionalStr): FormatterMap {
       if (valueResult.data.length === 0) {
         return ok(StrSchema, valueResult.data);
       }
+
       const effectiveLocale: OptionalStr = loc ?? locale;
       const first: Str = effectiveLocale
         ? valueResult.data.charAt(0).toLocaleUpperCase(effectiveLocale)
         : valueResult.data.charAt(0).toUpperCase();
       const rest: Str = valueResult.data.slice(1);
+
       return ok(StrSchema, first + rest);
     },
     title: (value: Str, loc: OptionalStr): Result<Str> => {
       const valueResult: Result<Str> = safeParse(StrSchema, value);
+
       if (!valueResult.ok) {
         return valueResult;
       }
       if (loc !== undefined) {
         const locResult: Result<Str> = safeParse(StrSchema, loc);
+
         if (!locResult.ok) {
           return locResult;
         }
       }
+
       const effectiveLocale: OptionalStr = loc ?? locale;
       // String.replace callback returns Str (required by JS API) — pure string
       // operations inside cannot fail, so no Result propagation needed here.
@@ -309,6 +328,7 @@ function builtInFormatters(locale: OptionalStr): FormatterMap {
               word.slice(1).toLocaleLowerCase(effectiveLocale)
           : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       });
+
       return ok(StrSchema, transformed);
     },
   };
@@ -387,10 +407,13 @@ export function messageTemplate<TParams extends ParamSchemas>(
           v.check(
             (val: Str): Bool => {
               const foundResult: Result<Set<Str>> = extractPlaceholders(val);
+
               if (!foundResult.ok) {
                 return false;
               }
+
               const found: ReadonlySet<Str> = foundResult.data;
+
               for (const key of expectedKeys) {
                 if (!found.has(key)) {
                   return false;
@@ -423,6 +446,7 @@ export function messageTemplate<TParams extends ParamSchemas>(
 function getTemplateParams(schema: v.GenericSchema): NullableParamSchemas {
   const schemaRecord: Record<symbol, unknown> = schema as unknown as Record<symbol, unknown>; // Symbol indexing requires cast
   const params: unknown = schemaRecord[TEMPLATE_PARAMS];
+
   if (params && typeof params === 'object') {
     return params as NullableParamSchemas; // cast safe: params validated by schema check on caller side
   } // Runtime-guarded
@@ -528,15 +552,18 @@ type IntersectBuiltLocale<TOptions extends readonly v.GenericSchema[]> = TOption
  */
 function extractPlaceholders(template: Str): Result<Set<Str>> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
+
   if (!templateResult.ok) {
     return templateResult;
   }
 
   // Strip escaped literals before scanning for placeholders
   const escapeResult: Result<EscapeResult> = escapeICULiterals(templateResult.data);
+
   if (!escapeResult.ok) {
     return escapeResult;
   }
+
   const cleanTemplate: Str = escapeResult.data.text;
 
   const found: Set<Str> = new Set<Str>();
@@ -548,6 +575,7 @@ function extractPlaceholders(template: Str): Result<Set<Str>> {
   const dateTimeRegex: RegExp = /\{(\w+)\s*,\s*(?:date|time)/g;
 
   let match: NullableRegExpExecArray;
+
   while ((match = simpleRegex.exec(cleanTemplate)) !== null) {
     if (match[1]) {
       found.add(match[1]);
@@ -578,7 +606,9 @@ function extractPlaceholders(template: Str): Result<Set<Str>> {
       found.add(match[1]);
     }
   }
+
   const rangeRegex: RegExp = /\{(\w+)\s*,\s*range/g;
+
   while ((match = rangeRegex.exec(cleanTemplate)) !== null) {
     if (match[1]) {
       found.add(match[1]);
@@ -605,21 +635,26 @@ function extractPlaceholders(template: Str): Result<Set<Str>> {
  */
 function resolvePlural(count: Num, body: Str, locale?: Str): Result<Str> {
   const countResult: Result<Num> = safeParse(NumSchema, count);
+
   if (!countResult.ok) {
     return countResult;
   }
+
   const bodyResult: Result<Str> = safeParse(StrSchema, body);
+
   if (!bodyResult.ok) {
     return bodyResult;
   }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
     if (!localeResult.ok) {
       return localeResult;
     }
   }
 
   const parsed: Result<PluralParseResult> = parsePluralBranches(bodyResult.data);
+
   if (!parsed.ok) {
     return parsed;
   }
@@ -629,6 +664,7 @@ function resolvePlural(count: Num, body: Str, locale?: Str): Result<Str> {
 
   // Exact match uses original count for matching, adjusted count for # replacement
   const exact: OptionalStr = parsed.data.branches.get(`=${countResult.data}`);
+
   if (exact !== undefined) {
     return ok(StrSchema, exact.replaceAll('#', String(adjustedCount)));
   }
@@ -637,6 +673,7 @@ function resolvePlural(count: Num, body: Str, locale?: Str): Result<Str> {
   const rules: Intl.PluralRules = new Intl.PluralRules(locale ?? undefined, { type: 'cardinal' });
   const keyword: Str = rules.select(adjustedCount);
   const branch: Str = parsed.data.branches.get(keyword) ?? parsed.data.branches.get('other') ?? '';
+
   return ok(StrSchema, branch.replaceAll('#', String(adjustedCount)));
 }
 
@@ -657,6 +694,7 @@ type PluralParseResult = {
  */
 function parsePluralBranches(body: Str): Result<PluralParseResult> {
   const bodyResult: Result<Str> = safeParse(StrSchema, body);
+
   if (!bodyResult.ok) {
     return bodyResult;
   }
@@ -667,6 +705,7 @@ function parsePluralBranches(body: Str): Result<PluralParseResult> {
 
   // Check for offset:N at the start
   const offsetMatch: NullableRegExpMatchArray = trimmed.match(/^offset\s*:\s*(\d+)\s*/);
+
   if (offsetMatch && offsetMatch[1] !== undefined) {
     offset = Number(offsetMatch[1]);
     trimmed = trimmed.slice(offsetMatch[0].length);
@@ -686,6 +725,7 @@ function parsePluralBranches(body: Str): Result<PluralParseResult> {
 
     // Read keyword (e.g., "one", "other", "=0")
     let keyword: Str = '';
+
     while (i < trimmed.length && !/[\s{]/.test(trimmed[i] ?? '')) {
       keyword += trimmed[i];
       i++;
@@ -707,6 +747,7 @@ function parsePluralBranches(body: Str): Result<PluralParseResult> {
 
     let depth: Num = 1;
     let branchBody: Str = '';
+
     while (i < trimmed.length && depth > 0) {
       if (trimmed[i] === '{') {
         depth++;
@@ -741,15 +782,19 @@ function parsePluralBranches(body: Str): Result<PluralParseResult> {
  */
 function resolveSelect(value: Str, body: Str): Result<Str> {
   const valueResult: Result<Str> = safeParse(StrSchema, value);
+
   if (!valueResult.ok) {
     return valueResult;
   }
+
   const bodyResult: Result<Str> = safeParse(StrSchema, body);
+
   if (!bodyResult.ok) {
     return bodyResult;
   }
 
   const branches: Result<PluralParseResult> = parsePluralBranches(bodyResult.data);
+
   if (!branches.ok) {
     return branches;
   }
@@ -757,6 +802,7 @@ function resolveSelect(value: Str, body: Str): Result<Str> {
   // Exact match, then `other` fallback
   const branch: Str =
     branches.data.branches.get(valueResult.data) ?? branches.data.branches.get('other') ?? '';
+
   return ok(StrSchema, branch);
 }
 
@@ -777,21 +823,26 @@ function resolveSelect(value: Str, body: Str): Result<Str> {
  */
 function resolveSelectOrdinal(count: Num, body: Str, locale?: Str): Result<Str> {
   const countResult: Result<Num> = safeParse(NumSchema, count);
+
   if (!countResult.ok) {
     return countResult;
   }
+
   const bodyResult: Result<Str> = safeParse(StrSchema, body);
+
   if (!bodyResult.ok) {
     return bodyResult;
   }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
     if (!localeResult.ok) {
       return localeResult;
     }
   }
 
   const parsed: Result<PluralParseResult> = parsePluralBranches(bodyResult.data);
+
   if (!parsed.ok) {
     return parsed;
   }
@@ -801,6 +852,7 @@ function resolveSelectOrdinal(count: Num, body: Str, locale?: Str): Result<Str> 
 
   // Exact match uses original count for matching, adjusted count for # replacement
   const exact: OptionalStr = parsed.data.branches.get(`=${countResult.data}`);
+
   if (exact !== undefined) {
     return ok(StrSchema, exact.replaceAll('#', String(adjustedCount)));
   }
@@ -809,6 +861,7 @@ function resolveSelectOrdinal(count: Num, body: Str, locale?: Str): Result<Str> 
   const rules: Intl.PluralRules = new Intl.PluralRules(locale ?? undefined, { type: 'ordinal' });
   const keyword: Str = rules.select(adjustedCount);
   const branch: Str = parsed.data.branches.get(keyword) ?? parsed.data.branches.get('other') ?? '';
+
   return ok(StrSchema, branch.replaceAll('#', String(adjustedCount)));
 }
 
@@ -838,6 +891,7 @@ function replaceSelectBlocks(
   formatters?: FormatterMap,
 ): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
+
   if (!templateResult.ok) {
     return templateResult;
   }
@@ -856,6 +910,7 @@ function replaceSelectBlocks(
 
         let braceDepth: Num = 1;
         let j: Num = bodyStart;
+
         while (j < templateResult.data.length && braceDepth > 0) {
           if (templateResult.data[j] === '{') {
             braceDepth++;
@@ -868,6 +923,7 @@ function replaceSelectBlocks(
         const body: Str = templateResult.data.slice(bodyStart, j - 1);
         const value: Str = String(params[key] ?? '');
         const resolvedResult: Result<Str> = resolveSelect(value, body);
+
         if (!resolvedResult.ok) {
           return resolvedResult;
         }
@@ -882,6 +938,7 @@ function replaceSelectBlocks(
           undefined,
           formatters,
         );
+
         if (!recursiveResult.ok) {
           return recursiveResult;
         }
@@ -924,11 +981,13 @@ function replaceSelectOrdinalBlocks(
   formatters?: FormatterMap,
 ): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
+
   if (!templateResult.ok) {
     return templateResult;
   }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
     if (!localeResult.ok) {
       return localeResult;
     }
@@ -950,6 +1009,7 @@ function replaceSelectOrdinalBlocks(
 
         let braceDepth: Num = 1;
         let j: Num = bodyStart;
+
         while (j < templateResult.data.length && braceDepth > 0) {
           if (templateResult.data[j] === '{') {
             braceDepth++;
@@ -962,6 +1022,7 @@ function replaceSelectOrdinalBlocks(
         const body: Str = templateResult.data.slice(bodyStart, j - 1);
         const count: Num = Number(params[key]);
         const resolvedResult: Result<Str> = resolveSelectOrdinal(count, body, locale);
+
         if (!resolvedResult.ok) {
           return resolvedResult;
         }
@@ -976,6 +1037,7 @@ function replaceSelectOrdinalBlocks(
           undefined,
           formatters,
         );
+
         if (!recursiveResult.ok) {
           return recursiveResult;
         }
@@ -1032,6 +1094,7 @@ function replaceMessageRefs(
   }
 
   const templateResult: Result<Str> = safeParse(StrSchema, template);
+
   if (!templateResult.ok) {
     return templateResult;
   }
@@ -1047,6 +1110,7 @@ function replaceMessageRefs(
     readonly key: Str;
   }> = [];
   let match: NullableRegExpExecArray = refRegex.exec(result);
+
   while (match !== null) {
     if (match[2] !== undefined) {
       replacements.push({ full: match[0], modifier: match[1], key: match[2] });
@@ -1061,6 +1125,7 @@ function replaceMessageRefs(
 
   for (const replacement of replacements) {
     const resolvedResult: Result<Str> = resolver(replacement.key);
+
     if (!resolvedResult.ok) {
       return resolvedResult;
     }
@@ -1069,8 +1134,10 @@ function replaceMessageRefs(
 
     if (replacement.modifier) {
       const formatter: FormatterFn | undefined = effectiveFormatters[replacement.modifier];
+
       if (formatter) {
         const fmtResult: Result<Str> = formatter(resolved, locale);
+
         if (!fmtResult.ok) {
           return fmtResult;
         }
@@ -1113,6 +1180,7 @@ function renderMessageInternal(
 
   // 0. Message references — resolve @:key and @.modifier:key before ICU processing
   const refResult: Result<Str> = replaceMessageRefs(template, resolver, depth, locale, formatters);
+
   if (!refResult.ok) {
     return refResult;
   }
@@ -1126,6 +1194,7 @@ function renderMessageInternal(
     escapedLiterals,
     formatters,
   );
+
   if (!selectResult.ok) {
     return selectResult;
   }
@@ -1139,6 +1208,7 @@ function renderMessageInternal(
     escapedLiterals,
     formatters,
   );
+
   if (!ordinalResult.ok) {
     return ordinalResult;
   }
@@ -1152,6 +1222,7 @@ function renderMessageInternal(
     escapedLiterals,
     formatters,
   );
+
   if (!pluralResult.ok) {
     return pluralResult;
   }
@@ -1165,18 +1236,21 @@ function renderMessageInternal(
     escapedLiterals,
     formatters,
   );
+
   if (!rangeResult.ok) {
     return rangeResult;
   }
 
   // 4. Number blocks
   const numberResult: Result<Str> = replaceNumberBlocks(rangeResult.data, params, locale);
+
   if (!numberResult.ok) {
     return numberResult;
   }
 
   // 5. Date/time blocks
   const dateTimeResult: Result<Str> = replaceDateTimeBlocks(numberResult.data, params, locale);
+
   if (!dateTimeResult.ok) {
     return dateTimeResult;
   }
@@ -1197,6 +1271,7 @@ function renderMessageInternal(
     readonly pipes: OptionalStr;
   }> = [];
   let simpleMatch: NullableRegExpExecArray = simplePlaceholderRegex.exec(result);
+
   while (simpleMatch !== null) {
     if (simpleMatch[1] !== undefined) {
       simpleMatches.push({
@@ -1210,12 +1285,16 @@ function renderMessageInternal(
 
   for (const sm of simpleMatches) {
     let value: Str = String(params[sm.key] ?? '');
+
     if (sm.pipes) {
       const pipeNames: Str[] = sm.pipes.split('|');
+
       for (const pipeName of pipeNames) {
         const formatter: FormatterFn | undefined = effectiveFormatters[pipeName];
+
         if (formatter) {
           const fmtResult: Result<Str> = formatter(value, locale);
+
           if (!fmtResult.ok) {
             return fmtResult;
           }
@@ -1266,11 +1345,13 @@ export function renderMessage(
   formatters?: FormatterMap,
 ): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
+
   if (!templateResult.ok) {
     return templateResult;
   }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
     if (!localeResult.ok) {
       return localeResult;
     }
@@ -1278,6 +1359,7 @@ export function renderMessage(
 
   // 0. Escape ICU literals — replace '...' and '' with sentinels
   const escapeResult: Result<EscapeResult> = escapeICULiterals(templateResult.data);
+
   if (!escapeResult.ok) {
     return escapeResult;
   }
@@ -1292,6 +1374,7 @@ export function renderMessage(
     resolver,
     formatters,
   );
+
   if (!renderResult.ok) {
     return renderResult;
   }
@@ -1322,11 +1405,13 @@ function replacePluralBlocks(
   formatters?: FormatterMap,
 ): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
+
   if (!templateResult.ok) {
     return templateResult;
   }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
     if (!localeResult.ok) {
       return localeResult;
     }
@@ -1346,6 +1431,7 @@ function replacePluralBlocks(
 
         let braceDepth: Num = 1;
         let j: Num = bodyStart;
+
         while (j < templateResult.data.length && braceDepth > 0) {
           if (templateResult.data[j] === '{') {
             braceDepth++;
@@ -1358,6 +1444,7 @@ function replacePluralBlocks(
         const body: Str = templateResult.data.slice(bodyStart, j - 1);
         const count: Num = Number(params[key]);
         const resolvedResult: Result<Str> = resolvePlural(count, body, locale);
+
         if (!resolvedResult.ok) {
           return resolvedResult;
         }
@@ -1372,6 +1459,7 @@ function replacePluralBlocks(
           undefined,
           formatters,
         );
+
         if (!recursiveResult.ok) {
           return recursiveResult;
         }
@@ -1415,6 +1503,7 @@ type RangeBranch = v.InferOutput<typeof RangeBranchSchema>;
  */
 function parseRangeBranches(body: Str): Result<readonly RangeBranch[]> {
   const bodyResult: Result<Str> = safeParse(StrSchema, body);
+
   if (!bodyResult.ok) {
     return bodyResult;
   }
@@ -1440,6 +1529,7 @@ function parseRangeBranches(body: Str): Result<readonly RangeBranch[]> {
 
     // Read range spec until ')'
     let rangeSpec: Str = '';
+
     while (i < trimmed.length && trimmed[i] !== ')') {
       rangeSpec += trimmed[i];
       i++;
@@ -1463,6 +1553,7 @@ function parseRangeBranches(body: Str): Result<readonly RangeBranch[]> {
     // Read branch body with brace depth counting
     let braceDepth: Num = 1;
     let branchBody: Str = '';
+
     while (i < trimmed.length && braceDepth > 0) {
       if (trimmed[i] === '{') {
         braceDepth++;
@@ -1481,6 +1572,7 @@ function parseRangeBranches(body: Str): Result<readonly RangeBranch[]> {
     const dashIndex: Num = rangeSpec.indexOf('-');
     let min: Num;
     let max: Num;
+
     if (dashIndex === -1) {
       min = Number(rangeSpec);
       max = min;
@@ -1506,15 +1598,19 @@ function parseRangeBranches(body: Str): Result<readonly RangeBranch[]> {
  */
 function resolveRange(count: Num, body: Str): Result<Str> {
   const countResult: Result<Num> = safeParse(NumSchema, count);
+
   if (!countResult.ok) {
     return countResult;
   }
+
   const bodyResult: Result<Str> = safeParse(StrSchema, body);
+
   if (!bodyResult.ok) {
     return bodyResult;
   }
 
   const branchesResult: Result<readonly RangeBranch[]> = parseRangeBranches(bodyResult.data);
+
   if (!branchesResult.ok) {
     return branchesResult;
   }
@@ -1550,11 +1646,13 @@ function replaceRangeBlocks(
   formatters?: FormatterMap,
 ): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
+
   if (!templateResult.ok) {
     return templateResult;
   }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
     if (!localeResult.ok) {
       return localeResult;
     }
@@ -1574,6 +1672,7 @@ function replaceRangeBlocks(
 
         let braceDepth: Num = 1;
         let j: Num = bodyStart;
+
         while (j < templateResult.data.length && braceDepth > 0) {
           if (templateResult.data[j] === '{') {
             braceDepth++;
@@ -1586,6 +1685,7 @@ function replaceRangeBlocks(
         const body: Str = templateResult.data.slice(bodyStart, j - 1);
         const count: Num = Number(params[key]);
         const resolvedResult: Result<Str> = resolveRange(count, body);
+
         if (!resolvedResult.ok) {
           return resolvedResult;
         }
@@ -1600,6 +1700,7 @@ function replaceRangeBlocks(
           undefined,
           formatters,
         );
+
         if (!recursiveResult.ok) {
           return recursiveResult;
         }
@@ -1633,6 +1734,7 @@ function numberStyleToOptions(style: Str): Intl.NumberFormatOptions | undefined 
     scientific: { notation: 'scientific' },
     engineering: { notation: 'engineering' },
   };
+
   return map[style];
 }
 
@@ -1652,11 +1754,13 @@ function replaceNumberBlocks(
   locale?: Str,
 ): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
+
   if (!templateResult.ok) {
     return templateResult;
   }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
     if (!localeResult.ok) {
       return localeResult;
     }
@@ -1682,6 +1786,7 @@ function replaceNumberBlocks(
         if (styleArg && styleArg.startsWith('::')) {
           const skeletonStr: Str = styleArg.slice(2).trim();
           const skeletonResult: Result<Intl.NumberFormatOptions> = parseNumberSkeleton(skeletonStr);
+
           if (!skeletonResult.ok) {
             return skeletonResult;
           }
@@ -1691,6 +1796,7 @@ function replaceNumberBlocks(
         }
 
         const formatResult: Result<Str> = formatNumber(value, locale ?? 'en', options);
+
         if (!formatResult.ok) {
           return formatResult;
         }
@@ -1726,11 +1832,13 @@ function replaceDateTimeBlocks(
   locale?: Str,
 ): Result<Str> {
   const templateResult: Result<Str> = safeParse(StrSchema, template);
+
   if (!templateResult.ok) {
     return templateResult;
   }
   if (locale !== undefined) {
     const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
     if (!localeResult.ok) {
       return localeResult;
     }
@@ -1758,6 +1866,7 @@ function replaceDateTimeBlocks(
           const skeletonStr: Str = rawStyleArg.slice(2).trim();
           const skeletonResult: Result<Intl.DateTimeFormatOptions> =
             parseDateTimeSkeleton(skeletonStr);
+
           if (!skeletonResult.ok) {
             return skeletonResult;
           }
@@ -1768,8 +1877,10 @@ function replaceDateTimeBlocks(
         } else {
           // Validate named style via Valibot schema
           let style: DateTimeStyle | undefined = undefined;
+
           if (rawStyleArg !== undefined) {
             const styleResult: Result<DateTimeStyle> = safeParse(DateTimeStyleSchema, rawStyleArg);
+
             if (styleResult.ok) {
               style = styleResult.data;
             }
@@ -1838,6 +1949,7 @@ export function buildLocale<TSchema extends v.GenericSchema>(
   formatters?: FormatterMap,
 ): Result<BuiltLocale<TSchema>> {
   const entries: NullableSchemaEntries = getSchemaEntries(schema);
+
   if (!entries) {
     return err(ERRORS.INTERNAL.INVARIANT_VIOLATED, {
       meta: { reason: 'buildLocale requires an object schema', function: 'buildLocale' },
@@ -1853,6 +1965,7 @@ export function buildLocale<TSchema extends v.GenericSchema>(
   const resolver: (key: Str) => Result<Str> = (key: Str): Result<Str> => {
     const parts: Str[] = key.split('.');
     let current: unknown = builtRef.data;
+
     for (const part of parts) {
       if (typeof current !== 'object' || current === null) {
         return err(ERRORS.LOCALE.FORMAT_FAILED, {
@@ -1877,6 +1990,7 @@ export function buildLocale<TSchema extends v.GenericSchema>(
     resolver,
     formatters,
   );
+
   if (!builtResult.ok) {
     return builtResult;
   }
@@ -1913,6 +2027,7 @@ function buildLocaleEntries(
 
     // Check if this is a nested object schema
     const nestedEntries: NullableSchemaEntries = getSchemaEntries(entrySchema);
+
     if (nestedEntries && typeof rawValue === 'object' && rawValue !== null) {
       const nestedResult: Result<RawLocaleStrings> = buildLocaleEntries(
         nestedEntries,
@@ -1922,6 +2037,7 @@ function buildLocaleEntries(
         resolver,
         formatters,
       ); // Runtime-guarded by typeof check above
+
       if (!nestedResult.ok) {
         return nestedResult;
       }
@@ -1943,6 +2059,7 @@ function buildLocaleEntries(
       result[key] = (params: RawLocaleStrings): Result<Str> => {
         for (const [paramKey, paramSchema] of Object.entries(schemas)) {
           const paramResult: Result<unknown> = safeParse(paramSchema, params[paramKey]);
+
           if (!paramResult.ok) {
             return err(ERRORS.TEMPLATE.PARAM_VALIDATION_FAILED, {
               meta: { param: paramKey },
@@ -1950,6 +2067,7 @@ function buildLocaleEntries(
             });
           }
         }
+
         const renderedResult: Result<Str> = renderMessage(
           template,
           params,
@@ -1957,6 +2075,7 @@ function buildLocaleEntries(
           resolver,
           formatters,
         );
+
         if (!renderedResult.ok) {
           return renderedResult;
         }
@@ -1967,6 +2086,7 @@ function buildLocaleEntries(
       const value: Str = context
         ? ((): Str => {
             const r: Result<Str> = renderMessage(rawValue, context);
+
             if (!r.ok) {
               return rawValue;
             } // Fallback to raw — context substitution failure is non-fatal
@@ -1981,6 +2101,7 @@ function buildLocaleEntries(
       result[key] = rawValue.map((item: unknown): unknown => {
         if (typeof item === 'object' && item !== null) {
           const rendered: RawLocaleStrings = {};
+
           for (const [fieldKey, fieldValue] of Object.entries(item as Record<Str, unknown>)) { // cast safe: typeof item === 'object' guard above
             // Runtime-guarded by typeof === 'object' check above
             if (typeof fieldValue === 'string') {
@@ -2033,6 +2154,7 @@ function getSchemaEntries(schema: v.GenericSchema): NullableSchemaEntries {
     for (const item of s.pipe) {
       if (typeof item === 'object' && item !== null) {
         const entries: Record<Str, v.GenericSchema> | undefined = getSchemaEntries(item as v.GenericSchema); // cast safe: runtime-guarded by typeof check
+
         if (entries) {
           return entries;
         }
@@ -2044,9 +2166,11 @@ function getSchemaEntries(schema: v.GenericSchema): NullableSchemaEntries {
   if (Array.isArray(s.options)) {
     const merged: Record<Str, v.GenericSchema> = {};
     let found: Bool = false;
+
     for (const option of s.options) {
       if (typeof option === 'object' && option !== null) {
         const entries: NullableSchemaEntries = getSchemaEntries(option as v.GenericSchema); // Runtime-guarded by typeof check
+
         if (entries) {
           Object.assign(merged, entries);
           found = true;
