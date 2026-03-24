@@ -28,7 +28,8 @@ import {
 } from '@/schemas/common';
 import { ERRORS, type Result, err, ok, okUnchecked } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
-import { type BuiltLocale, type FormatterMap, buildLocale } from './template';
+
+import { type BuiltLocale, type FormatterMap, buildLocale } from '@/locale/template';
 
 // =============================================================================
 // Registry Options Schema
@@ -128,14 +129,14 @@ export type LocaleRegistry<TSchema extends v.GenericSchema> = {
  * Recursively merges missing keys from a fallback locale into a primary locale.
  * Only fills `undefined` entries — never overwrites existing values.
  *
- * @param primary - The primary built locale object (may have missing keys).
- * @param fallback - The fallback built locale object (should be complete).
- * @returns The merged locale object with all keys filled from fallback.
+ * @param {Record<Str, unknown>} primary - The primary built locale object (may have missing keys).
+ * @param {Record<Str, unknown>} fallback - The fallback built locale object (should be complete).
+ * @returns {Result<Record<Str, unknown>>} The merged locale object with all keys filled from fallback.
  */
 function mergeLocaleKeys(
   primary: Record<Str, unknown>,
   fallback: Record<Str, unknown>,
-): Record<Str, unknown> {
+): Result<Record<Str, unknown>> {
   const merged: Record<Str, unknown> = { ...primary };
 
   for (const [key, fallbackValue] of Object.entries(fallback)) {
@@ -152,11 +153,20 @@ function mergeLocaleKeys(
       // Recurse into nested objects — runtime-guarded by typeof/null/Array checks above
       const primaryChild: Record<Str, unknown> = merged[key] as Record<Str, unknown>; // Irreducible: non-null, non-array object confirmed above — no Valibot schema for generic object
       const fallbackChild: Record<Str, unknown> = fallbackValue as Record<Str, unknown>; // Irreducible: same guard
-      merged[key] = mergeLocaleKeys(primaryChild, fallbackChild);
+      const childResult: Result<Record<Str, unknown>> = mergeLocaleKeys(
+        primaryChild,
+        fallbackChild,
+      );
+
+      if (!childResult.ok) {
+        return childResult;
+      }
+
+      merged[key] = childResult.data;
     }
   }
 
-  return merged;
+  return okUnchecked<Record<Str, unknown>>(merged);
 }
 
 // =============================================================================
@@ -173,8 +183,8 @@ function mergeLocaleKeys(
  * and missing keys are filled from the fallback chain (defaults to `[defaultLocale]`).
  *
  * @template TSchema - The Valibot schema defining the locale string structure.
- * @param options - Registry configuration (schema, defaultLocale, locales, fallbackLocales, strict, context).
- * @returns `Result<LocaleRegistry<TSchema>>` — the registry, or a validation/build error.
+ * @param {LocaleRegistryOptions<TSchema>} options - Registry configuration (schema, defaultLocale, locales, fallbackLocales, strict, context).
+ * @returns {Result<LocaleRegistry<TSchema>>} The registry, or a validation/build error.
  *
  * @example
  * ```typescript
@@ -192,6 +202,7 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
 ): Result<LocaleRegistry<TSchema>> {
   // Validate defaultLocale
   const defaultLocaleResult: Result<Str> = safeParse(StrSchema, options.defaultLocale);
+
   if (!defaultLocaleResult.ok) {
     return defaultLocaleResult;
   }
@@ -222,10 +233,11 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
   }
 
   // Build all provided locales eagerly
-  const built = new Map<Str, BuiltLocale<TSchema>>();
+  const built: Map<Str, BuiltLocale<TSchema>> = new Map<Str, BuiltLocale<TSchema>>();
 
   for (const [code, raw] of Object.entries(options.locales)) {
     const codeResult: Result<Str> = safeParse(StrSchema, code);
+
     if (!codeResult.ok) {
       return codeResult;
     }
@@ -235,6 +247,7 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
     // Schema validation: strict mode validates all; non-strict only validates default
     if (isStrict || isDefault) {
       const parseResult: Result<unknown> = safeParse(options.schema, raw);
+
       if (!parseResult.ok) {
         return err(ERRORS.LOCALE.VALIDATION_FAILED, {
           meta: { locale: codeResult.data },
@@ -251,6 +264,7 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
       codeResult.data,
       options.formatters,
     );
+
     if (!buildResult.ok) {
       return err(ERRORS.LOCALE.BUILD_FAILED, {
         meta: { locale: codeResult.data },
@@ -269,12 +283,24 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
       } // Default is always complete
 
       let merged: Record<Str, unknown> = builtLocale as unknown as Record<Str, unknown>; // Irreducible: builtLocale is an object built by buildLocale — no generic Valibot schema
+
       for (const fallbackCode of fallbackChain) {
         const fallbackLocale: BuiltLocale<TSchema> | undefined = built.get(fallbackCode);
+
         if (fallbackLocale) {
-          merged = mergeLocaleKeys(merged, fallbackLocale as unknown as Record<Str, unknown>); // Irreducible: same guard
+          const mergeResult: Result<Record<Str, unknown>> = mergeLocaleKeys(
+            merged,
+            fallbackLocale as unknown as Record<Str, unknown>, // Irreducible: builtLocale is object built by buildLocale, no generic Valibot schema
+          );
+
+          if (!mergeResult.ok) {
+            return mergeResult;
+          }
+
+          merged = mergeResult.data;
         }
       }
+
       built.set(code, merged as BuiltLocale<TSchema>); // Irreducible: merged has same shape, keys filled from fallback
     }
   }
@@ -289,6 +315,7 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
 
     setActive: (code: Str): Result<Void> => {
       const codeResult: Result<Str> = safeParse(StrSchema, code);
+
       if (!codeResult.ok) {
         return codeResult;
       }
@@ -312,11 +339,13 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
 
     get: (code: Str): Result<BuiltLocale<TSchema>> => {
       const codeResult: Result<Str> = safeParse(StrSchema, code);
+
       if (!codeResult.ok) {
         return codeResult;
       }
 
       const locale: BuiltLocale<TSchema> | undefined = built.get(codeResult.data);
+
       if (!locale) {
         return err(ERRORS.LOCALE.INVALID_LOCALE, {
           meta: {
@@ -331,6 +360,7 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
 
     has: (code: Str): Result<Bool> => {
       const codeResult: Result<Str> = safeParse(StrSchema, code);
+
       if (!codeResult.ok) {
         return codeResult;
       }
@@ -339,12 +369,14 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
 
     set: (code: Str, raw: RawLocaleStrings): Result<Void> => {
       const codeResult: Result<Str> = safeParse(StrSchema, code);
+
       if (!codeResult.ok) {
         return codeResult;
       }
 
       // Validate raw strings against schema
       const parseResult: Result<unknown> = safeParse(options.schema, raw);
+
       if (!parseResult.ok) {
         return err(ERRORS.LOCALE.VALIDATION_FAILED, {
           meta: { locale: codeResult.data },
@@ -360,6 +392,7 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
         codeResult.data,
         options.formatters,
       );
+
       if (!buildResult.ok) {
         return err(ERRORS.LOCALE.BUILD_FAILED, {
           meta: { locale: codeResult.data },
@@ -373,6 +406,7 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
 
     t: (): Result<BuiltLocale<TSchema>> => {
       const locale: BuiltLocale<TSchema> | undefined = built.get(activeCode);
+
       if (!locale) {
         return err(ERRORS.LOCALE.INVALID_LOCALE, {
           meta: {
@@ -387,6 +421,7 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
 
     remove: (code: Str): Result<Void> => {
       const codeResult: Result<Str> = safeParse(StrSchema, code);
+
       if (!codeResult.ok) {
         return codeResult;
       }
@@ -427,41 +462,41 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
 // Namespace Types
 // =============================================================================
 
-/**
- * A namespace definition — schema + raw strings per locale.
- *
- * Irreducible TS type: `schema` is `TSchema extends v.GenericSchema` — a Valibot
- * schema itself, which cannot be represented as a Valibot schema (circular).
- *
- * @template TSchema - The Valibot schema defining the namespace's locale string structure.
- */
-type NamespaceDefinition<TSchema extends v.GenericSchema> = {
+/** Valibot schema for a namespace definition — schema + raw strings per locale. */
+const NamespaceDefinitionSchema = v.strictObject({
+  /** Valibot schema for this namespace's locale strings. */
+  schema: v.custom<v.GenericSchema>((): Bool => true), // cast safe: Valibot schema instance, validated at build time
+  /** Map of locale code → raw locale strings for this namespace. */
+  locales: v.record(StrSchema, RawLocaleStringsSchema),
+});
+
+/** A namespace definition. See {@link NamespaceDefinitionSchema}. */
+type NamespaceDefinition<TSchema extends v.GenericSchema> = Omit<
+  v.InferOutput<typeof NamespaceDefinitionSchema>,
+  'schema'
+> & {
   /** Valibot schema for this namespace's locale strings. */
   readonly schema: TSchema;
-  /** Map of locale code → raw locale strings for this namespace. */
-  readonly locales: Record<Str, RawLocaleStrings>;
 };
 
-/**
- * Options for creating a namespaced locale registry.
- *
- * Irreducible TS type: contains generic `NamespaceDefinition` values and
- * optional `FormatterMap` (function-typed) — cannot be represented in Valibot.
- */
-type NamespacedRegistryOptions = {
+/** Valibot schema for namespaced registry options. */
+const NamespacedRegistryOptionsSchema = v.strictObject({
   /** Default locale code (must exist in every namespace's locales). */
-  readonly defaultLocale: Str;
+  defaultLocale: StrSchema,
   /** Map of namespace name → namespace definition. */
-  readonly namespaces: Record<Str, NamespaceDefinition<v.GenericSchema>>;
+  namespaces: v.record(StrSchema, NamespaceDefinitionSchema),
   /** Optional context values substituted into plain strings at build time. */
-  readonly context?: RawLocaleStrings;
+  context: v.optional(RawLocaleStringsSchema),
   /** Locale fallback chain. Defaults to `[defaultLocale]`. */
-  readonly fallbackLocales?: readonly Str[];
+  fallbackLocales: v.optional(v.array(StrSchema)),
   /** When `false`, allows partial locale files. Default: `true`. */
-  readonly strict?: Bool;
+  strict: v.optional(BoolSchema),
   /** Optional custom formatters for pipe syntax and message ref modifiers. */
-  readonly formatters?: FormatterMap;
-};
+  formatters: v.optional(v.custom<FormatterMap>((): Bool => true)), // cast safe: FormatterMap contains function types
+});
+
+/** Options for creating a namespaced locale registry. See {@link NamespacedRegistryOptionsSchema}. */
+type NamespacedRegistryOptions = v.InferOutput<typeof NamespacedRegistryOptionsSchema>;
 
 /**
  * A namespaced locale registry with synchronized locale switching.
@@ -504,8 +539,8 @@ export type NamespacedRegistry = {
  * to all namespaces that have the target locale. Namespaces can be added
  * dynamically for lazy loading patterns.
  *
- * @param options - Namespaced registry configuration.
- * @returns `Result<NamespacedRegistry>` — the registry, or a validation error.
+ * @param {NamespacedRegistryOptions} options - Namespaced registry configuration.
+ * @returns {Result<NamespacedRegistry>} The registry, or a validation error.
  *
  * @example
  * ```typescript
@@ -526,15 +561,20 @@ export function createNamespacedRegistry(
   options: NamespacedRegistryOptions,
 ): Result<NamespacedRegistry> {
   const defaultLocaleResult: Result<Str> = safeParse(StrSchema, options.defaultLocale);
+
   if (!defaultLocaleResult.ok) {
     return defaultLocaleResult;
   }
 
-  const registries = new Map<Str, LocaleRegistry<v.GenericSchema>>();
+  const registries: Map<Str, LocaleRegistry<v.GenericSchema>> = new Map<
+    Str,
+    LocaleRegistry<v.GenericSchema>
+  >();
 
   // Create a sub-registry for each namespace
   for (const [name, definition] of Object.entries(options.namespaces)) {
     const nameResult: Result<Str> = safeParse(StrSchema, name);
+
     if (!nameResult.ok) {
       return nameResult;
     }
@@ -548,6 +588,7 @@ export function createNamespacedRegistry(
       strict: options.strict,
       formatters: options.formatters,
     });
+
     if (!subResult.ok) {
       return subResult;
     }
@@ -565,6 +606,7 @@ export function createNamespacedRegistry(
 
     setActive: (code: Str): Result<Void> => {
       const codeResult: Result<Str> = safeParse(StrSchema, code);
+
       if (!codeResult.ok) {
         return codeResult;
       }
@@ -572,11 +614,13 @@ export function createNamespacedRegistry(
       // Propagate to all namespaces that have this locale
       for (const [_name, subRegistry] of registries) {
         const hasResult: Result<Bool> = subRegistry.has(codeResult.data);
+
         if (!hasResult.ok) {
           return hasResult;
         }
         if (hasResult.data) {
           const setResult: Result<Void> = subRegistry.setActive(codeResult.data);
+
           if (!setResult.ok) {
             return setResult;
           }
@@ -594,12 +638,16 @@ export function createNamespacedRegistry(
 
       // Intersection of all namespace locale lists
       let intersection: Set<Str> | undefined = undefined;
+
       for (const [_name, subRegistry] of registries) {
         const listResult: Result<StrArray> = subRegistry.list();
+
         if (!listResult.ok) {
           return listResult;
         }
-        const codes = new Set<Str>(listResult.data);
+
+        const codes: Set<Str> = new Set<Str>(listResult.data);
+
         if (intersection === undefined) {
           intersection = codes;
         } else {
@@ -616,6 +664,7 @@ export function createNamespacedRegistry(
 
     ns: (namespace: Str): Result<BuiltLocale<v.GenericSchema>> => {
       const nsResult: Result<Str> = safeParse(StrSchema, namespace);
+
       if (!nsResult.ok) {
         return nsResult;
       }
@@ -623,6 +672,7 @@ export function createNamespacedRegistry(
       const subRegistry: LocaleRegistry<v.GenericSchema> | undefined = registries.get(
         nsResult.data,
       );
+
       if (!subRegistry) {
         return err(ERRORS.LOCALE.INVALID_LOCALE, {
           meta: { locale: nsResult.data, available: [...registries.keys()] },
@@ -634,6 +684,7 @@ export function createNamespacedRegistry(
 
     addNamespace: (name: Str, definition: NamespaceDefinition<v.GenericSchema>): Result<Void> => {
       const nameResult: Result<Str> = safeParse(StrSchema, name);
+
       if (!nameResult.ok) {
         return nameResult;
       }
@@ -647,6 +698,7 @@ export function createNamespacedRegistry(
         strict: options.strict,
         formatters: options.formatters,
       });
+
       if (!subResult.ok) {
         return subResult;
       }
@@ -657,6 +709,7 @@ export function createNamespacedRegistry(
 
     removeNamespace: (name: Str): Result<Void> => {
       const nameResult: Result<Str> = safeParse(StrSchema, name);
+
       if (!nameResult.ok) {
         return nameResult;
       }
@@ -673,6 +726,7 @@ export function createNamespacedRegistry(
 
     hasNamespace: (name: Str): Result<Bool> => {
       const nameResult: Result<Str> = safeParse(StrSchema, name);
+
       if (!nameResult.ok) {
         return nameResult;
       }
@@ -685,10 +739,13 @@ export function createNamespacedRegistry(
 
     setLocale: (namespace: Str, code: Str, raw: RawLocaleStrings): Result<Void> => {
       const nsResult: Result<Str> = safeParse(StrSchema, namespace);
+
       if (!nsResult.ok) {
         return nsResult;
       }
+
       const codeResult: Result<Str> = safeParse(StrSchema, code);
+
       if (!codeResult.ok) {
         return codeResult;
       }
@@ -696,6 +753,7 @@ export function createNamespacedRegistry(
       const subRegistry: LocaleRegistry<v.GenericSchema> | undefined = registries.get(
         nsResult.data,
       );
+
       if (!subRegistry) {
         return err(ERRORS.LOCALE.INVALID_LOCALE, {
           meta: { locale: nsResult.data, available: [...registries.keys()] },

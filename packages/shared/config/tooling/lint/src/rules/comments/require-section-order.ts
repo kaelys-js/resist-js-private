@@ -78,13 +78,21 @@ const rule: TypeScriptRule = {
       // If no section markers found, check if the file NEEDS them
       if (sections.length === 0) {
         // Count content categories in the file
-        const hasSchemas: boolean = /v\.strictObject\s*\(|v\.pipe\s*\(|v\.picklist\s*\(/.test(context.content);
-        const hasExportedFunctions: boolean = /export\s+(async\s+)?function\s/.test(context.content);
+        const hasSchemas: boolean = /v\.strictObject\s*\(|v\.pipe\s*\(|v\.picklist\s*\(/.test(
+          context.content,
+        );
+        const hasExportedFunctions: boolean = /export\s+(async\s+)?function\s/.test(
+          context.content,
+        );
         const hasConstants: boolean = /^const\s+[A-Z][A-Z0-9_]*\s*[:=]/m.test(context.content);
         const hasTypes: boolean = /^export\s+type\s/m.test(context.content);
 
-        const categoryCount: number = [hasSchemas, hasExportedFunctions, hasConstants, hasTypes]
-          .filter(Boolean).length;
+        const categoryCount: number = [
+          hasSchemas,
+          hasExportedFunctions,
+          hasConstants,
+          hasTypes,
+        ].filter(Boolean).length;
 
         // Only require sections if file has 2+ categories AND is over 50 lines
         if (categoryCount >= 2 && lines.length > 50) {

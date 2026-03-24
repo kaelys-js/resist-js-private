@@ -269,7 +269,10 @@ type Foo = { x: Str };
 
   it('flags file with multiple content categories but no section markers', async () => {
     // Generate a file over 50 lines with schemas + exported functions
-    const padding: string = Array.from({ length: 55 }, (_: unknown, i: number) => `// line ${i + 1}`).join('\n');
+    const padding: string = Array.from(
+      { length: 55 },
+      (_: unknown, i: number) => `// line ${i + 1}`,
+    ).join('\n');
     const code: string = `${padding}
 const FooSchema = v.strictObject({ name: v.string() });
 export type Foo = v.InferOutput<typeof FooSchema>;
@@ -293,7 +296,10 @@ export function doStuff(): void {}
   });
 
   it('passes file with proper section markers', async () => {
-    const padding: string = Array.from({ length: 55 }, (_: unknown, i: number) => `// line ${i + 1}`).join('\n');
+    const padding: string = Array.from(
+      { length: 55 },
+      (_: unknown, i: number) => `// line ${i + 1}`,
+    ).join('\n');
     const code: string = `${padding}
 // =============================================================================
 // Schemas
