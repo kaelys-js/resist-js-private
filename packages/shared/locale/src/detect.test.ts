@@ -65,6 +65,15 @@ describe('matchLocale', () => {
       if (result.ok) expect(result.data).toBe(code);
     }
   });
+
+  it('returns error for invalid tag (non-string)', () => {
+    const result: Result<NullableStr> = matchLocale(123 as unknown as Str, AVAILABLE);
+    expect(result.ok).toBe(false);
+  });
+
+  it('throws for invalid available (non-iterable)', () => {
+    expect(() => matchLocale('en', 123 as unknown as readonly Str[])).toThrow(TypeError);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -132,6 +141,17 @@ describe('detectFromAcceptLanguage', () => {
       if (result.ok) expect(result.data).toBe(code);
     }
   });
+
+  it('returns error for invalid header (non-string)', () => {
+    const result: Result<NullableStr> = detectFromAcceptLanguage(123 as unknown as Str, AVAILABLE);
+    expect(result.ok).toBe(false);
+  });
+
+  it('filters empty parts from header', () => {
+    const result: Result<NullableStr> = detectFromAcceptLanguage(',,,en', AVAILABLE);
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('en');
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -172,6 +192,48 @@ describe('detectFromNavigator', () => {
       configurable: true,
     });
   });
+
+  it('returns null when navigator languages have no match', () => {
+    const original = globalThis.navigator;
+    Object.defineProperty(globalThis, 'navigator', {
+      value: { languages: ['pt', 'ru'], language: 'pt' },
+      writable: true,
+      configurable: true,
+    });
+
+    const result: Result<NullableStr> = detectFromNavigator(AVAILABLE);
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBeNull();
+
+    Object.defineProperty(globalThis, 'navigator', {
+      value: original,
+      writable: true,
+      configurable: true,
+    });
+  });
+
+  it('falls back to navigator.language when languages is undefined', () => {
+    const original = globalThis.navigator;
+    Object.defineProperty(globalThis, 'navigator', {
+      value: { language: 'ja' },
+      writable: true,
+      configurable: true,
+    });
+
+    const result: Result<NullableStr> = detectFromNavigator(AVAILABLE);
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('ja');
+
+    Object.defineProperty(globalThis, 'navigator', {
+      value: original,
+      writable: true,
+      configurable: true,
+    });
+  });
+
+  it('throws for invalid available (non-iterable)', () => {
+    expect(() => detectFromNavigator(123 as unknown as readonly Str[])).toThrow(TypeError);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -197,6 +259,44 @@ describe('detectFromUrlPath', () => {
     );
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBeNull();
+  });
+
+  it('returns null when segment index is beyond path length', () => {
+    const result: Result<NullableStr> = detectFromUrlPath(
+      'https://example.com/',
+      5 as NonNegativeInteger,
+      AVAILABLE,
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBeNull();
+  });
+
+  it('returns error for invalid URL', () => {
+    const result: Result<NullableStr> = detectFromUrlPath(
+      'not-a-url',
+      0 as NonNegativeInteger,
+      AVAILABLE,
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+  });
+
+  it('returns error for invalid url input (non-string)', () => {
+    const result: Result<NullableStr> = detectFromUrlPath(
+      123 as unknown as Str,
+      0 as NonNegativeInteger,
+      AVAILABLE,
+    );
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid index', () => {
+    const result: Result<NullableStr> = detectFromUrlPath(
+      'https://example.com/en',
+      -1 as unknown as NonNegativeInteger,
+      AVAILABLE,
+    );
+    expect(result.ok).toBe(false);
   });
 });
 
@@ -224,6 +324,30 @@ describe('detectFromUrlQuery', () => {
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBeNull();
   });
+
+  it('returns error for invalid URL', () => {
+    const result: Result<NullableStr> = detectFromUrlQuery('not-a-url', 'lang', AVAILABLE);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+  });
+
+  it('returns error for invalid url input (non-string)', () => {
+    const result: Result<NullableStr> = detectFromUrlQuery(
+      123 as unknown as Str,
+      'lang',
+      AVAILABLE,
+    );
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid param name (non-string)', () => {
+    const result: Result<NullableStr> = detectFromUrlQuery(
+      'https://example.com',
+      123 as unknown as Str,
+      AVAILABLE,
+    );
+    expect(result.ok).toBe(false);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -241,6 +365,26 @@ describe('detectFromCookie', () => {
     const result: Result<NullableStr> = detectFromCookie('theme=dark', 'lang', AVAILABLE);
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBeNull();
+  });
+
+  it('skips malformed cookie entries without equals sign', () => {
+    const result: Result<NullableStr> = detectFromCookie('badcookie; lang=ja', 'lang', AVAILABLE);
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('ja');
+  });
+
+  it('returns error for invalid header (non-string)', () => {
+    const result: Result<NullableStr> = detectFromCookie(123 as unknown as Str, 'lang', AVAILABLE);
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid cookie name (non-string)', () => {
+    const result: Result<NullableStr> = detectFromCookie(
+      'lang=en',
+      123 as unknown as Str,
+      AVAILABLE,
+    );
+    expect(result.ok).toBe(false);
   });
 });
 
@@ -277,5 +421,128 @@ describe('detectLocale', () => {
     });
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBe('de');
+  });
+
+  it('returns error for invalid options', () => {
+    const result: Result<Str> = detectLocale({} as Parameters<typeof detectLocale>[0]);
+    expect(result.ok).toBe(false);
+  });
+
+  it('skips navigator source when navigator is undefined (Node)', () => {
+    const original = globalThis.navigator;
+    delete (globalThis as Record<string, unknown>).navigator;
+
+    const result: Result<Str> = detectLocale({
+      available: [...AVAILABLE],
+      fallback: 'en',
+      sources: [{ kind: 'navigator' }, { kind: 'header', value: 'ja' }],
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('ja');
+
+    Object.defineProperty(globalThis, 'navigator', {
+      value: original,
+      writable: true,
+      configurable: true,
+    });
+  });
+
+  it('skips url-path source when location is undefined (Node)', () => {
+    const result: Result<Str> = detectLocale({
+      available: [...AVAILABLE],
+      fallback: 'en',
+      sources: [{ kind: 'url-path', index: 0 as NonNegativeInteger }],
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('en');
+  });
+
+  it('skips url-query source when location is undefined (Node)', () => {
+    const result: Result<Str> = detectLocale({
+      available: [...AVAILABLE],
+      fallback: 'en',
+      sources: [{ kind: 'url-query', key: 'lang' }],
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('en');
+  });
+
+  it('skips cookie source when document is undefined (Node)', () => {
+    const result: Result<Str> = detectLocale({
+      available: [...AVAILABLE],
+      fallback: 'en',
+      sources: [{ kind: 'cookie', key: 'lang' }],
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('en');
+  });
+
+  it('skips storage source when localStorage is undefined (Node)', () => {
+    const result: Result<Str> = detectLocale({
+      available: [...AVAILABLE],
+      fallback: 'en',
+      sources: [{ kind: 'storage', key: 'lang' }],
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('en');
+  });
+
+  it('reads from localStorage when available', () => {
+    const original = globalThis.localStorage;
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: { getItem: (key: Str): NullableStr => (key === 'lang' ? 'ja' : null) },
+      writable: true,
+      configurable: true,
+    });
+
+    const result: Result<Str> = detectLocale({
+      available: [...AVAILABLE],
+      fallback: 'en',
+      sources: [{ kind: 'storage', key: 'lang' }],
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('ja');
+
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: original,
+      writable: true,
+      configurable: true,
+    });
+  });
+
+  it('skips storage source when stored value is null', () => {
+    const original = globalThis.localStorage;
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: { getItem: (): NullableStr => null },
+      writable: true,
+      configurable: true,
+    });
+
+    const result: Result<Str> = detectLocale({
+      available: [...AVAILABLE],
+      fallback: 'en',
+      sources: [{ kind: 'storage', key: 'lang' }],
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('en');
+
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: original,
+      writable: true,
+      configurable: true,
+    });
+  });
+
+  it('tries multiple sources and returns first match', () => {
+    const result: Result<Str> = detectLocale({
+      available: [...AVAILABLE],
+      fallback: 'en',
+      sources: [
+        { kind: 'header', value: 'pt-BR' },
+        { kind: 'header', value: 'ja,en;q=0.9' },
+      ],
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('ja');
   });
 });
