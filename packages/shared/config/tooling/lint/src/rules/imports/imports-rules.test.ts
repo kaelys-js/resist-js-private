@@ -13,6 +13,7 @@ import noBarrelFiles from './no-barrel-files.ts';
 import noReexport from './no-reexport.ts';
 import noRawNodeImports from './no-raw-node-imports.ts';
 import noRawJson from './no-raw-json.ts';
+import requireImportGroups from './require-import-groups.ts';
 import noJsExtension from './no-js-extension.ts';
 
 /**
@@ -380,5 +381,46 @@ describe('imports/no-js-extension', () => {
     const code: string = `import { foo } from './module.js';`;
     const results: LintResult[] = await lint(noJsExtension, code, 'my-module.test.ts');
     expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// imports/require-import-groups
+// =============================================================================
+
+describe('imports/require-import-groups', () => {
+  it('flags missing blank line between external and workspace imports', async () => {
+    const code: string = `import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
+`;
+    const results: LintResult[] = await lint(requireImportGroups, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('blank line');
+  });
+
+  it('passes with blank line between external and workspace imports', async () => {
+    const code: string = `import * as v from 'valibot';
+
+import { StrSchema } from '@/schemas/common';
+`;
+    const results: LintResult[] = await lint(requireImportGroups, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes with single import group', async () => {
+    const code: string = `import { StrSchema } from '@/schemas/common';
+import { ERRORS } from '@/schemas/result/result';
+`;
+    const results: LintResult[] = await lint(requireImportGroups, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags missing blank line between node and external imports', async () => {
+    const code: string = `import { readFileSync } from 'node:fs';
+import * as v from 'valibot';
+`;
+    const results: LintResult[] = await lint(requireImportGroups, code);
+    expect(results.length).toBe(1);
+    expect(results[0].message).toContain('node');
   });
 });
