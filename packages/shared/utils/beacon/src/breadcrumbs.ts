@@ -6,7 +6,15 @@
 
 import * as v from 'valibot';
 
-import { NullableStrSchema, StrSchema, VoidSchema, type Bool, type NullableStr, type Str, type Void } from '@/schemas/common';
+import {
+  NullableStrSchema,
+  StrSchema,
+  VoidSchema,
+  type Bool,
+  type NullableStr,
+  type Str,
+  type Void,
+} from '@/schemas/common';
 import type { BreadcrumbLevel } from '@/schemas/result/captured-error';
 import { type AppError, type Result, ok, err, ERRORS } from '@/schemas/result/result';
 import { addBreadcrumb } from '@/utils/result/breadcrumbs';
@@ -24,8 +32,8 @@ const DEFAULT_SKIP_URLS: readonly Str[] = ['/api/errors'];
 
 /** Schema for initFetchBreadcrumbs options. */
 const FetchBreadcrumbOptionsSchema = v.strictObject({
-	/** URL substrings to skip breadcrumb recording for. */
-	skipUrls: v.optional(v.array(StrSchema), ['/api/errors']),
+  /** URL substrings to skip breadcrumb recording for. */
+  skipUrls: v.optional(v.array(StrSchema), ['/api/errors']),
 });
 
 // =============================================================================
@@ -39,13 +47,13 @@ const FetchBreadcrumbOptionsSchema = v.strictObject({
  * @returns {Result<Str>} The URL as a string.
  */
 function extractUrl(input: RequestInfo | URL): Result<Str> {
-	if (typeof input === 'string') return ok(StrSchema, input);
+  if (typeof input === 'string') return ok(StrSchema, input);
 
-	if (input instanceof URL) return ok(StrSchema, input.pathname);
+  if (input instanceof URL) return ok(StrSchema, input.pathname);
 
-	if (input instanceof Request) return ok(StrSchema, input.url);
+  if (input instanceof Request) return ok(StrSchema, input.url);
 
-	return ok(StrSchema, '(unknown)');
+  return ok(StrSchema, '(unknown)');
 }
 
 /**
@@ -56,11 +64,11 @@ function extractUrl(input: RequestInfo | URL): Result<Str> {
  * @returns {Result<Str>} The HTTP method (defaults to 'GET').
  */
 function extractMethod(input: RequestInfo | URL, init: RequestInit | undefined): Result<Str> {
-	if (init?.method) return ok(StrSchema, init.method.toUpperCase());
+  if (init?.method) return ok(StrSchema, init.method.toUpperCase());
 
-	if (input instanceof Request) return ok(StrSchema, input.method.toUpperCase());
+  if (input instanceof Request) return ok(StrSchema, input.method.toUpperCase());
 
-	return ok(StrSchema, 'GET');
+  return ok(StrSchema, 'GET');
 }
 
 // =============================================================================
@@ -90,24 +98,24 @@ function extractMethod(input: RequestInfo | URL, init: RequestInit | undefined):
  * ```
  */
 export function addNavigationBreadcrumb(from: NullableStr, to: Str): Result<Void> {
-	const fromResult: Result<NullableStr> = safeParse(NullableStrSchema, from);
+  const fromResult: Result<NullableStr> = safeParse(NullableStrSchema, from);
 
-	if (!fromResult.ok) return fromResult;
+  if (!fromResult.ok) return fromResult;
 
-	const toResult: Result<Str> = safeParse(StrSchema, to);
+  const toResult: Result<Str> = safeParse(StrSchema, to);
 
-	if (!toResult.ok) return toResult;
+  if (!toResult.ok) return toResult;
 
-	const fromLabel: Str = (fromResult.data ?? '(initial)') as Str; // cast safe: string concatenation
+  const fromLabel: Str = (fromResult.data ?? '(initial)') as Str; // cast safe: string concatenation
 
-	addBreadcrumb({
-		type: 'navigation',
-		category: 'route',
-		message: `${fromLabel} → ${toResult.data}`,
-		level: 'info',
-	});
+  addBreadcrumb({
+    type: 'navigation',
+    category: 'route',
+    message: `${fromLabel} → ${toResult.data}`,
+    level: 'info',
+  });
 
-	return ok(VoidSchema, undefined);
+  return ok(VoidSchema, undefined);
 }
 
 /**
@@ -135,67 +143,70 @@ export function addNavigationBreadcrumb(from: NullableStr, to: Str): Result<Void
  * ```
  */
 export function initFetchBreadcrumbs(skipUrls: readonly Str[]): Result<Void> {
-	const skipUrlsResult: Result<readonly Str[]> = safeParse(v.array(StrSchema), skipUrls);
+  const skipUrlsResult: Result<readonly Str[]> = safeParse(v.array(StrSchema), skipUrls);
 
-	if (!skipUrlsResult.ok) return skipUrlsResult;
+  if (!skipUrlsResult.ok) return skipUrlsResult;
 
-	// Already initialized — skip
-	if (originalFetch !== null) {
-		return ok(VoidSchema, undefined);
-	}
+  // Already initialized — skip
+  if (originalFetch !== null) {
+    return ok(VoidSchema, undefined);
+  }
 
-	originalFetch = globalThis.fetch;
-	const original: typeof fetch = originalFetch;
-	const urls: readonly Str[] = skipUrlsResult.data;
+  originalFetch = globalThis.fetch;
+  const original: typeof fetch = originalFetch;
+  const urls: readonly Str[] = skipUrlsResult.data;
 
-	globalThis.fetch = async (input: RequestInfo | URL, init: RequestInit | undefined): Promise<Response> => {
-		const urlResult: Result<Str> = extractUrl(input);
+  globalThis.fetch = async (
+    input: RequestInfo | URL,
+    init: RequestInit | undefined,
+  ): Promise<Response> => {
+    const urlResult: Result<Str> = extractUrl(input);
 
-		if (!urlResult.ok) return original(input, init);
+    if (!urlResult.ok) return original(input, init);
 
-		const methodResult: Result<Str> = extractMethod(input, init);
+    const methodResult: Result<Str> = extractMethod(input, init);
 
-		if (!methodResult.ok) return original(input, init);
+    if (!methodResult.ok) return original(input, init);
 
-		const url: Str = urlResult.data;
-		const method: Str = methodResult.data;
+    const url: Str = urlResult.data;
+    const method: Str = methodResult.data;
 
-		// Skip configured endpoints to avoid infinite recursion
-		if (urls.some((skip: Str): Bool => url.includes(skip))) {
-			return original(input, init);
-		}
+    // Skip configured endpoints to avoid infinite recursion
+    if (urls.some((skip: Str): Bool => url.includes(skip))) {
+      return original(input, init);
+    }
 
-		try {
-			const response: Response = await original(input, init);
-			const level: BreadcrumbLevel = response.ok ? 'info' : 'error';
+    try {
+      const response: Response = await original(input, init);
+      const level: BreadcrumbLevel = response.ok ? 'info' : 'error';
 
-			addBreadcrumb({
-				type: 'http',
-				category: 'fetch',
-				message: `${method} ${url} → ${String(response.status)}`,
-				level,
-				data: { method, url, status_code: response.status },
-			});
+      addBreadcrumb({
+        type: 'http',
+        category: 'fetch',
+        message: `${method} ${url} → ${String(response.status)}`,
+        level,
+        data: { method, url, status_code: response.status },
+      });
 
-			return response;
-		} catch (error: unknown) {
-			// Fetch threw — record breadcrumb then re-throw as structured error
-			const cause: AppError = fromUnknownError(error);
+      return response;
+    } catch (error: unknown) {
+      // Fetch threw — record breadcrumb then re-throw as structured error
+      const cause: AppError = fromUnknownError(error);
 
-			addBreadcrumb({
-				type: 'http',
-				category: 'fetch',
-				message: `${method} ${url} → ${cause.message}`,
-				level: 'warning',
-				data: { method, url, error: cause.message },
-			});
+      addBreadcrumb({
+        type: 'http',
+        category: 'fetch',
+        message: `${method} ${url} → ${cause.message}`,
+        level: 'warning',
+        data: { method, url, error: cause.message },
+      });
 
-			// integration boundary: fetch API contract requires throw on network errors
-			throw new Error(cause.message, { cause });
-		}
-	};
+      // integration boundary: fetch API contract requires throw on network errors
+      throw new Error(cause.message, { cause });
+    }
+  };
 
-	return ok(VoidSchema, undefined);
+  return ok(VoidSchema, undefined);
 }
 
 /**
@@ -213,11 +224,10 @@ export function initFetchBreadcrumbs(skipUrls: readonly Str[]): Result<Void> {
  * ```
  */
 export function teardownFetchBreadcrumbs(): Result<Void> {
-	if (originalFetch !== null) {
-		globalThis.fetch = originalFetch;
-		originalFetch = null;
-	}
+  if (originalFetch !== null) {
+    globalThis.fetch = originalFetch;
+    originalFetch = null;
+  }
 
-	return ok(VoidSchema, undefined);
+  return ok(VoidSchema, undefined);
 }
-

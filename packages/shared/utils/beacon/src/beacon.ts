@@ -41,10 +41,7 @@ import { toBeaconPayload, type BeaconPayload } from '@/utils/beacon/beacon-paylo
  * });
  * ```
  */
-export function beaconError(
-  captured: CapturedError,
-  endpoint: Str,
-): Result<Void> {
+export function beaconError(captured: CapturedError, endpoint: Str): Result<Void> {
   const capturedResult: Result<CapturedError> = safeParse(CapturedErrorSchema, captured);
 
   if (!capturedResult.ok) return capturedResult;
@@ -65,7 +62,9 @@ export function beaconError(
     return ok(VoidSchema, undefined);
   }
 
-  const payloadResult: Result<BeaconPayload> = toBeaconPayload(capturedResult.data as CapturedError); // cast safe: safeParse validates, readonly → mutable for function call
+  const payloadResult: Result<BeaconPayload> = toBeaconPayload(
+    capturedResult.data as CapturedError, // cast safe: safeParse validates, readonly → mutable for function call
+  );
 
   if (!payloadResult.ok) {
     log.warn(`Failed to build beacon payload (${payloadResult.error.code})`);

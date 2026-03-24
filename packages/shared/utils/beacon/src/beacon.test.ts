@@ -181,6 +181,37 @@ describe('beaconError', () => {
     expect(url).toBe('/api/v2/errors');
   });
 
+  it('returns error when endpoint fails validation', () => {
+    const captured: CapturedError = makeCaptured();
+    const result: Result<Void> = beaconError(captured, 123 as unknown as Str);
+
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error when sendBeacon throws', () => {
+    sendBeaconSpy.mockImplementation(() => {
+      throw new Error('payload too large');
+    });
+    const captured: CapturedError = makeCaptured();
+    const result: Result<Void> = beaconError(captured, '/api/errors');
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe('NETWORK.PORT_UNAVAILABLE');
+  });
+
+  it('returns error when toBeaconPayload fails', () => {
+    const captured: CapturedError = makeCaptured({
+      error: {
+        ...makeAppError(),
+        code: '' as Str,
+      } as AppError, // cast safe: test fixture with intentionally invalid code
+    });
+    const result: Result<Void> = beaconError(captured, '/api/errors');
+
+    expect(result.ok).toBe(false);
+  });
+
   it('returns error when CapturedError type is invalid', () => {
     const captured: CapturedError = makeCaptured({
       type: 'not-a-real-type' as CapturedErrorType,

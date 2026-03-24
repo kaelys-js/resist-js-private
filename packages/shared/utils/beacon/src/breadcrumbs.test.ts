@@ -47,6 +47,16 @@ describe('addNavigationBreadcrumb', () => {
     expect(crumb.level).toBe('info');
   });
 
+  it('returns error when from param fails validation', () => {
+    const result: Result<void> = addNavigationBreadcrumb(123 as unknown as Str, '/editor' as Str);
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error when to param fails validation', () => {
+    const result: Result<void> = addNavigationBreadcrumb(null, 123 as unknown as Str);
+    expect(result.ok).toBe(false);
+  });
+
   it('handles null from URL (initial navigation)', () => {
     const navResult: Result<void> = addNavigationBreadcrumb(null, '/editor' as Str);
     expect(navResult.ok).toBe(true);
@@ -260,6 +270,11 @@ describe('initFetchBreadcrumbs', () => {
     expect(result.data).toHaveLength(1);
     const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
     expect(crumb.message).toContain('PUT');
+  });
+
+  it('returns error when skipUrls fails validation', () => {
+    const result: Result<void> = initFetchBreadcrumbs([123] as unknown as Str[]);
+    expect(result.ok).toBe(false);
   });
 
   it('skips re-initialization when already initialized', async () => {

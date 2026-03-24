@@ -4,7 +4,7 @@
  * @module
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { Str, Bool } from '@/schemas/common';
 import type { AppError, ErrorTags, KnownErrorCode, Result } from '@/schemas/result/result';
 import type { Breadcrumb, CapturedError, CapturedErrorType } from '@/schemas/result/captured-error';
@@ -298,6 +298,20 @@ describe('toBeaconPayload', () => {
     // Must validate against schema
     const validated: Result<BeaconPayload> = safeParse(BeaconPayloadSchema, result.data);
     expect(validated.ok).toBe(true);
+  });
+
+  it('returns error when formatErrorSafe fails', async () => {
+    const formatModule = await import('@/utils/result/format');
+    const spy = vi.spyOn(formatModule, 'formatErrorSafe').mockReturnValueOnce({
+      ok: false,
+      error: makeAppError({ code: 'INTERNAL.UNEXPECTED' as KnownErrorCode }),
+    } as Result<AppError>);
+
+    const captured: CapturedError = makeCaptured();
+    const result: Result<BeaconPayload> = toBeaconPayload(captured);
+
+    expect(result.ok).toBe(false);
+    spy.mockRestore();
   });
 
   it('returns error result when error has invalid code field', () => {
