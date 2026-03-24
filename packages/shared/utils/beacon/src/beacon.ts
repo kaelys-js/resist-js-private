@@ -11,8 +11,7 @@ import { CapturedErrorSchema, type CapturedError } from '@/schemas/result/captur
 import { type AppError, type Result, ok, err, ERRORS } from '@/schemas/result/result';
 import { log } from '@/utils/core/logger';
 import { safeStringify } from '@/utils/core/object';
-import { fromUnknownError } from '@/utils/result/error-utils';
-import { safeParse } from '@/utils/result/safe';
+import { safeParse, fromUnknownError } from '@/utils/result/safe';
 
 import { toBeaconPayload, type BeaconPayload } from '@/utils/beacon/beacon-payload';
 
@@ -83,7 +82,7 @@ export function beaconError(
     return ok(VoidSchema, undefined);
   }
 
-  const payloadResult: Result<BeaconPayload> = toBeaconPayload(capturedResult.data);
+  const payloadResult: Result<BeaconPayload> = toBeaconPayload(capturedResult.data as CapturedError); // cast safe: safeParse validates, readonly → mutable for function call
 
   if (!payloadResult.ok) {
     log.warn(`Failed to build beacon payload (${payloadResult.error.code})`);
