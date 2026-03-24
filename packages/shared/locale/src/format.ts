@@ -60,10 +60,13 @@ function styleToOptions(
   kind: FormatKind,
 ): Result<Intl.DateTimeFormatOptions> {
   const styleResult: Result<DateTimeStyle> = safeParse(DateTimeStyleSchema, style);
+
   if (!styleResult.ok) {
     return styleResult;
   }
+
   const kindResult: Result<FormatKind> = safeParse(FormatKindSchema, kind);
+
   if (!kindResult.ok) {
     return kindResult;
   }
@@ -75,9 +78,12 @@ function styleToOptions(
       long: { hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' },
       full: { hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'long' },
     };
+
     const opts: Intl.DateTimeFormatOptions = map[styleResult.data] ?? map['medium'] ?? {}; // cast safe: all 4 picklist values are keys in map
+
     return okUnchecked<Intl.DateTimeFormatOptions>(opts);
   }
+
   // date
   const map: Record<Str, Intl.DateTimeFormatOptions> = {
     short: { year: 'numeric', month: 'numeric', day: 'numeric' },
@@ -85,7 +91,9 @@ function styleToOptions(
     long: { year: 'numeric', month: 'long', day: 'numeric' },
     full: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
   };
+
   const opts: Intl.DateTimeFormatOptions = map[styleResult.data] ?? map['medium'] ?? {}; // cast safe: all 4 picklist values are keys in map
+
   return okUnchecked<Intl.DateTimeFormatOptions>(opts);
 }
 
@@ -99,10 +107,13 @@ function toDate(value: Date | Num): Result<Date> {
   if (value instanceof Date) {
     return okUnchecked<Date>(value);
   }
+
   const numResult: Result<Num> = safeParse(NumSchema, value);
+
   if (!numResult.ok) {
     return numResult;
   }
+
   return okUnchecked<Date>(new Date(numResult.data));
 }
 
@@ -136,28 +147,30 @@ type FormatNumberOptions = v.InferOutput<typeof FormatNumberOptionsSchema>;
  * // ok('1.234.567,89')
  * ```
  */
-export function formatNumber(
-  value: Num,
-  locale: Str,
-  opts: FormatNumberOptions,
-): Result<Str> {
+export function formatNumber(value: Num, locale: Str, opts: FormatNumberOptions): Result<Str> {
   const optsResult: Result<FormatNumberOptions> = safeParse(FormatNumberOptionsSchema, opts);
+
   if (!optsResult.ok) {
     return optsResult;
   }
 
   const valueResult: Result<Num> = safeParse(NumSchema, value);
+
   if (!valueResult.ok) {
     return valueResult;
   }
 
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
   if (!localeResult.ok) {
     return localeResult;
   }
 
   try {
-    const formatter: Intl.NumberFormat = new Intl.NumberFormat(localeResult.data, optsResult.data.options);
+    const formatter: Intl.NumberFormat = new Intl.NumberFormat(
+      localeResult.data,
+      optsResult.data.options,
+    );
 
     const formatted: Str = formatter.format(valueResult.data);
 
@@ -190,14 +203,19 @@ export function formatNumber(
  */
 export function formatCurrency(value: Num, locale: Str, currency: Str): Result<Str> {
   const valueResult: Result<Num> = safeParse(NumSchema, value);
+
   if (!valueResult.ok) {
     return valueResult;
   }
+
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
   if (!localeResult.ok) {
     return localeResult;
   }
+
   const currencyResult: Result<Str> = safeParse(StrSchema, currency);
+
   if (!currencyResult.ok) {
     return currencyResult;
   }
@@ -242,22 +260,21 @@ type FormatDateOptions = v.InferOutput<typeof FormatDateOptionsSchema>;
  * // ok('2/23/2026')
  * ```
  */
-export function formatDate(
-  value: Date | Num,
-  locale: Str,
-  opts: FormatDateOptions,
-): Result<Str> {
+export function formatDate(value: Date | Num, locale: Str, opts: FormatDateOptions): Result<Str> {
   const optsResult: Result<FormatDateOptions> = safeParse(FormatDateOptionsSchema, opts);
+
   if (!optsResult.ok) {
     return optsResult;
   }
 
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
   if (!localeResult.ok) {
     return localeResult;
   }
 
   const dateResult: Result<Date> = toDate(value);
+
   if (!dateResult.ok) {
     return dateResult;
   }
@@ -278,11 +295,14 @@ export function formatDate(
 
       formatOptions = styleOptsResult.data;
     }
+
     const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
       localeResult.data,
       formatOptions,
     );
+
     const formatted: Str = formatter.format(dateResult.data);
+
     return ok(StrSchema, formatted);
   } catch (error: unknown) {
     // Intl.DateTimeFormat threw — convert to typed error
@@ -310,22 +330,21 @@ export function formatDate(
  * // ok('2:30:00 PM EST')
  * ```
  */
-export function formatTime(
-  value: Date | Num,
-  locale: Str,
-  opts: FormatDateOptions,
-): Result<Str> {
+export function formatTime(value: Date | Num, locale: Str, opts: FormatDateOptions): Result<Str> {
   const optsResult: Result<FormatDateOptions> = safeParse(FormatDateOptionsSchema, opts);
+
   if (!optsResult.ok) {
     return optsResult;
   }
 
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
   if (!localeResult.ok) {
     return localeResult;
   }
 
   const dateResult: Result<Date> = toDate(value);
+
   if (!dateResult.ok) {
     return dateResult;
   }
@@ -349,11 +368,14 @@ export function formatTime(
 
       formatOptions = styleOptsResult.data;
     }
+
     const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
       localeResult.data,
       formatOptions,
     );
+
     const formatted: Str = formatter.format(dateResult.data);
+
     return ok(StrSchema, formatted);
   } catch (error: unknown) {
     // Intl.DateTimeFormat threw — convert to typed error
@@ -437,22 +459,29 @@ export function formatRelativeTime(
   locale: Str,
   opts: FormatRelativeTimeOptions,
 ): Result<Str> {
-  const optsResult: Result<v.InferOutput<typeof FormatRelativeTimeOptionsSchema>> = safeParse(FormatRelativeTimeOptionsSchema, opts);
+  const optsResult: Result<v.InferOutput<typeof FormatRelativeTimeOptionsSchema>> = safeParse(
+    FormatRelativeTimeOptionsSchema,
+    opts,
+  );
+
   if (!optsResult.ok) {
     return optsResult;
   }
 
   const valueResult: Result<Num> = safeParse(NumSchema, value);
+
   if (!valueResult.ok) {
     return valueResult;
   }
 
   const unitResult: Result<RelativeTimeUnit> = safeParse(RelativeTimeUnitSchema, unit);
+
   if (!unitResult.ok) {
     return unitResult;
   }
 
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
   if (!localeResult.ok) {
     return localeResult;
   }
@@ -462,7 +491,9 @@ export function formatRelativeTime(
       numeric: optsResult.data.numeric,
       style: optsResult.data.style,
     });
+
     const formatted: Str = formatter.format(valueResult.data, unitResult.data);
+
     return ok(StrSchema, formatted);
   } catch (error: unknown) {
     // Intl.RelativeTimeFormat threw — convert to typed error
@@ -529,17 +560,23 @@ export function formatList(
   locale: Str,
   opts: FormatListOptions,
 ): Result<Str> {
-  const optsResult: Result<v.InferOutput<typeof FormatListOptionsSchema>> = safeParse(FormatListOptionsSchema, opts);
+  const optsResult: Result<v.InferOutput<typeof FormatListOptionsSchema>> = safeParse(
+    FormatListOptionsSchema,
+    opts,
+  );
+
   if (!optsResult.ok) {
     return optsResult;
   }
 
   const itemsResult: Result<StrArray> = safeParse(StrArraySchema, [...items]);
+
   if (!itemsResult.ok) {
     return itemsResult;
   }
 
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
   if (!localeResult.ok) {
     return localeResult;
   }
@@ -549,7 +586,9 @@ export function formatList(
       type: optsResult.data.type,
       style: optsResult.data.style,
     });
+
     const formatted: Str = formatter.format(itemsResult.data);
+
     return ok(StrSchema, formatted);
   } catch (error: unknown) {
     // Intl.ListFormat threw — convert to typed error
@@ -593,21 +632,25 @@ export function formatDateRange(
   opts: FormatDateOptions,
 ): Result<Str> {
   const optsResult: Result<FormatDateOptions> = safeParse(FormatDateOptionsSchema, opts);
+
   if (!optsResult.ok) {
     return optsResult;
   }
 
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
   if (!localeResult.ok) {
     return localeResult;
   }
 
   const startResult: Result<Date> = toDate(start);
+
   if (!startResult.ok) {
     return startResult;
   }
 
   const endResult: Result<Date> = toDate(end);
+
   if (!endResult.ok) {
     return endResult;
   }
@@ -628,11 +671,14 @@ export function formatDateRange(
 
       formatOptions = styleOptsResult.data;
     }
+
     const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
       localeResult.data,
       formatOptions,
     );
+
     const formatted: Str = formatter.formatRange(startResult.data, endResult.data);
+
     return ok(StrSchema, formatted);
   } catch (error: unknown) {
     // Intl.DateTimeFormat.formatRange threw — convert to typed error
@@ -710,22 +756,29 @@ export function formatDisplayName(
   type: DisplayNameType,
   opts: FormatDisplayNameOptions,
 ): Result<Str> {
-  const optsResult: Result<v.InferOutput<typeof FormatDisplayNameOptionsSchema>> = safeParse(FormatDisplayNameOptionsSchema, opts);
+  const optsResult: Result<v.InferOutput<typeof FormatDisplayNameOptionsSchema>> = safeParse(
+    FormatDisplayNameOptionsSchema,
+    opts,
+  );
+
   if (!optsResult.ok) {
     return optsResult;
   }
 
   const codeResult: Result<Str> = safeParse(StrSchema, code);
+
   if (!codeResult.ok) {
     return codeResult;
   }
 
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
   if (!localeResult.ok) {
     return localeResult;
   }
 
   const typeResult: Result<DisplayNameType> = safeParse(DisplayNameTypeSchema, type);
+
   if (!typeResult.ok) {
     return typeResult;
   }
@@ -735,7 +788,9 @@ export function formatDisplayName(
       type: typeResult.data,
       style: optsResult.data.style,
     });
+
     const displayName: OptionalStr = formatter.of(codeResult.data);
+
     if (displayName === undefined) {
       return err(ERRORS.LOCALE.FORMAT_FAILED, {
         meta: {
@@ -745,6 +800,7 @@ export function formatDisplayName(
         },
       });
     }
+
     return ok(StrSchema, displayName);
   } catch (error: unknown) {
     // Intl.DisplayNames threw — convert to typed error
@@ -779,22 +835,24 @@ export function formatDisplayName(
  * // ok('25.6%')
  * ```
  */
-export function formatPercent(
-  value: Num,
-  locale: Str,
-  opts: FormatNumberOptions,
-): Result<Str> {
-  const optsResult: Result<v.InferOutput<typeof FormatNumberOptionsSchema>> = safeParse(FormatNumberOptionsSchema, opts);
+export function formatPercent(value: Num, locale: Str, opts: FormatNumberOptions): Result<Str> {
+  const optsResult: Result<v.InferOutput<typeof FormatNumberOptionsSchema>> = safeParse(
+    FormatNumberOptionsSchema,
+    opts,
+  );
+
   if (!optsResult.ok) {
     return optsResult;
   }
 
   const valueResult: Result<Num> = safeParse(NumSchema, value);
+
   if (!valueResult.ok) {
     return valueResult;
   }
 
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
   if (!localeResult.ok) {
     return localeResult;
   }
@@ -863,22 +921,29 @@ export function formatUnit(
   locale: Str,
   opts: FormatUnitOptions,
 ): Result<Str> {
-  const optsResult: Result<v.InferOutput<typeof FormatUnitOptionsSchema>> = safeParse(FormatUnitOptionsSchema, opts);
+  const optsResult: Result<v.InferOutput<typeof FormatUnitOptionsSchema>> = safeParse(
+    FormatUnitOptionsSchema,
+    opts,
+  );
+
   if (!optsResult.ok) {
     return optsResult;
   }
 
   const valueResult: Result<Num> = safeParse(NumSchema, value);
+
   if (!valueResult.ok) {
     return valueResult;
   }
 
   const unitResult: Result<Str> = safeParse(StrSchema, unit);
+
   if (!unitResult.ok) {
     return unitResult;
   }
 
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
   if (!localeResult.ok) {
     return localeResult;
   }
@@ -974,17 +1039,23 @@ export function formatDuration(
   locale: Str,
   opts: FormatDurationOptions,
 ): Result<Str> {
-  const optsResult: Result<v.InferOutput<typeof FormatDurationOptionsSchema>> = safeParse(FormatDurationOptionsSchema, opts);
+  const optsResult: Result<v.InferOutput<typeof FormatDurationOptionsSchema>> = safeParse(
+    FormatDurationOptionsSchema,
+    opts,
+  );
+
   if (!optsResult.ok) {
     return optsResult;
   }
 
   const durationResult: Result<DurationInput> = safeParse(DurationInputSchema, duration);
+
   if (!durationResult.ok) {
     return durationResult;
   }
 
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
   if (!localeResult.ok) {
     return localeResult;
   }
@@ -1006,14 +1077,18 @@ export function formatDuration(
     // cast safe: irreducible — Intl.DurationFormat not in TS lib, runtime-guarded by 'DurationFormat' in Intl check above
     type DurationFormatInstance = { format: (d: DurationInput) => Str };
     type DurationFormatCtor = new (l: Str, o: { style: Str }) => DurationFormatInstance;
+
     const intlRecord: Record<Str, unknown> = Intl as Record<Str, unknown>; // cast safe: accessing non-standard Intl property
     // eslint camelCase conflict: constructor refs must be PascalCase (new-cap) but vars must be camelCase
     // cast safe: runtime-guarded by 'DurationFormat' in Intl check above
     const DurationFormat: DurationFormatCtor = intlRecord.DurationFormat as DurationFormatCtor;
+
     const instance: DurationFormatInstance = new DurationFormat(localeResult.data, {
       style: optsResult.data.style,
     });
+
     const formatted: Str = instance.format(durationResult.data);
+
     return ok(StrSchema, formatted);
   } catch (error: unknown) {
     // Intl.DurationFormat threw — convert to typed error
@@ -1057,11 +1132,13 @@ export function formatDuration(
  */
 export function parseNumberSkeleton(skeleton: Str): Result<Intl.NumberFormatOptions> {
   const skeletonResult: Result<Str> = safeParse(StrSchema, skeleton);
+
   if (!skeletonResult.ok) {
     return skeletonResult;
   }
 
   const tokens: Str[] = skeletonResult.data.trim().split(/\s+/);
+
   const options: Intl.NumberFormatOptions = {};
 
   for (const token of tokens) {
@@ -1132,19 +1209,26 @@ export function parseNumberSkeleton(skeleton: Str): Result<Intl.NumberFormatOpti
 
     // Fraction digits: .00 (exact min & max)
     const exactMatch: NullableRegExpMatchArray = token.match(/^\.([0]+)$/);
+
     if (exactMatch?.[1]) {
       options.minimumFractionDigits = exactMatch[1].length;
       options.maximumFractionDigits = exactMatch[1].length;
+
       continue;
     }
+
     // Fraction digits: .## (max only)
     const maxMatch: NullableRegExpMatchArray = token.match(/^\.([#]+)$/);
+
     if (maxMatch?.[1]) {
       options.maximumFractionDigits = maxMatch[1].length;
+
       continue;
     }
+
     // Mixed: .00## (min from 0-count, max from 0+# count)
     const mixedMatch: NullableRegExpMatchArray = token.match(/^\.([0]+)([#]+)$/);
+
     if (mixedMatch?.[1] && mixedMatch[2]) {
       options.minimumFractionDigits = mixedMatch[1].length;
       options.maximumFractionDigits = mixedMatch[1].length + mixedMatch[2].length;
@@ -1189,17 +1273,20 @@ export function parseNumberSkeleton(skeleton: Str): Result<Intl.NumberFormatOpti
  */
 export function parseDateTimeSkeleton(skeleton: Str): Result<Intl.DateTimeFormatOptions> {
   const skeletonResult: Result<Str> = safeParse(StrSchema, skeleton);
+
   if (!skeletonResult.ok) {
     return skeletonResult;
   }
 
   const options: Intl.DateTimeFormatOptions = {};
+
   const s: Str = skeletonResult.data.trim();
   let i: Num = 0;
 
   while (i < s.length) {
     const ch: Str = s.charAt(i);
     let count: Num = 0;
+
     while (i < s.length && s[i] === ch) {
       count++;
       i++;

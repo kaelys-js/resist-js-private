@@ -231,7 +231,9 @@ describe('formatDate', () => {
   });
 
   it('formats with custom options', () => {
-    const result = formatDate(testDate, 'en-US', { options: { year: 'numeric', month: '2-digit' } });
+    const result = formatDate(testDate, 'en-US', {
+      options: { year: 'numeric', month: '2-digit' },
+    });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('02');
@@ -818,12 +820,7 @@ describe('error paths', () => {
   });
 
   it('formatDateRange with both style and options undefined', () => {
-    const result = formatDateRange(
-      new Date('2026-01-15'),
-      new Date('2026-02-23'),
-      'en-US',
-      {},
-    );
+    const result = formatDateRange(new Date('2026-01-15'), new Date('2026-02-23'), 'en-US', {});
     expect(result.ok).toBe(true);
   });
 

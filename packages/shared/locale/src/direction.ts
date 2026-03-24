@@ -107,6 +107,7 @@ const RTL_SCRIPTS: ReadonlySet<Str> = new Set([
  */
 export function getTextDirection(locale: Str): Result<TextDirection> {
   const localeResult: Result<Str> = safeParse(StrSchema, locale);
+
   if (!localeResult.ok) {
     return localeResult;
   }
@@ -114,6 +115,7 @@ export function getTextDirection(locale: Str): Result<TextDirection> {
   // Strategy 1: Use Intl.Locale.getTextInfo() if available
   try {
     const intlLocale: Intl.Locale = new Intl.Locale(localeResult.data);
+
     // getTextInfo() — Node 21+, Chrome 99+
     if (
       'getTextInfo' in intlLocale &&

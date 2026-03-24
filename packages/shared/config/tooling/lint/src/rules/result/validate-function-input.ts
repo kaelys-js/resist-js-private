@@ -151,9 +151,14 @@ function checkFunction(
     }
 
     // Skip schema-typed params — these ARE validators, not data to validate
-    const typeAnnotationNode = (param.typeAnnotation as AstNode | undefined)?.typeAnnotation as AstNode | undefined;
+    const typeAnnotationNode = (param.typeAnnotation as AstNode | undefined)?.typeAnnotation as
+      | AstNode
+      | undefined;
     if (typeAnnotationNode) {
-      const typeStr: string = context.content.slice(typeAnnotationNode.start, typeAnnotationNode.end);
+      const typeStr: string = context.content.slice(
+        typeAnnotationNode.start,
+        typeAnnotationNode.end,
+      );
 
       if (SCHEMA_TYPE_PATTERN.test(typeStr)) {
         continue;
@@ -196,7 +201,9 @@ function checkFunction(
     let isSchemaValidated: boolean = false;
 
     for (const otherParam of params) {
-      const otherTypeNode = (otherParam.typeAnnotation as AstNode | undefined)?.typeAnnotation as AstNode | undefined;
+      const otherTypeNode = (otherParam.typeAnnotation as AstNode | undefined)?.typeAnnotation as
+        | AstNode
+        | undefined;
 
       if (otherTypeNode) {
         const otherTypeStr: string = context.content.slice(otherTypeNode.start, otherTypeNode.end);
@@ -217,7 +224,12 @@ function checkFunction(
       }
     }
 
-    if (!isParamValidated(paramName, bodyText) && !isIndirectlyValidated && !isMethodValidated && !isSchemaValidated) {
+    if (
+      !isParamValidated(paramName, bodyText) &&
+      !isIndirectlyValidated &&
+      !isMethodValidated &&
+      !isSchemaValidated
+    ) {
       results.push({
         file: context.file,
         line: node.loc.start.line,
