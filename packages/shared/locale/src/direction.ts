@@ -23,6 +23,15 @@ import { safeParse } from '@/utils/result/safe';
 // Schemas
 // =============================================================================
 
+/** Schema for Intl.Locale.getTextInfo() result. */
+const TextInfoSchema = v.strictObject({
+  /** Text direction. */
+  direction: StrSchema,
+});
+
+/** Intl text info result. See {@link TextInfoSchema}. */
+type TextInfo = v.InferOutput<typeof TextInfoSchema>;
+
 /** Valibot schema for text direction values. */
 export const TextDirectionSchema = v.picklist(['ltr', 'rtl']);
 
@@ -110,23 +119,31 @@ export function getTextDirection(locale: Str): Result<TextDirection> {
       'getTextInfo' in intlLocale &&
       typeof (intlLocale as Record<Str, unknown>).getTextInfo === 'function' // cast safe: guarded by 'getTextInfo' in intlLocale
     ) {
-      const textInfo: { direction: Str } = (
-        intlLocale as Record<Str, unknown> & { getTextInfo: () => { direction: Str } } // cast safe: irreducible — getTextInfo not in all TS lib targets
-      ).getTextInfo();
-      if (textInfo.direction === 'rtl') {
-        return ok(TextDirectionSchema, 'rtl');
+      const getTextInfoFn = (intlLocale as Record<Str, unknown>).getTextInfo as () => unknown; // cast safe: guarded by 'getTextInfo' in intlLocale
+      const rawTextInfo: unknown = getTextInfoFn.call(intlLocale);
+      const textInfoResult: Result<TextInfo> = safeParse(TextInfoSchema, rawTextInfo);
+
+      if (textInfoResult.ok) {
+        if (textInfoResult.data.direction === 'rtl') {
+          return ok(TextDirectionSchema, 'rtl');
+        }
+
+        return ok(TextDirectionSchema, 'ltr');
       }
-      return ok(TextDirectionSchema, 'ltr');
     }
+
     // textInfo property (Safari)
     if ('textInfo' in intlLocale) {
-      const { textInfo }: { textInfo: { direction: Str } } = intlLocale as Record<Str, unknown> & {
-        textInfo: { direction: Str };
-      }; // cast safe: irreducible — textInfo property not in all TS lib targets
-      if (textInfo?.direction === 'rtl') {
-        return ok(TextDirectionSchema, 'rtl');
+      const rawTextInfo: unknown = (intlLocale as Record<Str, unknown>).textInfo; // cast safe: guarded by 'textInfo' in intlLocale
+      const textInfoResult: Result<TextInfo> = safeParse(TextInfoSchema, rawTextInfo);
+
+      if (textInfoResult.ok) {
+        if (textInfoResult.data.direction === 'rtl') {
+          return ok(TextDirectionSchema, 'rtl');
+        }
+
+        return ok(TextDirectionSchema, 'ltr');
       }
-      return ok(TextDirectionSchema, 'ltr');
     }
   } catch {
     // Intl.Locale constructor failed — fall through to static lookup

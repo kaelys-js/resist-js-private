@@ -322,6 +322,14 @@ const rule: TypeScriptRule = {
 
       const varName: string = dataMatch[1];
 
+      // Skip deep property chains with method calls (e.g., parsed.data.branches.get(key))
+      // These are downstream Map/Set/Array operations, NOT direct Result fallbacks
+      const afterData: string = leftText.slice(leftText.indexOf('.data') + 5);
+      if (afterData.includes('(')) {
+        // Contains a method call — this is a chain like .data.map.get(), not a simple .data.field
+        return results;
+      }
+
       results.push({
         file: context.file,
         line: node.loc.start.line,

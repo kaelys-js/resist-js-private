@@ -130,6 +130,16 @@ function checkFunctionReturnType(
     return null;
   }
 
+  // Exempt schema factory return types — these create validators, not data
+  if (/^(?:TemplateSchema|v\.GenericSchema|v\.BaseSchema)/.test(typeText)) {
+    return null;
+  }
+
+  // Exempt specific schema introspection return types — null means "not found", not error
+  if (typeText === 'NullableParamSchemas' || typeText === 'NullableSchemaEntries') {
+    return null;
+  }
+
   // Exempt boolean return types from pure predicate functions (is*, has*, can*, should*)
   const isPredicate: boolean = PREDICATE_PATTERNS.some((p: RegExp): boolean => p.test(name));
   if (isPredicate && (typeText === 'boolean' || typeText === 'Bool')) {

@@ -12,9 +12,14 @@
  */
 
 import * as v from 'valibot';
+
 import { StrSchema, type Str } from '@/schemas/common';
 import { ERRORS, err, ok, type Result } from '@/schemas/result/result';
 import { fromUnknownError, safeParse } from '@/utils/result/safe';
+
+// =============================================================================
+// Schemas
+// =============================================================================
 
 /** Schema for a single OG locale string (e.g., `'en_US'`). */
 export const OgLocaleSchema = v.pipe(v.string(), v.regex(/^[a-z]{2}_[A-Z]{2}$/));
@@ -29,6 +34,10 @@ const MaximizedLocaleDataSchema = v.strictObject({
 
 /** Maximized locale data. See {@link MaximizedLocaleDataSchema}. */
 type MaximizedLocaleData = v.InferOutput<typeof MaximizedLocaleDataSchema>;
+
+// =============================================================================
+// API
+// =============================================================================
 
 /**
  * Converts a BCP 47 language code to Open Graph locale format.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Num, Str } from '@/schemas/common';
+import type { Num } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import {
   formatNumber,
@@ -144,7 +144,7 @@ describe('DurationInputSchema', () => {
 
 describe('formatNumber', () => {
   it('formats integer with en-US locale', () => {
-    const result = formatNumber(1_234_567, 'en-US', undefined);
+    const result = formatNumber(1_234_567, 'en-US', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toBe('1,234,567');
@@ -152,7 +152,7 @@ describe('formatNumber', () => {
   });
 
   it('formats decimal with en-US locale', () => {
-    const result = formatNumber(1234.56, 'en-US', undefined);
+    const result = formatNumber(1234.56, 'en-US', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('1,234');
@@ -160,7 +160,7 @@ describe('formatNumber', () => {
   });
 
   it('formats with de-DE locale', () => {
-    const result = formatNumber(1234.56, 'de-DE', undefined);
+    const result = formatNumber(1234.56, 'de-DE', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('1.234');
@@ -168,7 +168,7 @@ describe('formatNumber', () => {
   });
 
   it('applies custom options', () => {
-    const result = formatNumber(0.42, 'en-US', { style: 'percent' });
+    const result = formatNumber(0.42, 'en-US', { options: { style: 'percent' } });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('42');
@@ -215,7 +215,7 @@ describe('formatDate', () => {
   const testDate = new Date('2026-02-23T00:00:00Z');
 
   it('formats with short style', () => {
-    const result = formatDate(testDate, 'en-US', 'short', undefined);
+    const result = formatDate(testDate, 'en-US', { style: 'short' });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('2');
@@ -223,7 +223,7 @@ describe('formatDate', () => {
   });
 
   it('formats with long style', () => {
-    const result = formatDate(testDate, 'en-US', 'long', undefined);
+    const result = formatDate(testDate, 'en-US', { style: 'long' });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('February');
@@ -231,7 +231,7 @@ describe('formatDate', () => {
   });
 
   it('formats with custom options', () => {
-    const result = formatDate(testDate, 'en-US', undefined, { year: 'numeric', month: '2-digit' });
+    const result = formatDate(testDate, 'en-US', { options: { year: 'numeric', month: '2-digit' } });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('02');
@@ -239,7 +239,7 @@ describe('formatDate', () => {
   });
 
   it('accepts Unix timestamp', () => {
-    const result = formatDate(testDate.getTime(), 'en-US', 'short', undefined);
+    const result = formatDate(testDate.getTime(), 'en-US', { style: 'short' });
     expect(result.ok).toBe(true);
   });
 });
@@ -252,7 +252,7 @@ describe('formatTime', () => {
   const testDate = new Date('2026-02-23T14:30:45Z');
 
   it('formats with short style', () => {
-    const result = formatTime(testDate, 'en-US', 'short', undefined);
+    const result = formatTime(testDate, 'en-US', { style: 'short' });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toMatch(/\d{1,2}:\d{2}/);
@@ -260,7 +260,7 @@ describe('formatTime', () => {
   });
 
   it('formats with medium style', () => {
-    const result = formatTime(testDate, 'en-US', 'medium', undefined);
+    const result = formatTime(testDate, 'en-US', { style: 'medium' });
     expect(result.ok).toBe(true);
   });
 });
@@ -271,7 +271,7 @@ describe('formatTime', () => {
 
 describe('formatRelativeTime', () => {
   it('formats past time', () => {
-    const result = formatRelativeTime(-3, 'day', 'en', undefined, undefined);
+    const result = formatRelativeTime(-3, 'day', 'en', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('3 days ago');
@@ -279,7 +279,7 @@ describe('formatRelativeTime', () => {
   });
 
   it('formats future time', () => {
-    const result = formatRelativeTime(2, 'hour', 'en', undefined, undefined);
+    const result = formatRelativeTime(2, 'hour', 'en', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('in 2 hours');
@@ -287,7 +287,7 @@ describe('formatRelativeTime', () => {
   });
 
   it('formats with auto numeric (yesterday)', () => {
-    const result = formatRelativeTime(-1, 'day', 'en', 'auto', undefined);
+    const result = formatRelativeTime(-1, 'day', 'en', { numeric: 'auto' });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toBe('yesterday');
@@ -295,7 +295,7 @@ describe('formatRelativeTime', () => {
   });
 
   it('rejects invalid unit', () => {
-    const result = formatRelativeTime(-1, 'decade' as never, 'en', undefined, undefined);
+    const result = formatRelativeTime(-1, 'decade' as never, 'en', {});
     expect(result.ok).toBe(false);
   });
 });
@@ -306,7 +306,7 @@ describe('formatRelativeTime', () => {
 
 describe('formatList', () => {
   it('formats conjunction list (and)', () => {
-    const result = formatList(['Alice', 'Bob', 'Charlie'], 'en', undefined, undefined);
+    const result = formatList(['Alice', 'Bob', 'Charlie'], 'en', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toBe('Alice, Bob, and Charlie');
@@ -314,7 +314,7 @@ describe('formatList', () => {
   });
 
   it('formats disjunction list (or)', () => {
-    const result = formatList(['Alice', 'Bob', 'Charlie'], 'en', 'disjunction', undefined);
+    const result = formatList(['Alice', 'Bob', 'Charlie'], 'en', { type: 'disjunction' });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toBe('Alice, Bob, or Charlie');
@@ -322,7 +322,7 @@ describe('formatList', () => {
   });
 
   it('formats two items', () => {
-    const result = formatList(['Alice', 'Bob'], 'en', undefined, undefined);
+    const result = formatList(['Alice', 'Bob'], 'en', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toBe('Alice and Bob');
@@ -330,7 +330,7 @@ describe('formatList', () => {
   });
 
   it('formats single item', () => {
-    const result = formatList(['Alice'], 'en', undefined, undefined);
+    const result = formatList(['Alice'], 'en', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toBe('Alice');
@@ -346,7 +346,7 @@ describe('formatDateRange', () => {
   it('formats date range across months', () => {
     const start = new Date('2026-01-15T00:00:00Z');
     const end = new Date('2026-02-20T00:00:00Z');
-    const result = formatDateRange(start, end, 'en-US', 'medium', undefined);
+    const result = formatDateRange(start, end, 'en-US', { style: 'medium' });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('Jan');
@@ -357,7 +357,7 @@ describe('formatDateRange', () => {
   it('formats date range same month', () => {
     const start = new Date('2026-03-01T00:00:00Z');
     const end = new Date('2026-03-15T00:00:00Z');
-    const result = formatDateRange(start, end, 'en-US', 'medium', undefined);
+    const result = formatDateRange(start, end, 'en-US', { style: 'medium' });
     expect(result.ok).toBe(true);
   });
 });
@@ -368,7 +368,7 @@ describe('formatDateRange', () => {
 
 describe('formatDisplayName', () => {
   it('formats language display name', () => {
-    const result = formatDisplayName('en', 'en', 'language', undefined);
+    const result = formatDisplayName('en', 'en', 'language', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toBe('English');
@@ -376,7 +376,7 @@ describe('formatDisplayName', () => {
   });
 
   it('formats region display name', () => {
-    const result = formatDisplayName('US', 'en', 'region', undefined);
+    const result = formatDisplayName('US', 'en', 'region', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toBe('United States');
@@ -384,7 +384,7 @@ describe('formatDisplayName', () => {
   });
 
   it('formats currency display name', () => {
-    const result = formatDisplayName('USD', 'en', 'currency', undefined);
+    const result = formatDisplayName('USD', 'en', 'currency', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('Dollar');
@@ -398,7 +398,7 @@ describe('formatDisplayName', () => {
 
 describe('formatPercent', () => {
   it('formats 0.5 as 50%', () => {
-    const result = formatPercent(0.5, 'en-US', undefined);
+    const result = formatPercent(0.5, 'en-US', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('50');
@@ -406,7 +406,7 @@ describe('formatPercent', () => {
   });
 
   it('formats 0 as 0%', () => {
-    const result = formatPercent(0, 'en-US', undefined);
+    const result = formatPercent(0, 'en-US', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('0');
@@ -414,7 +414,7 @@ describe('formatPercent', () => {
   });
 
   it('formats 1 as 100%', () => {
-    const result = formatPercent(1, 'en-US', undefined);
+    const result = formatPercent(1, 'en-US', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('100');
@@ -428,7 +428,7 @@ describe('formatPercent', () => {
 
 describe('formatUnit', () => {
   it('formats kilometer', () => {
-    const result = formatUnit(42, 'kilometer', 'en', undefined, undefined);
+    const result = formatUnit(42, 'kilometer', 'en', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('42');
@@ -436,7 +436,7 @@ describe('formatUnit', () => {
   });
 
   it('formats kilogram with long display', () => {
-    const result = formatUnit(5, 'kilogram', 'en', 'long', undefined);
+    const result = formatUnit(5, 'kilogram', 'en', { unitDisplay: 'long' });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('kilogram');
@@ -450,7 +450,7 @@ describe('formatUnit', () => {
 
 describe('formatDuration', () => {
   it('formats hours and minutes', () => {
-    const result = formatDuration({ hours: 2, minutes: 30 }, 'en', undefined);
+    const result = formatDuration({ hours: 2, minutes: 30 }, 'en', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('2');
@@ -462,18 +462,18 @@ describe('formatDuration', () => {
     const result = formatDuration(
       { years: 1, months: 2, weeks: 3, days: 4, hours: 5, minutes: 6, seconds: 7 },
       'en',
-      undefined,
+      {},
     );
     expect(result.ok).toBe(true);
   });
 
   it('formats with short style', () => {
-    const result = formatDuration({ hours: 1, minutes: 15 }, 'en', 'short');
+    const result = formatDuration({ hours: 1, minutes: 15 }, 'en', { style: 'short' });
     expect(result.ok).toBe(true);
   });
 
   it('skips zero-value fields', () => {
-    const result = formatDuration({ hours: 0, minutes: 45 }, 'en', undefined);
+    const result = formatDuration({ hours: 0, minutes: 45 }, 'en', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('45');
@@ -795,7 +795,7 @@ describe('parseNumberSkeleton — extended tokens', () => {
 
 describe('error paths', () => {
   it('formatNumber returns error for invalid value', () => {
-    const result = formatNumber('abc' as unknown as Num, 'en', undefined);
+    const result = formatNumber('abc' as unknown as Num, 'en', {});
     expect(result.ok).toBe(false);
   });
 
@@ -805,7 +805,7 @@ describe('error paths', () => {
   });
 
   it('formatTime with undefined style defaults to medium', () => {
-    const result = formatTime(new Date('2026-02-23T14:30:00'), 'en-US', undefined, undefined);
+    const result = formatTime(new Date('2026-02-23T14:30:00'), 'en-US', {});
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain(':30');
@@ -813,7 +813,7 @@ describe('error paths', () => {
   });
 
   it('formatDate with both style and options undefined uses empty options', () => {
-    const result = formatDate(new Date('2026-02-23'), 'en-US', undefined, undefined);
+    const result = formatDate(new Date('2026-02-23'), 'en-US', {});
     expect(result.ok).toBe(true);
   });
 
@@ -822,29 +822,28 @@ describe('error paths', () => {
       new Date('2026-01-15'),
       new Date('2026-02-23'),
       'en-US',
-      undefined,
-      undefined,
+      {},
     );
     expect(result.ok).toBe(true);
   });
 
   it('formatRelativeTime returns error for invalid numeric', () => {
-    const result = formatRelativeTime(1, 'day', 'en', 'invalid' as unknown as undefined, undefined);
+    const result = formatRelativeTime(1, 'day', 'en', { numeric: 'invalid' as never });
     expect(result.ok).toBe(false);
   });
 
   it('formatRelativeTime returns error for invalid style', () => {
-    const result = formatRelativeTime(1, 'day', 'en', undefined, 'invalid' as unknown as undefined);
+    const result = formatRelativeTime(1, 'day', 'en', { style: 'invalid' as never });
     expect(result.ok).toBe(false);
   });
 
   it('formatDisplayName with short style', () => {
-    const result = formatDisplayName('en', 'en', 'language', 'short');
+    const result = formatDisplayName('en', 'en', 'language', { style: 'short' });
     expect(result.ok).toBe(true);
   });
 
   it('formatPercent with custom options', () => {
-    const result = formatPercent(0.256, 'en-US', { minimumFractionDigits: 1 });
+    const result = formatPercent(0.256, 'en-US', { options: { minimumFractionDigits: 1 } });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('25.6');
@@ -852,7 +851,7 @@ describe('error paths', () => {
   });
 
   it('formatList with narrow style', () => {
-    const result = formatList(['a', 'b'], 'en', 'conjunction', 'narrow');
+    const result = formatList(['a', 'b'], 'en', { type: 'conjunction', style: 'narrow' });
     expect(result.ok).toBe(true);
   });
 });

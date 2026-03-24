@@ -818,6 +818,62 @@ export function processConfig(config: Partial<CoreConfig>): CoreConfig {
 });
 
 // =============================================================================
+// result/require-result-type — schema factory + introspection exemptions
+// =============================================================================
+
+describe('result/require-result-type — schema factory exemptions', () => {
+  it('exempts functions returning TemplateSchema', async () => {
+    const code: string = `
+export function messageTemplate<TParams>(params: TParams): TemplateSchema<TParams> {
+  return schema;
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts functions returning NullableParamSchemas', async () => {
+    const code: string = `
+function getTemplateParams(schema: v.GenericSchema): NullableParamSchemas {
+  return null;
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts functions returning NullableSchemaEntries', async () => {
+    const code: string = `
+function getSchemaEntries(schema: v.GenericSchema): NullableSchemaEntries {
+  return null;
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('still flags functions returning Str', async () => {
+    const code: string = `
+export function getName(): Str {
+  return 'hello';
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('still flags functions returning v.InferOutput', async () => {
+    const code: string = `
+export function getConfig(): v.InferOutput<typeof ConfigSchema> {
+  return defaults;
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(1);
+  });
+});
+
+// =============================================================================
 // result/validate-function-input — Fix 8: indirect validation
 // =============================================================================
 
@@ -943,6 +999,22 @@ const opts: Options = parsed.data.options ?? {};
     const results: LintResult[] = await lint(noResultFallback, code);
     expect(results.length).toBe(1);
   });
+
+  it('passes nullish on deep chain with method call (Map.get)', async () => {
+    const code: string = `
+const branch: Str = parsed.data.branches.get(keyword) ?? parsed.data.branches.get('other') ?? '';
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('still flags direct data.field ?? fallback', async () => {
+    const code: string = `
+const name: Str = parsed.data.name ?? 'unknown';
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(1);
+  });
 });
 
 // =============================================================================
@@ -964,5 +1036,89 @@ export function createStore(registry: Registry): Result<Store> {
       r.message.includes("'registry'"),
     );
     expect(registryErrors.length).toBe(0);
+  });
+
+  it('exempts params typed as GenericSchema', async () => {
+    const code: string = `
+import { type Result } from '@/schemas/result/result';
+import * as v from 'valibot';
+export function buildLocale(schema: v.GenericSchema, rawStrs: RawLocaleStrings): Result<BuiltLocale> {
+  const result = safeParse(schema, rawStrs);
+  if (!result.ok) return result;
+  return ok(BuiltLocaleSchema, result.data);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const schemaErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'schema'"),
+    );
+    expect(schemaErrors.length).toBe(0);
+  });
+
+  it('exempts params validated via schema param (safeParse(schema, data))', async () => {
+    const code: string = `
+import { type Result } from '@/schemas/result/result';
+import * as v from 'valibot';
+export function buildLocale(schema: v.GenericSchema, rawStrs: RawLocaleStrings): Result<BuiltLocale> {
+  const result = safeParse(schema, rawStrs);
+  if (!result.ok) return result;
+  return ok(BuiltLocaleSchema, result.data);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const rawStrsErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'rawStrs'"),
+    );
+    expect(rawStrsErrors.length).toBe(0);
+  });
+
+  it('exempts params typed as FormatterMap', async () => {
+    const code: string = `
+import { type Result } from '@/schemas/result/result';
+export function renderMessage(template: Str, formatters: FormatterMap): Result<Str> {
+  const result = safeParse(StrSchema, template);
+  if (!result.ok) return result;
+  return ok(StrSchema, result.data);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const fmtErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'formatters'"),
+    );
+    expect(fmtErrors.length).toBe(0);
+  });
+
+  it('exempts generic type params extending GenericSchema', async () => {
+    const code: string = `
+import { type Result } from '@/schemas/result/result';
+import * as v from 'valibot';
+export function buildLocale<TSchema extends v.GenericSchema>(schema: TSchema, rawStrs: RawLocaleStrings): Result<BuiltLocale> {
+  const entries = getSchemaEntries(schema);
+  return ok(BuiltLocaleSchema, entries);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const schemaErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'schema'"),
+    );
+    expect(schemaErrors.length).toBe(0);
+  });
+
+  it('detects safeParse with inline schema containing commas', async () => {
+    const code: string = `
+import { type Result } from '@/schemas/result/result';
+export function renderMessage(template: Str, params: Record<Str, unknown>): Result<Str> {
+  const templateResult = safeParse(StrSchema, template);
+  if (!templateResult.ok) return templateResult;
+  const paramsResult = safeParse(v.record(v.string(), v.unknown()), params);
+  if (!paramsResult.ok) return paramsResult;
+  return ok(StrSchema, '');
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const paramsErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'params'"),
+    );
+    expect(paramsErrors.length).toBe(0);
   });
 });

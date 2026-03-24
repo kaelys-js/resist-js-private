@@ -508,14 +508,23 @@ const Schema = v.strictObject({
 // =============================================================================
 
 describe('valibot/require-generic-schema', () => {
-  it('flags non-generic schema used by generic type', async () => {
+  it('passes intersection type — generic params come from & arm, not schema', async () => {
     const code: string = `
 const FooBaseSchema = v.strictObject({ name: v.string() });
 type Foo<T> = v.InferOutput<typeof FooBaseSchema> & { data: T };
 `;
     const results: LintResult[] = await lint(requireGenericSchema, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags non-generic schema used by non-intersection generic type', async () => {
+    const code: string = `
+const FooSchema = v.strictObject({ name: v.string() });
+type Foo<T> = v.InferOutput<typeof FooSchema>;
+`;
+    const results: LintResult[] = await lint(requireGenericSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('FooBaseSchema');
+    expect(results[0].message).toContain('FooSchema');
     expect(results[0].message).toContain('generic()');
   });
 

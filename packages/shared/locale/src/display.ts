@@ -19,6 +19,7 @@
  */
 
 import * as v from 'valibot';
+
 import {
   StrSchema,
   StrArraySchema,
@@ -28,6 +29,10 @@ import {
 } from '@/schemas/common';
 import { ERRORS, err, ok, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
+
+// =============================================================================
+// Schemas
+// =============================================================================
 
 /**
  * Schema for a language's display name information.
@@ -48,6 +53,10 @@ export const LanguageDisplayInfoSchema = v.strictObject({
 
 /** A language's native name (endonym) and name in the current locale (exonym). See {@link LanguageDisplayInfoSchema}. */
 export type LanguageDisplayInfo = v.InferOutput<typeof LanguageDisplayInfoSchema>;
+
+// =============================================================================
+// API
+// =============================================================================
 
 /**
  * Gets the endonym and exonym for a single language code.

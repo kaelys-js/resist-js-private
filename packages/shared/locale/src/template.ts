@@ -394,6 +394,17 @@ export function messageTemplate(): TemplateSchema<Record<Str, never>>;
 export function messageTemplate<TParams extends ParamSchemas>(
   params: TParams,
 ): TemplateSchema<TParams>;
+/**
+ * Creates a Valibot schema for a locale template string (implementation).
+ *
+ * @param {TParams} params - Optional parameter definitions for template placeholders.
+ * @returns {TemplateSchema<TParams>} A Valibot schema that validates the raw template string.
+ *
+ * @example
+ * ```typescript
+ * const schema = messageTemplate({ name: StrSchema });
+ * ```
+ */
 export function messageTemplate<TParams extends ParamSchemas>(
   params?: TParams,
 ): TemplateSchema<TParams> {
@@ -432,7 +443,7 @@ export function messageTemplate<TParams extends ParamSchemas>(
         );
 
   // Attach param schemas as metadata for buildLocale() to retrieve at runtime.
-  const schemaRecord: Record<symbol, unknown> = schema as Record<symbol, unknown>; // Symbol indexing requires cast
+  const schemaRecord: Record<symbol, unknown> = schema as unknown as Record<symbol, unknown>; // cast safe: irreducible — valibot GenericSchema doesn't expose symbol-keyed properties, but we need to attach metadata
   schemaRecord[TEMPLATE_PARAMS] = paramDefs;
 
   return schema as unknown as TemplateSchema<TParams>; // Irreducible: TemplateSchema<TParams> is generic — no runtime schema. Metadata attached via symbol above.
@@ -1755,7 +1766,7 @@ function replaceRangeBlocks(
  * @param style - The ICU number style name.
  * @returns `Intl.NumberFormatOptions` for the given style, or `undefined` for unknown styles.
  */
-function numberStyleToOptions(style: Str): Intl.NumberFormatOptions | undefined {
+function numberStyleToOptions(style: Str): Result<Intl.NumberFormatOptions> {
   const map: Record<Str, Intl.NumberFormatOptions> = {
     percent: { style: 'percent' },
     compact: { notation: 'compact' },
@@ -1763,7 +1774,13 @@ function numberStyleToOptions(style: Str): Intl.NumberFormatOptions | undefined 
     engineering: { notation: 'engineering' },
   };
 
-  return map[style];
+  const opts: Intl.NumberFormatOptions | undefined = map[style];
+
+  if (opts === undefined) {
+    return err(ERRORS.LOCALE.FORMAT_FAILED, { meta: { reason: `Unknown number style: ${style}` } });
+  }
+
+  return okUnchecked<Intl.NumberFormatOptions>(opts);
 }
 
 /**
@@ -1808,7 +1825,7 @@ function replaceNumberBlocks(
       if (numberMatch && numberMatch[1]) {
         const [, key]: Str[] = numberMatch;
         const value: Num = Number(params[key]);
-        const [, , styleArg]: OptionalStr[] = numberMatch;
+        const styleArg: OptionalStr = numberMatch.at(2);
         let options: Intl.NumberFormatOptions | undefined;
 
         if (styleArg && styleArg.startsWith('::')) {
@@ -1820,10 +1837,16 @@ function replaceNumberBlocks(
           }
           options = skeletonResult.data;
         } else if (styleArg) {
-          options = numberStyleToOptions(styleArg);
+          const styleOptsResult: Result<Intl.NumberFormatOptions> = numberStyleToOptions(styleArg);
+
+          if (!styleOptsResult.ok) {
+            return styleOptsResult;
+          }
+
+          options = styleOptsResult.data;
         }
 
-        const formatResult: Result<Str> = formatNumber(value, locale ?? 'en', options);
+        const formatResult: Result<Str> = formatNumber(value, locale ?? 'en', { options });
 
         if (!formatResult.ok) {
           return formatResult;
@@ -1900,8 +1923,8 @@ function replaceDateTimeBlocks(
           }
           formatResult =
             kind === 'time'
-              ? formatTime(dateValue, locale ?? 'en', undefined, skeletonResult.data)
-              : formatDate(dateValue, locale ?? 'en', undefined, skeletonResult.data);
+              ? formatTime(dateValue, locale ?? 'en', { options: skeletonResult.data })
+              : formatDate(dateValue, locale ?? 'en', { options: skeletonResult.data });
         } else {
           // Validate named style via Valibot schema
           let style: DateTimeStyle | undefined = undefined;
@@ -1913,10 +1936,11 @@ function replaceDateTimeBlocks(
               style = styleResult.data;
             }
           }
+
           formatResult =
             kind === 'time'
-              ? formatTime(dateValue, locale ?? 'en', style, undefined)
-              : formatDate(dateValue, locale ?? 'en', style, undefined);
+              ? formatTime(dateValue, locale ?? 'en', { style })
+              : formatDate(dateValue, locale ?? 'en', { style });
         }
 
         if (!formatResult.ok) {
@@ -2136,17 +2160,17 @@ function buildLocaleEntries(
         if (typeof item === 'object' && item !== null) {
           const rendered: RawLocaleStrings = {};
 
-          for (const [fieldKey, fieldValue] of Object.entries(item as Record<Str, unknown>)) {
+          for (const [fieldKey, fieldValue] of Object.entries(item as Record<Str, unknown>)) { // cast safe: guarded by typeof === 'object' && !== null above
             // cast safe: typeof item === 'object' guard above
             // Runtime-guarded by typeof === 'object' check above
             if (typeof fieldValue === 'string') {
               const renderResult: Result<Str> = renderMessage(fieldValue, context);
 
-              if (renderResult.ok) {
-                rendered[fieldKey] = renderResult.data;
-              } else {
-                rendered[fieldKey] = fieldValue;
+              if (!renderResult.ok) {
+                return renderResult;
               }
+
+              rendered[fieldKey] = renderResult.data;
             } else {
               rendered[fieldKey] = fieldValue;
             }
@@ -2161,7 +2185,7 @@ function buildLocaleEntries(
     }
   }
 
-  return okUnchecked<RawLocaleStrings>(result);
+  return ok(RawLocaleStringsSchema, result);
 }
 
 // =============================================================================
@@ -2193,8 +2217,8 @@ function getSchemaEntries(schema: v.GenericSchema): NullableSchemaEntries {
   if (Array.isArray(s.pipe)) {
     for (const item of s.pipe) {
       if (typeof item === 'object' && item !== null) {
-        const entries: Record<Str, v.GenericSchema> | undefined = getSchemaEntries(
-          item as v.GenericSchema,
+        const entries: NullableSchemaEntries = getSchemaEntries(
+          item as v.GenericSchema, // cast safe: guarded by typeof === 'object' && !== null above
         ); // cast safe: runtime-guarded by typeof check
 
         if (entries) {
