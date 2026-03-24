@@ -566,7 +566,7 @@ export function flushBuffer(): Result<Void> {
   _buffer = [];
 
   try {
-    _bufferConfig.onFlush(entries);
+    _bufferConfig.onFlush([...entries]);
   } catch {
     // Fire-and-forget — buffer flush must not break the logging pipeline
   }
