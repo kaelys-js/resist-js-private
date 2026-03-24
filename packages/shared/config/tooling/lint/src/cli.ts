@@ -26,7 +26,19 @@ import { PACKAGE_RULES } from './rules/package/all.ts';
 
 const args: string[] = process.argv.slice(2);
 const flags: string[] = args.filter((a: string) => a.startsWith('--'));
-const paths: string[] = args.filter((a: string) => !a.startsWith('--'));
+const cliPaths: string[] = args.filter((a: string) => !a.startsWith('--'));
+
+/** Default lint targets when no paths are specified. */
+const DEFAULT_PATHS: readonly string[] = [
+  'packages/products/storylyne/editor',
+  'packages/products-template',
+  'packages/shared/config',
+  'packages/shared/locale',
+  'packages/shared/schemas',
+  'packages/shared/ui',
+];
+
+const paths: string[] = cliPaths.length > 0 ? cliPaths : [...DEFAULT_PATHS];
 
 const jsonOutput: boolean = flags.includes('--json');
 const listRules: boolean = flags.includes('--list-rules');
