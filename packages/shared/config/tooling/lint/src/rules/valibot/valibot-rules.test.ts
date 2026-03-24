@@ -295,6 +295,12 @@ describe('valibot/prefer-shared-schema', () => {
     const results: LintResult[] = await lint(preferSharedSchema, code, 'my-module.test.ts');
     expect(results.length).toBe(0);
   });
+
+  it('does not flag hardwareConcurrency as CurrencyCodeSchema', async () => {
+    const code: string = `const Schema = v.strictObject({ hardwareConcurrency: v.number() });`;
+    const results: LintResult[] = await lint(preferSharedSchema, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================

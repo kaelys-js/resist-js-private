@@ -129,6 +129,12 @@ describe('naming/camel-case-vars', () => {
     const results: LintResult[] = await lint(camelCaseVars, code);
     expect(results.length).toBe(0);
   });
+
+  it('allows underscore-prefixed camelCase variables', async () => {
+    const code: string = `let _effectiveType = '4g';`;
+    const results: LintResult[] = await lint(camelCaseVars, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================

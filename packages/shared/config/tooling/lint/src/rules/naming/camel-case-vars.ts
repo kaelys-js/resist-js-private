@@ -10,8 +10,8 @@
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
-/** Pattern for valid camelCase identifiers. */
-const CAMEL_CASE_RE: RegExp = /^[a-z][a-zA-Z0-9]*$/;
+/** Pattern for valid camelCase identifiers (allows optional leading underscore for private convention). */
+const CAMEL_CASE_RE: RegExp = /^_?[a-z][a-zA-Z0-9]*$/;
 
 /** Pattern for SCREAMING_SNAKE_CASE (handled by constant-screaming-case). */
 const SCREAMING_SNAKE_RE: RegExp = /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/;

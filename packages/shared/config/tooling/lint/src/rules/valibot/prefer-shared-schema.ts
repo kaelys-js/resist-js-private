@@ -65,7 +65,7 @@ const SCHEMA_SUGGESTIONS: ReadonlyArray<{ pattern: RegExp; schema: string; sourc
   },
   { pattern: /[Cc]ountry[Cc]ode$/, schema: 'CountryCodeSchema', source: '@/schemas/common' },
   {
-    pattern: /[Cc]urrency[Cc]ode$|[Cc]urrency$/,
+    pattern: /[Cc]urrencyCode$|^currency$/,
     schema: 'CurrencyCodeSchema',
     source: '@/schemas/common',
   },
