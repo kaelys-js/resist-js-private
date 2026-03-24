@@ -352,6 +352,23 @@ export type TemplateSchema<TParams extends ParamSchemas = ParamSchemas> = v.Gene
  * const tmpl = messageTemplate({ count: NonNegativeIntegerSchema, path: StrSchema });
  * ```
  */
+/**
+ * Creates a Valibot schema for a locale template string.
+ *
+ * Validates that the raw string contains the correct placeholders.
+ * The returned schema's `v.InferOutput` is `string` — the runtime
+ * transform to a callable function happens in `buildLocale()`.
+ *
+ * @param {TParams} params - Optional parameter definitions for template placeholders.
+ * @returns {TemplateSchema<TParams>} A Valibot schema that validates the raw template string.
+ *
+ * @example
+ * ```typescript
+ * const schema = messageTemplate({ name: StrSchema });
+ * // Validates: 'Hello, {name}!' ✅
+ * // Rejects: 'Hello!' ❌ (missing {name})
+ * ```
+ */
 export function messageTemplate(): TemplateSchema<Record<Str, never>>;
 export function messageTemplate<TParams extends ParamSchemas>(
   params: TParams,
@@ -360,9 +377,9 @@ export function messageTemplate<TParams extends ParamSchemas>(
   params?: TParams,
 ): TemplateSchema<TParams> {
   const paramDefs: TParams = (params ?? {}) as TParams; // Irreducible: TParams is a generic — no runtime schema. Safe per overload constraints.
-  const expectedKeys = new Set<string>(Object.keys(paramDefs));
+  const expectedKeys: Set<Str> = new Set<Str>(Object.keys(paramDefs));
 
-  const schema =
+  const schema: v.GenericSchema =
     expectedKeys.size === 0
       ? v.string()
       : v.pipe(
@@ -407,7 +424,7 @@ function getTemplateParams(schema: v.GenericSchema): NullableParamSchemas {
   const schemaRecord: Record<symbol, unknown> = schema as unknown as Record<symbol, unknown>; // Symbol indexing requires cast
   const params: unknown = schemaRecord[TEMPLATE_PARAMS];
   if (params && typeof params === 'object') {
-    return params as NullableParamSchemas;
+    return params as NullableParamSchemas; // cast safe: params validated by schema check on caller side
   } // Runtime-guarded
   return null;
 }
@@ -523,12 +540,12 @@ function extractPlaceholders(template: Str): Result<Set<Str>> {
   const cleanTemplate: Str = escapeResult.data.text;
 
   const found: Set<Str> = new Set<Str>();
-  const simpleRegex = /\{(\w+)(?:\|[\w|]*)?\}/g;
-  const pluralRegex = /\{(\w+)\s*,\s*plural\s*,/g;
-  const selectRegex = /\{(\w+)\s*,\s*select\s*,/g;
-  const selectOrdinalRegex = /\{(\w+)\s*,\s*selectordinal\s*,/g;
-  const numberRegex = /\{(\w+)\s*,\s*number/g;
-  const dateTimeRegex = /\{(\w+)\s*,\s*(?:date|time)/g;
+  const simpleRegex: RegExp = /\{(\w+)(?:\|[\w|]*)?\}/g;
+  const pluralRegex: RegExp = /\{(\w+)\s*,\s*plural\s*,/g;
+  const selectRegex: RegExp = /\{(\w+)\s*,\s*select\s*,/g;
+  const selectOrdinalRegex: RegExp = /\{(\w+)\s*,\s*selectordinal\s*,/g;
+  const numberRegex: RegExp = /\{(\w+)\s*,\s*number/g;
+  const dateTimeRegex: RegExp = /\{(\w+)\s*,\s*(?:date|time)/g;
 
   let match: NullableRegExpExecArray;
   while ((match = simpleRegex.exec(cleanTemplate)) !== null) {
@@ -561,7 +578,7 @@ function extractPlaceholders(template: Str): Result<Set<Str>> {
       found.add(match[1]);
     }
   }
-  const rangeRegex = /\{(\w+)\s*,\s*range/g;
+  const rangeRegex: RegExp = /\{(\w+)\s*,\s*range/g;
   while ((match = rangeRegex.exec(cleanTemplate)) !== null) {
     if (match[1]) {
       found.add(match[1]);
@@ -1020,7 +1037,7 @@ function replaceMessageRefs(
   }
 
   // Match @:key or @.modifier:key or @.modifier:path.to.key
-  const refRegex = /@(?:\.([\w]+))?:([\w]+(?:\.[\w]+)*)/g;
+  const refRegex: RegExp = /@(?:\.([\w]+))?:([\w]+(?:\.[\w]+)*)/g;
   let result: Str = templateResult.data;
 
   // Collect all matches first to avoid infinite replacement loops
@@ -1173,7 +1190,7 @@ function renderMessageInternal(
     ...formatters,
   };
 
-  const simplePlaceholderRegex = /\{(\w+)(?:\|([\w]+(?:\|[\w]+)*))?\}/g;
+  const simplePlaceholderRegex: RegExp = /\{(\w+)(?:\|([\w]+(?:\|[\w]+)*))?\}/g;
   const simpleMatches: Array<{
     readonly full: Str;
     readonly key: Str;
@@ -1228,12 +1245,18 @@ function renderMessageInternal(
  *
  * Nested ICU blocks are resolved recursively up to a maximum depth of 10.
  *
- * @param template - The template string. Validated via `StrSchema`.
- * @param params - Key-value map of placeholder values.
- * @param locale - Optional BCP 47 locale tag for `Intl.PluralRules` and `Intl.NumberFormat`/`Intl.DateTimeFormat`.
- * @param resolver - Optional callback for `@:key` message reference resolution.
- * @param formatters - Optional custom formatters for pipe syntax and message ref modifiers.
- * @returns `Result<Str>` — the rendered string, or a validation error.
+ * @param {Str} template - The template string. Validated via `StrSchema`.
+ * @param {Record<Str, unknown>} params - Key-value map of placeholder values.
+ * @param {Str} locale - Optional BCP 47 locale tag for `Intl.PluralRules` and `Intl.NumberFormat`/`Intl.DateTimeFormat`.
+ * @param {(key: Str) => Result<Str>} resolver - Optional callback for `@:key` message reference resolution.
+ * @param {FormatterMap} formatters - Optional custom formatters for pipe syntax and message ref modifiers.
+ * @returns {Result<Str>} The rendered string, or a validation error.
+ *
+ * @example
+ * ```typescript
+ * const result = renderMessage('Hello, {name}!', { name: 'Alice' });
+ * if (result.ok) result.data; // 'Hello, Alice!'
+ * ```
  */
 export function renderMessage(
   template: Str,
@@ -1788,14 +1811,14 @@ function replaceDateTimeBlocks(
  * - **Parameterized template**: wraps in `(params) => Result<Str>` that
  *   validates each param via `safeParse` before rendering
  *
- * @param schema - The Valibot locale schema (e.g., `SyncStringsSchema`).
- * @param rawStrs - The raw locale strings object (e.g., imported `en`).
- * @param context - Optional context values substituted into plain strings and array elements
+ * @param {v.GenericSchema} schema - The Valibot locale schema (e.g., `SyncStringsSchema`).
+ * @param {RawLocaleStrings} rawStrs - The raw locale strings object (e.g., imported `en`).
+ * @param {RawLocaleStrings} context - Optional context values substituted into plain strings and array elements
  *   at build time. Context placeholders use `{key}` syntax (same as `renderMessage`).
- * @param locale - Optional BCP 47 locale code baked into closures for `Intl.PluralRules`
+ * @param {Str} locale - Optional BCP 47 locale code baked into closures for `Intl.PluralRules`
  *   and `Intl.NumberFormat`/`Intl.DateTimeFormat`. Passed through to `renderMessage()`.
- * @param formatters - Optional custom formatters for pipe syntax and message ref modifiers.
- * @returns A callable locale object where every leaf is a function returning `Result<Str>`.
+ * @param {FormatterMap} formatters - Optional custom formatters for pipe syntax and message ref modifiers.
+ * @returns {Result<BuiltLocale<TSchema>>} A callable locale object where every leaf is a function returning `Result<Str>`.
  *
  * @example
  * ```typescript
@@ -1827,7 +1850,7 @@ export function buildLocale<TSchema extends v.GenericSchema>(
   const builtRef: { data: RawLocaleStrings } = { data: {} };
 
   // Resolver for @:key message references — walks dot-separated key paths.
-  const resolver = (key: Str): Result<Str> => {
+  const resolver: (key: Str) => Result<Str> = (key: Str): Result<Str> => {
     const parts: Str[] = key.split('.');
     let current: unknown = builtRef.data;
     for (const part of parts) {
@@ -1893,7 +1916,7 @@ function buildLocaleEntries(
     if (nestedEntries && typeof rawValue === 'object' && rawValue !== null) {
       const nestedResult: Result<RawLocaleStrings> = buildLocaleEntries(
         nestedEntries,
-        rawValue as RawLocaleStrings,
+        rawValue as RawLocaleStrings, // cast safe: typeof rawValue === 'object' guard above
         context,
         locale,
         resolver,
@@ -1958,7 +1981,7 @@ function buildLocaleEntries(
       result[key] = rawValue.map((item: unknown) => {
         if (typeof item === 'object' && item !== null) {
           const rendered: RawLocaleStrings = {};
-          for (const [fieldKey, fieldValue] of Object.entries(item as Record<string, unknown>)) {
+          for (const [fieldKey, fieldValue] of Object.entries(item as Record<Str, unknown>)) { // cast safe: typeof item === 'object' guard above
             // Runtime-guarded by typeof === 'object' check above
             if (typeof fieldValue === 'string') {
               const renderResult: Result<Str> = renderMessage(fieldValue, context);
