@@ -33,10 +33,7 @@ export function getDevtoolsConfig(): DevtoolsConfig {
       Str,
       Record<Str, unknown>
     >,
-    featureFlagsSchema: FeatureFlagsSchema.entries as unknown as Record<
-      Str,
-      Record<Str, unknown>
-    >,
+    featureFlagsSchema: FeatureFlagsSchema.entries as unknown as Record<Str, Record<Str, unknown>>,
     debugStateSchema: DebugStateSchema.entries as unknown as Record<Str, Record<Str, unknown>>,
     goto,
     isValidAppKey: (key: Str): Bool => APP_KEYS.has(key),

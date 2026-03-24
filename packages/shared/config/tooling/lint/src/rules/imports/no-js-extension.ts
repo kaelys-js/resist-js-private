@@ -14,11 +14,7 @@
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
 /** File path patterns exempt from this rule. */
-const EXEMPT_PATTERNS: readonly RegExp[] = [
-  /extensions\/vscode/,
-  /\.test\.ts$/,
-  /\.spec\.ts$/,
-];
+const EXEMPT_PATTERNS: readonly RegExp[] = [/extensions\/vscode/, /\.test\.ts$/, /\.spec\.ts$/];
 
 /**
  * Check whether a file is exempt from this rule.

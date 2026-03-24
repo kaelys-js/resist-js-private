@@ -61,7 +61,10 @@ const CreateViteConfigOptionsSchema = v.strictObject({
   /** Additional define entries to merge with git metadata. */
   extraDefines: v.optional(v.record(v.string(), v.string()), {}),
   /** Additional Vite UserConfig to spread (deep merge is NOT performed). */
-  extraConfig: v.optional(v.custom<Partial<UserConfig>>((): Bool => true), {}), // cast safe: external Vite type
+  extraConfig: v.optional(
+    v.custom<Partial<UserConfig>>((): Bool => true),
+    {},
+  ), // cast safe: external Vite type
 });
 
 /** Options for the shared Vite configuration factory. See {@link CreateViteConfigOptionsSchema}. */
@@ -97,16 +100,15 @@ export type CreateViteConfigInput = v.InferInput<typeof CreateViteConfigOptionsS
  * });
  * ```
  */
-export function createViteConfig(
-  options: CreateViteConfigInput,
-): UserConfig {
+export function createViteConfig(options: CreateViteConfigInput): UserConfig {
   const optionsResult: Result<CreateViteConfigOptions> = safeParse(
     CreateViteConfigOptionsSchema,
     options,
   );
   if (!optionsResult.ok) throw optionsResult.error; // integration boundary: Vite doesn't understand Result
 
-  const { plugins, ssrNoExternal, extraDefines, extraConfig }: CreateViteConfigOptions = optionsResult.data as CreateViteConfigOptions; // cast safe: safeParse validates and fills defaults
+  const { plugins, ssrNoExternal, extraDefines, extraConfig }: CreateViteConfigOptions =
+    optionsResult.data as CreateViteConfigOptions; // cast safe: safeParse validates and fills defaults
 
   const gitResult: Result<GitInfo> = getGitInfo();
   if (!gitResult.ok) throw gitResult.error; // integration boundary: Vite doesn't understand Result
@@ -142,4 +144,3 @@ export function createViteConfig(
     ...extraConfig,
   });
 }
-

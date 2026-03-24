@@ -137,8 +137,6 @@ function checkFunctionReturnType(
     }
   }
 
-
-
   return {
     file: context.file,
     line: node.loc.start.line,
@@ -195,7 +193,9 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       // Skip exported functions — handled by ExportNamedDeclaration/ExportDefaultDeclaration
-      const beforeFunc: string = context.content.slice(Math.max(0, node.start - 20), node.start).trim();
+      const beforeFunc: string = context.content
+        .slice(Math.max(0, node.start - 20), node.start)
+        .trim();
       if (beforeFunc.endsWith('export') || beforeFunc.endsWith('default')) return results;
 
       const result: LintResult | null = checkFunctionReturnType(node, context);

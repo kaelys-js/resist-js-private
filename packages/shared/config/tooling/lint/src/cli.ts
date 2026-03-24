@@ -16,7 +16,14 @@ import { readFileSync, writeFileSync, statSync, readdirSync } from 'node:fs';
 import { resolve, extname, join, relative } from 'node:path';
 
 import { runTypeScriptRules } from './framework/oxc-runner.ts';
-import type { LintResult, LintFix, TypeScriptRule, PackageJsonRule, PackageJsonContext, PackageJson } from './framework/types.ts';
+import type {
+  LintResult,
+  LintFix,
+  TypeScriptRule,
+  PackageJsonRule,
+  PackageJsonContext,
+  PackageJson,
+} from './framework/types.ts';
 import { ALL_RULES } from './rules/index.ts';
 import { PACKAGE_RULES } from './rules/package/all.ts';
 
@@ -119,8 +126,11 @@ function collectFiles(dir: string): string[] {
 function collectPackageJsonFiles(dir: string): string[] {
   const files: string[] = [];
   let entries: ReturnType<typeof readdirSync>;
-  try { entries = readdirSync(dir, { withFileTypes: true }); }
-  catch { return files; }
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return files;
+  }
   for (const entry of entries) {
     if (SKIP_DIRS.has(entry.name)) continue;
     const fullPath: string = join(dir, entry.name);
@@ -142,7 +152,12 @@ function collectPackageJsonFiles(dir: string): string[] {
  * @param rules - Package.json rules to run
  * @returns Array of lint results
  */
-function runPkgRules(filePath: string, pkg: PackageJson, isRoot: boolean, rules: PackageJsonRule[]): LintResult[] {
+function runPkgRules(
+  filePath: string,
+  pkg: PackageJson,
+  isRoot: boolean,
+  rules: PackageJsonRule[],
+): LintResult[] {
   const context: PackageJsonContext = { file: filePath, pkg, isRoot };
   const results: LintResult[] = [];
   for (const rule of rules) {
@@ -258,8 +273,9 @@ async function main(): Promise<number> {
   }
 
   const taskResults: LintResult[][] = await Promise.all(
-    tasks.map((task: FileTask): Promise<LintResult[]> =>
-      runTypeScriptRules(task.filePath, task.content, task.applicableRules),
+    tasks.map(
+      (task: FileTask): Promise<LintResult[]> =>
+        runTypeScriptRules(task.filePath, task.content, task.applicableRules),
     ),
   );
   const allResults: LintResult[] = taskResults.flat();
@@ -280,7 +296,9 @@ async function main(): Promise<number> {
       if (s.isDirectory()) {
         pkgFiles.push(...collectPackageJsonFiles(resolved));
       }
-    } catch { /* skip */ }
+    } catch {
+      /* skip */
+    }
   }
 
   const workspaceRootPkg: string = resolve('package.json');
@@ -290,7 +308,9 @@ async function main(): Promise<number> {
       const pkg: PackageJson = JSON.parse(raw) as PackageJson;
       const isRoot: boolean = resolve(pkgPath) === workspaceRootPkg;
       allResults.push(...runPkgRules(pkgPath, pkg, isRoot, PACKAGE_RULES));
-    } catch { /* skip unreadable */ }
+    } catch {
+      /* skip unreadable */
+    }
   }
 
   // Apply fixes if --fix

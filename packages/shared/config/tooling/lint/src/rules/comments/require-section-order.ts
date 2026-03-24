@@ -81,9 +81,9 @@ const rule: TypeScriptRule = {
         if (sections[i].orderIndex < maxOrder) {
           const current: string = sections[i].name;
           // Find which earlier section is out of order
-          const earlier: string = sections.find(
-            (s: { orderIndex: number }): boolean => s.orderIndex === maxOrder,
-          )?.name ?? 'unknown';
+          const earlier: string =
+            sections.find((s: { orderIndex: number }): boolean => s.orderIndex === maxOrder)
+              ?.name ?? 'unknown';
           results.push({
             file: context.file,
             line: sections[i].line,

@@ -6,7 +6,13 @@
 
 import { describe, expect, it } from 'vitest';
 import type { Str, Bool } from '@/schemas/common';
-import { type AppError, type KnownErrorCode, type Result, ERRORS, okUnchecked } from '@/schemas/result/result';
+import {
+  type AppError,
+  type KnownErrorCode,
+  type Result,
+  ERRORS,
+  okUnchecked,
+} from '@/schemas/result/result';
 import {
   isAppError,
   isResult,

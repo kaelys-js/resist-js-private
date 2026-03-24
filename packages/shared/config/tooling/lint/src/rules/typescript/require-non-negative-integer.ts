@@ -67,8 +67,11 @@ const rule: TypeScriptRule = {
               severity: 'error',
               message: `'${name}' assigned from .length should be NonNegativeInteger, not Num`,
               ruleId: 'typescript/require-non-negative-integer',
-              tip: "Import NonNegativeInteger from @/schemas/common — .length is always >= 0",
-              fix: { range: { start: innerType.start, end: innerType.end }, text: 'NonNegativeInteger' },
+              tip: 'Import NonNegativeInteger from @/schemas/common — .length is always >= 0',
+              fix: {
+                range: { start: innerType.start, end: innerType.end },
+                text: 'NonNegativeInteger',
+              },
             });
           }
         }

@@ -44,12 +44,15 @@ function mockErr(code: Str): Result<never> {
   }) as Result<never>;
 }
 
-const getGitInfoMock = vi.fn((): Result<MockGitInfo> => mockOk({
-  commit: 'abc1234',
-  commitFull: 'abc1234def5678901234567890abcdef12345678',
-  branch: 'main',
-  dirty: false,
-}));
+const getGitInfoMock = vi.fn(
+  (): Result<MockGitInfo> =>
+    mockOk({
+      commit: 'abc1234',
+      commitFull: 'abc1234def5678901234567890abcdef12345678',
+      branch: 'main',
+      dirty: false,
+    }),
+);
 const getPackageVersionMock = vi.fn((): Result<Str> => mockOk('1.2.3'));
 const safeStringifyMock = vi.fn((data: unknown): Result<Str> => mockOk(JSON.stringify(data)));
 
@@ -69,18 +72,22 @@ beforeEach(() => {
   vi.clearAllMocks();
 
   // Default: getGitInfo succeeds
-  getGitInfoMock.mockReturnValue(mockOk({
-    commit: 'abc1234',
-    commitFull: 'abc1234def5678901234567890abcdef12345678',
-    branch: 'main',
-    dirty: false,
-  }));
+  getGitInfoMock.mockReturnValue(
+    mockOk({
+      commit: 'abc1234',
+      commitFull: 'abc1234def5678901234567890abcdef12345678',
+      branch: 'main',
+      dirty: false,
+    }),
+  );
 
   // Default: getPackageVersion succeeds
   getPackageVersionMock.mockReturnValue(mockOk('1.2.3'));
 
   // Default: safeStringify succeeds
-  safeStringifyMock.mockImplementation((data: unknown): Result<Str> => mockOk(JSON.stringify(data)));
+  safeStringifyMock.mockImplementation(
+    (data: unknown): Result<Str> => mockOk(JSON.stringify(data)),
+  );
 });
 
 // ---------------------------------------------------------------------------

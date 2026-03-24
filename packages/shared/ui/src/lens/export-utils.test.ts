@@ -63,11 +63,41 @@ function mockElement(): HTMLElement {
 
 /** Shared mock node data for chain export tests. */
 const nodes = [
-  { id: 'button', label: 'Button', kind: 'default' as Str, category: 'component' as Str, parentId: '' as Str },
-  { id: 'badge', label: 'Badge', kind: 'named' as Str, category: 'component' as Str, parentId: 'button' as Str },
-  { id: 'valibot', label: 'valibot', kind: 'namespace' as Str, category: 'external' as Str, parentId: 'button' as Str },
-  { id: '@/utils', label: '@/utils/core', kind: 'named' as Str, category: 'workspace' as Str, parentId: 'badge' as Str },
-  { id: 'cn', label: 'cn', kind: 'default' as Str, category: 'utility' as Str, parentId: 'button' as Str },
+  {
+    id: 'button',
+    label: 'Button',
+    kind: 'default' as Str,
+    category: 'component' as Str,
+    parentId: '' as Str,
+  },
+  {
+    id: 'badge',
+    label: 'Badge',
+    kind: 'named' as Str,
+    category: 'component' as Str,
+    parentId: 'button' as Str,
+  },
+  {
+    id: 'valibot',
+    label: 'valibot',
+    kind: 'namespace' as Str,
+    category: 'external' as Str,
+    parentId: 'button' as Str,
+  },
+  {
+    id: '@/utils',
+    label: '@/utils/core',
+    kind: 'named' as Str,
+    category: 'workspace' as Str,
+    parentId: 'badge' as Str,
+  },
+  {
+    id: 'cn',
+    label: 'cn',
+    kind: 'default' as Str,
+    category: 'utility' as Str,
+    parentId: 'button' as Str,
+  },
 ];
 
 /** Chain copy function signature. */
@@ -85,13 +115,21 @@ type ImageExportFn = (element: HTMLElement, filename: Str, options?: unknown) =>
  * @param clickSpy - Mock click spy for download triggers
  */
 function stubBrowserGlobals(clickSpy: ReturnType<typeof vi.fn>): void {
-  vi.stubGlobal('navigator', { clipboard: { write: vi.fn().mockResolvedValue(undefined), writeText: vi.fn() } });
+  vi.stubGlobal('navigator', {
+    clipboard: { write: vi.fn().mockResolvedValue(undefined), writeText: vi.fn() },
+  });
   vi.stubGlobal('document', {
     createElement: vi.fn().mockReturnValue({
-      download: '', href: '', click: clickSpy, style: {},
-      value: '', select: vi.fn(), remove: vi.fn(),
+      download: '',
+      href: '',
+      click: clickSpy,
+      style: {},
+      value: '',
+      select: vi.fn(),
+      remove: vi.fn(),
       cloneNode: vi.fn().mockReturnValue({
-        outerHTML: '<div>clone</div>', style: {},
+        outerHTML: '<div>clone</div>',
+        style: {},
         children: { length: 0 },
         classList: { contains: vi.fn().mockReturnValue(false) },
         dataset: {},
@@ -104,11 +142,18 @@ function stubBrowserGlobals(clickSpy: ReturnType<typeof vi.fn>): void {
   stubUrl();
   vi.stubGlobal('ClipboardItem', vi.fn());
   vi.stubGlobal('atob', (s: string) => Buffer.from(s, 'base64').toString('binary'));
-  vi.stubGlobal('getComputedStyle', vi.fn().mockReturnValue({
-    [Symbol.iterator]: function* () { /* empty */ },
-    getPropertyValue: vi.fn().mockReturnValue(''),
-    backgroundColor: 'white', color: 'black', colorScheme: 'light',
-  }));
+  vi.stubGlobal(
+    'getComputedStyle',
+    vi.fn().mockReturnValue({
+      [Symbol.iterator]: function* () {
+        /* empty */
+      },
+      getPropertyValue: vi.fn().mockReturnValue(''),
+      backgroundColor: 'white',
+      color: 'black',
+      colorScheme: 'light',
+    }),
+  );
   vi.stubGlobal('fetch', vi.fn());
 }
 
@@ -134,7 +179,9 @@ describe('data export functions', () => {
       copyChainMarkdown,
     } = await import('./export-utils.js'));
 
-    ({ clipboardCopy } = await import('./clipboard.js') as unknown as { clipboardCopy: ReturnType<typeof vi.fn> });
+    ({ clipboardCopy } = (await import('./clipboard.js')) as unknown as {
+      clipboardCopy: ReturnType<typeof vi.fn>;
+    });
     clipboardCopy.mockClear();
   });
 
@@ -221,8 +268,20 @@ describe('data export functions', () => {
   describe('copyChainMarkdown', () => {
     it('generates correct Markdown tree structure', async () => {
       const simpleNodes = [
-        { id: 'root', label: 'Root', kind: 'default' as Str, category: 'component' as Str, parentId: '' as Str },
-        { id: 'child', label: 'Child', kind: 'named' as Str, category: 'utility' as Str, parentId: 'root' as Str },
+        {
+          id: 'root',
+          label: 'Root',
+          kind: 'default' as Str,
+          category: 'component' as Str,
+          parentId: '' as Str,
+        },
+        {
+          id: 'child',
+          label: 'Child',
+          kind: 'named' as Str,
+          category: 'utility' as Str,
+          parentId: 'root' as Str,
+        },
       ];
       const result: Bool = await copyChainMarkdown(simpleNodes, 'Root' as Str);
       expect(result).toBe(true);
@@ -234,8 +293,20 @@ describe('data export functions', () => {
 
     it('does not add kind suffix for default kind', async () => {
       const simpleNodes = [
-        { id: 'root', label: 'Root', kind: 'default' as Str, category: 'component' as Str, parentId: '' as Str },
-        { id: 'child', label: 'Child', kind: 'default' as Str, category: 'component' as Str, parentId: 'root' as Str },
+        {
+          id: 'root',
+          label: 'Root',
+          kind: 'default' as Str,
+          category: 'component' as Str,
+          parentId: '' as Str,
+        },
+        {
+          id: 'child',
+          label: 'Child',
+          kind: 'default' as Str,
+          category: 'component' as Str,
+          parentId: 'root' as Str,
+        },
       ];
       await copyChainMarkdown(simpleNodes, 'Root' as Str);
       const output: string = clipboardCopy.mock.calls[0]![0] as string;
@@ -254,7 +325,13 @@ describe('image and HTML export functions', () => {
   let copyDataUri: (element: HTMLElement, options?: unknown) => Promise<Bool>;
   let downloadHtml: (element: HTMLElement, filename: Str) => void;
   let copyHtml: (element: HTMLElement) => Promise<Bool>;
-  let downloadStandaloneHtml: (componentDir: Str, props?: Record<Str, unknown>, children?: Str, darkMode?: Bool, theme?: Str) => Promise<Bool>;
+  let downloadStandaloneHtml: (
+    componentDir: Str,
+    props?: Record<Str, unknown>,
+    children?: Str,
+    darkMode?: Bool,
+    theme?: Str,
+  ) => Promise<Bool>;
   let clickSpy: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {

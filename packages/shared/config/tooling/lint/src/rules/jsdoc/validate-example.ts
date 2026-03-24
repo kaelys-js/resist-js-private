@@ -212,12 +212,12 @@ function checkFunction(
   if (!/@example\b/.test(docComment)) return results;
 
   const fencedBlocks: string[] = extractTypescriptBlocks(docComment);
-  const unfencedBlocks: string[] = fencedBlocks.length === 0 ? extractUnfencedBlocks(docComment) : [];
+  const unfencedBlocks: string[] =
+    fencedBlocks.length === 0 ? extractUnfencedBlocks(docComment) : [];
   const blocks: string[] = [...fencedBlocks, ...unfencedBlocks];
   if (blocks.length === 0) return results;
 
-  const funcName: string =
-    ((funcNode.id as AstNode | undefined)?.name as string) ?? '<anonymous>';
+  const funcName: string = ((funcNode.id as AstNode | undefined)?.name as string) ?? '<anonymous>';
 
   for (const block of blocks) {
     if (!oxcParseSync) continue;
@@ -233,7 +233,7 @@ function checkFunction(
         const [firstError]: unknown[] = errors;
         const errorMsg: string =
           typeof firstError === 'object' && firstError !== null
-            ? ((firstError as Record<string, unknown>).message as string) ?? 'parse error' // cast safe: extracting message from error object
+            ? (((firstError as Record<string, unknown>).message as string) ?? 'parse error') // cast safe: extracting message from error object
             : String(firstError);
 
         results.push({

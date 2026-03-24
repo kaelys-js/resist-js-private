@@ -142,12 +142,21 @@ describe('getTextDirection', () => {
 
   // --- Exhaustive RTL language coverage ---
 
-  it.each(['ar', 'arc', 'dv', 'fa', 'he', 'khw', 'ks', 'ps', 'sd', 'ur', 'yi'])(
-    'returns rtl for RTL language %s',
-    (lang: Str) => {
-      const result = getTextDirection(lang);
-      expect(result.ok).toBe(true);
-      if (result.ok) expect(result.data).toBe('rtl');
-    },
-  );
+  it.each([
+    'ar',
+    'arc',
+    'dv',
+    'fa',
+    'he',
+    'khw',
+    'ks',
+    'ps',
+    'sd',
+    'ur',
+    'yi',
+  ])('returns rtl for RTL language %s', (lang: Str) => {
+    const result = getTextDirection(lang);
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('rtl');
+  });
 });

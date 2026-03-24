@@ -21,11 +21,14 @@ const rule: PackageJsonRule = {
     const typeCheck: string | undefined = context.pkg.scripts?.['qa:type-check'];
     if (typeCheck?.includes('svelte-check')) return results;
     const hasTsDep: boolean = Boolean(
-      context.pkg.devDependencies?.['typescript'] ?? context.pkg.dependencies?.['typescript']
+      context.pkg.devDependencies?.['typescript'] ?? context.pkg.dependencies?.['typescript'],
     );
     if (hasTsDep) {
       results.push({
-        file: context.file, line: 1, column: 1, severity: 'error',
+        file: context.file,
+        line: 1,
+        column: 1,
+        severity: 'error',
         message: `Package '${context.pkg.name ?? ''}' has 'typescript' dependency but uses tsgo — remove it`,
         ruleId: 'package/no-tsc-dependency',
         tip: 'Remove typescript from devDependencies — tsgo does not need it',

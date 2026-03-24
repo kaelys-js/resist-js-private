@@ -72,9 +72,7 @@ const rule: TypeScriptRule = {
       if (!properties) return results;
 
       // Count actual properties (excluding spread)
-      const namedProps: AstNode[] = properties.filter(
-        (p: AstNode) => p.type !== 'SpreadElement',
-      );
+      const namedProps: AstNode[] = properties.filter((p: AstNode) => p.type !== 'SpreadElement');
       const propCount: number = namedProps.length;
 
       // Count /** */ block comments at the TOP level only (exclude nested objects)

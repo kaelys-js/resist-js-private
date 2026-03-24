@@ -106,7 +106,10 @@ describe('ensureCommand', () => {
 
 describe('ensureCommandOrFail', () => {
   it('returns ok for existing command', () => {
-    const result: Result<Void> = ensureCommandOrFail('node' as Command, 'brew install node' as Command);
+    const result: Result<Void> = ensureCommandOrFail(
+      'node' as Command,
+      'brew install node' as Command,
+    );
     expect(result.ok).toBe(true);
   });
 
@@ -124,7 +127,9 @@ describe('ensureCommandOrFail', () => {
 
 describe('spawnProcess', () => {
   it('spawns process with pipe stdio when inherit is false', () => {
-    const result: Result<ChildProcess> = spawnProcess('echo' as Command, ['test'], { inherit: false });
+    const result: Result<ChildProcess> = spawnProcess('echo' as Command, ['test'], {
+      inherit: false,
+    });
     expect(result.ok).toBe(true);
     if (result.ok) {
       // Kill the spawned process to avoid hanging

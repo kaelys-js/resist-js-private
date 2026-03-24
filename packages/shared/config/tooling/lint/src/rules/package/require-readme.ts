@@ -106,7 +106,11 @@ function extractReadmeApiFunctions(readme: string): string[] {
   while (match) {
     const name: string = match[1];
     // Skip table headers and common non-function words
-    if (!/^(Export|Function|Kind|Description|Type|Signature|File|Import|Method|Member|Field|Level|Phase|Runtime|Code|When|Source)$/i.test(name)) {
+    if (
+      !/^(Export|Function|Kind|Description|Type|Signature|File|Import|Method|Member|Field|Level|Phase|Runtime|Code|When|Source)$/i.test(
+        name,
+      )
+    ) {
       names.push(name);
     }
     match = regex.exec(readme);
@@ -128,7 +132,10 @@ const rule: PackageJsonRule = {
     // Check 1: README exists
     if (!existsSync(readmePath)) {
       results.push({
-        file: context.file, line: 1, column: 1, severity: 'error',
+        file: context.file,
+        line: 1,
+        column: 1,
+        severity: 'error',
         message: `Package is missing README.md`,
         ruleId: 'package/require-readme',
         tip: 'Create a README.md with title, description, source files, API reference, and usage',
@@ -144,7 +151,10 @@ const rule: PackageJsonRule = {
     const titleMatch: RegExpMatchArray | null = readme.match(/^#\s+(.+)$/m);
     if (!titleMatch) {
       results.push({
-        file: readmePath, line: 1, column: 1, severity: 'error',
+        file: readmePath,
+        line: 1,
+        column: 1,
+        severity: 'error',
         message: 'README.md is missing a title heading',
         ruleId: 'package/require-readme',
         tip: `Add '# ${pkgName}' as the first line`,
@@ -152,7 +162,10 @@ const rule: PackageJsonRule = {
       });
     } else if (titleMatch[1].trim() !== pkgName) {
       results.push({
-        file: readmePath, line: 1, column: 1, severity: 'error',
+        file: readmePath,
+        line: 1,
+        column: 1,
+        severity: 'error',
         message: `README title '${titleMatch[1].trim()}' does not match package name '${pkgName}'`,
         ruleId: 'package/require-readme',
         tip: `Change title to '# ${pkgName}'`,
@@ -164,7 +177,10 @@ const rule: PackageJsonRule = {
     for (const section of REQUIRED_SECTIONS) {
       if (!section.pattern.test(readme)) {
         results.push({
-          file: readmePath, line: 1, column: 1, severity: 'error',
+          file: readmePath,
+          line: 1,
+          column: 1,
+          severity: 'error',
           message: `README.md is missing required section: ${section.label}`,
           ruleId: 'package/require-readme',
           tip: `Add a '## ${section.label}' section`,
@@ -181,7 +197,10 @@ const rule: PackageJsonRule = {
     for (const name of sourceExports) {
       if (!readmeFunctions.includes(name) && !readme.includes(name)) {
         results.push({
-          file: readmePath, line: 1, column: 1, severity: 'error',
+          file: readmePath,
+          line: 1,
+          column: 1,
+          severity: 'error',
           message: `Exported function '${name}' is not documented in README`,
           ruleId: 'package/require-readme',
           tip: `Add '${name}' to the API reference table`,
@@ -194,7 +213,10 @@ const rule: PackageJsonRule = {
     for (const name of readmeFunctions) {
       if (sourceExports.length > 0 && !sourceExports.includes(name) && !/Schema$/.test(name)) {
         results.push({
-          file: readmePath, line: 1, column: 1, severity: 'error',
+          file: readmePath,
+          line: 1,
+          column: 1,
+          severity: 'error',
           message: `README documents '${name}' but it no longer exists in source`,
           ruleId: 'package/require-readme',
           tip: `Remove '${name}' from the API reference — it was deleted from source`,

@@ -129,11 +129,13 @@ describe('setupPreviewWs', (): void => {
     setupPreviewWs(server);
 
     // Get the registered upgrade handler
-    const upgradeCall = httpServer.on.mock.calls.find(
-      (call: unknown[]) => call[0] === 'upgrade',
-    );
+    const upgradeCall = httpServer.on.mock.calls.find((call: unknown[]) => call[0] === 'upgrade');
     expect(upgradeCall).toBeDefined();
-    const handler = upgradeCall![1] as (req: { url?: string }, socket: unknown, head: unknown) => void;
+    const handler = upgradeCall![1] as (
+      req: { url?: string },
+      socket: unknown,
+      head: unknown,
+    ) => void;
 
     // Call with wrong path — should return without error
     const mockSocket = { destroy: vi.fn() };

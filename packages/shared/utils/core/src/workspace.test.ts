@@ -27,10 +27,7 @@ describe('findWorkspaceRoot', () => {
   });
 
   it('finds workspace root with explicit marker', () => {
-    const result: Result<Path> = findWorkspaceRoot(
-      undefined,
-      'pnpm-workspace.yaml' as Filename,
-    );
+    const result: Result<Path> = findWorkspaceRoot(undefined, 'pnpm-workspace.yaml' as Filename);
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toContain('webforge');

@@ -24,7 +24,10 @@
   import DevToolbarAppState from './DevToolbarAppState.svelte';
   import DevToolbarDebug from './DevToolbarDebug.svelte';
   import DevToolbarPerf from './DevToolbarPerf.svelte';
-  import { discoverFeatureFlags, discoverAppPreferences } from '@/utils/devtools/dev-toolbar-registry';
+  import {
+    discoverFeatureFlags,
+    discoverAppPreferences,
+  } from '@/utils/devtools/dev-toolbar-registry';
   import { storageKey } from '$lib/config/app-meta';
   import { FeatureFlagsSchema, AppPreferencesSchema } from '$lib/schemas/editor-state';
   import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';

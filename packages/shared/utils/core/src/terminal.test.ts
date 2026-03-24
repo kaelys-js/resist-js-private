@@ -5,7 +5,14 @@
  */
 
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import type { Bool, ColorLevel, NonNegativeInteger, PositiveInteger, Str, Void } from '@/schemas/common';
+import type {
+  Bool,
+  ColorLevel,
+  NonNegativeInteger,
+  PositiveInteger,
+  Str,
+  Void,
+} from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import {
   setColors,
@@ -77,7 +84,10 @@ describe('getTerminalWidth', () => {
 
 describe('truncateLine', () => {
   it('truncates line to specified width', () => {
-    const result: Result<Str> = truncateLine('Hello, world! This is a long line.', 10 as NonNegativeInteger);
+    const result: Result<Str> = truncateLine(
+      'Hello, world! This is a long line.',
+      10 as NonNegativeInteger,
+    );
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data.length).toBeLessThanOrEqual(15); // includes potential ANSI
   });

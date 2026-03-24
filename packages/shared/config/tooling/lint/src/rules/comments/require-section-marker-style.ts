@@ -23,7 +23,8 @@
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
 
 /** Canonical separator line (77 `=` chars, 80 total with `// `). */
-const CANONICAL_LINE: string = '// =============================================================================';
+const CANONICAL_LINE: string =
+  '// =============================================================================';
 
 /**
  * Pattern matching block-comment section markers: `/* ---...--- *​/`
@@ -113,8 +114,11 @@ const rule: TypeScriptRule = {
         const blockTitle: string | null = extractBlockTitle(line1, line2, line3);
         if (blockTitle) {
           // Calculate byte offset for the fix
-          const startOffset: number = lines.slice(0, i).reduce((sum: number, l: string): number => sum + l.length + 1, 0);
-          const endOffset: number = startOffset + line1.length + 1 + line2.length + 1 + line3.length;
+          const startOffset: number = lines
+            .slice(0, i)
+            .reduce((sum: number, l: string): number => sum + l.length + 1, 0);
+          const endOffset: number =
+            startOffset + line1.length + 1 + line2.length + 1 + line3.length;
 
           results.push({
             file: context.file,
@@ -141,8 +145,11 @@ const rule: TypeScriptRule = {
         if (isTopLevel) {
           const dashTitle: string | null = extractDashTitle(line1, line2, line3);
           if (dashTitle) {
-            const startOffset: number = lines.slice(0, i).reduce((sum: number, l: string): number => sum + l.length + 1, 0);
-            const endOffset: number = startOffset + line1.length + 1 + line2.length + 1 + line3.length;
+            const startOffset: number = lines
+              .slice(0, i)
+              .reduce((sum: number, l: string): number => sum + l.length + 1, 0);
+            const endOffset: number =
+              startOffset + line1.length + 1 + line2.length + 1 + line3.length;
 
             results.push({
               file: context.file,

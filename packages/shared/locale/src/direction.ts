@@ -116,7 +116,9 @@ export function getTextDirection(locale: Str): Result<TextDirection> {
     }
     // textInfo property (Safari)
     if ('textInfo' in intlLocale) {
-      const { textInfo }: { textInfo: { direction: Str } } = intlLocale as Record<Str, unknown> & { textInfo: { direction: Str } }; // cast safe: irreducible — textInfo property not in all TS lib targets
+      const { textInfo }: { textInfo: { direction: Str } } = intlLocale as Record<Str, unknown> & {
+        textInfo: { direction: Str };
+      }; // cast safe: irreducible — textInfo property not in all TS lib targets
       if (textInfo?.direction === 'rtl') return ok(TextDirectionSchema, 'rtl');
       return ok(TextDirectionSchema, 'ltr');
     }

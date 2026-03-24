@@ -27,7 +27,11 @@ import {
   type Path,
   type Void,
 } from '@/schemas/common';
-import { CoreConfigObjectSchema, CoreConfigSchema, type CoreConfig } from '@/schemas/core-config/config';
+import {
+  CoreConfigObjectSchema,
+  CoreConfigSchema,
+  type CoreConfig,
+} from '@/schemas/core-config/config';
 import { ProductConfigSchema, type ProductConfig } from '@/schemas/core-config/product';
 import { ERRORS, type Result, err, ok, okUnchecked } from '@/schemas/result/result';
 import { log } from '@/utils/core/logger';
@@ -42,7 +46,10 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
 // =============================================================================
 
 /** Default config filename — resolved once at module load from static defaults. */
-const filenameResult: Result<Filename> = safeParse(FilenameSchema, defaults.tooling.paths.configFilename);
+const filenameResult: Result<Filename> = safeParse(
+  FilenameSchema,
+  defaults.tooling.paths.configFilename,
+);
 if (!filenameResult.ok) throw filenameResult.error; // integration boundary: module initialization requires valid filename
 // cast safe: safeParse validates and narrows to Filename
 const DEFAULT_CONFIG_FILENAME: Filename = filenameResult.data;

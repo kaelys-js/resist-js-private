@@ -20,7 +20,9 @@
 
   let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => Void } = $props();
 
-  const flags = discoverFeatureFlags(FeatureFlagsSchema.entries as unknown as Record<Str, Record<Str, unknown>>);
+  const flags = discoverFeatureFlags(
+    FeatureFlagsSchema.entries as unknown as Record<Str, Record<Str, unknown>>,
+  );
   let searchQuery: Str = $state('');
 
   const filteredFlags = $derived(

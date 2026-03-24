@@ -85,7 +85,8 @@
     const buildResult = getBuildInfo();
     if (buildResult.ok) {
       // Window interface uses literal key; computed access requires cast
-      (window as unknown as Record<Str, unknown>)[getBuildKey(store.app.appName)] = buildResult.data;
+      (window as unknown as Record<Str, unknown>)[getBuildKey(store.app.appName)] =
+        buildResult.data;
       const b: typeof buildResult.data = buildResult.data;
       // eslint-disable-next-line no-console -- Intentional startup log
       console.log(

@@ -5,7 +5,9 @@ import DevToolbarDebugOverridesTest from './DevToolbarDebugOverridesTest.svelte'
 import { discoverDebugFields } from '@/utils/devtools/dev-toolbar-registry';
 import { DebugStateSchema } from '@/utils/devtools/debug-state-schema';
 
-const debugFields = discoverDebugFields(DebugStateSchema.entries as unknown as Record<string, Record<string, unknown>>);
+const debugFields = discoverDebugFields(
+  DebugStateSchema.entries as unknown as Record<string, Record<string, unknown>>,
+);
 
 describe('DevToolbarDebug', () => {
   it('renders the panel with correct testid', () => {

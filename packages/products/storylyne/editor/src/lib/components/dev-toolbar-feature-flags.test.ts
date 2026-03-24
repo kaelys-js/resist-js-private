@@ -4,7 +4,9 @@ import DevToolbarFeatureFlagsTest from './DevToolbarFeatureFlagsTest.svelte';
 import { discoverFeatureFlags } from '@/utils/devtools/dev-toolbar-registry';
 import { FeatureFlagsSchema } from '$lib/schemas/editor-state';
 
-const flags = discoverFeatureFlags(FeatureFlagsSchema.entries as unknown as Record<string, Record<string, unknown>>);
+const flags = discoverFeatureFlags(
+  FeatureFlagsSchema.entries as unknown as Record<string, Record<string, unknown>>,
+);
 
 describe('DevToolbarFeatureFlags', () => {
   it('renders the panel with correct testid', () => {

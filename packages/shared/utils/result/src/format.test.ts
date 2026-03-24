@@ -96,7 +96,25 @@ describe('formatErrorDebug', () => {
   it('includes validation issues', () => {
     const error = makeError({
       validation: {
-        issues: [{ kind: 'validation' as const, type: 'string' as const, input: '', expected: 'string', received: 'undefined', message: 'Invalid email', path: [{ type: 'object' as const, origin: 'value' as const, input: {}, key: 'email', value: undefined }] }],
+        issues: [
+          {
+            kind: 'validation' as const,
+            type: 'string' as const,
+            input: '',
+            expected: 'string',
+            received: 'undefined',
+            message: 'Invalid email',
+            path: [
+              {
+                type: 'object' as const,
+                origin: 'value' as const,
+                input: {},
+                key: 'email',
+                value: undefined,
+              },
+            ],
+          },
+        ],
         flattened: { nested: { email: ['Invalid email'] } },
       },
     });
@@ -180,7 +198,25 @@ describe('toRfc9457', () => {
     const error = makeError({
       httpStatus: 400,
       validation: {
-        issues: [{ kind: 'validation' as const, type: 'string' as const, input: '', expected: 'string', received: 'undefined', message: 'Required field', path: [{ type: 'object' as const, origin: 'value' as const, input: {}, key: 'name', value: undefined }] }],
+        issues: [
+          {
+            kind: 'validation' as const,
+            type: 'string' as const,
+            input: '',
+            expected: 'string',
+            received: 'undefined',
+            message: 'Required field',
+            path: [
+              {
+                type: 'object' as const,
+                origin: 'value' as const,
+                input: {},
+                key: 'name',
+                value: undefined,
+              },
+            ],
+          },
+        ],
         flattened: { nested: { name: ['Required field'] } },
       },
     });

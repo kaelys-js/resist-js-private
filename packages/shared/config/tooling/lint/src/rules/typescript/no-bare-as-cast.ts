@@ -23,7 +23,8 @@ function hasExplanatoryComment(content: string, line: number): boolean {
   // Check same line for trailing // comment
   if (lineIdx >= 0 && lineIdx < lines.length) {
     const currentLine: string = lines[lineIdx];
-    if (/\/\/.*\b(cast|safe|irreducible|workaround|required|integration)\b/i.test(currentLine)) return true;
+    if (/\/\/.*\b(cast|safe|irreducible|workaround|required|integration)\b/i.test(currentLine))
+      return true;
     if (/\/\//.test(currentLine) && currentLine.indexOf('//') > currentLine.indexOf(' as '))
       return true;
   }
@@ -60,10 +61,7 @@ const rule: TypeScriptRule = {
         );
 
         // Check if a safeParse call precedes this cast (within 500 chars)
-        const beforeCast: string = context.content.slice(
-          Math.max(0, node.start - 500),
-          node.start,
-        );
+        const beforeCast: string = context.content.slice(Math.max(0, node.start - 500), node.start);
         const hasPrecedingSafeParse: boolean = /safeParse\s*\(/.test(beforeCast);
 
         // Find end of line for the fix insertion point

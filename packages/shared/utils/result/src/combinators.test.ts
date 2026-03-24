@@ -5,7 +5,14 @@
  */
 
 import { describe, expect, it, vi } from 'vitest';
-import { type AppError, type KnownErrorCode, type Result, okUnchecked, err, ERRORS } from '@/schemas/result/result';
+import {
+  type AppError,
+  type KnownErrorCode,
+  type Result,
+  okUnchecked,
+  err,
+  ERRORS,
+} from '@/schemas/result/result';
 import {
   map,
   mapErr,
@@ -24,8 +31,10 @@ import {
 // ── Helpers ─────────────────────────────────────────────────────────────
 
 const okResult = <T>(data: T): Result<T> => okUnchecked<T>(data);
-const errResult = <T>(code: KnownErrorCode = ERRORS.INTERNAL.UNEXPECTED, message: string = 'test error'): Result<T> =>
-  err(code, message) as Result<T>;
+const errResult = <T>(
+  code: KnownErrorCode = ERRORS.INTERNAL.UNEXPECTED,
+  message: string = 'test error',
+): Result<T> => err(code, message) as Result<T>;
 
 // ── map ─────────────────────────────────────────────────────────────────
 

@@ -14,10 +14,18 @@ import { dirname, join } from 'node:path';
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
 
 /** Dummy fix for package.json rules. */
-const NO_FIX: { range: { start: number; end: number }; text: string } = { range: { start: 0, end: 0 }, text: '' };
+const NO_FIX: { range: { start: number; end: number }; text: string } = {
+  range: { start: 0, end: 0 },
+  text: '',
+};
 
 /** Config files to check and their required import patterns. */
-const CONFIG_CHECKS: readonly { file: string; pattern: RegExp; required: string; description: string }[] = [
+const CONFIG_CHECKS: readonly {
+  file: string;
+  pattern: RegExp;
+  required: string;
+  description: string;
+}[] = [
   {
     file: 'svelte.config.ts',
     pattern: /createSvelteConfig.*from\s+['"]@\/config\/tooling\/svelte['"]/,

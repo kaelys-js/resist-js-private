@@ -245,7 +245,12 @@ describe('generateDebugUrl', () => {
   } as unknown as DevtoolsConfig;
 
   it('produces URL with debug and app preference params', () => {
-    const url = generateDebugUrl(mockAppStore, mockDebugStore, mockConfig, 'http://localhost:5173/editor');
+    const url = generateDebugUrl(
+      mockAppStore,
+      mockDebugStore,
+      mockConfig,
+      'http://localhost:5173/editor',
+    );
     expect(url).toContain('ta.debug=true');
     expect(url).toContain('ta.logLevel=trace');
     expect(url).toContain('ta.theme=midnight');

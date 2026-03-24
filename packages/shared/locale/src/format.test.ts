@@ -43,12 +43,18 @@ describe('DateTimeStyleSchema', () => {
 });
 
 describe('RelativeTimeUnitSchema', () => {
-  it.each(['second', 'minute', 'hour', 'day', 'week', 'month', 'quarter', 'year'])(
-    'accepts %s',
-    (unit) => {
-      expect(safeParse(RelativeTimeUnitSchema, unit).ok).toBe(true);
-    },
-  );
+  it.each([
+    'second',
+    'minute',
+    'hour',
+    'day',
+    'week',
+    'month',
+    'quarter',
+    'year',
+  ])('accepts %s', (unit) => {
+    expect(safeParse(RelativeTimeUnitSchema, unit).ok).toBe(true);
+  });
 
   it('rejects invalid unit', () => {
     expect(safeParse(RelativeTimeUnitSchema, 'decade').ok).toBe(false);
@@ -80,12 +86,16 @@ describe('ListFormatStyleSchema', () => {
 });
 
 describe('DisplayNameTypeSchema', () => {
-  it.each(['language', 'region', 'currency', 'script', 'calendar', 'dateTimeField'])(
-    'accepts %s',
-    (val) => {
-      expect(safeParse(DisplayNameTypeSchema, val).ok).toBe(true);
-    },
-  );
+  it.each([
+    'language',
+    'region',
+    'currency',
+    'script',
+    'calendar',
+    'dateTimeField',
+  ])('accepts %s', (val) => {
+    expect(safeParse(DisplayNameTypeSchema, val).ok).toBe(true);
+  });
 });
 
 describe('DisplayNameStyleSchema', () => {

@@ -53,7 +53,8 @@ const rule: TypeScriptRule = {
                 line: param.loc.start.line,
                 column: param.loc.start.column + 1,
                 severity: 'error',
-                message: 'Generic function type with `...args: unknown[]` — define specific parameter types',
+                message:
+                  'Generic function type with `...args: unknown[]` — define specific parameter types',
                 ruleId: 'typescript/no-generic-function-type',
                 tip: 'Replace `unknown[]` with specific parameter types for type safety',
               });

@@ -14,8 +14,14 @@ import { createEditorStore } from '$lib/stores/editor-state.svelte';
 import { createDebugStore } from '$lib/stores/debug-state.svelte';
 import type { DevtoolsConfig } from '@/utils/devtools/types';
 
-const flagEntries = FeatureFlagsSchema.entries as unknown as Record<string, Record<string, unknown>>;
-const prefEntries = AppPreferencesSchema.entries as unknown as Record<string, Record<string, unknown>>;
+const flagEntries = FeatureFlagsSchema.entries as unknown as Record<
+  string,
+  Record<string, unknown>
+>;
+const prefEntries = AppPreferencesSchema.entries as unknown as Record<
+  string,
+  Record<string, unknown>
+>;
 const debugEntries = DebugStateSchema.entries as unknown as Record<string, Record<string, unknown>>;
 
 const testConfig: DevtoolsConfig = {
@@ -258,7 +264,12 @@ describe('generateDebugUrl', () => {
     const debugResult = createDebugStore();
     if (!editorResult.ok || !debugResult.ok) throw new Error('Store creation failed');
 
-    const url = generateDebugUrl(editorResult.data, debugResult.data, testConfig, 'https://example.com/editor');
+    const url = generateDebugUrl(
+      editorResult.data,
+      debugResult.data,
+      testConfig,
+      'https://example.com/editor',
+    );
     expect(url).toMatch(/^https:\/\/example\.com\/editor\?/);
   });
 

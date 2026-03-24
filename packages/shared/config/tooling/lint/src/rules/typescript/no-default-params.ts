@@ -44,7 +44,10 @@ function checkParams(
         message: `Parameter '${paramName}' has a default value — defaults belong in Valibot schemas via v.optional(schema, default)`,
         ruleId: 'typescript/no-default-params',
         tip: 'Move the default value into the Valibot schema and remove it from the function signature',
-        fix: { range: { start: param.start, end: param.end }, text: context.getNodeText(left ?? param) },
+        fix: {
+          range: { start: param.start, end: param.end },
+          text: context.getNodeText(left ?? param),
+        },
       });
     }
 
@@ -107,7 +110,8 @@ function getParamName(node: AstNode): string {
 /** Rule definition. */
 const rule: TypeScriptRule = {
   id: 'typescript/no-default-params',
-  description: 'Function parameters must not have defaults or optional markers — use Valibot schemas',
+  description:
+    'Function parameters must not have defaults or optional markers — use Valibot schemas',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
 
   visitor: {

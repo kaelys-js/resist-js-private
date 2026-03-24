@@ -11,7 +11,10 @@
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
 
 /** Dummy fix for package.json rules. */
-const NO_FIX: { range: { start: number; end: number }; text: string } = { range: { start: 0, end: 0 }, text: '' };
+const NO_FIX: { range: { start: number; end: number }; text: string } = {
+  range: { start: 0, end: 0 },
+  text: '',
+};
 
 /** Dependencies that belong in workspace root only, not in sub-packages. */
 const WORKSPACE_ROOT_DEPS: ReadonlySet<string> = new Set([

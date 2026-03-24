@@ -46,8 +46,7 @@ const CUID2_PATTERN: Str = '[a-z][0-9a-z]+';
 const NANOID_PATTERN: Str = '[A-Za-z0-9_-]+';
 
 /** Regex pattern for IPv4 addresses. */
-const IPV4_PATTERN: Str =
-  String.raw`(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)`;
+const IPV4_PATTERN: Str = String.raw`(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)`;
 
 /** Regex pattern for hexadecimal strings. */
 const HEXADECIMAL_PATTERN: Str = '[0-9a-fA-F]+';

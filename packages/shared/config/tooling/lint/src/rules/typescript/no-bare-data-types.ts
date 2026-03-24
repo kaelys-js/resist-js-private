@@ -69,19 +69,21 @@ function checkReturnType(funcNode: AstNode, context: VisitorContext): LintResult
 
   const funcName: string = getFuncName(funcNode, context);
 
-  return [{
-    file: context.file,
-    line: funcNode.loc.start.line,
-    column: funcNode.loc.start.column + 1,
-    severity: 'error',
-    message: `Function '${funcName}' has inline object return type — define a Valibot schema and use the derived type`,
-    ruleId: 'typescript/no-bare-data-types',
-    tip: 'Create a schema: const XSchema = v.strictObject({ ... }); type X = v.InferOutput<typeof XSchema>; then use X as the return type',
-    fix: {
-      range: { start: typeAnnotation.start, end: typeAnnotation.end },
-      text: 'NamedType /* TODO: replace with Valibot-derived type */',
+  return [
+    {
+      file: context.file,
+      line: funcNode.loc.start.line,
+      column: funcNode.loc.start.column + 1,
+      severity: 'error',
+      message: `Function '${funcName}' has inline object return type — define a Valibot schema and use the derived type`,
+      ruleId: 'typescript/no-bare-data-types',
+      tip: 'Create a schema: const XSchema = v.strictObject({ ... }); type X = v.InferOutput<typeof XSchema>; then use X as the return type',
+      fix: {
+        range: { start: typeAnnotation.start, end: typeAnnotation.end },
+        text: 'NamedType /* TODO: replace with Valibot-derived type */',
+      },
     },
-  }];
+  ];
 }
 
 /**
@@ -97,11 +99,14 @@ function checkParamTypes(funcNode: AstNode, context: VisitorContext): LintResult
   if (!params) return results;
 
   for (const param of params) {
-    const typeAnnotation = (param.typeAnnotation as AstNode | undefined)?.typeAnnotation as AstNode | undefined; // cast safe: AST property chain
+    const typeAnnotation = (param.typeAnnotation as AstNode | undefined)?.typeAnnotation as
+      | AstNode
+      | undefined; // cast safe: AST property chain
     if (!typeAnnotation) continue;
     if (typeAnnotation.type !== 'TSTypeLiteral') continue;
 
-    const paramName: string = (param.name as string) ?? ((param.left as AstNode | undefined)?.name as string) ?? 'param'; // cast safe: AST property
+    const paramName: string =
+      (param.name as string) ?? ((param.left as AstNode | undefined)?.name as string) ?? 'param'; // cast safe: AST property
 
     results.push({
       file: context.file,

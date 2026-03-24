@@ -166,8 +166,8 @@ function checkFunction(
     }
   }
 
-  const hasDestructuredParams: boolean = funcParamNames.some(
-    (n: string): boolean => n.startsWith('__destructured_'),
+  const hasDestructuredParams: boolean = funcParamNames.some((n: string): boolean =>
+    n.startsWith('__destructured_'),
   );
 
   for (const docName of docParamNames) {

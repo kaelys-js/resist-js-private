@@ -53,7 +53,9 @@ describe('createLazyPlugin', () => {
       setupFn: 'mySetup',
     });
 
-    await (plugin as { configureServer: (server: unknown) => Promise<void> }).configureServer(mockServer);
+    await (plugin as { configureServer: (server: unknown) => Promise<void> }).configureServer(
+      mockServer,
+    );
 
     expect(mockServer.ssrLoadModule).toHaveBeenCalledWith('./src/test.ts');
     expect(setupFn).toHaveBeenCalledWith(mockServer);
@@ -71,7 +73,9 @@ describe('createLazyPlugin', () => {
     });
 
     await expect(
-      (plugin as { configureServer: (server: unknown) => Promise<void> }).configureServer(mockServer),
+      (plugin as { configureServer: (server: unknown) => Promise<void> }).configureServer(
+        mockServer,
+      ),
     ).resolves.toBeUndefined();
   });
 });

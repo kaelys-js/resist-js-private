@@ -34,7 +34,9 @@
 
   let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => Void } = $props();
 
-  const preferences: FieldDescriptor[] = discoverAppPreferences(AppPreferencesSchema.entries as unknown as Record<Str, Record<Str, unknown>>);
+  const preferences: FieldDescriptor[] = discoverAppPreferences(
+    AppPreferencesSchema.entries as unknown as Record<Str, Record<Str, unknown>>,
+  );
 
   /** Keys that belong to the User section. */
   const USER_KEYS = new Set<Str>(['userName', 'userEmail', 'userAvatar', 'subscriptionPlan']);
