@@ -345,41 +345,61 @@ describe('typescript/no-empty-catch', () => {
     );
   });
 
-  it('warns on catch without err() return', async () => {
-    const code: string = `try { } catch (e) {
-  /* handled */
-  const appError = fromUnknownError(e);
-  console.log(appError);
+  it('warns on catch without err() return in Result function', async () => {
+    const code: string = `function foo(): Result<Str> {
+  try { } catch (e) {
+    /* handled */
+    const appError = fromUnknownError(e);
+    console.log(appError);
+  }
 }`;
     const results: LintResult[] = await lint(noEmptyCatch, code);
     expect(results.some((r: LintResult): boolean => r.message.includes('return err()'))).toBe(true);
   });
 
+  it('skips err() return check in non-Result function', async () => {
+    const code: string = `async function fetchWrapper(): Promise<Response> {
+  try { return await fetch(url); } catch (e) {
+    /* network error */
+    const appError = fromUnknownError(e);
+    throw new Error(appError.message);
+  }
+}`;
+    const results: LintResult[] = await lint(noEmptyCatch, code);
+    expect(results.some((r: LintResult): boolean => r.message.includes('return err()'))).toBe(false);
+  });
+
   it('passes catch with full fromUnknownError + err pattern', async () => {
-    const code: string = `try { } catch (e: unknown) {
-  /* Convert and propagate error */
-  const appError = fromUnknownError(e);
-  return err(ERRORS.IO.READ_FAILED, { cause: appError });
+    const code: string = `function foo(): Result<Str> {
+  try { } catch (e: unknown) {
+    /* Convert and propagate error */
+    const appError = fromUnknownError(e);
+    return err(ERRORS.IO.READ_FAILED, { cause: appError });
+  }
 }`;
     const results: LintResult[] = await lint(noEmptyCatch, code);
     expect(results.length).toBe(0);
   });
 
   it('flags err() without cause in meta', async () => {
-    const code: string = `try { } catch (e: unknown) {
-  /* handled */
-  const appError = fromUnknownError(e);
-  return err(ERRORS.IO.READ_FAILED);
+    const code: string = `function foo(): Result<Str> {
+  try { } catch (e: unknown) {
+    /* handled */
+    const appError = fromUnknownError(e);
+    return err(ERRORS.IO.READ_FAILED);
+  }
 }`;
     const results: LintResult[] = await lint(noEmptyCatch, code);
     expect(results.some((r: LintResult): boolean => r.message.includes('cause'))).toBe(true);
   });
 
   it('flags generic INTERNAL.UNEXPECTED error code', async () => {
-    const code: string = `try { } catch (e: unknown) {
-  /* handled */
-  const appError = fromUnknownError(e);
-  return err(ERRORS.INTERNAL.UNEXPECTED, { cause: appError });
+    const code: string = `function foo(): Result<Str> {
+  try { } catch (e: unknown) {
+    /* handled */
+    const appError = fromUnknownError(e);
+    return err(ERRORS.INTERNAL.UNEXPECTED, { cause: appError });
+  }
 }`;
     const results: LintResult[] = await lint(noEmptyCatch, code);
     expect(results.some((r: LintResult): boolean => r.message.includes('specific error code'))).toBe(true);
