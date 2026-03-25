@@ -20,6 +20,18 @@ import {
 } from './vitals-diagnostics';
 
 // =============================================================================
+// Result Helpers
+// =============================================================================
+
+/**
+ * Unwraps a Result for test assertions, returning the data or null on error.
+ */
+function unwrap<T>(result: { ok: boolean; data?: T | null }): T | null {
+  if ('ok' in result && result.ok && 'data' in result) return result.data ?? null;
+  return null;
+}
+
+// =============================================================================
 // Mock Helpers
 // =============================================================================
 
@@ -148,7 +160,9 @@ describe('vitals-diagnostics', () => {
 
   describe('getThresholds', () => {
     it('returns thresholds for known metrics', () => {
-      const lcp: VitalThresholds | null = getThresholds('LCP');
+      const result = getThresholds('LCP');
+      expect(result.ok).toBe(true);
+      const lcp: VitalThresholds | null = result.ok ? result.data : null;
       expect(lcp).not.toBeNull();
       expect(lcp!.good).toBe(2500);
       expect(lcp!.poor).toBe(4000);
@@ -156,7 +170,9 @@ describe('vitals-diagnostics', () => {
     });
 
     it('returns CLS thresholds with score unit', () => {
-      const cls: VitalThresholds | null = getThresholds('CLS');
+      const clsResult = getThresholds('CLS');
+      expect(clsResult.ok).toBe(true);
+      const cls: VitalThresholds | null = clsResult.ok ? clsResult.data : null;
       expect(cls).not.toBeNull();
       expect(cls!.good).toBe(0.1);
       expect(cls!.poor).toBe(0.25);
@@ -164,14 +180,17 @@ describe('vitals-diagnostics', () => {
     });
 
     it('returns null for unknown metrics', () => {
-      expect(getThresholds('UNKNOWN')).toBeNull();
-      expect(getThresholds('navigationTiming')).toBeNull();
+      const r1 = getThresholds('UNKNOWN');
+      expect(r1.ok && r1.data).toBeNull();
+      const r2 = getThresholds('navigationTiming');
+      expect(r2.ok && r2.data).toBeNull();
     });
 
     it('has thresholds for all core Web Vitals', () => {
       const coreMetrics: Str[] = ['LCP', 'CLS', 'FCP', 'TTFB', 'INP', 'FID', 'TBT', 'NTBT'];
       for (const name of coreMetrics) {
-        expect(getThresholds(name), `Missing thresholds for ${name}`).not.toBeNull();
+        const r = getThresholds(name);
+        expect(r.ok && r.data, `Missing thresholds for ${name}`).not.toBeNull();
       }
     });
   });
@@ -180,13 +199,15 @@ describe('vitals-diagnostics', () => {
 
   describe('formatThresholds', () => {
     it('formats timing thresholds with ms suffix', () => {
-      const result: Str = formatThresholds({ good: 2500, poor: 4000, unit: 'ms' });
-      expect(result).toBe('good < 2500ms · poor > 4000ms');
+      const fmtResult = formatThresholds({ good: 2500, poor: 4000, unit: 'ms' });
+      expect(fmtResult.ok).toBe(true);
+      if (fmtResult.ok) expect(fmtResult.data).toBe('good < 2500ms \u00B7 poor > 4000ms');
     });
 
     it('formats score thresholds without suffix', () => {
-      const result: Str = formatThresholds({ good: 0.1, poor: 0.25, unit: 'score' });
-      expect(result).toBe('good < 0.1 · poor > 0.25');
+      const fmtResult = formatThresholds({ good: 0.1, poor: 0.25, unit: 'score' });
+      expect(fmtResult.ok).toBe(true);
+      if (fmtResult.ok) expect(fmtResult.data).toBe('good < 0.1 \u00B7 poor > 0.25');
     });
   });
 
@@ -194,23 +215,26 @@ describe('vitals-diagnostics', () => {
 
   describe('collectDiagnostics', () => {
     it('returns null for good ratings', () => {
-      expect(collectDiagnostics('LCP', 1200, 'good')).toBeNull();
-      expect(collectDiagnostics('CLS', 0.05, 'good')).toBeNull();
+      const r1 = collectDiagnostics('LCP', 1200, 'good');
+      expect(r1.ok && r1.data).toBeNull();
+      const r2 = collectDiagnostics('CLS', 0.05, 'good');
+      expect(r2.ok && r2.data).toBeNull();
     });
 
     it('returns null for unknown metrics', () => {
-      expect(collectDiagnostics('UNKNOWN', 100, 'poor')).toBeNull();
+      const rUnknown = collectDiagnostics('UNKNOWN', 100, 'poor');
+      expect(rUnknown.ok && rUnknown.data).toBeNull();
     });
 
     it('returns thresholds for non-good metrics', () => {
-      const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 3000, 'needsImprovement');
+      const diag = unwrap(collectDiagnostics('LCP', 3000, 'needsImprovement'));
       expect(diag).not.toBeNull();
       expect(diag!.thresholds.good).toBe(2500);
       expect(diag!.thresholds.poor).toBe(4000);
     });
 
     it('returns findings array (may be empty if APIs unavailable)', () => {
-      const diag: VitalDiagnostics | null = collectDiagnostics('TTFB', 2000, 'poor');
+      const diag = unwrap(collectDiagnostics('TTFB', 2000, 'poor'));
       expect(diag).not.toBeNull();
       expect(Array.isArray(diag!.findings)).toBe(true);
     });
@@ -231,7 +255,7 @@ describe('vitals-diagnostics', () => {
         }),
       ]);
 
-      const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 3000, 'needsImprovement');
+      const diag = unwrap(collectDiagnostics('LCP', 3000, 'needsImprovement'));
       expect(diag).not.toBeNull();
 
       const labels: Str[] = diag!.findings.map((f) => f.label);
@@ -247,7 +271,7 @@ describe('vitals-diagnostics', () => {
       const el: Element = mockElement('div', 'main-banner', true);
       _injectLCPEntries([mockLCPEntry({ element: el, renderTime: 3000 })]);
 
-      const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 3500, 'poor');
+      const diag = unwrap(collectDiagnostics('LCP', 3500, 'poor'));
       const elementFinding = diag!.findings.find((f) => f.label === 'LCP Element');
       expect(elementFinding!.value).toBe('<div#main-banner>');
     });
@@ -255,13 +279,13 @@ describe('vitals-diagnostics', () => {
     it('shows timing breakdown with load and render delay', () => {
       _injectLCPEntries([mockLCPEntry({ loadTime: 1500, renderTime: 2200 })]);
 
-      const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 2800, 'needsImprovement');
+      const diag = unwrap(collectDiagnostics('LCP', 2800, 'needsImprovement'));
       const timing = diag!.findings.find((f) => f.label === 'Timing');
       expect(timing!.value).toBe('load 1500ms + render delay 700ms');
     });
 
     it('returns empty findings when no LCP entries exist', () => {
-      const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 5000, 'poor');
+      const diag = unwrap(collectDiagnostics('LCP', 5000, 'poor'));
       expect(diag!.findings).toHaveLength(0);
     });
   });
@@ -276,7 +300,7 @@ describe('vitals-diagnostics', () => {
         mockLayoutShiftEntry({ value: 0.02, hadRecentInput: true }),
       ]);
 
-      const diag: VitalDiagnostics | null = collectDiagnostics('CLS', 0.15, 'needsImprovement');
+      const diag = unwrap(collectDiagnostics('CLS', 0.15, 'needsImprovement'));
       const shiftCount = diag!.findings.find((f) => f.label === 'Layout Shifts');
       expect(shiftCount!.value).toBe('2 unexpected (3 total)');
     });
@@ -297,7 +321,7 @@ describe('vitals-diagnostics', () => {
         }),
       ]);
 
-      const diag: VitalDiagnostics | null = collectDiagnostics('CLS', 0.3, 'poor');
+      const diag = unwrap(collectDiagnostics('CLS', 0.3, 'poor'));
       const largest = diag!.findings.find((f) => f.label === 'Largest Shift');
       expect(largest).toBeDefined();
       expect(largest!.value).toContain('<div.ad-banner>');
@@ -316,7 +340,7 @@ describe('vitals-diagnostics', () => {
         return [];
       }) as typeof performance.getEntriesByType);
 
-      const diag: VitalDiagnostics | null = collectDiagnostics('TTFB', 1200, 'needsImprovement');
+      const diag = unwrap(collectDiagnostics('TTFB', 1200, 'needsImprovement'));
       const waterfall = diag!.findings.find((f) => f.label === 'Waterfall');
       expect(waterfall).toBeDefined();
       expect(waterfall!.value).toContain('DNS');
@@ -339,7 +363,7 @@ describe('vitals-diagnostics', () => {
         return [];
       }) as typeof performance.getEntriesByType);
 
-      const diag: VitalDiagnostics | null = collectDiagnostics('TTFB', 1800, 'poor');
+      const diag = unwrap(collectDiagnostics('TTFB', 1800, 'poor'));
       const bottleneck = diag!.findings.find((f) => f.label === 'Bottleneck');
       expect(bottleneck).toBeDefined();
       expect(bottleneck!.value).toContain('Server response');
@@ -372,7 +396,7 @@ describe('vitals-diagnostics', () => {
         return [];
       }) as typeof performance.getEntriesByType);
 
-      const diag: VitalDiagnostics | null = collectDiagnostics('FCP', 2500, 'needsImprovement');
+      const diag = unwrap(collectDiagnostics('FCP', 2500, 'needsImprovement'));
       const blocking = diag!.findings.find((f) => f.label === 'Render-Blocking');
       expect(blocking).toBeDefined();
       expect(blocking!.value).toBe('2 resources');
@@ -389,7 +413,7 @@ describe('vitals-diagnostics', () => {
         return [];
       }) as typeof performance.getEntriesByType);
 
-      const diag: VitalDiagnostics | null = collectDiagnostics('FCP', 2000, 'needsImprovement');
+      const diag = unwrap(collectDiagnostics('FCP', 2000, 'needsImprovement'));
       const ttfbImpact = diag!.findings.find((f) => f.label === 'TTFB Impact');
       expect(ttfbImpact).toBeDefined();
       expect(ttfbImpact!.value).toContain('900ms');
@@ -402,7 +426,7 @@ describe('vitals-diagnostics', () => {
 
   describe('INP diagnostics', () => {
     it('shows note when no interactions recorded', () => {
-      const diag: VitalDiagnostics | null = collectDiagnostics('INP', 300, 'needsImprovement');
+      const diag = unwrap(collectDiagnostics('INP', 300, 'needsImprovement'));
       const note = diag!.findings.find((f) => f.label === 'Note');
       expect(note).toBeDefined();
       expect(note!.value).toContain('No interactions recorded');
@@ -413,7 +437,7 @@ describe('vitals-diagnostics', () => {
 
   describe('TBT diagnostics', () => {
     it('shows message when no long tasks observed', () => {
-      const diag: VitalDiagnostics | null = collectDiagnostics('TBT', 300, 'needsImprovement');
+      const diag = unwrap(collectDiagnostics('TBT', 300, 'needsImprovement'));
       const tasks = diag!.findings.find((f) => f.label === 'Long Tasks');
       expect(tasks).toBeDefined();
       expect(tasks!.value).toContain('None observed');
@@ -446,15 +470,15 @@ describe('vitals-diagnostics', () => {
         throw new Error('Not supported');
       });
 
-      const diag: VitalDiagnostics | null = collectDiagnostics('TTFB', 2000, 'poor');
-      expect(diag).not.toBeNull();
-      expect(diag!.findings).toHaveLength(0);
+      // When the performance API throws, collectDiagnostics returns an err Result
+      const result = collectDiagnostics('TTFB', 2000, 'poor');
+      expect(result.ok).toBe(false);
     });
 
     it('handles LCP entry with null element gracefully', () => {
       _injectLCPEntries([mockLCPEntry({ element: null, loadTime: 1500, renderTime: 2000 })]);
 
-      const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 3000, 'needsImprovement');
+      const diag = unwrap(collectDiagnostics('LCP', 3000, 'needsImprovement'));
       const labels: Str[] = diag!.findings.map((f) => f.label);
       expect(labels).not.toContain('LCP Element');
       expect(labels).toContain('Timing');
@@ -506,7 +530,7 @@ describe('vitals-diagnostics', () => {
         },
       ]);
 
-      const diag: VitalDiagnostics | null = collectDiagnostics('CLS', 0.2, 'needsImprovement');
+      const diag = unwrap(collectDiagnostics('CLS', 0.2, 'needsImprovement'));
       expect(diag).not.toBeNull();
       // Should contain movement detail with dx direction
       const shiftFinding = diag!.findings.find((f) => f.label === 'Shifted Element');
@@ -520,7 +544,7 @@ describe('vitals-diagnostics', () => {
     it('reports render-only timing when loadTime is 0', () => {
       _injectLCPEntries([mockLCPEntry({ renderTime: 2000, loadTime: 0 })]);
 
-      const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 3000, 'needsImprovement');
+      const diag = unwrap(collectDiagnostics('LCP', 3000, 'needsImprovement'));
       expect(diag).not.toBeNull();
       const renderFinding = diag!.findings.find((f) => f.label === 'Render Time');
       expect(renderFinding).toBeDefined();
@@ -532,7 +556,7 @@ describe('vitals-diagnostics', () => {
     it('reports load-only timing when renderTime is 0', () => {
       _injectLCPEntries([mockLCPEntry({ renderTime: 0, loadTime: 1500 })]);
 
-      const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 3000, 'needsImprovement');
+      const diag = unwrap(collectDiagnostics('LCP', 3000, 'needsImprovement'));
       expect(diag).not.toBeNull();
       const loadFinding = diag!.findings.find((f) => f.label === 'Load Time');
       expect(loadFinding).toBeDefined();

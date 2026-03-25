@@ -288,7 +288,9 @@ export function createDevtoolsAPI(
 
     perf: {
       vitals(): PanelMetric[] {
-        return $state.snapshot(getVitalsPanelMetrics()) as PanelMetric[];
+        const result = getVitalsPanelMetrics();
+        if (!result.ok) return [];
+        return $state.snapshot(result.data) as PanelMetric[];
       },
 
       beacon(): BeaconStatus {
@@ -300,7 +302,8 @@ export function createDevtoolsAPI(
       },
 
       logVitals(): Void {
-        const metrics: PanelMetric[] = getVitalsPanelMetrics();
+        const vitalsResult = getVitalsPanelMetrics();
+        const metrics: PanelMetric[] = vitalsResult.ok ? (vitalsResult.data as PanelMetric[]) : [];
         if (metrics.length === 0) {
           console.log(
             '%c[Perf] %cNo Web Vitals collected yet',

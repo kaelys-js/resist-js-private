@@ -41,7 +41,7 @@ describe('vitals logger', () => {
 
   describe('format', () => {
     it('formats timing metrics with ms suffix', () => {
-      logVital('LCP', 2450, 'needsImprovement');
+      logVital('LCP', 2450, 'needsImprovement', null);
       expect(mockConsoleLog).toHaveBeenCalledOnce();
       const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
       expect(fmt).toContain('LCP');
@@ -50,7 +50,7 @@ describe('vitals logger', () => {
     });
 
     it('formats non-timing metrics without ms suffix', () => {
-      logVital('CLS', 0.05, 'good');
+      logVital('CLS', 0.05, 'good', null);
       expect(mockConsoleLog).toHaveBeenCalledOnce();
       const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
       expect(fmt).toContain('CLS');
@@ -59,43 +59,43 @@ describe('vitals logger', () => {
     });
 
     it('rounds timing metric values', () => {
-      logVital('FCP', 1234.567, 'good');
+      logVital('FCP', 1234.567, 'good', null);
       const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
       expect(fmt).toContain('1235ms');
     });
 
     it('does not round non-timing metrics', () => {
-      logVital('CLS', 0.123, 'good');
+      logVital('CLS', 0.123, 'good', null);
       const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
       expect(fmt).toContain('0.123');
     });
 
     it('includes rating icon for good', () => {
-      logVital('TTFB', 100, 'good');
+      logVital('TTFB', 100, 'good', null);
       const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
       expect(fmt).toContain('✓');
     });
 
     it('includes rating icon for needsImprovement', () => {
-      logVital('LCP', 3000, 'needsImprovement');
+      logVital('LCP', 3000, 'needsImprovement', null);
       const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
       expect(fmt).toContain('⚠');
     });
 
     it('includes rating icon for poor', () => {
-      logVital('INP', 650, 'poor');
+      logVital('INP', 650, 'poor', null);
       const fmt: Str = mockConsoleWarn.mock.calls[0][0] as Str;
       expect(fmt).toContain('✗');
     });
 
     it('includes app name prefix', () => {
-      logVital('FCP', 1000, 'good');
+      logVital('FCP', 1000, 'good', null);
       const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
       expect(fmt).toContain('[TestApp]');
     });
 
     it('uses %c CSS formatting with style arguments', () => {
-      logVital('LCP', 2450, 'good');
+      logVital('LCP', 2450, 'good', null);
       const call: unknown[] = mockConsoleLog.mock.calls[0] as unknown[];
       const fmt: Str = call[0] as Str;
       // Format string should contain 4 %c directives
@@ -116,19 +116,19 @@ describe('vitals logger', () => {
     const timingMetrics: readonly Str[] = ['TTFB', 'FCP', 'LCP', 'FID', 'INP', 'TBT', 'NTBT'];
 
     it.each(timingMetrics)('treats %s as a timing metric (ms suffix)', (metric: Str) => {
-      logVital(metric, 100, 'good');
+      logVital(metric, 100, 'good', null);
       const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
       expect(fmt).toContain('ms');
     });
 
     it('treats CLS as a non-timing metric (no ms suffix)', () => {
-      logVital('CLS', 0.1, 'good');
+      logVital('CLS', 0.1, 'good', null);
       const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
       expect(fmt).not.toContain('ms');
     });
 
     it('treats navigationTiming as a non-timing metric', () => {
-      logVital('navigationTiming', 0, 'good');
+      logVital('navigationTiming', 0, 'good', null);
       const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
       expect(fmt).not.toContain('ms');
     });
@@ -142,19 +142,19 @@ describe('vitals logger', () => {
     });
 
     it('logs good metrics via console.log in dev', () => {
-      logVital('CLS', 0.05, 'good');
+      logVital('CLS', 0.05, 'good', null);
       expect(mockConsoleLog).toHaveBeenCalledOnce();
       expect(mockConsoleWarn).not.toHaveBeenCalled();
     });
 
     it('logs needsImprovement metrics via console.log in dev', () => {
-      logVital('LCP', 2500, 'needsImprovement');
+      logVital('LCP', 2500, 'needsImprovement', null);
       expect(mockConsoleLog).toHaveBeenCalledOnce();
       expect(mockConsoleWarn).not.toHaveBeenCalled();
     });
 
     it('logs poor metrics via console.warn in dev', () => {
-      logVital('INP', 650, 'poor');
+      logVital('INP', 650, 'poor', null);
       expect(mockConsoleWarn).toHaveBeenCalledOnce();
       expect(mockConsoleLog).not.toHaveBeenCalled();
     });
@@ -168,19 +168,19 @@ describe('vitals logger', () => {
     });
 
     it('does not log good metrics in prod', () => {
-      logVital('CLS', 0.05, 'good');
+      logVital('CLS', 0.05, 'good', null);
       expect(mockConsoleLog).not.toHaveBeenCalled();
       expect(mockConsoleWarn).not.toHaveBeenCalled();
     });
 
     it('does not log needsImprovement metrics in prod', () => {
-      logVital('LCP', 2500, 'needsImprovement');
+      logVital('LCP', 2500, 'needsImprovement', null);
       expect(mockConsoleLog).not.toHaveBeenCalled();
       expect(mockConsoleWarn).not.toHaveBeenCalled();
     });
 
     it('logs poor metrics via console.warn in prod', () => {
-      logVital('INP', 650, 'poor');
+      logVital('INP', 650, 'poor', null);
       expect(mockConsoleWarn).toHaveBeenCalledOnce();
       expect(mockConsoleLog).not.toHaveBeenCalled();
     });
@@ -191,7 +191,7 @@ describe('vitals logger', () => {
   describe('setVitalsLoggerAppName', () => {
     it('uses custom app name in log prefix', () => {
       setVitalsLoggerAppName('MyCustomApp');
-      logVital('FCP', 1000, 'good');
+      logVital('FCP', 1000, 'good', null);
       const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
       expect(fmt).toContain('[MyCustomApp]');
     });
@@ -201,7 +201,7 @@ describe('vitals logger', () => {
 
   describe('return type', () => {
     it('returns Result<Void> success', () => {
-      const result: Result<Void> = logVital('LCP', 2450, 'needsImprovement');
+      const result: Result<Void> = logVital('LCP', 2450, 'needsImprovement', null);
       expect(result.ok).toBe(true);
     });
   });
@@ -213,10 +213,10 @@ describe('vitals logger', () => {
       const mockGroupEnd: ReturnType<typeof vi.fn> = vi.spyOn(console, 'groupEnd');
 
       const diagnostics = {
-        thresholds: { good: 2500, poor: 4000, unit: 'ms' },
-        findings: [{ label: 'Slow Resource', detail: 'Image load delay', severity: 'medium' }],
+        thresholds: { good: 2500, poor: 4000, unit: 'ms' as const },
+        findings: [{ label: 'Slow Resource', value: 'Image load delay' }],
       };
-      logVital('LCP', 2000, 'needsImprovement', diagnostics as never);
+      logVital('LCP', 2000, 'needsImprovement', diagnostics);
 
       expect(mockGroupCollapsed).toHaveBeenCalledOnce();
       expect(mockGroupEnd).toHaveBeenCalledOnce();
@@ -227,25 +227,25 @@ describe('vitals logger', () => {
       const mockConsoleLog: ReturnType<typeof vi.fn> = vi.spyOn(console, 'log');
 
       const diagnostics = {
-        thresholds: { good: 1800, poor: 3000, unit: 'ms' },
+        thresholds: { good: 1800, poor: 3000, unit: 'ms' as const },
         findings: [],
       };
       // Empty findings → hasDiagnostics is false → plain console.log
-      logVital('FCP', 1200, 'good', diagnostics as never);
+      logVital('FCP', 1200, 'good', diagnostics);
 
       expect(mockConsoleLog).toHaveBeenCalled();
     });
 
-    it('handles finding with empty label', () => {
+    it('handles finding with diagnostics and uses groupCollapsed', () => {
       import.meta.env.DEV = true;
       const mockGroupCollapsed: ReturnType<typeof vi.fn> = vi.spyOn(console, 'groupCollapsed');
 
       const diagnostics = {
-        thresholds: { good: 2500, poor: 4000, unit: 'ms' },
-        findings: [{ label: '', detail: 'unlabelled detail', severity: 'medium' }],
+        thresholds: { good: 2500, poor: 4000, unit: 'ms' as const },
+        findings: [{ label: 'Detail', value: 'unlabelled detail' }],
       };
       // Non-empty findings → hasDiagnostics is true → should use groupCollapsed
-      logVital('LCP', 3000, 'needsImprovement', diagnostics as never);
+      logVital('LCP', 3000, 'needsImprovement', diagnostics);
 
       expect(mockGroupCollapsed).toHaveBeenCalled();
     });

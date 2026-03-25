@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { Num, Bool, Void } from '@/schemas/common';
+import type { Num, Bool, Void, Name } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import type { VitalsMetric, VitalsDevice } from './vitals-payload';
 import {
@@ -18,6 +18,7 @@ import {
   setDeviceInfo,
   getBeaconStatus,
   resetBeacon,
+  type BeaconStatus,
 } from './vitals-beacon';
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
@@ -46,7 +47,7 @@ vi.mock('@/utils/core/logger', () => ({
  */
 function createMetric(overrides: Partial<VitalsMetric> = {}): VitalsMetric {
   return {
-    name: 'LCP',
+    name: 'LCP' as Name, // cast safe: test fixture with valid Name
     value: 2450,
     rating: 'needsImprovement',
     navigationType: 'navigate',
@@ -68,6 +69,18 @@ function createDevice(): VitalsDevice {
     effectiveType: '4g',
     saveData: false,
   };
+}
+
+/**
+ * Unwraps getBeaconStatus() Result, failing the test if not ok.
+ *
+ * @returns The BeaconStatus data
+ */
+function unwrapStatus(): BeaconStatus {
+  const result: Result<BeaconStatus> = getBeaconStatus();
+  expect(result.ok).toBe(true);
+  if (!result.ok) throw new Error('getBeaconStatus() failed');
+  return result.data as BeaconStatus; // cast safe: ok-checked Result data
 }
 
 // ── Tests ──────────────────────────────────────────────────────────────────
@@ -106,24 +119,24 @@ describe('vitals beacon', () => {
     it('adds a metric to the internal queue', () => {
       const result: Result<Void> = queueVital(createMetric());
       expect(result.ok).toBe(true);
-      expect(getBeaconStatus().queued).toBe(1);
+      expect(unwrapStatus().queued).toBe(1);
     });
 
     it('increments queue count with multiple metrics', () => {
-      queueVital(createMetric({ name: 'LCP' }));
-      queueVital(createMetric({ name: 'FCP' }));
-      queueVital(createMetric({ name: 'CLS', value: 0.05, rating: 'good' }));
-      expect(getBeaconStatus().queued).toBe(3);
+      queueVital(createMetric({ name: 'LCP' as Name }));
+      queueVital(createMetric({ name: 'FCP' as Name }));
+      queueVital(createMetric({ name: 'CLS' as Name, value: 0.05, rating: 'good' }));
+      expect(unwrapStatus().queued).toBe(3);
     });
 
     it('auto-flushes at MAX_QUEUE_SIZE (10)', () => {
       setDeviceInfo(createDevice());
       for (let i: Num = 0; i < 10; i++) {
-        queueVital(createMetric({ name: `M${String(i)}` }));
+        queueVital(createMetric({ name: `M${String(i)}` as Name }));
       }
       // Should have auto-flushed after 10th item
       expect(mockSendBeacon).toHaveBeenCalledOnce();
-      expect(getBeaconStatus().queued).toBe(0);
+      expect(unwrapStatus().queued).toBe(0);
     });
   });
 
@@ -150,15 +163,15 @@ describe('vitals beacon', () => {
       setDeviceInfo(createDevice());
       queueVital(createMetric());
       flushVitals();
-      expect(getBeaconStatus().queued).toBe(0);
+      expect(unwrapStatus().queued).toBe(0);
     });
 
     it('updates lastFlushAt timestamp', () => {
       setDeviceInfo(createDevice());
       queueVital(createMetric());
-      expect(getBeaconStatus().lastFlushAt).toBeNull();
+      expect(unwrapStatus().lastFlushAt).toBeNull();
       flushVitals();
-      expect(getBeaconStatus().lastFlushAt).not.toBeNull();
+      expect(unwrapStatus().lastFlushAt).not.toBeNull();
     });
 
     it('skips beacon in dev mode', () => {
@@ -168,7 +181,7 @@ describe('vitals beacon', () => {
       flushVitals();
       expect(mockSendBeacon).not.toHaveBeenCalled();
       // Queue should still be cleared
-      expect(getBeaconStatus().queued).toBe(0);
+      expect(unwrapStatus().queued).toBe(0);
     });
   });
 
@@ -188,7 +201,7 @@ describe('vitals beacon', () => {
 
       // Queue a metric
       queueVital(createMetric());
-      expect(getBeaconStatus().queued).toBe(1);
+      expect(unwrapStatus().queued).toBe(1);
 
       // Capture the visibilitychange callback and invoke it
       const visibilityCallback = mockAddEventListener.mock.calls.find(
@@ -205,7 +218,7 @@ describe('vitals beacon', () => {
       visibilityCallback();
 
       // Queue should be flushed
-      expect(getBeaconStatus().queued).toBe(0);
+      expect(unwrapStatus().queued).toBe(0);
     });
   });
 
@@ -223,7 +236,7 @@ describe('vitals beacon', () => {
 
   describe('getBeaconStatus', () => {
     it('returns initial status', () => {
-      const status = getBeaconStatus();
+      const status: BeaconStatus = unwrapStatus();
       expect(status.queued).toBe(0);
       expect(status.queuedItems).toEqual([]);
       expect(status.lastFlushAt).toBeNull();
@@ -232,9 +245,9 @@ describe('vitals beacon', () => {
     });
 
     it('returns queued metric items with name, value, and rating', () => {
-      queueVital(createMetric({ name: 'LCP', value: 2450, rating: 'needsImprovement' }));
-      queueVital(createMetric({ name: 'FCP', value: 1200, rating: 'good' }));
-      const status = getBeaconStatus();
+      queueVital(createMetric({ name: 'LCP' as Name, value: 2450, rating: 'needsImprovement' }));
+      queueVital(createMetric({ name: 'FCP' as Name, value: 1200, rating: 'good' }));
+      const status: BeaconStatus = unwrapStatus();
       expect(status.queuedItems).toEqual([
         { name: 'LCP', value: 2450, rating: 'needsImprovement' },
         { name: 'FCP', value: 1200, rating: 'good' },
@@ -272,7 +285,7 @@ describe('vitals beacon', () => {
       // @ts-expect-error — removing fetch for test
       delete globalThis.fetch;
 
-      queueVital({ name: 'FCP', value: 1200, rating: 'good', navigationType: 'navigate' });
+      queueVital({ name: 'FCP' as Name, value: 1200, rating: 'good', navigationType: 'navigate' });
 
       // Should not throw
       const result = flushVitals();
@@ -282,8 +295,8 @@ describe('vitals beacon', () => {
     });
 
     it('resetBeacon clears queue and resets state', () => {
-      queueVital({ name: 'LCP', value: 2500, rating: 'good', navigationType: 'navigate' });
-      const statusBefore = getBeaconStatus();
+      queueVital({ name: 'LCP' as Name, value: 2500, rating: 'good', navigationType: 'navigate' });
+      const statusBefore: BeaconStatus = unwrapStatus();
       expect(statusBefore.queued).toBe(1);
 
       // Change the UUID mock so resetBeacon generates a different sessionId
@@ -299,7 +312,7 @@ describe('vitals beacon', () => {
 
       resetBeacon();
 
-      const statusAfter = getBeaconStatus();
+      const statusAfter: BeaconStatus = unwrapStatus();
       expect(statusAfter.queued).toBe(0);
       expect(statusAfter.lastFlushAt).toBeNull();
     });

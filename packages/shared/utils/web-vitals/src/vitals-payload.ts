@@ -14,10 +14,15 @@
  */
 
 import * as v from 'valibot';
-import type { Str } from '@/schemas/common';
-import { okUnchecked, type Result } from '@/schemas/result/result';
 
-// ── Schemas ─────────────────────────────────────────────────────────────────
+import type { NonNegativeInteger, Num, Str } from '@/schemas/common';
+import type { Uuid, RelativeUrl, IsoTimestamp } from '@/schemas/common';
+import { IsoTimestampSchema, NameSchema, UuidSchema, RelativeUrlSchema } from '@/schemas/common';
+import { ok, okUnchecked, type Result } from '@/schemas/result/result';
+import { safeParse } from '@/utils/result/safe';
+
+// ===
+// Schemas
 
 /**
  * Schema for a single Web Vitals metric entry.
@@ -34,17 +39,14 @@ import { okUnchecked, type Result } from '@/schemas/result/result';
  */
 export const VitalsMetricSchema = v.strictObject({
   /** Web Vital metric name (e.g. 'LCP', 'FCP', 'CLS'). */
-  name: v.pipe(v.string(), v.minLength(1)),
+  name: NameSchema,
   /** Metric value in milliseconds (or unitless for CLS). */
   value: v.number(),
   /** Performance rating based on Web Vitals thresholds. */
   rating: v.picklist(['good', 'needsImprovement', 'poor']),
   /** How the user navigated to the page (e.g. 'navigate', 'reload', 'back_forward'). */
-  navigationType: v.string(),
+  navigationType: v.pipe(v.string(), v.minLength(1), v.maxLength(50)),
 });
-
-/** Inferred type for a single vitals metric. */
-export type VitalsMetric = v.InferOutput<typeof VitalsMetricSchema>;
 
 /**
  * Schema for device and network context included in beacon payloads.
@@ -62,13 +64,10 @@ export const VitalsDeviceSchema = v.strictObject({
   /** Logical CPU core count. */
   hardwareConcurrency: v.number(),
   /** Network effective type at page load (e.g. '4g', '3g', '2g'). */
-  effectiveType: v.string(),
+  effectiveType: v.pipe(v.string(), v.minLength(1), v.maxLength(10)),
   /** Whether user has data-saver enabled. */
   saveData: v.boolean(),
 });
-
-/** Inferred type for device context. */
-export type VitalsDevice = v.InferOutput<typeof VitalsDeviceSchema>;
 
 /**
  * Schema for the full vitals beacon payload.
@@ -86,21 +85,31 @@ export type VitalsDevice = v.InferOutput<typeof VitalsDeviceSchema>;
  */
 export const VitalsBeaconPayloadSchema = v.strictObject({
   /** Random session identifier (no PII — generated per page load, not persisted). */
-  sessionId: v.pipe(v.string(), v.uuid()),
+  sessionId: UuidSchema,
   /** Page URL path (no query params or hash — PII risk). */
-  url: v.string(),
+  url: RelativeUrlSchema,
   /** ISO 8601 timestamp of beacon flush. */
-  timestamp: v.pipe(v.string(), v.isoTimestamp()),
+  timestamp: IsoTimestampSchema,
   /** Array of collected metrics since last flush. */
   metrics: v.array(VitalsMetricSchema),
   /** Device and network context. */
   device: VitalsDeviceSchema,
 });
 
-/** Inferred type for the full beacon payload. */
+// ===
+// Types
+
+/** Inferred type for a single vitals metric. {@link VitalsMetricSchema} */
+export type VitalsMetric = v.InferOutput<typeof VitalsMetricSchema>;
+
+/** Inferred type for device context. {@link VitalsDeviceSchema} */
+export type VitalsDevice = v.InferOutput<typeof VitalsDeviceSchema>;
+
+/** Inferred type for the full beacon payload. {@link VitalsBeaconPayloadSchema} */
 export type VitalsBeaconPayload = v.InferOutput<typeof VitalsBeaconPayloadSchema>;
 
-// ── Conversion ──────────────────────────────────────────────────────────────
+// ===
+// API
 
 /**
  * Strips query parameters and hash from a URL path for PII safety.
@@ -112,13 +121,15 @@ export type VitalsBeaconPayload = v.InferOutput<typeof VitalsBeaconPayloadSchema
  * stripUrlParams('/scenes/1?token=secret#section')
  * // Returns: '/scenes/1'
  */
-function stripUrlParams(url: Str): Str {
-  const questionIdx: number = url.indexOf('?');
-  const hashIdx: number = url.indexOf('#');
-  let end: number = url.length;
-  if (questionIdx >= 0) end = Math.min(end, questionIdx);
-  if (hashIdx >= 0) end = Math.min(end, hashIdx);
-  return url.slice(0, end);
+function stripUrlParams(url: Str): Result<Str> {
+  const questionIdx: Num = url.indexOf('?');
+  const hashIdx: Num = url.indexOf('#');
+  // cast safe: string .length is always >= 0
+  let end: NonNegativeInteger = url.length as NonNegativeInteger;
+
+  if (questionIdx >= 0) end = Math.min(end, questionIdx) as NonNegativeInteger; // cast safe: min of non-negatives
+  if (hashIdx >= 0) end = Math.min(end, hashIdx) as NonNegativeInteger; // cast safe: min of non-negatives
+  return okUnchecked<Str>(url.slice(0, end));
 }
 
 /**
@@ -127,10 +138,10 @@ function stripUrlParams(url: Str): Str {
  * Strips query params from URL, generates a session UUID, and adds
  * an ISO timestamp.
  *
- * @param metrics - Array of collected vitals metrics
- * @param device - Device and network context snapshot
- * @param url - Current page URL path (query params will be stripped)
- * @returns `Result<VitalsBeaconPayload>` — the wire-safe payload
+ * @param {VitalsMetric[]} metrics - Array of collected vitals metrics
+ * @param {VitalsDevice} device - Device and network context snapshot
+ * @param {Str} url - Current page URL path (query params will be stripped)
+ * @returns {Result<VitalsBeaconPayload>} The wire-safe payload
  *
  * @example
  * ```typescript
@@ -143,13 +154,44 @@ export function toVitalsPayload(
   device: VitalsDevice,
   url: Str,
 ): Result<VitalsBeaconPayload> {
+  const metricsResult: Result<VitalsMetric[]> = safeParse(v.array(VitalsMetricSchema), metrics);
+
+  if (!metricsResult.ok) return metricsResult;
+
+  const deviceResult: Result<VitalsDevice> = safeParse(VitalsDeviceSchema, device);
+
+  if (!deviceResult.ok) return deviceResult;
+
+  const urlResult: Result<Str> = safeParse(v.string(), url);
+
+  if (!urlResult.ok) return urlResult;
+
+  const strippedUrl: Result<Str> = stripUrlParams(url);
+
+  if (!strippedUrl.ok) return strippedUrl;
+
+  const sessionIdResult: Result<Uuid> = safeParse(UuidSchema, crypto.randomUUID());
+
+  if (!sessionIdResult.ok) return sessionIdResult;
+
+  const urlResult2: Result<RelativeUrl> = safeParse(RelativeUrlSchema, strippedUrl.data);
+
+  if (!urlResult2.ok) return urlResult2;
+
+  const timestampResult: Result<IsoTimestamp> = safeParse(
+    IsoTimestampSchema,
+    new Date().toISOString(),
+  );
+
+  if (!timestampResult.ok) return timestampResult;
+
   const payload: VitalsBeaconPayload = {
-    sessionId: crypto.randomUUID(),
-    url: stripUrlParams(url),
-    timestamp: new Date().toISOString(),
+    sessionId: sessionIdResult.data,
+    url: urlResult2.data,
+    timestamp: timestampResult.data,
     metrics,
     device,
   };
 
-  return okUnchecked<VitalsBeaconPayload>(payload);
+  return ok(VitalsBeaconPayloadSchema, payload);
 }
