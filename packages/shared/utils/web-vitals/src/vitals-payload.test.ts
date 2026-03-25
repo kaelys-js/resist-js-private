@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { Str } from '@/schemas/common';
+import type { Str, Name, Uuid, RelativeUrl, IsoTimestamp } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import {
@@ -31,7 +31,7 @@ import {
  */
 function createMetric(overrides: Partial<VitalsMetric> = {}): VitalsMetric {
   return {
-    name: 'LCP',
+    name: 'LCP' as Name, // cast safe: test fixture with valid Name
     value: 2450,
     rating: 'needsImprovement',
     navigationType: 'navigate',
@@ -64,9 +64,9 @@ function createDevice(overrides: Partial<VitalsDevice> = {}): VitalsDevice {
  */
 function createPayload(): VitalsBeaconPayload {
   return {
-    sessionId: '550e8400-e29b-41d4-a716-446655440000',
-    url: '/scenes/1',
-    timestamp: '2026-03-06T09:00:00.000Z',
+    sessionId: '550e8400-e29b-41d4-a716-446655440000' as Uuid, // cast safe: test fixture with valid UUID
+    url: '/scenes/1' as RelativeUrl, // cast safe: test fixture with valid relative URL
+    timestamp: '2026-03-06T09:00:00.000Z' as IsoTimestamp, // cast safe: test fixture with valid ISO timestamp
     metrics: [createMetric()],
     device: createDevice(),
   };
@@ -81,7 +81,10 @@ describe('VitalsMetricSchema', () => {
   });
 
   it('rejects empty metric name', () => {
-    const result: Result<VitalsMetric> = safeParse(VitalsMetricSchema, createMetric({ name: '' }));
+    const result: Result<VitalsMetric> = safeParse(
+      VitalsMetricSchema,
+      createMetric({ name: '' as Name }),
+    );
     expect(result.ok).toBe(false);
   });
 

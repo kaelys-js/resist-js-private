@@ -1,34 +1,33 @@
 /**
  * Web Vitals Diagnostics
  *
- * Provides actionable diagnostic information for Web Vitals metrics by
- * querying browser Performance APIs. Instead of generic hints like
- * "check large images", this module identifies the **actual** elements,
- * resources, and timings causing poor performance.
- *
- * **Diagnostic sources per metric:**
- * - **LCP**: `largest-contentful-paint` entries → element, resource URL, load/render split
- * - **CLS**: `layout-shift` entries → shifting nodes, distances, source rects
- * - **TTFB**: `navigation` timing → DNS, TLS, server, redirect breakdown
- * - **FCP**: `resource` entries → render-blocking resources with durations
- * - **INP**: `event` observer → slowest interaction target, event type, processing time
- * - **TBT/NTBT**: `longtask` observer → blocking scripts with durations
- *
- * Call `setupDiagnosticObservers()` once at startup (before metrics fire) to
- * begin collecting long task and event timing data that isn't queryable
- * retroactively.
+ * Provides actionable diagnostic information for Web Vitals
+ * metrics by querying browser Performance APIs.
  *
  * @module
  */
 
 import * as v from 'valibot';
-import type { Str, Num, Bool, Void } from '@/schemas/common';
+
+import type { Str, Num, Bool, Void, OptionalStr } from '@/schemas/common';
+import { StrSchema, NumSchema } from '@/schemas/common';
+import type { AppError } from '@/schemas/result/result';
+import { ok, okUnchecked, err, ERRORS, type Result } from '@/schemas/result/result';
+import { safeParse, fromUnknownError } from '@/utils/result/safe';
 
 // =============================================================================
 // Schemas & Types
 // =============================================================================
 
-/** Threshold boundaries for a Web Vital metric. */
+/**
+ * Threshold boundaries for a Web Vital metric.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(VitalThresholdsSchema, { good: 2500, poor: 4000, unit: 'ms' });
+ * ```
+ */
 export const VitalThresholdsSchema = v.strictObject({
   /** Upper bound for "good" rating (inclusive). */
   good: v.number(),
@@ -38,21 +37,40 @@ export const VitalThresholdsSchema = v.strictObject({
   unit: v.picklist(['ms', 'score']),
 });
 
-/** Inferred type for vital thresholds. */
+/** Inferred type for vital thresholds. {@link VitalThresholdsSchema} */
 export type VitalThresholds = v.InferOutput<typeof VitalThresholdsSchema>;
 
-/** A single diagnostic finding — one fact about what's causing a metric value. */
+/**
+ * A single diagnostic finding — one fact about what's causing a metric value.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(DiagnosticFindingSchema, { label: 'LCP Element', value: '<img.hero>' });
+ * ```
+ */
 export const DiagnosticFindingSchema = v.strictObject({
   /** Short label describing the finding (e.g. "LCP Element", "DNS Lookup"). */
-  label: v.string(),
+  label: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
   /** Human-readable value (e.g. "<img.hero>", "45ms", "142px movement"). */
-  value: v.string(),
+  value: v.pipe(v.string(), v.minLength(1), v.maxLength(500)),
 });
 
-/** Inferred type for a diagnostic finding. */
+/** Inferred type for a diagnostic finding. {@link DiagnosticFindingSchema} */
 export type DiagnosticFinding = v.InferOutput<typeof DiagnosticFindingSchema>;
 
-/** Full diagnostics for a single metric — thresholds + actionable findings. */
+/**
+ * Full diagnostics for a single metric — thresholds + actionable findings.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * const result = safeParse(VitalDiagnosticsSchema, {
+ *   thresholds: { good: 2500, poor: 4000, unit: 'ms' },
+ *   findings: [{ label: 'LCP Element', value: '<img.hero>' }],
+ * });
+ * ```
+ */
 export const VitalDiagnosticsSchema = v.strictObject({
   /** Good/poor threshold boundaries for this metric. */
   thresholds: VitalThresholdsSchema,
@@ -60,47 +78,11 @@ export const VitalDiagnosticsSchema = v.strictObject({
   findings: v.array(DiagnosticFindingSchema),
 });
 
-/** Inferred type for vital diagnostics. */
+/** Inferred type for vital diagnostics. {@link VitalDiagnosticsSchema} */
 export type VitalDiagnostics = v.InferOutput<typeof VitalDiagnosticsSchema>;
 
 // =============================================================================
-// Threshold Data
-// =============================================================================
-
-/**
- * Web Vitals threshold boundaries per metric.
- *
- * Sources:
- * - https://web.dev/articles/lcp (LCP)
- * - https://web.dev/articles/cls (CLS)
- * - https://web.dev/articles/fcp (FCP)
- * - https://web.dev/articles/ttfb (TTFB)
- * - https://web.dev/articles/inp (INP)
- * - https://web.dev/articles/tbt (TBT — no official thresholds, Lighthouse uses 200/600)
- */
-const THRESHOLDS: Readonly<Record<Str, VitalThresholds>> = {
-  LCP: { good: 2500, poor: 4000, unit: 'ms' },
-  CLS: { good: 0.1, poor: 0.25, unit: 'score' },
-  FCP: { good: 1800, poor: 3000, unit: 'ms' },
-  TTFB: { good: 800, poor: 1800, unit: 'ms' },
-  INP: { good: 200, poor: 500, unit: 'ms' },
-  FID: { good: 100, poor: 300, unit: 'ms' },
-  TBT: { good: 200, poor: 600, unit: 'ms' },
-  NTBT: { good: 200, poor: 600, unit: 'ms' },
-};
-
-/**
- * Returns threshold boundaries for a metric, or null if unknown.
- *
- * @param metricName - Web Vital metric name (e.g. 'LCP', 'CLS')
- * @returns Threshold data or null
- */
-export function getThresholds(metricName: Str): VitalThresholds | null {
-  return THRESHOLDS[metricName] ?? null;
-}
-
-// =============================================================================
-// Performance API Type Declarations
+// Internal Types
 // =============================================================================
 
 // These types are not in the standard TypeScript DOM lib.
@@ -137,6 +119,9 @@ type LayoutShiftEntry = PerformanceEntry & {
   }>;
 };
 
+/** Source of a layout shift — element and rects. */
+type LayoutShiftSource = LayoutShiftEntry['sources'][number];
+
 /** Minimal PerformanceEventTiming entry (not in TS DOM lib). */
 type EventTimingEntry = PerformanceEntry & {
   /** When processing started. */
@@ -150,14 +135,17 @@ type EventTimingEntry = PerformanceEntry & {
 };
 
 /** Minimal long task entry attribution. */
-type LongTaskAttribution = {
+const LongTaskAttributionSchema = v.strictObject({
   /** Name of the attribution (e.g. 'script'). */
-  readonly name: Str;
-  /** Container type. */
-  readonly containerType: Str;
-  /** Container source URL. */
-  readonly containerSrc: Str;
-};
+  name: v.pipe(v.string(), v.minLength(1), v.maxLength(200)),
+  /** Container type (e.g. 'iframe', 'embed', 'object'). */
+  containerType: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
+  /** Container source URL (can be empty for same-origin scripts). */
+  containerSrc: v.pipe(v.string(), v.maxLength(2000)),
+});
+
+/** Inferred type for long task attribution. {@link LongTaskAttributionSchema} */
+type LongTaskAttribution = v.InferOutput<typeof LongTaskAttributionSchema>;
 
 /** Minimal PerformanceLongTaskTiming entry (not in TS DOM lib). */
 type LongTaskEntry = PerformanceEntry & {
@@ -166,7 +154,33 @@ type LongTaskEntry = PerformanceEntry & {
 };
 
 // =============================================================================
-// Observer Data Collection
+// Constants
+// =============================================================================
+
+/**
+ * Web Vitals threshold boundaries per metric.
+ *
+ * Sources:
+ * - https://web.dev/articles/lcp (LCP)
+ * - https://web.dev/articles/cls (CLS)
+ * - https://web.dev/articles/fcp (FCP)
+ * - https://web.dev/articles/ttfb (TTFB)
+ * - https://web.dev/articles/inp (INP)
+ * - https://web.dev/articles/tbt (TBT — no official thresholds, Lighthouse uses 200/600)
+ */
+const THRESHOLDS: Readonly<Record<Str, VitalThresholds>> = {
+  LCP: { good: 2500, poor: 4000, unit: 'ms' },
+  CLS: { good: 0.1, poor: 0.25, unit: 'score' },
+  FCP: { good: 1800, poor: 3000, unit: 'ms' },
+  TTFB: { good: 800, poor: 1800, unit: 'ms' },
+  INP: { good: 200, poor: 500, unit: 'ms' },
+  FID: { good: 100, poor: 300, unit: 'ms' },
+  TBT: { good: 200, poor: 600, unit: 'ms' },
+  NTBT: { good: 200, poor: 600, unit: 'ms' },
+};
+
+// =============================================================================
+// Internal Helpers
 // =============================================================================
 
 /** Collected LCP entries from PerformanceObserver. */
@@ -185,127 +199,22 @@ let eventTimings: EventTimingEntry[] = [];
 let observersActive: Bool = false;
 
 /**
- * Starts PerformanceObservers for long tasks and event timings.
- *
- * Must be called once at startup (from hooks.client.ts) before metrics
- * fire, because these entries are only available via observers — they
- * can't be queried retroactively via `performance.getEntriesByType()`.
- *
- * Safe to call in environments without PerformanceObserver (no-ops).
- *
- * @example
- * ```typescript
- * import { setupDiagnosticObservers } from '$lib/perf/vitals-diagnostics';
- * setupDiagnosticObservers();
- * ```
- */
-export function setupDiagnosticObservers(): Void {
-  if (observersActive) return;
-  if (typeof PerformanceObserver === 'undefined') return;
-  observersActive = true;
-
-  // LCP observer — collects largest-contentful-paint entries (deprecated via getEntriesByType)
-  try {
-    const lcpObserver: PerformanceObserver = new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) {
-        lcpEntries.push(entry as LCPEntry);
-      }
-    });
-    lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
-  } catch {
-    // LCP API not supported in this browser — diagnostics will be partial
-  }
-
-  // Layout shift observer — collects layout-shift entries (deprecated via getEntriesByType)
-  try {
-    const clsObserver: PerformanceObserver = new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) {
-        layoutShiftEntries.push(entry as LayoutShiftEntry);
-      }
-    });
-    clsObserver.observe({ type: 'layout-shift', buffered: true });
-  } catch {
-    // Layout Shift API not supported in this browser — diagnostics will be partial
-  }
-
-  // Long task observer — collects main-thread blocking tasks > 50ms
-  try {
-    const longTaskObserver: PerformanceObserver = new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) {
-        longTasks.push(entry as LongTaskEntry);
-      }
-    });
-    longTaskObserver.observe({ type: 'longtask', buffered: true });
-  } catch {
-    // Long Tasks API not supported in this browser — diagnostics will be partial
-  }
-
-  // Event timing observer — collects interaction timings for INP attribution
-  try {
-    const eventObserver: PerformanceObserver = new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) {
-        const evt: EventTimingEntry = entry as EventTimingEntry;
-        // Only keep entries with an interaction ID (actual user interactions)
-        if (evt.interactionId > 0) {
-          eventTimings.push(evt);
-        }
-      }
-    });
-    eventObserver.observe({ type: 'event', buffered: true });
-  } catch {
-    // Event Timing API not supported in this browser — diagnostics will be partial
-  }
-}
-
-/**
- * Resets all collected observer data and observer state.
- * Intended for test isolation.
- */
-export function resetDiagnostics(): Void {
-  lcpEntries = [];
-  layoutShiftEntries = [];
-  longTasks = [];
-  eventTimings = [];
-  observersActive = false;
-}
-
-/**
- * Injects mock LCP entries for testing. Test-only — not part of the public API.
- *
- * @param entries - Mock LCP entries to inject
- */
-export function _injectLCPEntries(entries: unknown[]): Void {
-  // Test helper — cast from unknown is safe because only test mocks are passed
-  lcpEntries = entries as LCPEntry[];
-}
-
-/**
- * Injects mock layout shift entries for testing. Test-only — not part of the public API.
- *
- * @param entries - Mock layout shift entries to inject
- */
-export function _injectLayoutShiftEntries(entries: unknown[]): Void {
-  // Test helper — cast from unknown is safe because only test mocks are passed
-  layoutShiftEntries = entries as LayoutShiftEntry[];
-}
-
-// =============================================================================
-// Diagnostic Collection
-// =============================================================================
-
-/**
  * Describes a DOM element concisely for diagnostic output.
  *
  * @param el - The element to describe
  * @returns A string like "<img.hero>" or "<div#main>"
  */
-function describeElement(el: Element): Str {
+function describeElement(el: Element): Result<Str> {
   const tag: Str = el.tagName.toLowerCase();
-  if (el.id) return `<${tag}#${el.id}>`;
-  const firstClass: Str | undefined =
+
+  if (el.id) return ok(StrSchema, `<${tag}#${el.id}>`);
+
+  const firstClass: OptionalStr =
     el.className && typeof el.className === 'string' ? el.className.split(/\s+/)[0] : undefined;
-  if (firstClass) return `<${tag}.${firstClass}>`;
-  return `<${tag}>`;
+
+  if (firstClass) return ok(StrSchema, `<${tag}.${firstClass}>`);
+
+  return ok(StrSchema, `<${tag}>`);
 }
 
 /**
@@ -314,9 +223,10 @@ function describeElement(el: Element): Str {
  * @param node - The node to describe
  * @returns A string description
  */
-function describeNode(node: Node): Str {
+function describeNode(node: Node): Result<Str> {
   if (node instanceof Element) return describeElement(node);
-  return `[${node.nodeName}]`;
+
+  return ok(StrSchema, `[${node.nodeName}]`);
 }
 
 /**
@@ -325,18 +235,20 @@ function describeNode(node: Node): Str {
  * @param url - Full URL string
  * @returns Shortened display string (e.g. "/images/hero.jpg")
  */
-function shortenUrl(url: Str): Str {
+function shortenUrl(url: Str): Result<Str> {
   try {
     const parsed: URL = new URL(url, window.location.origin);
+
     // Same origin — show pathname only
     if (parsed.origin === window.location.origin) {
-      return parsed.pathname;
+      return ok(StrSchema, parsed.pathname);
     }
+
     // Cross-origin — show host + pathname
-    return `${parsed.host}${parsed.pathname}`;
-  } catch {
-    // Malformed URL — return as-is, truncated
-    return url.length > 60 ? `${url.slice(0, 57)}...` : url;
+    return ok(StrSchema, `${parsed.host}${parsed.pathname}`);
+  } catch (error: unknown) {
+    // Malformed URL — return truncated fallback
+    return err(ERRORS.ENCODING.URL_FAILED, { cause: fromUnknownError(error) });
   }
 }
 
@@ -348,28 +260,43 @@ function shortenUrl(url: Str): Str {
  *
  * @returns Array of diagnostic findings
  */
-function diagnoseLCP(): DiagnosticFinding[] {
+function diagnoseLCP(): Result<DiagnosticFinding[]> {
   const findings: DiagnosticFinding[] = [];
 
   try {
-    if (lcpEntries.length === 0) return findings;
+    if (lcpEntries.length === 0) return okUnchecked(findings);
 
     // Use the latest LCP entry from the observer
-    const lcp: LCPEntry = lcpEntries.at(-1) as LCPEntry;
+    const lcp: LCPEntry = lcpEntries.at(-1) as LCPEntry; // cast safe: length > 0 guarantees at(-1) is defined
 
     // Identify the LCP element
     if (lcp.element) {
-      findings.push({ label: 'LCP Element', value: describeElement(lcp.element) });
+      const elResult: Result<Str> = describeElement(lcp.element);
+      let elDesc: Str = '(unknown)';
+
+      if (elResult.ok) {
+        elDesc = elResult.data;
+      }
+
+      findings.push({ label: 'LCP Element', value: elDesc });
     }
 
     // Resource URL (for images/videos)
     if (lcp.url) {
-      findings.push({ label: 'Resource', value: shortenUrl(lcp.url) });
+      const urlResult: Result<Str> = shortenUrl(lcp.url);
+      let urlDisplay: Str = lcp.url;
+
+      if (urlResult.ok) {
+        urlDisplay = urlResult.data;
+      }
+
+      findings.push({ label: 'Resource', value: urlDisplay });
     }
 
     // Timing breakdown
     if (lcp.renderTime > 0 && lcp.loadTime > 0) {
       const renderDelay: Num = Math.round(lcp.renderTime - lcp.loadTime);
+
       findings.push({
         label: 'Timing',
         value: `load ${Math.round(lcp.loadTime)}ms + render delay ${renderDelay}ms`,
@@ -382,13 +309,16 @@ function diagnoseLCP(): DiagnosticFinding[] {
 
     // Element size
     if (lcp.size > 0) {
-      findings.push({ label: 'Element Size', value: `${lcp.size.toLocaleString()}px²` });
+      findings.push({ label: 'Element Size', value: `${lcp.size.toLocaleString()}px\u00B2` });
     }
-  } catch {
-    // LCP API not available — return empty findings
+  } catch (error: unknown) {
+    // LCP API not available — return partial findings with error context
+    const appError: AppError = fromUnknownError(error);
+
+    return err(ERRORS.RUNTIME.UNSUPPORTED, { cause: appError });
   }
 
-  return findings;
+  return okUnchecked(findings);
 }
 
 /**
@@ -399,14 +329,16 @@ function diagnoseLCP(): DiagnosticFinding[] {
  *
  * @returns Array of diagnostic findings
  */
-function diagnoseCLS(): DiagnosticFinding[] {
+function diagnoseCLS(): Result<DiagnosticFinding[]> {
   const findings: DiagnosticFinding[] = [];
 
   try {
-    if (layoutShiftEntries.length === 0) return findings;
+    if (layoutShiftEntries.length === 0) return okUnchecked(findings);
 
     const shifts: LayoutShiftEntry[] = layoutShiftEntries;
-    const unexpectedShifts: LayoutShiftEntry[] = shifts.filter((s) => !s.hadRecentInput);
+    const unexpectedShifts: LayoutShiftEntry[] = shifts.filter(
+      (s: LayoutShiftEntry): Bool => !s.hadRecentInput,
+    );
 
     findings.push({
       label: 'Layout Shifts',
@@ -416,6 +348,7 @@ function diagnoseCLS(): DiagnosticFinding[] {
     // Find the largest single shift
     let largestShift: LayoutShiftEntry | null = null;
     let largestValue: Num = 0;
+
     for (const shift of unexpectedShifts) {
       if (shift.value > largestValue) {
         largestValue = shift.value;
@@ -424,12 +357,23 @@ function diagnoseCLS(): DiagnosticFinding[] {
     }
 
     if (largestShift && largestShift.sources.length > 0) {
-      const [source] = largestShift.sources;
+      const source: LayoutShiftSource | undefined = largestShift.sources[0];
+
       if (source) {
-        const nodeDesc: Str = source.node ? describeNode(source.node) : '(unknown)';
+        let nodeDesc: Str = '(unknown)';
+
+        if (source.node) {
+          const nodeResult: Result<Str> = describeNode(source.node);
+
+          if (nodeResult.ok) {
+            nodeDesc = nodeResult.data;
+          }
+        }
+
         const dy: Num = Math.round(Math.abs(source.currentRect.top - source.previousRect.top));
         const dx: Num = Math.round(Math.abs(source.currentRect.left - source.previousRect.left));
         let movement: Str;
+
         if (dy > 0 && dx > 0) {
           movement = `${dx}px horizontal, ${dy}px vertical`;
         } else if (dy > 0) {
@@ -437,17 +381,21 @@ function diagnoseCLS(): DiagnosticFinding[] {
         } else {
           movement = `${dx}px horizontal`;
         }
+
         findings.push({
           label: 'Largest Shift',
           value: `${nodeDesc} moved ${movement} (score: ${largestValue.toFixed(4)})`,
         });
       }
     }
-  } catch {
+  } catch (error: unknown) {
     // Layout Shift API not available
+    const appError: AppError = fromUnknownError(error);
+
+    return err(ERRORS.RUNTIME.UNSUPPORTED, { cause: appError });
   }
 
-  return findings;
+  return okUnchecked(findings);
 }
 
 /**
@@ -458,16 +406,20 @@ function diagnoseCLS(): DiagnosticFinding[] {
  *
  * @returns Array of diagnostic findings
  */
-function diagnoseTTFB(): DiagnosticFinding[] {
+function diagnoseTTFB(): Result<DiagnosticFinding[]> {
   const findings: DiagnosticFinding[] = [];
 
   try {
     const navEntries: PerformanceEntryList = performance.getEntriesByType('navigation');
-    if (navEntries.length === 0) return findings;
 
-    // Cast needed: PerformanceEntry → PerformanceNavigationTiming (type narrowing from getEntriesByType)
-    const [navEntry] = navEntries;
-    const nav: PerformanceNavigationTiming = navEntry as PerformanceNavigationTiming;
+    if (navEntries.length === 0) return okUnchecked(findings);
+
+    // Cast needed: PerformanceEntry -> PerformanceNavigationTiming (type narrowing from getEntriesByType)
+    const navEntry: PerformanceEntry | undefined = navEntries[0];
+
+    if (!navEntry) return okUnchecked(findings);
+
+    const nav: PerformanceNavigationTiming = navEntry as PerformanceNavigationTiming; // cast safe: getEntriesByType('navigation') returns PerformanceNavigationTiming
 
     const dns: Num = Math.round(nav.domainLookupEnd - nav.domainLookupStart);
     const tcp: Num = Math.round(nav.connectEnd - nav.connectStart);
@@ -478,13 +430,14 @@ function diagnoseTTFB(): DiagnosticFinding[] {
 
     // Build a waterfall breakdown
     const parts: Str[] = [];
+
     if (redirect > 0) parts.push(`redirect ${redirect}ms`);
     if (dns > 0) parts.push(`DNS ${dns}ms`);
     if (tls > 0) parts.push(`TLS ${tls}ms`);
     else if (tcp > 0) parts.push(`TCP ${tcp}ms`);
     parts.push(`server ${serverTime}ms`);
 
-    findings.push({ label: 'Waterfall', value: parts.join(' → ') });
+    findings.push({ label: 'Waterfall', value: parts.join(' \u2192 ') });
 
     // Identify the biggest bottleneck
     const bottlenecks: Array<[Str, Num]> = [
@@ -494,20 +447,27 @@ function diagnoseTTFB(): DiagnosticFinding[] {
       ['TCP', tcp],
       ['Server response', serverTime],
     ];
-    bottlenecks.sort((a, b) => b[1] - a[1]);
-    const [biggest] = bottlenecks;
-    if (!biggest) return findings;
+
+    bottlenecks.sort((a: [Str, Num], b: [Str, Num]): Num => b[1] - a[1]);
+
+    const biggest: [Str, Num] | undefined = bottlenecks[0];
+
+    if (!biggest) return okUnchecked(findings);
+
     if (biggest[1] > 50) {
       findings.push({
         label: 'Bottleneck',
         value: `${biggest[0]} (${biggest[1]}ms)`,
       });
     }
-  } catch {
+  } catch (error: unknown) {
     // Navigation Timing API not available
+    const appError: AppError = fromUnknownError(error);
+
+    return err(ERRORS.RUNTIME.UNSUPPORTED, { cause: appError });
   }
 
-  return findings;
+  return okUnchecked(findings);
 }
 
 /**
@@ -518,7 +478,7 @@ function diagnoseTTFB(): DiagnosticFinding[] {
  *
  * @returns Array of diagnostic findings
  */
-function diagnoseFCP(): DiagnosticFinding[] {
+function diagnoseFCP(): Result<DiagnosticFinding[]> {
   const findings: DiagnosticFinding[] = [];
 
   try {
@@ -527,12 +487,21 @@ function diagnoseFCP(): DiagnosticFinding[] {
     const blocking: Array<{ url: Str; duration: Num }> = [];
 
     for (const entry of resources) {
-      const res: PerformanceResourceTiming = entry as PerformanceResourceTiming;
+      const res: PerformanceResourceTiming = entry as PerformanceResourceTiming; // cast safe: getEntriesByType('resource') returns PerformanceResourceTiming
+
       // renderBlockingStatus is a newer property — may not be present
-      const status: Str | undefined = (res as unknown as Record<Str, Str>).renderBlockingStatus;
+      const status: OptionalStr = (res as unknown as Record<Str, Str>).renderBlockingStatus; // cast safe: duck-typing check for optional browser API property
+
       if (status === 'blocking') {
+        const urlResult: Result<Str> = shortenUrl(res.name);
+        let displayUrl: Str = res.name;
+
+        if (urlResult.ok) {
+          displayUrl = urlResult.data;
+        }
+
         blocking.push({
-          url: shortenUrl(res.name),
+          url: displayUrl,
           duration: Math.round(res.duration),
         });
       }
@@ -543,6 +512,7 @@ function diagnoseFCP(): DiagnosticFinding[] {
         label: 'Render-Blocking',
         value: `${blocking.length} resource${blocking.length > 1 ? 's' : ''}`,
       });
+
       // Show up to 3 blocking resources
       for (const res of blocking.slice(0, 3)) {
         findings.push({
@@ -550,33 +520,43 @@ function diagnoseFCP(): DiagnosticFinding[] {
           value: `${res.url} (${res.duration}ms)`,
         });
       }
+
       if (blocking.length > 3) {
         findings.push({
-          label: '',
-          value: `…and ${blocking.length - 3} more`,
+          label: '  \u2026',
+          value: `\u2026and ${blocking.length - 3} more`,
         });
       }
     }
 
     // Check if TTFB contributes significantly to FCP
     const navEntries: PerformanceEntryList = performance.getEntriesByType('navigation');
+
     if (navEntries.length > 0) {
-      // Cast needed: PerformanceEntry → PerformanceNavigationTiming (type narrowing from getEntriesByType)
-      const [fcpNavEntry] = navEntries;
-      const nav: PerformanceNavigationTiming = fcpNavEntry as PerformanceNavigationTiming;
-      const ttfb: Num = Math.round(nav.responseStart);
-      if (ttfb > 400) {
-        findings.push({
-          label: 'TTFB Impact',
-          value: `${ttfb}ms server response delays first paint`,
-        });
+      // Cast needed: PerformanceEntry -> PerformanceNavigationTiming (type narrowing from getEntriesByType)
+      const fcpNavEntry: PerformanceEntry | undefined = navEntries[0];
+
+      if (fcpNavEntry) {
+        const nav: PerformanceNavigationTiming = fcpNavEntry as PerformanceNavigationTiming; // cast safe: getEntriesByType('navigation') returns PerformanceNavigationTiming
+
+        const ttfb: Num = Math.round(nav.responseStart);
+
+        if (ttfb > 400) {
+          findings.push({
+            label: 'TTFB Impact',
+            value: `${ttfb}ms server response delays first paint`,
+          });
+        }
       }
     }
-  } catch {
+  } catch (error: unknown) {
     // Resource Timing API not available
+    const appError: AppError = fromUnknownError(error);
+
+    return err(ERRORS.RUNTIME.UNSUPPORTED, { cause: appError });
   }
 
-  return findings;
+  return okUnchecked(findings);
 }
 
 /**
@@ -587,20 +567,22 @@ function diagnoseFCP(): DiagnosticFinding[] {
  *
  * @returns Array of diagnostic findings
  */
-function diagnoseINP(): DiagnosticFinding[] {
+function diagnoseINP(): Result<DiagnosticFinding[]> {
   const findings: DiagnosticFinding[] = [];
 
   if (eventTimings.length === 0) {
     findings.push({
       label: 'Note',
-      value: 'No interactions recorded yet — interact with the page first',
+      value: 'No interactions recorded yet \u2014 interact with the page first',
     });
-    return findings;
+
+    return okUnchecked(findings);
   }
 
   // Find the slowest interaction
   let slowest: EventTimingEntry | null = null;
   let slowestDuration: Num = 0;
+
   for (const evt of eventTimings) {
     if (evt.duration > slowestDuration) {
       slowestDuration = evt.duration;
@@ -609,7 +591,16 @@ function diagnoseINP(): DiagnosticFinding[] {
   }
 
   if (slowest) {
-    const targetDesc: Str = slowest.target ? describeElement(slowest.target) : '(unknown)';
+    let targetDesc: Str = '(unknown)';
+
+    if (slowest.target) {
+      const targetResult: Result<Str> = describeElement(slowest.target);
+
+      if (targetResult.ok) {
+        targetDesc = targetResult.data;
+      }
+    }
+
     const processing: Num = Math.round(slowest.processingEnd - slowest.processingStart);
     const inputDelay: Num = Math.round(slowest.processingStart - slowest.startTime);
     const presentationDelay: Num = Math.round(
@@ -618,11 +609,12 @@ function diagnoseINP(): DiagnosticFinding[] {
 
     findings.push({
       label: 'Slowest',
-      value: `${slowest.name} on ${targetDesc} — ${Math.round(slowest.duration)}ms total`,
+      value: `${slowest.name} on ${targetDesc} \u2014 ${Math.round(slowest.duration)}ms total`,
     });
+
     findings.push({
       label: 'Breakdown',
-      value: `input delay ${inputDelay}ms → processing ${processing}ms → presentation ${presentationDelay}ms`,
+      value: `input delay ${inputDelay}ms \u2192 processing ${processing}ms \u2192 presentation ${presentationDelay}ms`,
     });
 
     // Identify the biggest phase
@@ -631,9 +623,13 @@ function diagnoseINP(): DiagnosticFinding[] {
       ['Processing (event handler)', processing],
       ['Presentation (rendering)', presentationDelay],
     ];
-    phases.sort((a, b) => b[1] - a[1]);
-    const [biggestPhase] = phases;
-    if (!biggestPhase) return findings;
+
+    phases.sort((a: [Str, Num], b: [Str, Num]): Num => b[1] - a[1]);
+
+    const biggestPhase: [Str, Num] | undefined = phases[0];
+
+    if (!biggestPhase) return okUnchecked(findings);
+
     if (biggestPhase[1] > 50) {
       findings.push({
         label: 'Bottleneck',
@@ -647,7 +643,7 @@ function diagnoseINP(): DiagnosticFinding[] {
     value: `${eventTimings.length} recorded`,
   });
 
-  return findings;
+  return okUnchecked(findings);
 }
 
 /**
@@ -658,7 +654,7 @@ function diagnoseINP(): DiagnosticFinding[] {
  *
  * @returns Array of diagnostic findings
  */
-function diagnoseTBT(): DiagnosticFinding[] {
+function diagnoseTBT(): Result<DiagnosticFinding[]> {
   const findings: DiagnosticFinding[] = [];
 
   if (longTasks.length === 0) {
@@ -666,16 +662,20 @@ function diagnoseTBT(): DiagnosticFinding[] {
       label: 'Long Tasks',
       value: 'None observed (main thread was responsive)',
     });
-    return findings;
+
+    return okUnchecked(findings);
   }
 
   // Calculate total blocking time (duration - 50ms for each task)
   let totalBlocking: Num = 0;
   let longestTask: LongTaskEntry | null = null;
   let longestDuration: Num = 0;
+
   for (const task of longTasks) {
     const blocking: Num = task.duration - 50;
+
     if (blocking > 0) totalBlocking += blocking;
+
     if (task.duration > longestDuration) {
       longestDuration = task.duration;
       longestTask = task;
@@ -689,31 +689,41 @@ function diagnoseTBT(): DiagnosticFinding[] {
 
   if (longestTask) {
     let scriptInfo: Str = '';
+
     if (longestTask.attribution.length > 0) {
-      const [attr] = longestTask.attribution;
+      const attr: LongTaskAttribution | undefined = longestTask.attribution[0];
+
       if (attr) {
         if (attr.containerSrc) {
-          scriptInfo = ` — ${shortenUrl(attr.containerSrc)}`;
+          const srcResult: Result<Str> = shortenUrl(attr.containerSrc);
+          let srcDisplay: Str = attr.containerSrc;
+
+          if (srcResult.ok) {
+            srcDisplay = srcResult.data;
+          }
+
+          scriptInfo = ` \u2014 ${srcDisplay}`;
         } else if (attr.containerType) {
-          scriptInfo = ` — ${attr.containerType}`;
+          scriptInfo = ` \u2014 ${attr.containerType}`;
         }
       }
     }
+
     findings.push({
       label: 'Longest',
       value: `${Math.round(longestTask.duration)}ms${scriptInfo}`,
     });
   }
 
-  return findings;
+  return okUnchecked(findings);
 }
 
 // =============================================================================
-// Public API
+// Exported API
 // =============================================================================
 
-/** Metric name → diagnostic collector mapping. */
-const COLLECTORS: Readonly<Record<Str, () => DiagnosticFinding[]>> = {
+/** Metric name -> diagnostic collector mapping. */
+const COLLECTORS: Readonly<Record<Str, () => Result<DiagnosticFinding[]>>> = {
   LCP: diagnoseLCP,
   CLS: diagnoseCLS,
   TTFB: diagnoseTTFB,
@@ -725,6 +735,193 @@ const COLLECTORS: Readonly<Record<Str, () => DiagnosticFinding[]>> = {
 };
 
 /**
+ * Returns threshold boundaries for a metric, or null if unknown.
+ *
+ * @param {Str} metricName - Web Vital metric name (e.g. 'LCP', 'CLS')
+ * @returns {Result<VitalThresholds | null>} Threshold data or null
+ *
+ * @example
+ * ```typescript
+ * const result = getThresholds('LCP');
+ * if (result.ok && result.data) {
+ *   console.log(result.data.good); // 2500
+ * }
+ * ```
+ */
+export function getThresholds(metricName: Str): Result<VitalThresholds | null> {
+  const parsed: Result<Str> = safeParse(StrSchema, metricName);
+
+  if (!parsed.ok) return parsed;
+
+  return okUnchecked(THRESHOLDS[parsed.data] ?? null);
+}
+
+/**
+ * Starts PerformanceObservers for long tasks and event timings.
+ *
+ * Must be called once at startup (from hooks.client.ts) before metrics
+ * fire, because these entries are only available via observers — they
+ * can't be queried retroactively via `performance.getEntriesByType()`.
+ *
+ * Safe to call in environments without PerformanceObserver (no-ops).
+ *
+ * @returns {Result<Void>} Always succeeds
+ *
+ * @example
+ * ```typescript
+ * import { setupDiagnosticObservers } from '$lib/perf/vitals-diagnostics';
+ * setupDiagnosticObservers();
+ * ```
+ */
+export function setupDiagnosticObservers(): Result<Void> {
+  if (observersActive) return okUnchecked<Void>(undefined);
+  if (typeof PerformanceObserver === 'undefined') return okUnchecked<Void>(undefined);
+  observersActive = true;
+
+  // LCP observer — collects largest-contentful-paint entries (deprecated via getEntriesByType)
+  try {
+    const lcpObserver: PerformanceObserver = new PerformanceObserver(
+      (list: PerformanceObserverEntryList): Void => {
+        for (const entry of list.getEntries()) {
+          lcpEntries.push(
+            entry as LCPEntry, // cast safe: PerformanceObserver type:'largest-contentful-paint' guarantees LCPEntry
+          );
+        }
+      },
+    );
+
+    lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
+  } catch (error: unknown) {
+    // LCP API not supported in this browser — diagnostics will be partial
+    void fromUnknownError(error);
+  }
+
+  // Layout shift observer — collects layout-shift entries (deprecated via getEntriesByType)
+  try {
+    const clsObserver: PerformanceObserver = new PerformanceObserver(
+      (list: PerformanceObserverEntryList): Void => {
+        for (const entry of list.getEntries()) {
+          layoutShiftEntries.push(
+            entry as LayoutShiftEntry, // cast safe: PerformanceObserver type:'layout-shift' guarantees LayoutShiftEntry
+          );
+        }
+      },
+    );
+
+    clsObserver.observe({ type: 'layout-shift', buffered: true });
+  } catch (error: unknown) {
+    // Layout Shift API not supported in this browser — diagnostics will be partial
+    void fromUnknownError(error);
+  }
+
+  // Long task observer — collects main-thread blocking tasks > 50ms
+  try {
+    const longTaskObserver: PerformanceObserver = new PerformanceObserver(
+      (list: PerformanceObserverEntryList): Void => {
+        for (const entry of list.getEntries()) {
+          longTasks.push(
+            entry as LongTaskEntry, // cast safe: PerformanceObserver type:'longtask' guarantees LongTaskEntry
+          );
+        }
+      },
+    );
+
+    longTaskObserver.observe({ type: 'longtask', buffered: true });
+  } catch (error: unknown) {
+    // Long Tasks API not supported in this browser — diagnostics will be partial
+    void fromUnknownError(error);
+  }
+
+  // Event timing observer — collects interaction timings for INP attribution
+  try {
+    const eventObserver: PerformanceObserver = new PerformanceObserver(
+      (list: PerformanceObserverEntryList): Void => {
+        for (const entry of list.getEntries()) {
+          const evt: EventTimingEntry = entry as EventTimingEntry; // cast safe: PerformanceObserver type:'event' guarantees EventTimingEntry
+
+          // Only keep entries with an interaction ID (actual user interactions)
+          if (evt.interactionId > 0) {
+            eventTimings.push(evt);
+          }
+        }
+      },
+    );
+
+    eventObserver.observe({ type: 'event', buffered: true });
+  } catch (error: unknown) {
+    // Event Timing API not supported in this browser — diagnostics will be partial
+    void fromUnknownError(error);
+  }
+
+  return okUnchecked<Void>(undefined);
+}
+
+/**
+ * Resets all collected observer data and observer state.
+ * Intended for test isolation.
+ *
+ * @returns {Result<Void>} Always succeeds
+ *
+ * @example
+ * ```typescript
+ * resetDiagnostics();
+ * ```
+ */
+export function resetDiagnostics(): Result<Void> {
+  lcpEntries = [];
+  layoutShiftEntries = [];
+  longTasks = [];
+  eventTimings = [];
+  observersActive = false;
+
+  return okUnchecked<Void>(undefined);
+}
+
+/**
+ * Injects mock LCP entries for testing. Test-only — not part of the public API.
+ *
+ * @param {unknown[]} entries - Mock LCP entries to inject
+ * @returns {Result<Void>} Always succeeds
+ *
+ * @example
+ * ```typescript
+ * _injectLCPEntries([{ element: null, url: '', size: 100, loadTime: 50, renderTime: 100 }]);
+ * ```
+ */
+export function _injectLCPEntries(entries: unknown[]): Result<Void> {
+  const parsed: Result<unknown[]> = safeParse(v.array(v.unknown()), entries);
+
+  if (!parsed.ok) return parsed;
+
+  // Test helper — cast from unknown is safe because only test mocks are passed
+  lcpEntries = entries as LCPEntry[]; // cast safe: test-only helper, callers pass mock LCPEntry objects
+
+  return okUnchecked<Void>(undefined);
+}
+
+/**
+ * Injects mock layout shift entries for testing. Test-only — not part of the public API.
+ *
+ * @param {unknown[]} entries - Mock layout shift entries to inject
+ * @returns {Result<Void>} Always succeeds
+ *
+ * @example
+ * ```typescript
+ * _injectLayoutShiftEntries([{ value: 0.1, hadRecentInput: false, sources: [] }]);
+ * ```
+ */
+export function _injectLayoutShiftEntries(entries: unknown[]): Result<Void> {
+  const parsed: Result<unknown[]> = safeParse(v.array(v.unknown()), entries);
+
+  if (!parsed.ok) return parsed;
+
+  // Test helper — cast from unknown is safe because only test mocks are passed
+  layoutShiftEntries = entries as LayoutShiftEntry[]; // cast safe: test-only helper, callers pass mock LayoutShiftEntry objects
+
+  return okUnchecked<Void>(undefined);
+}
+
+/**
  * Collects full diagnostics for a Web Vital metric.
  *
  * Queries browser Performance APIs to identify what's actually causing
@@ -733,17 +930,17 @@ const COLLECTORS: Readonly<Record<Str, () => DiagnosticFinding[]>> = {
  * Only collects diagnostics for non-good ratings — returns null for
  * good metrics to avoid unnecessary Performance API queries.
  *
- * @param metricName - The metric name (e.g. 'LCP', 'CLS', 'INP')
- * @param _value - The metric value (reserved for future use)
- * @param rating - The performance rating ('good', 'needsImprovement', 'poor')
- * @returns Diagnostics object or null if metric is good or unknown
+ * @param {Str} metricName - The metric name (e.g. 'LCP', 'CLS', 'INP')
+ * @param {Num} _value - The metric value (reserved for future use)
+ * @param {Str} rating - The performance rating ('good', 'needsImprovement', 'poor')
+ * @returns {Result<VitalDiagnostics | null>} Diagnostics object or null if metric is good or unknown
  *
  * @example
  * ```typescript
- * const diag = collectDiagnostics('LCP', 3200, 'needsImprovement');
- * if (diag) {
- *   console.log(diag.thresholds); // { good: 2500, poor: 4000, unit: 'ms' }
- *   console.log(diag.findings);   // [{ label: 'LCP Element', value: '<img.hero>' }, ...]
+ * const result = collectDiagnostics('LCP', 3200, 'needsImprovement');
+ * if (result.ok && result.data) {
+ *   console.log(result.data.thresholds); // { good: 2500, poor: 4000, unit: 'ms' }
+ *   console.log(result.data.findings);   // [{ label: 'LCP Element', value: '<img.hero>' }, ...]
  * }
  * ```
  */
@@ -751,40 +948,72 @@ export function collectDiagnostics(
   metricName: Str,
   _value: Num,
   rating: Str,
-): VitalDiagnostics | null {
+): Result<VitalDiagnostics | null> {
+  const metricParsed: Result<Str> = safeParse(StrSchema, metricName);
+
+  if (!metricParsed.ok) return metricParsed;
+
+  const valueParsed: Result<Num> = safeParse(NumSchema, _value);
+
+  if (!valueParsed.ok) return valueParsed;
+
+  const ratingParsed: Result<Str> = safeParse(StrSchema, rating);
+
+  if (!ratingParsed.ok) return ratingParsed;
+
   // Skip diagnostics for good metrics — no action needed
-  if (rating === 'good') return null;
+  if (ratingParsed.data === 'good') return okUnchecked(null);
 
-  const thresholds: VitalThresholds | null = getThresholds(metricName);
-  if (!thresholds) return null;
+  const thresholdsResult: Result<VitalThresholds | null> = getThresholds(metricParsed.data);
 
-  const collector: (() => DiagnosticFinding[]) | undefined = COLLECTORS[metricName];
-  const findings: DiagnosticFinding[] = collector ? collector() : [];
+  if (!thresholdsResult.ok) return thresholdsResult;
 
-  return { thresholds, findings };
+  if (!thresholdsResult.data) return okUnchecked(null);
+
+  const thresholds: VitalThresholds = thresholdsResult.data;
+  const collector: (() => Result<DiagnosticFinding[]>) | undefined = COLLECTORS[metricParsed.data];
+
+  let findings: DiagnosticFinding[] = [];
+
+  if (collector) {
+    const collectorResult: Result<DiagnosticFinding[]> = collector();
+
+    if (!collectorResult.ok) return collectorResult;
+
+    findings = collectorResult.data as DiagnosticFinding[]; // cast safe: Result.data is DeepReadonly but DiagnosticFinding[] is compatible
+  }
+
+  return okUnchecked({ thresholds, findings });
 }
 
 /**
  * Formats a threshold boundary as a human-readable string.
  *
- * @param thresholds - The threshold data
- * @returns A string like "good < 2500ms · poor > 4000ms"
+ * @param {VitalThresholds} thresholds - The threshold data
+ * @returns {Result<Str>} A string like "good < 2500ms - poor > 4000ms"
  *
  * @example
  * ```typescript
- * formatThresholds({ good: 2500, poor: 4000, unit: 'ms' });
- * // → "good < 2500ms · poor > 4000ms"
+ * const result = formatThresholds({ good: 2500, poor: 4000, unit: 'ms' });
+ * if (result.ok) {
+ *   console.log(result.data); // "good < 2500ms \u00B7 poor > 4000ms"
+ * }
  * ```
  */
-export function formatThresholds(thresholds: VitalThresholds): Str {
-  const suffix: Str = thresholds.unit === 'ms' ? 'ms' : '';
+export function formatThresholds(thresholds: VitalThresholds): Result<Str> {
+  const parsed: Result<VitalThresholds> = safeParse(VitalThresholdsSchema, thresholds);
+
+  if (!parsed.ok) return parsed;
+
+  const suffix: Str = parsed.data.unit === 'ms' ? 'ms' : '';
   const goodVal: Str =
-    thresholds.unit === 'score'
-      ? thresholds.good.toString()
-      : Math.round(thresholds.good).toString();
+    parsed.data.unit === 'score'
+      ? parsed.data.good.toString()
+      : Math.round(parsed.data.good).toString();
   const poorVal: Str =
-    thresholds.unit === 'score'
-      ? thresholds.poor.toString()
-      : Math.round(thresholds.poor).toString();
-  return `good < ${goodVal}${suffix} · poor > ${poorVal}${suffix}`;
+    parsed.data.unit === 'score'
+      ? parsed.data.poor.toString()
+      : Math.round(parsed.data.poor).toString();
+
+  return ok(StrSchema, `good < ${goodVal}${suffix} \u00B7 poor > ${poorVal}${suffix}`);
 }

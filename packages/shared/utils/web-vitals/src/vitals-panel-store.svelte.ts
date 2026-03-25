@@ -12,69 +12,143 @@
  */
 
 import * as v from 'valibot';
-import type { Str, Num, Void } from '@/schemas/common';
-import { VitalDiagnosticsSchema, type VitalDiagnostics } from './vitals-diagnostics';
 
-// ── Schema ──────────────────────────────────────────────────────────────────
+import type { Str, Num, Void } from '@/schemas/common';
+import { StrSchema, NumSchema, NameSchema, MillisecondTimestampSchema } from '@/schemas/common';
+import type { Name, MillisecondTimestamp } from '@/schemas/common';
+import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
+import { safeParse } from '@/utils/result/safe';
+
+import {
+  VitalDiagnosticsSchema,
+  type VitalDiagnostics,
+} from '@/utils/web-vitals/vitals-diagnostics';
+
+// =============================================================================
+// Schema
+// =============================================================================
+
+/** Schema for nullable vital diagnostics — wraps {@link VitalDiagnosticsSchema}. */
+const NullableVitalDiagnosticsSchema = v.nullable(VitalDiagnosticsSchema);
+
+/** Nullable vital diagnostics type inferred from schema. */
+type NullableVitalDiagnostics = v.InferOutput<typeof NullableVitalDiagnosticsSchema>;
 
 /** Schema for a single panel metric entry. */
 export const PanelMetricSchema = v.strictObject({
   /** Web Vital metric name (e.g. 'LCP', 'FCP', 'CLS'). */
-  name: v.string(),
+  name: NameSchema,
   /** Metric value (ms for timing metrics, unitless for CLS). */
   value: v.number(),
   /** Performance rating ('good', 'needsImprovement', 'poor'). */
-  rating: v.string(),
+  rating: v.pipe(v.string(), v.minLength(1), v.maxLength(50)),
   /** Timestamp when the metric was reported (ms since epoch). */
-  timestamp: v.number(),
+  timestamp: MillisecondTimestampSchema,
   /** Actionable diagnostics — present only for non-good metrics. */
-  diagnostics: v.optional(v.nullable(VitalDiagnosticsSchema)),
+  diagnostics: NullableVitalDiagnosticsSchema,
 });
 
-/** Inferred type for a panel metric entry. */
+/** Inferred type for a panel metric entry. See {@link PanelMetricSchema}. */
 export type PanelMetric = v.InferOutput<typeof PanelMetricSchema>;
 
-// ── Module State ─────────────────────────────────────────────────────────────
+// =============================================================================
+// Module State
+// =============================================================================
 
 /** Collected metrics for panel display. */
 let metrics: PanelMetric[] = $state([]);
 
-// ── Public API ───────────────────────────────────────────────────────────────
+// =============================================================================
+// API
+// =============================================================================
 
 /**
  * Pushes a vitals metric to the panel store for display.
  *
  * Called from the Perfume.js analytics tracker in `hooks.client.ts`.
  *
- * @param name - The Web Vital metric name
- * @param value - The metric value
- * @param rating - The performance rating
- * @param diagnostics - Optional actionable diagnostics for non-good metrics
+ * @param {Str} name - The Web Vital metric name
+ * @param {Num} value - The metric value
+ * @param {Str} rating - The performance rating
+ * @param {NullableVitalDiagnostics} diagnostics - Actionable diagnostics for non-good metrics
+ * @returns {Result<Void>} Ok on success, Err if input validation fails
+ *
+ * @example
+ * ```typescript
+ * import { reportVitalToPanel } from '@/utils/web-vitals/vitals-panel-store.svelte';
+ * const result = reportVitalToPanel('LCP' as Str, 2500 as Num, 'good' as Str, null);
+ * if (!result.ok) console.error(result.error);
+ * ```
  */
 export function reportVitalToPanel(
   name: Str,
   value: Num,
   rating: Str,
-  diagnostics?: VitalDiagnostics | null,
-): Void {
+  diagnostics: NullableVitalDiagnostics,
+): Result<Void> {
+  const nameResult: Result<Name> = safeParse(NameSchema, name);
+
+  if (!nameResult.ok) return nameResult;
+
+  const valueResult: Result<Num> = safeParse(NumSchema, value);
+
+  if (!valueResult.ok) return valueResult;
+
+  const ratingResult: Result<Str> = safeParse(StrSchema, rating);
+
+  if (!ratingResult.ok) return ratingResult;
+
+  const diagResult: Result<NullableVitalDiagnostics> = safeParse(
+    NullableVitalDiagnosticsSchema,
+    diagnostics,
+  );
+
+  if (!diagResult.ok) return diagResult;
+
   metrics = [
     ...metrics,
-    { name, value, rating, timestamp: Date.now(), diagnostics: diagnostics ?? null },
+    {
+      name: nameResult.data,
+      value: valueResult.data,
+      rating: ratingResult.data,
+      // Date.now() returns a valid millisecond timestamp — safe to assert branded type
+      timestamp: Date.now() as MillisecondTimestamp,
+      diagnostics: diagResult.data as NullableVitalDiagnostics, // cast safe: safeParse validated against NullableVitalDiagnosticsSchema
+    },
   ];
+  return okUnchecked<Void>(undefined);
 }
 
 /**
  * Returns the current list of collected panel metrics (reactive).
  *
- * @returns Array of PanelMetric entries
+ * @returns {Result<PanelMetric[]>} Ok with array of PanelMetric entries
+ *
+ * @example
+ * ```typescript
+ * import { getVitalsPanelMetrics } from '@/utils/web-vitals/vitals-panel-store.svelte';
+ * const result = getVitalsPanelMetrics();
+ * if (result.ok) console.log(result.data);
+ * ```
  */
-export function getVitalsPanelMetrics(): PanelMetric[] {
-  return metrics;
+export function getVitalsPanelMetrics(): Result<PanelMetric[]> {
+  // Snapshot strips the Svelte $state proxy so _deepFreeze in okUnchecked does not conflict
+  return okUnchecked<PanelMetric[]>($state.snapshot(metrics) as PanelMetric[]);
 }
 
 /**
  * Resets all panel metrics for test isolation.
+ *
+ * @returns {Result<Void>} Ok after clearing metrics
+ *
+ * @example
+ * ```typescript
+ * import { resetPanelMetrics } from '@/utils/web-vitals/vitals-panel-store.svelte';
+ * const result = resetPanelMetrics();
+ * if (result.ok) console.log('Metrics cleared');
+ * ```
  */
-export function resetPanelMetrics(): Void {
+export function resetPanelMetrics(): Result<Void> {
   metrics = [];
+  return okUnchecked<Void>(undefined);
 }

@@ -36,7 +36,7 @@ const mockConnectionSnapshot: ConnectionSnapshot = {
 };
 
 vi.mock('@/utils/web-vitals/vitals-panel-store.svelte', () => ({
-  getVitalsPanelMetrics: (): PanelMetric[] => mockPanelMetrics,
+  getVitalsPanelMetrics: () => ({ ok: true, data: mockPanelMetrics, error: null }),
   reportVitalToPanel: vi.fn(),
   resetPanelMetrics: vi.fn(),
 }));

@@ -1,43 +1,39 @@
-/// <reference types="svelte" />
 /**
- * Connection Quality Store
+ * Connection Quality Store — reactive module using `$state` runes.
  *
- * Reactive connection quality module using module-level `$state` runes
- * (same pattern as editor-state). Merges two data sources:
- *
- * 1. **Network Information API** (`navigator.connection`) — `effectiveType`,
- *    `rtt`, `downlink`, `saveData`. Updated on `change` events.
- * 2. **Perfume.js `navigatorInformation`** — `isLowEndDevice`,
- *    `isLowEndExperience`, `deviceMemory`, `hardwareConcurrency`.
- *    Reported once at page load via `updateFromNavigatorInfo()`.
- *
- * Quality tiers:
- * - `saveData=true` → `'slow'`
- * - `effectiveType in ['slow-2g', '2g']` → `'slow'`
- * - `effectiveType === '3g'` → `'medium'`
- * - `effectiveType === '4g'` → `'fast'`
- * - API unavailable → `'unknown'`
+ * Merges Network Information API and Perfume.js navigator data.
  *
  * @module
  */
+/// <reference types="svelte" />
 
 import * as v from 'valibot';
-import type { Str, Num, Bool, Void } from '@/schemas/common';
-import { okUnchecked, type Result } from '@/schemas/result/result';
-import type { NavigatorInfo } from './perfume';
 
-// ── Schemas & Types ─────────────────────────────────────────────────────────
+import type { Str, Num, Bool, Void } from '@/schemas/common';
+import { ok, okUnchecked, type Result } from '@/schemas/result/result';
+import { safeParse } from '@/utils/result/safe';
+
+import type { NavigatorInfo } from '@/utils/web-vitals/perfume';
+
+// ===
+// Schemas & Types
+
+/** Valid effective type values from the Network Information API plus our 'unknown' sentinel. */
+const EFFECTIVE_TYPE_REGEX: RegExp = /^(?:slow-2g|2g|3g|4g|unknown)$/;
+
+/** Valid service worker status values from Perfume.js. */
+const SW_STATUS_REGEX: RegExp = /^(?:controlled|supported|unsupported)$/;
 
 /** Supported connection quality tiers. */
 export const ConnectionQualitySchema = v.picklist(['fast', 'medium', 'slow', 'unknown']);
 
-/** Connection quality tier type. */
+/** Connection quality tier type. {@link ConnectionQualitySchema} */
 export type ConnectionQuality = v.InferOutput<typeof ConnectionQualitySchema>;
 
 /** Snapshot of all connection state for beacon payloads and logging. */
 export const ConnectionSnapshotSchema = v.strictObject({
   /** Network effective type (e.g. '4g', '3g', '2g', 'slow-2g'). */
-  effectiveType: v.string(),
+  effectiveType: v.pipe(v.string(), v.minLength(1), v.maxLength(16), v.regex(EFFECTIVE_TYPE_REGEX)),
   /** Whether the user has data-saver mode enabled. */
   saveData: v.boolean(),
   /** Round-trip time estimate in milliseconds. */
@@ -56,45 +52,8 @@ export const ConnectionSnapshotSchema = v.strictObject({
   hardwareConcurrency: v.number(),
 });
 
-/** Snapshot type inferred from schema. */
+/** Snapshot type inferred from schema. {@link ConnectionSnapshotSchema} */
 export type ConnectionSnapshot = v.InferOutput<typeof ConnectionSnapshotSchema>;
-
-// ── Quality Tier Logic ──────────────────────────────────────────────────────
-
-/** Effective types that map to 'slow' quality. */
-const SLOW_TYPES: ReadonlySet<Str> = new Set(['slow-2g', '2g']);
-
-/**
- * Derives the connection quality tier from effectiveType and saveData.
- *
- * @param effectiveType - Network effective type string
- * @param saveData - Whether data-saver is active
- * @param apiAvailable - Whether the Network Information API is present
- * @returns The derived quality tier
- */
-function deriveQuality(effectiveType: Str, saveData: Bool, apiAvailable: Bool): ConnectionQuality {
-  if (!apiAvailable) return 'unknown';
-  if (saveData) return 'slow';
-  if (SLOW_TYPES.has(effectiveType)) return 'slow';
-  if (effectiveType === '3g') return 'medium';
-  if (effectiveType === '4g') return 'fast';
-  return 'unknown';
-}
-
-// ── Module-Level Reactive State ─────────────────────────────────────────────
-
-let _effectiveType: Str = $state('');
-let _saveData: Bool = $state(false);
-let _rtt: Num = $state(0);
-let _downlink: Num = $state(0);
-let _quality: ConnectionQuality = $state('unknown');
-let _isLowEndDevice: Bool = $state(false);
-let _isLowEndExperience: Bool = $state(false);
-let _deviceMemory: Num = $state(0);
-let _hardwareConcurrency: Num = $state(0);
-let _apiAvailable: Bool = $state(false);
-
-// ── NetworkInformation API Typing ───────────────────────────────────────────
 
 /**
  * Minimal NetworkInformation type.
@@ -113,20 +72,93 @@ type NetworkInformation = EventTarget & {
   readonly downlink: Num;
 };
 
+/** Validation schema for Perfume.js navigator information. */
+const NavigatorInfoSchema = v.strictObject({
+  /** Device RAM in GB. */
+  deviceMemory: v.optional(v.number()),
+  /** Logical CPU core count. */
+  hardwareConcurrency: v.optional(v.number()),
+  /** Whether the device is considered low-end. */
+  isLowEndDevice: v.optional(v.boolean()),
+  /** Whether the experience is considered low-end (device + network). */
+  isLowEndExperience: v.optional(v.boolean()),
+  /** Service worker registration status. */
+  serviceWorkerStatus: v.optional(
+    v.pipe(v.string(), v.minLength(1), v.maxLength(32), v.regex(SW_STATUS_REGEX)),
+  ),
+});
+
+/** Inferred type for validated navigator info. */
+type ValidatedNavigatorInfo = v.InferOutput<typeof NavigatorInfoSchema>;
+
+// ===
+// Constants
+
+/** Effective types that map to 'slow' quality. */
+const SLOW_TYPES: ReadonlySet<Str> = new Set(['slow-2g', '2g']);
+
+// ===
+// Helpers
+
+/**
+ * Derives the connection quality tier from effectiveType and saveData.
+ *
+ * @param {Str} effectiveType - Network effective type string
+ * @param {Bool} saveData - Whether data-saver is active
+ * @param {Bool} apiAvailable - Whether the Network Information API is present
+ * @returns {Result<ConnectionQuality>} The derived quality tier
+ */
+function deriveQuality(
+  effectiveType: Str,
+  saveData: Bool,
+  apiAvailable: Bool,
+): Result<ConnectionQuality> {
+  if (!apiAvailable) return ok(ConnectionQualitySchema, 'unknown');
+  if (saveData) return ok(ConnectionQualitySchema, 'slow');
+  if (SLOW_TYPES.has(effectiveType)) return ok(ConnectionQualitySchema, 'slow');
+  if (effectiveType === '3g') return ok(ConnectionQualitySchema, 'medium');
+  if (effectiveType === '4g') return ok(ConnectionQualitySchema, 'fast');
+
+  return ok(ConnectionQualitySchema, 'unknown');
+}
+
+/** Module-level reactive state. */
+let _effectiveType: Str = $state('unknown');
+let _saveData: Bool = $state(false);
+let _rtt: Num = $state(0);
+let _downlink: Num = $state(0);
+let _quality: ConnectionQuality = $state('unknown');
+let _isLowEndDevice: Bool = $state(false);
+let _isLowEndExperience: Bool = $state(false);
+let _deviceMemory: Num = $state(0);
+let _hardwareConcurrency: Num = $state(0);
+let _apiAvailable: Bool = $state(false);
+
 /**
  * Reads current values from the NetworkInformation object and updates state.
  *
- * @param conn - The navigator.connection object
+ * @param {NetworkInformation} conn - The navigator.connection object
+ * @returns {Result<Void>} Always succeeds
  */
-function readFromConnection(conn: NetworkInformation): void {
+function readFromConnection(conn: NetworkInformation): Result<Void> {
   _effectiveType = conn.effectiveType;
   _saveData = conn.saveData;
   _rtt = conn.rtt;
   _downlink = conn.downlink;
-  _quality = deriveQuality(_effectiveType, _saveData, _apiAvailable);
+
+  const qualityResult: Result<ConnectionQuality> = deriveQuality(
+    _effectiveType,
+    _saveData,
+    _apiAvailable,
+  );
+
+  if (qualityResult.ok) _quality = qualityResult.data;
+
+  return okUnchecked<Void>(undefined);
 }
 
-// ── Public API ──────────────────────────────────────────────────────────────
+// ===
+// Public API
 
 /**
  * Initializes the connection quality store.
@@ -136,11 +168,13 @@ function readFromConnection(conn: NetworkInformation): void {
  *
  * Must be called client-side only (guard with `browser` check at call site).
  *
- * @returns `Result<Void>` — always succeeds
+ * @returns {Result<Void>} Always succeeds
  *
  * @example
+ * ```typescript
  * import { browser } from '$app/environment';
  * if (browser) initConnection();
+ * ```
  */
 export function initConnection(): Result<Void> {
   // navigator.connection is not available in all browsers.
@@ -150,17 +184,22 @@ export function initConnection(): Result<Void> {
 
   if (!conn) {
     _apiAvailable = false;
-    _effectiveType = '';
+    _effectiveType = 'unknown';
     _quality = 'unknown';
     return okUnchecked<Void>(undefined);
   }
 
   _apiAvailable = true;
-  readFromConnection(conn);
+
+  const readResult: Result<Void> = readFromConnection(conn);
+
+  if (!readResult.ok) return readResult;
 
   // Listen for connection changes (e.g. switching from WiFi to cellular)
-  conn.addEventListener('change', () => {
-    readFromConnection(conn);
+  conn.addEventListener('change', (): Void => {
+    const _changeResult: Result<Void> = readFromConnection(conn);
+
+    return undefined;
   });
 
   return okUnchecked<Void>(undefined);
@@ -172,106 +211,159 @@ export function initConnection(): Result<Void> {
  * Perfume.js reports `navigatorInformation` once at page load with device
  * capabilities that aren't available from the Network Information API.
  *
- * @param info - Perfume.js navigator information object
- * @returns `Result<Void>` — always succeeds
+ * @param {NavigatorInfo} info - Perfume.js navigator information object
+ * @returns {Result<Void>} Always succeeds
  *
  * @example
+ * ```typescript
  * updateFromNavigatorInfo({
  *   deviceMemory: 8,
  *   hardwareConcurrency: 8,
  *   isLowEndDevice: false,
  *   isLowEndExperience: false,
  * });
+ * ```
  */
 export function updateFromNavigatorInfo(info: NavigatorInfo): Result<Void> {
-  if (info.deviceMemory !== undefined) _deviceMemory = info.deviceMemory;
-  if (info.hardwareConcurrency !== undefined) _hardwareConcurrency = info.hardwareConcurrency;
-  if (info.isLowEndDevice !== undefined) _isLowEndDevice = info.isLowEndDevice;
-  if (info.isLowEndExperience !== undefined) _isLowEndExperience = info.isLowEndExperience;
+  const infoResult: Result<ValidatedNavigatorInfo> = safeParse(NavigatorInfoSchema, info);
+
+  if (!infoResult.ok) return infoResult;
+
+  const validated: ValidatedNavigatorInfo = infoResult.data;
+
+  if (validated.deviceMemory !== undefined) _deviceMemory = validated.deviceMemory;
+  if (validated.hardwareConcurrency !== undefined)
+    _hardwareConcurrency = validated.hardwareConcurrency;
+  if (validated.isLowEndDevice !== undefined) _isLowEndDevice = validated.isLowEndDevice;
+  if (validated.isLowEndExperience !== undefined)
+    _isLowEndExperience = validated.isLowEndExperience;
   return okUnchecked<Void>(undefined);
 }
-
-// ── Getters ─────────────────────────────────────────────────────────────────
 
 /**
  * Returns the current connection quality tier.
  *
- * @returns Quality tier: 'fast', 'medium', 'slow', or 'unknown'
+ * @returns {Result<ConnectionQuality>} Quality tier: 'fast', 'medium', 'slow', or 'unknown'
+ *
+ * @example
+ * ```typescript
+ * const quality = getConnectionQuality();
+ * ```
  */
-export function getConnectionQuality(): ConnectionQuality {
-  return _quality;
+export function getConnectionQuality(): Result<ConnectionQuality> {
+  return ok(ConnectionQualitySchema, _quality);
 }
 
 /**
  * Returns the current effective connection type.
  *
- * @returns Effective type string (e.g. '4g', '3g', '2g', 'slow-2g') or empty if unavailable
+ * @returns {Result<Str>} Effective type string (e.g. '4g', '3g') or 'unknown' if unavailable
+ *
+ * @example
+ * ```typescript
+ * const effectiveType = getEffectiveType();
+ * ```
  */
-export function getEffectiveType(): Str {
-  return _effectiveType;
+export function getEffectiveType(): Result<Str> {
+  return okUnchecked<Str>(_effectiveType);
 }
 
 /**
  * Returns whether the user has data-saver mode enabled.
  *
- * @returns `true` if data-saver is active
+ * @returns {Result<Bool>} `true` if data-saver is active
+ *
+ * @example
+ * ```typescript
+ * const saveData = getSaveData();
+ * ```
  */
-export function getSaveData(): Bool {
-  return _saveData;
+export function getSaveData(): Result<Bool> {
+  return okUnchecked<Bool>(_saveData);
 }
 
 /**
  * Returns the estimated round-trip time in milliseconds.
  *
- * @returns RTT in milliseconds (0 if unavailable)
+ * @returns {Result<Num>} RTT in milliseconds (0 if unavailable)
+ *
+ * @example
+ * ```typescript
+ * const rtt = getRtt();
+ * ```
  */
-export function getRtt(): Num {
-  return _rtt;
+export function getRtt(): Result<Num> {
+  return okUnchecked<Num>(_rtt);
 }
 
 /**
  * Returns the estimated downlink speed in megabits per second.
  *
- * @returns Downlink speed in Mbps (0 if unavailable)
+ * @returns {Result<Num>} Downlink speed in Mbps (0 if unavailable)
+ *
+ * @example
+ * ```typescript
+ * const downlink = getDownlink();
+ * ```
  */
-export function getDownlink(): Num {
-  return _downlink;
+export function getDownlink(): Result<Num> {
+  return okUnchecked<Num>(_downlink);
 }
 
 /**
  * Returns whether Perfume.js considers this a low-end device.
  *
- * @returns `true` if device is low-end
+ * @returns {Result<Bool>} `true` if device is low-end
+ *
+ * @example
+ * ```typescript
+ * const isLowEnd = getIsLowEndDevice();
+ * ```
  */
-export function getIsLowEndDevice(): Bool {
-  return _isLowEndDevice;
+export function getIsLowEndDevice(): Result<Bool> {
+  return okUnchecked<Bool>(_isLowEndDevice);
 }
 
 /**
  * Returns whether Perfume.js considers this a low-end experience.
  *
- * @returns `true` if experience is low-end (device + network combined)
+ * @returns {Result<Bool>} `true` if experience is low-end (device + network combined)
+ *
+ * @example
+ * ```typescript
+ * const isLowEndExp = getIsLowEndExperience();
+ * ```
  */
-export function getIsLowEndExperience(): Bool {
-  return _isLowEndExperience;
+export function getIsLowEndExperience(): Result<Bool> {
+  return okUnchecked<Bool>(_isLowEndExperience);
 }
 
 /**
  * Returns the device memory in GB.
  *
- * @returns Device RAM in GB (0 if unavailable)
+ * @returns {Result<Num>} Device RAM in GB (0 if unavailable)
+ *
+ * @example
+ * ```typescript
+ * const memory = getDeviceMemory();
+ * ```
  */
-export function getDeviceMemory(): Num {
-  return _deviceMemory;
+export function getDeviceMemory(): Result<Num> {
+  return okUnchecked<Num>(_deviceMemory);
 }
 
 /**
  * Returns the hardware concurrency (logical CPU core count).
  *
- * @returns CPU core count (0 if unavailable)
+ * @returns {Result<Num>} CPU core count (0 if unavailable)
+ *
+ * @example
+ * ```typescript
+ * const cores = getHardwareConcurrency();
+ * ```
  */
-export function getHardwareConcurrency(): Num {
-  return _hardwareConcurrency;
+export function getHardwareConcurrency(): Result<Num> {
+  return okUnchecked<Num>(_hardwareConcurrency);
 }
 
 /**
@@ -280,24 +372,29 @@ export function getHardwareConcurrency(): Num {
  * Useful for beacon payloads and structured logging where a single
  * consistent point-in-time capture is needed.
  *
- * @returns Frozen object with all connection properties
+ * @returns {Result<ConnectionSnapshot>} Frozen object with all connection properties
  *
  * @example
+ * ```typescript
  * const snap = getConnectionSnapshot();
- * console.log(snap.quality, snap.effectiveType);
+ * if (snap.ok) console.log(snap.data.quality, snap.data.effectiveType);
+ * ```
  */
-export function getConnectionSnapshot(): ConnectionSnapshot {
-  return Object.freeze({
-    effectiveType: _effectiveType,
-    saveData: _saveData,
-    rtt: _rtt,
-    downlink: _downlink,
-    quality: _quality,
-    isLowEndDevice: _isLowEndDevice,
-    isLowEndExperience: _isLowEndExperience,
-    deviceMemory: _deviceMemory,
-    hardwareConcurrency: _hardwareConcurrency,
-  });
+export function getConnectionSnapshot(): Result<ConnectionSnapshot> {
+  return ok(
+    ConnectionSnapshotSchema,
+    Object.freeze({
+      effectiveType: _effectiveType,
+      saveData: _saveData,
+      rtt: _rtt,
+      downlink: _downlink,
+      quality: _quality,
+      isLowEndDevice: _isLowEndDevice,
+      isLowEndExperience: _isLowEndExperience,
+      deviceMemory: _deviceMemory,
+      hardwareConcurrency: _hardwareConcurrency,
+    }),
+  );
 }
 
 /**
@@ -306,10 +403,15 @@ export function getConnectionSnapshot(): ConnectionSnapshot {
  * Intended for test isolation — each test should call this in `beforeEach`
  * to ensure a clean slate.
  *
- * @returns `Result<Void>` — always succeeds
+ * @returns {Result<Void>} Always succeeds
+ *
+ * @example
+ * ```typescript
+ * beforeEach(() => { resetConnection(); });
+ * ```
  */
 export function resetConnection(): Result<Void> {
-  _effectiveType = '';
+  _effectiveType = 'unknown';
   _saveData = false;
   _rtt = 0;
   _downlink = 0;

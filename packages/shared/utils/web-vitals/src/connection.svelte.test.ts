@@ -10,7 +10,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { Str, Num, Bool, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
-import type { NavigatorInfo } from './perfume';
+import type { NavigatorInfo } from '@/utils/web-vitals/perfume';
 import {
   initConnection,
   resetConnection,
@@ -27,7 +27,7 @@ import {
   getConnectionSnapshot,
 } from './connection.svelte';
 
-// ── Mock navigator.connection ──────────────────────────────────────────────
+// === Mock navigator.connection
 
 type MockConnection = {
   effectiveType: Str;
@@ -69,7 +69,7 @@ function installMockConnection(conn: MockConnection | null): void {
   });
 }
 
-// ── Tests ──────────────────────────────────────────────────────────────────
+// === Tests
 
 describe('connection quality store', () => {
   beforeEach(() => {
@@ -85,7 +85,7 @@ describe('connection quality store', () => {
     });
   });
 
-  // ── initConnection ───────────────────────────────────────────────────
+  // === initConnection
 
   describe('initConnection', () => {
     it('reads navigator.connection when available', () => {
@@ -99,9 +99,18 @@ describe('connection quality store', () => {
 
       const result: Result<Void> = initConnection();
       expect(result.ok).toBe(true);
-      expect(getEffectiveType()).toBe('3g');
-      expect(getRtt()).toBe(300);
-      expect(getDownlink()).toBe(1.5);
+
+      const etResult = getEffectiveType();
+      expect(etResult.ok).toBe(true);
+      if (etResult.ok) expect(etResult.data).toBe('3g');
+
+      const rttResult = getRtt();
+      expect(rttResult.ok).toBe(true);
+      if (rttResult.ok) expect(rttResult.data).toBe(300);
+
+      const dlResult = getDownlink();
+      expect(dlResult.ok).toBe(true);
+      if (dlResult.ok) expect(dlResult.data).toBe(1.5);
     });
 
     it('registers a change event listener', () => {
@@ -117,19 +126,28 @@ describe('connection quality store', () => {
 
       const result: Result<Void> = initConnection();
       expect(result.ok).toBe(true);
-      expect(getConnectionQuality()).toBe('unknown');
+
+      const qualityResult = getConnectionQuality();
+      expect(qualityResult.ok).toBe(true);
+      if (qualityResult.ok) expect(qualityResult.data).toBe('unknown');
     });
 
     it('sets quality to unknown when API is absent', () => {
       installMockConnection(null);
 
       initConnection();
-      expect(getConnectionQuality()).toBe('unknown');
-      expect(getEffectiveType()).toBe('');
+
+      const qualityResult = getConnectionQuality();
+      expect(qualityResult.ok).toBe(true);
+      if (qualityResult.ok) expect(qualityResult.data).toBe('unknown');
+
+      const etResult = getEffectiveType();
+      expect(etResult.ok).toBe(true);
+      if (etResult.ok) expect(etResult.data).toBe('unknown');
     });
   });
 
-  // ── getConnectionQuality ─────────────────────────────────────────────
+  // === getConnectionQuality
 
   describe('getConnectionQuality', () => {
     it('returns fast for 4g', () => {
@@ -137,7 +155,9 @@ describe('connection quality store', () => {
       installMockConnection(conn);
 
       initConnection();
-      expect(getConnectionQuality()).toBe('fast');
+      const result = getConnectionQuality();
+      expect(result.ok).toBe(true);
+      if (result.ok) expect(result.data).toBe('fast');
     });
 
     it('returns medium for 3g', () => {
@@ -145,7 +165,9 @@ describe('connection quality store', () => {
       installMockConnection(conn);
 
       initConnection();
-      expect(getConnectionQuality()).toBe('medium');
+      const result = getConnectionQuality();
+      expect(result.ok).toBe(true);
+      if (result.ok) expect(result.data).toBe('medium');
     });
 
     it('returns slow for 2g', () => {
@@ -153,7 +175,9 @@ describe('connection quality store', () => {
       installMockConnection(conn);
 
       initConnection();
-      expect(getConnectionQuality()).toBe('slow');
+      const result = getConnectionQuality();
+      expect(result.ok).toBe(true);
+      if (result.ok) expect(result.data).toBe('slow');
     });
 
     it('returns slow for slow-2g', () => {
@@ -161,7 +185,9 @@ describe('connection quality store', () => {
       installMockConnection(conn);
 
       initConnection();
-      expect(getConnectionQuality()).toBe('slow');
+      const result = getConnectionQuality();
+      expect(result.ok).toBe(true);
+      if (result.ok) expect(result.data).toBe('slow');
     });
 
     it('saveData=true overrides to slow regardless of effectiveType', () => {
@@ -172,18 +198,22 @@ describe('connection quality store', () => {
       installMockConnection(conn);
 
       initConnection();
-      expect(getConnectionQuality()).toBe('slow');
+      const result = getConnectionQuality();
+      expect(result.ok).toBe(true);
+      if (result.ok) expect(result.data).toBe('slow');
     });
 
     it('returns unknown when API is unavailable', () => {
       installMockConnection(null);
 
       initConnection();
-      expect(getConnectionQuality()).toBe('unknown');
+      const result = getConnectionQuality();
+      expect(result.ok).toBe(true);
+      if (result.ok) expect(result.data).toBe('unknown');
     });
   });
 
-  // ── updateFromNavigatorInfo ──────────────────────────────────────────
+  // === updateFromNavigatorInfo
 
   describe('updateFromNavigatorInfo', () => {
     it('merges Perfume.js device data', () => {
@@ -200,10 +230,22 @@ describe('connection quality store', () => {
 
       const result: Result<Void> = updateFromNavigatorInfo(info);
       expect(result.ok).toBe(true);
-      expect(getDeviceMemory()).toBe(8);
-      expect(getHardwareConcurrency()).toBe(8);
-      expect(getIsLowEndDevice()).toBe(false);
-      expect(getIsLowEndExperience()).toBe(false);
+
+      const memResult = getDeviceMemory();
+      expect(memResult.ok).toBe(true);
+      if (memResult.ok) expect(memResult.data).toBe(8);
+
+      const hwResult = getHardwareConcurrency();
+      expect(hwResult.ok).toBe(true);
+      if (hwResult.ok) expect(hwResult.data).toBe(8);
+
+      const ledResult = getIsLowEndDevice();
+      expect(ledResult.ok).toBe(true);
+      if (ledResult.ok) expect(ledResult.data).toBe(false);
+
+      const leeResult = getIsLowEndExperience();
+      expect(leeResult.ok).toBe(true);
+      if (leeResult.ok) expect(leeResult.data).toBe(false);
     });
 
     it('handles low-end device info', () => {
@@ -219,9 +261,18 @@ describe('connection quality store', () => {
       };
 
       updateFromNavigatorInfo(info);
-      expect(getIsLowEndDevice()).toBe(true);
-      expect(getIsLowEndExperience()).toBe(true);
-      expect(getDeviceMemory()).toBe(2);
+
+      const ledResult = getIsLowEndDevice();
+      expect(ledResult.ok).toBe(true);
+      if (ledResult.ok) expect(ledResult.data).toBe(true);
+
+      const leeResult = getIsLowEndExperience();
+      expect(leeResult.ok).toBe(true);
+      if (leeResult.ok) expect(leeResult.data).toBe(true);
+
+      const memResult = getDeviceMemory();
+      expect(memResult.ok).toBe(true);
+      if (memResult.ok) expect(memResult.data).toBe(2);
     });
 
     it('handles undefined fields gracefully', () => {
@@ -233,15 +284,27 @@ describe('connection quality store', () => {
 
       const result: Result<Void> = updateFromNavigatorInfo(info);
       expect(result.ok).toBe(true);
+
       // Defaults should remain
-      expect(getDeviceMemory()).toBe(0);
-      expect(getHardwareConcurrency()).toBe(0);
-      expect(getIsLowEndDevice()).toBe(false);
-      expect(getIsLowEndExperience()).toBe(false);
+      const memResult = getDeviceMemory();
+      expect(memResult.ok).toBe(true);
+      if (memResult.ok) expect(memResult.data).toBe(0);
+
+      const hwResult = getHardwareConcurrency();
+      expect(hwResult.ok).toBe(true);
+      if (hwResult.ok) expect(hwResult.data).toBe(0);
+
+      const ledResult = getIsLowEndDevice();
+      expect(ledResult.ok).toBe(true);
+      if (ledResult.ok) expect(ledResult.data).toBe(false);
+
+      const leeResult = getIsLowEndExperience();
+      expect(leeResult.ok).toBe(true);
+      if (leeResult.ok) expect(leeResult.data).toBe(false);
     });
   });
 
-  // ── getSaveData ─────────────────────────────────────────────────────
+  // === getSaveData
 
   describe('getSaveData', () => {
     it('returns true when connection reports saveData', () => {
@@ -249,7 +312,9 @@ describe('connection quality store', () => {
       installMockConnection(conn);
 
       initConnection();
-      expect(getSaveData()).toBe(true);
+      const result = getSaveData();
+      expect(result.ok).toBe(true);
+      if (result.ok) expect(result.data).toBe(true);
     });
 
     it('returns false by default', () => {
@@ -257,11 +322,13 @@ describe('connection quality store', () => {
       installMockConnection(conn);
 
       initConnection();
-      expect(getSaveData()).toBe(false);
+      const result = getSaveData();
+      expect(result.ok).toBe(true);
+      if (result.ok) expect(result.data).toBe(false);
     });
   });
 
-  // ── connection change event ─────────────────────────────────────────
+  // === connection change event
 
   describe('connection change event', () => {
     it('updates quality when connection changes', () => {
@@ -269,19 +336,26 @@ describe('connection quality store', () => {
       installMockConnection(conn);
 
       initConnection();
-      expect(getConnectionQuality()).toBe('fast');
+      const qualityBefore = getConnectionQuality();
+      expect(qualityBefore.ok).toBe(true);
+      if (qualityBefore.ok) expect(qualityBefore.data).toBe('fast');
 
       // Simulate connection change
       const changeHandler = conn.addEventListener.mock.calls[0]![1] as () => void;
       conn.effectiveType = '2g';
       changeHandler();
 
-      expect(getConnectionQuality()).toBe('slow');
-      expect(getEffectiveType()).toBe('2g');
+      const qualityAfter = getConnectionQuality();
+      expect(qualityAfter.ok).toBe(true);
+      if (qualityAfter.ok) expect(qualityAfter.data).toBe('slow');
+
+      const etResult = getEffectiveType();
+      expect(etResult.ok).toBe(true);
+      if (etResult.ok) expect(etResult.data).toBe('2g');
     });
   });
 
-  // ── snapshot ─────────────────────────────────────────────────────────
+  // === snapshot
 
   describe('getConnectionSnapshot', () => {
     it('returns a frozen snapshot of all connection state', () => {
@@ -301,23 +375,26 @@ describe('connection quality store', () => {
         isLowEndExperience: false,
       });
 
-      const snapshot = getConnectionSnapshot();
-      expect(snapshot).toEqual({
-        effectiveType: '3g',
-        saveData: false,
-        rtt: 200,
-        downlink: 2,
-        quality: 'medium',
-        isLowEndDevice: false,
-        isLowEndExperience: false,
-        deviceMemory: 4,
-        hardwareConcurrency: 4,
-      });
-      expect(Object.isFrozen(snapshot)).toBe(true);
+      const snapResult = getConnectionSnapshot();
+      expect(snapResult.ok).toBe(true);
+      if (snapResult.ok) {
+        expect(snapResult.data).toEqual({
+          effectiveType: '3g',
+          saveData: false,
+          rtt: 200,
+          downlink: 2,
+          quality: 'medium',
+          isLowEndDevice: false,
+          isLowEndExperience: false,
+          deviceMemory: 4,
+          hardwareConcurrency: 4,
+        });
+        expect(Object.isFrozen(snapResult.data)).toBe(true);
+      }
     });
   });
 
-  // ── edge cases ──────────────────────────────────────────────────────
+  // === edge cases
 
   describe('edge cases', () => {
     it('returns unknown quality for unrecognized effectiveType', () => {
@@ -330,7 +407,9 @@ describe('connection quality store', () => {
       installMockConnection(conn);
       initConnection();
 
-      expect(getConnectionQuality()).toBe('unknown');
+      const result = getConnectionQuality();
+      expect(result.ok).toBe(true);
+      if (result.ok) expect(result.data).toBe('unknown');
     });
 
     it('updateFromNavigatorInfo handles individual undefined fields', () => {
@@ -348,11 +427,14 @@ describe('connection quality store', () => {
         deviceMemory: 16,
       });
 
-      const snapshot = getConnectionSnapshot();
-      expect(snapshot.deviceMemory).toBe(16);
-      // Other fields should keep defaults (0/false from resetConnection)
-      expect(snapshot.hardwareConcurrency).toBe(0);
-      expect(snapshot.isLowEndDevice).toBe(false);
+      const snapResult = getConnectionSnapshot();
+      expect(snapResult.ok).toBe(true);
+      if (snapResult.ok) {
+        expect(snapResult.data.deviceMemory).toBe(16);
+        // Other fields should keep defaults (0/false from resetConnection)
+        expect(snapResult.data.hardwareConcurrency).toBe(0);
+        expect(snapResult.data.isLowEndDevice).toBe(false);
+      }
     });
   });
 });

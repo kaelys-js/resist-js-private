@@ -47,7 +47,12 @@ function checkJsExtension(node: AstNode, context: VisitorContext): LintResult[] 
   }
 
   // Skip bare package names like 'perfume.js' (npm packages, not file paths)
-  if (value.endsWith('.js') && !value.startsWith('.') && !value.startsWith('@') && !value.includes('/')) {
+  if (
+    value.endsWith('.js') &&
+    !value.startsWith('.') &&
+    !value.startsWith('@') &&
+    !value.includes('/')
+  ) {
     return results;
   }
 

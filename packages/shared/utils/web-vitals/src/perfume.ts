@@ -18,10 +18,12 @@ import {
   type IVitalsScore,
   type INavigationType,
 } from 'perfume.js';
-import type { Void } from '@/schemas/common';
-import { okUnchecked, type Result } from '@/schemas/result/result';
 
-// ── Re-exported types ────────────────────────────────────────────────────────
+import type { Void } from '@/schemas/common';
+import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
+
+// ===
+// Types
 
 /** Re-export of Perfume.js analytics tracker options for downstream consumers. */
 export type AnalyticsTrackerOptions = IAnalyticsTrackerOptions;
@@ -36,7 +38,10 @@ export type VitalsScore = IVitalsScore;
 export type { INavigationType as NavigationType };
 
 /** Analytics tracker callback signature. */
-export type AnalyticsTrackerFn = (options: IAnalyticsTrackerOptions) => void;
+export type AnalyticsTrackerFn = (options: IAnalyticsTrackerOptions) => Void;
+
+// ===
+// API
 
 /**
  * Initializes Perfume.js with the given analytics tracker callback.
@@ -47,15 +52,21 @@ export type AnalyticsTrackerFn = (options: IAnalyticsTrackerOptions) => void;
  *
  * Must be called client-side only (guard with `browser` check at call site).
  *
- * @param tracker - Callback invoked for each metric Perfume.js reports
- * @returns `Result<Void>` — always succeeds
+ * @param {(options: IAnalyticsTrackerOptions) => Void} tracker - Callback invoked for each metric Perfume.js reports
+ * @returns {Result<Void>} Always succeeds
  *
  * @example
+ * ```typescript
  * setupPerfume((options) => {
  *   console.log(options.metricName, options.data, options.rating);
  * });
+ * ```
  */
-export function setupPerfume(tracker: AnalyticsTrackerFn): Result<Void> {
+export function setupPerfume(tracker: (options: IAnalyticsTrackerOptions) => Void): Result<Void> {
+  if (typeof tracker !== 'function') {
+    return err(ERRORS.VALIDATION.INVALID_TYPE, 'tracker must be a function');
+  }
+
   initPerfume({
     analyticsTracker: tracker,
     resourceTiming: false,
