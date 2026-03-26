@@ -282,37 +282,51 @@ export type JsonSchemaProperty = {
 };
 
 /** Schema for JSON Schema property definitions. See {@link JsonSchemaProperty}. */
-export const JsonSchemaPropertySchema: v.GenericSchema<JsonSchemaProperty> = v.object({
+export const JsonSchemaPropertySchema: v.GenericSchema<JsonSchemaProperty> = v.strictObject({
+  /** JSON Schema type (e.g. 'string', 'object', 'array'). */
   type: v.optional(v.string()),
+  /** Human-readable description of the property. */
   description: v.optional(v.string()),
+  /** Default value for the property. */
   default: v.optional(v.unknown()),
+  /** Allowed string enum values. */
   enum: v.optional(v.array(v.string())),
+  /** Schema for array items. */
   items: v.optional(v.lazy((): v.GenericSchema<JsonSchemaProperty> => JsonSchemaPropertySchema)),
+  /** Schema for additional object properties, or boolean to allow/deny all. */
   additionalProperties: v.optional(
     v.union([
       v.lazy((): v.GenericSchema<JsonSchemaProperty> => JsonSchemaPropertySchema),
       v.boolean(),
     ]),
   ),
+  /** Named property schemas for object types. */
   properties: v.optional(
     v.record(
       v.string(),
       v.lazy((): v.GenericSchema<JsonSchemaProperty> => JsonSchemaPropertySchema),
     ),
   ),
+  /** Required property names for object types. */
   required: v.optional(v.array(v.string())),
 });
 
 /** Schema for a full JSON Schema document. */
 export const JsonSchemaDocumentSchema = v.strictObject({
+  /** JSON Schema specification version URI. */
   $schema: v.string(),
+  /** Schema title. */
   title: v.string(),
+  /** Schema description. */
   description: v.string(),
+  /** Root JSON Schema type (always 'object' for config). */
   type: v.string(),
+  /** Top-level property definitions. */
   properties: v.record(
     v.string(),
     v.lazy((): v.GenericSchema<JsonSchemaProperty> => JsonSchemaPropertySchema),
   ),
+  /** Whether to allow properties not listed in 'properties'. */
   additionalProperties: v.boolean(),
 });
 

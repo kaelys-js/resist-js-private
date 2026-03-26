@@ -201,8 +201,6 @@
         "valibot/prefer-shared-schema": "off",
         "valibot/require-min-length": "off",
         "valibot/require-schema-suffix": "off",
-        "valibot/require-field-docs": "off",
-        "valibot/require-strict-object": "off",
         // Imports
         "imports/no-raw-json": "off",
         "imports/require-import-groups": "off"
