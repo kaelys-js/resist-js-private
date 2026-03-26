@@ -8,14 +8,25 @@ import { describe, expect, it } from 'vitest';
 import { runTypeScriptRules } from '../../framework/oxc-runner.ts';
 import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
 import colocateSchemaType from './colocate-schema-type.ts';
+import consistentInfer from './consistent-infer.ts';
 import exportSchemaAndType from './export-schema-and-type.ts';
+import importTypeOnly from './import-type-only.ts';
 import namespaceImport from './namespace-import.ts';
+import noClassValidator from './no-class-validator.ts';
 import noDirectSafeparse from './no-direct-safeparse.ts';
 import noDuplicateSchema from './no-duplicate-schema.ts';
 import noGenericStringSchema from './no-generic-string-schema.ts';
+import noInlineInfer from './no-inline-infer.ts';
+import noIoTs from './no-io-ts.ts';
+import noJoi from './no-joi.ts';
+import noOmitPickInfer from './no-omit-pick-infer.ts';
 import noOrphanSchemas from './no-orphan-schemas.ts';
 import noOrphanTypes from './no-orphan-types.ts';
 import noParse from './no-parse.ts';
+import noPartialInfer from './no-partial-infer.ts';
+import noReexportInfer from './no-reexport-infer.ts';
+import noYup from './no-yup.ts';
+import noZod from './no-zod.ts';
 import oneSchemaPerFile from './one-schema-per-file.ts';
 import preferSharedSchema from './prefer-shared-schema.ts';
 import preferTemplateLiteral from './prefer-template-literal.ts';
@@ -1431,6 +1442,354 @@ type Name = string;
 type Count = number;
 `;
     const results: LintResult[] = await lint(typeAliasFromSchema, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/consistent-infer
+// =============================================================================
+
+describe('valibot/consistent-infer', () => {
+  it('has correct rule metadata', () => {
+    expect(consistentInfer.id).toBe('valibot/consistent-infer');
+    expect(consistentInfer.visitor.TSTypeAliasDeclaration).toBeDefined();
+  });
+
+  it('passes for v.InferOutput usage', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(consistentInfer, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('warns for v.InferInput when type name does not contain Input', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferInput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(consistentInfer, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('InferInput');
+  });
+
+  it('passes for v.InferInput when type name contains Input', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type UserInput = v.InferInput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(consistentInfer, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/import-type-only
+// =============================================================================
+
+describe('valibot/import-type-only', () => {
+  it('has correct rule metadata', () => {
+    expect(importTypeOnly.id).toBe('valibot/import-type-only');
+    expect(importTypeOnly.visitor.ImportDeclaration).toBeDefined();
+  });
+
+  it('passes for namespace import', async () => {
+    const code: string = `
+import * as v from 'valibot';
+`;
+    const results: LintResult[] = await lint(importTypeOnly, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-valibot import', async () => {
+    const code: string = `
+import { something } from 'lodash';
+`;
+    const results: LintResult[] = await lint(importTypeOnly, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('warns for value import of type-only identifiers', async () => {
+    const code: string = `
+import { InferOutput } from 'valibot';
+`;
+    const results: LintResult[] = await lint(importTypeOnly, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('import type');
+  });
+
+  it('passes for type-only import', async () => {
+    const code: string = `
+import type { InferOutput } from 'valibot';
+`;
+    const results: LintResult[] = await lint(importTypeOnly, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-inline-infer
+// =============================================================================
+
+describe('valibot/no-inline-infer', () => {
+  it('has correct rule metadata', () => {
+    expect(noInlineInfer.id).toBe('valibot/no-inline-infer');
+    expect(noInlineInfer.visitor.FunctionDeclaration).toBeDefined();
+  });
+
+  it('warns for inline InferOutput in function param', async () => {
+    const code: string = `
+import * as v from 'valibot';
+function processUser(user: v.InferOutput<typeof UserSchema>): void {}
+`;
+    const results: LintResult[] = await lint(noInlineInfer, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('inline');
+  });
+
+  it('passes for function without InferOutput', async () => {
+    const code: string = `
+function processUser(user: User): void {}
+`;
+    const results: LintResult[] = await lint(noInlineInfer, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-omit-pick-infer
+// =============================================================================
+
+describe('valibot/no-omit-pick-infer', () => {
+  it('has correct rule metadata', () => {
+    expect(noOmitPickInfer.id).toBe('valibot/no-omit-pick-infer');
+    expect(noOmitPickInfer.visitor.TSTypeAliasDeclaration).toBeDefined();
+  });
+
+  it('errors for Omit with InferOutput', async () => {
+    const code: string = `
+import * as v from 'valibot';
+type UserWithoutId = Omit<v.InferOutput<typeof UserSchema>, 'id'>;
+`;
+    const results: LintResult[] = await lint(noOmitPickInfer, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Omit');
+  });
+
+  it('errors for Pick with InferOutput', async () => {
+    const code: string = `
+import * as v from 'valibot';
+type UserName = Pick<v.InferOutput<typeof UserSchema>, 'name'>;
+`;
+    const results: LintResult[] = await lint(noOmitPickInfer, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Pick');
+  });
+
+  it('passes for normal type alias', async () => {
+    const code: string = `
+import * as v from 'valibot';
+type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(noOmitPickInfer, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-partial-infer
+// =============================================================================
+
+describe('valibot/no-partial-infer', () => {
+  it('has correct rule metadata', () => {
+    expect(noPartialInfer.id).toBe('valibot/no-partial-infer');
+    expect(noPartialInfer.visitor.TSTypeAliasDeclaration).toBeDefined();
+  });
+
+  it('errors for Partial with InferOutput', async () => {
+    const code: string = `
+import * as v from 'valibot';
+type PartialUser = Partial<v.InferOutput<typeof UserSchema>>;
+`;
+    const results: LintResult[] = await lint(noPartialInfer, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Partial');
+  });
+
+  it('passes for normal InferOutput', async () => {
+    const code: string = `
+import * as v from 'valibot';
+type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(noPartialInfer, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-reexport-infer
+// =============================================================================
+
+describe('valibot/no-reexport-infer', () => {
+  it('has correct rule metadata', () => {
+    expect(noReexportInfer.id).toBe('valibot/no-reexport-infer');
+    expect(noReexportInfer.visitor.ExportNamedDeclaration).toBeDefined();
+  });
+
+  it('errors for re-exporting InferOutput from valibot', async () => {
+    const code: string = `
+export { InferOutput } from 'valibot';
+`;
+    const results: LintResult[] = await lint(noReexportInfer, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('InferOutput');
+  });
+
+  it('passes for exporting concrete types', async () => {
+    const code: string = `
+export { UserSchema } from './user.ts';
+`;
+    const results: LintResult[] = await lint(noReexportInfer, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-class-validator
+// =============================================================================
+
+describe('valibot/no-class-validator', () => {
+  it('has correct rule metadata', () => {
+    expect(noClassValidator.id).toBe('valibot/no-class-validator');
+    expect(noClassValidator.visitor.ImportDeclaration).toBeDefined();
+  });
+
+  it('errors for class-validator import', async () => {
+    const code: string = `
+import { IsString } from 'class-validator';
+`;
+    const results: LintResult[] = await lint(noClassValidator, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Valibot');
+  });
+
+  it('errors for class-transformer import', async () => {
+    const code: string = `
+import { plainToClass } from 'class-transformer';
+`;
+    const results: LintResult[] = await lint(noClassValidator, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes for valibot import', async () => {
+    const code: string = `
+import * as v from 'valibot';
+`;
+    const results: LintResult[] = await lint(noClassValidator, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-io-ts
+// =============================================================================
+
+describe('valibot/no-io-ts', () => {
+  it('errors for io-ts import', async () => {
+    const code: string = `
+import * as t from 'io-ts';
+`;
+    const results: LintResult[] = await lint(noIoTs, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for non-io-ts import', async () => {
+    const code: string = `
+import * as v from 'valibot';
+`;
+    const results: LintResult[] = await lint(noIoTs, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-joi
+// =============================================================================
+
+describe('valibot/no-joi', () => {
+  it('errors for joi import', async () => {
+    const code: string = `
+import Joi from 'joi';
+`;
+    const results: LintResult[] = await lint(noJoi, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for non-joi import', async () => {
+    const code: string = `
+import * as v from 'valibot';
+`;
+    const results: LintResult[] = await lint(noJoi, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-yup
+// =============================================================================
+
+describe('valibot/no-yup', () => {
+  it('errors for yup import', async () => {
+    const code: string = `
+import * as yup from 'yup';
+`;
+    const results: LintResult[] = await lint(noYup, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for non-yup import', async () => {
+    const code: string = `
+import * as v from 'valibot';
+`;
+    const results: LintResult[] = await lint(noYup, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-zod
+// =============================================================================
+
+describe('valibot/no-zod', () => {
+  it('errors for zod import', async () => {
+    const code: string = `
+import { z } from 'zod';
+`;
+    const results: LintResult[] = await lint(noZod, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for non-zod import', async () => {
+    const code: string = `
+import * as v from 'valibot';
+`;
+    const results: LintResult[] = await lint(noZod, code);
     expect(results.length).toBe(0);
   });
 });
