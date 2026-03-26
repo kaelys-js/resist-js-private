@@ -11,18 +11,29 @@
   - Review every directory in: /Users/coleb/Desktop/webforge/packages/shared/ui/src
     - Only include directions that have a file that indicates its a placeholder
     - Give a full list of directories to delete that aren't "components" but are "blocks"
-    /Users/coleb/Desktop/webforge/packages/shared/schemas/function
-    shared/utils/devtools
-    shared/schemas/generic
-    shared/schemas/result
-    shared/schemas/template-literal
-    shared/utils/result
-    shared/utils/core
-    shared/ui/src/utils
-    shared/ui/src/lens
-    shared/ui/src/*/lens.ts -> shared/ui/src/components
-    shared/utils/cli
-    products/storylyne
+  /Users/coleb/Desktop/webforge/packages/shared/schemas/function
+  shared/utils/devtools
+  shared/schemas/generic
+  shared/schemas/result
+  shared/schemas/template-literal
+  shared/utils/result
+  shared/utils/core
+  shared/ui/src/utils
+  shared/ui/src/lens
+  shared/ui/src/*/lens.ts -> shared/ui/src/components
+  shared/utils/cli
+  products/storylyne
+
+- Compare the @/cli/sync templated files against these workspace files for the differences
+  - .editorconfig
+  - .*ignore
+  - .npmrc
+  - biome.jsonc
+  - package.json
+  - pnpm-workspace.yaml
+  - turbo.json
+  - .prettierrc.json
+  - (other missing workspace root files from sync tool)
 
 - [Lens]
     - Port Lens & Accessibility Rules To Lint AST
