@@ -1,5 +1,5 @@
+/Users/coleb/Desktop/webforge/packages/shared/schemas/function
 shared/utils/devtools
-shared/schemas/function
 shared/schemas/generic
 shared/schemas/result
 shared/schemas/template-literal
