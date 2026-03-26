@@ -922,6 +922,50 @@ export function _injectLayoutShiftEntries(entries: unknown[]): Result<Void> {
 }
 
 /**
+ * Injects mock long task entries for testing. Test-only — not part of the public API.
+ *
+ * @param {unknown[]} entries - Mock long task entries to inject
+ * @returns {Result<Void>} Always succeeds
+ *
+ * @example
+ * ```typescript
+ * _injectLongTasks([{ duration: 120, attribution: [{ name: 'script', containerType: 'iframe', containerSrc: '' }] }]);
+ * ```
+ */
+export function _injectLongTasks(entries: unknown[]): Result<Void> {
+  const parsed: Result<unknown[]> = safeParse(v.array(v.unknown()), entries);
+
+  if (!parsed.ok) return parsed;
+
+  // Test helper — cast from unknown is safe because only test mocks are passed
+  longTasks = entries as LongTaskEntry[]; // cast safe: test-only helper, callers pass mock LongTaskEntry objects
+
+  return okUnchecked<Void>(undefined);
+}
+
+/**
+ * Injects mock event timing entries for testing. Test-only — not part of the public API.
+ *
+ * @param {unknown[]} entries - Mock event timing entries to inject
+ * @returns {Result<Void>} Always succeeds
+ *
+ * @example
+ * ```typescript
+ * _injectEventTimings([{ name: 'click', duration: 300, processingStart: 50, processingEnd: 250, target: null, interactionId: 1 }]);
+ * ```
+ */
+export function _injectEventTimings(entries: unknown[]): Result<Void> {
+  const parsed: Result<unknown[]> = safeParse(v.array(v.unknown()), entries);
+
+  if (!parsed.ok) return parsed;
+
+  // Test helper — cast from unknown is safe because only test mocks are passed
+  eventTimings = entries as EventTimingEntry[]; // cast safe: test-only helper, callers pass mock EventTimingEntry objects
+
+  return okUnchecked<Void>(undefined);
+}
+
+/**
  * Collects full diagnostics for a Web Vital metric.
  *
  * Queries browser Performance APIs to identify what's actually causing

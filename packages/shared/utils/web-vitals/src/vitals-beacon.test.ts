@@ -129,6 +129,13 @@ describe('vitals beacon', () => {
       expect(unwrapStatus().queued).toBe(3);
     });
 
+    it('returns error for invalid metric', () => {
+      const result = queueVital({ bad: 'data' } as unknown as VitalsMetric);
+      expect(result.ok).toBe(false);
+      // Queue should remain empty — invalid metric never enqueued
+      expect(unwrapStatus().queued).toBe(0);
+    });
+
     it('auto-flushes at MAX_QUEUE_SIZE (10)', () => {
       setDeviceInfo(createDevice());
       for (let i: Num = 0; i < 10; i++) {
@@ -220,6 +227,36 @@ describe('vitals beacon', () => {
       // Queue should be flushed
       expect(unwrapStatus().queued).toBe(0);
     });
+
+    it('does not flush when visibility changes to visible', () => {
+      setupVitalsBeacon();
+      queueVital(createMetric());
+      expect(unwrapStatus().queued).toBe(1);
+
+      // Capture the visibilitychange callback
+      const visibilityCallback = mockAddEventListener.mock.calls.find(
+        (call: unknown[]) => call[0] === 'visibilitychange',
+      )?.[1] as () => void;
+      expect(visibilityCallback).toBeTypeOf('function');
+
+      // Simulate visible state (not hidden)
+      Object.defineProperty(document, 'visibilityState', {
+        value: 'visible',
+        writable: true,
+        configurable: true,
+      });
+      visibilityCallback();
+
+      // Queue should still have the metric — flush only happens on 'hidden'
+      expect(unwrapStatus().queued).toBe(1);
+
+      // Restore to hidden for other tests
+      Object.defineProperty(document, 'visibilityState', {
+        value: 'hidden',
+        writable: true,
+        configurable: true,
+      });
+    });
   });
 
   // ── setDeviceInfo ───────────────────────────────────────────────────
@@ -229,6 +266,11 @@ describe('vitals beacon', () => {
       const device: VitalsDevice = createDevice();
       const result: Result<Void> = setDeviceInfo(device);
       expect(result.ok).toBe(true);
+    });
+
+    it('returns error for invalid device info', () => {
+      const result = setDeviceInfo({ bad: 'data' } as unknown as VitalsDevice);
+      expect(result.ok).toBe(false);
     });
   });
 
@@ -278,6 +320,42 @@ describe('vitals beacon', () => {
   });
 
   describe('SSR and edge cases', () => {
+    it('handles sendBeacon throwing without propagating error', () => {
+      import.meta.env.DEV = false;
+      vi.stubGlobal('navigator', {
+        ...navigator,
+        sendBeacon: (): Bool => {
+          throw new Error('boom');
+        },
+      });
+
+      setDeviceInfo(createDevice());
+      queueVital(createMetric());
+      const result: Result<Void> = flushVitals();
+
+      // catch block swallows the error — result is still ok
+      expect(result.ok).toBe(true);
+      // Queue should have been cleared before the try/catch
+      expect(unwrapStatus().queued).toBe(0);
+    });
+
+    it('uses fallback URL when window is undefined (SSR)', () => {
+      import.meta.env.DEV = false;
+      const originalWindow = globalThis.window;
+      // @ts-expect-error — removing window for SSR simulation
+      delete globalThis.window;
+
+      setDeviceInfo(createDevice());
+      queueVital(createMetric());
+      const result: Result<Void> = flushVitals();
+      expect(result.ok).toBe(true);
+
+      // Verify sendBeacon was called (payload built with '/' fallback URL)
+      expect(mockSendBeacon).toHaveBeenCalledOnce();
+
+      globalThis.window = originalWindow;
+    });
+
     it('handles both sendBeacon and fetch unavailable without throwing', () => {
       import.meta.env.DEV = false;
       vi.stubGlobal('navigator', {});

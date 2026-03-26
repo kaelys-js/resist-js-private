@@ -15,6 +15,8 @@ import {
   resetDiagnostics,
   _injectLCPEntries,
   _injectLayoutShiftEntries,
+  _injectLongTasks,
+  _injectEventTimings,
   type VitalThresholds,
   type VitalDiagnostics,
 } from './vitals-diagnostics';
@@ -563,6 +565,510 @@ describe('vitals-diagnostics', () => {
       if (loadFinding) {
         expect(loadFinding.value).toContain('1500ms');
       }
+    });
+  });
+
+  // ── CLS both-directions shift ─────────────────────────────────────────
+
+  describe('diagnoseCLS both-directions shift', () => {
+    it('reports both horizontal and vertical movement when dx > 0 and dy > 0', () => {
+      const el: Element = mockElement('div', 'slide-panel');
+      _injectLayoutShiftEntries([
+        mockLayoutShiftEntry({
+          value: 0.15,
+          hadRecentInput: false,
+          sources: [
+            {
+              node: el,
+              previousRect: { top: 100, left: 50, width: 200, height: 80 } as DOMRectReadOnly,
+              currentRect: { top: 180, left: 120, width: 200, height: 80 } as DOMRectReadOnly,
+            },
+          ],
+        }),
+      ]);
+
+      const diag = unwrap(collectDiagnostics('CLS', 0.15, 'needsImprovement'));
+      expect(diag).not.toBeNull();
+      const largest = diag!.findings.find((f) => f.label === 'Largest Shift');
+      expect(largest).toBeDefined();
+      expect(largest!.value).toContain('70px horizontal');
+      expect(largest!.value).toContain('80px vertical');
+      expect(largest!.value).toContain('<div.slide-panel>');
+    });
+  });
+
+  // ── TTFB missing branches ─────────────────────────────────────────────
+
+  describe('diagnoseTTFB missing branches', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('includes redirect timing when redirectEnd > redirectStart', () => {
+      vi.spyOn(performance, 'getEntriesByType').mockImplementation(((type: Str) => {
+        if (type === 'navigation') {
+          return [
+            mockNavigationEntry({
+              redirectStart: 0,
+              redirectEnd: 150,
+              domainLookupStart: 150,
+              domainLookupEnd: 200,
+              connectStart: 200,
+              connectEnd: 250,
+              secureConnectionStart: 210,
+              requestStart: 250,
+              responseStart: 800,
+            }),
+          ] as unknown as PerformanceEntry[];
+        }
+        return [];
+      }) as typeof performance.getEntriesByType);
+
+      const diag = unwrap(collectDiagnostics('TTFB', 900, 'needsImprovement'));
+      const waterfall = diag!.findings.find((f) => f.label === 'Waterfall');
+      expect(waterfall).toBeDefined();
+      expect(waterfall!.value).toContain('redirect 150ms');
+    });
+
+    it('shows TCP when no TLS (secureConnectionStart = 0)', () => {
+      vi.spyOn(performance, 'getEntriesByType').mockImplementation(((type: Str) => {
+        if (type === 'navigation') {
+          return [
+            mockNavigationEntry({
+              domainLookupStart: 10,
+              domainLookupEnd: 30,
+              connectStart: 30,
+              connectEnd: 90,
+              secureConnectionStart: 0,
+              requestStart: 90,
+              responseStart: 400,
+            }),
+          ] as unknown as PerformanceEntry[];
+        }
+        return [];
+      }) as typeof performance.getEntriesByType);
+
+      const diag = unwrap(collectDiagnostics('TTFB', 900, 'needsImprovement'));
+      const waterfall = diag!.findings.find((f) => f.label === 'Waterfall');
+      expect(waterfall).toBeDefined();
+      expect(waterfall!.value).toContain('TCP 60ms');
+      expect(waterfall!.value).not.toContain('TLS');
+    });
+
+    it('does not report bottleneck when all values are <= 50', () => {
+      vi.spyOn(performance, 'getEntriesByType').mockImplementation(((type: Str) => {
+        if (type === 'navigation') {
+          return [
+            mockNavigationEntry({
+              redirectStart: 0,
+              redirectEnd: 0,
+              domainLookupStart: 10,
+              domainLookupEnd: 30,
+              connectStart: 30,
+              connectEnd: 60,
+              secureConnectionStart: 40,
+              requestStart: 60,
+              responseStart: 100,
+            }),
+          ] as unknown as PerformanceEntry[];
+        }
+        return [];
+      }) as typeof performance.getEntriesByType);
+
+      const diag = unwrap(collectDiagnostics('TTFB', 900, 'needsImprovement'));
+      const bottleneck = diag!.findings.find((f) => f.label === 'Bottleneck');
+      expect(bottleneck).toBeUndefined();
+    });
+  });
+
+  // ── FCP missing branches ──────────────────────────────────────────────
+
+  describe('diagnoseFCP missing branches', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('shows overflow message when more than 3 blocking resources', () => {
+      vi.spyOn(performance, 'getEntriesByType').mockImplementation(((type: Str) => {
+        if (type === 'resource') {
+          return [
+            mockResourceEntry({
+              name: 'https://example.com/a.css',
+              renderBlockingStatus: 'blocking',
+            }),
+            mockResourceEntry({
+              name: 'https://example.com/b.css',
+              renderBlockingStatus: 'blocking',
+            }),
+            mockResourceEntry({
+              name: 'https://example.com/c.js',
+              renderBlockingStatus: 'blocking',
+            }),
+            mockResourceEntry({
+              name: 'https://example.com/d.js',
+              renderBlockingStatus: 'blocking',
+            }),
+          ] as unknown as PerformanceEntry[];
+        }
+        if (type === 'navigation') return [];
+        return [];
+      }) as typeof performance.getEntriesByType);
+
+      const diag = unwrap(collectDiagnostics('FCP', 2500, 'needsImprovement'));
+      const blocking = diag!.findings.find((f) => f.label === 'Render-Blocking');
+      expect(blocking).toBeDefined();
+      expect(blocking!.value).toBe('4 resources');
+
+      // Should have the overflow "...and 1 more" finding
+      const overflow = diag!.findings.find((f) => f.value.includes('and 1 more'));
+      expect(overflow).toBeDefined();
+    });
+
+    it('does not add TTFB Impact when ttfb <= 400', () => {
+      vi.spyOn(performance, 'getEntriesByType').mockImplementation(((type: Str) => {
+        if (type === 'resource') return [];
+        if (type === 'navigation') {
+          return [mockNavigationEntry({ responseStart: 300 })] as unknown as PerformanceEntry[];
+        }
+        return [];
+      }) as typeof performance.getEntriesByType);
+
+      const diag = unwrap(collectDiagnostics('FCP', 2000, 'needsImprovement'));
+      const ttfbImpact = diag!.findings.find((f) => f.label === 'TTFB Impact');
+      expect(ttfbImpact).toBeUndefined();
+    });
+
+    it('uses singular "resource" for exactly 1 blocking resource', () => {
+      vi.spyOn(performance, 'getEntriesByType').mockImplementation(((type: Str) => {
+        if (type === 'resource') {
+          return [
+            mockResourceEntry({
+              name: 'https://example.com/style.css',
+              renderBlockingStatus: 'blocking',
+            }),
+          ] as unknown as PerformanceEntry[];
+        }
+        if (type === 'navigation') return [];
+        return [];
+      }) as typeof performance.getEntriesByType);
+
+      const diag = unwrap(collectDiagnostics('FCP', 2500, 'needsImprovement'));
+      const blocking = diag!.findings.find((f) => f.label === 'Render-Blocking');
+      expect(blocking).toBeDefined();
+      expect(blocking!.value).toBe('1 resource');
+    });
+  });
+
+  // ── INP internal branches ─────────────────────────────────────────────
+
+  describe('INP internal branches', () => {
+    it('identifies the slowest interaction with target', () => {
+      const el: Element = mockElement('button', 'submit-btn');
+      _injectEventTimings([
+        {
+          entryType: 'event',
+          name: 'click',
+          startTime: 100,
+          duration: 350,
+          processingStart: 120,
+          processingEnd: 380,
+          target: el,
+          interactionId: 1,
+        },
+        {
+          entryType: 'event',
+          name: 'keydown',
+          startTime: 500,
+          duration: 150,
+          processingStart: 510,
+          processingEnd: 600,
+          target: null,
+          interactionId: 2,
+        },
+      ]);
+
+      const diag = unwrap(collectDiagnostics('INP', 350, 'needsImprovement'));
+      expect(diag).not.toBeNull();
+
+      const slowest = diag!.findings.find((f) => f.label === 'Slowest');
+      expect(slowest).toBeDefined();
+      expect(slowest!.value).toContain('click');
+      expect(slowest!.value).toContain('<button.submit-btn>');
+      expect(slowest!.value).toContain('350ms');
+
+      const breakdown = diag!.findings.find((f) => f.label === 'Breakdown');
+      expect(breakdown).toBeDefined();
+      expect(breakdown!.value).toContain('input delay');
+      expect(breakdown!.value).toContain('processing');
+      expect(breakdown!.value).toContain('presentation');
+
+      const interactions = diag!.findings.find((f) => f.label === 'Interactions');
+      expect(interactions).toBeDefined();
+      expect(interactions!.value).toBe('2 recorded');
+    });
+
+    it('uses (unknown) for target when target is null', () => {
+      _injectEventTimings([
+        {
+          entryType: 'event',
+          name: 'pointerdown',
+          startTime: 50,
+          duration: 400,
+          processingStart: 60,
+          processingEnd: 300,
+          target: null,
+          interactionId: 3,
+        },
+      ]);
+
+      const diag = unwrap(collectDiagnostics('INP', 400, 'poor'));
+      const slowest = diag!.findings.find((f) => f.label === 'Slowest');
+      expect(slowest).toBeDefined();
+      expect(slowest!.value).toContain('(unknown)');
+    });
+
+    it('identifies the biggest phase as bottleneck when > 50ms', () => {
+      _injectEventTimings([
+        {
+          entryType: 'event',
+          name: 'click',
+          startTime: 100,
+          duration: 300,
+          processingStart: 110,
+          processingEnd: 350,
+          target: null,
+          interactionId: 4,
+        },
+      ]);
+
+      const diag = unwrap(collectDiagnostics('INP', 300, 'needsImprovement'));
+      const bottleneck = diag!.findings.find((f) => f.label === 'Bottleneck');
+      expect(bottleneck).toBeDefined();
+      // processing = 350 - 110 = 240ms is the biggest phase
+      expect(bottleneck!.value).toContain('Processing');
+    });
+
+    it('does not show bottleneck when all phases are <= 50ms', () => {
+      // inputDelay = 120 - 100 = 20ms
+      // processing = 160 - 120 = 40ms
+      // presentationDelay = 110 - (160 - 100) = 50ms
+      // All <= 50, so no bottleneck (check is strictly > 50)
+      _injectEventTimings([
+        {
+          entryType: 'event',
+          name: 'click',
+          startTime: 100,
+          duration: 110,
+          processingStart: 120,
+          processingEnd: 160,
+          target: null,
+          interactionId: 5,
+        },
+      ]);
+
+      const diag = unwrap(collectDiagnostics('INP', 210, 'needsImprovement'));
+      const bottleneck = diag!.findings.find((f) => f.label === 'Bottleneck');
+      expect(bottleneck).toBeUndefined();
+    });
+  });
+
+  // ── TBT internal branches ─────────────────────────────────────────────
+
+  describe('TBT internal branches', () => {
+    it('reports long tasks with total blocking time', () => {
+      _injectLongTasks([
+        {
+          entryType: 'longtask',
+          name: 'self',
+          startTime: 200,
+          duration: 120,
+          attribution: [],
+        },
+        {
+          entryType: 'longtask',
+          name: 'self',
+          startTime: 500,
+          duration: 80,
+          attribution: [],
+        },
+      ]);
+
+      const diag = unwrap(collectDiagnostics('TBT', 400, 'needsImprovement'));
+      expect(diag).not.toBeNull();
+
+      const tasks = diag!.findings.find((f) => f.label === 'Long Tasks');
+      expect(tasks).toBeDefined();
+      // 2 tasks, (120-50) + (80-50) = 100ms total blocking time
+      expect(tasks!.value).toContain('2 tasks');
+      expect(tasks!.value).toContain('100ms total blocking time');
+    });
+
+    it('identifies longest task and its containerSrc attribution', () => {
+      _injectLongTasks([
+        {
+          entryType: 'longtask',
+          name: 'self',
+          startTime: 100,
+          duration: 200,
+          attribution: [
+            {
+              name: 'script',
+              containerType: 'iframe',
+              containerSrc: 'https://cdn.example.com/analytics.js',
+            },
+          ],
+        },
+      ]);
+
+      const diag = unwrap(collectDiagnostics('TBT', 500, 'poor'));
+      const longest = diag!.findings.find((f) => f.label === 'Longest');
+      expect(longest).toBeDefined();
+      expect(longest!.value).toContain('200ms');
+      // shortenUrl on cross-origin URL -> "cdn.example.com/analytics.js"
+      expect(longest!.value).toContain('cdn.example.com/analytics.js');
+    });
+
+    it('uses containerType when containerSrc is empty', () => {
+      _injectLongTasks([
+        {
+          entryType: 'longtask',
+          name: 'self',
+          startTime: 100,
+          duration: 180,
+          attribution: [
+            {
+              name: 'script',
+              containerType: 'iframe',
+              containerSrc: '',
+            },
+          ],
+        },
+      ]);
+
+      const diag = unwrap(collectDiagnostics('TBT', 500, 'poor'));
+      const longest = diag!.findings.find((f) => f.label === 'Longest');
+      expect(longest).toBeDefined();
+      expect(longest!.value).toContain('180ms');
+      expect(longest!.value).toContain('iframe');
+    });
+
+    it('shows duration only when no attribution', () => {
+      _injectLongTasks([
+        {
+          entryType: 'longtask',
+          name: 'self',
+          startTime: 100,
+          duration: 150,
+          attribution: [],
+        },
+      ]);
+
+      const diag = unwrap(collectDiagnostics('TBT', 500, 'poor'));
+      const longest = diag!.findings.find((f) => f.label === 'Longest');
+      expect(longest).toBeDefined();
+      expect(longest!.value).toBe('150ms');
+    });
+
+    it('works for NTBT metric (same collector as TBT)', () => {
+      _injectLongTasks([
+        {
+          entryType: 'longtask',
+          name: 'self',
+          startTime: 100,
+          duration: 100,
+          attribution: [],
+        },
+      ]);
+
+      const diag = unwrap(collectDiagnostics('NTBT', 400, 'needsImprovement'));
+      expect(diag).not.toBeNull();
+      const tasks = diag!.findings.find((f) => f.label === 'Long Tasks');
+      expect(tasks).toBeDefined();
+      expect(tasks!.value).toContain('1 tasks');
+    });
+  });
+
+  // ── collectDiagnostics safeParse failures ──────────────────────────────
+
+  describe('collectDiagnostics safeParse failures', () => {
+    it('returns error for invalid metricName', () => {
+      // safeParse(StrSchema, ...) should fail for non-string
+      const result = collectDiagnostics(123 as unknown as Str, 100, 'poor');
+      expect(result.ok).toBe(false);
+    });
+
+    it('returns error for invalid value', () => {
+      // safeParse(NumSchema, ...) should fail for non-number
+      const result = collectDiagnostics('LCP', 'not-a-number' as unknown as number, 'poor');
+      expect(result.ok).toBe(false);
+    });
+
+    it('returns error for invalid rating', () => {
+      // safeParse(StrSchema, ...) should fail for non-string
+      const result = collectDiagnostics('LCP', 3000, 42 as unknown as Str);
+      expect(result.ok).toBe(false);
+    });
+  });
+
+  // ── formatThresholds safeParse failure ─────────────────────────────────
+
+  describe('formatThresholds safeParse failure', () => {
+    it('returns error for invalid thresholds object', () => {
+      const result = formatThresholds({
+        good: 'not-a-number',
+        poor: 4000,
+        unit: 'ms',
+      } as unknown as {
+        good: number;
+        poor: number;
+        unit: 'ms' | 'score';
+      });
+      expect(result.ok).toBe(false);
+    });
+  });
+
+  // ── _injectLongTasks / _injectEventTimings test helpers ───────────────
+
+  describe('_injectLongTasks', () => {
+    it('injects entries that diagnoseTBT reads', () => {
+      const result = _injectLongTasks([
+        {
+          entryType: 'longtask',
+          name: 'self',
+          startTime: 0,
+          duration: 80,
+          attribution: [],
+        },
+      ]);
+      expect(result.ok).toBe(true);
+
+      const diag = unwrap(collectDiagnostics('TBT', 300, 'poor'));
+      expect(diag).not.toBeNull();
+      const tasks = diag!.findings.find((f) => f.label === 'Long Tasks');
+      expect(tasks!.value).toContain('1 tasks');
+    });
+  });
+
+  describe('_injectEventTimings', () => {
+    it('injects entries that diagnoseINP reads', () => {
+      const result = _injectEventTimings([
+        {
+          entryType: 'event',
+          name: 'click',
+          startTime: 10,
+          duration: 250,
+          processingStart: 20,
+          processingEnd: 200,
+          target: null,
+          interactionId: 1,
+        },
+      ]);
+      expect(result.ok).toBe(true);
+
+      const diag = unwrap(collectDiagnostics('INP', 250, 'needsImprovement'));
+      expect(diag).not.toBeNull();
+      const slowest = diag!.findings.find((f) => f.label === 'Slowest');
+      expect(slowest).toBeDefined();
     });
   });
 });
