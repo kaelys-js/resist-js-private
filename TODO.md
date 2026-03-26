@@ -8,7 +8,6 @@ shared/utils/core
 shared/ui/src/utils
 shared/ui/src/lens
 shared/ui/src/*/lens.ts -> shared/ui/src/components
-shared/config/tooling/lint
 shared/utils/cli
 products/storylyne
 
