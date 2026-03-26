@@ -297,7 +297,7 @@ All new rules are TypeScriptRules with AST visitors. They go in `rules/valibot/`
 
 ## TASK C — Integrate Oxlint as ExternalTool
 
-**Status**: [ ]
+**Status**: [x] — `tools/oxlint.ts` created with JSON transform, registered in `tools/registry.ts` (113 tools total), 9 tests added (1670 total). QA clean. CLI `--tools` unification deferred (CLI doesn't support tool orchestration via CLI flags yet).
 
 **Gap**: Currently `qa:lint` in `package.json` runs two separate commands:
 ```
