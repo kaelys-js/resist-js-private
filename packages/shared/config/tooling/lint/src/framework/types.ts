@@ -182,6 +182,8 @@ export type TypeScriptRule = {
   visitor: Partial<AstVisitor>;
   /** Optional cross-file finalization — called after ALL files are processed */
   finalize?: () => LintResult[];
+  /** Whether this rule provides real auto-fixes (not just placeholder no-ops) */
+  fixable?: boolean;
 };
 
 // =============================================================================
