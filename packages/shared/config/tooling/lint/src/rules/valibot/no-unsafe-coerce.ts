@@ -1,8 +1,9 @@
 /**
- * Rule: valibot/require-strict-object
+ * Rule: valibot/no-unsafe-coerce
  *
- * Forbids `v.object()` — must use `v.strictObject()` instead.
- * `v.object()` silently ignores unknown keys, defeating schema safety.
+ * Bans `v.coerce()` calls. Coercion silently transforms input values
+ * before validation, which can mask data issues and produce unexpected
+ * results.
  *
  * @module
  */
@@ -14,13 +15,13 @@ import type {
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
-/** The require-strict-object lint rule. */
+/** The no-unsafe-coerce lint rule. */
 const rule: TypeScriptRule = {
   categories: ['valibot', 'safety'],
-  description: 'Forbids v.object() — use v.strictObject() instead',
-  id: 'valibot/require-strict-object',
+  description: 'Bans v.coerce() — coercion silently transforms input and can mask data issues',
+  id: 'valibot/no-unsafe-coerce',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
-  stages: ['lint', 'ci'],
+  stages: ['lint'],
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -35,23 +36,20 @@ const rule: TypeScriptRule = {
         const property = callee.property as AstNode | undefined;
         const propName: string = (property?.name as string) ?? '';
 
-        // Only flag v.object(), not v.strictObject()
         if (
-          propName === 'object' &&
+          propName === 'coerce' &&
           context.isImportedFrom((object?.name as string) ?? '', 'valibot')
         ) {
           results.push({
             column: node.loc.start.column + 1,
             file: context.file,
-            fix: {
-              range: { end: property?.end ?? 0, start: property?.start ?? 0 },
-              text: 'strictObject',
-            },
+            fix: { range: { end: node.end, start: node.start }, text: '' },
             line: node.loc.start.line,
-            message: 'Use v.strictObject() instead of v.object() — v.object() ignores unknown keys',
-            ruleId: 'valibot/require-strict-object',
+            message:
+              'Do not use v.coerce() — it silently transforms input values before validation',
+            ruleId: 'valibot/no-unsafe-coerce',
             severity: 'error',
-            tip: 'Replace v.object() with v.strictObject()',
+            tip: 'Use v.pipe() with v.transform() for explicit, type-safe transformations instead',
           });
         }
       }

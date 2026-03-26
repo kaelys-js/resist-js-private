@@ -8,9 +8,9 @@
  */
 
 import type {
-  TypeScriptRule,
-  LintResult,
   AstNode,
+  LintResult,
+  TypeScriptRule,
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
@@ -42,10 +42,10 @@ const SCHEMA_FACTORIES: ReadonlySet<string> = new Set([
 
 /** The require-schema-suffix lint rule. */
 const rule: TypeScriptRule = {
-  id: 'valibot/require-schema-suffix',
-  description: 'Valibot schema const names must end in "Schema"',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['valibot', 'naming'],
+  description: 'Valibot schema const names must end in "Schema"',
+  id: 'valibot/require-schema-suffix',
+  patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
 
   visitor: {
@@ -109,14 +109,14 @@ const rule: TypeScriptRule = {
           // Must be v.<method> where v is imported from valibot
           if (objName === 'v' && SCHEMA_FACTORIES.has(methodName)) {
             results.push({
-              file: context.file,
-              line: node.loc.start.line,
               column: node.loc.start.column + 1,
-              severity: 'error',
+              file: context.file,
+              fix: { range: { end: node.end, start: node.start }, text: '' },
+              line: node.loc.start.line,
               message: `Schema declaration '${name}' must end with 'Schema' — rename to '${name}Schema'`,
               ruleId: 'valibot/require-schema-suffix',
+              severity: 'error',
               tip: `Rename to: const ${name}Schema = v.${methodName}(...)`,
-              fix: { range: { start: node.start, end: node.end }, text: '' },
             });
           }
         }

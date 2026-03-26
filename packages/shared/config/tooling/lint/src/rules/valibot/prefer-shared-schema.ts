@@ -10,9 +10,9 @@
  */
 
 import type {
-  TypeScriptRule,
-  LintResult,
   AstNode,
+  LintResult,
+  TypeScriptRule,
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
@@ -138,10 +138,10 @@ function isPrimitiveSchema(valueText: string): boolean {
 
 /** Rule definition. */
 const rule: TypeScriptRule = {
-  id: 'valibot/prefer-shared-schema',
-  description: 'Use shared schemas (PathSchema, UrlStringSchema, etc.) for matching field names',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['valibot', 'architecture'],
+  description: 'Use shared schemas (PathSchema, UrlStringSchema, etc.) for matching field names',
+  id: 'valibot/prefer-shared-schema',
+  patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
 
   visitor: {
@@ -217,14 +217,14 @@ const rule: TypeScriptRule = {
         for (const suggestion of SCHEMA_SUGGESTIONS) {
           if (suggestion.pattern.test(keyName)) {
             results.push({
-              file: context.file,
-              line: property.loc.start.line,
               column: property.loc.start.column + 1,
-              severity: 'error',
+              file: context.file,
+              fix: { range: { end: value.end, start: value.start }, text: suggestion.schema },
+              line: property.loc.start.line,
               message: `Field '${keyName}' should use ${suggestion.schema} from ${suggestion.source}`,
               ruleId: 'valibot/prefer-shared-schema',
+              severity: 'error',
               tip: `Replace with ${suggestion.schema} for type-safe branded validation`,
-              fix: { range: { start: value.start, end: value.end }, text: suggestion.schema },
             });
             break;
           }

@@ -8,17 +8,18 @@
  */
 
 import type {
-  TypeScriptRule,
-  LintResult,
   AstNode,
+  LintResult,
+  TypeScriptRule,
   VisitorContext,
 } from '@/lint/framework/types.ts';
+
 /** The namespace-import lint rule. */
 const rule: TypeScriptRule = {
-  id: 'valibot/namespace-import',
-  description: "Valibot must be imported as namespace: import * as v from 'valibot'",
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['valibot', 'imports'],
+  description: "Valibot must be imported as namespace: import * as v from 'valibot'",
+  id: 'valibot/namespace-import',
+  patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
 
   visitor: {
@@ -50,17 +51,17 @@ const rule: TypeScriptRule = {
 
       // Has named imports from 'valibot' — flag it
       results.push({
-        file: context.file,
-        line: node.loc.start.line,
         column: node.loc.start.column + 1,
-        severity: 'error',
-        message: "Valibot must be imported as namespace: import * as v from 'valibot'",
-        ruleId: 'valibot/namespace-import',
-        tip: "Replace with: import * as v from 'valibot'",
+        file: context.file,
         fix: {
-          range: { start: node.start, end: node.end },
+          range: { end: node.end, start: node.start },
           text: "import * as v from 'valibot';",
         },
+        line: node.loc.start.line,
+        message: "Valibot must be imported as namespace: import * as v from 'valibot'",
+        ruleId: 'valibot/namespace-import',
+        severity: 'error',
+        tip: "Replace with: import * as v from 'valibot'",
       });
 
       return results;

@@ -8,18 +8,18 @@
  */
 
 import type {
-  TypeScriptRule,
-  LintResult,
   AstNode,
+  LintResult,
+  TypeScriptRule,
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** The no-direct-safeparse lint rule. */
 const rule: TypeScriptRule = {
-  id: 'valibot/no-direct-safeparse',
-  description: 'Forbids v.safeParse() — use safeParse from @/utils/result/safe instead',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['valibot', 'safety'],
+  description: 'Forbids v.safeParse() — use safeParse from @/utils/result/safe instead',
+  id: 'valibot/no-direct-safeparse',
+  patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint', 'ci'],
 
   visitor: {
@@ -71,18 +71,18 @@ const rule: TypeScriptRule = {
           }
 
           results.push({
-            file: context.file,
-            line: node.loc.start.line,
             column: node.loc.start.column + 1,
-            severity: 'error',
+            file: context.file,
+            fix: {
+              range: { end: callee.end, start: callee.start },
+              text: 'safeParse',
+            },
+            line: node.loc.start.line,
             message:
               "Do not use v.safeParse() directly — it returns Valibot's format, not Result<T>",
             ruleId: 'valibot/no-direct-safeparse',
+            severity: 'error',
             tip: "Use safeParse from '@/utils/result/safe' instead",
-            fix: {
-              range: { start: callee.start, end: callee.end },
-              text: 'safeParse',
-            },
           });
         }
       }
