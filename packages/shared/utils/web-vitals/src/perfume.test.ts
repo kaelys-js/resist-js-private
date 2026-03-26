@@ -15,6 +15,7 @@ vi.mock('perfume.js', () => ({
 
 // Import after mock setup
 const { setupPerfume } = await import('./perfume');
+type AnalyticsTrackerFn = import('./perfume').AnalyticsTrackerFn;
 
 describe('setupPerfume', () => {
   beforeEach(() => {
@@ -52,6 +53,11 @@ describe('setupPerfume', () => {
         elementTiming: false,
       }),
     );
+  });
+
+  it('returns error when tracker is not a function', () => {
+    const result = setupPerfume(123 as unknown as AnalyticsTrackerFn);
+    expect(result.ok).toBe(false);
   });
 
   it('does not throw when called multiple times', () => {

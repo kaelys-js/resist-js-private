@@ -412,6 +412,11 @@ describe('connection quality store', () => {
       if (result.ok) expect(result.data).toBe('unknown');
     });
 
+    it('returns error when info fails validation', () => {
+      const result = updateFromNavigatorInfo(123 as unknown as NavigatorInfo);
+      expect(result.ok).toBe(false);
+    });
+
     it('updateFromNavigatorInfo handles individual undefined fields', () => {
       const conn: MockConnection = createMockConnection({
         effectiveType: '4g',

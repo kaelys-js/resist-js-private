@@ -82,4 +82,33 @@ describe('vitals panel store', () => {
     expect(afterResult.ok).toBe(true);
     if (afterResult.ok) expect(afterResult.data).toHaveLength(0);
   });
+
+  // ── safeParse failures ──────────────────────────────────────────
+
+  describe('safeParse failures', () => {
+    it('returns error when name is invalid', () => {
+      const result = reportVitalToPanel(123 as unknown as Str, 100 as Num, 'good' as Str, null);
+      expect(result.ok).toBe(false);
+    });
+
+    it('returns error when value is invalid', () => {
+      const result = reportVitalToPanel('LCP' as Str, 'bad' as unknown as Num, 'good' as Str, null);
+      expect(result.ok).toBe(false);
+    });
+
+    it('returns error when rating is invalid', () => {
+      const result = reportVitalToPanel('LCP' as Str, 100 as Num, 123 as unknown as Str, null);
+      expect(result.ok).toBe(false);
+    });
+
+    it('returns error when diagnostics is invalid', () => {
+      const result = reportVitalToPanel(
+        'LCP' as Str,
+        100 as Num,
+        'good' as Str,
+        'bad' as unknown as null,
+      );
+      expect(result.ok).toBe(false);
+    });
+  });
 });

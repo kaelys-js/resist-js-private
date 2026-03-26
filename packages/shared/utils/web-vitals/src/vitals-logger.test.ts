@@ -195,6 +195,35 @@ describe('vitals logger', () => {
       const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
       expect(fmt).toContain('[MyCustomApp]');
     });
+
+    it('returns error when name is invalid', () => {
+      const result: Result<Void> = setVitalsLoggerAppName(123 as unknown as Str);
+      expect(result.ok).toBe(false);
+    });
+  });
+
+  // ── safeParse failures ────────────────────────────────────────────
+
+  describe('safeParse failures', () => {
+    it('returns error when metricName is invalid', () => {
+      const result: Result<Void> = logVital(123 as unknown as Str, 100 as Num, 'good', null);
+      expect(result.ok).toBe(false);
+    });
+
+    it('returns error when value is invalid', () => {
+      const result: Result<Void> = logVital('LCP', 'bad' as unknown as Num, 'good', null);
+      expect(result.ok).toBe(false);
+    });
+
+    it('returns error when rating is invalid', () => {
+      const result: Result<Void> = logVital('LCP', 100 as Num, 123 as unknown as Str, null);
+      expect(result.ok).toBe(false);
+    });
+
+    it('returns error when diagnostics is invalid', () => {
+      const result: Result<Void> = logVital('LCP', 100 as Num, 'good', 'bad' as unknown as null);
+      expect(result.ok).toBe(false);
+    });
   });
 
   // ── Return type ─────────────────────────────────────────────────────
@@ -205,6 +234,30 @@ describe('vitals logger', () => {
       expect(result.ok).toBe(true);
     });
   });
+
+  // ── Poor rating with diagnostics ────────────────────────────────────
+
+  describe('poor rating with diagnostics', () => {
+    it('logs poor metric with diagnostics in collapsed group', () => {
+      const groupSpy: ReturnType<typeof vi.fn> = vi.spyOn(console, 'groupCollapsed');
+      const groupEndSpy: ReturnType<typeof vi.fn> = vi.spyOn(console, 'groupEnd');
+
+      const result: Result<Void> = logVital('LCP', 5000, 'poor', {
+        thresholds: { good: 2500, poor: 4000, unit: 'ms' as const },
+        findings: [{ label: 'LCP Element', value: '<img.hero>' }],
+      });
+
+      expect(result.ok).toBe(true);
+      expect(groupSpy).toHaveBeenCalledOnce();
+      expect(groupEndSpy).toHaveBeenCalledOnce();
+      expect(mockConsoleWarn).not.toHaveBeenCalled();
+
+      groupSpy.mockRestore();
+      groupEndSpy.mockRestore();
+    });
+  });
+
+  // ── Diagnostics edge cases ────────────────────────────────────────
 
   describe('diagnostics edge cases', () => {
     it('logs diagnostics in dev mode for non-poor rating with findings', () => {

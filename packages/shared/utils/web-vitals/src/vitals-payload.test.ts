@@ -264,6 +264,25 @@ describe('toVitalsPayload', () => {
     }
   });
 
+  it('returns error when metrics array contains invalid metric', () => {
+    const result = toVitalsPayload(
+      [{ name: '' }] as unknown as VitalsMetric[],
+      createDevice(),
+      '/test',
+    );
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error when device is invalid', () => {
+    const result = toVitalsPayload([], { invalid: true } as unknown as VitalsDevice, '/test');
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error when url is not a string', () => {
+    const result = toVitalsPayload([], createDevice(), 123 as unknown as Str);
+    expect(result.ok).toBe(false);
+  });
+
   it('handles URL with trailing ? or #', () => {
     const result1: Result<VitalsBeaconPayload> = toVitalsPayload(
       [createMetric()],

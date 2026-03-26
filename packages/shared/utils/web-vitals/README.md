@@ -4,15 +4,15 @@ Client-side Web Vitals collection, diagnostics, and beaconing powered by Perfume
 
 ## Source Files
 
-| File | Description |
-|------|-------------|
-| `perfume.ts` | `setupPerfume()` — initializes Perfume.js with an analytics tracker callback |
-| `connection.svelte.ts` | Reactive connection quality store using Svelte 5 `$state` runes — merges Network Information API and Perfume.js navigator data |
-| `vitals-payload.ts` | `VitalsMetricSchema`, `VitalsDeviceSchema`, `VitalsBeaconPayloadSchema` — wire-safe beacon payload schemas and `toVitalsPayload()` conversion |
-| `vitals-beacon.ts` | Queue-based vitals beacon client — queues metrics and flushes via `navigator.sendBeacon()` on page hide or queue overflow |
-| `vitals-diagnostics.ts` | Performance API diagnostic observers and collectors — identifies actual elements, resources, and timings causing poor metrics |
-| `vitals-logger.ts` | Colorized console logging of Web Vitals with `%c` CSS formatting and diagnostic detail groups |
-| `vitals-panel-store.svelte.ts` | Reactive store for the DevToolbar performance panel — holds collected metrics for UI display |
+| File                           | Description                                                                                                                                   |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `perfume.ts`                   | `setupPerfume()` — initializes Perfume.js with an analytics tracker callback                                                                  |
+| `connection.svelte.ts`         | Reactive connection quality store using Svelte 5 `$state` runes — merges Network Information API and Perfume.js navigator data                |
+| `vitals-payload.ts`            | `VitalsMetricSchema`, `VitalsDeviceSchema`, `VitalsBeaconPayloadSchema` — wire-safe beacon payload schemas and `toVitalsPayload()` conversion |
+| `vitals-beacon.ts`             | Queue-based vitals beacon client — queues metrics and flushes via `navigator.sendBeacon()` on page hide or queue overflow                     |
+| `vitals-diagnostics.ts`        | Performance API diagnostic observers and collectors — identifies actual elements, resources, and timings causing poor metrics                 |
+| `vitals-logger.ts`             | Colorized console logging of Web Vitals with `%c` CSS formatting and diagnostic detail groups                                                 |
+| `vitals-panel-store.svelte.ts` | Reactive store for the DevToolbar performance panel — holds collected metrics for UI display                                                  |
 
 ## Usage
 
@@ -20,7 +20,10 @@ Client-side Web Vitals collection, diagnostics, and beaconing powered by Perfume
 import { setupPerfume } from '@/utils/web-vitals/perfume';
 import { initConnection } from '@/utils/web-vitals/connection.svelte';
 import { setupVitalsBeacon, queueVital } from '@/utils/web-vitals/vitals-beacon';
-import { setupDiagnosticObservers, collectDiagnostics } from '@/utils/web-vitals/vitals-diagnostics';
+import {
+  setupDiagnosticObservers,
+  collectDiagnostics,
+} from '@/utils/web-vitals/vitals-diagnostics';
 import { logVital } from '@/utils/web-vitals/vitals-logger';
 
 // Initialize (call once in hooks.client.ts)
@@ -32,7 +35,12 @@ setupVitalsBeacon();
 setupPerfume((options) => {
   const diagnostics = collectDiagnostics(options.metricName, options.data, options.rating);
   logVital(options.metricName, options.data, options.rating, diagnostics);
-  queueVital({ name: options.metricName, value: options.data, rating: options.rating, navigationType: 'navigate' });
+  queueVital({
+    name: options.metricName,
+    value: options.data,
+    rating: options.rating,
+    navigationType: 'navigate',
+  });
 });
 ```
 
@@ -88,6 +96,8 @@ setupPerfume((options) => {
 - `resetDiagnostics()` — Reset all observer data for test isolation. Returns `Result<Void>`.
 - `_injectLCPEntries(entries)` — Test-only: inject mock LCP entries. Returns `Result<Void>`.
 - `_injectLayoutShiftEntries(entries)` — Test-only: inject mock layout shift entries. Returns `Result<Void>`.
+- `_injectLongTasks(entries)` — Test-only: inject mock long task entries. Returns `Result<Void>`.
+- `_injectEventTimings(entries)` — Test-only: inject mock event timing entries. Returns `Result<Void>`.
 
 ### vitals-logger.ts
 
