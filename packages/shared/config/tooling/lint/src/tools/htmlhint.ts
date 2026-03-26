@@ -7,8 +7,8 @@
  * @module
  */
 
+import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /**
  * Transform HTMLHint JSON output into LintResult[].
@@ -74,13 +74,13 @@ export function transformHtmlhintOutput(output: string): LintResult[] {
 
 /** HTMLHint external tool definition. */
 export const htmlhintTool: ExternalTool = {
-  name: 'htmlhint',
-  command: 'htmlhint',
   args: ['--format', 'json'],
-  outputFormat: 'json',
+  command: 'htmlhint',
   filePatterns: ['**/*.html', '**/*.htm'],
-  transform: transformHtmlhintOutput,
   isAvailable(): boolean {
     return isCommandAvailable('htmlhint');
   },
+  name: 'htmlhint',
+  outputFormat: 'json',
+  transform: transformHtmlhintOutput,
 };

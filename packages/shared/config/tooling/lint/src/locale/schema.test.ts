@@ -4,12 +4,10 @@
  * @module
  */
 
-import { describe, expect, it } from 'vitest';
-
 import * as v from 'valibot';
-
-import { format, LintStringsSchema } from './schema.ts';
+import { describe, expect, it } from 'vitest';
 import { en } from './locales/en.ts';
+import { format, LintStringsSchema } from './schema.ts';
 
 // =============================================================================
 // format
@@ -40,7 +38,7 @@ describe('format', () => {
   });
 
   it('handles numeric values', () => {
-    const result: string = format('Line {line}, column {col}', { line: 42, col: 7 });
+    const result: string = format('Line {line}, column {col}', { col: 7, line: 42 });
     expect(result).toBe('Line 42, column 7');
   });
 
@@ -102,9 +100,72 @@ describe('en locale', () => {
   it('renders summary correctly', () => {
     const summary: string = format(en.output.summary, {
       errors: 5,
-      warnings: 3,
       files: 42,
+      warnings: 3,
     });
     expect(summary).toBe('Found 5 error(s) and 3 warning(s) in 42 file(s).');
+  });
+
+  it('has error strings with placeholders', () => {
+    expect(en.errors.crash).toContain('{error}');
+    expect(en.errors.pathNotFound).toContain('{path}');
+    expect(en.errors.workerError).toContain('{taskId}');
+    expect(en.errors.workerError).toContain('{error}');
+    expect(en.errors.fixFailed).toContain('{filePath}');
+    expect(en.errors.fixApplied).toContain('{count}');
+    expect(en.errors.usageError).toContain('{name}');
+    expect(en.errors.usageErrorConfig).toContain('{configFilename}');
+    expect(en.errors.ruleLoadFailed).toContain('{path}');
+    expect(en.errors.duplicateRule).toContain('{ruleId}');
+    expect(en.errors.invalidJsonc).toContain('{path}');
+    expect(en.errors.invalidConfig).toContain('{path}');
+    expect(en.errors.workerNotFound).toContain('{index}');
+    expect(en.errors.jsonParseError.length).toBeGreaterThan(0);
+  });
+
+  it('renders error strings correctly', () => {
+    const crash: string = format(en.errors.crash, { error: 'OOM' });
+    expect(crash).toBe('Linter crashed: OOM');
+
+    const invalidJsonc: string = format(en.errors.invalidJsonc, {
+      error: 'Unexpected token',
+      path: '/cfg.json',
+    });
+    expect(invalidJsonc).toBe('Invalid JSONC in /cfg.json: Unexpected token');
+
+    const workerNotFound: string = format(en.errors.workerNotFound, { index: 3 });
+    expect(workerNotFound).toBe('Worker 3 not found');
+  });
+
+  it('has tool strings with placeholders', () => {
+    expect(en.tools.knipUnusedFile.length).toBeGreaterThan(0);
+    expect(en.tools.knipUnusedFileTip.length).toBeGreaterThan(0);
+    expect(en.tools.knipUnused).toContain('{issueType}');
+    expect(en.tools.knipUnusedExport).toContain('{symbol}');
+    expect(en.tools.knipUnusedType).toContain('{symbol}');
+    expect(en.tools.knipUnusedDep).toContain('{symbol}');
+    expect(en.tools.knipUnusedDevDep).toContain('{symbol}');
+    expect(en.tools.typosMisspelling).toContain('{typo}');
+    expect(en.tools.typosMisspelling).toContain('{correction}');
+    expect(en.tools.typosFix).toContain('{typo}');
+    expect(en.tools.typosFix).toContain('{correction}');
+  });
+
+  it('renders tool strings correctly', () => {
+    const unused: string = format(en.tools.knipUnused, { issueType: 'exports' });
+    expect(unused).toBe('Unused exports detected');
+
+    const misspelling: string = format(en.tools.typosMisspelling, {
+      correction: 'the',
+      typo: 'teh',
+    });
+    expect(misspelling).toBe('"teh" should be "the"');
+  });
+
+  it('has listRulesFormat strings', () => {
+    expect(en.listRulesFormat.debugPrefix).toBe('[debug]');
+    expect(en.listRulesFormat.patternsLabel).toBe('patterns:');
+    expect(en.listRulesFormat.categoriesLabel).toBe('categories:');
+    expect(en.listRulesFormat.stagesLabel).toBe('stages:');
   });
 });

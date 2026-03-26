@@ -7,8 +7,9 @@
  * @module
  */
 
+import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 
 /**
  * Transform jsonlint text output into LintResult[].
@@ -85,7 +86,7 @@ export function transformJsonlintOutput(output: string): LintResult[] {
       const lineNum: number = Number.parseInt(standardMatch[1] ?? '1', 10);
 
       /* Grab the next non-empty line as context/message */
-      let message: string = 'JSON parse error';
+      let message: string = en.errors.jsonParseError;
       for (let j: number = i + 1; j < lines.length; j++) {
         const nextLine: string = (lines[j] ?? '').trim();
         if (nextLine.length > 0) {
@@ -103,13 +104,13 @@ export function transformJsonlintOutput(output: string): LintResult[] {
 
 /** jsonlint external tool definition. */
 export const jsonlintTool: ExternalTool = {
-  name: 'jsonlint',
-  command: 'jsonlint',
   args: ['--quiet', '--compact'],
-  outputFormat: 'text',
+  command: 'jsonlint',
   filePatterns: ['**/*.json', '**/*.jsonc'],
-  transform: transformJsonlintOutput,
   isAvailable(): boolean {
     return isCommandAvailable('jsonlint');
   },
+  name: 'jsonlint',
+  outputFormat: 'text',
+  transform: transformJsonlintOutput,
 };

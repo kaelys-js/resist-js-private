@@ -7,8 +7,8 @@
  * @module
  */
 
+import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /** Regex for markdownlint output: `file:line[:col] rule/alias description` */
 const MARKDOWNLINT_LINE: RegExp = /^(.+?):(\d+)(?::(\d+))?\s+(MD\d+\/\S+)\s+(.+)$/;
@@ -53,13 +53,13 @@ export function transformMarkdownlintOutput(output: string): LintResult[] {
 
 /** markdownlint external tool definition. */
 export const markdownlintTool: ExternalTool = {
-  name: 'markdownlint',
-  command: 'markdownlint-cli2',
   args: [],
-  outputFormat: 'text',
+  command: 'markdownlint-cli2',
   filePatterns: ['**/*.md', '**/*.mdx'],
-  transform: transformMarkdownlintOutput,
   isAvailable(): boolean {
     return isCommandAvailable('markdownlint-cli2');
   },
+  name: 'markdownlint',
+  outputFormat: 'text',
+  transform: transformMarkdownlintOutput,
 };

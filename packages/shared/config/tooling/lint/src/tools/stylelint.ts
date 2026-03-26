@@ -7,8 +7,8 @@
  * @module
  */
 
+import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /**
  * Transform Stylelint JSON output into LintResult[].
@@ -64,13 +64,13 @@ export function transformStylelintOutput(output: string): LintResult[] {
 
 /** Stylelint external tool definition. */
 export const stylelintTool: ExternalTool = {
-  name: 'stylelint',
-  command: 'stylelint',
   args: ['--formatter', 'json'],
-  outputFormat: 'json',
+  command: 'stylelint',
   filePatterns: ['**/*.css', '**/*.scss', '**/*.less'],
-  transform: transformStylelintOutput,
   isAvailable(): boolean {
     return isCommandAvailable('stylelint');
   },
+  name: 'stylelint',
+  outputFormat: 'json',
+  transform: transformStylelintOutput,
 };

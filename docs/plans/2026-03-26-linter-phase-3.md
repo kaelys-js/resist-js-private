@@ -51,7 +51,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 2 — Localise Remaining Hardcoded English Strings
 
-**Status**: [ ]
+**Status**: [x] — Added `errors` (13 strings), `tools` (10 strings), `listRulesFormat` (4 strings) groups to locale schema. Updated 8 source files: cli.ts, cli-helpers.ts, rule-loader.ts, worker-pool.ts, config/schema.ts, tools/knip.ts, tools/typos.ts, tools/jsonlint.ts. Added 7 locale tests. 1174 tests pass, QA clean.
 
 **Gap**: 33 hardcoded English strings across 8 source files not using the locale system.
 
@@ -69,7 +69,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 3 — Web/Frontend Tools (6 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 6 tools created, tested, registered. 1478 tests pass.
 
 **Tools**: astro, svglint, ember-template-lint, graphql-schema-linter, rstcheck, asciidoctor
 
@@ -91,7 +91,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 4 — Shell/Script Tools (4 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 4 tools created, tested, registered.
 
 **Tools**: zsh, fish, powershell, batch
 
@@ -111,7 +111,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 5 — Systems Languages (8 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 8 tools created, tested, registered.
 
 **Tools**: cargo-clippy, clang-tidy, swiftlint, golangci-lint, go-mod, zig, nim, vlang
 
@@ -135,7 +135,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 6 — JVM/Managed Languages (7 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 7 tools created, tested, registered.
 
 **Tools**: checkstyle, ktlint, scalafmt, groovy-lint, dotnet-format, fantomas, vb
 
@@ -158,7 +158,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 7 — Dynamic Languages (8 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 7 tools created, tested, registered (php combines syntax+phpcs).
 
 **Tools**: rubocop, php-syntax, phpcs, luacheck, perl, elixir-credo, erlc, hlint
 
@@ -181,7 +181,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 8 — More Languages (7 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 7 tools created, tested, registered.
 
 **Tools**: ocaml, refmt, crystal, dmd, julia, rscript, mypy
 
@@ -204,7 +204,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 9 — Infrastructure/IaC Tools (10 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 10 tools created, tested, registered.
 
 **Tools**: docker-compose, kubeconform, kube-linter, helm-lint, terraform/tflint, hcl, packer, nomad, sentinel, protobuf
 
@@ -230,7 +230,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 10 — Config Format Tools (9 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 9 tools created, tested, registered.
 
 **Tools**: thrift, nix, dhall, cue, jsonnet, bazel, xml, csv, ninja
 
@@ -255,7 +255,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 11 — Build/Config File Tools (8 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 8 tools created, tested, registered.
 
 **Tools**: makefile, cmake, justfile, editorconfig, ini, conf, properties, latex/bibtex
 
@@ -279,7 +279,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 12 — Blockchain/WASM/Special (4 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 4 tools created, tested, registered.
 
 **Tools**: solidity, move, vyper, wat
 
@@ -299,7 +299,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 13 — Dotfile/Config Validators (4 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 4 tools created, tested, registered.
 
 **Tools**: npmrc, nvmrc, ignore-files, gitattributes
 
@@ -319,7 +319,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 14 — GitHub/CI Validators (5 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 5 tools created, tested, registered.
 
 **Tools**: github-issue-template, github-pr-template, github-funding, codeowners, dependabot
 
@@ -340,7 +340,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 15 — Workspace-Level Analysis Tools (9 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 9 tools created, tested, registered.
 
 **Tools**: jscpd, madge, publint, attw, sort-package-json, dependency-cruiser, license-checker, syncpack, ls-lint
 
@@ -365,7 +365,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 16 — Security/Quality Tools (4 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 4 tools created, tested, registered.
 
 **Tools**: gitleaks, trufflehog, lockfile-lint, codeowners-checker
 
@@ -385,7 +385,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 17 — Special File Validators (4 tools)
 
-**Status**: [ ]
+**Status**: [x] — All 4 tools created, tested, registered.
 
 **Tools**: package-json validator, cargo-toml validator, pyproject-toml validator, helm validators
 

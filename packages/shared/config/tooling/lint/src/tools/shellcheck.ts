@@ -7,8 +7,8 @@
  * @module
  */
 
+import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /**
  * Transform ShellCheck JSON output into LintResult[].
@@ -51,8 +51,8 @@ export function transformShellcheckOutput(output: string): LintResult[] {
 
     results.push(
       createResult(`shellcheck/SC${String(code)}`, file, line, column, severity, message, {
-        endLine: (obj.endLine as number) ?? undefined,
         endColumn: (obj.endColumn as number) ?? undefined,
+        endLine: (obj.endLine as number) ?? undefined,
         tip: `See https://www.shellcheck.net/wiki/SC${String(code)}`,
       }),
     );
@@ -63,13 +63,13 @@ export function transformShellcheckOutput(output: string): LintResult[] {
 
 /** ShellCheck external tool definition. */
 export const shellcheckTool: ExternalTool = {
-  name: 'shellcheck',
-  command: 'shellcheck',
   args: ['--format=json', '--severity=style'],
-  outputFormat: 'json',
+  command: 'shellcheck',
   filePatterns: ['**/*.sh', '**/*.bash', '**/*.zsh'],
-  transform: transformShellcheckOutput,
   isAvailable(): boolean {
     return isCommandAvailable('shellcheck');
   },
+  name: 'shellcheck',
+  outputFormat: 'json',
+  transform: transformShellcheckOutput,
 };

@@ -7,8 +7,8 @@
  * @module
  */
 
+import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /**
  * Transform Hadolint JSON output into LintResult[].
@@ -61,13 +61,13 @@ export function transformHadolintOutput(output: string): LintResult[] {
 
 /** Hadolint external tool definition. */
 export const hadolintTool: ExternalTool = {
-  name: 'hadolint',
-  command: 'hadolint',
   args: ['--format', 'json'],
-  outputFormat: 'json',
+  command: 'hadolint',
   filePatterns: ['Dockerfile', 'Dockerfile*'],
-  transform: transformHadolintOutput,
   isAvailable(): boolean {
     return isCommandAvailable('hadolint');
   },
+  name: 'hadolint',
+  outputFormat: 'json',
+  transform: transformHadolintOutput,
 };

@@ -7,8 +7,8 @@
  * @module
  */
 
+import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /**
  * Transform actionlint JSON output into LintResult[].
@@ -53,13 +53,13 @@ export function transformActionlintOutput(output: string): LintResult[] {
 
 /** actionlint external tool definition. */
 export const actionlintTool: ExternalTool = {
-  name: 'actionlint',
-  command: 'actionlint',
   args: ['-format', '{{json .}}'],
-  outputFormat: 'json',
+  command: 'actionlint',
   filePatterns: ['**/.github/workflows/*.yml', '**/.github/workflows/*.yaml'],
-  transform: transformActionlintOutput,
   isAvailable(): boolean {
     return isCommandAvailable('actionlint');
   },
+  name: 'actionlint',
+  outputFormat: 'json',
+  transform: transformActionlintOutput,
 };

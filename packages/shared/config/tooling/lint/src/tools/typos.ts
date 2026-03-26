@@ -7,8 +7,10 @@
  * @module
  */
 
+import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * A single typos JSON output entry.
@@ -86,13 +88,17 @@ export function transformTyposOutput(output: string): LintResult[] {
     const typo: string = typed.typo ?? '';
     const corrections: string[] = typed.corrections ?? [];
 
-    const correctionText: string = corrections.length > 0 ? corrections.join(', ') : 'unknown';
-    const message: string = `"${typo}" should be "${correctionText}"`;
+    const correctionText: string =
+      corrections.length > 0 ? corrections.join(', ') : en.tools.typosUnknownCorrection;
+    const message: string = format(en.tools.typosMisspelling, {
+      correction: correctionText,
+      typo,
+    });
 
     results.push(
       createResult('typos/misspelling', path, lineNum, col, 'warning', message, {
-        tip: `Fix: replace "${typo}" with "${correctionText}"`,
         endColumn: col + typo.length,
+        tip: format(en.tools.typosFix, { correction: correctionText, typo }),
       }),
     );
   }
@@ -102,13 +108,13 @@ export function transformTyposOutput(output: string): LintResult[] {
 
 /** typos external tool definition. */
 export const typosTool: ExternalTool = {
-  name: 'typos',
-  command: 'typos',
   args: ['--format', 'json'],
-  outputFormat: 'json',
+  command: 'typos',
   filePatterns: ['**/*'],
-  transform: transformTyposOutput,
   isAvailable(): boolean {
     return isCommandAvailable('typos');
   },
+  name: 'typos',
+  outputFormat: 'json',
+  transform: transformTyposOutput,
 };

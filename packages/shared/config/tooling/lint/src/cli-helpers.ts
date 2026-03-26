@@ -9,38 +9,37 @@
  */
 
 import { execSync } from 'node:child_process';
-import { readFileSync, writeFileSync, readdirSync, statSync, type Dirent } from 'node:fs';
-import { resolve, extname, join } from 'node:path';
+import { type Dirent, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { extname, join, resolve } from 'node:path';
 
 import * as v from 'valibot';
-
-import { runTypeScriptRules } from '@/lint/framework/oxc-runner.ts';
-import { loadAllRules } from '@/lint/framework/rule-loader.ts';
 import {
-  loadConfig,
-  resolveRuleSeverity,
   generateJsonSchema,
   type LintConfig,
+  loadConfig,
+  resolveRuleSeverity,
 } from '@/lint/config/schema.ts';
-import { LINTER_NAME, CONFIG_FILENAME, SCHEMA_FILENAME } from '@/lint/constants.ts';
+import { CONFIG_FILENAME, LINTER_NAME, SCHEMA_FILENAME } from '@/lint/constants.ts';
+import { CACHE_FILENAME, computeRuleHash, LintCache } from '@/lint/framework/cache.ts';
 import { formatResults, type OutputFormat } from '@/lint/framework/formatters.ts';
+import { runTypeScriptRules } from '@/lint/framework/oxc-runner.ts';
 import { createWorkspaceContext } from '@/lint/framework/rule-context.ts';
-import { WorkerPool, type WorkerTask, type WorkerResult } from '@/lint/framework/worker-pool.ts';
+import { loadAllRules } from '@/lint/framework/rule-loader.ts';
 import { ToolRegistry } from '@/lint/framework/tool-orchestrator.ts';
-import { LintCache, CACHE_FILENAME, computeRuleHash } from '@/lint/framework/cache.ts';
-import { ALL_TOOLS } from '@/lint/tools/registry.ts';
-import { format } from '@/lint/locale/schema.ts';
-import { en } from '@/lint/locale/locales/en.ts';
 import type {
-  LintResult,
   LintFix,
-  TypeScriptRule,
-  PackageJsonRule,
-  WorkspaceRule,
-  PackageJsonContext,
+  LintResult,
   PackageJson,
+  PackageJsonContext,
+  PackageJsonRule,
   Stage,
+  TypeScriptRule,
+  WorkspaceRule,
 } from '@/lint/framework/types.ts';
+import { WorkerPool, type WorkerResult, type WorkerTask } from '@/lint/framework/worker-pool.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
+import { ALL_TOOLS } from '@/lint/tools/registry.ts';
 
 // =============================================================================
 // Types
@@ -48,46 +47,46 @@ import type {
 
 /** Schema for parsed CLI arguments. */
 export const CliArgsSchema = v.strictObject({
-  /** Positional path arguments. */
-  paths: v.array(v.string()),
+  /** Whether to stop on first error (bail early). */
+  bail: v.boolean(),
+  /** Whether to use file hash caching for incremental runs. */
+  cache: v.boolean(),
+  /** Categories to filter by (empty = all categories). */
+  categories: v.array(v.string()),
+  /** Custom config file path (overrides default .resist-lint.jsonc). */
+  configPath: v.optional(v.string()),
+  /** Whether to enable verbose debug logging to stderr. */
+  debug: v.boolean(),
+  /** Diff mode: only lint changed files ('head' = uncommitted, 'staged' = staged). */
+  diff: v.optional(v.picklist(['head', 'staged'])),
+  /** Whether to auto-apply fixes to source files. */
+  fix: v.boolean(),
+  /** Output format. Undefined defaults to text (or json if --json). */
+  format: v.optional(v.picklist(['text', 'json', 'sarif', 'github', 'junit', 'compact'])),
+  /** Whether to show help and exit. */
+  help: v.boolean(),
+  /** Additional ignore patterns from CLI (merged with config exclude). */
+  ignore: v.array(v.string()),
+  /** Number of worker threads for parallel lint (undefined = os.cpus().length, 1 = single-threaded). */
+  jobs: v.optional(v.number()),
   /** Whether to output results as JSON. */
   json: v.boolean(),
   /** Whether to list all rules and exit. */
   listRules: v.boolean(),
-  /** Whether to exit 0 even if errors are found. */
-  warnOnly: v.boolean(),
-  /** Whether to auto-apply fixes to source files. */
-  fix: v.boolean(),
-  /** Whether to show help and exit. */
-  help: v.boolean(),
-  /** Rule IDs to filter by (empty = all rules). */
-  ruleIds: v.array(v.string()),
-  /** Categories to filter by (empty = all categories). */
-  categories: v.array(v.string()),
-  /** Pipeline stage to filter by (undefined = no stage filter). */
-  stage: v.optional(v.string()),
+  /** Positional path arguments. */
+  paths: v.array(v.string()),
   /** Whether to suppress warning-level output (show errors only). */
   quiet: v.boolean(),
-  /** Whether to stop on first error (bail early). */
-  bail: v.boolean(),
-  /** Additional ignore patterns from CLI (merged with config exclude). */
-  ignore: v.array(v.string()),
-  /** Custom config file path (overrides default .resist-lint.jsonc). */
-  configPath: v.optional(v.string()),
+  /** Rule IDs to filter by (empty = all rules). */
+  ruleIds: v.array(v.string()),
   /** Global severity override (overrides all result severities). */
   severityOverride: v.optional(v.picklist(['error', 'warn', 'off'])),
-  /** Diff mode: only lint changed files ('head' = uncommitted, 'staged' = staged). */
-  diff: v.optional(v.picklist(['head', 'staged'])),
-  /** Whether to enable verbose debug logging to stderr. */
-  debug: v.boolean(),
-  /** Output format. Undefined defaults to text (or json if --json). */
-  format: v.optional(v.picklist(['text', 'json', 'sarif', 'github', 'junit', 'compact'])),
-  /** Number of worker threads for parallel lint (undefined = os.cpus().length, 1 = single-threaded). */
-  jobs: v.optional(v.number()),
+  /** Pipeline stage to filter by (undefined = no stage filter). */
+  stage: v.optional(v.string()),
   /** Whether to run external tools (shellcheck, hadolint, etc.) alongside custom rules. */
   tools: v.boolean(),
-  /** Whether to use file hash caching for incremental runs. */
-  cache: v.boolean(),
+  /** Whether to exit 0 even if errors are found. */
+  warnOnly: v.boolean(),
 });
 
 /** Parsed CLI arguments. See {@link CliArgsSchema}. */
@@ -95,10 +94,10 @@ export type CliArgs = v.InferOutput<typeof CliArgsSchema>;
 
 /** Schema for output sink for CLI messages (allows testing without stdout/stderr). */
 export const CliOutputSchema = v.strictObject({
-  /** Write to stdout. */
-  stdout: v.custom<(msg: string) => void>((val: unknown): boolean => typeof val === 'function'),
   /** Write to stderr. */
   stderr: v.custom<(msg: string) => void>((val: unknown): boolean => typeof val === 'function'),
+  /** Write to stdout. */
+  stdout: v.custom<(msg: string) => void>((val: unknown): boolean => typeof val === 'function'),
 });
 
 /** Output sink for CLI messages (allows testing without stdout/stderr). See {@link CliOutputSchema}. */
@@ -163,26 +162,26 @@ export function parseCliArgs(argv: string[]): CliArgs {
     : undefined;
 
   return {
-    paths,
+    bail: flags.includes('--bail'),
+    cache: flags.includes('--cache') && !flags.includes('--no-cache'),
+    categories,
+    configPath,
+    debug: flags.includes('--debug'),
+    diff,
+    fix: flags.includes('--fix'),
+    format: parseFormatFlag(flags),
+    help: flags.includes('--help') || flags.includes('-h'),
+    ignore,
+    jobs,
     json: flags.includes('--json'),
     listRules: flags.includes('--list-rules'),
-    warnOnly: flags.includes('--warn-only'),
-    fix: flags.includes('--fix'),
-    help: flags.includes('--help') || flags.includes('-h'),
-    ruleIds,
-    categories,
-    stage,
+    paths,
     quiet: flags.includes('--quiet'),
-    bail: flags.includes('--bail'),
-    ignore,
-    configPath,
+    ruleIds,
     severityOverride,
-    diff,
-    debug: flags.includes('--debug'),
-    format: parseFormatFlag(flags),
-    jobs,
+    stage,
     tools: flags.includes('--tools'),
-    cache: flags.includes('--cache') && !flags.includes('--no-cache'),
+    warnOnly: flags.includes('--warn-only'),
   };
 }
 
@@ -457,7 +456,7 @@ export function runPkgRules(
   const results: LintResult[] = [];
   for (const rule of rules) {
     const ruleOpts: Record<string, unknown> | undefined = allRuleOptions?.[rule.id];
-    const context: PackageJsonContext = { file: filePath, pkg, isRoot, ruleOptions: ruleOpts };
+    const context: PackageJsonContext = { file: filePath, isRoot, pkg, ruleOptions: ruleOpts };
     results.push(...rule.check(context));
   }
   return results;
@@ -720,7 +719,7 @@ function processBailTasks(
    */
   async function processNext(index: number): Promise<{ results: LintResult[]; bailed: boolean }> {
     if (index >= tasks.length) {
-      return { results: accumulated, bailed: false };
+      return { bailed: false, results: accumulated };
     }
     const task = tasks[index]!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
     const taskResults: LintResult[] = await runTypeScriptRules(
@@ -731,7 +730,7 @@ function processBailTasks(
     );
     accumulated.push(...taskResults);
     if (taskResults.some((r: LintResult): boolean => r.severity === 'error')) {
-      return { results: accumulated, bailed: true };
+      return { bailed: true, results: accumulated };
     }
     return processNext(index + 1);
   }
@@ -763,7 +762,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
    */
   const dbg = (msg: string): void => {
     if (cliArgs.debug) {
-      output.stderr(`[debug] ${msg}\n`);
+      output.stderr(`${en.listRulesFormat.debugPrefix} ${msg}\n`);
     }
   };
 
@@ -783,7 +782,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
   const loaded: Awaited<ReturnType<typeof loadAllRules>> = await loadAllRules();
   let allTsRules: TypeScriptRule[] = loaded.typescript;
   let allPkgRules: PackageJsonRule[] = loaded.packageJson;
-  dbg(format(en.debug.rulesLoaded, { tsCount: allTsRules.length, pkgCount: allPkgRules.length }));
+  dbg(format(en.debug.rulesLoaded, { pkgCount: allPkgRules.length, tsCount: allTsRules.length }));
 
   /* Auto-generate JSON Schema for IDE autocomplete */
   writeJsonSchema(allTsRules, allPkgRules);
@@ -798,8 +797,10 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
       const stgs: string = (rule.stages ?? ['lint']).join(', ');
       output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
       output.stdout(`    ${rule.description}\n`);
-      output.stdout(`    patterns: ${rule.patterns.join(', ')}\n`);
-      output.stdout(`    categories: ${cats}  stages: ${stgs}\n\n`);
+      output.stdout(`    ${en.listRulesFormat.patternsLabel} ${rule.patterns.join(', ')}\n`);
+      output.stdout(
+        `    ${en.listRulesFormat.categoriesLabel} ${cats}  ${en.listRulesFormat.stagesLabel} ${stgs}\n\n`,
+      );
     }
     output.stdout(`${en.listRules.packageJsonHeader}\n\n`);
     for (const rule of allPkgRules) {
@@ -809,7 +810,9 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
       const stgs: string = (rule.stages ?? ['lint']).join(', ');
       output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
       output.stdout(`    ${rule.description}\n`);
-      output.stdout(`    categories: ${cats}  stages: ${stgs}\n\n`);
+      output.stdout(
+        `    ${en.listRulesFormat.categoriesLabel} ${cats}  ${en.listRulesFormat.stagesLabel} ${stgs}\n\n`,
+      );
     }
     if (loaded.workspace.length > 0) {
       output.stdout(`${en.listRules.workspaceHeader}\n\n`);
@@ -820,7 +823,9 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
         const stgs: string = (rule.stages ?? ['lint']).join(', ');
         output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
         output.stdout(`    ${rule.description}\n`);
-        output.stdout(`    categories: ${cats}  stages: ${stgs}\n\n`);
+        output.stdout(
+          `    ${en.listRulesFormat.categoriesLabel} ${cats}  ${en.listRulesFormat.stagesLabel} ${stgs}\n\n`,
+        );
       }
     }
     return 0;
@@ -831,8 +836,8 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
 
   if (paths.length === 0) {
     output.stderr(
-      `Usage: ${LINTER_NAME} <paths...> [--json] [--rule=id] [--list-rules] [--help]\n` +
-        `Or add "include" paths to ${CONFIG_FILENAME}\n`,
+      `${format(en.errors.usageError, { name: LINTER_NAME })}\n` +
+        `${format(en.errors.usageErrorConfig, { configFilename: CONFIG_FILENAME })}\n`,
     );
     return 1;
   }
@@ -844,8 +849,8 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     allPkgRules = allPkgRules.filter((r: PackageJsonRule): boolean => ruleIdSet.has(r.id));
     dbg(
       format(en.debug.afterRuleFilter, {
-        tsCount: allTsRules.length,
         pkgCount: allPkgRules.length,
+        tsCount: allTsRules.length,
       }),
     );
   }
@@ -865,8 +870,8 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     dbg(
       format(en.debug.afterCategoryFilter, {
         categories: cliArgs.categories.join(','),
-        tsCount: allTsRules.length,
         pkgCount: allPkgRules.length,
+        tsCount: allTsRules.length,
       }),
     );
   }
@@ -902,7 +907,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
         allFiles.push(resolved);
       }
     } catch {
-      output.stderr(`Path not found: ${p}\n`);
+      output.stderr(`${format(en.errors.pathNotFound, { path: p })}\n`);
     }
   }
 
@@ -922,7 +927,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
 
     if (!cliArgs.json && !cliArgs.quiet) {
       output.stderr(
-        `${format(en.output.diffStatus, { mode: cliArgs.diff, changed: allFiles.length, total: beforeCount })}\n`,
+        `${format(en.output.diffStatus, { changed: allFiles.length, mode: cliArgs.diff, total: beforeCount })}\n`,
       );
     }
   }
@@ -1000,7 +1005,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     if (applicableRules.length === 0) {
       continue;
     }
-    tasks.push({ filePath, content, applicableRules });
+    tasks.push({ applicableRules, content, filePath });
   }
 
   let allResults: LintResult[];
@@ -1017,7 +1022,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     allResults = bailResult.results;
   } else if (useWorkerPool) {
     /* Worker thread parallelism — distribute tasks across workers */
-    dbg(format(en.debug.workerPoolSize, { threads: jobCount, files: tasks.length }));
+    dbg(format(en.debug.workerPoolSize, { files: tasks.length, threads: jobCount }));
     const pool: WorkerPool = new WorkerPool(jobCount);
 
     try {
@@ -1025,11 +1030,11 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
 
       const workerTasks: WorkerTask[] = tasks.map(
         (task: FileTask, idx: number): WorkerTask => ({
-          taskId: idx,
-          filePath: task.filePath,
           content: task.content,
+          filePath: task.filePath,
           ruleIds: task.applicableRules.map((r: TypeScriptRule): string => r.id),
           ruleOptions: config.ruleOptions,
+          taskId: idx,
         }),
       );
 
@@ -1038,7 +1043,9 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
       allResults = [];
       for (const wr of workerResults) {
         if (wr.error) {
-          output.stderr(`  Warning: Worker error on task ${wr.taskId}: ${wr.error}\n`);
+          output.stderr(
+            `${format(en.errors.workerError, { error: wr.error, taskId: wr.taskId })}\n`,
+          );
         }
         allResults.push(...wr.results);
       }
@@ -1194,8 +1201,8 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
 
     dbg(
       format(en.debug.toolRunning, {
-        toolCount: toolRegistry.getAll().length,
         fileCount: allFiles.length,
+        toolCount: toolRegistry.getAll().length,
       }),
     );
     const toolResults: LintResult[] = await toolRegistry.runAll(allFiles);
@@ -1244,12 +1251,12 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
         }
       } catch {
         /* File write failed — skip */
-        output.stderr(`  Failed to apply fixes to: ${filePath}\n`);
+        output.stderr(`${format(en.errors.fixFailed, { filePath })}\n`);
       }
     }
 
     if (!cliArgs.json) {
-      output.stdout(`\nApplied fixes to ${fixedFiles} file(s).\n`);
+      output.stdout(`${format(en.errors.fixApplied, { count: fixedFiles })}\n`);
     }
   }
 
@@ -1284,9 +1291,9 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     lintCache.save(cachePath);
     dbg(
       format(en.debug.cacheSaved, {
+        entries: lintCache.getEntryCount(),
         hits: lintCache.getHitCount(),
         misses: lintCache.getMissCount(),
-        entries: lintCache.getEntryCount(),
       }),
     );
   }

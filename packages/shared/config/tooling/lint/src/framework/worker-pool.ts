@@ -9,13 +9,14 @@
  */
 
 import { cpus } from 'node:os';
-import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Worker } from 'node:worker_threads';
 
 import * as v from 'valibot';
-
 import type { LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 // =============================================================================
 // Types
@@ -23,16 +24,16 @@ import type { LintResult } from '@/lint/framework/types.ts';
 
 /** Schema for a task sent to a worker thread. */
 export const WorkerTaskSchema = v.strictObject({
-  /** Unique task identifier for correlating responses. */
-  taskId: v.number(),
-  /** Absolute path to the file being linted. */
-  filePath: v.string(),
   /** File content as a string. */
   content: v.string(),
+  /** Absolute path to the file being linted. */
+  filePath: v.string(),
   /** Rule IDs to run (empty = all loaded rules). */
   ruleIds: v.array(v.string()),
   /** Per-rule config options. */
   ruleOptions: v.record(v.string(), v.record(v.string(), v.unknown())),
+  /** Unique task identifier for correlating responses. */
+  taskId: v.number(),
 });
 
 /** A task sent to a worker thread. See {@link WorkerTaskSchema}. */
@@ -40,12 +41,12 @@ export type WorkerTask = v.InferOutput<typeof WorkerTaskSchema>;
 
 /** Schema for a result returned from a worker thread. */
 export const WorkerResultSchema = v.strictObject({
-  /** Correlates to the incoming task. */
-  taskId: v.number(),
-  /** Lint results for the file. */
-  results: v.custom<LintResult[]>((val: unknown): boolean => Array.isArray(val)),
   /** Error message if the task failed. */
   error: v.optional(v.string()),
+  /** Lint results for the file. */
+  results: v.custom<LintResult[]>((val: unknown): boolean => Array.isArray(val)),
+  /** Correlates to the incoming task. */
+  taskId: v.number(),
 });
 
 /** A result returned from a worker thread. See {@link WorkerResultSchema}. */
@@ -170,7 +171,7 @@ export class WorkerPool {
 
         if (idleIdx === undefined) {
           /* No idle workers — queue the task */
-          this.taskQueue.push({ task, resolve, reject });
+          this.taskQueue.push({ reject, resolve, task });
         } else {
           this.idleWorkers.delete(idleIdx);
           this.dispatchToWorker(idleIdx, task, resolve, reject);
@@ -223,7 +224,7 @@ export class WorkerPool {
   ): void {
     const worker: Worker | undefined = this.workers[workerIdx];
     if (!worker) {
-      reject(new Error(`Worker ${workerIdx} not found`));
+      reject(new Error(format(en.errors.workerNotFound, { index: workerIdx })));
       return;
     }
 
