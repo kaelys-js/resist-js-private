@@ -101,6 +101,7 @@ export type AstVisitor = {
   ThrowStatement?: VisitorFn;
   CatchClause?: VisitorFn;
   ExpressionStatement?: VisitorFn;
+  BlockStatement?: VisitorFn;
 
   // Expressions (additional)
   ConditionalExpression?: VisitorFn;
@@ -112,6 +113,8 @@ export type AstVisitor = {
   TSTypeAssertion?: VisitorFn;
   TSNonNullExpression?: VisitorFn;
   TSSatisfiesExpression?: VisitorFn;
+  TSTypeAnnotation?: VisitorFn;
+  TSFunctionType?: VisitorFn;
 
   // Union types
   TSUnionType?: VisitorFn;
