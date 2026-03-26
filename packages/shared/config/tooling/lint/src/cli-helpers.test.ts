@@ -12,6 +12,7 @@ import { resolve } from 'node:path';
 
 import {
   shouldLint,
+  isBinaryFile,
   collectFiles,
   collectPackageJsonFiles,
   runPkgRules,
@@ -100,6 +101,68 @@ describe('shouldLint', () => {
   it('returns false when extensions list is empty', () => {
     const config: LintConfig = makeConfig({ extensions: [] });
     expect(shouldLint('/path/to/file.ts', config)).toBe(false);
+  });
+
+  it('returns false for binary files even if extension is in config', () => {
+    const config: LintConfig = makeConfig({ extensions: ['.png'] });
+    expect(shouldLint('/path/to/image.png', config)).toBe(false);
+  });
+});
+
+// =============================================================================
+// isBinaryFile
+// =============================================================================
+
+describe('isBinaryFile', () => {
+  it.each([
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.gif',
+    '.ico',
+    '.webp',
+    '.avif',
+    '.woff',
+    '.woff2',
+    '.ttf',
+    '.otf',
+    '.zip',
+    '.tar',
+    '.gz',
+    '.pdf',
+    '.exe',
+    '.dll',
+    '.mp3',
+    '.mp4',
+    '.wav',
+    '.sqlite',
+    '.db',
+    '.wasm',
+    '.map',
+  ])('returns true for %s', (ext) => {
+    expect(isBinaryFile(`/path/to/file${ext}`)).toBe(true);
+  });
+
+  it.each([
+    '.ts',
+    '.js',
+    '.json',
+    '.md',
+    '.yaml',
+    '.html',
+    '.css',
+    '.svelte',
+  ])('returns false for %s', (ext) => {
+    expect(isBinaryFile(`/path/to/file${ext}`)).toBe(false);
+  });
+
+  it('returns false for files with no extension', () => {
+    expect(isBinaryFile('/path/to/Makefile')).toBe(false);
+  });
+
+  it('is case-insensitive', () => {
+    expect(isBinaryFile('/path/to/image.PNG')).toBe(true);
+    expect(isBinaryFile('/path/to/font.WOFF2')).toBe(true);
   });
 });
 
@@ -497,6 +560,203 @@ describe('parseCliArgs', () => {
     const args: CliArgs = parseCliArgs([]);
     expect(args.stage).toBeUndefined();
   });
+
+  it('parses --quiet flag', () => {
+    const args: CliArgs = parseCliArgs(['--quiet']);
+    expect(args.quiet).toBe(true);
+  });
+
+  it('defaults quiet to false', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.quiet).toBe(false);
+  });
+
+  it('parses --bail flag', () => {
+    const args: CliArgs = parseCliArgs(['--bail']);
+    expect(args.bail).toBe(true);
+  });
+
+  it('defaults bail to false', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.bail).toBe(false);
+  });
+
+  it('parses --ignore=pattern', () => {
+    const args: CliArgs = parseCliArgs(['--ignore=*.test.ts']);
+    expect(args.ignore).toEqual(['*.test.ts']);
+  });
+
+  it('parses --ignore=pat1,pat2', () => {
+    const args: CliArgs = parseCliArgs(['--ignore=*.test.ts,*.spec.ts']);
+    expect(args.ignore).toEqual(['*.test.ts', '*.spec.ts']);
+  });
+
+  it('defaults ignore to empty array', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.ignore).toEqual([]);
+  });
+
+  it('parses --config=path', () => {
+    const args: CliArgs = parseCliArgs(['--config=./custom.jsonc']);
+    expect(args.configPath).toBe('./custom.jsonc');
+  });
+
+  it('defaults configPath to undefined', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.configPath).toBeUndefined();
+  });
+});
+
+// =============================================================================
+// parseCliArgs — --severity
+// =============================================================================
+
+describe('parseCliArgs — --severity', () => {
+  it('parses --severity=warn', () => {
+    const args: CliArgs = parseCliArgs(['--severity=warn']);
+    expect(args.severityOverride).toBe('warn');
+  });
+
+  it('parses --severity=error', () => {
+    const args: CliArgs = parseCliArgs(['--severity=error']);
+    expect(args.severityOverride).toBe('error');
+  });
+
+  it('parses --severity=off', () => {
+    const args: CliArgs = parseCliArgs(['--severity=off']);
+    expect(args.severityOverride).toBe('off');
+  });
+
+  it('defaults severityOverride to undefined', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.severityOverride).toBeUndefined();
+  });
+});
+
+// =============================================================================
+// parseCliArgs — --diff
+// =============================================================================
+
+describe('parseCliArgs — --diff', () => {
+  it('parses --diff as head mode', () => {
+    const args: CliArgs = parseCliArgs(['--diff']);
+    expect(args.diff).toBe('head');
+  });
+
+  it('parses --diff=staged', () => {
+    const args: CliArgs = parseCliArgs(['--diff=staged']);
+    expect(args.diff).toBe('staged');
+  });
+
+  it('parses --diff=head explicitly', () => {
+    const args: CliArgs = parseCliArgs(['--diff=head']);
+    expect(args.diff).toBe('head');
+  });
+
+  it('defaults diff to undefined', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.diff).toBeUndefined();
+  });
+});
+
+// =============================================================================
+// parseCliArgs — --debug
+// =============================================================================
+
+describe('parseCliArgs — --debug', () => {
+  it('parses --debug as true', () => {
+    const args: CliArgs = parseCliArgs(['--debug']);
+    expect(args.debug).toBe(true);
+  });
+
+  it('defaults debug to false', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.debug).toBe(false);
+  });
+});
+
+// =============================================================================
+// parseCliArgs — --format
+// =============================================================================
+
+describe('parseCliArgs — --format', () => {
+  it('parses --format=json', () => {
+    const args: CliArgs = parseCliArgs(['--format=json']);
+    expect(args.format).toBe('json');
+  });
+
+  it('parses --format=sarif', () => {
+    const args: CliArgs = parseCliArgs(['--format=sarif']);
+    expect(args.format).toBe('sarif');
+  });
+
+  it('parses --format=text', () => {
+    const args: CliArgs = parseCliArgs(['--format=text']);
+    expect(args.format).toBe('text');
+  });
+
+  it('defaults format to undefined', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.format).toBeUndefined();
+  });
+});
+
+// =============================================================================
+// parseCliArgs — --jobs
+// =============================================================================
+
+describe('parseCliArgs — --jobs', () => {
+  it('parses --jobs=4', () => {
+    const args: CliArgs = parseCliArgs(['--jobs=4']);
+    expect(args.jobs).toBe(4);
+  });
+
+  it('parses --jobs=1', () => {
+    const args: CliArgs = parseCliArgs(['--jobs=1']);
+    expect(args.jobs).toBe(1);
+  });
+
+  it('defaults jobs to undefined', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.jobs).toBeUndefined();
+  });
+});
+
+// =============================================================================
+// parseCliArgs — --tools
+// =============================================================================
+
+describe('parseCliArgs — --tools', () => {
+  it('parses --tools flag', () => {
+    const args: CliArgs = parseCliArgs(['--tools']);
+    expect(args.tools).toBe(true);
+  });
+
+  it('defaults tools to false', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.tools).toBe(false);
+  });
+});
+
+// =============================================================================
+// parseCliArgs — --cache
+// =============================================================================
+
+describe('parseCliArgs — --cache', () => {
+  it('parses --cache flag', () => {
+    const args: CliArgs = parseCliArgs(['--cache']);
+    expect(args.cache).toBe(true);
+  });
+
+  it('--no-cache overrides --cache', () => {
+    const args: CliArgs = parseCliArgs(['--cache', '--no-cache']);
+    expect(args.cache).toBe(false);
+  });
+
+  it('defaults cache to false', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.cache).toBe(false);
+  });
 });
 
 // =============================================================================
@@ -538,6 +798,17 @@ describe('runLinter', () => {
         help: true,
         ruleIds: [],
         categories: [],
+        quiet: false,
+        bail: false,
+        ignore: [],
+        configPath: undefined,
+        severityOverride: undefined,
+        diff: undefined,
+        debug: false,
+        format: undefined,
+        jobs: undefined,
+        tools: false,
+        cache: false,
       },
       output,
     );
@@ -559,6 +830,17 @@ describe('runLinter', () => {
         help: false,
         ruleIds: [],
         categories: [],
+        quiet: false,
+        bail: false,
+        ignore: [],
+        configPath: undefined,
+        severityOverride: undefined,
+        diff: undefined,
+        debug: false,
+        format: undefined,
+        jobs: undefined,
+        tools: false,
+        cache: false,
       },
       output,
     );
@@ -581,6 +863,17 @@ describe('runLinter', () => {
         help: false,
         ruleIds: [],
         categories: [],
+        quiet: false,
+        bail: false,
+        ignore: [],
+        configPath: undefined,
+        severityOverride: undefined,
+        diff: undefined,
+        debug: false,
+        format: undefined,
+        jobs: undefined,
+        tools: false,
+        cache: false,
       },
       output,
     );
@@ -601,6 +894,17 @@ describe('runLinter', () => {
         help: false,
         ruleIds: ['typescript/no-throw'],
         categories: [],
+        quiet: false,
+        bail: false,
+        ignore: [],
+        configPath: undefined,
+        severityOverride: undefined,
+        diff: undefined,
+        debug: false,
+        format: undefined,
+        jobs: undefined,
+        tools: false,
+        cache: false,
       },
       output,
     );
@@ -620,6 +924,17 @@ describe('runLinter', () => {
         help: false,
         ruleIds: [],
         categories: [],
+        quiet: false,
+        bail: false,
+        ignore: [],
+        configPath: undefined,
+        severityOverride: undefined,
+        diff: undefined,
+        debug: false,
+        format: undefined,
+        jobs: undefined,
+        tools: false,
+        cache: false,
       },
       output,
     );
@@ -638,6 +953,17 @@ describe('runLinter', () => {
         help: false,
         ruleIds: ['typescript/no-throw'],
         categories: [],
+        quiet: false,
+        bail: false,
+        ignore: [],
+        configPath: undefined,
+        severityOverride: undefined,
+        diff: undefined,
+        debug: false,
+        format: undefined,
+        jobs: undefined,
+        tools: false,
+        cache: false,
       },
       output,
     );
@@ -659,6 +985,17 @@ describe('runLinter', () => {
         help: false,
         ruleIds: [],
         categories: [],
+        quiet: false,
+        bail: false,
+        ignore: [],
+        configPath: undefined,
+        severityOverride: undefined,
+        diff: undefined,
+        debug: false,
+        format: undefined,
+        jobs: undefined,
+        tools: false,
+        cache: false,
       },
       output,
     );
@@ -679,6 +1016,17 @@ describe('runLinter', () => {
         ruleIds: [],
         categories: ['naming'],
         stage: undefined,
+        quiet: false,
+        bail: false,
+        ignore: [],
+        configPath: undefined,
+        severityOverride: undefined,
+        diff: undefined,
+        debug: false,
+        format: undefined,
+        jobs: undefined,
+        tools: false,
+        cache: false,
       },
       output,
     );
@@ -702,6 +1050,17 @@ describe('runLinter', () => {
         ruleIds: [],
         categories: [],
         stage: 'ci',
+        quiet: false,
+        bail: false,
+        ignore: [],
+        configPath: undefined,
+        severityOverride: undefined,
+        diff: undefined,
+        debug: false,
+        format: undefined,
+        jobs: undefined,
+        tools: false,
+        cache: false,
       },
       output,
     );
@@ -726,6 +1085,17 @@ describe('runLinter', () => {
         help: false,
         ruleIds: [],
         categories: [],
+        quiet: false,
+        bail: false,
+        ignore: [],
+        configPath: undefined,
+        severityOverride: undefined,
+        diff: undefined,
+        debug: false,
+        format: undefined,
+        jobs: undefined,
+        tools: false,
+        cache: false,
       },
       output,
     );

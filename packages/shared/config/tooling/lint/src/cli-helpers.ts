@@ -8,6 +8,7 @@
  * @module
  */
 
+import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync, readdirSync, statSync, type Dirent } from 'node:fs';
 import { resolve, extname, join, relative } from 'node:path';
 
@@ -22,11 +23,31 @@ import {
   type LintConfig,
 } from '@/lint/config/schema.ts';
 import { LINTER_NAME, CONFIG_FILENAME, SCHEMA_FILENAME } from '@/lint/constants.ts';
+import { formatResults, type OutputFormat } from '@/lint/framework/formatters.ts';
+import { createWorkspaceContext } from '@/lint/framework/rule-context.ts';
+import {
+  WorkerPool,
+  getDefaultPoolSize,
+  type WorkerTask,
+  type WorkerResult,
+} from '@/lint/framework/worker-pool.ts';
+import { ToolRegistry } from '@/lint/framework/tool-orchestrator.ts';
+import { LintCache, CACHE_FILENAME, computeRuleHash } from '@/lint/framework/cache.ts';
+import { shellcheckTool } from '@/lint/tools/shellcheck.ts';
+import { hadolintTool } from '@/lint/tools/hadolint.ts';
+import { yamllintTool } from '@/lint/tools/yamllint.ts';
+import { markdownlintTool } from '@/lint/tools/markdownlint.ts';
+import { stylelintTool } from '@/lint/tools/stylelint.ts';
+import { taploTool } from '@/lint/tools/taplo.ts';
+import { actionlintTool } from '@/lint/tools/actionlint.ts';
+import { sqlfluffTool } from '@/lint/tools/sqlfluff.ts';
+import { ruffTool } from '@/lint/tools/ruff.ts';
 import type {
   LintResult,
   LintFix,
   TypeScriptRule,
   PackageJsonRule,
+  WorkspaceRule,
   PackageJsonContext,
   PackageJson,
   Stage,
@@ -56,6 +77,28 @@ export const CliArgsSchema = v.strictObject({
   categories: v.array(v.string()),
   /** Pipeline stage to filter by (undefined = no stage filter). */
   stage: v.optional(v.string()),
+  /** Whether to suppress warning-level output (show errors only). */
+  quiet: v.boolean(),
+  /** Whether to stop on first error (bail early). */
+  bail: v.boolean(),
+  /** Additional ignore patterns from CLI (merged with config exclude). */
+  ignore: v.array(v.string()),
+  /** Custom config file path (overrides default .resist-lint.jsonc). */
+  configPath: v.optional(v.string()),
+  /** Global severity override (overrides all result severities). */
+  severityOverride: v.optional(v.picklist(['error', 'warn', 'off'])),
+  /** Diff mode: only lint changed files ('head' = uncommitted, 'staged' = staged). */
+  diff: v.optional(v.picklist(['head', 'staged'])),
+  /** Whether to enable verbose debug logging to stderr. */
+  debug: v.boolean(),
+  /** Output format ('text', 'json', 'sarif'). Undefined defaults to text (or json if --json). */
+  format: v.optional(v.picklist(['text', 'json', 'sarif'])),
+  /** Number of worker threads for parallel lint (undefined = os.cpus().length, 1 = single-threaded). */
+  jobs: v.optional(v.number()),
+  /** Whether to run external tools (shellcheck, hadolint, etc.) alongside custom rules. */
+  tools: v.boolean(),
+  /** Whether to use file hash caching for incremental runs. */
+  cache: v.boolean(),
 });
 
 /** Parsed CLI arguments. See {@link CliArgsSchema}. */
@@ -99,6 +142,37 @@ export function parseCliArgs(argv: string[]): CliArgs {
   );
   const stage: string | undefined = stageFlag ? (stageFlag.split('=')[1] ?? '') : undefined;
 
+  const ignoreFlag: string | undefined = flags.find((f: string): boolean =>
+    f.startsWith('--ignore='),
+  );
+  const ignore: string[] = ignoreFlag ? (ignoreFlag.split('=')[1] ?? '').split(',') : [];
+
+  const configFlag: string | undefined = flags.find((f: string): boolean =>
+    f.startsWith('--config='),
+  );
+  const configPath: string | undefined = configFlag ? (configFlag.split('=')[1] ?? '') : undefined;
+
+  const severityFlag: string | undefined = flags.find((f: string): boolean =>
+    f.startsWith('--severity='),
+  );
+  const severityOverride: 'error' | 'warn' | 'off' | undefined = severityFlag
+    ? ((severityFlag.split('=')[1] ?? '') as 'error' | 'warn' | 'off')
+    : undefined;
+
+  const diffFlag: string | undefined = flags.find(
+    (f: string): boolean => f === '--diff' || f.startsWith('--diff='),
+  );
+  let diff: 'head' | 'staged' | undefined;
+  if (diffFlag) {
+    const diffValue: string = diffFlag.includes('=') ? (diffFlag.split('=')[1] ?? 'head') : 'head';
+    diff = diffValue === 'staged' ? 'staged' : 'head';
+  }
+
+  const jobsFlag: string | undefined = flags.find((f: string): boolean => f.startsWith('--jobs='));
+  const jobs: number | undefined = jobsFlag
+    ? Number.parseInt(jobsFlag.split('=')[1] ?? '', 10) || undefined
+    : undefined;
+
   return {
     paths,
     json: flags.includes('--json'),
@@ -109,7 +183,154 @@ export function parseCliArgs(argv: string[]): CliArgs {
     ruleIds,
     categories,
     stage,
+    quiet: flags.includes('--quiet'),
+    bail: flags.includes('--bail'),
+    ignore,
+    configPath,
+    severityOverride,
+    diff,
+    debug: flags.includes('--debug'),
+    format: parseFormatFlag(flags),
+    jobs,
+    tools: flags.includes('--tools'),
+    cache: flags.includes('--cache') && !flags.includes('--no-cache'),
   };
+}
+
+/**
+ * Parse the --format= flag from CLI flags.
+ *
+ * @param flags - Array of flag strings
+ * @returns Output format or undefined
+ */
+function parseFormatFlag(flags: string[]): 'text' | 'json' | 'sarif' | undefined {
+  const formatFlag: string | undefined = flags.find((f: string): boolean =>
+    f.startsWith('--format='),
+  );
+  if (!formatFlag) {
+    return undefined;
+  }
+  const value: string = formatFlag.split('=')[1] ?? 'text';
+  if (value === 'json' || value === 'sarif' || value === 'text') {
+    return value;
+  }
+  return 'text';
+}
+
+// =============================================================================
+// Binary Detection
+// =============================================================================
+
+/** Known binary file extensions that should never be linted. */
+const BINARY_EXTENSIONS: ReadonlySet<string> = new Set([
+  /* Images */
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.ico',
+  '.webp',
+  '.avif',
+  '.svg',
+  '.bmp',
+  '.tiff',
+  /* Fonts */
+  '.woff',
+  '.woff2',
+  '.ttf',
+  '.otf',
+  '.eot',
+  /* Archives */
+  '.zip',
+  '.tar',
+  '.gz',
+  '.bz2',
+  '.7z',
+  '.rar',
+  /* Documents */
+  '.pdf',
+  '.doc',
+  '.docx',
+  '.xls',
+  '.xlsx',
+  '.ppt',
+  '.pptx',
+  /* Executables / Libraries */
+  '.exe',
+  '.dll',
+  '.so',
+  '.dylib',
+  /* Media */
+  '.mp3',
+  '.mp4',
+  '.wav',
+  '.ogg',
+  '.webm',
+  '.avi',
+  '.mov',
+  '.flac',
+  /* Databases */
+  '.sqlite',
+  '.db',
+  /* Source maps */
+  '.map',
+  /* WebAssembly */
+  '.wasm',
+]);
+
+/**
+ * Check if a file is likely binary based on its extension.
+ *
+ * Binary files should never be linted — they are not text and cannot
+ * be meaningfully parsed by AST-based or text-based rules.
+ *
+ * @param {string} filePath - File path to check
+ * @returns {boolean} Whether the file is likely binary
+ */
+export function isBinaryFile(filePath: string): boolean {
+  const dot: number = filePath.lastIndexOf('.');
+  if (dot < 0) {
+    return false;
+  }
+  const ext: string = filePath.slice(dot).toLowerCase();
+  return BINARY_EXTENSIONS.has(ext);
+}
+
+// =============================================================================
+// Git Diff Integration
+// =============================================================================
+
+/**
+ * Get the set of changed file paths from git.
+ *
+ * @param {'head' | 'staged'} mode - Which changes to query:
+ *   - `'head'`: uncommitted changes vs HEAD (`git diff --name-only HEAD`)
+ *   - `'staged'`: staged changes (`git diff --cached --name-only`)
+ * @returns {Set<string>} Absolute paths of changed files
+ */
+export function getGitChangedFiles(mode: 'head' | 'staged'): Set<string> {
+  const cmd: string =
+    mode === 'staged' ? 'git diff --cached --name-only' : 'git diff --name-only HEAD';
+
+  let output: string;
+  try {
+    output = execSync(cmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
+  } catch {
+    /* git not available or not a git repo — return empty set */
+    return new Set();
+  }
+
+  const cwd: string = process.cwd();
+  const files: Set<string> = new Set<string>();
+
+  for (const line of output.split('\n')) {
+    const trimmed: string = line.trim();
+    if (trimmed.length > 0) {
+      files.add(resolve(cwd, trimmed));
+    }
+  }
+
+  return files;
 }
 
 // =============================================================================
@@ -119,14 +340,20 @@ export function parseCliArgs(argv: string[]): CliArgs {
 /**
  * Check if a file path should be linted based on config.
  *
- * Excluded patterns (e.g. `*.test.ts`, `*.d.ts`) are checked first.
- * Then the file extension must match one from `config.extensions`.
+ * Binary files are rejected first. Then excluded patterns (e.g. `*.test.ts`,
+ * `*.d.ts`) are checked. Finally the file extension must match one from
+ * `config.extensions`.
  *
  * @param {string} filePath - File path to check
  * @param {LintConfig} config - Linter configuration
  * @returns {boolean} Whether the file should be linted
  */
 export function shouldLint(filePath: string, config: LintConfig): boolean {
+  /* Always reject binary files */
+  if (isBinaryFile(filePath)) {
+    return false;
+  }
+
   /* Check exclude patterns */
   for (const pattern of config.exclude) {
     if (pattern.startsWith('*.') && filePath.endsWith(pattern.slice(1))) {
@@ -360,6 +587,18 @@ OPTIONS
   --fix                 Auto-apply fixes to source files
   --json                Output results as JSON
   --list-rules          Print all rules with severity and patterns
+  --quiet               Suppress warnings, show only errors
+  --bail                Stop on first file with errors
+  --ignore=pat[,pat2]   Additional patterns to exclude
+  --config=path         Custom config file path
+  --severity=level      Override all result severities (error|warn|off)
+  --diff[=mode]         Only lint changed files (head=uncommitted, staged=staged)
+  --format=fmt          Output format: text (default), json, sarif
+  --jobs=N              Number of worker threads (default: CPU count, 1=single-threaded)
+  --tools               Run external tools (shellcheck, hadolint, etc.)
+  --cache               Cache file hashes for incremental runs
+  --no-cache            Clear cache and run full lint
+  --debug               Verbose debug logging to stderr
   --warn-only           Exit 0 even if errors are found
   --help, -h            Show this help message
 
@@ -410,13 +649,30 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     return 0;
   }
 
+  /** Write debug message to stderr when --debug is active. */
+  const dbg = (msg: string): void => {
+    if (cliArgs.debug) {
+      output.stderr(`[debug] ${msg}\n`);
+    }
+  };
+
+  const lintStartTime: number = Date.now();
+
   /* Load config */
-  const config: LintConfig = loadConfig(process.cwd());
+  const config: LintConfig = loadConfig(process.cwd(), cliArgs.configPath);
+  dbg(`Config loaded from ${cliArgs.configPath ?? CONFIG_FILENAME}`);
+
+  /* Merge CLI --ignore patterns into config excludes */
+  if (cliArgs.ignore.length > 0) {
+    config.exclude = [...config.exclude, ...cliArgs.ignore];
+    dbg(`Merged ${cliArgs.ignore.length} CLI ignore patterns`);
+  }
 
   /* Auto-discover all rules */
   const loaded: Awaited<ReturnType<typeof loadAllRules>> = await loadAllRules();
   let allTsRules: TypeScriptRule[] = loaded.typescript;
   let allPkgRules: PackageJsonRule[] = loaded.packageJson;
+  dbg(`Loaded ${allTsRules.length} TypeScript rules, ${allPkgRules.length} package.json rules`);
 
   /* Auto-generate JSON Schema for IDE autocomplete */
   writeJsonSchema(allTsRules, allPkgRules);
@@ -444,6 +700,18 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
       output.stdout(`    ${rule.description}\n`);
       output.stdout(`    categories: ${cats}  stages: ${stgs}\n\n`);
     }
+    if (loaded.workspace.length > 0) {
+      output.stdout('Workspace rules:\n\n');
+      for (const rule of loaded.workspace) {
+        const severity: string = config.rules[rule.id] ?? 'error';
+        const fixable: string = rule.fixable ? ' [fixable]' : '';
+        const cats: string = (rule.categories ?? []).join(', ');
+        const stgs: string = (rule.stages ?? ['lint']).join(', ');
+        output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
+        output.stdout(`    ${rule.description}\n`);
+        output.stdout(`    categories: ${cats}  stages: ${stgs}\n\n`);
+      }
+    }
     return 0;
   }
 
@@ -458,12 +726,12 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     return 1;
   }
 
-  /* Filter rules by --rule= flag if specified */
+  /* Filter rules by --rule= flag if specified (O(1) lookup via byId) */
   if (cliArgs.ruleIds.length > 0) {
-    allTsRules = allTsRules.filter((r: TypeScriptRule): boolean => cliArgs.ruleIds.includes(r.id));
-    allPkgRules = allPkgRules.filter((r: PackageJsonRule): boolean =>
-      cliArgs.ruleIds.includes(r.id),
-    );
+    const ruleIdSet: ReadonlySet<string> = new Set(cliArgs.ruleIds);
+    allTsRules = allTsRules.filter((r: TypeScriptRule): boolean => ruleIdSet.has(r.id));
+    allPkgRules = allPkgRules.filter((r: PackageJsonRule): boolean => ruleIdSet.has(r.id));
+    dbg(`After --rule= filter: ${allTsRules.length} TS, ${allPkgRules.length} pkg rules`);
   }
 
   /* Apply config-based category/stage overrides from ruleOptions */
@@ -477,6 +745,9 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     );
     allPkgRules = allPkgRules.filter((r: PackageJsonRule): boolean =>
       (r.categories ?? []).some((c: string): boolean => cliArgs.categories.includes(c)),
+    );
+    dbg(
+      `After --category=${cliArgs.categories.join(',')} filter: ${allTsRules.length} TS, ${allPkgRules.length} pkg rules`,
     );
   }
 
@@ -515,6 +786,25 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     }
   }
 
+  dbg(`Found ${allFiles.length} lintable files in ${paths.length} path(s)`);
+
+  /* When --diff is set, intersect with git-changed files */
+  if (cliArgs.diff) {
+    const changedFiles: Set<string> = getGitChangedFiles(cliArgs.diff);
+    const beforeCount: number = allFiles.length;
+
+    /* Remove files not in the diff set (filter in place) */
+    for (let i: number = allFiles.length - 1; i >= 0; i--) {
+      if (!changedFiles.has(allFiles[i] ?? '')) {
+        allFiles.splice(i, 1);
+      }
+    }
+
+    if (!cliArgs.json && !cliArgs.quiet) {
+      output.stderr(`--diff=${cliArgs.diff}: ${allFiles.length}/${beforeCount} files changed\n`);
+    }
+  }
+
   if (allFiles.length === 0) {
     if (!cliArgs.json) {
       output.stdout('No lintable files found.\n');
@@ -522,9 +812,30 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     return 0;
   }
 
+  /* Initialize cache when --cache is enabled */
+  const cachePath: string = resolve(process.cwd(), CACHE_FILENAME);
+  const allRuleIds: string[] = [
+    ...allTsRules.map((r: TypeScriptRule): string => r.id),
+    ...allPkgRules.map((r: PackageJsonRule): string => r.id),
+  ];
+  const ruleHash: string = computeRuleHash(allRuleIds);
+  let lintCache: LintCache | null = null;
+
+  if (cliArgs.cache) {
+    lintCache = LintCache.load(cachePath, ruleHash);
+    dbg(`Cache loaded: ${lintCache.getEntryCount()} entries`);
+  }
+
+  /* Handle --no-cache: delete cache file before running */
+  if (!cliArgs.cache && process.argv.includes('--no-cache')) {
+    LintCache.delete(cachePath);
+    dbg('Cache file deleted');
+  }
+
   /* Run TypeScript rules on each file */
   type FileTask = { filePath: string; content: string; applicableRules: TypeScriptRule[] };
   const tasks: FileTask[] = [];
+  const cachedResults: LintResult[] = [];
 
   for (const filePath of allFiles) {
     let content: string;
@@ -533,6 +844,15 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     } catch {
       /* File not readable — skip */
       continue;
+    }
+
+    /* Check cache first */
+    if (lintCache) {
+      const cached: LintResult[] | null = lintCache.get(filePath, content);
+      if (cached) {
+        cachedResults.push(...cached);
+        continue;
+      }
     }
 
     /* Filter rules by file pattern AND per-file severity (overrides may disable) */
@@ -561,22 +881,104 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     tasks.push({ filePath, content, applicableRules });
   }
 
-  const taskResults: LintResult[][] = await Promise.all(
-    tasks.map(
-      (task: FileTask): Promise<LintResult[]> =>
-        runTypeScriptRules(task.filePath, task.content, task.applicableRules, config.ruleOptions),
-    ),
-  );
-  let allResults: LintResult[] = taskResults.flat();
+  let allResults: LintResult[];
+  let bailed: boolean = false;
+
+  /* Determine parallelism mode */
+  const jobCount: number = cliArgs.jobs ?? 1;
+  const useWorkerPool: boolean = jobCount > 1 && !cliArgs.bail && tasks.length > 1;
+
+  if (cliArgs.bail) {
+    /* --bail: process files sequentially, stop on first error */
+    allResults = [];
+    for (const task of tasks) {
+      const results: LintResult[] = await runTypeScriptRules(
+        task.filePath,
+        task.content,
+        task.applicableRules,
+        config.ruleOptions,
+      );
+      allResults.push(...results);
+      if (results.some((r: LintResult): boolean => r.severity === 'error')) {
+        bailed = true;
+        break;
+      }
+    }
+  } else if (useWorkerPool) {
+    /* Worker thread parallelism — distribute tasks across workers */
+    dbg(`Using worker pool with ${jobCount} threads for ${tasks.length} files`);
+    const pool: WorkerPool = new WorkerPool(jobCount);
+
+    try {
+      await pool.waitForReady();
+
+      const workerTasks: WorkerTask[] = tasks.map(
+        (task: FileTask, idx: number): WorkerTask => ({
+          taskId: idx,
+          filePath: task.filePath,
+          content: task.content,
+          ruleIds: task.applicableRules.map((r: TypeScriptRule): string => r.id),
+          ruleOptions: config.ruleOptions,
+        }),
+      );
+
+      const workerResults: WorkerResult[] = await pool.executeAll(workerTasks);
+
+      allResults = [];
+      for (const wr of workerResults) {
+        if (wr.error) {
+          output.stderr(`  Warning: Worker error on task ${wr.taskId}: ${wr.error}\n`);
+        }
+        allResults.push(...wr.results);
+      }
+
+      dbg(`Worker pool produced ${allResults.length} result(s)`);
+    } finally {
+      await pool.shutdown();
+    }
+  } else {
+    /* Default: process all files in parallel within single thread */
+    const taskResults: LintResult[][] = await Promise.all(
+      tasks.map(
+        (task: FileTask): Promise<LintResult[]> =>
+          runTypeScriptRules(task.filePath, task.content, task.applicableRules, config.ruleOptions),
+      ),
+    );
+    allResults = taskResults.flat();
+  }
 
   /* Run finalize() on rules that aggregate cross-file data */
-  for (const rule of allTsRules) {
-    if (rule.finalize) {
-      allResults.push(...rule.finalize());
+  if (!bailed) {
+    for (const rule of allTsRules) {
+      if (rule.finalize) {
+        allResults.push(...rule.finalize());
+      }
     }
   }
 
-  /* Run package.json rules */
+  /* Update cache with newly-linted file results */
+  if (lintCache) {
+    /* Group results by file for cache storage */
+    const resultsByFile: Map<string, LintResult[]> = new Map();
+    for (const result of allResults) {
+      const existing: LintResult[] = resultsByFile.get(result.file) ?? [];
+      existing.push(result);
+      resultsByFile.set(result.file, existing);
+    }
+
+    for (const task of tasks) {
+      const fileResults: LintResult[] = resultsByFile.get(task.filePath) ?? [];
+      lintCache.set(task.filePath, task.content, fileResults);
+    }
+  }
+
+  /* Merge cached results into allResults */
+  if (cachedResults.length > 0) {
+    allResults.push(...cachedResults);
+    dbg(`Cache: ${lintCache?.getHitCount() ?? 0} hits, ${lintCache?.getMissCount() ?? 0} misses`);
+  }
+
+  /* Run package.json rules (skip if bailed) */
   const pkgFiles: string[] = [];
   for (const p of paths) {
     const resolved: string = resolve(p);
@@ -608,6 +1010,84 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     }
   }
 
+  /* Run workspace rules (skip if bailed or if only individual files were provided).
+   * Workspace rules scan the entire repo so they only make sense when linting
+   * directories (e.g., `resist-lint packages/` or the default config include paths). */
+  const hasDirectoryPaths: boolean = paths.some((p: string): boolean => {
+    try {
+      return statSync(resolve(p)).isDirectory();
+    } catch {
+      return false;
+    }
+  });
+
+  if (!bailed && hasDirectoryPaths && loaded.workspace.length > 0) {
+    let wsRules: WorkspaceRule[] = [...loaded.workspace];
+
+    /* Filter workspace rules by --rule= */
+    if (cliArgs.ruleIds.length > 0) {
+      const ruleIdSet: ReadonlySet<string> = new Set(cliArgs.ruleIds);
+      wsRules = wsRules.filter((r: WorkspaceRule): boolean => ruleIdSet.has(r.id));
+    }
+
+    /* Filter workspace rules by --category= */
+    if (cliArgs.categories.length > 0) {
+      wsRules = wsRules.filter((r: WorkspaceRule): boolean =>
+        (r.categories ?? []).some((c: string): boolean => cliArgs.categories.includes(c)),
+      );
+    }
+
+    /* Filter workspace rules by --stage= */
+    if (cliArgs.stage) {
+      const stageFilter: string = cliArgs.stage;
+      wsRules = wsRules.filter((r: WorkspaceRule): boolean =>
+        (r.stages ?? ['lint']).includes(stageFilter as Stage),
+      );
+    }
+
+    /* Filter out globally disabled workspace rules */
+    wsRules = wsRules.filter(
+      (r: WorkspaceRule): boolean => (config.rules[r.id] ?? 'error') !== 'off',
+    );
+
+    if (wsRules.length > 0) {
+      dbg(`Running ${wsRules.length} workspace rules`);
+      const wsContext: ReturnType<typeof createWorkspaceContext> = createWorkspaceContext(
+        resolve(process.cwd()),
+      );
+
+      const wsResults: LintResult[][] = await Promise.all(
+        wsRules.map((rule: WorkspaceRule): Promise<LintResult[]> => rule.check(wsContext)),
+      );
+
+      for (const results of wsResults) {
+        allResults.push(...results);
+      }
+
+      dbg(`Workspace rules produced ${wsResults.flat().length} result(s)`);
+    }
+  }
+
+  /* Run external tools when --tools is enabled */
+  if (cliArgs.tools && !bailed) {
+    dbg('Loading external tool registry');
+    const toolRegistry: ToolRegistry = new ToolRegistry();
+    toolRegistry.register(shellcheckTool);
+    toolRegistry.register(hadolintTool);
+    toolRegistry.register(yamllintTool);
+    toolRegistry.register(markdownlintTool);
+    toolRegistry.register(stylelintTool);
+    toolRegistry.register(taploTool);
+    toolRegistry.register(actionlintTool);
+    toolRegistry.register(sqlfluffTool);
+    toolRegistry.register(ruffTool);
+
+    dbg(`Running ${toolRegistry.getAll().length} external tools on ${allFiles.length} files`);
+    const toolResults: LintResult[] = await toolRegistry.runAll(allFiles);
+    allResults.push(...toolResults);
+    dbg(`External tools produced ${toolResults.length} result(s)`);
+  }
+
   /* Apply per-file severity from overrides (convert error to warning based on config) */
   allResults = allResults.map((result: LintResult): LintResult => {
     const severity: string = resolveRuleSeverity(config, result.ruleId, result.file);
@@ -616,6 +1096,15 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     }
     return result;
   });
+
+  /* Apply global --severity= override */
+  if (cliArgs.severityOverride === 'off') {
+    allResults = [];
+  } else if (cliArgs.severityOverride === 'warn') {
+    allResults = allResults.map((r: LintResult): LintResult => ({ ...r, severity: 'warning' }));
+  } else if (cliArgs.severityOverride === 'error') {
+    allResults = allResults.map((r: LintResult): LintResult => ({ ...r, severity: 'error' }));
+  }
 
   /* Apply fixes if --fix */
   if (cliArgs.fix && allResults.length > 0) {
@@ -649,34 +1138,41 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     }
   }
 
-  /* Output results */
-  if (cliArgs.json) {
-    output.stdout(`${JSON.stringify(allResults, null, 2)}\n`);
-  } else {
-    const errors: LintResult[] = allResults.filter(
-      (r: LintResult): boolean => r.severity === 'error',
-    );
-    const warnings: LintResult[] = allResults.filter(
-      (r: LintResult): boolean => r.severity === 'warning',
-    );
+  /* When --quiet, only display errors (but still count warnings for summary) */
+  const displayResults: LintResult[] = cliArgs.quiet
+    ? allResults.filter((r: LintResult): boolean => r.severity === 'error')
+    : allResults;
 
-    for (const result of allResults) {
-      const relPath: string = relative(process.cwd(), result.file);
-      const icon: string = result.severity === 'error' ? '✗' : '⚠';
-      output.stdout(
-        `  ${icon} ${relPath}:${result.line}:${result.column} ${result.message} [${result.ruleId}]\n`,
-      );
-      if (result.tip) {
-        output.stdout(`    → ${result.tip}\n`);
-      }
-    }
+  /* Resolve output format: --format= takes priority, --json is alias for --format=json */
+  const outputFormat: OutputFormat = cliArgs.format ?? (cliArgs.json ? 'json' : 'text');
 
-    if (allResults.length > 0) {
-      output.stdout(
-        `\nFound ${errors.length} error(s) and ${warnings.length} warning(s) in ${allFiles.length} file(s).\n`,
-      );
-    }
+  /* Build rule description map for SARIF */
+  const ruleDescs: Map<string, string> = new Map<string, string>();
+  for (const rule of loaded.typescript) {
+    ruleDescs.set(rule.id, rule.description);
   }
+  for (const rule of loaded.packageJson) {
+    ruleDescs.set(rule.id, rule.description);
+  }
+  for (const rule of loaded.workspace) {
+    ruleDescs.set(rule.id, rule.description);
+  }
+
+  /* Format and output results */
+  const formatted: string = formatResults(displayResults, outputFormat, allFiles.length, ruleDescs);
+  if (formatted.length > 0) {
+    output.stdout(formatted);
+  }
+
+  /* Save cache to disk */
+  if (lintCache) {
+    lintCache.save(cachePath);
+    dbg(
+      `Cache saved: ${lintCache.getHitCount()} hits, ${lintCache.getMissCount()} misses, ${lintCache.getEntryCount()} entries`,
+    );
+  }
+
+  dbg(`Total lint time: ${Date.now() - lintStartTime}ms`);
 
   /* Exit with error if any errors found (unless --warn-only) */
   const hasErrors: boolean = allResults.some((r: LintResult): boolean => r.severity === 'error');

@@ -71,8 +71,10 @@ export type LintConfig = v.InferOutput<typeof LintConfigSchema>;
  * @returns {LintConfig} Validated linter configuration
  * @throws If the config file contains invalid JSON or fails schema validation
  */
-export function loadConfig(cwd: string): LintConfig {
-  const configPath: string = resolve(cwd, CONFIG_FILENAME);
+export function loadConfig(cwd: string, customConfigPath?: string): LintConfig {
+  const configPath: string = customConfigPath
+    ? resolve(cwd, customConfigPath)
+    : resolve(cwd, CONFIG_FILENAME);
   let raw: string;
 
   try {

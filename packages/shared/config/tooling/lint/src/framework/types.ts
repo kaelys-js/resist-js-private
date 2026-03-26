@@ -71,12 +71,83 @@ export const LintResultSchema = v.strictObject({
   tip: v.optional(v.string()),
   /** Code example showing the correct form */
   example: v.optional(v.string()),
+  /** Source code line that triggered the diagnostic */
+  source: v.optional(v.string()),
+  /** Link to documentation for the rule */
+  url: v.optional(v.string()),
   /** Structured auto-fix — every result MUST include a fix */
   fix: LintFixSchema,
 });
 
 /** A single lint diagnostic produced by a rule. See {@link LintResultSchema}. */
 export type LintResult = v.InferOutput<typeof LintResultSchema>;
+
+/** No-op fix placeholder for rules that don't provide auto-fixes. */
+const NO_OP_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
+
+/** Optional fields for {@link createResult}. */
+interface CreateResultOpts {
+  /** Short suggestion for fixing the issue. */
+  tip?: string;
+  /** Code example showing the correct form. */
+  example?: string;
+  /** Source code line that triggered the diagnostic. */
+  source?: string;
+  /** Link to documentation for the rule. */
+  url?: string;
+  /** Structured auto-fix (defaults to no-op if omitted). */
+  fix?: LintFix;
+  /** End line for range highlighting. */
+  endLine?: number;
+  /** End column for range highlighting. */
+  endColumn?: number;
+}
+
+/**
+ * Factory helper to build a {@link LintResult} with sensible defaults.
+ *
+ * Reduces boilerplate — callers only need to specify the required fields.
+ * The `fix` field defaults to a no-op fix when omitted.
+ *
+ * @param {string} ruleId - Rule ID (e.g. 'jsdoc/require-param')
+ * @param {string} file - Absolute file path
+ * @param {number} line - 1-based line number
+ * @param {number} column - 1-based column number
+ * @param {'error' | 'warning' | 'info'} severity - Severity level
+ * @param {string} message - Human-readable diagnostic message
+ * @param {CreateResultOpts} opts - Optional fields (tip, example, fix, endLine, endColumn)
+ * @returns {LintResult} A complete lint result object
+ *
+ * @example
+ * ```typescript
+ * const result = createResult('jsdoc/require-param', '/src/foo.ts', 10, 1, 'error', 'Missing @param tag');
+ * ```
+ */
+export function createResult(
+  ruleId: string,
+  file: string,
+  line: number,
+  column: number,
+  severity: 'error' | 'warning' | 'info',
+  message: string,
+  opts?: CreateResultOpts,
+): LintResult {
+  return {
+    ruleId,
+    file,
+    line,
+    column,
+    severity,
+    message,
+    fix: opts?.fix ?? NO_OP_FIX,
+    tip: opts?.tip,
+    example: opts?.example,
+    source: opts?.source,
+    url: opts?.url,
+    endLine: opts?.endLine,
+    endColumn: opts?.endColumn,
+  };
+}
 
 // =============================================================================
 // AST Types (oxc-parser output)
@@ -349,3 +420,41 @@ export const PackageJsonRuleSchema = v.strictObject({
 
 /** A package.json lint rule. See {@link PackageJsonRuleSchema}. */
 export type PackageJsonRule = v.InferOutput<typeof PackageJsonRuleSchema>;
+
+// =============================================================================
+// Workspace Rule Interface
+// =============================================================================
+
+/**
+ * Schema for a workspace-scoped lint rule.
+ *
+ * Workspace rules check the entire monorepo — they are not file-specific
+ * or package-specific. They receive a `WorkspaceContext` with utilities
+ * for file discovery, reading, and searching.
+ *
+ * Discriminated from `PackageJsonRule` by the `scope: 'workspace'` field.
+ */
+export const WorkspaceRuleSchema = v.strictObject({
+  /** Unique rule ID (e.g. 'workspace/no-merge-conflicts') */
+  id: v.string(),
+  /** Human-readable description */
+  description: v.string(),
+  /** Literal scope discriminator — always 'workspace' */
+  scope: v.literal('workspace'),
+  /** Rule categories for filtering (defaults to [id prefix]) */
+  categories: v.optional(v.array(v.string())),
+  /** Pipeline stages this rule runs in (defaults to ['lint']) */
+  stages: v.optional(v.array(StageSchema)),
+  /**
+   * Check function — receives the workspace context and returns lint results.
+   *
+   * Uses the WorkspaceContext from rule-context.ts for file discovery,
+   * reading, and searching.
+   */
+  check: v.custom<(context: unknown) => Promise<LintResult[]>>(isFn),
+  /** Whether this rule provides real auto-fixes (not just placeholder no-ops) */
+  fixable: v.optional(v.boolean()),
+});
+
+/** A workspace-scoped lint rule. See {@link WorkspaceRuleSchema}. */
+export type WorkspaceRule = v.InferOutput<typeof WorkspaceRuleSchema>;
