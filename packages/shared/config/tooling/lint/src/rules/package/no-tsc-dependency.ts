@@ -6,7 +6,7 @@
  *
  * @module
  */
-import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
+import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
 
 /** Dummy fix for package.json rules (no byte offsets). */
 const NO_FIX: { range: { start: number; end: number }; text: string } = {

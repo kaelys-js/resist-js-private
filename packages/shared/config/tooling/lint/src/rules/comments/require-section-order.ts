@@ -8,7 +8,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Canonical section order — earlier index = must appear first. */
 const SECTION_ORDER: ReadonlyArray<{ pattern: RegExp; label: string }> = [
@@ -17,23 +22,6 @@ const SECTION_ORDER: ReadonlyArray<{ pattern: RegExp; label: string }> = [
   { pattern: /helper|internal|util/i, label: 'Helpers' },
   { pattern: /export|api|public/i, label: 'Exported/API' },
 ];
-
-/** File path patterns exempt from this rule. */
-const EXEMPT_PATTERNS: readonly RegExp[] = [
-  /\.test\.ts$/,
-  /\.spec\.ts$/,
-  /config\/tooling\/lint\//,
-];
-
-/**
- * Check whether a file is exempt.
- *
- * @param {string} filePath - File path
- * @returns {boolean} Whether exempt
- */
-function isExempt(filePath: string): boolean {
-  return EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(filePath));
-}
 
 /** Rule definition. */
 const rule: TypeScriptRule = {
@@ -45,10 +33,6 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      if (isExempt(context.file)) {
-        return results;
-      }
-
       // Extract all // === section headers with their line numbers
       const lines: string[] = context.content.split('\n');
       const sections: Array<{ line: number; name: string; orderIndex: number }> = [];

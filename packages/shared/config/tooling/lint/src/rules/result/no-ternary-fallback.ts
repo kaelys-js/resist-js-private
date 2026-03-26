@@ -10,7 +10,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Pattern matching Svelte reactive context markers that exempt ternary fallback usage. */
 const REACTIVE_CONTEXT_PATTERN: RegExp = /\$derived\.by|\$effect/;

@@ -14,7 +14,7 @@
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
+import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
 
 /** Dummy fix for package.json rules (no byte offsets). */
 const NO_FIX: { range: { start: number; end: number }; text: string } = {
@@ -28,25 +28,6 @@ const REQUIRED_SECTIONS: ReadonlyArray<{ pattern: RegExp; label: string }> = [
   { pattern: /^#{2,3}\s+(api|api reference)\s*$/im, label: 'API / API Reference' },
   { pattern: /^#{2,3}\s+(usage|quick start)\s*$/im, label: 'Usage / Quick Start' },
 ];
-
-/** File path patterns exempt from README validation. */
-const EXEMPT_PATTERNS: readonly RegExp[] = [
-  /config\/test\//,
-  /config\/tooling\/node\//,
-  /products-template\//,
-  /extensions\//,
-  /secrets\//,
-];
-
-/**
- * Check if a package is exempt from README validation.
- *
- * @param {string} filePath - Package.json file path
- * @returns {boolean} Whether exempt
- */
-function isExempt(filePath: string): boolean {
-  return EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(filePath));
-}
 
 /**
  * Extract exported function names from a TypeScript source file.
@@ -157,10 +138,6 @@ const rule: PackageJsonRule = {
     if (context.isRoot) {
       return results;
     }
-    if (isExempt(context.file)) {
-      return results;
-    }
-
     const pkgDir: string = dirname(context.file);
     const readmePath: string = join(pkgDir, 'README.md');
 

@@ -7,7 +7,14 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import * as v from 'valibot';
+
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /**
  * Extract JSDoc text preceding a node.
@@ -48,13 +55,16 @@ function getJsDocEndOffset(node: AstNode, content: string): number {
   return trimmed.length - 2;
 }
 
-/** Parsed @param entry with optional type. */
-type ParamEntry = {
+/** Schema for a parsed @param entry with optional type. */
+const ParamEntrySchema = v.strictObject({
   /** The parameter name */
-  name: string;
+  name: v.string(),
   /** Whether a {Type} was present */
-  hasType: boolean;
-};
+  hasType: v.boolean(),
+});
+
+/** Parsed @param entry with optional type. See {@link ParamEntrySchema}. */
+type ParamEntry = v.InferOutput<typeof ParamEntrySchema>;
 
 /**
  * Extract `@param` entries from a JSDoc comment, including type presence.

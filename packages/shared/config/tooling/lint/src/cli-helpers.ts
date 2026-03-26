@@ -11,15 +11,17 @@
 import { readFileSync, writeFileSync, readdirSync, statSync, type Dirent } from 'node:fs';
 import { resolve, extname, join, relative } from 'node:path';
 
-import { runTypeScriptRules } from './framework/oxc-runner.ts';
-import { loadAllRules } from './framework/rule-loader.ts';
+import * as v from 'valibot';
+
+import { runTypeScriptRules } from '@/lint/framework/oxc-runner.ts';
+import { loadAllRules } from '@/lint/framework/rule-loader.ts';
 import {
   loadConfig,
   resolveRuleSeverity,
   generateJsonSchema,
   type LintConfig,
-} from './config/schema.ts';
-import { LINTER_NAME, CONFIG_FILENAME, SCHEMA_FILENAME } from './constants.ts';
+} from '@/lint/config/schema.ts';
+import { LINTER_NAME, CONFIG_FILENAME, SCHEMA_FILENAME } from '@/lint/constants.ts';
 import type {
   LintResult,
   LintFix,
@@ -27,37 +29,43 @@ import type {
   PackageJsonRule,
   PackageJsonContext,
   PackageJson,
-} from './framework/types.ts';
+} from '@/lint/framework/types.ts';
 
 // =============================================================================
 // Types
 // =============================================================================
 
-/** Parsed CLI arguments. */
-export type CliArgs = {
+/** Schema for parsed CLI arguments. */
+export const CliArgsSchema = v.strictObject({
   /** Positional path arguments. */
-  paths: string[];
+  paths: v.array(v.string()),
   /** Whether to output results as JSON. */
-  json: boolean;
+  json: v.boolean(),
   /** Whether to list all rules and exit. */
-  listRules: boolean;
+  listRules: v.boolean(),
   /** Whether to exit 0 even if errors are found. */
-  warnOnly: boolean;
+  warnOnly: v.boolean(),
   /** Whether to auto-apply fixes to source files. */
-  fix: boolean;
+  fix: v.boolean(),
   /** Whether to show help and exit. */
-  help: boolean;
+  help: v.boolean(),
   /** Rule IDs to filter by (empty = all rules). */
-  ruleIds: string[];
-};
+  ruleIds: v.array(v.string()),
+});
 
-/** Output sink for CLI messages (allows testing without stdout/stderr). */
-export type CliOutput = {
+/** Parsed CLI arguments. See {@link CliArgsSchema}. */
+export type CliArgs = v.InferOutput<typeof CliArgsSchema>;
+
+/** Schema for output sink for CLI messages (allows testing without stdout/stderr). */
+export const CliOutputSchema = v.strictObject({
   /** Write to stdout. */
-  stdout: (msg: string) => void;
+  stdout: v.custom<(msg: string) => void>((val: unknown): boolean => typeof val === 'function'),
   /** Write to stderr. */
-  stderr: (msg: string) => void;
-};
+  stderr: v.custom<(msg: string) => void>((val: unknown): boolean => typeof val === 'function'),
+});
+
+/** Output sink for CLI messages (allows testing without stdout/stderr). See {@link CliOutputSchema}. */
+export type CliOutput = v.InferOutput<typeof CliOutputSchema>;
 
 // =============================================================================
 // Argument Parsing
@@ -193,6 +201,7 @@ export function collectPackageJsonFiles(dir: string, config: LintConfig): string
  * @param {PackageJson} pkg - Parsed package.json content
  * @param {boolean} isRoot - Whether this is the workspace root package.json
  * @param {PackageJsonRule[]} rules - Package.json rules to run
+ * @param {Record<string, Record<string, unknown>>} allRuleOptions - Per-rule config options
  * @returns {LintResult[]} Array of lint results
  */
 export function runPkgRules(
@@ -200,10 +209,12 @@ export function runPkgRules(
   pkg: PackageJson,
   isRoot: boolean,
   rules: PackageJsonRule[],
+  allRuleOptions?: Record<string, Record<string, unknown>>,
 ): LintResult[] {
-  const context: PackageJsonContext = { file: filePath, pkg, isRoot };
   const results: LintResult[] = [];
   for (const rule of rules) {
+    const ruleOpts: Record<string, unknown> | undefined = allRuleOptions?.[rule.id];
+    const context: PackageJsonContext = { file: filePath, pkg, isRoot, ruleOptions: ruleOpts };
     results.push(...rule.check(context));
   }
   return results;
@@ -461,7 +472,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
   const taskResults: LintResult[][] = await Promise.all(
     tasks.map(
       (task: FileTask): Promise<LintResult[]> =>
-        runTypeScriptRules(task.filePath, task.content, task.applicableRules),
+        runTypeScriptRules(task.filePath, task.content, task.applicableRules, config.ruleOptions),
     ),
   );
   let allResults: LintResult[] = taskResults.flat();
@@ -499,7 +510,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
         (rule: PackageJsonRule): boolean => resolveRuleSeverity(config, rule.id, pkgPath) !== 'off',
       );
 
-      allResults.push(...runPkgRules(pkgPath, pkg, isRoot, applicablePkgRules));
+      allResults.push(...runPkgRules(pkgPath, pkg, isRoot, applicablePkgRules, config.ruleOptions));
     } catch {
       /* skip unreadable */
     }

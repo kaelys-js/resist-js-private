@@ -52,6 +52,14 @@
         "description": "Rule severity: \"error\" (exit 1), \"warn\" (report but pass), \"off\" (skip)."
       }
     },
+    "ruleOptions": {
+      "type": "object",
+      "description": "Per-rule configuration options. Keys are rule IDs, values are option objects.",
+      "additionalProperties": {
+        "type": "object",
+        "description": "Options specific to a rule."
+      }
+    },
     "overrides": {
       "type": "array",
       "description": "File-specific rule overrides. Last matching override wins.",

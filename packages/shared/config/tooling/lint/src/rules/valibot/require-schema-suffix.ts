@@ -7,7 +7,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Valibot factory method names that create schemas. */
 const SCHEMA_FACTORIES: ReadonlySet<string> = new Set([
@@ -35,13 +40,6 @@ const SCHEMA_FACTORIES: ReadonlySet<string> = new Set([
   'brand',
 ]);
 
-/** File paths exempt from this rule. */
-const EXEMPT_PATHS: readonly RegExp[] = [
-  /config\/tooling\/lint\//,
-  /\.test\.ts$/,
-  /\.spec\.ts$/,
-  /schemas\/common\/src\//,
-];
 /** The require-schema-suffix lint rule. */
 const rule: TypeScriptRule = {
   id: 'valibot/require-schema-suffix',
@@ -51,10 +49,6 @@ const rule: TypeScriptRule = {
   visitor: {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-
-      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
-        return results;
-      }
 
       // Only check top-level declarations (not inside functions)
       // Check if we're at program level by looking at parent context

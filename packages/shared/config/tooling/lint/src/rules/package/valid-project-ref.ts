@@ -10,7 +10,7 @@
 
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
+import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
 
 /** Dummy fix for package.json rules. */
 const NO_FIX: { range: { start: number; end: number }; text: string } = {

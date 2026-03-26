@@ -6,10 +6,13 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
-/** File paths exempt from this rule (test files). */
-const EXEMPT_PATHS: readonly RegExp[] = [/\.test\.ts$/, /\.spec\.ts$/];
 /** The require-module lint rule. */
 const rule: TypeScriptRule = {
   id: 'jsdoc/require-module',
@@ -20,10 +23,6 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-
-      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
-        return results;
-      }
 
       const hasModule: boolean = /@module\b/.test(context.content.slice(0, 500));
 

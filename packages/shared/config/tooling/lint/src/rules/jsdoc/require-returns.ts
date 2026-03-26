@@ -7,7 +7,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Return type strings that are considered "void" and don't need @returns. */
 const VOID_TYPES: ReadonlySet<string> = new Set(['void', 'Void', 'undefined', 'never']);

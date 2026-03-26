@@ -6,10 +6,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
-/** File path patterns exempt from this rule. */
-const EXEMPT_PATTERNS: readonly RegExp[] = [/\.test\.ts$/, /\.spec\.ts$/];
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Pattern to extract schema name from v.InferOutput<typeof XSchema>. */
 const INFER_OUTPUT_PATTERN: RegExp = /v\.InferOutput\s*<\s*typeof\s+(\w+)\s*>/;
@@ -46,10 +48,6 @@ const rule: TypeScriptRule = {
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-
-      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
-        return results;
-      }
 
       const declaration = node.declaration as AstNode | undefined;
       if (!declaration || declaration.type !== 'TSTypeAliasDeclaration') {

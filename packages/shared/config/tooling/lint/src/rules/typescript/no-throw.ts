@@ -13,15 +13,12 @@
  * - `throw new Error(...)` — wrap with a descriptive message
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
-/** File paths exempt from this rule (test infrastructure, test files). */
-const EXEMPT_PATHS: readonly RegExp[] = [
-  /config\/test\//,
-  /schemas\/common\//,
-  /\.test\.ts$/,
-  /\.spec\.ts$/,
-];
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /**
  * Check if a line (or its surrounding IfStatement block) contains an
@@ -93,10 +90,6 @@ const rule: TypeScriptRule = {
 
   visitor: {
     ThrowStatement(node: AstNode, context: VisitorContext): LintResult[] {
-      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
-        return [];
-      }
-
       // Allow throw result.error at integration boundaries
       if (isIntegrationBoundaryThrow(node, context)) {
         return [];

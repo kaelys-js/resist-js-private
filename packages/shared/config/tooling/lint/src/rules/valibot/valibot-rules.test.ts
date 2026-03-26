@@ -290,12 +290,6 @@ describe('valibot/prefer-shared-schema', () => {
     expect(results.length).toBe(0);
   });
 
-  it('exempts test files', async () => {
-    const code: string = `const Schema = v.strictObject({ templatePath: v.string() });`;
-    const results: LintResult[] = await lint(preferSharedSchema, code, 'my-module.test.ts');
-    expect(results.length).toBe(0);
-  });
-
   it('does not flag hardwareConcurrency as CurrencyCodeSchema', async () => {
     const code: string = `const Schema = v.strictObject({ hardwareConcurrency: v.number() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
@@ -445,18 +439,6 @@ const Schema = v.strictObject({
 });
 `;
     const results: LintResult[] = await lint(noGenericStringSchema, code);
-    expect(results.length).toBe(0);
-  });
-
-  it('ignores test files', async () => {
-    const code: string = `
-import * as v from 'valibot';
-const Schema = v.strictObject({
-  /** Name. */
-  name: v.pipe(v.string(), v.minLength(1)),
-});
-`;
-    const results: LintResult[] = await lint(noGenericStringSchema, code, 'my.test.ts');
     expect(results.length).toBe(0);
   });
 });

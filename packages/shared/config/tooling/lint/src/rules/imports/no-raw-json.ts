@@ -12,33 +12,18 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
-/** File path patterns exempt from this rule. */
-const EXEMPT_PATTERNS: readonly RegExp[] = [
-  /utils\/core\/src\//,
-  /schemas\/common\/src\//,
-  /config\/tooling\/lint\//,
-  /config\/test\//,
-  /\.test\.ts$/,
-  /\.spec\.ts$/,
-];
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Map of JSON methods to their safe alternatives. */
 const ALTERNATIVES: Record<string, string> = {
   stringify: 'safeStringify from @/utils/core/object',
   parse: 'parseJsonWithComments from @/utils/core/fs',
 };
-
-/**
- * Check whether a file is exempt from this rule.
- *
- * @param {string} filePath - The file path to check
- * @returns {boolean} Whether the file is exempt
- */
-function isExempt(filePath: string): boolean {
-  return EXEMPT_PATTERNS.some((pattern: RegExp): boolean => pattern.test(filePath));
-}
 
 /**
  * Check a member expression for JSON.stringify or JSON.parse usage.
@@ -49,10 +34,6 @@ function isExempt(filePath: string): boolean {
  */
 function checkJsonAccess(node: AstNode, context: VisitorContext): LintResult[] {
   const results: LintResult[] = [];
-
-  if (isExempt(context.file)) {
-    return results;
-  }
 
   const object = node.object as AstNode | undefined;
   const property = node.property as AstNode | undefined;

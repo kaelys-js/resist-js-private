@@ -12,14 +12,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
-/** File path patterns exempt from this rule. */
-const EXEMPT_PATTERNS: readonly RegExp[] = [
-  /\.test\.ts$/,
-  /\.spec\.ts$/,
-  /config\/tooling\/lint\//,
-];
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /**
  * Map numeric import group to human-readable label.
@@ -61,10 +59,6 @@ const rule: TypeScriptRule = {
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
-      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
-        return [];
-      }
-
       const body = node.body as AstNode[] | undefined;
       if (!body) {
         return [];

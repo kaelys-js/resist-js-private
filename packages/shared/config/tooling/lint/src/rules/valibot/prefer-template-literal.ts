@@ -14,15 +14,12 @@
  * - v.record() key compatibility for typed record keys
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
-/** File path patterns exempt from this rule. */
-const EXEMPT_PATTERNS: readonly RegExp[] = [
-  /\.test\.ts$/,
-  /\.spec\.ts$/,
-  /config\/tooling\/lint\//,
-  /schemas\/template-literal\//,
-];
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /**
  * Check if a regex pattern is decomposable into template literal parts.
@@ -84,10 +81,6 @@ const rule: TypeScriptRule = {
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
-      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
-        return [];
-      }
-
       const callee = node.callee as AstNode | undefined;
       if (!callee) {
         return [];

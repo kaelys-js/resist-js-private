@@ -8,7 +8,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Pattern for valid kebab-case filenames (without extension). */
 const KEBAB_CASE_RE: RegExp = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;

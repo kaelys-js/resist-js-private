@@ -11,20 +11,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
-/** File path patterns exempt from this rule. */
-const EXEMPT_PATTERNS: readonly RegExp[] = [/extensions\/vscode/, /\.test\.ts$/, /\.spec\.ts$/];
-
-/**
- * Check whether a file is exempt from this rule.
- *
- * @param {string} filePath - The file path to check
- * @returns {boolean} Whether the file is exempt
- */
-function isExempt(filePath: string): boolean {
-  return EXEMPT_PATTERNS.some((pattern: RegExp): boolean => pattern.test(filePath));
-}
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /**
  * Check an import/export source for .js extension.
@@ -35,10 +27,6 @@ function isExempt(filePath: string): boolean {
  */
 function checkJsExtension(node: AstNode, context: VisitorContext): LintResult[] {
   const results: LintResult[] = [];
-
-  if (isExempt(context.file)) {
-    return results;
-  }
 
   const source = node.source as AstNode | undefined;
   const value: string | undefined = (source as { value?: string } | undefined)?.value;

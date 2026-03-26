@@ -18,10 +18,15 @@ import requireBlankLineGroups from './require-blank-line-groups.ts';
  *
  * @param {TypeScriptRule} rule - The rule to test
  * @param {string} code - TypeScript source code
+ * @param {Record<string, Record<string, unknown>>} ruleOptions - Per-rule config options
  * @returns {Promise<LintResult[]>} Array of lint results
  */
-function lint(rule: TypeScriptRule, code: string): Promise<LintResult[]> {
-  return runTypeScriptRules('test.ts', code, [rule]);
+function lint(
+  rule: TypeScriptRule,
+  code: string,
+  ruleOptions?: Record<string, Record<string, unknown>>,
+): Promise<LintResult[]> {
+  return runTypeScriptRules('test.ts', code, [rule], ruleOptions);
 }
 
 // =============================================================================
@@ -66,13 +71,17 @@ describe('comments/no-lint-disable', () => {
 
   it('allows max-lines disable', async () => {
     const code: string = `// eslint-disable-next-line max-lines\nconst x = 1;`;
-    const results: LintResult[] = await lint(noLintDisable, code);
+    const results: LintResult[] = await lint(noLintDisable, code, {
+      'comments/no-lint-disable': { allowedTargets: ['max-lines', 'max-lines-per-function'] },
+    });
     expect(results.length).toBe(0);
   });
 
   it('allows max-lines-per-function disable', async () => {
     const code: string = `// eslint-disable-next-line max-lines-per-function\nfunction big(): void {}`;
-    const results: LintResult[] = await lint(noLintDisable, code);
+    const results: LintResult[] = await lint(noLintDisable, code, {
+      'comments/no-lint-disable': { allowedTargets: ['max-lines', 'max-lines-per-function'] },
+    });
     expect(results.length).toBe(0);
   });
 

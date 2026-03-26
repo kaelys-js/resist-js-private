@@ -41,6 +41,7 @@ function makeConfig(overrides: Partial<LintConfig> = {}): LintConfig {
     exclude: ['*.test.ts', '*.d.ts'],
     extensions: ['.ts', '.svelte.ts', '.mjs'],
     rules: {},
+    ruleOptions: {},
     overrides: [],
     ...overrides,
   };

@@ -9,7 +9,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Map of field name patterns to suggested shared schemas. */
 const SCHEMA_SUGGESTIONS: ReadonlyArray<{ pattern: RegExp; schema: string; source: string }> = [
@@ -102,24 +107,6 @@ const SCHEMA_SUGGESTIONS: ReadonlyArray<{ pattern: RegExp; schema: string; sourc
   { pattern: /[Yy]ear$/, schema: 'YearSchema', source: '@/schemas/common' },
 ];
 
-/** File path patterns exempt from this rule. */
-const EXEMPT_PATTERNS: readonly RegExp[] = [
-  /config\/tooling\/lint\//,
-  /schemas\/common\//,
-  /\.test\.ts$/,
-  /\.spec\.ts$/,
-];
-
-/**
- * Check whether a file is exempt.
- *
- * @param {string} filePath - File path
- * @returns {boolean} Whether exempt
- */
-function isExempt(filePath: string): boolean {
-  return EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(filePath));
-}
-
 /**
  * Check if a property value uses v.string() or v.pipe(v.string(), ...) without
  * already referencing a shared schema.
@@ -158,9 +145,6 @@ const rule: TypeScriptRule = {
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      if (isExempt(context.file)) {
-        return results;
-      }
 
       const callee = node.callee as AstNode | undefined;
       if (!callee) {

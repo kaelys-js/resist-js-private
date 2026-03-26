@@ -276,6 +276,7 @@ function baseConfig(): LintConfig {
     exclude: [],
     extensions: [],
     rules: {},
+    ruleOptions: {},
     overrides: [],
   };
 }
@@ -484,7 +485,8 @@ describe('generateJsonSchema', () => {
     expect(propKeys).toContain('extensions');
     expect(propKeys).toContain('rules');
     expect(propKeys).toContain('overrides');
-    expect(propKeys.length).toBe(6);
+    expect(propKeys).toContain('ruleOptions');
+    expect(propKeys.length).toBe(7);
   });
 
   it('includes rule IDs in the rules property description', () => {

@@ -7,14 +7,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
-/** File path patterns exempt from this rule. */
-const EXEMPT_PATTERNS: readonly RegExp[] = [
-  /\.test\.ts$/,
-  /\.spec\.ts$/,
-  /config\/tooling\/lint\//,
-];
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Patterns that indicate a field already has the MINIMUM generic validation. */
 const GENERIC_PATTERNS: readonly RegExp[] = [
@@ -43,9 +41,6 @@ const rule: TypeScriptRule = {
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
-        return results;
-      }
 
       const callee = node.callee as AstNode | undefined;
       if (!callee) {

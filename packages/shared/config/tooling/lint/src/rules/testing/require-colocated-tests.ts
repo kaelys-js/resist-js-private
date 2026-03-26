@@ -9,32 +9,12 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
-/** File path patterns exempt from requiring colocated tests. */
-const EXEMPT_PATHS: readonly RegExp[] = [
-  /\.test\.ts$/,
-  /\.spec\.ts$/,
-  /\.d\.ts$/,
-  /\/index\.ts$/,
-  /\.config\.(ts|js)$/,
-  /svelte\.config\./,
-  /vite\.config\./,
-  /config\/tooling\/lint\/src\/framework\//,
-  /config\/test\//,
-  /\.svelte-kit\//,
-  /node_modules\//,
-];
-
-/**
- * Check if a file path is exempt from this rule.
- *
- * @param {string} filePath - The file path
- * @returns {boolean} Whether the file is exempt
- */
-function isExemptFile(filePath: string): boolean {
-  return EXEMPT_PATHS.some((p: RegExp): boolean => p.test(filePath));
-}
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /**
  * Get names of all exported functions from the AST.
@@ -139,10 +119,6 @@ const rule: TypeScriptRule = {
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
-      if (isExemptFile(context.file)) {
-        return [];
-      }
-
       const functionNames: string[] = getExportedFunctionNames(node);
       if (functionNames.length === 0) {
         return [];

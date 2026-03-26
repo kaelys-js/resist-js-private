@@ -12,7 +12,7 @@ import * as v from 'valibot';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { CONFIG_FILENAME, LINTER_NAME } from '../constants.ts';
+import { CONFIG_FILENAME, LINTER_NAME } from '@/lint/constants.ts';
 
 // =============================================================================
 // Schemas
@@ -47,6 +47,8 @@ export const LintConfigSchema = v.strictObject({
   extensions: v.optional(v.array(v.string()), ['.ts', '.svelte.ts', '.mjs']),
   /** Rule ID → severity mapping. Unlisted rules default to "error". */
   rules: v.optional(v.record(v.string(), RuleSeveritySchema), {}),
+  /** Per-rule configuration options (e.g. allowedTargets for no-lint-disable). */
+  ruleOptions: v.optional(v.record(v.string(), v.record(v.string(), v.unknown())), {}),
   /** File-specific rule overrides (like oxlint overrides). */
   overrides: v.optional(v.array(OverrideSchema), []),
 });
@@ -262,8 +264,13 @@ function stripJsoncComments(input: string): string {
 // JSON Schema Generation
 // =============================================================================
 
-/** JSON Schema property definition. */
-type JsonSchemaProperty = {
+/**
+ * JSON Schema property definition.
+ *
+ * Self-referential type — must be defined explicitly alongside its schema
+ * because `v.InferOutput` cannot resolve recursive `v.lazy()` references.
+ */
+export type JsonSchemaProperty = {
   type?: string;
   description?: string;
   default?: unknown;
@@ -274,15 +281,43 @@ type JsonSchemaProperty = {
   required?: string[];
 };
 
-/** Full JSON Schema document. */
-type JsonSchemaDocument = {
-  $schema: string;
-  title: string;
-  description: string;
-  type: string;
-  properties: Record<string, JsonSchemaProperty>;
-  additionalProperties: boolean;
-};
+/** Schema for JSON Schema property definitions. See {@link JsonSchemaProperty}. */
+export const JsonSchemaPropertySchema: v.GenericSchema<JsonSchemaProperty> = v.object({
+  type: v.optional(v.string()),
+  description: v.optional(v.string()),
+  default: v.optional(v.unknown()),
+  enum: v.optional(v.array(v.string())),
+  items: v.optional(v.lazy((): v.GenericSchema<JsonSchemaProperty> => JsonSchemaPropertySchema)),
+  additionalProperties: v.optional(
+    v.union([
+      v.lazy((): v.GenericSchema<JsonSchemaProperty> => JsonSchemaPropertySchema),
+      v.boolean(),
+    ]),
+  ),
+  properties: v.optional(
+    v.record(
+      v.string(),
+      v.lazy((): v.GenericSchema<JsonSchemaProperty> => JsonSchemaPropertySchema),
+    ),
+  ),
+  required: v.optional(v.array(v.string())),
+});
+
+/** Schema for a full JSON Schema document. */
+export const JsonSchemaDocumentSchema = v.strictObject({
+  $schema: v.string(),
+  title: v.string(),
+  description: v.string(),
+  type: v.string(),
+  properties: v.record(
+    v.string(),
+    v.lazy((): v.GenericSchema<JsonSchemaProperty> => JsonSchemaPropertySchema),
+  ),
+  additionalProperties: v.boolean(),
+});
+
+/** Full JSON Schema document. See {@link JsonSchemaDocumentSchema}. */
+export type JsonSchemaDocument = v.InferOutput<typeof JsonSchemaDocumentSchema>;
 
 /**
  * Generate a JSON Schema for the linter configuration.
@@ -337,6 +372,15 @@ export function generateJsonSchema(
           type: 'string',
           enum: ['error', 'warn', 'off'],
           description: 'Rule severity: "error" (exit 1), "warn" (report but pass), "off" (skip).',
+        },
+      },
+      ruleOptions: {
+        type: 'object',
+        description:
+          'Per-rule configuration options. Keys are rule IDs, values are option objects.',
+        additionalProperties: {
+          type: 'object',
+          description: 'Options specific to a rule.',
         },
       },
       overrides: {

@@ -927,12 +927,6 @@ describe('typescript/no-default-params', () => {
     expect(results.length).toBe(0);
   });
 
-  it('ignores test files', async () => {
-    const code: string = `function helper(name: string = 'test'): void {}`;
-    const results: LintResult[] = await runTypeScriptRules('foo.test.ts', code, [noDefaultParams]);
-    expect(results.length).toBe(0);
-  });
-
   it('flags arrow function with default', async () => {
     const code: string = `const fn = (name: string = 'default'): void => {};`;
     const results: LintResult[] = await lint(noDefaultParams, code);
