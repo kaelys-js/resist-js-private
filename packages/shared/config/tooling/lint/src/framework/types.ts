@@ -86,7 +86,7 @@ export type LintResult = v.InferOutput<typeof LintResultSchema>;
 const NO_OP_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
 
 /** Optional fields for {@link createResult}. */
-interface CreateResultOpts {
+type CreateResultOpts = {
   /** Short suggestion for fixing the issue. */
   tip?: string;
   /** Code example showing the correct form. */
@@ -101,7 +101,7 @@ interface CreateResultOpts {
   endLine?: number;
   /** End column for range highlighting. */
   endColumn?: number;
-}
+};
 
 /**
  * Factory helper to build a {@link LintResult} with sensible defaults.

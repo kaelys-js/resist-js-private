@@ -222,6 +222,7 @@ function extractRuleCandidates(mod: Record<string, unknown>): unknown[] {
  * @param candidate - Unknown object to classify
  * @param tsRules - TypeScript rules accumulator (mutated)
  * @param pkgRules - Package.json rules accumulator (mutated)
+ * @param wsRules - Workspace rules accumulator (mutated)
  */
 function classifyRule(
   candidate: unknown,
@@ -257,11 +258,11 @@ function classifyRule(
  * @param rules - Array of rules to backfill (mutated in place)
  */
 /** Minimal rule shape shared by all rule types — used for index building and backfill. */
-interface BaseRule {
+type BaseRule = {
   id: string;
   categories?: string[];
   stages?: Stage[];
-}
+};
 
 function backfillDefaults(rules: BaseRule[]): void {
   for (const rule of rules) {

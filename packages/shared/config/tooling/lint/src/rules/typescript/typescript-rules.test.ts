@@ -115,6 +115,111 @@ describe('typescript/require-type-annotation', () => {
     expect(results.length).toBe(1);
     expect(results[0]!.message).toContain('array');
   });
+
+  it('skips declare statements', async () => {
+    const code: string = `declare const x: number;\ndeclare const CONFIG: object;`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes const with satisfies expression', async () => {
+    const code: string = `const config = { port: 3000 } satisfies Config;`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags rest parameter without type annotation', async () => {
+    const code: string = `function foo(...args): void {}`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'args'");
+  });
+
+  it('passes rest parameter with type annotation', async () => {
+    const code: string = `function foo(...args: string[]): void {}`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags ObjectPattern parameter without type annotation', async () => {
+    const code: string = `function foo({ a, b }): void {}`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('<destructured>');
+  });
+
+  it('passes ObjectPattern parameter with type annotation', async () => {
+    const code: string = `function foo({ a, b }: Options): void {}`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags ArrayPattern parameter without type annotation', async () => {
+    const code: string = `function foo([a, b]): void {}`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('<destructured>');
+  });
+
+  it('passes ArrayPattern parameter with type annotation', async () => {
+    const code: string = `function foo([a, b]: number[]): void {}`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags destructured object without type outside for-of', async () => {
+    const code: string = `const { name, age } = person;`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('object');
+  });
+
+  it('passes destructured object with type annotation', async () => {
+    const code: string = `const { name, age }: Person = person;`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips for-of destructured object binding', async () => {
+    const code: string = `const items: Person[] = getItems();\nfor (const { name, age } of items) {}`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows Schema const with CallExpression init (convention)', async () => {
+    const code: string = `const UserSchema = v.strictObject({ name: v.string() });`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags FunctionExpression with no params', async () => {
+    const code: string = `const obj = { handler: function() { return 42; } };`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    // Should only flag the const without type annotation, NOT params (no params)
+    const paramResults: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes('parameter'),
+    );
+    expect(paramResults.length).toBe(0);
+  });
+
+  it('flags AssignmentPattern parameter without type', async () => {
+    const code: string = `function foo(x = 42): void {}`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'x'");
+  });
+
+  it('passes AssignmentPattern parameter with type on left', async () => {
+    const code: string = `function foo(x: number = 42): void {}`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips for-await-of destructured binding', async () => {
+    const code: string = `const streams: AsyncIterable<[string, number]> = getStreams();\nfor await (const [key, val] of streams) {}`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -938,6 +1043,37 @@ describe('typescript/no-default-params', () => {
     const results: LintResult[] = await lint(noDefaultParams, code);
     expect(results.length).toBe(2);
   });
+
+  it('passes function with no parameters', async () => {
+    const code: string = `function noParams(): void {}`;
+    const results: LintResult[] = await lint(noDefaultParams, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('names ObjectPattern params as <destructured> in error message', async () => {
+    const code: string = `function foo({ a }: Options = { a: 1 }): void {}`;
+    const results: LintResult[] = await lint(noDefaultParams, code);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    // The AssignmentPattern wraps an ObjectPattern — getParamName returns '<destructured>'
+    expect(results.some((r: LintResult): boolean => r.message.includes('<destructured>'))).toBe(
+      true,
+    );
+  });
+
+  it('names ArrayPattern params as <destructured> in error message', async () => {
+    const code: string = `function foo([a, b]: number[] = [1, 2]): void {}`;
+    const results: LintResult[] = await lint(noDefaultParams, code);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results.some((r: LintResult): boolean => r.message.includes('<destructured>'))).toBe(
+      true,
+    );
+  });
+
+  it('flags destructured param where property key has no name', async () => {
+    const code: string = `function foo({ ['computed']: val = 1 }: Record<string, number>): void {}`;
+    const results: LintResult[] = await lint(noDefaultParams, code);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+  });
 });
 
 // =============================================================================
@@ -980,6 +1116,26 @@ describe('typescript/require-type-annotation — FunctionExpression', () => {
     const code: string = `const obj: Obj = { handler: function(server: Server): void { return; } };`;
     const results: LintResult[] = await lint(requireTypeAnnotation, code);
     expect(results.some((r: LintResult): boolean => r.message.includes("'server'"))).toBe(false);
+  });
+
+  it('flags rest parameter without type in FunctionExpression', async () => {
+    const code: string = `const obj: Obj = { handler: function(...args): void {} };`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.some((r: LintResult): boolean => r.message.includes("'args'"))).toBe(true);
+  });
+
+  it('flags destructured ObjectPattern param without type in FunctionExpression', async () => {
+    const code: string = `const obj: Obj = { handler: function({ a, b }): void {} };`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.some((r: LintResult): boolean => r.message.includes('<destructured>'))).toBe(
+      true,
+    );
+  });
+
+  it('uses <method> name for anonymous FunctionExpression', async () => {
+    const code: string = `const obj = { handler: function(x) { return x; } };`;
+    const results: LintResult[] = await lint(requireTypeAnnotation, code);
+    expect(results.some((r: LintResult): boolean => r.message.includes('<method>'))).toBe(true);
   });
 });
 

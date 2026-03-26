@@ -57,7 +57,12 @@ describe('matchesPattern', () => {
 // ToolRegistry — registration
 // =============================================================================
 
-/** Create a minimal mock tool for testing. */
+/**
+ * Create a minimal mock tool for testing.
+ *
+ * @param overrides - Optional partial overrides for the mock tool
+ * @returns A complete ExternalTool instance with defaults
+ */
 function createMockTool(overrides?: Partial<ExternalTool>): ExternalTool {
   return {
     name: 'mock-tool',
@@ -138,8 +143,8 @@ describe('ToolRegistry — runTool', () => {
   it('skips tool when isAvailable returns false', async () => {
     const registry: ToolRegistry = new ToolRegistry();
     const tool: ExternalTool = createMockTool({
-      async isAvailable(): Promise<boolean> {
-        return false;
+      isAvailable(): Promise<boolean> {
+        return Promise.resolve(false);
       },
     });
     const results: LintResult[] = await registry.runTool(tool, ['/tmp/test.sh']);

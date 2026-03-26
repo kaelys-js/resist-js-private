@@ -8,18 +8,18 @@
  * @module
  */
 
-import { parentPort, workerData } from 'node:worker_threads';
+import { parentPort } from 'node:worker_threads';
 
 import { runTypeScriptRules } from '@/lint/framework/oxc-runner.ts';
 import { loadAllRules } from '@/lint/framework/rule-loader.ts';
-import type { TypeScriptRule, LintResult, Stage } from '@/lint/framework/types.ts';
+import type { TypeScriptRule, LintResult } from '@/lint/framework/types.ts';
 
 // =============================================================================
 // Types
 // =============================================================================
 
 /** Shape of a task message sent from the main thread. */
-interface WorkerTask {
+type WorkerTask = {
   /** Unique task identifier for correlating responses. */
   taskId: number;
   /** Absolute path to the file being linted. */
@@ -30,17 +30,17 @@ interface WorkerTask {
   ruleIds: string[];
   /** Per-rule config options. */
   ruleOptions: Record<string, Record<string, unknown>>;
-}
+};
 
 /** Shape of a result message sent back to the main thread. */
-interface WorkerResponse {
+type WorkerResponse = {
   /** Correlates to the incoming task. */
   taskId: number;
   /** Lint results for the file. */
   results: LintResult[];
   /** Error message if the task failed. */
   error?: string;
-}
+};
 
 // =============================================================================
 // Startup
@@ -90,15 +90,15 @@ parentPort?.on('message', async (task: WorkerTask): Promise<void> => {
 
     const response: WorkerResponse = { taskId: task.taskId, results };
     parentPort?.postMessage(response);
-  } catch (err: unknown) {
+  } catch (error: unknown) {
     const response: WorkerResponse = {
       taskId: task.taskId,
       results: [],
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
     parentPort?.postMessage(response);
   }
 });
 
 /* Start initialization */
-void initialize();
+await initialize();

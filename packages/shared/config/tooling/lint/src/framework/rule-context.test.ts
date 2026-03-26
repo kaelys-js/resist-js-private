@@ -151,6 +151,26 @@ describe('getWorkspacePackages', () => {
 // search
 // =============================================================================
 
+function mockReaderWithContent(content: string): () => Promise<string> {
+  /* eslint-disable-next-line require-await -- returns a Promise for the search() interface */
+  return (): Promise<string> => {
+    const deferred: Promise<string> = new Promise<string>((resolve: (v: string) => void): void => {
+      resolve(content);
+    });
+    return deferred;
+  };
+}
+
+function* mockFileList(path: string): Iterable<string> {
+  yield path;
+}
+
+async function* toAsyncIterable(path: string): AsyncIterable<string> {
+  for (const p of mockFileList(path)) {
+    yield p;
+  }
+}
+
 describe('search', () => {
   it('finds pattern matches in files', async () => {
     async function* singleFile(): AsyncIterable<string> {
@@ -166,14 +186,10 @@ describe('search', () => {
   });
 
   it('returns correct line and column', async () => {
-    const mockReader = async (): Promise<string> => 'line one\nfoo bar baz\nline three';
-
-    async function* files(): AsyncIterable<string> {
-      yield '/mock/file.ts';
-    }
+    const reader = mockReaderWithContent('line one\nfoo bar baz\nline three');
 
     const matches: Array<{ line: number; column: number; match: string }> = [];
-    for await (const m of search(/bar/, files(), mockReader)) {
+    for await (const m of search(/bar/, toAsyncIterable('/mock/file.ts'), reader)) {
       matches.push(m);
     }
     expect(matches.length).toBe(1);
@@ -183,14 +199,14 @@ describe('search', () => {
   });
 
   it('yields nothing for no matches', async () => {
-    const mockReader = async (): Promise<string> => 'no match here';
-
-    async function* files(): AsyncIterable<string> {
-      yield '/mock/file.ts';
-    }
+    const reader = mockReaderWithContent('no match here');
 
     const matches: unknown[] = [];
-    for await (const m of search(/NONEXISTENT_PATTERN_XYZ/, files(), mockReader)) {
+    for await (const m of search(
+      /NONEXISTENT_PATTERN_XYZ/,
+      toAsyncIterable('/mock/file.ts'),
+      reader,
+    )) {
       matches.push(m);
     }
     expect(matches).toEqual([]);

@@ -68,6 +68,7 @@ export type LintConfig = v.InferOutput<typeof LintConfigSchema>;
  * Supports JSONC (JSON with line and block comments).
  *
  * @param {string} cwd - Directory to search for the config file
+ * @param {string} [customConfigPath] - Optional custom path to a config file
  * @returns {LintConfig} Validated linter configuration
  * @throws If the config file contains invalid JSON or fails schema validation
  */

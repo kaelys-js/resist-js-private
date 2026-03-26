@@ -7,8 +7,7 @@
  * @module
  */
 
-import { createResult } from '@/lint/framework/types.ts';
-import type { LintResult } from '@/lint/framework/types.ts';
+import { createResult, type LintResult } from '@/lint/framework/types.ts';
 import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /**
@@ -49,7 +48,7 @@ export function transformStylelintOutput(output: string): LintResult[] {
 
       results.push(
         createResult(
-          'stylelint/' + rule,
+          `stylelint/${rule}`,
           source,
           line,
           column,
@@ -71,7 +70,7 @@ export const stylelintTool: ExternalTool = {
   outputFormat: 'json',
   filePatterns: ['**/*.css', '**/*.scss', '**/*.less'],
   transform: transformStylelintOutput,
-  async isAvailable(): Promise<boolean> {
+  isAvailable(): boolean {
     return isCommandAvailable('stylelint');
   },
 };

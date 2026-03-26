@@ -7,8 +7,7 @@
  * @module
  */
 
-import { createResult } from '@/lint/framework/types.ts';
-import type { LintResult } from '@/lint/framework/types.ts';
+import { createResult, type LintResult } from '@/lint/framework/types.ts';
 import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /** Regex for taplo lint output: `error[rule]: message  --> file:line:col` */
@@ -41,7 +40,7 @@ export function transformTaploOutput(output: string): LintResult[] {
 
     results.push(
       createResult(
-        'taplo/' + rule,
+        `taplo/${rule}`,
         file,
         lineNum,
         column,
@@ -62,7 +61,7 @@ export const taploTool: ExternalTool = {
   outputFormat: 'text',
   filePatterns: ['**/*.toml'],
   transform: transformTaploOutput,
-  async isAvailable(): Promise<boolean> {
+  isAvailable(): boolean {
     return isCommandAvailable('taplo');
   },
 };

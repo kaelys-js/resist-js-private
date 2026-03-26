@@ -86,17 +86,17 @@ export function formatJson(results: LintResult[]): string {
 // =============================================================================
 
 /** SARIF 2.1.0 rule descriptor. */
-interface SarifRule {
+type SarifRule = {
   /** Rule identifier. */
   id: string;
   /** Short description of the rule. */
   shortDescription: { text: string };
   /** Help URI for the rule. */
   helpUri?: string;
-}
+};
 
 /** SARIF 2.1.0 result entry. */
-interface SarifResult {
+type SarifResult = {
   /** Rule ID that produced this result. */
   ruleId: string;
   /** Severity level. */
@@ -115,10 +115,10 @@ interface SarifResult {
       };
     };
   }>;
-}
+};
 
 /** SARIF 2.1.0 document. */
-interface SarifDocument {
+type SarifDocument = {
   /** SARIF schema URI. */
   $schema: string;
   /** SARIF version. */
@@ -133,7 +133,7 @@ interface SarifDocument {
     };
     results: SarifResult[];
   }>;
-}
+};
 
 /**
  * Format lint results as SARIF 2.1.0.
@@ -163,8 +163,12 @@ export function formatSarif(results: LintResult[], ruleDescriptions: Map<string,
   });
 
   const sarifResults: SarifResult[] = results.map((r: LintResult): SarifResult => {
-    const level: 'error' | 'warning' | 'note' =
-      r.severity === 'error' ? 'error' : r.severity === 'warning' ? 'warning' : 'note';
+    let level: 'error' | 'warning' | 'note' = 'note';
+    if (r.severity === 'error') {
+      level = 'error';
+    } else if (r.severity === 'warning') {
+      level = 'warning';
+    }
     const relPath: string = relative(cwd, r.file);
 
     return {
@@ -227,12 +231,14 @@ export function formatResults(
   ruleDescriptions: Map<string, string>,
 ): string {
   switch (format) {
-    case 'json':
+    case 'json': {
       return formatJson(results);
-    case 'sarif':
+    }
+    case 'sarif': {
       return formatSarif(results, ruleDescriptions);
-    case 'text':
-    default:
+    }
+    default: {
       return formatText(results, totalFiles);
+    }
   }
 }

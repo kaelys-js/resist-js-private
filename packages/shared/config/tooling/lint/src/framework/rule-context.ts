@@ -8,7 +8,7 @@
  * @module
  */
 
-import { type Dirent } from 'node:fs';
+import type { Dirent } from 'node:fs';
 import { readFile as fsReadFile, readdir, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
@@ -51,7 +51,7 @@ export const WorkspacePackageSchema = v.strictObject({
 export type WorkspacePackage = v.InferOutput<typeof WorkspacePackageSchema>;
 
 /** Workspace context passed to workspace-scoped rules. */
-export interface WorkspaceContext {
+export type WorkspaceContext = {
   /** Root directory of the workspace. */
   rootDir: string;
   /** Async iterable of all files in the workspace (skips ignored dirs). */
@@ -64,7 +64,7 @@ export interface WorkspaceContext {
   dirExists: (path: string) => Promise<boolean>;
   /** Get all workspace packages from pnpm-workspace.yaml. */
   getWorkspacePackages: () => Promise<WorkspacePackage[]>;
-}
+};
 
 // =============================================================================
 // Constants
@@ -129,7 +129,7 @@ export async function* getAllFiles(dir: string): AsyncIterable<string> {
  * @returns {Promise<string>} File contents
  * @throws If the file cannot be read
  */
-export async function readFileContent(path: string): Promise<string> {
+export function readFileContent(path: string): Promise<string> {
   return fsReadFile(path, 'utf8');
 }
 
@@ -191,13 +191,14 @@ export async function getWorkspacePackages(rootDir: string): Promise<WorkspacePa
   const patterns: string[] = parseWorkspaceYaml(yamlContent);
 
   /* Expand each glob pattern to find directories with package.json */
-  for (const pattern of patterns) {
-    const isRecursive: boolean = pattern.includes('**');
-    const baseDir: string = pattern.replace(/\/\*\*?$/, '');
-    const searchDir: string = resolve(rootDir, baseDir);
-
-    await findPackagesInDir(searchDir, packages, isRecursive);
-  }
+  await Promise.all(
+    patterns.map((pattern: string): Promise<void> => {
+      const isRecursive: boolean = pattern.includes('**');
+      const baseDir: string = pattern.replace(/\/\*\*?$/, '');
+      const searchDir: string = resolve(rootDir, baseDir);
+      return findPackagesInDir(searchDir, packages, isRecursive);
+    }),
+  );
 
   return packages;
 }
@@ -221,39 +222,39 @@ async function findPackagesInDir(
     return;
   }
 
-  for (const entry of entries) {
-    if (!entry.isDirectory()) {
-      continue;
-    }
+  const dirs: string[] = entries
+    .filter((entry: Dirent): boolean => {
+      if (!entry.isDirectory()) {
+        return false;
+      }
+      const name: string = entry.name as string;
+      return name !== 'node_modules' && name !== '.git' && name !== 'dist';
+    })
+    .map((entry: Dirent): string => join(dir, entry.name as string));
 
-    const name: string = entry.name as string;
+  await Promise.all(
+    dirs.map(async (pkgDir: string): Promise<void> => {
+      const pkgJsonPath: string = join(pkgDir, 'package.json');
 
-    /* Skip ignored directories */
-    if (name === 'node_modules' || name === '.git' || name === 'dist') {
-      continue;
-    }
+      try {
+        const pkgContent: string = await fsReadFile(pkgJsonPath, 'utf8');
+        const pkgJson: Record<string, unknown> = JSON.parse(pkgContent) as Record<string, unknown>;
+        packages.push({
+          path: pkgJsonPath,
+          dir: pkgDir,
+          packageJson: pkgJson,
+          name: typeof pkgJson.name === 'string' ? pkgJson.name : undefined,
+        });
+      } catch {
+        /* No package.json — if recursive, keep scanning deeper */
+      }
 
-    const pkgDir: string = join(dir, name);
-    const pkgJsonPath: string = join(pkgDir, 'package.json');
-
-    try {
-      const pkgContent: string = await fsReadFile(pkgJsonPath, 'utf8');
-      const pkgJson: Record<string, unknown> = JSON.parse(pkgContent) as Record<string, unknown>;
-      packages.push({
-        path: pkgJsonPath,
-        dir: pkgDir,
-        packageJson: pkgJson,
-        name: typeof pkgJson.name === 'string' ? pkgJson.name : undefined,
-      });
-    } catch {
-      /* No package.json — if recursive, keep scanning deeper */
-    }
-
-    /* Recurse into subdirectories for ** patterns */
-    if (recursive) {
-      await findPackagesInDir(pkgDir, packages, true);
-    }
-  }
+      /* Recurse into subdirectories for ** patterns */
+      if (recursive) {
+        await findPackagesInDir(pkgDir, packages, true);
+      }
+    }),
+  );
 }
 
 /**

@@ -7,8 +7,7 @@
  * @module
  */
 
-import { createResult } from '@/lint/framework/types.ts';
-import type { LintResult } from '@/lint/framework/types.ts';
+import { createResult, type LintResult } from '@/lint/framework/types.ts';
 import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /** Regex for markdownlint output: `file:line[:col] rule/alias description` */
@@ -40,7 +39,7 @@ export function transformMarkdownlintOutput(output: string): LintResult[] {
     const message: string = match[5] ?? '';
 
     /* Extract rule ID (e.g., MD012 from MD012/no-multiple-blanks) */
-    const ruleId: string = 'markdownlint/' + ruleAlias.split('/')[0];
+    const ruleId: string = `markdownlint/${ruleAlias.split('/')[0]}`;
 
     results.push(
       createResult(ruleId, file, lineNum, column, 'warning', message, {
@@ -60,7 +59,7 @@ export const markdownlintTool: ExternalTool = {
   outputFormat: 'text',
   filePatterns: ['**/*.md', '**/*.mdx'],
   transform: transformMarkdownlintOutput,
-  async isAvailable(): Promise<boolean> {
+  isAvailable(): boolean {
     return isCommandAvailable('markdownlint-cli2');
   },
 };

@@ -7,8 +7,7 @@
  * @module
  */
 
-import { createResult } from '@/lint/framework/types.ts';
-import type { LintResult } from '@/lint/framework/types.ts';
+import { createResult, type LintResult } from '@/lint/framework/types.ts';
 import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /**
@@ -43,11 +42,15 @@ export function transformHadolintOutput(output: string): LintResult[] {
     const code: string = (obj.code as string) ?? '';
     const message: string = (obj.message as string) ?? '';
 
-    const severity: 'error' | 'warning' | 'info' =
-      level === 'error' ? 'error' : level === 'info' ? 'info' : 'warning';
+    let severity: 'error' | 'warning' | 'info' = 'warning';
+    if (level === 'error') {
+      severity = 'error';
+    } else if (level === 'info') {
+      severity = 'info';
+    }
 
     results.push(
-      createResult('hadolint/' + code, file, line, column, severity, message, {
+      createResult(`hadolint/${code}`, file, line, column, severity, message, {
         tip: `See https://github.com/hadolint/hadolint/wiki/${code}`,
       }),
     );
@@ -64,7 +67,7 @@ export const hadolintTool: ExternalTool = {
   outputFormat: 'json',
   filePatterns: ['Dockerfile', 'Dockerfile*'],
   transform: transformHadolintOutput,
-  async isAvailable(): Promise<boolean> {
+  isAvailable(): boolean {
     return isCommandAvailable('hadolint');
   },
 };

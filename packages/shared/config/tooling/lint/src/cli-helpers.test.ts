@@ -1104,3 +1104,213 @@ describe('runLinter', () => {
     expect(combined).toContain('stages:');
   });
 });
+
+// =============================================================================
+// parseCliArgs — edge cases for uncovered branches
+// =============================================================================
+
+describe('parseCliArgs — edge cases', () => {
+  it('handles --format=unknown by defaulting to text', () => {
+    const args: CliArgs = parseCliArgs(['--format=unknown']);
+    expect(args.format).toBe('text');
+  });
+
+  it('handles --jobs=NaN by setting undefined', () => {
+    const args: CliArgs = parseCliArgs(['--jobs=abc']);
+    expect(args.jobs).toBeUndefined();
+  });
+
+  it('handles --jobs=0 as falsy (undefined)', () => {
+    const args: CliArgs = parseCliArgs(['--jobs=0']);
+    expect(args.jobs).toBeUndefined();
+  });
+
+  it('handles --diff=unknown by defaulting to head', () => {
+    const args: CliArgs = parseCliArgs(['--diff=unknown']);
+    expect(args.diff).toBe('head');
+  });
+
+  it('handles --cache without --no-cache', () => {
+    const args: CliArgs = parseCliArgs(['--cache']);
+    expect(args.cache).toBe(true);
+  });
+
+  it('handles --rule= with empty value', () => {
+    const args: CliArgs = parseCliArgs(['--rule=']);
+    expect(args.ruleIds).toEqual(['']);
+  });
+
+  it('handles --category= with empty value', () => {
+    const args: CliArgs = parseCliArgs(['--category=']);
+    expect(args.categories).toEqual(['']);
+  });
+
+  it('handles --ignore= with empty value', () => {
+    const args: CliArgs = parseCliArgs(['--ignore=']);
+    expect(args.ignore).toEqual(['']);
+  });
+
+  it('handles --severity=warn', () => {
+    const args: CliArgs = parseCliArgs(['--severity=warn']);
+    expect(args.severityOverride).toBe('warn');
+  });
+
+  it('handles --config= with empty value', () => {
+    const args: CliArgs = parseCliArgs(['--config=']);
+    expect(args.configPath).toBe('');
+  });
+});
+
+// =============================================================================
+// runLinter — branch coverage tests
+// =============================================================================
+
+/**
+ * Create default CLI args with overrides for test brevity.
+ *
+ * @param overrides - Partial CLI args to override defaults
+ * @returns Complete CliArgs with defaults applied
+ */
+function makeCliArgs(overrides: Partial<CliArgs> = {}): CliArgs {
+  return {
+    paths: [],
+    json: false,
+    listRules: false,
+    warnOnly: false,
+    fix: false,
+    help: false,
+    ruleIds: [],
+    categories: [],
+    quiet: false,
+    bail: false,
+    ignore: [],
+    configPath: undefined,
+    severityOverride: undefined,
+    diff: undefined,
+    debug: false,
+    format: undefined,
+    jobs: undefined,
+    tools: false,
+    cache: false,
+    ...overrides,
+  };
+}
+
+describe('runLinter — branch coverage', () => {
+  it('--debug writes to stderr', async () => {
+    const { stderrLines, output } = captureOutput();
+    await runLinter(
+      makeCliArgs({
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
+        debug: true,
+      }),
+      output,
+    );
+
+    const combined: string = stderrLines.join('');
+    expect(combined).toContain('[debug]');
+    expect(combined).toContain('Config loaded');
+    expect(combined).toContain('Loaded');
+  });
+
+  it('--severity=off produces zero results', async () => {
+    const { stdoutLines, output } = captureOutput();
+    const code: number = await runLinter(
+      makeCliArgs({
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
+        severityOverride: 'off',
+      }),
+      output,
+    );
+
+    expect(code).toBe(0);
+    const combined: string = stdoutLines.join('');
+    expect(combined).not.toContain('error');
+  });
+
+  it('--severity=warn makes all results warnings', async () => {
+    const { stdoutLines, output } = captureOutput();
+    const code: number = await runLinter(
+      makeCliArgs({
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
+        severityOverride: 'warn',
+        json: true,
+      }),
+      output,
+    );
+
+    expect(code).toBe(0);
+    const combined: string = stdoutLines.join('');
+
+    if (combined.trim().length > 2) {
+      const results: LintResult[] = JSON.parse(combined) as LintResult[];
+
+      for (const r of results) {
+        expect(r.severity).toBe('warning');
+      }
+    }
+  });
+
+  it('--quiet suppresses warnings from output', async () => {
+    const { stdoutLines, output } = captureOutput();
+    await runLinter(
+      makeCliArgs({
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
+        quiet: true,
+        warnOnly: true,
+      }),
+      output,
+    );
+
+    const combined: string = stdoutLines.join('');
+    expect(combined).not.toContain('warning');
+  });
+
+  it('--format=sarif produces SARIF output', async () => {
+    const { stdoutLines, output } = captureOutput();
+    await runLinter(
+      makeCliArgs({
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
+        format: 'sarif',
+        warnOnly: true,
+      }),
+      output,
+    );
+
+    const combined: string = stdoutLines.join('');
+
+    if (combined.trim().length > 0) {
+      const sarif = JSON.parse(combined) as Record<string, unknown>;
+      expect(sarif.version).toBe('2.1.0');
+      expect(sarif.$schema).toContain('sarif');
+    }
+  });
+
+  it('--ignore merges with config excludes', async () => {
+    const { stderrLines, output } = captureOutput();
+    await runLinter(
+      makeCliArgs({
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
+        ignore: ['*.ignored.ts'],
+        debug: true,
+        warnOnly: true,
+      }),
+      output,
+    );
+
+    const combined: string = stderrLines.join('');
+    expect(combined).toContain('Merged 1 CLI ignore patterns');
+  });
+
+  it('no lintable files returns 0 with message', async () => {
+    const { stdoutLines: _stdoutLines, output } = captureOutput();
+    const code: number = await runLinter(
+      makeCliArgs({
+        paths: [resolve('packages/shared/config/tooling/lint/src/nonexistent-dir-xyz')],
+      }),
+      output,
+    );
+
+    expect(code).toBe(0);
+  });
+});
