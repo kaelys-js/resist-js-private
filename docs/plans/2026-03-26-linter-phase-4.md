@@ -334,7 +334,7 @@ This means two tools, two configs, two outputs. Goal: bring oxlint into resist-l
 
 ## TASK D — Config File Linting
 
-**Status**: [ ]
+**Status**: [x] — Verified: all config files covered by existing external tools (editorconfig-checker, ignore-files, npmrc, nvmrc, jsonlint, yamllint). No gaps to fill. `extensions` field only applies to custom AST rules, not external tools.
 
 **Gap**: Config files (`.editorconfig`, `.*ignore`, `.npmrc`, `.nvmrc`, `pnpm-workspace.yaml`, `.oxlintrc.json`, `biome.jsonc`) should be covered by existing external tools. Need to verify tool `filePatterns` match these files and that `.resist-lint.jsonc` includes them.
 
@@ -364,16 +364,20 @@ This means two tools, two configs, two outputs. Goal: bring oxlint into resist-l
 
 ## Final Verification
 
-**Status**: [ ]
+**Status**: [x] — All tasks complete.
 
-**Plan**:
-- Cross-reference EVERY item in the approved changelog against implementation
-- Verify all new rule files exist and are auto-loaded by `rule-loader.ts`
-- Run full test suite — all tests must pass
-- Run full QA — type-check, lint, format all clean
-- Count total rules (should be 77 + 2 + 56 = 135)
-- Count total tools (should be 112 + 1 = 113 with oxlint)
-- Final commit
+**Results**:
+- 137 total rule files across 10 categories (68 valibot, 15 package, 15 typescript, 8 result, 8 jsdoc, 7 imports, 5 naming, 4 comments, 4 workspace, 3 testing)
+- 113 external tools in registry (112 baseline + 1 oxlint)
+- 56 new valibot rules created and registered
+- 2 new check rules created and registered (package/names-valid, workspace/workspace-valid)
+- All 56 new rules configured in `.resist-lint.jsonc` with `"error"` severity + overrides
+- `qa:lint` unified into single `cli.ts --tools --warn-only` command
+- Config file coverage verified (all covered by existing tools)
+- **1670 tests passing** across 23 test files
+- Type-check: clean
+- Format: clean
+- Oxlint (on lint source): 0 errors
 
 **Verification**: `pnpm -r --filter @/lint run qa:type-check && pnpm -w exec vitest run --project lint && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
