@@ -1,0 +1,315 @@
+/**
+ * Tests for workspace lint rules.
+ *
+ * @module
+ */
+
+import { describe, expect, it } from 'vitest';
+import type { WorkspaceContext, WorkspacePackage } from '../../framework/rule-context.ts';
+import type { LintResult } from '../../framework/types.ts';
+import namesValid from '../package/names-valid.ts';
+import workspaceValid from './workspace-valid.ts';
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+/**
+ * Create a mock WorkspaceContext for testing.
+ *
+ * @param overrides - Context overrides
+ * @returns Mock WorkspaceContext
+ */
+function mockContext(
+  overrides: { rootDir?: string; files?: Map<string, string>; packages?: WorkspacePackage[] } = {},
+): WorkspaceContext {
+  const files: Map<string, string> = overrides.files ?? new Map();
+  const packages: WorkspacePackage[] = overrides.packages ?? [];
+
+  return {
+    allFiles: async function* (): AsyncIterable<string> {
+      for (const path of files.keys()) {
+        yield path;
+      }
+    },
+    dirExists: (_path: string): Promise<boolean> =>
+      new Promise<boolean>((resolve: (v: boolean) => void): void => {
+        resolve(true);
+      }),
+    fileExists: (path: string): Promise<boolean> =>
+      new Promise<boolean>((resolve: (v: boolean) => void): void => {
+        resolve(files.has(path));
+      }),
+    getWorkspacePackages: (): Promise<WorkspacePackage[]> =>
+      new Promise<WorkspacePackage[]>((resolve: (v: WorkspacePackage[]) => void): void => {
+        resolve(packages);
+      }),
+    readFile: (path: string): Promise<string> =>
+      new Promise<string>((resolve: (v: string) => void, reject: (e: Error) => void): void => {
+        const content: string | undefined = files.get(path);
+        if (content === undefined) {
+          reject(new Error(`File not found: ${path}`));
+          return;
+        }
+        resolve(content);
+      }),
+    rootDir: overrides.rootDir ?? '/workspace',
+  };
+}
+
+// =============================================================================
+// workspace/workspace-valid
+// =============================================================================
+
+describe('workspace/workspace-valid', () => {
+  it('has correct rule metadata', () => {
+    expect(workspaceValid.id).toBe('workspace/workspace-valid');
+    expect(workspaceValid.scope).toBe('workspace');
+    expect(typeof workspaceValid.check).toBe('function');
+  });
+
+  it('reports error when pnpm-workspace.yaml is missing', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await workspaceValid.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/workspace-valid');
+    expect(results[0]!.message).toContain('Missing pnpm-workspace.yaml');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('reports error when packages field is missing', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'catalogs:\n  default:\n    valibot: ^1.0.0\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await workspaceValid.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Missing "packages" field');
+  });
+
+  it('reports error when packages array is empty', async () => {
+    const files: Map<string, string> = new Map([['/workspace/pnpm-workspace.yaml', 'packages:\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await workspaceValid.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('empty');
+  });
+
+  it('passes for valid workspace file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "packages/*"\n  - "apps/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await workspaceValid.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for read failure', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      fileExists: (): Promise<boolean> =>
+        new Promise<boolean>((resolve: (v: boolean) => void): void => {
+          resolve(true);
+        }),
+      readFile: (): Promise<string> =>
+        new Promise<string>((_resolve: (v: string) => void, reject: (e: Error) => void): void => {
+          reject(new Error('Permission denied'));
+        }),
+    };
+    const results: LintResult[] = await workspaceValid.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Cannot read');
+  });
+});
+
+// =============================================================================
+// package/names-valid
+// =============================================================================
+
+describe('package/names-valid', () => {
+  it('has correct rule metadata', () => {
+    expect(namesValid.id).toBe('package/names-valid');
+    expect(namesValid.scope).toBe('workspace');
+    expect(typeof namesValid.check).toBe('function');
+  });
+
+  it('reports error for missing name field', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        dir: '/workspace/packages/a',
+        name: undefined,
+        packageJson: {},
+        path: '/workspace/packages/a/package.json',
+      },
+    ];
+    const files: Map<string, string> = new Map([['/workspace/packages/a/package.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await namesValid.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('package/names-valid');
+    expect(results[0]!.message).toContain('Missing "name"');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('reports error for non-string name', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        dir: '/workspace/packages/a',
+        name: undefined,
+        packageJson: { name: 42 },
+        path: '/workspace/packages/a/package.json',
+      },
+    ];
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/a/package.json', '{\n  "name": 42\n}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await namesValid.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('must be a string');
+  });
+
+  it('reports error for empty name', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        dir: '/workspace/packages/a',
+        name: '  ',
+        packageJson: { name: '  ' },
+        path: '/workspace/packages/a/package.json',
+      },
+    ];
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/a/package.json', '{\n  "name": "  "\n}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await namesValid.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('cannot be empty');
+  });
+
+  it('reports error for invalid npm name (uppercase)', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        dir: '/workspace/packages/a',
+        name: 'MyPackage',
+        packageJson: { name: 'MyPackage' },
+        path: '/workspace/packages/a/package.json',
+      },
+    ];
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/a/package.json', '{\n  "name": "MyPackage"\n}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await namesValid.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Invalid package name');
+    expect(results[0]!.message).toContain('must be lowercase');
+  });
+
+  it('reports error for name with spaces', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        dir: '/workspace/packages/a',
+        name: 'my package',
+        packageJson: { name: 'my package' },
+        path: '/workspace/packages/a/package.json',
+      },
+    ];
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/a/package.json', '{\n  "name": "my package"\n}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await namesValid.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('cannot contain spaces');
+  });
+
+  it('detects duplicate package names', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        dir: '/workspace/packages/a',
+        name: '@test/shared',
+        packageJson: { name: '@test/shared' },
+        path: '/workspace/packages/a/package.json',
+      },
+      {
+        dir: '/workspace/packages/b',
+        name: '@test/shared',
+        packageJson: { name: '@test/shared' },
+        path: '/workspace/packages/b/package.json',
+      },
+    ];
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/a/package.json', '{\n  "name": "@test/shared"\n}'],
+      ['/workspace/packages/b/package.json', '{\n  "name": "@test/shared"\n}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await namesValid.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Duplicate package name');
+    expect(results[0]!.file).toBe('/workspace/packages/b/package.json');
+  });
+
+  it('passes for valid scoped name', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        dir: '/workspace/packages/a',
+        name: '@resist/my-package',
+        packageJson: { name: '@resist/my-package' },
+        path: '/workspace/packages/a/package.json',
+      },
+    ];
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/a/package.json', '{\n  "name": "@resist/my-package"\n}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await namesValid.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for valid unscoped name', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        dir: '/workspace/packages/a',
+        name: 'my-valid-package',
+        packageJson: { name: 'my-valid-package' },
+        path: '/workspace/packages/a/package.json',
+      },
+    ];
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/a/package.json', '{\n  "name": "my-valid-package"\n}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await namesValid.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles getWorkspacePackages failure gracefully', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      getWorkspacePackages: (): Promise<WorkspacePackage[]> =>
+        new Promise<WorkspacePackage[]>(
+          (_resolve: (v: WorkspacePackage[]) => void, reject: (e: Error) => void): void => {
+            reject(new Error('failed'));
+          },
+        ),
+    };
+    const results: LintResult[] = await namesValid.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles unreadable package.json gracefully', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        dir: '/workspace/packages/a',
+        name: undefined,
+        packageJson: {},
+        path: '/workspace/packages/a/package.json',
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ packages });
+    const results: LintResult[] = await namesValid.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Missing "name"');
+  });
+});
