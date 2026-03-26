@@ -248,7 +248,7 @@ function checkFunction(
 
   return results;
 }
-
+/** The validate-function-input lint rule. */
 const rule: TypeScriptRule = {
   id: 'result/validate-function-input',
   description: 'Exported/handler functions should validate input with safeParse()',

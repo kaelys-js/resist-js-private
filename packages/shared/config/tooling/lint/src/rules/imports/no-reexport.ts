@@ -8,7 +8,7 @@
  */
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
+/** The no-reexport lint rule. */
 const rule: TypeScriptRule = {
   id: 'imports/no-reexport',
   description: 'Forbids re-exports — always import from canonical source',

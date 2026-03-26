@@ -118,7 +118,7 @@ function hasOkCheckBefore(varName: string, node: AstNode, context: VisitorContex
 
   return false;
 }
-
+/** The check-before-access lint rule. */
 const rule: TypeScriptRule = {
   id: 'result/check-before-access',
   description: 'Result .ok must be checked before accessing .data or .error',
@@ -189,7 +189,7 @@ function checkAccess(node: AstNode, context: VisitorContext): LintResult[] {
 
   // Check if file imports from Result modules
   const hasResultImport: boolean = context.imports.some(
-    (imp) => imp.source.includes('result') || imp.source.includes('Result'),
+    (imp): boolean => imp.source.includes('result') || imp.source.includes('Result'),
   );
   if (!hasResultImport) {
     return results;

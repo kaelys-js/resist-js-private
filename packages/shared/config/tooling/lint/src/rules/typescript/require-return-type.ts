@@ -39,7 +39,7 @@ function getReturnTypeInsertPos(funcNode: AstNode, content: string): number {
 
   return parenIdx + 1;
 }
-
+/** The require-return-type lint rule. */
 const rule: TypeScriptRule = {
   id: 'typescript/require-return-type',
   description: 'Every function must have an explicit return type annotation',

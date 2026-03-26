@@ -42,7 +42,7 @@ function createResult(
     },
   };
 }
-
+/** The pascal-case-types lint rule. */
 const rule: TypeScriptRule = {
   id: 'naming/pascal-case-types',
   description: 'Types, interfaces, and enums must use PascalCase',

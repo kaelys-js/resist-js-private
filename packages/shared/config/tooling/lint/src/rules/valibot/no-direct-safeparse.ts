@@ -11,7 +11,7 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 
 /** File paths exempt — @/schemas/common defines base schemas using v.safeParse internally. */
 const EXEMPT_PATHS: readonly RegExp[] = [/schemas\/common\//, /config\/tooling\/lint\//];
-
+/** The no-direct-safeparse lint rule. */
 const rule: TypeScriptRule = {
   id: 'valibot/no-direct-safeparse',
   description: 'Forbids v.safeParse() — use safeParse from @/utils/result/safe instead',

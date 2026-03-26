@@ -47,7 +47,7 @@ function isIntegrationBoundaryIf(statement: AstNode, context: VisitorContext): b
 
   return false;
 }
-
+/** The no-module-side-effects lint rule. */
 const rule: TypeScriptRule = {
   id: 'typescript/no-module-side-effects',
   description: 'Top-level code must not throw or execute side-effect calls on import',

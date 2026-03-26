@@ -168,7 +168,7 @@ function isAllMethodsType(typeNode: AstNode): boolean {
     return false;
   });
 }
-
+/** The no-bare-data-types lint rule. */
 const rule: TypeScriptRule = {
   id: 'typescript/no-bare-data-types',
   description: 'Data types must use Valibot schemas, not interface/type literals',

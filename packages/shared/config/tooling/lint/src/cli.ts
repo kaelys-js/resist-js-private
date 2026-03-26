@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * Custom Linter CLI
+ * resist-lint — Custom Linter CLI
  *
  * Runs custom AST-based lint rules on TypeScript files using oxc-parser.
- * Configuration is loaded from `.webforgelintrc.json` at the workspace root.
+ * Configuration is loaded from `.resist-lint.jsonc` at the workspace root.
  * Rules are auto-discovered from the `rules/` directory — no barrel files needed.
  *
  * Usage:
- *   node --import tsx src/cli.ts <paths...> [--json] [--rule=id] [--list-rules]
+ *   resist-lint <paths...> [--json] [--rule=id] [--list-rules] [--help]
  *
  * @module
  */
@@ -18,7 +18,12 @@ import { resolve, extname, join, relative } from 'node:path';
 
 import { runTypeScriptRules } from './framework/oxc-runner.ts';
 import { loadAllRules } from './framework/rule-loader.ts';
-import { loadConfig, resolveRuleSeverity, type LintConfig } from './config/schema.ts';
+import {
+  loadConfig,
+  resolveRuleSeverity,
+  generateJsonSchema,
+  type LintConfig,
+} from './config/schema.ts';
 import type {
   LintResult,
   LintFix,
@@ -32,16 +37,29 @@ import type {
 // CLI Arguments
 // =============================================================================
 
+/** Raw CLI arguments (everything after `node cli.ts`). */
 const args: string[] = process.argv.slice(2);
-const flags: string[] = args.filter((a: string) => a.startsWith('--'));
-const cliPaths: string[] = args.filter((a: string) => !a.startsWith('--'));
+/** Flag arguments (start with `--`). */
+const flags: string[] = args.filter((a: string): boolean => a.startsWith('--'));
+/** Positional path arguments (non-flag arguments). */
+const cliPaths: string[] = args.filter((a: string): boolean => !a.startsWith('--'));
 
+/** Whether to output results as JSON. */
 const jsonOutput: boolean = flags.includes('--json');
+/** Whether to list all rules and exit. */
 const listRules: boolean = flags.includes('--list-rules');
+/** Whether to exit 0 even if errors are found. */
 const warnOnly: boolean = flags.includes('--warn-only');
+/** Whether to auto-apply fixes to source files. */
 const autoFix: boolean = flags.includes('--fix');
+/** Whether to show help and exit. */
+const showHelp: boolean = flags.includes('--help') || flags.includes('-h');
+/** Whether to generate JSON Schema and exit. */
+const genSchema: boolean = flags.includes('--generate-schema');
 
-const ruleFlag: string | undefined = flags.find((f: string) => f.startsWith('--rule='));
+/** The `--rule=id` flag value, if provided. */
+const ruleFlag: string | undefined = flags.find((f: string): boolean => f.startsWith('--rule='));
+/** Rule IDs to filter by (from `--rule=id,id2`). */
 const ruleIds: string[] = ruleFlag ? (ruleFlag.split('=')[1] ?? '').split(',') : [];
 
 // =============================================================================
@@ -175,7 +193,7 @@ function runPkgRules(
  */
 function applyFixes(content: string, fixes: LintFix[]): string {
   const sorted: LintFix[] = [...fixes].toSorted(
-    (a: LintFix, b: LintFix) => b.range.start - a.range.start,
+    (a: LintFix, b: LintFix): number => b.range.start - a.range.start,
   );
 
   let result: string = content;
@@ -183,6 +201,49 @@ function applyFixes(content: string, fixes: LintFix[]): string {
     result = result.slice(0, fix.range.start) + fix.text + result.slice(fix.range.end);
   }
   return result;
+}
+
+// =============================================================================
+// Help
+// =============================================================================
+
+/**
+ * Print formatted CLI help text to stdout.
+ */
+function printHelp(): void {
+  process.stdout.write(`
+resist-lint — Custom AST-based linter
+
+USAGE
+  resist-lint <paths...> [options]
+  resist-lint --list-rules
+  resist-lint --generate-schema
+
+OPTIONS
+  <paths...>            Paths to lint (files or directories)
+  --rule=id[,id2,...]   Run only the specified rule(s)
+  --fix                 Auto-apply fixes to source files
+  --json                Output results as JSON
+  --list-rules          Print all rules with severity and patterns
+  --generate-schema     Write .resist-lint.schema.json for IDE autocomplete
+  --warn-only           Exit 0 even if errors are found
+  --help, -h            Show this help message
+
+CONFIGURATION
+  Configuration is loaded from .resist-lint.jsonc at the workspace root.
+  Supports JSONC (JSON with // and /* */ comments).
+
+  Add a "$schema" key pointing to .resist-lint.schema.json for IDE
+  autocomplete with rule descriptions.
+
+EXAMPLES
+  resist-lint packages/shared/schemas
+  resist-lint --rule=jsdoc/require-param packages/shared/schemas
+  resist-lint --fix packages/shared/schemas
+  resist-lint --list-rules
+  resist-lint --generate-schema
+
+`);
 }
 
 // =============================================================================
@@ -195,13 +256,40 @@ function applyFixes(content: string, fixes: LintFix[]): string {
  * @returns Exit code (0 = clean, 1 = errors found)
  */
 async function main(): Promise<number> {
-  /* Load config from .webforgelintrc.json */
+  /* --help flag */
+  if (showHelp) {
+    printHelp();
+    return 0;
+  }
+
+  /* Load config from .resist-lint.jsonc */
   const config: LintConfig = loadConfig(process.cwd());
 
   /* Auto-discover all rules */
-  const loaded = await loadAllRules();
+  const loaded: { typescript: TypeScriptRule[]; packageJson: PackageJsonRule[] } =
+    await loadAllRules();
   let allTsRules: TypeScriptRule[] = loaded.typescript;
   let allPkgRules: PackageJsonRule[] = loaded.packageJson;
+
+  /* --generate-schema flag */
+  if (genSchema) {
+    const allRuleIds: string[] = [
+      ...allTsRules.map((r: TypeScriptRule): string => r.id),
+      ...allPkgRules.map((r: PackageJsonRule): string => r.id),
+    ];
+    const descriptions: Map<string, string> = new Map();
+    for (const r of allTsRules) {
+      descriptions.set(r.id, r.description);
+    }
+    for (const r of allPkgRules) {
+      descriptions.set(r.id, r.description);
+    }
+    const schema: Record<string, unknown> = generateJsonSchema(allRuleIds, descriptions);
+    const outPath: string = resolve(process.cwd(), '.resist-lint.schema.json');
+    writeFileSync(outPath, `${JSON.stringify(schema, null, 2)}\n`, 'utf8');
+    process.stdout.write(`Schema written to ${relative(process.cwd(), outPath)}\n`);
+    return 0;
+  }
 
   /* List rules mode */
   if (listRules) {
@@ -227,22 +315,24 @@ async function main(): Promise<number> {
 
   if (paths.length === 0) {
     process.stderr.write(
-      'Usage: webforge-lint <paths...> [--json] [--rule=id] [--list-rules]\n' +
-        'Or add "include" paths to .webforgelintrc.json\n',
+      'Usage: resist-lint <paths...> [--json] [--rule=id] [--list-rules] [--help]\n' +
+        'Or add "include" paths to .resist-lint.jsonc\n',
     );
     return 1;
   }
 
   /* Filter rules by --rule= flag if specified */
   if (ruleIds.length > 0) {
-    allTsRules = allTsRules.filter((r: TypeScriptRule) => ruleIds.includes(r.id));
-    allPkgRules = allPkgRules.filter((r: PackageJsonRule) => ruleIds.includes(r.id));
+    allTsRules = allTsRules.filter((r: TypeScriptRule): boolean => ruleIds.includes(r.id));
+    allPkgRules = allPkgRules.filter((r: PackageJsonRule): boolean => ruleIds.includes(r.id));
   }
 
   /* Filter out globally disabled rules */
-  allTsRules = allTsRules.filter((r: TypeScriptRule) => (config.rules[r.id] ?? 'error') !== 'off');
+  allTsRules = allTsRules.filter(
+    (r: TypeScriptRule): boolean => (config.rules[r.id] ?? 'error') !== 'off',
+  );
   allPkgRules = allPkgRules.filter(
-    (r: PackageJsonRule) => (config.rules[r.id] ?? 'error') !== 'off',
+    (r: PackageJsonRule): boolean => (config.rules[r.id] ?? 'error') !== 'off',
   );
 
   /* Collect files */
@@ -250,7 +340,7 @@ async function main(): Promise<number> {
   for (const p of paths) {
     const resolved: string = resolve(p);
     try {
-      const s = statSync(resolved);
+      const s: ReturnType<typeof statSync> = statSync(resolved);
       if (s.isDirectory()) {
         allFiles.push(...collectFiles(resolved, config));
       } else if (s.isFile() && shouldLint(resolved, config)) {
@@ -282,9 +372,9 @@ async function main(): Promise<number> {
     }
 
     /* Filter rules by file pattern AND per-file severity (overrides may disable) */
-    const applicableRules: TypeScriptRule[] = allTsRules.filter((rule: TypeScriptRule) => {
+    const applicableRules: TypeScriptRule[] = allTsRules.filter((rule: TypeScriptRule): boolean => {
       /* Check file pattern match */
-      const patternMatch: boolean = rule.patterns.some((pattern: string) => {
+      const patternMatch: boolean = rule.patterns.some((pattern: string): boolean => {
         if (pattern.startsWith('**/*.')) {
           const ext: string = pattern.slice(4);
           return filePath.endsWith(ext);
@@ -327,7 +417,7 @@ async function main(): Promise<number> {
   for (const p of paths) {
     const resolved: string = resolve(p);
     try {
-      const s = statSync(resolved);
+      const s: ReturnType<typeof statSync> = statSync(resolved);
       if (s.isDirectory()) {
         pkgFiles.push(...collectPackageJsonFiles(resolved, config));
       }
@@ -345,7 +435,7 @@ async function main(): Promise<number> {
 
       /* Filter package rules by severity for this file */
       const applicablePkgRules: PackageJsonRule[] = allPkgRules.filter(
-        (rule: PackageJsonRule) => resolveRuleSeverity(config, rule.id, pkgPath) !== 'off',
+        (rule: PackageJsonRule): boolean => resolveRuleSeverity(config, rule.id, pkgPath) !== 'off',
       );
 
       allResults.push(...runPkgRules(pkgPath, pkg, isRoot, applicablePkgRules));
@@ -399,8 +489,12 @@ async function main(): Promise<number> {
   if (jsonOutput) {
     process.stdout.write(`${JSON.stringify(allResults, null, 2)}\n`);
   } else {
-    const errors: LintResult[] = allResults.filter((r: LintResult) => r.severity === 'error');
-    const warnings: LintResult[] = allResults.filter((r: LintResult) => r.severity === 'warning');
+    const errors: LintResult[] = allResults.filter(
+      (r: LintResult): boolean => r.severity === 'error',
+    );
+    const warnings: LintResult[] = allResults.filter(
+      (r: LintResult): boolean => r.severity === 'warning',
+    );
 
     for (const result of allResults) {
       const relPath: string = relative(process.cwd(), result.file);
@@ -421,7 +515,7 @@ async function main(): Promise<number> {
   }
 
   /* Exit with error if any errors found (unless --warn-only) */
-  const hasErrors: boolean = allResults.some((r: LintResult) => r.severity === 'error');
+  const hasErrors: boolean = allResults.some((r: LintResult): boolean => r.severity === 'error');
   if (warnOnly) {
     return 0;
   }

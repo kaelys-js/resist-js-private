@@ -99,27 +99,21 @@
   },
   "overrides": [
     {
+      // The linter is a Node CLI tool — these rules genuinely don't apply:
+      // - No @/ path aliases (must use relative imports)
+      // - Uses raw Node APIs (fs, path, etc.)
+      // - Doesn't use the Result pattern (returns LintResult[])
+      // - CLI tools should throw on invalid input
+      // - cli.ts has top-level await (module side effect)
+      // - Internal functions don't need valibot function schemas
+      // - Tests are in a separate vitest project
+      // - No schemas to link, no valibot template literals, etc.
       "files": ["**/config/tooling/lint/src/**"],
       "rules": {
+        // Import rules — no @/ aliases, uses Node APIs
         "imports/no-relative-imports": "off",
-        "imports/no-raw-json": "off",
         "imports/no-raw-node-imports": "off",
-        "imports/no-reexport": "off",
-        "typescript/no-bare-as-cast": "off",
-        "typescript/no-empty-catch": "off",
-        "typescript/no-bare-data-types": "off",
-        "typescript/no-throw": "off",
-        "typescript/no-module-side-effects": "off",
-        "typescript/require-const-comment": "off",
-        "typescript/require-return-type": "off",
-        "typescript/require-type-annotation": "off",
-        "typescript/no-default-params": "off",
-        "typescript/no-union-params": "off",
-        "typescript/no-union-null": "off",
-        "typescript/no-generic-function-type": "off",
-        "typescript/require-non-negative-integer": "off",
-        "typescript/no-builtin-types": "off",
-        "typescript/require-function-schema": "off",
+        // Result pattern — linter doesn't use Result<>
         "result/require-result-type": "off",
         "result/require-ok-return": "off",
         "result/validate-function-input": "off",
@@ -128,32 +122,31 @@
         "result/no-redundant-ok-guard": "off",
         "result/no-result-fallback": "off",
         "result/no-ternary-fallback": "off",
-        "valibot/namespace-import": "off",
+        // TypeScript rules — CLI tool + AST analysis patterns
+        "typescript/no-throw": "off",
+        "typescript/no-module-side-effects": "off",
+        "typescript/require-function-schema": "off",
+        "typescript/no-bare-data-types": "off",
+        "typescript/no-builtin-types": "off",
+        "typescript/require-non-negative-integer": "off",
+        "typescript/no-bare-as-cast": "off",
+        "typescript/no-empty-catch": "off",
+        // Testing + comments
+        "testing/require-colocated-tests": "off",
+        "comments/no-lint-disable": "off",
+        // JSDoc rules — no schemas, no examples needed
+        "jsdoc/require-schema-link": "off",
+        "jsdoc/require-example": "off",
+        "jsdoc/validate-example": "off",
+        // Valibot rules — only schema.ts uses valibot (it IS the validation layer)
         "valibot/no-direct-safeparse": "off",
-        "valibot/require-field-docs": "off",
-        "valibot/require-strict-object": "off",
         "valibot/no-parse": "off",
-        "valibot/require-schema-suffix": "off",
         "valibot/require-generic-schema": "off",
         "valibot/no-generic-string-schema": "off",
         "valibot/prefer-template-literal": "off",
         "valibot/no-duplicate-schema": "off",
         "valibot/prefer-shared-schema": "off",
-        "valibot/require-min-length": "off",
-        "jsdoc/require-example": "off",
-        "jsdoc/require-module": "off",
-        "jsdoc/require-schema-link": "off",
-        "jsdoc/require-param": "off",
-        "jsdoc/require-returns": "off",
-        "jsdoc/param-type-match": "off",
-        "jsdoc/validate-example": "off",
-        "jsdoc/require-jsdoc": "off",
-        "naming/constant-screaming-case": "off",
-        "comments/require-section-order": "off",
-        "comments/require-blank-line-groups": "off",
-        "comments/require-section-marker-style": "off",
-        "testing/require-colocated-tests": "off",
-        "comments/no-lint-disable": "off"
+        "valibot/require-min-length": "off"
       }
     }
   ]

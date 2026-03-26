@@ -8,7 +8,12 @@
  */
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
 
-const NO_FIX = { range: { start: 0, end: 0 }, text: '' };
+/** Dummy fix for package.json rules (no byte offsets). */
+const NO_FIX: { range: { start: number; end: number }; text: string } = {
+  range: { start: 0, end: 0 },
+  text: '',
+};
+/** Scripts every sub-package must define. */
 const REQUIRED_SCRIPTS: readonly string[] = [
   'clean',
   'qa:test',
@@ -17,6 +22,7 @@ const REQUIRED_SCRIPTS: readonly string[] = [
   'qa:type-check',
 ];
 
+/** The require-standard-scripts lint rule. */
 const rule: PackageJsonRule = {
   id: 'package/require-standard-scripts',
   description: 'Sub-packages must have all standard scripts',

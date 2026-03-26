@@ -31,7 +31,7 @@ const GENERIC_PATTERNS: readonly RegExp[] = [
  */
 function isGenericStringSchema(text: string): boolean {
   const normalized: string = text.replaceAll(/\s+/g, ' ').trim();
-  return GENERIC_PATTERNS.some((p: RegExp) => p.test(normalized));
+  return GENERIC_PATTERNS.some((p: RegExp): boolean => p.test(normalized));
 }
 
 /** Rule definition. */
@@ -43,7 +43,7 @@ const rule: TypeScriptRule = {
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      if (EXEMPT_PATTERNS.some((p: RegExp) => p.test(context.file))) {
+      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
         return results;
       }
 

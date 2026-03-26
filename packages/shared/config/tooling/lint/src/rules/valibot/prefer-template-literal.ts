@@ -1,4 +1,6 @@
 /**
+ * @module
+ *
  * Rule: valibot/prefer-template-literal
  *
  * Suggests using templateLiteral() from @/schemas/template-literal instead of
@@ -10,8 +12,6 @@
  * - Composable schema-based parts instead of regex strings
  * - Better error messages ("expected `user_${number}`" vs "expected /^user_\\d+$/")
  * - v.record() key compatibility for typed record keys
- *
- * @module
  */
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
@@ -104,7 +104,7 @@ const rule: TypeScriptRule = {
         }
 
         // First arg must be v.string()
-        const [firstArg] = pipeArgs;
+        const [firstArg]: Array<AstNode | undefined> = pipeArgs;
         if (!firstArg) {
           return [];
         }

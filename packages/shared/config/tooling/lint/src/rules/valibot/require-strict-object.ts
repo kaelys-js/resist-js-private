@@ -8,7 +8,7 @@
  */
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
+/** The require-strict-object lint rule. */
 const rule: TypeScriptRule = {
   id: 'valibot/require-strict-object',
   description: 'Forbids v.object() — use v.strictObject() instead',

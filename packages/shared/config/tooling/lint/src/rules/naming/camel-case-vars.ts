@@ -18,7 +18,7 @@ const SCREAMING_SNAKE_RE: RegExp = /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/;
 
 /** Names to always allow (common conventions). */
 const ALLOWED_NAMES: ReadonlySet<string> = new Set(['_', '__', '$']);
-
+/** The camel-case-vars lint rule. */
 const rule: TypeScriptRule = {
   id: 'naming/camel-case-vars',
   description: 'Variables and functions must use camelCase',

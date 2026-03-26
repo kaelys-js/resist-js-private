@@ -194,7 +194,7 @@ function checkFunction(
 
   return results;
 }
-
+/** The require-returns lint rule. */
 const rule: TypeScriptRule = {
   id: 'jsdoc/require-returns',
   description: 'Exported functions with non-void return types must have @returns {Type}',

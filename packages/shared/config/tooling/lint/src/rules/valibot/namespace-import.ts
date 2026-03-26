@@ -8,7 +8,7 @@
  */
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
+/** The namespace-import lint rule. */
 const rule: TypeScriptRule = {
   id: 'valibot/namespace-import',
   description: "Valibot must be imported as namespace: import * as v from 'valibot'",
@@ -35,7 +35,7 @@ const rule: TypeScriptRule = {
 
       // Check if it's a namespace import (import * as v from 'valibot')
       const isNamespace: boolean = specifiers.some(
-        (s: AstNode) => s.type === 'ImportNamespaceSpecifier',
+        (s: AstNode): boolean => s.type === 'ImportNamespaceSpecifier',
       );
       if (isNamespace) {
         return results;

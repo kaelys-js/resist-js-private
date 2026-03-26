@@ -130,7 +130,7 @@ function getTestFilePath(filePath: string): string {
   const base: string = basename(filePath, '.ts');
   return join(dir, `${base}.test.ts`);
 }
-
+/** The require-colocated-tests lint rule. */
 const rule: TypeScriptRule = {
   id: 'testing/require-colocated-tests',
   description: 'Files exporting functions must have a colocated .test.ts file',

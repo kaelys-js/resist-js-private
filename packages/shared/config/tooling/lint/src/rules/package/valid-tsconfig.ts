@@ -109,7 +109,7 @@ const rule: PackageJsonRule = {
     }
 
     // Must have include with "src"
-    const { include } = tsconfig;
+    const { include }: Record<string, unknown> = tsconfig;
     if (
       !Array.isArray(include) ||
       !include.some((entry: unknown): boolean => typeof entry === 'string' && entry.includes('src'))

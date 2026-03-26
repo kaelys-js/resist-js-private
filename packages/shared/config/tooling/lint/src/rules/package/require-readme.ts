@@ -17,7 +17,10 @@ import { dirname, join } from 'node:path';
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
 
 /** Dummy fix for package.json rules (no byte offsets). */
-const NO_FIX = { range: { start: 0, end: 0 }, text: '' };
+const NO_FIX: { range: { start: number; end: number }; text: string } = {
+  range: { start: 0, end: 0 },
+  text: '',
+};
 
 /** Required README sections (heading text patterns). */
 const REQUIRED_SECTIONS: ReadonlyArray<{ pattern: RegExp; label: string }> = [
@@ -144,7 +147,7 @@ function extractReadmeApiFunctions(readme: string): string[] {
   }
   return [...new Set(names)];
 }
-
+/** The require-readme lint rule. */
 const rule: PackageJsonRule = {
   id: 'package/require-readme',
   description: 'Every sub-package must have a validated README.md',

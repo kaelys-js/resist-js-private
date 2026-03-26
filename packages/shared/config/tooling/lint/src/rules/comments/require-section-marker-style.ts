@@ -1,4 +1,6 @@
 /**
+ * @module
+ *
  * Rule: comments/require-section-marker-style
  *
  * Enforces a single canonical section marker style across the codebase.
@@ -16,8 +18,6 @@
  *
  * Indented dividers (inside objects/functions) are allowed — they serve
  * a different purpose (inline visual separation, not module sections).
- *
- * @module
  */
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
@@ -106,7 +106,7 @@ function extractDashTitle(line1: string, line2: string, line3: string): string |
 function buildCanonical(title: string): string {
   return `${CANONICAL_LINE}\n// ${title}\n${CANONICAL_LINE}`;
 }
-
+/** The require-section-marker-style lint rule. */
 const rule: TypeScriptRule = {
   id: 'comments/require-section-marker-style',
   description: 'Section markers must use the canonical // === style',

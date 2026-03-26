@@ -29,7 +29,7 @@ async function ensureParser(): Promise<boolean> {
     return true;
   }
   try {
-    const oxc = await import('oxc-parser');
+    const oxc: { parseSync: unknown } = await import('oxc-parser');
     oxcParseSync = oxc.parseSync as unknown as typeof oxcParseSync;
     return true;
   } catch {
@@ -239,8 +239,8 @@ function checkFunction(
     try {
       // Wrap in async function to allow top-level return/await in examples
       const wrappedBlock: string = `async function __example__() {\n${block}\n}`;
-      const parseResult = oxcParseSync('example.ts', wrappedBlock);
-      const { errors } = parseResult;
+      const parseResult: { errors: unknown[] } = oxcParseSync('example.ts', wrappedBlock);
+      const { errors }: { errors: unknown[] } = parseResult;
 
       if (errors.length > 0) {
         // Get first error message

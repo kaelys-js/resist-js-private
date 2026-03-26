@@ -39,7 +39,7 @@ function isAllowedDisable(line: string): boolean {
   }
   return false;
 }
-
+/** The no-lint-disable lint rule. */
 const rule: TypeScriptRule = {
   id: 'comments/no-lint-disable',
   description:

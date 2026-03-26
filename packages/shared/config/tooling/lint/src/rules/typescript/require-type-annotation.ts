@@ -78,7 +78,7 @@ function checkParams(params: AstNode[], funcName: string, context: VisitorContex
 
   return results;
 }
-
+/** The require-type-annotation lint rule. */
 const rule: TypeScriptRule = {
   id: 'typescript/require-type-annotation',
   description: 'Every const/let declaration and function parameter must have a type annotation',

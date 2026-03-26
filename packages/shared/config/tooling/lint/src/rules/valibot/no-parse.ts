@@ -8,7 +8,7 @@
  */
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
+/** The no-parse lint rule. */
 const rule: TypeScriptRule = {
   id: 'valibot/no-parse',
   description: 'Forbids v.parse() — use safeParse from @/utils/result/safe instead',

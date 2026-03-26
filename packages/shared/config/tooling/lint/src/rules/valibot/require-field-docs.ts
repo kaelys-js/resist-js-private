@@ -43,7 +43,7 @@ function hasPropertyComment(propNode: AstNode, content: string): boolean {
 
   return false;
 }
-
+/** The require-field-docs lint rule. */
 const rule: TypeScriptRule = {
   id: 'valibot/require-field-docs',
   description: 'Every property in v.strictObject() must have a JSDoc comment',
@@ -90,7 +90,9 @@ const rule: TypeScriptRule = {
       }
 
       // Count actual properties (excluding spread)
-      const namedProps: AstNode[] = properties.filter((p: AstNode) => p.type !== 'SpreadElement');
+      const namedProps: AstNode[] = properties.filter(
+        (p: AstNode): boolean => p.type !== 'SpreadElement',
+      );
       const propCount: number = namedProps.length;
 
       // Count /** */ block comments at the TOP level only (exclude nested objects)

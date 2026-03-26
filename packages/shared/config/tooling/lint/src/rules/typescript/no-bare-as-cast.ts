@@ -41,7 +41,7 @@ function hasExplanatoryComment(content: string, line: number): boolean {
 
   return false;
 }
-
+/** The no-bare-as-cast lint rule. */
 const rule: TypeScriptRule = {
   id: 'typescript/no-bare-as-cast',
   description: 'Every `as` cast must have an inline comment explaining why',

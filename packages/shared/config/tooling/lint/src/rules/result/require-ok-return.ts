@@ -277,7 +277,11 @@ function collectReturnStatements(body: AstNode): AstNode[] {
  * @param {string} [funcName] - Optional function name
  * @returns {LintResult[]} Any lint violations
  */
-function checkFunction(node: AstNode, context: VisitorContext, funcName?: string): LintResult[] {
+function checkFunction(
+  node: AstNode,
+  context: VisitorContext,
+  funcName: string | undefined,
+): LintResult[] {
   const results: LintResult[] = [];
 
   if (!hasResultReturnType(node, context)) {
@@ -385,7 +389,7 @@ function checkFunction(node: AstNode, context: VisitorContext, funcName?: string
 
   return results;
 }
-
+/** The require-ok-return lint rule. */
 const rule: TypeScriptRule = {
   id: 'result/require-ok-return',
   description: 'Functions returning Result<T> must use ok()/okUnchecked()/err() in returns',
@@ -401,7 +405,7 @@ const rule: TypeScriptRule = {
       }
 
       if (declaration.type === 'FunctionDeclaration') {
-        results.push(...checkFunction(declaration, context));
+        results.push(...checkFunction(declaration, context, undefined));
       }
 
       if (declaration.type === 'VariableDeclaration') {
@@ -432,7 +436,7 @@ const rule: TypeScriptRule = {
         return [];
       }
 
-      return checkFunction(node, context);
+      return checkFunction(node, context, undefined);
     },
   },
 };

@@ -215,7 +215,7 @@ function checkFunction(
 
   return results;
 }
-
+/** The require-param lint rule. */
 const rule: TypeScriptRule = {
   id: 'jsdoc/require-param',
   description: 'Every function parameter must have a matching @param in JSDoc',

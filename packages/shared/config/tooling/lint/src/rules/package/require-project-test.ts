@@ -10,7 +10,12 @@ import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
 
-const NO_FIX = { range: { start: 0, end: 0 }, text: '' };
+/** Dummy fix for package.json rules (no byte offsets). */
+const NO_FIX: { range: { start: number; end: number }; text: string } = {
+  range: { start: 0, end: 0 },
+  text: '',
+};
+/** Known test-related script names. */
 const TEST_SCRIPTS: readonly string[] = [
   'qa:test',
   'qa:test:unit',
@@ -18,6 +23,7 @@ const TEST_SCRIPTS: readonly string[] = [
   'qa:benchmark',
 ];
 
+/** The require-project-test lint rule. */
 const rule: PackageJsonRule = {
   id: 'package/require-project-test',
   description: 'Test scripts must use pnpm -w exec vitest run --project <name>',
