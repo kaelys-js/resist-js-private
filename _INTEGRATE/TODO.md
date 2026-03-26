@@ -1,8 +1,9 @@
 - [Lint]
   - API
-  - VSCode Extension
+  - VSCode Extension (linter-test/extensions)
   - Finish _INTEGRATE Port
   - Enforce test files use "*.test.ts" filenames
+  - Enforce e2e, integration test file naming
   - Enforce ".svelte.ts" for ...?
   - All valibot schemas should use generics and function packages
   - Review the README rules. Figure out best practices for README (do research, etc). README rule should be able to handle generating a perfect README.

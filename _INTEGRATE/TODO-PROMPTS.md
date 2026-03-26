@@ -36,10 +36,13 @@
     - `pnpm -w run qa:format:check 2>&1 | grep "[TARGET_PATH]"` → 0 errors
     - `pnpm -r --filter @/lint run qa:test` → all pass
     If ANY check has errors, fix them and re-run ALL checks again.
+  7. Verify 100% test coverage.
 
   DO NOT weaken assertions, skip errors, or dismiss warnings as "acceptable." Every single diagnostic must be resolved — either fix the code or fix the rule. DO NOT skip ANY branch — trace every if/else, try/catch, ternary, ??, ||. Use exact error codes in assertions.
 
-  CRITICAL: Re-Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present full changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END.
+  CRITICAL: Re-Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present a detailed changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END. Use a TodoList to track and verify each step against approved changelog.
+
+  <REQUIRED, DO NOT SKIP> DO THIS FIRST: RE-READ EVERY WORD AND RE-READ CLAUDE.md AND MEMORY.md AND RE-INVOKE fix-bug SKILL, THIS IS NOT OPTIONAL!!!
 
 - [Prompt 7]
   This: /Users/coleb/Desktop/webforge/packages/shared/[TARGET_PATH]
