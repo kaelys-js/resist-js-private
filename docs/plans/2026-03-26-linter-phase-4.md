@@ -116,7 +116,7 @@ All new rules are TypeScriptRules with AST visitors. They go in `rules/valibot/`
 
 ### TASK B1 — Schema Structure & Naming (8 rules)
 
-**Status**: [ ]
+**Status**: [x] — 8 rules created, 40 tests added (1535 total). QA clean.
 
 **Rules**:
 1. `valibot/colocate-schema-type` — Schema and its `v.InferOutput` type alias must be in the same file. Visitor: `Program` — collects schema definitions and type aliases, flags types referencing schemas in other files.

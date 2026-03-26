@@ -559,7 +559,8 @@
         "typescript/no-unsafe-member-access": "off",
         "no-empty-function": "off",
         "no-await-in-loop": "off",
-        "new-cap": "off"
+        "new-cap": "off",
+        "import/max-dependencies": ["error", { "max": 50 }]
       }
     },
     {

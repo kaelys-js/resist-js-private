@@ -7,19 +7,26 @@
 import { describe, expect, it } from 'vitest';
 import { runTypeScriptRules } from '../../framework/oxc-runner.ts';
 import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
-
-import noParse from './no-parse.ts';
-import noDirectSafeparse from './no-direct-safeparse.ts';
-import requireStrictObject from './require-strict-object.ts';
+import colocateSchemaType from './colocate-schema-type.ts';
+import exportSchemaAndType from './export-schema-and-type.ts';
 import namespaceImport from './namespace-import.ts';
-import requireFieldDocs from './require-field-docs.ts';
-import preferSharedSchema from './prefer-shared-schema.ts';
-import requireMinLength from './require-min-length.ts';
+import noDirectSafeparse from './no-direct-safeparse.ts';
 import noDuplicateSchema from './no-duplicate-schema.ts';
 import noGenericStringSchema from './no-generic-string-schema.ts';
-import requireGenericSchema from './require-generic-schema.ts';
+import noOrphanSchemas from './no-orphan-schemas.ts';
+import noOrphanTypes from './no-orphan-types.ts';
+import noParse from './no-parse.ts';
+import oneSchemaPerFile from './one-schema-per-file.ts';
+import preferSharedSchema from './prefer-shared-schema.ts';
 import preferTemplateLiteral from './prefer-template-literal.ts';
+import requireFieldDocs from './require-field-docs.ts';
+import requireGenericSchema from './require-generic-schema.ts';
+import requireMinLength from './require-min-length.ts';
 import requireSchemaSuffix from './require-schema-suffix.ts';
+import requireStrictObject from './require-strict-object.ts';
+import schemaFileLocation from './schema-file-location.ts';
+import schemaTypePair from './schema-type-pair.ts';
+import typeAliasFromSchema from './type-alias-from-schema.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -1012,5 +1019,418 @@ function buildConfig(): void {
     const code: string = `import * as v from 'valibot';\nconst Items = v.array(v.string());`;
     const results: LintResult[] = await lint(requireSchemaSuffix, code);
     expect(results.length).toBe(1);
+  });
+});
+
+// =============================================================================
+// valibot/colocate-schema-type
+// =============================================================================
+
+describe('valibot/colocate-schema-type', () => {
+  it('has correct rule metadata', () => {
+    expect(colocateSchemaType.id).toBe('valibot/colocate-schema-type');
+    expect(colocateSchemaType.visitor.Program).toBeDefined();
+  });
+
+  it('passes when schema is defined in same file', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(colocateSchemaType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('warns when schema is not in the same file', async () => {
+    const code: string = `
+import * as v from 'valibot';
+type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(colocateSchemaType, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('valibot/colocate-schema-type');
+    expect(results[0]!.message).toContain('UserSchema');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when no InferOutput is used', async () => {
+    const code: string = `
+import * as v from 'valibot';
+type Foo = string;
+`;
+    const results: LintResult[] = await lint(colocateSchemaType, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/export-schema-and-type
+// =============================================================================
+
+describe('valibot/export-schema-and-type', () => {
+  it('has correct rule metadata', () => {
+    expect(exportSchemaAndType.id).toBe('valibot/export-schema-and-type');
+    expect(exportSchemaAndType.visitor.Program).toBeDefined();
+  });
+
+  it('passes when both schema and type are exported', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+export type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error when type is not exported', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('valibot/export-schema-and-type');
+    expect(results[0]!.message).toContain('UserSchema');
+    expect(results[0]!.message).toContain('User');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when schema is not exported', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-orphan-schemas
+// =============================================================================
+
+describe('valibot/no-orphan-schemas', () => {
+  it('has correct rule metadata', () => {
+    expect(noOrphanSchemas.id).toBe('valibot/no-orphan-schemas');
+    expect(noOrphanSchemas.visitor.Program).toBeDefined();
+  });
+
+  it('passes when exported schema has exported type', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+export type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when exported schema has no type at all', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('no corresponding type');
+  });
+
+  it('warns when type exists but is not exported', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('not exported');
+  });
+});
+
+// =============================================================================
+// valibot/no-orphan-types
+// =============================================================================
+
+describe('valibot/no-orphan-types', () => {
+  it('has correct rule metadata', () => {
+    expect(noOrphanTypes.id).toBe('valibot/no-orphan-types');
+    expect(noOrphanTypes.visitor.TSTypeAliasDeclaration).toBeDefined();
+  });
+
+  it('warns for object literal type without schema', async () => {
+    const code: string = `
+type User = { name: string; age: number };
+`;
+    const results: LintResult[] = await lint(noOrphanTypes, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('User');
+    expect(results[0]!.message).toContain('UserSchema');
+  });
+
+  it('passes for type derived from valibot', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(noOrphanTypes, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips allowed suffixes (Props, State, etc.)', async () => {
+    const code: string = `
+type ButtonProps = { label: string; onClick: () => void };
+type AppState = { isLoading: boolean };
+`;
+    const results: LintResult[] = await lint(noOrphanTypes, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips generic types', async () => {
+    const code: string = `
+type Result<T> = { ok: boolean; data: T };
+`;
+    const results: LintResult[] = await lint(noOrphanTypes, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when schema exists in same file', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type User = { name: string };
+`;
+    const results: LintResult[] = await lint(noOrphanTypes, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/one-schema-per-file
+// =============================================================================
+
+describe('valibot/one-schema-per-file', () => {
+  it('has correct rule metadata', () => {
+    expect(oneSchemaPerFile.id).toBe('valibot/one-schema-per-file');
+    expect(oneSchemaPerFile.visitor.Program).toBeDefined();
+  });
+
+  it('passes for file with few schemas', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const ASchema = v.strictObject({ a: v.string() });
+const BSchema = v.strictObject({ b: v.string() });
+`;
+    const results: LintResult[] = await lint(oneSchemaPerFile, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports info for >5 schemas', async () => {
+    const schemas: string = Array.from(
+      { length: 6 },
+      (_: unknown, i: number): string => `const S${i}Schema = v.strictObject({ x: v.string() });`,
+    ).join('\n');
+    const code: string = `import * as v from 'valibot';\n${schemas}`;
+    const results: LintResult[] = await lint(oneSchemaPerFile, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('info');
+    expect(results[0]!.message).toContain('6');
+  });
+
+  it('reports warning for >10 schemas', async () => {
+    const schemas: string = Array.from(
+      { length: 11 },
+      (_: unknown, i: number): string => `const S${i}Schema = v.strictObject({ x: v.string() });`,
+    ).join('\n');
+    const code: string = `import * as v from 'valibot';\n${schemas}`;
+    const results: LintResult[] = await lint(oneSchemaPerFile, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('11');
+  });
+});
+
+// =============================================================================
+// valibot/schema-file-location
+// =============================================================================
+
+describe('valibot/schema-file-location', () => {
+  it('has correct rule metadata', () => {
+    expect(schemaFileLocation.id).toBe('valibot/schema-file-location');
+    expect(schemaFileLocation.visitor.Program).toBeDefined();
+  });
+
+  it('passes for schema in schemas/ directory', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(schemaFileLocation, code, 'src/schemas/user.ts');
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for schema in .schema.ts file', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(schemaFileLocation, code, 'src/user.schema.ts');
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for schema in test file', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(schemaFileLocation, code, 'src/user.test.ts');
+    expect(results.length).toBe(0);
+  });
+
+  it('warns for schema outside allowed locations', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(schemaFileLocation, code, 'src/services/auth.ts');
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('schemas/');
+  });
+
+  it('passes for file with no schemas', async () => {
+    const code: string = `
+const x = 'hello';
+`;
+    const results: LintResult[] = await lint(schemaFileLocation, code, 'src/services/auth.ts');
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/schema-type-pair
+// =============================================================================
+
+describe('valibot/schema-type-pair', () => {
+  it('has correct rule metadata', () => {
+    expect(schemaTypePair.id).toBe('valibot/schema-type-pair');
+    expect(schemaTypePair.visitor.Program).toBeDefined();
+  });
+
+  it('passes for proper schema-type pair', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when type is missing', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('no corresponding type');
+    expect(results[0]!.message).toContain('User');
+  });
+
+  it('warns when type does not use InferOutput', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type User = { name: string };
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('derived from');
+  });
+
+  it('passes with InferInput', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferInput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/type-alias-from-schema
+// =============================================================================
+
+describe('valibot/type-alias-from-schema', () => {
+  it('has correct rule metadata', () => {
+    expect(typeAliasFromSchema.id).toBe('valibot/type-alias-from-schema');
+    expect(typeAliasFromSchema.visitor.TSTypeAliasDeclaration).toBeDefined();
+  });
+
+  it('errors for object literal type', async () => {
+    const code: string = `
+type User = { name: string; age: number };
+`;
+    const results: LintResult[] = await lint(typeAliasFromSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('object literal');
+  });
+
+  it('warns for union type', async () => {
+    const code: string = `
+type Status = 'active' | 'inactive';
+`;
+    const results: LintResult[] = await lint(typeAliasFromSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('derived from');
+  });
+
+  it('passes for valibot-derived type', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(typeAliasFromSchema, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips allowed suffixes', async () => {
+    const code: string = `
+type ButtonProps = { label: string };
+type AppState = { loading: boolean };
+type MyHandler = { handle: () => void };
+`;
+    const results: LintResult[] = await lint(typeAliasFromSchema, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips generic types', async () => {
+    const code: string = `
+type Result<T> = { ok: boolean; data: T };
+`;
+    const results: LintResult[] = await lint(typeAliasFromSchema, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for simple type alias (string, number, etc.)', async () => {
+    const code: string = `
+type Name = string;
+type Count = number;
+`;
+    const results: LintResult[] = await lint(typeAliasFromSchema, code);
+    expect(results.length).toBe(0);
   });
 });
