@@ -6,7 +6,10 @@
     "packages/shared/config",
     "packages/shared/locale",
     "packages/shared/schemas",
-    "packages/shared/ui"
+    "packages/shared/secrets",
+    "packages/shared/ui",
+    "packages/shared/utils",
+    "packages/tools"
   ],
   "exclude": [
     "node_modules",
@@ -18,7 +21,8 @@
     ".turbo",
     "_INTEGRATE",
     "*.test.ts",
-    "*.d.ts"
+    "*.d.ts",
+    "cli"
   ],
   "extensions": [".ts", ".svelte.ts", ".mjs"],
   "rules": {
