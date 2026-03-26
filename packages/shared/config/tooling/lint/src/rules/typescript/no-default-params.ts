@@ -123,6 +123,8 @@ const rule: TypeScriptRule = {
   description:
     'Function parameters must not have defaults or optional markers — use Valibot schemas',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript', 'valibot'],
+  stages: ['lint'],
 
   visitor: {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

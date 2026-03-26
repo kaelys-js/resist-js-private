@@ -204,6 +204,8 @@ const rule: TypeScriptRule = {
   id: 'jsdoc/require-returns',
   description: 'Exported functions with non-void return types must have @returns {Type}',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['jsdoc'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

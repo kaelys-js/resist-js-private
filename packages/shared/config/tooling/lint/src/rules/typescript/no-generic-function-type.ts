@@ -36,6 +36,8 @@ const rule: TypeScriptRule = {
   id: 'typescript/no-generic-function-type',
   description: 'Function types must have specific parameter and return types, not generic unknown',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript'],
+  stages: ['lint'],
 
   visitor: {
     TSFunctionType(node: AstNode, context: VisitorContext): LintResult[] {

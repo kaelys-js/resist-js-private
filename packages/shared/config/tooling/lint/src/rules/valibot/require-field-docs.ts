@@ -53,6 +53,8 @@ const rule: TypeScriptRule = {
   id: 'valibot/require-field-docs',
   description: 'Every property in v.strictObject() must have a JSDoc comment',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['valibot', 'jsdoc'],
+  stages: ['lint'],
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {

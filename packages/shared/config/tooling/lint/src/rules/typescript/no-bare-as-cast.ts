@@ -51,6 +51,8 @@ const rule: TypeScriptRule = {
   id: 'typescript/no-bare-as-cast',
   description: 'Every `as` cast must have an inline comment explaining why',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript', 'safety'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     TSAsExpression(node: AstNode, context: VisitorContext): LintResult[] {

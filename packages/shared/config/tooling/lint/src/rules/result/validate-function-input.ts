@@ -255,6 +255,8 @@ const rule: TypeScriptRule = {
   id: 'result/validate-function-input',
   description: 'Exported/handler functions should validate input with safeParse()',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['result', 'safety'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

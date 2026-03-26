@@ -40,6 +40,8 @@ const rule: TypeScriptRule = {
   id: 'typescript/no-union-null',
   description: 'Use Valibot nullable/optional types instead of | null / | undefined',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript', 'valibot'],
+  stages: ['lint'],
 
   visitor: {
     TSUnionType(node: AstNode, context: VisitorContext): LintResult[] {

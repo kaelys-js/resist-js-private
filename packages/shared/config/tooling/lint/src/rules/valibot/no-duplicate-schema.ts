@@ -38,6 +38,8 @@ const rule: TypeScriptRule = {
   id: 'valibot/no-duplicate-schema',
   description: 'Schema field patterns appearing in 3+ files should be in @/schemas/common',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['valibot', 'architecture'],
+  stages: ['lint'],
   fixable: false,
 
   visitor: {

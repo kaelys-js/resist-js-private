@@ -30,6 +30,8 @@ const rule: TypeScriptRule = {
   id: 'valibot/require-generic-schema',
   description: 'Schemas used by generic types should use generic() from @/schemas/generic',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['valibot'],
+  stages: ['lint'],
 
   visitor: {
     TSTypeAliasDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

@@ -164,6 +164,8 @@ const rule: TypeScriptRule = {
   id: 'result/no-result-fallback',
   description: 'Do not silently discard Result errors with fallback values',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['result', 'safety'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     /**

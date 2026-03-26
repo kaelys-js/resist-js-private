@@ -32,6 +32,8 @@ const rule: TypeScriptRule = {
   description:
     'Forbids lint-suppression comments (eslint-disable, oxlint-ignore, @ts-ignore, etc.)',
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
+  categories: ['comments', 'hygiene'],
+  stages: ['lint', 'ci'],
   fixable: false,
 
   visitor: {

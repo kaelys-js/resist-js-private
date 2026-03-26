@@ -50,6 +50,8 @@ const rule: TypeScriptRule = {
   id: 'imports/no-relative-imports',
   description: 'Import paths must not use relative paths (./ or ../)',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['imports'],
+  stages: ['lint'],
 
   visitor: {
     ImportDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

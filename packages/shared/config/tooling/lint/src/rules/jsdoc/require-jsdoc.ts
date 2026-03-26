@@ -46,6 +46,8 @@ const rule: TypeScriptRule = {
   id: 'jsdoc/require-jsdoc',
   description: 'Exported functions and types must have a JSDoc comment',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['jsdoc'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

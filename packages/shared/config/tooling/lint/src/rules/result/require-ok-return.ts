@@ -399,6 +399,8 @@ const rule: TypeScriptRule = {
   id: 'result/require-ok-return',
   description: 'Functions returning Result<T> must use ok()/okUnchecked()/err() in returns',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['result', 'safety'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

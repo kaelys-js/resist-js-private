@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 import * as v from 'valibot';
 
-import type { TypeScriptRule, PackageJsonRule } from '@/lint/framework/types.ts';
+import type { TypeScriptRule, PackageJsonRule, Stage } from '@/lint/framework/types.ts';
 
 // =============================================================================
 // Constants
@@ -33,12 +33,23 @@ const SKIP_SUFFIXES: readonly string[] = ['.test.ts', '.spec.ts', '.d.ts'];
 // Types
 // =============================================================================
 
+/** Default stage assigned to rules that don't declare stages. */
+const DEFAULT_STAGES: Stage[] = ['lint'];
+
 /** Schema for the result of loading all rules from the rules directory. */
 export const LoadedRulesSchema = v.strictObject({
   /** AST-based TypeScript lint rules. */
   typescript: v.custom<TypeScriptRule[]>((val: unknown): boolean => Array.isArray(val)),
   /** Package.json lint rules. */
   packageJson: v.custom<PackageJsonRule[]>((val: unknown): boolean => Array.isArray(val)),
+  /** All rules indexed by category name. */
+  byCategory: v.custom<Map<string, Array<TypeScriptRule | PackageJsonRule>>>(
+    (val: unknown): boolean => val instanceof Map,
+  ),
+  /** All rules indexed by pipeline stage. */
+  byStage: v.custom<Map<Stage, Array<TypeScriptRule | PackageJsonRule>>>(
+    (val: unknown): boolean => val instanceof Map,
+  ),
 });
 
 /** Result of loading all rules from the rules directory. See {@link LoadedRulesSchema}. */
@@ -109,12 +120,57 @@ export async function loadAllRules(): Promise<LoadedRules> {
   tsRules.sort((a: TypeScriptRule, b: TypeScriptRule): number => a.id.localeCompare(b.id));
   pkgRules.sort((a: PackageJsonRule, b: PackageJsonRule): number => a.id.localeCompare(b.id));
 
-  return { typescript: tsRules, packageJson: pkgRules };
+  /* Backfill defaults for categories/stages */
+  backfillDefaults(tsRules);
+  backfillDefaults(pkgRules);
+
+  /* Build category and stage indexes */
+  const byCategory: Map<string, Array<TypeScriptRule | PackageJsonRule>> = new Map();
+  const byStage: Map<Stage, Array<TypeScriptRule | PackageJsonRule>> = new Map();
+
+  const allRules: Array<TypeScriptRule | PackageJsonRule> = [...tsRules, ...pkgRules];
+
+  for (const rule of allRules) {
+    for (const cat of rule.categories ?? []) {
+      const list: Array<TypeScriptRule | PackageJsonRule> = byCategory.get(cat) ?? [];
+      list.push(rule);
+      byCategory.set(cat, list);
+    }
+
+    for (const stage of rule.stages ?? DEFAULT_STAGES) {
+      const list: Array<TypeScriptRule | PackageJsonRule> = byStage.get(stage) ?? [];
+      list.push(rule);
+      byStage.set(stage, list);
+    }
+  }
+
+  return { typescript: tsRules, packageJson: pkgRules, byCategory, byStage };
 }
 
 // =============================================================================
 // Internal
 // =============================================================================
+
+/**
+ * Backfill default categories and stages on rules that omit them.
+ *
+ * - categories defaults to `[ruleId.split('/')[0]]` (the rule prefix)
+ * - stages defaults to `['lint']`
+ *
+ * @param rules - Array of rules to backfill (mutated in place)
+ */
+function backfillDefaults(rules: Array<TypeScriptRule | PackageJsonRule>): void {
+  for (const rule of rules) {
+    if (!rule.categories || rule.categories.length === 0) {
+      const prefix: string = rule.id.split('/')[0] ?? 'unknown';
+      rule.categories = [prefix];
+    }
+
+    if (!rule.stages || rule.stages.length === 0) {
+      rule.stages = [...DEFAULT_STAGES];
+    }
+  }
+}
 
 /**
  * Recursively collect all rule file paths from a directory.

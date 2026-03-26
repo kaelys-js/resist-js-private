@@ -43,6 +43,8 @@ const rule: TypeScriptRule = {
   id: 'typescript/no-builtin-types',
   description: 'Use Valibot types (Str, Num, Bool, Void) instead of TypeScript builtins',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript', 'valibot'],
+  stages: ['lint'],
 
   visitor: {
     TSTypeAnnotation(node: AstNode, context: VisitorContext): LintResult[] {

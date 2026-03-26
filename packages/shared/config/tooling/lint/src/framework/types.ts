@@ -249,6 +249,16 @@ export const VisitorContextSchema = v.strictObject({
 export type VisitorContext = v.InferOutput<typeof VisitorContextSchema>;
 
 // =============================================================================
+// Stages
+// =============================================================================
+
+/** Schema for pipeline stages a rule can run in. */
+export const StageSchema = v.picklist(['lint', 'check', 'pre-commit', 'build', 'ci', 'test']);
+
+/** Pipeline stage identifier. See {@link StageSchema}. */
+export type Stage = v.InferOutput<typeof StageSchema>;
+
+// =============================================================================
 // Rule Interface
 // =============================================================================
 
@@ -260,6 +270,10 @@ export const TypeScriptRuleSchema = v.strictObject({
   description: v.string(),
   /** File glob patterns this rule applies to */
   patterns: v.array(v.string()),
+  /** Rule categories for filtering (defaults to [id prefix]) */
+  categories: v.optional(v.array(v.string())),
+  /** Pipeline stages this rule runs in (defaults to ['lint']) */
+  stages: v.optional(v.array(StageSchema)),
   /** AST visitor functions */
   visitor: v.custom<Partial<AstVisitor>>(isObj),
   /** Optional cross-file finalization — called after ALL files are processed */
@@ -323,6 +337,10 @@ export const PackageJsonRuleSchema = v.strictObject({
   id: v.string(),
   /** Human-readable description */
   description: v.string(),
+  /** Rule categories for filtering (defaults to [id prefix]) */
+  categories: v.optional(v.array(v.string())),
+  /** Pipeline stages this rule runs in (defaults to ['lint']) */
+  stages: v.optional(v.array(StageSchema)),
   /** Check function */
   check: v.custom<(context: PackageJsonContext) => LintResult[]>(isFn),
   /** Whether this rule provides real auto-fixes (not just placeholder no-ops) */

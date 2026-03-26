@@ -63,6 +63,8 @@ const rule: TypeScriptRule = {
   id: 'naming/constant-screaming-case',
   description: 'Top-level const with literal init must use SCREAMING_SNAKE_CASE',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['naming'],
+  stages: ['lint', 'pre-commit'],
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

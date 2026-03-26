@@ -57,6 +57,8 @@ const rule: TypeScriptRule = {
   id: 'typescript/no-empty-catch',
   description: 'Catch blocks must use fromUnknownError() + err() pattern',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript', 'safety'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     CatchClause(node: AstNode, context: VisitorContext): LintResult[] {

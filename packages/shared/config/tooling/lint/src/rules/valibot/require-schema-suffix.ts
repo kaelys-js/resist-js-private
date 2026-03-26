@@ -45,6 +45,8 @@ const rule: TypeScriptRule = {
   id: 'valibot/require-schema-suffix',
   description: 'Valibot schema const names must end in "Schema"',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['valibot', 'naming'],
+  stages: ['lint'],
 
   visitor: {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

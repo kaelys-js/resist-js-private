@@ -472,6 +472,31 @@ describe('parseCliArgs', () => {
     expect(args.fix).toBe(true);
     expect(args.paths).toEqual(['src/', 'lib/']);
   });
+
+  it('parses --category=name', () => {
+    const args: CliArgs = parseCliArgs(['--category=typescript']);
+    expect(args.categories).toEqual(['typescript']);
+  });
+
+  it('parses --category=name1,name2', () => {
+    const args: CliArgs = parseCliArgs(['--category=typescript,safety']);
+    expect(args.categories).toEqual(['typescript', 'safety']);
+  });
+
+  it('defaults categories to empty array', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.categories).toEqual([]);
+  });
+
+  it('parses --stage=name', () => {
+    const args: CliArgs = parseCliArgs(['--stage=ci']);
+    expect(args.stage).toBe('ci');
+  });
+
+  it('defaults stage to undefined', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.stage).toBeUndefined();
+  });
 });
 
 // =============================================================================
@@ -512,6 +537,7 @@ describe('runLinter', () => {
         fix: false,
         help: true,
         ruleIds: [],
+        categories: [],
       },
       output,
     );
@@ -532,6 +558,7 @@ describe('runLinter', () => {
         fix: false,
         help: false,
         ruleIds: [],
+        categories: [],
       },
       output,
     );
@@ -553,6 +580,7 @@ describe('runLinter', () => {
         fix: false,
         help: false,
         ruleIds: [],
+        categories: [],
       },
       output,
     );
@@ -572,6 +600,7 @@ describe('runLinter', () => {
         fix: false,
         help: false,
         ruleIds: ['typescript/no-throw'],
+        categories: [],
       },
       output,
     );
@@ -590,6 +619,7 @@ describe('runLinter', () => {
         fix: false,
         help: false,
         ruleIds: [],
+        categories: [],
       },
       output,
     );
@@ -607,6 +637,7 @@ describe('runLinter', () => {
         fix: false,
         help: false,
         ruleIds: ['typescript/no-throw'],
+        categories: [],
       },
       output,
     );
@@ -627,10 +658,79 @@ describe('runLinter', () => {
         fix: false,
         help: false,
         ruleIds: [],
+        categories: [],
       },
       output,
     );
     const combined: string = stderrLines.join('');
     expect(combined).toContain('Path not found');
+  });
+
+  it('--category filters to only matching rules in JSON output', async () => {
+    const { stdoutLines, output } = captureOutput();
+    await runLinter(
+      {
+        paths: ['packages/shared/config/tooling/lint/src/constants.ts'],
+        json: true,
+        listRules: false,
+        warnOnly: true,
+        fix: false,
+        help: false,
+        ruleIds: [],
+        categories: ['naming'],
+        stage: undefined,
+      },
+      output,
+    );
+    const combined: string = stdoutLines.join('');
+    const results: LintResult[] = JSON.parse(combined) as LintResult[];
+    for (const result of results) {
+      expect(result.ruleId).toMatch(/^naming\//);
+    }
+  });
+
+  it('--stage=ci excludes lint-only rules', async () => {
+    const { stdoutLines, output } = captureOutput();
+    await runLinter(
+      {
+        paths: ['packages/shared/config/tooling/lint/src/constants.ts'],
+        json: true,
+        listRules: false,
+        warnOnly: true,
+        fix: false,
+        help: false,
+        ruleIds: [],
+        categories: [],
+        stage: 'ci',
+      },
+      output,
+    );
+    const combined: string = stdoutLines.join('');
+    const results: LintResult[] = JSON.parse(combined) as LintResult[];
+    // Lint-only rules like comments/require-blank-line-groups should NOT appear
+    const lintOnlyRules: string[] = results
+      .map((r: LintResult): string => r.ruleId)
+      .filter((id: string): boolean => id === 'comments/require-blank-line-groups');
+    expect(lintOnlyRules.length).toBe(0);
+  });
+
+  it('--list-rules output includes categories and stages', async () => {
+    const { stdoutLines, output } = captureOutput();
+    await runLinter(
+      {
+        paths: [],
+        json: false,
+        listRules: true,
+        warnOnly: false,
+        fix: false,
+        help: false,
+        ruleIds: [],
+        categories: [],
+      },
+      output,
+    );
+    const combined: string = stdoutLines.join('');
+    expect(combined).toContain('categories:');
+    expect(combined).toContain('stages:');
   });
 });

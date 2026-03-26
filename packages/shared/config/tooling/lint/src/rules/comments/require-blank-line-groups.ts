@@ -98,6 +98,8 @@ const rule: TypeScriptRule = {
   id: 'comments/require-blank-line-groups',
   description: 'Require blank lines between declaration and control flow statement groups',
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
+  categories: ['comments', 'style'],
+  stages: ['lint'],
 
   visitor: {
     BlockStatement(node: AstNode, context: VisitorContext): LintResult[] {

@@ -71,6 +71,8 @@ const rule: TypeScriptRule = {
   id: 'imports/no-raw-json',
   description: 'Use safeStringify/parseJsonWithComments instead of JSON.stringify/parse',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['imports', 'safety'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     MemberExpression(node: AstNode, context: VisitorContext): LintResult[] {

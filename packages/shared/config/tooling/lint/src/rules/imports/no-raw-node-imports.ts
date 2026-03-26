@@ -57,6 +57,8 @@ const rule: TypeScriptRule = {
   id: 'imports/no-raw-node-imports',
   description: 'Use @/utils/core shared utilities instead of raw node:* imports',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['imports', 'safety'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     ImportDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

@@ -56,6 +56,8 @@ const rule: TypeScriptRule = {
   id: 'imports/require-import-groups',
   description: 'Require blank lines between import groups (node, external, workspace)',
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
+  categories: ['imports', 'style'],
+  stages: ['lint'],
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

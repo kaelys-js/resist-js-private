@@ -128,6 +128,8 @@ const rule: TypeScriptRule = {
   id: 'result/check-before-access',
   description: 'Result .ok must be checked before accessing .data or .error',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['result', 'safety'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     MemberExpression(node: AstNode, context: VisitorContext): LintResult[] {

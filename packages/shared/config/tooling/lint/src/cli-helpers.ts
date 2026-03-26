@@ -29,6 +29,7 @@ import type {
   PackageJsonRule,
   PackageJsonContext,
   PackageJson,
+  Stage,
 } from '@/lint/framework/types.ts';
 
 // =============================================================================
@@ -51,6 +52,10 @@ export const CliArgsSchema = v.strictObject({
   help: v.boolean(),
   /** Rule IDs to filter by (empty = all rules). */
   ruleIds: v.array(v.string()),
+  /** Categories to filter by (empty = all categories). */
+  categories: v.array(v.string()),
+  /** Pipeline stage to filter by (undefined = no stage filter). */
+  stage: v.optional(v.string()),
 });
 
 /** Parsed CLI arguments. See {@link CliArgsSchema}. */
@@ -84,6 +89,16 @@ export function parseCliArgs(argv: string[]): CliArgs {
   const ruleFlag: string | undefined = flags.find((f: string): boolean => f.startsWith('--rule='));
   const ruleIds: string[] = ruleFlag ? (ruleFlag.split('=')[1] ?? '').split(',') : [];
 
+  const categoryFlag: string | undefined = flags.find((f: string): boolean =>
+    f.startsWith('--category='),
+  );
+  const categories: string[] = categoryFlag ? (categoryFlag.split('=')[1] ?? '').split(',') : [];
+
+  const stageFlag: string | undefined = flags.find((f: string): boolean =>
+    f.startsWith('--stage='),
+  );
+  const stage: string | undefined = stageFlag ? (stageFlag.split('=')[1] ?? '') : undefined;
+
   return {
     paths,
     json: flags.includes('--json'),
@@ -92,6 +107,8 @@ export function parseCliArgs(argv: string[]): CliArgs {
     fix: flags.includes('--fix'),
     help: flags.includes('--help') || flags.includes('-h'),
     ruleIds,
+    categories,
+    stage,
   };
 }
 
@@ -221,6 +238,39 @@ export function runPkgRules(
 }
 
 // =============================================================================
+// Rule Options Overrides
+// =============================================================================
+
+/**
+ * Apply config-based category/stage overrides from ruleOptions.
+ *
+ * If `ruleOptions[ruleId]` contains `categories` or `stages`,
+ * they replace the rule's declared values.
+ *
+ * @param {Array<TypeScriptRule | PackageJsonRule>} rules - Rules to update (mutated)
+ * @param {Record<string, Record<string, unknown>>} ruleOptions - Config ruleOptions map
+ */
+function applyRuleOptionsOverrides(
+  rules: Array<TypeScriptRule | PackageJsonRule>,
+  ruleOptions: Record<string, Record<string, unknown>>,
+): void {
+  for (const rule of rules) {
+    const opts: Record<string, unknown> | undefined = ruleOptions[rule.id];
+    if (!opts) {
+      continue;
+    }
+
+    if (Array.isArray(opts.categories)) {
+      rule.categories = opts.categories as string[];
+    }
+
+    if (Array.isArray(opts.stages)) {
+      rule.stages = opts.stages as Stage[];
+    }
+  }
+}
+
+// =============================================================================
 // Auto-fix
 // =============================================================================
 
@@ -305,6 +355,8 @@ USAGE
 OPTIONS
   <paths...>            Paths to lint (files or directories)
   --rule=id[,id2,...]   Run only the specified rule(s)
+  --category=name[,...] Run only rules in the specified category(ies)
+  --stage=name          Run only rules that belong to the specified stage
   --fix                 Auto-apply fixes to source files
   --json                Output results as JSON
   --list-rules          Print all rules with severity and patterns
@@ -318,9 +370,19 @@ CONFIGURATION
   The JSON Schema (${schemaFilename}) is auto-generated on each
   lint run for IDE autocomplete with rule descriptions.
 
+STAGES
+  lint          Default stage — all rules run here
+  check         Structural validation checks
+  pre-commit    Fast rules for pre-commit hooks
+  build         Build-time checks
+  ci            CI pipeline checks
+  test          Test-related checks
+
 EXAMPLES
   ${linterName} packages/shared/schemas
   ${linterName} --rule=jsdoc/require-param packages/shared/schemas
+  ${linterName} --category=typescript packages/shared/schemas
+  ${linterName} --stage=pre-commit packages/shared/schemas
   ${linterName} --fix packages/shared/schemas
   ${linterName} --list-rules
 
@@ -352,8 +414,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
   const config: LintConfig = loadConfig(process.cwd());
 
   /* Auto-discover all rules */
-  const loaded: { typescript: TypeScriptRule[]; packageJson: PackageJsonRule[] } =
-    await loadAllRules();
+  const loaded: Awaited<ReturnType<typeof loadAllRules>> = await loadAllRules();
   let allTsRules: TypeScriptRule[] = loaded.typescript;
   let allPkgRules: PackageJsonRule[] = loaded.packageJson;
 
@@ -366,16 +427,22 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     for (const rule of allTsRules) {
       const severity: string = config.rules[rule.id] ?? 'error';
       const fixable: string = rule.fixable ? ' [fixable]' : '';
+      const cats: string = (rule.categories ?? []).join(', ');
+      const stgs: string = (rule.stages ?? ['lint']).join(', ');
       output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
       output.stdout(`    ${rule.description}\n`);
-      output.stdout(`    patterns: ${rule.patterns.join(', ')}\n\n`);
+      output.stdout(`    patterns: ${rule.patterns.join(', ')}\n`);
+      output.stdout(`    categories: ${cats}  stages: ${stgs}\n\n`);
     }
     output.stdout('Package.json rules:\n\n');
     for (const rule of allPkgRules) {
       const severity: string = config.rules[rule.id] ?? 'error';
       const fixable: string = rule.fixable ? ' [fixable]' : '';
+      const cats: string = (rule.categories ?? []).join(', ');
+      const stgs: string = (rule.stages ?? ['lint']).join(', ');
       output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
-      output.stdout(`    ${rule.description}\n\n`);
+      output.stdout(`    ${rule.description}\n`);
+      output.stdout(`    categories: ${cats}  stages: ${stgs}\n\n`);
     }
     return 0;
   }
@@ -396,6 +463,31 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     allTsRules = allTsRules.filter((r: TypeScriptRule): boolean => cliArgs.ruleIds.includes(r.id));
     allPkgRules = allPkgRules.filter((r: PackageJsonRule): boolean =>
       cliArgs.ruleIds.includes(r.id),
+    );
+  }
+
+  /* Apply config-based category/stage overrides from ruleOptions */
+  applyRuleOptionsOverrides(allTsRules, config.ruleOptions);
+  applyRuleOptionsOverrides(allPkgRules, config.ruleOptions);
+
+  /* Filter rules by --category= flag if specified */
+  if (cliArgs.categories.length > 0) {
+    allTsRules = allTsRules.filter((r: TypeScriptRule): boolean =>
+      (r.categories ?? []).some((c: string): boolean => cliArgs.categories.includes(c)),
+    );
+    allPkgRules = allPkgRules.filter((r: PackageJsonRule): boolean =>
+      (r.categories ?? []).some((c: string): boolean => cliArgs.categories.includes(c)),
+    );
+  }
+
+  /* Filter rules by --stage= flag if specified */
+  if (cliArgs.stage) {
+    const stageFilter: string = cliArgs.stage;
+    allTsRules = allTsRules.filter((r: TypeScriptRule): boolean =>
+      (r.stages ?? ['lint']).includes(stageFilter as Stage),
+    );
+    allPkgRules = allPkgRules.filter((r: PackageJsonRule): boolean =>
+      (r.stages ?? ['lint']).includes(stageFilter as Stage),
     );
   }
 

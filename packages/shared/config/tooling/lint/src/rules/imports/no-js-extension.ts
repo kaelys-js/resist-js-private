@@ -68,6 +68,8 @@ const rule: TypeScriptRule = {
   id: 'imports/no-js-extension',
   description: 'Import paths must not use .js extension — use .ts or omit',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['imports'],
+  stages: ['lint'],
 
   visitor: {
     ImportDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

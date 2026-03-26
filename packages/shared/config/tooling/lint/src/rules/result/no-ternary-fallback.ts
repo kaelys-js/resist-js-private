@@ -121,6 +121,8 @@ const rule: TypeScriptRule = {
   id: 'result/no-ternary-fallback',
   description: 'Forbids result.ok ? result.data : fallback — use if (!result.ok) return result',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['result', 'safety'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     ConditionalExpression(node: AstNode, context: VisitorContext): LintResult[] {

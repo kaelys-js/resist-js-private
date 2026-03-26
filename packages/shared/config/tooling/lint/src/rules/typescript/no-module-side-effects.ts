@@ -57,6 +57,8 @@ const rule: TypeScriptRule = {
   id: 'typescript/no-module-side-effects',
   description: 'Top-level code must not throw or execute side-effect calls on import',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript', 'safety'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

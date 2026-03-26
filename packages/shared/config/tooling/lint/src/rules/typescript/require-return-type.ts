@@ -46,6 +46,8 @@ const rule: TypeScriptRule = {
   id: 'typescript/require-return-type',
   description: 'Every function must have an explicit return type annotation',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

@@ -78,6 +78,8 @@ const rule: TypeScriptRule = {
   description:
     'Prefer templateLiteral() over v.pipe(v.string(), v.regex()) for structured string patterns',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['valibot'],
+  stages: ['lint'],
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
