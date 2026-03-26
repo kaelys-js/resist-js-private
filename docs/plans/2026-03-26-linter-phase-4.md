@@ -171,7 +171,7 @@ All new rules are TypeScriptRules with AST visitors. They go in `rules/valibot/`
 
 ### TASK B4 — Schema Definition Anti-Patterns (12 rules)
 
-**Status**: [ ]
+**Status**: [x] — 12 rules created, 36 tests added (1605 total). QA clean.
 
 **Rules**:
 1. `valibot/no-any-schema` — Bans `v.any()` and `v.unknown()`. Visitor: `CallExpression`.
