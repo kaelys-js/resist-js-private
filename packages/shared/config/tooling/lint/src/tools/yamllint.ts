@@ -7,8 +7,7 @@
  * @module
  */
 
-import { createResult } from '@/lint/framework/types.ts';
-import type { LintResult } from '@/lint/framework/types.ts';
+import { createResult, type LintResult } from '@/lint/framework/types.ts';
 import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /** Regex for yamllint parsable output: `file:line:col: [level] message (rule)` */
@@ -54,7 +53,7 @@ export const yamllintTool: ExternalTool = {
   outputFormat: 'text',
   filePatterns: ['**/*.yaml', '**/*.yml'],
   transform: transformYamllintOutput,
-  async isAvailable(): Promise<boolean> {
+  isAvailable(): boolean {
     return isCommandAvailable('yamllint');
   },
 };

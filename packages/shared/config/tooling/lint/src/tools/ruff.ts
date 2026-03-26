@@ -7,8 +7,7 @@
  * @module
  */
 
-import { createResult } from '@/lint/framework/types.ts';
-import type { LintResult } from '@/lint/framework/types.ts';
+import { createResult, type LintResult } from '@/lint/framework/types.ts';
 import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /**
@@ -47,7 +46,7 @@ export function transformRuffOutput(output: string): LintResult[] {
     const column: number = (location.column as number) ?? 1;
 
     results.push(
-      createResult('ruff/' + code, file, line, column, 'warning', message, {
+      createResult(`ruff/${code}`, file, line, column, 'warning', message, {
         endLine: (endLocation.row as number) ?? undefined,
         endColumn: (endLocation.column as number) ?? undefined,
         tip: `See https://docs.astral.sh/ruff/rules/${code}`,
@@ -66,7 +65,7 @@ export const ruffTool: ExternalTool = {
   outputFormat: 'json',
   filePatterns: ['**/*.py'],
   transform: transformRuffOutput,
-  async isAvailable(): Promise<boolean> {
+  isAvailable(): boolean {
     return isCommandAvailable('ruff');
   },
 };

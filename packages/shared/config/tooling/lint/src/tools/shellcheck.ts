@@ -7,8 +7,7 @@
  * @module
  */
 
-import { createResult } from '@/lint/framework/types.ts';
-import type { LintResult } from '@/lint/framework/types.ts';
+import { createResult, type LintResult } from '@/lint/framework/types.ts';
 import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /**
@@ -43,11 +42,15 @@ export function transformShellcheckOutput(output: string): LintResult[] {
     const code: number = (obj.code as number) ?? 0;
     const message: string = (obj.message as string) ?? '';
 
-    const severity: 'error' | 'warning' | 'info' =
-      level === 'error' ? 'error' : level === 'info' ? 'info' : 'warning';
+    let severity: 'error' | 'warning' | 'info' = 'warning';
+    if (level === 'error') {
+      severity = 'error';
+    } else if (level === 'info') {
+      severity = 'info';
+    }
 
     results.push(
-      createResult('shellcheck/SC' + String(code), file, line, column, severity, message, {
+      createResult(`shellcheck/SC${String(code)}`, file, line, column, severity, message, {
         endLine: (obj.endLine as number) ?? undefined,
         endColumn: (obj.endColumn as number) ?? undefined,
         tip: `See https://www.shellcheck.net/wiki/SC${String(code)}`,
@@ -66,7 +69,7 @@ export const shellcheckTool: ExternalTool = {
   outputFormat: 'json',
   filePatterns: ['**/*.sh', '**/*.bash', '**/*.zsh'],
   transform: transformShellcheckOutput,
-  async isAvailable(): Promise<boolean> {
+  isAvailable(): boolean {
     return isCommandAvailable('shellcheck');
   },
 };

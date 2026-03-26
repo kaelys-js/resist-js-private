@@ -18,7 +18,12 @@ import type { LintResult } from '@/lint/framework/types.ts';
 // Types
 // =============================================================================
 
-/** Validator for function type checks. */
+/**
+ * Validator for function type checks.
+ *
+ * @param val - Value to check
+ * @returns Whether the value is a function
+ */
 const isFn = (val: unknown): boolean => typeof val === 'function';
 
 /** Schema for an external tool definition. */
@@ -35,8 +40,8 @@ export const ExternalToolSchema = v.strictObject({
   filePatterns: v.array(v.string()),
   /** Transform raw tool output into LintResult[]. */
   transform: v.custom<(output: string) => LintResult[]>(isFn),
-  /** Optional check if the tool is available on the system. */
-  isAvailable: v.optional(v.custom<() => Promise<boolean>>(isFn)),
+  /** Optional check if the tool is available on the system (sync or async). */
+  isAvailable: v.optional(v.custom<() => boolean | Promise<boolean>>(isFn)),
 });
 
 /** An external tool definition. See {@link ExternalToolSchema}. */
@@ -210,9 +215,9 @@ export function matchesPattern(filePath: string, pattern: string): boolean {
  * Check if a command is available on the system.
  *
  * @param {string} command - Command to check
- * @returns {Promise<boolean>} Whether the command is available
+ * @returns {boolean} Whether the command is available
  */
-export async function isCommandAvailable(command: string): Promise<boolean> {
+export function isCommandAvailable(command: string): boolean {
   try {
     execFileSync('which', [command], {
       encoding: 'utf8',

@@ -10,7 +10,7 @@
 
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync, readdirSync, statSync, type Dirent } from 'node:fs';
-import { resolve, extname, join, relative } from 'node:path';
+import { resolve, extname, join } from 'node:path';
 
 import * as v from 'valibot';
 
@@ -25,23 +25,10 @@ import {
 import { LINTER_NAME, CONFIG_FILENAME, SCHEMA_FILENAME } from '@/lint/constants.ts';
 import { formatResults, type OutputFormat } from '@/lint/framework/formatters.ts';
 import { createWorkspaceContext } from '@/lint/framework/rule-context.ts';
-import {
-  WorkerPool,
-  getDefaultPoolSize,
-  type WorkerTask,
-  type WorkerResult,
-} from '@/lint/framework/worker-pool.ts';
+import { WorkerPool, type WorkerTask, type WorkerResult } from '@/lint/framework/worker-pool.ts';
 import { ToolRegistry } from '@/lint/framework/tool-orchestrator.ts';
 import { LintCache, CACHE_FILENAME, computeRuleHash } from '@/lint/framework/cache.ts';
-import { shellcheckTool } from '@/lint/tools/shellcheck.ts';
-import { hadolintTool } from '@/lint/tools/hadolint.ts';
-import { yamllintTool } from '@/lint/tools/yamllint.ts';
-import { markdownlintTool } from '@/lint/tools/markdownlint.ts';
-import { stylelintTool } from '@/lint/tools/stylelint.ts';
-import { taploTool } from '@/lint/tools/taplo.ts';
-import { actionlintTool } from '@/lint/tools/actionlint.ts';
-import { sqlfluffTool } from '@/lint/tools/sqlfluff.ts';
-import { ruffTool } from '@/lint/tools/ruff.ts';
+import { ALL_TOOLS } from '@/lint/tools/registry.ts';
 import type {
   LintResult,
   LintFix,
@@ -633,6 +620,46 @@ EXAMPLES
 // =============================================================================
 
 /**
+ * Process lint tasks sequentially, stopping on the first error (bail mode).
+ *
+ * @param tasks - File tasks to process
+ * @param ruleOptions - Per-rule config options
+ * @returns Results collected before bail, and whether bail triggered
+ */
+function processBailTasks(
+  tasks: Array<{ filePath: string; content: string; applicableRules: TypeScriptRule[] }>,
+  ruleOptions: Record<string, Record<string, unknown>>,
+): Promise<{ results: LintResult[]; bailed: boolean }> {
+  const accumulated: LintResult[] = [];
+
+  /**
+   * Process a single task and recurse.
+   *
+   * @param index - Current task index
+   * @returns Accumulated results and bail status
+   */
+  async function processNext(index: number): Promise<{ results: LintResult[]; bailed: boolean }> {
+    if (index >= tasks.length) {
+      return { results: accumulated, bailed: false };
+    }
+    const task = tasks[index]!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
+    const taskResults: LintResult[] = await runTypeScriptRules(
+      task.filePath,
+      task.content,
+      task.applicableRules,
+      ruleOptions,
+    );
+    accumulated.push(...taskResults);
+    if (taskResults.some((r: LintResult): boolean => r.severity === 'error')) {
+      return { results: accumulated, bailed: true };
+    }
+    return processNext(index + 1);
+  }
+
+  return processNext(0);
+}
+
+/**
  * Run the full linter pipeline.
  *
  * Loads config, discovers rules, collects files, runs rules,
@@ -649,7 +676,11 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     return 0;
   }
 
-  /** Write debug message to stderr when --debug is active. */
+  /**
+   * Write debug message to stderr when --debug is active.
+   *
+   * @param msg - Debug message to output
+   */
   const dbg = (msg: string): void => {
     if (cliArgs.debug) {
       output.stderr(`[debug] ${msg}\n`);
@@ -890,20 +921,9 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
 
   if (cliArgs.bail) {
     /* --bail: process files sequentially, stop on first error */
-    allResults = [];
-    for (const task of tasks) {
-      const results: LintResult[] = await runTypeScriptRules(
-        task.filePath,
-        task.content,
-        task.applicableRules,
-        config.ruleOptions,
-      );
-      allResults.push(...results);
-      if (results.some((r: LintResult): boolean => r.severity === 'error')) {
-        bailed = true;
-        break;
-      }
-    }
+    const bailResult = await processBailTasks(tasks, config.ruleOptions);
+    ({ bailed } = bailResult);
+    allResults = bailResult.results;
   } else if (useWorkerPool) {
     /* Worker thread parallelism — distribute tasks across workers */
     dbg(`Using worker pool with ${jobCount} threads for ${tasks.length} files`);
@@ -1072,15 +1092,9 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
   if (cliArgs.tools && !bailed) {
     dbg('Loading external tool registry');
     const toolRegistry: ToolRegistry = new ToolRegistry();
-    toolRegistry.register(shellcheckTool);
-    toolRegistry.register(hadolintTool);
-    toolRegistry.register(yamllintTool);
-    toolRegistry.register(markdownlintTool);
-    toolRegistry.register(stylelintTool);
-    toolRegistry.register(taploTool);
-    toolRegistry.register(actionlintTool);
-    toolRegistry.register(sqlfluffTool);
-    toolRegistry.register(ruffTool);
+    for (const tool of ALL_TOOLS) {
+      toolRegistry.register(tool);
+    }
 
     dbg(`Running ${toolRegistry.getAll().length} external tools on ${allFiles.length} files`);
     const toolResults: LintResult[] = await toolRegistry.runAll(allFiles);

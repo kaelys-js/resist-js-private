@@ -19,7 +19,11 @@ import { LintCache, computeHash, computeRuleHash } from './cache.ts';
 // Test helpers
 // =============================================================================
 
-/** Generate a unique temp file path for cache tests. */
+/**
+ * Generate a unique temp file path for cache tests.
+ *
+ * @returns A unique temporary file path string
+ */
 function tempCachePath(): string {
   return join(
     tmpdir(),
@@ -27,7 +31,11 @@ function tempCachePath(): string {
   );
 }
 
-/** Clean up a temp file if it exists. */
+/**
+ * Clean up a temp file if it exists.
+ *
+ * @param path - Path to the temp file to remove
+ */
 function cleanup(path: string): void {
   try {
     unlinkSync(path);
@@ -36,7 +44,13 @@ function cleanup(path: string): void {
   }
 }
 
-/** Create a mock LintResult. */
+/**
+ * Create a mock LintResult.
+ *
+ * @param ruleId - Rule ID for the mock result
+ * @param file - File path for the mock result
+ * @returns A LintResult with default values
+ */
 function mockResult(ruleId: string, file: string): LintResult {
   return {
     ruleId,

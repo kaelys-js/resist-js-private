@@ -146,4 +146,65 @@ export default function handler(req: Request): Response {
 
     rmSync(tmpDir, { recursive: true });
   });
+
+  it('skips re-export without declaration (export { foo })', async () => {
+    const code: string = `export { foo } from './other';`;
+    const results: LintResult[] = await lint(
+      requireColocatedTests,
+      code,
+      '/tmp/nonexistent-dir-abc123/reexport.ts',
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('detects export default arrow function', async () => {
+    const code: string = `export default (): void => {};`;
+    const results: LintResult[] = await lint(
+      requireColocatedTests,
+      code,
+      '/tmp/nonexistent-dir-abc123/arrow.ts',
+    );
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('no colocated test file');
+  });
+
+  it('detects export default function expression (anonymous)', async () => {
+    const code: string = `export default function(): void {}`;
+    const results: LintResult[] = await lint(
+      requireColocatedTests,
+      code,
+      '/tmp/nonexistent-dir-abc123/anon.ts',
+    );
+    expect(results.length).toBe(1);
+  });
+
+  it('skips exported variable that is not a function', async () => {
+    const code: string = `export const CONFIG: object = { port: 3000 };`;
+    const results: LintResult[] = await lint(
+      requireColocatedTests,
+      code,
+      '/tmp/nonexistent-dir-abc123/config.ts',
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('skips file with only re-exports and no functions', async () => {
+    const code: string = `export { a } from './a';\nexport { b } from './b';`;
+    const results: LintResult[] = await lint(
+      requireColocatedTests,
+      code,
+      '/tmp/nonexistent-dir-abc123/index.ts',
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('detects exported FunctionExpression variable', async () => {
+    const code: string = `export const handler = function handle(req: Request): Response { return new Response('ok'); };`;
+    const results: LintResult[] = await lint(
+      requireColocatedTests,
+      code,
+      '/tmp/nonexistent-dir-abc123/handler.ts',
+    );
+    expect(results.length).toBe(1);
+  });
 });

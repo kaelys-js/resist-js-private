@@ -1,25 +1,36 @@
 /**
- * Tests for external tool transform functions.
+ * Tests for external tool transform functions and tool definitions.
  *
  * Each tool's transform function converts raw tool output
  * into LintResult[]. These tests use mock output to verify
- * correct parsing.
+ * correct parsing. Tool definition tests verify properties
+ * and isAvailable() integration.
  *
  * @module
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { LintResult } from '@/lint/framework/types.ts';
-import { transformShellcheckOutput } from './shellcheck.ts';
-import { transformHadolintOutput } from './hadolint.ts';
-import { transformYamllintOutput } from './yamllint.ts';
-import { transformMarkdownlintOutput } from './markdownlint.ts';
-import { transformStylelintOutput } from './stylelint.ts';
-import { transformTaploOutput } from './taplo.ts';
-import { transformActionlintOutput } from './actionlint.ts';
-import { transformSqlfluffOutput } from './sqlfluff.ts';
-import { transformRuffOutput } from './ruff.ts';
+import type * as ToolOrchestratorModule from '@/lint/framework/tool-orchestrator.ts';
+import { transformShellcheckOutput, shellcheckTool } from './shellcheck.ts';
+import { transformHadolintOutput, hadolintTool } from './hadolint.ts';
+import { transformYamllintOutput, yamllintTool } from './yamllint.ts';
+import { transformMarkdownlintOutput, markdownlintTool } from './markdownlint.ts';
+import { transformStylelintOutput, stylelintTool } from './stylelint.ts';
+import { transformTaploOutput, taploTool } from './taplo.ts';
+import { transformActionlintOutput, actionlintTool } from './actionlint.ts';
+import { transformSqlfluffOutput, sqlfluffTool } from './sqlfluff.ts';
+import { transformRuffOutput, ruffTool } from './ruff.ts';
+
+// Mock isCommandAvailable to avoid real `which` calls
+vi.mock('@/lint/framework/tool-orchestrator.ts', async (importOriginal) => {
+  const actual = await importOriginal<typeof ToolOrchestratorModule>();
+  return {
+    ...actual,
+    isCommandAvailable: vi.fn().mockResolvedValue(true),
+  };
+});
 
 // =============================================================================
 // ShellCheck transform
@@ -149,7 +160,7 @@ describe('transformYamllintOutput', () => {
   });
 
   it('handles multiple lines', () => {
-    const output: string = 'a.yml:1:1: [warning] msg1\n' + 'b.yml:2:3: [error] msg2\n';
+    const output: string = 'a.yml:1:1: [warning] msg1\nb.yml:2:3: [error] msg2\n';
 
     const results: LintResult[] = transformYamllintOutput(output);
     expect(results).toHaveLength(2);
@@ -356,5 +367,368 @@ describe('transformRuffOutput', () => {
 
   it('returns empty array for invalid JSON', () => {
     expect(transformRuffOutput('invalid')).toHaveLength(0);
+  });
+
+  it('handles missing location fields with defaults', () => {
+    const output: string = JSON.stringify([
+      { code: 'F401', message: 'unused import', filename: 'x.py' },
+    ]);
+
+    const results: LintResult[] = transformRuffOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.line).toBe(1);
+    expect(results[0]?.column).toBe(1);
+  });
+
+  it('handles missing code with "unknown" fallback', () => {
+    const output: string = JSON.stringify([
+      { message: 'msg', filename: 'x.py', location: { row: 1, column: 1 } },
+    ]);
+
+    const results: LintResult[] = transformRuffOutput(output);
+    expect(results[0]?.ruleId).toBe('ruff/unknown');
+  });
+});
+
+// =============================================================================
+// Tool definition property tests
+// =============================================================================
+
+describe('tool definitions', () => {
+  it('shellcheckTool has correct properties', () => {
+    expect(shellcheckTool.name).toBe('shellcheck');
+    expect(shellcheckTool.command).toBe('shellcheck');
+    expect(shellcheckTool.args).toContain('--format=json');
+    expect(shellcheckTool.outputFormat).toBe('json');
+    expect(shellcheckTool.filePatterns).toContain('**/*.sh');
+    expect(shellcheckTool.filePatterns).toContain('**/*.bash');
+    expect(shellcheckTool.filePatterns).toContain('**/*.zsh');
+    expect(shellcheckTool.transform).toBe(transformShellcheckOutput);
+  });
+
+  it('hadolintTool has correct properties', () => {
+    expect(hadolintTool.name).toBe('hadolint');
+    expect(hadolintTool.command).toBe('hadolint');
+    expect(hadolintTool.outputFormat).toBe('json');
+    expect(hadolintTool.filePatterns).toContain('Dockerfile');
+    expect(hadolintTool.transform).toBe(transformHadolintOutput);
+  });
+
+  it('yamllintTool has correct properties', () => {
+    expect(yamllintTool.name).toBe('yamllint');
+    expect(yamllintTool.command).toBe('yamllint');
+    expect(yamllintTool.outputFormat).toBe('text');
+    expect(yamllintTool.filePatterns).toContain('**/*.yaml');
+    expect(yamllintTool.filePatterns).toContain('**/*.yml');
+    expect(yamllintTool.transform).toBe(transformYamllintOutput);
+  });
+
+  it('markdownlintTool has correct properties', () => {
+    expect(markdownlintTool.name).toBe('markdownlint');
+    expect(markdownlintTool.command).toBe('markdownlint-cli2');
+    expect(markdownlintTool.outputFormat).toBe('text');
+    expect(markdownlintTool.filePatterns).toContain('**/*.md');
+    expect(markdownlintTool.filePatterns).toContain('**/*.mdx');
+    expect(markdownlintTool.transform).toBe(transformMarkdownlintOutput);
+  });
+
+  it('stylelintTool has correct properties', () => {
+    expect(stylelintTool.name).toBe('stylelint');
+    expect(stylelintTool.command).toBe('stylelint');
+    expect(stylelintTool.outputFormat).toBe('json');
+    expect(stylelintTool.filePatterns).toContain('**/*.css');
+    expect(stylelintTool.filePatterns).toContain('**/*.scss');
+    expect(stylelintTool.filePatterns).toContain('**/*.less');
+    expect(stylelintTool.transform).toBe(transformStylelintOutput);
+  });
+
+  it('taploTool has correct properties', () => {
+    expect(taploTool.name).toBe('taplo');
+    expect(taploTool.command).toBe('taplo');
+    expect(taploTool.outputFormat).toBe('text');
+    expect(taploTool.filePatterns).toContain('**/*.toml');
+    expect(taploTool.transform).toBe(transformTaploOutput);
+  });
+
+  it('actionlintTool has correct properties', () => {
+    expect(actionlintTool.name).toBe('actionlint');
+    expect(actionlintTool.command).toBe('actionlint');
+    expect(actionlintTool.outputFormat).toBe('json');
+    expect(actionlintTool.filePatterns).toContain('**/.github/workflows/*.yml');
+    expect(actionlintTool.transform).toBe(transformActionlintOutput);
+  });
+
+  it('sqlfluffTool has correct properties', () => {
+    expect(sqlfluffTool.name).toBe('sqlfluff');
+    expect(sqlfluffTool.command).toBe('sqlfluff');
+    expect(sqlfluffTool.outputFormat).toBe('json');
+    expect(sqlfluffTool.filePatterns).toContain('**/*.sql');
+    expect(sqlfluffTool.transform).toBe(transformSqlfluffOutput);
+  });
+
+  it('ruffTool has correct properties', () => {
+    expect(ruffTool.name).toBe('ruff');
+    expect(ruffTool.command).toBe('ruff');
+    expect(ruffTool.outputFormat).toBe('json');
+    expect(ruffTool.filePatterns).toContain('**/*.py');
+    expect(ruffTool.transform).toBe(transformRuffOutput);
+  });
+});
+
+// =============================================================================
+// Tool isAvailable() tests
+// =============================================================================
+
+describe('tool isAvailable()', () => {
+  it('shellcheckTool.isAvailable resolves', async () => {
+    const result = await shellcheckTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('hadolintTool.isAvailable resolves', async () => {
+    const result = await hadolintTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('yamllintTool.isAvailable resolves', async () => {
+    const result = await yamllintTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('markdownlintTool.isAvailable resolves', async () => {
+    const result = await markdownlintTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('stylelintTool.isAvailable resolves', async () => {
+    const result = await stylelintTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('taploTool.isAvailable resolves', async () => {
+    const result = await taploTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('actionlintTool.isAvailable resolves', async () => {
+    const result = await actionlintTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('sqlfluffTool.isAvailable resolves', async () => {
+    const result = await sqlfluffTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('ruffTool.isAvailable resolves', async () => {
+    const result = await ruffTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
+  });
+});
+
+// =============================================================================
+// Transform edge cases — uncovered branches
+// =============================================================================
+
+describe('transform edge cases', () => {
+  it('shellcheck handles info level', () => {
+    const output: string = JSON.stringify([
+      { file: 'a.sh', line: 1, column: 1, level: 'info', code: 1000, message: 'note' },
+    ]);
+
+    const results: LintResult[] = transformShellcheckOutput(output);
+    expect(results[0]?.severity).toBe('info');
+  });
+
+  it('shellcheck handles missing fields with defaults', () => {
+    const output: string = JSON.stringify([{}]);
+
+    const results: LintResult[] = transformShellcheckOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.file).toBe('');
+    expect(results[0]?.line).toBe(1);
+    expect(results[0]?.column).toBe(1);
+    expect(results[0]?.severity).toBe('warning');
+    expect(results[0]?.ruleId).toBe('shellcheck/SC0');
+  });
+
+  it('hadolint handles info level', () => {
+    const output: string = JSON.stringify([
+      { file: 'Dockerfile', line: 1, column: 1, level: 'info', code: 'DL0', message: 'info' },
+    ]);
+
+    const results: LintResult[] = transformHadolintOutput(output);
+    expect(results[0]?.severity).toBe('info');
+  });
+
+  it('hadolint handles missing fields with defaults', () => {
+    const output: string = JSON.stringify([{}]);
+
+    const results: LintResult[] = transformHadolintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.file).toBe('Dockerfile');
+    expect(results[0]?.severity).toBe('warning');
+  });
+
+  it('yamllint skips non-matching lines', () => {
+    const output: string = 'some random text\nconfig.yml:1:1: [warning] msg\nanother line';
+
+    const results: LintResult[] = transformYamllintOutput(output);
+    expect(results).toHaveLength(1);
+  });
+
+  it('markdownlint skips non-matching lines', () => {
+    const output: string = 'random header\nREADME.md:1:1 MD001/heading-increment msg\nfooter';
+
+    const results: LintResult[] = transformMarkdownlintOutput(output);
+    expect(results).toHaveLength(1);
+  });
+
+  it('stylelint handles warning severity', () => {
+    const output: string = JSON.stringify([
+      {
+        source: 'a.css',
+        warnings: [{ line: 1, column: 1, rule: 'r', severity: 'warning', text: 'warn' }],
+      },
+    ]);
+
+    const results: LintResult[] = transformStylelintOutput(output);
+    expect(results[0]?.severity).toBe('warning');
+  });
+
+  it('stylelint handles empty warnings array', () => {
+    const output: string = JSON.stringify([{ source: 'a.css', warnings: [] }]);
+
+    const results: LintResult[] = transformStylelintOutput(output);
+    expect(results).toHaveLength(0);
+  });
+
+  it('stylelint handles missing fields with defaults', () => {
+    const output: string = JSON.stringify([{ source: 'a.css', warnings: [{}] }]);
+
+    const results: LintResult[] = transformStylelintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('stylelint/unknown');
+    expect(results[0]?.severity).toBe('warning');
+  });
+
+  it('taplo handles warning level', () => {
+    const output: string = 'warning[deprecated_key]: key is deprecated  --> config.toml:5:3';
+
+    const results: LintResult[] = transformTaploOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('warning');
+    expect(results[0]?.ruleId).toBe('taplo/deprecated_key');
+    expect(results[0]?.line).toBe(5);
+    expect(results[0]?.column).toBe(3);
+  });
+
+  it('taplo handles multiple lines', () => {
+    const output: string = 'error[e1]: msg1  --> a.toml:1:1\nwarning[w1]: msg2  --> b.toml:2:3\n';
+
+    const results: LintResult[] = transformTaploOutput(output);
+    expect(results).toHaveLength(2);
+  });
+
+  it('taplo skips non-matching lines', () => {
+    const output: string = 'random text\nerror[e1]: msg  --> a.toml:1:1\nmore text';
+
+    const results: LintResult[] = transformTaploOutput(output);
+    expect(results).toHaveLength(1);
+  });
+
+  it('actionlint handles missing kind with default', () => {
+    const output: string = JSON.stringify([
+      { message: 'msg', filepath: 'ci.yml', line: 1, column: 1 },
+    ]);
+
+    const results: LintResult[] = transformActionlintOutput(output);
+    expect(results[0]?.ruleId).toBe('actionlint/syntax-check');
+  });
+
+  it('actionlint includes source snippet', () => {
+    const output: string = JSON.stringify([
+      { message: 'msg', filepath: 'ci.yml', line: 1, column: 1, kind: 'k', snippet: 'code here' },
+    ]);
+
+    const results: LintResult[] = transformActionlintOutput(output);
+    expect(results[0]?.source).toBe('code here');
+  });
+
+  it('sqlfluff handles multiple files with violations', () => {
+    const output: string = JSON.stringify([
+      {
+        filepath: 'a.sql',
+        violations: [{ start_line_no: 1, start_line_pos: 1, code: 'L001', description: 'msg1' }],
+      },
+      {
+        filepath: 'b.sql',
+        violations: [{ start_line_no: 5, start_line_pos: 3, code: 'L002', description: 'msg2' }],
+      },
+    ]);
+
+    const results: LintResult[] = transformSqlfluffOutput(output);
+    expect(results).toHaveLength(2);
+    expect(results[0]?.file).toBe('a.sql');
+    expect(results[1]?.file).toBe('b.sql');
+  });
+
+  it('sqlfluff handles empty violations array', () => {
+    const output: string = JSON.stringify([{ filepath: 'a.sql', violations: [] }]);
+
+    const results: LintResult[] = transformSqlfluffOutput(output);
+    expect(results).toHaveLength(0);
+  });
+
+  it('sqlfluff handles missing fields with defaults', () => {
+    const output: string = JSON.stringify([{ filepath: 'a.sql', violations: [{}] }]);
+
+    const results: LintResult[] = transformSqlfluffOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('sqlfluff/unknown');
+    expect(results[0]?.line).toBe(1);
+  });
+
+  it('ruff includes tip with documentation URL', () => {
+    const output: string = JSON.stringify([
+      { code: 'E501', message: 'msg', filename: 'x.py', location: { row: 1, column: 1 } },
+    ]);
+
+    const results: LintResult[] = transformRuffOutput(output);
+    expect(results[0]?.tip).toContain('https://docs.astral.sh/ruff/rules/E501');
+  });
+
+  it('shellcheck includes tip with wiki URL', () => {
+    const output: string = JSON.stringify([
+      { file: 'a.sh', line: 1, column: 1, level: 'warning', code: 2086, message: 'msg' },
+    ]);
+
+    const results: LintResult[] = transformShellcheckOutput(output);
+    expect(results[0]?.tip).toContain('https://www.shellcheck.net/wiki/SC2086');
+  });
+
+  it('hadolint includes tip with wiki URL', () => {
+    const output: string = JSON.stringify([
+      { file: 'Dockerfile', line: 1, column: 1, level: 'warning', code: 'DL3008', message: 'msg' },
+    ]);
+
+    const results: LintResult[] = transformHadolintOutput(output);
+    expect(results[0]?.tip).toContain('https://github.com/hadolint/hadolint/wiki/DL3008');
+  });
+
+  it('shellcheck whitespace-only output returns empty', () => {
+    expect(transformShellcheckOutput('   \n  ')).toHaveLength(0);
+  });
+
+  it('hadolint whitespace-only output returns empty', () => {
+    expect(transformHadolintOutput('   \n  ')).toHaveLength(0);
+  });
+
+  it('stylelint whitespace-only output returns empty', () => {
+    expect(transformStylelintOutput('   \n  ')).toHaveLength(0);
+  });
+
+  it('ruff whitespace-only output returns empty', () => {
+    expect(transformRuffOutput('   \n  ')).toHaveLength(0);
   });
 });

@@ -92,6 +92,70 @@ const result = safeParse(schema, data);
     const results: LintResult[] = await lint(noDirectSafeparse, code);
     expect(results.length).toBe(0);
   });
+
+  it('exempts v.safeParse() inside v.check() callback', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.pipe(
+  v.string(),
+  v.check((input) => {
+    const result = v.safeParse(otherSchema, input);
+    return result.success;
+  }),
+);
+`;
+    const results: LintResult[] = await lint(noDirectSafeparse, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts v.safeParse() inside v.transform() callback', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.pipe(
+  v.string(),
+  v.transform((input) => {
+    const result = v.safeParse(numSchema, input);
+    return result.success ? result.output : 0;
+  }),
+);
+`;
+    const results: LintResult[] = await lint(noDirectSafeparse, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts v.safeParse() inside v.rawCheck() callback', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.pipe(
+  v.string(),
+  v.rawCheck(({ dataset, addIssue }) => {
+    const result = v.safeParse(otherSchema, dataset.value);
+    if (!result.success) addIssue({ message: 'bad' });
+  }),
+);
+`;
+    const results: LintResult[] = await lint(noDirectSafeparse, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports v.safeParse() after a closed v.check() call (not inside callback)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.pipe(v.string(), v.check((x) => x.length > 0));
+const result = v.safeParse(schema, data);
+`;
+    const results: LintResult[] = await lint(noDirectSafeparse, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('reports v.safeParse() with no callee object', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const x = v.safeParse(schema, data);
+`;
+    const results: LintResult[] = await lint(noDirectSafeparse, code);
+    expect(results.length).toBe(1);
+  });
 });
 
 // =============================================================================
@@ -114,6 +178,23 @@ const schema = v.object({ name: v.string() });
     const code: string = `
 import * as v from 'valibot';
 const schema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(requireStrictObject, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes non-valibot object() call', async () => {
+    const code: string = `
+import * as other from 'other-lib';
+const schema = other.object({ name: other.string() });
+`;
+    const results: LintResult[] = await lint(requireStrictObject, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes non-member call expression', async () => {
+    const code: string = `
+const result = plainFunction({ a: 1 });
 `;
     const results: LintResult[] = await lint(requireStrictObject, code);
     expect(results.length).toBe(0);
@@ -243,6 +324,30 @@ describe('valibot/require-min-length', () => {
     const results: LintResult[] = await lint(requireMinLength, code);
     expect(results.length).toBe(0);
   });
+
+  it('skips non-strictObject call', async () => {
+    const code: string = `const Schema = v.object({ name: v.string() });`;
+    const results: LintResult[] = await lint(requireMinLength, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips strictObject with no arguments', async () => {
+    const code: string = `const Schema = v.strictObject();`;
+    const results: LintResult[] = await lint(requireMinLength, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips strictObject with non-ObjectExpression argument', async () => {
+    const code: string = `const Schema = v.strictObject(existingFields);`;
+    const results: LintResult[] = await lint(requireMinLength, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips spread elements in strictObject properties', async () => {
+    const code: string = `const Schema = v.strictObject({ ...baseFields, name: v.pipe(v.string(), v.minLength(1)) });`;
+    const results: LintResult[] = await lint(requireMinLength, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -357,6 +462,43 @@ const Schema = v.strictObject({
     expect(finalResults[0]!.ruleId).toBe('valibot/no-duplicate-schema');
     expect(finalResults[0]!.message).toContain('duplicatedField');
     expect(finalResults[0]!.message).toContain('3');
+  });
+
+  it('skips SpreadElement in schema properties', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject({
+  ...baseFields,
+  /** Extra. */
+  extra: v.string(),
+});
+`;
+    await runTypeScriptRules('spread1.ts', code, [noDuplicateSchema]);
+    const results: LintResult[] = noDuplicateSchema.finalize?.() ?? [];
+    const spreadResults: LintResult[] = results.filter((r: LintResult) =>
+      r.message.includes('baseFields'),
+    );
+    expect(spreadResults.length).toBe(0);
+  });
+
+  it('skips non-ObjectExpression argument to strictObject', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject(existingFields);
+`;
+    const results: LintResult[] = await runTypeScriptRules('nonobj.ts', code, [noDuplicateSchema]);
+    expect(results.length).toBe(0);
+    noDuplicateSchema.finalize?.();
+  });
+
+  it('skips strictObject call with no arguments', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const Schema = v.strictObject();
+`;
+    const results: LintResult[] = await runTypeScriptRules('noargs.ts', code, [noDuplicateSchema]);
+    expect(results.length).toBe(0);
+    noDuplicateSchema.finalize?.();
   });
 
   it('does not flag unique fields', async () => {
@@ -718,6 +860,31 @@ type Foo = v.InferOutput<typeof FooSchema>;
     const results: LintResult[] = await lint(requireGenericSchema, code);
     expect(results.length).toBe(0);
   });
+
+  it('exempts .test.ts files', async () => {
+    const code: string = `
+const FooSchema = v.strictObject({ name: v.string() });
+type Foo<T> = v.InferOutput<typeof FooSchema>;
+`;
+    const results: LintResult[] = await lint(requireGenericSchema, code, 'my-module.test.ts');
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when schema is not declared in the same file (imported)', async () => {
+    const code: string = `
+type Foo<T> = v.InferOutput<typeof ExternalSchema>;
+`;
+    const results: LintResult[] = await lint(requireGenericSchema, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes type alias without InferOutput', async () => {
+    const code: string = `
+type Foo<T> = { data: T };
+`;
+    const results: LintResult[] = await lint(requireGenericSchema, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -810,5 +977,40 @@ describe('valibot/require-schema-suffix', () => {
     const code: string = `import * as v from 'valibot';\nconst DEFAULT_LOCALE = v.picklist(['en', 'ja']);`;
     const results: LintResult[] = await lint(requireSchemaSuffix, code);
     expect(results.length).toBe(0);
+  });
+
+  it('skips declarations inside function bodies (indented)', async () => {
+    const code: string = `import * as v from 'valibot';
+function buildConfig(): void {
+  const Inner = v.strictObject({});
+}`;
+    const results: LintResult[] = await lint(requireSchemaSuffix, code);
+    // Inner is indented → inside function body → skipped
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-CallExpression init (plain value)', async () => {
+    const code: string = `import * as v from 'valibot';\nconst Foo = someVariable;`;
+    const results: LintResult[] = await lint(requireSchemaSuffix, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-valibot factory call (different method)', async () => {
+    const code: string = `import * as v from 'valibot';\nconst Foo = v.parse(schema, data);`;
+    const results: LintResult[] = await lint(requireSchemaSuffix, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags v.optional() without Schema suffix', async () => {
+    const code: string = `import * as v from 'valibot';\nconst MaybeValue = v.optional(v.string());`;
+    const results: LintResult[] = await lint(requireSchemaSuffix, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'MaybeValue'");
+  });
+
+  it('flags v.array() without Schema suffix', async () => {
+    const code: string = `import * as v from 'valibot';\nconst Items = v.array(v.string());`;
+    const results: LintResult[] = await lint(requireSchemaSuffix, code);
+    expect(results.length).toBe(1);
   });
 });

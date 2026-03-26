@@ -7,8 +7,7 @@
  * @module
  */
 
-import { createResult } from '@/lint/framework/types.ts';
-import type { LintResult } from '@/lint/framework/types.ts';
+import { createResult, type LintResult } from '@/lint/framework/types.ts';
 import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /**
@@ -43,7 +42,7 @@ export function transformActionlintOutput(output: string): LintResult[] {
     const kind: string = (obj.kind as string) ?? 'syntax-check';
 
     results.push(
-      createResult('actionlint/' + kind, file, line, column, 'error', message, {
+      createResult(`actionlint/${kind}`, file, line, column, 'error', message, {
         source: (obj.snippet as string) ?? undefined,
       }),
     );
@@ -60,7 +59,7 @@ export const actionlintTool: ExternalTool = {
   outputFormat: 'json',
   filePatterns: ['**/.github/workflows/*.yml', '**/.github/workflows/*.yaml'],
   transform: transformActionlintOutput,
-  async isAvailable(): Promise<boolean> {
+  isAvailable(): boolean {
     return isCommandAvailable('actionlint');
   },
 };

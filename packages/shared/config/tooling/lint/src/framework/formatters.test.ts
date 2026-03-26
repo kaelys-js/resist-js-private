@@ -12,7 +12,12 @@ import type { LintResult } from './types.ts';
 // Test Helpers
 // =============================================================================
 
-/** Create a minimal LintResult for testing. */
+/**
+ * Create a minimal LintResult for testing.
+ *
+ * @param overrides - Partial LintResult fields to override defaults
+ * @returns A complete LintResult with defaults applied
+ */
 function makeResult(overrides: Partial<LintResult> = {}): LintResult {
   return {
     ruleId: 'test/rule',

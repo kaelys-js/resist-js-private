@@ -7,8 +7,7 @@
  * @module
  */
 
-import { createResult } from '@/lint/framework/types.ts';
-import type { LintResult } from '@/lint/framework/types.ts';
+import { createResult, type LintResult } from '@/lint/framework/types.ts';
 import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /**
@@ -47,7 +46,7 @@ export function transformSqlfluffOutput(output: string): LintResult[] {
       const description: string = (v.description as string) ?? '';
 
       results.push(
-        createResult('sqlfluff/' + code, file, line, column, 'warning', description, {
+        createResult(`sqlfluff/${code}`, file, line, column, 'warning', description, {
           tip: `See https://docs.sqlfluff.com/en/stable/rules.html#rule-${code}`,
         }),
       );
@@ -65,7 +64,7 @@ export const sqlfluffTool: ExternalTool = {
   outputFormat: 'json',
   filePatterns: ['**/*.sql'],
   transform: transformSqlfluffOutput,
-  async isAvailable(): Promise<boolean> {
+  isAvailable(): boolean {
     return isCommandAvailable('sqlfluff');
   },
 };

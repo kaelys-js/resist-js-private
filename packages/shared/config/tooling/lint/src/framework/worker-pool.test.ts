@@ -41,19 +41,19 @@ describe('WorkerPool — initialization', () => {
   it('creates a pool with the specified size', () => {
     const pool: WorkerPool = new WorkerPool(2);
     expect(pool.poolSize).toBe(2);
-    void pool.shutdown();
+    const _ = pool.shutdown();
   });
 
   it('clamps pool size to at least 1', () => {
     const pool: WorkerPool = new WorkerPool(0);
     expect(pool.poolSize).toBe(1);
-    void pool.shutdown();
+    const _ = pool.shutdown();
   });
 
   it('clamps negative pool size to 1', () => {
     const pool: WorkerPool = new WorkerPool(-5);
     expect(pool.poolSize).toBe(1);
-    void pool.shutdown();
+    const _ = pool.shutdown();
   });
 });
 

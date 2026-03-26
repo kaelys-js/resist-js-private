@@ -274,6 +274,6 @@ export function computeHash(content: string): string {
  * @returns {string} Hex-encoded MD5 hash of rule IDs
  */
 export function computeRuleHash(ruleIds: string[]): string {
-  const sorted: string[] = [...ruleIds].sort();
+  const sorted: string[] = [...ruleIds].toSorted();
   return computeHash(sorted.join('\n'));
 }

@@ -168,12 +168,12 @@ export class WorkerPool {
         /* Try to find an idle worker */
         const idleIdx: number | undefined = this.idleWorkers.values().next().value;
 
-        if (idleIdx !== undefined) {
-          this.idleWorkers.delete(idleIdx);
-          this.dispatchToWorker(idleIdx, task, resolve, reject);
-        } else {
+        if (idleIdx === undefined) {
           /* No idle workers — queue the task */
           this.taskQueue.push({ task, resolve, reject });
+        } else {
+          this.idleWorkers.delete(idleIdx);
+          this.dispatchToWorker(idleIdx, task, resolve, reject);
         }
       },
     );
@@ -185,7 +185,7 @@ export class WorkerPool {
    * @param {WorkerTask[]} tasks - Array of tasks to execute
    * @returns {Promise<WorkerResult[]>} Results in the same order as tasks
    */
-  async executeAll(tasks: WorkerTask[]): Promise<WorkerResult[]> {
+  executeAll(tasks: WorkerTask[]): Promise<WorkerResult[]> {
     const promises: Array<Promise<WorkerResult>> = tasks.map(
       (task: WorkerTask): Promise<WorkerResult> => this.execute(task),
     );
@@ -253,6 +253,7 @@ export class WorkerPool {
 
     worker.on('message', onMessage);
     worker.on('error', onError);
+    // oxlint-disable-next-line unicorn/require-post-message-target-origin -- node:worker_threads, not browser
     worker.postMessage(task);
   }
 
