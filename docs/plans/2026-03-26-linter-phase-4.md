@@ -136,7 +136,7 @@ All new rules are TypeScriptRules with AST visitors. They go in `rules/valibot/`
 
 ### TASK B2 — Import & Export Hygiene (6 rules)
 
-**Status**: [ ]
+**Status**: [x] — 6 rules created, tests added. QA clean.
 
 **Rules**:
 1. `valibot/consistent-infer` — Use `v.InferOutput` consistently; `v.InferInput` only when intentional. Visitor: `TSTypeAliasDeclaration`.
@@ -154,7 +154,7 @@ All new rules are TypeScriptRules with AST visitors. They go in `rules/valibot/`
 
 ### TASK B3 — Ban Competing Libraries (5 rules)
 
-**Status**: [ ]
+**Status**: [x] — 5 rules created, tests added. QA clean.
 
 **Rules**:
 1. `valibot/no-class-validator` — Bans `class-validator`/`class-transformer` imports. Visitor: `ImportDeclaration`.
