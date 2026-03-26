@@ -1,17 +1,30 @@
-/Users/coleb/Desktop/webforge/packages/shared/schemas/function
-shared/utils/devtools
-shared/schemas/generic
-shared/schemas/result
-shared/schemas/template-literal
-shared/utils/result
-shared/utils/core
-shared/ui/src/utils
-shared/ui/src/lens
-shared/ui/src/*/lens.ts -> shared/ui/src/components
-shared/utils/cli
-products/storylyne
+- [Lint]
+  - API
+  - VSCode Extension
+  - Finish _INTEGRATE Port
+  - Enforce test files use "*.test.ts" filenames
+  - Enforce ".svelte.ts" for ...?
+  - All valibot schemas should use generics and function packages
+  - Review the README rules. Figure out best practices for README (do research, etc). README rule should be able to handle generating a perfect README.
+  - ALL *.test.ts files should use stuff from packages/shared/config/test, if things are shared across test files then move it into that utility package -- then create custom lint rules enforcing useage in test files, review and present all custom rules that don't make sense for test files.
+  - Review every directory in: /Users/coleb/Desktop/webforge/packages/shared/ui/src
+    - Only include directions that have a file that indicates its a placeholder
+    - Give a full list of directories to delete that aren't "components" but are "blocks"
+    /Users/coleb/Desktop/webforge/packages/shared/schemas/function
+    shared/utils/devtools
+    shared/schemas/generic
+    shared/schemas/result
+    shared/schemas/template-literal
+    shared/utils/result
+    shared/utils/core
+    shared/ui/src/utils
+    shared/ui/src/lens
+    shared/ui/src/*/lens.ts -> shared/ui/src/components
+    shared/utils/cli
+    products/storylyne
 
 - [Lens]
+    - Port Lens & Accessibility Rules To Lint AST
     - Lens Blocks
     - Project-Specific Components/Blocks
     - Plans
@@ -42,12 +55,57 @@ products/storylyne
       - Review All Rx Rules + lens tests for these
       - Component level error boundary (with fallback, retry, etc) and app level error boundary with full tests (unit/integration/e2e and manual testing path for me for component and app error boundaries) plus other suggestions for component/app error boundary component
       - Astro Islands but for Svelte
+      hyperspan.dev
       https://github.com/11ty/is-land/blob/main/is-land.js (if relevant)
       https://github.com/ElMassimo/iles/blob/main/packages/iles/src/node/build/islands.ts (if relevant)
+      https://github.com/SikandarJODD/sv-efferd
     - Localize, Dropdown (Language + Theme, etc)
     - Sidebar Component Entries:
       - Is it possible to include the "Performance statistics" in the App sidebar to the right of the component with the same details for the default component? and a green/yellow/red dot to the right of the component name in the sidebar like you have in LensComponentRenderer performance statistics?
 - [Workspace]
+  - Docs (Mintlify)
+  - Testing
+      - CLI/API
+      - Github PR Integration
+      - Visual Snapshot/Regression Management
+      - Baseline Approval WOrkflwo (Per-PR, Per-Branch, Auto On Merge)
+      - Diff Thresholds
+      - Parallelization/Matrix Sharding
+      - Flaky Test Detection
+      - Artifact Sotrage
+      - Multiple Output Formats
+      - QA Global Service + VSCode Extension (Panel)
+  - @/cli
+      - Review + Complete sync-tool templates
+          - .github/.gitlab
+              - Github Actions/Workflows/etc /Users/coleb/Desktop/[TODO]/claude/.gitlab
+              - Github Templates
+      - docs
+      - New tools
+          - CF logs (non-live) like stuff that ends up in logpush
+          - product logs for error system support filtering/error system
+          - logs/errors/etc for iac or should just use cloudflare dashboard?
+          - costing tool for cloudflare and github to get real data broken down
+          - workers/d1/r2/etc metrics/detailed information tool
+          - cloudflare tool to get warnings/errors in account?
+          - Logging system: support logpush as log destination (cost considerations, deep configuration per-product and per-service and globals)
+          - pulumi setups for: cloudflare, github
+      - Verify EVERY tool properly supports/uses all standard flags including dry-run
+      - CLI Command: Move most flags from runner so that both command/runner can use the same flags
+      - Question: Which features are missing from the following system compared to all other comparable systems/libraries/tools for (DO NOT COME BACK UNTIL THERE IS NOTHING LEFT THAT IS MISSING!!)
+          - CLI (Command, Runner, Flags)
+          - Branding
+          - secrets
+          - secrets-setup
+          - product-create
+          - dev-proxy
+          - sync
+          - onboard
+          - devenv
+          - format (+ api)
+              - Should support the --dry-run standard flag and shouldn't it just use "--check"?
+              - Will diff work properly for all external format tools used?
+              - VSCode Extensions (Redo + Finish)
   - Benchmarks & Performance Tests
   - Full PWA Support
   - Analytics
@@ -241,134 +299,3 @@ products/storylyne
   - Local Split-Screen, Multiply Input Controller
   - Rpg Maker MV3D: Where 2d tiles/objects/etc can become 2.5d/3d or also if use actual models in 2d, 2.5d mode they will show appropriately if that makes sense
   - Prebuilt game presets for different game types
-
-========
-
-New Claude Plan:
-- Question: Which features are missing from the following system compared to all other comparable systems/libraries/tools for: Branding
-- CRITICAL: DO NOT COME BACK UNTIL THERE IS NOTHING LEFT THAT IS MISSING!!
-
-- There is no existing Branding in place, this is a new endeavour that must be thoroughly researched. Ask LOTS of questions.
-
-New Claude Plan:
-- Question: Which features are missing from the following system compared to all other comparable systems/libraries/tools for: CLI secrets AND CLI secrets-setup
-- CRITICAL: DO NOT COME BACK UNTIL THERE IS NOTHING LEFT THAT IS MISSING!!
-
-New Claude Plan:
-- Question: Which features are missing from the following system compared to all other comparable systems/libraries/tools for: CLI product-create
-- CRITICAL: DO NOT COME BACK UNTIL THERE IS NOTHING LEFT THAT IS MISSING!!
-
-New Claude Plan:
-- Question: Which features are missing from the following system compared to all other comparable systems/libraries/tools for: CLI dev-proxy
-- CRITICAL: DO NOT COME BACK UNTIL THERE IS NOTHING LEFT THAT IS MISSING!!
-
-New Claude Plan:
-- Question: Which features are missing from the following system compared to all other comparable systems/libraries/tools for: CLI onboard
-- CRITICAL: DO NOT COME BACK UNTIL THERE IS NOTHING LEFT THAT IS MISSING!!
-
-New Claude Plan:
-- Question: Which features are missing from the following system compared to all other comparable systems/libraries/tools for: CLI sync
-- CRITICAL: DO NOT COME BACK UNTIL THERE IS NOTHING LEFT THAT IS MISSING!!
-
-New Claude Plan:
-- Question: Which features are missing from the following system compared to all other comparable systems/libraries/tools for: CLI devenv
-- CRITICAL: DO NOT COME BACK UNTIL THERE IS NOTHING LEFT THAT IS MISSING!!
-
-- Questions: Preventing cost overrun on VPS, Monitoring/Analytics/etc on devenv vps, Security/Auth/Users
-- Questions: Easy way to teardown/cancel/delete everything (if not already supported)
-- Questions: Move as much of coder setup/options into global config as is possible
-
-New Claude Plan:
-- Question: Which features are missing from the following system compared to all other comparable systems/libraries/tools for: CLI format (+ programmatic api)
-- CRITICAL: DO NOT COME BACK UNTIL THERE IS NOTHING LEFT THAT IS MISSING!!
-
-- Question: Should support the --dry-run standard flag and shouldn't it just use "--check"?
-- Question: Custom arguments in the onStart hooks are preventing the standard arguments, correct?
-- Question: Will diff work properly for all external format tools used?
-
-New Claude Plan:
-- Question: Which features are missing from the following system compared to all other comparable systems/libraries/tools for: CLI (Command, Runner, Flags)
-- CRITICAL: DO NOT COME BACK UNTIL THERE IS NOTHING LEFT THAT IS MISSING!!
-
-- CLI Command: Move most flags from runner so that both command/runner can use the same flags
-- Verify EVERY tool properly supports/uses all standard flags including dry-run
-
-New Claude Plan:
-- Review every schema in the workspace to find all schemas that should use the function schema valibot extension
-
-New Claude Plan:
-- Verify that every instance of safeParse has .ok checked and uses .data
-- Verify that every .ok check whether it would be better served to return an err() with existing/new ERRORS constant rather than propogating the error up
-- Verify that every function with Result return type that all calling functions check .ok and use .data properly
-- Verify that every function that has input parameters uses the result safeParse and checks .ok on ALL input parameters
-- Verify that every function that returns Result<thing> all returns have "ok" or "err" and follow the Result system
-- Verify that fromUnknownError is used properly and is used for every err() and catch
-
-CRITICAL:
-- Repeat the above until you find no missing things handled. Understand? Shouldn't have to go back/forth!
-
-RULES:
-- Do not ignore or dismiss my TODOs
-- Explain each TODO and your proposed changes
-- Always show full code changes/diff in the plan for every file. No exceptions
-- Update every JSdoc block (if needed) to match reality and make sure none are missing. Make sure examples are correct and typescript.
-- Never use typescript built in types. Never use typescript type or interface. Use valibot schemas and valibot types.
-- Always use Valibot type annotations. Every declaration must have a type annotation. No Exceptions.
-- Every function input/parameter must use valibot schemas. No exceptions.
-- Every function input/parameter AND output must use the Result system and validate output and ALL callers of these functions to use the Result system. No Exceptions.
-- Every function should always check .ok
-- No `as` casts.
-- Use strict AND specific valibot schemas using existing shared schemas or creating new ones.
-- Update READMEs when necessary
-- Include a detailed CHANGELOG at the end of the plan ALWAYS.
-- CRITICAL: Before responding, always check for and use the most relevant available skills and MCP tools for the task.
-
-==
-
-New Claude Plans:
-- Other CLI tools:
-  - CF logs (non-live) like stuff that ends up in logpush
-  - product logs for error system support filtering/error system
-  - logs/errors/etc for iac or should just use cloudflare dashboard?
-  - costing tool for cloudflare and github to get real data broken down
-  - workers/d1/r2/etc metrics/detailed information tool
-  - cloudflare tool to get warnings/errors in account?
-  - Logging system: support logpush as log destination (cost considerations, deep configuration per-product and per-service and globals)
-  - pulumi setups for: cloudflare, github
-- Review + Complete sync-tool templates
-  - .github/.gitlab
-    - Github Actions/Workflows/etc /Users/coleb/Desktop/[TODO]/claude/.gitlab
-    - Github Templates
-  - docs
-- VSCode Extensions
-  - Formatter (Redo + Finish)
-  - Panel Extension: QA Global Service + CLI Tools
-- Add To Lint System
-  - AI Add To Memory to prevent making same mistakes or other solution
-  - Review all the skill files to see what can be extracted into lint rules/checks
-  - JSDoc example must use typescript and referenced valid things
-- https://github.com/maxritter/claude-pilot
-- Tools
-  - Lens
-    CLI / Engine / API
-
-    Progress reporting
-    Multiple output formats
-    GitHub PR comment integration
-    Visual snapshot/regression management
-    Baseline approval workflow (per-PR, per-branch, auto on merge)
-    Diff thresholds (pixel-perfect, percentage tolerance)
-    Parallelization / matrix sharding
-    Flaky test detection, retries, quarantine
-    Artifact storage (screenshots, videos, traces)
-  - Docs (Mintlify)
-- Products
-  - Overseer (Business as Code + Business Management End to End)
-  - Itineraries
-  - Finances
-  - Cherishall (Relationship)
-  - Storylyne
-  - Lumora
-  - Tastier
-  - Emulocity
-  - Photos
