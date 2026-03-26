@@ -20,6 +20,7 @@ import {
   buildHelpText,
   parseCliArgs,
   runLinter,
+  collapseShortJsonArrays,
   type CliArgs,
   type CliOutput,
 } from './cli-helpers.ts';
@@ -1327,5 +1328,74 @@ describe('runLinter — branch coverage', () => {
     );
 
     expect(code).toBe(0);
+  });
+});
+
+// =============================================================================
+// collapseShortJsonArrays
+// =============================================================================
+
+describe('collapseShortJsonArrays', () => {
+  it('collapses a short array onto one line', () => {
+    const input: string = '{\n  "arr": [\n    "a",\n    "b"\n  ]\n}';
+    const result: string = collapseShortJsonArrays(input, 100);
+    expect(result).toBe('{\n  "arr": ["a", "b"]\n}');
+  });
+
+  it('preserves arrays that exceed maxWidth', () => {
+    const input: string = '{\n  "arr": [\n    "a",\n    "b"\n  ]\n}';
+    const result: string = collapseShortJsonArrays(input, 10);
+    expect(result).toBe(input);
+  });
+
+  it('preserves arrays with nested objects', () => {
+    const input: string = '{\n  "arr": [\n    {\n      "x": 1\n    }\n  ]\n}';
+    const result: string = collapseShortJsonArrays(input, 100);
+    expect(result).toBe(input);
+  });
+
+  it('collapses inner arrays first, then outer array stays expanded', () => {
+    const input: string = '{\n  "arr": [\n    [\n      1\n    ]\n  ]\n}';
+    const result: string = collapseShortJsonArrays(input, 100);
+    /* Inner array collapses to [1], but outer array contains [1] which has brackets, so stays expanded */
+    expect(result).toBe('{\n  "arr": [\n    [1]\n  ]\n}');
+  });
+
+  it('collapses multiple short arrays', () => {
+    const input: string = [
+      '{',
+      '  "a": [',
+      '    "x",',
+      '    "y"',
+      '  ],',
+      '  "b": [',
+      '    1,',
+      '    2,',
+      '    3',
+      '  ]',
+      '}',
+    ].join('\n');
+    const result: string = collapseShortJsonArrays(input, 100);
+    expect(result).toContain('"a": ["x", "y"]');
+    expect(result).toContain('"b": [1, 2, 3]');
+  });
+
+  it('handles empty arrays (no elements)', () => {
+    const input: string = '{\n  "arr": [\n  ]\n}';
+    const result: string = collapseShortJsonArrays(input, 100);
+    /* Empty arrays have no elements, so they stay as-is */
+    expect(result).toBe(input);
+  });
+
+  it('returns input unchanged when no arrays present', () => {
+    const input: string = '{\n  "key": "value"\n}';
+    const result: string = collapseShortJsonArrays(input, 100);
+    expect(result).toBe(input);
+  });
+
+  it('handles single-element arrays', () => {
+    const input: string = '{\n  "arr": [\n    "only"\n  ]\n}';
+    const result: string = collapseShortJsonArrays(input, 100);
+    expect(result).toBe('{\n  "arr": ["only"]\n}');
   });
 });

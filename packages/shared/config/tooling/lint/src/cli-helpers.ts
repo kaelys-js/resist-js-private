@@ -548,10 +548,86 @@ export function writeJsonSchema(tsRules: TypeScriptRule[], pkgRules: PackageJson
   const schema: Record<string, unknown> = generateJsonSchema(allRuleIds, descriptions);
   const outPath: string = resolve(process.cwd(), SCHEMA_FILENAME);
   try {
-    writeFileSync(outPath, `${JSON.stringify(schema, null, 2)}\n`, 'utf8');
+    const raw: string = JSON.stringify(schema, null, 2);
+    writeFileSync(outPath, `${collapseShortJsonArrays(raw, 100)}\n`, 'utf8');
   } catch {
     /* Schema write failed — non-critical, continue */
   }
+}
+
+/**
+ * Collapse short JSON arrays onto a single line when they fit within a max width.
+ *
+ * `JSON.stringify` with indent always expands arrays to multiple lines.
+ * Biome's formatter collapses short arrays to single lines when they fit.
+ * This function matches biome's behavior to prevent perpetual format diffs.
+ *
+ * @param {string} json - Pretty-printed JSON string (2-space indent)
+ * @param {number} maxWidth - Maximum line width (default 100, matching biome)
+ * @returns {string} JSON with short arrays collapsed to single lines
+ *
+ * @example
+ * ```typescript
+ * const input = '{\n  "arr": [\n    "a",\n    "b"\n  ]\n}';
+ * const result = collapseShortJsonArrays(input, 100);
+ * // '{\n  "arr": ["a", "b"]\n}'
+ * ```
+ */
+export function collapseShortJsonArrays(json: string, maxWidth: number): string {
+  const lines: string[] = json.split('\n');
+  const result: string[] = [];
+
+  for (let i: number = 0; i < lines.length; i++) {
+    const line: string = lines[i] ?? '';
+
+    /* Look for array-opening lines like `  "key": [` */
+    if (line.trimEnd().endsWith('[')) {
+      /* Find the matching close bracket at the same indent level */
+      const indent: string = line.slice(0, line.length - line.trimStart().length);
+      let closeLine: number = -1;
+      let allSimple: boolean = true;
+      const elements: string[] = [];
+
+      for (let k: number = i + 1; k < lines.length; k++) {
+        const raw: string = lines[k] ?? '';
+        const elem: string = raw.trim();
+
+        /* Check if this is the closing bracket at the same indent */
+        if (raw.startsWith(indent) && (elem === ']' || elem === '],')) {
+          closeLine = k;
+          break;
+        }
+
+        /* If any element contains nested structures, skip collapsing */
+        if (elem.includes('{') || elem.includes('}') || elem.includes('[') || elem.includes(']')) {
+          allSimple = false;
+          break;
+        }
+
+        /* Remove trailing comma */
+        const cleaned: string = elem.endsWith(',') ? elem.slice(0, -1) : elem;
+        elements.push(cleaned);
+      }
+
+      if (allSimple && closeLine >= 0 && elements.length > 0) {
+        /* Build the collapsed line */
+        const prefix: string = line.trimEnd().slice(0, -1);
+        const closeTrimmed: string = (lines[closeLine] ?? '').trim();
+        const suffix: string = closeTrimmed.startsWith(']') ? closeTrimmed.slice(1) : '';
+        const collapsed: string = `${prefix}[${elements.join(', ')}]${suffix}`;
+
+        if (collapsed.length <= maxWidth) {
+          result.push(collapsed);
+          i = closeLine;
+          continue;
+        }
+      }
+    }
+
+    result.push(line);
+  }
+
+  return result.join('\n');
 }
 
 // =============================================================================
