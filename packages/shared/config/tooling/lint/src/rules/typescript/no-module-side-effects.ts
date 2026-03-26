@@ -39,7 +39,8 @@ function isIntegrationBoundaryIf(statement: AstNode, context: VisitorContext): b
   const endLine: number = statement.loc.end.line - 1;
 
   for (let i: number = startLine; i <= endLine && i < lines.length; i++) {
-    if (/\/\/.*integration boundary:\s*\S+/i.test(lines[i])) {
+    const currentLine = lines[i] as string | undefined;
+    if (currentLine && /\/\/.*integration boundary:\s*\S+/i.test(currentLine)) {
       return true;
     }
   }
@@ -90,6 +91,7 @@ const rule: TypeScriptRule = {
               'Top-level throw crashes the process on import — wrap in a function returning Result',
             ruleId: 'typescript/no-module-side-effects',
             tip: 'Move this into an exported function that returns err() instead of throwing',
+            fix: { range: { start: statement.start, end: statement.end }, text: '' },
           });
           continue;
         }
@@ -109,6 +111,7 @@ const rule: TypeScriptRule = {
               'Top-level conditional throw crashes the process on import — wrap in a function returning Result',
             ruleId: 'typescript/no-module-side-effects',
             tip: 'Move this validation into an exported function that returns err() instead of throwing',
+            fix: { range: { start: statement.start, end: statement.end }, text: '' },
           });
           continue;
         }
@@ -126,6 +129,7 @@ const rule: TypeScriptRule = {
                 'Top-level function call executes on import — consider wrapping in an exported function',
               ruleId: 'typescript/no-module-side-effects',
               tip: 'Module-level calls run before consumers can handle errors',
+              fix: { range: { start: statement.start, end: statement.end }, text: '' },
             });
           }
         }

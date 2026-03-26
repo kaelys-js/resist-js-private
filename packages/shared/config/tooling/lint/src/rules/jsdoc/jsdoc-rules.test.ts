@@ -39,10 +39,10 @@ describe('jsdoc/require-jsdoc', () => {
   it('reports exported function without JSDoc', async () => {
     const results: LintResult[] = await lint(requireJsdoc, 'export function foo(): void {}');
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('jsdoc/require-jsdoc');
-    expect(results[0].message).toContain('foo');
-    expect(results[0].fix).toBeDefined();
-    expect(results[0].fix.text).toContain('/** Description. */');
+    expect(results[0]!.ruleId).toBe('jsdoc/require-jsdoc');
+    expect(results[0]!.message).toContain('foo');
+    expect(results[0]!.fix).toBeDefined();
+    expect(results[0]!.fix.text).toContain('/** Description. */');
   });
 
   it('passes exported function with JSDoc', async () => {
@@ -57,13 +57,13 @@ export function foo(): void {}
   it('reports exported type without JSDoc', async () => {
     const results: LintResult[] = await lint(requireJsdoc, 'export type Foo = { bar: string };');
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('Foo');
+    expect(results[0]!.message).toContain('Foo');
   });
 
   it('reports exported arrow function without JSDoc', async () => {
     const results: LintResult[] = await lint(requireJsdoc, 'export const foo = (): void => {};');
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('foo');
+    expect(results[0]!.message).toContain('foo');
   });
 
   it('does not report non-exported functions', async () => {
@@ -134,8 +134,8 @@ export function foo(name: string, age: number): void {}
 `;
     const results: LintResult[] = await lint(requireParam, code);
     expect(results.length).toBe(2);
-    expect(results[0].message).toContain('name');
-    expect(results[1].message).toContain('age');
+    expect(results[0]!.message).toContain('name');
+    expect(results[1]!.message).toContain('age');
   });
 
   it('passes when all @param tags are present with {Type}', async () => {
@@ -161,7 +161,7 @@ export function foo(name: string): void {}
 `;
     const results: LintResult[] = await lint(requireParam, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('missing {Type}');
+    expect(results[0]!.message).toContain('missing {Type}');
   });
 
   it('reports stale @param that does not match any parameter', async () => {
@@ -175,7 +175,7 @@ export function foo(name: string): void {}
     const results: LintResult[] = await lint(requireParam, code);
     const stale: LintResult[] = results.filter((r: LintResult) => r.message.includes('oldName'));
     expect(stale.length).toBe(1);
-    expect(stale[0].severity).toBe('error');
+    expect(stale[0]!.severity).toBe('error');
   });
 
   it('does not report when there is no JSDoc at all', async () => {
@@ -229,7 +229,7 @@ export function foo(): string { return ''; }
 `;
     const results: LintResult[] = await lint(requireReturns, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('@returns');
+    expect(results[0]!.message).toContain('@returns');
   });
 
   it('passes when @returns {Type} is present and matches', async () => {
@@ -254,7 +254,7 @@ export function foo(): string { return ''; }
 `;
     const results: LintResult[] = await lint(requireReturns, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('missing {Type}');
+    expect(results[0]!.message).toContain('missing {Type}');
   });
 
   it('reports @returns {Type} that does not match actual return type', async () => {
@@ -267,8 +267,8 @@ export function foo(): string { return ''; }
 `;
     const results: LintResult[] = await lint(requireReturns, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('number');
-    expect(results[0].message).toContain('string');
+    expect(results[0]!.message).toContain('number');
+    expect(results[0]!.message).toContain('string');
   });
 
   it('does not require @returns for void functions', async () => {
@@ -302,7 +302,7 @@ export function foo(): void {}
 `;
     const results: LintResult[] = await lint(requireExample, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('jsdoc/require-example');
+    expect(results[0]!.ruleId).toBe('jsdoc/require-example');
   });
 
   it('passes when @example with ```typescript``` fence is present', async () => {
@@ -331,7 +331,7 @@ export function foo(): void {}
 `;
     const results: LintResult[] = await lint(requireExample, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('typescript');
+    expect(results[0]!.message).toContain('typescript');
   });
 
   it('reports missing @example as error severity', async () => {
@@ -341,7 +341,7 @@ export function foo(): void {}
 `;
     const results: LintResult[] = await lint(requireExample, code);
     expect(results.length).toBe(1);
-    expect(results[0].severity).toBe('error');
+    expect(results[0]!.severity).toBe('error');
   });
 
   it('reports missing typescript fence as error severity', async () => {
@@ -355,7 +355,7 @@ export function foo(): void {}
 `;
     const results: LintResult[] = await lint(requireExample, code);
     expect(results.length).toBe(1);
-    expect(results[0].severity).toBe('error');
+    expect(results[0]!.severity).toBe('error');
   });
 });
 
@@ -374,8 +374,8 @@ export function foo(name: string): void {}
 `;
     const results: LintResult[] = await lint(paramTypeMatch, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('number');
-    expect(results[0].message).toContain('string');
+    expect(results[0]!.message).toContain('number');
+    expect(results[0]!.message).toContain('string');
   });
 
   it('passes when @param type matches actual type', async () => {
@@ -412,8 +412,8 @@ describe('jsdoc/require-module', () => {
     const code: string = "const x: string = 'hello';";
     const results: LintResult[] = await lint(requireModule, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('jsdoc/require-module');
-    expect(results[0].fix.text).toContain('@module');
+    expect(results[0]!.ruleId).toBe('jsdoc/require-module');
+    expect(results[0]!.fix.text).toContain('@module');
   });
 
   it('passes file with @module', async () => {
@@ -468,8 +468,8 @@ export function broken(): void {}
 `;
     const results: LintResult[] = await lint(validateExample, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('jsdoc/validate-example');
-    expect(results[0].message).toContain('syntax error');
+    expect(results[0]!.ruleId).toBe('jsdoc/validate-example');
+    expect(results[0]!.message).toContain('syntax error');
   });
 
   it('reports invalid token in @example block', async () => {
@@ -592,8 +592,8 @@ export function broken(): void {}
 `;
     const results: LintResult[] = await lint(validateExample, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('jsdoc/validate-example');
-    expect(results[0].message).toContain('syntax error');
+    expect(results[0]!.ruleId).toBe('jsdoc/validate-example');
+    expect(results[0]!.message).toContain('syntax error');
   });
 
   it('passes valid unfenced @example code', async () => {
@@ -663,9 +663,9 @@ export type Foo = v.InferOutput<typeof FooSchema>;
 `;
     const results: LintResult[] = await lint(requireSchemaLink, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('jsdoc/require-schema-link');
-    expect(results[0].message).toContain('FooSchema');
-    expect(results[0].message).toContain('{@link FooSchema}');
+    expect(results[0]!.ruleId).toBe('jsdoc/require-schema-link');
+    expect(results[0]!.message).toContain('FooSchema');
+    expect(results[0]!.message).toContain('{@link FooSchema}');
   });
 
   it('passes type with {@link SchemaName} in JSDoc', async () => {

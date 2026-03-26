@@ -14,7 +14,14 @@ const EXEMPT_PATTERNS: readonly RegExp[] = [/\.test\.ts$/, /\.spec\.ts$/];
 /** Pattern to extract schema name from v.InferOutput<typeof XSchema>. */
 const INFER_OUTPUT_PATTERN: RegExp = /v\.InferOutput\s*<\s*typeof\s+(\w+)\s*>/;
 
-/** Pattern to check for {@link SchemaName} in JSDoc. */
+/**
+ * Check whether the JSDoc preceding a declaration contains a {@link SchemaName} reference.
+ *
+ * @param content - Full source file content
+ * @param start - Byte offset of the declaration start
+ * @param schemaName - The schema name to search for
+ * @returns Whether the schema link exists in the preceding JSDoc
+ */
 function hasSchemaLink(content: string, start: number, schemaName: string): boolean {
   const before: string = content.slice(0, start);
   const trimmed: string = before.trimEnd();
@@ -60,7 +67,7 @@ const rule: TypeScriptRule = {
         return results;
       }
 
-      const schemaName: string = match[1];
+      const schemaName: string = match[1] ?? '';
       if (!hasSchemaLink(context.content, node.start, schemaName)) {
         const typeName: string =
           ((declaration.id as AstNode | undefined)?.name as string) ?? '<anonymous>';

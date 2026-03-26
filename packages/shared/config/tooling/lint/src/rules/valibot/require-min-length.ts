@@ -46,7 +46,7 @@ const rule: TypeScriptRule = {
         return results;
       }
 
-      const objArg: AstNode = args[0];
+      const objArg = args[0] as AstNode; // cast safe: length checked above
       if (objArg.type !== 'ObjectExpression') {
         return results;
       }

@@ -17,15 +17,15 @@ const EXEMPT_PATTERNS: readonly RegExp[] = [/config\/test\//, /\.test\.ts$/, /\.
  *
  * @param {AstNode} funcNode - The function AST node
  * @param {VisitorContext} context - Visitor context
- * @param {number} reportLine - Line to report errors on
- * @param {number} reportCol - Column to report errors on
+ * @param {number} _reportLine - Line to report errors on
+ * @param {number} _reportCol - Column to report errors on
  * @returns {LintResult[]} Lint results
  */
 function checkParams(
   funcNode: AstNode,
   context: VisitorContext,
-  reportLine: number,
-  reportCol: number,
+  _reportLine: number,
+  _reportCol: number,
 ): LintResult[] {
   const results: LintResult[] = [];
   const params = funcNode.params as AstNode[] | undefined;

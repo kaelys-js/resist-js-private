@@ -52,7 +52,7 @@ const rule: TypeScriptRule = {
       const lines: string[] = context.content.split('\n');
 
       for (let i: number = 0; i < lines.length; i++) {
-        const line: string = lines[i];
+        const line: string = lines[i] ?? '';
 
         for (const { pattern, label } of DISABLE_PATTERNS) {
           if (pattern.test(line) && !isAllowedDisable(line)) {

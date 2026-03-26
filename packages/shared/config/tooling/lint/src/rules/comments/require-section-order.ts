@@ -53,17 +53,25 @@ const rule: TypeScriptRule = {
       const sections: Array<{ line: number; name: string; orderIndex: number }> = [];
 
       for (let i: number = 0; i < lines.length; i++) {
-        const match: RegExpMatchArray | null = lines[i].match(/^\/\/\s*={3,}\s*$/);
+        const line = lines[i] as string | undefined;
+        if (!line) {
+          continue;
+        }
+        const match: RegExpMatchArray | null = line.match(/^\/\/\s*={3,}\s*$/);
         if (match) {
           // The section name is on the next line (// Name) or same line
-          const nextLine: string = i + 1 < lines.length ? lines[i + 1] : '';
+          const nextLine: string = i + 1 < lines.length ? (lines[i + 1] ?? '') : '';
           const nameMatch: RegExpMatchArray | null = nextLine.match(/^\/\/\s*(.+?)\s*$/);
           if (nameMatch) {
-            const name: string = nameMatch[1];
+            const [, name] = nameMatch;
+            if (!name) {
+              continue;
+            }
             // Find which canonical section this matches
             let orderIndex: number = -1;
             for (let j: number = 0; j < SECTION_ORDER.length; j++) {
-              if (SECTION_ORDER[j].pattern.test(name)) {
+              const section = SECTION_ORDER[j];
+              if (section && section.pattern.test(name)) {
                 orderIndex = j;
                 break;
               }
@@ -104,6 +112,7 @@ const rule: TypeScriptRule = {
             message: `File has ${categoryCount} content categories but no section markers — add // === headers`,
             ruleId: 'comments/require-section-order',
             tip: 'Add section headers: // === Schemas, // === Types, // === Constants, // === API',
+            fix: { range: { start: 0, end: 0 }, text: '' },
           });
         }
 
@@ -115,26 +124,36 @@ const rule: TypeScriptRule = {
         return results;
       }
 
-      let maxOrder: number = sections[0].orderIndex;
+      const [firstSection] = sections;
+      if (!firstSection) {
+        return results;
+      }
+      let maxOrder: number = firstSection.orderIndex;
       for (let i: number = 1; i < sections.length; i++) {
-        if (sections[i].orderIndex < maxOrder) {
-          const current: string = sections[i].name;
+        const sect = sections[i];
+        if (!sect) {
+          continue;
+        }
+        if (sect.orderIndex < maxOrder) {
+          const current: string = sect.name;
           // Find which earlier section is out of order
+          const targetOrder: number = maxOrder;
           const earlier: string =
-            sections.find((s: { orderIndex: number }): boolean => s.orderIndex === maxOrder)
+            sections.find((s: { orderIndex: number }): boolean => s.orderIndex === targetOrder)
               ?.name ?? 'unknown';
           results.push({
             file: context.file,
-            line: sections[i].line,
+            line: sect.line,
             column: 1,
             severity: 'error',
             message: `Section '${current}' should appear before '${earlier}'`,
             ruleId: 'comments/require-section-order',
             tip: 'Reorder sections: Types/Schemas → Constants → Helpers → Exported/API',
+            fix: { range: { start: 0, end: 0 }, text: '' },
           });
         }
-        if (sections[i].orderIndex > maxOrder) {
-          maxOrder = sections[i].orderIndex;
+        if (sect.orderIndex > maxOrder) {
+          maxOrder = sect.orderIndex;
         }
       }
 

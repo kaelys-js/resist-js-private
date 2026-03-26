@@ -68,7 +68,7 @@ const rule: TypeScriptRule = {
         return [];
       }
 
-      const [schemaObj] = args;
+      const schemaObj = args[0] as AstNode; // cast safe: length checked above
       if (schemaObj.type !== 'ObjectExpression') {
         return [];
       }
@@ -139,7 +139,10 @@ const rule: TypeScriptRule = {
           line: number;
           column: number;
         }>;
-        const [firstLocation] = locations;
+        if (locations.length === 0) {
+          continue;
+        }
+        const firstLocation = locations[0] as { file: string; line: number; column: number }; // cast safe: length checked above
         const fileList: string = [...files]
           .map((f: string) => f.replace(/.*packages\//, 'packages/'))
           .join(', ');

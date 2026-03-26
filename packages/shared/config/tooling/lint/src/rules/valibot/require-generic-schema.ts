@@ -3,7 +3,7 @@
  *
  * When a v.strictObject() or v.pipe() schema is used by a generic type alias
  * via v.InferOutput, the schema should be created with generic() from
- * @/schemas/generic to preserve type parameter inference.
+ * `@/schemas/generic` to preserve type parameter inference.
  *
  * @module
  */
@@ -50,7 +50,7 @@ const rule: TypeScriptRule = {
         return [];
       }
 
-      const schemaName: string = inferMatch[1];
+      const schemaName: string = inferMatch[1] ?? '';
 
       // Check if the schema is created with generic()
       const genericPattern: RegExp = new RegExp(
@@ -79,6 +79,7 @@ const rule: TypeScriptRule = {
           message: `Schema '${schemaName}' is used by generic type '${typeName}' — wrap in generic() from @/schemas/generic`,
           ruleId: 'valibot/require-generic-schema',
           tip: `Import { generic } from '@/schemas/generic/generic' and wrap the schema: const ${schemaName} = generic(<T>(...) => v.strictObject({...}))`,
+          fix: { range: { start: node.start, end: node.end }, text: '' },
         },
       ];
     },

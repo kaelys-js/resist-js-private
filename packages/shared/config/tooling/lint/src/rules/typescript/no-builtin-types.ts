@@ -80,7 +80,7 @@ function checkTypeNode(node: AstNode, context: VisitorContext, results: LintResu
   };
 
   if (node.type in keywordMap) {
-    const builtin: string = keywordMap[node.type];
+    const builtin: string = keywordMap[node.type] ?? '';
     const replacement: string | undefined = BUILTIN_REPLACEMENTS.get(builtin);
 
     // Allow void inside Promise<void>

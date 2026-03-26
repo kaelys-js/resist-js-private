@@ -81,7 +81,8 @@ function isPromiseOfResult(node: AstNode): boolean {
     return false;
   }
 
-  return isResultType(params[0]);
+  const firstParam = params[0] as AstNode; // cast safe: length checked above
+  return isResultType(firstParam);
 }
 
 /** Patterns for pure predicate functions exempt from Result requirement. */
@@ -152,8 +153,9 @@ function checkFunctionReturnType(
   const body = node.body as AstNode | undefined;
   if (!isPredicate && body?.type === 'BlockStatement') {
     const statements = (body as AstNode).body as AstNode[] | undefined;
-    if (statements && statements.length === 1 && statements[0].type === 'ReturnStatement') {
-      const returnArg = statements[0].argument as AstNode | undefined;
+    const firstStatement = statements?.[0] as AstNode | undefined; // cast safe: optional access
+    if (statements && statements.length === 1 && firstStatement?.type === 'ReturnStatement') {
+      const returnArg = firstStatement.argument as AstNode | undefined;
       if (returnArg?.type === 'Identifier') {
         const params = node.params as AstNode[] | undefined;
         const paramNames: string[] = (params ?? [])

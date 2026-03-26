@@ -12,7 +12,7 @@
  * @module
  */
 
-import { readFileSync, writeFileSync, statSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, statSync, readdirSync, type Dirent } from 'node:fs';
 import { resolve, extname, join, relative } from 'node:path';
 
 import { runTypeScriptRules } from './framework/oxc-runner.ts';
@@ -53,7 +53,7 @@ const warnOnly: boolean = flags.includes('--warn-only');
 const autoFix: boolean = flags.includes('--fix');
 
 const ruleFlag: string | undefined = flags.find((f: string) => f.startsWith('--rule='));
-const ruleIds: string[] = ruleFlag ? ruleFlag.split('=')[1].split(',') : [];
+const ruleIds: string[] = ruleFlag ? (ruleFlag.split('=')[1] ?? '').split(',') : [];
 
 // =============================================================================
 // File Discovery
@@ -100,20 +100,20 @@ function shouldLint(filePath: string): boolean {
 function collectFiles(dir: string): string[] {
   const files: string[] = [];
 
-  let entries: ReturnType<typeof readdirSync>;
+  let entries: Dirent[];
   try {
-    entries = readdirSync(dir, { withFileTypes: true });
+    entries = readdirSync(dir, { withFileTypes: true }) as Dirent[];
   } catch {
     /* Directory not readable — skip */
     return files;
   }
 
   for (const entry of entries) {
-    if (SKIP_DIRS.has(entry.name)) {
+    if (SKIP_DIRS.has(entry.name as string)) {
       continue;
     }
 
-    const fullPath: string = join(dir, entry.name);
+    const fullPath: string = join(dir, entry.name as string);
 
     if (entry.isDirectory()) {
       files.push(...collectFiles(fullPath));
@@ -133,20 +133,20 @@ function collectFiles(dir: string): string[] {
  */
 function collectPackageJsonFiles(dir: string): string[] {
   const files: string[] = [];
-  let entries: ReturnType<typeof readdirSync>;
+  let entries: Dirent[];
   try {
-    entries = readdirSync(dir, { withFileTypes: true });
+    entries = readdirSync(dir, { withFileTypes: true }) as Dirent[];
   } catch {
     return files;
   }
   for (const entry of entries) {
-    if (SKIP_DIRS.has(entry.name)) {
+    if (SKIP_DIRS.has(entry.name as string)) {
       continue;
     }
-    const fullPath: string = join(dir, entry.name);
+    const fullPath: string = join(dir, entry.name as string);
     if (entry.isDirectory()) {
       files.push(...collectPackageJsonFiles(fullPath));
-    } else if (entry.isFile() && entry.name === 'package.json') {
+    } else if (entry.isFile() && (entry.name as string) === 'package.json') {
       files.push(fullPath);
     }
   }

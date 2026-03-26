@@ -61,6 +61,7 @@ const rule: TypeScriptRule = {
                   'Generic function type with `...args: unknown[]` — define specific parameter types',
                 ruleId: 'typescript/no-generic-function-type',
                 tip: 'Replace `unknown[]` with specific parameter types for type safety',
+                fix: { range: { start: param.start, end: param.end }, text: '' },
               });
             }
           }

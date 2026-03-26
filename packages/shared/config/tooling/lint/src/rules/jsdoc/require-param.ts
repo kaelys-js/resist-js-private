@@ -68,7 +68,7 @@ function extractParamEntries(jsDoc: string): ParamEntry[] {
   let match: RegExpExecArray | null = regex.exec(jsDoc);
   while (match) {
     entries.push({
-      name: match[2],
+      name: match[2] ?? '',
       hasType: match[1] !== null && match[1] !== undefined,
     });
     match = regex.exec(jsDoc);

@@ -20,7 +20,7 @@ const NO_FIX: { range: { start: number; end: number }; text: string } = {
 };
 
 /** Packages exempt from this rule (have legitimate standalone vitest configs). */
-const EXEMPT_PACKAGES: readonly string[] = new Set(['@/cli']);
+const EXEMPT_PACKAGES: ReadonlySet<string> = new Set(['@/cli']);
 
 /** Rule definition. */
 const rule: PackageJsonRule = {
@@ -35,7 +35,9 @@ const rule: PackageJsonRule = {
    */
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
-    if (context.isRoot) return results;
+    if (context.isRoot) {
+      return results;
+    }
 
     const name: string = context.pkg.name ?? '<unnamed>';
     if (EXEMPT_PACKAGES.has(name)) {

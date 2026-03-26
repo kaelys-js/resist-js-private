@@ -54,7 +54,7 @@ function extractDocParams(jsDoc: string): DocParam[] {
   while (match) {
     params.push({
       type: match[1] ?? null,
-      name: match[2],
+      name: match[2] ?? '',
     });
     match = regex.exec(jsDoc);
   }

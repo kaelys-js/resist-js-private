@@ -128,6 +128,7 @@ const rule: TypeScriptRule = {
           message: `Parameter '${paramName}' uses union type — express optionality/variants in Valibot schema instead`,
           ruleId: 'typescript/no-union-params',
           tip: 'Use v.optional(schema) or v.union([...]) in the schema, then use the inferred type',
+          fix: { range: { start: param.start, end: param.end }, text: '' },
         });
       }
 

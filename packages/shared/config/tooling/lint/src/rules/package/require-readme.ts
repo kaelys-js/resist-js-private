@@ -56,21 +56,21 @@ function extractExportedFunctions(content: string): string[] {
   const regex: RegExp = /export\s+(?:async\s+)?function\s+(\w+)/g;
   let match: RegExpExecArray | null = regex.exec(content);
   while (match) {
-    names.push(match[1]);
+    names.push(match[1] ?? '');
     match = regex.exec(content);
   }
   // Also catch exported const arrow functions
   const arrowRegex: RegExp = /export\s+const\s+(\w+)\s*[=:]/g;
   let arrowMatch: RegExpExecArray | null = arrowRegex.exec(content);
   while (arrowMatch) {
-    names.push(arrowMatch[1]);
+    names.push(arrowMatch[1] ?? '');
     arrowMatch = arrowRegex.exec(content);
   }
   // Also catch exported type aliases
   const typeRegex: RegExp = /export\s+type\s+(\w+)\s*[=<]/g;
   let typeMatch: RegExpExecArray | null = typeRegex.exec(content);
   while (typeMatch) {
-    names.push(typeMatch[1]);
+    names.push(typeMatch[1] ?? '');
     typeMatch = typeRegex.exec(content);
   }
   return names;
@@ -121,9 +121,9 @@ function extractReadmeApiFunctions(readme: string): string[] {
   const afterApi: string = readme.slice(apiStart + apiMatch[0].length);
   const nextSectionMatch: RegExpMatchArray | null = afterApi.match(/^## [^#]/m);
   const apiEnd: number =
-    nextSectionMatch?.index !== undefined
-      ? apiStart + apiMatch[0].length + nextSectionMatch.index
-      : readme.length;
+    nextSectionMatch?.index === undefined
+      ? readme.length
+      : apiStart + apiMatch[0].length + nextSectionMatch.index;
   const apiSection: string = readme.slice(apiStart, apiEnd);
 
   // Match FIRST column of table rows: | `functionName` | or | functionName |
@@ -131,7 +131,7 @@ function extractReadmeApiFunctions(readme: string): string[] {
   const regex: RegExp = /^\|[ \t]*`?(\w+)`?[ \t]*\|/gm;
   let match: RegExpExecArray | null = regex.exec(apiSection);
   while (match) {
-    const name: string = match[1];
+    const name: string = match[1] ?? '';
     // Skip table headers and common non-function words
     if (
       !/^(Export|Function|Kind|Description|Type|Signature|File|Import|Method|Member|Field|Level|Phase|Runtime|Code|When|Source)$/i.test(
@@ -191,13 +191,13 @@ const rule: PackageJsonRule = {
         tip: `Add '# ${pkgName}' as the first line`,
         fix: NO_FIX,
       });
-    } else if (titleMatch[1].trim() !== pkgName) {
+    } else if ((titleMatch[1] ?? '').trim() !== pkgName) {
       results.push({
         file: readmePath,
         line: 1,
         column: 1,
         severity: 'error',
-        message: `README title '${titleMatch[1].trim()}' does not match package name '${pkgName}'`,
+        message: `README title '${(titleMatch[1] ?? '').trim()}' does not match package name '${pkgName}'`,
         ruleId: 'package/require-readme',
         tip: `Change title to '# ${pkgName}'`,
         fix: NO_FIX,

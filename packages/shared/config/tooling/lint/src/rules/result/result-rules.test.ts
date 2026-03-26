@@ -37,8 +37,8 @@ describe('result/no-ternary-fallback', () => {
     const code: string = `const x = result.ok ? result.data : 'fallback';`;
     const results: LintResult[] = await lint(noTernaryFallback, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('Ternary fallback');
-    expect(results[0].message).toContain('result');
+    expect(results[0]!.message).toContain('Ternary fallback');
+    expect(results[0]!.message).toContain('result');
   });
 
   it('passes regular ternary without .ok/.data pattern', async () => {
@@ -87,9 +87,9 @@ const value = result.data;
 `;
     const results: LintResult[] = await lint(checkBeforeAccess, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('result/check-before-access');
-    expect(results[0].message).toContain('result.data');
-    expect(results[0].message).toContain('.ok');
+    expect(results[0]!.ruleId).toBe('result/check-before-access');
+    expect(results[0]!.message).toContain('result.data');
+    expect(results[0]!.message).toContain('.ok');
   });
 
   it('passes .data access after .ok check', async () => {
@@ -111,7 +111,7 @@ const msg = result.error;
 `;
     const results: LintResult[] = await lint(checkBeforeAccess, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('result.error');
+    expect(results[0]!.message).toContain('result.error');
   });
 
   it('detects Result variable named "response" via expanded patterns', async () => {
@@ -122,7 +122,7 @@ const value = response.data;
 `;
     const results: LintResult[] = await lint(checkBeforeAccess, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('response.data');
+    expect(results[0]!.message).toContain('response.data');
   });
 
   it('ignores non-Result variable names without Result import', async () => {
@@ -168,8 +168,8 @@ safeParse(Schema, data);
 `;
     const results: LintResult[] = await lint(noIgnoreResult, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('result/no-ignore-result');
-    expect(results[0].message).toContain('safeParse');
+    expect(results[0]!.ruleId).toBe('result/no-ignore-result');
+    expect(results[0]!.message).toContain('safeParse');
   });
 
   it('passes when Result is captured', async () => {
@@ -188,7 +188,7 @@ validate(input);
 `;
     const results: LintResult[] = await lint(noIgnoreResult, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('validate');
+    expect(results[0]!.message).toContain('validate');
   });
 
   it('does not flag non-Result function calls', async () => {
@@ -206,7 +206,7 @@ await fetchData(url);
 `;
     const results: LintResult[] = await lint(noIgnoreResult, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('fetchData');
+    expect(results[0]!.message).toContain('fetchData');
   });
 });
 
@@ -223,9 +223,9 @@ export function loadUser(id: string): Promise<User> {
 `;
     const results: LintResult[] = await lint(requireResultType, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('result/require-result-type');
-    expect(results[0].message).toContain('loadUser');
-    expect(results[0].severity).toBe('error');
+    expect(results[0]!.ruleId).toBe('result/require-result-type');
+    expect(results[0]!.message).toContain('loadUser');
+    expect(results[0]!.severity).toBe('error');
   });
 
   it('reports ALL exported non-void functions without Result (no mightFail heuristic)', async () => {
@@ -236,7 +236,7 @@ export function add(a: number, b: number): number {
 `;
     const results: LintResult[] = await lint(requireResultType, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('add');
+    expect(results[0]!.message).toContain('add');
   });
 
   it('passes exported function returning Result<T>', async () => {
@@ -298,7 +298,7 @@ function getGitInfo(): GitInfo {
 `;
     const results: LintResult[] = await lint(requireResultType, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('getGitInfo');
+    expect(results[0]!.message).toContain('getGitInfo');
   });
 
   it('passes non-exported function returning Result', async () => {
@@ -389,8 +389,8 @@ export function createUser(name: string, age: number): Result<User> {
 `;
     const results: LintResult[] = await lint(validateFunctionInput, code);
     expect(results.length).toBe(2);
-    expect(results[0].message).toContain("'name'");
-    expect(results[1].message).toContain("'age'");
+    expect(results[0]!.message).toContain("'name'");
+    expect(results[1]!.message).toContain("'age'");
   });
 
   it('passes when all parameters are validated with safeParse()', async () => {
@@ -417,7 +417,7 @@ export function readFile(path: string, encoding: string): Result<string> {
 `;
     const results: LintResult[] = await lint(validateFunctionInput, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain("'encoding'");
+    expect(results[0]!.message).toContain("'encoding'");
   });
 
   it('reports handler function without validation', async () => {
@@ -428,7 +428,7 @@ function handleSubmit(data: FormData): void {
 `;
     const results: LintResult[] = await lint(validateFunctionInput, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain("'data'");
+    expect(results[0]!.message).toContain("'data'");
   });
 
   it('does not flag non-exported non-handler functions', async () => {
@@ -489,8 +489,8 @@ export function getUser(id: string): Result<User> {
 `;
     const results: LintResult[] = await lint(requireOkReturn, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('result/require-ok-return');
-    expect(results[0].message).toContain('raw value');
+    expect(results[0]!.ruleId).toBe('result/require-ok-return');
+    expect(results[0]!.message).toContain('raw value');
   });
 
   it('passes ok() return', async () => {
@@ -552,7 +552,7 @@ export function getUser(id: string): Result<User> {
 `;
     const results: LintResult[] = await lint(requireOkReturn, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('safeParse');
+    expect(results[0]!.message).toContain('safeParse');
   });
 
   it('flags ok() in catch block (should be err())', async () => {
@@ -568,8 +568,8 @@ export function readFile(path: string): Result<string> {
 `;
     const results: LintResult[] = await lint(requireOkReturn, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('error path');
-    expect(results[0].message).toContain('err()');
+    expect(results[0]!.message).toContain('error path');
+    expect(results[0]!.message).toContain('err()');
   });
 
   it('passes err() in catch block', async () => {
@@ -596,8 +596,8 @@ export function getUser(id: string): Result<User> {
 `;
     const results: LintResult[] = await lint(requireOkReturn, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('UserSchema');
-    expect(results[0].message).toContain('okUnchecked');
+    expect(results[0]!.message).toContain('UserSchema');
+    expect(results[0]!.message).toContain('okUnchecked');
   });
 
   it('passes okUnchecked when no matching schema exists', async () => {
@@ -619,9 +619,9 @@ export function getVersion(): Result<string> {
 `;
     const results: LintResult[] = await lint(requireOkReturn, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('safeParse');
-    expect(results[0].message).toContain('ok()');
-    expect(results[0].tip).toContain('untrusted input');
+    expect(results[0]!.message).toContain('safeParse');
+    expect(results[0]!.message).toContain('ok()');
+    expect(results[0]!.tip).toContain('untrusted input');
   });
 
   it('passes ok() in return position', async () => {
@@ -690,8 +690,8 @@ const value = safeParse(Schema, data).data;
 `;
     const results: LintResult[] = await lint(checkBeforeAccess, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('safeParse(...)');
-    expect(results[0].message).toContain('.ok');
+    expect(results[0]!.message).toContain('safeParse(...)');
+    expect(results[0]!.message).toContain('.ok');
   });
 
   it('does not flag non-Result function chains', async () => {
@@ -717,7 +717,7 @@ const value = cached.data;
 `;
     const results: LintResult[] = await lint(checkBeforeAccess, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('cached.data');
+    expect(results[0]!.message).toContain('cached.data');
   });
 
   it('passes .data access on Result-typed variable after .ok check', async () => {
@@ -747,9 +747,9 @@ function example() {
 `;
     const results: LintResult[] = await lint(noRedundantOkGuard, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('result/no-redundant-ok-guard');
-    expect(results[0].message).toContain('validated');
-    expect(results[0].message).toContain('Redundant');
+    expect(results[0]!.ruleId).toBe('result/no-redundant-ok-guard');
+    expect(results[0]!.message).toContain('validated');
+    expect(results[0]!.message).toContain('Redundant');
   });
 
   it('passes when guard returns different value than next return', async () => {
@@ -901,7 +901,7 @@ export function setConfig(config: Partial<CoreConfig>): Result<CoreConfig> {
 `;
     const results: LintResult[] = await lint(validateFunctionInput, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain("'config'");
+    expect(results[0]!.message).toContain("'config'");
   });
 });
 
@@ -921,8 +921,8 @@ if (gitResult.ok) {
 `;
     const results: LintResult[] = await lint(noResultFallback, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('result/no-result-fallback');
-    expect(results[0].message).toContain('silently discarded');
+    expect(results[0]!.ruleId).toBe('result/no-result-fallback');
+    expect(results[0]!.message).toContain('silently discarded');
   });
 
   it('flags ternary fallback on Result with literal alternate', async () => {
@@ -931,7 +931,7 @@ const version: string = versionResult.ok ? versionResult.data : 'unknown';
 `;
     const results: LintResult[] = await lint(noResultFallback, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('result/no-result-fallback');
+    expect(results[0]!.ruleId).toBe('result/no-result-fallback');
   });
 
   it('flags ternary fallback on Result with object alternate', async () => {
@@ -979,9 +979,9 @@ const version: Str = (parsed.data.version as Str) ?? '0.0.0';
 `;
     const results: LintResult[] = await lint(noResultFallback, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('result/no-result-fallback');
-    expect(results[0].message).toContain('parsed.data');
-    expect(results[0].message).toContain('silently discards');
+    expect(results[0]!.ruleId).toBe('result/no-result-fallback');
+    expect(results[0]!.message).toContain('parsed.data');
+    expect(results[0]!.message).toContain('silently discards');
   });
 
   it('passes nullish coalescing without .data in chain', async () => {

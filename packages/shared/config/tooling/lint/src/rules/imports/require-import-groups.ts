@@ -22,6 +22,22 @@ const EXEMPT_PATTERNS: readonly RegExp[] = [
 ];
 
 /**
+ * Map numeric import group to human-readable label.
+ *
+ * @param group - The numeric import group (1 = node, 2 = external, 3 = workspace)
+ * @returns Human-readable group label
+ */
+function groupLabel(group: number): string {
+  if (group === 1) {
+    return 'node';
+  }
+  if (group === 2) {
+    return 'external';
+  }
+  return 'workspace';
+}
+
+/**
  * Classify an import source into a group.
  *
  * @param {string} source - The import source string (e.g., 'node:fs', 'valibot', '@/schemas/common')
@@ -71,8 +87,11 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       for (let i: number = 0; i < imports.length - 1; i++) {
-        const current: AstNode = imports[i];
-        const next: AstNode = imports[i + 1];
+        const current = imports[i] as AstNode | undefined;
+        const next = imports[i + 1] as AstNode | undefined;
+        if (!current || !next) {
+          continue;
+        }
 
         const currentSource: string = ((current.source as AstNode)?.value as string) ?? '';
         const nextSource: string = ((next.source as AstNode)?.value as string) ?? '';
@@ -94,9 +113,10 @@ const rule: TypeScriptRule = {
             line: next.loc.start.line,
             column: 1,
             severity: 'error',
-            message: `Add a blank line between import groups (${currentGroup === 1 ? 'node' : currentGroup === 2 ? 'external' : 'workspace'} → ${nextGroup === 1 ? 'node' : nextGroup === 2 ? 'external' : 'workspace'})`,
+            message: `Add a blank line between import groups (${groupLabel(currentGroup)} → ${groupLabel(nextGroup)})`,
             ruleId: 'imports/require-import-groups',
             tip: 'Separate node:*, external, and @/ imports with blank lines',
+            fix: { range: { start: next.start, end: next.start }, text: '' },
           });
         }
       }

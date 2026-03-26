@@ -84,7 +84,7 @@ function requiresReturnsTag(returnType: string): boolean {
     return false;
   }
   const promiseMatch: RegExpMatchArray | null = trimmed.match(/^Promise<(.+)>$/);
-  if (promiseMatch && VOID_TYPES.has(promiseMatch[1].trim())) {
+  if (promiseMatch && VOID_TYPES.has((promiseMatch[1] ?? '').trim())) {
     return false;
   }
   return true;
@@ -98,7 +98,7 @@ function requiresReturnsTag(returnType: string): boolean {
  */
 function extractReturnsType(jsDoc: string): string | null {
   const match: RegExpMatchArray | null = jsDoc.match(/@returns\s+\{([^}]+)\}/);
-  return match ? match[1].trim() : null;
+  return match ? (match[1] ?? '').trim() : null;
 }
 
 /**

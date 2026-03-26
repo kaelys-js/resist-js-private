@@ -120,6 +120,7 @@ const rule: TypeScriptRule = {
               message: `Schema declaration '${name}' must end with 'Schema' — rename to '${name}Schema'`,
               ruleId: 'valibot/require-schema-suffix',
               tip: `Rename to: const ${name}Schema = v.${methodName}(...)`,
+              fix: { range: { start: node.start, end: node.end }, text: '' },
             });
           }
         }

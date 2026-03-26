@@ -41,16 +41,16 @@ describe('imports/no-relative-imports', () => {
     const code: string = "import { foo } from './foo.ts';";
     const results: LintResult[] = await lint(noRelativeImports, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('imports/no-relative-imports');
-    expect(results[0].message).toContain('./foo.ts');
-    expect(results[0].fix).toBeDefined();
+    expect(results[0]!.ruleId).toBe('imports/no-relative-imports');
+    expect(results[0]!.message).toContain('./foo.ts');
+    expect(results[0]!.fix).toBeDefined();
   });
 
   it('reports ../ relative imports', async () => {
     const code: string = "import { bar } from '../utils/bar.ts';";
     const results: LintResult[] = await lint(noRelativeImports, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('../utils/bar.ts');
+    expect(results[0]!.message).toContain('../utils/bar.ts');
   });
 
   it('passes non-relative imports', async () => {
@@ -69,15 +69,15 @@ describe('imports/no-relative-imports', () => {
     const code: string = `export { foo } from './module.ts';`;
     const results: LintResult[] = await lint(noRelativeImports, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('imports/no-relative-imports');
-    expect(results[0].message).toContain('./module.ts');
+    expect(results[0]!.ruleId).toBe('imports/no-relative-imports');
+    expect(results[0]!.message).toContain('./module.ts');
   });
 
   it('reports relative export * from syntax', async () => {
     const code: string = `export * from '../utils/index.ts';`;
     const results: LintResult[] = await lint(noRelativeImports, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('../utils/index.ts');
+    expect(results[0]!.message).toContain('../utils/index.ts');
   });
 
   it('passes non-relative export { x } from syntax', async () => {
@@ -96,8 +96,8 @@ describe('imports/no-barrel-files', () => {
     const code: string = `export * from './foo.ts';\nexport * from './bar.ts';`;
     const results: LintResult[] = await lint(noBarrelFiles, code, 'index.ts');
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('imports/no-barrel-files');
-    expect(results[0].message).toContain('Barrel file');
+    expect(results[0]!.ruleId).toBe('imports/no-barrel-files');
+    expect(results[0]!.message).toContain('Barrel file');
   });
 
   it('reports index.ts with named re-exports', async () => {
@@ -128,15 +128,15 @@ describe('imports/no-reexport', () => {
     const code: string = `export * from './module.ts';`;
     const results: LintResult[] = await lint(noReexport, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('imports/no-reexport');
-    expect(results[0].message).toContain('Re-export');
+    expect(results[0]!.ruleId).toBe('imports/no-reexport');
+    expect(results[0]!.message).toContain('Re-export');
   });
 
   it('reports export { x } from syntax', async () => {
     const code: string = `export { foo, bar } from './module.ts';`;
     const results: LintResult[] = await lint(noReexport, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('Re-export');
+    expect(results[0]!.message).toContain('Re-export');
   });
 
   it('passes original export declarations', async () => {
@@ -155,7 +155,7 @@ describe('imports/no-reexport', () => {
     const code: string = `export { foo, bar } from './module.ts';`;
     const results: LintResult[] = await lint(noReexport, code, 'index.ts');
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('imports/no-reexport');
+    expect(results[0]!.ruleId).toBe('imports/no-reexport');
   });
 
   it('flags export * in index.ts (no exemption)', async () => {
@@ -174,23 +174,23 @@ describe('imports/no-raw-node-imports', () => {
     const code: string = "import { readFileSync } from 'node:fs';";
     const results: LintResult[] = await lint(noRawNodeImports, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('imports/no-raw-node-imports');
-    expect(results[0].message).toContain('node:fs');
-    expect(results[0].tip).toContain('@/utils/core');
+    expect(results[0]!.ruleId).toBe('imports/no-raw-node-imports');
+    expect(results[0]!.message).toContain('node:fs');
+    expect(results[0]!.tip).toContain('@/utils/core');
   });
 
   it('reports value import from node:child_process', async () => {
     const code: string = "import { execSync } from 'node:child_process';";
     const results: LintResult[] = await lint(noRawNodeImports, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('node:child_process');
+    expect(results[0]!.message).toContain('node:child_process');
   });
 
   it('reports value import from node:path', async () => {
     const code: string = "import { resolve } from 'node:path';";
     const results: LintResult[] = await lint(noRawNodeImports, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('node:path');
+    expect(results[0]!.message).toContain('node:path');
   });
 
   it('passes type-only imports from node:*', async () => {
@@ -259,13 +259,13 @@ describe('imports/no-raw-node-imports', () => {
   it('provides correct alternative suggestion for node:fs', async () => {
     const code: string = "import { readFileSync } from 'node:fs';";
     const results: LintResult[] = await lint(noRawNodeImports, code);
-    expect(results[0].tip).toContain('@/utils/core/fs');
+    expect(results[0]!.tip).toContain('@/utils/core/fs');
   });
 
   it('provides correct alternative suggestion for node:child_process', async () => {
     const code: string = "import { execSync } from 'node:child_process';";
     const results: LintResult[] = await lint(noRawNodeImports, code);
-    expect(results[0].tip).toContain('@/utils/core/shell');
+    expect(results[0]!.tip).toContain('@/utils/core/shell');
   });
 });
 
@@ -278,17 +278,17 @@ describe('imports/no-raw-json', () => {
     const code: string = `const json: string = JSON.stringify(data);`;
     const results: LintResult[] = await lint(noRawJson, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('imports/no-raw-json');
-    expect(results[0].message).toContain('JSON.stringify');
-    expect(results[0].message).toContain('safeStringify');
+    expect(results[0]!.ruleId).toBe('imports/no-raw-json');
+    expect(results[0]!.message).toContain('JSON.stringify');
+    expect(results[0]!.message).toContain('safeStringify');
   });
 
   it('reports JSON.parse usage', async () => {
     const code: string = `const data: unknown = JSON.parse(rawJson);`;
     const results: LintResult[] = await lint(noRawJson, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('JSON.parse');
-    expect(results[0].message).toContain('parseJsonWithComments');
+    expect(results[0]!.message).toContain('JSON.parse');
+    expect(results[0]!.message).toContain('parseJsonWithComments');
   });
 
   it('passes non-JSON member access', async () => {
@@ -338,9 +338,9 @@ describe('imports/no-js-extension', () => {
     const code: string = `import { foo } from './module.js';`;
     const results: LintResult[] = await lint(noJsExtension, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('imports/no-js-extension');
-    expect(results[0].message).toContain('.js');
-    expect(results[0].tip).toContain('.ts');
+    expect(results[0]!.ruleId).toBe('imports/no-js-extension');
+    expect(results[0]!.message).toContain('.js');
+    expect(results[0]!.tip).toContain('.ts');
   });
 
   it('reports .js extension in named export', async () => {
@@ -401,7 +401,7 @@ import { StrSchema } from '@/schemas/common';
 `;
     const results: LintResult[] = await lint(requireImportGroups, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('blank line');
+    expect(results[0]!.message).toContain('blank line');
   });
 
   it('passes with blank line between external and workspace imports', async () => {
@@ -427,6 +427,6 @@ import * as v from 'valibot';
 `;
     const results: LintResult[] = await lint(requireImportGroups, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('node');
+    expect(results[0]!.message).toContain('node');
   });
 });

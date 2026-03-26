@@ -33,35 +33,35 @@ describe('comments/no-lint-disable', () => {
     const code: string = `// eslint-disable-next-line no-console\nconsole.log('hi');`;
     const results: LintResult[] = await lint(noLintDisable, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('eslint-disable');
+    expect(results[0]!.message).toContain('eslint-disable');
   });
 
   it('reports oxlint-ignore comment', async () => {
     const code: string = `// oxlint-ignore no-unused-vars\nconst x = 1;`;
     const results: LintResult[] = await lint(noLintDisable, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('oxlint-ignore');
+    expect(results[0]!.message).toContain('oxlint-ignore');
   });
 
   it('reports @ts-ignore comment', async () => {
     const code: string = `// @ts-ignore\nconst x: string = 42;`;
     const results: LintResult[] = await lint(noLintDisable, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('@ts-ignore');
+    expect(results[0]!.message).toContain('@ts-ignore');
   });
 
   it('reports @ts-nocheck comment', async () => {
     const code: string = `// @ts-nocheck\nconst x = 1;`;
     const results: LintResult[] = await lint(noLintDisable, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('@ts-nocheck');
+    expect(results[0]!.message).toContain('@ts-nocheck');
   });
 
   it('reports /* global */ comment', async () => {
     const code: string = `/* global window, document */\nconst x = 1;`;
     const results: LintResult[] = await lint(noLintDisable, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('/* global */');
+    expect(results[0]!.message).toContain('/* global */');
   });
 
   it('allows max-lines disable', async () => {
@@ -110,8 +110,8 @@ const x: number = 1;
 `;
     const results: LintResult[] = await lint(requireSectionMarkerStyle, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('comments/require-section-marker-style');
-    expect(results[0].message).toContain('section marker');
+    expect(results[0]!.ruleId).toBe('comments/require-section-marker-style');
+    expect(results[0]!.message).toContain('section marker');
   });
 
   it('reports dash-style line comment section marker at top level', async () => {
@@ -202,9 +202,9 @@ const x: number = 1;
 `;
     const results: LintResult[] = await lint(requireSectionMarkerStyle, code);
     expect(results.length).toBe(1);
-    expect(results[0].fix).toBeDefined();
-    expect(results[0].fix.text).toContain('// =');
-    expect(results[0].fix.text).toContain('My Section');
+    expect(results[0]!.fix).toBeDefined();
+    expect(results[0]!.fix.text).toContain('// =');
+    expect(results[0]!.fix.text).toContain('My Section');
   });
 });
 
@@ -253,7 +253,7 @@ type Foo = { x: Str };
 `;
     const results: LintResult[] = await lint(requireSectionOrder, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('Types');
+    expect(results[0]!.message).toContain('Types');
   });
 
   it('skips files with fewer than 2 sections', async () => {
@@ -281,8 +281,8 @@ export function doStuff(): void {}
 `;
     const results: LintResult[] = await lint(requireSectionOrder, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('content categories');
-    expect(results[0].message).toContain('no section markers');
+    expect(results[0]!.message).toContain('content categories');
+    expect(results[0]!.message).toContain('no section markers');
   });
 
   it('passes small file with no section markers', async () => {
@@ -330,7 +330,7 @@ describe('comments/require-blank-line-groups', () => {
 }`;
     const results: LintResult[] = await lint(requireBlankLineGroups, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('blank line');
+    expect(results[0]!.message).toContain('blank line');
   });
 
   it('passes when blank line exists between const and if', async () => {

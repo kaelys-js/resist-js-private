@@ -95,10 +95,11 @@ const rule: TypeScriptRule = {
         if (!body || body.length !== 1) {
           return results;
         }
-        if (body[0].type !== 'ReturnStatement') {
+        const [firstStmt] = body;
+        if (!firstStmt || firstStmt.type !== 'ReturnStatement') {
           return results;
         }
-        guardReturn = getReturnedName(body[0]);
+        guardReturn = getReturnedName(firstStmt);
       } else if (consequent.type === 'ReturnStatement') {
         guardReturn = getReturnedName(consequent);
       }
@@ -123,6 +124,7 @@ const rule: TypeScriptRule = {
           message: `Redundant .ok guard — both branches return '${guardedVarName}'`,
           ruleId: 'result/no-redundant-ok-guard',
           tip: `The if (!${guardedVarName}.ok) guard has no effect because the next line also returns ${guardedVarName}. Either remove the guard or return different values.`,
+          fix: { range: { start: node.start, end: node.end }, text: '' },
         });
       }
 
