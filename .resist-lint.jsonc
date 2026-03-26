@@ -4,6 +4,7 @@
     "packages/products/storylyne/editor",
     "packages/products-template",
     "packages/shared/config",
+    "packages/shared/extensions",
     "packages/shared/locale",
     "packages/shared/schemas",
     "packages/shared/secrets",

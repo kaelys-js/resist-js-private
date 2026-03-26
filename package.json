@@ -11,15 +11,15 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "clean": "turbo clean",
-    "qa:test": "turbo qa:test --filter='./packages/products/storylyne/editor' --filter='./packages/products-template/*' --filter='./packages/shared/config/*' --filter='./packages/shared/locale' --filter='./packages/shared/schemas/*' --filter='./packages/shared/ui' --filter='./packages/shared/utils/*'",
+    "qa:test": "turbo qa:test --filter='!./packages/shared/utils/cli'",
     "qa:test:unit": "vitest run",
     "qa:test:e2e": "turbo qa:test:e2e",
     "qa:test:coverage": "vitest run --coverage",
     "qa:benchmark": "vitest bench",
-    "qa:type-check": "turbo qa:type-check --filter='./packages/products/storylyne/editor' --filter='./packages/products-template/*' --filter='./packages/shared/config/*' --filter='./packages/shared/locale' --filter='./packages/shared/schemas/*' --filter='./packages/shared/ui' --filter='./packages/shared/utils/*'",
+    "qa:type-check": "turbo qa:type-check --filter='!./packages/shared/utils/cli'",
     "qa:format": "biome format --write . && prettier --write '**/*.svelte'",
     "qa:format:check": "biome format . && prettier --check '**/*.svelte'",
-    "qa:lint": "npx tsx packages/shared/config/tooling/lint/src/cli.ts --tools --warn-only packages/products/storylyne/editor packages/products-template packages/shared/config packages/shared/locale packages/shared/schemas packages/shared/ui"
+    "qa:lint": "npx tsx packages/shared/config/tooling/lint/src/cli.ts --tools"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
