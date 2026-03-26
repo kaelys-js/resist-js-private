@@ -7,8 +7,8 @@
  * @module
  */
 
+import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /** Regex for taplo lint output: `error[rule]: message  --> file:line:col` */
 const TAPLO_LINE: RegExp = /^(error|warning)\[([^\]]*)\]:\s+(.+?)(?:\s+-->\s+(.+?):(\d+):(\d+))?$/;
@@ -55,13 +55,13 @@ export function transformTaploOutput(output: string): LintResult[] {
 
 /** Taplo external tool definition. */
 export const taploTool: ExternalTool = {
-  name: 'taplo',
-  command: 'taplo',
   args: ['lint'],
-  outputFormat: 'text',
+  command: 'taplo',
   filePatterns: ['**/*.toml'],
-  transform: transformTaploOutput,
   isAvailable(): boolean {
     return isCommandAvailable('taplo');
   },
+  name: 'taplo',
+  outputFormat: 'text',
+  transform: transformTaploOutput,
 };

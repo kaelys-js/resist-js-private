@@ -8,8 +8,8 @@
  * @module
  */
 
+import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /**
  * Transform commitlint text output into LintResult[].
@@ -72,13 +72,13 @@ export function transformCommitlintOutput(output: string): LintResult[] {
 
 /** commitlint external tool definition. */
 export const commitlintTool: ExternalTool = {
-  name: 'commitlint',
-  command: 'commitlint',
   args: ['--from', 'HEAD~1'],
-  outputFormat: 'text',
+  command: 'commitlint',
   filePatterns: [],
-  transform: transformCommitlintOutput,
   isAvailable(): boolean {
     return isCommandAvailable('commitlint');
   },
+  name: 'commitlint',
+  outputFormat: 'text',
+  transform: transformCommitlintOutput,
 };

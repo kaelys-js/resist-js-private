@@ -7,8 +7,8 @@
  * @module
  */
 
+import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /** Regex for yamllint parsable output: `file:line:col: [level] message (rule)` */
 const YAMLLINT_LINE: RegExp = /^(.+?):(\d+):(\d+): \[(warning|error)\] (.+)$/;
@@ -47,13 +47,13 @@ export function transformYamllintOutput(output: string): LintResult[] {
 
 /** yamllint external tool definition. */
 export const yamllintTool: ExternalTool = {
-  name: 'yamllint',
-  command: 'yamllint',
   args: ['-f', 'parsable'],
-  outputFormat: 'text',
+  command: 'yamllint',
   filePatterns: ['**/*.yaml', '**/*.yml'],
-  transform: transformYamllintOutput,
   isAvailable(): boolean {
     return isCommandAvailable('yamllint');
   },
+  name: 'yamllint',
+  outputFormat: 'text',
+  transform: transformYamllintOutput,
 };

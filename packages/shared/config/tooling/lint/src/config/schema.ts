@@ -8,11 +8,12 @@
  * @module
  */
 
-import * as v from 'valibot';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-
+import * as v from 'valibot';
 import { CONFIG_FILENAME, LINTER_NAME } from '@/lint/constants.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 // =============================================================================
 // Schemas
@@ -39,18 +40,18 @@ export type Override = v.InferOutput<typeof OverrideSchema>;
 export const LintConfigSchema = v.strictObject({
   /** JSON Schema reference for IDE autocomplete (ignored by linter). */
   $schema: v.optional(v.string()),
-  /** Paths to include in linting (relative to workspace root). */
-  include: v.optional(v.array(v.string()), []),
   /** Glob patterns to exclude from linting. */
   exclude: v.optional(v.array(v.string()), ['*.test.ts', '*.d.ts']),
   /** File extensions to lint (including `.svelte.ts`). */
   extensions: v.optional(v.array(v.string()), ['.ts', '.svelte.ts', '.mjs']),
-  /** Rule ID → severity mapping. Unlisted rules default to "error". */
-  rules: v.optional(v.record(v.string(), RuleSeveritySchema), {}),
-  /** Per-rule configuration options (e.g. allowedTargets for no-lint-disable). */
-  ruleOptions: v.optional(v.record(v.string(), v.record(v.string(), v.unknown())), {}),
+  /** Paths to include in linting (relative to workspace root). */
+  include: v.optional(v.array(v.string()), []),
   /** File-specific rule overrides (like oxlint overrides). */
   overrides: v.optional(v.array(OverrideSchema), []),
+  /** Per-rule configuration options (e.g. allowedTargets for no-lint-disable). */
+  ruleOptions: v.optional(v.record(v.string(), v.record(v.string(), v.unknown())), {}),
+  /** Rule ID → severity mapping. Unlisted rules default to "error". */
+  rules: v.optional(v.record(v.string(), RuleSeveritySchema), {}),
 });
 
 /** Inferred type for the linter configuration. See {@link LintConfigSchema}. */
@@ -92,7 +93,9 @@ export function loadConfig(cwd: string, customConfigPath?: string): LintConfig {
   try {
     parsed = JSON.parse(stripped);
   } catch (error: unknown) {
-    throw new Error(`Invalid JSONC in ${configPath}: ${String(error)}`, { cause: error });
+    throw new Error(format(en.errors.invalidJsonc, { error: String(error), path: configPath }), {
+      cause: error,
+    });
   }
 
   const result: v.SafeParseResult<typeof LintConfigSchema> = v.safeParse(LintConfigSchema, parsed);
@@ -106,7 +109,7 @@ export function loadConfig(cwd: string, customConfigPath?: string): LintConfig {
         return `  - ${pathStr}: ${issue.message}`;
       })
       .join('\n');
-    throw new Error(`Invalid config in ${configPath}:\n${issues}`);
+    throw new Error(format(en.errors.invalidConfig, { issues, path: configPath }));
   }
 
   return result.output;
@@ -286,16 +289,6 @@ export type JsonSchemaProperty = {
 
 /** Schema for JSON Schema property definitions. See {@link JsonSchemaProperty}. */
 export const JsonSchemaPropertySchema: v.GenericSchema<JsonSchemaProperty> = v.strictObject({
-  /** JSON Schema type (e.g. 'string', 'object', 'array'). */
-  type: v.optional(v.string()),
-  /** Human-readable description of the property. */
-  description: v.optional(v.string()),
-  /** Default value for the property. */
-  default: v.optional(v.unknown()),
-  /** Allowed string enum values. */
-  enum: v.optional(v.array(v.string())),
-  /** Schema for array items. */
-  items: v.optional(v.lazy((): v.GenericSchema<JsonSchemaProperty> => JsonSchemaPropertySchema)),
   /** Schema for additional object properties, or boolean to allow/deny all. */
   additionalProperties: v.optional(
     v.union([
@@ -303,6 +296,14 @@ export const JsonSchemaPropertySchema: v.GenericSchema<JsonSchemaProperty> = v.s
       v.boolean(),
     ]),
   ),
+  /** Default value for the property. */
+  default: v.optional(v.unknown()),
+  /** Human-readable description of the property. */
+  description: v.optional(v.string()),
+  /** Allowed string enum values. */
+  enum: v.optional(v.array(v.string())),
+  /** Schema for array items. */
+  items: v.optional(v.lazy((): v.GenericSchema<JsonSchemaProperty> => JsonSchemaPropertySchema)),
   /** Named property schemas for object types. */
   properties: v.optional(
     v.record(
@@ -312,25 +313,27 @@ export const JsonSchemaPropertySchema: v.GenericSchema<JsonSchemaProperty> = v.s
   ),
   /** Required property names for object types. */
   required: v.optional(v.array(v.string())),
+  /** JSON Schema type (e.g. 'string', 'object', 'array'). */
+  type: v.optional(v.string()),
 });
 
 /** Schema for a full JSON Schema document. */
 export const JsonSchemaDocumentSchema = v.strictObject({
   /** JSON Schema specification version URI. */
   $schema: v.string(),
-  /** Schema title. */
-  title: v.string(),
+  /** Whether to allow properties not listed in 'properties'. */
+  additionalProperties: v.boolean(),
   /** Schema description. */
   description: v.string(),
-  /** Root JSON Schema type (always 'object' for config). */
-  type: v.string(),
   /** Top-level property definitions. */
   properties: v.record(
     v.string(),
     v.lazy((): v.GenericSchema<JsonSchemaProperty> => JsonSchemaPropertySchema),
   ),
-  /** Whether to allow properties not listed in 'properties'. */
-  additionalProperties: v.boolean(),
+  /** Schema title. */
+  title: v.string(),
+  /** Root JSON Schema type (always 'object' for config). */
+  type: v.string(),
 });
 
 /** Full JSON Schema document. See {@link JsonSchemaDocumentSchema}. */
@@ -356,77 +359,77 @@ export function generateJsonSchema(
 
   return {
     $schema: 'http://json-schema.org/draft-07/schema#',
-    title: `${LINTER_NAME} configuration`,
+    additionalProperties: false,
     description: `Configuration file for the ${LINTER_NAME} custom linter.`,
-    type: 'object',
     properties: {
       $schema: {
-        type: 'string',
         description: 'Path to the JSON Schema for IDE autocomplete.',
-      },
-      include: {
-        type: 'array',
-        description: 'Paths to include in linting (relative to workspace root).',
-        items: { type: 'string' },
-        default: [],
+        type: 'string',
       },
       exclude: {
-        type: 'array',
+        default: ['*.test.ts', '*.d.ts'],
         description: 'Glob patterns to exclude from linting (e.g. "*.test.ts", "*.d.ts").',
         items: { type: 'string' },
-        default: ['*.test.ts', '*.d.ts'],
+        type: 'array',
       },
       extensions: {
-        type: 'array',
+        default: ['.ts', '.svelte.ts', '.mjs'],
         description: 'File extensions to lint (including .svelte.ts).',
         items: { type: 'string' },
-        default: ['.ts', '.svelte.ts', '.mjs'],
+        type: 'array',
       },
-      rules: {
-        type: 'object',
-        description: `Rule ID → severity mapping. Unlisted rules default to "error".\n\nAvailable rules:\n${ruleEnumDescription}`,
-        additionalProperties: {
-          type: 'string',
-          enum: ['error', 'warn', 'off'],
-          description: 'Rule severity: "error" (exit 1), "warn" (report but pass), "off" (skip).',
+      include: {
+        default: [],
+        description: 'Paths to include in linting (relative to workspace root).',
+        items: { type: 'string' },
+        type: 'array',
+      },
+      overrides: {
+        description: 'File-specific rule overrides. Last matching override wins.',
+        items: {
+          properties: {
+            files: {
+              description: 'Glob patterns matching files to apply these overrides to.',
+              items: { type: 'string' },
+              type: 'array',
+            },
+            rules: {
+              additionalProperties: {
+                enum: ['error', 'warn', 'off'],
+                type: 'string',
+              },
+              description: 'Rule-level severity overrides for matched files.',
+              type: 'object',
+            },
+          },
+          required: ['files', 'rules'],
+          type: 'object',
         },
+        type: 'array',
       },
       ruleOptions: {
-        type: 'object',
+        additionalProperties: {
+          description: 'Options specific to a rule.',
+          type: 'object',
+        },
         description:
           'Per-rule configuration options. Keys are rule IDs, values are option objects.\n\n' +
           'Common options:\n' +
           '- categories: string[] — override rule categories for filtering\n' +
           '- stages: string[] — override pipeline stages (lint, check, pre-commit, build, ci, test)',
-        additionalProperties: {
-          type: 'object',
-          description: 'Options specific to a rule.',
-        },
+        type: 'object',
       },
-      overrides: {
-        type: 'array',
-        description: 'File-specific rule overrides. Last matching override wins.',
-        items: {
-          type: 'object',
-          properties: {
-            files: {
-              type: 'array',
-              description: 'Glob patterns matching files to apply these overrides to.',
-              items: { type: 'string' },
-            },
-            rules: {
-              type: 'object',
-              description: 'Rule-level severity overrides for matched files.',
-              additionalProperties: {
-                type: 'string',
-                enum: ['error', 'warn', 'off'],
-              },
-            },
-          },
-          required: ['files', 'rules'],
+      rules: {
+        additionalProperties: {
+          description: 'Rule severity: "error" (exit 1), "warn" (report but pass), "off" (skip).',
+          enum: ['error', 'warn', 'off'],
+          type: 'string',
         },
+        description: `Rule ID → severity mapping. Unlisted rules default to "error".\n\nAvailable rules:\n${ruleEnumDescription}`,
+        type: 'object',
       },
     },
-    additionalProperties: false,
+    title: `${LINTER_NAME} configuration`,
+    type: 'object',
   };
 }

@@ -7,8 +7,8 @@
  * @module
  */
 
+import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /**
  * Transform dotenv-linter text output into LintResult[].
@@ -69,13 +69,13 @@ export function transformDotenvLinterOutput(output: string): LintResult[] {
 
 /** dotenv-linter external tool definition. */
 export const dotenvLinterTool: ExternalTool = {
-  name: 'dotenv-linter',
-  command: 'dotenv-linter',
   args: [],
-  outputFormat: 'text',
+  command: 'dotenv-linter',
   filePatterns: ['**/.env', '**/.env.*'],
-  transform: transformDotenvLinterOutput,
   isAvailable(): boolean {
     return isCommandAvailable('dotenv-linter');
   },
+  name: 'dotenv-linter',
+  outputFormat: 'text',
+  transform: transformDotenvLinterOutput,
 };

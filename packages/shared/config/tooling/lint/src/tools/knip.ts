@@ -8,8 +8,10 @@
  * @module
  */
 
+import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * A single knip JSON issue entry.
@@ -75,8 +77,8 @@ export function transformKnipOutput(output: string): LintResult[] {
     const filePath: string = typeof file === 'string' ? file : '';
     if (filePath.length > 0) {
       results.push(
-        createResult('knip/unused-file', filePath, 1, 1, 'warning', 'Unused file detected', {
-          tip: 'Remove this file or add it to knip configuration',
+        createResult('knip/unused-file', filePath, 1, 1, 'warning', en.tools.knipUnusedFile, {
+          tip: en.tools.knipUnusedFileTip,
         }),
       );
     }
@@ -93,20 +95,20 @@ export function transformKnipOutput(output: string): LintResult[] {
     const symbol: string = obj.symbol ?? '';
 
     let ruleId: string = 'knip/unused';
-    let message: string = `Unused ${issueType} detected`;
+    let message: string = format(en.tools.knipUnused, { issueType });
 
     if (issueType === 'exports') {
       ruleId = 'knip/unused-export';
-      message = `Unused export: "${symbol}"`;
+      message = format(en.tools.knipUnusedExport, { symbol });
     } else if (issueType === 'types') {
       ruleId = 'knip/unused-type';
-      message = `Unused type export: "${symbol}"`;
+      message = format(en.tools.knipUnusedType, { symbol });
     } else if (issueType === 'dependencies') {
       ruleId = 'knip/unused-dependency';
-      message = `Unused dependency: "${symbol}"`;
+      message = format(en.tools.knipUnusedDep, { symbol });
     } else if (issueType === 'devDependencies') {
       ruleId = 'knip/unused-dev-dependency';
-      message = `Unused dev dependency: "${symbol}"`;
+      message = format(en.tools.knipUnusedDevDep, { symbol });
     }
 
     results.push(createResult(ruleId, filePath, line, col, 'warning', message));
@@ -117,13 +119,13 @@ export function transformKnipOutput(output: string): LintResult[] {
 
 /** knip external tool definition. */
 export const knipTool: ExternalTool = {
-  name: 'knip',
-  command: 'knip',
   args: ['--reporter', 'json'],
-  outputFormat: 'json',
+  command: 'knip',
   filePatterns: [],
-  transform: transformKnipOutput,
   isAvailable(): boolean {
     return isCommandAvailable('knip');
   },
+  name: 'knip',
+  outputFormat: 'json',
+  transform: transformKnipOutput,
 };

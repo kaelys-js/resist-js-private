@@ -7,8 +7,8 @@
  * @module
  */
 
+import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { isCommandAvailable, type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 
 /**
  * Transform SQLFluff JSON output into LintResult[].
@@ -58,13 +58,13 @@ export function transformSqlfluffOutput(output: string): LintResult[] {
 
 /** SQLFluff external tool definition. */
 export const sqlfluffTool: ExternalTool = {
-  name: 'sqlfluff',
-  command: 'sqlfluff',
   args: ['lint', '--format', 'json'],
-  outputFormat: 'json',
+  command: 'sqlfluff',
   filePatterns: ['**/*.sql'],
-  transform: transformSqlfluffOutput,
   isAvailable(): boolean {
     return isCommandAvailable('sqlfluff');
   },
+  name: 'sqlfluff',
+  outputFormat: 'json',
+  transform: transformSqlfluffOutput,
 };
