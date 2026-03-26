@@ -15,9 +15,9 @@
  */
 
 import type {
-  TypeScriptRule,
-  LintResult,
   AstNode,
+  LintResult,
+  TypeScriptRule,
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
@@ -74,11 +74,11 @@ function isDecomposable(source: string): boolean {
 
 /** Rule definition. */
 const rule: TypeScriptRule = {
-  id: 'valibot/prefer-template-literal',
+  categories: ['valibot'],
   description:
     'Prefer templateLiteral() over v.pipe(v.string(), v.regex()) for structured string patterns',
+  id: 'valibot/prefer-template-literal',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
-  categories: ['valibot'],
   stages: ['lint'],
 
   visitor: {
@@ -133,14 +133,14 @@ const rule: TypeScriptRule = {
           if (isDecomposable(regexSource)) {
             return [
               {
-                file: context.file,
-                line: node.loc.start.line,
                 column: node.loc.start.column + 1,
-                severity: 'warning',
+                file: context.file,
+                fix: { range: { end: node.end, start: node.start }, text: '' },
+                line: node.loc.start.line,
                 message: `Consider using templateLiteral() from @/schemas/template-literal instead of v.regex(/${regexSource}/)`,
                 ruleId: 'valibot/prefer-template-literal',
+                severity: 'warning',
                 tip: 'templateLiteral() provides exact TypeScript type inference, composable parts, better errors, and record key support',
-                fix: { range: { start: node.start, end: node.end }, text: '' },
               },
             ];
           }

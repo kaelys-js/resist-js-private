@@ -8,17 +8,18 @@
  */
 
 import type {
-  TypeScriptRule,
-  LintResult,
   AstNode,
+  LintResult,
+  TypeScriptRule,
   VisitorContext,
 } from '@/lint/framework/types.ts';
+
 /** The no-parse lint rule. */
 const rule: TypeScriptRule = {
-  id: 'valibot/no-parse',
-  description: 'Forbids v.parse() — use safeParse from @/utils/result/safe instead',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['valibot', 'safety'],
+  description: 'Forbids v.parse() — use safeParse from @/utils/result/safe instead',
+  id: 'valibot/no-parse',
+  patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint', 'ci'],
 
   visitor: {
@@ -40,17 +41,17 @@ const rule: TypeScriptRule = {
           context.isImportedFrom((object?.name as string) ?? '', 'valibot')
         ) {
           results.push({
-            file: context.file,
-            line: node.loc.start.line,
             column: node.loc.start.column + 1,
-            severity: 'error',
-            message: 'Do not use v.parse() — it throws on failure, bypassing Result pattern',
-            ruleId: 'valibot/no-parse',
-            tip: "Use safeParse from '@/utils/result/safe' instead",
+            file: context.file,
             fix: {
-              range: { start: callee.start, end: callee.end },
+              range: { end: callee.end, start: callee.start },
               text: 'safeParse',
             },
+            line: node.loc.start.line,
+            message: 'Do not use v.parse() — it throws on failure, bypassing Result pattern',
+            ruleId: 'valibot/no-parse',
+            severity: 'error',
+            tip: "Use safeParse from '@/utils/result/safe' instead",
           });
         }
       }

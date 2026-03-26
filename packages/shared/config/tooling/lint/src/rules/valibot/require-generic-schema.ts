@@ -9,9 +9,9 @@
  */
 
 import type {
-  TypeScriptRule,
-  LintResult,
   AstNode,
+  LintResult,
+  TypeScriptRule,
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
@@ -27,10 +27,10 @@ const INFER_OUTPUT_PATTERN: RegExp = /v\.InferOutput\s*<\s*typeof\s+(\w+)\s*>/;
 
 /** Rule definition. */
 const rule: TypeScriptRule = {
-  id: 'valibot/require-generic-schema',
-  description: 'Schemas used by generic types should use generic() from @/schemas/generic',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['valibot'],
+  description: 'Schemas used by generic types should use generic() from @/schemas/generic',
+  id: 'valibot/require-generic-schema',
+  patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
 
   visitor: {
@@ -79,14 +79,14 @@ const rule: TypeScriptRule = {
 
       return [
         {
-          file: context.file,
-          line: node.loc.start.line,
           column: node.loc.start.column + 1,
-          severity: 'error',
+          file: context.file,
+          fix: { range: { end: node.end, start: node.start }, text: '' },
+          line: node.loc.start.line,
           message: `Schema '${schemaName}' is used by generic type '${typeName}' — wrap in generic() from @/schemas/generic`,
           ruleId: 'valibot/require-generic-schema',
+          severity: 'error',
           tip: `Import { generic } from '@/schemas/generic/generic' and wrap the schema: const ${schemaName} = generic(<T>(...) => v.strictObject({...}))`,
-          fix: { range: { start: node.start, end: node.end }, text: '' },
         },
       ];
     },

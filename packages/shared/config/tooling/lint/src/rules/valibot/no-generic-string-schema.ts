@@ -8,9 +8,9 @@
  */
 
 import type {
-  TypeScriptRule,
-  LintResult,
   AstNode,
+  LintResult,
+  TypeScriptRule,
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
@@ -34,10 +34,10 @@ function isGenericStringSchema(text: string): boolean {
 
 /** Rule definition. */
 const rule: TypeScriptRule = {
-  id: 'valibot/no-generic-string-schema',
-  description: 'v.pipe(v.string(), v.minLength(1)) is too generic — add semantic constraints',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['valibot'],
+  description: 'v.pipe(v.string(), v.minLength(1)) is too generic — add semantic constraints',
+  id: 'valibot/no-generic-string-schema',
+  patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
 
   visitor: {
@@ -95,14 +95,14 @@ const rule: TypeScriptRule = {
 
         if (isGenericStringSchema(valueText)) {
           results.push({
-            file: context.file,
-            line: property.loc.start.line,
             column: property.loc.start.column + 1,
-            severity: 'error',
+            file: context.file,
+            fix: { range: { end: value.end, start: value.start }, text: '' },
+            line: property.loc.start.line,
             message: `Field '${keyName}' uses only v.string() + v.minLength(1) — add semantic constraints (maxLength, regex, pattern) or use a shared schema`,
             ruleId: 'valibot/no-generic-string-schema',
+            severity: 'error',
             tip: 'Add v.maxLength(), v.regex(), v.startsWith(), or use a shared schema like PathSchema, NameSchema',
-            fix: { range: { start: value.start, end: value.end }, text: '' },
           });
         }
       }

@@ -8,9 +8,9 @@
  */
 
 import type {
-  TypeScriptRule,
-  LintResult,
   AstNode,
+  LintResult,
+  TypeScriptRule,
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
@@ -50,10 +50,10 @@ function hasPropertyComment(propNode: AstNode, content: string): boolean {
 }
 /** The require-field-docs lint rule. */
 const rule: TypeScriptRule = {
-  id: 'valibot/require-field-docs',
-  description: 'Every property in v.strictObject() must have a JSDoc comment',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['valibot', 'jsdoc'],
+  description: 'Every property in v.strictObject() must have a JSDoc comment',
+  id: 'valibot/require-field-docs',
+  patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
 
   visitor: {
@@ -120,14 +120,14 @@ const rule: TypeScriptRule = {
       // Flag count mismatch (orphaned or missing docs)
       if (topLevelDocCount > propCount) {
         results.push({
-          file: context.file,
-          line: schemaObj.loc.start.line,
           column: schemaObj.loc.start.column + 1,
-          severity: 'error',
+          file: context.file,
+          fix: { range: { end: schemaObj.start, start: schemaObj.start }, text: '' },
+          line: schemaObj.loc.start.line,
           message: `v.strictObject() has ${topLevelDocCount} doc comments but only ${propCount} properties — ${topLevelDocCount - propCount} orphaned doc(s)`,
           ruleId: 'valibot/require-field-docs',
+          severity: 'error',
           tip: 'Remove orphaned JSDoc comments that no longer match a property',
-          fix: { range: { start: schemaObj.start, end: schemaObj.start }, text: '' },
         });
       }
 
@@ -141,17 +141,17 @@ const rule: TypeScriptRule = {
 
         if (!hasPropertyComment(prop, context.content)) {
           results.push({
-            file: context.file,
-            line: prop.loc.start.line,
             column: prop.loc.start.column + 1,
-            severity: 'error',
-            message: `Schema field '${keyName}' is missing a JSDoc comment`,
-            ruleId: 'valibot/require-field-docs',
-            tip: 'Add a /** Description */ or // comment above the field',
+            file: context.file,
             fix: {
-              range: { start: prop.start, end: prop.start },
+              range: { end: prop.start, start: prop.start },
               text: `/** Description. */\n  `,
             },
+            line: prop.loc.start.line,
+            message: `Schema field '${keyName}' is missing a JSDoc comment`,
+            ruleId: 'valibot/require-field-docs',
+            severity: 'error',
+            tip: 'Add a /** Description */ or // comment above the field',
           });
         }
       }

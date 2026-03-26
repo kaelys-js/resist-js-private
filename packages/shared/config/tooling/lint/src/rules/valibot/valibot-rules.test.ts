@@ -7,12 +7,17 @@
 import { describe, expect, it } from 'vitest';
 import { runTypeScriptRules } from '../../framework/oxc-runner.ts';
 import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
+import awaitAsyncParse from './await-async-parse.ts';
 import colocateSchemaType from './colocate-schema-type.ts';
 import consistentInfer from './consistent-infer.ts';
 import consistentNullability from './consistent-nullability.ts';
+import discriminatedUnions from './discriminated-unions.ts';
+import errorMapAllLocales from './error-map-all-locales.ts';
+import errorMapComplete from './error-map-complete.ts';
 import explicitUndefined from './explicit-undefined.ts';
 import exportSchemaAndType from './export-schema-and-type.ts';
 import importTypeOnly from './import-type-only.ts';
+import limitUnionSize from './limit-union-size.ts';
 import namespaceImport from './namespace-import.ts';
 import noAnySchema from './no-any-schema.ts';
 import noClassValidator from './no-class-validator.ts';
@@ -20,12 +25,17 @@ import noDirectSafeparse from './no-direct-safeparse.ts';
 import noDuplicateKeys from './no-duplicate-keys.ts';
 import noDuplicateSchema from './no-duplicate-schema.ts';
 import noEmptyObject from './no-empty-object.ts';
+import noExpensiveRegex from './no-expensive-regex.ts';
+import noFallbackRequired from './no-fallback-required.ts';
 import noGenericStringSchema from './no-generic-string-schema.ts';
+import noIgnoreIssues from './no-ignore-issues.ts';
+import noInlineErrorMessage from './no-inline-error-message.ts';
 import noInlineInfer from './no-inline-infer.ts';
 import noIoTs from './no-io-ts.ts';
 import noJoi from './no-joi.ts';
 import noLooseTuples from './no-loose-tuples.ts';
 import noManualTypes from './no-manual-types.ts';
+import noMutateAfterParse from './no-mutate-after-parse.ts';
 import noNestedOptional from './no-nested-optional.ts';
 import noOmitPickInfer from './no-omit-pick-infer.ts';
 import noOptionalHeavyObject from './no-optional-heavy-object.ts';
@@ -37,19 +47,34 @@ import noPassthrough from './no-passthrough.ts';
 import noRecursiveWithoutLazy from './no-recursive-without-lazy.ts';
 import noReexportInfer from './no-reexport-infer.ts';
 import noSchemaInComponent from './no-schema-in-component.ts';
+import noSchemaInLoop from './no-schema-in-loop.ts';
+import noTransformSideEffects from './no-transform-side-effects.ts';
+import noTypeCastAfterParse from './no-type-cast-after-parse.ts';
+import noUnsafeCoerce from './no-unsafe-coerce.ts';
 import noYup from './no-yup.ts';
 import noZod from './no-zod.ts';
 import oneSchemaPerFile from './one-schema-per-file.ts';
+import preferBrandedTypes from './prefer-branded-types.ts';
+import preferMethods from './prefer-methods.ts';
+import preferPicklist from './prefer-picklist.ts';
+import preferPipe from './prefer-pipe.ts';
 import preferSharedSchema from './prefer-shared-schema.ts';
 import preferTemplateLiteral from './prefer-template-literal.ts';
+import readonlyParseResult from './readonly-parse-result.ts';
+import requireDescription from './require-description.ts';
+import requireErrorMap from './require-error-map.ts';
+import requireErrorMapping from './require-error-mapping.ts';
 import requireFieldDocs from './require-field-docs.ts';
 import requireGenericSchema from './require-generic-schema.ts';
 import requireMinLength from './require-min-length.ts';
 import requireSchemaSuffix from './require-schema-suffix.ts';
 import requireStrictObject from './require-strict-object.ts';
+import revalidateOnChange from './revalidate-on-change.ts';
 import schemaFileLocation from './schema-file-location.ts';
 import schemaTypePair from './schema-type-pair.ts';
 import typeAliasFromSchema from './type-alias-from-schema.ts';
+import validateBoundaries from './validate-boundaries.ts';
+import validateFunctionOutput from './validate-function-output.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -2169,5 +2194,554 @@ const UserSchema = v.strictObject({ name: v.string() });
     );
     expect(results.length).toBe(1);
     expect(results[0]!.severity).toBe('warning');
+  });
+});
+
+// =============================================================================
+// valibot/await-async-parse (B5)
+// =============================================================================
+
+describe('valibot/await-async-parse', () => {
+  it('has correct rule metadata', () => {
+    expect(awaitAsyncParse.id).toBe('valibot/await-async-parse');
+    expect(awaitAsyncParse.visitor.CallExpression).toBeDefined();
+  });
+
+  it('warns for v.parseAsync()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const result = v.parseAsync(schema, data);
+`;
+    const results: LintResult[] = await lint(awaitAsyncParse, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes for non-async parse', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const result = v.string();
+`;
+    const results: LintResult[] = await lint(awaitAsyncParse, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-fallback-required (B5)
+// =============================================================================
+
+describe('valibot/no-fallback-required', () => {
+  it('has correct rule metadata', () => {
+    expect(noFallbackRequired.id).toBe('valibot/no-fallback-required');
+    expect(noFallbackRequired.visitor.CallExpression).toBeDefined();
+  });
+
+  it('warns for v.fallback()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.fallback(v.string(), 'default');
+`;
+    const results: LintResult[] = await lint(noFallbackRequired, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes for v.optional()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.optional(v.string());
+`;
+    const results: LintResult[] = await lint(noFallbackRequired, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-ignore-issues (B5)
+// =============================================================================
+
+describe('valibot/no-ignore-issues', () => {
+  it('has correct rule metadata', () => {
+    expect(noIgnoreIssues.id).toBe('valibot/no-ignore-issues');
+    expect(noIgnoreIssues.visitor.CallExpression).toBeDefined();
+  });
+
+  it('passes for non-safeParse calls', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.string();
+`;
+    const results: LintResult[] = await lint(noIgnoreIssues, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-type-cast-after-parse (B5)
+// =============================================================================
+
+describe('valibot/no-type-cast-after-parse', () => {
+  it('has correct rule metadata', () => {
+    expect(noTypeCastAfterParse.id).toBe('valibot/no-type-cast-after-parse');
+    expect(noTypeCastAfterParse.visitor.TSAsExpression).toBeDefined();
+  });
+
+  it('errors for as cast on parse result', async () => {
+    const code: string = `
+const result = parse(schema, data) as MyType;
+`;
+    const results: LintResult[] = await lint(noTypeCastAfterParse, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for as cast on non-parse expression', async () => {
+    const code: string = `
+const result = getValue() as string;
+`;
+    const results: LintResult[] = await lint(noTypeCastAfterParse, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-unsafe-coerce (B5)
+// =============================================================================
+
+describe('valibot/no-unsafe-coerce', () => {
+  it('has correct rule metadata', () => {
+    expect(noUnsafeCoerce.id).toBe('valibot/no-unsafe-coerce');
+    expect(noUnsafeCoerce.visitor.CallExpression).toBeDefined();
+  });
+
+  it('errors for v.coerce()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.coerce(v.number(), Number);
+`;
+    const results: LintResult[] = await lint(noUnsafeCoerce, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for v.transform()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.transform(v.string(), (s) => Number(s));
+`;
+    const results: LintResult[] = await lint(noUnsafeCoerce, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/readonly-parse-result (B5)
+// =============================================================================
+
+describe('valibot/readonly-parse-result', () => {
+  it('has correct rule metadata', () => {
+    expect(readonlyParseResult.id).toBe('valibot/readonly-parse-result');
+    expect(readonlyParseResult.visitor.VariableDeclaration).toBeDefined();
+  });
+
+  it('passes for const declarations', async () => {
+    const code: string = `
+const x = 'hello';
+`;
+    const results: LintResult[] = await lint(readonlyParseResult, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-mutate-after-parse (B5)
+// =============================================================================
+
+describe('valibot/no-mutate-after-parse', () => {
+  it('has correct rule metadata', () => {
+    expect(noMutateAfterParse.id).toBe('valibot/no-mutate-after-parse');
+    expect(noMutateAfterParse.visitor.ExpressionStatement).toBeDefined();
+  });
+
+  it('passes for non-assignment statements', async () => {
+    const code: string = `
+console.log('hello');
+`;
+    const results: LintResult[] = await lint(noMutateAfterParse, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/revalidate-on-change (B5)
+// =============================================================================
+
+describe('valibot/revalidate-on-change', () => {
+  it('has correct rule metadata', () => {
+    expect(revalidateOnChange.id).toBe('valibot/revalidate-on-change');
+    expect(revalidateOnChange.visitor.Program).toBeDefined();
+  });
+
+  it('passes for file without safeParse', async () => {
+    const code: string = `
+const x = 'hello';
+`;
+    const results: LintResult[] = await lint(revalidateOnChange, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-schema-in-loop (B5)
+// =============================================================================
+
+describe('valibot/no-schema-in-loop', () => {
+  it('has correct rule metadata', () => {
+    expect(noSchemaInLoop.id).toBe('valibot/no-schema-in-loop');
+    expect(noSchemaInLoop.visitor.CallExpression).toBeDefined();
+  });
+
+  it('passes for schema outside loop', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(noSchemaInLoop, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-inline-error-message (B5)
+// =============================================================================
+
+describe('valibot/no-inline-error-message', () => {
+  it('has correct rule metadata', () => {
+    expect(noInlineErrorMessage.id).toBe('valibot/no-inline-error-message');
+    expect(noInlineErrorMessage.visitor.CallExpression).toBeDefined();
+  });
+
+  it('passes for valibot calls without string args', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.string();
+`;
+    const results: LintResult[] = await lint(noInlineErrorMessage, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/validate-function-output (B5)
+// =============================================================================
+
+describe('valibot/validate-function-output', () => {
+  it('has correct rule metadata', () => {
+    expect(validateFunctionOutput.id).toBe('valibot/validate-function-output');
+    expect(validateFunctionOutput.visitor.ExportNamedDeclaration).toBeDefined();
+  });
+
+  it('passes for non-function exports', async () => {
+    const code: string = `
+export const x = 'hello';
+`;
+    const results: LintResult[] = await lint(validateFunctionOutput, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/discriminated-unions (B6)
+// =============================================================================
+
+describe('valibot/discriminated-unions', () => {
+  it('has correct rule metadata', () => {
+    expect(discriminatedUnions.id).toBe('valibot/discriminated-unions');
+    expect(discriminatedUnions.visitor.CallExpression).toBeDefined();
+  });
+
+  it('passes for v.variant()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.variant('type', []);
+`;
+    const results: LintResult[] = await lint(discriminatedUnions, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/limit-union-size (B6)
+// =============================================================================
+
+describe('valibot/limit-union-size', () => {
+  it('has correct rule metadata', () => {
+    expect(limitUnionSize.id).toBe('valibot/limit-union-size');
+    expect(limitUnionSize.visitor.CallExpression).toBeDefined();
+  });
+
+  it('passes for small union', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.union([v.string(), v.number()]);
+`;
+    const results: LintResult[] = await lint(limitUnionSize, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-expensive-regex (B6)
+// =============================================================================
+
+describe('valibot/no-expensive-regex', () => {
+  it('has correct rule metadata', () => {
+    expect(noExpensiveRegex.id).toBe('valibot/no-expensive-regex');
+    expect(noExpensiveRegex.visitor.CallExpression).toBeDefined();
+  });
+
+  it('passes for simple regex', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.regex(/^[a-z]+$/);
+`;
+    const results: LintResult[] = await lint(noExpensiveRegex, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/prefer-branded-types (B7)
+// =============================================================================
+
+describe('valibot/prefer-branded-types', () => {
+  it('has correct rule metadata', () => {
+    expect(preferBrandedTypes.id).toBe('valibot/prefer-branded-types');
+    expect(preferBrandedTypes.visitor.VariableDeclaration).toBeDefined();
+  });
+
+  it('passes for non-ID schema', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(preferBrandedTypes, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/prefer-methods (B7)
+// =============================================================================
+
+describe('valibot/prefer-methods', () => {
+  it('has correct rule metadata', () => {
+    expect(preferMethods.id).toBe('valibot/prefer-methods');
+    expect(preferMethods.visitor.CallExpression).toBeDefined();
+  });
+
+  it('passes for non-transform calls', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.string();
+`;
+    const results: LintResult[] = await lint(preferMethods, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/prefer-picklist (B7)
+// =============================================================================
+
+describe('valibot/prefer-picklist', () => {
+  it('has correct rule metadata', () => {
+    expect(preferPicklist.id).toBe('valibot/prefer-picklist');
+    expect(preferPicklist.visitor.CallExpression).toBeDefined();
+  });
+
+  it('warns for union of literals', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.union([v.literal('a'), v.literal('b'), v.literal('c')]);
+`;
+    const results: LintResult[] = await lint(preferPicklist, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('picklist');
+  });
+
+  it('passes for union of non-literals', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.union([v.string(), v.number()]);
+`;
+    const results: LintResult[] = await lint(preferPicklist, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/prefer-pipe (B7)
+// =============================================================================
+
+describe('valibot/prefer-pipe', () => {
+  it('has correct rule metadata', () => {
+    expect(preferPipe.id).toBe('valibot/prefer-pipe');
+    expect(preferPipe.visitor.CallExpression).toBeDefined();
+  });
+
+  it('passes for v.pipe() usage', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.pipe(v.string(), v.minLength(3));
+`;
+    const results: LintResult[] = await lint(preferPipe, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/error-map-all-locales (B8)
+// =============================================================================
+
+describe('valibot/error-map-all-locales', () => {
+  it('has correct rule metadata', () => {
+    expect(errorMapAllLocales.id).toBe('valibot/error-map-all-locales');
+    expect(errorMapAllLocales.visitor.VariableDeclaration).toBeDefined();
+  });
+
+  it('passes for non-error-map variables', async () => {
+    const code: string = `
+const x = 'hello';
+`;
+    const results: LintResult[] = await lint(errorMapAllLocales, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/error-map-complete (B8)
+// =============================================================================
+
+describe('valibot/error-map-complete', () => {
+  it('has correct rule metadata', () => {
+    expect(errorMapComplete.id).toBe('valibot/error-map-complete');
+    expect(errorMapComplete.visitor.Program).toBeDefined();
+  });
+
+  it('passes for file without schemas', async () => {
+    const code: string = `
+const x = 'hello';
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/require-error-map (B8)
+// =============================================================================
+
+describe('valibot/require-error-map', () => {
+  it('has correct rule metadata', () => {
+    expect(requireErrorMap.id).toBe('valibot/require-error-map');
+    expect(requireErrorMap.visitor.Program).toBeDefined();
+  });
+
+  it('passes for file without schemas', async () => {
+    const code: string = `
+const x = 'hello';
+`;
+    const results: LintResult[] = await lint(requireErrorMap, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/require-description (B9)
+// =============================================================================
+
+describe('valibot/require-description', () => {
+  it('has correct rule metadata', () => {
+    expect(requireDescription.id).toBe('valibot/require-description');
+    expect(requireDescription.visitor.VariableDeclaration).toBeDefined();
+  });
+
+  it('passes for non-schema declarations', async () => {
+    const code: string = `
+const x = 'hello';
+`;
+    const results: LintResult[] = await lint(requireDescription, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/require-error-mapping (B9)
+// =============================================================================
+
+describe('valibot/require-error-mapping', () => {
+  it('has correct rule metadata', () => {
+    expect(requireErrorMapping.id).toBe('valibot/require-error-mapping');
+    expect(requireErrorMapping.visitor.CallExpression).toBeDefined();
+  });
+
+  it('passes for non-safeParse calls', async () => {
+    const code: string = `
+const result = getValue();
+`;
+    const results: LintResult[] = await lint(requireErrorMapping, code);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// valibot/no-transform-side-effects (B9)
+// =============================================================================
+
+describe('valibot/no-transform-side-effects', () => {
+  it('has correct rule metadata', () => {
+    expect(noTransformSideEffects.id).toBe('valibot/no-transform-side-effects');
+    expect(noTransformSideEffects.visitor.CallExpression).toBeDefined();
+  });
+
+  it('passes for pure transform', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.transform(v.string(), (s) => s.trim());
+`;
+    const results: LintResult[] = await lint(noTransformSideEffects, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('warns for transform with side effects', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.transform(v.string(), (s) => { console.log(s); return s; });
+`;
+    const results: LintResult[] = await lint(noTransformSideEffects, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+});
+
+// =============================================================================
+// valibot/validate-boundaries (B9)
+// =============================================================================
+
+describe('valibot/validate-boundaries', () => {
+  it('has correct rule metadata', () => {
+    expect(validateBoundaries.id).toBe('valibot/validate-boundaries');
+    expect(validateBoundaries.visitor.ExportNamedDeclaration).toBeDefined();
+  });
+
+  it('passes for non-function exports', async () => {
+    const code: string = `
+export const x = 'hello';
+`;
+    const results: LintResult[] = await lint(validateBoundaries, code);
+    expect(results.length).toBe(0);
   });
 });

@@ -8,18 +8,18 @@
  */
 
 import type {
-  TypeScriptRule,
-  LintResult,
   AstNode,
+  LintResult,
+  TypeScriptRule,
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** Rule definition. */
 const rule: TypeScriptRule = {
-  id: 'valibot/require-min-length',
-  description: 'Bare v.string() in strictObject fields should have v.minLength(1)',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['valibot'],
+  description: 'Bare v.string() in strictObject fields should have v.minLength(1)',
+  id: 'valibot/require-min-length',
+  patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
 
   visitor: {
@@ -67,33 +67,33 @@ const rule: TypeScriptRule = {
 
         if (valueText === 'v.string()') {
           results.push({
-            file: context.file,
-            line: property.loc.start.line,
             column: property.loc.start.column + 1,
-            severity: 'error',
-            message: `Bare v.string() on field '${keyName}' — use v.pipe(v.string(), v.minLength(1)) or stricter`,
-            ruleId: 'valibot/require-min-length',
-            tip: 'Empty strings are rarely valid. Add v.minLength(1) at minimum.',
+            file: context.file,
             fix: {
-              range: { start: value.start, end: value.end },
+              range: { end: value.end, start: value.start },
               text: 'v.pipe(v.string(), v.minLength(1))',
             },
+            line: property.loc.start.line,
+            message: `Bare v.string() on field '${keyName}' — use v.pipe(v.string(), v.minLength(1)) or stricter`,
+            ruleId: 'valibot/require-min-length',
+            severity: 'error',
+            tip: 'Empty strings are rarely valid. Add v.minLength(1) at minimum.',
           });
         }
 
         if (valueText === 'v.optional(v.string())') {
           results.push({
-            file: context.file,
-            line: property.loc.start.line,
             column: property.loc.start.column + 1,
-            severity: 'error',
-            message: `v.optional(v.string()) on field '${keyName}' allows empty strings — use v.optional(v.pipe(v.string(), v.minLength(1)))`,
-            ruleId: 'valibot/require-min-length',
-            tip: 'When a value IS provided, it should not be empty.',
+            file: context.file,
             fix: {
-              range: { start: value.start, end: value.end },
+              range: { end: value.end, start: value.start },
               text: 'v.optional(v.pipe(v.string(), v.minLength(1)))',
             },
+            line: property.loc.start.line,
+            message: `v.optional(v.string()) on field '${keyName}' allows empty strings — use v.optional(v.pipe(v.string(), v.minLength(1)))`,
+            ruleId: 'valibot/require-min-length',
+            severity: 'error',
+            tip: 'When a value IS provided, it should not be empty.',
           });
         }
       }

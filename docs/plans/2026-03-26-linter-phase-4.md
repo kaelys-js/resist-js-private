@@ -195,7 +195,7 @@ All new rules are TypeScriptRules with AST visitors. They go in `rules/valibot/`
 
 ### TASK B5 — Validation & Parse Safety (11 rules)
 
-**Status**: [ ]
+**Status**: [x] — 11 rules created, tests added (1661 total). QA clean.
 
 **Rules**:
 1. `valibot/await-async-parse` — `v.parseAsync()`/`v.safeParseAsync()` must be awaited. Visitor: `CallExpression`.
@@ -218,7 +218,7 @@ All new rules are TypeScriptRules with AST visitors. They go in `rules/valibot/`
 
 ### TASK B6 — Performance (3 rules)
 
-**Status**: [ ]
+**Status**: [x] — 3 rules created, tests added. QA clean.
 
 **Rules**:
 1. `valibot/discriminated-unions` — Use `v.variant()` for discriminated unions. Visitor: `CallExpression`.
@@ -233,7 +233,7 @@ All new rules are TypeScriptRules with AST visitors. They go in `rules/valibot/`
 
 ### TASK B7 — Prefer Idiomatic Valibot (4 rules)
 
-**Status**: [ ]
+**Status**: [x] — 4 rules created, tests added. QA clean.
 
 **Rules**:
 1. `valibot/prefer-branded-types` — Use `v.brand()` for ID/nominal types. Visitor: `VariableDeclaration`.
@@ -249,7 +249,7 @@ All new rules are TypeScriptRules with AST visitors. They go in `rules/valibot/`
 
 ### TASK B8 — Error Handling & i18n (3 rules)
 
-**Status**: [ ]
+**Status**: [x] — 3 rules created, tests added. QA clean.
 
 **Rules**:
 1. `valibot/error-map-all-locales` — Error maps must include all supported locales. Visitor: `VariableDeclaration`.
@@ -264,7 +264,7 @@ All new rules are TypeScriptRules with AST visitors. They go in `rules/valibot/`
 
 ### TASK B9 — Documentation & Quality (4 rules)
 
-**Status**: [ ]
+**Status**: [x] — 4 rules created, tests added. QA clean.
 
 **Rules**:
 1. `valibot/require-description` — Schemas should have `v.description()` in pipe. Visitor: `VariableDeclaration`.

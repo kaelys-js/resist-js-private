@@ -1,8 +1,9 @@
 /**
- * Rule: valibot/require-strict-object
+ * Rule: valibot/no-ignore-issues
  *
- * Forbids `v.object()` — must use `v.strictObject()` instead.
- * `v.object()` silently ignores unknown keys, defeating schema safety.
+ * When using `v.safeParse()`, the `.issues` property should be checked
+ * when the parse fails. Ignoring issues hides validation errors and
+ * makes debugging difficult.
  *
  * @module
  */
@@ -14,13 +15,13 @@ import type {
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
-/** The require-strict-object lint rule. */
+/** The no-ignore-issues lint rule. */
 const rule: TypeScriptRule = {
-  categories: ['valibot', 'safety'],
-  description: 'Forbids v.object() — use v.strictObject() instead',
-  id: 'valibot/require-strict-object',
+  categories: ['valibot', 'quality'],
+  description: 'safeParse results should check .issues when the parse fails',
+  id: 'valibot/no-ignore-issues',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
-  stages: ['lint', 'ci'],
+  stages: ['lint'],
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -35,23 +36,25 @@ const rule: TypeScriptRule = {
         const property = callee.property as AstNode | undefined;
         const propName: string = (property?.name as string) ?? '';
 
-        // Only flag v.object(), not v.strictObject()
         if (
-          propName === 'object' &&
+          propName === 'safeParse' &&
           context.isImportedFrom((object?.name as string) ?? '', 'valibot')
         ) {
+          // Check if .issues is referenced anywhere in the file
+          if (context.content.includes('.issues')) {
+            return results;
+          }
+
           results.push({
             column: node.loc.start.column + 1,
             file: context.file,
-            fix: {
-              range: { end: property?.end ?? 0, start: property?.start ?? 0 },
-              text: 'strictObject',
-            },
+            fix: { range: { end: 0, start: 0 }, text: '' },
             line: node.loc.start.line,
-            message: 'Use v.strictObject() instead of v.object() — v.object() ignores unknown keys',
-            ruleId: 'valibot/require-strict-object',
-            severity: 'error',
-            tip: 'Replace v.object() with v.strictObject()',
+            message:
+              'v.safeParse() result .issues are not checked — validation errors may be silently ignored',
+            ruleId: 'valibot/no-ignore-issues',
+            severity: 'info',
+            tip: 'Check result.issues when result.success is false to surface validation errors',
           });
         }
       }

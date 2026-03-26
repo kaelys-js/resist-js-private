@@ -1,8 +1,9 @@
 /**
- * Rule: valibot/require-strict-object
+ * Rule: valibot/no-fallback-required
  *
- * Forbids `v.object()` — must use `v.strictObject()` instead.
- * `v.object()` silently ignores unknown keys, defeating schema safety.
+ * Bans `v.fallback()` wrapping required schemas. If a field is required,
+ * providing a fallback value defeats the purpose of requiring it — the
+ * field will silently use the fallback instead of failing validation.
  *
  * @module
  */
@@ -14,13 +15,13 @@ import type {
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
-/** The require-strict-object lint rule. */
+/** The no-fallback-required lint rule. */
 const rule: TypeScriptRule = {
   categories: ['valibot', 'safety'],
-  description: 'Forbids v.object() — use v.strictObject() instead',
-  id: 'valibot/require-strict-object',
+  description: 'Bans v.fallback() on required schemas — fallback defeats required validation',
+  id: 'valibot/no-fallback-required',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
-  stages: ['lint', 'ci'],
+  stages: ['lint'],
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -35,23 +36,20 @@ const rule: TypeScriptRule = {
         const property = callee.property as AstNode | undefined;
         const propName: string = (property?.name as string) ?? '';
 
-        // Only flag v.object(), not v.strictObject()
         if (
-          propName === 'object' &&
+          propName === 'fallback' &&
           context.isImportedFrom((object?.name as string) ?? '', 'valibot')
         ) {
           results.push({
             column: node.loc.start.column + 1,
             file: context.file,
-            fix: {
-              range: { end: property?.end ?? 0, start: property?.start ?? 0 },
-              text: 'strictObject',
-            },
+            fix: { range: { end: node.end, start: node.start }, text: '' },
             line: node.loc.start.line,
-            message: 'Use v.strictObject() instead of v.object() — v.object() ignores unknown keys',
-            ruleId: 'valibot/require-strict-object',
-            severity: 'error',
-            tip: 'Replace v.object() with v.strictObject()',
+            message:
+              'Do not use v.fallback() on required schemas — it silently replaces missing values instead of failing validation',
+            ruleId: 'valibot/no-fallback-required',
+            severity: 'warning',
+            tip: 'Remove v.fallback() and let validation fail when the required field is missing',
           });
         }
       }

@@ -8,9 +8,9 @@
  */
 
 import type {
-  TypeScriptRule,
-  LintResult,
   AstNode,
+  LintResult,
+  TypeScriptRule,
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
@@ -35,12 +35,51 @@ function normalize(text: string): string {
 
 /** Rule definition. */
 const rule: TypeScriptRule = {
-  id: 'valibot/no-duplicate-schema',
-  description: 'Schema field patterns appearing in 3+ files should be in @/schemas/common',
-  patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['valibot', 'architecture'],
-  stages: ['lint'],
+  description: 'Schema field patterns appearing in 3+ files should be in @/schemas/common',
+
+  finalize(): LintResult[] {
+    const results: LintResult[] = [];
+    const threshold: number = 3;
+
+    for (const [signature, files] of FIELD_MAP.entries()) {
+      if (files.size >= threshold) {
+        const locations = FIELD_LOCATIONS.get(signature) as Array<{
+          file: string;
+          line: number;
+          column: number;
+        }>;
+        if (locations.length === 0) {
+          continue;
+        }
+        const firstLocation = locations[0] as { file: string; line: number; column: number }; // cast safe: length checked above
+        const fileList: string = [...files]
+          .map((f: string): string => f.replace(/.*packages\//, 'packages/'))
+          .join(', ');
+
+        results.push({
+          column: firstLocation.column,
+          file: firstLocation.file,
+          fix: { range: { end: 0, start: 0 }, text: '' },
+          line: firstLocation.line,
+          message: `Schema field '${signature}' duplicated in ${files.size} files — extract to @/schemas/common. Files: ${fileList}`,
+          ruleId: 'valibot/no-duplicate-schema',
+          severity: 'error',
+          tip: 'Create a shared schema constant in @/schemas/common and import it',
+        });
+      }
+    }
+
+    // Reset state for next run
+    FIELD_MAP.clear();
+    FIELD_LOCATIONS.clear();
+
+    return results;
+  },
   fixable: false,
+  id: 'valibot/no-duplicate-schema',
+  patterns: ['**/*.ts', '**/*.svelte.ts'],
+  stages: ['lint'],
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -117,9 +156,9 @@ const rule: TypeScriptRule = {
         if (!files.has(context.file)) {
           files.add(context.file);
           locations.push({
+            column: prop.loc.start.column + 1,
             file: context.file,
             line: prop.loc.start.line,
-            column: prop.loc.start.column + 1,
           });
         }
       }
@@ -127,45 +166,6 @@ const rule: TypeScriptRule = {
       // No results during traversal — all reporting in finalize()
       return [];
     },
-  },
-
-  finalize(): LintResult[] {
-    const results: LintResult[] = [];
-    const threshold: number = 3;
-
-    for (const [signature, files] of FIELD_MAP.entries()) {
-      if (files.size >= threshold) {
-        const locations = FIELD_LOCATIONS.get(signature) as Array<{
-          file: string;
-          line: number;
-          column: number;
-        }>;
-        if (locations.length === 0) {
-          continue;
-        }
-        const firstLocation = locations[0] as { file: string; line: number; column: number }; // cast safe: length checked above
-        const fileList: string = [...files]
-          .map((f: string): string => f.replace(/.*packages\//, 'packages/'))
-          .join(', ');
-
-        results.push({
-          file: firstLocation.file,
-          line: firstLocation.line,
-          column: firstLocation.column,
-          severity: 'error',
-          message: `Schema field '${signature}' duplicated in ${files.size} files — extract to @/schemas/common. Files: ${fileList}`,
-          ruleId: 'valibot/no-duplicate-schema',
-          tip: 'Create a shared schema constant in @/schemas/common and import it',
-          fix: { range: { start: 0, end: 0 }, text: '' },
-        });
-      }
-    }
-
-    // Reset state for next run
-    FIELD_MAP.clear();
-    FIELD_LOCATIONS.clear();
-
-    return results;
   },
 };
 
