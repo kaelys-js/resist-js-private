@@ -19,8 +19,7 @@
     "qa:type-check": "turbo qa:type-check --filter='./packages/products/storylyne/editor' --filter='./packages/products-template/*' --filter='./packages/shared/config/*' --filter='./packages/shared/locale' --filter='./packages/shared/schemas/*' --filter='./packages/shared/ui' --filter='./packages/shared/utils/*'",
     "qa:format": "biome format --write . && prettier --write '**/*.svelte'",
     "qa:format:check": "biome format . && prettier --check '**/*.svelte'",
-    "qa:lint": "oxlint packages/products/storylyne/editor packages/products-template packages/shared/config packages/shared/locale packages/shared/schemas packages/shared/ui && npx tsx packages/shared/config/tooling/lint/src/cli.ts --warn-only packages/products/storylyne/editor packages/products-template packages/shared/config packages/shared/locale packages/shared/schemas packages/shared/ui",
-    "qa:lint:custom": "npx tsx packages/shared/config/tooling/lint/src/cli.ts"
+    "qa:lint": "npx tsx packages/shared/config/tooling/lint/src/cli.ts --tools --warn-only packages/products/storylyne/editor packages/products-template packages/shared/config packages/shared/locale packages/shared/schemas packages/shared/ui"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
