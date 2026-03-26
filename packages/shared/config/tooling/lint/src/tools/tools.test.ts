@@ -90,6 +90,7 @@ import { nomadTool, transformNomadOutput } from './nomad.ts';
 import { npmrcTool, transformNpmrcOutput } from './npmrc.ts';
 import { nvmrcTool, transformNvmrcOutput } from './nvmrc.ts';
 import { ocamlTool, transformOcamlOutput } from './ocaml.ts';
+import { oxlintTool, transformOxlintOutput } from './oxlint.ts';
 import {
   packageJsonValidatorTool,
   transformPackageJsonValidatorOutput,
@@ -2883,6 +2884,124 @@ describe('transformOcamlOutput', () => {
 });
 
 // =============================================================================
+// oxlint transform
+// =============================================================================
+
+describe('transformOxlintOutput', () => {
+  it('parses JSON output with diagnostics', () => {
+    const output: string = JSON.stringify({
+      diagnostics: [
+        {
+          causes: [],
+          code: 'eslint(no-unused-vars)',
+          filename: 'src/main.ts',
+          help: 'Consider removing this variable.',
+          labels: [
+            { label: "'x' is declared here", span: { column: 5, length: 1, line: 3, offset: 20 } },
+          ],
+          message: "Variable 'x' is assigned a value but never used.",
+          related: [],
+          severity: 'error',
+          url: 'https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-unused-vars.html',
+        },
+      ],
+      number_of_files: 1,
+    });
+
+    const results: LintResult[] = transformOxlintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('oxlint/no-unused-vars');
+    expect(results[0]?.file).toBe('src/main.ts');
+    expect(results[0]?.line).toBe(3);
+    expect(results[0]?.column).toBe(5);
+    expect(results[0]?.severity).toBe('error');
+    expect(results[0]?.message).toContain("Variable 'x'");
+    expect(results[0]?.tip).toBe('Consider removing this variable.');
+    expect(results[0]?.url).toContain('oxc.rs');
+  });
+
+  it('returns empty array for empty output', () => {
+    expect(transformOxlintOutput('')).toHaveLength(0);
+  });
+
+  it('returns empty array for invalid JSON', () => {
+    expect(transformOxlintOutput('not json')).toHaveLength(0);
+  });
+
+  it('returns empty array for zero diagnostics', () => {
+    const output: string = JSON.stringify({ diagnostics: [], number_of_files: 0 });
+    expect(transformOxlintOutput(output)).toHaveLength(0);
+  });
+
+  it('handles multiple diagnostics', () => {
+    const output: string = JSON.stringify({
+      diagnostics: [
+        {
+          code: 'eslint(no-unused-vars)',
+          filename: 'a.ts',
+          labels: [{ span: { column: 1, line: 1 } }],
+          message: 'msg1',
+          severity: 'error',
+        },
+        {
+          code: 'eslint(curly)',
+          filename: 'b.ts',
+          labels: [{ span: { column: 2, line: 5 } }],
+          message: 'msg2',
+          severity: 'warning',
+        },
+      ],
+    });
+
+    const results: LintResult[] = transformOxlintOutput(output);
+    expect(results).toHaveLength(2);
+    expect(results[0]?.ruleId).toBe('oxlint/no-unused-vars');
+    expect(results[1]?.ruleId).toBe('oxlint/curly');
+    expect(results[1]?.severity).toBe('warning');
+  });
+
+  it('normalizes typescript-eslint rule codes', () => {
+    const output: string = JSON.stringify({
+      diagnostics: [
+        {
+          code: 'typescript-eslint(no-explicit-any)',
+          filename: 'file.ts',
+          labels: [{ span: { column: 1, line: 1 } }],
+          message: 'no any',
+          severity: 'error',
+        },
+      ],
+    });
+
+    const results: LintResult[] = transformOxlintOutput(output);
+    expect(results[0]?.ruleId).toBe('oxlint/no-explicit-any');
+  });
+
+  it('handles missing labels gracefully', () => {
+    const output: string = JSON.stringify({
+      diagnostics: [
+        {
+          code: 'eslint(no-debugger)',
+          filename: 'file.ts',
+          labels: [],
+          message: 'no debugger',
+          severity: 'warning',
+        },
+      ],
+    });
+
+    const results: LintResult[] = transformOxlintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.line).toBe(1);
+    expect(results[0]?.column).toBe(1);
+  });
+
+  it('handles whitespace-only output', () => {
+    expect(transformOxlintOutput('   \n  ')).toHaveLength(0);
+  });
+});
+
+// =============================================================================
 // package-json-validator transform
 // =============================================================================
 
@@ -3956,6 +4075,17 @@ describe('92 new tool definitions', () => {
     expect(ocamlTool.command).toBe('ocamlc');
     expect(ocamlTool.outputFormat).toBe('text');
     expect(ocamlTool.transform).toBe(transformOcamlOutput);
+  });
+
+  it('oxlintTool has correct properties', () => {
+    expect(oxlintTool.name).toBe('oxlint');
+    expect(oxlintTool.command).toBe('oxlint');
+    expect(oxlintTool.args).toContain('--format=json');
+    expect(oxlintTool.outputFormat).toBe('json');
+    expect(oxlintTool.filePatterns).toContain('**/*.ts');
+    expect(oxlintTool.filePatterns).toContain('**/*.js');
+    expect(oxlintTool.filePatterns).toContain('**/*.tsx');
+    expect(oxlintTool.transform).toBe(transformOxlintOutput);
   });
 
   it('packageJsonValidatorTool has correct properties', () => {

@@ -83,6 +83,7 @@ import { nomadTool } from '@/lint/tools/nomad.ts';
 import { npmrcTool } from '@/lint/tools/npmrc.ts';
 import { nvmrcTool } from '@/lint/tools/nvmrc.ts';
 import { ocamlTool } from '@/lint/tools/ocaml.ts';
+import { oxlintTool } from '@/lint/tools/oxlint.ts';
 import { packageJsonValidatorTool } from '@/lint/tools/package-json-validator.ts';
 import { packerTool } from '@/lint/tools/packer.ts';
 import { perlTool } from '@/lint/tools/perl.ts';
@@ -197,6 +198,7 @@ export const ALL_TOOLS: readonly ExternalTool[] = [
   npmrcTool,
   nvmrcTool,
   ocamlTool,
+  oxlintTool,
   packageJsonValidatorTool,
   packerTool,
   perlTool,
