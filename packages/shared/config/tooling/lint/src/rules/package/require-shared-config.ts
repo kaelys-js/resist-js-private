@@ -50,6 +50,7 @@ const CONFIG_CHECKS: ReadonlyArray<{
 const rule: PackageJsonRule = {
   id: 'package/require-shared-config',
   description: 'Config files must use shared config tooling',
+  fixable: false,
 
   /**
    * Check config files in the package directory.

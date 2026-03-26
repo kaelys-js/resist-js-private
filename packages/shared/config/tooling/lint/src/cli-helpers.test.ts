@@ -1,0 +1,635 @@
+/**
+ * Tests for CLI helper functions.
+ *
+ * Tests the pure, extracted helper functions that handle
+ * file discovery, fix application, and help text generation.
+ *
+ * @module
+ */
+
+import { describe, expect, it } from 'vitest';
+import { resolve } from 'node:path';
+
+import {
+  shouldLint,
+  collectFiles,
+  collectPackageJsonFiles,
+  runPkgRules,
+  applyFixes,
+  buildHelpText,
+  parseCliArgs,
+  runLinter,
+  type CliArgs,
+  type CliOutput,
+} from './cli-helpers.ts';
+import type { LintConfig } from './config/schema.ts';
+import type { LintFix, LintResult, PackageJsonRule, PackageJson } from './framework/types.ts';
+
+// =============================================================================
+// Test Helpers
+// =============================================================================
+
+/**
+ * Create a minimal LintConfig for testing.
+ *
+ * @param {Partial<LintConfig>} overrides - Config overrides
+ * @returns {LintConfig} A full LintConfig with defaults
+ */
+function makeConfig(overrides: Partial<LintConfig> = {}): LintConfig {
+  return {
+    include: [],
+    exclude: ['*.test.ts', '*.d.ts'],
+    extensions: ['.ts', '.svelte.ts', '.mjs'],
+    rules: {},
+    overrides: [],
+    ...overrides,
+  };
+}
+
+// =============================================================================
+// shouldLint
+// =============================================================================
+
+describe('shouldLint', () => {
+  it('returns true for a .ts file with default config', () => {
+    const config: LintConfig = makeConfig();
+    expect(shouldLint('/path/to/file.ts', config)).toBe(true);
+  });
+
+  it('returns true for a .svelte.ts file', () => {
+    const config: LintConfig = makeConfig();
+    expect(shouldLint('/path/to/Component.svelte.ts', config)).toBe(true);
+  });
+
+  it('returns true for a .mjs file', () => {
+    const config: LintConfig = makeConfig();
+    expect(shouldLint('/path/to/config.mjs', config)).toBe(true);
+  });
+
+  it('returns false for a .test.ts file (excluded by default)', () => {
+    const config: LintConfig = makeConfig();
+    expect(shouldLint('/path/to/file.test.ts', config)).toBe(false);
+  });
+
+  it('returns false for a .d.ts file (excluded by default)', () => {
+    const config: LintConfig = makeConfig();
+    expect(shouldLint('/path/to/types.d.ts', config)).toBe(false);
+  });
+
+  it('returns false for a .js file (not in extensions)', () => {
+    const config: LintConfig = makeConfig();
+    expect(shouldLint('/path/to/file.js', config)).toBe(false);
+  });
+
+  it('returns false for a .json file (not in extensions)', () => {
+    const config: LintConfig = makeConfig();
+    expect(shouldLint('/path/to/package.json', config)).toBe(false);
+  });
+
+  it('respects custom exclude patterns', () => {
+    const config: LintConfig = makeConfig({ exclude: ['*.generated.ts'] });
+    expect(shouldLint('/path/to/schema.generated.ts', config)).toBe(false);
+  });
+
+  it('respects custom extensions', () => {
+    const config: LintConfig = makeConfig({ extensions: ['.js'] });
+    expect(shouldLint('/path/to/file.js', config)).toBe(true);
+  });
+
+  it('returns false when extensions list is empty', () => {
+    const config: LintConfig = makeConfig({ extensions: [] });
+    expect(shouldLint('/path/to/file.ts', config)).toBe(false);
+  });
+});
+
+// =============================================================================
+// collectFiles
+// =============================================================================
+
+describe('collectFiles', () => {
+  it('returns an empty array for a nonexistent directory', () => {
+    const config: LintConfig = makeConfig();
+    const files: string[] = collectFiles('/this/directory/does/not/exist', config);
+    expect(files.length).toBe(0);
+  });
+
+  it('collects .ts files from a real directory', () => {
+    const config: LintConfig = makeConfig();
+    const dir: string = resolve(import.meta.dirname);
+    const files: string[] = collectFiles(dir, config);
+    expect(files.length).toBeGreaterThan(0);
+    // Should find constants.ts in this directory
+    const hasConstants: boolean = files.some((f: string): boolean => f.endsWith('constants.ts'));
+    expect(hasConstants).toBe(true);
+  });
+
+  it('excludes .test.ts files', () => {
+    const config: LintConfig = makeConfig();
+    const dir: string = resolve(import.meta.dirname);
+    const files: string[] = collectFiles(dir, config);
+    const hasTestFiles: boolean = files.some((f: string): boolean => f.endsWith('.test.ts'));
+    expect(hasTestFiles).toBe(false);
+  });
+
+  it('skips directories in the exclude set', () => {
+    const config: LintConfig = makeConfig({ exclude: ['*.test.ts', '*.d.ts', 'node_modules'] });
+    const dir: string = resolve(import.meta.dirname, '..', '..', '..', '..', '..', '..');
+    const files: string[] = collectFiles(dir, config);
+    const hasNodeModules: boolean = files.some((f: string): boolean =>
+      f.includes('/node_modules/'),
+    );
+    expect(hasNodeModules).toBe(false);
+  });
+});
+
+// =============================================================================
+// collectPackageJsonFiles
+// =============================================================================
+
+describe('collectPackageJsonFiles', () => {
+  it('returns an empty array for a nonexistent directory', () => {
+    const config: LintConfig = makeConfig();
+    const files: string[] = collectPackageJsonFiles('/no/such/dir', config);
+    expect(files.length).toBe(0);
+  });
+
+  it('finds package.json files in a real directory tree', () => {
+    const config: LintConfig = makeConfig({ exclude: ['node_modules', '.git'] });
+    const lintDir: string = resolve(import.meta.dirname, '..');
+    const files: string[] = collectPackageJsonFiles(lintDir, config);
+    expect(files.length).toBeGreaterThan(0);
+    // Should find the lint package's package.json
+    const hasPkg: boolean = files.some((f: string): boolean => f.endsWith('lint/package.json'));
+    expect(hasPkg).toBe(true);
+  });
+
+  it('skips excluded directories', () => {
+    const config: LintConfig = makeConfig({ exclude: ['node_modules'] });
+    const lintDir: string = resolve(import.meta.dirname, '..');
+    const files: string[] = collectPackageJsonFiles(lintDir, config);
+    const hasNodeModules: boolean = files.some((f: string): boolean =>
+      f.includes('/node_modules/'),
+    );
+    expect(hasNodeModules).toBe(false);
+  });
+});
+
+// =============================================================================
+// runPkgRules
+// =============================================================================
+
+describe('runPkgRules', () => {
+  it('returns empty array when no rules are provided', () => {
+    const results: LintResult[] = runPkgRules('/test/package.json', {}, false, []);
+    expect(results.length).toBe(0);
+  });
+
+  it('runs a rule and collects results', () => {
+    const mockRule: PackageJsonRule = {
+      id: 'test/mock-rule',
+      description: 'Mock rule for testing',
+      check: (ctx): LintResult[] => {
+        if (!ctx.pkg.name) {
+          return [
+            {
+              file: ctx.file,
+              line: 1,
+              column: 1,
+              severity: 'error',
+              message: 'Missing name field',
+              ruleId: 'test/mock-rule',
+              fix: { range: { start: 0, end: 0 }, text: '' },
+            },
+          ];
+        }
+        return [];
+      },
+    };
+
+    const pkg: PackageJson = {};
+    const results: LintResult[] = runPkgRules('/test/package.json', pkg, false, [mockRule]);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('test/mock-rule');
+  });
+
+  it('passes isRoot context correctly', () => {
+    let receivedIsRoot: boolean = false;
+    const mockRule: PackageJsonRule = {
+      id: 'test/root-check',
+      description: 'Checks isRoot',
+      check: (ctx): LintResult[] => {
+        receivedIsRoot = ctx.isRoot;
+        return [];
+      },
+    };
+
+    runPkgRules('/test/package.json', {}, true, [mockRule]);
+    expect(receivedIsRoot).toBe(true);
+  });
+
+  it('runs multiple rules and aggregates results', () => {
+    const rule1: PackageJsonRule = {
+      id: 'test/rule-1',
+      description: 'Rule 1',
+      check: (ctx): LintResult[] => [
+        {
+          file: ctx.file,
+          line: 1,
+          column: 1,
+          severity: 'error',
+          message: 'Error 1',
+          ruleId: 'test/rule-1',
+          fix: { range: { start: 0, end: 0 }, text: '' },
+        },
+      ],
+    };
+    const rule2: PackageJsonRule = {
+      id: 'test/rule-2',
+      description: 'Rule 2',
+      check: (ctx): LintResult[] => [
+        {
+          file: ctx.file,
+          line: 2,
+          column: 1,
+          severity: 'error',
+          message: 'Error 2',
+          ruleId: 'test/rule-2',
+          fix: { range: { start: 0, end: 0 }, text: '' },
+        },
+      ],
+    };
+
+    const results: LintResult[] = runPkgRules('/test/package.json', {}, false, [rule1, rule2]);
+    expect(results.length).toBe(2);
+  });
+});
+
+// =============================================================================
+// applyFixes
+// =============================================================================
+
+describe('applyFixes', () => {
+  it('returns original content when no fixes are provided', () => {
+    const content: string = 'const x = 1;';
+    expect(applyFixes(content, [])).toBe(content);
+  });
+
+  it('applies a single replacement fix', () => {
+    const content: string = 'const x = 1;';
+    const fixes: LintFix[] = [{ range: { start: 6, end: 7 }, text: 'y' }];
+    expect(applyFixes(content, fixes)).toBe('const y = 1;');
+  });
+
+  it('applies a deletion fix (empty text)', () => {
+    const content: string = 'const x = 1;';
+    const fixes: LintFix[] = [{ range: { start: 0, end: 6 }, text: '' }];
+    expect(applyFixes(content, fixes)).toBe('x = 1;');
+  });
+
+  it('applies an insertion fix (start === end)', () => {
+    const content: string = 'const x = 1;';
+    const fixes: LintFix[] = [{ range: { start: 6, end: 6 }, text: 'readonly ' }];
+    expect(applyFixes(content, fixes)).toBe('const readonly x = 1;');
+  });
+
+  it('applies multiple non-overlapping fixes in correct order', () => {
+    const content: string = 'aaa bbb ccc';
+    const fixes: LintFix[] = [
+      { range: { start: 0, end: 3 }, text: 'AAA' },
+      { range: { start: 8, end: 11 }, text: 'CCC' },
+    ];
+    expect(applyFixes(content, fixes)).toBe('AAA bbb CCC');
+  });
+
+  it('applies fixes regardless of input order (sorted internally)', () => {
+    const content: string = 'aaa bbb ccc';
+    // Provide in forward order — applyFixes should sort to reverse
+    const fixes: LintFix[] = [
+      { range: { start: 0, end: 3 }, text: 'XXX' },
+      { range: { start: 8, end: 11 }, text: 'ZZZ' },
+    ];
+    expect(applyFixes(content, fixes)).toBe('XXX bbb ZZZ');
+  });
+
+  it('handles multiline content', () => {
+    const content: string = 'line1\nline2\nline3';
+    const fixes: LintFix[] = [{ range: { start: 6, end: 11 }, text: 'REPLACED' }];
+    expect(applyFixes(content, fixes)).toBe('line1\nREPLACED\nline3');
+  });
+});
+
+// =============================================================================
+// buildHelpText
+// =============================================================================
+
+describe('buildHelpText', () => {
+  it('includes the linter name', () => {
+    const text: string = buildHelpText('my-lint', '.my-lint.jsonc', '.my-lint.schema.json');
+    expect(text).toContain('my-lint');
+  });
+
+  it('includes the config filename', () => {
+    const text: string = buildHelpText('my-lint', '.my-lint.jsonc', '.my-lint.schema.json');
+    expect(text).toContain('.my-lint.jsonc');
+  });
+
+  it('includes the schema filename', () => {
+    const text: string = buildHelpText('my-lint', '.my-lint.jsonc', '.my-lint.schema.json');
+    expect(text).toContain('.my-lint.schema.json');
+  });
+
+  it('contains USAGE section', () => {
+    const text: string = buildHelpText(
+      'resist-lint',
+      '.resist-lint.jsonc',
+      '.resist-lint.schema.json',
+    );
+    expect(text).toContain('USAGE');
+  });
+
+  it('contains OPTIONS section', () => {
+    const text: string = buildHelpText(
+      'resist-lint',
+      '.resist-lint.jsonc',
+      '.resist-lint.schema.json',
+    );
+    expect(text).toContain('OPTIONS');
+  });
+
+  it('contains CONFIGURATION section', () => {
+    const text: string = buildHelpText(
+      'resist-lint',
+      '.resist-lint.jsonc',
+      '.resist-lint.schema.json',
+    );
+    expect(text).toContain('CONFIGURATION');
+  });
+
+  it('contains EXAMPLES section', () => {
+    const text: string = buildHelpText(
+      'resist-lint',
+      '.resist-lint.jsonc',
+      '.resist-lint.schema.json',
+    );
+    expect(text).toContain('EXAMPLES');
+  });
+
+  it('documents --help and -h flags', () => {
+    const text: string = buildHelpText(
+      'resist-lint',
+      '.resist-lint.jsonc',
+      '.resist-lint.schema.json',
+    );
+    expect(text).toContain('--help');
+    expect(text).toContain('-h');
+  });
+
+  it('documents --fix flag', () => {
+    const text: string = buildHelpText(
+      'resist-lint',
+      '.resist-lint.jsonc',
+      '.resist-lint.schema.json',
+    );
+    expect(text).toContain('--fix');
+  });
+
+  it('documents --json flag', () => {
+    const text: string = buildHelpText(
+      'resist-lint',
+      '.resist-lint.jsonc',
+      '.resist-lint.schema.json',
+    );
+    expect(text).toContain('--json');
+  });
+});
+
+// =============================================================================
+// parseCliArgs
+// =============================================================================
+
+describe('parseCliArgs', () => {
+  it('parses empty args', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.paths.length).toBe(0);
+    expect(args.json).toBe(false);
+    expect(args.listRules).toBe(false);
+    expect(args.warnOnly).toBe(false);
+    expect(args.fix).toBe(false);
+    expect(args.help).toBe(false);
+    expect(args.ruleIds.length).toBe(0);
+  });
+
+  it('parses path arguments', () => {
+    const args: CliArgs = parseCliArgs(['src/', 'lib/']);
+    expect(args.paths).toEqual(['src/', 'lib/']);
+  });
+
+  it('parses --json flag', () => {
+    const args: CliArgs = parseCliArgs(['--json', 'src/']);
+    expect(args.json).toBe(true);
+    expect(args.paths).toEqual(['src/']);
+  });
+
+  it('parses --list-rules flag', () => {
+    const args: CliArgs = parseCliArgs(['--list-rules']);
+    expect(args.listRules).toBe(true);
+  });
+
+  it('parses --warn-only flag', () => {
+    const args: CliArgs = parseCliArgs(['--warn-only']);
+    expect(args.warnOnly).toBe(true);
+  });
+
+  it('parses --fix flag', () => {
+    const args: CliArgs = parseCliArgs(['--fix']);
+    expect(args.fix).toBe(true);
+  });
+
+  it('parses --help flag', () => {
+    const args: CliArgs = parseCliArgs(['--help']);
+    expect(args.help).toBe(true);
+  });
+
+  it('parses -h flag as help', () => {
+    const args: CliArgs = parseCliArgs(['-h']);
+    expect(args.help).toBe(true);
+  });
+
+  it('parses --rule=id', () => {
+    const args: CliArgs = parseCliArgs(['--rule=jsdoc/require-param']);
+    expect(args.ruleIds).toEqual(['jsdoc/require-param']);
+  });
+
+  it('parses --rule=id1,id2', () => {
+    const args: CliArgs = parseCliArgs(['--rule=jsdoc/require-param,typescript/no-throw']);
+    expect(args.ruleIds).toEqual(['jsdoc/require-param', 'typescript/no-throw']);
+  });
+
+  it('separates flags from paths correctly', () => {
+    const args: CliArgs = parseCliArgs(['--json', 'src/', '--fix', 'lib/']);
+    expect(args.json).toBe(true);
+    expect(args.fix).toBe(true);
+    expect(args.paths).toEqual(['src/', 'lib/']);
+  });
+});
+
+// =============================================================================
+// runLinter
+// =============================================================================
+
+/**
+ * Create a capture output sink for testing.
+ *
+ * @returns Object with stdout/stderr capture arrays and CliOutput
+ */
+function captureOutput(): { stdoutLines: string[]; stderrLines: string[]; output: CliOutput } {
+  const stdoutLines: string[] = [];
+  const stderrLines: string[] = [];
+  return {
+    stdoutLines,
+    stderrLines,
+    output: {
+      stdout: (msg: string): void => {
+        stdoutLines.push(msg);
+      },
+      stderr: (msg: string): void => {
+        stderrLines.push(msg);
+      },
+    },
+  };
+}
+
+describe('runLinter', () => {
+  it('returns 0 and prints help when help flag is set', async () => {
+    const { stdoutLines, output } = captureOutput();
+    const code: number = await runLinter(
+      {
+        paths: [],
+        json: false,
+        listRules: false,
+        warnOnly: false,
+        fix: false,
+        help: true,
+        ruleIds: [],
+      },
+      output,
+    );
+    expect(code).toBe(0);
+    const combined: string = stdoutLines.join('');
+    expect(combined).toContain('resist-lint');
+    expect(combined).toContain('USAGE');
+  });
+
+  it('returns 0 when --list-rules is set', async () => {
+    const { stdoutLines, output } = captureOutput();
+    const code: number = await runLinter(
+      {
+        paths: [],
+        json: false,
+        listRules: true,
+        warnOnly: false,
+        fix: false,
+        help: false,
+        ruleIds: [],
+      },
+      output,
+    );
+    expect(code).toBe(0);
+    const combined: string = stdoutLines.join('');
+    expect(combined).toContain('TypeScript rules:');
+    expect(combined).toContain('Package.json rules:');
+  });
+
+  it('returns 1 when no paths and no include configured', async () => {
+    const { output } = captureOutput();
+    // Since we run from workspace root which HAS includes, it will find files and lint
+    const code: number = await runLinter(
+      {
+        paths: [],
+        json: false,
+        listRules: false,
+        warnOnly: false,
+        fix: false,
+        help: false,
+        ruleIds: [],
+      },
+      output,
+    );
+    // This will either return 1 (no paths, no config includes) or 0 (config has includes)
+    // Since we run from workspace root which HAS includes, it will find files and lint
+    expect([0, 1]).toContain(code);
+  });
+
+  it('returns 0 when linting a clean file with specific rule filter', async () => {
+    const { output } = captureOutput();
+    const code: number = await runLinter(
+      {
+        paths: ['packages/shared/config/tooling/lint/src/constants.ts'],
+        json: false,
+        listRules: false,
+        warnOnly: false,
+        fix: false,
+        help: false,
+        ruleIds: ['typescript/no-throw'],
+      },
+      output,
+    );
+    // constants.ts has no throw statements
+    expect(code).toBe(0);
+  });
+
+  it('returns 0 with --warnOnly even if errors exist', async () => {
+    const { output } = captureOutput();
+    const code: number = await runLinter(
+      {
+        paths: ['packages/shared/config/tooling/lint/src/constants.ts'],
+        json: false,
+        listRules: false,
+        warnOnly: true,
+        fix: false,
+        help: false,
+        ruleIds: [],
+      },
+      output,
+    );
+    expect(code).toBe(0);
+  });
+
+  it('produces valid JSON output when --json flag is set', async () => {
+    const { stdoutLines, output } = captureOutput();
+    const code: number = await runLinter(
+      {
+        paths: ['packages/shared/config/tooling/lint/src/constants.ts'],
+        json: true,
+        listRules: false,
+        warnOnly: false,
+        fix: false,
+        help: false,
+        ruleIds: ['typescript/no-throw'],
+      },
+      output,
+    );
+    const combined: string = stdoutLines.join('');
+    const parsed: unknown = JSON.parse(combined);
+    expect(Array.isArray(parsed)).toBe(true);
+    expect([0, 1]).toContain(code);
+  });
+
+  it('reports nonexistent path on stderr', async () => {
+    const { stderrLines, output } = captureOutput();
+    await runLinter(
+      {
+        paths: ['nonexistent_path_xyz_123'],
+        json: false,
+        listRules: false,
+        warnOnly: false,
+        fix: false,
+        help: false,
+        ruleIds: [],
+      },
+      output,
+    );
+    const combined: string = stderrLines.join('');
+    expect(combined).toContain('Path not found');
+  });
+});

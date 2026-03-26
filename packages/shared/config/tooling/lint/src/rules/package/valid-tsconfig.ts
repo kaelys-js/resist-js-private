@@ -26,6 +26,7 @@ const PROTECTED_OPTIONS: readonly string[] = ['strict', 'target', 'module', 'mod
 const rule: PackageJsonRule = {
   id: 'package/valid-tsconfig',
   description: 'Sub-package tsconfig.json must extend root and include src',
+  fixable: false,
 
   /**
    * Check tsconfig.json in the package directory.

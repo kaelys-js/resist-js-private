@@ -14,6 +14,7 @@ const rule: TypeScriptRule = {
   id: 'imports/no-barrel-files',
   description: 'Forbids barrel files (index.ts with re-exports)',
   patterns: ['**/index.ts'],
+  fixable: false,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

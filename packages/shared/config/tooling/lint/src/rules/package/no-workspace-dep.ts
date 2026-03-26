@@ -35,6 +35,7 @@ const WORKSPACE_ROOT_DEPS: ReadonlySet<string> = new Set([
 const rule: PackageJsonRule = {
   id: 'package/no-workspace-dep',
   description: 'Workspace-root-level deps must not appear in sub-package devDependencies',
+  fixable: false,
 
   /**
    * Check for workspace-root deps in sub-package devDependencies.

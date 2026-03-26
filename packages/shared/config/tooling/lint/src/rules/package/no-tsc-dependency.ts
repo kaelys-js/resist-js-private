@@ -18,6 +18,7 @@ const NO_FIX: { range: { start: number; end: number }; text: string } = {
 const rule: PackageJsonRule = {
   id: 'package/no-tsc-dependency',
   description: 'Packages using tsgo should not depend on typescript',
+  fixable: false,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
     if (context.isRoot) {

@@ -21,6 +21,7 @@ const NO_FIX: { range: { start: number; end: number }; text: string } = {
 const rule: PackageJsonRule = {
   id: 'package/no-peer-deps',
   description: 'Private workspace packages must not have peerDependencies',
+  fixable: false,
 
   /**
    * Check for peerDependencies in private packages.

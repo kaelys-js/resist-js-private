@@ -151,6 +151,7 @@ function extractReadmeApiFunctions(readme: string): string[] {
 const rule: PackageJsonRule = {
   id: 'package/require-readme',
   description: 'Every sub-package must have a validated README.md',
+  fixable: false,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
     if (context.isRoot) {
