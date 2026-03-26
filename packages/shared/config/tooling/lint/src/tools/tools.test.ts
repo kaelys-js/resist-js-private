@@ -22,6 +22,12 @@ import { transformTaploOutput, taploTool } from './taplo.ts';
 import { transformActionlintOutput, actionlintTool } from './actionlint.ts';
 import { transformSqlfluffOutput, sqlfluffTool } from './sqlfluff.ts';
 import { transformRuffOutput, ruffTool } from './ruff.ts';
+import { transformTyposOutput, typosTool } from './typos.ts';
+import { transformCommitlintOutput, commitlintTool } from './commitlint.ts';
+import { transformKnipOutput, knipTool } from './knip.ts';
+import { transformHtmlhintOutput, htmlhintTool } from './htmlhint.ts';
+import { transformJsonlintOutput, jsonlintTool } from './jsonlint.ts';
+import { transformDotenvLinterOutput, dotenvLinterTool } from './dotenv-linter.ts';
 
 // Mock isCommandAvailable to avoid real `which` calls
 vi.mock('@/lint/framework/tool-orchestrator.ts', async (importOriginal) => {
@@ -730,5 +736,565 @@ describe('transform edge cases', () => {
 
   it('ruff whitespace-only output returns empty', () => {
     expect(transformRuffOutput('   \n  ')).toHaveLength(0);
+  });
+
+  it('typos whitespace-only output returns empty', () => {
+    expect(transformTyposOutput('   \n  ')).toHaveLength(0);
+  });
+
+  it('htmlhint whitespace-only output returns empty', () => {
+    expect(transformHtmlhintOutput('   \n  ')).toHaveLength(0);
+  });
+
+  it('dotenv-linter whitespace-only output returns empty', () => {
+    expect(transformDotenvLinterOutput('   \n  ')).toHaveLength(0);
+  });
+
+  it('knip whitespace-only output returns empty', () => {
+    expect(transformKnipOutput('   \n  ')).toHaveLength(0);
+  });
+
+  it('commitlint whitespace-only output returns empty', () => {
+    expect(transformCommitlintOutput('   \n  ')).toHaveLength(0);
+  });
+
+  it('jsonlint whitespace-only output returns empty', () => {
+    expect(transformJsonlintOutput('   \n  ')).toHaveLength(0);
+  });
+});
+
+// =============================================================================
+// typos transform
+// =============================================================================
+
+describe('transformTyposOutput', () => {
+  it('parses JSONL output with typos', () => {
+    const output: string =
+      '{"type":"typo","path":"src/foo.ts","line_num":10,"byte_offset":5,"typo":"teh","corrections":["the"]}';
+
+    const results: LintResult[] = transformTyposOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('typos/misspelling');
+    expect(results[0]?.file).toBe('src/foo.ts');
+    expect(results[0]?.line).toBe(10);
+    expect(results[0]?.column).toBe(6);
+    expect(results[0]?.severity).toBe('warning');
+    expect(results[0]?.message).toContain('teh');
+    expect(results[0]?.message).toContain('the');
+  });
+
+  it('skips non-typo entries', () => {
+    const output: string = [
+      '{"type":"binary","path":"image.png"}',
+      '{"type":"typo","path":"a.ts","line_num":1,"byte_offset":0,"typo":"nto","corrections":["not","into"]}',
+    ].join('\n');
+
+    const results: LintResult[] = transformTyposOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.message).toContain('nto');
+  });
+
+  it('handles multiple corrections', () => {
+    const output: string =
+      '{"type":"typo","path":"a.ts","line_num":1,"byte_offset":0,"typo":"fo","corrections":["of","for","do"]}';
+
+    const results: LintResult[] = transformTyposOutput(output);
+    expect(results[0]?.message).toContain('of, for, do');
+  });
+
+  it('returns empty array for empty output', () => {
+    expect(transformTyposOutput('')).toHaveLength(0);
+  });
+
+  it('handles invalid JSON lines gracefully', () => {
+    const output: string =
+      'not json\n{"type":"typo","path":"a.ts","line_num":1,"byte_offset":0,"typo":"teh","corrections":["the"]}';
+
+    const results: LintResult[] = transformTyposOutput(output);
+    expect(results).toHaveLength(1);
+  });
+
+  it('includes tip with fix suggestion', () => {
+    const output: string =
+      '{"type":"typo","path":"a.ts","line_num":1,"byte_offset":0,"typo":"teh","corrections":["the"]}';
+
+    const results: LintResult[] = transformTyposOutput(output);
+    expect(results[0]?.tip).toContain('teh');
+    expect(results[0]?.tip).toContain('the');
+  });
+
+  it('handles empty corrections array', () => {
+    const output: string =
+      '{"type":"typo","path":"a.ts","line_num":1,"byte_offset":0,"typo":"xyz","corrections":[]}';
+
+    const results: LintResult[] = transformTyposOutput(output);
+    expect(results[0]?.message).toContain('unknown');
+  });
+});
+
+// =============================================================================
+// commitlint transform
+// =============================================================================
+
+describe('transformCommitlintOutput', () => {
+  it('parses error output', () => {
+    const output: string = '✖   subject may not be empty [subject-empty]';
+
+    const results: LintResult[] = transformCommitlintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('commitlint/subject-empty');
+    expect(results[0]?.severity).toBe('error');
+    expect(results[0]?.message).toContain('subject may not be empty');
+  });
+
+  it('parses warning output', () => {
+    const output: string = '⚠   header must not be longer than 72 characters [header-max-length]';
+
+    const results: LintResult[] = transformCommitlintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('commitlint/header-max-length');
+    expect(results[0]?.severity).toBe('warning');
+  });
+
+  it('handles multiple issues', () => {
+    const output: string =
+      '✖   subject may not be empty [subject-empty]\n⚠   body must have leading blank line [body-leading-blank]';
+
+    const results: LintResult[] = transformCommitlintOutput(output);
+    expect(results).toHaveLength(2);
+  });
+
+  it('skips non-matching lines', () => {
+    const output: string =
+      'input: some commit message\n✖   subject may not be empty [subject-empty]\n\nfound 1 problems, 0 warnings';
+
+    const results: LintResult[] = transformCommitlintOutput(output);
+    expect(results).toHaveLength(1);
+  });
+
+  it('returns empty array for empty output', () => {
+    expect(transformCommitlintOutput('')).toHaveLength(0);
+  });
+
+  it('sets file to .git/COMMIT_EDITMSG', () => {
+    const output: string = '✖   type must be one of [feat, fix] [type-enum]';
+
+    const results: LintResult[] = transformCommitlintOutput(output);
+    expect(results[0]?.file).toBe('.git/COMMIT_EDITMSG');
+  });
+});
+
+// =============================================================================
+// knip transform
+// =============================================================================
+
+describe('transformKnipOutput', () => {
+  it('parses unused files', () => {
+    const output: string = JSON.stringify({
+      files: ['src/unused.ts', 'src/dead-code.ts'],
+      issues: [],
+    });
+
+    const results: LintResult[] = transformKnipOutput(output);
+    expect(results).toHaveLength(2);
+    expect(results[0]?.ruleId).toBe('knip/unused-file');
+    expect(results[0]?.file).toBe('src/unused.ts');
+    expect(results[1]?.file).toBe('src/dead-code.ts');
+  });
+
+  it('parses unused exports', () => {
+    const output: string = JSON.stringify({
+      files: [],
+      issues: [
+        { type: 'exports', filePath: 'src/utils.ts', symbol: 'helperFn', line: 42, col: 14 },
+      ],
+    });
+
+    const results: LintResult[] = transformKnipOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('knip/unused-export');
+    expect(results[0]?.file).toBe('src/utils.ts');
+    expect(results[0]?.line).toBe(42);
+    expect(results[0]?.message).toContain('helperFn');
+  });
+
+  it('parses unused types', () => {
+    const output: string = JSON.stringify({
+      files: [],
+      issues: [{ type: 'types', filePath: 'src/types.ts', symbol: 'OldType', line: 5, col: 1 }],
+    });
+
+    const results: LintResult[] = transformKnipOutput(output);
+    expect(results[0]?.ruleId).toBe('knip/unused-type');
+  });
+
+  it('parses unused dependencies', () => {
+    const output: string = JSON.stringify({
+      files: [],
+      issues: [
+        { type: 'dependencies', filePath: 'package.json', symbol: 'lodash', line: 1, col: 1 },
+      ],
+    });
+
+    const results: LintResult[] = transformKnipOutput(output);
+    expect(results[0]?.ruleId).toBe('knip/unused-dependency');
+  });
+
+  it('parses unused devDependencies', () => {
+    const output: string = JSON.stringify({
+      files: [],
+      issues: [
+        {
+          type: 'devDependencies',
+          filePath: 'package.json',
+          symbol: 'jest',
+          line: 1,
+          col: 1,
+        },
+      ],
+    });
+
+    const results: LintResult[] = transformKnipOutput(output);
+    expect(results[0]?.ruleId).toBe('knip/unused-dev-dependency');
+  });
+
+  it('returns empty array for empty output', () => {
+    expect(transformKnipOutput('')).toHaveLength(0);
+  });
+
+  it('returns empty array for invalid JSON', () => {
+    expect(transformKnipOutput('not json')).toHaveLength(0);
+  });
+
+  it('handles missing fields with defaults', () => {
+    const output: string = JSON.stringify({
+      issues: [{ type: 'other', filePath: 'a.ts' }],
+    });
+
+    const results: LintResult[] = transformKnipOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('knip/unused');
+    expect(results[0]?.line).toBe(1);
+  });
+});
+
+// =============================================================================
+// HTMLHint transform
+// =============================================================================
+
+describe('transformHtmlhintOutput', () => {
+  it('parses JSON output with messages', () => {
+    const output: string = JSON.stringify([
+      {
+        file: 'index.html',
+        messages: [
+          {
+            line: 1,
+            col: 1,
+            type: 'error',
+            message: 'Doctype must be declared first.',
+            rule: { id: 'doctype-first' },
+          },
+        ],
+      },
+    ]);
+
+    const results: LintResult[] = transformHtmlhintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('htmlhint/doctype-first');
+    expect(results[0]?.file).toBe('index.html');
+    expect(results[0]?.line).toBe(1);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('handles warning severity', () => {
+    const output: string = JSON.stringify([
+      {
+        file: 'page.html',
+        messages: [
+          {
+            line: 5,
+            col: 3,
+            type: 'warning',
+            message: 'Tag must be paired.',
+            rule: { id: 'tag-pair' },
+          },
+        ],
+      },
+    ]);
+
+    const results: LintResult[] = transformHtmlhintOutput(output);
+    expect(results[0]?.severity).toBe('warning');
+  });
+
+  it('handles info severity', () => {
+    const output: string = JSON.stringify([
+      {
+        file: 'page.html',
+        messages: [{ line: 1, col: 1, type: 'info', message: 'Info msg', rule: { id: 'rule' } }],
+      },
+    ]);
+
+    const results: LintResult[] = transformHtmlhintOutput(output);
+    expect(results[0]?.severity).toBe('info');
+  });
+
+  it('handles multiple files and messages', () => {
+    const output: string = JSON.stringify([
+      {
+        file: 'a.html',
+        messages: [
+          { line: 1, col: 1, type: 'error', message: 'msg1', rule: { id: 'r1' } },
+          { line: 5, col: 3, type: 'warning', message: 'msg2', rule: { id: 'r2' } },
+        ],
+      },
+      {
+        file: 'b.html',
+        messages: [{ line: 10, col: 1, type: 'error', message: 'msg3', rule: { id: 'r3' } }],
+      },
+    ]);
+
+    const results: LintResult[] = transformHtmlhintOutput(output);
+    expect(results).toHaveLength(3);
+  });
+
+  it('returns empty array for empty output', () => {
+    expect(transformHtmlhintOutput('')).toHaveLength(0);
+  });
+
+  it('returns empty array for invalid JSON', () => {
+    expect(transformHtmlhintOutput('not json')).toHaveLength(0);
+  });
+
+  it('handles missing fields with defaults', () => {
+    const output: string = JSON.stringify([{ file: 'a.html', messages: [{}] }]);
+
+    const results: LintResult[] = transformHtmlhintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('htmlhint/unknown');
+    expect(results[0]?.severity).toBe('warning');
+  });
+
+  it('includes tip with documentation URL', () => {
+    const output: string = JSON.stringify([
+      {
+        file: 'a.html',
+        messages: [
+          { line: 1, col: 1, type: 'error', message: 'msg', rule: { id: 'doctype-first' } },
+        ],
+      },
+    ]);
+
+    const results: LintResult[] = transformHtmlhintOutput(output);
+    expect(results[0]?.tip).toContain('https://htmlhint.com/docs/user-guide/rules/doctype-first');
+  });
+});
+
+// =============================================================================
+// jsonlint transform
+// =============================================================================
+
+describe('transformJsonlintOutput', () => {
+  it('parses compact format output', () => {
+    const output: string = 'config.json: line 5, col 10, Error - Expected comma';
+
+    const results: LintResult[] = transformJsonlintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('jsonlint/parse-error');
+    expect(results[0]?.file).toBe('config.json');
+    expect(results[0]?.line).toBe(5);
+    expect(results[0]?.column).toBe(10);
+    expect(results[0]?.severity).toBe('error');
+    expect(results[0]?.message).toContain('Expected comma');
+  });
+
+  it('parses warning level in compact format', () => {
+    const output: string = 'data.json: line 3, col 1, Warning - Trailing comma';
+
+    const results: LintResult[] = transformJsonlintOutput(output);
+    expect(results[0]?.severity).toBe('warning');
+  });
+
+  it('parses standard format output', () => {
+    const output: string =
+      "Error: Parse error on line 5:\n...some context...\nExpecting 'STRING', got 'EOF'";
+
+    const results: LintResult[] = transformJsonlintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('jsonlint/parse-error');
+    expect(results[0]?.line).toBe(5);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('handles multiple compact format lines', () => {
+    const output: string =
+      'a.json: line 1, col 5, Error - msg1\nb.json: line 10, col 2, Error - msg2';
+
+    const results: LintResult[] = transformJsonlintOutput(output);
+    expect(results).toHaveLength(2);
+  });
+
+  it('returns empty array for empty output', () => {
+    expect(transformJsonlintOutput('')).toHaveLength(0);
+  });
+
+  it('skips non-matching lines', () => {
+    const output: string =
+      'Validating files...\nconfig.json: line 5, col 10, Error - Bad token\nDone.';
+
+    const results: LintResult[] = transformJsonlintOutput(output);
+    expect(results).toHaveLength(1);
+  });
+});
+
+// =============================================================================
+// dotenv-linter transform
+// =============================================================================
+
+describe('transformDotenvLinterOutput', () => {
+  it('parses output with issues', () => {
+    const output: string = '.env:3 DuplicatedKey: The FOO key is duplicated';
+
+    const results: LintResult[] = transformDotenvLinterOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('dotenv-linter/DuplicatedKey');
+    expect(results[0]?.file).toBe('.env');
+    expect(results[0]?.line).toBe(3);
+    expect(results[0]?.severity).toBe('warning');
+    expect(results[0]?.message).toContain('FOO key is duplicated');
+  });
+
+  it('handles multiple issues', () => {
+    const output: string =
+      '.env:1 LeadingCharacter: Invalid leading character detected\n.env:5 DuplicatedKey: The BAR key is duplicated';
+
+    const results: LintResult[] = transformDotenvLinterOutput(output);
+    expect(results).toHaveLength(2);
+  });
+
+  it('handles .env.production files', () => {
+    const output: string = '.env.production:10 UnorderedKey: The keys should go in order';
+
+    const results: LintResult[] = transformDotenvLinterOutput(output);
+    expect(results[0]?.file).toBe('.env.production');
+    expect(results[0]?.line).toBe(10);
+  });
+
+  it('skips non-matching lines', () => {
+    const output: string = 'Checking .env files...\n.env:1 DuplicatedKey: msg\nDone.';
+
+    const results: LintResult[] = transformDotenvLinterOutput(output);
+    expect(results).toHaveLength(1);
+  });
+
+  it('returns empty array for empty output', () => {
+    expect(transformDotenvLinterOutput('')).toHaveLength(0);
+  });
+
+  it('includes tip with documentation URL', () => {
+    const output: string = '.env:1 DuplicatedKey: msg';
+
+    const results: LintResult[] = transformDotenvLinterOutput(output);
+    expect(results[0]?.tip).toContain('https://dotenv-linter.github.io/#/checks/DuplicatedKey');
+  });
+});
+
+// =============================================================================
+// New tool definition property tests
+// =============================================================================
+
+describe('new tool definitions', () => {
+  it('typosTool has correct properties', () => {
+    expect(typosTool.name).toBe('typos');
+    expect(typosTool.command).toBe('typos');
+    expect(typosTool.args).toContain('--format');
+    expect(typosTool.args).toContain('json');
+    expect(typosTool.outputFormat).toBe('json');
+    expect(typosTool.filePatterns).toContain('**/*');
+    expect(typosTool.transform).toBe(transformTyposOutput);
+  });
+
+  it('commitlintTool has correct properties', () => {
+    expect(commitlintTool.name).toBe('commitlint');
+    expect(commitlintTool.command).toBe('commitlint');
+    expect(commitlintTool.args).toContain('--from');
+    expect(commitlintTool.outputFormat).toBe('text');
+    expect(commitlintTool.filePatterns).toHaveLength(0);
+    expect(commitlintTool.transform).toBe(transformCommitlintOutput);
+  });
+
+  it('knipTool has correct properties', () => {
+    expect(knipTool.name).toBe('knip');
+    expect(knipTool.command).toBe('knip');
+    expect(knipTool.args).toContain('--reporter');
+    expect(knipTool.args).toContain('json');
+    expect(knipTool.outputFormat).toBe('json');
+    expect(knipTool.filePatterns).toHaveLength(0);
+    expect(knipTool.transform).toBe(transformKnipOutput);
+  });
+
+  it('htmlhintTool has correct properties', () => {
+    expect(htmlhintTool.name).toBe('htmlhint');
+    expect(htmlhintTool.command).toBe('htmlhint');
+    expect(htmlhintTool.args).toContain('--format');
+    expect(htmlhintTool.outputFormat).toBe('json');
+    expect(htmlhintTool.filePatterns).toContain('**/*.html');
+    expect(htmlhintTool.filePatterns).toContain('**/*.htm');
+    expect(htmlhintTool.transform).toBe(transformHtmlhintOutput);
+  });
+
+  it('jsonlintTool has correct properties', () => {
+    expect(jsonlintTool.name).toBe('jsonlint');
+    expect(jsonlintTool.command).toBe('jsonlint');
+    expect(jsonlintTool.args).toContain('--quiet');
+    expect(jsonlintTool.outputFormat).toBe('text');
+    expect(jsonlintTool.filePatterns).toContain('**/*.json');
+    expect(jsonlintTool.filePatterns).toContain('**/*.jsonc');
+    expect(jsonlintTool.transform).toBe(transformJsonlintOutput);
+  });
+
+  it('dotenvLinterTool has correct properties', () => {
+    expect(dotenvLinterTool.name).toBe('dotenv-linter');
+    expect(dotenvLinterTool.command).toBe('dotenv-linter');
+    expect(dotenvLinterTool.outputFormat).toBe('text');
+    expect(dotenvLinterTool.filePatterns).toContain('**/.env');
+    expect(dotenvLinterTool.filePatterns).toContain('**/.env.*');
+    expect(dotenvLinterTool.transform).toBe(transformDotenvLinterOutput);
+  });
+});
+
+// =============================================================================
+// New tool isAvailable() tests
+// =============================================================================
+
+describe('new tool isAvailable()', () => {
+  it('typosTool.isAvailable resolves', async () => {
+    const result = await typosTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('commitlintTool.isAvailable resolves', async () => {
+    const result = await commitlintTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('knipTool.isAvailable resolves', async () => {
+    const result = await knipTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('htmlhintTool.isAvailable resolves', async () => {
+    const result = await htmlhintTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('jsonlintTool.isAvailable resolves', async () => {
+    const result = await jsonlintTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('dotenvLinterTool.isAvailable resolves', async () => {
+    const result = await dotenvLinterTool.isAvailable?.();
+    expect(typeof result).toBe('boolean');
   });
 });

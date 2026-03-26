@@ -17,6 +17,12 @@ import { taploTool } from '@/lint/tools/taplo.ts';
 import { actionlintTool } from '@/lint/tools/actionlint.ts';
 import { sqlfluffTool } from '@/lint/tools/sqlfluff.ts';
 import { ruffTool } from '@/lint/tools/ruff.ts';
+import { typosTool } from '@/lint/tools/typos.ts';
+import { commitlintTool } from '@/lint/tools/commitlint.ts';
+import { knipTool } from '@/lint/tools/knip.ts';
+import { htmlhintTool } from '@/lint/tools/htmlhint.ts';
+import { jsonlintTool } from '@/lint/tools/jsonlint.ts';
+import { dotenvLinterTool } from '@/lint/tools/dotenv-linter.ts';
 
 /** All registered external linting tools. */
 export const ALL_TOOLS: readonly ExternalTool[] = [
@@ -29,4 +35,10 @@ export const ALL_TOOLS: readonly ExternalTool[] = [
   actionlintTool,
   sqlfluffTool,
   ruffTool,
+  typosTool,
+  commitlintTool,
+  knipTool,
+  htmlhintTool,
+  jsonlintTool,
+  dotenvLinterTool,
 ];

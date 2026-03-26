@@ -419,7 +419,7 @@ Should show (like oxlint):
 
 ### Task 6.1: Add typos tool
 
-**Status**: [ ]
+**Status**: [x] — Verified: Created `tools/typos.ts` with JSONL parser for typos output, `transformTyposOutput()` handles `type: "typo"` entries, skips binary/config entries, maps corrections to fix tips. 7 transform tests + 1 tool definition test + 1 isAvailable test. Registered in `tools/registry.ts`.
 
 **Gap**: Reference linter uses `typos` for spell checking (config: `typos.toml`). Not implemented in @/lint.
 
@@ -440,7 +440,7 @@ Should show (like oxlint):
 
 ### Task 6.2: Add commitlint tool
 
-**Status**: [ ]
+**Status**: [x] — Verified: Created `tools/commitlint.ts` with text parser for `✖`/`⚠` prefixed lines, extracts rule name from `[rule-name]` brackets, maps to error/warning severity. Workspace-level tool (empty filePatterns). 6 transform tests + 1 tool definition test + 1 isAvailable test. Registered in `tools/registry.ts`.
 
 **Gap**: Reference linter uses `commitlint` for commit message linting (config: `commitlint.config.js`). Not implemented.
 
@@ -461,7 +461,7 @@ Should show (like oxlint):
 
 ### Task 6.3: Add knip tool
 
-**Status**: [ ]
+**Status**: [x] — Verified: Created `tools/knip.ts` with JSON parser for knip output, handles unused files, exports, types, dependencies, and devDependencies with distinct rule IDs. Workspace-level tool (empty filePatterns). 8 transform tests + 1 tool definition test + 1 isAvailable test. Registered in `tools/registry.ts`.
 
 **Gap**: Reference linter uses `knip` for detecting unused exports, dependencies, and files (config: `knip.json`). Not implemented.
 
@@ -482,7 +482,7 @@ Should show (like oxlint):
 
 ### Task 6.4: Add htmlhint, jsonlint, dotenv-linter tools
 
-**Status**: [ ]
+**Status**: [x] — Verified: Created 3 tool files: `tools/htmlhint.ts` (JSON parser, `**/*.html`/`**/*.htm`, error/warning/info severity, tip URLs), `tools/jsonlint.ts` (text parser with compact + standard format support, `**/*.json`/`**/*.jsonc`), `tools/dotenv-linter.ts` (text parser, `**/.env`/`**/.env.*`, tip URLs). 22 transform tests + 3 tool definition tests + 3 isAvailable tests. All registered in `tools/registry.ts`. Total tools: 15 (was 9). 1161 tests pass, type-check clean, oxlint clean, format clean.
 
 **Gap**: Reference linter supports HTML, JSON validation, and .env file linting. Not implemented.
 
