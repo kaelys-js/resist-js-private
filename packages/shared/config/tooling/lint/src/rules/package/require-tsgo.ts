@@ -9,8 +9,11 @@
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
 
 /** Dummy fix for package.json rules (no byte offsets). */
-const NO_FIX = { range: { start: 0, end: 0 }, text: '' };
-
+const NO_FIX: { range: { start: number; end: number }; text: string } = {
+  range: { start: 0, end: 0 },
+  text: '',
+};
+/** The require-tsgo lint rule. */
 const rule: PackageJsonRule = {
   id: 'package/require-tsgo',
   description: 'qa:type-check must use tsgo, not tsc',

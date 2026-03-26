@@ -85,7 +85,7 @@ function checkJsonAccess(node: AstNode, context: VisitorContext): LintResult[] {
 
   return results;
 }
-
+/** The no-raw-json lint rule. */
 const rule: TypeScriptRule = {
   id: 'imports/no-raw-json',
   description: 'Use safeStringify/parseJsonWithComments instead of JSON.stringify/parse',

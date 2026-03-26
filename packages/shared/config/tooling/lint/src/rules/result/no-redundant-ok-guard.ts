@@ -33,7 +33,7 @@ function getReturnedName(returnNode: AstNode): string | null {
   }
   return null;
 }
-
+/** The no-redundant-ok-guard lint rule. */
 const rule: TypeScriptRule = {
   id: 'result/no-redundant-ok-guard',
   description: 'Redundant .ok guard — both branches return the same variable',
@@ -95,7 +95,7 @@ const rule: TypeScriptRule = {
         if (!body || body.length !== 1) {
           return results;
         }
-        const [firstStmt] = body;
+        const [firstStmt]: Array<AstNode | undefined> = body;
         if (!firstStmt || firstStmt.type !== 'ReturnStatement') {
           return results;
         }

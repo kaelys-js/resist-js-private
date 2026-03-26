@@ -8,9 +8,15 @@
  */
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
 
-const NO_FIX = { range: { start: 0, end: 0 }, text: '' };
+/** Dummy fix for package.json rules (no byte offsets). */
+const NO_FIX: { range: { start: number; end: number }; text: string } = {
+  range: { start: 0, end: 0 },
+  text: '',
+};
+/** Scripts that belong only in the workspace root. */
 const ROOT_ONLY_SCRIPTS: readonly string[] = ['qa:format', 'qa:format:check', 'qa:lint'];
 
+/** The no-root-only-scripts lint rule. */
 const rule: PackageJsonRule = {
   id: 'package/no-root-only-scripts',
   description: 'qa:format, qa:format:check, qa:lint belong only in workspace root',

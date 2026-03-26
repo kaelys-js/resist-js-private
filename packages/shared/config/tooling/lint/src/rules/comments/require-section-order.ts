@@ -63,14 +63,14 @@ const rule: TypeScriptRule = {
           const nextLine: string = i + 1 < lines.length ? (lines[i + 1] ?? '') : '';
           const nameMatch: RegExpMatchArray | null = nextLine.match(/^\/\/\s*(.+?)\s*$/);
           if (nameMatch) {
-            const [, name] = nameMatch;
+            const [, name]: RegExpMatchArray = nameMatch;
             if (!name) {
               continue;
             }
             // Find which canonical section this matches
             let orderIndex: number = -1;
             for (let j: number = 0; j < SECTION_ORDER.length; j++) {
-              const section = SECTION_ORDER[j];
+              const section: { pattern: RegExp; label: string } | undefined = SECTION_ORDER[j];
               if (section && section.pattern.test(name)) {
                 orderIndex = j;
                 break;
@@ -124,13 +124,13 @@ const rule: TypeScriptRule = {
         return results;
       }
 
-      const [firstSection] = sections;
+      const [firstSection]: Array<{ line: number; name: string; orderIndex: number }> = sections;
       if (!firstSection) {
         return results;
       }
       let maxOrder: number = firstSection.orderIndex;
       for (let i: number = 1; i < sections.length; i++) {
-        const sect = sections[i];
+        const sect: { line: number; name: string; orderIndex: number } | undefined = sections[i];
         if (!sect) {
           continue;
         }

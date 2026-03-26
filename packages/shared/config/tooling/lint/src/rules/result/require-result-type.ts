@@ -104,7 +104,7 @@ const PREDICATE_PATTERNS: readonly RegExp[] = [
 function checkFunctionReturnType(
   node: AstNode,
   context: VisitorContext,
-  funcName?: string,
+  funcName: string | undefined,
 ): LintResult | null {
   const returnType = node.returnType as AstNode | undefined;
   if (!returnType) {
@@ -192,7 +192,7 @@ function checkFunctionReturnType(
     },
   };
 }
-
+/** The require-result-type lint rule. */
 const rule: TypeScriptRule = {
   id: 'result/require-result-type',
   description: 'Exported functions that might fail should return Result<T>',
@@ -212,7 +212,7 @@ const rule: TypeScriptRule = {
       }
 
       if (declaration.type === 'FunctionDeclaration') {
-        const result: LintResult | null = checkFunctionReturnType(declaration, context);
+        const result: LintResult | null = checkFunctionReturnType(declaration, context, undefined);
         if (result) {
           results.push(result);
         }
@@ -257,7 +257,7 @@ const rule: TypeScriptRule = {
         return results;
       }
 
-      const result: LintResult | null = checkFunctionReturnType(node, context);
+      const result: LintResult | null = checkFunctionReturnType(node, context, undefined);
       if (result) {
         results.push(result);
       }
@@ -281,7 +281,7 @@ const rule: TypeScriptRule = {
         declaration.type === 'ArrowFunctionExpression' ||
         declaration.type === 'FunctionExpression'
       ) {
-        const result: LintResult | null = checkFunctionReturnType(declaration, context);
+        const result: LintResult | null = checkFunctionReturnType(declaration, context, undefined);
         if (result) {
           results.push(result);
         }

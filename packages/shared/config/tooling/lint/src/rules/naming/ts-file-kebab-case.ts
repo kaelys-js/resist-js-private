@@ -12,7 +12,7 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 
 /** Pattern for valid kebab-case filenames (without extension). */
 const KEBAB_CASE_RE: RegExp = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
-
+/** The ts-file-kebab-case lint rule. */
 const rule: TypeScriptRule = {
   id: 'naming/ts-file-kebab-case',
   description: 'TypeScript files must have kebab-case filenames',

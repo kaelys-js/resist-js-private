@@ -109,7 +109,7 @@ function checkFunction(
 
   return results;
 }
-
+/** The require-example lint rule. */
 const rule: TypeScriptRule = {
   id: 'jsdoc/require-example',
   description: 'Exported functions must have an @example block with ```typescript``` fence',

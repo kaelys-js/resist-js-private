@@ -11,7 +11,7 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 
 /** Pattern for valid PascalCase filenames (without extension). */
 const PASCAL_CASE_RE: RegExp = /^[A-Z][a-zA-Z0-9]*$/;
-
+/** The svelte-file-pascal-case lint rule. */
 const rule: TypeScriptRule = {
   id: 'naming/svelte-file-pascal-case',
   description: 'Svelte files must have PascalCase filenames',

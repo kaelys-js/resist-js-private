@@ -34,7 +34,7 @@ function hasPrecedingComment(node: AstNode, content: string): boolean {
 
   return false;
 }
-
+/** The require-const-comment lint rule. */
 const rule: TypeScriptRule = {
   id: 'typescript/require-const-comment',
   description: 'Every top-level const must have a preceding comment',

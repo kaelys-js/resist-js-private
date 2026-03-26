@@ -75,7 +75,7 @@ function checkJsExtension(node: AstNode, context: VisitorContext): LintResult[] 
 
   return results;
 }
-
+/** The no-js-extension lint rule. */
 const rule: TypeScriptRule = {
   id: 'imports/no-js-extension',
   description: 'Import paths must not use .js extension — use .ts or omit',

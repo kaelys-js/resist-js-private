@@ -41,7 +41,7 @@ function isInsidePromiseVoid(node: AstNode, content: string): boolean {
   const surrounding: string = content.slice(start, node.end + 1);
   return /Promise\s*<\s*void\s*>/.test(surrounding);
 }
-
+/** The no-builtin-types lint rule. */
 const rule: TypeScriptRule = {
   id: 'typescript/no-builtin-types',
   description: 'Use Valibot types (Str, Num, Bool, Void) instead of TypeScript builtins',

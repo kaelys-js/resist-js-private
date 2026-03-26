@@ -185,7 +185,7 @@ function checkFunction(
 
   return results;
 }
-
+/** The param-type-match lint rule. */
 const rule: TypeScriptRule = {
   id: 'jsdoc/param-type-match',
   description: '@param {Type} must match the actual TypeScript type annotation',

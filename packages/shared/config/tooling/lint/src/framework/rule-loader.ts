@@ -50,7 +50,7 @@ export type LoadedRules = {
  * and categorizes the default export as either a TypeScriptRule or
  * PackageJsonRule based on its shape.
  *
- * @returns All discovered rules, categorized by type
+ * @returns {Promise<LoadedRules>} All discovered rules, categorized by type
  */
 export async function loadAllRules(): Promise<LoadedRules> {
   const currentDir: string = fileURLToPath(new URL('.', import.meta.url));

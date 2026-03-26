@@ -39,7 +39,7 @@ function getFunctionName(node: AstNode): string | null {
   const id = node.id as AstNode | undefined;
   return (id?.name as string) ?? null;
 }
-
+/** The require-jsdoc lint rule. */
 const rule: TypeScriptRule = {
   id: 'jsdoc/require-jsdoc',
   description: 'Exported functions and types must have a JSDoc comment',

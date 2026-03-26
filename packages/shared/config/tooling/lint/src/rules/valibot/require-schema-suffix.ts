@@ -42,7 +42,7 @@ const EXEMPT_PATHS: readonly RegExp[] = [
   /\.spec\.ts$/,
   /schemas\/common\/src\//,
 ];
-
+/** The require-schema-suffix lint rule. */
 const rule: TypeScriptRule = {
   id: 'valibot/require-schema-suffix',
   description: 'Valibot schema const names must end in "Schema"',

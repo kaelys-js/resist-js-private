@@ -1,13 +1,13 @@
 # @/lint
 
-Custom AST-based linter for the WebForge monorepo. Uses oxc-parser for TypeScript/Svelte parsing with a visitor-pattern rule system. Configuration is driven by `.webforgelintrc.json` at the workspace root.
+Custom AST-based linter for the monorepo. Uses oxc-parser for TypeScript/Svelte parsing with a visitor-pattern rule system. Configuration is driven by `.resist-lint.jsonc` at the workspace root.
 
 ## Source Files
 
 | File | Description |
 | --- | --- |
 | `src/cli.ts` | CLI entry point — parses args, loads config, discovers rules, runs linting |
-| `src/config/schema.ts` | Valibot-validated configuration schema and loader for `.webforgelintrc.json` |
+| `src/config/schema.ts` | Valibot-validated configuration schema and loader for `.resist-lint.jsonc` |
 | `src/framework/types.ts` | Type definitions for rules, AST visitors, lint results, and fixes |
 | `src/framework/oxc-runner.ts` | oxc-parser integration — AST parsing, traversal, and rule execution |
 | `src/framework/rule-loader.ts` | Auto-discovery of rules from `src/rules/` directories |
@@ -17,27 +17,34 @@ Custom AST-based linter for the WebForge monorepo. Uses oxc-parser for TypeScrip
 
 ```bash
 # Run on specific paths
-node --import tsx src/cli.ts packages/shared/schemas
+resist-lint packages/shared/schemas
 
 # List all rules with severity
-node --import tsx src/cli.ts --list-rules
+resist-lint --list-rules
 
 # Run specific rule
-node --import tsx src/cli.ts --rule=jsdoc/require-param packages/shared/schemas
+resist-lint --rule=jsdoc/require-param packages/shared/schemas
 
 # Auto-fix
-node --import tsx src/cli.ts --fix packages/shared/schemas
+resist-lint --fix packages/shared/schemas
 
 # JSON output
-node --import tsx src/cli.ts --json packages/shared/schemas
+resist-lint --json packages/shared/schemas
+
+# Generate JSON Schema for IDE autocomplete
+resist-lint --generate-schema
+
+# Show help
+resist-lint --help
 ```
 
 ## Configuration
 
-Configuration is loaded from `.webforgelintrc.json` at the workspace root. See the config schema in `src/config/schema.ts` for all options.
+Configuration is loaded from `.resist-lint.jsonc` at the workspace root. Supports JSONC (JSON with `//` and `/* */` comments). See the config schema in `src/config/schema.ts` for all options.
 
-```json
+```jsonc
 {
+  "$schema": "./.resist-lint.schema.json",
   "include": ["packages/shared/schemas"],
   "exclude": ["node_modules", "dist"],
   "rules": {
@@ -58,16 +65,19 @@ Configuration is loaded from `.webforgelintrc.json` at the workspace root. See t
 
 ### CLI Flags
 
+- `--help`, `-h` — Show help with usage examples
 - `--list-rules` — Print all rules with their severity and patterns
 - `--rule=id[,id2]` — Run only the specified rule(s)
 - `--fix` — Auto-apply fixes to source files
 - `--json` — Output results as JSON
+- `--generate-schema` — Write `.resist-lint.schema.json` for IDE autocomplete
 - `--warn-only` — Exit 0 even if errors are found
 
 ### Config Schema (`src/config/schema.ts`)
 
-- `loadConfig(cwd)` — Load and validate `.webforgelintrc.json` from directory
+- `loadConfig(cwd)` — Load and validate `.resist-lint.jsonc` from directory
 - `resolveRuleSeverity(config, ruleId, filePath)` — Get effective severity for a rule on a file (respects overrides)
+- `generateJsonSchema(ruleIds, descriptions)` — Generate JSON Schema document with rule enum values for IDE autocomplete
 - `LintConfigSchema` — Valibot schema for the configuration file
 - `RuleSeveritySchema` — Valibot picklist for `"error" | "warn" | "off"`
 

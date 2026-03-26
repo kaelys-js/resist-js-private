@@ -1,4 +1,6 @@
 /**
+ * @module
+ *
  * Rule: typescript/no-throw
  *
  * Forbids `throw` statements. Use `return err(ERRORS.DOMAIN.CODE, message)`
@@ -9,8 +11,6 @@
  * an `// integration boundary: <reason>` comment. Allowed forms:
  * - `throw result.error` — re-throw the original error
  * - `throw new Error(...)` — wrap with a descriptive message
- *
- * @module
  */
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
@@ -85,7 +85,7 @@ function isIntegrationBoundaryThrow(node: AstNode, context: VisitorContext): boo
 
   return hasIntegrationBoundaryComment(node, context);
 }
-
+/** The no-throw lint rule. */
 const rule: TypeScriptRule = {
   id: 'typescript/no-throw',
   description: 'Forbids throw statements — use return err() instead',

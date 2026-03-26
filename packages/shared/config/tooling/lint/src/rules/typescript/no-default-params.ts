@@ -124,14 +124,14 @@ const rule: TypeScriptRule = {
 
   visitor: {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
-      if (EXEMPT_PATTERNS.some((p: RegExp) => p.test(context.file))) {
+      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
         return [];
       }
       return checkParams(node, context, node.loc.start.line, node.loc.start.column + 1);
     },
 
     ArrowFunctionExpression(node: AstNode, context: VisitorContext): LintResult[] {
-      if (EXEMPT_PATTERNS.some((p: RegExp) => p.test(context.file))) {
+      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
         return [];
       }
       return checkParams(node, context, node.loc.start.line, node.loc.start.column + 1);

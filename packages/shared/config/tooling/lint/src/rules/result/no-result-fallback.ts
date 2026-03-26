@@ -1,4 +1,6 @@
 /**
+ * @module
+ *
  * Rule: result/no-result-fallback
  *
  * Catches the anti-pattern of checking `.ok` and providing a fallback
@@ -13,8 +15,6 @@
  *   - `if (!result.ok) throw result.error;` (integration boundary)
  *
  * Exempts Svelte reactive contexts ($derived.by, $effect).
- *
- * @module
  */
 
 import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
@@ -154,7 +154,7 @@ function isFallbackValue(node: AstNode): boolean {
   }
   return false;
 }
-
+/** The no-result-fallback lint rule. */
 const rule: TypeScriptRule = {
   id: 'result/no-result-fallback',
   description: 'Do not silently discard Result errors with fallback values',

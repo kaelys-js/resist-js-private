@@ -87,7 +87,7 @@ function containsDataAccess(node: AstNode, objectName: string): boolean {
     if (key === 'type' || key === 'start' || key === 'end' || key === 'loc') {
       continue;
     }
-    const child = node[key];
+    const child: unknown = node[key];
     if (
       child &&
       typeof child === 'object' &&
@@ -111,7 +111,7 @@ function containsDataAccess(node: AstNode, objectName: string): boolean {
 function isInReactiveContext(content: string, position: number): boolean {
   return REACTIVE_CONTEXT_PATTERN.test(content.slice(Math.max(0, position - 200), position));
 }
-
+/** The no-ternary-fallback lint rule. */
 const rule: TypeScriptRule = {
   id: 'result/no-ternary-fallback',
   description: 'Forbids result.ok ? result.data : fallback — use if (!result.ok) return result',

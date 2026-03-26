@@ -12,6 +12,7 @@ import type {
   LintResult,
   AstNode,
   VisitorContext,
+  VisitorFn,
   ImportInfo,
   ImportSpecifier,
 } from './types.ts';
@@ -35,7 +36,7 @@ async function ensureOxcParser(): Promise<boolean> {
   }
 
   try {
-    const oxc = await import('oxc-parser');
+    const oxc: Record<string, unknown> = await import('oxc-parser');
     parseSync = oxc.parseSync as unknown as typeof parseSync;
     return true;
   } catch {
@@ -132,8 +133,8 @@ function patchLoc(node: unknown, lineStarts: number[]): void {
 /**
  * Recursively walk an AST node tree, invoking callback for each node.
  *
- * @param node - Current node (or subtree value)
- * @param callback - Called for every node that has a `type` property
+ * @param {unknown} node - Current node (or subtree value)
+ * @param {(node: AstNode) => void} callback - Called for every node that has a `type` property
  */
 export function walkNode(node: unknown, callback: (node: AstNode) => void): void {
   if (!node || typeof node !== 'object') {
@@ -172,7 +173,7 @@ export function walkNode(node: unknown, callback: (node: AstNode) => void): void
 function extractImports(ast: AstNode): ImportInfo[] {
   const imports: ImportInfo[] = [];
 
-  walkNode(ast, (node: AstNode) => {
+  walkNode(ast, (node: AstNode): void => {
     if (node.type !== 'ImportDeclaration') {
       return;
     }
@@ -270,10 +271,10 @@ function createVisitorContext(
 /**
  * Run a set of TypeScript AST rules on a single file.
  *
- * @param filePath - Absolute path to the file
- * @param content - File source text
- * @param rules - Rules to evaluate
- * @returns Array of lint results
+ * @param {string} filePath - Absolute path to the file
+ * @param {string} content - File source text
+ * @param {TypeScriptRule[]} rules - Rules to evaluate
+ * @returns {Promise<LintResult[]>} Array of lint results
  */
 export async function runTypeScriptRules(
   filePath: string,
@@ -291,8 +292,8 @@ export async function runTypeScriptRules(
 
   let ast: AstNode;
   try {
-    const result = parseSync(filePath, content);
-    ast = result.program as AstNode;
+    const result: { program: unknown } = parseSync(filePath, content) as { program: unknown };
+    ast = result.program as AstNode; // Safe: oxc-parser returns AST program node
   } catch {
     /* Parse error — skip file */
     return [];
@@ -311,9 +312,9 @@ export async function runTypeScriptRules(
 
   const results: LintResult[] = [];
 
-  walkNode(ast, (node: AstNode) => {
+  walkNode(ast, (node: AstNode): void => {
     for (const rule of rules) {
-      const visitorFn = rule.visitor[node.type as keyof typeof rule.visitor];
+      const visitorFn: VisitorFn | undefined = rule.visitor[node.type as keyof typeof rule.visitor];
       if (!visitorFn) {
         continue;
       }

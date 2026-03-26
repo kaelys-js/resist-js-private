@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "bin": {
-    "webforge-lint": "./src/cli.ts"
+    "resist-lint": "./src/cli.ts"
   },
   "scripts": {
     "clean": "rm -rf dist coverage .turbo",

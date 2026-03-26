@@ -144,7 +144,7 @@ function likelyReturnsResult(funcName: string, context: VisitorContext): boolean
 
   return false;
 }
-
+/** The no-ignore-result lint rule. */
 const rule: TypeScriptRule = {
   id: 'result/no-ignore-result',
   description: 'Result return values must be captured — do not ignore them',

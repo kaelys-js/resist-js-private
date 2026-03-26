@@ -40,7 +40,7 @@ function checkRelativeSource(node: AstNode, context: VisitorContext): LintResult
 
   return results;
 }
-
+/** The no-relative-imports lint rule. */
 const rule: TypeScriptRule = {
   id: 'imports/no-relative-imports',
   description: 'Import paths must not use relative paths (./ or ../)',

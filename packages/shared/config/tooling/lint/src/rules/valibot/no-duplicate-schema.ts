@@ -39,7 +39,7 @@ const rule: TypeScriptRule = {
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
-      if (EXEMPT_PATTERNS.some((p: RegExp) => p.test(context.file))) {
+      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
         return [];
       }
 
@@ -144,7 +144,7 @@ const rule: TypeScriptRule = {
         }
         const firstLocation = locations[0] as { file: string; line: number; column: number }; // cast safe: length checked above
         const fileList: string = [...files]
-          .map((f: string) => f.replace(/.*packages\//, 'packages/'))
+          .map((f: string): string => f.replace(/.*packages\//, 'packages/'))
           .join(', ');
 
         results.push({

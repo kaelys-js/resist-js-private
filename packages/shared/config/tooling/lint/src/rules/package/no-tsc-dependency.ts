@@ -8,8 +8,13 @@
  */
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '../../framework/types.ts';
 
-const NO_FIX = { range: { start: 0, end: 0 }, text: '' };
+/** Dummy fix for package.json rules (no byte offsets). */
+const NO_FIX: { range: { start: number; end: number }; text: string } = {
+  range: { start: 0, end: 0 },
+  text: '',
+};
 
+/** The no-tsc-dependency lint rule. */
 const rule: PackageJsonRule = {
   id: 'package/no-tsc-dependency',
   description: 'Packages using tsgo should not depend on typescript',

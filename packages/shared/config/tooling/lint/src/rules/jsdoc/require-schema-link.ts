@@ -47,7 +47,7 @@ const rule: TypeScriptRule = {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
 
-      if (EXEMPT_PATTERNS.some((p: RegExp) => p.test(context.file))) {
+      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
         return results;
       }
 

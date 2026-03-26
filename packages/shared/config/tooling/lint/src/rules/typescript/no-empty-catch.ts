@@ -50,7 +50,7 @@ function hasErrReturn(bodyText: string): boolean {
     /return\s+okUnchecked\s*[<(]/.test(bodyText)
   );
 }
-
+/** The no-empty-catch lint rule. */
 const rule: TypeScriptRule = {
   id: 'typescript/no-empty-catch',
   description: 'Catch blocks must use fromUnknownError() + err() pattern',

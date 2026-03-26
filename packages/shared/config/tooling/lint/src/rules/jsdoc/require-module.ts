@@ -10,7 +10,7 @@ import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../
 
 /** File paths exempt from this rule (test files). */
 const EXEMPT_PATHS: readonly RegExp[] = [/\.test\.ts$/, /\.spec\.ts$/];
-
+/** The require-module lint rule. */
 const rule: TypeScriptRule = {
   id: 'jsdoc/require-module',
   description: 'Every TypeScript file must have a top-level /** @module */ JSDoc comment',

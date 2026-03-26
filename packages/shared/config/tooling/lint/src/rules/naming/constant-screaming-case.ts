@@ -53,7 +53,7 @@ function isConstantLikeInit(init: AstNode): boolean {
 
   return false;
 }
-
+/** The constant-screaming-case lint rule. */
 const rule: TypeScriptRule = {
   id: 'naming/constant-screaming-case',
   description: 'Top-level const with literal init must use SCREAMING_SNAKE_CASE',
