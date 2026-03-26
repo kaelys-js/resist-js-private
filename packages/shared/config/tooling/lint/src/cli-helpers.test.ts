@@ -695,6 +695,21 @@ describe('parseCliArgs — --format', () => {
     expect(args.format).toBe('text');
   });
 
+  it('parses --format=github', () => {
+    const args: CliArgs = parseCliArgs(['--format=github']);
+    expect(args.format).toBe('github');
+  });
+
+  it('parses --format=junit', () => {
+    const args: CliArgs = parseCliArgs(['--format=junit']);
+    expect(args.format).toBe('junit');
+  });
+
+  it('parses --format=compact', () => {
+    const args: CliArgs = parseCliArgs(['--format=compact']);
+    expect(args.format).toBe('compact');
+  });
+
   it('defaults format to undefined', () => {
     const args: CliArgs = parseCliArgs([]);
     expect(args.format).toBeUndefined();
