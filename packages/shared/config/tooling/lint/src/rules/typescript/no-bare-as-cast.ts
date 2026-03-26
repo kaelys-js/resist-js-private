@@ -22,7 +22,7 @@ function hasExplanatoryComment(content: string, line: number): boolean {
 
   // Check same line for trailing // comment
   if (lineIdx >= 0 && lineIdx < lines.length) {
-    const currentLine: string = lines[lineIdx];
+    const currentLine: string = lines[lineIdx] ?? '';
     if (/\/\/.*\b(cast|safe|irreducible|workaround|required|integration)\b/i.test(currentLine)) {
       return true;
     }
@@ -33,7 +33,7 @@ function hasExplanatoryComment(content: string, line: number): boolean {
 
   // Check preceding line for a // comment
   if (lineIdx > 0) {
-    const prevLine: string = lines[lineIdx - 1].trim();
+    const prevLine: string = (lines[lineIdx - 1] ?? '').trim();
     if (prevLine.startsWith('//')) {
       return true;
     }

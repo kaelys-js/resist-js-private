@@ -49,7 +49,7 @@ function getFuncName(funcNode: AstNode, context: VisitorContext): string {
   const before: string = context.content.slice(Math.max(0, funcNode.start - 100), funcNode.start);
   const varMatch: RegExpMatchArray | null = before.match(/(?:const|let|var)\s+(\w+)\s*=\s*$/);
   if (varMatch) {
-    return varMatch[1];
+    return varMatch[1] ?? '<anonymous>';
   }
 
   return '<anonymous>';
@@ -307,6 +307,7 @@ const rule: TypeScriptRule = {
           message: `${name === '<destructured>' ? 'Destructured' : `Variable '${name}'`} uses inline object type — define a Valibot schema instead`,
           ruleId: 'typescript/no-bare-data-types',
           tip: 'Create a named schema: const XSchema = v.strictObject({ ... }); type X = v.InferOutput<typeof XSchema>',
+          fix: { range: { start: node.start, end: node.end }, text: '' },
         });
       }
 
@@ -337,6 +338,7 @@ const rule: TypeScriptRule = {
           message: 'Cast uses inline object type — define a Valibot schema instead',
           ruleId: 'typescript/no-bare-data-types',
           tip: 'Create a named schema and use the inferred type for the cast',
+          fix: { range: { start: node.start, end: node.end }, text: '' },
         },
       ];
     },

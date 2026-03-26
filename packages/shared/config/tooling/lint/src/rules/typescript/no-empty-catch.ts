@@ -77,11 +77,17 @@ const rule: TypeScriptRule = {
         let depth: number = 0;
 
         for (const ch of afterCallback) {
-          if (ch === '(') depth++;
-          if (ch === ')') depth--;
+          if (ch === '(') {
+            depth++;
+          }
+          if (ch === ')') {
+            depth--;
+          }
         }
 
-        if (depth > 0) return results; // inside callback — exempt
+        if (depth > 0) {
+          return results;
+        } // inside callback — exempt
       }
 
       const body = node.body as AstNode | undefined;
@@ -160,9 +166,7 @@ const rule: TypeScriptRule = {
           ...beforeFunc.matchAll(/\):\s*(?:Promise<\s*)?(\w+)/g),
         ];
         const nearestReturnType: string =
-          returnTypeMatches.length > 0
-            ? (returnTypeMatches[returnTypeMatches.length - 1]![1] ?? '')
-            : '';
+          returnTypeMatches.length > 0 ? (returnTypeMatches.at(-1)?.[1] ?? '') : '';
         const isResultFunc: boolean = nearestReturnType === 'Result';
 
         if (isResultFunc && !hasErrReturn(bodyText)) {
@@ -182,19 +186,24 @@ const rule: TypeScriptRule = {
         }
 
         // Check that fromUnknownError result is passed as cause in err() meta (Result functions only)
-        if (isResultFunc && hasFromUnknownError(bodyText) && hasErrReturn(bodyText)) {
-          if (!/err\s*\([^)]*cause/.test(bodyText) && !/\{\s*cause/.test(bodyText)) {
-            results.push({
-              file: context.file,
-              line: node.loc.start.line,
-              column: node.loc.start.column + 1,
-              severity: 'error',
-              message:
-                'err() in catch block should include { cause: fromUnknownError(error) } in meta',
-              ruleId: 'typescript/no-empty-catch',
-              tip: 'Pass the converted error as cause: err(ERRORS.X.Y, { cause: appError })',
-            });
-          }
+        if (
+          isResultFunc &&
+          hasFromUnknownError(bodyText) &&
+          hasErrReturn(bodyText) &&
+          !/err\s*\([^)]*cause/.test(bodyText) &&
+          !/\{\s*cause/.test(bodyText)
+        ) {
+          results.push({
+            file: context.file,
+            line: node.loc.start.line,
+            column: node.loc.start.column + 1,
+            severity: 'error',
+            message:
+              'err() in catch block should include { cause: fromUnknownError(error) } in meta',
+            ruleId: 'typescript/no-empty-catch',
+            tip: 'Pass the converted error as cause: err(ERRORS.X.Y, { cause: appError })',
+            fix: { range: { start: node.start, end: node.end }, text: '' },
+          });
         }
 
         // Check that err() uses a specific error code, not generic INTERNAL.UNEXPECTED (Result functions only)
@@ -207,6 +216,7 @@ const rule: TypeScriptRule = {
             message: 'Use a specific error code in catch block, not ERRORS.INTERNAL.UNEXPECTED',
             ruleId: 'typescript/no-empty-catch',
             tip: 'Use a domain-specific code: ERRORS.IO.READ_FAILED, ERRORS.NETWORK.PORT_UNAVAILABLE, etc.',
+            fix: { range: { start: node.start, end: node.end }, text: '' },
           });
         }
       }

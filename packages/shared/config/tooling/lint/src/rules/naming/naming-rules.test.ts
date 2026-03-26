@@ -39,8 +39,8 @@ describe('naming/constant-screaming-case', () => {
     const code: string = `const myValue = 'hello';`;
     const results: LintResult[] = await lint(constantScreamingCase, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('myValue');
-    expect(results[0].message).toContain('SCREAMING_SNAKE_CASE');
+    expect(results[0]!.message).toContain('myValue');
+    expect(results[0]!.message).toContain('SCREAMING_SNAKE_CASE');
   });
 
   it('passes top-level const in SCREAMING_SNAKE_CASE', async () => {
@@ -53,7 +53,7 @@ describe('naming/constant-screaming-case', () => {
     const code: string = `export const maxRetries = 5;`;
     const results: LintResult[] = await lint(constantScreamingCase, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('maxRetries');
+    expect(results[0]!.message).toContain('maxRetries');
   });
 
   it('does not flag const with object initializer', async () => {
@@ -90,7 +90,7 @@ describe('naming/camel-case-vars', () => {
     const code: string = `let MyVar = 1;`;
     const results: LintResult[] = await lint(camelCaseVars, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('MyVar');
+    expect(results[0]!.message).toContain('MyVar');
   });
 
   it('passes let variable in camelCase', async () => {
@@ -103,7 +103,7 @@ describe('naming/camel-case-vars', () => {
     const code: string = `function MyFunc(): void {}`;
     const results: LintResult[] = await lint(camelCaseVars, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('MyFunc');
+    expect(results[0]!.message).toContain('MyFunc');
   });
 
   it('passes function in camelCase', async () => {
@@ -146,7 +146,7 @@ describe('naming/pascal-case-types', () => {
     const code: string = `type myType = string;`;
     const results: LintResult[] = await lint(pascalCaseTypes, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('myType');
+    expect(results[0]!.message).toContain('myType');
   });
 
   it('passes type alias in PascalCase', async () => {
@@ -159,7 +159,7 @@ describe('naming/pascal-case-types', () => {
     const code: string = `interface myInterface { x: number; }`;
     const results: LintResult[] = await lint(pascalCaseTypes, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('myInterface');
+    expect(results[0]!.message).toContain('myInterface');
   });
 
   it('passes interface in PascalCase', async () => {
@@ -172,7 +172,7 @@ describe('naming/pascal-case-types', () => {
     const code: string = `enum myEnum { A, B }`;
     const results: LintResult[] = await lint(pascalCaseTypes, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('myEnum');
+    expect(results[0]!.message).toContain('myEnum');
   });
 
   it('passes enum in PascalCase', async () => {
@@ -191,7 +191,7 @@ describe('naming/svelte-file-pascal-case', () => {
     const code: string = `<script>let x = 1;</script>`;
     const results: LintResult[] = await lint(svelteFilePascalCase, code, 'scene-editor.svelte');
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('scene-editor.svelte');
+    expect(results[0]!.message).toContain('scene-editor.svelte');
   });
 
   it('passes PascalCase .svelte filename', async () => {
@@ -216,7 +216,7 @@ describe('naming/ts-file-kebab-case', () => {
     const code: string = `const x = 1;`;
     const results: LintResult[] = await lint(tsFileKebabCase, code, 'SceneLoader.ts');
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('SceneLoader.ts');
+    expect(results[0]!.message).toContain('SceneLoader.ts');
   });
 
   it('passes kebab-case .ts filename', async () => {

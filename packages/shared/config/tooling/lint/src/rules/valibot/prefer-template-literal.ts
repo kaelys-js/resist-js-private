@@ -104,7 +104,10 @@ const rule: TypeScriptRule = {
         }
 
         // First arg must be v.string()
-        const firstArg: AstNode = pipeArgs[0];
+        const [firstArg] = pipeArgs;
+        if (!firstArg) {
+          return [];
+        }
         const firstArgText: string = context.content.slice(firstArg.start, firstArg.end);
         if (!firstArgText.includes('string()')) {
           return [];
@@ -112,7 +115,10 @@ const rule: TypeScriptRule = {
 
         // Find v.regex() in the remaining args
         for (let i: number = 1; i < pipeArgs.length; i++) {
-          const arg: AstNode = pipeArgs[i];
+          const arg = pipeArgs[i] as AstNode | undefined;
+          if (!arg) {
+            continue;
+          }
           const argText: string = context.content.slice(arg.start, arg.end);
 
           if (!argText.includes('regex(')) {
@@ -127,7 +133,7 @@ const rule: TypeScriptRule = {
             continue;
           }
 
-          const regexSource: string = regexMatch[1];
+          const regexSource: string = regexMatch[1] ?? '';
 
           if (isDecomposable(regexSource)) {
             return [
@@ -139,6 +145,7 @@ const rule: TypeScriptRule = {
                 message: `Consider using templateLiteral() from @/schemas/template-literal instead of v.regex(/${regexSource}/)`,
                 ruleId: 'valibot/prefer-template-literal',
                 tip: 'templateLiteral() provides exact TypeScript type inference, composable parts, better errors, and record key support',
+                fix: { range: { start: node.start, end: node.end }, text: '' },
               },
             ];
           }

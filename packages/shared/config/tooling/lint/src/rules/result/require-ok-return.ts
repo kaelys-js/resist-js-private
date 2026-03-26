@@ -147,7 +147,7 @@ function extractResultTypeParam(node: AstNode, context: VisitorContext): string 
     return null;
   }
 
-  const [, typeName] = match;
+  const typeName: string = match[1] ?? '';
 
   // Skip void — no schema needed
   if (typeName === 'void') {

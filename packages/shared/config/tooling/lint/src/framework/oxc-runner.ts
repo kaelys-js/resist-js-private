@@ -36,7 +36,7 @@ async function ensureOxcParser(): Promise<boolean> {
 
   try {
     const oxc = await import('oxc-parser');
-    parseSync = oxc.parseSync as typeof parseSync;
+    parseSync = oxc.parseSync as unknown as typeof parseSync;
     return true;
   } catch {
     /* oxc-parser not installed — skip AST rules */
@@ -78,14 +78,14 @@ function offsetToLoc(offset: number, lineStarts: number[]): { line: number; colu
 
   while (low < high) {
     const mid: number = Math.ceil((low + high) / 2);
-    if (lineStarts[mid] <= offset) {
+    if ((lineStarts[mid] ?? 0) <= offset) {
       low = mid;
     } else {
       high = mid - 1;
     }
   }
 
-  return { line: low + 1, column: offset - lineStarts[low] };
+  return { line: low + 1, column: offset - (lineStarts[low] ?? 0) };
 }
 
 /**

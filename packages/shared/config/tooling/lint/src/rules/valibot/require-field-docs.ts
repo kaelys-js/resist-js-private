@@ -79,7 +79,7 @@ const rule: TypeScriptRule = {
         return results;
       }
 
-      const [schemaObj] = args;
+      const schemaObj = args[0] as AstNode; // cast safe: length checked above
       if (schemaObj.type !== 'ObjectExpression') {
         return results;
       }

@@ -45,9 +45,9 @@ const result = v.parse(schema, data);
 `;
     const results: LintResult[] = await lint(noParse, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('valibot/no-parse');
-    expect(results[0].fix).toBeDefined();
-    expect(results[0].fix.text).toBe('safeParse');
+    expect(results[0]!.ruleId).toBe('valibot/no-parse');
+    expect(results[0]!.fix).toBeDefined();
+    expect(results[0]!.fix.text).toBe('safeParse');
   });
 
   it('passes safeParse calls', async () => {
@@ -81,7 +81,7 @@ const result = v.safeParse(schema, data);
 `;
     const results: LintResult[] = await lint(noDirectSafeparse, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('valibot/no-direct-safeparse');
+    expect(results[0]!.ruleId).toBe('valibot/no-direct-safeparse');
   });
 
   it('passes non-valibot safeParse', async () => {
@@ -106,8 +106,8 @@ const schema = v.object({ name: v.string() });
 `;
     const results: LintResult[] = await lint(requireStrictObject, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('valibot/require-strict-object');
-    expect(results[0].fix.text).toBe('strictObject');
+    expect(results[0]!.ruleId).toBe('valibot/require-strict-object');
+    expect(results[0]!.fix.text).toBe('strictObject');
   });
 
   it('passes v.strictObject() calls', async () => {
@@ -129,8 +129,8 @@ describe('valibot/namespace-import', () => {
     const code: string = "import { string, object } from 'valibot';";
     const results: LintResult[] = await lint(namespaceImport, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('valibot/namespace-import');
-    expect(results[0].fix.text).toContain('import * as v');
+    expect(results[0]!.ruleId).toBe('valibot/namespace-import');
+    expect(results[0]!.fix.text).toContain('import * as v');
   });
 
   it('passes namespace import', async () => {
@@ -160,8 +160,8 @@ const schema = v.strictObject({
 `;
     const results: LintResult[] = await lint(requireFieldDocs, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('valibot/require-field-docs');
-    expect(results[0].message).toContain('name');
+    expect(results[0]!.ruleId).toBe('valibot/require-field-docs');
+    expect(results[0]!.message).toContain('name');
   });
 
   it('passes schema field with block comment above', async () => {
@@ -209,8 +209,8 @@ describe('valibot/require-min-length', () => {
     const code: string = `const Schema = v.strictObject({ name: v.string() });`;
     const results: LintResult[] = await lint(requireMinLength, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('valibot/require-min-length');
-    expect(results[0].message).toContain('name');
+    expect(results[0]!.ruleId).toBe('valibot/require-min-length');
+    expect(results[0]!.message).toContain('name');
   });
 
   it('passes v.pipe(v.string(), v.minLength(1))', async () => {
@@ -235,7 +235,7 @@ describe('valibot/require-min-length', () => {
     const code: string = `const Schema = v.strictObject({ prefix: v.optional(v.string()) });`;
     const results: LintResult[] = await lint(requireMinLength, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('v.optional(v.string())');
+    expect(results[0]!.message).toContain('v.optional(v.string())');
   });
 
   it('passes v.optional(v.pipe(v.string(), v.minLength(1)))', async () => {
@@ -254,22 +254,22 @@ describe('valibot/prefer-shared-schema', () => {
     const code: string = `const Schema = v.strictObject({ templatePath: v.pipe(v.string(), v.minLength(1)) });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('valibot/prefer-shared-schema');
-    expect(results[0].message).toContain('PathSchema');
+    expect(results[0]!.ruleId).toBe('valibot/prefer-shared-schema');
+    expect(results[0]!.message).toContain('PathSchema');
   });
 
   it('suggests UrlStringSchema for field named accessUrl', async () => {
     const code: string = `const Schema = v.strictObject({ accessUrl: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('UrlStringSchema');
+    expect(results[0]!.message).toContain('UrlStringSchema');
   });
 
   it('suggests PortSchema for field named devPort', async () => {
     const code: string = `const Schema = v.strictObject({ devPort: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('PortSchema');
+    expect(results[0]!.message).toContain('PortSchema');
   });
 
   it('passes when field already uses a shared schema', async () => {
@@ -360,9 +360,9 @@ const Schema = v.strictObject({
 
     const finalResults: LintResult[] = noDuplicateSchema.finalize?.() ?? [];
     expect(finalResults.length).toBeGreaterThanOrEqual(1);
-    expect(finalResults[0].ruleId).toBe('valibot/no-duplicate-schema');
-    expect(finalResults[0].message).toContain('duplicatedField');
-    expect(finalResults[0].message).toContain('3');
+    expect(finalResults[0]!.ruleId).toBe('valibot/no-duplicate-schema');
+    expect(finalResults[0]!.message).toContain('duplicatedField');
+    expect(finalResults[0]!.message).toContain('3');
   });
 
   it('does not flag unique fields', async () => {
@@ -406,9 +406,9 @@ const Schema = v.strictObject({
 `;
     const results: LintResult[] = await lint(noGenericStringSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('valibot/no-generic-string-schema');
-    expect(results[0].message).toContain('appName');
-    expect(results[0].message).toContain('semantic constraints');
+    expect(results[0]!.ruleId).toBe('valibot/no-generic-string-schema');
+    expect(results[0]!.message).toContain('appName');
+    expect(results[0]!.message).toContain('semantic constraints');
   });
 
   it('flags v.optional(v.pipe(v.string(), v.minLength(1))) as too generic', async () => {
@@ -421,7 +421,7 @@ const Schema = v.strictObject({
 `;
     const results: LintResult[] = await lint(noGenericStringSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('prefix');
+    expect(results[0]!.message).toContain('prefix');
   });
 
   it('passes v.pipe with additional constraints', async () => {
@@ -506,49 +506,49 @@ const Schema = v.strictObject({
 `;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBeGreaterThanOrEqual(1);
-    expect(results[0].message).toContain('storagePrefix');
+    expect(results[0]!.message).toContain('storagePrefix');
   });
 
   it('suggests EmailSchema for field named email', async () => {
     const code: string = `const Schema = v.strictObject({ email: v.pipe(v.string(), v.email()) });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('EmailSchema');
+    expect(results[0]!.message).toContain('EmailSchema');
   });
 
   it('suggests UuidSchema for field named sessionId', async () => {
     const code: string = `const Schema = v.strictObject({ sessionId: v.pipe(v.string(), v.uuid()) });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('UuidSchema');
+    expect(results[0]!.message).toContain('UuidSchema');
   });
 
   it('suggests IsoTimestampSchema for field named timestamp', async () => {
     const code: string = `const Schema = v.strictObject({ timestamp: v.pipe(v.string(), v.isoTimestamp()) });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('IsoTimestampSchema');
+    expect(results[0]!.message).toContain('IsoTimestampSchema');
   });
 
   it('suggests GitCommitShortSchema for field named commit', async () => {
     const code: string = `const Schema = v.strictObject({ commit: v.pipe(v.string(), v.length(7)) });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('GitCommitShortSchema');
+    expect(results[0]!.message).toContain('GitCommitShortSchema');
   });
 
   it('suggests GitBranchSchema for field named branch', async () => {
     const code: string = `const Schema = v.strictObject({ branch: v.pipe(v.string(), v.minLength(1)) });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('GitBranchSchema');
+    expect(results[0]!.message).toContain('GitBranchSchema');
   });
 
   it('suggests NameSchema for field named service', async () => {
     const code: string = `const Schema = v.strictObject({ service: v.pipe(v.string(), v.minLength(1)) });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('NameSchema');
+    expect(results[0]!.message).toContain('NameSchema');
   });
 
   it('does not flag support as PortSchema', async () => {
@@ -564,133 +564,133 @@ const Schema = v.strictObject({
     const code: string = `const Schema = v.strictObject({ description: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('DescriptionSchema');
+    expect(results[0]!.message).toContain('DescriptionSchema');
   });
 
   it('suggests DurationSchema for field named cacheTtl', async () => {
     const code: string = `const Schema = v.strictObject({ cacheTtl: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('DurationSchema');
+    expect(results[0]!.message).toContain('DurationSchema');
   });
 
   it('suggests SlugSchema for field named projectSlug', async () => {
     const code: string = `const Schema = v.strictObject({ projectSlug: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('SlugSchema');
+    expect(results[0]!.message).toContain('SlugSchema');
   });
 
   it('suggests HexColorSchema for field named backgroundColor', async () => {
     const code: string = `const Schema = v.strictObject({ backgroundColor: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('HexColorSchema');
+    expect(results[0]!.message).toContain('HexColorSchema');
   });
 
   it('suggests CountryCodeSchema for field named countryCode', async () => {
     const code: string = `const Schema = v.strictObject({ countryCode: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('CountryCodeSchema');
+    expect(results[0]!.message).toContain('CountryCodeSchema');
   });
 
   it('suggests CronExpressionSchema for field named schedule', async () => {
     const code: string = `const Schema = v.strictObject({ schedule: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('CronExpressionSchema');
+    expect(results[0]!.message).toContain('CronExpressionSchema');
   });
 
   it('suggests TimezoneSchema for field named timezone', async () => {
     const code: string = `const Schema = v.strictObject({ timezone: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('TimezoneSchema');
+    expect(results[0]!.message).toContain('TimezoneSchema');
   });
 
   it('suggests CurrencyCodeSchema for field named currency', async () => {
     const code: string = `const Schema = v.strictObject({ currency: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('CurrencyCodeSchema');
+    expect(results[0]!.message).toContain('CurrencyCodeSchema');
   });
 
   it('suggests HttpStatusCodeSchema for field named statusCode', async () => {
     const code: string = `const Schema = v.strictObject({ statusCode: v.number() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('HttpStatusCodeSchema');
+    expect(results[0]!.message).toContain('HttpStatusCodeSchema');
   });
 
   it('suggests MimeTypeSchema for field named contentType', async () => {
     const code: string = `const Schema = v.strictObject({ contentType: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('MimeTypeSchema');
+    expect(results[0]!.message).toContain('MimeTypeSchema');
   });
 
   it('suggests TagSchema for field named keyword', async () => {
     const code: string = `const Schema = v.strictObject({ keyword: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('TagSchema');
+    expect(results[0]!.message).toContain('TagSchema');
   });
 
   it('suggests PasswordSchema for field named password', async () => {
     const code: string = `const Schema = v.strictObject({ password: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('PasswordSchema');
+    expect(results[0]!.message).toContain('PasswordSchema');
   });
 
   it('suggests FeatureFlagSchema for field named featureFlag', async () => {
     const code: string = `const Schema = v.strictObject({ featureFlag: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('FeatureFlagSchema');
+    expect(results[0]!.message).toContain('FeatureFlagSchema');
   });
 
   it('suggests MetaTitleSchema for field named metaTitle', async () => {
     const code: string = `const Schema = v.strictObject({ metaTitle: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('MetaTitleSchema');
+    expect(results[0]!.message).toContain('MetaTitleSchema');
   });
 
   it('suggests ErrorCodeSchema for field named errorCode', async () => {
     const code: string = `const Schema = v.strictObject({ errorCode: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('ErrorCodeSchema');
+    expect(results[0]!.message).toContain('ErrorCodeSchema');
   });
 
   it('suggests TranslationKeySchema for field named translationKey', async () => {
     const code: string = `const Schema = v.strictObject({ translationKey: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('TranslationKeySchema');
+    expect(results[0]!.message).toContain('TranslationKeySchema');
   });
 
   it('suggests YearSchema for field named year', async () => {
     const code: string = `const Schema = v.strictObject({ year: v.number() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('YearSchema');
+    expect(results[0]!.message).toContain('YearSchema');
   });
 
   it('suggests SearchQuerySchema for field named searchQuery', async () => {
     const code: string = `const Schema = v.strictObject({ searchQuery: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('SearchQuerySchema');
+    expect(results[0]!.message).toContain('SearchQuerySchema');
   });
 
   it('suggests CommentSchema for field named comment', async () => {
     const code: string = `const Schema = v.strictObject({ comment: v.string() });`;
     const results: LintResult[] = await lint(preferSharedSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('CommentSchema');
+    expect(results[0]!.message).toContain('CommentSchema');
   });
 });
 
@@ -715,8 +715,8 @@ type Foo<T> = v.InferOutput<typeof FooSchema>;
 `;
     const results: LintResult[] = await lint(requireGenericSchema, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('FooSchema');
-    expect(results[0].message).toContain('generic()');
+    expect(results[0]!.message).toContain('FooSchema');
+    expect(results[0]!.message).toContain('generic()');
   });
 
   it('passes schema created with generic()', async () => {
@@ -747,7 +747,7 @@ describe('valibot/prefer-template-literal', () => {
     const code: string = `const Schema = v.pipe(v.string(), v.regex(/^prefix_\\d+$/));`;
     const results: LintResult[] = await lint(preferTemplateLiteral, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('templateLiteral()');
+    expect(results[0]!.message).toContain('templateLiteral()');
   });
 
   it('warns on key:value pattern', async () => {
@@ -802,8 +802,8 @@ describe('valibot/require-schema-suffix', () => {
     const code: string = `import * as v from 'valibot';\nconst Foo = v.strictObject({});`;
     const results: LintResult[] = await lint(requireSchemaSuffix, code);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain("'Foo'");
-    expect(results[0].message).toContain("'FooSchema'");
+    expect(results[0]!.message).toContain("'Foo'");
+    expect(results[0]!.message).toContain("'FooSchema'");
   });
 
   it('passes schema declaration with Schema suffix', async () => {

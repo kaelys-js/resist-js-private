@@ -237,10 +237,10 @@ function checkFunction(
         severity: 'error',
         message: `Function '${name}' does not validate parameter '${paramName}'`,
         ruleId: 'result/validate-function-input',
-        tip: `Validate with: const ${paramName}Result = safeParse(${paramName[0].toUpperCase() + paramName.slice(1)}Schema, ${paramName})`,
+        tip: `Validate with: const ${paramName}Result = safeParse(${(paramName[0] ?? '').toUpperCase() + paramName.slice(1)}Schema, ${paramName})`,
         fix: {
           range: { start: body.start + 1, end: body.start + 1 },
-          text: `\n  const ${paramName}Result = safeParse(${paramName[0].toUpperCase() + paramName.slice(1)}Schema, ${paramName});\n  if (!${paramName}Result.ok) return ${paramName}Result;\n`,
+          text: `\n  const ${paramName}Result = safeParse(${(paramName[0] ?? '').toUpperCase() + paramName.slice(1)}Schema, ${paramName});\n  if (!${paramName}Result.ok) return ${paramName}Result;\n`,
         },
       });
     }

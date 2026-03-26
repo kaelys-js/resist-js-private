@@ -176,6 +176,7 @@ function checkAccess(node: AstNode, context: VisitorContext): LintResult[] {
           message: `Accessing ${calleeName}(...).${propertyName} without checking .ok first — assign to a variable and check .ok`,
           ruleId: 'result/check-before-access',
           tip: `Assign ${calleeName}() result to a variable, check .ok, then access .${propertyName}`,
+          fix: { range: { start: node.start, end: node.end }, text: '' },
         });
       }
     }

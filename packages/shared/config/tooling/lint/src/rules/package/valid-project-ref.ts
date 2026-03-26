@@ -38,7 +38,7 @@ function getValidProjects(): ReadonlySet<string> {
     const pattern: RegExp = /name:\s*'([^']+)'/g;
     let match: RegExpExecArray | null = pattern.exec(content);
     while (match) {
-      names.push(match[1]);
+      names.push(match[1] ?? '');
       match = pattern.exec(content);
     }
     validProjects = new Set(names);
@@ -93,7 +93,7 @@ const rule: PackageJsonRule = {
         continue;
       }
 
-      const projectName: string = projectMatch[1];
+      const projectName: string = projectMatch[1] ?? '';
       if (!projects.has(projectName)) {
         results.push({
           file: context.file,

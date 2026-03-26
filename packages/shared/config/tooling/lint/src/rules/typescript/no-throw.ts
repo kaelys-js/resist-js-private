@@ -38,13 +38,13 @@ function hasIntegrationBoundaryComment(node: AstNode, context: VisitorContext): 
     return false;
   }
 
-  const currentLine: string = lines[lineIdx];
+  const currentLine: string = lines[lineIdx] ?? '';
   if (/\/\/.*integration boundary:\s*\S+/i.test(currentLine)) {
     return true;
   }
 
   // Check the line immediately above (comment may be on its own line above the throw)
-  if (lineIdx > 0 && /\/\/.*integration boundary:\s*\S+/i.test(lines[lineIdx - 1])) {
+  if (lineIdx > 0 && /\/\/.*integration boundary:\s*\S+/i.test(lines[lineIdx - 1] ?? '')) {
     return true;
   }
 
@@ -117,12 +117,18 @@ const rule: TypeScriptRule = {
         let depth: number = 0;
 
         for (const ch of afterCallback) {
-          if (ch === '(') depth++;
-          if (ch === ')') depth--;
+          if (ch === '(') {
+            depth++;
+          }
+          if (ch === ')') {
+            depth--;
+          }
         }
 
         // If depth > 0, we're still inside the callback — exempt
-        if (depth > 0) return [];
+        if (depth > 0) {
+          return [];
+        }
       }
 
       return [

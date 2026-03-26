@@ -178,6 +178,7 @@ const rule: TypeScriptRule = {
           message: `Exported function '${name}' has no test cases in ${basename(testPath)}`,
           ruleId: 'testing/require-colocated-tests',
           tip: `Add tests for '${name}' in ${basename(testPath)}`,
+          fix: { range: { start: 0, end: 0 }, text: '' },
         }),
       );
     },

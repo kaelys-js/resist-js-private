@@ -22,7 +22,7 @@ const EXEMPT_PATTERNS: readonly RegExp[] = [
 ];
 
 /** Pattern to detect function type parameters in v.custom<...>. */
-const FUNCTION_TYPE_PATTERN: RegExp = /=>\s|Function\b/;
+const FUNCTION_TYPE_PATTERN: RegExp = /[=]>\s|Function\b/;
 
 /** Rule definition. */
 const rule: TypeScriptRule = {
@@ -65,6 +65,7 @@ const rule: TypeScriptRule = {
                 'Use functionSchema() from @/schemas/function instead of v.custom<FnType>(() => true)',
               ruleId: 'typescript/require-function-schema',
               tip: 'Import { functionSchema } from "@/schemas/function/function" and use v.pipe(functionSchema(), args(...), returns(...))',
+              fix: { range: { start: node.start, end: node.end }, text: '' },
             });
           }
         }

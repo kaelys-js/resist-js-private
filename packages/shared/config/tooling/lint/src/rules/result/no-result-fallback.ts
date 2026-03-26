@@ -103,16 +103,20 @@ function containsDataAccess(node: AstNode, varName: string): boolean {
     if (value && typeof value === 'object') {
       if (Array.isArray(value)) {
         for (const item of value) {
-          if (item && typeof item === 'object' && 'type' in item) {
-            if (containsDataAccess(item as AstNode, varName)) {
-              return true;
-            }
+          if (
+            item &&
+            typeof item === 'object' &&
+            'type' in item &&
+            containsDataAccess(item as AstNode, varName)
+          ) {
+            return true;
           }
         }
-      } else if ('type' in (value as Record<string, unknown>)) {
-        if (containsDataAccess(value as AstNode, varName)) {
-          return true;
-        }
+      } else if (
+        'type' in (value as Record<string, unknown>) &&
+        containsDataAccess(value as AstNode, varName)
+      ) {
+        return true;
       }
     }
   }
@@ -160,6 +164,10 @@ const rule: TypeScriptRule = {
     /**
      * Catch if/else fallback pattern:
      *   if (result.ok) { x = result.data } else { x = fallback }
+     *
+     * @param node - The IfStatement AST node
+     * @param context - Visitor context
+     * @returns Lint results for detected fallback patterns
      */
     IfStatement(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
@@ -232,6 +240,10 @@ const rule: TypeScriptRule = {
      *
      * Note: no-ternary-fallback already catches this for ternaries,
      * but this rule provides a more specific message about the anti-pattern.
+     *
+     * @param node - The ConditionalExpression AST node
+     * @param context - Visitor context
+     * @returns Lint results for detected ternary fallback patterns
      */
     ConditionalExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
@@ -283,6 +295,10 @@ const rule: TypeScriptRule = {
      *
      * This silently replaces missing/null fields with hardcoded values
      * instead of validating the data or propagating an error.
+     *
+     * @param node - The LogicalExpression AST node
+     * @param context - Visitor context
+     * @returns Lint results for detected nullish coalescing fallback patterns
      */
     LogicalExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
@@ -320,7 +336,7 @@ const rule: TypeScriptRule = {
         return results;
       }
 
-      const varName: string = dataMatch[1];
+      const varName: string = dataMatch[1] ?? '';
 
       // Skip deep property chains with method calls (e.g., parsed.data.branches.get(key))
       // These are downstream Map/Set/Array operations, NOT direct Result fallbacks

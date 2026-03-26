@@ -46,8 +46,8 @@ export function add(a: number, b: number): number {
       '/tmp/nonexistent-dir-abc123/math.ts',
     );
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('testing/require-colocated-tests');
-    expect(results[0].message).toContain('no colocated test file');
+    expect(results[0]!.ruleId).toBe('testing/require-colocated-tests');
+    expect(results[0]!.message).toContain('no colocated test file');
   });
 
   it('passes file that has a colocated test file', async () => {
@@ -160,7 +160,7 @@ export default function handler(req: Request): Response {
     const code: string = `export function funcA(): Void { return undefined; }\nexport function funcB(): Void { return undefined; }`;
     const results: LintResult[] = await lint(requireColocatedTests, code, srcPath);
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('funcB');
+    expect(results[0]!.message).toContain('funcB');
 
     rmSync(tmpDir, { recursive: true });
   });

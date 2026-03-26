@@ -37,7 +37,7 @@ describe('package/require-tsgo', () => {
       ctx({ pkg: { scripts: { 'qa:type-check': 'tsc --noEmit' } } }),
     );
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('package/require-tsgo');
+    expect(results[0]!.ruleId).toBe('package/require-tsgo');
   });
   it('passes tsgo', () => {
     const results: LintResult[] = requireTsgo.check(
@@ -64,7 +64,7 @@ describe('package/require-project-test', () => {
       ctx({ pkg: { scripts: { 'qa:test': 'vitest run' } } }),
     );
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('package/require-project-test');
+    expect(results[0]!.ruleId).toBe('package/require-project-test');
   });
   it('flags cd .. pattern', () => {
     const results: LintResult[] = requireProjectTest.check(
@@ -135,7 +135,7 @@ describe('package/no-root-only-scripts', () => {
       ctx({ pkg: { scripts: { 'qa:format': 'biome format' } } }),
     );
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('package/no-root-only-scripts');
+    expect(results[0]!.ruleId).toBe('package/no-root-only-scripts');
   });
   it('flags qa:lint in sub-package', () => {
     const results: LintResult[] = noRootOnlyScripts.check(
@@ -169,7 +169,7 @@ describe('package/no-tsc-dependency', () => {
       }),
     );
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('package/no-tsc-dependency');
+    expect(results[0]!.ruleId).toBe('package/no-tsc-dependency');
   });
   it('passes when no typescript dep', () => {
     const results: LintResult[] = noTscDependency.check(
@@ -210,8 +210,8 @@ describe('package/no-workspace-dep', () => {
       }),
     );
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('package/no-workspace-dep');
-    expect(results[0].message).toContain('@types/node');
+    expect(results[0]!.ruleId).toBe('package/no-workspace-dep');
+    expect(results[0]!.message).toContain('@types/node');
   });
 
   it('flags vite in sub-package devDependencies', () => {
@@ -282,8 +282,8 @@ describe('package/no-hoisted-dep', () => {
       }),
     );
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('package/no-hoisted-dep');
-    expect(results[0].message).toContain('valibot');
+    expect(results[0]!.ruleId).toBe('package/no-hoisted-dep');
+    expect(results[0]!.message).toContain('valibot');
   });
 
   it('flags valibot in sub-package devDependencies', () => {
@@ -324,8 +324,8 @@ describe('package/no-peer-deps', () => {
       }),
     );
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('package/no-peer-deps');
-    expect(results[0].message).toContain('vite');
+    expect(results[0]!.ruleId).toBe('package/no-peer-deps');
+    expect(results[0]!.message).toContain('vite');
   });
 
   it('passes non-private package with peerDependencies', () => {
@@ -381,8 +381,8 @@ describe('package/valid-project-ref', () => {
       }),
     );
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('package/valid-project-ref');
-    expect(results[0].message).toContain('nonexistent-project');
+    expect(results[0]!.ruleId).toBe('package/valid-project-ref');
+    expect(results[0]!.message).toContain('nonexistent-project');
   });
 
   it('passes scripts without --project', () => {
@@ -478,8 +478,8 @@ describe('package/no-workspace-self-ref', () => {
       }),
     );
     expect(results.length).toBe(1);
-    expect(results[0].ruleId).toBe('package/no-workspace-self-ref');
-    expect(results[0].message).toContain('@/schemas/common');
+    expect(results[0]!.ruleId).toBe('package/no-workspace-self-ref');
+    expect(results[0]!.message).toContain('@/schemas/common');
   });
 
   it('flags workspace:* in devDependencies', () => {
@@ -631,7 +631,7 @@ describe('package/require-readme', () => {
       }),
     );
     expect(results.length).toBe(1);
-    expect(results[0].message).toContain('missing README.md');
+    expect(results[0]!.message).toContain('missing README.md');
   });
 
   it('validates existing README has required sections', () => {

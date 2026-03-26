@@ -30,7 +30,7 @@ async function ensureParser(): Promise<boolean> {
   }
   try {
     const oxc = await import('oxc-parser');
-    oxcParseSync = oxc.parseSync as typeof oxcParseSync;
+    oxcParseSync = oxc.parseSync as unknown as typeof oxcParseSync;
     return true;
   } catch {
     return false;

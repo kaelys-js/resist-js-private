@@ -56,11 +56,17 @@ const rule: TypeScriptRule = {
             let depth: number = 0;
 
             for (const ch of afterCallback) {
-              if (ch === '(') depth++;
-              if (ch === ')') depth--;
+              if (ch === '(') {
+                depth++;
+              }
+              if (ch === ')') {
+                depth--;
+              }
             }
 
-            if (depth > 0) return results; // inside callback — exempt
+            if (depth > 0) {
+              return results;
+            } // inside callback — exempt
           }
 
           results.push({

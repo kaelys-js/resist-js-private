@@ -115,8 +115,11 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       for (let i: number = 0; i < body.length - 1; i++) {
-        const current: AstNode = body[i];
-        const next: AstNode = body[i + 1];
+        const current = body[i] as AstNode | undefined;
+        const next = body[i + 1] as AstNode | undefined;
+        if (!current || !next) {
+          continue;
+        }
 
         const currentGroup: string = classifyStatement(current);
         const nextGroup: string = classifyStatement(next);
@@ -146,6 +149,7 @@ const rule: TypeScriptRule = {
             message: `Add a blank line between ${currentGroup} and ${nextGroup} statements for readability`,
             ruleId: 'comments/require-blank-line-groups',
             tip: 'Add an empty line between variable declarations and control flow (if/for/return)',
+            fix: { range: { start: next.start, end: next.start }, text: '' },
           });
         }
       }
@@ -166,8 +170,11 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       for (let i: number = 0; i < body.length - 1; i++) {
-        const current: AstNode = body[i];
-        const next: AstNode = body[i + 1];
+        const current = body[i] as AstNode | undefined;
+        const next = body[i + 1] as AstNode | undefined;
+        if (!current || !next) {
+          continue;
+        }
 
         // Skip imports, exports, type declarations at module level — these have their own spacing rules
         if (
@@ -204,6 +211,7 @@ const rule: TypeScriptRule = {
             message: `Add a blank line between ${currentGroup} and ${nextGroup} statements for readability`,
             ruleId: 'comments/require-blank-line-groups',
             tip: 'Add an empty line between variable declarations and control flow (if/for/return)',
+            fix: { range: { start: next.start, end: next.start }, text: '' },
           });
         }
       }

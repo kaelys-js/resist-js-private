@@ -68,7 +68,7 @@ function extractBlockTitle(line1: string, line2: string, line3: string): string 
     return null;
   }
 
-  return titleMatch[1].trim();
+  return (titleMatch[1] ?? '').trim();
 }
 
 /**
@@ -118,9 +118,9 @@ const rule: TypeScriptRule = {
       const lines: string[] = context.content.split('\n');
 
       for (let i: number = 0; i < lines.length - 2; i++) {
-        const line1: string = lines[i];
-        const line2: string = lines[i + 1];
-        const line3: string = lines[i + 2];
+        const line1: string = lines[i] ?? '';
+        const line2: string = lines[i + 1] ?? '';
+        const line3: string = lines[i + 2] ?? '';
 
         // --- Check block comment markers: /* ---...--- */ ---
         const blockTitle: string | null = extractBlockTitle(line1, line2, line3);
