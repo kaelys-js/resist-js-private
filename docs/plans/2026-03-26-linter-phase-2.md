@@ -188,7 +188,7 @@ Target: branches 74.42% -> 80%+
 
 ### Task 3.1: Source snippet reader
 
-**Status**: [ ]
+**Status**: [x] — Verified: Created `framework/source-reader.ts` with `extractSourceLines()`, `readSourceSnippet()`, and `buildCaretMarker()`. 20 tests in `source-reader.test.ts` (10 extractSourceLines, 4 readSourceSnippet, 6 buildCaretMarker). All pass. Type-check clean, oxlint clean.
 
 **Gap**: The text formatter shows source and tip lines when LintResult has them populated, but the `source` field is not populated during rule execution. Users see error location but not the actual code.
 
@@ -207,7 +207,7 @@ Target: branches 74.42% -> 80%+
 
 ### Task 3.2: Enhanced text formatter output
 
-**Status**: [ ]
+**Status**: [x] — Verified: Updated `formatText()` to oxlint-style output with severity icon, rule-id header, file location `,-[...]` bracket, source line with line number, `^^^` caret markers via `buildCaretMarker()`, closing `` `---- `` decoration, and `help:` tip line. Updated 5 formatText tests to match new output format, added 4 new tests (location header, closing decoration, caret markers, multi-digit line alignment). 21 formatter tests pass.
 
 **Gap**: Current text formatter shows:
 ```
@@ -242,7 +242,7 @@ Should show (like oxlint):
 
 ### Task 3.3: Populate source field during rule execution
 
-**Status**: [ ]
+**Status**: [x] — Already implemented in oxc-runner.ts lines 342-348. Source field is backfilled from file content after rule execution. No additional work needed.
 
 **Gap**: The `source` field on LintResult exists in the schema but is not populated by `oxc-runner.ts` or rule execution. Rules create results without source context.
 
@@ -262,7 +262,7 @@ Should show (like oxlint):
 
 ### Task 4.1: GitHub Actions annotations format
 
-**Status**: [ ]
+**Status**: [x] — Verified: Added `formatGitHub()` to formatters.ts. Produces `::error file=...,line=...,col=...::message [ruleId]` format. 5 tests added (empty, error annotation, warning annotation, multi-result, location fields). All pass.
 
 **Gap**: No GitHub Actions annotation output. CI pipelines can't show inline annotations on PRs.
 
@@ -282,7 +282,7 @@ Should show (like oxlint):
 
 ### Task 4.2: JUnit XML format
 
-**Status**: [ ]
+**Status**: [x] — Verified: Added `formatJunit()` with XML structure, file grouping as test suites, failure elements with source, XML escaping via `escapeXml()` using `replaceAll()`. 9 tests added (valid XML, tool name, file grouping, failure elements, source in body, XML escaping, failure counts, warning type, empty results). All pass.
 
 **Gap**: No JUnit XML output for CI tools (Jenkins, CircleCI, GitLab CI).
 
@@ -312,7 +312,7 @@ Should show (like oxlint):
 
 ### Task 4.3: Compact text format
 
-**Status**: [ ]
+**Status**: [x] — Verified: Added `formatCompact()` producing `file:line:col: severity ruleId message` one-liner format. 5 tests added (empty, single line, fields, multiple results, warning severity). All pass.
 
 **Gap**: No compact single-line format for piping/grepping.
 
@@ -332,7 +332,7 @@ Should show (like oxlint):
 
 ### Task 4.4: Update CLI format flag
 
-**Status**: [ ]
+**Status**: [x] — Verified: Updated `OutputFormatSchema` picklist with 'github', 'junit', 'compact'. Updated `parseFormatFlag()` to accept new formats via Set lookup. Updated help text. Added 3 CLI parsing tests (`--format=github`, `--format=junit`, `--format=compact`). Updated `formatResults()` switch with 3 new cases. Added 3 dispatcher tests. Total: 1089 tests pass, type-check clean, oxlint clean, format clean.
 
 **Gap**: CLI `--format` only accepts `text|json|sarif`. Needs to accept the 3 new formats.
 
@@ -352,7 +352,7 @@ Should show (like oxlint):
 
 ### Task 5.1: Create locale schema
 
-**Status**: [ ]
+**Status**: [x] — Verified: Created `src/locale/schema.ts` with `LintStringsSchema` using Valibot `v.strictObject()`. 5 string groups: `cli` (help sections), `flags` (21 flag descriptions), `output` (summary, noFiles, diffStatus, helpPrefix), `listRules` (headers, fixable marker), `debug` (18 debug message templates). Exported `format()` template function and `LintStrings` type. Type-check passes.
 
 **Gap**: All user-facing strings are hardcoded inline. No i18n support, no central string management.
 
@@ -375,7 +375,7 @@ Should show (like oxlint):
 
 ### Task 5.2: Create English locale file
 
-**Status**: [ ]
+**Status**: [x] — Verified: Created `src/locale/locales/en.ts` with all English strings. Extracted 21 flag descriptions, 8 CLI section strings, 4 output strings, 4 list-rules strings, and 18 debug message templates. All use `{placeholder}` syntax for parameterized strings. Schema validation passes in tests.
 
 **Gap**: No locale files exist for @/lint.
 
@@ -398,7 +398,7 @@ Should show (like oxlint):
 
 ### Task 5.3: Integrate locale into CLI
 
-**Status**: [ ]
+**Status**: [x] — Verified: Integrated locale into `cli-helpers.ts` (all 18 dbg calls, buildHelpText, list-rules output, noFiles message, diff status) and `formatters.ts` (summary line, help prefix). Import aliased as `formatTemplate` in formatters.ts to avoid shadowing `format` parameter. 13 locale tests added (6 format tests, 2 schema validation, 5 en locale completeness). All 1102 tests pass, backward-compatible output confirmed.
 
 **Gap**: No locale loading or usage in the CLI pipeline.
 

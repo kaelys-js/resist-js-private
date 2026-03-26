@@ -1,7 +1,7 @@
 /**
  * Custom Linter — Output Formatters
  *
- * Format lint results as text, JSON, or SARIF 2.1.0.
+ * Format lint results as text, JSON, SARIF 2.1.0, GitHub Actions, JUnit XML, or compact.
  *
  * @module
  */
@@ -11,14 +11,24 @@ import { relative } from 'node:path';
 import * as v from 'valibot';
 
 import { LINTER_NAME } from '@/lint/constants.ts';
+import { buildCaretMarker } from '@/lint/framework/source-reader.ts';
 import type { LintResult } from '@/lint/framework/types.ts';
+import { format as formatTemplate } from '@/lint/locale/schema.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 
 // =============================================================================
 // Types
 // =============================================================================
 
 /** Supported output format identifiers. */
-export const OutputFormatSchema = v.picklist(['text', 'json', 'sarif']);
+export const OutputFormatSchema = v.picklist([
+  'text',
+  'json',
+  'sarif',
+  'github',
+  'junit',
+  'compact',
+]);
 
 /** Output format identifier. See {@link OutputFormatSchema}. */
 export type OutputFormat = v.InferOutput<typeof OutputFormatSchema>;
@@ -28,11 +38,26 @@ export type OutputFormat = v.InferOutput<typeof OutputFormatSchema>;
 // =============================================================================
 
 /**
- * Format lint results as human-readable text.
+ * Format lint results as human-readable text in oxlint-style output.
+ *
+ * Shows each result with a header, source context, caret markers,
+ * and help suggestions. Includes a summary line with error/warning counts.
  *
  * @param {LintResult[]} results - Results to display
  * @param {number} totalFiles - Total files linted (for summary line)
  * @returns {string} Formatted text output
+ *
+ * @example
+ * ```typescript
+ * const output = formatText(results, 10);
+ * // Output:
+ * //   ✗ rule-id: message
+ * //      ,-[file:10:5]
+ * //   10 | source line
+ * //      :     ^^^^
+ * //      '----
+ * //   help: suggestion text
+ * ```
  */
 export function formatText(results: LintResult[], totalFiles: number): string {
   const lines: string[] = [];
@@ -46,21 +71,42 @@ export function formatText(results: LintResult[], totalFiles: number): string {
   for (const result of results) {
     const relPath: string = relative(cwd, result.file);
     const icon: string = result.severity === 'error' ? '✗' : '⚠';
-    lines.push(
-      `  ${icon} ${relPath}:${result.line}:${result.column} ${result.message} [${result.ruleId}]`,
-    );
+    const lineStr: string = String(result.line);
+    const pad: string = ' '.repeat(lineStr.length);
+
+    /* Header: severity icon + rule-id: message */
+    lines.push(`  ${icon} ${result.ruleId}: ${result.message}`);
+
+    /* File location header */
+    lines.push(`  ${pad} ,-[${relPath}:${result.line}:${result.column}]`);
+
     if (result.source) {
-      lines.push(`    │ ${result.source.trimEnd()}`);
+      /* Source line with line number */
+      lines.push(`  ${lineStr} | ${result.source.trimEnd()}`);
+
+      /* Caret marker highlighting the error column range */
+      const marker: string = buildCaretMarker(result.column, result.endColumn);
+      lines.push(`  ${pad} : ${marker}`);
     }
+
+    /* Closing decoration */
+    lines.push(`  ${pad} \`----`);
+
+    /* Help/tip line */
     if (result.tip) {
-      lines.push(`    → ${result.tip}`);
+      lines.push(`  ${en.output.helpPrefix}: ${result.tip}`);
     }
+
+    lines.push('');
   }
 
   if (results.length > 0) {
-    lines.push('');
     lines.push(
-      `Found ${errors.length} error(s) and ${warnings.length} warning(s) in ${totalFiles} file(s).`,
+      formatTemplate(en.output.summary, {
+        errors: errors.length,
+        warnings: warnings.length,
+        files: totalFiles,
+      }),
     );
   }
 
@@ -212,6 +258,164 @@ export function formatSarif(results: LintResult[], ruleDescriptions: Map<string,
 }
 
 // =============================================================================
+// GitHub Actions Formatter
+// =============================================================================
+
+/**
+ * Format lint results as GitHub Actions workflow annotations.
+ *
+ * Produces `::error` and `::warning` commands that GitHub Actions
+ * renders as inline annotations on pull request diffs.
+ *
+ * @param {LintResult[]} results - Results to format
+ * @returns {string} GitHub Actions annotation commands
+ *
+ * @example
+ * ```typescript
+ * const output = formatGitHub(results);
+ * // ::error file=src/foo.ts,line=10,col=5::Missing type annotation [typescript/require-type-annotation]
+ * ```
+ */
+export function formatGitHub(results: LintResult[]): string {
+  const cwd: string = process.cwd();
+  const lines: string[] = [];
+
+  for (const result of results) {
+    const relPath: string = relative(cwd, result.file);
+    const level: string = result.severity === 'error' ? 'error' : 'warning';
+    lines.push(
+      `::${level} file=${relPath},line=${result.line},col=${result.column}::${result.message} [${result.ruleId}]`,
+    );
+  }
+
+  return lines.length > 0 ? `${lines.join('\n')}\n` : '';
+}
+
+// =============================================================================
+// JUnit XML Formatter
+// =============================================================================
+
+/**
+ * Escape special XML characters in a string.
+ *
+ * @param {string} text - Raw text to escape
+ * @returns {string} XML-safe string
+ */
+function escapeXml(text: string): string {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&apos;');
+}
+
+/**
+ * Format lint results as JUnit XML for CI tools (Jenkins, CircleCI, GitLab CI).
+ *
+ * Groups results by file into test suites. Each lint result becomes a
+ * test case with a failure element containing the message and source.
+ *
+ * @param {LintResult[]} results - Results to format
+ * @param {number} totalFiles - Total files linted
+ * @returns {string} JUnit XML string
+ *
+ * @example
+ * ```typescript
+ * const xml = formatJunit(results, 10);
+ * // <?xml version="1.0" encoding="UTF-8"?>
+ * // <testsuites><testsuite name="resist-lint" ...>...</testsuite></testsuites>
+ * ```
+ */
+export function formatJunit(results: LintResult[], totalFiles: number): string {
+  const cwd: string = process.cwd();
+  const lines: string[] = [];
+
+  /* Group results by file */
+  const byFile: Map<string, LintResult[]> = new Map();
+  for (const result of results) {
+    const relPath: string = relative(cwd, result.file);
+    const existing: LintResult[] | undefined = byFile.get(relPath);
+    if (existing) {
+      existing.push(result);
+    } else {
+      byFile.set(relPath, [result]);
+    }
+  }
+
+  const errorCount: number = results.filter(
+    (r: LintResult): boolean => r.severity === 'error',
+  ).length;
+
+  lines.push('<?xml version="1.0" encoding="UTF-8"?>');
+  lines.push(
+    `<testsuites name="${LINTER_NAME}" tests="${results.length}" failures="${errorCount}" files="${totalFiles}">`,
+  );
+
+  for (const [file, fileResults] of byFile) {
+    const fileErrors: number = fileResults.filter(
+      (r: LintResult): boolean => r.severity === 'error',
+    ).length;
+    lines.push(
+      `  <testsuite name="${escapeXml(file)}" tests="${fileResults.length}" failures="${fileErrors}">`,
+    );
+
+    for (const result of fileResults) {
+      lines.push(
+        `    <testcase name="${escapeXml(result.ruleId)}" classname="${escapeXml(file)}">`,
+      );
+
+      const failureType: string = result.severity === 'error' ? 'error' : 'warning';
+      const body: string = result.source
+        ? `${result.message}\n${result.source.trimEnd()}`
+        : result.message;
+      lines.push(
+        `      <failure message="${escapeXml(result.message)}" type="${failureType}">${escapeXml(body)}</failure>`,
+      );
+
+      lines.push('    </testcase>');
+    }
+
+    lines.push('  </testsuite>');
+  }
+
+  lines.push('</testsuites>');
+  return `${lines.join('\n')}\n`;
+}
+
+// =============================================================================
+// Compact Formatter
+// =============================================================================
+
+/**
+ * Format lint results as compact single-line output for piping and grepping.
+ *
+ * Each result is one line: `file:line:col: severity ruleId message`
+ *
+ * @param {LintResult[]} results - Results to format
+ * @returns {string} Compact text output
+ *
+ * @example
+ * ```typescript
+ * const output = formatCompact(results);
+ * // src/foo.ts:10:5: error typescript/require-type-annotation Missing type annotation
+ * ```
+ */
+export function formatCompact(results: LintResult[]): string {
+  const cwd: string = process.cwd();
+  const lines: string[] = [];
+
+  for (const result of results) {
+    const relPath: string = relative(cwd, result.file);
+    lines.push(
+      `${relPath}:${result.line}:${result.column}: ${result.severity} ${result.ruleId} ${result.message}`,
+    );
+  }
+
+  return lines.length > 0 ? `${lines.join('\n')}\n` : '';
+}
+
+// =============================================================================
 // Unified Format Dispatcher
 // =============================================================================
 
@@ -219,8 +423,8 @@ export function formatSarif(results: LintResult[], ruleDescriptions: Map<string,
  * Format lint results using the specified output format.
  *
  * @param {LintResult[]} results - Results to format
- * @param {OutputFormat} format - Output format ('text', 'json', 'sarif')
- * @param {number} totalFiles - Total files linted (used by text format)
+ * @param {OutputFormat} format - Output format ('text', 'json', 'sarif', 'github', 'junit', 'compact')
+ * @param {number} totalFiles - Total files linted (used by text and junit formats)
  * @param {Map<string, string>} ruleDescriptions - Rule descriptions (used by SARIF)
  * @returns {string} Formatted output string
  */
@@ -236,6 +440,15 @@ export function formatResults(
     }
     case 'sarif': {
       return formatSarif(results, ruleDescriptions);
+    }
+    case 'github': {
+      return formatGitHub(results);
+    }
+    case 'junit': {
+      return formatJunit(results, totalFiles);
+    }
+    case 'compact': {
+      return formatCompact(results);
     }
     default: {
       return formatText(results, totalFiles);

@@ -1,11 +1,19 @@
 /**
- * Tests for output formatters (text, JSON, SARIF).
+ * Tests for output formatters (text, JSON, SARIF, GitHub, JUnit, compact).
  *
  * @module
  */
 
 import { describe, expect, it } from 'vitest';
-import { formatText, formatJson, formatSarif, formatResults } from './formatters.ts';
+import {
+  formatText,
+  formatJson,
+  formatSarif,
+  formatGitHub,
+  formatJunit,
+  formatCompact,
+  formatResults,
+} from './formatters.ts';
 import type { LintResult } from './types.ts';
 
 // =============================================================================
@@ -40,12 +48,22 @@ describe('formatText', () => {
     expect(formatText([], 0)).toBe('');
   });
 
-  it('formats a single error with summary', () => {
+  it('formats a single error with oxlint-style output', () => {
     const text: string = formatText([makeResult()], 5);
     expect(text).toContain('✗');
-    expect(text).toContain('Test error');
-    expect(text).toContain('[test/rule]');
+    expect(text).toContain('test/rule: Test error');
     expect(text).toContain('1 error(s) and 0 warning(s) in 5 file(s)');
+  });
+
+  it('shows file location header', () => {
+    const text: string = formatText([makeResult()], 1);
+    expect(text).toContain(',-[');
+    expect(text).toContain(':10:5]');
+  });
+
+  it('shows closing decoration', () => {
+    const text: string = formatText([makeResult()], 1);
+    expect(text).toContain('`----');
   });
 
   it('shows warning icon for warnings', () => {
@@ -53,14 +71,31 @@ describe('formatText', () => {
     expect(text).toContain('⚠');
   });
 
-  it('includes source snippet when present', () => {
+  it('includes source line with line number', () => {
     const text: string = formatText([makeResult({ source: 'const x = 42;' })], 1);
-    expect(text).toContain('│ const x = 42;');
+    expect(text).toContain('10 | const x = 42;');
   });
 
-  it('includes tip when present', () => {
+  it('includes caret marker for source', () => {
+    const text: string = formatText(
+      [makeResult({ source: 'const x = 42;', column: 7, endColumn: 8 })],
+      1,
+    );
+    expect(text).toContain(': ');
+    expect(text).toContain('^');
+  });
+
+  it('includes help line for tips', () => {
     const text: string = formatText([makeResult({ tip: 'Add type annotation' })], 1);
-    expect(text).toContain('→ Add type annotation');
+    expect(text).toContain('help: Add type annotation');
+  });
+
+  it('aligns line numbers correctly for multi-digit lines', () => {
+    const text: string = formatText([makeResult({ line: 100, source: 'const x = 42;' })], 1);
+    expect(text).toContain('100 | const x = 42;');
+    /* Padding should match line number width (3 chars) */
+    expect(text).toContain('    ,-[');
+    expect(text).toContain('    `----');
   });
 });
 
@@ -155,6 +190,151 @@ describe('formatSarif', () => {
 });
 
 // =============================================================================
+// formatGitHub
+// =============================================================================
+
+describe('formatGitHub', () => {
+  it('returns empty string for no results', () => {
+    expect(formatGitHub([])).toBe('');
+  });
+
+  it('formats error as ::error annotation', () => {
+    const output: string = formatGitHub([makeResult()]);
+    expect(output).toContain('::error file=');
+    expect(output).toContain(',line=10,col=5::');
+    expect(output).toContain('Test error [test/rule]');
+  });
+
+  it('formats warning as ::warning annotation', () => {
+    const output: string = formatGitHub([makeResult({ severity: 'warning' })]);
+    expect(output).toContain('::warning file=');
+  });
+
+  it('outputs one line per result', () => {
+    const output: string = formatGitHub([
+      makeResult({ ruleId: 'rule/a' }),
+      makeResult({ ruleId: 'rule/b' }),
+    ]);
+    const lines: string[] = output.trim().split('\n');
+    expect(lines.length).toBe(2);
+  });
+
+  it('includes file path, line, and column', () => {
+    const output: string = formatGitHub([makeResult({ line: 42, column: 7 })]);
+    expect(output).toContain('line=42,col=7');
+  });
+});
+
+// =============================================================================
+// formatJunit
+// =============================================================================
+
+describe('formatJunit', () => {
+  it('produces valid XML structure', () => {
+    const xml: string = formatJunit([makeResult()], 5);
+    expect(xml).toContain('<?xml version="1.0" encoding="UTF-8"?>');
+    expect(xml).toContain('<testsuites');
+    expect(xml).toContain('</testsuites>');
+  });
+
+  it('includes tool name in testsuites', () => {
+    const xml: string = formatJunit([makeResult()], 1);
+    expect(xml).toContain('name="resist-lint"');
+  });
+
+  it('groups results by file as test suites', () => {
+    const results: LintResult[] = [
+      makeResult({ file: '/src/a.ts', ruleId: 'rule/1' }),
+      makeResult({ file: '/src/a.ts', ruleId: 'rule/2' }),
+      makeResult({ file: '/src/b.ts', ruleId: 'rule/3' }),
+    ];
+    const xml: string = formatJunit(results, 2);
+    const suiteCount: number = (xml.match(/<testsuite /g) ?? []).length;
+    expect(suiteCount).toBe(2);
+  });
+
+  it('includes failure elements with message', () => {
+    const xml: string = formatJunit([makeResult()], 1);
+    expect(xml).toContain('<failure');
+    expect(xml).toContain('message="Test error"');
+    expect(xml).toContain('type="error"');
+  });
+
+  it('includes source in failure body when present', () => {
+    const xml: string = formatJunit([makeResult({ source: 'const x = 42;' })], 1);
+    expect(xml).toContain('const x = 42;');
+  });
+
+  it('escapes XML special characters', () => {
+    const xml: string = formatJunit([makeResult({ message: 'Use <T> & "safe" parsing' })], 1);
+    expect(xml).toContain('&lt;T&gt;');
+    expect(xml).toContain('&amp;');
+    expect(xml).toContain('&quot;safe&quot;');
+  });
+
+  it('counts failures correctly', () => {
+    const results: LintResult[] = [
+      makeResult({ severity: 'error' }),
+      makeResult({ severity: 'warning' }),
+      makeResult({ severity: 'error' }),
+    ];
+    const xml: string = formatJunit(results, 3);
+    expect(xml).toContain('tests="3" failures="2"');
+  });
+
+  it('sets warning type for non-error results', () => {
+    const xml: string = formatJunit([makeResult({ severity: 'warning' })], 1);
+    expect(xml).toContain('type="warning"');
+  });
+
+  it('produces output even for empty results', () => {
+    const xml: string = formatJunit([], 0);
+    expect(xml).toContain('<testsuites');
+    expect(xml).toContain('tests="0"');
+  });
+});
+
+// =============================================================================
+// formatCompact
+// =============================================================================
+
+describe('formatCompact', () => {
+  it('returns empty string for no results', () => {
+    expect(formatCompact([])).toBe('');
+  });
+
+  it('formats each result as a single line', () => {
+    const output: string = formatCompact([makeResult()]);
+    const lines: string[] = output.trim().split('\n');
+    expect(lines.length).toBe(1);
+  });
+
+  it('includes file, line, column, severity, ruleId, and message', () => {
+    const output: string = formatCompact([makeResult()]);
+    expect(output).toContain(':10:5:');
+    expect(output).toContain('error');
+    expect(output).toContain('test/rule');
+    expect(output).toContain('Test error');
+  });
+
+  it('outputs multiple results on separate lines', () => {
+    const output: string = formatCompact([
+      makeResult({ ruleId: 'rule/a', line: 1 }),
+      makeResult({ ruleId: 'rule/b', line: 2 }),
+    ]);
+    const lines: string[] = output.trim().split('\n');
+    expect(lines.length).toBe(2);
+    expect(lines[0]).toContain('rule/a');
+    expect(lines[1]).toContain('rule/b');
+  });
+
+  it('shows correct severity for warnings', () => {
+    const output: string = formatCompact([makeResult({ severity: 'warning' })]);
+    expect(output).toContain('warning');
+  });
+});
+
+// =============================================================================
 // formatResults dispatcher
 // =============================================================================
 
@@ -175,5 +355,20 @@ describe('formatResults', () => {
   it('dispatches to sarif format', () => {
     const result: string = formatResults([makeResult()], 'sarif', 1, ruleDescs);
     expect(result).toContain('sarif-schema-2.1.0');
+  });
+
+  it('dispatches to github format', () => {
+    const result: string = formatResults([makeResult()], 'github', 1, ruleDescs);
+    expect(result).toContain('::error');
+  });
+
+  it('dispatches to junit format', () => {
+    const result: string = formatResults([makeResult()], 'junit', 1, ruleDescs);
+    expect(result).toContain('<testsuites');
+  });
+
+  it('dispatches to compact format', () => {
+    const result: string = formatResults([makeResult()], 'compact', 1, ruleDescs);
+    expect(result).toContain(':10:5:');
   });
 });

@@ -22,7 +22,10 @@
       "items": {
         "type": "string"
       },
-      "default": ["*.test.ts", "*.d.ts"]
+      "default": [
+        "*.test.ts",
+        "*.d.ts"
+      ]
     },
     "extensions": {
       "type": "array",
@@ -30,14 +33,22 @@
       "items": {
         "type": "string"
       },
-      "default": [".ts", ".svelte.ts", ".mjs"]
+      "default": [
+        ".ts",
+        ".svelte.ts",
+        ".mjs"
+      ]
     },
     "rules": {
       "type": "object",
       "description": "Rule ID → severity mapping. Unlisted rules default to \"error\".\n\nAvailable rules:\n- `comments/no-lint-disable`: Forbids lint-suppression comments (eslint-disable, oxlint-ignore, @ts-ignore, etc.)\n- `comments/require-blank-line-groups`: Require blank lines between declaration and control flow statement groups\n- `comments/require-section-marker-style`: Section markers must use the canonical // === style\n- `comments/require-section-order`: File sections marked with // === headers must follow canonical order\n- `imports/no-barrel-files`: Forbids barrel files (index.ts with re-exports)\n- `imports/no-js-extension`: Import paths must not use .js extension — use .ts or omit\n- `imports/no-raw-json`: Use safeStringify/parseJsonWithComments instead of JSON.stringify/parse\n- `imports/no-raw-node-imports`: Use @/utils/core shared utilities instead of raw node:* imports\n- `imports/no-reexport`: Forbids re-exports — always import from canonical source\n- `imports/no-relative-imports`: Import paths must not use relative paths (./ or ../)\n- `imports/require-import-groups`: Require blank lines between import groups (node, external, workspace)\n- `jsdoc/param-type-match`: @param {Type} must match the actual TypeScript type annotation\n- `jsdoc/require-example`: Exported functions must have an @example block with ```typescript``` fence\n- `jsdoc/require-jsdoc`: Exported functions and types must have a JSDoc comment\n- `jsdoc/require-module`: Every TypeScript file must have a top-level /** @module */ JSDoc comment\n- `jsdoc/require-param`: Every function parameter must have a matching @param in JSDoc\n- `jsdoc/require-returns`: Exported functions with non-void return types must have @returns {Type}\n- `jsdoc/require-schema-link`: Types derived from Valibot schemas must include {@link SchemaName} in JSDoc\n- `jsdoc/validate-example`: TypeScript code in @example blocks must be syntactically valid\n- `naming/camel-case-vars`: Variables and functions must use camelCase\n- `naming/constant-screaming-case`: Top-level const with literal init must use SCREAMING_SNAKE_CASE\n- `naming/pascal-case-types`: Types, interfaces, and enums must use PascalCase\n- `naming/svelte-file-pascal-case`: Svelte files must have PascalCase filenames\n- `naming/ts-file-kebab-case`: TypeScript files must have kebab-case filenames\n- `result/check-before-access`: Result .ok must be checked before accessing .data or .error\n- `result/no-ignore-result`: Result return values must be captured — do not ignore them\n- `result/no-redundant-ok-guard`: Redundant .ok guard — both branches return the same variable\n- `result/no-result-fallback`: Do not silently discard Result errors with fallback values\n- `result/no-ternary-fallback`: Forbids result.ok ? result.data : fallback — use if (!result.ok) return result\n- `result/require-ok-return`: Functions returning Result<T> must use ok()/okUnchecked()/err() in returns\n- `result/require-result-type`: Exported functions that might fail should return Result<T>\n- `result/validate-function-input`: Exported/handler functions should validate input with safeParse()\n- `testing/multi-export-a`: Multi-export fixture rule A (no-op).\n- `testing/multi-export-b`: Multi-export fixture rule B (no-op).\n- `testing/named-export-a`: Named export fixture rule (no-op).\n- `testing/require-colocated-tests`: Files exporting functions must have a colocated .test.ts file\n- `typescript/no-bare-as-cast`: Every `as` cast must have an inline comment explaining why\n- `typescript/no-bare-data-types`: Data types must use Valibot schemas, not interface/type literals\n- `typescript/no-builtin-types`: Use Valibot types (Str, Num, Bool, Void) instead of TypeScript builtins\n- `typescript/no-default-params`: Function parameters must not have defaults or optional markers — use Valibot schemas\n- `typescript/no-empty-catch`: Catch blocks must use fromUnknownError() + err() pattern\n- `typescript/no-generic-function-type`: Function types must have specific parameter and return types, not generic unknown\n- `typescript/no-module-side-effects`: Top-level code must not throw or execute side-effect calls on import\n- `typescript/no-throw`: Forbids throw statements — use return err() instead\n- `typescript/no-union-null`: Use Valibot nullable/optional types instead of | null / | undefined\n- `typescript/no-union-params`: Function parameters must not use | union types — use Valibot schemas instead\n- `typescript/require-const-comment`: Every top-level const must have a preceding comment\n- `typescript/require-function-schema`: Use functionSchema() from @/schemas/function instead of v.custom for function types\n- `typescript/require-non-negative-integer`: .length must be typed as NonNegativeInteger, not Num\n- `typescript/require-return-type`: Every function must have an explicit return type annotation\n- `typescript/require-type-annotation`: Every const/let declaration and function parameter must have a type annotation\n- `valibot/namespace-import`: Valibot must be imported as namespace: import * as v from 'valibot'\n- `valibot/no-direct-safeparse`: Forbids v.safeParse() — use safeParse from @/utils/result/safe instead\n- `valibot/no-duplicate-schema`: Schema field patterns appearing in 3+ files should be in @/schemas/common\n- `valibot/no-generic-string-schema`: v.pipe(v.string(), v.minLength(1)) is too generic — add semantic constraints\n- `valibot/no-parse`: Forbids v.parse() — use safeParse from @/utils/result/safe instead\n- `valibot/prefer-shared-schema`: Use shared schemas (PathSchema, UrlStringSchema, etc.) for matching field names\n- `valibot/prefer-template-literal`: Prefer templateLiteral() over v.pipe(v.string(), v.regex()) for structured string patterns\n- `valibot/require-field-docs`: Every property in v.strictObject() must have a JSDoc comment\n- `valibot/require-generic-schema`: Schemas used by generic types should use generic() from @/schemas/generic\n- `valibot/require-min-length`: Bare v.string() in strictObject fields should have v.minLength(1)\n- `valibot/require-schema-suffix`: Valibot schema const names must end in \"Schema\"\n- `valibot/require-strict-object`: Forbids v.object() — use v.strictObject() instead\n- `package/no-hoisted-dep`: Hoisted dependencies must not appear in sub-package dependencies\n- `package/no-peer-deps`: Private workspace packages must not have peerDependencies\n- `package/no-root-only-scripts`: qa:format, qa:format:check, qa:lint belong only in workspace root\n- `package/no-tsc-dependency`: Packages using tsgo should not depend on typescript\n- `package/no-vitest-config`: Sub-packages must not have vitest.config.ts — use root config with --project\n- `package/no-workspace-dep`: Workspace-root-level deps must not appear in sub-package devDependencies\n- `package/no-workspace-self-ref`: Sub-packages must not have workspace:* dependencies — use tsconfig paths\n- `package/require-project-test`: Test scripts must use pnpm -w exec vitest run --project <name>\n- `package/require-readme`: Every sub-package must have a validated README.md\n- `package/require-shared-config`: Config files must use shared config tooling\n- `package/require-standard-scripts`: Sub-packages must have all standard scripts\n- `package/require-tsgo`: qa:type-check must use tsgo, not tsc\n- `package/valid-project-ref`: Scripts with --project must reference a valid vitest project name\n- `package/valid-tsconfig`: Sub-package tsconfig.json must extend root and include src",
       "additionalProperties": {
         "type": "string",
-        "enum": ["error", "warn", "off"],
+        "enum": [
+          "error",
+          "warn",
+          "off"
+        ],
         "description": "Rule severity: \"error\" (exit 1), \"warn\" (report but pass), \"off\" (skip)."
       }
     },
@@ -67,11 +78,18 @@
             "description": "Rule-level severity overrides for matched files.",
             "additionalProperties": {
               "type": "string",
-              "enum": ["error", "warn", "off"]
+              "enum": [
+                "error",
+                "warn",
+                "off"
+              ]
             }
           }
         },
-        "required": ["files", "rules"]
+        "required": [
+          "files",
+          "rules"
+        ]
       }
     }
   },
