@@ -280,7 +280,7 @@ All new rules are TypeScriptRules with AST visitors. They go in `rules/valibot/`
 
 ### TASK B-Final — Register & Configure All 56 Rules
 
-**Status**: [ ]
+**Status**: [x] — All 56 rules registered in `.resist-lint.jsonc` with `"error"` severity. Overrides added for lint tooling, test files, and common schemas. QA clean.
 
 **Plan**:
 - Rules are auto-loaded by `rule-loader.ts` from the `rules/` directory — no manual registry needed
