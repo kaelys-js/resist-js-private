@@ -339,5 +339,13 @@ export async function runTypeScriptRules(
     }
   });
 
+  /* Backfill `source` on results that don't already have it */
+  const lines: string[] = content.split('\n');
+  for (const result of results) {
+    if (!result.source && result.line >= 1 && result.line <= lines.length) {
+      result.source = lines[result.line - 1];
+    }
+  }
+
   return results;
 }

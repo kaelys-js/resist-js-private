@@ -7,7 +7,7 @@
 import * as v from 'valibot';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { loadAllRules, type LoadedRules } from './rule-loader.ts';
-import { StageSchema } from './types.ts';
+import { createResult, StageSchema } from './types.ts';
 
 // =============================================================================
 // StageSchema validation
@@ -279,6 +279,31 @@ describe('stages backfill', () => {
   });
 });
 
+describe('byId index', () => {
+  it('returns a Map', () => {
+    expect(loaded.byId).toBeInstanceOf(Map);
+  });
+
+  it('size equals total typescript + packageJson count', () => {
+    const total = loaded.typescript.length + loaded.packageJson.length;
+    expect(loaded.byId.size).toBe(total);
+  });
+
+  it('contains known TypeScript rule ID', () => {
+    expect(loaded.byId.has('jsdoc/require-param')).toBe(true);
+  });
+
+  it('contains known packageJson rule ID', () => {
+    expect(loaded.byId.has('package/require-tsgo')).toBe(true);
+  });
+
+  it('every entry key matches the rule id', () => {
+    for (const [key, rule] of loaded.byId) {
+      expect(rule.id).toBe(key);
+    }
+  });
+});
+
 describe('byCategory index', () => {
   it('returns a Map', () => {
     expect(loaded.byCategory).toBeInstanceOf(Map);
@@ -324,5 +349,171 @@ describe('byStage index', () => {
   it('has a "pre-commit" stage', () => {
     const precommitRules = loaded.byStage.get('pre-commit') ?? [];
     expect(precommitRules.length).toBeGreaterThan(0);
+  });
+});
+
+// =============================================================================
+// createResult factory
+// =============================================================================
+
+describe('createResult', () => {
+  it('returns a valid LintResult with all required fields', () => {
+    const result = createResult('test/rule', '/src/foo.ts', 10, 5, 'error', 'Test message');
+    expect(result.ruleId).toBe('test/rule');
+    expect(result.file).toBe('/src/foo.ts');
+    expect(result.line).toBe(10);
+    expect(result.column).toBe(5);
+    expect(result.severity).toBe('error');
+    expect(result.message).toBe('Test message');
+  });
+
+  it('defaults fix to no-op when omitted', () => {
+    const result = createResult('test/rule', '/src/foo.ts', 1, 1, 'error', 'msg');
+    expect(result.fix).toEqual({ range: { start: 0, end: 0 }, text: '' });
+  });
+
+  it('passes through optional tip and example', () => {
+    const result = createResult('test/rule', '/src/foo.ts', 1, 1, 'warning', 'msg', {
+      tip: 'Fix this',
+      example: 'const x: string = "";',
+    });
+    expect(result.tip).toBe('Fix this');
+    expect(result.example).toBe('const x: string = "";');
+  });
+
+  it('uses explicit fix when provided', () => {
+    const fix = { range: { start: 10, end: 20 }, text: 'replaced' };
+    const result = createResult('test/rule', '/src/foo.ts', 1, 1, 'error', 'msg', { fix });
+    expect(result.fix).toEqual(fix);
+  });
+
+  it('passes through endLine and endColumn', () => {
+    const result = createResult('test/rule', '/src/foo.ts', 1, 1, 'info', 'msg', {
+      endLine: 5,
+      endColumn: 20,
+    });
+    expect(result.endLine).toBe(5);
+    expect(result.endColumn).toBe(20);
+  });
+
+  it('passes through source and url', () => {
+    const result = createResult('test/rule', '/src/foo.ts', 1, 1, 'error', 'msg', {
+      source: 'const x = 42;',
+      url: 'https://docs.example.com/rules/test-rule',
+    });
+    expect(result.source).toBe('const x = 42;');
+    expect(result.url).toBe('https://docs.example.com/rules/test-rule');
+  });
+
+  it('leaves optional fields undefined when not provided', () => {
+    const result = createResult('test/rule', '/src/foo.ts', 1, 1, 'error', 'msg');
+    expect(result.tip).toBeUndefined();
+    expect(result.example).toBeUndefined();
+    expect(result.source).toBeUndefined();
+    expect(result.url).toBeUndefined();
+    expect(result.endLine).toBeUndefined();
+    expect(result.endColumn).toBeUndefined();
+  });
+});
+
+// =============================================================================
+// Multiple rule export formats
+// =============================================================================
+
+describe('multiple rule export formats', () => {
+  it('loads rules from array default export (multi-export-fixture)', () => {
+    const ids = loaded.typescript.map((r) => r.id);
+    expect(ids).toContain('testing/multi-export-a');
+    expect(ids).toContain('testing/multi-export-b');
+  });
+
+  it('loads rules from named `rules` export (named-export-fixture)', () => {
+    const ids = loaded.typescript.map((r) => r.id);
+    expect(ids).toContain('testing/named-export-a');
+  });
+
+  it('multi-export rules have correct descriptions', () => {
+    const ruleA = loaded.byId.get('testing/multi-export-a');
+    const ruleB = loaded.byId.get('testing/multi-export-b');
+    expect(ruleA?.description).toBe('Multi-export fixture rule A (no-op).');
+    expect(ruleB?.description).toBe('Multi-export fixture rule B (no-op).');
+  });
+
+  it('named-export rules have correct descriptions', () => {
+    const rule = loaded.byId.get('testing/named-export-a');
+    expect(rule?.description).toBe('Named export fixture rule (no-op).');
+  });
+
+  it('multi-export rules appear in byCategory under "testing"', () => {
+    const testingRules = loaded.byCategory.get('testing') ?? [];
+    const ids = testingRules.map((r) => r.id);
+    expect(ids).toContain('testing/multi-export-a');
+    expect(ids).toContain('testing/multi-export-b');
+    expect(ids).toContain('testing/named-export-a');
+  });
+
+  it('multi-export rules appear in byStage under "lint"', () => {
+    const lintRules = loaded.byStage.get('lint') ?? [];
+    const ids = lintRules.map((r) => r.id);
+    expect(ids).toContain('testing/multi-export-a');
+    expect(ids).toContain('testing/multi-export-b');
+    expect(ids).toContain('testing/named-export-a');
+  });
+});
+
+// =============================================================================
+// Workspace rules
+// =============================================================================
+
+describe('workspace rules', () => {
+  it('returns a workspace array', () => {
+    expect(loaded).toHaveProperty('workspace');
+    expect(Array.isArray(loaded.workspace)).toBe(true);
+  });
+
+  it('loads at least 3 workspace rules', () => {
+    expect(loaded.workspace.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('workspace rules have scope = "workspace"', () => {
+    for (const rule of loaded.workspace) {
+      expect(rule.scope).toBe('workspace');
+    }
+  });
+
+  it('workspace rules have non-empty id and description', () => {
+    for (const rule of loaded.workspace) {
+      expect(typeof rule.id).toBe('string');
+      expect(rule.id.length).toBeGreaterThan(0);
+      expect(typeof rule.description).toBe('string');
+      expect(rule.description.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('workspace rules have check as a function', () => {
+    for (const rule of loaded.workspace) {
+      expect(typeof rule.check).toBe('function');
+    }
+  });
+
+  it('contains workspace/no-merge-conflicts', () => {
+    const ids = loaded.workspace.map((r) => r.id);
+    expect(ids).toContain('workspace/no-merge-conflicts');
+  });
+
+  it('contains workspace/no-crlf', () => {
+    const ids = loaded.workspace.map((r) => r.id);
+    expect(ids).toContain('workspace/no-crlf');
+  });
+
+  it('contains workspace/no-empty-files', () => {
+    const ids = loaded.workspace.map((r) => r.id);
+    expect(ids).toContain('workspace/no-empty-files');
+  });
+
+  it('workspace rules are sorted by id', () => {
+    const ids = loaded.workspace.map((r) => r.id);
+    const sorted = ids.toSorted((a, b) => a.localeCompare(b));
+    expect(ids).toEqual(sorted);
   });
 });

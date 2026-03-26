@@ -1,0 +1,366 @@
+/**
+ * Custom Linter — Rule Context Utilities
+ *
+ * Provides workspace context utilities for workspace-scoped rules:
+ * file discovery, reading, existence checks, workspace package discovery,
+ * and content searching.
+ *
+ * @module
+ */
+
+import { type Dirent } from 'node:fs';
+import { readFile as fsReadFile, readdir, stat } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+
+import * as v from 'valibot';
+
+// =============================================================================
+// Types
+// =============================================================================
+
+/** Schema for a search match found by the content search utility. */
+export const SearchMatchSchema = v.strictObject({
+  /** Absolute file path containing the match. */
+  file: v.string(),
+  /** 1-based line number. */
+  line: v.number(),
+  /** 1-based column number. */
+  column: v.number(),
+  /** The full line text containing the match. */
+  text: v.string(),
+  /** The matched substring. */
+  match: v.string(),
+});
+
+/** A search match found by the content search utility. See {@link SearchMatchSchema}. */
+export type SearchMatch = v.InferOutput<typeof SearchMatchSchema>;
+
+/** Schema for a workspace package discovered from pnpm-workspace.yaml. */
+export const WorkspacePackageSchema = v.strictObject({
+  /** Absolute path to the package.json file. */
+  path: v.string(),
+  /** Absolute path to the package directory. */
+  dir: v.string(),
+  /** Parsed package.json content. */
+  packageJson: v.record(v.string(), v.unknown()),
+  /** Package name (from package.json "name" field). */
+  name: v.optional(v.string()),
+});
+
+/** A workspace package discovered from pnpm-workspace.yaml. See {@link WorkspacePackageSchema}. */
+export type WorkspacePackage = v.InferOutput<typeof WorkspacePackageSchema>;
+
+/** Workspace context passed to workspace-scoped rules. */
+export interface WorkspaceContext {
+  /** Root directory of the workspace. */
+  rootDir: string;
+  /** Async iterable of all files in the workspace (skips ignored dirs). */
+  allFiles: () => AsyncIterable<string>;
+  /** Read a file's contents. */
+  readFile: (path: string) => Promise<string>;
+  /** Check if a file exists. */
+  fileExists: (path: string) => Promise<boolean>;
+  /** Check if a directory exists. */
+  dirExists: (path: string) => Promise<boolean>;
+  /** Get all workspace packages from pnpm-workspace.yaml. */
+  getWorkspacePackages: () => Promise<WorkspacePackage[]>;
+}
+
+// =============================================================================
+// Constants
+// =============================================================================
+
+/** Directories to skip during recursive file discovery. */
+const SKIP_DIRS: ReadonlySet<string> = new Set([
+  'node_modules',
+  '.git',
+  'dist',
+  'build',
+  'coverage',
+  '.svelte-kit',
+  '.next',
+  '.turbo',
+  '.cache',
+]);
+
+// =============================================================================
+// File Discovery
+// =============================================================================
+
+/**
+ * Recursively discover all files in a directory, skipping ignored directories.
+ *
+ * @param {string} dir - Directory to scan
+ * @yields {string} Absolute file paths
+ */
+export async function* getAllFiles(dir: string): AsyncIterable<string> {
+  let entries: Dirent[];
+  try {
+    entries = (await readdir(dir, { withFileTypes: true })) as Dirent[];
+  } catch {
+    return;
+  }
+
+  for (const entry of entries) {
+    const name: string = entry.name as string;
+    const fullPath: string = join(dir, name);
+
+    if (entry.isDirectory()) {
+      if (!SKIP_DIRS.has(name)) {
+        yield* getAllFiles(fullPath);
+      }
+      continue;
+    }
+
+    if (entry.isFile()) {
+      yield fullPath;
+    }
+  }
+}
+
+// =============================================================================
+// File I/O
+// =============================================================================
+
+/**
+ * Read a file's contents as UTF-8.
+ *
+ * @param {string} path - Absolute file path
+ * @returns {Promise<string>} File contents
+ * @throws If the file cannot be read
+ */
+export async function readFileContent(path: string): Promise<string> {
+  return fsReadFile(path, 'utf8');
+}
+
+/**
+ * Check if a file exists.
+ *
+ * @param {string} path - Absolute file path
+ * @returns {Promise<boolean>} True if the file exists and is a file
+ */
+export async function fileExists(path: string): Promise<boolean> {
+  try {
+    const s: Awaited<ReturnType<typeof stat>> = await stat(path);
+    return s.isFile();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Check if a directory exists.
+ *
+ * @param {string} path - Absolute directory path
+ * @returns {Promise<boolean>} True if the path exists and is a directory
+ */
+export async function dirExists(path: string): Promise<boolean> {
+  try {
+    const s: Awaited<ReturnType<typeof stat>> = await stat(path);
+    return s.isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+// =============================================================================
+// Workspace Packages
+// =============================================================================
+
+/**
+ * Discover workspace packages from pnpm-workspace.yaml.
+ *
+ * Reads `pnpm-workspace.yaml` in the root directory, expands glob patterns,
+ * and returns metadata for each package that has a `package.json`.
+ *
+ * @param {string} rootDir - Workspace root directory
+ * @returns {Promise<WorkspacePackage[]>} Array of workspace packages
+ */
+export async function getWorkspacePackages(rootDir: string): Promise<WorkspacePackage[]> {
+  const workspaceYamlPath: string = join(rootDir, 'pnpm-workspace.yaml');
+  const packages: WorkspacePackage[] = [];
+
+  let yamlContent: string;
+  try {
+    yamlContent = await fsReadFile(workspaceYamlPath, 'utf8');
+  } catch {
+    return packages;
+  }
+
+  /* Simple YAML parser — extract packages list from pnpm-workspace.yaml */
+  const patterns: string[] = parseWorkspaceYaml(yamlContent);
+
+  /* Expand each glob pattern to find directories with package.json */
+  for (const pattern of patterns) {
+    const isRecursive: boolean = pattern.includes('**');
+    const baseDir: string = pattern.replace(/\/\*\*?$/, '');
+    const searchDir: string = resolve(rootDir, baseDir);
+
+    await findPackagesInDir(searchDir, packages, isRecursive);
+  }
+
+  return packages;
+}
+
+/**
+ * Recursively find packages (directories with package.json) in a directory.
+ *
+ * @param dir - Directory to scan
+ * @param packages - Accumulator array (mutated)
+ * @param recursive - Whether to recurse into subdirectories
+ */
+async function findPackagesInDir(
+  dir: string,
+  packages: WorkspacePackage[],
+  recursive: boolean,
+): Promise<void> {
+  let entries: Dirent[];
+  try {
+    entries = (await readdir(dir, { withFileTypes: true })) as Dirent[];
+  } catch {
+    return;
+  }
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) {
+      continue;
+    }
+
+    const name: string = entry.name as string;
+
+    /* Skip ignored directories */
+    if (name === 'node_modules' || name === '.git' || name === 'dist') {
+      continue;
+    }
+
+    const pkgDir: string = join(dir, name);
+    const pkgJsonPath: string = join(pkgDir, 'package.json');
+
+    try {
+      const pkgContent: string = await fsReadFile(pkgJsonPath, 'utf8');
+      const pkgJson: Record<string, unknown> = JSON.parse(pkgContent) as Record<string, unknown>;
+      packages.push({
+        path: pkgJsonPath,
+        dir: pkgDir,
+        packageJson: pkgJson,
+        name: typeof pkgJson.name === 'string' ? pkgJson.name : undefined,
+      });
+    } catch {
+      /* No package.json — if recursive, keep scanning deeper */
+    }
+
+    /* Recurse into subdirectories for ** patterns */
+    if (recursive) {
+      await findPackagesInDir(pkgDir, packages, true);
+    }
+  }
+}
+
+/**
+ * Parse pnpm-workspace.yaml to extract package glob patterns.
+ *
+ * Simple line-based parser that handles the common format:
+ * ```yaml
+ * packages:
+ *   - 'packages/*'
+ *   - 'apps/*'
+ * ```
+ *
+ * @param {string} content - YAML file content
+ * @returns {string[]} Array of glob patterns
+ */
+function parseWorkspaceYaml(content: string): string[] {
+  const patterns: string[] = [];
+  const lines: string[] = content.split('\n');
+  let inPackages: boolean = false;
+
+  for (const line of lines) {
+    const trimmed: string = line.trim();
+
+    if (trimmed === 'packages:') {
+      inPackages = true;
+      continue;
+    }
+
+    if (inPackages) {
+      /* Stop at next top-level key */
+      if (trimmed.length > 0 && !trimmed.startsWith('-') && !trimmed.startsWith('#')) {
+        break;
+      }
+
+      if (trimmed.startsWith('- ')) {
+        const pattern: string = trimmed.slice(2).trim().replace(/^['"]/, '').replace(/['"]$/, '');
+        if (pattern.length > 0) {
+          patterns.push(pattern);
+        }
+      }
+    }
+  }
+
+  return patterns;
+}
+
+// =============================================================================
+// Content Search
+// =============================================================================
+
+/**
+ * Search for a regex pattern across files, yielding matches.
+ *
+ * @param {RegExp} pattern - Regular expression to search for
+ * @param {AsyncIterable<string>} files - File paths to search
+ * @param {(path: string) => Promise<string>} reader - File reader function
+ * @yields {SearchMatch} Matches found in files
+ */
+export async function* search(
+  pattern: RegExp,
+  files: AsyncIterable<string>,
+  reader: (path: string) => Promise<string> = readFileContent,
+): AsyncGenerator<SearchMatch> {
+  for await (const filePath of files) {
+    let content: string;
+    try {
+      content = await reader(filePath);
+    } catch {
+      continue;
+    }
+
+    const lines: string[] = content.split('\n');
+    for (let i: number = 0; i < lines.length; i++) {
+      const lineText: string = lines[i] ?? '';
+      /* Reset lastIndex for global patterns */
+      const re: RegExp = new RegExp(pattern.source, pattern.flags.replace('g', ''));
+      const m: RegExpMatchArray | null = lineText.match(re);
+      if (m) {
+        yield {
+          file: filePath,
+          line: i + 1,
+          column: (m.index ?? 0) + 1,
+          text: lineText,
+          match: m[0] ?? '',
+        };
+      }
+    }
+  }
+}
+
+// =============================================================================
+// Factory
+// =============================================================================
+
+/**
+ * Create a workspace context for workspace-scoped rules.
+ *
+ * @param {string} rootDir - Workspace root directory
+ * @returns {WorkspaceContext} Workspace context object
+ */
+export function createWorkspaceContext(rootDir: string): WorkspaceContext {
+  return {
+    rootDir,
+    allFiles: (): AsyncIterable<string> => getAllFiles(rootDir),
+    readFile: readFileContent,
+    fileExists,
+    dirExists,
+    getWorkspacePackages: (): Promise<WorkspacePackage[]> => getWorkspacePackages(rootDir),
+  };
+}
