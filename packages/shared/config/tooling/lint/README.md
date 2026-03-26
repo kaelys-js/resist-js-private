@@ -6,8 +6,10 @@ Custom AST-based linter for the monorepo. Uses oxc-parser for TypeScript/Svelte 
 
 | File | Description |
 | --- | --- |
-| `src/cli.ts` | CLI entry point — parses args, loads config, discovers rules, runs linting |
+| `src/cli.ts` | CLI entry point — thin wrapper that delegates to `cli-helpers.ts` |
+| `src/cli-helpers.ts` | All CLI logic — arg parsing, file discovery, fix application, linter loop |
 | `src/config/schema.ts` | Valibot-validated configuration schema and loader for `.resist-lint.jsonc` |
+| `src/constants.ts` | Shared constants — linter name, config filename, schema filename |
 | `src/framework/types.ts` | Type definitions for rules, AST visitors, lint results, and fixes |
 | `src/framework/oxc-runner.ts` | oxc-parser integration — AST parsing, traversal, and rule execution |
 | `src/framework/rule-loader.ts` | Auto-discovery of rules from `src/rules/` directories |
@@ -31,22 +33,20 @@ resist-lint --fix packages/shared/schemas
 # JSON output
 resist-lint --json packages/shared/schemas
 
-# Generate JSON Schema for IDE autocomplete
-resist-lint --generate-schema
-
 # Show help
 resist-lint --help
 ```
 
 ## Configuration
 
-Configuration is loaded from `.resist-lint.jsonc` at the workspace root. Supports JSONC (JSON with `//` and `/* */` comments). See the config schema in `src/config/schema.ts` for all options.
+Configuration is loaded from `.resist-lint.jsonc` at the workspace root. Supports JSONC (JSON with `//` and `/* */` comments). The JSON Schema (`.resist-lint.schema.json`) is auto-generated on each lint run for IDE autocomplete.
 
 ```jsonc
 {
   "$schema": "./.resist-lint.schema.json",
   "include": ["packages/shared/schemas"],
-  "exclude": ["node_modules", "dist"],
+  "exclude": ["node_modules", "dist", "*.test.ts", "*.d.ts"],
+  "extensions": [".ts", ".svelte.ts", ".mjs"],
   "rules": {
     "jsdoc/require-param": "error",
     "typescript/no-empty-catch": "warn",
@@ -70,7 +70,6 @@ Configuration is loaded from `.resist-lint.jsonc` at the workspace root. Support
 - `--rule=id[,id2]` — Run only the specified rule(s)
 - `--fix` — Auto-apply fixes to source files
 - `--json` — Output results as JSON
-- `--generate-schema` — Write `.resist-lint.schema.json` for IDE autocomplete
 - `--warn-only` — Exit 0 even if errors are found
 
 ### Config Schema (`src/config/schema.ts`)
@@ -80,6 +79,15 @@ Configuration is loaded from `.resist-lint.jsonc` at the workspace root. Support
 - `generateJsonSchema(ruleIds, descriptions)` — Generate JSON Schema document with rule enum values for IDE autocomplete
 - `LintConfigSchema` — Valibot schema for the configuration file
 - `RuleSeveritySchema` — Valibot picklist for `"error" | "warn" | "off"`
+
+### CLI Helpers (`src/cli-helpers.ts`)
+
+- `parseCliArgs(argv)` — Parse raw CLI arguments into structured `CliArgs`
+- `runLinter(cliArgs, output)` — Run the full linter pipeline (config, rules, files, output)
+- `shouldLint(filePath, config)` — Check if a file should be linted based on extensions and excludes
+- `collectFiles(dir, config)` — Recursively collect lintable files from a directory
+- `applyFixes(content, fixes)` — Apply code fixes in reverse offset order
+- `buildHelpText(name, config, schema)` — Build formatted CLI help text
 
 ### Rule Loader (`src/framework/rule-loader.ts`)
 

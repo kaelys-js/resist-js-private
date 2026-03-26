@@ -26,6 +26,7 @@ const REQUIRED_SCRIPTS: readonly string[] = [
 const rule: PackageJsonRule = {
   id: 'package/require-standard-scripts',
   description: 'Sub-packages must have all standard scripts',
+  fixable: false,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
     if (context.isRoot) {

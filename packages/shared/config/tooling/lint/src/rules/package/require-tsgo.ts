@@ -17,6 +17,7 @@ const NO_FIX: { range: { start: number; end: number }; text: string } = {
 const rule: PackageJsonRule = {
   id: 'package/require-tsgo',
   description: 'qa:type-check must use tsgo, not tsc',
+  fixable: false,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
     const script: string | undefined = context.pkg.scripts?.['qa:type-check'];

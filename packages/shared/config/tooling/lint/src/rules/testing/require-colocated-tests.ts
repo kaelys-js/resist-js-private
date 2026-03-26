@@ -135,6 +135,7 @@ const rule: TypeScriptRule = {
   id: 'testing/require-colocated-tests',
   description: 'Files exporting functions must have a colocated .test.ts file',
   patterns: ['**/*.ts'],
+  fixable: false,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

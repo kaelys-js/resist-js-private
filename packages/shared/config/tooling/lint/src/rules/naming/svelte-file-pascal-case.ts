@@ -16,6 +16,7 @@ const rule: TypeScriptRule = {
   id: 'naming/svelte-file-pascal-case',
   description: 'Svelte files must have PascalCase filenames',
   patterns: ['**/*.svelte'],
+  fixable: false,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

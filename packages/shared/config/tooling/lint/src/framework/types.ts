@@ -226,4 +226,6 @@ export type PackageJsonRule = {
   description: string;
   /** Check function */
   check: (context: PackageJsonContext) => LintResult[];
+  /** Whether this rule provides real auto-fixes (not just placeholder no-ops) */
+  fixable?: boolean;
 };

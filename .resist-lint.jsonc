@@ -1,4 +1,5 @@
 {
+  "$schema": "./.resist-lint.schema.json",
   "include": [
     "packages/products/storylyne/editor",
     "packages/products-template",
@@ -15,12 +16,11 @@
     "build",
     "coverage",
     ".turbo",
-    "_INTEGRATE"
+    "_INTEGRATE",
+    "*.test.ts",
+    "*.d.ts"
   ],
-  "extensions": [".ts", ".mjs"],
-  "includeSvelteTs": true,
-  "skipTests": true,
-  "skipDeclarations": true,
+  "extensions": [".ts", ".svelte.ts", ".mjs"],
   "rules": {
     "comments/no-lint-disable": "error",
     "comments/require-blank-line-groups": "error",

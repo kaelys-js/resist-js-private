@@ -12,6 +12,8 @@ import * as v from 'valibot';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+import { CONFIG_FILENAME, LINTER_NAME } from '../constants.ts';
+
 // =============================================================================
 // Schemas
 // =============================================================================
@@ -35,18 +37,14 @@ export type Override = v.InferOutput<typeof OverrideSchema>;
 
 /** Schema for the full linter configuration file. */
 export const LintConfigSchema = v.strictObject({
+  /** JSON Schema reference for IDE autocomplete (ignored by linter). */
+  $schema: v.optional(v.string()),
   /** Paths to include in linting (relative to workspace root). */
   include: v.optional(v.array(v.string()), []),
-  /** Directory names to always skip during file discovery. */
-  exclude: v.optional(v.array(v.string()), []),
-  /** File extensions to lint. */
-  extensions: v.optional(v.array(v.string()), ['.ts', '.mjs']),
-  /** Whether to include `.svelte.ts` files (always included). */
-  includeSvelteTs: v.optional(v.boolean(), true),
-  /** Whether to skip test files (`*.test.ts`). */
-  skipTests: v.optional(v.boolean(), true),
-  /** Whether to skip declaration files (`*.d.ts`). */
-  skipDeclarations: v.optional(v.boolean(), true),
+  /** Glob patterns to exclude from linting. */
+  exclude: v.optional(v.array(v.string()), ['*.test.ts', '*.d.ts']),
+  /** File extensions to lint (including `.svelte.ts`). */
+  extensions: v.optional(v.array(v.string()), ['.ts', '.svelte.ts', '.mjs']),
   /** Rule ID → severity mapping. Unlisted rules default to "error". */
   rules: v.optional(v.record(v.string(), RuleSeveritySchema), {}),
   /** File-specific rule overrides (like oxlint overrides). */
@@ -55,13 +53,6 @@ export const LintConfigSchema = v.strictObject({
 
 /** Inferred type for the linter configuration. See {@link LintConfigSchema}. */
 export type LintConfig = v.InferOutput<typeof LintConfigSchema>;
-
-// =============================================================================
-// Constants
-// =============================================================================
-
-/** Configuration file name (JSONC — JSON with comments). */
-const CONFIG_FILENAME: string = '.resist-lint.jsonc';
 
 // =============================================================================
 // API
@@ -313,8 +304,8 @@ export function generateJsonSchema(
 
   return {
     $schema: 'http://json-schema.org/draft-07/schema#',
-    title: 'resist-lint configuration',
-    description: 'Configuration file for the resist-lint custom linter.',
+    title: `${LINTER_NAME} configuration`,
+    description: `Configuration file for the ${LINTER_NAME} custom linter.`,
     type: 'object',
     properties: {
       $schema: {
@@ -329,30 +320,15 @@ export function generateJsonSchema(
       },
       exclude: {
         type: 'array',
-        description: 'Directory names to always skip during file discovery.',
+        description: 'Glob patterns to exclude from linting (e.g. "*.test.ts", "*.d.ts").',
         items: { type: 'string' },
-        default: [],
+        default: ['*.test.ts', '*.d.ts'],
       },
       extensions: {
         type: 'array',
-        description: 'File extensions to lint.',
+        description: 'File extensions to lint (including .svelte.ts).',
         items: { type: 'string' },
-        default: ['.ts', '.mjs'],
-      },
-      includeSvelteTs: {
-        type: 'boolean',
-        description: 'Whether to include .svelte.ts files (always included by default).',
-        default: true,
-      },
-      skipTests: {
-        type: 'boolean',
-        description: 'Whether to skip test files (*.test.ts).',
-        default: true,
-      },
-      skipDeclarations: {
-        type: 'boolean',
-        description: 'Whether to skip declaration files (*.d.ts).',
-        default: true,
+        default: ['.ts', '.svelte.ts', '.mjs'],
       },
       rules: {
         type: 'object',

@@ -23,6 +23,7 @@ const HOISTED_DEPS: ReadonlySet<string> = new Set(['valibot']);
 const rule: PackageJsonRule = {
   id: 'package/no-hoisted-dep',
   description: 'Hoisted dependencies must not appear in sub-package dependencies',
+  fixable: false,
 
   /**
    * Check for hoisted deps in sub-package dependencies or devDependencies.
