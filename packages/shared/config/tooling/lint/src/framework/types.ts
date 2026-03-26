@@ -38,7 +38,10 @@ const isObj = (val: unknown): boolean => typeof val === 'object' && val !== null
 /** Schema for a structured code fix that can be auto-applied. */
 export const LintFixSchema = v.strictObject({
   /** Byte offset range in the source to replace */
-  range: v.strictObject({ start: v.number(), end: v.number() }),
+  range: v.strictObject({
+    /** Start byte offset (inclusive) */ start: v.number(),
+    /** End byte offset (exclusive) */ end: v.number(),
+  }),
   /** Replacement text (empty string = deletion) */
   text: v.string(),
 });
@@ -90,8 +93,16 @@ export const AstNodeSchema = v.objectWithRest(
     end: v.number(),
     /** Source location with line/column info */
     loc: v.strictObject({
-      start: v.strictObject({ line: v.number(), column: v.number() }),
-      end: v.strictObject({ line: v.number(), column: v.number() }),
+      /** Start position */
+      start: v.strictObject({
+        /** 1-based line number */ line: v.number(),
+        /** 0-based column offset */ column: v.number(),
+      }),
+      /** End position */
+      end: v.strictObject({
+        /** 1-based line number */ line: v.number(),
+        /** 0-based column offset */ column: v.number(),
+      }),
     }),
   },
   v.unknown(),
@@ -117,54 +128,65 @@ export const VisitorFnSchema = v.custom<VisitorFn>(isFn);
 
 /** Schema for the map of AST node types to visitor functions. */
 export const AstVisitorSchema = v.strictObject({
-  // Program
+  /** Visitor for the root Program node. */
   Program: v.optional(VisitorFnSchema),
-
-  // Declarations
+  /** Visitor for variable declarations (const, let, var). */
   VariableDeclaration: v.optional(VisitorFnSchema),
+  /** Visitor for function declarations. */
   FunctionDeclaration: v.optional(VisitorFnSchema),
+  /** Visitor for class declarations. */
   ClassDeclaration: v.optional(VisitorFnSchema),
+  /** Visitor for import declarations. */
   ImportDeclaration: v.optional(VisitorFnSchema),
+  /** Visitor for named export declarations. */
   ExportNamedDeclaration: v.optional(VisitorFnSchema),
+  /** Visitor for default export declarations. */
   ExportDefaultDeclaration: v.optional(VisitorFnSchema),
+  /** Visitor for export-all declarations (export * from). */
   ExportAllDeclaration: v.optional(VisitorFnSchema),
-
-  // TypeScript declarations
+  /** Visitor for TypeScript type alias declarations. */
   TSTypeAliasDeclaration: v.optional(VisitorFnSchema),
+  /** Visitor for TypeScript interface declarations. */
   TSInterfaceDeclaration: v.optional(VisitorFnSchema),
+  /** Visitor for TypeScript enum declarations. */
   TSEnumDeclaration: v.optional(VisitorFnSchema),
-
-  // Expressions
+  /** Visitor for function/method call expressions. */
   CallExpression: v.optional(VisitorFnSchema),
+  /** Visitor for arrow function expressions. */
   ArrowFunctionExpression: v.optional(VisitorFnSchema),
+  /** Visitor for function expressions. */
   FunctionExpression: v.optional(VisitorFnSchema),
-
-  // Statements
+  /** Visitor for throw statements. */
   ThrowStatement: v.optional(VisitorFnSchema),
+  /** Visitor for catch clauses. */
   CatchClause: v.optional(VisitorFnSchema),
+  /** Visitor for expression statements. */
   ExpressionStatement: v.optional(VisitorFnSchema),
+  /** Visitor for block statements. */
   BlockStatement: v.optional(VisitorFnSchema),
-
-  // Expressions (additional)
+  /** Visitor for ternary/conditional expressions. */
   ConditionalExpression: v.optional(VisitorFnSchema),
+  /** Visitor for member access expressions (computed). */
   MemberExpression: v.optional(VisitorFnSchema),
+  /** Visitor for static member access expressions (dot notation). */
   StaticMemberExpression: v.optional(VisitorFnSchema),
-
-  // Type assertions
+  /** Visitor for `as` type assertions. */
   TSAsExpression: v.optional(VisitorFnSchema),
+  /** Visitor for angle-bracket type assertions. */
   TSTypeAssertion: v.optional(VisitorFnSchema),
+  /** Visitor for non-null assertions (!). */
   TSNonNullExpression: v.optional(VisitorFnSchema),
+  /** Visitor for `satisfies` expressions. */
   TSSatisfiesExpression: v.optional(VisitorFnSchema),
+  /** Visitor for type annotation nodes. */
   TSTypeAnnotation: v.optional(VisitorFnSchema),
+  /** Visitor for function type signatures. */
   TSFunctionType: v.optional(VisitorFnSchema),
-
-  // Union types
+  /** Visitor for union type nodes. */
   TSUnionType: v.optional(VisitorFnSchema),
-
-  // Logical expressions
+  /** Visitor for logical expressions (&&, ||, ??). */
   LogicalExpression: v.optional(VisitorFnSchema),
-
-  // If statements
+  /** Visitor for if statements. */
   IfStatement: v.optional(VisitorFnSchema),
 });
 
@@ -268,7 +290,10 @@ export const PackageJsonSchema = v.objectWithRest(
     peerDependencies: v.optional(v.record(v.string(), v.string())),
     /** Workspace configuration (root only) */
     workspaces: v.optional(
-      v.union([v.array(v.string()), v.strictObject({ packages: v.array(v.string()) })]),
+      v.union([
+        v.array(v.string()),
+        v.strictObject({ /** Workspace package glob patterns */ packages: v.array(v.string()) }),
+      ]),
     ),
   },
   v.unknown(),
