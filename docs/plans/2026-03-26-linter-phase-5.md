@@ -152,7 +152,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 
 ## TASK 2 — qa:lint Lints Everything (Config-Driven)
 
-**Status**: [ ]
+**Status**: [x] — Removed path args and --warn-only from qa:lint. Added extensions to .resist-lint.jsonc include. Command is now config-driven.
 
 **Gap**: `qa:lint` in root `package.json` enumerates 6 specific path args, missing `packages/shared/utils`, `packages/shared/secrets`, `packages/shared/extensions`. Should be config-driven — resist-lint reads `.resist-lint.jsonc` include/exclude when no path args are given. Also currently uses `--warn-only` which should be removed.
 
@@ -175,7 +175,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 
 ## TASK 3 — qa:type-check Type-Checks Everything
 
-**Status**: [ ]
+**Status**: [x] — Changed to `turbo qa:type-check --filter='!./packages/shared/utils/cli'`. Added qa:type-check script to vscode-formatter. Pre-existing type errors in multiple packages (not caused by this change).
 
 **Gap**: `qa:type-check` uses explicit turbo `--filter` paths that miss `secrets/*` and `extensions/*`, and incorrectly includes `utils/cli`. Should run everything with only cli excluded.
 
@@ -197,7 +197,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 
 ## TASK 4 — qa:test Tests Everything
 
-**Status**: [ ]
+**Status**: [x] — Changed to `turbo qa:test --filter='!./packages/shared/utils/cli'`. All packages with qa:test scripts now included.
 
 **Gap**: `qa:test` uses explicit turbo `--filter` paths with single-level globs (`./packages/shared/config/*`) that miss deeply nested packages (`config/tooling/lint`, `config/tooling/svelte`, `config/tooling/vite`), and missing `secrets/*`. Should run everything with only cli excluded.
 
@@ -234,21 +234,21 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 
 ---
 
-## TASK 6 — Get Test Coverage to Passing Threshold
+## TASK 6 — Get @/lint Test Coverage to Passing Threshold
 
 **Status**: [ ]
 
-**Gap**: Coverage thresholds are 80% statements, 75% branches, 80% functions, 80% lines. Need to verify current coverage meets thresholds after fixing failing tests.
+**Gap**: Coverage thresholds are 80% statements, 75% branches, 80% functions, 80% lines. Need to verify @/lint package coverage meets thresholds after fixing failing tests.
 
 **Plan**:
-- Run: `pnpm -w exec vitest run --coverage` to generate coverage report
-- Identify any packages/files below threshold
+- Run: `pnpm -w exec vitest run --project lint --coverage` to generate @/lint coverage report
+- Identify any files/directories below threshold within @/lint
 - Add tests to bring coverage up for any below-threshold areas
 - Focus on: branch coverage (historically the tightest margin at 75% threshold)
 
-**Files**: Test files for any below-threshold packages
+**Files**: Test files under `packages/shared/config/tooling/lint/src/`
 
-**Verification**: `pnpm -w exec vitest run --coverage` — all thresholds met, exit code 0
+**Verification**: `pnpm -w exec vitest run --project lint --coverage` — @/lint thresholds met, exit code 0
 
 ---
 
