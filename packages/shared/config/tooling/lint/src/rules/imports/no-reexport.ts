@@ -18,6 +18,8 @@ const rule: TypeScriptRule = {
   id: 'imports/no-reexport',
   description: 'Forbids re-exports — always import from canonical source',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['imports', 'architecture'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     ExportAllDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

@@ -289,6 +289,8 @@ const rule: TypeScriptRule = {
   id: 'jsdoc/validate-example',
   description: 'TypeScript code in @example blocks must be syntactically valid',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['jsdoc'],
+  stages: ['lint'],
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

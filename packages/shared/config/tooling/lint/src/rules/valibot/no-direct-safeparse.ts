@@ -19,6 +19,8 @@ const rule: TypeScriptRule = {
   id: 'valibot/no-direct-safeparse',
   description: 'Forbids v.safeParse() — use safeParse from @/utils/result/safe instead',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['valibot', 'safety'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {

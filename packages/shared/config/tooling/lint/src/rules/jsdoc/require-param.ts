@@ -230,6 +230,8 @@ const rule: TypeScriptRule = {
   id: 'jsdoc/require-param',
   description: 'Every function parameter must have a matching @param in JSDoc',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['jsdoc'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

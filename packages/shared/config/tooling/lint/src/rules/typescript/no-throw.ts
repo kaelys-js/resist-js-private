@@ -87,6 +87,8 @@ const rule: TypeScriptRule = {
   id: 'typescript/no-throw',
   description: 'Forbids throw statements — use return err() instead',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript', 'safety', 'result'],
+  stages: ['lint', 'pre-commit', 'ci'],
 
   visitor: {
     ThrowStatement(node: AstNode, context: VisitorContext): LintResult[] {

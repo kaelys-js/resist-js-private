@@ -37,6 +37,8 @@ const rule: TypeScriptRule = {
   id: 'valibot/no-generic-string-schema',
   description: 'v.pipe(v.string(), v.minLength(1)) is too generic — add semantic constraints',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['valibot'],
+  stages: ['lint'],
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {

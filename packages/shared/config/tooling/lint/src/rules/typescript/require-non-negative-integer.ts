@@ -36,6 +36,8 @@ const rule: TypeScriptRule = {
   id: 'typescript/require-non-negative-integer',
   description: '.length must be typed as NonNegativeInteger, not Num',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript', 'valibot'],
+  stages: ['lint'],
 
   visitor: {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

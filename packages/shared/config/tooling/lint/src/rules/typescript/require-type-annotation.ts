@@ -85,6 +85,8 @@ const rule: TypeScriptRule = {
   id: 'typescript/require-type-annotation',
   description: 'Every const/let declaration and function parameter must have a type annotation',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

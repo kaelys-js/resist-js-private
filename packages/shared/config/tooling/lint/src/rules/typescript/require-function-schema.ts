@@ -35,6 +35,8 @@ const rule: TypeScriptRule = {
   description:
     'Use functionSchema() from @/schemas/function instead of v.custom for function types',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript', 'valibot'],
+  stages: ['lint'],
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {

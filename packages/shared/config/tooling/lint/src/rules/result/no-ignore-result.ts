@@ -154,6 +154,8 @@ const rule: TypeScriptRule = {
   id: 'result/no-ignore-result',
   description: 'Result return values must be captured — do not ignore them',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['result', 'safety'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     ExpressionStatement(node: AstNode, context: VisitorContext): LintResult[] {

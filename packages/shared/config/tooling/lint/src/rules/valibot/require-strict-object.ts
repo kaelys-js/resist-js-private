@@ -18,6 +18,8 @@ const rule: TypeScriptRule = {
   id: 'valibot/require-strict-object',
   description: 'Forbids v.object() — use v.strictObject() instead',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['valibot', 'safety'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {

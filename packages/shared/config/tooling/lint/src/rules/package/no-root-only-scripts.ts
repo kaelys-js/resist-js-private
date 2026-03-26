@@ -20,6 +20,8 @@ const ROOT_ONLY_SCRIPTS: readonly string[] = ['qa:format', 'qa:format:check', 'q
 const rule: PackageJsonRule = {
   id: 'package/no-root-only-scripts',
   description: 'qa:format, qa:format:check, qa:lint belong only in workspace root',
+  categories: ['package', 'scripts'],
+  stages: ['lint'],
   fixable: false,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];

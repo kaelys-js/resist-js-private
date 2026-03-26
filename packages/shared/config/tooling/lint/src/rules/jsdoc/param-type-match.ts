@@ -200,6 +200,8 @@ const rule: TypeScriptRule = {
   id: 'jsdoc/param-type-match',
   description: '@param {Type} must match the actual TypeScript type annotation',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['jsdoc', 'typescript'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

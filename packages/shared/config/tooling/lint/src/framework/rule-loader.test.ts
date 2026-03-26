@@ -4,8 +4,41 @@
  * @module
  */
 
+import * as v from 'valibot';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { loadAllRules, type LoadedRules } from './rule-loader.ts';
+import { StageSchema } from './types.ts';
+
+// =============================================================================
+// StageSchema validation
+// =============================================================================
+
+describe('StageSchema', () => {
+  it.each([
+    'lint',
+    'check',
+    'pre-commit',
+    'build',
+    'ci',
+    'test',
+  ])('accepts valid stage "%s"', (stage) => {
+    const result = v.safeParse(StageSchema, stage);
+    expect(result.success).toBe(true);
+  });
+
+  it.each([
+    'invalid',
+    'deploy',
+    'release',
+    '',
+    42,
+    null,
+    undefined,
+  ])('rejects invalid value %j', (value) => {
+    const result = v.safeParse(StageSchema, value);
+    expect(result.success).toBe(false);
+  });
+});
 
 // =============================================================================
 // Shared fixture — load once for all tests
@@ -194,5 +227,102 @@ describe('known rules are present', () => {
   it('package/require-tsgo is in packageJson rules', () => {
     const ids = loaded.packageJson.map((r) => r.id);
     expect(ids).toContain('package/require-tsgo');
+  });
+});
+
+// =============================================================================
+// Categories and stages
+// =============================================================================
+
+describe('categories backfill', () => {
+  it('every TypeScript rule has a non-empty categories array', () => {
+    for (const rule of loaded.typescript) {
+      expect(Array.isArray(rule.categories)).toBe(true);
+      expect(rule.categories!.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('every packageJson rule has a non-empty categories array', () => {
+    for (const rule of loaded.packageJson) {
+      expect(Array.isArray(rule.categories)).toBe(true);
+      expect(rule.categories!.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('categories always include the rule ID prefix', () => {
+    for (const rule of [...loaded.typescript, ...loaded.packageJson]) {
+      const prefix = rule.id.split('/')[0] ?? '';
+      expect(rule.categories).toContain(prefix);
+    }
+  });
+});
+
+describe('stages backfill', () => {
+  it('every TypeScript rule has a non-empty stages array', () => {
+    for (const rule of loaded.typescript) {
+      expect(Array.isArray(rule.stages)).toBe(true);
+      expect(rule.stages!.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('every packageJson rule has a non-empty stages array', () => {
+    for (const rule of loaded.packageJson) {
+      expect(Array.isArray(rule.stages)).toBe(true);
+      expect(rule.stages!.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('every rule includes "lint" in its stages', () => {
+    for (const rule of [...loaded.typescript, ...loaded.packageJson]) {
+      expect(rule.stages).toContain('lint');
+    }
+  });
+});
+
+describe('byCategory index', () => {
+  it('returns a Map', () => {
+    expect(loaded.byCategory).toBeInstanceOf(Map);
+  });
+
+  it('has entries for known categories', () => {
+    expect(loaded.byCategory.has('typescript')).toBe(true);
+    expect(loaded.byCategory.has('jsdoc')).toBe(true);
+    expect(loaded.byCategory.has('package')).toBe(true);
+  });
+
+  it('typescript category contains typescript/no-throw', () => {
+    const tsRules = loaded.byCategory.get('typescript') ?? [];
+    const ids = tsRules.map((r) => r.id);
+    expect(ids).toContain('typescript/no-throw');
+  });
+
+  it('safety category contains rules from multiple prefixes', () => {
+    const safetyRules = loaded.byCategory.get('safety') ?? [];
+    const prefixes = new Set(safetyRules.map((r) => r.id.split('/')[0]));
+    expect(prefixes.size).toBeGreaterThan(1);
+  });
+});
+
+describe('byStage index', () => {
+  it('returns a Map', () => {
+    expect(loaded.byStage).toBeInstanceOf(Map);
+  });
+
+  it('has a "lint" stage with all rules', () => {
+    const lintRules = loaded.byStage.get('lint') ?? [];
+    const total = loaded.typescript.length + loaded.packageJson.length;
+    expect(lintRules.length).toBe(total);
+  });
+
+  it('has a "ci" stage with fewer rules than "lint"', () => {
+    const ciRules = loaded.byStage.get('ci') ?? [];
+    const lintRules = loaded.byStage.get('lint') ?? [];
+    expect(ciRules.length).toBeGreaterThan(0);
+    expect(ciRules.length).toBeLessThan(lintRules.length);
+  });
+
+  it('has a "pre-commit" stage', () => {
+    const precommitRules = loaded.byStage.get('pre-commit') ?? [];
+    expect(precommitRules.length).toBeGreaterThan(0);
   });
 });

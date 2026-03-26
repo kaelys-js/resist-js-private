@@ -159,6 +159,8 @@ const rule: TypeScriptRule = {
   id: 'typescript/no-bare-data-types',
   description: 'Data types must use Valibot schemas, not interface/type literals',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript', 'valibot'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     TSInterfaceDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

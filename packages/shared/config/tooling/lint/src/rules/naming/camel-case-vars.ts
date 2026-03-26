@@ -28,6 +28,8 @@ const rule: TypeScriptRule = {
   id: 'naming/camel-case-vars',
   description: 'Variables and functions must use camelCase',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['naming'],
+  stages: ['lint', 'pre-commit'],
 
   visitor: {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

@@ -28,6 +28,8 @@ const rule: TypeScriptRule = {
   id: 'comments/require-section-order',
   description: 'File sections marked with // === headers must follow canonical order',
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
+  categories: ['comments', 'style'],
+  stages: ['lint'],
   fixable: false,
 
   visitor: {

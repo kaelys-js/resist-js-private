@@ -116,6 +116,8 @@ const rule: TypeScriptRule = {
   id: 'comments/require-section-marker-style',
   description: 'Section markers must use the canonical // === style',
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
+  categories: ['comments', 'style'],
+  stages: ['lint'],
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

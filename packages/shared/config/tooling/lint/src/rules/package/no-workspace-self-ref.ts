@@ -20,6 +20,8 @@ const NO_FIX: { range: { start: number; end: number }; text: string } = {
 const rule: PackageJsonRule = {
   id: 'package/no-workspace-self-ref',
   description: 'Sub-packages must not have workspace:* dependencies — use tsconfig paths',
+  categories: ['package', 'dependencies'],
+  stages: ['lint', 'ci'],
   fixable: false,
 
   /**

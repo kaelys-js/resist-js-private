@@ -61,6 +61,8 @@ const PROJECT_SCRIPTS: readonly string[] = [
 const rule: PackageJsonRule = {
   id: 'package/valid-project-ref',
   description: 'Scripts with --project must reference a valid vitest project name',
+  categories: ['package', 'testing'],
+  stages: ['lint', 'ci'],
   fixable: false,
 
   /**

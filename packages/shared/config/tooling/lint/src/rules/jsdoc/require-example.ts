@@ -116,6 +116,8 @@ const rule: TypeScriptRule = {
   id: 'jsdoc/require-example',
   description: 'Exported functions must have an @example block with ```typescript``` fence',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['jsdoc'],
+  stages: ['lint'],
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

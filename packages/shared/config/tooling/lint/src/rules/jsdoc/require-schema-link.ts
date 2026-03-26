@@ -44,6 +44,8 @@ const rule: TypeScriptRule = {
   id: 'jsdoc/require-schema-link',
   description: 'Types derived from Valibot schemas must include {@link SchemaName} in JSDoc',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['jsdoc', 'valibot'],
+  stages: ['lint'],
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

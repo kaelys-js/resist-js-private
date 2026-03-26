@@ -27,6 +27,8 @@ const TEST_SCRIPTS: readonly string[] = [
 const rule: PackageJsonRule = {
   id: 'package/require-project-test',
   description: 'Test scripts must use pnpm -w exec vitest run --project <name>',
+  categories: ['package', 'testing'],
+  stages: ['lint'],
   fixable: false,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];

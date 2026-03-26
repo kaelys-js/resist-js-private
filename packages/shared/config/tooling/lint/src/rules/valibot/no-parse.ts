@@ -18,6 +18,8 @@ const rule: TypeScriptRule = {
   id: 'valibot/no-parse',
   description: 'Forbids v.parse() — use safeParse from @/utils/result/safe instead',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['valibot', 'safety'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {

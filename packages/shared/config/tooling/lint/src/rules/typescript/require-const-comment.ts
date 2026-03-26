@@ -44,6 +44,8 @@ const rule: TypeScriptRule = {
   id: 'typescript/require-const-comment',
   description: 'Every top-level const must have a preceding comment',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript', 'jsdoc'],
+  stages: ['lint'],
 
   visitor: {
     // We check at the Program level to identify top-level declarations only

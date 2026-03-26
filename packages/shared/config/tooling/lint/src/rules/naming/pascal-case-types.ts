@@ -52,6 +52,8 @@ const rule: TypeScriptRule = {
   id: 'naming/pascal-case-types',
   description: 'Types, interfaces, and enums must use PascalCase',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['naming'],
+  stages: ['lint', 'pre-commit'],
 
   visitor: {
     TSTypeAliasDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

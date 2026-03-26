@@ -199,6 +199,8 @@ const rule: TypeScriptRule = {
   id: 'result/require-result-type',
   description: 'Exported functions that might fail should return Result<T>',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['result', 'architecture'],
+  stages: ['lint', 'ci'],
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

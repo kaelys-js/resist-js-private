@@ -391,7 +391,10 @@ export function generateJsonSchema(
       ruleOptions: {
         type: 'object',
         description:
-          'Per-rule configuration options. Keys are rule IDs, values are option objects.',
+          'Per-rule configuration options. Keys are rule IDs, values are option objects.\n\n' +
+          'Common options:\n' +
+          '- categories: string[] — override rule categories for filtering\n' +
+          '- stages: string[] — override pipeline stages (lint, check, pre-commit, build, ci, test)',
         additionalProperties: {
           type: 'object',
           description: 'Options specific to a rule.',

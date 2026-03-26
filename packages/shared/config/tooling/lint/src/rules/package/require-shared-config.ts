@@ -50,6 +50,8 @@ const CONFIG_CHECKS: ReadonlyArray<{
 const rule: PackageJsonRule = {
   id: 'package/require-shared-config',
   description: 'Config files must use shared config tooling',
+  categories: ['package', 'architecture'],
+  stages: ['lint'],
   fixable: false,
 
   /**

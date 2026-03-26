@@ -22,6 +22,8 @@ const rule: TypeScriptRule = {
   id: 'naming/ts-file-kebab-case',
   description: 'TypeScript files must have kebab-case filenames',
   patterns: ['**/*.ts'],
+  categories: ['naming'],
+  stages: ['lint', 'pre-commit'],
   fixable: false,
 
   visitor: {

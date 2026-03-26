@@ -141,6 +141,8 @@ const rule: TypeScriptRule = {
   id: 'valibot/prefer-shared-schema',
   description: 'Use shared schemas (PathSchema, UrlStringSchema, etc.) for matching field names',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['valibot', 'architecture'],
+  stages: ['lint'],
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {

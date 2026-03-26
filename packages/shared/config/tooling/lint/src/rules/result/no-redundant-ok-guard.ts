@@ -43,6 +43,8 @@ const rule: TypeScriptRule = {
   id: 'result/no-redundant-ok-guard',
   description: 'Redundant .ok guard — both branches return the same variable',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['result', 'hygiene'],
+  stages: ['lint'],
 
   visitor: {
     IfStatement(node: AstNode, context: VisitorContext): LintResult[] {

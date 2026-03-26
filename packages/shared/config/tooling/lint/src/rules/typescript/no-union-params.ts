@@ -86,6 +86,8 @@ const rule: TypeScriptRule = {
   id: 'typescript/no-union-params',
   description: 'Function parameters must not use | union types — use Valibot schemas instead',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['typescript', 'valibot'],
+  stages: ['lint'],
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

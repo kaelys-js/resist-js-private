@@ -19,6 +19,8 @@ const rule: TypeScriptRule = {
   id: 'valibot/require-min-length',
   description: 'Bare v.string() in strictObject fields should have v.minLength(1)',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['valibot'],
+  stages: ['lint'],
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {

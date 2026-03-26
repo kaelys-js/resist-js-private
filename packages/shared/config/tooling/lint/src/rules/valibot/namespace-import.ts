@@ -18,6 +18,8 @@ const rule: TypeScriptRule = {
   id: 'valibot/namespace-import',
   description: "Valibot must be imported as namespace: import * as v from 'valibot'",
   patterns: ['**/*.ts', '**/*.svelte.ts'],
+  categories: ['valibot', 'imports'],
+  stages: ['lint'],
 
   visitor: {
     ImportDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
