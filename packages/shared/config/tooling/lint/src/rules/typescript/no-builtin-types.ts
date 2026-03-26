@@ -10,15 +10,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
-/** File paths exempt from this rule (test infrastructure, test files). */
-const EXEMPT_PATHS: readonly RegExp[] = [
-  /config\/test\//,
-  /config\/tooling\/lint\//,
-  /\.test\.ts$/,
-  /\.spec\.ts$/,
-];
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Map of forbidden builtins to their Valibot replacements. */
 const BUILTIN_REPLACEMENTS: ReadonlyMap<string, string> = new Map([
@@ -50,10 +47,6 @@ const rule: TypeScriptRule = {
   visitor: {
     TSTypeAnnotation(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-
-      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
-        return results;
-      }
 
       // Walk the type annotation looking for builtin keyword types
       checkTypeNode(node, context, results);

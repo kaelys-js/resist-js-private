@@ -15,7 +15,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /**
  * Extract the returned variable name from a return statement node.

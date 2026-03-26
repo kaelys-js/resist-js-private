@@ -15,7 +15,9 @@ import { readdirSync, type Dirent } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type { TypeScriptRule, PackageJsonRule } from './types.ts';
+import * as v from 'valibot';
+
+import type { TypeScriptRule, PackageJsonRule } from '@/lint/framework/types.ts';
 
 // =============================================================================
 // Constants
@@ -31,13 +33,16 @@ const SKIP_SUFFIXES: readonly string[] = ['.test.ts', '.spec.ts', '.d.ts'];
 // Types
 // =============================================================================
 
-/** Result of loading all rules from the rules directory. */
-export type LoadedRules = {
+/** Schema for the result of loading all rules from the rules directory. */
+export const LoadedRulesSchema = v.strictObject({
   /** AST-based TypeScript lint rules. */
-  typescript: TypeScriptRule[];
+  typescript: v.custom<TypeScriptRule[]>((val: unknown): boolean => Array.isArray(val)),
   /** Package.json lint rules. */
-  packageJson: PackageJsonRule[];
-};
+  packageJson: v.custom<PackageJsonRule[]>((val: unknown): boolean => Array.isArray(val)),
+});
+
+/** Result of loading all rules from the rules directory. See {@link LoadedRulesSchema}. */
+export type LoadedRules = v.InferOutput<typeof LoadedRulesSchema>;
 
 // =============================================================================
 // API

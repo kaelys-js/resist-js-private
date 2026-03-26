@@ -10,7 +10,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Allowed Result constructor patterns in return expressions. */
 const OK_RETURN_PATTERNS: readonly RegExp[] = [/^ok\s*\(/, /^okUnchecked\s*[<(]/, /^err\s*\(/];

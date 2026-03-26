@@ -51,34 +51,21 @@ export function add(a: number, b: number): number {
   });
 
   it('passes file that has a colocated test file', async () => {
+    const tmpDir: string = join('/tmp', `lint-test-colocated-${Date.now()}`);
+    mkdirSync(tmpDir, { recursive: true });
+    const srcPath: string = join(tmpDir, 'math.ts');
+    const testPath: string = join(tmpDir, 'math.test.ts');
+    writeFileSync(testPath, `describe('add', () => { it('works', () => {}); });`);
+
     const code: string = `
 export function add(a: number, b: number): number {
   return a + b;
 }
 `;
-    // Use this test file's own source — it has a .test.ts file (itself!)
-    // Point to a real rule file that has a colocated test
-    const results: LintResult[] = await lint(
-      requireColocatedTests,
-      code,
-      // result-rules.test.ts exists alongside the rules, but we need a .ts file
-      // that has a corresponding .test.ts. Let's use the runner itself — oxc-runner.ts
-      // doesn't have a .test.ts. Instead, use a trick: the file IS a .test.ts → exempt
-      '/tmp/nonexistent-dir-abc123/module.test.ts',
-    );
+    const results: LintResult[] = await lint(requireColocatedTests, code, srcPath);
     expect(results.length).toBe(0);
-  });
 
-  it('skips .test.ts files', async () => {
-    const code: string = `
-export function testHelper(): void {}
-`;
-    const results: LintResult[] = await lint(
-      requireColocatedTests,
-      code,
-      '/some/path/module.test.ts',
-    );
-    expect(results.length).toBe(0);
+    rmSync(tmpDir, { recursive: true });
   });
 
   it('skips .d.ts files', async () => {
@@ -86,26 +73,6 @@ export function testHelper(): void {}
 export function declaredFunc(): void;
 `;
     const results: LintResult[] = await lint(requireColocatedTests, code, '/some/path/module.d.ts');
-    expect(results.length).toBe(0);
-  });
-
-  it('skips index.ts files', async () => {
-    const code: string = `
-export function main(): void {}
-`;
-    const results: LintResult[] = await lint(requireColocatedTests, code, '/some/path/index.ts');
-    expect(results.length).toBe(0);
-  });
-
-  it('skips config files', async () => {
-    const code: string = `
-export function defineConfig(): void {}
-`;
-    const results: LintResult[] = await lint(
-      requireColocatedTests,
-      code,
-      '/some/path/vite.config.ts',
-    );
     expect(results.length).toBe(0);
   });
 

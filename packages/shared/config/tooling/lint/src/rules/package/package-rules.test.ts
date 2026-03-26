@@ -545,8 +545,8 @@ describe('package/no-vitest-config', () => {
         pkg: { name: '@/cli' },
       }),
     );
-    // @/cli is exempt
-    expect(results.length).toBe(0);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('package/no-vitest-config');
   });
 
   it('passes for root package', () => {
@@ -661,15 +661,5 @@ describe('package/require-readme', () => {
       r.message.includes('does not match package name'),
     );
     expect(titleMismatch).toBeUndefined();
-  });
-
-  it('skips exempt paths', () => {
-    const results: LintResult[] = requireReadme.check(
-      ctx({
-        file: '/Users/coleb/Desktop/webforge/packages/shared/config/test/package.json',
-        pkg: { name: '@/test-presets' },
-      }),
-    );
-    expect(results.length).toBe(0);
   });
 });

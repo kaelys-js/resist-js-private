@@ -7,10 +7,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
-/** File path patterns exempt from this rule. */
-const EXEMPT_PATTERNS: readonly RegExp[] = [/\.test\.ts$/, /\.spec\.ts$/, /schemas\/common/];
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Cross-file state: maps "fieldName:schemaText" → set of file paths. */
 const FIELD_MAP: Map<string, Set<string>> = new Map();
@@ -40,10 +42,6 @@ const rule: TypeScriptRule = {
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
-      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
-        return [];
-      }
-
       const callee = node.callee as AstNode | undefined;
       if (!callee) {
         return [];

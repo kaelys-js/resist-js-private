@@ -17,7 +17,12 @@
  * Exempts Svelte reactive contexts ($derived.by, $effect).
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Characters to look back for Svelte reactive context. */
 const REACTIVE_LOOKBACK: number = 200;

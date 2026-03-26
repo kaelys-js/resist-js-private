@@ -7,7 +7,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Patterns that indicate a Result variable name. */
 const RESULT_NAME_PATTERNS: readonly RegExp[] = [

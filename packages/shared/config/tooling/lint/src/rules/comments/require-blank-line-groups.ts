@@ -10,7 +10,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Statement types that are "declarations" (const/let/var). */
 const DECLARATION_TYPES: ReadonlySet<string> = new Set([
@@ -31,13 +36,6 @@ const CONTROL_FLOW_TYPES: ReadonlySet<string> = new Set([
   'ReturnStatement',
   'ThrowStatement',
 ]);
-
-/** File path patterns exempt from this rule. */
-const EXEMPT_PATTERNS: readonly RegExp[] = [
-  /\.test\.ts$/,
-  /\.spec\.ts$/,
-  /config\/tooling\/lint\//,
-];
 
 /**
  * Classify a statement into a group.
@@ -103,10 +101,6 @@ const rule: TypeScriptRule = {
 
   visitor: {
     BlockStatement(node: AstNode, context: VisitorContext): LintResult[] {
-      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
-        return [];
-      }
-
       const body = node.body as AstNode[] | undefined;
       if (!body || body.length < 2) {
         return [];
@@ -158,10 +152,6 @@ const rule: TypeScriptRule = {
     },
 
     Program(node: AstNode, context: VisitorContext): LintResult[] {
-      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
-        return [];
-      }
-
       const body = node.body as AstNode[] | undefined;
       if (!body || body.length < 2) {
         return [];

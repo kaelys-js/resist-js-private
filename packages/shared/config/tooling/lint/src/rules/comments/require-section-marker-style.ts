@@ -20,7 +20,12 @@
  * a different purpose (inline visual separation, not module sections).
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Canonical separator line (77 `=` chars, 80 total with `// `). */
 const CANONICAL_LINE: string =

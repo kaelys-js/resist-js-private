@@ -8,7 +8,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Patterns to detect lint-suppression comments. */
 const DISABLE_PATTERNS: ReadonlyArray<{ pattern: RegExp; label: string }> = [
@@ -21,24 +26,6 @@ const DISABLE_PATTERNS: ReadonlyArray<{ pattern: RegExp; label: string }> = [
   { pattern: /\/\*\s*global\s+/, label: '/* global */' },
 ];
 
-/** Allowed disable targets (these are OK to suppress). */
-const ALLOWED_DISABLES: ReadonlySet<string> = new Set(['max-lines', 'max-lines-per-function']);
-
-/**
- * Check if a comment line only disables allowed rules.
- *
- * @param {string} line - The comment line text
- * @returns {boolean} Whether the disable is for an allowed rule only
- */
-function isAllowedDisable(line: string): boolean {
-  // Check if any allowed disable target appears in the line
-  for (const allowed of ALLOWED_DISABLES) {
-    if (line.includes(allowed)) {
-      return true;
-    }
-  }
-  return false;
-}
 /** The no-lint-disable lint rule. */
 const rule: TypeScriptRule = {
   id: 'comments/no-lint-disable',
@@ -50,13 +37,17 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
+      const allowedTargets = (context.ruleOptions?.allowedTargets ?? []) as string[];
       const lines: string[] = context.content.split('\n');
 
       for (let i: number = 0; i < lines.length; i++) {
         const line: string = lines[i] ?? '';
 
         for (const { pattern, label } of DISABLE_PATTERNS) {
-          if (pattern.test(line) && !isAllowedDisable(line)) {
+          if (
+            pattern.test(line) &&
+            !allowedTargets.some((target: string): boolean => line.includes(target))
+          ) {
             results.push({
               file: context.file,
               line: i + 1,

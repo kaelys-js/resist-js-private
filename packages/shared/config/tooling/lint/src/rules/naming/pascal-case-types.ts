@@ -7,7 +7,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Pattern for valid PascalCase identifiers. */
 const PASCAL_CASE_RE: RegExp = /^[A-Z][a-zA-Z0-9]*$/;

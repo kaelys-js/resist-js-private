@@ -303,22 +303,6 @@ describe('imports/no-raw-json', () => {
     expect(results.length).toBe(0);
   });
 
-  it('exempts test files', async () => {
-    const code: string = `const json: string = JSON.stringify(data);`;
-    const results: LintResult[] = await lint(noRawJson, code, 'my-module.test.ts');
-    expect(results.length).toBe(0);
-  });
-
-  it('exempts utils/core files', async () => {
-    const code: string = `const json: string = JSON.stringify(data);`;
-    const results: LintResult[] = await lint(
-      noRawJson,
-      code,
-      'packages/shared/utils/core/src/object.ts',
-    );
-    expect(results.length).toBe(0);
-  });
-
   it('reports multiple JSON usages', async () => {
     const code: string = [
       `const a: string = JSON.stringify(x);`,
@@ -364,22 +348,6 @@ describe('imports/no-js-extension', () => {
   it('passes import without extension', async () => {
     const code: string = `import { foo } from '@/utils/core/fs';`;
     const results: LintResult[] = await lint(noJsExtension, code);
-    expect(results.length).toBe(0);
-  });
-
-  it('exempts VS Code extension files', async () => {
-    const code: string = `import { foo } from './module.js';`;
-    const results: LintResult[] = await lint(
-      noJsExtension,
-      code,
-      'packages/shared/extensions/vscode-formatter/src/extension.ts',
-    );
-    expect(results.length).toBe(0);
-  });
-
-  it('exempts test files', async () => {
-    const code: string = `import { foo } from './module.js';`;
-    const results: LintResult[] = await lint(noJsExtension, code, 'my-module.test.ts');
     expect(results.length).toBe(0);
   });
 

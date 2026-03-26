@@ -10,26 +10,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
-/** File paths exempt from this rule (tooling internals, test harness, etc.). */
-const EXEMPT_PATHS: readonly RegExp[] = [
-  /config\/tooling\/lint\/src\/framework\//,
-  /config\/test\//,
-  /extensions\/vscode/,
-  /\.test\.ts$/,
-  /\.spec\.ts$/,
-];
-
-/**
- * Check if a file path is exempt from this rule.
- *
- * @param {string} filePath - The file path
- * @returns {boolean} Whether the file is exempt
- */
-function isExemptFile(filePath: string): boolean {
-  return EXEMPT_PATHS.some((p: RegExp): boolean => p.test(filePath));
-}
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /**
  * Get function name from a function node or its parent variable declarator.
@@ -176,10 +162,6 @@ const rule: TypeScriptRule = {
 
   visitor: {
     TSInterfaceDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
-      if (isExemptFile(context.file)) {
-        return [];
-      }
-
       const name: string = ((node.id as AstNode)?.name as string) ?? 'unknown'; // cast safe: AST property
 
       // Check if the interface extends a Valibot base type
@@ -209,10 +191,6 @@ const rule: TypeScriptRule = {
     },
 
     TSTypeAliasDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
-      if (isExemptFile(context.file)) {
-        return [];
-      }
-
       const typeAnnotation = node.typeAnnotation as AstNode | undefined; // cast safe: AST property
       if (!typeAnnotation) {
         return [];
@@ -254,23 +232,14 @@ const rule: TypeScriptRule = {
     },
 
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
-      if (isExemptFile(context.file)) {
-        return [];
-      }
       return [...checkReturnType(node, context), ...checkParamTypes(node, context)];
     },
 
     ArrowFunctionExpression(node: AstNode, context: VisitorContext): LintResult[] {
-      if (isExemptFile(context.file)) {
-        return [];
-      }
       return [...checkReturnType(node, context), ...checkParamTypes(node, context)];
     },
 
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
-      if (isExemptFile(context.file)) {
-        return [];
-      }
       const results: LintResult[] = [];
       const declarations = node.declarations as AstNode[] | undefined;
       if (!declarations) {
@@ -315,10 +284,6 @@ const rule: TypeScriptRule = {
     },
 
     TSAsExpression(node: AstNode, context: VisitorContext): LintResult[] {
-      if (isExemptFile(context.file)) {
-        return [];
-      }
-
       const typeAnnotation = node.typeAnnotation as AstNode | undefined;
       if (!typeAnnotation || typeAnnotation.type !== 'TSTypeLiteral') {
         return [];

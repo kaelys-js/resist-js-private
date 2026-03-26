@@ -7,7 +7,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 /** The require-strict-object lint rule. */
 const rule: TypeScriptRule = {
   id: 'valibot/require-strict-object',

@@ -15,7 +15,7 @@ import type {
   VisitorFn,
   ImportInfo,
   ImportSpecifier,
-} from './types.ts';
+} from '@/lint/framework/types.ts';
 
 // =============================================================================
 // Parser
@@ -225,6 +225,7 @@ function extractImports(ast: AstNode): ImportInfo[] {
  * @param ast - Parsed AST root
  * @param imports - Pre-extracted imports (shared across rules)
  * @param rule - The rule being evaluated
+ * @param ruleOptions - Per-rule config options from the config file
  * @returns A VisitorContext
  */
 function createVisitorContext(
@@ -233,6 +234,7 @@ function createVisitorContext(
   ast: AstNode,
   imports: ImportInfo[],
   rule: TypeScriptRule,
+  ruleOptions?: Record<string, unknown>,
 ): VisitorContext {
   return {
     file,
@@ -240,6 +242,7 @@ function createVisitorContext(
     ast,
     imports,
     rule,
+    ruleOptions,
 
     getNodeText(node: AstNode): string {
       return content.slice(node.start, node.end);
@@ -274,12 +277,14 @@ function createVisitorContext(
  * @param {string} filePath - Absolute path to the file
  * @param {string} content - File source text
  * @param {TypeScriptRule[]} rules - Rules to evaluate
+ * @param {Record<string, Record<string, unknown>>} allRuleOptions - Per-rule config options
  * @returns {Promise<LintResult[]>} Array of lint results
  */
 export async function runTypeScriptRules(
   filePath: string,
   content: string,
   rules: TypeScriptRule[],
+  allRuleOptions?: Record<string, Record<string, unknown>>,
 ): Promise<LintResult[]> {
   if (rules.length === 0) {
     return [];
@@ -307,7 +312,8 @@ export async function runTypeScriptRules(
   const imports: ImportInfo[] = extractImports(ast);
   const contexts: Map<string, VisitorContext> = new Map();
   for (const rule of rules) {
-    contexts.set(rule.id, createVisitorContext(filePath, content, ast, imports, rule));
+    const ruleOpts: Record<string, unknown> | undefined = allRuleOptions?.[rule.id];
+    contexts.set(rule.id, createVisitorContext(filePath, content, ast, imports, rule, ruleOpts));
   }
 
   const results: LintResult[] = [];

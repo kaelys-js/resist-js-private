@@ -687,17 +687,4 @@ export type Foo = { name: string };
     const results: LintResult[] = await lint(requireSchemaLink, code);
     expect(results.length).toBe(0);
   });
-
-  it('ignores test files', async () => {
-    const code: string = `
-import * as v from 'valibot';
-const FooSchema = v.strictObject({ name: v.string() });
-/** No link needed in tests. */
-export type Foo = v.InferOutput<typeof FooSchema>;
-`;
-    const results: LintResult[] = await runTypeScriptRules('foo.test.ts', code, [
-      requireSchemaLink,
-    ]);
-    expect(results.length).toBe(0);
-  });
 });

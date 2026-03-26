@@ -8,10 +8,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
-/** File paths exempt from this rule (test infrastructure, test files). */
-const EXEMPT_PATHS: readonly RegExp[] = [/config\/test\//, /\.test\.ts$/, /\.spec\.ts$/];
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Function names that indicate handler/entry points. */
 const HANDLER_PATTERNS: readonly RegExp[] = [
@@ -257,10 +259,6 @@ const rule: TypeScriptRule = {
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-
-      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
-        return results;
-      }
 
       const declaration = node.declaration as AstNode | undefined;
       if (!declaration) {

@@ -47,7 +47,8 @@
       "@/config/tooling/svelte": ["./packages/shared/config/tooling/svelte/src/index.ts"],
       "@/secrets/infisical/*": ["./packages/shared/secrets/infisical/src/*.ts"],
       "@/secrets/infisical": ["./packages/shared/secrets/infisical/src/index.ts"],
-      "@/products/*": ["./packages/products/*"]
+      "@/products/*": ["./packages/products/*"],
+      "@/lint/*": ["./packages/shared/config/tooling/lint/src/*"]
     }
   },
   "exclude": ["node_modules", "dist", ".svelte-kit", "_INTEGRATE"]

@@ -8,7 +8,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Pattern for valid camelCase identifiers (allows optional leading underscore for private convention). */
 const CAMEL_CASE_RE: RegExp = /^_?[a-z][a-zA-Z0-9]*$/;

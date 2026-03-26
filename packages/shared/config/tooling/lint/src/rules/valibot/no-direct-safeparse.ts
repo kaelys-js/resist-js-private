@@ -7,10 +7,13 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
-/** File paths exempt — @/schemas/common defines base schemas using v.safeParse internally. */
-const EXEMPT_PATHS: readonly RegExp[] = [/schemas\/common\//, /config\/tooling\/lint\//];
 /** The no-direct-safeparse lint rule. */
 const rule: TypeScriptRule = {
   id: 'valibot/no-direct-safeparse',
@@ -20,10 +23,6 @@ const rule: TypeScriptRule = {
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-
-      if (EXEMPT_PATHS.some((p: RegExp): boolean => p.test(context.file))) {
-        return results;
-      }
 
       const callee = node.callee as AstNode | undefined;
       if (!callee) {

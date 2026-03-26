@@ -9,7 +9,7 @@
  * @module
  */
 
-import { parseCliArgs, runLinter, type CliArgs, type CliOutput } from './cli-helpers.ts';
+import { parseCliArgs, runLinter, type CliArgs, type CliOutput } from '@/lint/cli-helpers.ts';
 
 // =============================================================================
 // Entry Point

@@ -97,23 +97,71 @@
     "package/valid-project-ref": "error",
     "package/valid-tsconfig": "error"
   },
+  "ruleOptions": {
+    "comments/no-lint-disable": {
+      "allowedTargets": ["max-lines", "max-lines-per-function"]
+    }
+  },
   "overrides": [
+    // =========================================================================
+    // Test files — most rules don't apply
+    // =========================================================================
     {
-      // The linter is a Node CLI tool — these rules genuinely don't apply:
-      // - No @/ path aliases (must use relative imports)
-      // - Uses raw Node APIs (fs, path, etc.)
-      // - Doesn't use the Result pattern (returns LintResult[])
-      // - CLI tools should throw on invalid input
-      // - cli.ts has top-level await (module side effect)
-      // - Internal functions don't need valibot function schemas
-      // - Tests are in a separate vitest project
-      // - No schemas to link, no valibot template literals, etc.
+      "files": ["**/*.test.ts", "**/*.spec.ts"],
+      "rules": {
+        "jsdoc/require-module": "off",
+        "jsdoc/require-jsdoc": "off",
+        "jsdoc/require-example": "off",
+        "jsdoc/require-schema-link": "off",
+        "valibot/no-duplicate-schema": "off",
+        "valibot/no-generic-string-schema": "off",
+        "valibot/prefer-template-literal": "off",
+        "valibot/prefer-shared-schema": "off",
+        "valibot/require-schema-suffix": "off",
+        "valibot/require-min-length": "off",
+        "typescript/no-throw": "off",
+        "typescript/no-builtin-types": "off",
+        "typescript/no-default-params": "off",
+        "typescript/no-empty-catch": "off",
+        "typescript/no-bare-data-types": "off",
+        "typescript/require-type-annotation": "off",
+        "typescript/require-return-type": "off",
+        "result/require-result-type": "off",
+        "result/validate-function-input": "off",
+        "testing/require-colocated-tests": "off",
+        "comments/require-section-order": "off",
+        "comments/require-blank-line-groups": "off",
+        "imports/no-raw-json": "off",
+        "imports/no-js-extension": "off",
+        "imports/require-import-groups": "off"
+      }
+    },
+
+    // =========================================================================
+    // Test infrastructure — relaxed rules for test helpers/presets
+    // =========================================================================
+    {
+      "files": ["**/config/test/**"],
+      "rules": {
+        "typescript/no-throw": "off",
+        "typescript/no-builtin-types": "off",
+        "typescript/no-default-params": "off",
+        "typescript/no-empty-catch": "off",
+        "result/require-result-type": "off",
+        "result/validate-function-input": "off",
+        "testing/require-colocated-tests": "off",
+        "imports/no-raw-json": "off",
+        "package/require-readme": "off"
+      }
+    },
+
+    // =========================================================================
+    // Lint tooling — CLI tool, no Result pattern, uses raw Node APIs
+    // =========================================================================
+    {
       "files": ["**/config/tooling/lint/src/**"],
       "rules": {
-        // Import rules — no @/ aliases, uses Node APIs
-        "imports/no-relative-imports": "off",
-        "imports/no-raw-node-imports": "off",
-        // Result pattern — linter doesn't use Result<>
+        // Result pattern — linter returns LintResult[], not Result<>
         "result/require-result-type": "off",
         "result/require-ok-return": "off",
         "result/validate-function-input": "off",
@@ -131,14 +179,19 @@
         "typescript/require-non-negative-integer": "off",
         "typescript/no-bare-as-cast": "off",
         "typescript/no-empty-catch": "off",
+        "typescript/no-default-params": "off",
+        "typescript/require-type-annotation": "off",
+        "typescript/require-return-type": "off",
         // Testing + comments
         "testing/require-colocated-tests": "off",
         "comments/no-lint-disable": "off",
+        "comments/require-section-order": "off",
+        "comments/require-blank-line-groups": "off",
         // JSDoc rules — no schemas, no examples needed
         "jsdoc/require-schema-link": "off",
         "jsdoc/require-example": "off",
         "jsdoc/validate-example": "off",
-        // Valibot rules — only schema.ts uses valibot (it IS the validation layer)
+        // Valibot rules — only schema.ts uses valibot
         "valibot/no-direct-safeparse": "off",
         "valibot/no-parse": "off",
         "valibot/require-generic-schema": "off",
@@ -146,7 +199,103 @@
         "valibot/prefer-template-literal": "off",
         "valibot/no-duplicate-schema": "off",
         "valibot/prefer-shared-schema": "off",
-        "valibot/require-min-length": "off"
+        "valibot/require-min-length": "off",
+        "valibot/require-schema-suffix": "off",
+        "valibot/require-field-docs": "off",
+        "valibot/require-strict-object": "off",
+        // Imports
+        "imports/no-raw-json": "off",
+        "imports/require-import-groups": "off"
+      }
+    },
+
+    // =========================================================================
+    // Common schemas — shared base schemas have unique patterns
+    // =========================================================================
+    {
+      "files": ["**/schemas/common/**"],
+      "rules": {
+        "valibot/no-duplicate-schema": "off",
+        "valibot/no-direct-safeparse": "off",
+        "valibot/require-schema-suffix": "off",
+        "valibot/require-min-length": "off",
+        "typescript/no-throw": "off",
+        "imports/no-raw-json": "off"
+      }
+    },
+
+    // =========================================================================
+    // VS Code extension — different module system, .js extensions OK
+    // =========================================================================
+    {
+      "files": ["**/extensions/vscode/**"],
+      "rules": {
+        "typescript/no-bare-data-types": "off",
+        "imports/no-js-extension": "off"
+      }
+    },
+
+    // =========================================================================
+    // Non-lintable file types
+    // =========================================================================
+    {
+      "files": ["**/*.d.ts", "**/index.ts", "**/*.config.ts", "**/*.config.js"],
+      "rules": {
+        "testing/require-colocated-tests": "off"
+      }
+    },
+
+    // =========================================================================
+    // Template literal schemas — special schema directory
+    // =========================================================================
+    {
+      "files": ["**/schemas/template-literal/**"],
+      "rules": {
+        "valibot/prefer-template-literal": "off"
+      }
+    },
+
+    // =========================================================================
+    // Core utils — safe wrapper implementations
+    // =========================================================================
+    {
+      "files": ["**/utils/core/src/**"],
+      "rules": {
+        "imports/no-raw-json": "off"
+      }
+    },
+
+    // =========================================================================
+    // Package-specific overrides
+    // =========================================================================
+    {
+      "files": ["**/config/tooling/node/**"],
+      "rules": {
+        "package/require-readme": "off"
+      }
+    },
+    {
+      "files": ["**/products-template/**"],
+      "rules": {
+        "package/require-readme": "off"
+      }
+    },
+    {
+      "files": ["**/extensions/**"],
+      "rules": {
+        "package/require-readme": "off"
+      }
+    },
+    {
+      "files": ["**/secrets/**"],
+      "rules": {
+        "package/require-readme": "off"
+      }
+    },
+    {
+      "files": ["**/cli/package.json"],
+      "rules": {
+        "package/no-vitest-config": "off"
       }
     }
   ]

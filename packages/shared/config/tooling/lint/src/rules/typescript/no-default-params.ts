@@ -7,10 +7,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
-
-/** File path patterns exempt from this rule. */
-const EXEMPT_PATTERNS: readonly RegExp[] = [/config\/test\//, /\.test\.ts$/, /\.spec\.ts$/];
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /**
  * Check function parameters for defaults and optionals.
@@ -124,16 +126,10 @@ const rule: TypeScriptRule = {
 
   visitor: {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
-      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
-        return [];
-      }
       return checkParams(node, context, node.loc.start.line, node.loc.start.column + 1);
     },
 
     ArrowFunctionExpression(node: AstNode, context: VisitorContext): LintResult[] {
-      if (EXEMPT_PATTERNS.some((p: RegExp): boolean => p.test(context.file))) {
-        return [];
-      }
       return checkParams(node, context, node.loc.start.line, node.loc.start.column + 1);
     },
   },

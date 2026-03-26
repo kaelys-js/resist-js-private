@@ -7,7 +7,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** AST node types that represent literal values (ESTree format from oxc-parser). */
 const LITERAL_TYPES: ReadonlySet<string> = new Set(['Literal', 'TemplateLiteral']);

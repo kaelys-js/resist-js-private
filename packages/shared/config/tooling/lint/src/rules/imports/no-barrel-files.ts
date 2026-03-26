@@ -8,7 +8,12 @@
  * @module
  */
 
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '../../framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 /** The no-barrel-files lint rule. */
 const rule: TypeScriptRule = {
   id: 'imports/no-barrel-files',
