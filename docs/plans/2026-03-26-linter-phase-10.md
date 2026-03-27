@@ -191,7 +191,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 7.1: Tests + Implementation
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/workspace-globs-resolve.ts`. `fixable: false`, `scope: 'workspace'`, severity `error`. 4 tests. 2566 total tests pass.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
@@ -219,7 +219,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 8.1: Tests + Implementation
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/workspace-packages-exist.ts`. `fixable: false`, `scope: 'workspace'`, severity `error`. 4 tests. 2566 total tests pass.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
@@ -247,7 +247,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 9.1: Tests + Implementation
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/workspace-paths-exist.ts`. `fixable: false`, `scope: 'workspace'`, severity `error`. 4 tests. 2566 total tests pass.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
