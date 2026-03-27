@@ -174,7 +174,7 @@ export default rule;
 
 ### Task 2.1: Write failing tests
 
-**Status**: [ ]
+**Status**: [x] — Combined with 2.2. 2 tests added (metadata + guard path).
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
@@ -209,7 +209,7 @@ Note: Full integration test with real broken symlinks is hard to mock. We test t
 
 ### Task 2.2: Implement rule
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/no-broken-symlinks.ts`. `fixable: false` at line 55, `scope: 'workspace'` at line 52, severity `error` at line 92. Uses direct `node:fs` APIs. 2 tests pass. 2501 total tests pass.
 
 **Plan**:
 - Create `rules/workspace/no-broken-symlinks.ts`:
