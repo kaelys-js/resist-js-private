@@ -57,6 +57,7 @@ const rule: TypeScriptRule = {
   description: 'Require blank lines between import groups (node, external, workspace)',
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['imports', 'style'],
+  fixable: true,
   stages: ['lint'],
 
   visitor: {
@@ -112,7 +113,7 @@ const rule: TypeScriptRule = {
             message: `Add a blank line between import groups (${groupLabel(currentGroup)} → ${groupLabel(nextGroup)})`,
             ruleId: 'imports/require-import-groups',
             tip: 'Separate node:*, external, and @/ imports with blank lines',
-            fix: { range: { start: next.start, end: next.start }, text: '' },
+            fix: { range: { start: next.start, end: next.start }, text: '\n' },
           });
         }
       }

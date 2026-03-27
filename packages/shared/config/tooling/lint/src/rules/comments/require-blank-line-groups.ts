@@ -99,6 +99,7 @@ const rule: TypeScriptRule = {
   description: 'Require blank lines between declaration and control flow statement groups',
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['comments', 'style'],
+  fixable: true,
   stages: ['lint'],
 
   visitor: {
@@ -145,7 +146,7 @@ const rule: TypeScriptRule = {
             message: `Add a blank line between ${currentGroup} and ${nextGroup} statements for readability`,
             ruleId: 'comments/require-blank-line-groups',
             tip: 'Add an empty line between variable declarations and control flow (if/for/return)',
-            fix: { range: { start: next.start, end: next.start }, text: '' },
+            fix: { range: { start: next.start, end: next.start }, text: '\n' },
           });
         }
       }
@@ -203,7 +204,7 @@ const rule: TypeScriptRule = {
             message: `Add a blank line between ${currentGroup} and ${nextGroup} statements for readability`,
             ruleId: 'comments/require-blank-line-groups',
             tip: 'Add an empty line between variable declarations and control flow (if/for/return)',
-            fix: { range: { start: next.start, end: next.start }, text: '' },
+            fix: { range: { start: next.start, end: next.start }, text: '\n' },
           });
         }
       }
