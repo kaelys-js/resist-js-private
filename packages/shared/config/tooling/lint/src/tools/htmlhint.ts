@@ -9,6 +9,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Transform HTMLHint JSON output into LintResult[].
@@ -63,7 +65,9 @@ export function transformHtmlhintOutput(output: string): LintResult[] {
 
       results.push(
         createResult(`htmlhint/${ruleId}`, filePath, line, col, severity, message, {
-          tip: `See https://htmlhint.com/docs/user-guide/rules/${ruleId}`,
+          tip: format(en.tools.toolSeeDocsAt, {
+            url: `https://htmlhint.com/docs/user-guide/rules/${ruleId}`,
+          }),
         }),
       );
     }

@@ -9,6 +9,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Transform Hadolint JSON output into LintResult[].
@@ -51,7 +53,9 @@ export function transformHadolintOutput(output: string): LintResult[] {
 
     results.push(
       createResult(`hadolint/${code}`, file, line, column, severity, message, {
-        tip: `See https://github.com/hadolint/hadolint/wiki/${code}`,
+        tip: format(en.tools.toolSeeDocsAt, {
+          url: `https://github.com/hadolint/hadolint/wiki/${code}`,
+        }),
       }),
     );
   }

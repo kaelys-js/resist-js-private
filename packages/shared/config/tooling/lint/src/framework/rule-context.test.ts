@@ -248,4 +248,174 @@ describe('createWorkspaceContext', () => {
     expect(await ctx.fileExists(join(THIS_DIR, 'rule-context.ts'))).toBe(true);
     expect(await ctx.fileExists('/non/existent')).toBe(false);
   });
+
+  it('dirExists checks directory existence', async () => {
+    const ctx: WorkspaceContext = createWorkspaceContext(WORKSPACE_ROOT);
+    expect(await ctx.dirExists(THIS_DIR)).toBe(true);
+    expect(await ctx.dirExists('/non/existent')).toBe(false);
+  });
+
+  it('getWorkspacePackages returns packages', async () => {
+    const ctx: WorkspaceContext = createWorkspaceContext(WORKSPACE_ROOT);
+    const packages = await ctx.getWorkspacePackages();
+    expect(packages.length).toBeGreaterThan(0);
+  });
+});
+
+// =============================================================================
+// search — error handling
+// =============================================================================
+
+describe('search — error handling', () => {
+  it('skips files when reader throws an error', async () => {
+    let callCount: number = 0;
+    const failReader = async (_path: string): Promise<string> => {
+      callCount++;
+      throw new Error('file read failed');
+    };
+
+    const matches: unknown[] = [];
+    for await (const m of search(/test/, toAsyncIterable('/mock/file.ts'), failReader)) {
+      matches.push(m);
+    }
+    expect(matches).toEqual([]);
+    expect(callCount).toBe(1);
+  });
+
+  it('continues searching other files after one fails', async () => {
+    let callIndex: number = 0;
+    const mixedReader = async (_path: string): Promise<string> => {
+      callIndex++;
+      if (callIndex === 1) {
+        throw new Error('first file fails');
+      }
+      return 'findme here';
+    };
+
+    async function* twoFiles(): AsyncIterable<string> {
+      yield '/mock/file1.ts';
+      yield '/mock/file2.ts';
+    }
+
+    const matches: Array<{ file: string }> = [];
+    for await (const m of search(/findme/, twoFiles(), mixedReader)) {
+      matches.push(m);
+    }
+    expect(matches.length).toBe(1);
+    expect(matches[0]?.file).toBe('/mock/file2.ts');
+  });
+});
+
+// =============================================================================
+// search — global regex handling
+// =============================================================================
+
+describe('search — regex handling', () => {
+  it('handles a global regex pattern without issues', async () => {
+    const reader = mockReaderWithContent('foo bar foo\nfoo again');
+
+    const matches: Array<{ line: number; match: string }> = [];
+    for await (const m of search(/foo/g, toAsyncIterable('/mock/file.ts'), reader)) {
+      matches.push(m);
+    }
+    // Each line should produce at most one match (regex 'g' flag is stripped)
+    expect(matches.length).toBe(2);
+    expect(matches[0]?.line).toBe(1);
+    expect(matches[1]?.line).toBe(2);
+  });
+
+  it('handles regex with no match index gracefully', async () => {
+    const reader = mockReaderWithContent('hello world');
+
+    const matches: Array<{ column: number }> = [];
+    for await (const m of search(/hello/, toAsyncIterable('/mock/file.ts'), reader)) {
+      matches.push(m);
+    }
+    expect(matches.length).toBe(1);
+    expect(matches[0]?.column).toBe(1);
+  });
+});
+
+// =============================================================================
+// getAllFiles — directory skipping
+// =============================================================================
+
+describe('getAllFiles — directory skipping', () => {
+  it('skips .git directories', async () => {
+    const files: string[] = [];
+    for await (const file of getAllFiles(WORKSPACE_ROOT)) {
+      files.push(file);
+      if (files.length > 200) {
+        break;
+      }
+    }
+    const gitFiles: string[] = files.filter((f: string): boolean => f.includes('/.git/'));
+    expect(gitFiles).toEqual([]);
+  });
+
+  it('skips dist directories', async () => {
+    const files: string[] = [];
+    for await (const file of getAllFiles(WORKSPACE_ROOT)) {
+      files.push(file);
+      if (files.length > 200) {
+        break;
+      }
+    }
+    const distFiles: string[] = files.filter((f: string): boolean => f.includes('/dist/'));
+    expect(distFiles).toEqual([]);
+  });
+});
+
+// =============================================================================
+// getWorkspacePackages — edge cases
+// =============================================================================
+
+describe('getWorkspacePackages — edge cases', () => {
+  it('packages have name when package.json has a name field', async () => {
+    const packages = await getWorkspacePackages(WORKSPACE_ROOT);
+    const namedPackages = packages.filter((p) => p.name !== undefined);
+    expect(namedPackages.length).toBeGreaterThan(0);
+    for (const pkg of namedPackages) {
+      expect(typeof pkg.name).toBe('string');
+      expect(pkg.name!.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('packages have dir pointing to the package directory', async () => {
+    const packages = await getWorkspacePackages(WORKSPACE_ROOT);
+    for (const pkg of packages) {
+      expect(pkg.path).toBe(join(pkg.dir, 'package.json'));
+    }
+  });
+});
+
+// =============================================================================
+// search — multiple matches on different lines
+// =============================================================================
+
+describe('search — multi-line content', () => {
+  it('returns matches from multiple lines with correct positions', async () => {
+    const reader = mockReaderWithContent('alpha\nbeta\ngamma\nbeta again');
+
+    const matches: Array<{ line: number; column: number; match: string; text: string }> = [];
+    for await (const m of search(/beta/, toAsyncIterable('/mock/file.ts'), reader)) {
+      matches.push(m);
+    }
+    expect(matches.length).toBe(2);
+    expect(matches[0]?.line).toBe(2);
+    expect(matches[0]?.column).toBe(1);
+    expect(matches[1]?.line).toBe(4);
+    expect(matches[1]?.column).toBe(1);
+  });
+
+  it('includes the full line text in match result', async () => {
+    const reader = mockReaderWithContent('first line\nsecond target line\nthird line');
+
+    const matches: Array<{ text: string }> = [];
+    for await (const m of search(/target/, toAsyncIterable('/mock/file.ts'), reader)) {
+      matches.push(m);
+    }
+    expect(matches.length).toBe(1);
+    expect(matches[0]?.text).toBe('second target line');
+  });
 });

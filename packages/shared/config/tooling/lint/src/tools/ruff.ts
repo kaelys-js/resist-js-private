@@ -9,6 +9,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Transform Ruff JSON output into LintResult[].
@@ -49,7 +51,7 @@ export function transformRuffOutput(output: string): LintResult[] {
       createResult(`ruff/${code}`, file, line, column, 'warning', message, {
         endColumn: (endLocation.column as number) ?? undefined,
         endLine: (endLocation.row as number) ?? undefined,
-        tip: `See https://docs.astral.sh/ruff/rules/${code}`,
+        tip: format(en.tools.toolSeeDocsAt, { url: `https://docs.astral.sh/ruff/rules/${code}` }),
       }),
     );
   }

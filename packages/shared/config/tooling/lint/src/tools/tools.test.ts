@@ -20,18 +20,18 @@ import { attwTool, transformAttwOutput } from './attw.ts';
 import { batchTool, transformBatchOutput } from './batch.ts';
 import { bazelTool, transformBazelOutput } from './bazel.ts';
 import { cargoClippyTool, transformCargoClippyOutput } from './cargo-clippy.ts';
-import { cargoTomlTool, transformCargoTomlOutput } from './cargo-toml.ts';
+import { cargoTomlTool, checkCargoTomlSections, transformCargoTomlOutput } from './cargo-toml.ts';
 import { checkstyleTool, transformCheckstyleOutput } from './checkstyle.ts';
 import { clangTidyTool, transformClangTidyOutput } from './clang-tidy.ts';
 import { cmakeLintTool, transformCmakeLintOutput } from './cmake.ts';
-import { codeownersTool, transformCodeownersOutput } from './codeowners.ts';
+import { codeownersTool, transformCodeownersOutput, validateCodeowners } from './codeowners.ts';
 import { codeownersCheckerTool, transformCodeownersCheckerOutput } from './codeowners-checker.ts';
 import { commitlintTool, transformCommitlintOutput } from './commitlint.ts';
 import { confTool, transformConfOutput } from './conf.ts';
 import { crystalTool, transformCrystalOutput } from './crystal.ts';
 import { csvTool, transformCsvOutput } from './csv.ts';
 import { cueTool, transformCueOutput } from './cue.ts';
-import { dependabotTool, transformDependabotOutput } from './dependabot.ts';
+import { dependabotTool, transformDependabotOutput, validateDependabot } from './dependabot.ts';
 import { dependencyCruiserTool, transformDependencyCruiserOutput } from './dependency-cruiser.ts';
 import { dhallTool, transformDhallOutput } from './dhall.ts';
 import { dmdTool, transformDmdOutput } from './dmd.ts';
@@ -44,10 +44,15 @@ import { erlcTool, transformErlcOutput } from './erlc.ts';
 import { fantomasTool, transformFantomasOutput } from './fantomas.ts';
 import { fishTool, transformFishOutput } from './fish.ts';
 import { gitattributesTool, transformGitattributesOutput } from './gitattributes.ts';
-import { githubFundingTool, transformGithubFundingOutput } from './github-funding.ts';
+import {
+  githubFundingTool,
+  transformGithubFundingOutput,
+  validateFunding,
+} from './github-funding.ts';
 import {
   githubIssueTemplateTool,
   transformGithubIssueTemplateOutput,
+  validateIssueTemplate,
 } from './github-issue-template.ts';
 import { githubPrTemplateTool, transformGithubPrTemplateOutput } from './github-pr-template.ts';
 import { gitleaksTool, transformGitleaksOutput } from './gitleaks.ts';
@@ -94,6 +99,7 @@ import { oxlintTool, transformOxlintOutput } from './oxlint.ts';
 import {
   packageJsonValidatorTool,
   transformPackageJsonValidatorOutput,
+  validatePackageJson,
 } from './package-json-validator.ts';
 import { packerTool, transformPackerOutput } from './packer.ts';
 import { perlTool, transformPerlOutput } from './perl.ts';
@@ -102,7 +108,11 @@ import { powershellTool, transformPowershellOutput } from './powershell.ts';
 import { propertiesTool, transformPropertiesOutput } from './properties.ts';
 import { protobufTool, transformProtobufOutput } from './protobuf.ts';
 import { publintTool, transformPublintOutput } from './publint.ts';
-import { pyprojectTomlTool, transformPyprojectTomlOutput } from './pyproject-toml.ts';
+import {
+  checkPyprojectTomlSections,
+  pyprojectTomlTool,
+  transformPyprojectTomlOutput,
+} from './pyproject-toml.ts';
 import { reasonTool, transformReasonOutput } from './reason.ts';
 import { rscriptTool, transformRscriptOutput } from './rscript.ts';
 import { rstcheckTool, transformRstcheckOutput } from './rstcheck.ts';
@@ -1568,6 +1578,94 @@ describe('transformCargoTomlOutput', () => {
   it('returns empty array for empty output', () => {
     expect(transformCargoTomlOutput('')).toHaveLength(0);
   });
+
+  it('returns empty array for whitespace-only output', () => {
+    expect(transformCargoTomlOutput('   \n  ')).toHaveLength(0);
+  });
+
+  it('parses warning severity', () => {
+    const output: string = 'warning[unused_key]: unused key  --> Cargo.toml:10:1';
+    const results: LintResult[] = transformCargoTomlOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('warning');
+    expect(results[0]?.message).toContain('[unused_key]');
+  });
+
+  it('parses output without location (no --> portion)', () => {
+    const output: string = 'error[syntax_error]: unexpected token';
+    const results: LintResult[] = transformCargoTomlOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.file).toBe('Cargo.toml');
+    expect(results[0]?.line).toBe(1);
+    expect(results[0]?.column).toBe(1);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('skips blank lines in output', () => {
+    const output: string =
+      'error[e1]: msg1  --> Cargo.toml:1:1\n\nerror[e2]: msg2  --> Cargo.toml:2:1';
+    const results: LintResult[] = transformCargoTomlOutput(output);
+    expect(results).toHaveLength(2);
+  });
+
+  it('skips lines that do not match taplo format', () => {
+    const output: string = 'some random text\nerror[e1]: msg  --> Cargo.toml:1:1';
+    const results: LintResult[] = transformCargoTomlOutput(output);
+    expect(results).toHaveLength(1);
+  });
+
+  it('formats rule name in message', () => {
+    const output: string = 'error[expected_equals]: expected `=`  --> Cargo.toml:3:1';
+    const results: LintResult[] = transformCargoTomlOutput(output);
+    expect(results[0]?.message).toBe('[expected_equals] expected `=`');
+  });
+});
+
+// =============================================================================
+// checkCargoTomlSections — branch coverage
+// =============================================================================
+
+describe('checkCargoTomlSections', () => {
+  it('returns error when neither [package] nor [workspace] present', () => {
+    const results: LintResult[] = checkCargoTomlSections(
+      'Cargo.toml',
+      '[dependencies]\nfoo = "1.0"',
+    );
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+    expect(results[0]?.message).toContain('[package]');
+    expect(results[0]?.message).toContain('[workspace]');
+  });
+
+  it('passes when [package] section is present', () => {
+    const results: LintResult[] = checkCargoTomlSections(
+      'Cargo.toml',
+      '[package]\nname = "my-crate"\nversion = "0.1.0"',
+    );
+    expect(results).toHaveLength(0);
+  });
+
+  it('passes when [workspace] section is present', () => {
+    const results: LintResult[] = checkCargoTomlSections(
+      'Cargo.toml',
+      '[workspace]\nmembers = ["crates/*"]',
+    );
+    expect(results).toHaveLength(0);
+  });
+
+  it('passes when both [package] and [workspace] are present', () => {
+    const results: LintResult[] = checkCargoTomlSections(
+      'Cargo.toml',
+      '[package]\nname = "x"\n[workspace]\nmembers = []',
+    );
+    expect(results).toHaveLength(0);
+  });
+
+  it('uses the provided filename in the result', () => {
+    const results: LintResult[] = checkCargoTomlSections('sub/Cargo.toml', '[dependencies]');
+    expect(results).toHaveLength(1);
+    expect(results[0]?.file).toBe('sub/Cargo.toml');
+  });
 });
 
 // =============================================================================
@@ -1941,6 +2039,52 @@ describe('transformEditorconfigOutput', () => {
   it('returns empty array for empty output', () => {
     expect(transformEditorconfigOutput('')).toHaveLength(0);
   });
+
+  it('returns empty array for whitespace-only output', () => {
+    expect(transformEditorconfigOutput('   \n  ')).toHaveLength(0);
+  });
+
+  it('parses simple format without column (filename: message)', () => {
+    const output: string = 'src/main.ts: Final newline expected';
+    const results: LintResult[] = transformEditorconfigOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('editorconfig/check');
+    expect(results[0]?.file).toBe('src/main.ts');
+    expect(results[0]?.line).toBe(1);
+    expect(results[0]?.column).toBe(1);
+    expect(results[0]?.message).toBe('Final newline expected');
+    expect(results[0]?.severity).toBe('warning');
+  });
+
+  it('skips blank lines in output', () => {
+    const output: string = 'src/a.ts:1:1: err1\n\nsrc/b.ts:2:3: err2\n';
+    const results: LintResult[] = transformEditorconfigOutput(output);
+    expect(results).toHaveLength(2);
+    expect(results[0]?.file).toBe('src/a.ts');
+    expect(results[1]?.file).toBe('src/b.ts');
+  });
+
+  it('parses multiple mixed-format lines', () => {
+    const output: string = 'src/a.ts:5:10: Wrong indent\nsrc/b.ts: Missing newline';
+    const results: LintResult[] = transformEditorconfigOutput(output);
+    expect(results).toHaveLength(2);
+    expect(results[0]?.line).toBe(5);
+    expect(results[0]?.column).toBe(10);
+    expect(results[1]?.line).toBe(1);
+    expect(results[1]?.column).toBe(1);
+  });
+
+  it('extracts message from line-with-column format', () => {
+    const output: string = 'file.ts:1:1: Wrong indent style';
+    const results: LintResult[] = transformEditorconfigOutput(output);
+    expect(results[0]?.message).toBe('Wrong indent style');
+  });
+
+  it('handles lines that match neither pattern', () => {
+    const output: string = 'src/a.ts:5:10: err\nsome random text\nsrc/b.ts: err2';
+    const results: LintResult[] = transformEditorconfigOutput(output);
+    expect(results).toHaveLength(2);
+  });
 });
 
 // =============================================================================
@@ -2094,6 +2238,93 @@ describe('transformGithubIssueTemplateOutput', () => {
 
   it('returns empty array for empty output', () => {
     expect(transformGithubIssueTemplateOutput('')).toHaveLength(0);
+  });
+
+  it('returns empty array for whitespace-only output', () => {
+    expect(transformGithubIssueTemplateOutput('   \n  ')).toHaveLength(0);
+  });
+
+  it('skips blank lines in output', () => {
+    const output: string = 'bug.yml:1: err1\n\nbug.yml:3: err2\n';
+    const results: LintResult[] = transformGithubIssueTemplateOutput(output);
+    expect(results).toHaveLength(2);
+  });
+
+  it('skips lines that do not match the pattern', () => {
+    const output: string = 'some random text';
+    const results: LintResult[] = transformGithubIssueTemplateOutput(output);
+    expect(results).toHaveLength(0);
+  });
+
+  it('parses multiple diagnostics', () => {
+    const output: string = 'bug.yml:1: Missing name\nbug.yml:2: Missing description';
+    const results: LintResult[] = transformGithubIssueTemplateOutput(output);
+    expect(results).toHaveLength(2);
+    expect(results[0]?.message).toBe('Missing name');
+    expect(results[1]?.message).toBe('Missing description');
+  });
+});
+
+// =============================================================================
+// validateIssueTemplate — branch coverage
+// =============================================================================
+
+describe('validateIssueTemplate', () => {
+  it('returns error for empty content', () => {
+    const results: LintResult[] = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', '');
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('returns error for whitespace-only content', () => {
+    const results: LintResult[] = validateIssueTemplate(
+      '.github/ISSUE_TEMPLATE/bug.yml',
+      '   \n  ',
+    );
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('returns no issues when all required fields are present', () => {
+    const content: string = 'name: Bug Report\ndescription: Report a bug\nlabels: [bug]';
+    const results: LintResult[] = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', content);
+    expect(results).toHaveLength(0);
+  });
+
+  it('reports missing name field', () => {
+    const content: string = 'description: Report a bug\nlabels: [bug]';
+    const results: LintResult[] = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', content);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.message).toContain('name');
+  });
+
+  it('reports missing description field', () => {
+    const content: string = 'name: Bug Report\nlabels: [bug]';
+    const results: LintResult[] = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', content);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.message).toContain('description');
+  });
+
+  it('reports missing labels field', () => {
+    const content: string = 'name: Bug Report\ndescription: Report a bug';
+    const results: LintResult[] = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', content);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.message).toContain('labels');
+  });
+
+  it('reports all missing fields when content has no top-level keys', () => {
+    const content: string = '  indented: value\n  another: thing';
+    const results: LintResult[] = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', content);
+    expect(results).toHaveLength(3);
+  });
+
+  it('uses the provided filePath in results', () => {
+    const results: LintResult[] = validateIssueTemplate(
+      '.github/ISSUE_TEMPLATE/feature.yml',
+      'title: test',
+    );
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.file).toBe('.github/ISSUE_TEMPLATE/feature.yml');
   });
 });
 
@@ -2999,6 +3230,137 @@ describe('transformOxlintOutput', () => {
   it('handles whitespace-only output', () => {
     expect(transformOxlintOutput('   \n  ')).toHaveLength(0);
   });
+
+  it('maps info severity correctly', () => {
+    const output: string = JSON.stringify({
+      diagnostics: [
+        {
+          message: 'info message',
+          code: 'eslint(info-rule)',
+          severity: 'info',
+          url: '',
+          help: '',
+          filename: 'src/a.ts',
+          labels: [],
+        },
+      ],
+    });
+    const results: LintResult[] = transformOxlintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('info');
+  });
+
+  it('maps help severity to info', () => {
+    const output: string = JSON.stringify({
+      diagnostics: [
+        {
+          message: 'help message',
+          code: 'eslint(help-rule)',
+          severity: 'help',
+          url: '',
+          help: '',
+          filename: 'src/a.ts',
+          labels: [],
+        },
+      ],
+    });
+    const results: LintResult[] = transformOxlintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('info');
+  });
+
+  it('maps error severity correctly', () => {
+    const output: string = JSON.stringify({
+      diagnostics: [
+        {
+          message: 'error message',
+          code: 'eslint(err-rule)',
+          severity: 'error',
+          url: '',
+          help: '',
+          filename: 'src/a.ts',
+          labels: [],
+        },
+      ],
+    });
+    const results: LintResult[] = transformOxlintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('normalizes rule code without parentheses', () => {
+    const output: string = JSON.stringify({
+      diagnostics: [
+        {
+          message: 'msg',
+          code: 'some-rule',
+          severity: 'warning',
+          url: '',
+          help: '',
+          filename: 'src/a.ts',
+          labels: [],
+        },
+      ],
+    });
+    const results: LintResult[] = transformOxlintOutput(output);
+    expect(results[0]?.ruleId).toBe('oxlint/some-rule');
+  });
+
+  it('normalizes empty rule code to oxlint/unknown', () => {
+    const output: string = JSON.stringify({
+      diagnostics: [
+        {
+          message: 'msg',
+          code: '',
+          severity: 'warning',
+          url: '',
+          help: '',
+          filename: 'src/a.ts',
+          labels: [],
+        },
+      ],
+    });
+    const results: LintResult[] = transformOxlintOutput(output);
+    expect(results[0]?.ruleId).toBe('oxlint/unknown');
+  });
+
+  it('includes help as tip when present', () => {
+    const output: string = JSON.stringify({
+      diagnostics: [
+        {
+          message: 'msg',
+          code: 'eslint(rule)',
+          severity: 'warning',
+          url: 'https://example.com',
+          help: 'Try fixing this',
+          filename: 'src/a.ts',
+          labels: [],
+        },
+      ],
+    });
+    const results: LintResult[] = transformOxlintOutput(output);
+    expect(results[0]?.tip).toBe('Try fixing this');
+    expect(results[0]?.url).toBe('https://example.com');
+  });
+
+  it('omits tip and url when empty', () => {
+    const output: string = JSON.stringify({
+      diagnostics: [
+        {
+          message: 'msg',
+          code: 'eslint(rule)',
+          severity: 'warning',
+          url: '',
+          help: '',
+          filename: 'src/a.ts',
+          labels: [],
+        },
+      ],
+    });
+    const results: LintResult[] = transformOxlintOutput(output);
+    expect(results[0]?.tip).toBeUndefined();
+    expect(results[0]?.url).toBeUndefined();
+  });
 });
 
 // =============================================================================
@@ -3184,6 +3546,94 @@ describe('transformPyprojectTomlOutput', () => {
 
   it('returns empty array for empty output', () => {
     expect(transformPyprojectTomlOutput('')).toHaveLength(0);
+  });
+
+  it('returns empty array for whitespace-only output', () => {
+    expect(transformPyprojectTomlOutput('   \n  ')).toHaveLength(0);
+  });
+
+  it('parses warning severity', () => {
+    const output: string = 'warning[unused_key]: unused key  --> pyproject.toml:10:1';
+    const results: LintResult[] = transformPyprojectTomlOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('warning');
+    expect(results[0]?.message).toContain('[unused_key]');
+  });
+
+  it('parses output without location (no --> portion)', () => {
+    const output: string = 'error[syntax_error]: unexpected token';
+    const results: LintResult[] = transformPyprojectTomlOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.file).toBe('pyproject.toml');
+    expect(results[0]?.line).toBe(1);
+    expect(results[0]?.column).toBe(1);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('skips blank lines in output', () => {
+    const output: string =
+      'error[e1]: msg1  --> pyproject.toml:1:1\n\nerror[e2]: msg2  --> pyproject.toml:2:1';
+    const results: LintResult[] = transformPyprojectTomlOutput(output);
+    expect(results).toHaveLength(2);
+  });
+
+  it('skips lines that do not match taplo format', () => {
+    const output: string = 'some random text\nerror[e1]: msg  --> pyproject.toml:1:1';
+    const results: LintResult[] = transformPyprojectTomlOutput(output);
+    expect(results).toHaveLength(1);
+  });
+
+  it('formats rule name in message', () => {
+    const output: string = 'error[expected_equals]: expected `=`  --> pyproject.toml:3:1';
+    const results: LintResult[] = transformPyprojectTomlOutput(output);
+    expect(results[0]?.message).toBe('[expected_equals] expected `=`');
+  });
+});
+
+// =============================================================================
+// checkPyprojectTomlSections — branch coverage
+// =============================================================================
+
+describe('checkPyprojectTomlSections', () => {
+  it('returns warning when neither [project] nor [tool.poetry] present', () => {
+    const results: LintResult[] = checkPyprojectTomlSections(
+      'pyproject.toml',
+      '[tool.black]\nline-length = 88',
+    );
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('warning');
+    expect(results[0]?.message).toContain('[project]');
+    expect(results[0]?.message).toContain('[tool.poetry]');
+  });
+
+  it('passes when [project] section is present', () => {
+    const results: LintResult[] = checkPyprojectTomlSections(
+      'pyproject.toml',
+      '[project]\nname = "my-pkg"\nversion = "1.0.0"',
+    );
+    expect(results).toHaveLength(0);
+  });
+
+  it('passes when [tool.poetry] section is present', () => {
+    const results: LintResult[] = checkPyprojectTomlSections(
+      'pyproject.toml',
+      '[tool.poetry]\nname = "my-pkg"\nversion = "1.0.0"',
+    );
+    expect(results).toHaveLength(0);
+  });
+
+  it('passes when both [project] and [tool.poetry] are present', () => {
+    const results: LintResult[] = checkPyprojectTomlSections(
+      'pyproject.toml',
+      '[project]\nname = "x"\n[tool.poetry]\nname = "x"',
+    );
+    expect(results).toHaveLength(0);
+  });
+
+  it('uses the provided filename in the result', () => {
+    const results: LintResult[] = checkPyprojectTomlSections('sub/pyproject.toml', '[tool.black]');
+    expect(results).toHaveLength(1);
+    expect(results[0]?.file).toBe('sub/pyproject.toml');
   });
 });
 
@@ -4290,5 +4740,607 @@ describe('92 new tool definitions', () => {
     expect(zshTool.command).toBe('zsh');
     expect(zshTool.outputFormat).toBe('text');
     expect(zshTool.transform).toBe(transformZshOutput);
+  });
+});
+
+// =============================================================================
+// Dependabot transform — additional branch coverage
+// =============================================================================
+
+describe('transformDependabotOutput — branch coverage', () => {
+  it('parses multiple diagnostic lines', () => {
+    const output: string =
+      '.github/dependabot.yml:1: Missing required field: version\n' +
+      '.github/dependabot.yml:2: Missing required field: updates';
+    const results: LintResult[] = transformDependabotOutput(output);
+    expect(results).toHaveLength(2);
+    expect(results[0]?.line).toBe(1);
+    expect(results[1]?.line).toBe(2);
+  });
+
+  it('skips blank lines in output', () => {
+    const output: string =
+      '.github/dependabot.yml:1: error one\n\n.github/dependabot.yml:3: error two\n';
+    const results: LintResult[] = transformDependabotOutput(output);
+    expect(results).toHaveLength(2);
+  });
+
+  it('skips lines that do not match the pattern', () => {
+    const output: string = 'some random text without colon-line format';
+    const results: LintResult[] = transformDependabotOutput(output);
+    expect(results).toHaveLength(0);
+  });
+
+  it('returns empty array for whitespace-only output', () => {
+    expect(transformDependabotOutput('   \n  \n')).toHaveLength(0);
+  });
+});
+
+// =============================================================================
+// validateDependabot — branch coverage
+// =============================================================================
+
+describe('validateDependabot', () => {
+  it('returns error for empty content', () => {
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', '');
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+    expect(results[0]?.message).toBeTruthy();
+  });
+
+  it('returns error for whitespace-only content', () => {
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', '   \n  ');
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('returns error for missing version field', () => {
+    const content: string = 'updates:\n  - package-ecosystem: npm\n    directory: /';
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const versionError = results.find((r) => r.message.includes('version'));
+    expect(versionError).toBeTruthy();
+    expect(versionError?.severity).toBe('error');
+  });
+
+  it('returns error for invalid version (not 2)', () => {
+    const content: string = 'version: 1\nupdates:\n  - package-ecosystem: npm\n    directory: /';
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const versionError = results.find((r) => r.message.includes('1'));
+    expect(versionError).toBeTruthy();
+    expect(versionError?.severity).toBe('error');
+  });
+
+  it('returns error for missing updates field', () => {
+    const content: string = 'version: 2';
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const updatesError = results.find((r) => r.message.includes('updates'));
+    expect(updatesError).toBeTruthy();
+    expect(updatesError?.severity).toBe('error');
+  });
+
+  it('returns no errors for valid config', () => {
+    const content: string =
+      'version: 2\nupdates:\n  - package-ecosystem: npm\n    directory: /\n    schedule:\n      interval: weekly';
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    expect(results).toHaveLength(0);
+  });
+
+  it('warns about unrecognized ecosystem', () => {
+    const content: string = 'version: 2\nupdates:\n    package-ecosystem: foobar\n    directory: /';
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const ecosystemWarning = results.find((r) => r.severity === 'warning');
+    expect(ecosystemWarning).toBeTruthy();
+    expect(ecosystemWarning?.message).toContain('foobar');
+  });
+
+  it('accepts valid ecosystems without warning', () => {
+    const content: string =
+      'version: 2\nupdates:\n    package-ecosystem: npm\n    directory: /\n    package-ecosystem: docker\n    directory: /';
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const warnings = results.filter((r) => r.severity === 'warning');
+    expect(warnings).toHaveLength(0);
+  });
+
+  it('skips indented lines when looking for version field', () => {
+    const content: string =
+      'version: 2\nupdates:\n  - package-ecosystem: npm\n    directory: /\n    schedule:\n      interval: weekly';
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    expect(results).toHaveLength(0);
+  });
+
+  it('skips tab-indented lines when looking for version field', () => {
+    const content: string = 'version: 2\nupdates:\n\tpackage-ecosystem: npm';
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    expect(results).toHaveLength(0);
+  });
+
+  it('handles quoted ecosystem values', () => {
+    const content: string = 'version: 2\nupdates:\n    package-ecosystem: "npm"\n    directory: /';
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const warnings = results.filter((r) => r.severity === 'warning');
+    expect(warnings).toHaveLength(0);
+  });
+
+  it('handles single-quoted ecosystem values', () => {
+    const content: string =
+      "version: 2\nupdates:\n    package-ecosystem: 'cargo'\n    directory: /";
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const warnings = results.filter((r) => r.severity === 'warning');
+    expect(warnings).toHaveLength(0);
+  });
+
+  it('returns both missing version and missing updates for bare content', () => {
+    const content: string = 'some-key: some-value';
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    expect(results.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+// =============================================================================
+// Solhint transform — additional branch coverage
+// =============================================================================
+
+describe('transformSolhintOutput — branch coverage', () => {
+  it('parses inline error severity', () => {
+    const output: string =
+      'contracts/Token.sol:10:5: error Missing pragma solidity [compiler-version]';
+    const results: LintResult[] = transformSolhintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('solidity/compiler-version');
+    expect(results[0]?.severity).toBe('error');
+    expect(results[0]?.file).toBe('contracts/Token.sol');
+    expect(results[0]?.line).toBe(10);
+    expect(results[0]?.column).toBe(5);
+  });
+
+  it('parses stylish format with filename header and indented diagnostic', () => {
+    const output: string =
+      'contracts/Token.sol\n  10:5  warning  Provide an error message for revert  reason-string';
+    const results: LintResult[] = transformSolhintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('solidity/reason-string');
+    expect(results[0]?.file).toBe('contracts/Token.sol');
+    expect(results[0]?.line).toBe(10);
+    expect(results[0]?.column).toBe(5);
+    expect(results[0]?.severity).toBe('warning');
+  });
+
+  it('parses stylish format with error severity', () => {
+    const output: string = 'contracts/Token.sol\n  10:5  error  Missing pragma  compiler-version';
+    const results: LintResult[] = transformSolhintOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+    expect(results[0]?.ruleId).toBe('solidity/compiler-version');
+  });
+
+  it('parses multiple stylish diagnostics under one file header', () => {
+    const output: string =
+      'contracts/Token.sol\n' +
+      '  10:5  warning  Provide an error message for revert  reason-string\n' +
+      '  20:1  error    Missing pragma  compiler-version';
+    const results: LintResult[] = transformSolhintOutput(output);
+    expect(results).toHaveLength(2);
+    expect(results[0]?.line).toBe(10);
+    expect(results[1]?.line).toBe(20);
+  });
+
+  it('skips summary lines starting with checkmark symbols', () => {
+    const output: string =
+      'contracts/Token.sol:10:5: warning msg [rule-id]\n' +
+      '\n' +
+      '\u2716 1 problem (0 errors, 1 warning)';
+    const results: LintResult[] = transformSolhintOutput(output);
+    expect(results).toHaveLength(1);
+  });
+
+  it('skips summary lines starting with multiplication sign', () => {
+    const output: string = 'contracts/Token.sol:10:5: warning msg [rule-id]\n' + '\u00d7 1 problem';
+    const results: LintResult[] = transformSolhintOutput(output);
+    expect(results).toHaveLength(1);
+  });
+
+  it('handles whitespace-only output', () => {
+    expect(transformSolhintOutput('   \n  ')).toHaveLength(0);
+  });
+
+  it('parses multiple inline diagnostics', () => {
+    const output: string = 'a.sol:1:1: warning msg1 [rule1]\n' + 'b.sol:2:3: error msg2 [rule2]';
+    const results: LintResult[] = transformSolhintOutput(output);
+    expect(results).toHaveLength(2);
+    expect(results[0]?.ruleId).toBe('solidity/rule1');
+    expect(results[1]?.ruleId).toBe('solidity/rule2');
+  });
+
+  it('uses filename header for stylish format diagnostics across multiple files', () => {
+    const output: string =
+      'contracts/A.sol\n' +
+      '  1:1  warning  msg1  rule1\n' +
+      '\n' +
+      'contracts/B.sol\n' +
+      '  2:3  error  msg2  rule2';
+    const results: LintResult[] = transformSolhintOutput(output);
+    expect(results).toHaveLength(2);
+    expect(results[0]?.file).toBe('contracts/A.sol');
+    expect(results[1]?.file).toBe('contracts/B.sol');
+  });
+
+  it('skips blank lines between entries', () => {
+    const output: string = 'a.sol:1:1: warning msg [rule]\n\n\n';
+    const results: LintResult[] = transformSolhintOutput(output);
+    expect(results).toHaveLength(1);
+  });
+});
+
+// =============================================================================
+// Codeowners transform — additional branch coverage
+// =============================================================================
+
+describe('transformCodeownersOutput — branch coverage', () => {
+  it('assigns warning severity for overly broad messages', () => {
+    const output: string = 'CODEOWNERS:1: overly broad wildcard pattern';
+    const results: LintResult[] = transformCodeownersOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('warning');
+  });
+
+  it('assigns error severity for non-broad messages', () => {
+    const output: string = 'CODEOWNERS:5: Invalid owner format: badowner';
+    const results: LintResult[] = transformCodeownersOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('parses multiple lines', () => {
+    const output: string = 'CODEOWNERS:1: overly broad pattern\nCODEOWNERS:5: Invalid owner';
+    const results: LintResult[] = transformCodeownersOutput(output);
+    expect(results).toHaveLength(2);
+    expect(results[0]?.severity).toBe('warning');
+    expect(results[1]?.severity).toBe('error');
+  });
+
+  it('skips blank lines in output', () => {
+    const output: string = 'CODEOWNERS:1: error one\n\nCODEOWNERS:3: error two\n';
+    const results: LintResult[] = transformCodeownersOutput(output);
+    expect(results).toHaveLength(2);
+  });
+
+  it('skips lines that do not match the pattern', () => {
+    const output: string = 'random unstructured text';
+    const results: LintResult[] = transformCodeownersOutput(output);
+    expect(results).toHaveLength(0);
+  });
+
+  it('returns empty for whitespace-only output', () => {
+    expect(transformCodeownersOutput('   \n  ')).toHaveLength(0);
+  });
+});
+
+// =============================================================================
+// validateCodeowners — branch coverage
+// =============================================================================
+
+describe('validateCodeowners', () => {
+  it('returns error for empty content', () => {
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', '');
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('returns error for whitespace-only content', () => {
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', '   \n  ');
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('skips comment lines', () => {
+    const content: string = '# This is a comment\n*.ts @org/team';
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    expect(results).toHaveLength(0);
+  });
+
+  it('skips empty lines', () => {
+    const content: string = '*.ts @org/team\n\n*.js @org/team';
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    expect(results).toHaveLength(0);
+  });
+
+  it('warns about overly broad wildcard pattern', () => {
+    const content: string = '* @org/team';
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    const broadWarning = results.find((r) => r.severity === 'warning');
+    expect(broadWarning).toBeTruthy();
+  });
+
+  it('reports error for pattern with no owners', () => {
+    const content: string = 'src/';
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('reports error for invalid owner format', () => {
+    const content: string = '*.ts badowner';
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+    expect(results[0]?.message).toContain('badowner');
+  });
+
+  it('accepts valid @username owner', () => {
+    const content: string = '*.ts @alice';
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    expect(results).toHaveLength(0);
+  });
+
+  it('accepts valid @org/team owner', () => {
+    const content: string = '*.ts @myorg/frontend-team';
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    expect(results).toHaveLength(0);
+  });
+
+  it('accepts valid email owner', () => {
+    const content: string = '*.ts user@example.com';
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    expect(results).toHaveLength(0);
+  });
+
+  it('reports multiple invalid owners on the same line', () => {
+    const content: string = '*.ts badowner1 badowner2';
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    expect(results).toHaveLength(2);
+  });
+
+  it('validates each line independently', () => {
+    const content: string = '*.ts @org/team\nsrc/ badowner\n*.js';
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    const errors = results.filter((r) => r.severity === 'error');
+    expect(errors.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('does not warn about non-wildcard patterns', () => {
+    const content: string = 'src/ @org/team';
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    expect(results).toHaveLength(0);
+  });
+});
+
+// =============================================================================
+// GitHub Funding transform — additional branch coverage
+// =============================================================================
+
+describe('transformGithubFundingOutput — branch coverage', () => {
+  it('parses multiple diagnostic lines', () => {
+    const output: string = 'FUNDING.yml:1: issue one\nFUNDING.yml:3: issue two';
+    const results: LintResult[] = transformGithubFundingOutput(output);
+    expect(results).toHaveLength(2);
+    expect(results[0]?.line).toBe(1);
+    expect(results[1]?.line).toBe(3);
+  });
+
+  it('sets severity to warning', () => {
+    const output: string = 'FUNDING.yml:3: Unrecognized platform';
+    const results: LintResult[] = transformGithubFundingOutput(output);
+    expect(results[0]?.severity).toBe('warning');
+  });
+
+  it('skips blank lines', () => {
+    const output: string = 'FUNDING.yml:1: err\n\nFUNDING.yml:3: err2\n';
+    const results: LintResult[] = transformGithubFundingOutput(output);
+    expect(results).toHaveLength(2);
+  });
+
+  it('skips lines that do not match the pattern', () => {
+    const output: string = 'some random text';
+    const results: LintResult[] = transformGithubFundingOutput(output);
+    expect(results).toHaveLength(0);
+  });
+
+  it('returns empty for whitespace-only output', () => {
+    expect(transformGithubFundingOutput('   \n  ')).toHaveLength(0);
+  });
+});
+
+// =============================================================================
+// validateFunding — branch coverage
+// =============================================================================
+
+describe('validateFunding', () => {
+  it('returns error for empty content', () => {
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', '');
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('returns error for whitespace-only content', () => {
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', '   \n  ');
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('returns no issues for valid platforms', () => {
+    const content: string = 'github: username\npatreon: myaccount';
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    expect(results).toHaveLength(0);
+  });
+
+  it('warns about unrecognized platform key', () => {
+    const content: string = 'buymeacoffee: myaccount';
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('warning');
+    expect(results[0]?.message).toContain('buymeacoffee');
+  });
+
+  it('skips comment lines', () => {
+    const content: string = '# This is a comment\ngithub: username';
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    expect(results).toHaveLength(0);
+  });
+
+  it('skips indented lines', () => {
+    const content: string = 'custom:\n  - https://example.com/donate';
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    expect(results).toHaveLength(0);
+  });
+
+  it('skips tab-indented lines', () => {
+    const content: string = 'custom:\n\t- https://example.com/donate';
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    expect(results).toHaveLength(0);
+  });
+
+  it('reports multiple unrecognized platforms', () => {
+    const content: string = 'buymeacoffee: a\nvenmo: b';
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    expect(results).toHaveLength(2);
+    expect(results[0]?.severity).toBe('warning');
+    expect(results[1]?.severity).toBe('warning');
+  });
+
+  it('accepts all valid platform keys', () => {
+    const content: string = [
+      'github: u',
+      'patreon: u',
+      'open_collective: u',
+      'ko_fi: u',
+      'tidelift: u',
+      'community_bridge: u',
+      'liberapay: u',
+      'issuehunt: u',
+      'otechie: u',
+      'lfx_crowdfunding: u',
+      'custom: https://example.com',
+    ].join('\n');
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    expect(results).toHaveLength(0);
+  });
+
+  it('does not match lines without colon key format', () => {
+    const content: string = 'github: u\nthis is not a key line';
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    expect(results).toHaveLength(0);
+  });
+});
+
+// =============================================================================
+// package-json-validator transform — additional branch coverage
+// =============================================================================
+
+describe('transformPackageJsonValidatorOutput — branch coverage', () => {
+  it('assigns error severity for non-ESM messages', () => {
+    const output: string = 'package.json:1: Missing required field "name"';
+    const results: LintResult[] = transformPackageJsonValidatorOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('error');
+  });
+
+  it('assigns warning severity for ESM messages', () => {
+    const output: string = 'package.json:1: Consider using ESM modules';
+    const results: LintResult[] = transformPackageJsonValidatorOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('warning');
+  });
+
+  it('assigns warning severity for .mjs messages', () => {
+    const output: string =
+      'package.json:1: Package references .mjs files — consider using ESM-native "type": "module" instead';
+    const results: LintResult[] = transformPackageJsonValidatorOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.severity).toBe('warning');
+  });
+
+  it('parses multiple diagnostic lines', () => {
+    const output: string =
+      'package.json:1: Missing required field "name"\npackage.json:1: Missing required field "version"';
+    const results: LintResult[] = transformPackageJsonValidatorOutput(output);
+    expect(results).toHaveLength(2);
+  });
+
+  it('skips blank lines', () => {
+    const output: string = 'package.json:1: error\n\npackage.json:2: error2\n';
+    const results: LintResult[] = transformPackageJsonValidatorOutput(output);
+    expect(results).toHaveLength(2);
+  });
+
+  it('skips lines that do not match the pattern', () => {
+    const output: string = 'some random text without colon format';
+    const results: LintResult[] = transformPackageJsonValidatorOutput(output);
+    expect(results).toHaveLength(0);
+  });
+
+  it('returns empty for whitespace-only output', () => {
+    expect(transformPackageJsonValidatorOutput('   \n  ')).toHaveLength(0);
+  });
+});
+
+// =============================================================================
+// validatePackageJson — branch coverage
+// =============================================================================
+
+describe('validatePackageJson', () => {
+  it('returns error for invalid JSON', () => {
+    const output: string = validatePackageJson('package.json', '{invalid json}');
+    expect(output).toContain('Invalid JSON');
+    expect(output).toContain('package.json');
+  });
+
+  it('returns error for missing name field', () => {
+    const output: string = validatePackageJson('package.json', '{"version":"1.0.0"}');
+    expect(output).toContain('Missing required field "name"');
+  });
+
+  it('returns error for missing version field', () => {
+    const output: string = validatePackageJson('package.json', '{"name":"my-pkg"}');
+    expect(output).toContain('Missing required field "version"');
+  });
+
+  it('returns errors for both missing name and version', () => {
+    const output: string = validatePackageJson('package.json', '{}');
+    expect(output).toContain('Missing required field "name"');
+    expect(output).toContain('Missing required field "version"');
+  });
+
+  it('returns empty string for valid package.json', () => {
+    const output: string = validatePackageJson(
+      'package.json',
+      '{"name":"my-pkg","version":"1.0.0"}',
+    );
+    expect(output).toBe('');
+  });
+
+  it('warns about .mjs references', () => {
+    const output: string = validatePackageJson(
+      'package.json',
+      '{"name":"my-pkg","version":"1.0.0","main":"index.mjs"}',
+    );
+    expect(output).toContain('.mjs');
+  });
+
+  it('returns error when name is empty string', () => {
+    const output: string = validatePackageJson('package.json', '{"name":"","version":"1.0.0"}');
+    expect(output).toContain('Missing required field "name"');
+  });
+
+  it('returns error when version is empty string', () => {
+    const output: string = validatePackageJson('package.json', '{"name":"my-pkg","version":""}');
+    expect(output).toContain('Missing required field "version"');
+  });
+
+  it('returns error when name is not a string', () => {
+    const output: string = validatePackageJson('package.json', '{"name":123,"version":"1.0.0"}');
+    expect(output).toContain('Missing required field "name"');
+  });
+
+  it('returns error when version is not a string', () => {
+    const output: string = validatePackageJson('package.json', '{"name":"my-pkg","version":1}');
+    expect(output).toContain('Missing required field "version"');
+  });
+
+  it('does not warn about .mjs when not present', () => {
+    const output: string = validatePackageJson(
+      'package.json',
+      '{"name":"my-pkg","version":"1.0.0","main":"index.js"}',
+    );
+    expect(output).toBe('');
   });
 });

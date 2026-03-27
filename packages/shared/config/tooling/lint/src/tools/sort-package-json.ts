@@ -11,6 +11,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Transform sort-package-json text output into LintResult[].
@@ -66,9 +68,17 @@ export function transformSortPackageJsonOutput(output: string): LintResult[] {
       const file: string = match[1] ?? 'package.json';
 
       results.push(
-        createResult('sort-package-json/order', file, 1, 1, 'warning', `${file} is not sorted`, {
-          tip: 'Run sort-package-json to fix the key ordering',
-        }),
+        createResult(
+          'sort-package-json/order',
+          file,
+          1,
+          1,
+          'warning',
+          format(en.tools.sortPackageJsonNotSorted, { file }),
+          {
+            tip: en.tools.sortPackageJsonTip,
+          },
+        ),
       );
       continue;
     }
@@ -77,7 +87,7 @@ export function transformSortPackageJsonOutput(output: string): LintResult[] {
     if (lineStr.includes('not sorted')) {
       results.push(
         createResult('sort-package-json/order', 'package.json', 1, 1, 'warning', lineStr, {
-          tip: 'Run sort-package-json to fix the key ordering',
+          tip: en.tools.sortPackageJsonTip,
         }),
       );
     }

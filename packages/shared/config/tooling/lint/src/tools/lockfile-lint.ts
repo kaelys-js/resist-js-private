@@ -10,6 +10,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 
 /**
  * Transform lockfile-lint text output into LintResult[].
@@ -75,7 +76,7 @@ export function transformLockfileLintOutput(output: string): LintResult[] {
 
     results.push(
       createResult('lockfile-lint/security', file, 1, 1, severity, message, {
-        tip: 'Ensure lockfiles only reference trusted HTTPS registries',
+        tip: en.tools.lockfileLintTip,
       }),
     );
   }

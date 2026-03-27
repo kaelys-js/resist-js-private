@@ -10,6 +10,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Transform madge JSON output into LintResult[].
@@ -67,9 +69,9 @@ export function transformMadgeOutput(output: string): LintResult[] {
         1,
         1,
         'error',
-        `Circular dependency: ${chainStr}`,
+        format(en.tools.madgeMessage, { chain: chainStr }),
         {
-          tip: 'Break the cycle by extracting shared code into a separate module',
+          tip: en.tools.madgeTip,
         },
       ),
     );

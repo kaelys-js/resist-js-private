@@ -13,6 +13,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Regex for scalafmt error output: `error: filename:line:column: message`
@@ -73,14 +75,14 @@ export function transformScalafmtOutput(output: string): LintResult[] {
 
       results.push(
         createResult('scalafmt/format', file, lineNum, column, 'error', message, {
-          tip: 'Run `scalafmt` to auto-format this file',
+          tip: format(en.tools.formatRunTool, { tool: 'scalafmt' }),
         }),
       );
     } else {
       /* Generic error line — capture as a formatting issue */
       results.push(
         createResult('scalafmt/format', 'unknown', 1, 1, 'error', stripped, {
-          tip: 'Run `scalafmt` to auto-format this file',
+          tip: format(en.tools.formatRunTool, { tool: 'scalafmt' }),
         }),
       );
     }

@@ -10,6 +10,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * File location reference within a jscpd duplicate entry.
@@ -112,11 +114,11 @@ export function transformJscpdOutput(output: string): LintResult[] {
         startLine,
         startColumn,
         'warning',
-        `Duplicate code found: ${String(lines)} lines between ${firstName} and ${secondName}`,
+        format(en.tools.jscpdMessage, { lines: String(lines), firstName, secondName }),
         {
           endColumn,
           endLine,
-          tip: 'Extract duplicated code into a shared function or module',
+          tip: en.tools.jscpdTip,
         },
       ),
     );

@@ -10,6 +10,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Transform ls-lint text output into LintResult[].
@@ -63,7 +65,7 @@ export function transformLsLintOutput(output: string): LintResult[] {
 
       results.push(
         createResult('ls-lint/naming', file, 1, 1, 'warning', lineStr, {
-          tip: 'Rename the file to match the configured naming convention',
+          tip: en.tools.lsLintTip,
         }),
       );
       continue;
@@ -87,9 +89,9 @@ export function transformLsLintOutput(output: string): LintResult[] {
             1,
             1,
             'warning',
-            `File naming violation: ${lineStr}`,
+            format(en.tools.lsLintMessage, { violation: lineStr }),
             {
-              tip: 'Rename the file to match the configured naming convention',
+              tip: en.tools.lsLintTip,
             },
           ),
         );

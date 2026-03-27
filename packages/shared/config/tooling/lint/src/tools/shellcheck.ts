@@ -9,6 +9,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Transform ShellCheck JSON output into LintResult[].
@@ -53,7 +55,9 @@ export function transformShellcheckOutput(output: string): LintResult[] {
       createResult(`shellcheck/SC${String(code)}`, file, line, column, severity, message, {
         endColumn: (obj.endColumn as number) ?? undefined,
         endLine: (obj.endLine as number) ?? undefined,
-        tip: `See https://www.shellcheck.net/wiki/SC${String(code)}`,
+        tip: format(en.tools.toolSeeDocsAt, {
+          url: `https://www.shellcheck.net/wiki/SC${String(code)}`,
+        }),
       }),
     );
   }

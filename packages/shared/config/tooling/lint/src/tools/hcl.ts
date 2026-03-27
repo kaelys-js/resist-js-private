@@ -10,6 +10,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Transform hclfmt check output into LintResult[].
@@ -50,9 +52,9 @@ export function transformHclOutput(output: string): LintResult[] {
         1,
         1,
         'warning',
-        'File is not properly formatted. Run `hclfmt` to fix.',
+        format(en.tools.formatNotProperlyFormattedWithFix, { tool: 'hclfmt' }),
         {
-          tip: 'Run `hclfmt` to auto-format this file.',
+          tip: format(en.tools.formatRunTool, { tool: 'hclfmt' }),
         },
       ),
     );

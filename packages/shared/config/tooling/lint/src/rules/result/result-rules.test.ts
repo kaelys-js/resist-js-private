@@ -1015,6 +1015,130 @@ const name: Str = parsed.data.name ?? 'unknown';
     const results: LintResult[] = await lint(noResultFallback, code);
     expect(results.length).toBe(1);
   });
+
+  it('exempts ternary inside $effect context', async () => {
+    const code: string = `
+$effect(() => {
+  const val: Str = result.ok ? result.data : 'fallback';
+});
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts if/else inside $derived.by context', async () => {
+    const code: string = `
+const val: Str = $derived.by(() => {
+  let v: Str;
+  if (result.ok) {
+    v = result.data;
+  } else {
+    v = 'fallback';
+  }
+  return v;
+});
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts nullish coalescing inside $effect context', async () => {
+    const code: string = `
+$effect(() => {
+  const name: Str = parsed.data.name ?? 'default';
+});
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags ternary fallback with array literal alternate', async () => {
+    const code: string = `
+const items: string[] = result.ok ? result.data : [];
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('flags ternary fallback with template literal alternate', async () => {
+    const code: string = `
+const msg: string = result.ok ? result.data : \`default\`;
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('flags ternary fallback with numeric literal alternate', async () => {
+    const code: string = `
+const count: number = result.ok ? result.data : 0;
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('flags ternary fallback with boolean literal alternate', async () => {
+    const code: string = `
+const flag: boolean = result.ok ? result.data : false;
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes ternary without .data access in consequent', async () => {
+    const code: string = `
+const x: Str = result.ok ? 'yes' : 'no';
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes ternary with non-literal alternate', async () => {
+    const code: string = `
+const x: Str = result.ok ? result.data : computeDefault();
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags if/else with inverted pattern (!result.ok fallback then data)', async () => {
+    const code: string = `
+let val: Str;
+if (!gitResult.ok) {
+  val = 'fallback';
+} else {
+  val = gitResult.data;
+}
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('silently discarded');
+  });
+
+  it('passes if without else branch', async () => {
+    const code: string = `
+if (result.ok) {
+  doSomething(result.data);
+}
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes nullish coalescing with || operator (not ??)', async () => {
+    const code: string = `
+const name: Str = parsed.data.name || 'unknown';
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes nullish coalescing when right side is not a fallback literal', async () => {
+    const code: string = `
+const name: Str = parsed.data.name ?? getDefault();
+`;
+    const results: LintResult[] = await lint(noResultFallback, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -1120,5 +1244,1136 @@ export function renderMessage(template: Str, params: Record<Str, unknown>): Resu
       r.message.includes("'params'"),
     );
     expect(paramsErrors.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// result/validate-function-input — additional branch coverage
+// =============================================================================
+
+describe('result/validate-function-input — additional branch coverage', () => {
+  it('skips destructured ObjectPattern params', async () => {
+    const code: string = `
+export function createUser({ name, age }: UserInput): Result<User> {
+  const result = safeParse(UserSchema, { name, age });
+  if (!result.ok) return result;
+  return result;
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips destructured ArrayPattern params', async () => {
+    const code: string = `
+export function processItems([first, second]: string[]): Result<string> {
+  const result = safeParse(StrSchema, first);
+  if (!result.ok) return result;
+  return result;
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('extracts param name from AssignmentPattern (default value)', async () => {
+    const code: string = `
+export function handleRequest(data: unknown, retries = 3): Result<Response> {
+  const dataResult = safeParse(DataSchema, data);
+  if (!dataResult.ok) return dataResult;
+  return ok(ResponseSchema, {});
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'retries'");
+  });
+
+  it('passes AssignmentPattern param when validated', async () => {
+    const code: string = `
+export function handleRequest(retries = 3): Result<Response> {
+  const retriesResult = safeParse(NumSchema, retries);
+  if (!retriesResult.ok) return retriesResult;
+  return ok(ResponseSchema, {});
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips params with external types (Date)', async () => {
+    const code: string = `
+export function formatDate(date: Date): Result<string> {
+  return ok(StrSchema, date.toISOString());
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const dateErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'date'"),
+    );
+    expect(dateErrors.length).toBe(0);
+  });
+
+  it('skips params with external types (Date | null)', async () => {
+    const code: string = `
+export function formatDate(date: Date | null): Result<string> {
+  return ok(StrSchema, '');
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const dateErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'date'"),
+    );
+    expect(dateErrors.length).toBe(0);
+  });
+
+  it('skips params with callback type containing Function keyword', async () => {
+    const code: string = `
+export function processItems(items: unknown, callback: Function): Result<void> {
+  const itemsResult = safeParse(ItemsSchema, items);
+  if (!itemsResult.ok) return itemsResult;
+  return ok(VoidSchema, undefined);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const cbErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'callback'"),
+    );
+    expect(cbErrors.length).toBe(0);
+  });
+
+  it('skips params typed as RawLocaleStrings (upstream validated)', async () => {
+    const code: string = `
+export function processLocale(strs: RawLocaleStrings): Result<Locale> {
+  return ok(LocaleSchema, strs);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const strsErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'strs'"),
+    );
+    expect(strsErrors.length).toBe(0);
+  });
+
+  it('skips params typed as FormatterFn (upstream validated)', async () => {
+    const code: string = `
+export function runFormatter(fn: FormatterFn): Result<string> {
+  return ok(StrSchema, '');
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const fnErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'fn'"),
+    );
+    expect(fnErrors.length).toBe(0);
+  });
+
+  it('skips params typed as BaseSchema (schema type)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export function validate(schema: v.BaseSchema<string, string, v.BaseIssue<unknown>>, data: unknown): Result<string> {
+  const result = safeParse(schema, data);
+  if (!result.ok) return result;
+  return result;
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const schemaErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'schema'"),
+    );
+    expect(schemaErrors.length).toBe(0);
+  });
+
+  it('recognizes .safeParse() method call as validation', async () => {
+    const code: string = `
+export function processInput(data: unknown): Result<Config> {
+  const result = ConfigSchema.safeParse(data);
+  if (!result.ok) return result;
+  return result;
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('recognizes .parse() method call as validation', async () => {
+    const code: string = `
+export function processInput(data: unknown): Result<Config> {
+  const result = ConfigSchema.parse(data);
+  return ok(ConfigSchema, result);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('matches handler pattern: onSubmit', async () => {
+    const code: string = `
+const onSubmit = (data: FormData): void => {
+  saveToDb(data);
+};
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'data'");
+  });
+
+  it('matches handler pattern: userController', async () => {
+    const code: string = `
+const userController = (req: Request): void => {
+  handle(req);
+};
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'req'");
+  });
+
+  it('matches handler pattern: processData', async () => {
+    const code: string = `
+function processData(input: unknown): void {
+  save(input);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'input'");
+  });
+
+  it('matches handler pattern: parseInput', async () => {
+    const code: string = `
+function parseInput(raw: string): void {
+  use(raw);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'raw'");
+  });
+
+  it('matches handler pattern: validateForm', async () => {
+    const code: string = `
+function validateForm(data: unknown): void {
+  check(data);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'data'");
+  });
+
+  it('matches handler pattern: submitAction', async () => {
+    const code: string = `
+function submitAction(payload: unknown): void {
+  send(payload);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'payload'");
+  });
+
+  it('matches handler pattern: userEndpoint', async () => {
+    const code: string = `
+function userEndpoint(req: Request): void {
+  respond(req);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'req'");
+  });
+
+  it('matches handler pattern: fetchApi', async () => {
+    const code: string = `
+function fetchApi(url: string): void {
+  request(url);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'url'");
+  });
+
+  it('matches handler pattern: createItem', async () => {
+    const code: string = `
+function createItem(data: unknown): void {
+  insert(data);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'data'");
+  });
+
+  it('matches handler pattern: updateItem', async () => {
+    const code: string = `
+function updateItem(data: unknown): void {
+  save(data);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'data'");
+  });
+
+  it('matches handler pattern: removeItem', async () => {
+    const code: string = `
+function removeItem(id: string): void {
+  del(id);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'id'");
+  });
+
+  it('matches handler pattern: deleteUser', async () => {
+    const code: string = `
+function deleteUser(id: string): void {
+  remove(id);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'id'");
+  });
+
+  it('matches handler pattern: putData', async () => {
+    const code: string = `
+function putData(data: unknown): void {
+  save(data);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'data'");
+  });
+
+  it('matches handler pattern: patchRecord', async () => {
+    const code: string = `
+function patchRecord(data: unknown): void {
+  merge(data);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'data'");
+  });
+
+  it('handles exported re-export (no declaration)', async () => {
+    const code: string = `
+export { something } from './other';
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported variable with non-function init', async () => {
+    const code: string = `
+export const MAX_RETRIES = 5;
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported FunctionExpression', async () => {
+    const code: string = `
+export const doWork = function(data: unknown): Result<void> {
+  save(data);
+};
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'data'");
+  });
+
+  it('does not double-report exported function declaration', async () => {
+    const code: string = `
+export function handleSubmit(data: FormData): void {
+  saveToDb(data);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    // Should only report once from ExportNamedDeclaration, not also from FunctionDeclaration
+    expect(results.length).toBe(1);
+  });
+
+  it('handles FunctionDeclaration without name (anonymous)', async () => {
+    const code: string = `
+export default function(data: unknown): void {
+  save(data);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    // Anonymous function — FunctionDeclaration visitor returns [] for no name
+    // Only ExportNamedDeclaration would catch, but this is export default
+    expect(results.length).toBe(0);
+  });
+
+  it('handles VariableDeclaration arrow handler with no params', async () => {
+    const code: string = `
+const handleClick = (): void => {
+  doStuff();
+};
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles VariableDeclaration FunctionExpression handler', async () => {
+    const code: string = `
+const handleClick = function(event: MouseEvent): void {
+  process(event);
+};
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'event'");
+  });
+
+  it('does not flag VariableDeclaration with non-handler name', async () => {
+    const code: string = `
+const myHelper = (data: unknown): void => {
+  save(data);
+};
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles VariableDeclaration with no init', async () => {
+    const code: string = `
+let handler: (data: string) => void;
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles function with no body (abstract/overload)', async () => {
+    const code: string = `
+export function handleRequest(data: unknown): void;
+export function handleRequest(data: unknown): void {
+  save(data);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    // The overload signature has no body, should not crash
+    expect(results.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('skips params typed as GenericSchemaAsync (schema type)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export function validateAsync(schema: v.GenericSchemaAsync, data: unknown): Result<string> {
+  const result = safeParse(schema, data);
+  if (!result.ok) return result;
+  return result;
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const schemaErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'schema'"),
+    );
+    expect(schemaErrors.length).toBe(0);
+  });
+
+  it('reports error with tip containing capitalized param name in schema', async () => {
+    const code: string = `
+export function handleSubmit(data: unknown): Result<void> {
+  doStuff();
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.tip).toContain('DataSchema');
+    expect(results[0]!.tip).toContain('safeParse');
+  });
+
+  it('schema-validated: other param type node is null', async () => {
+    const code: string = `
+export function doThing(schema, data: unknown): Result<void> {
+  doStuff();
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const dataErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'data'"),
+    );
+    expect(dataErrors.length).toBe(1);
+  });
+
+  it('skips params with Intl external type', async () => {
+    const code: string = `
+export function formatNumber(fmt: Intl.NumberFormat): Result<string> {
+  return ok(StrSchema, fmt.format(42));
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionInput, code);
+    const fmtErrors: LintResult[] = results.filter((r: LintResult): boolean =>
+      r.message.includes("'fmt'"),
+    );
+    expect(fmtErrors.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// result/require-result-type — additional branch coverage
+// =============================================================================
+
+describe('result/require-result-type — additional branch coverage', () => {
+  it('passes function returning Ok type directly', async () => {
+    const code: string = `
+export function getUser(id: string): Ok<User> {
+  return ok(UserSchema, user);
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes function returning Err type directly', async () => {
+    const code: string = `
+export function fail(msg: string): Err {
+  return err(ERRORS.FAIL);
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes function returning Ok | Err union', async () => {
+    const code: string = `
+export function tryLoad(id: string): Ok<User> | Err {
+  return ok(UserSchema, user);
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes function returning Promise<void>', async () => {
+    const code: string = `
+export async function sendEmail(to: string): Promise<void> {
+  await transport.send(to);
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts predicates returning Bool type', async () => {
+    const code: string = `
+export function isReady(state: State): Bool {
+  return state.loaded;
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts has* predicate returning boolean', async () => {
+    const code: string = `
+export function hasPermission(user: User): boolean {
+  return user.admin;
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts can* predicate returning boolean', async () => {
+    const code: string = `
+export function canAccess(user: User): boolean {
+  return user.role === 'admin';
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts should* predicate returning boolean', async () => {
+    const code: string = `
+export function shouldRetry(count: number): boolean {
+  return count < 3;
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags predicate returning non-boolean non-Bool', async () => {
+    const code: string = `
+export function hasItems(list: Item[]): number {
+  return list.length;
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('exempts functions returning v.GenericSchema', async () => {
+    const code: string = `
+export function createSchema(): v.GenericSchema {
+  return v.object({});
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('exempts functions returning v.BaseSchema', async () => {
+    const code: string = `
+export function buildSchema(): v.BaseSchema<string, string, unknown> {
+  return v.string();
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported arrow function in variable declaration', async () => {
+    const code: string = `
+export const loadUser = (id: string): Promise<User> => {
+  return fetchData(id);
+};
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('loadUser');
+  });
+
+  it('handles exported FunctionExpression in variable declaration', async () => {
+    const code: string = `
+export const loadUser = function(id: string): Promise<User> {
+  return fetchData(id);
+};
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('loadUser');
+  });
+
+  it('passes exported arrow function returning Result', async () => {
+    const code: string = `
+export const loadUser = (id: string): Result<User> => {
+  return safeParse(UserSchema, data);
+};
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported VariableDeclaration with non-function init', async () => {
+    const code: string = `
+export const MAX_RETRIES = 5;
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles export re-export (no declaration)', async () => {
+    const code: string = `
+export { something } from './other';
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles export default function declaration', async () => {
+    const code: string = `
+export default function loadData(): Promise<Data> {
+  return fetch('/api');
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes export default function returning Result', async () => {
+    const code: string = `
+export default function loadData(): Result<Data> {
+  return ok(DataSchema, data);
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles export default arrow function expression', async () => {
+    const code: string = `
+export default (id: string): Promise<User> => {
+  return fetch('/user/' + id);
+};
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('handles export default with no declaration', async () => {
+    const code: string = `
+export default 42;
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles function without return type annotation', async () => {
+    const code: string = `
+export function doStuff(data: string) {
+  return data;
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does not exempt identity function for predicate names', async () => {
+    const code: string = `
+export function isValid(input: string): string {
+  return input;
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    // isPredicate is true but return type is string not boolean/Bool
+    // Identity exemption is skipped for predicates
+    expect(results.length).toBe(1);
+  });
+
+  it('does not exempt function returning non-param identifier', async () => {
+    const code: string = `
+export function getDefaults(cfg: Config): Defaults {
+  return defaults;
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    // 'defaults' is not a param name, so identity exemption doesn't apply
+    expect(results.length).toBe(1);
+  });
+
+  it('does not exempt function returning non-Identifier expression', async () => {
+    const code: string = `
+export function getDefaults(cfg: Config): Defaults {
+  return cfg.defaults;
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    // MemberExpression is not Identifier, so identity exemption doesn't apply
+    expect(results.length).toBe(1);
+  });
+
+  it('does not exempt function with multiple statements', async () => {
+    const code: string = `
+export function getDefaults(cfg: Config): Defaults {
+  const x = 1;
+  return cfg;
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    // Multiple statements, not identity pattern
+    expect(results.length).toBe(1);
+  });
+
+  it('skips non-exported FunctionDeclaration preceded by export default', async () => {
+    const code: string = `
+export default function loadData(): string {
+  return 'hello';
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    // Should be handled by ExportDefaultDeclaration, not double-reported by FunctionDeclaration
+    expect(results.length).toBe(1);
+  });
+
+  it('fix suggests wrapping return type in Result<>', async () => {
+    const code: string = `
+export function loadUser(id: string): Promise<User> {
+  return fetchData(id);
+}
+`;
+    const results: LintResult[] = await lint(requireResultType, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix).toBeDefined();
+    expect(results[0]!.fix!.text).toContain('Result<');
+  });
+});
+
+// =============================================================================
+// result/require-ok-return — additional branch coverage
+// =============================================================================
+
+describe('result/require-ok-return — additional branch coverage', () => {
+  it('passes returning a property access (presumed Result)', async () => {
+    const code: string = `
+export function getUser(id: string): Result<User> {
+  return container.result;
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes returning a function call result', async () => {
+    const code: string = `
+export function getUser(id: string): Result<User> {
+  return someHelper(id);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes returning an await expression', async () => {
+    const code: string = `
+export async function getUser(id: string): Promise<Result<User>> {
+  return await fetchUser(id);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags raw value return (object literal)', async () => {
+    const code: string = `
+export function getUser(id: string): Result<User> {
+  return { ok: true, data: {}, error: null };
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('raw value');
+  });
+
+  it('flags raw value return (array literal)', async () => {
+    const code: string = `
+export function getItems(): Result<Item[]> {
+  return [1, 2, 3];
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('raw value');
+  });
+
+  it('flags okUnchecked in catch block (should be err)', async () => {
+    const code: string = `
+export function readFile(path: string): Result<string> {
+  try {
+    const data = fs.readFileSync(path);
+    return ok(Schema, data);
+  } catch (e) {
+    return okUnchecked(fallback);
+  }
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('error path');
+    expect(results[0]!.message).toContain('err()');
+  });
+
+  it('flags ok() in error guard path (if (!result.ok) { return ok() })', async () => {
+    const code: string = `
+export function processData(input: string): Result<Config> {
+  const result = safeParse(ConfigSchema, input);
+  if (!result.ok)
+    return ok(ConfigSchema, defaults);
+  return result;
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('error path');
+  });
+
+  it('passes err() return outside catch/error-guard', async () => {
+    const code: string = `
+export function validate(data: unknown): Result<Config> {
+  if (!data) return err(ERRORS.INVALID);
+  return ok(ConfigSchema, data);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does not check non-Result function', async () => {
+    const code: string = `
+export function add(a: number, b: number): number {
+  return a + b;
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does not check function without return type', async () => {
+    const code: string = `
+export function add(a: number, b: number) {
+  return a + b;
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does not check function without body', async () => {
+    const code: string = `
+export function add(a: number, b: number): Result<number>;
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips bare return statement (no argument)', async () => {
+    const code: string = `
+export function doStuff(data: unknown): Result<void> {
+  if (!data) return;
+  return ok(VoidSchema, undefined);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported arrow function in variable declaration', async () => {
+    const code: string = `
+export const getUser = (id: string): Result<User> => {
+  return { ok: true, data: {}, error: null };
+};
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('raw value');
+  });
+
+  it('handles exported FunctionExpression in variable declaration', async () => {
+    const code: string = `
+export const getUser = function(id: string): Result<User> {
+  return { ok: true, data: {}, error: null };
+};
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('handles exported VariableDeclaration with non-function init', async () => {
+    const code: string = `
+export const MAX = 5;
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles export re-export (no declaration)', async () => {
+    const code: string = `
+export { something } from './other';
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does not double-report FunctionDeclaration preceded by export', async () => {
+    const code: string = `
+export function getUser(id: string): Result<User> {
+  return { ok: true, data: {}, error: null };
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    // Should only report once from ExportNamedDeclaration visitor
+    expect(results.length).toBe(1);
+  });
+
+  it('does not descend into nested functions for return collection', async () => {
+    const code: string = `
+export function getUser(id: string): Result<User> {
+  const inner = function(): string {
+    return 'not a result return';
+  };
+  return ok(UserSchema, user);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    // Only the ok() return is checked, nested function's return is ignored
+    expect(results.length).toBe(0);
+  });
+
+  it('does not descend into nested arrow functions for return collection', async () => {
+    const code: string = `
+export function getUser(id: string): Result<User> {
+  const inner = () => {
+    return 'not a result return';
+  };
+  return ok(UserSchema, user);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does not descend into nested function declarations for return collection', async () => {
+    const code: string = `
+function getUser(id: string): Result<User> {
+  function helper(): string {
+    return 'not checked';
+  }
+  return ok(UserSchema, user);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles function returning Result (bare, no type param)', async () => {
+    const code: string = `
+function getUser(id: string): Result {
+  return ok(UserSchema, user);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles function returning Promise<Result> (bare)', async () => {
+    const code: string = `
+async function getUser(id: string): Promise<Result> {
+  return await ok(UserSchema, user);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags okUnchecked with schema declared as const in file', async () => {
+    const code: string = `
+const UserSchema = v.object({ name: v.string() });
+export function getUser(id: string): Result<User> {
+  return okUnchecked(user);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('UserSchema');
+  });
+
+  it('passes okUnchecked when no schema available', async () => {
+    const code: string = `
+export function getConfig(): Result<Config> {
+  return okUnchecked(config);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('extractResultTypeParam returns null for void Result type', async () => {
+    const code: string = `
+export function doStuff(): Result<void> {
+  return okUnchecked(undefined);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    // Result<void> — typeName is 'void', so schemaAvailable is false
+    // okUnchecked should pass since no schema is available
+    expect(results.length).toBe(0);
+  });
+
+  it('extractResultTypeParam handles Promise<Result<T>>', async () => {
+    const code: string = `
+import { UserSchema } from './schemas';
+export async function getUser(id: string): Promise<Result<User>> {
+  return okUnchecked(user);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('UserSchema');
+  });
+
+  it('isAfterErrorGuard: guard with throw is success path after', async () => {
+    const code: string = `
+function getUser(id: string): Result<User> {
+  const parsed = safeParse(IdSchema, id);
+  if (!parsed.ok) throw parsed.error;
+  return ok(UserSchema, user);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    // ok() after early-return/throw error guard is the SUCCESS path
+    expect(results.length).toBe(0);
+  });
+
+  it('isAfterErrorGuard: guard with return is success path after', async () => {
+    const code: string = `
+function getUser(id: string): Result<User> {
+  const parsed = safeParse(IdSchema, id);
+  if (!parsed.ok) return parsed;
+  return ok(UserSchema, user);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('isAfterErrorGuard: no if statement before return', async () => {
+    const code: string = `
+function getUser(id: string): Result<User> {
+  return ok(UserSchema, user);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('isInsideCatch: no catch block at all', async () => {
+    const code: string = `
+function getUser(id: string): Result<User> {
+  return ok(UserSchema, user);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles multiple return statements in different branches', async () => {
+    const code: string = `
+export function getUser(id: string): Result<User> {
+  if (id === 'admin') {
+    return ok(UserSchema, admin);
+  }
+  try {
+    const user = fetchUser(id);
+    return ok(UserSchema, user);
+  } catch (e) {
+    return err(ERRORS.NOT_FOUND);
+  }
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags okUnchecked with generic type param <User>', async () => {
+    const code: string = `
+import { UserSchema } from './schemas';
+export function getUser(id: string): Result<User> {
+  return okUnchecked<User>(user);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('UserSchema');
+    expect(results[0]!.fix).toBeDefined();
+    expect(results[0]!.fix!.text).toContain('ok(UserSchema,');
+  });
+
+  it('passes returning okUnchecked with generic when no schema', async () => {
+    const code: string = `
+export function getConfig(): Result<Config> {
+  return okUnchecked<Config>(config);
+}
+`;
+    const results: LintResult[] = await lint(requireOkReturn, code);
+    expect(results.length).toBe(0);
   });
 });

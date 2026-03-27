@@ -10,6 +10,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Transform syncpack list-mismatches text output into LintResult[].
@@ -70,9 +72,9 @@ export function transformSyncpackOutput(output: string): LintResult[] {
           1,
           1,
           'warning',
-          `Version mismatch: ${pkgName} has mismatched versions across packages`,
+          format(en.tools.syncpackMessage, { package: pkgName }),
           {
-            tip: 'Run syncpack fix-mismatches to align versions',
+            tip: en.tools.syncpackTip,
           },
         ),
       );
@@ -91,9 +93,9 @@ export function transformSyncpackOutput(output: string): LintResult[] {
           1,
           1,
           'warning',
-          `Version mismatch: ${detail}`,
+          format(en.tools.syncpackMismatch, { detail }),
           {
-            tip: 'Run syncpack fix-mismatches to align versions',
+            tip: en.tools.syncpackTip,
           },
         ),
       );

@@ -13,6 +13,8 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Valid GitHub funding platform keys.
@@ -83,7 +85,9 @@ export function transformGithubFundingOutput(output: string): LintResult[] {
 
       results.push(
         createResult('github/funding', file, lineNum, 1, 'warning', message, {
-          tip: `Valid funding platforms: ${[...VALID_PLATFORMS].join(', ')}`,
+          tip: format(en.tools.fundingValidPlatforms, {
+            platforms: [...VALID_PLATFORMS].join(', '),
+          }),
         }),
       );
     }
@@ -115,9 +119,9 @@ export function validateFunding(filePath: string, content: string): LintResult[]
 
   if (trimmed.length === 0) {
     return [
-      createResult('github/funding', filePath, 1, 1, 'error', 'FUNDING.yml file is empty', {
+      createResult('github/funding', filePath, 1, 1, 'error', en.tools.fundingEmpty, {
         example: 'github: username',
-        tip: 'Add at least one funding platform (e.g., github, patreon, open_collective).',
+        tip: en.tools.fundingEmptyTip,
       }),
     ];
   }
@@ -156,9 +160,11 @@ export function validateFunding(filePath: string, content: string): LintResult[]
             i + 1,
             1,
             'warning',
-            `Unrecognized funding platform: ${key}`,
+            format(en.tools.fundingUnrecognized, { platform: key }),
             {
-              tip: `Valid funding platforms: ${[...VALID_PLATFORMS].join(', ')}`,
+              tip: format(en.tools.fundingValidPlatforms, {
+                platforms: [...VALID_PLATFORMS].join(', '),
+              }),
             },
           ),
         );

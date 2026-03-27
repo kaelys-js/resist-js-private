@@ -10,6 +10,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Regex for Crystal format --check output lines.
@@ -72,9 +74,10 @@ export function transformCrystalOutput(output: string): LintResult[] {
     const formatMatch: RegExpMatchArray | null = CRYSTAL_FORMAT_LINE.exec(stripped);
     if (formatMatch) {
       const file: string = formatMatch[1] ?? '';
+      const crystalTip: string = format(en.tools.formatRunTool, { tool: 'crystal tool format' });
       results.push(
-        createResult('crystal/format', file, 1, 1, 'warning', 'File is not formatted', {
-          tip: 'Run `crystal tool format` to auto-format this file',
+        createResult('crystal/format', file, 1, 1, 'warning', en.tools.formatFileNotFormatted, {
+          tip: crystalTip,
         }),
       );
       continue;
@@ -85,8 +88,8 @@ export function transformCrystalOutput(output: string): LintResult[] {
     if (fileMatch) {
       const file: string = fileMatch[1] ?? '';
       results.push(
-        createResult('crystal/format', file, 1, 1, 'warning', 'File is not formatted', {
-          tip: 'Run `crystal tool format` to auto-format this file',
+        createResult('crystal/format', file, 1, 1, 'warning', en.tools.formatFileNotFormatted, {
+          tip: format(en.tools.formatRunTool, { tool: 'crystal tool format' }),
         }),
       );
       continue;
@@ -95,8 +98,8 @@ export function transformCrystalOutput(output: string): LintResult[] {
     /* Catch-all: any line mentioning "formatting" */
     if (stripped.toLowerCase().includes('formatting')) {
       results.push(
-        createResult('crystal/format', stripped, 1, 1, 'warning', 'Formatting issue detected', {
-          tip: 'Run `crystal tool format` to auto-format this file',
+        createResult('crystal/format', stripped, 1, 1, 'warning', en.tools.formatIssueDetected, {
+          tip: format(en.tools.formatRunTool, { tool: 'crystal tool format' }),
         }),
       );
     }

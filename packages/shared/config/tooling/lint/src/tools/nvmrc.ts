@@ -11,6 +11,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 
 /**
  * Transform nvmrc validator text output into LintResult[].
@@ -61,7 +62,7 @@ export function transformNvmrcOutput(output: string): LintResult[] {
     results.push(
       createResult('nvmrc/version', file, lineNum, 1, 'error', message, {
         example: 'v22',
-        tip: 'Valid patterns: v18, 18.17.0, lts/*, lts/hydrogen, node, stable',
+        tip: en.tools.nvmrcTip,
       }),
     );
   }

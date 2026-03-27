@@ -10,6 +10,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 
 /**
  * Transform npmrc validator text output into LintResult[].
@@ -60,7 +61,7 @@ export function transformNpmrcOutput(output: string): LintResult[] {
     results.push(
       createResult('npmrc/syntax', file, lineNum, 1, 'error', message, {
         example: 'registry=https://registry.npmjs.org/',
-        tip: 'Each line should be a comment (;/#), blank, or key=value pair',
+        tip: en.tools.npmrcTip,
       }),
     );
   }

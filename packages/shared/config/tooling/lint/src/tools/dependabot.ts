@@ -14,6 +14,8 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Valid Dependabot package ecosystems.
@@ -91,7 +93,7 @@ export function transformDependabotOutput(output: string): LintResult[] {
 
       results.push(
         createResult('dependabot/config', file, lineNum, 1, 'error', message, {
-          tip: 'See https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file',
+          tip: en.tools.dependabotConfigTip,
         }),
       );
     }
@@ -124,19 +126,11 @@ export function validateDependabot(filePath: string, content: string): LintResul
 
   if (trimmed.length === 0) {
     return [
-      createResult(
-        'dependabot/config',
-        filePath,
-        1,
-        1,
-        'error',
-        'Dependabot configuration file is empty',
-        {
-          example:
-            'version: 2\nupdates:\n  - package-ecosystem: npm\n    directory: /\n    schedule:\n      interval: weekly',
-          tip: 'Add version: 2 and an updates array to the configuration.',
-        },
-      ),
+      createResult('dependabot/config', filePath, 1, 1, 'error', en.tools.dependabotEmpty, {
+        example:
+          'version: 2\nupdates:\n  - package-ecosystem: npm\n    directory: /\n    schedule:\n      interval: weekly',
+        tip: en.tools.dependabotEmptyTip,
+      }),
     ];
   }
 
@@ -172,10 +166,10 @@ export function validateDependabot(filePath: string, content: string): LintResul
             i + 1,
             1,
             'error',
-            `Invalid version: "${versionValue}" — must be 2`,
+            format(en.tools.dependabotInvalidVersion, { version: versionValue }),
             {
               example: 'version: 2',
-              tip: 'Dependabot configuration requires version: 2.',
+              tip: en.tools.dependabotInvalidVersionTip,
             },
           ),
         );
@@ -192,10 +186,10 @@ export function validateDependabot(filePath: string, content: string): LintResul
         1,
         1,
         'error',
-        'Missing required field: version',
+        en.tools.dependabotMissingVersion,
         {
           example: 'version: 2',
-          tip: 'Add "version: 2" as the first line of the configuration.',
+          tip: en.tools.dependabotMissingVersionTip,
         },
       ),
     );
@@ -220,11 +214,11 @@ export function validateDependabot(filePath: string, content: string): LintResul
         1,
         1,
         'error',
-        'Missing required field: updates',
+        en.tools.dependabotMissingUpdates,
         {
           example:
             'updates:\n  - package-ecosystem: npm\n    directory: /\n    schedule:\n      interval: weekly',
-          tip: 'Add an "updates:" array with at least one package ecosystem entry.',
+          tip: en.tools.dependabotMissingUpdatesTip,
         },
       ),
     );
@@ -250,9 +244,11 @@ export function validateDependabot(filePath: string, content: string): LintResul
             i + 1,
             1,
             'warning',
-            `Unrecognized package ecosystem: ${ecosystem}`,
+            format(en.tools.dependabotUnrecognizedEcosystem, { ecosystem }),
             {
-              tip: `Valid ecosystems: ${[...VALID_ECOSYSTEMS].join(', ')}`,
+              tip: format(en.tools.dependabotValidEcosystems, {
+                ecosystems: [...VALID_ECOSYSTEMS].join(', '),
+              }),
             },
           ),
         );

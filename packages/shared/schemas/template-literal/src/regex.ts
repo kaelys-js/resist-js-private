@@ -270,10 +270,22 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
 
   switch (schemaType) {
     case 'string': {
+      if ('pipe' in schema && Array.isArray((schema as { readonly pipe: unknown }).pipe)) {
+        const { pipe }: { readonly pipe: readonly unknown[] } = schema as {
+          readonly pipe: readonly unknown[];
+        };
+        return _introspectPipe(pipe.slice(1), STRING_PATTERN);
+      }
       return ok(v.string(), STRING_PATTERN);
     }
 
     case 'number': {
+      if ('pipe' in schema && Array.isArray((schema as { readonly pipe: unknown }).pipe)) {
+        const { pipe }: { readonly pipe: readonly unknown[] } = schema as {
+          readonly pipe: readonly unknown[];
+        };
+        return _introspectPipe(pipe.slice(1), NUMBER_PATTERN);
+      }
       return ok(v.string(), NUMBER_PATTERN);
     }
 
