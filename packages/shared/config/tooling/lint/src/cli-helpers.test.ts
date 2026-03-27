@@ -625,6 +625,16 @@ describe('buildHelpText', () => {
     );
     expect(text).toContain('--json');
   });
+
+  it('documents --locale flag', () => {
+    const text: string = buildHelpText(
+      'resist-lint',
+      '.resist-lint.jsonc',
+      '.resist-lint.schema.json',
+      en,
+    );
+    expect(text).toContain('--locale');
+  });
 });
 
 // =============================================================================

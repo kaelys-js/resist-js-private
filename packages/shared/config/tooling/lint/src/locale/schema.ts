@@ -87,6 +87,8 @@ const FlagStringsSchema = v.strictObject({
   json: v.string(),
   /** --list-rules description. */
   listRules: v.string(),
+  /** --locale description. */
+  locale: v.string(),
   /** --no-cache description. */
   noCache: v.string(),
   /** <paths...> description. */
