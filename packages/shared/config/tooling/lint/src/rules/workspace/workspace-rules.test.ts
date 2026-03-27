@@ -12,6 +12,7 @@ import noBrokenSymlinks from './no-broken-symlinks.ts';
 import noEmptyDirectories from './no-empty-directories.ts';
 import noLeftoverSqlite from './no-leftover-sqlite.ts';
 import noLockfileLocalLinks from './no-lockfile-local-links.ts';
+import noUnpinnedGitDeps from './no-unpinned-git-deps.ts';
 import noMergeConflicts from './no-merge-conflicts.ts';
 import noUntrackedArtifacts from './no-untracked-artifacts.ts';
 import requireGitRepo from './require-git-repo.ts';
@@ -746,6 +747,63 @@ describe('workspace/no-lockfile-local-links', () => {
   it('returns empty when lockfile missing', async () => {
     const ctx: WorkspaceContext = mockContext({ files: new Map() });
     const results: LintResult[] = await noLockfileLocalLinks.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-unpinned-git-deps
+// =============================================================================
+
+describe('workspace/no-unpinned-git-deps', () => {
+  it('has correct rule metadata', () => {
+    expect(noUnpinnedGitDeps.id).toBe('workspace/no-unpinned-git-deps');
+    expect(noUnpinnedGitDeps.scope).toBe('workspace');
+    expect(noUnpinnedGitDeps.fixable).toBe(false);
+    expect(typeof noUnpinnedGitDeps.check).toBe('function');
+  });
+
+  it('flags github.com dep with #main', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\npackages:\n  github.com/org/repo#main:\n    resolution: {}\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnpinnedGitDeps.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Unpinned');
+  });
+
+  it('flags github.com dep with #master', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\npackages:\n  github.com/org/repo#master:\n    resolution: {}\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnpinnedGitDeps.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('flags github.com dep with #next', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\npackages:\n  github.com/org/repo#next:\n    resolution: {}\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnpinnedGitDeps.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('ignores github.com dep with SHA', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\npackages:\n  github.com/org/repo#a1b2c3d4e5f6:\n    resolution: {}\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnpinnedGitDeps.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when lockfile missing', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await noUnpinnedGitDeps.check(ctx);
     expect(results.length).toBe(0);
   });
 });
