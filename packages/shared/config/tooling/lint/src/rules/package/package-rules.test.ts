@@ -19,6 +19,9 @@ import noWorkspaceSelfRef from './no-workspace-self-ref.ts';
 import noVitestConfig from './no-vitest-config.ts';
 import requireReadme from './require-readme.ts';
 import requireSharedConfig from './require-shared-config.ts';
+import requireScope from './require-scope.ts';
+import noGitDeps from './no-git-deps.ts';
+import noTsNode from './no-ts-node.ts';
 
 function ctx(
   overrides: Partial<PackageJsonContext> & { pkg?: Partial<PackageJsonContext['pkg']> } = {},
@@ -661,5 +664,184 @@ describe('package/require-readme', () => {
       r.message.includes('does not match package name'),
     );
     expect(titleMismatch).toBeUndefined();
+  });
+});
+
+// =============================================================================
+// package/require-scope
+// =============================================================================
+
+describe('package/require-scope', () => {
+  it('flags package without required scope', () => {
+    const results: LintResult[] = requireScope.check(ctx({ pkg: { name: 'foo-bar' } }));
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('package/require-scope');
+    expect(results[0]!.message).toContain('foo-bar');
+  });
+
+  it('flags package with wrong scope', () => {
+    const results: LintResult[] = requireScope.check(ctx({ pkg: { name: '@other/foo' } }));
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('package/require-scope');
+    expect(results[0]!.message).toContain('@other/foo');
+  });
+
+  it('passes package with correct scope', () => {
+    const results: LintResult[] = requireScope.check(ctx({ pkg: { name: '@/foo' } }));
+    expect(results.length).toBe(0);
+  });
+
+  it('passes root package', () => {
+    const results: LintResult[] = requireScope.check(
+      ctx({ isRoot: true, pkg: { name: 'webforge' } }),
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('has correct rule metadata', () => {
+    expect(requireScope.id).toBe('package/require-scope');
+    expect(requireScope.fixable).toBe(false);
+  });
+});
+
+// =============================================================================
+// package/no-git-deps
+// =============================================================================
+
+describe('package/no-git-deps', () => {
+  it('flags git+https dependency in dependencies', () => {
+    const results: LintResult[] = noGitDeps.check(
+      ctx({
+        pkg: {
+          name: '@/test',
+          dependencies: { 'some-pkg': 'git+https://github.com/foo/bar.git' },
+        },
+      }),
+    );
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('package/no-git-deps');
+    expect(results[0]!.message).toContain('some-pkg');
+  });
+
+  it('flags git+https dependency in devDependencies', () => {
+    const results: LintResult[] = noGitDeps.check(
+      ctx({
+        pkg: {
+          name: '@/test',
+          devDependencies: { 'some-pkg': 'git+https://github.com/foo/bar.git' },
+        },
+      }),
+    );
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('package/no-git-deps');
+  });
+
+  it('flags git+https dependency in optionalDependencies', () => {
+    const results: LintResult[] = noGitDeps.check(
+      ctx({
+        pkg: {
+          name: '@/test',
+          optionalDependencies: { 'some-pkg': 'git+https://github.com/foo/bar.git' },
+        },
+      }),
+    );
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('package/no-git-deps');
+  });
+
+  it('flags git+https dependency in peerDependencies', () => {
+    const results: LintResult[] = noGitDeps.check(
+      ctx({
+        pkg: {
+          name: '@/test',
+          peerDependencies: { 'some-pkg': 'git+https://github.com/foo/bar.git' },
+        },
+      }),
+    );
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('package/no-git-deps');
+  });
+
+  it('passes when no git+https dependencies', () => {
+    const results: LintResult[] = noGitDeps.check(
+      ctx({
+        pkg: {
+          name: '@/test',
+          dependencies: { 'some-pkg': '^1.0.0' },
+          devDependencies: { 'other-pkg': '^2.0.0' },
+        },
+      }),
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('has correct rule metadata', () => {
+    expect(noGitDeps.id).toBe('package/no-git-deps');
+    expect(noGitDeps.fixable).toBe(false);
+  });
+});
+
+// =============================================================================
+// package/no-ts-node
+// =============================================================================
+
+describe('package/no-ts-node', () => {
+  it('flags ts-node in dependencies', () => {
+    const results: LintResult[] = noTsNode.check(
+      ctx({
+        pkg: {
+          name: '@/test',
+          dependencies: { 'ts-node': '^10.0.0' },
+        },
+      }),
+    );
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('package/no-ts-node');
+    expect(results[0]!.message).toContain('ts-node');
+  });
+
+  it('flags ts-node in devDependencies', () => {
+    const results: LintResult[] = noTsNode.check(
+      ctx({
+        pkg: {
+          name: '@/test',
+          devDependencies: { 'ts-node': '^10.0.0' },
+        },
+      }),
+    );
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('package/no-ts-node');
+  });
+
+  it('flags ts-node in scripts', () => {
+    const results: LintResult[] = noTsNode.check(
+      ctx({
+        pkg: {
+          name: '@/test',
+          scripts: { start: 'ts-node src/index.ts' },
+        },
+      }),
+    );
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('package/no-ts-node');
+    expect(results[0]!.message).toContain('ts-node');
+  });
+
+  it('passes when no ts-node references', () => {
+    const results: LintResult[] = noTsNode.check(
+      ctx({
+        pkg: {
+          name: '@/test',
+          dependencies: { 'some-pkg': '^1.0.0' },
+          scripts: { start: 'node src/index.js' },
+        },
+      }),
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('has correct rule metadata', () => {
+    expect(noTsNode.id).toBe('package/no-ts-node');
+    expect(noTsNode.fixable).toBe(false);
   });
 });
