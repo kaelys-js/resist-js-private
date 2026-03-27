@@ -170,7 +170,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 2.4: Update help text and `--list-rules` to show `--locale`
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `buildHelpText()` and `listRules` output do not mention the `--locale` flag. Help text string must be localized too.
 
