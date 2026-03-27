@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 import type { WorkspaceContext, WorkspacePackage } from '../../framework/rule-context.ts';
 import type { LintResult } from '../../framework/types.ts';
 import noMergeConflicts from './no-merge-conflicts.ts';
+import noUntrackedArtifacts from './no-untracked-artifacts.ts';
 import namesValid from '../package/names-valid.ts';
 import workspaceValid from './workspace-valid.ts';
 
@@ -417,5 +418,56 @@ describe('workspace/no-merge-conflicts', () => {
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noMergeConflicts.check(ctx);
     expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-untracked-artifacts
+// =============================================================================
+
+describe('workspace/no-untracked-artifacts', () => {
+  it('flags .DS_Store files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/.DS_Store', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUntrackedArtifacts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-untracked-artifacts');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('flags *.tmp files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/data.tmp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUntrackedArtifacts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-untracked-artifacts');
+  });
+
+  it('flags *.bak files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/config.bak', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUntrackedArtifacts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-untracked-artifacts');
+  });
+
+  it('ignores normal source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.ts', 'export const x: number = 1;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUntrackedArtifacts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags multiple artifacts in one scan', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/.DS_Store', ''],
+      ['/workspace/lib/.DS_Store', ''],
+      ['/workspace/src/old.bak', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUntrackedArtifacts.check(ctx);
+    expect(results.length).toBe(3);
   });
 });
