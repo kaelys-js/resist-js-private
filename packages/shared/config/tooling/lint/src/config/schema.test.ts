@@ -544,3 +544,200 @@ describe('generateJsonSchema', () => {
     expect(rulesDescription).toContain('unknown/rule');
   });
 });
+
+// =============================================================================
+// loadConfig — custom config path
+// =============================================================================
+
+describe('loadConfig — custom config path', () => {
+  it('reads from a custom config path when provided', () => {
+    vi.mocked(readFileSync).mockReturnValue('{}');
+
+    loadConfig('/project/root', 'custom/lint.jsonc');
+
+    expect(readFileSync).toHaveBeenCalledWith(expect.stringContaining('custom'), 'utf8');
+  });
+
+  it('resolves custom config path relative to cwd', () => {
+    vi.mocked(readFileSync).mockReturnValue('{"rules": {"some/rule": "warn"}}');
+
+    const config: LintConfig = loadConfig('/project/root', 'configs/lint.jsonc');
+    expect(config.rules['some/rule']).toBe('warn');
+  });
+});
+
+// =============================================================================
+// loadConfig — JSONC edge cases
+// =============================================================================
+
+describe('loadConfig — JSONC edge cases', () => {
+  it('handles escaped quotes inside JSON strings', () => {
+    const jsonc: string = '{ "include": ["src/\\"special\\""] }';
+    vi.mocked(readFileSync).mockReturnValue(jsonc);
+
+    const config: LintConfig = loadConfig('/some/dir');
+    expect(config.include).toEqual(['src/"special"']);
+  });
+
+  it('handles strings containing backslash-backslash before close quote', () => {
+    const jsonc: string = '{ "include": ["path\\\\"] }';
+    vi.mocked(readFileSync).mockReturnValue(jsonc);
+
+    const config: LintConfig = loadConfig('/some/dir');
+    expect(config.include).toEqual(['path\\']);
+  });
+
+  it('strips line comment at end of file without trailing newline', () => {
+    const jsonc: string = '{"rules": {}} // trailing comment';
+    vi.mocked(readFileSync).mockReturnValue(jsonc);
+
+    const config: LintConfig = loadConfig('/some/dir');
+    expect(config.rules).toEqual({});
+  });
+
+  it('strips multi-line block comment spanning multiple lines', () => {
+    const jsonc: string = [
+      '{',
+      '  /* this is a',
+      '     multi-line comment */',
+      '  "rules": {}',
+      '}',
+    ].join('\n');
+    vi.mocked(readFileSync).mockReturnValue(jsonc);
+
+    const config: LintConfig = loadConfig('/some/dir');
+    expect(config.rules).toEqual({});
+  });
+
+  it('handles empty JSONC string gracefully (throws)', () => {
+    vi.mocked(readFileSync).mockReturnValue('');
+    expect(() => loadConfig('/some/dir')).toThrow();
+  });
+});
+
+// =============================================================================
+// loadConfig — schema validation error details
+// =============================================================================
+
+describe('loadConfig — schema validation error paths', () => {
+  it('error message includes the property path on nested failure', () => {
+    vi.mocked(readFileSync).mockReturnValue(
+      JSON.stringify({ overrides: [{ files: ['**/*.ts'], rules: { r: 'bad' } }] }),
+    );
+
+    expect(() => loadConfig('/some/dir')).toThrow(/Invalid config/);
+  });
+
+  it('error message includes path info for deeply invalid config', () => {
+    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ rules: 'not-an-object' }));
+
+    try {
+      loadConfig('/some/dir');
+      expect.unreachable('should have thrown');
+    } catch (error: unknown) {
+      expect((error as Error).message).toContain('Invalid config');
+    }
+  });
+});
+
+// =============================================================================
+// loadConfig — ruleOptions
+// =============================================================================
+
+describe('loadConfig — ruleOptions', () => {
+  it('parses ruleOptions from config', () => {
+    vi.mocked(readFileSync).mockReturnValue(
+      JSON.stringify({
+        ruleOptions: {
+          'some/rule': { allowedTargets: ['browser'] },
+        },
+      }),
+    );
+
+    const config: LintConfig = loadConfig('/some/dir');
+    expect(config.ruleOptions['some/rule']).toEqual({ allowedTargets: ['browser'] });
+  });
+
+  it('defaults ruleOptions to empty object when not provided', () => {
+    vi.mocked(readFileSync).mockReturnValue('{}');
+
+    const config: LintConfig = loadConfig('/some/dir');
+    expect(config.ruleOptions).toEqual({});
+  });
+});
+
+// =============================================================================
+// resolveRuleSeverity — additional branch coverage
+// =============================================================================
+
+describe('resolveRuleSeverity — additional branches', () => {
+  it('skips override when file matches but ruleId is not in override rules', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      rules: {},
+      overrides: [
+        {
+          files: ['**/*.ts'],
+          rules: { 'other/rule': 'warn' },
+        },
+      ],
+    };
+    // 'some/rule' is not in the override, so it falls through to default
+    const severity = resolveRuleSeverity(config, 'some/rule', '/src/foo.ts');
+    expect(severity).toBe('error');
+  });
+
+  it('handles override with **/ pattern containing a wildcard and no dot', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      overrides: [
+        {
+          files: ['**/test-*'],
+          rules: { 'some/rule': 'off' },
+        },
+      ],
+    };
+    // Pattern is "**/test-*" — suffix is "test-*", contains * but no dot
+    const severity = resolveRuleSeverity(config, 'some/rule', '/src/test-foo.ts');
+    // fileMatchesPattern will hit the branch where suffix.includes('*') but dotIdx < 0
+    expect(severity).toBe('error');
+  });
+
+  it('handles **/ pattern with direct suffix match (no wildcards)', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      overrides: [
+        {
+          files: ['**/helpers.ts'],
+          rules: { 'some/rule': 'warn' },
+        },
+      ],
+    };
+    // Pattern is "**/helpers.ts" — suffix is "helpers.ts", no wildcards and no trailing /**
+    const severity = resolveRuleSeverity(config, 'some/rule', '/src/utils/helpers.ts');
+    expect(severity).toBe('warn');
+  });
+
+  it('returns error (default) when no overrides and no top-level rule entry', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      rules: { 'other/rule': 'warn' },
+      overrides: [],
+    };
+    const severity = resolveRuleSeverity(config, 'unrelated/rule', '/src/foo.ts');
+    expect(severity).toBe('error');
+  });
+
+  it('handles multiple overrides where none match the file', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      rules: { 'some/rule': 'warn' },
+      overrides: [
+        { files: ['*.test.ts'], rules: { 'some/rule': 'off' } },
+        { files: ['*.spec.ts'], rules: { 'some/rule': 'off' } },
+      ],
+    };
+    const severity = resolveRuleSeverity(config, 'some/rule', '/src/foo.ts');
+    expect(severity).toBe('warn');
+  });
+});

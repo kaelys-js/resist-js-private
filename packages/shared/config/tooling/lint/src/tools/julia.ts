@@ -11,6 +11,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 
 /**
  * Transform Julia formatter output into LintResult[].
@@ -55,17 +56,9 @@ export function transformJuliaOutput(output: string): LintResult[] {
 
     if (stripped.toLowerCase() === 'false') {
       results.push(
-        createResult(
-          'julia/format',
-          'unknown',
-          1,
-          1,
-          'warning',
-          'File is not formatted according to JuliaFormatter',
-          {
-            tip: 'Run JuliaFormatter with `overwrite=true` to auto-format this file',
-          },
-        ),
+        createResult('julia/format', 'unknown', 1, 1, 'warning', en.tools.juliaNotFormatted, {
+          tip: en.tools.juliaTip,
+        }),
       );
     }
   }

@@ -9,6 +9,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 
 /**
  * Transform codeowners-checker text output into LintResult[].
@@ -80,7 +81,7 @@ export function transformCodeownersCheckerOutput(output: string): LintResult[] {
 
     results.push(
       createResult('codeowners-checker/validate', file, lineNum, 1, 'warning', message, {
-        tip: 'Ensure all CODEOWNERS paths exist and owners are valid',
+        tip: en.tools.codeownersCheckerTip,
       }),
     );
   }

@@ -9,6 +9,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 
 /**
  * Regex for just error output: `error: ... at line N`
@@ -51,7 +52,7 @@ export function transformJustOutput(output: string): LintResult[] {
 
     const match: RegExpMatchArray | null = JUST_ERROR_LINE.exec(stripped);
     if (match) {
-      const message: string = match[1] ?? 'Formatting issue';
+      const message: string = match[1] ?? en.tools.justfileFormattingIssue;
       const lineNum: number = Number.parseInt(match[2] ?? '1', 10);
 
       results.push(createResult('justfile/format', '', lineNum, 1, 'error', message));
@@ -61,9 +62,7 @@ export function transformJustOutput(output: string): LintResult[] {
 
   /* If there was non-empty output but no regex matches, report a generic issue */
   if (!hasMatch) {
-    results.push(
-      createResult('justfile/format', '', 1, 1, 'warning', 'Justfile has formatting issues'),
-    );
+    results.push(createResult('justfile/format', '', 1, 1, 'warning', en.tools.justfileFormatting));
   }
 
   return results;

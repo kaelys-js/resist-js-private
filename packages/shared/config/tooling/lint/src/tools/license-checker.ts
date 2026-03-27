@@ -10,6 +10,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * License information for a single package from license-checker JSON output.
@@ -104,9 +106,9 @@ export function transformLicenseCheckerOutput(output: string): LintResult[] {
         1,
         1,
         'warning',
-        `Problematic license "${license}" found in ${pkgName}`,
+        format(en.tools.licenseCheckerMessage, { license, package: pkgName }),
         {
-          tip: `Review the license for ${pkgName} and consider an alternative package`,
+          tip: format(en.tools.licenseCheckerTip, { package: pkgName }),
         },
       ),
     );

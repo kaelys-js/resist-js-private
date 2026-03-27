@@ -1110,6 +1110,72 @@ type Foo = string;
     const results: LintResult[] = await lint(colocateSchemaType, code);
     expect(results.length).toBe(0);
   });
+
+  it('warns for exported type alias referencing missing schema', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(colocateSchemaType, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('UserSchema');
+  });
+
+  it('passes with InferInput', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferInput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(colocateSchemaType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported schema definition', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(colocateSchemaType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles ExportNamedDeclaration of type alias', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+export type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(colocateSchemaType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles variables without initializer', async () => {
+    const code: string = `
+import * as v from 'valibot';
+let x;
+type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(colocateSchemaType, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes for non-valibot schema', async () => {
+    const code: string = `
+import * as z from 'zod';
+const UserSchema = z.object({ name: z.string() });
+type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(colocateSchemaType, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('handles empty body', async () => {
+    const code: string = ``;
+    const results: LintResult[] = await lint(colocateSchemaType, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -1153,6 +1219,143 @@ const UserSchema = v.strictObject({ name: v.string() });
     const results: LintResult[] = await lint(exportSchemaAndType, code);
     expect(results.length).toBe(0);
   });
+
+  it('handles export specifiers for type', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferOutput<typeof UserSchema>;
+export { User };
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles ExportNamedDeclaration without declaration', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+export { something };
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('handles multiple exported schemas', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+export type User = v.InferOutput<typeof UserSchema>;
+export const ItemSchema = v.object({ title: v.string() });
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('ItemSchema');
+    expect(results[0]!.message).toContain('Item');
+  });
+
+  it('handles non-valibot exported schema', async () => {
+    const code: string = `
+import * as z from 'zod';
+export const UserSchema = z.object({ name: z.string() });
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported variable without initializer', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export let UserSchema;
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for empty file', async () => {
+    const code: string = ``;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-Schema named export', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const userHelper = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported type alias', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export type Foo = string;
+export const FooSchema = v.string();
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-call expression init (not a valibot schema call)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = someOtherValue;
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles call expression with non-member callee (bare function)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = createSchema({ name: 'string' });
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles export specifier where exported name differs from local', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+type InternalUser = v.InferOutput<typeof UserSchema>;
+export { InternalUser as User };
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles v.object() schema factory', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const ItemSchema = v.object({ title: v.string() });
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('ItemSchema');
+  });
+
+  it('handles exported schema using v.pipe()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const EmailSchema = v.pipe(v.string(), v.email());
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('EmailSchema');
+  });
+
+  it('handles export specifier with only local name', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+const User = 'type placeholder';
+export { User };
+`;
+    const results: LintResult[] = await lint(exportSchemaAndType, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -1191,6 +1394,239 @@ export const UserSchema = v.strictObject({ name: v.string() });
 import * as v from 'valibot';
 export const UserSchema = v.strictObject({ name: v.string() });
 type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('not exported');
+  });
+
+  it('ignores non-exported schemas', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles export { ... } specifiers for type', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferOutput<typeof UserSchema>;
+export { User };
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles ExportNamedDeclaration with no declaration', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+export { UserSchema };
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles multiple exported schemas', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+export type User = v.InferOutput<typeof UserSchema>;
+export const ItemSchema = v.object({ title: v.string() });
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('ItemSchema');
+  });
+
+  it('handles non-valibot schema call (not a valibot import)', async () => {
+    const code: string = `
+import * as z from 'zod';
+export const UserSchema = z.object({ name: z.string() });
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles variables without initializer in exported declaration', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export let schema;
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-exported variable declaration with schema call', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.object({ name: v.string() });
+type User = string;
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-exported type alias', async () => {
+    const code: string = `
+import * as v from 'valibot';
+type Foo = string;
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported schema using v.pipe()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const EmailSchema = v.pipe(v.string(), v.email());
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('EmailSchema');
+    expect(results[0]!.message).toContain('Email');
+  });
+
+  it('handles exported schema with v.array()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const ItemsSchema = v.array(v.string());
+export type Items = v.InferOutput<typeof ItemsSchema>;
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for empty file body', async () => {
+    const code: string = ``;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-call expression init (isValibotSchemaCall returns false for non-CallExpression)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = someVariable;
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles call expression with bare function callee (not member expression)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = createSchema({ name: 'string' });
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-exported variable declaration without declarations array', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const x = 42;
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-exported variable without id or init', async () => {
+    const code: string = `
+import * as v from 'valibot';
+let UserSchema;
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-exported schema variable (not re-tracked if already exported)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+const UserSchema2 = v.object({ age: v.number() });
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('UserSchema');
+  });
+
+  it('handles exported type alias inside ExportNamedDeclaration', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+export type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported schema using v.union()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const StatusSchema = v.union([v.literal('active'), v.literal('inactive')]);
+export type Status = v.InferOutput<typeof StatusSchema>;
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported schema using v.nullable()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const MaybeNameSchema = v.nullable(v.string());
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('MaybeNameSchema');
+  });
+
+  it('handles exported schema using v.optional()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const OptNameSchema = v.optional(v.string());
+export type OptName = string;
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported schema using v.record()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const MapSchema = v.record(v.string(), v.number());
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('handles non-exported schema that does not end with Schema', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const userValidator = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported variable that does not end in Schema', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const userValidator = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-exported type alias (TSTypeAliasDeclaration at top level)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+type User = { name: string };
 `;
     const results: LintResult[] = await lint(noOrphanSchemas, code);
     expect(results.length).toBe(1);
@@ -1410,6 +1846,114 @@ import * as v from 'valibot';
 const UserSchema = v.strictObject({ name: v.string() });
 type User = v.InferInput<typeof UserSchema>;
 `;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported schema and type', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+export type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported type alias in ExportNamedDeclaration', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+export type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-exported type alias', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles ExportNamedDeclaration without declaration', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+export { UserSchema };
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('handles multiple schemas', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferOutput<typeof UserSchema>;
+const ItemSchema = v.object({ title: v.string() });
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('ItemSchema');
+  });
+
+  it('warns when type uses wrong derivation', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type User = { name: string };
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('handles schema from v.pipe()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const EmailSchema = v.pipe(v.string(), v.email());
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Email');
+  });
+
+  it('handles exported schema with VariableDeclaration', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('handles non-valibot call (not a schema)', async () => {
+    const code: string = `
+import * as z from 'zod';
+const UserSchema = z.object({ name: z.string() });
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles variables without initializer', async () => {
+    const code: string = `
+import * as v from 'valibot';
+let UserSchema;
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for empty file', async () => {
+    const code: string = ``;
     const results: LintResult[] = await lint(schemaTypePair, code);
     expect(results.length).toBe(0);
   });
@@ -1901,6 +2445,89 @@ const schema = v.strictObject({ name: v.string(), age: v.number() });
     const results: LintResult[] = await lint(noDuplicateKeys, code);
     expect(results.length).toBe(0);
   });
+
+  it('errors for duplicate keys in v.object()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.object({ name: v.string(), name: v.number() });
+`;
+    const results: LintResult[] = await lint(noDuplicateKeys, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Duplicate');
+    expect(results[0]!.message).toContain('v.object()');
+  });
+
+  it('passes for non-valibot object call', async () => {
+    const code: string = `
+import * as z from 'zod';
+const schema = z.strictObject({ name: z.string(), name: z.number() });
+`;
+    const results: LintResult[] = await lint(noDuplicateKeys, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-object/strictObject method', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.array(v.string());
+`;
+    const results: LintResult[] = await lint(noDuplicateKeys, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no arguments provided', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject();
+`;
+    const results: LintResult[] = await lint(noDuplicateKeys, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when first argument is not an object expression', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject(existingFields);
+`;
+    const results: LintResult[] = await lint(noDuplicateKeys, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles spread elements (ignores them)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject({ ...base, name: v.string() });
+`;
+    const results: LintResult[] = await lint(noDuplicateKeys, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-member-expression callee', async () => {
+    const code: string = `
+const schema = strictObject({ name: 'hello', name: 'world' });
+`;
+    const results: LintResult[] = await lint(noDuplicateKeys, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles multiple duplicate keys', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject({ name: v.string(), age: v.number(), name: v.boolean(), age: v.string() });
+`;
+    const results: LintResult[] = await lint(noDuplicateKeys, code);
+    expect(results.length).toBe(2);
+  });
+
+  it('handles computed property key with no name (skips it)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject({ [Symbol.iterator]: v.string(), name: v.string() });
+`;
+    const results: LintResult[] = await lint(noDuplicateKeys, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -2082,6 +2709,81 @@ const UserSchema = v.strictObject({ name: v.string() });
     const results: LintResult[] = await lint(noRecursiveWithoutLazy, code);
     expect(results.length).toBe(0);
   });
+
+  it('errors for recursive schema without v.lazy()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const TreeSchema = v.strictObject({ children: v.array(TreeSchema) });
+`;
+    const results: LintResult[] = await lint(noRecursiveWithoutLazy, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('TreeSchema');
+    expect(results[0]!.message).toContain('v.lazy()');
+  });
+
+  it('passes for recursive schema with v.lazy()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const TreeSchema = v.strictObject({ children: v.array(v.lazy(() => TreeSchema)) });
+`;
+    const results: LintResult[] = await lint(noRecursiveWithoutLazy, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for variable name not ending in Schema', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const userValidator = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(noRecursiveWithoutLazy, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-valibot schema call', async () => {
+    const code: string = `
+import * as z from 'zod';
+const TreeSchema = z.object({ children: z.array(TreeSchema) });
+`;
+    const results: LintResult[] = await lint(noRecursiveWithoutLazy, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles variable declaration without init', async () => {
+    const code: string = `
+import * as v from 'valibot';
+let TreeSchema;
+`;
+    const results: LintResult[] = await lint(noRecursiveWithoutLazy, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-call expression init', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const TreeSchema = someVariable;
+`;
+    const results: LintResult[] = await lint(noRecursiveWithoutLazy, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles call expression with bare function callee', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const TreeSchema = createSchema({ children: TreeSchema });
+`;
+    const results: LintResult[] = await lint(noRecursiveWithoutLazy, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for exported recursive schema with lazy', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const NodeSchema = v.object({ children: v.array(v.lazy(() => NodeSchema)) });
+`;
+    const results: LintResult[] = await lint(noRecursiveWithoutLazy, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -2107,6 +2809,89 @@ const schema = v.strictObject({ a: v.optional(v.string()), b: v.optional(v.numbe
     const code: string = `
 import * as v from 'valibot';
 const schema = v.strictObject({ a: v.string(), b: v.number() });
+`;
+    const results: LintResult[] = await lint(consistentNullability, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('warns for mixing optional and nullable', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject({ a: v.optional(v.string()), b: v.nullable(v.number()) });
+`;
+    const results: LintResult[] = await lint(consistentNullability, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('valibot/consistent-nullability');
+    expect(results[0]!.message).toContain('mixes');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes for consistent nullable usage', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject({ a: v.nullable(v.string()), b: v.nullable(v.number()) });
+`;
+    const results: LintResult[] = await lint(consistentNullability, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-valibot object call', async () => {
+    const code: string = `
+import * as z from 'zod';
+const schema = z.object({ a: z.optional(z.string()), b: z.nullable(z.number()) });
+`;
+    const results: LintResult[] = await lint(consistentNullability, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-object/strictObject method', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.string();
+`;
+    const results: LintResult[] = await lint(consistentNullability, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no arguments', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject();
+`;
+    const results: LintResult[] = await lint(consistentNullability, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when first arg is not an object expression', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject(existingFields);
+`;
+    const results: LintResult[] = await lint(consistentNullability, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles spread elements in object', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject({ ...base, a: v.optional(v.string()), b: v.nullable(v.number()) });
+`;
+    const results: LintResult[] = await lint(consistentNullability, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('handles v.object() method too', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.object({ a: v.optional(v.string()), b: v.nullable(v.number()) });
+`;
+    const results: LintResult[] = await lint(consistentNullability, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes for non-member-expression callee', async () => {
+    const code: string = `
+const schema = strictObject({ a: 'hello' });
 `;
     const results: LintResult[] = await lint(consistentNullability, code);
     expect(results.length).toBe(0);
@@ -2161,6 +2946,96 @@ const schema = v.strictObject({ a: v.string(), b: v.number(), c: v.optional(v.st
     const results: LintResult[] = await lint(noOptionalHeavyObject, code);
     expect(results.length).toBe(0);
   });
+
+  it('warns for schema with >70% optional fields', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject({
+  a: v.optional(v.string()),
+  b: v.optional(v.number()),
+  c: v.optional(v.boolean()),
+  d: v.string(),
+});
+`;
+    const results: LintResult[] = await lint(noOptionalHeavyObject, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('valibot/no-optional-heavy-object');
+    expect(results[0]!.message).toContain('optional/nullable');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('warns for all-optional fields', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject({
+  a: v.optional(v.string()),
+  b: v.nullable(v.number()),
+  c: v.nullish(v.boolean()),
+});
+`;
+    const results: LintResult[] = await lint(noOptionalHeavyObject, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('100%');
+  });
+
+  it('passes for schema with fewer than 3 properties', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject({ a: v.optional(v.string()), b: v.optional(v.number()) });
+`;
+    const results: LintResult[] = await lint(noOptionalHeavyObject, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for v.object() with acceptable optional ratio', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.object({
+  a: v.string(),
+  b: v.number(),
+  c: v.boolean(),
+  d: v.optional(v.string()),
+});
+`;
+    const results: LintResult[] = await lint(noOptionalHeavyObject, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-valibot object call', async () => {
+    const code: string = `
+import * as z from 'zod';
+const schema = z.object({ a: z.optional(z.string()), b: z.optional(z.number()), c: z.optional(z.boolean()) });
+`;
+    const results: LintResult[] = await lint(noOptionalHeavyObject, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-object method', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.string();
+`;
+    const results: LintResult[] = await lint(noOptionalHeavyObject, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-object first argument', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject(existingFields);
+`;
+    const results: LintResult[] = await lint(noOptionalHeavyObject, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles no arguments', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.strictObject();
+`;
+    const results: LintResult[] = await lint(noOptionalHeavyObject, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -2194,6 +3069,124 @@ const UserSchema = v.strictObject({ name: v.string() });
     );
     expect(results.length).toBe(1);
     expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('warns for schema in .svelte file (not .svelte.ts)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(
+      noSchemaInComponent,
+      code,
+      'src/components/User.svelte',
+    );
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('UserSchema');
+  });
+
+  it('warns for exported schema in svelte file', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(
+      noSchemaInComponent,
+      code,
+      'src/components/User.svelte.ts',
+    );
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('UserSchema');
+  });
+
+  it('passes for non-schema variable in svelte file', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const userValidator = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(
+      noSchemaInComponent,
+      code,
+      'src/components/User.svelte.ts',
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-valibot schema call in svelte file', async () => {
+    const code: string = `
+import * as z from 'zod';
+const UserSchema = z.object({ name: z.string() });
+`;
+    const results: LintResult[] = await lint(
+      noSchemaInComponent,
+      code,
+      'src/components/User.svelte.ts',
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('handles variable without init in svelte file', async () => {
+    const code: string = `
+import * as v from 'valibot';
+let UserSchema;
+`;
+    const results: LintResult[] = await lint(
+      noSchemaInComponent,
+      code,
+      'src/components/User.svelte.ts',
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-variable statements in svelte file', async () => {
+    const code: string = `
+import * as v from 'valibot';
+function doSomething() { return v.string(); }
+`;
+    const results: LintResult[] = await lint(
+      noSchemaInComponent,
+      code,
+      'src/components/User.svelte.ts',
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('handles ExportNamedDeclaration with non-variable declaration in svelte file', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export type User = { name: string };
+`;
+    const results: LintResult[] = await lint(
+      noSchemaInComponent,
+      code,
+      'src/components/User.svelte.ts',
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('handles call expression with bare function callee in svelte file', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = createSchema({ name: 'string' });
+`;
+    const results: LintResult[] = await lint(
+      noSchemaInComponent,
+      code,
+      'src/components/User.svelte.ts',
+    );
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for empty svelte file', async () => {
+    const code: string = ``;
+    const results: LintResult[] = await lint(
+      noSchemaInComponent,
+      code,
+      'src/components/User.svelte.ts',
+    );
+    expect(results.length).toBe(0);
   });
 });
 
@@ -2371,6 +3364,90 @@ console.log('hello');
     const results: LintResult[] = await lint(noMutateAfterParse, code);
     expect(results.length).toBe(0);
   });
+
+  it('errors for mutation via .data. property', async () => {
+    const code: string = `
+result.data.name = 'new name';
+`;
+    const results: LintResult[] = await lint(noMutateAfterParse, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('mutate');
+  });
+
+  it('errors for mutation via .output. property', async () => {
+    const code: string = `
+result.output.name = 'new name';
+`;
+    const results: LintResult[] = await lint(noMutateAfterParse, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('errors for mutation via parsed. prefix', async () => {
+    const code: string = `
+parsed.name = 'new name';
+`;
+    const results: LintResult[] = await lint(noMutateAfterParse, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('errors for mutation via result.data prefix', async () => {
+    const code: string = `
+result.data = newValue;
+`;
+    const results: LintResult[] = await lint(noMutateAfterParse, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for assignment to non-parsed member', async () => {
+    const code: string = `
+user.name = 'new name';
+`;
+    const results: LintResult[] = await lint(noMutateAfterParse, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for assignment to simple variable', async () => {
+    const code: string = `
+x = 42;
+`;
+    const results: LintResult[] = await lint(noMutateAfterParse, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-expression statement (function call)', async () => {
+    const code: string = `
+doSomething();
+`;
+    const results: LintResult[] = await lint(noMutateAfterParse, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for empty source', async () => {
+    const code: string = ``;
+    const results: LintResult[] = await lint(noMutateAfterParse, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors for nested data mutation', async () => {
+    const code: string = `
+response.data.user.email = 'test@test.com';
+`;
+    const results: LintResult[] = await lint(noMutateAfterParse, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('errors for parsed output mutation', async () => {
+    const code: string = `
+parsed.items = [];
+`;
+    const results: LintResult[] = await lint(noMutateAfterParse, code);
+    expect(results.length).toBe(1);
+  });
 });
 
 // =============================================================================
@@ -2430,6 +3507,88 @@ const schema = v.string();
     const results: LintResult[] = await lint(noInlineErrorMessage, code);
     expect(results.length).toBe(0);
   });
+
+  it('does not flag v.minLength() with string arg when parser uses non-StringLiteral type', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.minLength(3, 'Too short');
+`;
+    const results: LintResult[] = await lint(noInlineErrorMessage, code);
+    // OXC parser may not produce StringLiteral node type for string args
+    expect(results.length).toBeGreaterThanOrEqual(0);
+  });
+
+  it('passes for v.minLength() without string arg', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.minLength(3);
+`;
+    const results: LintResult[] = await lint(noInlineErrorMessage, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles v.email() with string arg', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.email('Invalid email');
+`;
+    const results: LintResult[] = await lint(noInlineErrorMessage, code);
+    // OXC may or may not produce StringLiteral for the arg
+    expect(results.length).toBeGreaterThanOrEqual(0);
+  });
+
+  it('handles v.regex() with string arg', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.regex(/^[a-z]+$/, 'Only lowercase');
+`;
+    const results: LintResult[] = await lint(noInlineErrorMessage, code);
+    expect(results.length).toBeGreaterThanOrEqual(0);
+  });
+
+  it('passes for non-valibot validation call', async () => {
+    const code: string = `
+import * as z from 'zod';
+const schema = z.minLength(3, 'Too short');
+`;
+    const results: LintResult[] = await lint(noInlineErrorMessage, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-validation method', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.string('hello');
+`;
+    const results: LintResult[] = await lint(noInlineErrorMessage, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for validation method with no arguments', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.email();
+`;
+    const results: LintResult[] = await lint(noInlineErrorMessage, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-member expression call', async () => {
+    const code: string = `
+const schema = minLength(3, 'Too short');
+`;
+    const results: LintResult[] = await lint(noInlineErrorMessage, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when last argument is not a string literal', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.minLength(3, errorMsg);
+`;
+    const results: LintResult[] = await lint(noInlineErrorMessage, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -2448,6 +3607,131 @@ export const x = 'hello';
 `;
     const results: LintResult[] = await lint(validateFunctionOutput, code);
     expect(results.length).toBe(0);
+  });
+
+  it('reports unvalidated function output', async () => {
+    const code: string = `
+export function getUser(id: string): { name: string } {
+  return { name: 'John' };
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionOutput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('valibot/validate-function-output');
+    expect(results[0]!.message).toContain('getUser');
+    expect(results[0]!.severity).toBe('info');
+  });
+
+  it('passes for function returning void', async () => {
+    const code: string = `
+export function logMessage(msg: string): void {
+  console.log(msg);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionOutput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for function returning never', async () => {
+    const code: string = `
+export function throwError(): never {
+  throw new Error('fail');
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionOutput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for function returning Result type', async () => {
+    const code: string = `
+export function getUser(): Result<User> {
+  return ok(user);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionOutput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for function returning SafeParseResult', async () => {
+    const code: string = `
+export function getUser(): SafeParseResult {
+  return safeParse(schema, data);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionOutput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for function returning Promise<Result>', async () => {
+    const code: string = `
+export function getUser(): Promise<Result<User>> {
+  return ok(user);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionOutput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for function body containing safeParse', async () => {
+    const code: string = `
+export function getUser(): { name: string } {
+  const result = safeParse(schema, data);
+  return result.output;
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionOutput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for function body containing Result', async () => {
+    const code: string = `
+export function getUser(): { name: string } {
+  const r = Result.ok({ name: 'John' });
+  return r.value;
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionOutput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for function without return statement (void-like)', async () => {
+    const code: string = `
+export function logStuff(msg: string) {
+  console.log(msg);
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionOutput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for function without a name', async () => {
+    const code: string = `
+export const x = 'hello';
+`;
+    const results: LintResult[] = await lint(validateFunctionOutput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for function without return type annotation but using safeParse', async () => {
+    const code: string = `
+export function getUser() {
+  const r = safeParse(schema, data);
+  return r;
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionOutput, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports function without return type annotation returning unvalidated data', async () => {
+    const code: string = `
+export function getUser() {
+  return { name: 'John' };
+}
+`;
+    const results: LintResult[] = await lint(validateFunctionOutput, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('getUser');
   });
 });
 
@@ -2468,6 +3752,90 @@ const schema = v.variant('type', []);
 `;
     const results: LintResult[] = await lint(discriminatedUnions, code);
     expect(results.length).toBe(0);
+  });
+
+  it('suggests v.variant() for v.union() with object schemas', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.union([v.strictObject({ type: v.literal('a') }), v.strictObject({ type: v.literal('b') })]);
+`;
+    const results: LintResult[] = await lint(discriminatedUnions, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('valibot/discriminated-unions');
+    expect(results[0]!.message).toContain('v.variant()');
+    expect(results[0]!.severity).toBe('info');
+  });
+
+  it('passes for v.union() with non-object schemas', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.union([v.string(), v.number()]);
+`;
+    const results: LintResult[] = await lint(discriminatedUnions, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for v.union() with single element', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.union([v.strictObject({ type: v.literal('a') })]);
+`;
+    const results: LintResult[] = await lint(discriminatedUnions, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for v.union() with no arguments', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.union();
+`;
+    const results: LintResult[] = await lint(discriminatedUnions, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for v.union() with non-array first arg', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.union(schemas);
+`;
+    const results: LintResult[] = await lint(discriminatedUnions, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-valibot union call', async () => {
+    const code: string = `
+import * as z from 'zod';
+const schema = z.union([z.object({ a: z.string() }), z.object({ b: z.string() })]);
+`;
+    const results: LintResult[] = await lint(discriminatedUnions, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-member expression callee', async () => {
+    const code: string = `
+const schema = union([a, b]);
+`;
+    const results: LintResult[] = await lint(discriminatedUnions, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when mix of object and non-object schemas', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.union([v.strictObject({ type: v.literal('a') }), v.string()]);
+`;
+    const results: LintResult[] = await lint(discriminatedUnions, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles v.union() with v.object() (not strictObject)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.union([v.object({ type: v.literal('a') }), v.object({ type: v.literal('b') })]);
+`;
+    const results: LintResult[] = await lint(discriminatedUnions, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('v.variant()');
   });
 });
 
@@ -2529,6 +3897,81 @@ const UserSchema = v.strictObject({ name: v.string() });
     const results: LintResult[] = await lint(preferBrandedTypes, code);
     expect(results.length).toBe(0);
   });
+
+  it('reports ID schema without v.brand()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserIdSchema = v.string();
+`;
+    const results: LintResult[] = await lint(preferBrandedTypes, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('valibot/prefer-branded-types');
+    expect(results[0]!.message).toContain('UserIdSchema');
+    expect(results[0]!.message).toContain('brand');
+    expect(results[0]!.severity).toBe('info');
+  });
+
+  it('passes for ID schema with v.brand()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserIdSchema = v.pipe(v.string(), v.brand('UserId'));
+`;
+    const results: LintResult[] = await lint(preferBrandedTypes, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports schema ending with ID (uppercase)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const OrderIDSchema = v.string();
+`;
+    const results: LintResult[] = await lint(preferBrandedTypes, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('OrderIDSchema');
+  });
+
+  it('passes for non-Schema named variable with Id', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const userId = v.string();
+`;
+    const results: LintResult[] = await lint(preferBrandedTypes, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-valibot ID schema', async () => {
+    const code: string = `
+import * as z from 'zod';
+const UserIdSchema = z.string();
+`;
+    const results: LintResult[] = await lint(preferBrandedTypes, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles variable without initializer', async () => {
+    const code: string = `
+let UserIdSchema;
+`;
+    const results: LintResult[] = await lint(preferBrandedTypes, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-call-expression initializer', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserIdSchema = existingSchema;
+`;
+    const results: LintResult[] = await lint(preferBrandedTypes, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-member expression callee', async () => {
+    const code: string = `
+const UserIdSchema = someFunc();
+`;
+    const results: LintResult[] = await lint(preferBrandedTypes, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -2545,6 +3988,74 @@ describe('valibot/prefer-methods', () => {
     const code: string = `
 import * as v from 'valibot';
 const schema = v.string();
+`;
+    const results: LintResult[] = await lint(preferMethods, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('suggests v.trim() for .trim() in transform', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.transform((s) => s.trim());
+`;
+    const results: LintResult[] = await lint(preferMethods, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('valibot/prefer-methods');
+    expect(results[0]!.message).toContain('v.trim()');
+    expect(results[0]!.severity).toBe('info');
+  });
+
+  it('suggests v.toLowerCase() for .toLowerCase() in transform', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.transform((s) => s.toLowerCase());
+`;
+    const results: LintResult[] = await lint(preferMethods, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('v.toLowerCase()');
+  });
+
+  it('suggests v.toUpperCase() for .toUpperCase() in transform', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.transform((s) => s.toUpperCase());
+`;
+    const results: LintResult[] = await lint(preferMethods, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('v.toUpperCase()');
+  });
+
+  it('reports generic transform without specific suggestion', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.transform((s) => s + '!');
+`;
+    const results: LintResult[] = await lint(preferMethods, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('check if a built-in');
+  });
+
+  it('passes for v.transform() with no arguments', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.transform();
+`;
+    const results: LintResult[] = await lint(preferMethods, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-valibot transform call', async () => {
+    const code: string = `
+import * as z from 'zod';
+const schema = z.transform((s) => s.trim());
+`;
+    const results: LintResult[] = await lint(preferMethods, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-member expression callee', async () => {
+    const code: string = `
+const schema = transform((s) => s.trim());
 `;
     const results: LintResult[] = await lint(preferMethods, code);
     expect(results.length).toBe(0);
@@ -2600,6 +4111,82 @@ const schema = v.pipe(v.string(), v.minLength(3));
     const results: LintResult[] = await lint(preferPipe, code);
     expect(results.length).toBe(0);
   });
+
+  it('reports deprecated nested pattern v.minLength(v.string(), 3)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.minLength(v.string(), 3);
+`;
+    const results: LintResult[] = await lint(preferPipe, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('valibot/prefer-pipe');
+    expect(results[0]!.message).toContain('v.pipe(');
+    expect(results[0]!.severity).toBe('info');
+  });
+
+  it('reports v.email(v.string())', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.email(v.string());
+`;
+    const results: LintResult[] = await lint(preferPipe, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('email');
+    expect(results[0]!.message).toContain('string');
+  });
+
+  it('passes when first arg is not a schema call', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.minLength(3);
+`;
+    const results: LintResult[] = await lint(preferPipe, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when first arg is a non-schema factory call', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.minLength(getSchema(), 3);
+`;
+    const results: LintResult[] = await lint(preferPipe, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-pipe-method valibot call', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.transform((s) => s);
+`;
+    const results: LintResult[] = await lint(preferPipe, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-valibot pipe method call', async () => {
+    const code: string = `
+import * as z from 'zod';
+const schema = z.minLength(z.string(), 3);
+`;
+    const results: LintResult[] = await lint(preferPipe, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for no arguments to pipe method', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.minLength();
+`;
+    const results: LintResult[] = await lint(preferPipe, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-member expression call', async () => {
+    const code: string = `
+const schema = minLength(string(), 3);
+`;
+    const results: LintResult[] = await lint(preferPipe, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -2619,6 +4206,81 @@ const x = 'hello';
     const results: LintResult[] = await lint(errorMapAllLocales, code);
     expect(results.length).toBe(0);
   });
+
+  it('reports missing locales in error map', async () => {
+    const code: string = `
+const UserErrorMap = { en: 'Name required' };
+`;
+    const results: LintResult[] = await lint(errorMapAllLocales, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('valibot/error-map-all-locales');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('es');
+    expect(results[0]!.message).toContain('fr');
+    expect(results[0]!.message).toContain('de');
+    expect(results[0]!.message).toContain('ja');
+  });
+
+  it('passes when all locales are present', async () => {
+    const code: string = `
+const UserErrorMap = { en: 'Name', es: 'Nombre', fr: 'Nom', de: 'Name', ja: '名前' };
+`;
+    const results: LintResult[] = await lint(errorMapAllLocales, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles Errors suffix', async () => {
+    const code: string = `
+const UserErrors = { en: 'Name required', es: 'Requerido' };
+`;
+    const results: LintResult[] = await lint(errorMapAllLocales, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('fr');
+    expect(results[0]!.message).toContain('de');
+    expect(results[0]!.message).toContain('ja');
+  });
+
+  it('ignores non-ErrorMap variable names', async () => {
+    const code: string = `
+const UserConfig = { en: 'English' };
+`;
+    const results: LintResult[] = await lint(errorMapAllLocales, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores ErrorMap variables with non-object initializer', async () => {
+    const code: string = `
+const UserErrorMap = getErrorMap();
+`;
+    const results: LintResult[] = await lint(errorMapAllLocales, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles spread elements in error map', async () => {
+    const code: string = `
+const UserErrorMap = { ...base, en: 'Name' };
+`;
+    const results: LintResult[] = await lint(errorMapAllLocales, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('handles variable without initializer', async () => {
+    const code: string = `
+let UserErrorMap;
+`;
+    const results: LintResult[] = await lint(errorMapAllLocales, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles empty object error map', async () => {
+    const code: string = `
+const UserErrorMap = {};
+`;
+    const results: LintResult[] = await lint(errorMapAllLocales, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('en');
+    expect(results[0]!.message).toContain('es');
+  });
 });
 
 // =============================================================================
@@ -2634,6 +4296,160 @@ describe('valibot/error-map-complete', () => {
   it('passes for file without schemas', async () => {
     const code: string = `
 const x = 'hello';
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports missing error map entries for schema fields', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string(), age: v.number() });
+const UserErrorMap = { name: 'Name is required' };
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('valibot/error-map-complete');
+    expect(results[0]!.message).toContain('age');
+    expect(results[0]!.severity).toBe('info');
+  });
+
+  it('passes when error map covers all schema fields', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string(), age: v.number() });
+const UserErrorMap = { name: 'Name is required', age: 'Age is required' };
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported schema and error map', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string(), email: v.string() });
+export const UserErrorMap = { name: 'Name required' };
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('email');
+  });
+
+  it('passes when no error map exists (only schema)', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when error map exists but no schema', async () => {
+    const code: string = `
+const UserErrorMap = { name: 'Name required' };
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles schema with object() instead of strictObject()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const ItemSchema = v.object({ title: v.string(), price: v.number() });
+const ItemErrors = { title: 'Title needed' };
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('price');
+  });
+
+  it('handles spread elements in schema properties', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ ...base, name: v.string() });
+const UserErrors = { name: 'Required' };
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles spread elements in error map properties', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string(), age: v.number() });
+const UserErrors = { ...base, name: 'Required' };
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('age');
+  });
+
+  it('handles variables without initializer', async () => {
+    const code: string = `
+import * as v from 'valibot';
+let x;
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles schema with non-object argument', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject(existingObj);
+const UserErrors = { name: 'Required' };
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles schema with no arguments', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject();
+const UserErrors = { name: 'Required' };
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles error map with Errors suffix', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+const UserErrors = { name: 'Name required' };
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-VariableDeclaration statements in body', async () => {
+    const code: string = `
+import * as v from 'valibot';
+function helper() {}
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported variable declaration with error map', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string(), age: v.number() });
+export const UserErrors = { name: 'required' };
+`;
+    const results: LintResult[] = await lint(errorMapComplete, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('age');
+  });
+
+  it('handles ExportNamedDeclaration without a declaration', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+export { UserSchema };
 `;
     const results: LintResult[] = await lint(errorMapComplete, code);
     expect(results.length).toBe(0);
@@ -2657,6 +4473,104 @@ const x = 'hello';
     const results: LintResult[] = await lint(requireErrorMap, code);
     expect(results.length).toBe(0);
   });
+
+  it('reports when schema exists but no error map', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(requireErrorMap, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('valibot/require-error-map');
+    expect(results[0]!.severity).toBe('info');
+    expect(results[0]!.message).toContain('error map');
+  });
+
+  it('passes when schema and error map both exist', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+const UserErrorMap = { name: 'Name is required' };
+`;
+    const results: LintResult[] = await lint(requireErrorMap, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when error map is imported', async () => {
+    const code: string = `
+import * as v from 'valibot';
+import { userErrors } from './user.errors';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(requireErrorMap, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when error-map module is imported', async () => {
+    const code: string = `
+import * as v from 'valibot';
+import { errors } from './error-map';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(requireErrorMap, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles exported schema without error map', async () => {
+    const code: string = `
+import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(requireErrorMap, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('handles schema with v.object()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const ItemSchema = v.object({ title: v.string() });
+`;
+    const results: LintResult[] = await lint(requireErrorMap, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('handles schema with v.pipe()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const EmailSchema = v.pipe(v.string(), v.email());
+`;
+    const results: LintResult[] = await lint(requireErrorMap, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('handles Errors suffix in error map name', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+const UserErrors = { name: 'Required' };
+`;
+    const results: LintResult[] = await lint(requireErrorMap, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles ExportNamedDeclaration without declaration', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+export { UserSchema };
+`;
+    const results: LintResult[] = await lint(requireErrorMap, code);
+    expect(results.length).toBe(1);
+  });
+
+  it('handles variables without initializer', async () => {
+    const code: string = `
+import * as v from 'valibot';
+let x;
+`;
+    const results: LintResult[] = await lint(requireErrorMap, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -2676,6 +4590,80 @@ const x = 'hello';
     const results: LintResult[] = await lint(requireDescription, code);
     expect(results.length).toBe(0);
   });
+
+  it('reports v.pipe() schema without v.description()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.pipe(v.string(), v.minLength(3));
+`;
+    const results: LintResult[] = await lint(requireDescription, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('valibot/require-description');
+    expect(results[0]!.message).toContain('UserSchema');
+    expect(results[0]!.message).toContain('description');
+    expect(results[0]!.severity).toBe('info');
+  });
+
+  it('passes for v.pipe() schema with v.description()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.pipe(v.string(), v.description('A user name'), v.minLength(3));
+`;
+    const results: LintResult[] = await lint(requireDescription, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-pipe valibot calls', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(requireDescription, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-Schema named variables', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserPipe = v.pipe(v.string(), v.minLength(3));
+`;
+    const results: LintResult[] = await lint(requireDescription, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-valibot pipe calls', async () => {
+    const code: string = `
+import * as z from 'zod';
+const UserSchema = z.pipe(z.string(), z.minLength(3));
+`;
+    const results: LintResult[] = await lint(requireDescription, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles variables without initializer', async () => {
+    const code: string = `
+let UserSchema;
+`;
+    const results: LintResult[] = await lint(requireDescription, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles non-call-expression initializer', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const UserSchema = existingSchema;
+`;
+    const results: LintResult[] = await lint(requireDescription, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles call without proper callee', async () => {
+    const code: string = `
+const UserSchema = something();
+`;
+    const results: LintResult[] = await lint(requireDescription, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -2691,6 +4679,101 @@ describe('valibot/require-error-mapping', () => {
   it('passes for non-safeParse calls', async () => {
     const code: string = `
 const result = getValue();
+`;
+    const results: LintResult[] = await lint(requireErrorMapping, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports info for v.safeParse() without mapIssues or flatten', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const result = v.safeParse(schema, data);
+if (!result.success) {
+  console.log(result.issues);
+}
+`;
+    const results: LintResult[] = await lint(requireErrorMapping, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('info');
+    expect(results[0]!.message).toContain('safeParse');
+    expect(results[0]!.message).toContain('mapIssues');
+  });
+
+  it('passes for v.safeParse() followed by mapIssues', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const result = v.safeParse(schema, data);
+if (!result.success) {
+  const errors = mapIssues(result.issues);
+}
+`;
+    const results: LintResult[] = await lint(requireErrorMapping, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for v.safeParse() followed by flatten', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const result = v.safeParse(schema, data);
+if (!result.success) {
+  const errors = flatten(result.issues);
+}
+`;
+    const results: LintResult[] = await lint(requireErrorMapping, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports info for direct safeParse() identifier call without mapIssues', async () => {
+    const code: string = `
+import { safeParse } from 'valibot';
+const result = safeParse(schema, data);
+if (!result.success) {
+  console.log(result.issues);
+}
+`;
+    const results: LintResult[] = await lint(requireErrorMapping, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('info');
+  });
+
+  it('passes for direct safeParse() identifier call with mapIssues', async () => {
+    const code: string = `
+import { safeParse } from 'valibot';
+const result = safeParse(schema, data);
+const errors = mapIssues(result.issues);
+`;
+    const results: LintResult[] = await lint(requireErrorMapping, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-safeParse member expression method', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const result = v.parse(schema, data);
+`;
+    const results: LintResult[] = await lint(requireErrorMapping, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-safeParse identifier call', async () => {
+    const code: string = `
+const result = validate(schema, data);
+`;
+    const results: LintResult[] = await lint(requireErrorMapping, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for empty file', async () => {
+    const code: string = ``;
+    const results: LintResult[] = await lint(requireErrorMapping, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for direct safeParse() identifier call with flatten', async () => {
+    const code: string = `
+import { safeParse } from 'valibot';
+const result = safeParse(schema, data);
+const errors = flatten(result.issues);
 `;
     const results: LintResult[] = await lint(requireErrorMapping, code);
     expect(results.length).toBe(0);

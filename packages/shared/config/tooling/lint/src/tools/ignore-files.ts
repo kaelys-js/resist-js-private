@@ -12,6 +12,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 
 /**
  * Transform ignore-file validator text output into LintResult[].
@@ -65,7 +66,7 @@ export function transformIgnoreFilesOutput(output: string): LintResult[] {
 
     results.push(
       createResult('ignore-file/lint', file, lineNum, 1, severity, message, {
-        tip: 'Remove invalid globs (***), trailing whitespace, and duplicate patterns',
+        tip: en.tools.ignoreFilesTip,
       }),
     );
   }

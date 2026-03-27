@@ -13,6 +13,8 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Valid owner format pattern.
@@ -74,7 +76,7 @@ export function transformCodeownersOutput(output: string): LintResult[] {
 
       results.push(
         createResult('codeowners/syntax', file, lineNum, 1, severity, message, {
-          tip: 'Valid owner formats: @user, @org/team, or user@example.com',
+          tip: en.tools.codeownersValidFormats,
         }),
       );
     }
@@ -108,9 +110,9 @@ export function validateCodeowners(filePath: string, content: string): LintResul
 
   if (trimmed.length === 0) {
     return [
-      createResult('codeowners/syntax', filePath, 1, 1, 'error', 'CODEOWNERS file is empty', {
+      createResult('codeowners/syntax', filePath, 1, 1, 'error', en.tools.codeownersEmpty, {
         example: '*.ts @org/frontend-team',
-        tip: 'Add at least one ownership rule (e.g., "* @org/team").',
+        tip: en.tools.codeownersEmptyTip,
       }),
     ];
   }
@@ -144,9 +146,9 @@ export function validateCodeowners(filePath: string, content: string): LintResul
           i + 1,
           1,
           'warning',
-          'Overly broad pattern: "*" matches all files — consider using more specific patterns',
+          en.tools.codeownersOverlyBroad,
           {
-            tip: 'Use specific path patterns like "src/" or "*.ts" instead of catching everything with "*".',
+            tip: en.tools.codeownersOverlyBroadTip,
           },
         ),
       );
@@ -161,10 +163,10 @@ export function validateCodeowners(filePath: string, content: string): LintResul
           i + 1,
           1,
           'error',
-          `Pattern "${filePattern}" has no owners assigned`,
+          format(en.tools.codeownersNoOwners, { pattern: filePattern }),
           {
             example: `${filePattern} @org/team`,
-            tip: 'Add at least one owner (@user, @org/team, or email) after the file pattern.',
+            tip: en.tools.codeownersNoOwnersTip,
           },
         ),
       );
@@ -181,10 +183,10 @@ export function validateCodeowners(filePath: string, content: string): LintResul
             i + 1,
             1,
             'error',
-            `Invalid owner format: ${owner}`,
+            format(en.tools.codeownersInvalidOwner, { owner }),
             {
               example: '@org/team-name',
-              tip: 'Owners must be @username, @org/team, or user@example.com.',
+              tip: en.tools.codeownersInvalidOwnerTip,
             },
           ),
         );

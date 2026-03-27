@@ -42,7 +42,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 
 ### Task 1.1: Add schema description strings to locale
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `config/schema.ts` has 13 hardcoded English strings in `generateJsonSchema()` that appear as IDE tooltip descriptions for `.resist-lint.jsonc` fields.
 
@@ -75,7 +75,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 
 ### Task 1.2: Add tool tip/message strings to locale — High-count files (9 files, ~47 strings)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 9 tool files with 4+ hardcoded English strings each. Total: ~47 strings across dependabot.ts (7), codeowners.ts (7), github-pr-template.ts (6), crystal.ts (6), github-funding.ts (5), sort-package-json.ts (4), scalafmt.ts (4), github-issue-template.ts (4), fantomas.ts (4).
 
@@ -98,7 +98,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 
 ### Task 1.3: Add tool tip/message strings to locale — Medium-count files (24 files, ~48 strings)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 24 tool files with 2-3 hardcoded English strings each. Total: ~48 strings. Includes shellcheck, hadolint, ruff, sqlfluff, terraform, syncpack, lockfile-lint, ignore-files, gitleaks, gitattributes, htmlhint, dotenv-linter, markdownlint, npmrc, nvmrc, ls-lint, codeowners-checker, hcl, editorconfig, cmake, dhall, erlc, jsonnet, justfile.
 
@@ -116,7 +116,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 
 ### Task 1.4: Add tool tip/message strings to locale — Low-count files (69 files, ~69 strings)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 69 tool files with exactly 1 hardcoded English string each. These are mostly the `createResult()` ruleId prefix or single `tip:` string.
 
@@ -134,7 +134,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 
 ### Task 1.5: Verify zero unlocalized strings remain
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: After tasks 1.1-1.4, verify no hardcoded English strings remain in any @/lint source file (excluding test files, locale files, constants.ts branding).
 
@@ -216,7 +216,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 
 ## TASK 5 — Fix Failing Tests
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 7 tests currently failing across 4 test files:
 1. `schemas-template-literal` (4 failures): pipe introspection tests — UUID regex, integer regex, length constraints, user-provided regex
@@ -236,7 +236,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 
 ## TASK 6 — Get @/lint Test Coverage to Passing Threshold
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: Coverage thresholds are 80% statements, 75% branches, 80% functions, 80% lines. Need to verify @/lint package coverage meets thresholds after fixing failing tests.
 

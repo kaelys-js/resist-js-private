@@ -10,6 +10,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /** Regex to extract filenames from diff output headers: `--- a/filename` or `diff --git a/filename` */
 const DIFF_FILE: RegExp = /^(?:---\s+a\/|diff\s+--git\s+a\/)(.+?)(?:\s|$)/;
@@ -60,9 +62,9 @@ export function transformTerraformOutput(output: string): LintResult[] {
         1,
         1,
         'warning',
-        'File is not properly formatted. Run `terraform fmt` to fix.',
+        format(en.tools.formatNotProperlyFormattedWithFix, { tool: 'terraform fmt' }),
         {
-          tip: 'Run `terraform fmt` to auto-format this file.',
+          tip: format(en.tools.formatRunTool, { tool: 'terraform fmt' }),
         },
       ),
     );
@@ -77,9 +79,9 @@ export function transformTerraformOutput(output: string): LintResult[] {
         1,
         1,
         'warning',
-        'Terraform files need formatting. Run `terraform fmt` to fix.',
+        en.tools.terraformNeedsFormatting,
         {
-          tip: 'Run `terraform fmt` to auto-format Terraform files.',
+          tip: en.tools.terraformNeedsFormattingTip,
         },
       ),
     );

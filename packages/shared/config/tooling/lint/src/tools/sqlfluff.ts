@@ -9,6 +9,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Transform SQLFluff JSON output into LintResult[].
@@ -47,7 +49,9 @@ export function transformSqlfluffOutput(output: string): LintResult[] {
 
       results.push(
         createResult(`sqlfluff/${code}`, file, line, column, 'warning', description, {
-          tip: `See https://docs.sqlfluff.com/en/stable/rules.html#rule-${code}`,
+          tip: format(en.tools.toolSeeDocsAt, {
+            url: `https://docs.sqlfluff.com/en/stable/rules.html#rule-${code}`,
+          }),
         }),
       );
     }

@@ -9,6 +9,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * A single Gitleaks JSON output entry.
@@ -100,13 +102,13 @@ export function transformGitleaksOutput(output: string): LintResult[] {
     const maskedSecret: string =
       secret.length > 4 ? `${secret.slice(0, 2)}***${secret.slice(-2)}` : '***';
 
-    const message: string = `${description}: secret detected (${maskedSecret})`;
+    const message: string = format(en.tools.gitleaksMessage, { description, secret: maskedSecret });
 
     results.push(
       createResult(`gitleaks/${ruleID}`, file, startLine, startColumn, 'error', message, {
         endColumn: endColumn ?? undefined,
         endLine: endLine ?? undefined,
-        tip: 'Remove the secret and rotate the credential immediately',
+        tip: en.tools.gitleaksTip,
       }),
     );
   }

@@ -11,6 +11,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 
 /**
  * Transform gitattributes validator text output into LintResult[].
@@ -66,7 +67,7 @@ export function transformGitattributesOutput(output: string): LintResult[] {
     results.push(
       createResult('gitattributes/syntax', file, lineNum, 1, severity, message, {
         example: '*.ts text eol=lf diff=typescript',
-        tip: 'Ensure each line has a valid pattern followed by valid, non-conflicting attributes',
+        tip: en.tools.gitattributesTip,
       }),
     );
   }

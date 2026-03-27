@@ -10,6 +10,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * A single violation entry from dependency-cruiser JSON output.
@@ -101,9 +103,9 @@ export function transformDependencyCruiserOutput(output: string): LintResult[] {
         1,
         1,
         mapSeverity(severity),
-        `Dependency violation: ${from} \u2192 ${to} (${ruleName})`,
+        format(en.tools.dependencyCruiserMessage, { from, to, rule: ruleName }),
         {
-          tip: 'Review dependency rules and restructure imports',
+          tip: en.tools.dependencyCruiserTip,
         },
       ),
     );

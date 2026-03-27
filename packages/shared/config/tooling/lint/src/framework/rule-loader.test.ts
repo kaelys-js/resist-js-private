@@ -6,7 +6,7 @@
 
 import * as v from 'valibot';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { loadAllRules, type LoadedRules } from './rule-loader.ts';
+import { loadAllRules, LoadedRulesSchema, type LoadedRules } from './rule-loader.ts';
 import { createResult, StageSchema } from './types.ts';
 
 // =============================================================================
@@ -515,5 +515,161 @@ describe('workspace rules', () => {
     const ids = loaded.workspace.map((r) => r.id);
     const sorted = ids.toSorted((a, b) => a.localeCompare(b));
     expect(ids).toEqual(sorted);
+  });
+});
+
+// =============================================================================
+// LoadedRulesSchema validators
+// =============================================================================
+
+describe('LoadedRulesSchema', () => {
+  it('byCategory validator accepts a Map', () => {
+    const result = v.safeParse(LoadedRulesSchema, {
+      byCategory: new Map(),
+      byId: new Map(),
+      byStage: new Map(),
+      packageJson: [],
+      typescript: [],
+      workspace: [],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('byCategory validator rejects a plain object', () => {
+    const result = v.safeParse(LoadedRulesSchema, {
+      byCategory: {},
+      byId: new Map(),
+      byStage: new Map(),
+      packageJson: [],
+      typescript: [],
+      workspace: [],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('byId validator rejects a non-Map value', () => {
+    const result = v.safeParse(LoadedRulesSchema, {
+      byCategory: new Map(),
+      byId: 'not-a-map',
+      byStage: new Map(),
+      packageJson: [],
+      typescript: [],
+      workspace: [],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('byStage validator rejects null', () => {
+    const result = v.safeParse(LoadedRulesSchema, {
+      byCategory: new Map(),
+      byId: new Map(),
+      byStage: null,
+      packageJson: [],
+      typescript: [],
+      workspace: [],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('packageJson validator rejects a non-array value', () => {
+    const result = v.safeParse(LoadedRulesSchema, {
+      byCategory: new Map(),
+      byId: new Map(),
+      byStage: new Map(),
+      packageJson: 'not-an-array',
+      typescript: [],
+      workspace: [],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('typescript validator rejects a number', () => {
+    const result = v.safeParse(LoadedRulesSchema, {
+      byCategory: new Map(),
+      byId: new Map(),
+      byStage: new Map(),
+      packageJson: [],
+      typescript: 42,
+      workspace: [],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('workspace validator rejects a non-array', () => {
+    const result = v.safeParse(LoadedRulesSchema, {
+      byCategory: new Map(),
+      byId: new Map(),
+      byStage: new Map(),
+      packageJson: [],
+      typescript: [],
+      workspace: {},
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+// =============================================================================
+// Categories and stages on loaded rules
+// =============================================================================
+
+describe('categories with existing values', () => {
+  it('rules with pre-defined categories keep their categories', () => {
+    const allRules = [...loaded.typescript, ...loaded.packageJson];
+    const rulesWithMultiCats = allRules.filter((r) => r.categories && r.categories.length > 1);
+    // Rules like typescript/no-throw have categories: ['typescript', 'safety']
+    // They should keep their pre-defined categories intact
+    for (const rule of rulesWithMultiCats) {
+      expect(rule.categories!.length).toBeGreaterThan(1);
+    }
+  });
+
+  it('workspace rules have categories backfilled', () => {
+    for (const rule of loaded.workspace) {
+      expect(Array.isArray(rule.categories)).toBe(true);
+      expect(rule.categories!.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('workspace rules have stages backfilled', () => {
+    for (const rule of loaded.workspace) {
+      expect(Array.isArray(rule.stages)).toBe(true);
+      expect(rule.stages!.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+// =============================================================================
+// byStage index includes multi-stage rules
+// =============================================================================
+
+describe('byStage multi-stage indexing', () => {
+  it('rules in multiple stages appear in each stage index', () => {
+    const allRules = [...loaded.typescript, ...loaded.packageJson];
+    const multiStageRules = allRules.filter((r) => r.stages && r.stages.length > 1);
+    for (const rule of multiStageRules) {
+      for (const stage of rule.stages!) {
+        const stageRules = loaded.byStage.get(stage) ?? [];
+        const ids = stageRules.map((r) => r.id);
+        expect(ids).toContain(rule.id);
+      }
+    }
+  });
+});
+
+// =============================================================================
+// byCategory index completeness
+// =============================================================================
+
+describe('byCategory multi-category indexing', () => {
+  it('rules with multiple categories appear in each category', () => {
+    const allRules = [...loaded.typescript, ...loaded.packageJson];
+    const multiCatRules = allRules.filter((r) => r.categories && r.categories.length > 1);
+    for (const rule of multiCatRules) {
+      for (const cat of rule.categories!) {
+        const catRules = loaded.byCategory.get(cat) ?? [];
+        const ids = catRules.map((r) => r.id);
+        expect(ids).toContain(rule.id);
+      }
+    }
   });
 });

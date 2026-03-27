@@ -10,6 +10,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 
 /**
  * A single problem entry from attw JSON output.
@@ -79,7 +80,7 @@ export function transformAttwOutput(output: string): LintResult[] {
         'error',
         `${title} (entrypoint: ${entrypoint})`,
         {
-          tip: 'Review TypeScript types configuration and package exports',
+          tip: en.tools.attwTip,
         },
       ),
     );

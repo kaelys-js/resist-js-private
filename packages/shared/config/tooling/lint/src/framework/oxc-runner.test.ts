@@ -682,3 +682,243 @@ describe('runTypeScriptRules — file extension handling', () => {
     expect(files[0]).toBe('/absolute/path/to/file.ts');
   });
 });
+
+// =============================================================================
+// runTypeScriptRules — source backfill
+// =============================================================================
+
+describe('runTypeScriptRules — source backfill', () => {
+  it('backfills source on results that do not have it', async () => {
+    const rule: TypeScriptRule = {
+      id: 'test/no-source',
+      description: 'Reports without source',
+      patterns: ['**/*.ts'],
+      visitor: {
+        VariableDeclaration(node: AstNode, ctx: VisitorContext): LintResult[] {
+          return [
+            {
+              file: ctx.file,
+              line: node.loc.start.line,
+              column: 1,
+              severity: 'error',
+              message: 'no source provided',
+              ruleId: 'test/no-source',
+              fix: { range: { start: 0, end: 0 }, text: '' },
+            },
+          ];
+        },
+      },
+    };
+
+    const results: LintResult[] = await lint([rule], 'const x: number = 1;');
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.source).toBe('const x: number = 1;');
+  });
+
+  it('does not overwrite source when already provided', async () => {
+    const rule: TypeScriptRule = {
+      id: 'test/has-source',
+      description: 'Reports with source already set',
+      patterns: ['**/*.ts'],
+      visitor: {
+        VariableDeclaration(node: AstNode, ctx: VisitorContext): LintResult[] {
+          return [
+            {
+              file: ctx.file,
+              line: node.loc.start.line,
+              column: 1,
+              severity: 'error',
+              message: 'has source',
+              ruleId: 'test/has-source',
+              source: 'custom source text',
+              fix: { range: { start: 0, end: 0 }, text: '' },
+            },
+          ];
+        },
+      },
+    };
+
+    const results: LintResult[] = await lint([rule], 'const x: number = 1;');
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.source).toBe('custom source text');
+  });
+
+  it('does not backfill source when line is out of range', async () => {
+    const rule: TypeScriptRule = {
+      id: 'test/bad-line',
+      description: 'Reports with out-of-range line',
+      patterns: ['**/*.ts'],
+      visitor: {
+        VariableDeclaration(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          return [
+            {
+              file: ctx.file,
+              line: 999,
+              column: 1,
+              severity: 'error',
+              message: 'bad line',
+              ruleId: 'test/bad-line',
+              fix: { range: { start: 0, end: 0 }, text: '' },
+            },
+          ];
+        },
+      },
+    };
+
+    const results: LintResult[] = await lint([rule], 'const x: number = 1;');
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.source).toBeUndefined();
+  });
+
+  it('does not backfill source when line is 0', async () => {
+    const rule: TypeScriptRule = {
+      id: 'test/zero-line',
+      description: 'Reports with line 0',
+      patterns: ['**/*.ts'],
+      visitor: {
+        VariableDeclaration(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          return [
+            {
+              file: ctx.file,
+              line: 0,
+              column: 1,
+              severity: 'error',
+              message: 'zero line',
+              ruleId: 'test/zero-line',
+              fix: { range: { start: 0, end: 0 }, text: '' },
+            },
+          ];
+        },
+      },
+    };
+
+    const results: LintResult[] = await lint([rule], 'const x: number = 1;');
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.source).toBeUndefined();
+  });
+});
+
+// =============================================================================
+// runTypeScriptRules — ruleOptions
+// =============================================================================
+
+describe('runTypeScriptRules — ruleOptions', () => {
+  it('passes ruleOptions to the visitor context', async () => {
+    let capturedOptions: Record<string, unknown> | undefined;
+    const rule: TypeScriptRule = {
+      id: 'test/options',
+      description: 'Captures rule options',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          capturedOptions = ctx.ruleOptions;
+          return [];
+        },
+      },
+    };
+
+    await runTypeScriptRules('test.ts', 'const x = 1;', [rule], {
+      'test/options': { allowedTargets: ['browser'] },
+    });
+    expect(capturedOptions).toEqual({ allowedTargets: ['browser'] });
+  });
+
+  it('ruleOptions is undefined when not provided for the rule', async () => {
+    let capturedOptions: Record<string, unknown> | undefined = { initial: true };
+    const rule: TypeScriptRule = {
+      id: 'test/no-options',
+      description: 'No options provided',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          capturedOptions = ctx.ruleOptions;
+          return [];
+        },
+      },
+    };
+
+    await runTypeScriptRules('test.ts', 'const x = 1;', [rule], {});
+    expect(capturedOptions).toBeUndefined();
+  });
+
+  it('ruleOptions is undefined when allRuleOptions is not passed', async () => {
+    let capturedOptions: Record<string, unknown> | undefined = { initial: true };
+    const rule: TypeScriptRule = {
+      id: 'test/no-all-options',
+      description: 'No allRuleOptions arg',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          capturedOptions = ctx.ruleOptions;
+          return [];
+        },
+      },
+    };
+
+    await runTypeScriptRules('test.ts', 'const x = 1;', [rule]);
+    expect(capturedOptions).toBeUndefined();
+  });
+});
+
+// =============================================================================
+// runTypeScriptRules — type-only imports
+// =============================================================================
+
+describe('runTypeScriptRules — type-only imports', () => {
+  it('context.imports detects type-only import declarations', async () => {
+    let imports: unknown[] = [];
+    const rule: TypeScriptRule = {
+      id: 'test/type-import',
+      description: 'Checks type-only imports',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          ({ imports } = ctx as unknown as { imports: unknown[] });
+          return [];
+        },
+      },
+    };
+
+    await lint([rule], `import type { Foo } from 'some-module';`);
+    const [imp] = imports as Array<{ source: string; isTypeOnly: boolean }>;
+    expect(imp!.source).toBe('some-module');
+    expect(imp!.isTypeOnly).toBe(true);
+  });
+});
+
+// =============================================================================
+// walkNode — edge cases
+// =============================================================================
+
+describe('walkNode — additional edge cases', () => {
+  it('skips boolean primitives', () => {
+    const visited: string[] = [];
+    walkNode(true, (n) => visited.push(n.type));
+    expect(visited).toEqual([]);
+  });
+
+  it('handles object without type (no callback)', () => {
+    const visited: string[] = [];
+    walkNode({ foo: 'bar' }, (n) => visited.push(n.type));
+    expect(visited).toEqual([]);
+  });
+
+  it('handles arrays containing primitive values', () => {
+    const visited: string[] = [];
+    const node: AstNode = makeNode('Program', {
+      values: [1, 'hello', null, true],
+    });
+    walkNode(node, (n) => visited.push(n.type));
+    expect(visited).toEqual(['Program']);
+  });
+
+  it('handles nested object that is not a node (no type)', () => {
+    const visited: string[] = [];
+    const node: AstNode = makeNode('Program', {
+      meta: { description: 'test', nested: { deep: true } },
+    });
+    walkNode(node, (n) => visited.push(n.type));
+    // Only Program should be visited since meta/nested have no type
+    expect(visited).toEqual(['Program']);
+  });
+});

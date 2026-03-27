@@ -13,6 +13,8 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Required top-level fields in a GitHub issue template YAML file.
@@ -71,7 +73,7 @@ export function transformGithubIssueTemplateOutput(output: string): LintResult[]
 
       results.push(
         createResult('github/issue-template', file, lineNum, 1, 'error', message, {
-          tip: 'Ensure the issue template has valid YAML and includes name, description, and labels fields.',
+          tip: en.tools.issueTemplateTip,
         }),
       );
     }
@@ -101,17 +103,9 @@ export function validateIssueTemplate(filePath: string, content: string): LintRe
   const trimmed: string = content.trim();
   if (trimmed.length === 0) {
     return [
-      createResult(
-        'github/issue-template',
-        filePath,
-        1,
-        1,
-        'error',
-        'Issue template file is empty',
-        {
-          tip: 'Add name, description, and labels fields to the issue template.',
-        },
-      ),
+      createResult('github/issue-template', filePath, 1, 1, 'error', en.tools.issueTemplateEmpty, {
+        tip: en.tools.issueTemplateEmptyTip,
+      }),
     ];
   }
 
@@ -142,10 +136,10 @@ export function validateIssueTemplate(filePath: string, content: string): LintRe
           1,
           1,
           'error',
-          `Missing required field: ${field}`,
+          format(en.tools.issueTemplateMissingField, { field }),
           {
             example: `${field}: <value>`,
-            tip: `Add a '${field}:' field to the top level of the issue template.`,
+            tip: format(en.tools.issueTemplateMissingFieldTip, { field }),
           },
         ),
       );

@@ -13,6 +13,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 
 /**
  * Transform GitHub PR template validation output into LintResult[].
@@ -61,7 +62,7 @@ export function transformGithubPrTemplateOutput(output: string): LintResult[] {
 
       results.push(
         createResult('github/pr-template', file, lineNum, 1, 'warning', message, {
-          tip: 'A good PR template includes a description section and a checklist for reviewers.',
+          tip: en.tools.prTemplateTip,
         }),
       );
     }
@@ -93,9 +94,9 @@ export function validatePrTemplate(filePath: string, content: string): LintResul
 
   if (trimmed.length === 0) {
     return [
-      createResult('github/pr-template', filePath, 1, 1, 'error', 'PR template file is empty', {
+      createResult('github/pr-template', filePath, 1, 1, 'error', en.tools.prTemplateEmpty, {
         example: '## Description\n\n## Checklist\n- [ ] Tests added',
-        tip: 'Add a description section and a review checklist to the PR template.',
+        tip: en.tools.prTemplateEmptyTip,
       }),
     ];
   }
@@ -115,10 +116,10 @@ export function validatePrTemplate(filePath: string, content: string): LintResul
         1,
         1,
         'warning',
-        'PR template is missing a description section',
+        en.tools.prTemplateMissingDescription,
         {
           example: '## Description\n\nBrief summary of changes.',
-          tip: 'Add a "## Description" heading to guide PR authors.',
+          tip: en.tools.prTemplateDescriptionTip,
         },
       ),
     );
@@ -137,10 +138,10 @@ export function validatePrTemplate(filePath: string, content: string): LintResul
         1,
         1,
         'warning',
-        'PR template is missing a review checklist',
+        en.tools.prTemplateMissingChecklist,
         {
           example: '## Checklist\n- [ ] Tests added\n- [ ] Documentation updated',
-          tip: 'Add a checklist section with items like "- [ ] Tests added".',
+          tip: en.tools.prTemplateChecklistTip,
         },
       ),
     );

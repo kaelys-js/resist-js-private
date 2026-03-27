@@ -13,6 +13,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * Regex to capture file paths from dotnet format output.
@@ -68,17 +70,9 @@ export function transformDotnetFormatOutput(output: string): LintResult[] {
       const file: string = match[1] ?? '';
 
       results.push(
-        createResult(
-          'dotnet-format/style',
-          file,
-          1,
-          1,
-          'warning',
-          'File requires formatting changes',
-          {
-            tip: 'Run `dotnet format` to auto-format this file',
-          },
-        ),
+        createResult('dotnet-format/style', file, 1, 1, 'warning', en.tools.formatRequiresChanges, {
+          tip: format(en.tools.formatRunTool, { tool: 'dotnet format' }),
+        }),
       );
     }
   }

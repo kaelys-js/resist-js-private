@@ -201,6 +201,104 @@ const ErrorStringsSchema = v.strictObject({
 
 /** Strings for external tool user-facing messages. */
 const ToolStringsSchema = v.strictObject({
+  /** attw: types configuration tip. */
+  attwTip: v.string(),
+  /** CODEOWNERS: empty file message. */
+  codeownersEmpty: v.string(),
+  /** CODEOWNERS: empty file tip. */
+  codeownersEmptyTip: v.string(),
+  /** CODEOWNERS: invalid owner format message: 'Invalid owner format: {owner}' */
+  codeownersInvalidOwner: v.string(),
+  /** CODEOWNERS: invalid owner format tip. */
+  codeownersInvalidOwnerTip: v.string(),
+  /** CODEOWNERS: pattern has no owners: 'Pattern "{pattern}" has no owners assigned' */
+  codeownersNoOwners: v.string(),
+  /** CODEOWNERS: no owners tip. */
+  codeownersNoOwnersTip: v.string(),
+  /** CODEOWNERS: overly broad wildcard pattern message. */
+  codeownersOverlyBroad: v.string(),
+  /** CODEOWNERS: overly broad pattern tip. */
+  codeownersOverlyBroadTip: v.string(),
+  /** codeowners-checker: validate tip. */
+  codeownersCheckerTip: v.string(),
+  /** CODEOWNERS: valid owner formats tip. */
+  codeownersValidFormats: v.string(),
+  /** dependency-cruiser: violation message: 'Dependency violation: {from} → {to} ({rule})' */
+  dependencyCruiserMessage: v.string(),
+  /** dependency-cruiser: tip. */
+  dependencyCruiserTip: v.string(),
+  /** Dependabot: configuration docs URL tip. */
+  dependabotConfigTip: v.string(),
+  /** Dependabot: empty file message. */
+  dependabotEmpty: v.string(),
+  /** Dependabot: empty file tip. */
+  dependabotEmptyTip: v.string(),
+  /** Dependabot: invalid version message: 'Invalid version: "{version}" — must be 2' */
+  dependabotInvalidVersion: v.string(),
+  /** Dependabot: invalid version tip. */
+  dependabotInvalidVersionTip: v.string(),
+  /** Dependabot: missing updates field message. */
+  dependabotMissingUpdates: v.string(),
+  /** Dependabot: missing updates tip. */
+  dependabotMissingUpdatesTip: v.string(),
+  /** Dependabot: missing version field message. */
+  dependabotMissingVersion: v.string(),
+  /** Dependabot: missing version tip. */
+  dependabotMissingVersionTip: v.string(),
+  /** Dependabot: unrecognized ecosystem: 'Unrecognized package ecosystem: {ecosystem}' */
+  dependabotUnrecognizedEcosystem: v.string(),
+  /** Dependabot: valid ecosystems tip: 'Valid ecosystems: {ecosystems}' */
+  dependabotValidEcosystems: v.string(),
+  /** Shared format: file is not formatted. */
+  formatFileNotFormatted: v.string(),
+  /** Shared format: file is not properly formatted. */
+  formatFileNotProperlyFormatted: v.string(),
+  /** Shared format: formatting issue detected. */
+  formatIssueDetected: v.string(),
+  /** Shared format: combined message with fix command: 'File is not properly formatted. Run `{tool}` to fix.' */
+  formatNotProperlyFormattedWithFix: v.string(),
+  /** Shared format: file requires formatting changes. */
+  formatRequiresChanges: v.string(),
+  /** Shared format: run tool to auto-format: 'Run `{tool}` to auto-format this file' */
+  formatRunTool: v.string(),
+  /** GitHub funding: empty file message. */
+  fundingEmpty: v.string(),
+  /** GitHub funding: empty file tip. */
+  fundingEmptyTip: v.string(),
+  /** GitHub funding: unrecognized platform: 'Unrecognized funding platform: {platform}' */
+  fundingUnrecognized: v.string(),
+  /** GitHub funding: valid platforms tip: 'Valid funding platforms: {platforms}' */
+  fundingValidPlatforms: v.string(),
+  /** gitattributes: syntax tip. */
+  gitattributesTip: v.string(),
+  /** gitleaks: secret detected message: '{description}: secret detected ({secret})' */
+  gitleaksMessage: v.string(),
+  /** gitleaks: rotate credential tip. */
+  gitleaksTip: v.string(),
+  /** ignore-files: tip. */
+  ignoreFilesTip: v.string(),
+  /** GitHub issue template: empty file message. */
+  issueTemplateEmpty: v.string(),
+  /** GitHub issue template: empty file tip. */
+  issueTemplateEmptyTip: v.string(),
+  /** GitHub issue template: missing field: 'Missing required field: {field}' */
+  issueTemplateMissingField: v.string(),
+  /** GitHub issue template: missing field tip: "Add a '{field}:' field..." */
+  issueTemplateMissingFieldTip: v.string(),
+  /** GitHub issue template: transform output tip. */
+  issueTemplateTip: v.string(),
+  /** jscpd: duplicate code message: 'Duplicate code found: {lines} lines between {firstName} and {secondName}' */
+  jscpdMessage: v.string(),
+  /** jscpd: extract shared code tip. */
+  jscpdTip: v.string(),
+  /** Julia: not formatted message. */
+  juliaNotFormatted: v.string(),
+  /** Julia: run formatter tip. */
+  juliaTip: v.string(),
+  /** justfile: generic formatting issues message. */
+  justfileFormatting: v.string(),
+  /** justfile: fallback formatting issue message. */
+  justfileFormattingIssue: v.string(),
   /** Knip: generic unused issue message: "Unused {issueType} detected" */
   knipUnused: v.string(),
   /** Knip: unused dependency: 'Unused dependency: "{symbol}"' */
@@ -215,12 +313,96 @@ const ToolStringsSchema = v.strictObject({
   knipUnusedFileTip: v.string(),
   /** Knip: unused type export: 'Unused type export: "{symbol}"' */
   knipUnusedType: v.string(),
+  /** license-checker: problematic license message. */
+  licenseCheckerMessage: v.string(),
+  /** license-checker: review license tip. */
+  licenseCheckerTip: v.string(),
+  /** lockfile-lint: security tip. */
+  lockfileLintTip: v.string(),
+  /** ls-lint: file naming violation message: 'File naming violation: {violation}' */
+  lsLintMessage: v.string(),
+  /** ls-lint: rename file tip. */
+  lsLintTip: v.string(),
+  /** madge: circular dependency message: 'Circular dependency: {chain}' */
+  madgeMessage: v.string(),
+  /** madge: break cycle tip. */
+  madgeTip: v.string(),
+  /** markdownlint: rule tip: 'Rule: {rule}' */
+  markdownlintTip: v.string(),
+  /** npmrc: syntax tip. */
+  npmrcTip: v.string(),
+  /** nvmrc: valid patterns tip. */
+  nvmrcTip: v.string(),
+  /** PR template: checklist tip. */
+  prTemplateChecklistTip: v.string(),
+  /** PR template: description tip. */
+  prTemplateDescriptionTip: v.string(),
+  /** PR template: empty file message. */
+  prTemplateEmpty: v.string(),
+  /** PR template: empty file tip. */
+  prTemplateEmptyTip: v.string(),
+  /** PR template: missing checklist message. */
+  prTemplateMissingChecklist: v.string(),
+  /** PR template: missing description message. */
+  prTemplateMissingDescription: v.string(),
+  /** PR template: good template tip. */
+  prTemplateTip: v.string(),
+  /** publint: message: 'publint: {code} at {path}' */
+  publintMessage: v.string(),
+  /** publint: review exports tip. */
+  publintTip: v.string(),
+  /** sort-package-json: not sorted message: '{file} is not sorted' */
+  sortPackageJsonNotSorted: v.string(),
+  /** sort-package-json: fix tip. */
+  sortPackageJsonTip: v.string(),
+  /** syncpack: version mismatch message. */
+  syncpackMessage: v.string(),
+  /** syncpack: version mismatch detail (fallback). */
+  syncpackMismatch: v.string(),
+  /** syncpack: fix-mismatches tip. */
+  syncpackTip: v.string(),
+  /** terraform: fallback formatting message. */
+  terraformNeedsFormatting: v.string(),
+  /** terraform: fallback formatting tip. */
+  terraformNeedsFormattingTip: v.string(),
+  /** Shared: see documentation at URL: 'See {url}' */
+  toolSeeDocsAt: v.string(),
   /** Typos: fix tip: 'Fix: replace "{typo}" with "{correction}"' */
   typosFix: v.string(),
   /** Typos: misspelling message: '"{typo}" should be "{correction}"' */
   typosMisspelling: v.string(),
   /** Typos: fallback when no corrections available. */
   typosUnknownCorrection: v.string(),
+});
+
+/** Strings for JSON Schema descriptions (IDE tooltips in .resist-lint.jsonc). */
+const SchemaStringsSchema = v.strictObject({
+  /** Top-level config description: "Configuration file for the {linterName} custom linter." */
+  configDescription: v.string(),
+  /** exclude array description. */
+  excludeDescription: v.string(),
+  /** extensions array description. */
+  extensionsDescription: v.string(),
+  /** include array description. */
+  includeDescription: v.string(),
+  /** overrides array description. */
+  overridesDescription: v.string(),
+  /** overrides[].files description. */
+  overridesFilesDescription: v.string(),
+  /** overrides[].rules description. */
+  overridesRulesDescription: v.string(),
+  /** ruleOptions description. */
+  ruleOptionsDescription: v.string(),
+  /** ruleOptions additionalProperties description. */
+  ruleOptionsAdditionalDescription: v.string(),
+  /** Rule severity enum description. */
+  ruleSeverityDescription: v.string(),
+  /** rules object description (has {ruleList} placeholder). */
+  rulesDescription: v.string(),
+  /** $schema field description. */
+  schemaFieldDescription: v.string(),
+  /** Schema title: "{linterName} configuration" */
+  title: v.string(),
 });
 
 /** Strings for --list-rules format labels. */
@@ -255,6 +437,8 @@ export const LintStringsSchema = v.strictObject({
   listRulesFormat: ListRulesFormatSchema,
   /** Formatter output strings. */
   output: OutputStringsSchema,
+  /** JSON Schema description strings. */
+  schema: SchemaStringsSchema,
   /** External tool user-facing messages. */
   tools: ToolStringsSchema,
 });

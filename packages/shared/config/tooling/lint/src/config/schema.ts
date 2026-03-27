@@ -72,6 +72,7 @@ export type LintConfig = v.InferOutput<typeof LintConfigSchema>;
  * @param {string} [customConfigPath] - Optional custom path to a config file
  * @returns {LintConfig} Validated linter configuration
  * @throws If the config file contains invalid JSON or fails schema validation
+ * @param {Type} customConfigPath - Description
  */
 export function loadConfig(cwd: string, customConfigPath?: string): LintConfig {
   const configPath: string = customConfigPath
@@ -360,36 +361,36 @@ export function generateJsonSchema(
   return {
     $schema: 'http://json-schema.org/draft-07/schema#',
     additionalProperties: false,
-    description: `Configuration file for the ${LINTER_NAME} custom linter.`,
+    description: format(en.schema.configDescription, { linterName: LINTER_NAME }),
     properties: {
       $schema: {
-        description: 'Path to the JSON Schema for IDE autocomplete.',
+        description: en.schema.schemaFieldDescription,
         type: 'string',
       },
       exclude: {
         default: ['*.test.ts', '*.d.ts'],
-        description: 'Glob patterns to exclude from linting (e.g. "*.test.ts", "*.d.ts").',
+        description: en.schema.excludeDescription,
         items: { type: 'string' },
         type: 'array',
       },
       extensions: {
         default: ['.ts', '.svelte.ts', '.mjs'],
-        description: 'File extensions to lint (including .svelte.ts).',
+        description: en.schema.extensionsDescription,
         items: { type: 'string' },
         type: 'array',
       },
       include: {
         default: [],
-        description: 'Paths to include in linting (relative to workspace root).',
+        description: en.schema.includeDescription,
         items: { type: 'string' },
         type: 'array',
       },
       overrides: {
-        description: 'File-specific rule overrides. Last matching override wins.',
+        description: en.schema.overridesDescription,
         items: {
           properties: {
             files: {
-              description: 'Glob patterns matching files to apply these overrides to.',
+              description: en.schema.overridesFilesDescription,
               items: { type: 'string' },
               type: 'array',
             },
@@ -398,7 +399,7 @@ export function generateJsonSchema(
                 enum: ['error', 'warn', 'off'],
                 type: 'string',
               },
-              description: 'Rule-level severity overrides for matched files.',
+              description: en.schema.overridesRulesDescription,
               type: 'object',
             },
           },
@@ -409,27 +410,23 @@ export function generateJsonSchema(
       },
       ruleOptions: {
         additionalProperties: {
-          description: 'Options specific to a rule.',
+          description: en.schema.ruleOptionsAdditionalDescription,
           type: 'object',
         },
-        description:
-          'Per-rule configuration options. Keys are rule IDs, values are option objects.\n\n' +
-          'Common options:\n' +
-          '- categories: string[] — override rule categories for filtering\n' +
-          '- stages: string[] — override pipeline stages (lint, check, pre-commit, build, ci, test)',
+        description: en.schema.ruleOptionsDescription,
         type: 'object',
       },
       rules: {
         additionalProperties: {
-          description: 'Rule severity: "error" (exit 1), "warn" (report but pass), "off" (skip).',
+          description: en.schema.ruleSeverityDescription,
           enum: ['error', 'warn', 'off'],
           type: 'string',
         },
-        description: `Rule ID → severity mapping. Unlisted rules default to "error".\n\nAvailable rules:\n${ruleEnumDescription}`,
+        description: format(en.schema.rulesDescription, { ruleList: ruleEnumDescription }),
         type: 'object',
       },
     },
-    title: `${LINTER_NAME} configuration`,
+    title: format(en.schema.title, { linterName: LINTER_NAME }),
     type: 'object',
   };
 }

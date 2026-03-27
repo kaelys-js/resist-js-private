@@ -10,6 +10,8 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
+import { format } from '@/lint/locale/schema.ts';
 
 /**
  * A single message entry from publint JSON output.
@@ -96,9 +98,9 @@ export function transformPublintOutput(output: string): LintResult[] {
         1,
         1,
         mapSeverity(type),
-        `publint: ${code}${path ? ` at ${path}` : ''}`,
+        format(en.tools.publintMessage, { code, path }),
         {
-          tip: 'Review package.json exports and files configuration',
+          tip: en.tools.publintTip,
         },
       ),
     );
