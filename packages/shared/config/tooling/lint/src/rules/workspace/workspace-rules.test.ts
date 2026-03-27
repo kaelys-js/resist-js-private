@@ -83,6 +83,21 @@ import noGulpConfig from './no-gulp-config.ts';
 import noGruntConfig from './no-grunt-config.ts';
 import noJsconfig from './no-jsconfig.ts';
 import noNodemonConfig from './no-nodemon-config.ts';
+import noSensitiveCertFiles from './no-sensitive-cert-files.ts';
+import noEnvFileClones from './no-env-file-clones.ts';
+import noGitSubmodules from './no-git-submodules.ts';
+import noNestedGitFolders from './no-nested-git-folders.ts';
+import noNonrootIgnoreFiles from './no-nonroot-ignore-files.ts';
+import noSudoInScripts from './no-sudo-in-scripts.ts';
+import noScssSass from './no-scss-sass.ts';
+import noCypressConfig from './no-cypress-config.ts';
+import noPuppeteerConfig from './no-puppeteer-config.ts';
+import noPnpmfile from './no-pnpmfile.ts';
+import noBrowserslist from './no-browserslist.ts';
+import noSwcrc from './no-swcrc.ts';
+import noParcelConfig from './no-parcel-config.ts';
+import noPostinstallScripts from './no-postinstall-scripts.ts';
+import noToolOverridesInPackageJson from './no-tool-overrides-in-package-json.ts';
 
 // =============================================================================
 // Helpers
@@ -3949,6 +3964,608 @@ describe('workspace/no-nodemon-config', () => {
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noNodemonConfig.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 16 — Security, Hygiene & Advanced File Checks
+// =============================================================================
+
+describe('workspace/no-sensitive-cert-files', () => {
+  it('has correct rule metadata', () => {
+    expect(noSensitiveCertFiles.id).toBe('workspace/no-sensitive-cert-files');
+    expect(noSensitiveCertFiles.scope).toBe('workspace');
+    expect(noSensitiveCertFiles.fixable).toBe(false);
+    expect(noSensitiveCertFiles.categories).toContain('safety');
+    expect(typeof noSensitiveCertFiles.check).toBe('function');
+  });
+
+  it('flags .pem file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/certs/server.pem', 'cert content']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSensitiveCertFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-sensitive-cert-files');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('server.pem');
+  });
+
+  it('flags .key file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/tls/private.key', 'key content']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSensitiveCertFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('private.key');
+  });
+
+  it('flags .p12 file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/tls/cert.p12', 'p12 content']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSensitiveCertFiles.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes normal .ts file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.ts', 'export const x = 1;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSensitiveCertFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-env-file-clones', () => {
+  it('has correct rule metadata', () => {
+    expect(noEnvFileClones.id).toBe('workspace/no-env-file-clones');
+    expect(noEnvFileClones.scope).toBe('workspace');
+    expect(noEnvFileClones.fixable).toBe(false);
+    expect(noEnvFileClones.categories).toContain('safety');
+    expect(typeof noEnvFileClones.check).toBe('function');
+  });
+
+  it('flags .env.bak', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.env.bak', 'SECRET=foo']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEnvFileClones.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-env-file-clones');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('.env.bak');
+  });
+
+  it('flags .env2', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.env2', 'SECRET=bar']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEnvFileClones.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.env2');
+  });
+
+  it('flags .env.copy', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.env.copy', 'SECRET=baz']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEnvFileClones.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes .env.local (not a clone)', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.env.local', 'SECRET=foo']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEnvFileClones.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes .env.example (not a clone)', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.env.example', 'SECRET=placeholder']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEnvFileClones.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-git-submodules', () => {
+  it('has correct rule metadata', () => {
+    expect(noGitSubmodules.id).toBe('workspace/no-git-submodules');
+    expect(noGitSubmodules.scope).toBe('workspace');
+    expect(noGitSubmodules.fixable).toBe(false);
+    expect(noGitSubmodules.categories).toContain('safety');
+    expect(typeof noGitSubmodules.check).toBe('function');
+  });
+
+  it('flags .gitmodules', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitmodules', '[submodule "vendor/lib"]'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noGitSubmodules.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-git-submodules');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('.gitmodules');
+  });
+
+  it('passes when no .gitmodules exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.ts', 'export const x = 1;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noGitSubmodules.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-nested-git-folders', () => {
+  it('has correct rule metadata', () => {
+    expect(noNestedGitFolders.id).toBe('workspace/no-nested-git-folders');
+    expect(noNestedGitFolders.scope).toBe('workspace');
+    expect(noNestedGitFolders.fixable).toBe(false);
+    expect(noNestedGitFolders.categories).toContain('safety');
+    expect(typeof noNestedGitFolders.check).toBe('function');
+  });
+
+  it('flags nested .git directory', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/foo/.git/config', '[core]']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNestedGitFolders.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-nested-git-folders');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('.git');
+  });
+
+  it('reports each nested .git only once', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/foo/.git/config', '[core]'],
+      ['/workspace/packages/foo/.git/HEAD', 'ref: refs/heads/main'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNestedGitFolders.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes normal files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.ts', 'export const x = 1;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNestedGitFolders.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-nonroot-ignore-files', () => {
+  it('has correct rule metadata', () => {
+    expect(noNonrootIgnoreFiles.id).toBe('workspace/no-nonroot-ignore-files');
+    expect(noNonrootIgnoreFiles.scope).toBe('workspace');
+    expect(noNonrootIgnoreFiles.fixable).toBe(false);
+    expect(noNonrootIgnoreFiles.categories).toContain('safety');
+    expect(typeof noNonrootIgnoreFiles.check).toBe('function');
+  });
+
+  it('flags .gitignore in subdirectory', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/foo/.gitignore', 'dist/']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNonrootIgnoreFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-nonroot-ignore-files');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('.gitignore');
+  });
+
+  it('flags .dockerignore in subdirectory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/apps/web/.dockerignore', 'node_modules'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNonrootIgnoreFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.dockerignore');
+  });
+
+  it('passes .gitignore at root', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.gitignore', 'node_modules/']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNonrootIgnoreFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes normal file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.ts', 'export const x = 1;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNonrootIgnoreFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-sudo-in-scripts', () => {
+  it('has correct rule metadata', () => {
+    expect(noSudoInScripts.id).toBe('workspace/no-sudo-in-scripts');
+    expect(noSudoInScripts.scope).toBe('workspace');
+    expect(noSudoInScripts.fixable).toBe(false);
+    expect(noSudoInScripts.categories).toContain('safety');
+    expect(typeof noSudoInScripts.check).toBe('function');
+  });
+
+  it('flags sudo usage in .sh file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/setup.sh', '#!/bin/bash\nsudo apt install -y curl\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSudoInScripts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-sudo-in-scripts');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.line).toBe(2);
+    expect(results[0]!.message).toContain('sudo');
+  });
+
+  it('passes commented-out sudo', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/setup.sh', '#!/bin/bash\n# sudo apt install -y curl\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSudoInScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes non-.sh file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.ts', 'export const x = 1;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSudoInScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-scss-sass', () => {
+  it('has correct rule metadata', () => {
+    expect(noScssSass.id).toBe('workspace/no-scss-sass');
+    expect(noScssSass.scope).toBe('workspace');
+    expect(noScssSass.fixable).toBe(false);
+    expect(noScssSass.categories).toContain('tooling');
+    expect(typeof noScssSass.check).toBe('function');
+  });
+
+  it('flags .scss file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/styles/main.scss', 'body { color: red; }'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noScssSass.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-scss-sass');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('main.scss');
+  });
+
+  it('flags .sass file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/components/app.sass', 'body\n  color: red'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noScssSass.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('app.sass');
+  });
+
+  it('passes .css file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/styles/main.css', 'body { color: red; }'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noScssSass.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-cypress-config', () => {
+  it('has correct rule metadata', () => {
+    expect(noCypressConfig.id).toBe('workspace/no-cypress-config');
+    expect(noCypressConfig.scope).toBe('workspace');
+    expect(noCypressConfig.fixable).toBe(false);
+    expect(noCypressConfig.categories).toContain('tooling');
+    expect(typeof noCypressConfig.check).toBe('function');
+  });
+
+  it('flags cypress.config.ts', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/cypress.config.ts', 'export default {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCypressConfig.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-cypress-config');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('cypress.config.ts');
+  });
+
+  it('flags cypress.json', async () => {
+    const files: Map<string, string> = new Map([['/workspace/cypress.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCypressConfig.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes playwright.config.ts', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/playwright.config.ts', 'export default {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCypressConfig.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-puppeteer-config', () => {
+  it('has correct rule metadata', () => {
+    expect(noPuppeteerConfig.id).toBe('workspace/no-puppeteer-config');
+    expect(noPuppeteerConfig.scope).toBe('workspace');
+    expect(noPuppeteerConfig.fixable).toBe(false);
+    expect(noPuppeteerConfig.categories).toContain('tooling');
+    expect(typeof noPuppeteerConfig.check).toBe('function');
+  });
+
+  it('flags puppeteer.config.js', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/puppeteer.config.js', 'module.exports = {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noPuppeteerConfig.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-puppeteer-config');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('puppeteer.config.js');
+  });
+
+  it('flags .puppeteerrc', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.puppeteerrc', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noPuppeteerConfig.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes playwright.config.ts', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/playwright.config.ts', 'export default {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noPuppeteerConfig.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-pnpmfile', () => {
+  it('has correct rule metadata', () => {
+    expect(noPnpmfile.id).toBe('workspace/no-pnpmfile');
+    expect(noPnpmfile.scope).toBe('workspace');
+    expect(noPnpmfile.fixable).toBe(false);
+    expect(noPnpmfile.categories).toContain('safety');
+    expect(typeof noPnpmfile.check).toBe('function');
+  });
+
+  it('flags pnpmfile.js', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpmfile.js', 'module.exports = { hooks: {} };'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noPnpmfile.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-pnpmfile');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('pnpmfile.js');
+  });
+
+  it('passes pnpm-workspace.yaml', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - packages/*'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noPnpmfile.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-browserslist', () => {
+  it('has correct rule metadata', () => {
+    expect(noBrowserslist.id).toBe('workspace/no-browserslist');
+    expect(noBrowserslist.scope).toBe('workspace');
+    expect(noBrowserslist.fixable).toBe(false);
+    expect(noBrowserslist.categories).toContain('tooling');
+    expect(typeof noBrowserslist.check).toBe('function');
+  });
+
+  it('flags .browserslistrc', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.browserslistrc', 'last 2 versions']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBrowserslist.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-browserslist');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('.browserslistrc');
+  });
+
+  it('passes biome.json', async () => {
+    const files: Map<string, string> = new Map([['/workspace/biome.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBrowserslist.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-swcrc', () => {
+  it('has correct rule metadata', () => {
+    expect(noSwcrc.id).toBe('workspace/no-swcrc');
+    expect(noSwcrc.scope).toBe('workspace');
+    expect(noSwcrc.fixable).toBe(false);
+    expect(noSwcrc.categories).toContain('tooling');
+    expect(typeof noSwcrc.check).toBe('function');
+  });
+
+  it('flags .swcrc', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.swcrc', '{"jsc":{}}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSwcrc.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-swcrc');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('.swcrc');
+  });
+
+  it('passes tsconfig.json', async () => {
+    const files: Map<string, string> = new Map([['/workspace/tsconfig.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSwcrc.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-parcel-config', () => {
+  it('has correct rule metadata', () => {
+    expect(noParcelConfig.id).toBe('workspace/no-parcel-config');
+    expect(noParcelConfig.scope).toBe('workspace');
+    expect(noParcelConfig.fixable).toBe(false);
+    expect(noParcelConfig.categories).toContain('tooling');
+    expect(typeof noParcelConfig.check).toBe('function');
+  });
+
+  it('flags .parcelrc', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.parcelrc', '{"extends":"@parcel/config-default"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noParcelConfig.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-parcel-config');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('.parcelrc');
+  });
+
+  it('flags parcel.config.js', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/parcel.config.js', 'module.exports = {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noParcelConfig.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('parcel.config.js');
+  });
+
+  it('passes vite.config.ts', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/vite.config.ts', 'export default {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noParcelConfig.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-postinstall-scripts', () => {
+  it('has correct rule metadata', () => {
+    expect(noPostinstallScripts.id).toBe('workspace/no-postinstall-scripts');
+    expect(noPostinstallScripts.scope).toBe('workspace');
+    expect(noPostinstallScripts.fixable).toBe(false);
+    expect(noPostinstallScripts.categories).toContain('safety');
+    expect(typeof noPostinstallScripts.check).toBe('function');
+  });
+
+  it('flags package.json with postinstall', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/foo/package.json',
+        JSON.stringify({ name: 'foo', scripts: { postinstall: 'node setup.js' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noPostinstallScripts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-postinstall-scripts');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('postinstall');
+  });
+
+  it('passes package.json with build script only', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/foo/package.json',
+        JSON.stringify({ name: 'foo', scripts: { build: 'tsc' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noPostinstallScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes package.json with no scripts', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/foo/package.json', JSON.stringify({ name: 'foo' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noPostinstallScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-tool-overrides-in-package-json', () => {
+  it('has correct rule metadata', () => {
+    expect(noToolOverridesInPackageJson.id).toBe('workspace/no-tool-overrides-in-package-json');
+    expect(noToolOverridesInPackageJson.scope).toBe('workspace');
+    expect(noToolOverridesInPackageJson.fixable).toBe(false);
+    expect(noToolOverridesInPackageJson.categories).toContain('tooling');
+    expect(typeof noToolOverridesInPackageJson.check).toBe('function');
+  });
+
+  it('flags eslintConfig in package.json', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/foo/package.json',
+        JSON.stringify({ name: 'foo', eslintConfig: { rules: {} } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noToolOverridesInPackageJson.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-tool-overrides-in-package-json');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('eslintConfig');
+  });
+
+  it('flags prettier in package.json', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/foo/package.json',
+        JSON.stringify({ name: 'foo', prettier: { semi: false } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noToolOverridesInPackageJson.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('prettier');
+  });
+
+  it('flags multiple disallowed keys', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/foo/package.json',
+        JSON.stringify({ name: 'foo', biome: {}, prettier: {} }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noToolOverridesInPackageJson.check(ctx);
+    expect(results.length).toBe(2);
+  });
+
+  it('passes clean package.json', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/foo/package.json', JSON.stringify({ name: 'foo', version: '1.0.0' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noToolOverridesInPackageJson.check(ctx);
     expect(results.length).toBe(0);
   });
 });

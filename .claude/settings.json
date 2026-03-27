@@ -55,12 +55,20 @@
           {
             "type": "command",
             "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-git-add-all.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-plan-file-validate.sh"
           }
         ]
       },
       {
         "matcher": "Write",
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-plan-file-validate.sh"
+          },
           {
             "type": "prompt",
             "prompt": "You are a process enforcement gate. A Write tool call is about to create a file. Examine the file path and conversation context.\n\nThe file being written: $ARGUMENTS\n\nRULES — answer ONLY \"allow\" or \"block: <reason>\":\n\n1. If the file is a NEW implementation file (source code like .ts, .js, .svelte — NOT docs, plans, configs, hooks, test files, or package.json), check:\n   a. Does a written plan file exist in the conversation that covers this file? (A plan file is a markdown doc in docs/plans/ with tasks, status markers, and per-task detail including **Status**, **Plan**, **Files**, **Verification** sections)\n   b. Has the user explicitly approved a changelog or plan for this work? (Look for user messages like \"yes\", \"approved\", \"go ahead\" AFTER a changelog/plan was presented)\n   c. Does the specific task in the plan for this file have proper detail? (Not just a title — it needs implementation bullets, file list, verification criteria)\n   If ANY of (a), (b), or (c) is missing: block.\n\n2. If the file is a plan doc, config, hook script, test file, documentation, or an EDIT to an existing file: allow.\n\n3. If this is clearly a one-off task unrelated to a multi-step plan (user asked to create a single utility file, fix a bug, etc.): allow.\n\nBe strict on rule 1. The whole point is preventing implementation before planning.",
