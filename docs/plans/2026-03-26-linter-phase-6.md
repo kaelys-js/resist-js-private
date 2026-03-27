@@ -194,7 +194,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 3.1: Extract `lint()` function from `runLinter()`
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `runLinter()` returns only an exit code (`Promise<number>`). Programmatic consumers need the actual `LintResult[]` array, fix counts, and metadata. The function also takes `CliArgs` which is CLI-specific — a programmatic API should accept a clean options object.
 
@@ -234,7 +234,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 3.2: Refactor `runLinter()` to support result capture
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `runLinter()` currently writes formatted output directly to `output.stdout/stderr` and only returns an exit code. The `lint()` API function needs access to the raw `LintResult[]` before formatting.
 
