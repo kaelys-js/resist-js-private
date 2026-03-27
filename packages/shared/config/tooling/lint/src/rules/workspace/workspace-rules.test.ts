@@ -11,9 +11,11 @@ import type { LintResult } from '../../framework/types.ts';
 import noBrokenSymlinks from './no-broken-symlinks.ts';
 import noEmptyDirectories from './no-empty-directories.ts';
 import noLeftoverSqlite from './no-leftover-sqlite.ts';
+import noLockfileLocalLinks from './no-lockfile-local-links.ts';
 import noMergeConflicts from './no-merge-conflicts.ts';
 import noUntrackedArtifacts from './no-untracked-artifacts.ts';
 import requireGitRepo from './require-git-repo.ts';
+import requireLockfile from './require-lockfile.ts';
 import namesValid from '../package/names-valid.ts';
 import workspaceValid from './workspace-valid.ts';
 
@@ -644,5 +646,57 @@ describe('workspace/no-empty-directories', () => {
     expect(noEmptyDirectories.stages).toContain('lint');
     expect(noEmptyDirectories.stages).toContain('ci');
     expect(typeof noEmptyDirectories.check).toBe('function');
+  });
+});
+
+// =============================================================================
+// workspace/require-lockfile
+// =============================================================================
+
+describe('workspace/require-lockfile', () => {
+  it('has correct rule metadata', () => {
+    expect(requireLockfile.id).toBe('workspace/require-lockfile');
+    expect(requireLockfile.scope).toBe('workspace');
+    expect(requireLockfile.fixable).toBe(false);
+    expect(typeof requireLockfile.check).toBe('function');
+  });
+
+  it('reports error when pnpm-lock.yaml is missing', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      files: new Map(),
+    });
+    const results: LintResult[] = await requireLockfile.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Missing pnpm-lock.yaml');
+  });
+
+  it('reports error when lockfile is empty', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-lock.yaml', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireLockfile.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('malformed');
+  });
+
+  it('reports error when lockfile has no lockfileVersion', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-lock.yaml', 'importers:\n  .:\n    dependencies: {}\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireLockfile.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('malformed');
+  });
+
+  it('passes for valid lockfile', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\nimporters:\n  .:\n    dependencies: {}\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireLockfile.check(ctx);
+    expect(results.length).toBe(0);
   });
 });
