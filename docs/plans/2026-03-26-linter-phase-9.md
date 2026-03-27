@@ -90,7 +90,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 3.1: Tests + Implementation
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/require-lockfile.ts`. `fixable: false`, `scope: 'workspace'`, severity `error`. 5 tests. 2518 total tests pass.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
@@ -119,7 +119,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 4.1: Tests + Implementation
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/no-lockfile-local-links.ts`. `fixable: false`, `scope: 'workspace'`, severity `error`. 4 tests. 2523 total tests pass.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
@@ -147,7 +147,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 5.1: Tests + Implementation
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/no-unpinned-git-deps.ts`. `fixable: false`, `scope: 'workspace'`, severity `error`. 6 tests. 2529 total tests pass.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
