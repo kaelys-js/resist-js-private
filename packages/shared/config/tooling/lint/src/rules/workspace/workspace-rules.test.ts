@@ -952,3 +952,132 @@ describe('workspace/no-duplicate-workspace-globs', () => {
     expect(results.length).toBe(0);
   });
 });
+
+// =============================================================================
+// workspace/no-test-dir-workspace-globs
+// =============================================================================
+
+describe('workspace/no-test-dir-workspace-globs', () => {
+  it('has correct rule metadata', () => {
+    expect(noTestDirWorkspaceGlobs.id).toBe('workspace/no-test-dir-workspace-globs');
+    expect(noTestDirWorkspaceGlobs.scope).toBe('workspace');
+    expect(noTestDirWorkspaceGlobs.fixable).toBe(false);
+    expect(typeof noTestDirWorkspaceGlobs.check).toBe('function');
+  });
+
+  it('flags glob containing test/', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "test/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTestDirWorkspaceGlobs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('test');
+  });
+
+  it('flags glob containing fixtures/', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "packages/fixtures/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTestDirWorkspaceGlobs.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes for normal package globs', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "packages/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTestDirWorkspaceGlobs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when workspace file missing', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await noTestDirWorkspaceGlobs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-node-modules-workspace-globs
+// =============================================================================
+
+describe('workspace/no-node-modules-workspace-globs', () => {
+  it('has correct rule metadata', () => {
+    expect(noNodeModulesWorkspaceGlobs.id).toBe('workspace/no-node-modules-workspace-globs');
+    expect(noNodeModulesWorkspaceGlobs.scope).toBe('workspace');
+    expect(noNodeModulesWorkspaceGlobs.fixable).toBe(false);
+    expect(typeof noNodeModulesWorkspaceGlobs.check).toBe('function');
+  });
+
+  it('flags glob containing node_modules', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "apps/**/node_modules/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNodeModulesWorkspaceGlobs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('node_modules');
+  });
+
+  it('passes for clean globs', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "packages/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNodeModulesWorkspaceGlobs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when workspace file missing', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await noNodeModulesWorkspaceGlobs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/require-workspace-schema
+// =============================================================================
+
+describe('workspace/require-workspace-schema', () => {
+  it('has correct rule metadata', () => {
+    expect(requireWorkspaceSchema.id).toBe('workspace/require-workspace-schema');
+    expect(requireWorkspaceSchema.scope).toBe('workspace');
+    expect(requireWorkspaceSchema.fixable).toBe(false);
+    expect(typeof requireWorkspaceSchema.check).toBe('function');
+  });
+
+  it('flags missing schema comment', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "packages/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireWorkspaceSchema.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('$schema');
+  });
+
+  it('passes when schema comment present', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/pnpm-workspace.yaml',
+        '# yaml-language-server: $schema=./schemas/pnpm-workspace.schema.json\npackages:\n  - "packages/*"\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireWorkspaceSchema.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when workspace file missing', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await requireWorkspaceSchema.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
