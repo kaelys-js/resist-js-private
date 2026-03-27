@@ -700,3 +700,52 @@ describe('workspace/require-lockfile', () => {
     expect(results.length).toBe(0);
   });
 });
+
+// =============================================================================
+// workspace/no-lockfile-local-links
+// =============================================================================
+
+describe('workspace/no-lockfile-local-links', () => {
+  it('has correct rule metadata', () => {
+    expect(noLockfileLocalLinks.id).toBe('workspace/no-lockfile-local-links');
+    expect(noLockfileLocalLinks.scope).toBe('workspace');
+    expect(noLockfileLocalLinks.fixable).toBe(false);
+    expect(typeof noLockfileLocalLinks.check).toBe('function');
+  });
+
+  it('flags file: dependency in lockfile', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\nimporters:\n  .:\n    dependencies:\n      my-lib:\n        version: file:../lib\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLockfileLocalLinks.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('file:');
+  });
+
+  it('flags link: dependency in lockfile', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\nimporters:\n  .:\n    dependencies:\n      my-utils:\n        version: link:../utils\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLockfileLocalLinks.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('link:');
+  });
+
+  it('ignores clean lockfile', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\nimporters:\n  .:\n    dependencies:\n      valibot:\n        version: 1.0.0\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLockfileLocalLinks.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when lockfile missing', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await noLockfileLocalLinks.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
