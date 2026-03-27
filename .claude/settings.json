@@ -59,11 +59,30 @@
         ]
       },
       {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "You are a process enforcement gate. A Write tool call is about to create a file. Examine the file path and conversation context.\n\nThe file being written: $ARGUMENTS\n\nRULES — answer ONLY \"allow\" or \"block: <reason>\":\n\n1. If the file is a NEW implementation file (source code like .ts, .js, .svelte — NOT docs, plans, configs, hooks, test files, or package.json), check:\n   a. Does a written plan file exist in the conversation that covers this file? (A plan file is a markdown doc in docs/plans/ with tasks, status markers, and per-task detail including **Status**, **Plan**, **Files**, **Verification** sections)\n   b. Has the user explicitly approved a changelog or plan for this work? (Look for user messages like \"yes\", \"approved\", \"go ahead\" AFTER a changelog/plan was presented)\n   c. Does the specific task in the plan for this file have proper detail? (Not just a title — it needs implementation bullets, file list, verification criteria)\n   If ANY of (a), (b), or (c) is missing: block.\n\n2. If the file is a plan doc, config, hook script, test file, documentation, or an EDIT to an existing file: allow.\n\n3. If this is clearly a one-off task unrelated to a multi-step plan (user asked to create a single utility file, fix a bug, etc.): allow.\n\nBe strict on rule 1. The whole point is preventing implementation before planning.",
+            "model": "claude-haiku-4-5-20251001",
+            "timeout": 15,
+            "statusMessage": "Checking plan exists before creating file..."
+          }
+        ]
+      },
+      {
         "matcher": "Agent",
         "hooks": [
           {
             "type": "command",
             "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-agent-approval.sh"
+          },
+          {
+            "type": "prompt",
+            "prompt": "You are a process enforcement gate. An Agent (subagent) is about to be dispatched. Examine the agent's prompt.\n\nAgent details: $ARGUMENTS\n\nRULES — answer ONLY \"allow\" or \"block: <reason>\":\n\n1. If the agent's prompt asks it to IMPLEMENT code (write rule files, create source files, build features), check:\n   a. Does a written plan file exist in the conversation with per-task detail? (Each task must have **Status**, **Plan**, **Files**, **Verification** sections — not just a title and paragraph)\n   b. Has the user explicitly approved the changelog/plan? (Look for user messages like \"yes\", \"approved\", \"go ahead\" AFTER a plan was presented)\n   c. Is the plan's detail level comparable to prior phases? (Phase 12/13 format: status line, bullet-point plan, files section, verification section per task)\n   If ANY of (a), (b), or (c) is missing: block.\n\n2. If the agent is doing RESEARCH, EXPLORATION, VERIFICATION, or CODE REVIEW (not creating implementation files): allow.\n\n3. If this is clearly a one-off task unrelated to a multi-step plan: allow.\n\nBe strict on rule 1. The whole point is preventing implementation agents from being dispatched before the plan is properly detailed and approved.",
+            "model": "claude-haiku-4-5-20251001",
+            "timeout": 15,
+            "statusMessage": "Verifying plan approval before dispatching agent..."
           }
         ]
       },
