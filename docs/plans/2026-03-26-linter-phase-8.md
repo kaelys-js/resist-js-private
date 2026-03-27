@@ -303,7 +303,7 @@ export default rule;
 
 ### Task 3.1: Write failing tests
 
-**Status**: [ ]
+**Status**: [x] — Combined with 3.2. 6 tests added to workspace-rules.test.ts.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
@@ -384,7 +384,7 @@ describe('workspace/no-leftover-sqlite', () => {
 
 ### Task 3.2: Implement rule
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/no-leftover-sqlite.ts`. `fixable: false` at line 28, `scope: 'workspace'` at line 25, severity `warning` at line 61. 6 tests pass. 2507 total tests pass.
 
 **Plan**:
 - Create `rules/workspace/no-leftover-sqlite.ts`:
