@@ -28,6 +28,15 @@ import workspaceGlobsResolve from './workspace-globs-resolve.ts';
 import workspacePackagesExist from './workspace-packages-exist.ts';
 import workspacePathsExist from './workspace-paths-exist.ts';
 import workspaceValid from './workspace-valid.ts';
+import noUtf8Bom from './no-utf8-bom.ts';
+import noTrailingWhitespace from './no-trailing-whitespace.ts';
+import noTabsInCode from './no-tabs-in-code.ts';
+import requireUtf8Encoding from './require-utf8-encoding.ts';
+import noDangerousShellCommands from './no-dangerous-shell-commands.ts';
+import noMissingShebang from './no-missing-shebang.ts';
+import noDebugStatements from './no-debug-statements.ts';
+import noTodoComments from './no-todo-comments.ts';
+import noLongLines from './no-long-lines.ts';
 
 // =============================================================================
 // Helpers
@@ -1227,5 +1236,384 @@ describe('workspace/workspace-paths-exist', () => {
     const ctx: WorkspaceContext = mockContext({ files: new Map() });
     const results: LintResult[] = await workspacePathsExist.check(ctx);
     expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-utf8-bom
+// =============================================================================
+
+describe('workspace/no-utf8-bom', () => {
+  it('has correct rule metadata', () => {
+    expect(noUtf8Bom.id).toBe('workspace/no-utf8-bom');
+    expect(noUtf8Bom.scope).toBe('workspace');
+    expect(noUtf8Bom.fixable).toBe(false);
+    expect(typeof noUtf8Bom.check).toBe('function');
+  });
+
+  it('flags files with UTF-8 BOM', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/app.ts', '\uFEFFconst x = 1;\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUtf8Bom.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.ruleId).toBe('workspace/no-utf8-bom');
+    expect(results[0]!.message).toContain('UTF-8 BOM');
+  });
+
+  it('passes for files without BOM', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/app.ts', 'const x = 1;\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUtf8Bom.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-trailing-whitespace
+// =============================================================================
+
+describe('workspace/no-trailing-whitespace', () => {
+  it('has correct rule metadata', () => {
+    expect(noTrailingWhitespace.id).toBe('workspace/no-trailing-whitespace');
+    expect(noTrailingWhitespace.scope).toBe('workspace');
+    expect(noTrailingWhitespace.fixable).toBe(false);
+    expect(typeof noTrailingWhitespace.check).toBe('function');
+  });
+
+  it('flags lines with trailing whitespace', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/app.ts', 'const x = 1;   \n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTrailingWhitespace.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.ruleId).toBe('workspace/no-trailing-whitespace');
+    expect(results[0]!.message).toContain('Trailing whitespace');
+  });
+
+  it('passes for clean files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', 'const x = 1;\nconst y = 2;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTrailingWhitespace.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-tabs-in-code
+// =============================================================================
+
+describe('workspace/no-tabs-in-code', () => {
+  it('has correct rule metadata', () => {
+    expect(noTabsInCode.id).toBe('workspace/no-tabs-in-code');
+    expect(noTabsInCode.scope).toBe('workspace');
+    expect(noTabsInCode.fixable).toBe(false);
+    expect(typeof noTabsInCode.check).toBe('function');
+  });
+
+  it('flags files with tab characters', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/app.ts', '\tconst x = 1;\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTabsInCode.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.ruleId).toBe('workspace/no-tabs-in-code');
+    expect(results[0]!.message).toContain('Tab character');
+  });
+
+  it('passes for files without tabs', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', '  const x = 1;\n  const y = 2;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTabsInCode.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/require-utf8-encoding
+// =============================================================================
+
+describe('workspace/require-utf8-encoding', () => {
+  it('has correct rule metadata', () => {
+    expect(requireUtf8Encoding.id).toBe('workspace/require-utf8-encoding');
+    expect(requireUtf8Encoding.scope).toBe('workspace');
+    expect(requireUtf8Encoding.fixable).toBe(false);
+    expect(typeof requireUtf8Encoding.check).toBe('function');
+  });
+
+  it('flags files with replacement character', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/data.bin', 'hello \uFFFD world\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireUtf8Encoding.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.ruleId).toBe('workspace/require-utf8-encoding');
+    expect(results[0]!.message).toContain('non-UTF-8 encoding');
+  });
+
+  it('passes for valid UTF-8 files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/app.ts', 'const x = 1;\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireUtf8Encoding.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-dangerous-shell-commands
+// =============================================================================
+
+describe('workspace/no-dangerous-shell-commands', () => {
+  it('has correct rule metadata', () => {
+    expect(noDangerousShellCommands.id).toBe('workspace/no-dangerous-shell-commands');
+    expect(noDangerousShellCommands.scope).toBe('workspace');
+    expect(noDangerousShellCommands.fixable).toBe(false);
+    expect(typeof noDangerousShellCommands.check).toBe('function');
+  });
+
+  it('flags rm -rf / in shell files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/cleanup.sh', '#!/bin/bash\nrm -rf /\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDangerousShellCommands.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.ruleId).toBe('workspace/no-dangerous-shell-commands');
+    expect(results[0]!.message).toContain('Dangerous command');
+  });
+
+  it('flags fork bombs in shell files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/bad.sh', '#!/bin/bash\n:(){ :|:& };:\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDangerousShellCommands.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-dangerous-shell-commands');
+  });
+
+  it('ignores safe shell commands', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/build.sh', '#!/bin/bash\necho "Hello"\nls -la\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDangerousShellCommands.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-.sh files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', 'const cmd = "rm -rf /";\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDangerousShellCommands.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-missing-shebang
+// =============================================================================
+
+describe('workspace/no-missing-shebang', () => {
+  it('has correct rule metadata', () => {
+    expect(noMissingShebang.id).toBe('workspace/no-missing-shebang');
+    expect(noMissingShebang.scope).toBe('workspace');
+    expect(noMissingShebang.fixable).toBe(false);
+    expect(typeof noMissingShebang.check).toBe('function');
+  });
+
+  it('flags .sh files missing shebang', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/build.sh', 'echo "Hello"\nls -la\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingShebang.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.ruleId).toBe('workspace/no-missing-shebang');
+    expect(results[0]!.message).toContain('missing shebang');
+  });
+
+  it('passes for .sh files with shebang', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/build.sh', '#!/bin/bash\necho "Hello"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingShebang.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-.sh files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.ts', 'const x: number = 1;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingShebang.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-debug-statements
+// =============================================================================
+
+describe('workspace/no-debug-statements', () => {
+  it('has correct rule metadata', () => {
+    expect(noDebugStatements.id).toBe('workspace/no-debug-statements');
+    expect(noDebugStatements.scope).toBe('workspace');
+    expect(noDebugStatements.fixable).toBe(false);
+    expect(typeof noDebugStatements.check).toBe('function');
+  });
+
+  it('flags console.log in .ts files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', 'const x: number = 1;\nconsole.log(x);\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDebugStatements.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.ruleId).toBe('workspace/no-debug-statements');
+  });
+
+  it('flags debugger statement in .ts files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', 'const x: number = 1;\ndebugger;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDebugStatements.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Debug statement');
+  });
+
+  it('ignores test files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.test.ts', 'console.log("test output");\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDebugStatements.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores spec files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.spec.ts', 'console.log("spec output");\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDebugStatements.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-.ts files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/run.sh', 'console.log("not ts");\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDebugStatements.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-todo-comments
+// =============================================================================
+
+describe('workspace/no-todo-comments', () => {
+  it('has correct rule metadata', () => {
+    expect(noTodoComments.id).toBe('workspace/no-todo-comments');
+    expect(noTodoComments.scope).toBe('workspace');
+    expect(noTodoComments.fixable).toBe(false);
+    expect(typeof noTodoComments.check).toBe('function');
+  });
+
+  it('flags TODO comments in .ts files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', '// TODO: fix this later\nconst x: number = 1;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTodoComments.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.ruleId).toBe('workspace/no-todo-comments');
+  });
+
+  it('flags FIXME comments in .ts files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', '// FIXME: broken implementation\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTodoComments.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('TODO comment');
+  });
+
+  it('ignores test files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.test.ts', '// TODO: add more tests\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTodoComments.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for files without TODO/FIXME', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', 'const x: number = 1;\nexport default x;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTodoComments.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-long-lines
+// =============================================================================
+
+describe('workspace/no-long-lines', () => {
+  it('has correct rule metadata', () => {
+    expect(noLongLines.id).toBe('workspace/no-long-lines');
+    expect(noLongLines.scope).toBe('workspace');
+    expect(noLongLines.fixable).toBe(false);
+    expect(typeof noLongLines.check).toBe('function');
+  });
+
+  it('flags lines exceeding 160 characters', async () => {
+    const longLine: string = 'a'.repeat(161);
+    const files: Map<string, string> = new Map([['/workspace/src/app.ts', `${longLine}\n`]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLongLines.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.ruleId).toBe('workspace/no-long-lines');
+    expect(results[0]!.message).toContain('161');
+    expect(results[0]!.message).toContain('max 160');
+  });
+
+  it('passes for lines within limit', async () => {
+    const line: string = 'a'.repeat(160);
+    const files: Map<string, string> = new Map([['/workspace/src/app.ts', `${line}\n`]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLongLines.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports correct line number for long line', async () => {
+    const longLine: string = 'b'.repeat(200);
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', `const x = 1;\nconst y = 2;\n${longLine}\n`],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLongLines.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.line).toBe(3);
   });
 });
