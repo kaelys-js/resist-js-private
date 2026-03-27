@@ -8,6 +8,7 @@
  * @module
  */
 
+import { NO_OP_FIX } from '@/lint/framework/types.ts';
 import type {
   AstNode,
   LintResult,
@@ -75,7 +76,7 @@ const rule: TypeScriptRule = {
                   range: { end: node.end as number, start: node.start as number },
                   text: suggestion,
                 }
-              : { range: { end: 0, start: 0 }, text: '' },
+              : NO_OP_FIX,
             line: node.loc.start.line,
             message,
             ruleId: 'valibot/prefer-methods',
