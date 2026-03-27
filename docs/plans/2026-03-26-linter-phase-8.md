@@ -457,7 +457,7 @@ export default rule;
 
 ### Task 4.1: Add rules to .resist-lint.jsonc
 
-**Status**: [ ]
+**Status**: [x] — Verified: `workspace/no-broken-symlinks`: "error" (line 154), `workspace/no-leftover-sqlite`: "warn" (line 155), `workspace/no-untracked-artifacts`: "warn" (line 156). All tests pass.
 
 **Plan**:
 - Add to `.resist-lint.jsonc` under `"rules"`:
