@@ -1,24 +1,24 @@
 /**
- * Rule: workspace/no-empty-files
+ * Rule: workspace/no-unsafe-regex
  *
- * Files must not be empty, unless they are allowed placeholders
- * (.gitignore, .env, .keep, .gitkeep).
+ * TypeScript files must not contain regex patterns with nested
+ * quantifiers that can cause catastrophic backtracking.
  *
  * @module
  */
 
-import { basename, relative } from 'node:path';
+import { relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
-/** Filenames that are allowed to be empty. */
-const ALLOWED_EMPTY: ReadonlySet<string> = new Set(['.gitignore', '.env', '.keep', '.gitkeep']);
+/** Regex to detect nested quantifiers like (a+)+, (.*)+, (a*)*, etc. */
+const NESTED_QUANTIFIER_REGEX: RegExp = /\([^)]*[+*][^)]*\)[+*]/;
 
-/** Flags files that are completely empty (0 bytes). */
+/** Flags TypeScript files containing potentially unsafe regex patterns. */
 const rule: WorkspaceRule = {
-  id: 'workspace/no-empty-files',
-  description: 'Files must not be empty unless they are allowed placeholders.',
+  id: 'workspace/no-unsafe-regex',
+  description: 'TypeScript files must not contain regex with nested quantifiers.',
   scope: 'workspace',
   categories: ['workspace', 'safety'],
   stages: ['lint', 'check'],
@@ -44,6 +44,13 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     for await (const filePath of ctx.allFiles()) {
+      if (!filePath.endsWith('.ts')) {
+        continue;
+      }
+      if (filePath.endsWith('.test.ts')) {
+        continue;
+      }
+
       let content: string;
       try {
         content = await ctx.readFile(filePath);
@@ -51,18 +58,18 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      if (content === '' && !ALLOWED_EMPTY.has(basename(filePath))) {
+      if (NESTED_QUANTIFIER_REGEX.test(content)) {
         const relativePath: string = relative(ctx.rootDir, filePath);
         results.push(
           createResult(
-            'workspace/no-empty-files',
+            'workspace/no-unsafe-regex',
             filePath,
             1,
             1,
-            'warning',
-            `Unexpected empty file: ${relativePath}`,
+            'error',
+            `Potentially unsafe regex pattern (nested quantifiers): ${relativePath}`,
             {
-              tip: 'Remove unused placeholders or ensure files are properly generated',
+              tip: 'Avoid nested quantifiers like (a+)+ — they cause catastrophic backtracking',
             },
           ),
         );

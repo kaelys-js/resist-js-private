@@ -1,24 +1,20 @@
 /**
- * Rule: workspace/no-empty-files
+ * Rule: workspace/no-tsbuildinfo
  *
- * Files must not be empty, unless they are allowed placeholders
- * (.gitignore, .env, .keep, .gitkeep).
+ * TypeScript build cache files should not be committed to version control.
  *
  * @module
  */
 
-import { basename, relative } from 'node:path';
+import { relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
-/** Filenames that are allowed to be empty. */
-const ALLOWED_EMPTY: ReadonlySet<string> = new Set(['.gitignore', '.env', '.keep', '.gitkeep']);
-
-/** Flags files that are completely empty (0 bytes). */
+/** Flags .tsbuildinfo files that should not be committed. */
 const rule: WorkspaceRule = {
-  id: 'workspace/no-empty-files',
-  description: 'Files must not be empty unless they are allowed placeholders.',
+  id: 'workspace/no-tsbuildinfo',
+  description: 'TypeScript build cache files should not be committed to version control.',
   scope: 'workspace',
   categories: ['workspace', 'safety'],
   stages: ['lint', 'check'],
@@ -44,25 +40,18 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     for await (const filePath of ctx.allFiles()) {
-      let content: string;
-      try {
-        content = await ctx.readFile(filePath);
-      } catch {
-        continue;
-      }
-
-      if (content === '' && !ALLOWED_EMPTY.has(basename(filePath))) {
+      if (filePath.endsWith('.tsbuildinfo')) {
         const relativePath: string = relative(ctx.rootDir, filePath);
         results.push(
           createResult(
-            'workspace/no-empty-files',
+            'workspace/no-tsbuildinfo',
             filePath,
             1,
             1,
-            'warning',
-            `Unexpected empty file: ${relativePath}`,
+            'error',
+            `TypeScript build cache should not be committed: ${relativePath}`,
             {
-              tip: 'Remove unused placeholders or ensure files are properly generated',
+              tip: 'Add *.tsbuildinfo to .gitignore',
             },
           ),
         );

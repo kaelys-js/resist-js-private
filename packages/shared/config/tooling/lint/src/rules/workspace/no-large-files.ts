@@ -1,24 +1,35 @@
 /**
- * Rule: workspace/no-empty-files
+ * Rule: workspace/no-large-files
  *
- * Files must not be empty, unless they are allowed placeholders
- * (.gitignore, .env, .keep, .gitkeep).
+ * Source files should not exceed 1000 lines.
  *
  * @module
  */
 
-import { basename, relative } from 'node:path';
+import { extname, relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
-/** Filenames that are allowed to be empty. */
-const ALLOWED_EMPTY: ReadonlySet<string> = new Set(['.gitignore', '.env', '.keep', '.gitkeep']);
+/** Source file extensions to check for line count. */
+const SOURCE_EXTENSIONS: ReadonlySet<string> = new Set([
+  '.ts',
+  '.js',
+  '.svelte',
+  '.css',
+  '.json',
+  '.yaml',
+  '.yml',
+  '.md',
+]);
 
-/** Flags files that are completely empty (0 bytes). */
+/** Maximum number of lines allowed in a source file. */
+const MAX_LINES: number = 1000;
+
+/** Flags source files that exceed 1000 lines. */
 const rule: WorkspaceRule = {
-  id: 'workspace/no-empty-files',
-  description: 'Files must not be empty unless they are allowed placeholders.',
+  id: 'workspace/no-large-files',
+  description: 'Source files should not exceed 1000 lines.',
   scope: 'workspace',
   categories: ['workspace', 'safety'],
   stages: ['lint', 'check'],
@@ -44,6 +55,12 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     for await (const filePath of ctx.allFiles()) {
+      const ext: string = extname(filePath);
+
+      if (!SOURCE_EXTENSIONS.has(ext)) {
+        continue;
+      }
+
       let content: string;
       try {
         content = await ctx.readFile(filePath);
@@ -51,18 +68,20 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      if (content === '' && !ALLOWED_EMPTY.has(basename(filePath))) {
+      const lineCount: number = content.split('\n').length;
+
+      if (lineCount > MAX_LINES) {
         const relativePath: string = relative(ctx.rootDir, filePath);
         results.push(
           createResult(
-            'workspace/no-empty-files',
+            'workspace/no-large-files',
             filePath,
             1,
             1,
             'warning',
-            `Unexpected empty file: ${relativePath}`,
+            `File exceeds 1000 lines (${String(lineCount)} lines): ${relativePath}`,
             {
-              tip: 'Remove unused placeholders or ensure files are properly generated',
+              tip: 'Consider breaking large files into smaller modules',
             },
           ),
         );
