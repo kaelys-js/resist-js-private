@@ -275,7 +275,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 10.1: Add rules to .resist-lint.jsonc
 
-**Status**: [ ]
+**Status**: [x] — Verified: All 9 rules registered in `.resist-lint.jsonc`. Type-check passes, 2566 tests pass.
 
 **Plan**:
 - Add to `.resist-lint.jsonc` under `"rules"`:
