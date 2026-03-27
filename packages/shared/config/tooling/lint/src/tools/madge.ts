@@ -10,8 +10,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform madge JSON output into LintResult[].
@@ -30,8 +29,9 @@ import { format } from '@/lint/locale/schema.ts';
  * // results[0].ruleId === 'madge/circular-dependency'
  * // results[0].message === 'Circular dependency: src/a.ts → src/b.ts → src/a.ts'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformMadgeOutput(output: string): LintResult[] {
+export function transformMadgeOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -69,9 +69,9 @@ export function transformMadgeOutput(output: string): LintResult[] {
         1,
         1,
         'error',
-        format(en.tools.madgeMessage, { chain: chainStr }),
+        format(strings.tools.madgeMessage, { chain: chainStr }),
         {
-          tip: en.tools.madgeTip,
+          tip: strings.tools.madgeTip,
         },
       ),
     );

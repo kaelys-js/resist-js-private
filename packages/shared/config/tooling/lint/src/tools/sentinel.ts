@@ -10,8 +10,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform Sentinel format check output into LintResult[].
@@ -29,8 +28,9 @@ import { format } from '@/lint/locale/schema.ts';
  * // results[0].ruleId === 'sentinel/format'
  * // results.length === 2
  * ```
+  * @param {Type} strings - Description
  */
-export function transformSentinelOutput(output: string): LintResult[] {
+export function transformSentinelOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -52,9 +52,9 @@ export function transformSentinelOutput(output: string): LintResult[] {
         1,
         1,
         'warning',
-        format(en.tools.formatNotProperlyFormattedWithFix, { tool: 'sentinel fmt' }),
+        format(strings.tools.formatNotProperlyFormattedWithFix, { tool: 'sentinel fmt' }),
         {
-          tip: format(en.tools.formatRunTool, { tool: 'sentinel fmt' }),
+          tip: format(strings.tools.formatRunTool, { tool: 'sentinel fmt' }),
         },
       ),
     );

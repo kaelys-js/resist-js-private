@@ -9,8 +9,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * A single typos JSON output entry.
@@ -53,8 +52,9 @@ type TyposEntry = {
  * const results = transformTyposOutput('{"type":"typo","path":"foo.ts","line_num":1,"byte_offset":0,"typo":"teh","corrections":["the"]}');
  * // results[0].ruleId === 'typos/misspelling'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformTyposOutput(output: string): LintResult[] {
+export function transformTyposOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -89,8 +89,8 @@ export function transformTyposOutput(output: string): LintResult[] {
     const corrections: string[] = typed.corrections ?? [];
 
     const correctionText: string =
-      corrections.length > 0 ? corrections.join(', ') : en.tools.typosUnknownCorrection;
-    const message: string = format(en.tools.typosMisspelling, {
+      corrections.length > 0 ? corrections.join(', ') : strings.tools.typosUnknownCorrection;
+    const message: string = format(strings.tools.typosMisspelling, {
       correction: correctionText,
       typo,
     });
@@ -98,7 +98,7 @@ export function transformTyposOutput(output: string): LintResult[] {
     results.push(
       createResult('typos/misspelling', path, lineNum, col, 'warning', message, {
         endColumn: col + typo.length,
-        tip: format(en.tools.typosFix, { correction: correctionText, typo }),
+        tip: format(strings.tools.typosFix, { correction: correctionText, typo }),
       }),
     );
   }

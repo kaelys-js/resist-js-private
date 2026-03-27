@@ -22,8 +22,7 @@ import type {
   TypeScriptRule,
   WorkspaceRule,
 } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { type LintStrings, format } from '@/lint/locale/schema.ts';
 
 // =============================================================================
 // Constants
@@ -79,8 +78,9 @@ export type LoadedRules = v.InferOutput<typeof LoadedRulesSchema>;
  * PackageJsonRule based on its shape.
  *
  * @returns {Promise<LoadedRules>} All discovered rules, categorized by type
+  * @param {Type} strings - Description
  */
-export async function loadAllRules(): Promise<LoadedRules> {
+export async function loadAllRules(strings: LintStrings): Promise<LoadedRules> {
   const currentDir: string = fileURLToPath(new URL('.', import.meta.url));
   const rulesDir: string = join(currentDir, '..', 'rules');
 
@@ -105,7 +105,7 @@ export async function loadAllRules(): Promise<LoadedRules> {
 
     if (!result || result.status === 'rejected') {
       const rel: string = relative(rulesDir, filePath);
-      process.stderr.write(`${format(en.errors.ruleLoadFailed, { path: rel })}\n`);
+      process.stderr.write(`${format(strings.errors.ruleLoadFailed, { path: rel })}\n`);
       continue;
     }
 
@@ -139,7 +139,7 @@ export async function loadAllRules(): Promise<LoadedRules> {
   for (const rule of allRules) {
     /* Detect duplicate IDs */
     if (byId.has(rule.id)) {
-      process.stderr.write(`${format(en.errors.duplicateRule, { ruleId: rule.id })}\n`);
+      process.stderr.write(`${format(strings.errors.duplicateRule, { ruleId: rule.id })}\n`);
       continue;
     }
     byId.set(rule.id, rule);

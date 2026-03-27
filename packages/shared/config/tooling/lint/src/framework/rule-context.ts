@@ -92,6 +92,7 @@ const SKIP_DIRS: ReadonlySet<string> = new Set([
  *
  * @param {string} dir - Directory to scan
  * @yields {string} Absolute file paths
+ * @returns {AsyncIterable<string>} Description
  */
 export async function* getAllFiles(dir: string): AsyncIterable<string> {
   let entries: Dirent[];
@@ -312,6 +313,7 @@ function parseWorkspaceYaml(content: string): string[] {
  * @param {AsyncIterable<string>} files - File paths to search
  * @param {(path: string) => Promise<string>} reader - File reader function
  * @yields {SearchMatch} Matches found in files
+ * @returns {AsyncGenerator<SearchMatch>} Description
  */
 export async function* search(
   pattern: RegExp,

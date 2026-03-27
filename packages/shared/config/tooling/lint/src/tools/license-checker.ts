@@ -10,8 +10,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * License information for a single package from license-checker JSON output.
@@ -75,8 +74,9 @@ function isProblematicLicense(license: string): boolean {
  * const results = transformLicenseCheckerOutput(json);
  * // results[0].ruleId === 'license-checker/problematic-license'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformLicenseCheckerOutput(output: string): LintResult[] {
+export function transformLicenseCheckerOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -106,9 +106,9 @@ export function transformLicenseCheckerOutput(output: string): LintResult[] {
         1,
         1,
         'warning',
-        format(en.tools.licenseCheckerMessage, { license, package: pkgName }),
+        format(strings.tools.licenseCheckerMessage, { license, package: pkgName }),
         {
-          tip: format(en.tools.licenseCheckerTip, { package: pkgName }),
+          tip: format(strings.tools.licenseCheckerTip, { package: pkgName }),
         },
       ),
     );

@@ -37,8 +37,7 @@ import type {
   WorkspaceRule,
 } from '@/lint/framework/types.ts';
 import { WorkerPool, type WorkerResult, type WorkerTask } from '@/lint/framework/worker-pool.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 import { ALL_TOOLS } from '@/lint/tools/registry.ts';
 
 // =============================================================================
@@ -73,6 +72,8 @@ export const CliArgsSchema = v.strictObject({
   json: v.boolean(),
   /** Whether to list all rules and exit. */
   listRules: v.boolean(),
+  /** Locale code for user-facing messages (e.g., 'en'). Undefined = default ('en'). */
+  locale: v.optional(v.string()),
   /** Positional path arguments. */
   paths: v.array(v.string()),
   /** Whether to suppress warning-level output (show errors only). */
@@ -140,6 +141,11 @@ export function parseCliArgs(argv: string[]): CliArgs {
   );
   const configPath: string | undefined = configFlag ? (configFlag.split('=')[1] ?? '') : undefined;
 
+  const localeFlag: string | undefined = flags.find((f: string): boolean =>
+    f.startsWith('--locale='),
+  );
+  const locale: string | undefined = localeFlag ? (localeFlag.split('=')[1] ?? '') : undefined;
+
   const severityFlag: string | undefined = flags.find((f: string): boolean =>
     f.startsWith('--severity='),
   );
@@ -175,6 +181,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
     jobs,
     json: flags.includes('--json'),
     listRules: flags.includes('--list-rules'),
+    locale,
     paths,
     quiet: flags.includes('--quiet'),
     ruleIds,
@@ -600,8 +607,13 @@ export function applyFixes(content: string, fixes: LintFix[]): string {
  *
  * @param {TypeScriptRule[]} tsRules - All TypeScript rules
  * @param {PackageJsonRule[]} pkgRules - All package.json rules
+ * @param {LintStrings} strings - Locale strings for schema descriptions
  */
-export function writeJsonSchema(tsRules: TypeScriptRule[], pkgRules: PackageJsonRule[]): void {
+export function writeJsonSchema(
+  tsRules: TypeScriptRule[],
+  pkgRules: PackageJsonRule[],
+  strings: LintStrings,
+): void {
   const allRuleIds: string[] = [
     ...tsRules.map((r: TypeScriptRule): string => r.id),
     ...pkgRules.map((r: PackageJsonRule): string => r.id),
@@ -613,7 +625,7 @@ export function writeJsonSchema(tsRules: TypeScriptRule[], pkgRules: PackageJson
   for (const r of pkgRules) {
     descriptions.set(r.id, r.description);
   }
-  const schema: Record<string, unknown> = generateJsonSchema(allRuleIds, descriptions);
+  const schema: Record<string, unknown> = generateJsonSchema(allRuleIds, descriptions, strings);
   const outPath: string = resolve(process.cwd(), SCHEMA_FILENAME);
   try {
     const raw: string = JSON.stringify(schema, null, 2);
@@ -708,14 +720,16 @@ export function collapseShortJsonArrays(json: string, maxWidth: number): string 
  * @param {string} linterName - The linter display name
  * @param {string} configFilename - The config file name
  * @param {string} schemaFilename - The JSON Schema file name
+ * @param {LintStrings} strings - Locale strings
  * @returns {string} Help text string
  */
 export function buildHelpText(
   linterName: string,
   configFilename: string,
   schemaFilename: string,
+  strings: LintStrings,
 ): string {
-  const t = en;
+  const t = strings;
   const n: Record<string, string> = { name: linterName };
 
   return `
@@ -815,12 +829,17 @@ function processBailTasks(
  *
  * @param {CliArgs} cliArgs - Parsed CLI arguments
  * @param {CliOutput} output - Output sink for messages
+ * @param {LintStrings} strings - Locale strings for user-facing messages
  * @returns {Promise<number>} Exit code (0 = clean, 1 = errors, 2 = crash)
  */
-export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<number> {
+export async function runLinter(
+  cliArgs: CliArgs,
+  output: CliOutput,
+  strings: LintStrings,
+): Promise<number> {
   /* --help flag */
   if (cliArgs.help) {
-    output.stdout(buildHelpText(LINTER_NAME, CONFIG_FILENAME, SCHEMA_FILENAME));
+    output.stdout(buildHelpText(LINTER_NAME, CONFIG_FILENAME, SCHEMA_FILENAME, strings));
     return 0;
   }
 
@@ -831,69 +850,71 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
    */
   const dbg = (msg: string): void => {
     if (cliArgs.debug) {
-      output.stderr(`${en.listRulesFormat.debugPrefix} ${msg}\n`);
+      output.stderr(`${strings.listRulesFormat.debugPrefix} ${msg}\n`);
     }
   };
 
   const lintStartTime: number = Date.now();
 
   /* Load config */
-  const config: LintConfig = loadConfig(process.cwd(), cliArgs.configPath);
-  dbg(format(en.debug.configLoaded, { path: cliArgs.configPath ?? CONFIG_FILENAME }));
+  const config: LintConfig = loadConfig(process.cwd(), cliArgs.configPath, strings);
+  dbg(format(strings.debug.configLoaded, { path: cliArgs.configPath ?? CONFIG_FILENAME }));
 
   /* Merge CLI --ignore patterns into config excludes */
   if (cliArgs.ignore.length > 0) {
     config.exclude = [...config.exclude, ...cliArgs.ignore];
-    dbg(format(en.debug.ignorePatternsMerged, { count: cliArgs.ignore.length }));
+    dbg(format(strings.debug.ignorePatternsMerged, { count: cliArgs.ignore.length }));
   }
 
   /* Auto-discover all rules */
-  const loaded: Awaited<ReturnType<typeof loadAllRules>> = await loadAllRules();
+  const loaded: Awaited<ReturnType<typeof loadAllRules>> = await loadAllRules(strings);
   let allTsRules: TypeScriptRule[] = loaded.typescript;
   let allPkgRules: PackageJsonRule[] = loaded.packageJson;
-  dbg(format(en.debug.rulesLoaded, { pkgCount: allPkgRules.length, tsCount: allTsRules.length }));
+  dbg(
+    format(strings.debug.rulesLoaded, { pkgCount: allPkgRules.length, tsCount: allTsRules.length }),
+  );
 
   /* Auto-generate JSON Schema for IDE autocomplete */
-  writeJsonSchema(allTsRules, allPkgRules);
+  writeJsonSchema(allTsRules, allPkgRules, strings);
 
   /* List rules mode */
   if (cliArgs.listRules) {
-    output.stdout(`${en.listRules.typescriptHeader}\n\n`);
+    output.stdout(`${strings.listRules.typescriptHeader}\n\n`);
     for (const rule of allTsRules) {
       const severity: string = config.rules[rule.id] ?? 'error';
-      const fixable: string = rule.fixable ? en.listRules.fixable : '';
+      const fixable: string = rule.fixable ? strings.listRules.fixable : '';
       const cats: string = (rule.categories ?? []).join(', ');
       const stgs: string = (rule.stages ?? ['lint']).join(', ');
       output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
       output.stdout(`    ${rule.description}\n`);
-      output.stdout(`    ${en.listRulesFormat.patternsLabel} ${rule.patterns.join(', ')}\n`);
+      output.stdout(`    ${strings.listRulesFormat.patternsLabel} ${rule.patterns.join(', ')}\n`);
       output.stdout(
-        `    ${en.listRulesFormat.categoriesLabel} ${cats}  ${en.listRulesFormat.stagesLabel} ${stgs}\n\n`,
+        `    ${strings.listRulesFormat.categoriesLabel} ${cats}  ${strings.listRulesFormat.stagesLabel} ${stgs}\n\n`,
       );
     }
-    output.stdout(`${en.listRules.packageJsonHeader}\n\n`);
+    output.stdout(`${strings.listRules.packageJsonHeader}\n\n`);
     for (const rule of allPkgRules) {
       const severity: string = config.rules[rule.id] ?? 'error';
-      const fixable: string = rule.fixable ? en.listRules.fixable : '';
+      const fixable: string = rule.fixable ? strings.listRules.fixable : '';
       const cats: string = (rule.categories ?? []).join(', ');
       const stgs: string = (rule.stages ?? ['lint']).join(', ');
       output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
       output.stdout(`    ${rule.description}\n`);
       output.stdout(
-        `    ${en.listRulesFormat.categoriesLabel} ${cats}  ${en.listRulesFormat.stagesLabel} ${stgs}\n\n`,
+        `    ${strings.listRulesFormat.categoriesLabel} ${cats}  ${strings.listRulesFormat.stagesLabel} ${stgs}\n\n`,
       );
     }
     if (loaded.workspace.length > 0) {
-      output.stdout(`${en.listRules.workspaceHeader}\n\n`);
+      output.stdout(`${strings.listRules.workspaceHeader}\n\n`);
       for (const rule of loaded.workspace) {
         const severity: string = config.rules[rule.id] ?? 'error';
-        const fixable: string = rule.fixable ? en.listRules.fixable : '';
+        const fixable: string = rule.fixable ? strings.listRules.fixable : '';
         const cats: string = (rule.categories ?? []).join(', ');
         const stgs: string = (rule.stages ?? ['lint']).join(', ');
         output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
         output.stdout(`    ${rule.description}\n`);
         output.stdout(
-          `    ${en.listRulesFormat.categoriesLabel} ${cats}  ${en.listRulesFormat.stagesLabel} ${stgs}\n\n`,
+          `    ${strings.listRulesFormat.categoriesLabel} ${cats}  ${strings.listRulesFormat.stagesLabel} ${stgs}\n\n`,
         );
       }
     }
@@ -905,8 +926,8 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
 
   if (paths.length === 0) {
     output.stderr(
-      `${format(en.errors.usageError, { name: LINTER_NAME })}\n` +
-        `${format(en.errors.usageErrorConfig, { configFilename: CONFIG_FILENAME })}\n`,
+      `${format(strings.errors.usageError, { name: LINTER_NAME })}\n` +
+        `${format(strings.errors.usageErrorConfig, { configFilename: CONFIG_FILENAME })}\n`,
     );
     return 1;
   }
@@ -917,7 +938,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     allTsRules = allTsRules.filter((r: TypeScriptRule): boolean => ruleIdSet.has(r.id));
     allPkgRules = allPkgRules.filter((r: PackageJsonRule): boolean => ruleIdSet.has(r.id));
     dbg(
-      format(en.debug.afterRuleFilter, {
+      format(strings.debug.afterRuleFilter, {
         pkgCount: allPkgRules.length,
         tsCount: allTsRules.length,
       }),
@@ -937,7 +958,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
       (r.categories ?? []).some((c: string): boolean => cliArgs.categories.includes(c)),
     );
     dbg(
-      format(en.debug.afterCategoryFilter, {
+      format(strings.debug.afterCategoryFilter, {
         categories: cliArgs.categories.join(','),
         pkgCount: allPkgRules.length,
         tsCount: allTsRules.length,
@@ -977,11 +998,11 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
         allFiles.push(resolved);
       }
     } catch {
-      output.stderr(`${format(en.errors.pathNotFound, { path: p })}\n`);
+      output.stderr(`${format(strings.errors.pathNotFound, { path: p })}\n`);
     }
   }
 
-  dbg(format(en.debug.filesFound, { fileCount: allFiles.length, pathCount: paths.length }));
+  dbg(format(strings.debug.filesFound, { fileCount: allFiles.length, pathCount: paths.length }));
 
   /* When --diff is set, intersect with git-changed files */
   if (cliArgs.diff) {
@@ -997,14 +1018,14 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
 
     if (!cliArgs.json && !cliArgs.quiet) {
       output.stderr(
-        `${format(en.output.diffStatus, { changed: allFiles.length, mode: cliArgs.diff, total: beforeCount })}\n`,
+        `${format(strings.output.diffStatus, { changed: allFiles.length, mode: cliArgs.diff, total: beforeCount })}\n`,
       );
     }
   }
 
   if (allFiles.length === 0) {
     if (!cliArgs.json) {
-      output.stdout(`${en.output.noFiles}\n`);
+      output.stdout(`${strings.output.noFiles}\n`);
     }
     return 0;
   }
@@ -1020,13 +1041,13 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
 
   if (cliArgs.cache) {
     lintCache = LintCache.load(cachePath, ruleHash);
-    dbg(format(en.debug.cacheLoaded, { count: lintCache.getEntryCount() }));
+    dbg(format(strings.debug.cacheLoaded, { count: lintCache.getEntryCount() }));
   }
 
   /* Handle --no-cache: delete cache file before running */
   if (!cliArgs.cache && process.argv.includes('--no-cache')) {
     LintCache.delete(cachePath);
-    dbg(en.debug.cacheDeleted);
+    dbg(strings.debug.cacheDeleted);
   }
 
   /* Run TypeScript rules on each file */
@@ -1092,8 +1113,8 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     allResults = bailResult.results;
   } else if (useWorkerPool) {
     /* Worker thread parallelism — distribute tasks across workers */
-    dbg(format(en.debug.workerPoolSize, { files: tasks.length, threads: jobCount }));
-    const pool: WorkerPool = new WorkerPool(jobCount);
+    dbg(format(strings.debug.workerPoolSize, { files: tasks.length, threads: jobCount }));
+    const pool: WorkerPool = new WorkerPool(jobCount, strings);
 
     try {
       await pool.waitForReady();
@@ -1114,13 +1135,13 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
       for (const wr of workerResults) {
         if (wr.error) {
           output.stderr(
-            `${format(en.errors.workerError, { error: wr.error, taskId: wr.taskId })}\n`,
+            `${format(strings.errors.workerError, { error: wr.error, taskId: wr.taskId })}\n`,
           );
         }
         allResults.push(...wr.results);
       }
 
-      dbg(format(en.debug.workerPoolResults, { count: allResults.length }));
+      dbg(format(strings.debug.workerPoolResults, { count: allResults.length }));
     } finally {
       await pool.shutdown();
     }
@@ -1164,7 +1185,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
   if (cachedResults.length > 0) {
     allResults.push(...cachedResults);
     dbg(
-      format(en.debug.cacheStats, {
+      format(strings.debug.cacheStats, {
         hits: lintCache?.getHitCount() ?? 0,
         misses: lintCache?.getMissCount() ?? 0,
       }),
@@ -1244,7 +1265,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     );
 
     if (wsRules.length > 0) {
-      dbg(format(en.debug.workspaceRunning, { count: wsRules.length }));
+      dbg(format(strings.debug.workspaceRunning, { count: wsRules.length }));
       const wsContext: ReturnType<typeof createWorkspaceContext> = createWorkspaceContext(
         resolve(process.cwd()),
       );
@@ -1257,27 +1278,27 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
         allResults.push(...results);
       }
 
-      dbg(format(en.debug.workspaceResults, { count: wsResults.flat().length }));
+      dbg(format(strings.debug.workspaceResults, { count: wsResults.flat().length }));
     }
   }
 
   /* Run external tools when --tools is enabled */
   if (cliArgs.tools && !bailed) {
-    dbg(en.debug.toolLoading);
-    const toolRegistry: ToolRegistry = new ToolRegistry();
+    dbg(strings.debug.toolLoading);
+    const toolRegistry: ToolRegistry = new ToolRegistry(strings);
     for (const tool of ALL_TOOLS) {
       toolRegistry.register(tool);
     }
 
     dbg(
-      format(en.debug.toolRunning, {
+      format(strings.debug.toolRunning, {
         fileCount: allFiles.length,
         toolCount: toolRegistry.getAll().length,
       }),
     );
     const toolResults: LintResult[] = await toolRegistry.runAll(allFiles);
     allResults.push(...toolResults);
-    dbg(format(en.debug.toolResults, { count: toolResults.length }));
+    dbg(format(strings.debug.toolResults, { count: toolResults.length }));
   }
 
   /* Apply per-file severity from overrides (convert error to warning based on config) */
@@ -1321,12 +1342,12 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
         }
       } catch {
         /* File write failed — skip */
-        output.stderr(`${format(en.errors.fixFailed, { filePath })}\n`);
+        output.stderr(`${format(strings.errors.fixFailed, { filePath })}\n`);
       }
     }
 
     if (!cliArgs.json) {
-      output.stdout(`${format(en.errors.fixApplied, { count: fixedFiles })}\n`);
+      output.stdout(`${format(strings.errors.fixApplied, { count: fixedFiles })}\n`);
     }
   }
 
@@ -1351,7 +1372,13 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
   }
 
   /* Format and output results */
-  const formatted: string = formatResults(displayResults, outputFormat, allFiles.length, ruleDescs);
+  const formatted: string = formatResults(
+    displayResults,
+    outputFormat,
+    allFiles.length,
+    ruleDescs,
+    strings,
+  );
   if (formatted.length > 0) {
     output.stdout(formatted);
   }
@@ -1360,7 +1387,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
   if (lintCache) {
     lintCache.save(cachePath);
     dbg(
-      format(en.debug.cacheSaved, {
+      format(strings.debug.cacheSaved, {
         entries: lintCache.getEntryCount(),
         hits: lintCache.getHitCount(),
         misses: lintCache.getMissCount(),
@@ -1368,7 +1395,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     );
   }
 
-  dbg(format(en.debug.totalTime, { ms: Date.now() - lintStartTime }));
+  dbg(format(strings.debug.totalTime, { ms: Date.now() - lintStartTime }));
 
   /* Exit with error if any errors found (unless --warn-only) */
   const hasErrors: boolean = allResults.some((r: LintResult): boolean => r.severity === 'error');

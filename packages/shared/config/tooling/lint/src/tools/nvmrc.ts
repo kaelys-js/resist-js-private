@@ -11,7 +11,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
+import { type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform nvmrc validator text output into LintResult[].
@@ -27,8 +27,9 @@ import { en } from '@/lint/locale/locales/en.ts';
  * const results = transformNvmrcOutput('.nvmrc:1: Invalid version pattern "latest"');
  * // results[0].ruleId === 'nvmrc/version'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformNvmrcOutput(output: string): LintResult[] {
+export function transformNvmrcOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -62,7 +63,7 @@ export function transformNvmrcOutput(output: string): LintResult[] {
     results.push(
       createResult('nvmrc/version', file, lineNum, 1, 'error', message, {
         example: 'v22',
-        tip: en.tools.nvmrcTip,
+        tip: strings.tools.nvmrcTip,
       }),
     );
   }

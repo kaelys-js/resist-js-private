@@ -9,8 +9,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform dotenv-linter text output into LintResult[].
@@ -26,8 +25,9 @@ import { format } from '@/lint/locale/schema.ts';
  * const results = transformDotenvLinterOutput('.env:3 DuplicatedKey: The FOO key is duplicated');
  * // results[0].ruleId === 'dotenv-linter/DuplicatedKey'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformDotenvLinterOutput(output: string): LintResult[] {
+export function transformDotenvLinterOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -61,7 +61,7 @@ export function transformDotenvLinterOutput(output: string): LintResult[] {
 
     results.push(
       createResult(`dotenv-linter/${rule}`, file, lineNum, 1, 'warning', message, {
-        tip: format(en.tools.toolSeeDocsAt, {
+        tip: format(strings.tools.toolSeeDocsAt, {
           url: `https://dotenv-linter.github.io/#/checks/${rule}`,
         }),
       }),

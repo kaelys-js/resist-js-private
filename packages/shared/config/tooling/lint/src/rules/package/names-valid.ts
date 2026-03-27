@@ -67,6 +67,7 @@ function diagnoseNameIssues(name: string): string[] {
   return issues;
 }
 
+/** Description. */
 const rule: WorkspaceRule = {
   categories: ['package', 'naming'],
   async check(context: unknown): Promise<LintResult[]> {

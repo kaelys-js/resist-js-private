@@ -32,6 +32,7 @@ import {
 } from './cli-helpers.ts';
 import type { LintConfig } from './config/schema.ts';
 import type { LintFix, LintResult, PackageJsonRule, PackageJson } from './framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 
 // =============================================================================
 // Test Helpers
@@ -540,17 +541,17 @@ describe('applyFixes', () => {
 
 describe('buildHelpText', () => {
   it('includes the linter name', () => {
-    const text: string = buildHelpText('my-lint', '.my-lint.jsonc', '.my-lint.schema.json');
+    const text: string = buildHelpText('my-lint', '.my-lint.jsonc', '.my-lint.schema.json', en);
     expect(text).toContain('my-lint');
   });
 
   it('includes the config filename', () => {
-    const text: string = buildHelpText('my-lint', '.my-lint.jsonc', '.my-lint.schema.json');
+    const text: string = buildHelpText('my-lint', '.my-lint.jsonc', '.my-lint.schema.json', en);
     expect(text).toContain('.my-lint.jsonc');
   });
 
   it('includes the schema filename', () => {
-    const text: string = buildHelpText('my-lint', '.my-lint.jsonc', '.my-lint.schema.json');
+    const text: string = buildHelpText('my-lint', '.my-lint.jsonc', '.my-lint.schema.json', en);
     expect(text).toContain('.my-lint.schema.json');
   });
 
@@ -559,6 +560,7 @@ describe('buildHelpText', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('USAGE');
   });
@@ -568,6 +570,7 @@ describe('buildHelpText', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('OPTIONS');
   });
@@ -577,6 +580,7 @@ describe('buildHelpText', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('CONFIGURATION');
   });
@@ -586,6 +590,7 @@ describe('buildHelpText', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('EXAMPLES');
   });
@@ -595,6 +600,7 @@ describe('buildHelpText', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--help');
     expect(text).toContain('-h');
@@ -605,6 +611,7 @@ describe('buildHelpText', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--fix');
   });
@@ -614,6 +621,7 @@ describe('buildHelpText', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--json');
   });
@@ -927,6 +935,34 @@ describe('parseCliArgs — --cache', () => {
 });
 
 // =============================================================================
+// parseCliArgs — --locale
+// =============================================================================
+
+describe('parseCliArgs — --locale', () => {
+  it('parses --locale=en', () => {
+    const args: CliArgs = parseCliArgs(['--locale=en']);
+    expect(args.locale).toBe('en');
+  });
+
+  it('parses --locale=es', () => {
+    const args: CliArgs = parseCliArgs(['--locale=es']);
+    expect(args.locale).toBe('es');
+  });
+
+  it('defaults locale to undefined when not specified', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.locale).toBeUndefined();
+  });
+
+  it('parses locale with other flags', () => {
+    const args: CliArgs = parseCliArgs(['--locale=en', '--json', '--debug']);
+    expect(args.locale).toBe('en');
+    expect(args.json).toBe(true);
+    expect(args.debug).toBe(true);
+  });
+});
+
+// =============================================================================
 // runLinter
 // =============================================================================
 
@@ -978,6 +1014,7 @@ describe('runLinter', () => {
         cache: false,
       },
       output,
+      en,
     );
     expect(code).toBe(0);
     const combined: string = stdoutLines.join('');
@@ -1010,6 +1047,7 @@ describe('runLinter', () => {
         cache: false,
       },
       output,
+      en,
     );
     expect(code).toBe(0);
     const combined: string = stdoutLines.join('');
@@ -1043,6 +1081,7 @@ describe('runLinter', () => {
         cache: false,
       },
       output,
+      en,
     );
     // This will either return 1 (no paths, no config includes) or 0 (config has includes)
     // Since we run from workspace root which HAS includes, it will find files and lint
@@ -1074,6 +1113,7 @@ describe('runLinter', () => {
         cache: false,
       },
       output,
+      en,
     );
     // constants.ts has no throw statements
     expect(code).toBe(0);
@@ -1104,6 +1144,7 @@ describe('runLinter', () => {
         cache: false,
       },
       output,
+      en,
     );
     expect(code).toBe(0);
   });
@@ -1133,6 +1174,7 @@ describe('runLinter', () => {
         cache: false,
       },
       output,
+      en,
     );
     const combined: string = stdoutLines.join('');
     const parsed: unknown = JSON.parse(combined);
@@ -1165,6 +1207,7 @@ describe('runLinter', () => {
         cache: false,
       },
       output,
+      en,
     );
     const combined: string = stderrLines.join('');
     expect(combined).toContain('Path not found');
@@ -1196,6 +1239,7 @@ describe('runLinter', () => {
         cache: false,
       },
       output,
+      en,
     );
     const combined: string = stdoutLines.join('');
     const results: LintResult[] = JSON.parse(combined) as LintResult[];
@@ -1230,6 +1274,7 @@ describe('runLinter', () => {
         cache: false,
       },
       output,
+      en,
     );
     const combined: string = stdoutLines.join('');
     const results: LintResult[] = JSON.parse(combined) as LintResult[];
@@ -1265,6 +1310,7 @@ describe('runLinter', () => {
         cache: false,
       },
       output,
+      en,
     );
     const combined: string = stdoutLines.join('');
     expect(combined).toContain('categories:');
@@ -1372,6 +1418,7 @@ describe('runLinter — branch coverage', () => {
         debug: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -1388,6 +1435,7 @@ describe('runLinter — branch coverage', () => {
         severityOverride: 'off',
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -1404,6 +1452,7 @@ describe('runLinter — branch coverage', () => {
         json: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -1427,6 +1476,7 @@ describe('runLinter — branch coverage', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -1442,6 +1492,7 @@ describe('runLinter — branch coverage', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -1463,6 +1514,7 @@ describe('runLinter — branch coverage', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -1476,6 +1528,7 @@ describe('runLinter — branch coverage', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/nonexistent-dir-xyz')],
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -1598,7 +1651,7 @@ describe('getGitChangedFiles', () => {
 
 describe('writeJsonSchema', () => {
   it('does not throw when given empty rule arrays', () => {
-    expect(() => writeJsonSchema([], [])).not.toThrow();
+    expect(() => writeJsonSchema([], [], en)).not.toThrow();
   });
 
   it('does not throw when given rules with ids', () => {
@@ -1617,6 +1670,7 @@ describe('writeJsonSchema', () => {
       writeJsonSchema(
         [tsRule as unknown as Parameters<typeof writeJsonSchema>[0][number]],
         [pkgRule as unknown as Parameters<typeof writeJsonSchema>[1][number]],
+        en,
       ),
     ).not.toThrow();
   });
@@ -1927,6 +1981,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--rule');
   });
@@ -1936,6 +1991,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--category');
   });
@@ -1945,6 +2001,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--stage');
   });
@@ -1954,6 +2011,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--bail');
   });
@@ -1963,6 +2021,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--ignore');
   });
@@ -1972,6 +2031,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--config');
   });
@@ -1981,6 +2041,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--severity');
   });
@@ -1990,6 +2051,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--diff');
   });
@@ -1999,6 +2061,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--format');
   });
@@ -2008,6 +2071,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--jobs');
   });
@@ -2017,6 +2081,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--tools');
   });
@@ -2026,6 +2091,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--cache');
   });
@@ -2035,6 +2101,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--no-cache');
   });
@@ -2044,6 +2111,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--debug');
   });
@@ -2053,6 +2121,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--warn-only');
   });
@@ -2062,6 +2131,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--quiet');
   });
@@ -2071,6 +2141,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('--list-rules');
   });
@@ -2080,6 +2151,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     // The help text includes a stages section from en.cli.stagesSection
     expect(text).toContain('STAGE');
@@ -2090,6 +2162,7 @@ describe('buildHelpText — additional coverage', () => {
       'resist-lint',
       '.resist-lint.jsonc',
       '.resist-lint.schema.json',
+      en,
     );
     expect(text).toContain('resist-lint packages/shared/schemas');
     expect(text).toContain('resist-lint --fix');
@@ -2111,6 +2184,7 @@ describe('runLinter — format output branches', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -2127,6 +2201,7 @@ describe('runLinter — format output branches', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -2145,6 +2220,7 @@ describe('runLinter — format output branches', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -2160,6 +2236,7 @@ describe('runLinter — format output branches', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -2179,6 +2256,7 @@ describe('runLinter — severity override branches', () => {
         json: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -2200,6 +2278,7 @@ describe('runLinter — no files with --json flag', () => {
         json: true,
       }),
       output,
+      en,
     );
 
     // Should return 0 since no files found (after path error)
@@ -2221,6 +2300,7 @@ describe('runLinter — debug output with various flags', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -2237,6 +2317,7 @@ describe('runLinter — debug output with various flags', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -2252,6 +2333,7 @@ describe('runLinter — debug output with various flags', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -2267,6 +2349,7 @@ describe('runLinter — debug output with various flags', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -2285,6 +2368,7 @@ describe('runLinter — --quiet with JSON and text', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -2304,6 +2388,7 @@ describe('runLinter — single file path (not directory)', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -2318,6 +2403,7 @@ describe('runLinter — single file path (not directory)', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     // package.json is not a .ts file, so no TS rules apply, should return 0
@@ -2336,6 +2422,7 @@ describe('runLinter — --stage filtering', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -2355,6 +2442,7 @@ describe('runLinter — --stage filtering', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -2450,6 +2538,7 @@ describe('runLinter — bail mode', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -2465,6 +2554,7 @@ describe('runLinter — bail mode', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -2479,6 +2569,7 @@ describe('runLinter — bail mode', () => {
         json: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -2504,6 +2595,7 @@ describe('runLinter — diff mode', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -2522,6 +2614,7 @@ describe('runLinter — diff mode', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -2540,6 +2633,7 @@ describe('runLinter — diff mode', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -2557,6 +2651,7 @@ describe('runLinter — diff mode', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -2580,6 +2675,7 @@ describe('runLinter — cache mode', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -2597,6 +2693,7 @@ describe('runLinter — cache mode', () => {
         warnOnly: true,
       }),
       output1,
+      en,
     );
 
     // Second run should use cached results
@@ -2610,6 +2707,7 @@ describe('runLinter — cache mode', () => {
         warnOnly: true,
       }),
       output2,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -2628,6 +2726,7 @@ describe('runLinter — cache mode', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -2649,6 +2748,7 @@ describe('runLinter — fix mode', () => {
         ruleIds: ['typescript/no-throw'],
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -2667,6 +2767,7 @@ describe('runLinter — fix mode', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -2684,6 +2785,7 @@ describe('runLinter — fix mode', () => {
         ruleIds: ['typescript/no-throw'],
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -2707,6 +2809,7 @@ describe('runLinter — tools mode', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -2724,6 +2827,7 @@ describe('runLinter — tools mode', () => {
         debug: true,
       }),
       output,
+      en,
     );
 
     // bail may trigger before tools run — that's the branch we're testing
@@ -2746,6 +2850,7 @@ describe('runLinter — workspace rules', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect([0, 1]).toContain(code);
@@ -2760,6 +2865,7 @@ describe('runLinter — workspace rules', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect([0, 1]).toContain(code);
@@ -2774,6 +2880,7 @@ describe('runLinter — workspace rules', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect([0, 1]).toContain(code);
@@ -2788,6 +2895,7 @@ describe('runLinter — workspace rules', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect([0, 1]).toContain(code);
@@ -2801,6 +2909,7 @@ describe('runLinter — workspace rules', () => {
         bail: true,
       }),
       output,
+      en,
     );
 
     // This test exercises the `!bailed` check for workspace rules
@@ -2815,6 +2924,7 @@ describe('runLinter — workspace rules', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -2835,6 +2945,7 @@ describe('runLinter — per-file severity override', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -2859,6 +2970,7 @@ describe('runLinter — no lintable files branches', () => {
         json: false,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -2874,6 +2986,7 @@ describe('runLinter — no lintable files branches', () => {
         json: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -2889,7 +3002,7 @@ describe('runLinter — no lintable files branches', () => {
 describe('runLinter — listRules output branches', () => {
   it('--list-rules shows rules without fixable marker when no rules are fixable', async () => {
     const { stdoutLines, output } = captureOutput();
-    await runLinter(makeCliArgs({ listRules: true }), output);
+    await runLinter(makeCliArgs({ listRules: true }), output, en);
 
     const combined: string = stdoutLines.join('');
     // No rules currently have fixable: true, so [fixable] marker should not appear
@@ -2901,7 +3014,7 @@ describe('runLinter — listRules output branches', () => {
 
   it('--list-rules shows patterns for TypeScript rules', async () => {
     const { stdoutLines, output } = captureOutput();
-    await runLinter(makeCliArgs({ listRules: true }), output);
+    await runLinter(makeCliArgs({ listRules: true }), output, en);
 
     const combined: string = stdoutLines.join('');
     expect(combined).toContain('patterns:');
@@ -2909,7 +3022,7 @@ describe('runLinter — listRules output branches', () => {
 
   it('--list-rules shows workspace rules section', async () => {
     const { stdoutLines, output } = captureOutput();
-    await runLinter(makeCliArgs({ listRules: true }), output);
+    await runLinter(makeCliArgs({ listRules: true }), output, en);
 
     const combined: string = stdoutLines.join('');
     // If workspace rules are loaded, they should appear
@@ -2918,7 +3031,7 @@ describe('runLinter — listRules output branches', () => {
 
   it('--list-rules shows severity from config', async () => {
     const { stdoutLines, output } = captureOutput();
-    await runLinter(makeCliArgs({ listRules: true }), output);
+    await runLinter(makeCliArgs({ listRules: true }), output, en);
 
     const combined: string = stdoutLines.join('');
     // Rules should show their severity in parentheses
@@ -2942,6 +3055,7 @@ describe('runLinter — disabled rules filtering', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -2969,6 +3083,7 @@ describe('runLinter — rule finalize', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     // finalize() is called on all TS rules after processing — this exercises the branch
@@ -2990,6 +3105,7 @@ describe('runLinter — output format resolution', () => {
         ruleIds: ['typescript/no-throw'],
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -3009,6 +3125,7 @@ describe('runLinter — output format resolution', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -3030,6 +3147,7 @@ describe('runLinter — exit code branches', () => {
         warnOnly: false,
       }),
       output,
+      en,
     );
 
     // Most real files will produce some errors
@@ -3044,6 +3162,7 @@ describe('runLinter — exit code branches', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -3067,6 +3186,7 @@ describe('runLinter — debug output coverage', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -3082,6 +3202,7 @@ describe('runLinter — debug output coverage', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -3098,6 +3219,7 @@ describe('runLinter — debug output coverage', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -3118,6 +3240,7 @@ describe('runLinter — file pattern matching', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -3141,6 +3264,7 @@ describe('runLinter — mixed path types', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -3158,6 +3282,7 @@ describe('runLinter — mixed path types', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -3180,6 +3305,7 @@ describe('runLinter — formatted output length check', () => {
         severityOverride: 'off',
       }),
       output,
+      en,
     );
 
     // With severity override off, all results are cleared, so no formatted output
@@ -3248,6 +3374,7 @@ describe('runLinter — usage error when no paths', () => {
         ),
       }),
       output,
+      en,
     );
 
     // If config has no includes AND no CLI paths, should error
@@ -3294,6 +3421,7 @@ describe('runLinter — fix with fixable files', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -3312,6 +3440,7 @@ describe('runLinter — fix with fixable files', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -3337,6 +3466,7 @@ describe('runLinter — worker pool', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -3357,6 +3487,7 @@ describe('runLinter — worker pool', () => {
         ruleIds: ['typescript/no-throw'],
       }),
       output,
+      en,
     );
 
     // Bail mode forces sequential even with jobs > 1
@@ -3383,6 +3514,7 @@ describe('runLinter — cache hit', () => {
         warnOnly: true,
       }),
       output1,
+      en,
     );
 
     // Second run: should use cache (exercises cache hit branch)
@@ -3396,6 +3528,7 @@ describe('runLinter — cache hit', () => {
         warnOnly: true,
       }),
       output2,
+      en,
     );
 
     const combined: string = stderrLines.join('');
@@ -3418,6 +3551,7 @@ describe('runLinter — workspace rule category/stage filter', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -3432,6 +3566,7 @@ describe('runLinter — workspace rule category/stage filter', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     expect(code).toBe(0);
@@ -3452,6 +3587,7 @@ describe('runLinter — per-file severity warn to warning conversion', () => {
         severityOverride: 'warn',
       }),
       output,
+      en,
     );
 
     const combined: string = stdoutLines.join('');
@@ -3479,6 +3615,7 @@ describe('runLinter — finalize branch', () => {
         warnOnly: true,
       }),
       output,
+      en,
     );
 
     // If rules have finalize(), they're called after all files are processed

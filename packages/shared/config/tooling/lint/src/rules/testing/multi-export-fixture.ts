@@ -39,5 +39,6 @@ const ruleB: TypeScriptRule = {
   },
 };
 
+/** Description. */
 const multiExportRules = [ruleA, ruleB];
 export default multiExportRules;

@@ -8,6 +8,8 @@
 
 import { describe, expect, it } from 'vitest';
 
+import { en } from '@/lint/locale/locales/en.ts';
+
 import type { LintResult } from './types.ts';
 import {
   ToolRegistry,
@@ -77,14 +79,14 @@ function createMockTool(overrides?: Partial<ExternalTool>): ExternalTool {
 
 describe('ToolRegistry — registration', () => {
   it('registers a tool', () => {
-    const registry: ToolRegistry = new ToolRegistry();
+    const registry: ToolRegistry = new ToolRegistry(en);
     const tool: ExternalTool = createMockTool();
     registry.register(tool);
     expect(registry.getAll()).toHaveLength(1);
   });
 
   it('registers multiple tools', () => {
-    const registry: ToolRegistry = new ToolRegistry();
+    const registry: ToolRegistry = new ToolRegistry(en);
     registry.register(createMockTool({ name: 'tool-a' }));
     registry.register(createMockTool({ name: 'tool-b' }));
     expect(registry.getAll()).toHaveLength(2);
@@ -97,7 +99,7 @@ describe('ToolRegistry — registration', () => {
 
 describe('ToolRegistry — getToolsForFile', () => {
   it('returns matching tools for a file', () => {
-    const registry: ToolRegistry = new ToolRegistry();
+    const registry: ToolRegistry = new ToolRegistry(en);
     registry.register(createMockTool({ name: 'sh-tool', filePatterns: ['**/*.sh'] }));
     registry.register(createMockTool({ name: 'md-tool', filePatterns: ['**/*.md'] }));
 
@@ -111,7 +113,7 @@ describe('ToolRegistry — getToolsForFile', () => {
   });
 
   it('returns empty array when no tools match', () => {
-    const registry: ToolRegistry = new ToolRegistry();
+    const registry: ToolRegistry = new ToolRegistry(en);
     registry.register(createMockTool({ name: 'sh-tool', filePatterns: ['**/*.sh'] }));
 
     const tools: ExternalTool[] = registry.getToolsForFile('/path/to/file.ts');
@@ -119,7 +121,7 @@ describe('ToolRegistry — getToolsForFile', () => {
   });
 
   it('returns multiple tools when several match', () => {
-    const registry: ToolRegistry = new ToolRegistry();
+    const registry: ToolRegistry = new ToolRegistry(en);
     registry.register(createMockTool({ name: 'tool-a', filePatterns: ['**/*.sh'] }));
     registry.register(createMockTool({ name: 'tool-b', filePatterns: ['**/*.sh', '**/*.bash'] }));
 
@@ -134,14 +136,14 @@ describe('ToolRegistry — getToolsForFile', () => {
 
 describe('ToolRegistry — runTool', () => {
   it('returns empty results for empty file list', async () => {
-    const registry: ToolRegistry = new ToolRegistry();
+    const registry: ToolRegistry = new ToolRegistry(en);
     const tool: ExternalTool = createMockTool();
     const results: LintResult[] = await registry.runTool(tool, []);
     expect(results).toHaveLength(0);
   });
 
   it('skips tool when isAvailable returns false', async () => {
-    const registry: ToolRegistry = new ToolRegistry();
+    const registry: ToolRegistry = new ToolRegistry(en);
     const tool: ExternalTool = createMockTool({
       isAvailable(): Promise<boolean> {
         return Promise.resolve(false);
@@ -152,7 +154,7 @@ describe('ToolRegistry — runTool', () => {
   });
 
   it('runs tool and transforms output', async () => {
-    const registry: ToolRegistry = new ToolRegistry();
+    const registry: ToolRegistry = new ToolRegistry(en);
     const tool: ExternalTool = createMockTool({
       command: 'echo',
       args: ['hello'],

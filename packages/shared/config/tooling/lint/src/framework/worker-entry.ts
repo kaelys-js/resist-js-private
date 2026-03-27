@@ -8,11 +8,12 @@
  * @module
  */
 
-import { parentPort } from 'node:worker_threads';
+import { parentPort, workerData } from 'node:worker_threads';
 
 import { runTypeScriptRules } from '@/lint/framework/oxc-runner.ts';
 import { loadAllRules } from '@/lint/framework/rule-loader.ts';
 import type { TypeScriptRule, LintResult } from '@/lint/framework/types.ts';
+import type { LintStrings } from '@/lint/locale/schema.ts';
 
 // =============================================================================
 // Types
@@ -50,7 +51,8 @@ type WorkerResponse = {
 let allRules: TypeScriptRule[] = [];
 
 async function initialize(): Promise<void> {
-  const loaded: Awaited<ReturnType<typeof loadAllRules>> = await loadAllRules();
+  const strings: LintStrings = (workerData as { strings: LintStrings }).strings;
+  const loaded: Awaited<ReturnType<typeof loadAllRules>> = await loadAllRules(strings);
   allRules = loaded.typescript;
 
   /* Signal that we're ready to receive tasks */

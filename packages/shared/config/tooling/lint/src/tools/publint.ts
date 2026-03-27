@@ -10,8 +10,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * A single message entry from publint JSON output.
@@ -68,8 +67,9 @@ function mapSeverity(type: string): 'error' | 'warning' | 'info' {
  * const results = transformPublintOutput(json);
  * // results[0].ruleId === 'publint/MISSING_EXPORTS'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformPublintOutput(output: string): LintResult[] {
+export function transformPublintOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -98,9 +98,9 @@ export function transformPublintOutput(output: string): LintResult[] {
         1,
         1,
         mapSeverity(type),
-        format(en.tools.publintMessage, { code, path }),
+        format(strings.tools.publintMessage, { code, path }),
         {
-          tip: en.tools.publintTip,
+          tip: strings.tools.publintTip,
         },
       ),
     );

@@ -10,8 +10,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * File location reference within a jscpd duplicate entry.
@@ -73,8 +72,9 @@ type JscpdDuplicate = {
  * const results = transformJscpdOutput(json);
  * // results[0].ruleId === 'jscpd/duplicate'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformJscpdOutput(output: string): LintResult[] {
+export function transformJscpdOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -114,11 +114,11 @@ export function transformJscpdOutput(output: string): LintResult[] {
         startLine,
         startColumn,
         'warning',
-        format(en.tools.jscpdMessage, { lines: String(lines), firstName, secondName }),
+        format(strings.tools.jscpdMessage, { lines: String(lines), firstName, secondName }),
         {
           endColumn,
           endLine,
-          tip: en.tools.jscpdTip,
+          tip: strings.tools.jscpdTip,
         },
       ),
     );
