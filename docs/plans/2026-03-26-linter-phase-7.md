@@ -987,6 +987,19 @@ Updated implementation in Task 7.2 should use `Program` visitor with early retur
 
 ---
 
+### Task 9.2: Verify test coverage is maintained
+
+**Status**: [x] — Verified: `qa:test:coverage` passes all thresholds. Statements: 90.19% (≥80%), Branches: 76.12% (≥75%), Functions: 84.44% (≥80%), Lines: 90.17% (≥80%). 2494 tests pass (51 above 2443 baseline).
+
+**Plan**:
+- Run: `pnpm --filter @/lint qa:test:coverage` to verify coverage thresholds
+- Check thresholds (configured in vitest.config.ts): statements ≥80%, branches ≥75%, functions ≥80%, lines ≥80%
+- Check test count is at or above baseline (2443)
+
+**Verification**: Coverage command exits 0, all thresholds met
+
+---
+
 ## TASK 10 — Final Verification
 
 ### Task 10.1: Verify all changes against approved changelog
