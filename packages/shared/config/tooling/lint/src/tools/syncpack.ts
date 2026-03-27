@@ -23,6 +23,7 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * ```
  *
  * @param {string} output - Raw text output from syncpack list-mismatches
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -30,7 +31,6 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * const results = transformSyncpackOutput('✘ lodash has mismatched versions\n  4.17.20 in a\n  4.17.21 in b\n');
  * // results[0].ruleId === 'syncpack/version-mismatch'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformSyncpackOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

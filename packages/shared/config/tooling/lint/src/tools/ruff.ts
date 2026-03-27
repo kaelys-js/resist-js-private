@@ -18,8 +18,8 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * `[{ code, message, filename, location: { row, column }, end_location: { row, column } }]`
  *
  * @param {string} output - Raw JSON output from Ruff
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
-  * @param {Type} strings - Description
  */
 export function transformRuffOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

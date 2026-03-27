@@ -36,6 +36,7 @@ const SCALAFMT_ERROR_LINE: RegExp = /^error:\s+(.+?):(\d+):(\d+):\s*(.+)$/;
  * format is still captured as a generic formatting error.
  *
  * @param {string} output - Raw text output from scalafmt --check
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -44,7 +45,6 @@ const SCALAFMT_ERROR_LINE: RegExp = /^error:\s+(.+?):(\d+):(\d+):\s*(.+)$/;
  * // results[0].ruleId === 'scalafmt/format'
  * // results[0].severity === 'error'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformScalafmtOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

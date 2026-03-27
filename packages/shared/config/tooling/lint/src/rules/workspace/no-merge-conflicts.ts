@@ -10,8 +10,19 @@
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
-/** Regex matching unresolved merge conflict markers. */
-const CONFLICT_MARKER: RegExp = /^(<{7}|={7}|>{7})/;
+/**
+ * Regex matching unresolved merge conflict markers.
+ *
+ * Real git conflict markers are exactly 7 characters followed by
+ * whitespace or end-of-line:
+ * - `<<<<<<< HEAD`
+ * - `=======`
+ * - `>>>>>>> branch-name`
+ *
+ * Lines with more than 7 repeated characters (e.g. section separators
+ * like `====...====`) are NOT conflict markers.
+ */
+const CONFLICT_MARKER: RegExp = /^(<{7}(?:\s|$)|={7}(?:\s|$)|>{7}(?:\s|$))/;
 
 /** Description. */
 const rule: WorkspaceRule = {

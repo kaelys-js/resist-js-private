@@ -22,8 +22,8 @@ const MARKDOWNLINT_LINE: RegExp = /^(.+?):(\d+)(?::(\d+))?\s+(MD\d+\/\S+)\s+(.+)
  * `README.md:5:1 MD022/blanks-around-headings Headings should be surrounded by blank lines`
  *
  * @param {string} output - Raw text output from markdownlint
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
-  * @param {Type} strings - Description
  */
 export function transformMarkdownlintOutput(output: string, strings: LintStrings): LintResult[] {
   const results: LintResult[] = [];

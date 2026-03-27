@@ -23,6 +23,7 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * file needs formatting.
  *
  * @param {string} output - Raw text output from julia format_file
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -31,7 +32,6 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * // results[0].ruleId === 'julia/format'
  * // results[0].severity === 'warning'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformJuliaOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

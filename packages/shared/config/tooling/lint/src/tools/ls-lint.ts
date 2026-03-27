@@ -24,6 +24,7 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * Each non-empty line that is not a summary or header is treated as a violation.
  *
  * @param {string} output - Raw text output from ls-lint
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -31,7 +32,6 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * const results = transformLsLintOutput('src/MyComponent.tsx does not match the pattern\n');
  * // results[0].ruleId === 'ls-lint/naming'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformLsLintOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

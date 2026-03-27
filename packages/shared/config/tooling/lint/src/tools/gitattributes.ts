@@ -20,6 +20,7 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * `filename:line: message`
  *
  * @param {string} output - Raw text output from the gitattributes validator
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -27,7 +28,6 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * const results = transformGitattributesOutput('.gitattributes:2: Conflicting attributes — "text" and "binary" cannot both be set');
  * // results[0].ruleId === 'gitattributes/syntax'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformGitattributesOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

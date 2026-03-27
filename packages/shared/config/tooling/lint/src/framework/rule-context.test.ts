@@ -15,6 +15,8 @@ import {
   getWorkspacePackages,
   search,
   createWorkspaceContext,
+  parseExcludes,
+  type ExcludeConfig,
   type WorkspaceContext,
 } from './rule-context.ts';
 
@@ -417,5 +419,118 @@ describe('search — multi-line content', () => {
     }
     expect(matches.length).toBe(1);
     expect(matches[0]?.text).toBe('second target line');
+  });
+});
+
+// =============================================================================
+// parseExcludes
+// =============================================================================
+
+describe('parseExcludes', () => {
+  it('splits name-based and path-based entries', () => {
+    const result: ExcludeConfig = parseExcludes([
+      '_INTEGRATE',
+      'node_modules',
+      'packages/shared/utils/cli',
+    ]);
+    expect(result.names.has('_INTEGRATE')).toBe(true);
+    expect(result.names.has('node_modules')).toBe(true);
+    expect(result.paths).toEqual(['packages/shared/utils/cli']);
+  });
+
+  it('returns empty sets for empty input', () => {
+    const result: ExcludeConfig = parseExcludes([]);
+    expect(result.names.size).toBe(0);
+    expect(result.paths.length).toBe(0);
+  });
+
+  it('treats entries with slashes as path-based', () => {
+    const result: ExcludeConfig = parseExcludes(['a/b', 'c/d/e']);
+    expect(result.names.size).toBe(0);
+    expect(result.paths).toEqual(['a/b', 'c/d/e']);
+  });
+
+  it('treats entries without slashes as name-based', () => {
+    const result: ExcludeConfig = parseExcludes(['foo', 'bar']);
+    expect(result.names.has('foo')).toBe(true);
+    expect(result.names.has('bar')).toBe(true);
+    expect(result.paths.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// getAllFiles — ExcludeConfig support
+// =============================================================================
+
+describe('getAllFiles — ExcludeConfig', () => {
+  it('skips directories matching name-based excludes', async () => {
+    const excludes: ExcludeConfig = parseExcludes(['rules']);
+    const files: string[] = [];
+    const lintSrcDir: string = join(THIS_DIR, '..');
+    for await (const file of getAllFiles(lintSrcDir, excludes)) {
+      files.push(file);
+    }
+    const rulesFiles: string[] = files.filter((f: string): boolean => f.includes('/rules/'));
+    expect(rulesFiles).toEqual([]);
+    expect(files.length).toBeGreaterThan(0);
+  });
+
+  it('skips directories matching path-based excludes', async () => {
+    const lintSrcDir: string = join(THIS_DIR, '..');
+    const excludes: ExcludeConfig = parseExcludes(['rules/workspace']);
+    const files: string[] = [];
+    for await (const file of getAllFiles(lintSrcDir, excludes, lintSrcDir)) {
+      files.push(file);
+    }
+    const workspaceRuleFiles: string[] = files.filter((f: string): boolean =>
+      f.includes('/rules/workspace/'),
+    );
+    expect(workspaceRuleFiles).toEqual([]);
+    /* Other rules subdirectories should still be present */
+    const otherRuleFiles: string[] = files.filter((f: string): boolean => f.includes('/rules/'));
+    expect(otherRuleFiles.length).toBeGreaterThan(0);
+  });
+
+  it('still skips hardcoded SKIP_DIRS even without excludes', async () => {
+    const files: string[] = [];
+    for await (const file of getAllFiles(WORKSPACE_ROOT, undefined)) {
+      files.push(file);
+      if (files.length > 200) {
+        break;
+      }
+    }
+    const nodeModulesFiles: string[] = files.filter((f: string): boolean =>
+      f.includes('node_modules'),
+    );
+    expect(nodeModulesFiles).toEqual([]);
+  });
+});
+
+// =============================================================================
+// createWorkspaceContext — exclude parameter
+// =============================================================================
+
+describe('createWorkspaceContext — exclude', () => {
+  it('accepts exclude parameter and filters allFiles accordingly', async () => {
+    const lintSrcDir: string = join(THIS_DIR, '..');
+    const ctx: WorkspaceContext = createWorkspaceContext(lintSrcDir, ['rules']);
+    const files: string[] = [];
+    for await (const file of ctx.allFiles()) {
+      files.push(file);
+    }
+    const rulesFiles: string[] = files.filter((f: string): boolean => f.includes('/rules/'));
+    expect(rulesFiles).toEqual([]);
+    expect(files.length).toBeGreaterThan(0);
+  });
+
+  it('without exclude, allFiles includes all directories', async () => {
+    const lintSrcDir: string = join(THIS_DIR, '..');
+    const ctx: WorkspaceContext = createWorkspaceContext(lintSrcDir);
+    const files: string[] = [];
+    for await (const file of ctx.allFiles()) {
+      files.push(file);
+    }
+    const rulesFiles: string[] = files.filter((f: string): boolean => f.includes('/rules/'));
+    expect(rulesFiles.length).toBeGreaterThan(0);
   });
 });

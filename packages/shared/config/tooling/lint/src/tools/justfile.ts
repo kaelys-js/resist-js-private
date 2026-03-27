@@ -26,6 +26,7 @@ const JUST_ERROR_LINE: RegExp = /^error:\s*(.+?)\s+at\s+line\s+(\d+)/i;
  * as a generic formatting issue.
  *
  * @param {string} output - Raw error output from `just --check`
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -33,7 +34,6 @@ const JUST_ERROR_LINE: RegExp = /^error:\s*(.+?)\s+at\s+line\s+(\d+)/i;
  * const results = transformJustOutput('error: unexpected token at line 5');
  * // results[0].ruleId === 'justfile/format'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformJustOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

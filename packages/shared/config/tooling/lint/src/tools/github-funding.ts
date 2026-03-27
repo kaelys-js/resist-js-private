@@ -44,6 +44,7 @@ const VALID_PLATFORMS: ReadonlySet<string> = new Set<string>([
  * diagnostic. If the output is empty or only whitespace, no issues were found.
  *
  * @param {string} output - Raw text output in `filename:line: message` format
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -54,7 +55,6 @@ const VALID_PLATFORMS: ReadonlySet<string> = new Set<string>([
  * // results[0].ruleId === 'github/funding'
  * // results[0].severity === 'warning'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformGithubFundingOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
@@ -106,6 +106,7 @@ export function transformGithubFundingOutput(output: string, strings: LintString
  *
  * @param {string} filePath - Absolute path to the FUNDING.yml file
  * @param {string} content - Raw file content
+ * @param {LintStrings} strings - Locale strings for user-facing messages
  * @returns {LintResult[]} Validation diagnostics
  *
  * @example
@@ -113,7 +114,6 @@ export function transformGithubFundingOutput(output: string, strings: LintString
  * const results = validateFunding('.github/FUNDING.yml', 'patreon: myaccount\nbuymeacoffee: foo\n');
  * // results[0].message includes 'Unrecognized funding platform: buymeacoffee'
  * ```
-  * @param {Type} strings - Description
  */
 export function validateFunding(
   filePath: string,

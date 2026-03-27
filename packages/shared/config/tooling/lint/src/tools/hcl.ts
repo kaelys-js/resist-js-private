@@ -20,6 +20,7 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * Each non-empty line is treated as a filename.
  *
  * @param {string} output - Raw text output from `hclfmt -check`
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -28,7 +29,6 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * // results[0].ruleId === 'hcl/format'
  * // results.length === 2
  * ```
-  * @param {Type} strings - Description
  */
 export function transformHclOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

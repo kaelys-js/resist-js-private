@@ -46,6 +46,7 @@ type KnipIssue = {
  * `{ files: [...], dependencies: [...], exports: [{type, filePath, symbol, line, col}], ... }`
  *
  * @param {string} output - Raw JSON output from knip
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -54,7 +55,6 @@ type KnipIssue = {
  * const results = transformKnipOutput(json);
  * // results[0].ruleId === 'knip/unused-export'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformKnipOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

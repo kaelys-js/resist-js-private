@@ -18,6 +18,7 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * a `messages` array with: `{ line, col, type, message, rule: { id } }`
  *
  * @param {string} output - Raw JSON output from HTMLHint
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -25,7 +26,6 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * const results = transformHtmlhintOutput('[{"file":"index.html","messages":[{"line":1,"col":1,"type":"error","message":"Doctype must be declared first.","rule":{"id":"doctype-first"}}]}]');
  * // results[0].ruleId === 'htmlhint/doctype-first'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformHtmlhintOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

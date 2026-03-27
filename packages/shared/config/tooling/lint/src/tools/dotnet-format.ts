@@ -35,6 +35,7 @@ const DOTNET_FORMAT_FILE: RegExp = /(\S+\.cs)/;
  * an empty result set is returned.
  *
  * @param {string} output - Raw text output from dotnet format
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -43,7 +44,6 @@ const DOTNET_FORMAT_FILE: RegExp = /(\S+\.cs)/;
  * // results[0].ruleId === 'dotnet-format/style'
  * // results[0].severity === 'warning'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformDotnetFormatOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

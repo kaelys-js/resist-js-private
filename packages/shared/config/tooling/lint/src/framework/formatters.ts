@@ -57,7 +57,7 @@ export type OutputFormat = v.InferOutput<typeof OutputFormatSchema>;
  * //      '----
  * //   help: suggestion text
  * ```
-  * @param {Type} strings - Description
+ * @param {LintStrings} strings - Locale strings for user-facing messages
  */
 export function formatText(
   results: LintResult[],
@@ -430,8 +430,8 @@ export function formatCompact(results: LintResult[]): string {
  * @param {OutputFormat} format - Output format ('text', 'json', 'sarif', 'github', 'junit', 'compact')
  * @param {number} totalFiles - Total files linted (used by text and junit formats)
  * @param {Map<string, string>} ruleDescriptions - Rule descriptions (used by SARIF)
+ * @param {LintStrings} strings - Locale strings for user-facing messages
  * @returns {string} Formatted output string
-  * @param {Type} strings - Description
  */
 export function formatResults(
   results: LintResult[],

@@ -25,6 +25,7 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * If all files are sorted, output contains "already sorted" or is empty.
  *
  * @param {string} output - Raw text output from sort-package-json --check
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -32,7 +33,6 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * const results = transformSortPackageJsonOutput('package.json is not sorted\n');
  * // results[0].ruleId === 'sort-package-json/order'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformSortPackageJsonOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

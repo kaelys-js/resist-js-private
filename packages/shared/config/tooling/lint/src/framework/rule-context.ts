@@ -10,7 +10,7 @@
 
 import type { Dirent } from 'node:fs';
 import { readFile as fsReadFile, readdir, stat } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 
 import * as v from 'valibot';
 
@@ -70,7 +70,7 @@ export type WorkspaceContext = {
 // Constants
 // =============================================================================
 
-/** Directories to skip during recursive file discovery. */
+/** Directories to always skip during recursive file discovery. */
 const SKIP_DIRS: ReadonlySet<string> = new Set([
   'node_modules',
   '.git',
@@ -83,18 +83,56 @@ const SKIP_DIRS: ReadonlySet<string> = new Set([
   '.cache',
 ]);
 
+/** Parsed exclude configuration for workspace file discovery. */
+export type ExcludeConfig = {
+  /** Directory/file names to skip (entries without `/`). */
+  readonly names: ReadonlySet<string>;
+  /** Relative path prefixes to skip (entries with `/`). */
+  readonly paths: readonly string[];
+};
+
 // =============================================================================
 // File Discovery
 // =============================================================================
 
 /**
+ * Check whether a directory should be excluded by path-prefix matching.
+ *
+ * @param {string} dirFullPath - Absolute path of the directory
+ * @param {string} rootDir - Workspace root for computing relative paths
+ * @param {readonly string[]} excludePaths - Relative path prefixes to exclude
+ * @returns {boolean} True if the directory should be excluded
+ */
+function shouldExcludeByPath(
+  dirFullPath: string,
+  rootDir: string,
+  excludePaths: readonly string[],
+): boolean {
+  if (excludePaths.length === 0) {
+    return false;
+  }
+  const relPath: string = relative(rootDir, dirFullPath);
+  return excludePaths.some((p: string): boolean => relPath === p || relPath.startsWith(`${p}/`));
+}
+
+/**
  * Recursively discover all files in a directory, skipping ignored directories.
  *
+ * Respects both the hardcoded {@link SKIP_DIRS} set and the optional
+ * config-driven exclude list (name-based and path-prefix-based).
+ *
  * @param {string} dir - Directory to scan
+ * @param {ExcludeConfig} [excludes] - Optional config-driven excludes
+ * @param {string} [rootDir] - Workspace root for path-prefix exclusion (defaults to dir)
  * @yields {string} Absolute file paths
- * @returns {AsyncIterable<string>} Description
+ * @returns {AsyncIterable<string>} Async iterable of file paths
  */
-export async function* getAllFiles(dir: string): AsyncIterable<string> {
+export async function* getAllFiles(
+  dir: string,
+  excludes?: ExcludeConfig,
+  rootDir?: string,
+): AsyncIterable<string> {
+  const root: string = rootDir ?? dir;
   let entries: Dirent[];
   try {
     entries = (await readdir(dir, { withFileTypes: true })) as Dirent[];
@@ -107,9 +145,16 @@ export async function* getAllFiles(dir: string): AsyncIterable<string> {
     const fullPath: string = join(dir, name);
 
     if (entry.isDirectory()) {
-      if (!SKIP_DIRS.has(name)) {
-        yield* getAllFiles(fullPath);
+      if (SKIP_DIRS.has(name)) {
+        continue;
       }
+      if (excludes && excludes.names.has(name)) {
+        continue;
+      }
+      if (excludes && shouldExcludeByPath(fullPath, root, excludes.paths)) {
+        continue;
+      }
+      yield* getAllFiles(fullPath, excludes, root);
       continue;
     }
 
@@ -352,15 +397,41 @@ export async function* search(
 // =============================================================================
 
 /**
+ * Parse a config exclude array into name-based and path-based entries.
+ *
+ * @param {readonly string[]} exclude - The exclude array from config
+ * @returns {ExcludeConfig} Parsed exclude configuration
+ */
+export function parseExcludes(exclude: readonly string[]): ExcludeConfig {
+  const names: string[] = [];
+  const paths: string[] = [];
+
+  for (const entry of exclude) {
+    if (entry.includes('/')) {
+      paths.push(entry);
+    } else {
+      names.push(entry);
+    }
+  }
+
+  return { names: new Set(names), paths };
+}
+
+/**
  * Create a workspace context for workspace-scoped rules.
  *
  * @param {string} rootDir - Workspace root directory
+ * @param {readonly string[]} [exclude] - Config exclude patterns
  * @returns {WorkspaceContext} Workspace context object
  */
-export function createWorkspaceContext(rootDir: string): WorkspaceContext {
+export function createWorkspaceContext(
+  rootDir: string,
+  exclude?: readonly string[],
+): WorkspaceContext {
+  const excludes: ExcludeConfig | undefined = exclude ? parseExcludes(exclude) : undefined;
   return {
     rootDir,
-    allFiles: (): AsyncIterable<string> => getAllFiles(rootDir),
+    allFiles: (): AsyncIterable<string> => getAllFiles(rootDir, excludes),
     readFile: readFileContent,
     fileExists,
     dirExists,

@@ -1,10 +1,4 @@
 - [Lint]
-  - Every Rule Has A "fix"
-  - Enforce test files use "*.test.ts" filenames
-  - Enforce e2e, integration test file naming
-  - Enforce ".svelte.ts" for ...?
-  - All valibot schemas should use generics and function packages
-
   - Finish _INTEGRATE Port
 
   - VSCode Extension (linter-test/extensions)

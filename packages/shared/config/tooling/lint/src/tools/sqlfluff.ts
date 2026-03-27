@@ -18,8 +18,8 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * `[{ filepath, violations: [{ start_line_no, start_line_pos, code, description }] }]`
  *
  * @param {string} output - Raw JSON output from SQLFluff
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
-  * @param {Type} strings - Description
  */
 export function transformSqlfluffOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

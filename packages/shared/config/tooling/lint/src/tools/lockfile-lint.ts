@@ -23,6 +23,7 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * Lines that do not contain any of these markers are skipped.
  *
  * @param {string} output - Raw text output from lockfile-lint
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -31,7 +32,6 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * // results[0].ruleId === 'lockfile-lint/security'
  * // results[0].severity === 'error'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformLockfileLintOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

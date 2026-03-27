@@ -38,6 +38,7 @@ const FANTOMAS_ERROR: RegExp = /^Error:\s*(.+)$/;
  * - `Error: some parsing error` — error encountered (produces result)
  *
  * @param {string} output - Raw text output from fantomas --check
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -46,7 +47,6 @@ const FANTOMAS_ERROR: RegExp = /^Error:\s*(.+)$/;
  * // results[0].ruleId === 'fantomas/format'
  * // results[0].severity === 'warning'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformFantomasOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

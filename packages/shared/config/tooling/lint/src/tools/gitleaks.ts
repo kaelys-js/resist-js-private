@@ -59,6 +59,7 @@ type GitleaksEntry = {
  * All findings are classified as 'error' severity since leaked secrets are critical security issues.
  *
  * @param {string} output - Raw JSON output from Gitleaks
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -67,7 +68,6 @@ type GitleaksEntry = {
  * // results[0].ruleId === 'gitleaks/aws-access-key-id'
  * // results[0].severity === 'error'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformGitleaksOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

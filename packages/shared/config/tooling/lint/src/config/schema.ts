@@ -70,9 +70,8 @@ export type LintConfig = v.InferOutput<typeof LintConfigSchema>;
  * @param {string} cwd - Directory to search for the config file
  * @param {string} [customConfigPath] - Optional custom path to a config file
  * @returns {LintConfig} Validated linter configuration
+ * @param {LintStrings} strings - Locale strings for user-facing messages
  * @throws If the config file contains invalid JSON or fails schema validation
- * @param {Type} customConfigPath - Description
-  * @param {Type} strings - Description
  */
 export function loadConfig(
   cwd: string,
@@ -355,8 +354,8 @@ export type JsonSchemaDocument = v.InferOutput<typeof JsonSchemaDocumentSchema>;
  *
  * @param {string[]} ruleIds - All known rule IDs (e.g. ['jsdoc/require-param', ...])
  * @param {Map<string, string>} ruleDescriptions - Map of rule ID to human-readable description
+ * @param {LintStrings} strings - Locale strings for user-facing messages
  * @returns {JsonSchemaDocument} JSON Schema document as a plain object
-  * @param {Type} strings - Description
  */
 export function generateJsonSchema(
   ruleIds: string[],

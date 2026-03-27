@@ -20,6 +20,7 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * `filename:line: message`
  *
  * @param {string} output - Raw text output from the nvmrc validator
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -27,7 +28,6 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * const results = transformNvmrcOutput('.nvmrc:1: Invalid version pattern "latest"');
  * // results[0].ruleId === 'nvmrc/version'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformNvmrcOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
