@@ -23,7 +23,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 | Metric | Value |
 |--------|-------|
-| Tests | TBD (run before starting) |
+| Tests | 2443 pass / 0 fail |
 | Type-check | Passes |
 | Rules with real fixes | ~65 |
 | Rules with no-op fixes | ~68 |
@@ -36,7 +36,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 1.1: Fix `imports/require-import-groups` broken blank-line fix
 
-**Status**: [ ]
+**Status**: [x] — Verified: `text: '\n'` at line 116, `fixable: true` at line 60. 2 new tests added. 2447 tests pass.
 
 **Gap**: Fix text is `''` (empty string) at line 115 — should insert `'\n'` to add blank line between import groups. The fix range is correct (`next.start` to `next.start`) but the replacement text is empty, so nothing happens.
 
@@ -60,7 +60,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 1.2: Fix `comments/require-blank-line-groups` broken blank-line fix
 
-**Status**: [ ]
+**Status**: [x] — Verified: `text: '\n'` at lines 149 and 207, `fixable: true` at line 102. 2 new tests added. 2447 tests pass.
 
 **Gap**: Same broken pattern — fix text is `''` at lines 148 and 206, should be `'\n'`.
 
@@ -86,7 +86,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 2.1: `valibot/prefer-pipe` — restructure deprecated method calls
 
-**Status**: [ ]
+**Status**: [x] — Verified: Real fix at line 98 using `node.start`/`node.end` range with `v.pipe()` restructuring. `fixable: true` at line 45. 3 new tests added. 2450 tests pass.
 
 **Gap**: No-op fix `{ range: { start: 0, end: 0 }, text: '' }`. Rule detects `v.minLength(v.string(), 3)` but provides no autofix.
 
@@ -113,7 +113,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 2.2: `valibot/schema-type-pair` — generate missing type alias
 
-**Status**: [ ]
+**Status**: [x] — Verified: `fixable: true` at line 73. Missing type fix inserts `v.InferOutput<typeof ...>` at line 186. Wrong type fix replaces at line 170. 3 new tests. 2453 tests pass.
 
 **Gap**: No-op fix for "missing type" case. Rule detects schema without type but can't fix it.
 
@@ -138,7 +138,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 2.3: `valibot/prefer-methods` — replace transform with built-in methods
 
-**Status**: [ ]
+**Status**: [x] — Verified: `fixable: true` at line 22. Fix replaces with `v.trim()`/`v.toLowerCase()`/`v.toUpperCase()` at lines 55/59/63. 4 new tests. 2457 tests pass.
 
 **Gap**: No-op fix. Rule detects `v.transform(x => x.trim())` but provides no fix.
 
@@ -164,7 +164,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 2.4: `valibot/no-orphan-schemas` — generate type alias or add export
 
-**Status**: [ ]
+**Status**: [x] — Verified: `fixable: true` at line 72. Missing type inserts `v.InferOutput<typeof ...>` at line 207. Unexported type prepends `export ` at line 223. 3 new tests. 2460 tests pass.
 
 **Gap**: No-op fix for both "missing type" and "not exported" cases.
 
@@ -191,7 +191,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 2.5: `jsdoc/param-type-match` — replace mismatched JSDoc type
 
-**Status**: [ ]
+**Status**: [x] — Verified: `fixable: true` at line 214. Fix computes absolute byte offset of `{WrongType}` in JSDoc and replaces with `{ActualType}`. 2 new tests. 2468 tests pass.
 
 **Gap**: No-op fix at line 191: `{ range: { start: exportNode.start, end: exportNode.start }, text: '' }`. Rule knows both the wrong type and the correct type but doesn't fix.
 
@@ -218,7 +218,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 2.6: `jsdoc/require-schema-link` — insert {@link} reference
 
-**Status**: [ ]
+**Status**: [x] — Verified: `fixable: true` at line 48. Fix inserts `See {@link SchemaName}.` before `*/` (or full JSDoc block if none exists). 3 new tests. 2468 tests pass.
 
 **Gap**: No-op fix at line 82: `{ range: { start: node.start, end: node.start }, text: '' }`. Rule knows the schema name but doesn't insert the link.
 
@@ -244,7 +244,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 2.7: `jsdoc/require-returns` — fix broken type/mismatch variants
 
-**Status**: [ ]
+**Status**: [x] — Verified: `fixable: true` at line 231. Missing-type fix inserts `{ReturnType}` after `@returns`. Mismatch fix replaces `{WrongType}` with `{ActualType}`. 3 new tests. 2468 tests pass.
 
 **Gap**: Missing `@returns` fix works (line 160-163). But "missing type" (line 179) and "type mismatch" (line 196) variants are no-op: `{ range: { start: exportNode.start, end: exportNode.start }, text: '' }`.
 
@@ -273,7 +273,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 3.1: Audit and mark all non-fixable rules
 
-**Status**: [ ]
+**Status**: [x] — Verified: 31 rule files marked `fixable: false` (1 already had it). Total: 53 rules with `fixable: false`, 13 rules with `fixable: true`. 2468 tests pass.
 
 **Gap**: ~53 rules have no-op fixes but don't declare `fixable: false`. The CLI/formatter can't distinguish between rules that support `--fix` and rules that don't.
 
@@ -335,7 +335,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 4.1: Write failing tests
 
-**Status**: [ ]
+**Status**: [x] — Combined with 4.2. 6 tests for require-test-suffix added to testing-rules.test.ts.
 
 **Plan**:
 - Add tests to `rules/testing/testing-rules.test.ts`:
@@ -402,7 +402,7 @@ describe('testing/require-test-suffix', () => {
 
 ### Task 4.2: Implement rule
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule created at `rules/testing/require-test-suffix.ts`. WorkspaceRule with `scope: 'workspace'`, `fixable: false`. Flags `.spec.`, `-test.`, `_test.` variants. 2486 tests pass.
 
 **Plan**:
 - Create `rules/testing/require-test-suffix.ts`:
@@ -481,7 +481,7 @@ export default rule;
 
 ### Task 5.1: Write failing tests
 
-**Status**: [ ]
+**Status**: [x] — Combined with 5.2. 5 tests for require-e2e-location added.
 
 **Plan**:
 - Add tests to `rules/testing/testing-rules.test.ts`:
@@ -539,7 +539,7 @@ describe('testing/require-e2e-location', () => {
 
 ### Task 5.2: Implement rule
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule created at `rules/testing/require-e2e-location.ts`. WorkspaceRule, checks path segments for `e2e/`. `fixable: false`. 2486 tests pass.
 
 **Plan**:
 - Create `rules/testing/require-e2e-location.ts`:
@@ -624,7 +624,7 @@ export default rule;
 
 ### Task 6.1: Write failing tests
 
-**Status**: [ ]
+**Status**: [x] — Combined with 6.2. 4 tests for require-integration-location added.
 
 **Plan**:
 - Add tests to `rules/testing/testing-rules.test.ts`:
@@ -677,7 +677,7 @@ describe('testing/require-integration-location', () => {
 
 ### Task 6.2: Implement rule
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule created at `rules/testing/require-integration-location.ts`. WorkspaceRule, checks `tests/integration/` path and colocated source. Severity: `warning`. `fixable: false`. 2486 tests pass.
 
 **Plan**:
 - Create `rules/testing/require-integration-location.ts`:
@@ -782,7 +782,7 @@ export default rule;
 
 ### Task 7.1: Write failing tests
 
-**Status**: [ ]
+**Status**: [x] — Combined with 7.2. 8 tests added to typescript-rules.test.ts.
 
 **Plan**:
 - Add tests to the TypeScript rules test file:
@@ -852,7 +852,7 @@ describe('typescript/require-svelte-ts-extension', () => {
 
 ### Task 7.2: Implement rule
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/typescript/require-svelte-ts-extension.ts`. TypeScriptRule, `patterns: ['**/*.ts']`, `fixable: false`. Detects 7 Svelte runes via recursive AST walk. 8 tests. 2494 tests pass.
 
 **Plan**:
 - Create `rules/typescript/require-svelte-ts-extension.ts`:
@@ -951,14 +951,14 @@ Updated implementation in Task 7.2 should use `Program` visitor with early retur
 
 ### Task 8.1: Add rules to .resist-lint.jsonc
 
-**Status**: [ ]
+**Status**: [x] — Verified: All 4 rules registered in `.resist-lint.jsonc`. `testing/require-test-suffix`: "error" (line 52), `testing/require-e2e-location`: "error" (line 53), `testing/require-integration-location`: "warn" (line 54), `typescript/require-svelte-ts-extension`: "error" (line 69). Note: plan said "warning" but schema only accepts "warn". 2494 tests pass.
 
 **Plan**:
 - Add to `.resist-lint.jsonc` under `"rules"`:
   ```jsonc
   "testing/require-test-suffix": "error",
   "testing/require-e2e-location": "error",
-  "testing/require-integration-location": "warning",
+  "testing/require-integration-location": "warn",
   "typescript/require-svelte-ts-extension": "error",
   ```
 - Run QA to verify no regressions
