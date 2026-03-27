@@ -25,6 +25,7 @@ const rule: TypeScriptRule = {
   id: 'valibot/prefer-branded-types',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

@@ -74,6 +74,7 @@ const rule: TypeScriptRule = {
   id: 'valibot/no-schema-in-component',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

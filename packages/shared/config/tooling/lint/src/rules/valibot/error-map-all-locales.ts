@@ -28,6 +28,7 @@ const rule: TypeScriptRule = {
   id: 'valibot/error-map-all-locales',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

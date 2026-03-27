@@ -125,6 +125,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'valibot'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

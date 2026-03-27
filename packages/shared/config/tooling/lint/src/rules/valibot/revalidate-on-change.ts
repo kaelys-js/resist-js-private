@@ -30,6 +30,7 @@ const rule: TypeScriptRule = {
   id: 'valibot/revalidate-on-change',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

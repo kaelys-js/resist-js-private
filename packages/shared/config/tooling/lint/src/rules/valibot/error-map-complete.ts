@@ -25,6 +25,7 @@ const rule: TypeScriptRule = {
   id: 'valibot/error-map-complete',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

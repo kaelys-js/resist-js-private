@@ -88,6 +88,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'valibot'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

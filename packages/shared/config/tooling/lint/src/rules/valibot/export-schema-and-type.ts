@@ -72,6 +72,7 @@ const rule: TypeScriptRule = {
   id: 'valibot/export-schema-and-type',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

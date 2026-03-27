@@ -20,6 +20,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['imports', 'architecture'],
   stages: ['lint', 'ci'],
+  fixable: false,
 
   visitor: {
     ExportAllDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
