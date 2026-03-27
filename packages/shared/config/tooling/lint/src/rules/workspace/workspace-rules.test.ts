@@ -18,6 +18,12 @@ import noUntrackedArtifacts from './no-untracked-artifacts.ts';
 import requireGitRepo from './require-git-repo.ts';
 import requireLockfile from './require-lockfile.ts';
 import namesValid from '../package/names-valid.ts';
+import noAbsoluteWorkspaceGlobs from './no-absolute-workspace-globs.ts';
+import noDuplicateWorkspaceGlobs from './no-duplicate-workspace-globs.ts';
+import noNodeModulesWorkspaceGlobs from './no-node-modules-workspace-globs.ts';
+import noTestDirWorkspaceGlobs from './no-test-dir-workspace-globs.ts';
+import noTrailingSlashGlobs from './no-trailing-slash-globs.ts';
+import requireWorkspaceSchema from './require-workspace-schema.ts';
 import workspaceValid from './workspace-valid.ts';
 
 // =============================================================================
@@ -826,6 +832,123 @@ describe('workspace/no-unpinned-git-deps', () => {
   it('returns empty when lockfile missing', async () => {
     const ctx: WorkspaceContext = mockContext({ files: new Map() });
     const results: LintResult[] = await noUnpinnedGitDeps.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-absolute-workspace-globs
+// =============================================================================
+
+describe('workspace/no-absolute-workspace-globs', () => {
+  it('has correct rule metadata', () => {
+    expect(noAbsoluteWorkspaceGlobs.id).toBe('workspace/no-absolute-workspace-globs');
+    expect(noAbsoluteWorkspaceGlobs.scope).toBe('workspace');
+    expect(noAbsoluteWorkspaceGlobs.fixable).toBe(false);
+    expect(typeof noAbsoluteWorkspaceGlobs.check).toBe('function');
+  });
+
+  it('flags absolute glob starting with /', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "/apps/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noAbsoluteWorkspaceGlobs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('/apps/*');
+  });
+
+  it('passes for relative globs', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "packages/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noAbsoluteWorkspaceGlobs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when workspace file missing', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await noAbsoluteWorkspaceGlobs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-trailing-slash-globs
+// =============================================================================
+
+describe('workspace/no-trailing-slash-globs', () => {
+  it('has correct rule metadata', () => {
+    expect(noTrailingSlashGlobs.id).toBe('workspace/no-trailing-slash-globs');
+    expect(noTrailingSlashGlobs.scope).toBe('workspace');
+    expect(noTrailingSlashGlobs.fixable).toBe(false);
+    expect(typeof noTrailingSlashGlobs.check).toBe('function');
+  });
+
+  it('flags glob ending with /', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "packages/*/"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTrailingSlashGlobs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('trailing slash');
+  });
+
+  it('passes for globs without trailing slash', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "packages/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTrailingSlashGlobs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when workspace file missing', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await noTrailingSlashGlobs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-duplicate-workspace-globs
+// =============================================================================
+
+describe('workspace/no-duplicate-workspace-globs', () => {
+  it('has correct rule metadata', () => {
+    expect(noDuplicateWorkspaceGlobs.id).toBe('workspace/no-duplicate-workspace-globs');
+    expect(noDuplicateWorkspaceGlobs.scope).toBe('workspace');
+    expect(noDuplicateWorkspaceGlobs.fixable).toBe(false);
+    expect(typeof noDuplicateWorkspaceGlobs.check).toBe('function');
+  });
+
+  it('flags duplicate glob entries', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "packages/*"\n  - "packages/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDuplicateWorkspaceGlobs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Duplicate');
+  });
+
+  it('passes for unique globs', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "packages/*"\n  - "apps/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDuplicateWorkspaceGlobs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when workspace file missing', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await noDuplicateWorkspaceGlobs.check(ctx);
     expect(results.length).toBe(0);
   });
 });
