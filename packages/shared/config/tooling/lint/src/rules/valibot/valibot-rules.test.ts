@@ -4089,6 +4089,46 @@ const schema = transform((s) => s.trim());
     const results: LintResult[] = await lint(preferMethods, code);
     expect(results.length).toBe(0);
   });
+
+  it('autofixes v.transform(x => x.trim()) to v.trim()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.transform((s) => s.trim());
+`;
+    const results: LintResult[] = await lint(preferMethods, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.text).toBe('v.trim()');
+    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
+    expect(results[0]!.fix.range.end).toBeGreaterThan(results[0]!.fix.range.start);
+  });
+
+  it('autofixes v.transform(x => x.toLowerCase()) to v.toLowerCase()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.transform((s) => s.toLowerCase());
+`;
+    const results: LintResult[] = await lint(preferMethods, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.text).toBe('v.toLowerCase()');
+    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
+    expect(results[0]!.fix.range.end).toBeGreaterThan(results[0]!.fix.range.start);
+  });
+
+  it('autofixes v.transform(x => x.toUpperCase()) to v.toUpperCase()', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const schema = v.transform((s) => s.toUpperCase());
+`;
+    const results: LintResult[] = await lint(preferMethods, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.text).toBe('v.toUpperCase()');
+    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
+    expect(results[0]!.fix.range.end).toBeGreaterThan(results[0]!.fix.range.start);
+  });
+
+  it('has fixable: true', () => {
+    expect(preferMethods.fixable).toBe(true);
+  });
 });
 
 // =============================================================================

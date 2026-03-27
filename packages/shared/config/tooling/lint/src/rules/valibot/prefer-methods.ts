@@ -19,6 +19,7 @@ import type {
 const rule: TypeScriptRule = {
   categories: ['valibot', 'idiom'],
   description: 'Use built-in Valibot methods instead of custom v.transform() calls',
+  fixable: true,
   id: 'valibot/prefer-methods',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
@@ -69,7 +70,9 @@ const rule: TypeScriptRule = {
           results.push({
             column: node.loc.start.column + 1,
             file: context.file,
-            fix: { range: { end: 0, start: 0 }, text: '' },
+            fix: suggestion
+              ? { range: { end: node.end as number, start: node.start as number }, text: suggestion }
+              : { range: { end: 0, start: 0 }, text: '' },
             line: node.loc.start.line,
             message,
             ruleId: 'valibot/prefer-methods',
