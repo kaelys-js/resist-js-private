@@ -673,9 +673,7 @@ describe('workspace/require-lockfile', () => {
   });
 
   it('reports error when lockfile is empty', async () => {
-    const files: Map<string, string> = new Map([
-      ['/workspace/pnpm-lock.yaml', ''],
-    ]);
+    const files: Map<string, string> = new Map([['/workspace/pnpm-lock.yaml', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireLockfile.check(ctx);
     expect(results.length).toBe(1);
@@ -694,7 +692,10 @@ describe('workspace/require-lockfile', () => {
 
   it('passes for valid lockfile', async () => {
     const files: Map<string, string> = new Map([
-      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\nimporters:\n  .:\n    dependencies: {}\n'],
+      [
+        '/workspace/pnpm-lock.yaml',
+        'lockfileVersion: "9.0"\nimporters:\n  .:\n    dependencies: {}\n',
+      ],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireLockfile.check(ctx);
@@ -716,7 +717,10 @@ describe('workspace/no-lockfile-local-links', () => {
 
   it('flags file: dependency in lockfile', async () => {
     const files: Map<string, string> = new Map([
-      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\nimporters:\n  .:\n    dependencies:\n      my-lib:\n        version: file:../lib\n'],
+      [
+        '/workspace/pnpm-lock.yaml',
+        'lockfileVersion: "9.0"\nimporters:\n  .:\n    dependencies:\n      my-lib:\n        version: file:../lib\n',
+      ],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noLockfileLocalLinks.check(ctx);
@@ -727,7 +731,10 @@ describe('workspace/no-lockfile-local-links', () => {
 
   it('flags link: dependency in lockfile', async () => {
     const files: Map<string, string> = new Map([
-      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\nimporters:\n  .:\n    dependencies:\n      my-utils:\n        version: link:../utils\n'],
+      [
+        '/workspace/pnpm-lock.yaml',
+        'lockfileVersion: "9.0"\nimporters:\n  .:\n    dependencies:\n      my-utils:\n        version: link:../utils\n',
+      ],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noLockfileLocalLinks.check(ctx);
@@ -737,7 +744,10 @@ describe('workspace/no-lockfile-local-links', () => {
 
   it('ignores clean lockfile', async () => {
     const files: Map<string, string> = new Map([
-      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\nimporters:\n  .:\n    dependencies:\n      valibot:\n        version: 1.0.0\n'],
+      [
+        '/workspace/pnpm-lock.yaml',
+        'lockfileVersion: "9.0"\nimporters:\n  .:\n    dependencies:\n      valibot:\n        version: 1.0.0\n',
+      ],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noLockfileLocalLinks.check(ctx);
@@ -765,7 +775,10 @@ describe('workspace/no-unpinned-git-deps', () => {
 
   it('flags github.com dep with #main', async () => {
     const files: Map<string, string> = new Map([
-      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\npackages:\n  github.com/org/repo#main:\n    resolution: {}\n'],
+      [
+        '/workspace/pnpm-lock.yaml',
+        'lockfileVersion: "9.0"\npackages:\n  github.com/org/repo#main:\n    resolution: {}\n',
+      ],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noUnpinnedGitDeps.check(ctx);
@@ -776,7 +789,10 @@ describe('workspace/no-unpinned-git-deps', () => {
 
   it('flags github.com dep with #master', async () => {
     const files: Map<string, string> = new Map([
-      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\npackages:\n  github.com/org/repo#master:\n    resolution: {}\n'],
+      [
+        '/workspace/pnpm-lock.yaml',
+        'lockfileVersion: "9.0"\npackages:\n  github.com/org/repo#master:\n    resolution: {}\n',
+      ],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noUnpinnedGitDeps.check(ctx);
@@ -785,7 +801,10 @@ describe('workspace/no-unpinned-git-deps', () => {
 
   it('flags github.com dep with #next', async () => {
     const files: Map<string, string> = new Map([
-      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\npackages:\n  github.com/org/repo#next:\n    resolution: {}\n'],
+      [
+        '/workspace/pnpm-lock.yaml',
+        'lockfileVersion: "9.0"\npackages:\n  github.com/org/repo#next:\n    resolution: {}\n',
+      ],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noUnpinnedGitDeps.check(ctx);
@@ -794,7 +813,10 @@ describe('workspace/no-unpinned-git-deps', () => {
 
   it('ignores github.com dep with SHA', async () => {
     const files: Map<string, string> = new Map([
-      ['/workspace/pnpm-lock.yaml', 'lockfileVersion: "9.0"\npackages:\n  github.com/org/repo#a1b2c3d4e5f6:\n    resolution: {}\n'],
+      [
+        '/workspace/pnpm-lock.yaml',
+        'lockfileVersion: "9.0"\npackages:\n  github.com/org/repo#a1b2c3d4e5f6:\n    resolution: {}\n',
+      ],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noUnpinnedGitDeps.check(ctx);
