@@ -180,6 +180,16 @@ function checkFunction(
     const normalizedActual: string = normalizeType(actualType);
 
     if (normalizedDoc !== normalizedActual) {
+      // Find the {WrongType} substring in the JSDoc to compute fix range
+      const before: string = context.content.slice(0, exportNode.start);
+      const trimmed: string = before.trimEnd();
+      const docStart: number = trimmed.lastIndexOf('/**');
+      const typePattern: string = `{${docParam.type}}`;
+      const jsDocText: string = trimmed.slice(docStart);
+      const typeOffset: number = jsDocText.indexOf(typePattern);
+      const absStart: number = docStart + typeOffset;
+      const absEnd: number = absStart + typePattern.length;
+
       results.push({
         file: context.file,
         line: exportNode.loc.start.line,
@@ -188,7 +198,7 @@ function checkFunction(
         message: `@param {${docParam.type}} ${docParam.name} does not match actual type '${actualType}'`,
         ruleId: 'jsdoc/param-type-match',
         tip: `Update the @param type to match: @param {${actualType}} ${docParam.name}`,
-        fix: { range: { start: exportNode.start, end: exportNode.start }, text: '' },
+        fix: { range: { start: absStart, end: absEnd }, text: `{${actualType}}` },
       });
     }
   }
@@ -201,6 +211,7 @@ const rule: TypeScriptRule = {
   description: '@param {Type} must match the actual TypeScript type annotation',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['jsdoc', 'typescript'],
+  fixable: true,
   stages: ['lint', 'ci'],
 
   visitor: {
