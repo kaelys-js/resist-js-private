@@ -97,6 +97,7 @@ export const en: LintStrings = {
     jobs: '--jobs=N              Number of worker threads (default: CPU count, 1=single-threaded)',
     json: '--json                Output results as JSON',
     listRules: '--list-rules          Print all rules with severity and patterns',
+    locale: '--locale=CODE         Set output locale (default: en)',
     noCache: '--no-cache            Clear cache and run full lint',
     paths: '<paths...>            Paths to lint (files or directories)',
     quiet: '--quiet               Suppress warnings, show only errors',

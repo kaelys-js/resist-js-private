@@ -758,6 +758,7 @@ ${t.cli.optionsHeader}
   ${t.flags.tools}
   ${t.flags.cache}
   ${t.flags.noCache}
+  ${t.flags.locale}
   ${t.flags.debug}
   ${t.flags.warnOnly}
   ${t.flags.help}
