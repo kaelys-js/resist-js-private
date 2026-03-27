@@ -1633,6 +1633,35 @@ type User = { name: string };
     expect(results[0]!.severity).toBe('warning');
     expect(results[0]!.message).toContain('not exported');
   });
+
+  it('provides autofix that inserts type alias after schema when type is missing', async () => {
+    const code: string = `import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.fix.text).toBe(
+      '\nexport type User = v.InferOutput<typeof UserSchema>;\n',
+    );
+    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
+    expect(results[0]!.fix.range.start).toBe(results[0]!.fix.range.end);
+  });
+
+  it('provides autofix that prepends export to existing unexported type', async () => {
+    const code: string = `import * as v from 'valibot';
+export const UserSchema = v.strictObject({ name: v.string() });
+type User = v.InferOutput<typeof UserSchema>;
+`;
+    const results: LintResult[] = await lint(noOrphanSchemas, code);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.fix.text).toBe('export ');
+    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
+    expect(results[0]!.fix.range.start).toBe(results[0]!.fix.range.end);
+  });
+
+  it('has fixable: true', () => {
+    expect(noOrphanSchemas.fixable).toBe(true);
+  });
 });
 
 // =============================================================================
