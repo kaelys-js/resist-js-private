@@ -1957,6 +1957,35 @@ let UserSchema;
     const results: LintResult[] = await lint(schemaTypePair, code);
     expect(results.length).toBe(0);
   });
+
+  it('provides autofix that inserts type alias after schema when type is missing', async () => {
+    const code: string = `import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.fix.text).toBe(
+      '\nexport type User = v.InferOutput<typeof UserSchema>;\n',
+    );
+    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
+    expect(results[0]!.fix.range.start).toBe(results[0]!.fix.range.end);
+  });
+
+  it('provides autofix that replaces type annotation when type is wrong', async () => {
+    const code: string = `import * as v from 'valibot';
+const UserSchema = v.strictObject({ name: v.string() });
+type User = { name: string };
+`;
+    const results: LintResult[] = await lint(schemaTypePair, code);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.fix.text).toBe('v.InferOutput<typeof UserSchema>');
+    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
+    expect(results[0]!.fix.range.end).toBeGreaterThan(results[0]!.fix.range.start);
+  });
+
+  it('has fixable: true', () => {
+    expect(schemaTypePair.fixable).toBe(true);
+  });
 });
 
 // =============================================================================
