@@ -1,8 +1,7 @@
 /**
- * Rule: workspace/no-empty-files
+ * Rule: workspace/no-temp-files
  *
- * Files must not be empty, unless they are allowed placeholders
- * (.gitignore, .env, .keep, .gitkeep).
+ * Workspace must not contain leftover temp/debug files.
  *
  * @module
  */
@@ -12,13 +11,21 @@ import { basename, relative } from 'node:path';
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
-/** Filenames that are allowed to be empty. */
-const ALLOWED_EMPTY: ReadonlySet<string> = new Set(['.gitignore', '.env', '.keep', '.gitkeep']);
+/** File extensions that indicate temp/debug files. */
+const TEMP_EXTENSIONS: readonly string[] = [
+  '.log',
+  '.tmp',
+  '.bak',
+  '.orig',
+  '.swp',
+  '.swo',
+  '.swn',
+];
 
-/** Flags files that are completely empty (0 bytes). */
+/** Flags leftover temp/debug files in the workspace. */
 const rule: WorkspaceRule = {
-  id: 'workspace/no-empty-files',
-  description: 'Files must not be empty unless they are allowed placeholders.',
+  id: 'workspace/no-temp-files',
+  description: 'Workspace must not contain leftover temp/debug files.',
   scope: 'workspace',
   categories: ['workspace', 'safety'],
   stages: ['lint', 'check'],
@@ -44,25 +51,41 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     for await (const filePath of ctx.allFiles()) {
-      let content: string;
-      try {
-        content = await ctx.readFile(filePath);
-      } catch {
-        continue;
+      const name: string = basename(filePath);
+      let isTemp: boolean = false;
+
+      /* Check basename */
+      if (name === '.DS_Store') {
+        isTemp = true;
       }
 
-      if (content === '' && !ALLOWED_EMPTY.has(basename(filePath))) {
+      /* Check if file ends with ~ */
+      if (!isTemp && filePath.endsWith('~')) {
+        isTemp = true;
+      }
+
+      /* Check temp extensions */
+      if (!isTemp) {
+        for (const ext of TEMP_EXTENSIONS) {
+          if (filePath.endsWith(ext)) {
+            isTemp = true;
+            break;
+          }
+        }
+      }
+
+      if (isTemp) {
         const relativePath: string = relative(ctx.rootDir, filePath);
         results.push(
           createResult(
-            'workspace/no-empty-files',
+            'workspace/no-temp-files',
             filePath,
             1,
             1,
-            'warning',
-            `Unexpected empty file: ${relativePath}`,
+            'error',
+            `Leftover temp/debug file: ${relativePath}`,
             {
-              tip: 'Remove unused placeholders or ensure files are properly generated',
+              tip: 'Remove or add to .gitignore',
             },
           ),
         );

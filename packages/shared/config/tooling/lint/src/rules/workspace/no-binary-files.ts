@@ -1,24 +1,34 @@
 /**
- * Rule: workspace/no-empty-files
+ * Rule: workspace/no-binary-files
  *
- * Files must not be empty, unless they are allowed placeholders
- * (.gitignore, .env, .keep, .gitkeep).
+ * Binary files should not be committed to version control.
  *
  * @module
  */
 
-import { basename, relative } from 'node:path';
+import { extname, relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
-/** Filenames that are allowed to be empty. */
-const ALLOWED_EMPTY: ReadonlySet<string> = new Set(['.gitignore', '.env', '.keep', '.gitkeep']);
+/** Extensions of binary files that should not be committed. */
+const BINARY_EXTENSIONS: ReadonlySet<string> = new Set([
+  '.exe',
+  '.bin',
+  '.o',
+  '.a',
+  '.so',
+  '.dll',
+  '.dylib',
+  '.class',
+  '.jar',
+  '.pyc',
+]);
 
-/** Flags files that are completely empty (0 bytes). */
+/** Flags binary files that should not be committed. */
 const rule: WorkspaceRule = {
-  id: 'workspace/no-empty-files',
-  description: 'Files must not be empty unless they are allowed placeholders.',
+  id: 'workspace/no-binary-files',
+  description: 'Binary files should not be committed to version control.',
   scope: 'workspace',
   categories: ['workspace', 'safety'],
   stages: ['lint', 'check'],
@@ -44,25 +54,20 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     for await (const filePath of ctx.allFiles()) {
-      let content: string;
-      try {
-        content = await ctx.readFile(filePath);
-      } catch {
-        continue;
-      }
+      const ext: string = extname(filePath);
 
-      if (content === '' && !ALLOWED_EMPTY.has(basename(filePath))) {
+      if (BINARY_EXTENSIONS.has(ext)) {
         const relativePath: string = relative(ctx.rootDir, filePath);
         results.push(
           createResult(
-            'workspace/no-empty-files',
+            'workspace/no-binary-files',
             filePath,
             1,
             1,
-            'warning',
-            `Unexpected empty file: ${relativePath}`,
+            'error',
+            `Binary file should not be committed: ${relativePath}`,
             {
-              tip: 'Remove unused placeholders or ensure files are properly generated',
+              tip: 'Remove binary files from version control — build from source',
             },
           ),
         );

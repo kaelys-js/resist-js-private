@@ -1,26 +1,35 @@
 /**
- * Rule: workspace/no-empty-files
+ * Rule: workspace/no-excess-trailing-newlines
  *
- * Files must not be empty, unless they are allowed placeholders
- * (.gitignore, .env, .keep, .gitkeep).
+ * Source files must not end with 3 or more consecutive newlines.
  *
  * @module
  */
 
-import { basename, relative } from 'node:path';
+import { relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
-/** Filenames that are allowed to be empty. */
-const ALLOWED_EMPTY: ReadonlySet<string> = new Set(['.gitignore', '.env', '.keep', '.gitkeep']);
+/** File extensions to check for excess trailing newlines. */
+const SOURCE_EXTENSIONS: ReadonlySet<string> = new Set([
+  '.ts',
+  '.js',
+  '.json',
+  '.yaml',
+  '.yml',
+  '.md',
+  '.svelte',
+  '.css',
+  '.html',
+]);
 
-/** Flags files that are completely empty (0 bytes). */
+/** Flags files that end with 3+ consecutive newlines. */
 const rule: WorkspaceRule = {
-  id: 'workspace/no-empty-files',
-  description: 'Files must not be empty unless they are allowed placeholders.',
+  id: 'workspace/no-excess-trailing-newlines',
+  description: 'Source files must not end with excess trailing newlines.',
   scope: 'workspace',
-  categories: ['workspace', 'safety'],
+  categories: ['workspace', 'encoding'],
   stages: ['lint', 'check'],
   fixable: false,
   async check(context: unknown): Promise<
@@ -44,6 +53,16 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     for await (const filePath of ctx.allFiles()) {
+      /* Check extension */
+      const lastDot: number = filePath.lastIndexOf('.');
+      if (lastDot < 0) {
+        continue;
+      }
+      const ext: string = filePath.slice(lastDot);
+      if (!SOURCE_EXTENSIONS.has(ext)) {
+        continue;
+      }
+
       let content: string;
       try {
         content = await ctx.readFile(filePath);
@@ -51,18 +70,18 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      if (content === '' && !ALLOWED_EMPTY.has(basename(filePath))) {
+      if (content.endsWith('\n\n\n')) {
         const relativePath: string = relative(ctx.rootDir, filePath);
         results.push(
           createResult(
-            'workspace/no-empty-files',
+            'workspace/no-excess-trailing-newlines',
             filePath,
             1,
             1,
             'warning',
-            `Unexpected empty file: ${relativePath}`,
+            `File has excess trailing newlines: ${relativePath}`,
             {
-              tip: 'Remove unused placeholders or ensure files are properly generated',
+              tip: 'Ensure files end with exactly one newline',
             },
           ),
         );

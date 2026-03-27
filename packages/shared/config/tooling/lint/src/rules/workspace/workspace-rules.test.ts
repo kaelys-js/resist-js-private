@@ -40,6 +40,21 @@ import noLongLines from './no-long-lines.ts';
 import requireLicense from './require-license.ts';
 import requireTypeField from './require-type-field.ts';
 import validBinTargets from './valid-bin-targets.ts';
+import noEditorArtifacts from './no-editor-artifacts.ts';
+import noBinaryFiles from './no-binary-files.ts';
+import noCaseCollisions from './no-case-collisions.ts';
+import noLargeFiles from './no-large-files.ts';
+import noTsbuildinfo from './no-tsbuildinfo.ts';
+import noEmptyFiles from './no-empty-files.ts';
+import noExecBit from './no-exec-bit.ts';
+import noTempFiles from './no-temp-files.ts';
+import noExcessTrailingNewlines from './no-excess-trailing-newlines.ts';
+import noMixedIndentation from './no-mixed-indentation.ts';
+import noHardcodedIps from './no-hardcoded-ips.ts';
+import noJsSourceFiles from './no-js-source-files.ts';
+import noInsecureUrls from './no-insecure-urls.ts';
+import noSkippedTests from './no-skipped-tests.ts';
+import noUnsafeRegex from './no-unsafe-regex.ts';
 
 // =============================================================================
 // Helpers
@@ -1894,6 +1909,609 @@ describe('workspace/valid-bin-targets', () => {
     ];
     const ctx: WorkspaceContext = mockContext({ packages });
     const results: LintResult[] = await validBinTargets.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-hardcoded-ips
+// =============================================================================
+
+describe('workspace/no-hardcoded-ips', () => {
+  it('has correct rule metadata', () => {
+    expect(noHardcodedIps.id).toBe('workspace/no-hardcoded-ips');
+    expect(noHardcodedIps.scope).toBe('workspace');
+    expect(noHardcodedIps.fixable).toBe(false);
+    expect(typeof noHardcodedIps.check).toBe('function');
+  });
+
+  it('flags file with hardcoded IP', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/config.ts', "const host = '192.168.1.1';"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHardcodedIps.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-hardcoded-ips');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes file with localhost IP', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/config.ts', "const host = '127.0.0.1';"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHardcodedIps.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes file with 0.0.0.0', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/config.ts', "const host = '0.0.0.0';"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHardcodedIps.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes file with no IPs', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/config.ts', 'const x = 42;']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHardcodedIps.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-js-source-files
+// =============================================================================
+
+describe('workspace/no-js-source-files', () => {
+  it('has correct rule metadata', () => {
+    expect(noJsSourceFiles.id).toBe('workspace/no-js-source-files');
+    expect(noJsSourceFiles.scope).toBe('workspace');
+    expect(noJsSourceFiles.fixable).toBe(false);
+    expect(typeof noJsSourceFiles.check).toBe('function');
+  });
+
+  it('flags .js file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.js', 'module.exports = {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noJsSourceFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-js-source-files');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('flags .cjs file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/config.cjs', 'module.exports = {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noJsSourceFiles.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('flags .mjs file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/utils.mjs', 'export default {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noJsSourceFiles.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes .ts file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', 'export default {};']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noJsSourceFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-insecure-urls
+// =============================================================================
+
+describe('workspace/no-insecure-urls', () => {
+  it('has correct rule metadata', () => {
+    expect(noInsecureUrls.id).toBe('workspace/no-insecure-urls');
+    expect(noInsecureUrls.scope).toBe('workspace');
+    expect(noInsecureUrls.fixable).toBe(false);
+    expect(typeof noInsecureUrls.check).toBe('function');
+  });
+
+  it('flags file with http:// URL', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/api.ts', "fetch('http://example.com')"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInsecureUrls.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-insecure-urls');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes file with https://', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/api.ts', "fetch('https://example.com')"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInsecureUrls.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes file with http://localhost', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/api.ts', "fetch('http://localhost:3000')"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInsecureUrls.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes file with http://127.0.0.1', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/api.ts', "fetch('http://127.0.0.1:8080')"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInsecureUrls.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-skipped-tests
+// =============================================================================
+
+describe('workspace/no-skipped-tests', () => {
+  it('has correct rule metadata', () => {
+    expect(noSkippedTests.id).toBe('workspace/no-skipped-tests');
+    expect(noSkippedTests.scope).toBe('workspace');
+    expect(noSkippedTests.fixable).toBe(false);
+    expect(typeof noSkippedTests.check).toBe('function');
+  });
+
+  it('flags it.skip', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/foo.test.ts', "it.skip('test', () => {})"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSkippedTests.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-skipped-tests');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('flags describe.only', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/foo.test.ts', "describe.only('suite', () => {})"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSkippedTests.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('flags test.todo', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/foo.test.ts', "test.todo('later')"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSkippedTests.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes normal test', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/foo.test.ts', "it('works', () => {})"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSkippedTests.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-unsafe-regex
+// =============================================================================
+
+describe('workspace/no-unsafe-regex', () => {
+  it('has correct rule metadata', () => {
+    expect(noUnsafeRegex.id).toBe('workspace/no-unsafe-regex');
+    expect(noUnsafeRegex.scope).toBe('workspace');
+    expect(noUnsafeRegex.fixable).toBe(false);
+    expect(typeof noUnsafeRegex.check).toBe('function');
+  });
+
+  it('flags nested quantifier pattern', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/parser.ts', 'const re = /(a+)+/;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnsafeRegex.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-unsafe-regex');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes safe regex', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/parser.ts', 'const re = /[a-z]+/;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnsafeRegex.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes normal code without regex', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/parser.ts', 'const x = 42;']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnsafeRegex.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-empty-files
+// =============================================================================
+
+describe('workspace/no-empty-files', () => {
+  it('has correct rule metadata', () => {
+    expect(noEmptyFiles.id).toBe('workspace/no-empty-files');
+    expect(noEmptyFiles.scope).toBe('workspace');
+    expect(noEmptyFiles.fixable).toBe(false);
+    expect(typeof noEmptyFiles.check).toBe('function');
+  });
+
+  it('flags empty file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/empty.ts', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEmptyFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes non-empty file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', 'hello']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEmptyFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes allowed empty files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitignore', ''],
+      ['/workspace/.env', ''],
+      ['/workspace/src/.keep', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEmptyFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-exec-bit
+// =============================================================================
+
+describe('workspace/no-exec-bit', () => {
+  it('has correct rule metadata', () => {
+    expect(noExecBit.id).toBe('workspace/no-exec-bit');
+    expect(noExecBit.scope).toBe('workspace');
+    expect(noExecBit.fixable).toBe(false);
+    expect(noExecBit.categories).toContain('workspace');
+    expect(noExecBit.categories).toContain('safety');
+    expect(noExecBit.stages).toContain('lint');
+    expect(noExecBit.stages).toContain('check');
+    expect(typeof noExecBit.check).toBe('function');
+  });
+
+  it('returns empty results for empty workspace', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await noExecBit.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-temp-files
+// =============================================================================
+
+describe('workspace/no-temp-files', () => {
+  it('has correct rule metadata', () => {
+    expect(noTempFiles.id).toBe('workspace/no-temp-files');
+    expect(noTempFiles.scope).toBe('workspace');
+    expect(noTempFiles.fixable).toBe(false);
+    expect(typeof noTempFiles.check).toBe('function');
+  });
+
+  it('flags .log file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/debug.log', 'log content']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTempFiles.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('flags .DS_Store', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.DS_Store', 'binary']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTempFiles.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('flags file ending with ~', async () => {
+    const files: Map<string, string> = new Map([['/workspace/backup~', 'old content']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTempFiles.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes normal .ts file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/index.ts', 'export {};\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTempFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-excess-trailing-newlines
+// =============================================================================
+
+describe('workspace/no-excess-trailing-newlines', () => {
+  it('has correct rule metadata', () => {
+    expect(noExcessTrailingNewlines.id).toBe('workspace/no-excess-trailing-newlines');
+    expect(noExcessTrailingNewlines.scope).toBe('workspace');
+    expect(noExcessTrailingNewlines.fixable).toBe(false);
+    expect(typeof noExcessTrailingNewlines.check).toBe('function');
+  });
+
+  it('flags file with excess trailing newlines', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', 'hello\n\n\n\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noExcessTrailingNewlines.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes file with single trailing newline', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', 'hello\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noExcessTrailingNewlines.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes file with no trailing newline', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', 'hello']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noExcessTrailingNewlines.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-mixed-indentation
+// =============================================================================
+
+describe('workspace/no-mixed-indentation', () => {
+  it('has correct rule metadata', () => {
+    expect(noMixedIndentation.id).toBe('workspace/no-mixed-indentation');
+    expect(noMixedIndentation.scope).toBe('workspace');
+    expect(noMixedIndentation.fixable).toBe(false);
+    expect(typeof noMixedIndentation.check).toBe('function');
+  });
+
+  it('flags file with mixed indentation', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', '\t code\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMixedIndentation.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes all-spaces file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', '  code\n  more']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMixedIndentation.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes all-tabs file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', '\tcode\n\tmore']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMixedIndentation.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-editor-artifacts
+// =============================================================================
+
+describe('workspace/no-editor-artifacts', () => {
+  it('has correct rule metadata', () => {
+    expect(noEditorArtifacts.id).toBe('workspace/no-editor-artifacts');
+    expect(noEditorArtifacts.scope).toBe('workspace');
+    expect(noEditorArtifacts.fixable).toBe(false);
+    expect(typeof noEditorArtifacts.check).toBe('function');
+  });
+
+  it('flags .idea directory file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.idea/workspace.xml', '<xml/>']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEditorArtifacts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-editor-artifacts');
+    expect(results[0]!.message).toContain('.idea/workspace.xml');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('flags .vscode/launch.json', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.vscode/launch.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEditorArtifacts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.vscode/launch.json');
+  });
+
+  it('passes normal source file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.ts', 'export const x = 1;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEditorArtifacts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes .vscode/settings.json', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.vscode/settings.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEditorArtifacts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-binary-files
+// =============================================================================
+
+describe('workspace/no-binary-files', () => {
+  it('has correct rule metadata', () => {
+    expect(noBinaryFiles.id).toBe('workspace/no-binary-files');
+    expect(noBinaryFiles.scope).toBe('workspace');
+    expect(noBinaryFiles.fixable).toBe(false);
+    expect(typeof noBinaryFiles.check).toBe('function');
+  });
+
+  it('flags .exe file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/app.exe', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBinaryFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-binary-files');
+    expect(results[0]!.message).toContain('app.exe');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('flags .dll file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/lib.dll', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBinaryFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('lib.dll');
+  });
+
+  it('flags .pyc file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/module.pyc', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBinaryFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('module.pyc');
+  });
+
+  it('passes .ts file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/index.ts', 'export const x = 1;\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBinaryFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-case-collisions
+// =============================================================================
+
+describe('workspace/no-case-collisions', () => {
+  it('has correct rule metadata', () => {
+    expect(noCaseCollisions.id).toBe('workspace/no-case-collisions');
+    expect(noCaseCollisions.scope).toBe('workspace');
+    expect(noCaseCollisions.fixable).toBe(false);
+    expect(typeof noCaseCollisions.check).toBe('function');
+  });
+
+  it('flags case collision', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/Foo.ts', 'export const x = 1;\n'],
+      ['/workspace/foo.ts', 'export const y = 2;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCaseCollisions.check(ctx);
+    expect(results.length).toBe(2);
+    expect(results[0]!.ruleId).toBe('workspace/no-case-collisions');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes unique filenames', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/foo.ts', 'export const x = 1;\n'],
+      ['/workspace/bar.ts', 'export const y = 2;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCaseCollisions.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-large-files
+// =============================================================================
+
+describe('workspace/no-large-files', () => {
+  it('has correct rule metadata', () => {
+    expect(noLargeFiles.id).toBe('workspace/no-large-files');
+    expect(noLargeFiles.scope).toBe('workspace');
+    expect(noLargeFiles.fixable).toBe(false);
+    expect(typeof noLargeFiles.check).toBe('function');
+  });
+
+  it('flags file with >1000 lines', async () => {
+    const lines: string[] = Array.from({ length: 1001 }, (): string => 'line');
+    const content: string = lines.join('\n');
+    const files: Map<string, string> = new Map([['/workspace/src/big.ts', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLargeFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-large-files');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('1001');
+  });
+
+  it('passes file with <1000 lines', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/small.ts', 'hello\nworld']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLargeFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-tsbuildinfo
+// =============================================================================
+
+describe('workspace/no-tsbuildinfo', () => {
+  it('has correct rule metadata', () => {
+    expect(noTsbuildinfo.id).toBe('workspace/no-tsbuildinfo');
+    expect(noTsbuildinfo.scope).toBe('workspace');
+    expect(noTsbuildinfo.fixable).toBe(false);
+    expect(typeof noTsbuildinfo.check).toBe('function');
+  });
+
+  it('flags .tsbuildinfo file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/tsconfig.tsbuildinfo', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsbuildinfo.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-tsbuildinfo');
+    expect(results[0]!.message).toContain('tsconfig.tsbuildinfo');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes .ts file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/index.ts', 'export const x = 1;\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsbuildinfo.check(ctx);
     expect(results.length).toBe(0);
   });
 });
