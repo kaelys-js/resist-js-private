@@ -83,7 +83,7 @@ export const LintResultSchema = v.strictObject({
 export type LintResult = v.InferOutput<typeof LintResultSchema>;
 
 /** No-op fix placeholder for rules that don't provide auto-fixes. */
-const NO_OP_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
+export const NO_OP_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
 
 /** Optional fields for {@link createResult}. */
 type CreateResultOpts = {

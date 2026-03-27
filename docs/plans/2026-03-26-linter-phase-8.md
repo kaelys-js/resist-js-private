@@ -34,7 +34,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 1.1: Write failing tests
 
-**Status**: [ ]
+**Status**: [x] — Combined with 1.2. 5 tests added to workspace-rules.test.ts.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
@@ -97,7 +97,7 @@ describe('workspace/no-untracked-artifacts', () => {
 
 ### Task 1.2: Implement rule
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/no-untracked-artifacts.ts`. `fixable: false` at line 25, severity `warning` at line 59. 5 tests pass. Also fixed `NO_OP_FIX` export in `types.ts`. 2499 tests pass.
 
 **Plan**:
 - Create `rules/workspace/no-untracked-artifacts.ts`:
