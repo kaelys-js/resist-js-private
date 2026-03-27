@@ -70,6 +70,7 @@ function isValibotSchemaCall(node: AstNode, context: VisitorContext): boolean {
 const rule: TypeScriptRule = {
   categories: ['valibot', 'architecture'],
   description: 'Every schema must have a corresponding type derived via v.InferOutput',
+  fixable: true,
   id: 'valibot/schema-type-pair',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
@@ -83,7 +84,7 @@ const rule: TypeScriptRule = {
       }
 
       // Collect schema definitions and type aliases
-      const schemas: Array<{ name: string; line: number; column: number }> = [];
+      const schemas: Array<{ name: string; line: number; column: number; stmtEnd: number }> = [];
       const typeAliases: Map<string, AstNode> = new Map();
 
       for (const stmt of body) {
@@ -136,6 +137,7 @@ const rule: TypeScriptRule = {
               column: id.loc.start.column + 1,
               line: (varDecl === stmt ? stmt : node).loc.start.line,
               name,
+              stmtEnd: stmt.end,
             });
           }
         }
@@ -155,10 +157,18 @@ const rule: TypeScriptRule = {
             typeText.includes(expectedPattern);
 
           if (!hasInferOutput) {
+            const typeAnnotation = typeNode.typeAnnotation as AstNode | undefined;
+            const fixRange =
+              typeAnnotation ?
+                { end: typeAnnotation.end, start: typeAnnotation.start }
+              : { end: typeNode.end, start: typeNode.start };
             results.push({
               column: typeNode.loc.start.column + 1,
               file: context.file,
-              fix: { range: { end: typeNode.end, start: typeNode.start }, text: '' },
+              fix: {
+                range: fixRange,
+                text: `v.InferOutput<typeof ${schema.name}>`,
+              },
               line: typeNode.loc.start.line,
               message: `Type '${expectedType}' should be derived from '${schema.name}' using v.InferOutput<typeof ${schema.name}>`,
               ruleId: 'valibot/schema-type-pair',
@@ -171,7 +181,10 @@ const rule: TypeScriptRule = {
           results.push({
             column: schema.column,
             file: context.file,
-            fix: { range: { end: 0, start: 0 }, text: '' },
+            fix: {
+              range: { end: schema.stmtEnd, start: schema.stmtEnd },
+              text: `\nexport type ${expectedType} = v.InferOutput<typeof ${schema.name}>;\n`,
+            },
             line: schema.line,
             message: `Schema '${schema.name}' has no corresponding type '${expectedType}'`,
             ruleId: 'valibot/schema-type-pair',
