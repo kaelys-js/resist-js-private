@@ -10,7 +10,7 @@
 
 import { execSync } from 'node:child_process';
 import { type Dirent, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { extname, join, resolve } from 'node:path';
+import { extname, join, relative, resolve } from 'node:path';
 
 import * as v from 'valibot';
 import {
@@ -364,15 +364,78 @@ export function shouldLint(filePath: string, config: LintConfig): boolean {
 }
 
 /**
+ * Check whether a directory should be excluded from file collection.
+ *
+ * Supports two matching modes:
+ * - Name-based: exclude entries without `/` match against the directory name only
+ *   (e.g., `node_modules` matches any `node_modules/` at any depth)
+ * - Path-prefix: exclude entries containing `/` match against the full relative
+ *   path from the workspace root (e.g., `packages/shared/utils/cli` matches
+ *   only that specific directory)
+ *
+ * @param {string} entryName - The directory entry name (basename)
+ * @param {string} dirFullPath - The absolute path to the directory
+ * @param {string} rootDir - The workspace root directory (for computing relative paths)
+ * @param {ReadonlySet<string>} excludeNames - Exclude entries without `/` (name-based)
+ * @param {readonly string[]} excludePaths - Exclude entries with `/` (path-prefix)
+ * @returns {boolean} True if the directory should be excluded
+ */
+export function shouldExcludeDir(
+  entryName: string,
+  dirFullPath: string,
+  rootDir: string,
+  excludeNames: ReadonlySet<string>,
+  excludePaths: readonly string[],
+): boolean {
+  if (excludeNames.has(entryName)) {
+    return true;
+  }
+
+  if (excludePaths.length === 0) {
+    return false;
+  }
+
+  const relPath: string = relative(rootDir, dirFullPath);
+  return excludePaths.some((p: string): boolean => relPath === p || relPath.startsWith(`${p}/`));
+}
+
+/**
+ * Split config.exclude into name-based and path-based entries.
+ *
+ * @param {readonly string[]} exclude - The exclude array from config
+ * @returns {{ excludeNames: ReadonlySet<string>; excludePaths: readonly string[] }} Split result
+ */
+function splitExcludes(exclude: readonly string[]): {
+  excludeNames: ReadonlySet<string>;
+  excludePaths: readonly string[];
+} {
+  const names: string[] = [];
+  const paths: string[] = [];
+
+  for (const entry of exclude) {
+    if (entry.includes('/')) {
+      paths.push(entry);
+    } else {
+      names.push(entry);
+    }
+  }
+
+  return { excludeNames: new Set(names), excludePaths: paths };
+}
+
+/**
  * Recursively collect all lintable files from a directory.
  *
  * @param {string} dir - Directory to scan
  * @param {LintConfig} config - Linter configuration (provides exclude list)
+ * @param {string} [rootDir] - Workspace root for path-prefix exclusion (defaults to dir)
  * @returns {string[]} Array of absolute file paths
+ * @param {Type} rootDir - Description
  */
-export function collectFiles(dir: string, config: LintConfig): string[] {
+export function collectFiles(dir: string, config: LintConfig, rootDir?: string): string[] {
+  const root: string = rootDir ?? dir;
   const files: string[] = [];
-  const excludeSet: ReadonlySet<string> = new Set(config.exclude);
+  const { excludeNames, excludePaths } = splitExcludes(config.exclude);
 
   let entries: Dirent[];
   try {
@@ -383,14 +446,13 @@ export function collectFiles(dir: string, config: LintConfig): string[] {
   }
 
   for (const entry of entries) {
-    if (excludeSet.has(entry.name as string)) {
-      continue;
-    }
-
     const fullPath: string = join(dir, entry.name as string);
 
     if (entry.isDirectory()) {
-      files.push(...collectFiles(fullPath, config));
+      if (shouldExcludeDir(entry.name as string, fullPath, root, excludeNames, excludePaths)) {
+        continue;
+      }
+      files.push(...collectFiles(fullPath, config, root));
     } else if (entry.isFile() && shouldLint(fullPath, config)) {
       files.push(fullPath);
     }
@@ -404,11 +466,18 @@ export function collectFiles(dir: string, config: LintConfig): string[] {
  *
  * @param {string} dir - Directory to scan
  * @param {LintConfig} config - Linter configuration (provides exclude list)
+ * @param {string} [rootDir] - Workspace root for path-prefix exclusion (defaults to dir)
  * @returns {string[]} Array of absolute file paths
+ * @param {Type} rootDir - Description
  */
-export function collectPackageJsonFiles(dir: string, config: LintConfig): string[] {
+export function collectPackageJsonFiles(
+  dir: string,
+  config: LintConfig,
+  rootDir?: string,
+): string[] {
+  const root: string = rootDir ?? dir;
   const files: string[] = [];
-  const excludeSet: ReadonlySet<string> = new Set(config.exclude);
+  const { excludeNames, excludePaths } = splitExcludes(config.exclude);
 
   let entries: Dirent[];
   try {
@@ -418,12 +487,12 @@ export function collectPackageJsonFiles(dir: string, config: LintConfig): string
   }
 
   for (const entry of entries) {
-    if (excludeSet.has(entry.name as string)) {
-      continue;
-    }
     const fullPath: string = join(dir, entry.name as string);
     if (entry.isDirectory()) {
-      files.push(...collectPackageJsonFiles(fullPath, config));
+      if (shouldExcludeDir(entry.name as string, fullPath, root, excludeNames, excludePaths)) {
+        continue;
+      }
+      files.push(...collectPackageJsonFiles(fullPath, config, root));
     } else if (entry.isFile() && (entry.name as string) === 'package.json') {
       files.push(fullPath);
     }
@@ -896,13 +965,14 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
   );
 
   /* Collect files */
+  const cwd: string = process.cwd();
   const allFiles: string[] = [];
   for (const p of paths) {
     const resolved: string = resolve(p);
     try {
       const s: ReturnType<typeof statSync> = statSync(resolved);
       if (s.isDirectory()) {
-        allFiles.push(...collectFiles(resolved, config));
+        allFiles.push(...collectFiles(resolved, config, cwd));
       } else if (s.isFile() && shouldLint(resolved, config)) {
         allFiles.push(resolved);
       }
@@ -1108,7 +1178,7 @@ export async function runLinter(cliArgs: CliArgs, output: CliOutput): Promise<nu
     try {
       const s: ReturnType<typeof statSync> = statSync(resolved);
       if (s.isDirectory()) {
-        pkgFiles.push(...collectPackageJsonFiles(resolved, config));
+        pkgFiles.push(...collectPackageJsonFiles(resolved, config, cwd));
       }
     } catch {
       /* skip */
