@@ -69,6 +69,7 @@ function isValibotSchemaCall(node: AstNode, context: VisitorContext): boolean {
 const rule: TypeScriptRule = {
   categories: ['valibot', 'architecture'],
   description: 'Every exported schema must have a corresponding exported type alias',
+  fixable: true,
   id: 'valibot/no-orphan-schemas',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
@@ -82,9 +83,11 @@ const rule: TypeScriptRule = {
       }
 
       // Collect all schema definitions, type aliases, and exported names
-      const allSchemas: Map<string, { line: number; column: number; exported: boolean }> =
-        new Map();
-      const allTypes: Set<string> = new Set();
+      const allSchemas: Map<
+        string,
+        { line: number; column: number; exported: boolean; stmtEnd: number }
+      > = new Map();
+      const allTypes: Map<string, AstNode> = new Map();
       const exportedNames: Set<string> = new Set();
 
       for (const stmt of body) {
@@ -111,7 +114,7 @@ const rule: TypeScriptRule = {
             const id = declaration.id as AstNode | undefined;
             const typeName: string = (id?.name as string) ?? '';
             if (typeName) {
-              allTypes.add(typeName);
+              allTypes.set(typeName, declaration);
               exportedNames.add(typeName);
             }
           }
@@ -139,6 +142,7 @@ const rule: TypeScriptRule = {
                   column: stmt.loc.start.column + 1,
                   exported: true,
                   line: stmt.loc.start.line,
+                  stmtEnd: stmt.end,
                 });
               }
             }
@@ -150,7 +154,7 @@ const rule: TypeScriptRule = {
           const id = stmt.id as AstNode | undefined;
           const typeName: string = (id?.name as string) ?? '';
           if (typeName) {
-            allTypes.add(typeName);
+            allTypes.set(typeName, stmt);
           }
         }
 
@@ -178,6 +182,7 @@ const rule: TypeScriptRule = {
                 column: stmt.loc.start.column + 1,
                 exported: false,
                 line: stmt.loc.start.line,
+                stmtEnd: stmt.end,
               });
             }
           }
@@ -193,11 +198,14 @@ const rule: TypeScriptRule = {
         const expectedType: string = schemaName.replace(/Schema$/, '');
 
         if (!allTypes.has(expectedType)) {
-          // Type alias is completely missing
+          // Type alias is completely missing — insert after schema declaration
           results.push({
             column: info.column,
             file: context.file,
-            fix: { range: { end: 0, start: 0 }, text: '' },
+            fix: {
+              range: { end: info.stmtEnd, start: info.stmtEnd },
+              text: `\nexport type ${expectedType} = v.InferOutput<typeof ${schemaName}>;\n`,
+            },
             line: info.line,
             message: `Exported schema '${schemaName}' has no corresponding type alias '${expectedType}'`,
             ruleId: 'valibot/no-orphan-schemas',
@@ -205,11 +213,15 @@ const rule: TypeScriptRule = {
             tip: `Add: export type ${expectedType} = v.InferOutput<typeof ${schemaName}>;`,
           });
         } else if (!exportedNames.has(expectedType)) {
-          // Type alias exists but is not exported
+          // Type alias exists but is not exported — prepend `export ` keyword
+          const typeNode: AstNode = allTypes.get(expectedType)!;
           results.push({
             column: info.column,
             file: context.file,
-            fix: { range: { end: 0, start: 0 }, text: '' },
+            fix: {
+              range: { end: typeNode.start, start: typeNode.start },
+              text: 'export ',
+            },
             line: info.line,
             message: `Type '${expectedType}' exists but is not exported alongside schema '${schemaName}'`,
             ruleId: 'valibot/no-orphan-schemas',
