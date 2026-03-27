@@ -35,7 +35,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 1.1: Tests + Implementation
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/require-git-repo.ts`. `fixable: false` (line 21), `scope: 'workspace'` (line 18), severity `error` (line 58). 4 tests. 2511 total tests pass.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
