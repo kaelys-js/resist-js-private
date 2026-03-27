@@ -151,6 +151,9 @@
     "package/names-valid": "error",
     "package/valid-project-ref": "error",
     "package/valid-tsconfig": "error",
+    "workspace/no-broken-symlinks": "error",
+    "workspace/no-leftover-sqlite": "warn",
+    "workspace/no-untracked-artifacts": "warn",
     "workspace/workspace-valid": "error"
   },
   "ruleOptions": {
