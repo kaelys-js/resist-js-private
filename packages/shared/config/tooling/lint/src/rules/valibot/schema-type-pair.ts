@@ -158,9 +158,8 @@ const rule: TypeScriptRule = {
 
           if (!hasInferOutput) {
             const typeAnnotation = typeNode.typeAnnotation as AstNode | undefined;
-            const fixRange =
-              typeAnnotation ?
-                { end: typeAnnotation.end, start: typeAnnotation.start }
+            const fixRange = typeAnnotation
+              ? { end: typeAnnotation.end, start: typeAnnotation.start }
               : { end: typeNode.end, start: typeNode.start };
             results.push({
               column: typeNode.loc.start.column + 1,

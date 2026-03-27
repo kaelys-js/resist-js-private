@@ -71,7 +71,10 @@ const rule: TypeScriptRule = {
             column: node.loc.start.column + 1,
             file: context.file,
             fix: suggestion
-              ? { range: { end: node.end as number, start: node.start as number }, text: suggestion }
+              ? {
+                  range: { end: node.end as number, start: node.start as number },
+                  text: suggestion,
+                }
               : { range: { end: 0, start: 0 }, text: '' },
             line: node.loc.start.line,
             message,

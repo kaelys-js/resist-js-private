@@ -1640,9 +1640,7 @@ export const UserSchema = v.strictObject({ name: v.string() });
 `;
     const results: LintResult[] = await lint(noOrphanSchemas, code);
     expect(results).toHaveLength(1);
-    expect(results[0]!.fix.text).toBe(
-      '\nexport type User = v.InferOutput<typeof UserSchema>;\n',
-    );
+    expect(results[0]!.fix.text).toBe('\nexport type User = v.InferOutput<typeof UserSchema>;\n');
     expect(results[0]!.fix.range.start).toBeGreaterThan(0);
     expect(results[0]!.fix.range.start).toBe(results[0]!.fix.range.end);
   });
@@ -1993,9 +1991,7 @@ const UserSchema = v.strictObject({ name: v.string() });
 `;
     const results: LintResult[] = await lint(schemaTypePair, code);
     expect(results).toHaveLength(1);
-    expect(results[0]!.fix.text).toBe(
-      '\nexport type User = v.InferOutput<typeof UserSchema>;\n',
-    );
+    expect(results[0]!.fix.text).toBe('\nexport type User = v.InferOutput<typeof UserSchema>;\n');
     expect(results[0]!.fix.range.start).toBeGreaterThan(0);
     expect(results[0]!.fix.range.start).toBe(results[0]!.fix.range.end);
   });

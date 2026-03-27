@@ -49,10 +49,17 @@ const rule: WorkspaceRule = {
       const name: string = basename(file);
       if (E2E_PATTERN.test(name) && !isInE2eDir(file)) {
         results.push(
-          createResult('testing/require-e2e-location', file, 1, 1, 'error',
-            `E2E test '${name}' must be in an e2e/ or tests/e2e/ directory`, {
+          createResult(
+            'testing/require-e2e-location',
+            file,
+            1,
+            1,
+            'error',
+            `E2E test '${name}' must be in an e2e/ or tests/e2e/ directory`,
+            {
               tip: 'Move this file to an e2e/ or tests/e2e/ directory',
-            }),
+            },
+          ),
         );
       }
     }

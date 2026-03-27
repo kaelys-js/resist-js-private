@@ -43,10 +43,17 @@ const rule: WorkspaceRule = {
       const name: string = basename(file);
       if (BAD_SUFFIX_PATTERNS.some((p: RegExp): boolean => p.test(name))) {
         results.push(
-          createResult('testing/require-test-suffix', file, 1, 1, 'error',
-            `Test file '${name}' must use *.test.ts naming convention`, {
+          createResult(
+            'testing/require-test-suffix',
+            file,
+            1,
+            1,
+            'error',
+            `Test file '${name}' must use *.test.ts naming convention`,
+            {
               tip: `Rename to ${name.replace(/\.(spec|-test|_test)\./, '.test.')}`,
-            }),
+            },
+          ),
         );
       }
     }
