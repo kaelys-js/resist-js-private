@@ -12,6 +12,7 @@ import noBrokenSymlinks from './no-broken-symlinks.ts';
 import noLeftoverSqlite from './no-leftover-sqlite.ts';
 import noMergeConflicts from './no-merge-conflicts.ts';
 import noUntrackedArtifacts from './no-untracked-artifacts.ts';
+import requireGitRepo from './require-git-repo.ts';
 import namesValid from '../package/names-valid.ts';
 import workspaceValid from './workspace-valid.ts';
 
@@ -561,6 +562,65 @@ describe('workspace/no-broken-symlinks', () => {
         }),
     };
     const results: LintResult[] = await noBrokenSymlinks.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/require-git-repo
+// =============================================================================
+
+describe('workspace/require-git-repo', () => {
+  it('has correct rule metadata', () => {
+    expect(requireGitRepo.id).toBe('workspace/require-git-repo');
+    expect(requireGitRepo.scope).toBe('workspace');
+    expect(requireGitRepo.fixable).toBe(false);
+    expect(typeof requireGitRepo.check).toBe('function');
+  });
+
+  it('reports error when .git is missing', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      dirExists: (path: string): Promise<boolean> =>
+        new Promise<boolean>((resolve: (v: boolean) => void): void => {
+          resolve(!path.includes('.git'));
+        }),
+      fileExists: (path: string): Promise<boolean> =>
+        new Promise<boolean>((resolve: (v: boolean) => void): void => {
+          resolve(!path.includes('.git'));
+        }),
+    };
+    const results: LintResult[] = await requireGitRepo.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.ruleId).toBe('workspace/require-git-repo');
+  });
+
+  it('passes when .git directory exists', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      dirExists: (path: string): Promise<boolean> =>
+        new Promise<boolean>((resolve: (v: boolean) => void): void => {
+          resolve(path.includes('.git'));
+        }),
+    };
+    const results: LintResult[] = await requireGitRepo.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when .git is a file (worktree)', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      dirExists: (_path: string): Promise<boolean> =>
+        new Promise<boolean>((resolve: (v: boolean) => void): void => {
+          resolve(false);
+        }),
+      fileExists: (path: string): Promise<boolean> =>
+        new Promise<boolean>((resolve: (v: boolean) => void): void => {
+          resolve(path.includes('.git'));
+        }),
+    };
+    const results: LintResult[] = await requireGitRepo.check(ctx);
     expect(results.length).toBe(0);
   });
 });
