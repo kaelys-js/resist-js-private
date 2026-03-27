@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { WorkspaceContext, WorkspacePackage } from '../../framework/rule-context.ts';
 import type { LintResult } from '../../framework/types.ts';
+import noBrokenSymlinks from './no-broken-symlinks.ts';
 import noMergeConflicts from './no-merge-conflicts.ts';
 import noUntrackedArtifacts from './no-untracked-artifacts.ts';
 import namesValid from '../package/names-valid.ts';
@@ -469,5 +470,30 @@ describe('workspace/no-untracked-artifacts', () => {
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noUntrackedArtifacts.check(ctx);
     expect(results.length).toBe(3);
+  });
+});
+
+// =============================================================================
+// workspace/no-broken-symlinks
+// =============================================================================
+
+describe('workspace/no-broken-symlinks', () => {
+  it('has correct rule metadata', () => {
+    expect(noBrokenSymlinks.id).toBe('workspace/no-broken-symlinks');
+    expect(noBrokenSymlinks.scope).toBe('workspace');
+    expect(noBrokenSymlinks.fixable).toBe(false);
+    expect(typeof noBrokenSymlinks.check).toBe('function');
+  });
+
+  it('returns empty when node_modules does not exist', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      dirExists: (_path: string): Promise<boolean> =>
+        new Promise<boolean>((resolve: (v: boolean) => void): void => {
+          resolve(false);
+        }),
+    };
+    const results: LintResult[] = await noBrokenSymlinks.check(ctx);
+    expect(results.length).toBe(0);
   });
 });
