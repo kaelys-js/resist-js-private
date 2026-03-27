@@ -35,7 +35,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 1.1: Tests + Implementation
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/no-absolute-workspace-globs.ts`. `fixable: false`, `scope: 'workspace'`, severity `error`. 4 tests. 2541 total tests pass.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
@@ -61,7 +61,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 2.1: Tests + Implementation
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/no-trailing-slash-globs.ts`. `fixable: false`, `scope: 'workspace'`, severity `error`. 4 tests. 2541 total tests pass.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
@@ -87,7 +87,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 3.1: Tests + Implementation
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/no-duplicate-workspace-globs.ts`. `fixable: false`, `scope: 'workspace'`, severity `error`. 4 tests. 2541 total tests pass.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
@@ -113,7 +113,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 4.1: Tests + Implementation
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/no-test-dir-workspace-globs.ts`. `fixable: false`, `scope: 'workspace'`, severity `error`. 4 tests. 2554 total tests pass.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
@@ -140,7 +140,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 5.1: Tests + Implementation
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/no-node-modules-workspace-globs.ts`. `fixable: false`, `scope: 'workspace'`, severity `error`. 4 tests. 2554 total tests pass.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
@@ -166,7 +166,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 6.1: Tests + Implementation
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/require-workspace-schema.ts`. `fixable: false`, `scope: 'workspace'`, severity `warning`. 4 tests. 2554 total tests pass.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
