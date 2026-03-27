@@ -86,6 +86,7 @@ const rule: TypeScriptRule = {
   id: 'valibot/schema-file-location',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

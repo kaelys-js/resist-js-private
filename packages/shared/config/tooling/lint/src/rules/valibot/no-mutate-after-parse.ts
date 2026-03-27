@@ -21,6 +21,7 @@ const rule: TypeScriptRule = {
   id: 'valibot/no-mutate-after-parse',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     ExpressionStatement(node: AstNode, context: VisitorContext): LintResult[] {

@@ -59,6 +59,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'safety'],
   stages: ['lint', 'ci'],
+  fixable: false,
 
   visitor: {
     CatchClause(node: AstNode, context: VisitorContext): LintResult[] {

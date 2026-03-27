@@ -42,6 +42,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'valibot'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     TSUnionType(node: AstNode, context: VisitorContext): LintResult[] {

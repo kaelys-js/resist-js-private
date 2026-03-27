@@ -59,6 +59,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['imports', 'safety'],
   stages: ['lint', 'ci'],
+  fixable: false,
 
   visitor: {
     ImportDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

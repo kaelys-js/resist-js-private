@@ -30,6 +30,7 @@ const rule: TypeScriptRule = {
   id: 'valibot/validate-function-output',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

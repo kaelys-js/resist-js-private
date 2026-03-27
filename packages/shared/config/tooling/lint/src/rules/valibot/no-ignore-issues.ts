@@ -22,6 +22,7 @@ const rule: TypeScriptRule = {
   id: 'valibot/no-ignore-issues',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {

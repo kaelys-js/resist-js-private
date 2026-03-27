@@ -22,6 +22,7 @@ const rule: TypeScriptRule = {
   id: 'valibot/require-description',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

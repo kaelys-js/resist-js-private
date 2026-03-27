@@ -37,6 +37,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'valibot'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {

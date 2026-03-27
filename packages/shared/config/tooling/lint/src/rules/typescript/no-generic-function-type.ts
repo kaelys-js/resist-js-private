@@ -38,6 +38,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     TSFunctionType(node: AstNode, context: VisitorContext): LintResult[] {

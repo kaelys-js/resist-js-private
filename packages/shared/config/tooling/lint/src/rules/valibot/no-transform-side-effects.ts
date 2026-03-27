@@ -36,6 +36,7 @@ const rule: TypeScriptRule = {
   id: 'valibot/no-transform-side-effects',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {

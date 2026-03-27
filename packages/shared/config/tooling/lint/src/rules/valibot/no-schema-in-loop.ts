@@ -95,6 +95,7 @@ const rule: TypeScriptRule = {
   id: 'valibot/no-schema-in-loop',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {

@@ -78,6 +78,7 @@ const rule: TypeScriptRule = {
   id: 'valibot/one-schema-per-file',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
+  fixable: false,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

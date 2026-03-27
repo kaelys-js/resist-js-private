@@ -89,6 +89,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'safety', 'result'],
   stages: ['lint', 'pre-commit', 'ci'],
+  fixable: false,
 
   visitor: {
     ThrowStatement(node: AstNode, context: VisitorContext): LintResult[] {
