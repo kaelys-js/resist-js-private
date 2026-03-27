@@ -1,16 +1,20 @@
 - [Lint]
-  - API
-  - VSCode Extension (linter-test/extensions)
-  - Finish _INTEGRATE Port
+  - Every Rule Has A "fix"
   - Enforce test files use "*.test.ts" filenames
   - Enforce e2e, integration test file naming
   - Enforce ".svelte.ts" for ...?
   - All valibot schemas should use generics and function packages
+
+  - Finish _INTEGRATE Port
+
+  - VSCode Extension (linter-test/extensions)
+
   - Review the README rules. Figure out best practices for README (do research, etc). README rule should be able to handle generating a perfect README.
   - ALL *.test.ts files should use stuff from packages/shared/config/test, if things are shared across test files then move it into that utility package -- then create custom lint rules enforcing useage in test files, review and present all custom rules that don't make sense for test files.
   - Review every directory in: /Users/coleb/Desktop/webforge/packages/shared/ui/src
     - Only include directions that have a file that indicates its a placeholder
     - Give a full list of directories to delete that aren't "components" but are "blocks"
+
   /Users/coleb/Desktop/webforge/packages/shared/schemas/function
   shared/utils/devtools
   shared/schemas/generic
@@ -24,7 +28,7 @@
   shared/utils/cli
   products/storylyne
 
-- Compare the @/cli/sync templated files against these workspace files for the differences
+- Compare the @/cli/sync hbs templated files against these workspace files for the differences
   - .editorconfig
   - .*ignore
   - .npmrc
