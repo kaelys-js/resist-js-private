@@ -42,6 +42,7 @@ const SCHEMA_FACTORIES: ReadonlySet<string> = new Set([
 const rule: TypeScriptRule = {
   categories: ['valibot', 'idiom'],
   description: 'Use v.pipe() for chained validations instead of deprecated nested patterns',
+  fixable: true,
   id: 'valibot/prefer-pipe',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   stages: ['lint'],
@@ -81,10 +82,20 @@ const rule: TypeScriptRule = {
               const innerName: string = (innerProp?.name as string) ?? '';
 
               if (SCHEMA_FACTORIES.has(innerName)) {
+                // Build autofix: v.METHOD(v.SCHEMA(...), ...rest) → v.pipe(v.SCHEMA(...), v.METHOD(...rest))
+                const schemaText: string = context.getNodeText(firstArg);
+                const remainingArgs: AstNode[] = args.slice(1) as AstNode[];
+                const remainingArgsText: string = remainingArgs
+                  .map((a: AstNode) => context.getNodeText(a))
+                  .join(', ');
+                const fixText: string = remainingArgsText
+                  ? `v.pipe(${schemaText}, v.${propName}(${remainingArgsText}))`
+                  : `v.pipe(${schemaText}, v.${propName}())`;
+
                 results.push({
                   column: node.loc.start.column + 1,
                   file: context.file,
-                  fix: { range: { end: 0, start: 0 }, text: '' },
+                  fix: { range: { end: node.end, start: node.start }, text: fixText },
                   line: node.loc.start.line,
                   message: `Use v.pipe(v.${innerName}(), v.${propName}(...)) instead of v.${propName}(v.${innerName}(), ...)`,
                   ruleId: 'valibot/prefer-pipe',

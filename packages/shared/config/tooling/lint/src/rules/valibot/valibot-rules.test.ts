@@ -4187,6 +4187,26 @@ const schema = minLength(string(), 3);
     const results: LintResult[] = await lint(preferPipe, code);
     expect(results.length).toBe(0);
   });
+
+  it('provides autofix that restructures to pipe pattern', async () => {
+    const code = `import * as v from 'valibot';\nconst s = v.minLength(v.string(), 3);`;
+    const results: LintResult[] = await lint(preferPipe, code);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.fix.text).toBe('v.pipe(v.string(), v.minLength(3))');
+    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
+    expect(results[0]!.fix.range.end).toBeGreaterThan(results[0]!.fix.range.start);
+  });
+
+  it('provides autofix for maxLength', async () => {
+    const code = `import * as v from 'valibot';\nconst s = v.maxLength(v.string(), 100);`;
+    const results: LintResult[] = await lint(preferPipe, code);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.fix.text).toBe('v.pipe(v.string(), v.maxLength(100))');
+  });
+
+  it('has fixable: true', () => {
+    expect(preferPipe.fixable).toBe(true);
+  });
 });
 
 // =============================================================================
