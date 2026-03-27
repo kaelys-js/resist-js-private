@@ -16,6 +16,8 @@ elif [[ "$COMMAND" == *"git reset"* ]] && [[ "$COMMAND" != *"git reset --soft"* 
   REASON="git reset can discard staged changes"
 elif [[ "$COMMAND" == *"git checkout ."* ]] || [[ "$COMMAND" == *"git checkout -- ."* ]]; then
   REASON="git checkout . discards all unstaged changes"
+elif [[ "$COMMAND" == *"git checkout"* ]] && [[ "$COMMAND" != *"git checkout -b"* ]]; then
+  REASON="git checkout can discard uncommitted changes"
 elif [[ "$COMMAND" == *"git clean"* ]]; then
   REASON="git clean deletes untracked files"
 elif [[ "$COMMAND" == *"git restore ."* ]] || [[ "$COMMAND" == *"git restore --staged"* ]]; then
