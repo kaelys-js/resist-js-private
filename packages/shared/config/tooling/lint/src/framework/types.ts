@@ -371,8 +371,16 @@ export const PackageJsonSchema = v.objectWithRest(
     dependencies: v.optional(v.record(v.string(), v.string())),
     /** Dev dependencies */
     devDependencies: v.optional(v.record(v.string(), v.string())),
+    /** Optional dependencies */
+    optionalDependencies: v.optional(v.record(v.string(), v.string())),
     /** Peer dependencies */
     peerDependencies: v.optional(v.record(v.string(), v.string())),
+    /** SPDX license identifier */
+    license: v.optional(v.string()),
+    /** Module type (e.g. "module", "commonjs") */
+    type: v.optional(v.string()),
+    /** CLI bin entry — single path or name-to-path map */
+    bin: v.optional(v.union([v.string(), v.record(v.string(), v.string())])),
     /** Workspace configuration (root only) */
     workspaces: v.optional(
       v.union([

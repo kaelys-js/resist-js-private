@@ -37,6 +37,9 @@ import noMissingShebang from './no-missing-shebang.ts';
 import noDebugStatements from './no-debug-statements.ts';
 import noTodoComments from './no-todo-comments.ts';
 import noLongLines from './no-long-lines.ts';
+import requireLicense from './require-license.ts';
+import requireTypeField from './require-type-field.ts';
+import validBinTargets from './valid-bin-targets.ts';
 
 // =============================================================================
 // Helpers
@@ -1615,5 +1618,282 @@ describe('workspace/no-long-lines', () => {
     const results: LintResult[] = await noLongLines.check(ctx);
     expect(results.length).toBe(1);
     expect(results[0]!.line).toBe(3);
+  });
+});
+
+// =============================================================================
+// workspace/require-license
+// =============================================================================
+
+describe('workspace/require-license', () => {
+  it('has correct rule metadata', () => {
+    expect(requireLicense.id).toBe('workspace/require-license');
+    expect(requireLicense.scope).toBe('workspace');
+    expect(requireLicense.fixable).toBe(false);
+    expect(typeof requireLicense.check).toBe('function');
+  });
+
+  it('flags missing canonical LICENSE file', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await requireLicense.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-license');
+    expect(results[0]!.message).toContain('Missing canonical LICENSE file');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('flags unextractable SPDX from LICENSE', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/en-US/LICENSE', 'Some random text'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireLicense.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Could not determine canonical license');
+  });
+
+  it('flags missing license field in package', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/en-US/LICENSE', 'MIT License\n\nCopyright...'],
+      ['/workspace/packages/a/package.json', '{"name": "@test/a"}'],
+    ]);
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@test/a',
+        path: '/workspace/packages/a/package.json',
+        dir: '/workspace/packages/a',
+        packageJson: { name: '@test/a' },
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await requireLicense.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Missing "license" field');
+  });
+
+  it('flags mismatched license', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/en-US/LICENSE', 'MIT License\n\nCopyright...'],
+      ['/workspace/packages/a/package.json', '{"name": "@test/a", "license": "Apache-2.0"}'],
+    ]);
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@test/a',
+        path: '/workspace/packages/a/package.json',
+        dir: '/workspace/packages/a',
+        packageJson: { name: '@test/a', license: 'Apache-2.0' },
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await requireLicense.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('License mismatch');
+    expect(results[0]!.message).toContain('Apache-2.0');
+    expect(results[0]!.message).toContain('MIT');
+  });
+
+  it('passes when license matches canonical', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/en-US/LICENSE', 'MIT License\n\nCopyright...'],
+      ['/workspace/packages/a/package.json', '{"name": "@test/a", "license": "MIT"}'],
+    ]);
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@test/a',
+        path: '/workspace/packages/a/package.json',
+        dir: '/workspace/packages/a',
+        packageJson: { name: '@test/a', license: 'MIT' },
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await requireLicense.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/require-type-field
+// =============================================================================
+
+describe('workspace/require-type-field', () => {
+  it('has correct rule metadata', () => {
+    expect(requireTypeField.id).toBe('workspace/require-type-field');
+    expect(requireTypeField.scope).toBe('workspace');
+    expect(requireTypeField.fixable).toBe(false);
+    expect(typeof requireTypeField.check).toBe('function');
+  });
+
+  it('flags inconsistent type fields in sibling packages', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@test/a',
+        path: '/workspace/packages/shared/a/package.json',
+        dir: '/workspace/packages/shared/a',
+        packageJson: { name: '@test/a', type: 'module' },
+      },
+      {
+        name: '@test/b',
+        path: '/workspace/packages/shared/b/package.json',
+        dir: '/workspace/packages/shared/b',
+        packageJson: { name: '@test/b', type: 'commonjs' },
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ packages });
+    const results: LintResult[] = await requireTypeField.check(ctx);
+    expect(results.length).toBe(2);
+    expect(results[0]!.ruleId).toBe('workspace/require-type-field');
+    expect(results[0]!.message).toContain('Inconsistent "type" field');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when all siblings have same type', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@test/a',
+        path: '/workspace/packages/shared/a/package.json',
+        dir: '/workspace/packages/shared/a',
+        packageJson: { name: '@test/a', type: 'module' },
+      },
+      {
+        name: '@test/b',
+        path: '/workspace/packages/shared/b/package.json',
+        dir: '/workspace/packages/shared/b',
+        packageJson: { name: '@test/b', type: 'module' },
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ packages });
+    const results: LintResult[] = await requireTypeField.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when single package in group', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@test/a',
+        path: '/workspace/packages/shared/a/package.json',
+        dir: '/workspace/packages/shared/a',
+        packageJson: { name: '@test/a', type: 'module' },
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ packages });
+    const results: LintResult[] = await requireTypeField.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('defaults missing type to commonjs', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@test/a',
+        path: '/workspace/packages/shared/a/package.json',
+        dir: '/workspace/packages/shared/a',
+        packageJson: { name: '@test/a', type: 'module' },
+      },
+      {
+        name: '@test/b',
+        path: '/workspace/packages/shared/b/package.json',
+        dir: '/workspace/packages/shared/b',
+        packageJson: { name: '@test/b' },
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ packages });
+    const results: LintResult[] = await requireTypeField.check(ctx);
+    expect(results.length).toBe(2);
+    expect(results.some((r: LintResult): boolean => r.message.includes('"module"'))).toBe(true);
+    expect(results.some((r: LintResult): boolean => r.message.includes('"commonjs"'))).toBe(true);
+  });
+});
+
+// =============================================================================
+// workspace/valid-bin-targets
+// =============================================================================
+
+describe('workspace/valid-bin-targets', () => {
+  it('has correct rule metadata', () => {
+    expect(validBinTargets.id).toBe('workspace/valid-bin-targets');
+    expect(validBinTargets.scope).toBe('workspace');
+    expect(validBinTargets.fixable).toBe(false);
+    expect(typeof validBinTargets.check).toBe('function');
+  });
+
+  it('flags missing bin target file (string bin)', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@test/cli',
+        path: '/workspace/packages/cli/package.json',
+        dir: '/workspace/packages/cli',
+        packageJson: { name: '@test/cli', bin: './dist/cli.js' },
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ packages, files: new Map() });
+    const results: LintResult[] = await validBinTargets.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/valid-bin-targets');
+    expect(results[0]!.message).toContain('Missing bin target');
+    expect(results[0]!.message).toContain('./dist/cli.js');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('flags missing bin target file (object bin)', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@test/cli',
+        path: '/workspace/packages/cli/package.json',
+        dir: '/workspace/packages/cli',
+        packageJson: { name: '@test/cli', bin: { mycli: './dist/cli.js' } },
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ packages, files: new Map() });
+    const results: LintResult[] = await validBinTargets.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Missing bin target');
+    expect(results[0]!.message).toContain('./dist/cli.js');
+  });
+
+  it('passes when bin target exists (string)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/cli/dist/cli.js', '#!/usr/bin/env node\nconsole.log("hi");\n'],
+    ]);
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@test/cli',
+        path: '/workspace/packages/cli/package.json',
+        dir: '/workspace/packages/cli',
+        packageJson: { name: '@test/cli', bin: './dist/cli.js' },
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ packages, files });
+    const results: LintResult[] = await validBinTargets.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when bin target exists (object)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/cli/dist/cli.js', '#!/usr/bin/env node\nconsole.log("hi");\n'],
+    ]);
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@test/cli',
+        path: '/workspace/packages/cli/package.json',
+        dir: '/workspace/packages/cli',
+        packageJson: { name: '@test/cli', bin: { mycli: './dist/cli.js' } },
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ packages, files });
+    const results: LintResult[] = await validBinTargets.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no bin field', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@test/lib',
+        path: '/workspace/packages/lib/package.json',
+        dir: '/workspace/packages/lib',
+        packageJson: { name: '@test/lib' },
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ packages });
+    const results: LintResult[] = await validBinTargets.check(ctx);
+    expect(results.length).toBe(0);
   });
 });
