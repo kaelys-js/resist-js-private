@@ -12,7 +12,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
+import { type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform ignore-file validator text output into LintResult[].
@@ -28,8 +28,9 @@ import { en } from '@/lint/locale/locales/en.ts';
  * const results = transformIgnoreFilesOutput('.gitignore:5: Invalid glob pattern "***"');
  * // results[0].ruleId === 'ignore-file/lint'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformIgnoreFilesOutput(output: string): LintResult[] {
+export function transformIgnoreFilesOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -66,7 +67,7 @@ export function transformIgnoreFilesOutput(output: string): LintResult[] {
 
     results.push(
       createResult('ignore-file/lint', file, lineNum, 1, severity, message, {
-        tip: en.tools.ignoreFilesTip,
+        tip: strings.tools.ignoreFilesTip,
       }),
     );
   }

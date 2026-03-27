@@ -6,6 +6,9 @@
 
 import * as v from 'valibot';
 import { beforeAll, describe, expect, it } from 'vitest';
+
+import { en } from '@/lint/locale/locales/en.ts';
+
 import { loadAllRules, LoadedRulesSchema, type LoadedRules } from './rule-loader.ts';
 import { createResult, StageSchema } from './types.ts';
 
@@ -47,7 +50,7 @@ describe('StageSchema', () => {
 let loaded: LoadedRules;
 
 beforeAll(async () => {
-  loaded = await loadAllRules();
+  loaded = await loadAllRules(en);
 });
 
 // =============================================================================

@@ -13,6 +13,7 @@ import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 /** Regex matching unresolved merge conflict markers. */
 const CONFLICT_MARKER: RegExp = /^(<{7}|={7}|>{7})/;
 
+/** Description. */
 const rule: WorkspaceRule = {
   id: 'workspace/no-merge-conflicts',
   description: 'Files must not contain unresolved merge conflict markers.',

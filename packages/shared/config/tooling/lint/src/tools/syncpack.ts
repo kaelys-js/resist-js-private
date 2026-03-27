@@ -10,8 +10,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform syncpack list-mismatches text output into LintResult[].
@@ -31,8 +30,9 @@ import { format } from '@/lint/locale/schema.ts';
  * const results = transformSyncpackOutput('✘ lodash has mismatched versions\n  4.17.20 in a\n  4.17.21 in b\n');
  * // results[0].ruleId === 'syncpack/version-mismatch'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformSyncpackOutput(output: string): LintResult[] {
+export function transformSyncpackOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -72,9 +72,9 @@ export function transformSyncpackOutput(output: string): LintResult[] {
           1,
           1,
           'warning',
-          format(en.tools.syncpackMessage, { package: pkgName }),
+          format(strings.tools.syncpackMessage, { package: pkgName }),
           {
-            tip: en.tools.syncpackTip,
+            tip: strings.tools.syncpackTip,
           },
         ),
       );
@@ -93,9 +93,9 @@ export function transformSyncpackOutput(output: string): LintResult[] {
           1,
           1,
           'warning',
-          format(en.tools.syncpackMismatch, { detail }),
+          format(strings.tools.syncpackMismatch, { detail }),
           {
-            tip: en.tools.syncpackTip,
+            tip: strings.tools.syncpackTip,
           },
         ),
       );

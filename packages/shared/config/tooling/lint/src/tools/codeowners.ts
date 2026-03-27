@@ -13,8 +13,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Valid owner format pattern.
@@ -43,8 +42,9 @@ const OWNER_PATTERN: RegExp = /^(@[\w-]+(?:\/[\w.-]+)?|[\w.+-]+@[\w.-]+\.\w+)$/;
  * // results[0].ruleId === 'codeowners/syntax'
  * // results[0].severity === 'error'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformCodeownersOutput(output: string): LintResult[] {
+export function transformCodeownersOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -76,7 +76,7 @@ export function transformCodeownersOutput(output: string): LintResult[] {
 
       results.push(
         createResult('codeowners/syntax', file, lineNum, 1, severity, message, {
-          tip: en.tools.codeownersValidFormats,
+          tip: strings.tools.codeownersValidFormats,
         }),
       );
     }
@@ -104,15 +104,20 @@ export function transformCodeownersOutput(output: string): LintResult[] {
  * // results[0].message includes 'overly broad'
  * // results[1].message includes 'Invalid owner format'
  * ```
+  * @param {Type} strings - Description
  */
-export function validateCodeowners(filePath: string, content: string): LintResult[] {
+export function validateCodeowners(
+  filePath: string,
+  content: string,
+  strings: LintStrings,
+): LintResult[] {
   const trimmed: string = content.trim();
 
   if (trimmed.length === 0) {
     return [
-      createResult('codeowners/syntax', filePath, 1, 1, 'error', en.tools.codeownersEmpty, {
+      createResult('codeowners/syntax', filePath, 1, 1, 'error', strings.tools.codeownersEmpty, {
         example: '*.ts @org/frontend-team',
-        tip: en.tools.codeownersEmptyTip,
+        tip: strings.tools.codeownersEmptyTip,
       }),
     ];
   }
@@ -146,9 +151,9 @@ export function validateCodeowners(filePath: string, content: string): LintResul
           i + 1,
           1,
           'warning',
-          en.tools.codeownersOverlyBroad,
+          strings.tools.codeownersOverlyBroad,
           {
-            tip: en.tools.codeownersOverlyBroadTip,
+            tip: strings.tools.codeownersOverlyBroadTip,
           },
         ),
       );
@@ -163,10 +168,10 @@ export function validateCodeowners(filePath: string, content: string): LintResul
           i + 1,
           1,
           'error',
-          format(en.tools.codeownersNoOwners, { pattern: filePattern }),
+          format(strings.tools.codeownersNoOwners, { pattern: filePattern }),
           {
             example: `${filePattern} @org/team`,
-            tip: en.tools.codeownersNoOwnersTip,
+            tip: strings.tools.codeownersNoOwnersTip,
           },
         ),
       );
@@ -183,10 +188,10 @@ export function validateCodeowners(filePath: string, content: string): LintResul
             i + 1,
             1,
             'error',
-            format(en.tools.codeownersInvalidOwner, { owner }),
+            format(strings.tools.codeownersInvalidOwner, { owner }),
             {
               example: '@org/team-name',
-              tip: en.tools.codeownersInvalidOwnerTip,
+              tip: strings.tools.codeownersInvalidOwnerTip,
             },
           ),
         );

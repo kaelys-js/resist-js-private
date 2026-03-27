@@ -13,6 +13,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type * as ToolOrchestratorModule from '@/lint/framework/tool-orchestrator.ts';
 import type { LintResult } from '@/lint/framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 import { actionlintTool, transformActionlintOutput } from './actionlint.ts';
 import { asciidocTool, transformAsciidocOutput } from './asciidoc.ts';
 import { astroTool, transformAstroOutput } from './astro.ts';
@@ -170,7 +171,7 @@ describe('transformShellcheckOutput', () => {
       },
     ]);
 
-    const results: LintResult[] = transformShellcheckOutput(output);
+    const results: LintResult[] = transformShellcheckOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('shellcheck/SC2086');
     expect(results[0]?.file).toBe('script.sh');
@@ -192,16 +193,16 @@ describe('transformShellcheckOutput', () => {
       },
     ]);
 
-    const results: LintResult[] = transformShellcheckOutput(output);
+    const results: LintResult[] = transformShellcheckOutput(output, en);
     expect(results[0]?.severity).toBe('error');
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformShellcheckOutput('')).toHaveLength(0);
+    expect(transformShellcheckOutput('', en)).toHaveLength(0);
   });
 
   it('returns empty array for invalid JSON', () => {
-    expect(transformShellcheckOutput('not json')).toHaveLength(0);
+    expect(transformShellcheckOutput('not json', en)).toHaveLength(0);
   });
 
   it('parses multiple items', () => {
@@ -210,7 +211,7 @@ describe('transformShellcheckOutput', () => {
       { code: 2002, column: 1, file: 'b.sh', level: 'error', line: 2, message: 'msg2' },
     ]);
 
-    const results: LintResult[] = transformShellcheckOutput(output);
+    const results: LintResult[] = transformShellcheckOutput(output, en);
     expect(results).toHaveLength(2);
   });
 });
@@ -232,7 +233,7 @@ describe('transformHadolintOutput', () => {
       },
     ]);
 
-    const results: LintResult[] = transformHadolintOutput(output);
+    const results: LintResult[] = transformHadolintOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('hadolint/DL3008');
     expect(results[0]?.file).toBe('Dockerfile');
@@ -242,11 +243,11 @@ describe('transformHadolintOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformHadolintOutput('')).toHaveLength(0);
+    expect(transformHadolintOutput('', en)).toHaveLength(0);
   });
 
   it('returns empty array for invalid JSON', () => {
-    expect(transformHadolintOutput('invalid')).toHaveLength(0);
+    expect(transformHadolintOutput('invalid', en)).toHaveLength(0);
   });
 });
 
@@ -295,7 +296,7 @@ describe('transformMarkdownlintOutput', () => {
     const output: string =
       'README.md:5:1 MD022/blanks-around-headings Headings should be surrounded by blank lines';
 
-    const results: LintResult[] = transformMarkdownlintOutput(output);
+    const results: LintResult[] = transformMarkdownlintOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('markdownlint/MD022');
     expect(results[0]?.file).toBe('README.md');
@@ -308,14 +309,14 @@ describe('transformMarkdownlintOutput', () => {
     const output: string =
       'README.md:3 MD012/no-multiple-blanks Multiple consecutive blank lines [Expected: 1; Actual: 2]';
 
-    const results: LintResult[] = transformMarkdownlintOutput(output);
+    const results: LintResult[] = transformMarkdownlintOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('markdownlint/MD012');
     expect(results[0]?.column).toBe(1);
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformMarkdownlintOutput('')).toHaveLength(0);
+    expect(transformMarkdownlintOutput('', en)).toHaveLength(0);
   });
 
   it('handles multiple issues', () => {
@@ -323,7 +324,7 @@ describe('transformMarkdownlintOutput', () => {
       'a.md:1:1 MD001/heading-increment Heading levels should only increment by one level at a time\n' +
       'a.md:5:1 MD022/blanks-around-headings Headings should be surrounded by blank lines\n';
 
-    const results: LintResult[] = transformMarkdownlintOutput(output);
+    const results: LintResult[] = transformMarkdownlintOutput(output, en);
     expect(results).toHaveLength(2);
   });
 });
@@ -439,7 +440,7 @@ describe('transformSqlfluffOutput', () => {
       },
     ]);
 
-    const results: LintResult[] = transformSqlfluffOutput(output);
+    const results: LintResult[] = transformSqlfluffOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('sqlfluff/L010');
     expect(results[0]?.file).toBe('query.sql');
@@ -448,11 +449,11 @@ describe('transformSqlfluffOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformSqlfluffOutput('')).toHaveLength(0);
+    expect(transformSqlfluffOutput('', en)).toHaveLength(0);
   });
 
   it('returns empty array for invalid JSON', () => {
-    expect(transformSqlfluffOutput('invalid')).toHaveLength(0);
+    expect(transformSqlfluffOutput('invalid', en)).toHaveLength(0);
   });
 });
 
@@ -472,7 +473,7 @@ describe('transformRuffOutput', () => {
       },
     ]);
 
-    const results: LintResult[] = transformRuffOutput(output);
+    const results: LintResult[] = transformRuffOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('ruff/E501');
     expect(results[0]?.file).toBe('script.py');
@@ -481,11 +482,11 @@ describe('transformRuffOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformRuffOutput('')).toHaveLength(0);
+    expect(transformRuffOutput('', en)).toHaveLength(0);
   });
 
   it('returns empty array for invalid JSON', () => {
-    expect(transformRuffOutput('invalid')).toHaveLength(0);
+    expect(transformRuffOutput('invalid', en)).toHaveLength(0);
   });
 
   it('handles missing location fields with defaults', () => {
@@ -493,7 +494,7 @@ describe('transformRuffOutput', () => {
       { code: 'F401', filename: 'x.py', message: 'unused import' },
     ]);
 
-    const results: LintResult[] = transformRuffOutput(output);
+    const results: LintResult[] = transformRuffOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.line).toBe(1);
     expect(results[0]?.column).toBe(1);
@@ -504,7 +505,7 @@ describe('transformRuffOutput', () => {
       { filename: 'x.py', location: { column: 1, row: 1 }, message: 'msg' },
     ]);
 
-    const results: LintResult[] = transformRuffOutput(output);
+    const results: LintResult[] = transformRuffOutput(output, en);
     expect(results[0]?.ruleId).toBe('ruff/unknown');
   });
 });
@@ -655,14 +656,14 @@ describe('transform edge cases', () => {
       { code: 1000, column: 1, file: 'a.sh', level: 'info', line: 1, message: 'note' },
     ]);
 
-    const results: LintResult[] = transformShellcheckOutput(output);
+    const results: LintResult[] = transformShellcheckOutput(output, en);
     expect(results[0]?.severity).toBe('info');
   });
 
   it('shellcheck handles missing fields with defaults', () => {
     const output: string = JSON.stringify([{}]);
 
-    const results: LintResult[] = transformShellcheckOutput(output);
+    const results: LintResult[] = transformShellcheckOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.file).toBe('');
     expect(results[0]?.line).toBe(1);
@@ -676,14 +677,14 @@ describe('transform edge cases', () => {
       { code: 'DL0', column: 1, file: 'Dockerfile', level: 'info', line: 1, message: 'info' },
     ]);
 
-    const results: LintResult[] = transformHadolintOutput(output);
+    const results: LintResult[] = transformHadolintOutput(output, en);
     expect(results[0]?.severity).toBe('info');
   });
 
   it('hadolint handles missing fields with defaults', () => {
     const output: string = JSON.stringify([{}]);
 
-    const results: LintResult[] = transformHadolintOutput(output);
+    const results: LintResult[] = transformHadolintOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.file).toBe('Dockerfile');
     expect(results[0]?.severity).toBe('warning');
@@ -699,7 +700,7 @@ describe('transform edge cases', () => {
   it('markdownlint skips non-matching lines', () => {
     const output: string = 'random header\nREADME.md:1:1 MD001/heading-increment msg\nfooter';
 
-    const results: LintResult[] = transformMarkdownlintOutput(output);
+    const results: LintResult[] = transformMarkdownlintOutput(output, en);
     expect(results).toHaveLength(1);
   });
 
@@ -786,7 +787,7 @@ describe('transform edge cases', () => {
       },
     ]);
 
-    const results: LintResult[] = transformSqlfluffOutput(output);
+    const results: LintResult[] = transformSqlfluffOutput(output, en);
     expect(results).toHaveLength(2);
     expect(results[0]?.file).toBe('a.sql');
     expect(results[1]?.file).toBe('b.sql');
@@ -795,14 +796,14 @@ describe('transform edge cases', () => {
   it('sqlfluff handles empty violations array', () => {
     const output: string = JSON.stringify([{ filepath: 'a.sql', violations: [] }]);
 
-    const results: LintResult[] = transformSqlfluffOutput(output);
+    const results: LintResult[] = transformSqlfluffOutput(output, en);
     expect(results).toHaveLength(0);
   });
 
   it('sqlfluff handles missing fields with defaults', () => {
     const output: string = JSON.stringify([{ filepath: 'a.sql', violations: [{}] }]);
 
-    const results: LintResult[] = transformSqlfluffOutput(output);
+    const results: LintResult[] = transformSqlfluffOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('sqlfluff/unknown');
     expect(results[0]?.line).toBe(1);
@@ -813,7 +814,7 @@ describe('transform edge cases', () => {
       { code: 'E501', filename: 'x.py', location: { column: 1, row: 1 }, message: 'msg' },
     ]);
 
-    const results: LintResult[] = transformRuffOutput(output);
+    const results: LintResult[] = transformRuffOutput(output, en);
     expect(results[0]?.tip).toContain('https://docs.astral.sh/ruff/rules/E501');
   });
 
@@ -822,7 +823,7 @@ describe('transform edge cases', () => {
       { code: 2086, column: 1, file: 'a.sh', level: 'warning', line: 1, message: 'msg' },
     ]);
 
-    const results: LintResult[] = transformShellcheckOutput(output);
+    const results: LintResult[] = transformShellcheckOutput(output, en);
     expect(results[0]?.tip).toContain('https://www.shellcheck.net/wiki/SC2086');
   });
 
@@ -831,16 +832,16 @@ describe('transform edge cases', () => {
       { code: 'DL3008', column: 1, file: 'Dockerfile', level: 'warning', line: 1, message: 'msg' },
     ]);
 
-    const results: LintResult[] = transformHadolintOutput(output);
+    const results: LintResult[] = transformHadolintOutput(output, en);
     expect(results[0]?.tip).toContain('https://github.com/hadolint/hadolint/wiki/DL3008');
   });
 
   it('shellcheck whitespace-only output returns empty', () => {
-    expect(transformShellcheckOutput('   \n  ')).toHaveLength(0);
+    expect(transformShellcheckOutput('   \n  ', en)).toHaveLength(0);
   });
 
   it('hadolint whitespace-only output returns empty', () => {
-    expect(transformHadolintOutput('   \n  ')).toHaveLength(0);
+    expect(transformHadolintOutput('   \n  ', en)).toHaveLength(0);
   });
 
   it('stylelint whitespace-only output returns empty', () => {
@@ -848,23 +849,23 @@ describe('transform edge cases', () => {
   });
 
   it('ruff whitespace-only output returns empty', () => {
-    expect(transformRuffOutput('   \n  ')).toHaveLength(0);
+    expect(transformRuffOutput('   \n  ', en)).toHaveLength(0);
   });
 
   it('typos whitespace-only output returns empty', () => {
-    expect(transformTyposOutput('   \n  ')).toHaveLength(0);
+    expect(transformTyposOutput('   \n  ', en)).toHaveLength(0);
   });
 
   it('htmlhint whitespace-only output returns empty', () => {
-    expect(transformHtmlhintOutput('   \n  ')).toHaveLength(0);
+    expect(transformHtmlhintOutput('   \n  ', en)).toHaveLength(0);
   });
 
   it('dotenv-linter whitespace-only output returns empty', () => {
-    expect(transformDotenvLinterOutput('   \n  ')).toHaveLength(0);
+    expect(transformDotenvLinterOutput('   \n  ', en)).toHaveLength(0);
   });
 
   it('knip whitespace-only output returns empty', () => {
-    expect(transformKnipOutput('   \n  ')).toHaveLength(0);
+    expect(transformKnipOutput('   \n  ', en)).toHaveLength(0);
   });
 
   it('commitlint whitespace-only output returns empty', () => {
@@ -872,7 +873,7 @@ describe('transform edge cases', () => {
   });
 
   it('jsonlint whitespace-only output returns empty', () => {
-    expect(transformJsonlintOutput('   \n  ')).toHaveLength(0);
+    expect(transformJsonlintOutput('   \n  ', en)).toHaveLength(0);
   });
 });
 
@@ -885,7 +886,7 @@ describe('transformTyposOutput', () => {
     const output: string =
       '{"type":"typo","path":"src/foo.ts","line_num":10,"byte_offset":5,"typo":"teh","corrections":["the"]}';
 
-    const results: LintResult[] = transformTyposOutput(output);
+    const results: LintResult[] = transformTyposOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('typos/misspelling');
     expect(results[0]?.file).toBe('src/foo.ts');
@@ -902,7 +903,7 @@ describe('transformTyposOutput', () => {
       '{"type":"typo","path":"a.ts","line_num":1,"byte_offset":0,"typo":"nto","corrections":["not","into"]}',
     ].join('\n');
 
-    const results: LintResult[] = transformTyposOutput(output);
+    const results: LintResult[] = transformTyposOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.message).toContain('nto');
   });
@@ -911,19 +912,19 @@ describe('transformTyposOutput', () => {
     const output: string =
       '{"type":"typo","path":"a.ts","line_num":1,"byte_offset":0,"typo":"fo","corrections":["of","for","do"]}';
 
-    const results: LintResult[] = transformTyposOutput(output);
+    const results: LintResult[] = transformTyposOutput(output, en);
     expect(results[0]?.message).toContain('of, for, do');
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformTyposOutput('')).toHaveLength(0);
+    expect(transformTyposOutput('', en)).toHaveLength(0);
   });
 
   it('handles invalid JSON lines gracefully', () => {
     const output: string =
       'not json\n{"type":"typo","path":"a.ts","line_num":1,"byte_offset":0,"typo":"teh","corrections":["the"]}';
 
-    const results: LintResult[] = transformTyposOutput(output);
+    const results: LintResult[] = transformTyposOutput(output, en);
     expect(results).toHaveLength(1);
   });
 
@@ -931,7 +932,7 @@ describe('transformTyposOutput', () => {
     const output: string =
       '{"type":"typo","path":"a.ts","line_num":1,"byte_offset":0,"typo":"teh","corrections":["the"]}';
 
-    const results: LintResult[] = transformTyposOutput(output);
+    const results: LintResult[] = transformTyposOutput(output, en);
     expect(results[0]?.tip).toContain('teh');
     expect(results[0]?.tip).toContain('the');
   });
@@ -940,7 +941,7 @@ describe('transformTyposOutput', () => {
     const output: string =
       '{"type":"typo","path":"a.ts","line_num":1,"byte_offset":0,"typo":"xyz","corrections":[]}';
 
-    const results: LintResult[] = transformTyposOutput(output);
+    const results: LintResult[] = transformTyposOutput(output, en);
     expect(results[0]?.message).toContain('unknown');
   });
 });
@@ -1008,7 +1009,7 @@ describe('transformKnipOutput', () => {
       issues: [],
     });
 
-    const results: LintResult[] = transformKnipOutput(output);
+    const results: LintResult[] = transformKnipOutput(output, en);
     expect(results).toHaveLength(2);
     expect(results[0]?.ruleId).toBe('knip/unused-file');
     expect(results[0]?.file).toBe('src/unused.ts');
@@ -1023,7 +1024,7 @@ describe('transformKnipOutput', () => {
       ],
     });
 
-    const results: LintResult[] = transformKnipOutput(output);
+    const results: LintResult[] = transformKnipOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('knip/unused-export');
     expect(results[0]?.file).toBe('src/utils.ts');
@@ -1037,7 +1038,7 @@ describe('transformKnipOutput', () => {
       issues: [{ col: 1, filePath: 'src/types.ts', line: 5, symbol: 'OldType', type: 'types' }],
     });
 
-    const results: LintResult[] = transformKnipOutput(output);
+    const results: LintResult[] = transformKnipOutput(output, en);
     expect(results[0]?.ruleId).toBe('knip/unused-type');
   });
 
@@ -1049,7 +1050,7 @@ describe('transformKnipOutput', () => {
       ],
     });
 
-    const results: LintResult[] = transformKnipOutput(output);
+    const results: LintResult[] = transformKnipOutput(output, en);
     expect(results[0]?.ruleId).toBe('knip/unused-dependency');
   });
 
@@ -1067,16 +1068,16 @@ describe('transformKnipOutput', () => {
       ],
     });
 
-    const results: LintResult[] = transformKnipOutput(output);
+    const results: LintResult[] = transformKnipOutput(output, en);
     expect(results[0]?.ruleId).toBe('knip/unused-dev-dependency');
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformKnipOutput('')).toHaveLength(0);
+    expect(transformKnipOutput('', en)).toHaveLength(0);
   });
 
   it('returns empty array for invalid JSON', () => {
-    expect(transformKnipOutput('not json')).toHaveLength(0);
+    expect(transformKnipOutput('not json', en)).toHaveLength(0);
   });
 
   it('handles missing fields with defaults', () => {
@@ -1084,7 +1085,7 @@ describe('transformKnipOutput', () => {
       issues: [{ filePath: 'a.ts', type: 'other' }],
     });
 
-    const results: LintResult[] = transformKnipOutput(output);
+    const results: LintResult[] = transformKnipOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('knip/unused');
     expect(results[0]?.line).toBe(1);
@@ -1112,7 +1113,7 @@ describe('transformHtmlhintOutput', () => {
       },
     ]);
 
-    const results: LintResult[] = transformHtmlhintOutput(output);
+    const results: LintResult[] = transformHtmlhintOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('htmlhint/doctype-first');
     expect(results[0]?.file).toBe('index.html');
@@ -1136,7 +1137,7 @@ describe('transformHtmlhintOutput', () => {
       },
     ]);
 
-    const results: LintResult[] = transformHtmlhintOutput(output);
+    const results: LintResult[] = transformHtmlhintOutput(output, en);
     expect(results[0]?.severity).toBe('warning');
   });
 
@@ -1148,7 +1149,7 @@ describe('transformHtmlhintOutput', () => {
       },
     ]);
 
-    const results: LintResult[] = transformHtmlhintOutput(output);
+    const results: LintResult[] = transformHtmlhintOutput(output, en);
     expect(results[0]?.severity).toBe('info');
   });
 
@@ -1167,22 +1168,22 @@ describe('transformHtmlhintOutput', () => {
       },
     ]);
 
-    const results: LintResult[] = transformHtmlhintOutput(output);
+    const results: LintResult[] = transformHtmlhintOutput(output, en);
     expect(results).toHaveLength(3);
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformHtmlhintOutput('')).toHaveLength(0);
+    expect(transformHtmlhintOutput('', en)).toHaveLength(0);
   });
 
   it('returns empty array for invalid JSON', () => {
-    expect(transformHtmlhintOutput('not json')).toHaveLength(0);
+    expect(transformHtmlhintOutput('not json', en)).toHaveLength(0);
   });
 
   it('handles missing fields with defaults', () => {
     const output: string = JSON.stringify([{ file: 'a.html', messages: [{}] }]);
 
-    const results: LintResult[] = transformHtmlhintOutput(output);
+    const results: LintResult[] = transformHtmlhintOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('htmlhint/unknown');
     expect(results[0]?.severity).toBe('warning');
@@ -1198,7 +1199,7 @@ describe('transformHtmlhintOutput', () => {
       },
     ]);
 
-    const results: LintResult[] = transformHtmlhintOutput(output);
+    const results: LintResult[] = transformHtmlhintOutput(output, en);
     expect(results[0]?.tip).toContain('https://htmlhint.com/docs/user-guide/rules/doctype-first');
   });
 });
@@ -1211,7 +1212,7 @@ describe('transformJsonlintOutput', () => {
   it('parses compact format output', () => {
     const output: string = 'config.json: line 5, col 10, Error - Expected comma';
 
-    const results: LintResult[] = transformJsonlintOutput(output);
+    const results: LintResult[] = transformJsonlintOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('jsonlint/parse-error');
     expect(results[0]?.file).toBe('config.json');
@@ -1224,7 +1225,7 @@ describe('transformJsonlintOutput', () => {
   it('parses warning level in compact format', () => {
     const output: string = 'data.json: line 3, col 1, Warning - Trailing comma';
 
-    const results: LintResult[] = transformJsonlintOutput(output);
+    const results: LintResult[] = transformJsonlintOutput(output, en);
     expect(results[0]?.severity).toBe('warning');
   });
 
@@ -1232,7 +1233,7 @@ describe('transformJsonlintOutput', () => {
     const output: string =
       "Error: Parse error on line 5:\n...some context...\nExpecting 'STRING', got 'EOF'";
 
-    const results: LintResult[] = transformJsonlintOutput(output);
+    const results: LintResult[] = transformJsonlintOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('jsonlint/parse-error');
     expect(results[0]?.line).toBe(5);
@@ -1243,19 +1244,19 @@ describe('transformJsonlintOutput', () => {
     const output: string =
       'a.json: line 1, col 5, Error - msg1\nb.json: line 10, col 2, Error - msg2';
 
-    const results: LintResult[] = transformJsonlintOutput(output);
+    const results: LintResult[] = transformJsonlintOutput(output, en);
     expect(results).toHaveLength(2);
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformJsonlintOutput('')).toHaveLength(0);
+    expect(transformJsonlintOutput('', en)).toHaveLength(0);
   });
 
   it('skips non-matching lines', () => {
     const output: string =
       'Validating files...\nconfig.json: line 5, col 10, Error - Bad token\nDone.';
 
-    const results: LintResult[] = transformJsonlintOutput(output);
+    const results: LintResult[] = transformJsonlintOutput(output, en);
     expect(results).toHaveLength(1);
   });
 });
@@ -1268,7 +1269,7 @@ describe('transformDotenvLinterOutput', () => {
   it('parses output with issues', () => {
     const output: string = '.env:3 DuplicatedKey: The FOO key is duplicated';
 
-    const results: LintResult[] = transformDotenvLinterOutput(output);
+    const results: LintResult[] = transformDotenvLinterOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('dotenv-linter/DuplicatedKey');
     expect(results[0]?.file).toBe('.env');
@@ -1281,14 +1282,14 @@ describe('transformDotenvLinterOutput', () => {
     const output: string =
       '.env:1 LeadingCharacter: Invalid leading character detected\n.env:5 DuplicatedKey: The BAR key is duplicated';
 
-    const results: LintResult[] = transformDotenvLinterOutput(output);
+    const results: LintResult[] = transformDotenvLinterOutput(output, en);
     expect(results).toHaveLength(2);
   });
 
   it('handles .env.production files', () => {
     const output: string = '.env.production:10 UnorderedKey: The keys should go in order';
 
-    const results: LintResult[] = transformDotenvLinterOutput(output);
+    const results: LintResult[] = transformDotenvLinterOutput(output, en);
     expect(results[0]?.file).toBe('.env.production');
     expect(results[0]?.line).toBe(10);
   });
@@ -1296,18 +1297,18 @@ describe('transformDotenvLinterOutput', () => {
   it('skips non-matching lines', () => {
     const output: string = 'Checking .env files...\n.env:1 DuplicatedKey: msg\nDone.';
 
-    const results: LintResult[] = transformDotenvLinterOutput(output);
+    const results: LintResult[] = transformDotenvLinterOutput(output, en);
     expect(results).toHaveLength(1);
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformDotenvLinterOutput('')).toHaveLength(0);
+    expect(transformDotenvLinterOutput('', en)).toHaveLength(0);
   });
 
   it('includes tip with documentation URL', () => {
     const output: string = '.env:1 DuplicatedKey: msg';
 
-    const results: LintResult[] = transformDotenvLinterOutput(output);
+    const results: LintResult[] = transformDotenvLinterOutput(output, en);
     expect(results[0]?.tip).toContain('https://dotenv-linter.github.io/#/checks/DuplicatedKey');
   });
 });
@@ -1475,7 +1476,7 @@ describe('transformAttwOutput', () => {
     const output: string = JSON.stringify({
       problems: [{ entrypoint: '.', kind: 'FalseESM', title: 'Types say ESM but CJS' }],
     });
-    const results: LintResult[] = transformAttwOutput(output);
+    const results: LintResult[] = transformAttwOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('attw/FalseESM');
     expect(results[0]?.file).toBe('package.json');
@@ -1483,7 +1484,7 @@ describe('transformAttwOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformAttwOutput('')).toHaveLength(0);
+    expect(transformAttwOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -1758,7 +1759,7 @@ describe('transformCmakeLintOutput', () => {
 describe('transformCodeownersCheckerOutput', () => {
   it('parses output with line number', () => {
     const output: string = 'CODEOWNERS:5: path does not exist: /src/old-module/';
-    const results: LintResult[] = transformCodeownersCheckerOutput(output);
+    const results: LintResult[] = transformCodeownersCheckerOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('codeowners-checker/validate');
     expect(results[0]?.file).toBe('CODEOWNERS');
@@ -1767,7 +1768,7 @@ describe('transformCodeownersCheckerOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformCodeownersCheckerOutput('')).toHaveLength(0);
+    expect(transformCodeownersCheckerOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -1778,7 +1779,7 @@ describe('transformCodeownersCheckerOutput', () => {
 describe('transformCodeownersOutput', () => {
   it('parses output', () => {
     const output: string = 'CODEOWNERS:5: Invalid owner format: badowner';
-    const results: LintResult[] = transformCodeownersOutput(output);
+    const results: LintResult[] = transformCodeownersOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('codeowners/syntax');
     expect(results[0]?.file).toBe('CODEOWNERS');
@@ -1787,7 +1788,7 @@ describe('transformCodeownersOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformCodeownersOutput('')).toHaveLength(0);
+    expect(transformCodeownersOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -1818,7 +1819,7 @@ describe('transformConfOutput', () => {
 describe('transformCrystalOutput', () => {
   it('parses formatting output', () => {
     const output: string = "formatting 'src/main.cr'";
-    const results: LintResult[] = transformCrystalOutput(output);
+    const results: LintResult[] = transformCrystalOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('crystal/format');
     expect(results[0]?.file).toBe('src/main.cr');
@@ -1826,7 +1827,7 @@ describe('transformCrystalOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformCrystalOutput('')).toHaveLength(0);
+    expect(transformCrystalOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -1878,7 +1879,7 @@ describe('transformCueOutput', () => {
 describe('transformDependabotOutput', () => {
   it('parses output', () => {
     const output: string = '.github/dependabot.yml:1: Missing required field: version';
-    const results: LintResult[] = transformDependabotOutput(output);
+    const results: LintResult[] = transformDependabotOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('dependabot/config');
     expect(results[0]?.file).toBe('.github/dependabot.yml');
@@ -1887,7 +1888,7 @@ describe('transformDependabotOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformDependabotOutput('')).toHaveLength(0);
+    expect(transformDependabotOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -1908,7 +1909,7 @@ describe('transformDependencyCruiserOutput', () => {
         ],
       },
     });
-    const results: LintResult[] = transformDependencyCruiserOutput(output);
+    const results: LintResult[] = transformDependencyCruiserOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('dependency-cruiser/no-circular');
     expect(results[0]?.file).toBe('src/a.ts');
@@ -1916,7 +1917,7 @@ describe('transformDependencyCruiserOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformDependencyCruiserOutput('')).toHaveLength(0);
+    expect(transformDependencyCruiserOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2005,7 +2006,7 @@ describe('transformDockerComposeOutput', () => {
 describe('transformDotnetFormatOutput', () => {
   it('parses formatting output', () => {
     const output: string = "  Formatted code file 'src/Program.cs'.";
-    const results: LintResult[] = transformDotnetFormatOutput(output);
+    const results: LintResult[] = transformDotnetFormatOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('dotnet-format/style');
     expect(results[0]?.severity).toBe('warning');
@@ -2013,11 +2014,11 @@ describe('transformDotnetFormatOutput', () => {
 
   it('returns empty for Formatted 0 output', () => {
     const output: string = 'Formatted 0 of 5 files.';
-    expect(transformDotnetFormatOutput(output)).toHaveLength(0);
+    expect(transformDotnetFormatOutput(output, en)).toHaveLength(0);
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformDotnetFormatOutput('')).toHaveLength(0);
+    expect(transformDotnetFormatOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2152,7 +2153,7 @@ describe('transformErlcOutput', () => {
 describe('transformFantomasOutput', () => {
   it('parses not formatted output', () => {
     const output: string = 'src/Module.fs was not formatted';
-    const results: LintResult[] = transformFantomasOutput(output);
+    const results: LintResult[] = transformFantomasOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('fantomas/format');
     expect(results[0]?.file).toBe('src/Module.fs');
@@ -2160,7 +2161,7 @@ describe('transformFantomasOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformFantomasOutput('')).toHaveLength(0);
+    expect(transformFantomasOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2191,7 +2192,7 @@ describe('transformFishOutput', () => {
 describe('transformGitattributesOutput', () => {
   it('parses output', () => {
     const output: string = '.gitattributes:5: Invalid pattern';
-    const results: LintResult[] = transformGitattributesOutput(output);
+    const results: LintResult[] = transformGitattributesOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('gitattributes/syntax');
     expect(results[0]?.file).toBe('.gitattributes');
@@ -2199,7 +2200,7 @@ describe('transformGitattributesOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformGitattributesOutput('')).toHaveLength(0);
+    expect(transformGitattributesOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2210,7 +2211,7 @@ describe('transformGitattributesOutput', () => {
 describe('transformGithubFundingOutput', () => {
   it('parses output', () => {
     const output: string = 'FUNDING.yml:3: Invalid platform key';
-    const results: LintResult[] = transformGithubFundingOutput(output);
+    const results: LintResult[] = transformGithubFundingOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('github/funding');
     expect(results[0]?.file).toBe('FUNDING.yml');
@@ -2218,7 +2219,7 @@ describe('transformGithubFundingOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformGithubFundingOutput('')).toHaveLength(0);
+    expect(transformGithubFundingOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2229,7 +2230,7 @@ describe('transformGithubFundingOutput', () => {
 describe('transformGithubIssueTemplateOutput', () => {
   it('parses output', () => {
     const output: string = 'ISSUE_TEMPLATE.md:1: Missing required field: name';
-    const results: LintResult[] = transformGithubIssueTemplateOutput(output);
+    const results: LintResult[] = transformGithubIssueTemplateOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('github/issue-template');
     expect(results[0]?.file).toBe('ISSUE_TEMPLATE.md');
@@ -2237,28 +2238,28 @@ describe('transformGithubIssueTemplateOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformGithubIssueTemplateOutput('')).toHaveLength(0);
+    expect(transformGithubIssueTemplateOutput('', en)).toHaveLength(0);
   });
 
   it('returns empty array for whitespace-only output', () => {
-    expect(transformGithubIssueTemplateOutput('   \n  ')).toHaveLength(0);
+    expect(transformGithubIssueTemplateOutput('   \n  ', en)).toHaveLength(0);
   });
 
   it('skips blank lines in output', () => {
     const output: string = 'bug.yml:1: err1\n\nbug.yml:3: err2\n';
-    const results: LintResult[] = transformGithubIssueTemplateOutput(output);
+    const results: LintResult[] = transformGithubIssueTemplateOutput(output, en);
     expect(results).toHaveLength(2);
   });
 
   it('skips lines that do not match the pattern', () => {
     const output: string = 'some random text';
-    const results: LintResult[] = transformGithubIssueTemplateOutput(output);
+    const results: LintResult[] = transformGithubIssueTemplateOutput(output, en);
     expect(results).toHaveLength(0);
   });
 
   it('parses multiple diagnostics', () => {
     const output: string = 'bug.yml:1: Missing name\nbug.yml:2: Missing description';
-    const results: LintResult[] = transformGithubIssueTemplateOutput(output);
+    const results: LintResult[] = transformGithubIssueTemplateOutput(output, en);
     expect(results).toHaveLength(2);
     expect(results[0]?.message).toBe('Missing name');
     expect(results[1]?.message).toBe('Missing description');
@@ -2271,7 +2272,7 @@ describe('transformGithubIssueTemplateOutput', () => {
 
 describe('validateIssueTemplate', () => {
   it('returns error for empty content', () => {
-    const results: LintResult[] = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', '');
+    const results: LintResult[] = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', '', en);
     expect(results).toHaveLength(1);
     expect(results[0]?.severity).toBe('error');
   });
@@ -2280,6 +2281,7 @@ describe('validateIssueTemplate', () => {
     const results: LintResult[] = validateIssueTemplate(
       '.github/ISSUE_TEMPLATE/bug.yml',
       '   \n  ',
+      en,
     );
     expect(results).toHaveLength(1);
     expect(results[0]?.severity).toBe('error');
@@ -2287,34 +2289,54 @@ describe('validateIssueTemplate', () => {
 
   it('returns no issues when all required fields are present', () => {
     const content: string = 'name: Bug Report\ndescription: Report a bug\nlabels: [bug]';
-    const results: LintResult[] = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', content);
+    const results: LintResult[] = validateIssueTemplate(
+      '.github/ISSUE_TEMPLATE/bug.yml',
+      content,
+      en,
+    );
     expect(results).toHaveLength(0);
   });
 
   it('reports missing name field', () => {
     const content: string = 'description: Report a bug\nlabels: [bug]';
-    const results: LintResult[] = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', content);
+    const results: LintResult[] = validateIssueTemplate(
+      '.github/ISSUE_TEMPLATE/bug.yml',
+      content,
+      en,
+    );
     expect(results).toHaveLength(1);
     expect(results[0]?.message).toContain('name');
   });
 
   it('reports missing description field', () => {
     const content: string = 'name: Bug Report\nlabels: [bug]';
-    const results: LintResult[] = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', content);
+    const results: LintResult[] = validateIssueTemplate(
+      '.github/ISSUE_TEMPLATE/bug.yml',
+      content,
+      en,
+    );
     expect(results).toHaveLength(1);
     expect(results[0]?.message).toContain('description');
   });
 
   it('reports missing labels field', () => {
     const content: string = 'name: Bug Report\ndescription: Report a bug';
-    const results: LintResult[] = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', content);
+    const results: LintResult[] = validateIssueTemplate(
+      '.github/ISSUE_TEMPLATE/bug.yml',
+      content,
+      en,
+    );
     expect(results).toHaveLength(1);
     expect(results[0]?.message).toContain('labels');
   });
 
   it('reports all missing fields when content has no top-level keys', () => {
     const content: string = '  indented: value\n  another: thing';
-    const results: LintResult[] = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', content);
+    const results: LintResult[] = validateIssueTemplate(
+      '.github/ISSUE_TEMPLATE/bug.yml',
+      content,
+      en,
+    );
     expect(results).toHaveLength(3);
   });
 
@@ -2322,6 +2344,7 @@ describe('validateIssueTemplate', () => {
     const results: LintResult[] = validateIssueTemplate(
       '.github/ISSUE_TEMPLATE/feature.yml',
       'title: test',
+      en,
     );
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.file).toBe('.github/ISSUE_TEMPLATE/feature.yml');
@@ -2335,14 +2358,14 @@ describe('validateIssueTemplate', () => {
 describe('transformGithubPrTemplateOutput', () => {
   it('parses output', () => {
     const output: string = 'PULL_REQUEST_TEMPLATE.md:1: Template is too short';
-    const results: LintResult[] = transformGithubPrTemplateOutput(output);
+    const results: LintResult[] = transformGithubPrTemplateOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('github/pr-template');
     expect(results[0]?.file).toBe('PULL_REQUEST_TEMPLATE.md');
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformGithubPrTemplateOutput('')).toHaveLength(0);
+    expect(transformGithubPrTemplateOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2365,7 +2388,7 @@ describe('transformGitleaksOutput', () => {
         StartLine: 5,
       },
     ]);
-    const results: LintResult[] = transformGitleaksOutput(output);
+    const results: LintResult[] = transformGitleaksOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('gitleaks/aws-access-key-id');
     expect(results[0]?.file).toBe('config.ts');
@@ -2374,7 +2397,7 @@ describe('transformGitleaksOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformGitleaksOutput('')).toHaveLength(0);
+    expect(transformGitleaksOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2494,7 +2517,7 @@ describe('transformHandlebarsOutput', () => {
 describe('transformHclOutput', () => {
   it('parses file list output', () => {
     const output: string = 'config.hcl';
-    const results: LintResult[] = transformHclOutput(output);
+    const results: LintResult[] = transformHclOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('hcl/format');
     expect(results[0]?.file).toBe('config.hcl');
@@ -2502,7 +2525,7 @@ describe('transformHclOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformHclOutput('')).toHaveLength(0);
+    expect(transformHclOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2589,7 +2612,7 @@ describe('transformHlintOutput', () => {
 describe('transformIgnoreFilesOutput', () => {
   it('parses output', () => {
     const output: string = '.gitignore:5: Invalid glob pattern "***"';
-    const results: LintResult[] = transformIgnoreFilesOutput(output);
+    const results: LintResult[] = transformIgnoreFilesOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('ignore-file/lint');
     expect(results[0]?.file).toBe('.gitignore');
@@ -2598,7 +2621,7 @@ describe('transformIgnoreFilesOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformIgnoreFilesOutput('')).toHaveLength(0);
+    expect(transformIgnoreFilesOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2642,13 +2665,13 @@ describe('transformJscpdOutput', () => {
         },
       ],
     });
-    const results: LintResult[] = transformJscpdOutput(output);
+    const results: LintResult[] = transformJscpdOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('jscpd/duplicate');
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformJscpdOutput('')).toHaveLength(0);
+    expect(transformJscpdOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2679,14 +2702,14 @@ describe('transformJsonnetOutput', () => {
 describe('transformJuliaOutput', () => {
   it('parses false output as format issue', () => {
     const output: string = 'false';
-    const results: LintResult[] = transformJuliaOutput(output);
+    const results: LintResult[] = transformJuliaOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('julia/format');
     expect(results[0]?.severity).toBe('warning');
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformJuliaOutput('')).toHaveLength(0);
+    expect(transformJuliaOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2697,7 +2720,7 @@ describe('transformJuliaOutput', () => {
 describe('transformJustOutput', () => {
   it('parses error at line output', () => {
     const output: string = 'error: Expected expression at line 5';
-    const results: LintResult[] = transformJustOutput(output);
+    const results: LintResult[] = transformJustOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('justfile/format');
     expect(results[0]?.line).toBe(5);
@@ -2705,7 +2728,7 @@ describe('transformJustOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformJustOutput('')).toHaveLength(0);
+    expect(transformJustOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2828,13 +2851,13 @@ describe('transformLicenseCheckerOutput', () => {
         repository: 'https://github.com/example/pkg',
       },
     });
-    const results: LintResult[] = transformLicenseCheckerOutput(output);
+    const results: LintResult[] = transformLicenseCheckerOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('license-checker/problematic-license');
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformLicenseCheckerOutput('')).toHaveLength(0);
+    expect(transformLicenseCheckerOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2845,14 +2868,14 @@ describe('transformLicenseCheckerOutput', () => {
 describe('transformLockfileLintOutput', () => {
   it('parses ERR! output', () => {
     const output: string = 'ERR! registry uses http:// instead of https://';
-    const results: LintResult[] = transformLockfileLintOutput(output);
+    const results: LintResult[] = transformLockfileLintOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('lockfile-lint/security');
     expect(results[0]?.severity).toBe('error');
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformLockfileLintOutput('')).toHaveLength(0);
+    expect(transformLockfileLintOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2863,14 +2886,14 @@ describe('transformLockfileLintOutput', () => {
 describe('transformLsLintOutput', () => {
   it('parses violation output', () => {
     const output: string = 'src/MyComponent.tsx does not match the pattern';
-    const results: LintResult[] = transformLsLintOutput(output);
+    const results: LintResult[] = transformLsLintOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('ls-lint/naming');
     expect(results[0]?.file).toBe('src/MyComponent.tsx');
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformLsLintOutput('')).toHaveLength(0);
+    expect(transformLsLintOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -2901,7 +2924,7 @@ describe('transformLuacheckOutput', () => {
 describe('transformMadgeOutput', () => {
   it('parses JSON array of circular deps', () => {
     const output: string = JSON.stringify([['src/a.ts', 'src/b.ts', 'src/a.ts']]);
-    const results: LintResult[] = transformMadgeOutput(output);
+    const results: LintResult[] = transformMadgeOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('madge/circular-dependency');
     expect(results[0]?.file).toBe('src/a.ts');
@@ -2909,7 +2932,7 @@ describe('transformMadgeOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformMadgeOutput('')).toHaveLength(0);
+    expect(transformMadgeOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -3061,7 +3084,7 @@ describe('transformNomadOutput', () => {
 describe('transformNpmrcOutput', () => {
   it('parses output', () => {
     const output: string = '.npmrc:3: Invalid registry URL';
-    const results: LintResult[] = transformNpmrcOutput(output);
+    const results: LintResult[] = transformNpmrcOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('npmrc/syntax');
     expect(results[0]?.file).toBe('.npmrc');
@@ -3070,7 +3093,7 @@ describe('transformNpmrcOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformNpmrcOutput('')).toHaveLength(0);
+    expect(transformNpmrcOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -3081,7 +3104,7 @@ describe('transformNpmrcOutput', () => {
 describe('transformNvmrcOutput', () => {
   it('parses output', () => {
     const output: string = '.nvmrc:1: Invalid version format';
-    const results: LintResult[] = transformNvmrcOutput(output);
+    const results: LintResult[] = transformNvmrcOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('nvmrc/version');
     expect(results[0]?.file).toBe('.nvmrc');
@@ -3090,7 +3113,7 @@ describe('transformNvmrcOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformNvmrcOutput('')).toHaveLength(0);
+    expect(transformNvmrcOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -3520,14 +3543,14 @@ describe('transformPublintOutput', () => {
     const output: string = JSON.stringify({
       messages: [{ args: {}, code: 'MISSING_EXPORTS', path: './dist/index.js', type: 'error' }],
     });
-    const results: LintResult[] = transformPublintOutput(output);
+    const results: LintResult[] = transformPublintOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('publint/MISSING_EXPORTS');
     expect(results[0]?.severity).toBe('error');
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformPublintOutput('')).toHaveLength(0);
+    expect(transformPublintOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -3742,7 +3765,7 @@ describe('transformRubocopOutput', () => {
 describe('transformScalafmtOutput', () => {
   it('parses error output', () => {
     const output: string = 'error: src/Main.scala:10:5: missing newline';
-    const results: LintResult[] = transformScalafmtOutput(output);
+    const results: LintResult[] = transformScalafmtOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('scalafmt/format');
     expect(results[0]?.file).toBe('src/Main.scala');
@@ -3751,7 +3774,7 @@ describe('transformScalafmtOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformScalafmtOutput('')).toHaveLength(0);
+    expect(transformScalafmtOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -3762,7 +3785,7 @@ describe('transformScalafmtOutput', () => {
 describe('transformSentinelOutput', () => {
   it('parses file list output', () => {
     const output: string = 'policy.sentinel';
-    const results: LintResult[] = transformSentinelOutput(output);
+    const results: LintResult[] = transformSentinelOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('sentinel/format');
     expect(results[0]?.file).toBe('policy.sentinel');
@@ -3770,7 +3793,7 @@ describe('transformSentinelOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformSentinelOutput('')).toHaveLength(0);
+    expect(transformSentinelOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -3802,14 +3825,14 @@ describe('transformSolhintOutput', () => {
 describe('transformSortPackageJsonOutput', () => {
   it('parses not sorted output', () => {
     const output: string = 'package.json is not sorted';
-    const results: LintResult[] = transformSortPackageJsonOutput(output);
+    const results: LintResult[] = transformSortPackageJsonOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('sort-package-json/order');
     expect(results[0]?.severity).toBe('warning');
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformSortPackageJsonOutput('')).toHaveLength(0);
+    expect(transformSortPackageJsonOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -3869,14 +3892,14 @@ describe('transformSwiftlintOutput', () => {
 describe('transformSyncpackOutput', () => {
   it('parses mismatch output', () => {
     const output: string = '\u2718 lodash has mismatched versions';
-    const results: LintResult[] = transformSyncpackOutput(output);
+    const results: LintResult[] = transformSyncpackOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('syncpack/version-mismatch');
     expect(results[0]?.severity).toBe('warning');
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformSyncpackOutput('')).toHaveLength(0);
+    expect(transformSyncpackOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -3887,7 +3910,7 @@ describe('transformSyncpackOutput', () => {
 describe('transformTerraformOutput', () => {
   it('parses diff output', () => {
     const output: string = '--- a/main.tf\n+++ b/main.tf\n@@ -1,2 +1,2 @@';
-    const results: LintResult[] = transformTerraformOutput(output);
+    const results: LintResult[] = transformTerraformOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('terraform/format');
     expect(results[0]?.file).toBe('main.tf');
@@ -3895,7 +3918,7 @@ describe('transformTerraformOutput', () => {
   });
 
   it('returns empty array for empty output', () => {
-    expect(transformTerraformOutput('')).toHaveLength(0);
+    expect(transformTerraformOutput('', en)).toHaveLength(0);
   });
 });
 
@@ -4752,7 +4775,7 @@ describe('transformDependabotOutput — branch coverage', () => {
     const output: string =
       '.github/dependabot.yml:1: Missing required field: version\n' +
       '.github/dependabot.yml:2: Missing required field: updates';
-    const results: LintResult[] = transformDependabotOutput(output);
+    const results: LintResult[] = transformDependabotOutput(output, en);
     expect(results).toHaveLength(2);
     expect(results[0]?.line).toBe(1);
     expect(results[1]?.line).toBe(2);
@@ -4761,18 +4784,18 @@ describe('transformDependabotOutput — branch coverage', () => {
   it('skips blank lines in output', () => {
     const output: string =
       '.github/dependabot.yml:1: error one\n\n.github/dependabot.yml:3: error two\n';
-    const results: LintResult[] = transformDependabotOutput(output);
+    const results: LintResult[] = transformDependabotOutput(output, en);
     expect(results).toHaveLength(2);
   });
 
   it('skips lines that do not match the pattern', () => {
     const output: string = 'some random text without colon-line format';
-    const results: LintResult[] = transformDependabotOutput(output);
+    const results: LintResult[] = transformDependabotOutput(output, en);
     expect(results).toHaveLength(0);
   });
 
   it('returns empty array for whitespace-only output', () => {
-    expect(transformDependabotOutput('   \n  \n')).toHaveLength(0);
+    expect(transformDependabotOutput('   \n  \n', en)).toHaveLength(0);
   });
 });
 
@@ -4782,21 +4805,21 @@ describe('transformDependabotOutput — branch coverage', () => {
 
 describe('validateDependabot', () => {
   it('returns error for empty content', () => {
-    const results: LintResult[] = validateDependabot('.github/dependabot.yml', '');
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', '', en);
     expect(results).toHaveLength(1);
     expect(results[0]?.severity).toBe('error');
     expect(results[0]?.message).toBeTruthy();
   });
 
   it('returns error for whitespace-only content', () => {
-    const results: LintResult[] = validateDependabot('.github/dependabot.yml', '   \n  ');
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', '   \n  ', en);
     expect(results).toHaveLength(1);
     expect(results[0]?.severity).toBe('error');
   });
 
   it('returns error for missing version field', () => {
     const content: string = 'updates:\n  - package-ecosystem: npm\n    directory: /';
-    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content, en);
     const versionError = results.find((r) => r.message.includes('version'));
     expect(versionError).toBeTruthy();
     expect(versionError?.severity).toBe('error');
@@ -4804,7 +4827,7 @@ describe('validateDependabot', () => {
 
   it('returns error for invalid version (not 2)', () => {
     const content: string = 'version: 1\nupdates:\n  - package-ecosystem: npm\n    directory: /';
-    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content, en);
     const versionError = results.find((r) => r.message.includes('1'));
     expect(versionError).toBeTruthy();
     expect(versionError?.severity).toBe('error');
@@ -4812,7 +4835,7 @@ describe('validateDependabot', () => {
 
   it('returns error for missing updates field', () => {
     const content: string = 'version: 2';
-    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content, en);
     const updatesError = results.find((r) => r.message.includes('updates'));
     expect(updatesError).toBeTruthy();
     expect(updatesError?.severity).toBe('error');
@@ -4821,13 +4844,13 @@ describe('validateDependabot', () => {
   it('returns no errors for valid config', () => {
     const content: string =
       'version: 2\nupdates:\n  - package-ecosystem: npm\n    directory: /\n    schedule:\n      interval: weekly';
-    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content, en);
     expect(results).toHaveLength(0);
   });
 
   it('warns about unrecognized ecosystem', () => {
     const content: string = 'version: 2\nupdates:\n    package-ecosystem: foobar\n    directory: /';
-    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content, en);
     const ecosystemWarning = results.find((r) => r.severity === 'warning');
     expect(ecosystemWarning).toBeTruthy();
     expect(ecosystemWarning?.message).toContain('foobar');
@@ -4836,7 +4859,7 @@ describe('validateDependabot', () => {
   it('accepts valid ecosystems without warning', () => {
     const content: string =
       'version: 2\nupdates:\n    package-ecosystem: npm\n    directory: /\n    package-ecosystem: docker\n    directory: /';
-    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content, en);
     const warnings = results.filter((r) => r.severity === 'warning');
     expect(warnings).toHaveLength(0);
   });
@@ -4844,19 +4867,19 @@ describe('validateDependabot', () => {
   it('skips indented lines when looking for version field', () => {
     const content: string =
       'version: 2\nupdates:\n  - package-ecosystem: npm\n    directory: /\n    schedule:\n      interval: weekly';
-    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content, en);
     expect(results).toHaveLength(0);
   });
 
   it('skips tab-indented lines when looking for version field', () => {
     const content: string = 'version: 2\nupdates:\n\tpackage-ecosystem: npm';
-    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content, en);
     expect(results).toHaveLength(0);
   });
 
   it('handles quoted ecosystem values', () => {
     const content: string = 'version: 2\nupdates:\n    package-ecosystem: "npm"\n    directory: /';
-    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content, en);
     const warnings = results.filter((r) => r.severity === 'warning');
     expect(warnings).toHaveLength(0);
   });
@@ -4864,14 +4887,14 @@ describe('validateDependabot', () => {
   it('handles single-quoted ecosystem values', () => {
     const content: string =
       "version: 2\nupdates:\n    package-ecosystem: 'cargo'\n    directory: /";
-    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content, en);
     const warnings = results.filter((r) => r.severity === 'warning');
     expect(warnings).toHaveLength(0);
   });
 
   it('returns both missing version and missing updates for bare content', () => {
     const content: string = 'some-key: some-value';
-    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content);
+    const results: LintResult[] = validateDependabot('.github/dependabot.yml', content, en);
     expect(results.length).toBeGreaterThanOrEqual(2);
   });
 });
@@ -4978,21 +5001,21 @@ describe('transformSolhintOutput — branch coverage', () => {
 describe('transformCodeownersOutput — branch coverage', () => {
   it('assigns warning severity for overly broad messages', () => {
     const output: string = 'CODEOWNERS:1: overly broad wildcard pattern';
-    const results: LintResult[] = transformCodeownersOutput(output);
+    const results: LintResult[] = transformCodeownersOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.severity).toBe('warning');
   });
 
   it('assigns error severity for non-broad messages', () => {
     const output: string = 'CODEOWNERS:5: Invalid owner format: badowner';
-    const results: LintResult[] = transformCodeownersOutput(output);
+    const results: LintResult[] = transformCodeownersOutput(output, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.severity).toBe('error');
   });
 
   it('parses multiple lines', () => {
     const output: string = 'CODEOWNERS:1: overly broad pattern\nCODEOWNERS:5: Invalid owner';
-    const results: LintResult[] = transformCodeownersOutput(output);
+    const results: LintResult[] = transformCodeownersOutput(output, en);
     expect(results).toHaveLength(2);
     expect(results[0]?.severity).toBe('warning');
     expect(results[1]?.severity).toBe('error');
@@ -5000,18 +5023,18 @@ describe('transformCodeownersOutput — branch coverage', () => {
 
   it('skips blank lines in output', () => {
     const output: string = 'CODEOWNERS:1: error one\n\nCODEOWNERS:3: error two\n';
-    const results: LintResult[] = transformCodeownersOutput(output);
+    const results: LintResult[] = transformCodeownersOutput(output, en);
     expect(results).toHaveLength(2);
   });
 
   it('skips lines that do not match the pattern', () => {
     const output: string = 'random unstructured text';
-    const results: LintResult[] = transformCodeownersOutput(output);
+    const results: LintResult[] = transformCodeownersOutput(output, en);
     expect(results).toHaveLength(0);
   });
 
   it('returns empty for whitespace-only output', () => {
-    expect(transformCodeownersOutput('   \n  ')).toHaveLength(0);
+    expect(transformCodeownersOutput('   \n  ', en)).toHaveLength(0);
   });
 });
 
@@ -5021,46 +5044,46 @@ describe('transformCodeownersOutput — branch coverage', () => {
 
 describe('validateCodeowners', () => {
   it('returns error for empty content', () => {
-    const results: LintResult[] = validateCodeowners('CODEOWNERS', '');
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', '', en);
     expect(results).toHaveLength(1);
     expect(results[0]?.severity).toBe('error');
   });
 
   it('returns error for whitespace-only content', () => {
-    const results: LintResult[] = validateCodeowners('CODEOWNERS', '   \n  ');
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', '   \n  ', en);
     expect(results).toHaveLength(1);
     expect(results[0]?.severity).toBe('error');
   });
 
   it('skips comment lines', () => {
     const content: string = '# This is a comment\n*.ts @org/team';
-    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content, en);
     expect(results).toHaveLength(0);
   });
 
   it('skips empty lines', () => {
     const content: string = '*.ts @org/team\n\n*.js @org/team';
-    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content, en);
     expect(results).toHaveLength(0);
   });
 
   it('warns about overly broad wildcard pattern', () => {
     const content: string = '* @org/team';
-    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content, en);
     const broadWarning = results.find((r) => r.severity === 'warning');
     expect(broadWarning).toBeTruthy();
   });
 
   it('reports error for pattern with no owners', () => {
     const content: string = 'src/';
-    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.severity).toBe('error');
   });
 
   it('reports error for invalid owner format', () => {
     const content: string = '*.ts badowner';
-    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.severity).toBe('error');
     expect(results[0]?.message).toContain('badowner');
@@ -5068,38 +5091,38 @@ describe('validateCodeowners', () => {
 
   it('accepts valid @username owner', () => {
     const content: string = '*.ts @alice';
-    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content, en);
     expect(results).toHaveLength(0);
   });
 
   it('accepts valid @org/team owner', () => {
     const content: string = '*.ts @myorg/frontend-team';
-    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content, en);
     expect(results).toHaveLength(0);
   });
 
   it('accepts valid email owner', () => {
     const content: string = '*.ts user@example.com';
-    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content, en);
     expect(results).toHaveLength(0);
   });
 
   it('reports multiple invalid owners on the same line', () => {
     const content: string = '*.ts badowner1 badowner2';
-    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content, en);
     expect(results).toHaveLength(2);
   });
 
   it('validates each line independently', () => {
     const content: string = '*.ts @org/team\nsrc/ badowner\n*.js';
-    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content, en);
     const errors = results.filter((r) => r.severity === 'error');
     expect(errors.length).toBeGreaterThanOrEqual(2);
   });
 
   it('does not warn about non-wildcard patterns', () => {
     const content: string = 'src/ @org/team';
-    const results: LintResult[] = validateCodeowners('CODEOWNERS', content);
+    const results: LintResult[] = validateCodeowners('CODEOWNERS', content, en);
     expect(results).toHaveLength(0);
   });
 });
@@ -5111,7 +5134,7 @@ describe('validateCodeowners', () => {
 describe('transformGithubFundingOutput — branch coverage', () => {
   it('parses multiple diagnostic lines', () => {
     const output: string = 'FUNDING.yml:1: issue one\nFUNDING.yml:3: issue two';
-    const results: LintResult[] = transformGithubFundingOutput(output);
+    const results: LintResult[] = transformGithubFundingOutput(output, en);
     expect(results).toHaveLength(2);
     expect(results[0]?.line).toBe(1);
     expect(results[1]?.line).toBe(3);
@@ -5119,24 +5142,24 @@ describe('transformGithubFundingOutput — branch coverage', () => {
 
   it('sets severity to warning', () => {
     const output: string = 'FUNDING.yml:3: Unrecognized platform';
-    const results: LintResult[] = transformGithubFundingOutput(output);
+    const results: LintResult[] = transformGithubFundingOutput(output, en);
     expect(results[0]?.severity).toBe('warning');
   });
 
   it('skips blank lines', () => {
     const output: string = 'FUNDING.yml:1: err\n\nFUNDING.yml:3: err2\n';
-    const results: LintResult[] = transformGithubFundingOutput(output);
+    const results: LintResult[] = transformGithubFundingOutput(output, en);
     expect(results).toHaveLength(2);
   });
 
   it('skips lines that do not match the pattern', () => {
     const output: string = 'some random text';
-    const results: LintResult[] = transformGithubFundingOutput(output);
+    const results: LintResult[] = transformGithubFundingOutput(output, en);
     expect(results).toHaveLength(0);
   });
 
   it('returns empty for whitespace-only output', () => {
-    expect(transformGithubFundingOutput('   \n  ')).toHaveLength(0);
+    expect(transformGithubFundingOutput('   \n  ', en)).toHaveLength(0);
   });
 });
 
@@ -5146,26 +5169,26 @@ describe('transformGithubFundingOutput — branch coverage', () => {
 
 describe('validateFunding', () => {
   it('returns error for empty content', () => {
-    const results: LintResult[] = validateFunding('.github/FUNDING.yml', '');
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', '', en);
     expect(results).toHaveLength(1);
     expect(results[0]?.severity).toBe('error');
   });
 
   it('returns error for whitespace-only content', () => {
-    const results: LintResult[] = validateFunding('.github/FUNDING.yml', '   \n  ');
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', '   \n  ', en);
     expect(results).toHaveLength(1);
     expect(results[0]?.severity).toBe('error');
   });
 
   it('returns no issues for valid platforms', () => {
     const content: string = 'github: username\npatreon: myaccount';
-    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content, en);
     expect(results).toHaveLength(0);
   });
 
   it('warns about unrecognized platform key', () => {
     const content: string = 'buymeacoffee: myaccount';
-    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content, en);
     expect(results).toHaveLength(1);
     expect(results[0]?.severity).toBe('warning');
     expect(results[0]?.message).toContain('buymeacoffee');
@@ -5173,25 +5196,25 @@ describe('validateFunding', () => {
 
   it('skips comment lines', () => {
     const content: string = '# This is a comment\ngithub: username';
-    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content, en);
     expect(results).toHaveLength(0);
   });
 
   it('skips indented lines', () => {
     const content: string = 'custom:\n  - https://example.com/donate';
-    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content, en);
     expect(results).toHaveLength(0);
   });
 
   it('skips tab-indented lines', () => {
     const content: string = 'custom:\n\t- https://example.com/donate';
-    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content, en);
     expect(results).toHaveLength(0);
   });
 
   it('reports multiple unrecognized platforms', () => {
     const content: string = 'buymeacoffee: a\nvenmo: b';
-    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content, en);
     expect(results).toHaveLength(2);
     expect(results[0]?.severity).toBe('warning');
     expect(results[1]?.severity).toBe('warning');
@@ -5211,13 +5234,13 @@ describe('validateFunding', () => {
       'lfx_crowdfunding: u',
       'custom: https://example.com',
     ].join('\n');
-    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content, en);
     expect(results).toHaveLength(0);
   });
 
   it('does not match lines without colon key format', () => {
     const content: string = 'github: u\nthis is not a key line';
-    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content);
+    const results: LintResult[] = validateFunding('.github/FUNDING.yml', content, en);
     expect(results).toHaveLength(0);
   });
 });

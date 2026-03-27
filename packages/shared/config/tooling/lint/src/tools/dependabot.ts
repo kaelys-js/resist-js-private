@@ -14,8 +14,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Valid Dependabot package ecosystems.
@@ -63,8 +62,9 @@ const VALID_ECOSYSTEMS: ReadonlySet<string> = new Set<string>([
  * // results[0].ruleId === 'dependabot/config'
  * // results[0].severity === 'error'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformDependabotOutput(output: string): LintResult[] {
+export function transformDependabotOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -93,7 +93,7 @@ export function transformDependabotOutput(output: string): LintResult[] {
 
       results.push(
         createResult('dependabot/config', file, lineNum, 1, 'error', message, {
-          tip: en.tools.dependabotConfigTip,
+          tip: strings.tools.dependabotConfigTip,
         }),
       );
     }
@@ -120,16 +120,21 @@ export function transformDependabotOutput(output: string): LintResult[] {
  * const results = validateDependabot('.github/dependabot.yml', 'version: 2\nupdates:\n  - package-ecosystem: npm\n    directory: /\n    schedule:\n      interval: weekly\n');
  * // results.length === 0 (valid config)
  * ```
+  * @param {Type} strings - Description
  */
-export function validateDependabot(filePath: string, content: string): LintResult[] {
+export function validateDependabot(
+  filePath: string,
+  content: string,
+  strings: LintStrings,
+): LintResult[] {
   const trimmed: string = content.trim();
 
   if (trimmed.length === 0) {
     return [
-      createResult('dependabot/config', filePath, 1, 1, 'error', en.tools.dependabotEmpty, {
+      createResult('dependabot/config', filePath, 1, 1, 'error', strings.tools.dependabotEmpty, {
         example:
           'version: 2\nupdates:\n  - package-ecosystem: npm\n    directory: /\n    schedule:\n      interval: weekly',
-        tip: en.tools.dependabotEmptyTip,
+        tip: strings.tools.dependabotEmptyTip,
       }),
     ];
   }
@@ -166,10 +171,10 @@ export function validateDependabot(filePath: string, content: string): LintResul
             i + 1,
             1,
             'error',
-            format(en.tools.dependabotInvalidVersion, { version: versionValue }),
+            format(strings.tools.dependabotInvalidVersion, { version: versionValue }),
             {
               example: 'version: 2',
-              tip: en.tools.dependabotInvalidVersionTip,
+              tip: strings.tools.dependabotInvalidVersionTip,
             },
           ),
         );
@@ -186,10 +191,10 @@ export function validateDependabot(filePath: string, content: string): LintResul
         1,
         1,
         'error',
-        en.tools.dependabotMissingVersion,
+        strings.tools.dependabotMissingVersion,
         {
           example: 'version: 2',
-          tip: en.tools.dependabotMissingVersionTip,
+          tip: strings.tools.dependabotMissingVersionTip,
         },
       ),
     );
@@ -214,11 +219,11 @@ export function validateDependabot(filePath: string, content: string): LintResul
         1,
         1,
         'error',
-        en.tools.dependabotMissingUpdates,
+        strings.tools.dependabotMissingUpdates,
         {
           example:
             'updates:\n  - package-ecosystem: npm\n    directory: /\n    schedule:\n      interval: weekly',
-          tip: en.tools.dependabotMissingUpdatesTip,
+          tip: strings.tools.dependabotMissingUpdatesTip,
         },
       ),
     );
@@ -244,9 +249,9 @@ export function validateDependabot(filePath: string, content: string): LintResul
             i + 1,
             1,
             'warning',
-            format(en.tools.dependabotUnrecognizedEcosystem, { ecosystem }),
+            format(strings.tools.dependabotUnrecognizedEcosystem, { ecosystem }),
             {
-              tip: format(en.tools.dependabotValidEcosystems, {
+              tip: format(strings.tools.dependabotValidEcosystems, {
                 ecosystems: [...VALID_ECOSYSTEMS].join(', '),
               }),
             },

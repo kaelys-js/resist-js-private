@@ -10,7 +10,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
+import { type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform npmrc validator text output into LintResult[].
@@ -26,8 +26,9 @@ import { en } from '@/lint/locale/locales/en.ts';
  * const results = transformNpmrcOutput('.npmrc:3: Invalid syntax — expected key=value');
  * // results[0].ruleId === 'npmrc/syntax'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformNpmrcOutput(output: string): LintResult[] {
+export function transformNpmrcOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -61,7 +62,7 @@ export function transformNpmrcOutput(output: string): LintResult[] {
     results.push(
       createResult('npmrc/syntax', file, lineNum, 1, 'error', message, {
         example: 'registry=https://registry.npmjs.org/',
-        tip: en.tools.npmrcTip,
+        tip: strings.tools.npmrcTip,
       }),
     );
   }

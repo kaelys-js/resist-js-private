@@ -10,7 +10,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
+import { type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform lockfile-lint text output into LintResult[].
@@ -31,8 +31,9 @@ import { en } from '@/lint/locale/locales/en.ts';
  * // results[0].ruleId === 'lockfile-lint/security'
  * // results[0].severity === 'error'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformLockfileLintOutput(output: string): LintResult[] {
+export function transformLockfileLintOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -76,7 +77,7 @@ export function transformLockfileLintOutput(output: string): LintResult[] {
 
     results.push(
       createResult('lockfile-lint/security', file, 1, 1, severity, message, {
-        tip: en.tools.lockfileLintTip,
+        tip: strings.tools.lockfileLintTip,
       }),
     );
   }

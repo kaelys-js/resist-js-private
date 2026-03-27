@@ -10,7 +10,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
+import { type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * A single problem entry from attw JSON output.
@@ -48,8 +48,9 @@ type AttwProblem = {
  * const results = transformAttwOutput(json);
  * // results[0].ruleId === 'attw/FalseESM'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformAttwOutput(output: string): LintResult[] {
+export function transformAttwOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -80,7 +81,7 @@ export function transformAttwOutput(output: string): LintResult[] {
         'error',
         `${title} (entrypoint: ${entrypoint})`,
         {
-          tip: en.tools.attwTip,
+          tip: strings.tools.attwTip,
         },
       ),
     );

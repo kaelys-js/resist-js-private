@@ -13,8 +13,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Valid GitHub funding platform keys.
@@ -55,8 +54,9 @@ const VALID_PLATFORMS: ReadonlySet<string> = new Set<string>([
  * // results[0].ruleId === 'github/funding'
  * // results[0].severity === 'warning'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformGithubFundingOutput(output: string): LintResult[] {
+export function transformGithubFundingOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -85,7 +85,7 @@ export function transformGithubFundingOutput(output: string): LintResult[] {
 
       results.push(
         createResult('github/funding', file, lineNum, 1, 'warning', message, {
-          tip: format(en.tools.fundingValidPlatforms, {
+          tip: format(strings.tools.fundingValidPlatforms, {
             platforms: [...VALID_PLATFORMS].join(', '),
           }),
         }),
@@ -113,15 +113,20 @@ export function transformGithubFundingOutput(output: string): LintResult[] {
  * const results = validateFunding('.github/FUNDING.yml', 'patreon: myaccount\nbuymeacoffee: foo\n');
  * // results[0].message includes 'Unrecognized funding platform: buymeacoffee'
  * ```
+  * @param {Type} strings - Description
  */
-export function validateFunding(filePath: string, content: string): LintResult[] {
+export function validateFunding(
+  filePath: string,
+  content: string,
+  strings: LintStrings,
+): LintResult[] {
   const trimmed: string = content.trim();
 
   if (trimmed.length === 0) {
     return [
-      createResult('github/funding', filePath, 1, 1, 'error', en.tools.fundingEmpty, {
+      createResult('github/funding', filePath, 1, 1, 'error', strings.tools.fundingEmpty, {
         example: 'github: username',
-        tip: en.tools.fundingEmptyTip,
+        tip: strings.tools.fundingEmptyTip,
       }),
     ];
   }
@@ -160,9 +165,9 @@ export function validateFunding(filePath: string, content: string): LintResult[]
             i + 1,
             1,
             'warning',
-            format(en.tools.fundingUnrecognized, { platform: key }),
+            format(strings.tools.fundingUnrecognized, { platform: key }),
             {
-              tip: format(en.tools.fundingValidPlatforms, {
+              tip: format(strings.tools.fundingValidPlatforms, {
                 platforms: [...VALID_PLATFORMS].join(', '),
               }),
             },

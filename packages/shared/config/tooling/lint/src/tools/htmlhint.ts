@@ -9,8 +9,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform HTMLHint JSON output into LintResult[].
@@ -26,8 +25,9 @@ import { format } from '@/lint/locale/schema.ts';
  * const results = transformHtmlhintOutput('[{"file":"index.html","messages":[{"line":1,"col":1,"type":"error","message":"Doctype must be declared first.","rule":{"id":"doctype-first"}}]}]');
  * // results[0].ruleId === 'htmlhint/doctype-first'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformHtmlhintOutput(output: string): LintResult[] {
+export function transformHtmlhintOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -65,7 +65,7 @@ export function transformHtmlhintOutput(output: string): LintResult[] {
 
       results.push(
         createResult(`htmlhint/${ruleId}`, filePath, line, col, severity, message, {
-          tip: format(en.tools.toolSeeDocsAt, {
+          tip: format(strings.tools.toolSeeDocsAt, {
             url: `https://htmlhint.com/docs/user-guide/rules/${ruleId}`,
           }),
         }),

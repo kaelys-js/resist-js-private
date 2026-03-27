@@ -87,6 +87,7 @@ function parseWorkspaceYaml(content: string): { packages: unknown } | null {
   return { packages };
 }
 
+/** Description. */
 const rule: WorkspaceRule = {
   categories: ['workspace', 'pnpm'],
   async check(context: unknown): Promise<LintResult[]> {

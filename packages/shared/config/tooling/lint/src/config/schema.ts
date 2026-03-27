@@ -12,8 +12,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import * as v from 'valibot';
 import { CONFIG_FILENAME, LINTER_NAME } from '@/lint/constants.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 // =============================================================================
 // Schemas
@@ -73,8 +72,13 @@ export type LintConfig = v.InferOutput<typeof LintConfigSchema>;
  * @returns {LintConfig} Validated linter configuration
  * @throws If the config file contains invalid JSON or fails schema validation
  * @param {Type} customConfigPath - Description
+  * @param {Type} strings - Description
  */
-export function loadConfig(cwd: string, customConfigPath?: string): LintConfig {
+export function loadConfig(
+  cwd: string,
+  customConfigPath: string | undefined,
+  strings: LintStrings,
+): LintConfig {
   const configPath: string = customConfigPath
     ? resolve(cwd, customConfigPath)
     : resolve(cwd, CONFIG_FILENAME);
@@ -94,9 +98,12 @@ export function loadConfig(cwd: string, customConfigPath?: string): LintConfig {
   try {
     parsed = JSON.parse(stripped);
   } catch (error: unknown) {
-    throw new Error(format(en.errors.invalidJsonc, { error: String(error), path: configPath }), {
-      cause: error,
-    });
+    throw new Error(
+      format(strings.errors.invalidJsonc, { error: String(error), path: configPath }),
+      {
+        cause: error,
+      },
+    );
   }
 
   const result: v.SafeParseResult<typeof LintConfigSchema> = v.safeParse(LintConfigSchema, parsed);
@@ -110,7 +117,7 @@ export function loadConfig(cwd: string, customConfigPath?: string): LintConfig {
         return `  - ${pathStr}: ${issue.message}`;
       })
       .join('\n');
-    throw new Error(format(en.errors.invalidConfig, { issues, path: configPath }));
+    throw new Error(format(strings.errors.invalidConfig, { issues, path: configPath }));
   }
 
   return result.output;
@@ -349,10 +356,12 @@ export type JsonSchemaDocument = v.InferOutput<typeof JsonSchemaDocumentSchema>;
  * @param {string[]} ruleIds - All known rule IDs (e.g. ['jsdoc/require-param', ...])
  * @param {Map<string, string>} ruleDescriptions - Map of rule ID to human-readable description
  * @returns {JsonSchemaDocument} JSON Schema document as a plain object
+  * @param {Type} strings - Description
  */
 export function generateJsonSchema(
   ruleIds: string[],
   ruleDescriptions: Map<string, string>,
+  strings: LintStrings,
 ): JsonSchemaDocument {
   const ruleEnumDescription: string = ruleIds
     .map((id: string): string => `- \`${id}\`: ${ruleDescriptions.get(id) ?? ''}`)
@@ -361,36 +370,36 @@ export function generateJsonSchema(
   return {
     $schema: 'http://json-schema.org/draft-07/schema#',
     additionalProperties: false,
-    description: format(en.schema.configDescription, { linterName: LINTER_NAME }),
+    description: format(strings.schema.configDescription, { linterName: LINTER_NAME }),
     properties: {
       $schema: {
-        description: en.schema.schemaFieldDescription,
+        description: strings.schema.schemaFieldDescription,
         type: 'string',
       },
       exclude: {
         default: ['*.test.ts', '*.d.ts'],
-        description: en.schema.excludeDescription,
+        description: strings.schema.excludeDescription,
         items: { type: 'string' },
         type: 'array',
       },
       extensions: {
         default: ['.ts', '.svelte.ts', '.mjs'],
-        description: en.schema.extensionsDescription,
+        description: strings.schema.extensionsDescription,
         items: { type: 'string' },
         type: 'array',
       },
       include: {
         default: [],
-        description: en.schema.includeDescription,
+        description: strings.schema.includeDescription,
         items: { type: 'string' },
         type: 'array',
       },
       overrides: {
-        description: en.schema.overridesDescription,
+        description: strings.schema.overridesDescription,
         items: {
           properties: {
             files: {
-              description: en.schema.overridesFilesDescription,
+              description: strings.schema.overridesFilesDescription,
               items: { type: 'string' },
               type: 'array',
             },
@@ -399,7 +408,7 @@ export function generateJsonSchema(
                 enum: ['error', 'warn', 'off'],
                 type: 'string',
               },
-              description: en.schema.overridesRulesDescription,
+              description: strings.schema.overridesRulesDescription,
               type: 'object',
             },
           },
@@ -410,23 +419,23 @@ export function generateJsonSchema(
       },
       ruleOptions: {
         additionalProperties: {
-          description: en.schema.ruleOptionsAdditionalDescription,
+          description: strings.schema.ruleOptionsAdditionalDescription,
           type: 'object',
         },
-        description: en.schema.ruleOptionsDescription,
+        description: strings.schema.ruleOptionsDescription,
         type: 'object',
       },
       rules: {
         additionalProperties: {
-          description: en.schema.ruleSeverityDescription,
+          description: strings.schema.ruleSeverityDescription,
           enum: ['error', 'warn', 'off'],
           type: 'string',
         },
-        description: format(en.schema.rulesDescription, { ruleList: ruleEnumDescription }),
+        description: format(strings.schema.rulesDescription, { ruleList: ruleEnumDescription }),
         type: 'object',
       },
     },
-    title: format(en.schema.title, { linterName: LINTER_NAME }),
+    title: format(strings.schema.title, { linterName: LINTER_NAME }),
     type: 'object',
   };
 }

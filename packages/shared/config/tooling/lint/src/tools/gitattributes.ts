@@ -11,7 +11,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
+import { type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform gitattributes validator text output into LintResult[].
@@ -27,8 +27,9 @@ import { en } from '@/lint/locale/locales/en.ts';
  * const results = transformGitattributesOutput('.gitattributes:2: Conflicting attributes — "text" and "binary" cannot both be set');
  * // results[0].ruleId === 'gitattributes/syntax'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformGitattributesOutput(output: string): LintResult[] {
+export function transformGitattributesOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -67,7 +68,7 @@ export function transformGitattributesOutput(output: string): LintResult[] {
     results.push(
       createResult('gitattributes/syntax', file, lineNum, 1, severity, message, {
         example: '*.ts text eol=lf diff=typescript',
-        tip: en.tools.gitattributesTip,
+        tip: strings.tools.gitattributesTip,
       }),
     );
   }

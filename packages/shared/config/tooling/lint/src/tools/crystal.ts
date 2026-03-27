@@ -10,8 +10,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Regex for Crystal format --check output lines.
@@ -54,8 +53,9 @@ const CRYSTAL_FILE_LINE: RegExp = /^(.+\.cr)$/;
  * // results[0].ruleId === 'crystal/format'
  * // results[0].severity === 'warning'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformCrystalOutput(output: string): LintResult[] {
+export function transformCrystalOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -74,11 +74,21 @@ export function transformCrystalOutput(output: string): LintResult[] {
     const formatMatch: RegExpMatchArray | null = CRYSTAL_FORMAT_LINE.exec(stripped);
     if (formatMatch) {
       const file: string = formatMatch[1] ?? '';
-      const crystalTip: string = format(en.tools.formatRunTool, { tool: 'crystal tool format' });
+      const crystalTip: string = format(strings.tools.formatRunTool, {
+        tool: 'crystal tool format',
+      });
       results.push(
-        createResult('crystal/format', file, 1, 1, 'warning', en.tools.formatFileNotFormatted, {
-          tip: crystalTip,
-        }),
+        createResult(
+          'crystal/format',
+          file,
+          1,
+          1,
+          'warning',
+          strings.tools.formatFileNotFormatted,
+          {
+            tip: crystalTip,
+          },
+        ),
       );
       continue;
     }
@@ -88,9 +98,17 @@ export function transformCrystalOutput(output: string): LintResult[] {
     if (fileMatch) {
       const file: string = fileMatch[1] ?? '';
       results.push(
-        createResult('crystal/format', file, 1, 1, 'warning', en.tools.formatFileNotFormatted, {
-          tip: format(en.tools.formatRunTool, { tool: 'crystal tool format' }),
-        }),
+        createResult(
+          'crystal/format',
+          file,
+          1,
+          1,
+          'warning',
+          strings.tools.formatFileNotFormatted,
+          {
+            tip: format(strings.tools.formatRunTool, { tool: 'crystal tool format' }),
+          },
+        ),
       );
       continue;
     }
@@ -98,9 +116,17 @@ export function transformCrystalOutput(output: string): LintResult[] {
     /* Catch-all: any line mentioning "formatting" */
     if (stripped.toLowerCase().includes('formatting')) {
       results.push(
-        createResult('crystal/format', stripped, 1, 1, 'warning', en.tools.formatIssueDetected, {
-          tip: format(en.tools.formatRunTool, { tool: 'crystal tool format' }),
-        }),
+        createResult(
+          'crystal/format',
+          stripped,
+          1,
+          1,
+          'warning',
+          strings.tools.formatIssueDetected,
+          {
+            tip: format(strings.tools.formatRunTool, { tool: 'crystal tool format' }),
+          },
+        ),
       );
     }
   }

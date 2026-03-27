@@ -11,7 +11,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
+import { type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform Julia formatter output into LintResult[].
@@ -31,8 +31,9 @@ import { en } from '@/lint/locale/locales/en.ts';
  * // results[0].ruleId === 'julia/format'
  * // results[0].severity === 'warning'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformJuliaOutput(output: string): LintResult[] {
+export function transformJuliaOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -56,8 +57,8 @@ export function transformJuliaOutput(output: string): LintResult[] {
 
     if (stripped.toLowerCase() === 'false') {
       results.push(
-        createResult('julia/format', 'unknown', 1, 1, 'warning', en.tools.juliaNotFormatted, {
-          tip: en.tools.juliaTip,
+        createResult('julia/format', 'unknown', 1, 1, 'warning', strings.tools.juliaNotFormatted, {
+          tip: strings.tools.juliaTip,
         }),
       );
     }

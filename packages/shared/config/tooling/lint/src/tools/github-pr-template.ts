@@ -13,7 +13,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
+import { type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform GitHub PR template validation output into LintResult[].
@@ -32,8 +32,12 @@ import { en } from '@/lint/locale/locales/en.ts';
  * // results[0].ruleId === 'github/pr-template'
  * // results[0].severity === 'error'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformGithubPrTemplateOutput(output: string): LintResult[] {
+export function transformGithubPrTemplateOutput(
+  output: string,
+  strings: LintStrings,
+): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -62,7 +66,7 @@ export function transformGithubPrTemplateOutput(output: string): LintResult[] {
 
       results.push(
         createResult('github/pr-template', file, lineNum, 1, 'warning', message, {
-          tip: en.tools.prTemplateTip,
+          tip: strings.tools.prTemplateTip,
         }),
       );
     }
@@ -88,15 +92,20 @@ export function transformGithubPrTemplateOutput(output: string): LintResult[] {
  * const results = validatePrTemplate('pull_request_template.md', '');
  * // results[0].message === 'PR template file is empty'
  * ```
+  * @param {Type} strings - Description
  */
-export function validatePrTemplate(filePath: string, content: string): LintResult[] {
+export function validatePrTemplate(
+  filePath: string,
+  content: string,
+  strings: LintStrings,
+): LintResult[] {
   const trimmed: string = content.trim();
 
   if (trimmed.length === 0) {
     return [
-      createResult('github/pr-template', filePath, 1, 1, 'error', en.tools.prTemplateEmpty, {
+      createResult('github/pr-template', filePath, 1, 1, 'error', strings.tools.prTemplateEmpty, {
         example: '## Description\n\n## Checklist\n- [ ] Tests added',
-        tip: en.tools.prTemplateEmptyTip,
+        tip: strings.tools.prTemplateEmptyTip,
       }),
     ];
   }
@@ -116,10 +125,10 @@ export function validatePrTemplate(filePath: string, content: string): LintResul
         1,
         1,
         'warning',
-        en.tools.prTemplateMissingDescription,
+        strings.tools.prTemplateMissingDescription,
         {
           example: '## Description\n\nBrief summary of changes.',
-          tip: en.tools.prTemplateDescriptionTip,
+          tip: strings.tools.prTemplateDescriptionTip,
         },
       ),
     );
@@ -138,10 +147,10 @@ export function validatePrTemplate(filePath: string, content: string): LintResul
         1,
         1,
         'warning',
-        en.tools.prTemplateMissingChecklist,
+        strings.tools.prTemplateMissingChecklist,
         {
           example: '## Checklist\n- [ ] Tests added\n- [ ] Documentation updated',
-          tip: en.tools.prTemplateChecklistTip,
+          tip: strings.tools.prTemplateChecklistTip,
         },
       ),
     );

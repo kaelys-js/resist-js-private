@@ -13,8 +13,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Regex for scalafmt error output: `error: filename:line:column: message`
@@ -45,8 +44,9 @@ const SCALAFMT_ERROR_LINE: RegExp = /^error:\s+(.+?):(\d+):(\d+):\s*(.+)$/;
  * // results[0].ruleId === 'scalafmt/format'
  * // results[0].severity === 'error'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformScalafmtOutput(output: string): LintResult[] {
+export function transformScalafmtOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -75,14 +75,14 @@ export function transformScalafmtOutput(output: string): LintResult[] {
 
       results.push(
         createResult('scalafmt/format', file, lineNum, column, 'error', message, {
-          tip: format(en.tools.formatRunTool, { tool: 'scalafmt' }),
+          tip: format(strings.tools.formatRunTool, { tool: 'scalafmt' }),
         }),
       );
     } else {
       /* Generic error line — capture as a formatting issue */
       results.push(
         createResult('scalafmt/format', 'unknown', 1, 1, 'error', stripped, {
-          tip: format(en.tools.formatRunTool, { tool: 'scalafmt' }),
+          tip: format(strings.tools.formatRunTool, { tool: 'scalafmt' }),
         }),
       );
     }

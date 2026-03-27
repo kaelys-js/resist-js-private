@@ -9,6 +9,8 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import * as v from 'valibot';
 
+import { en } from '@/lint/locale/locales/en.ts';
+
 import {
   RuleSeveritySchema,
   OverrideSchema,
@@ -170,7 +172,7 @@ describe('loadConfig', () => {
       throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
     });
 
-    const config: LintConfig = loadConfig('/some/nonexistent/dir');
+    const config: LintConfig = loadConfig('/some/nonexistent/dir', undefined, en);
     expect(config.include).toEqual([]);
     expect(config.exclude).toEqual(['*.test.ts', '*.d.ts']);
     expect(config.extensions).toEqual(['.ts', '.svelte.ts', '.mjs']);
@@ -181,7 +183,7 @@ describe('loadConfig', () => {
   it('parses a minimal valid JSONC file', () => {
     vi.mocked(readFileSync).mockReturnValue('{}');
 
-    const config: LintConfig = loadConfig('/some/dir');
+    const config: LintConfig = loadConfig('/some/dir', undefined, en);
     expect(config.rules).toEqual({});
     expect(config.overrides).toEqual([]);
   });
@@ -198,7 +200,7 @@ describe('loadConfig', () => {
 
     vi.mocked(readFileSync).mockReturnValue(jsonc);
 
-    const config: LintConfig = loadConfig('/some/dir');
+    const config: LintConfig = loadConfig('/some/dir', undefined, en);
     expect(config.rules['jsdoc/require-param']).toBe('warn');
   });
 
@@ -212,7 +214,7 @@ describe('loadConfig', () => {
 
     vi.mocked(readFileSync).mockReturnValue(jsonc);
 
-    const config: LintConfig = loadConfig('/some/dir');
+    const config: LintConfig = loadConfig('/some/dir', undefined, en);
     expect(config.rules['imports/no-relative-imports']).toBe('error');
   });
 
@@ -220,7 +222,7 @@ describe('loadConfig', () => {
     const jsonc: string = '{ "include": ["src // not a comment"] }';
     vi.mocked(readFileSync).mockReturnValue(jsonc);
 
-    const config: LintConfig = loadConfig('/some/dir');
+    const config: LintConfig = loadConfig('/some/dir', undefined, en);
     expect(config.include).toEqual(['src // not a comment']);
   });
 
@@ -228,14 +230,14 @@ describe('loadConfig', () => {
     const jsonc: string = '{ "include": ["src /* not a comment */"] }';
     vi.mocked(readFileSync).mockReturnValue(jsonc);
 
-    const config: LintConfig = loadConfig('/some/dir');
+    const config: LintConfig = loadConfig('/some/dir', undefined, en);
     expect(config.include).toEqual(['src /* not a comment */']);
   });
 
   it('throws on invalid JSON (after stripping comments)', () => {
     vi.mocked(readFileSync).mockReturnValue('{ invalid json }');
 
-    expect(() => loadConfig('/some/dir')).toThrow(/Invalid JSONC/);
+    expect(() => loadConfig('/some/dir', undefined, en)).toThrow(/Invalid JSONC/);
   });
 
   it('throws on schema validation failure', () => {
@@ -243,19 +245,19 @@ describe('loadConfig', () => {
       JSON.stringify({ rules: { 'some/rule': 'bad-severity' } }),
     );
 
-    expect(() => loadConfig('/some/dir')).toThrow(/Invalid config/);
+    expect(() => loadConfig('/some/dir', undefined, en)).toThrow(/Invalid config/);
   });
 
   it('throws on unknown extra keys in config', () => {
     vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ unknownKey: true }));
 
-    expect(() => loadConfig('/some/dir')).toThrow(/Invalid config/);
+    expect(() => loadConfig('/some/dir', undefined, en)).toThrow(/Invalid config/);
   });
 
   it('reads from the correct path (cwd + .resist-lint.jsonc)', () => {
     vi.mocked(readFileSync).mockReturnValue('{}');
 
-    loadConfig('/project/root');
+    loadConfig('/project/root', undefined, en);
 
     expect(readFileSync).toHaveBeenCalledWith(
       expect.stringContaining('.resist-lint.jsonc'),
@@ -469,7 +471,7 @@ describe('generateJsonSchema', () => {
   ]);
 
   it('returns a valid JSON Schema document with required top-level fields', () => {
-    const schema = generateJsonSchema(ruleIds, ruleDescriptions);
+    const schema = generateJsonSchema(ruleIds, ruleDescriptions, en);
     expect(schema.$schema).toBe('http://json-schema.org/draft-07/schema#');
     expect(schema.title).toContain('resist-lint');
     expect(schema.type).toBe('object');
@@ -477,7 +479,7 @@ describe('generateJsonSchema', () => {
   });
 
   it('includes all expected properties', () => {
-    const schema = generateJsonSchema(ruleIds, ruleDescriptions);
+    const schema = generateJsonSchema(ruleIds, ruleDescriptions, en);
     const propKeys: string[] = Object.keys(schema.properties);
     expect(propKeys).toContain('$schema');
     expect(propKeys).toContain('include');
@@ -490,37 +492,37 @@ describe('generateJsonSchema', () => {
   });
 
   it('includes rule IDs in the rules property description', () => {
-    const schema = generateJsonSchema(ruleIds, ruleDescriptions);
+    const schema = generateJsonSchema(ruleIds, ruleDescriptions, en);
     const rulesDescription: string = schema.properties['rules']?.description ?? '';
     expect(rulesDescription).toContain('jsdoc/require-param');
     expect(rulesDescription).toContain('imports/no-relative-imports');
   });
 
   it('includes rule descriptions in the rules property description', () => {
-    const schema = generateJsonSchema(ruleIds, ruleDescriptions);
+    const schema = generateJsonSchema(ruleIds, ruleDescriptions, en);
     const rulesDescription: string = schema.properties['rules']?.description ?? '';
     expect(rulesDescription).toContain('Requires @param tags for function parameters');
     expect(rulesDescription).toContain('Disallows relative imports');
   });
 
   it('works with empty rule lists', () => {
-    const schema = generateJsonSchema([], new Map());
+    const schema = generateJsonSchema([], new Map(), en);
     expect(schema.properties['rules']).toBeDefined();
     expect(schema.$schema).toBe('http://json-schema.org/draft-07/schema#');
   });
 
   it('exclude property has correct default', () => {
-    const schema = generateJsonSchema([], new Map());
+    const schema = generateJsonSchema([], new Map(), en);
     expect(schema.properties['exclude']?.default).toEqual(['*.test.ts', '*.d.ts']);
   });
 
   it('extensions property has correct default', () => {
-    const schema = generateJsonSchema([], new Map());
+    const schema = generateJsonSchema([], new Map(), en);
     expect(schema.properties['extensions']?.default).toEqual(['.ts', '.svelte.ts', '.mjs']);
   });
 
   it('rules additionalProperties describes severity enum', () => {
-    const schema = generateJsonSchema([], new Map());
+    const schema = generateJsonSchema([], new Map(), en);
     const addlProps = schema.properties['rules']?.additionalProperties;
     expect(addlProps).toBeDefined();
     if (typeof addlProps === 'object' && addlProps !== null) {
@@ -529,7 +531,7 @@ describe('generateJsonSchema', () => {
   });
 
   it('overrides items have required files and rules', () => {
-    const schema = generateJsonSchema([], new Map());
+    const schema = generateJsonSchema([], new Map(), en);
     const overrideItems = schema.properties['overrides']?.items;
     expect(overrideItems).toBeDefined();
     if (overrideItems && typeof overrideItems === 'object' && 'required' in overrideItems) {
@@ -539,7 +541,7 @@ describe('generateJsonSchema', () => {
   });
 
   it('handles a rule with no description entry gracefully', () => {
-    const schema = generateJsonSchema(['unknown/rule'], new Map());
+    const schema = generateJsonSchema(['unknown/rule'], new Map(), en);
     const rulesDescription: string = schema.properties['rules']?.description ?? '';
     expect(rulesDescription).toContain('unknown/rule');
   });
@@ -553,7 +555,7 @@ describe('loadConfig — custom config path', () => {
   it('reads from a custom config path when provided', () => {
     vi.mocked(readFileSync).mockReturnValue('{}');
 
-    loadConfig('/project/root', 'custom/lint.jsonc');
+    loadConfig('/project/root', 'custom/lint.jsonc', en);
 
     expect(readFileSync).toHaveBeenCalledWith(expect.stringContaining('custom'), 'utf8');
   });
@@ -561,7 +563,7 @@ describe('loadConfig — custom config path', () => {
   it('resolves custom config path relative to cwd', () => {
     vi.mocked(readFileSync).mockReturnValue('{"rules": {"some/rule": "warn"}}');
 
-    const config: LintConfig = loadConfig('/project/root', 'configs/lint.jsonc');
+    const config: LintConfig = loadConfig('/project/root', 'configs/lint.jsonc', en);
     expect(config.rules['some/rule']).toBe('warn');
   });
 });
@@ -575,7 +577,7 @@ describe('loadConfig — JSONC edge cases', () => {
     const jsonc: string = '{ "include": ["src/\\"special\\""] }';
     vi.mocked(readFileSync).mockReturnValue(jsonc);
 
-    const config: LintConfig = loadConfig('/some/dir');
+    const config: LintConfig = loadConfig('/some/dir', undefined, en);
     expect(config.include).toEqual(['src/"special"']);
   });
 
@@ -583,7 +585,7 @@ describe('loadConfig — JSONC edge cases', () => {
     const jsonc: string = '{ "include": ["path\\\\"] }';
     vi.mocked(readFileSync).mockReturnValue(jsonc);
 
-    const config: LintConfig = loadConfig('/some/dir');
+    const config: LintConfig = loadConfig('/some/dir', undefined, en);
     expect(config.include).toEqual(['path\\']);
   });
 
@@ -591,7 +593,7 @@ describe('loadConfig — JSONC edge cases', () => {
     const jsonc: string = '{"rules": {}} // trailing comment';
     vi.mocked(readFileSync).mockReturnValue(jsonc);
 
-    const config: LintConfig = loadConfig('/some/dir');
+    const config: LintConfig = loadConfig('/some/dir', undefined, en);
     expect(config.rules).toEqual({});
   });
 
@@ -605,13 +607,13 @@ describe('loadConfig — JSONC edge cases', () => {
     ].join('\n');
     vi.mocked(readFileSync).mockReturnValue(jsonc);
 
-    const config: LintConfig = loadConfig('/some/dir');
+    const config: LintConfig = loadConfig('/some/dir', undefined, en);
     expect(config.rules).toEqual({});
   });
 
   it('handles empty JSONC string gracefully (throws)', () => {
     vi.mocked(readFileSync).mockReturnValue('');
-    expect(() => loadConfig('/some/dir')).toThrow();
+    expect(() => loadConfig('/some/dir', undefined, en)).toThrow();
   });
 });
 
@@ -625,14 +627,14 @@ describe('loadConfig — schema validation error paths', () => {
       JSON.stringify({ overrides: [{ files: ['**/*.ts'], rules: { r: 'bad' } }] }),
     );
 
-    expect(() => loadConfig('/some/dir')).toThrow(/Invalid config/);
+    expect(() => loadConfig('/some/dir', undefined, en)).toThrow(/Invalid config/);
   });
 
   it('error message includes path info for deeply invalid config', () => {
     vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ rules: 'not-an-object' }));
 
     try {
-      loadConfig('/some/dir');
+      loadConfig('/some/dir', undefined, en);
       expect.unreachable('should have thrown');
     } catch (error: unknown) {
       expect((error as Error).message).toContain('Invalid config');
@@ -654,14 +656,14 @@ describe('loadConfig — ruleOptions', () => {
       }),
     );
 
-    const config: LintConfig = loadConfig('/some/dir');
+    const config: LintConfig = loadConfig('/some/dir', undefined, en);
     expect(config.ruleOptions['some/rule']).toEqual({ allowedTargets: ['browser'] });
   });
 
   it('defaults ruleOptions to empty object when not provided', () => {
     vi.mocked(readFileSync).mockReturnValue('{}');
 
-    const config: LintConfig = loadConfig('/some/dir');
+    const config: LintConfig = loadConfig('/some/dir', undefined, en);
     expect(config.ruleOptions).toEqual({});
   });
 });
@@ -754,7 +756,7 @@ describe('simplified config structure', () => {
       extensions: ['.ts'],
     });
     vi.mocked(readFileSync).mockReturnValueOnce(jsonc);
-    const config: LintConfig = loadConfig('/fake');
+    const config: LintConfig = loadConfig('/fake', undefined, en);
     expect(config.include).toEqual(['packages']);
     expect(config.exclude).toContain('packages/shared/utils/cli');
     expect(config.exclude).toContain('node_modules');
@@ -767,7 +769,7 @@ describe('simplified config structure', () => {
       extensions: ['.ts'],
     });
     vi.mocked(readFileSync).mockReturnValueOnce(jsonc);
-    const config: LintConfig = loadConfig('/fake');
+    const config: LintConfig = loadConfig('/fake', undefined, en);
     const nameExcludes: string[] = config.exclude.filter((e: string): boolean => !e.includes('/'));
     const pathExcludes: string[] = config.exclude.filter((e: string): boolean => e.includes('/'));
     expect(nameExcludes).toContain('node_modules');

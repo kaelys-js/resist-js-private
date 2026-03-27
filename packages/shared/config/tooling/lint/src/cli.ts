@@ -10,7 +10,7 @@
  */
 
 import { type CliArgs, type CliOutput, parseCliArgs, runLinter } from '@/lint/cli-helpers.ts';
-import { en } from '@/lint/locale/locales/en.ts';
+import { resolveLocale, type LocaleResult } from '@/lint/locale/registry.ts';
 import { format } from '@/lint/locale/schema.ts';
 
 // =============================================================================
@@ -19,6 +19,14 @@ import { format } from '@/lint/locale/schema.ts';
 
 try {
   const args: CliArgs = parseCliArgs(process.argv.slice(2));
+
+  /* Resolve locale from --locale flag */
+  const localeResult: LocaleResult = resolveLocale(args.locale);
+  if (!localeResult.ok) {
+    process.stderr.write(`${localeResult.error}\n`);
+    process.exit(1);
+  }
+
   const output: CliOutput = {
     stderr: (msg: string): void => {
       process.stderr.write(msg);
@@ -27,9 +35,14 @@ try {
       process.stdout.write(msg);
     },
   };
-  const code: number = await runLinter(args, output);
+  const code: number = await runLinter(args, output, localeResult.strings);
   process.exit(code);
 } catch (error: unknown) {
-  process.stderr.write(`${format(en.errors.crash, { error: String(error) })}\n`);
+  /* Fallback to en for crash messages since locale may not be resolved */
+  const fallback: LocaleResult = resolveLocale();
+  const crashMsg: string = fallback.ok
+    ? format(fallback.strings.errors.crash, { error: String(error) })
+    : String(error);
+  process.stderr.write(`${crashMsg}\n`);
   process.exit(2);
 }

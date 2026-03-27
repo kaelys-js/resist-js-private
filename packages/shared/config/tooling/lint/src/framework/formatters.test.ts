@@ -5,6 +5,9 @@
  */
 
 import { describe, expect, it } from 'vitest';
+
+import { en } from '@/lint/locale/locales/en.ts';
+
 import {
   formatText,
   formatJson,
@@ -45,34 +48,34 @@ function makeResult(overrides: Partial<LintResult> = {}): LintResult {
 
 describe('formatText', () => {
   it('returns empty string for no results', () => {
-    expect(formatText([], 0)).toBe('');
+    expect(formatText([], 0, en)).toBe('');
   });
 
   it('formats a single error with oxlint-style output', () => {
-    const text: string = formatText([makeResult()], 5);
+    const text: string = formatText([makeResult()], 5, en);
     expect(text).toContain('✗');
     expect(text).toContain('test/rule: Test error');
     expect(text).toContain('1 error(s) and 0 warning(s) in 5 file(s)');
   });
 
   it('shows file location header', () => {
-    const text: string = formatText([makeResult()], 1);
+    const text: string = formatText([makeResult()], 1, en);
     expect(text).toContain(',-[');
     expect(text).toContain(':10:5]');
   });
 
   it('shows closing decoration', () => {
-    const text: string = formatText([makeResult()], 1);
+    const text: string = formatText([makeResult()], 1, en);
     expect(text).toContain('`----');
   });
 
   it('shows warning icon for warnings', () => {
-    const text: string = formatText([makeResult({ severity: 'warning' })], 1);
+    const text: string = formatText([makeResult({ severity: 'warning' })], 1, en);
     expect(text).toContain('⚠');
   });
 
   it('includes source line with line number', () => {
-    const text: string = formatText([makeResult({ source: 'const x = 42;' })], 1);
+    const text: string = formatText([makeResult({ source: 'const x = 42;' })], 1, en);
     expect(text).toContain('10 | const x = 42;');
   });
 
@@ -80,18 +83,19 @@ describe('formatText', () => {
     const text: string = formatText(
       [makeResult({ source: 'const x = 42;', column: 7, endColumn: 8 })],
       1,
+      en,
     );
     expect(text).toContain(': ');
     expect(text).toContain('^');
   });
 
   it('includes help line for tips', () => {
-    const text: string = formatText([makeResult({ tip: 'Add type annotation' })], 1);
+    const text: string = formatText([makeResult({ tip: 'Add type annotation' })], 1, en);
     expect(text).toContain('help: Add type annotation');
   });
 
   it('aligns line numbers correctly for multi-digit lines', () => {
-    const text: string = formatText([makeResult({ line: 100, source: 'const x = 42;' })], 1);
+    const text: string = formatText([makeResult({ line: 100, source: 'const x = 42;' })], 1, en);
     expect(text).toContain('100 | const x = 42;');
     /* Padding should match line number width (3 chars) */
     expect(text).toContain('    ,-[');
@@ -342,33 +346,33 @@ describe('formatResults', () => {
   const ruleDescs: Map<string, string> = new Map();
 
   it('dispatches to text format', () => {
-    const result: string = formatResults([makeResult()], 'text', 1, ruleDescs);
+    const result: string = formatResults([makeResult()], 'text', 1, ruleDescs, en);
     expect(result).toContain('✗');
   });
 
   it('dispatches to json format', () => {
-    const result: string = formatResults([makeResult()], 'json', 1, ruleDescs);
+    const result: string = formatResults([makeResult()], 'json', 1, ruleDescs, en);
     expect(() => JSON.parse(result)).not.toThrow();
     expect(result).toContain('"ruleId"');
   });
 
   it('dispatches to sarif format', () => {
-    const result: string = formatResults([makeResult()], 'sarif', 1, ruleDescs);
+    const result: string = formatResults([makeResult()], 'sarif', 1, ruleDescs, en);
     expect(result).toContain('sarif-schema-2.1.0');
   });
 
   it('dispatches to github format', () => {
-    const result: string = formatResults([makeResult()], 'github', 1, ruleDescs);
+    const result: string = formatResults([makeResult()], 'github', 1, ruleDescs, en);
     expect(result).toContain('::error');
   });
 
   it('dispatches to junit format', () => {
-    const result: string = formatResults([makeResult()], 'junit', 1, ruleDescs);
+    const result: string = formatResults([makeResult()], 'junit', 1, ruleDescs, en);
     expect(result).toContain('<testsuites');
   });
 
   it('dispatches to compact format', () => {
-    const result: string = formatResults([makeResult()], 'compact', 1, ruleDescs);
+    const result: string = formatResults([makeResult()], 'compact', 1, ruleDescs, en);
     expect(result).toContain(':10:5:');
   });
 });

@@ -15,8 +15,7 @@ import { Worker } from 'node:worker_threads';
 
 import * as v from 'valibot';
 import type { LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 // =============================================================================
 // Types
@@ -107,6 +106,9 @@ export class WorkerPool {
   /** Number of workers in the pool. */
   readonly poolSize: number;
 
+  /** Locale strings for error messages. */
+  private readonly strings: LintStrings;
+
   /** Promises that resolve when each worker sends its 'ready' message. */
   private readonly readyPromises: Array<Promise<void>>;
 
@@ -114,14 +116,17 @@ export class WorkerPool {
    * Create a new worker pool.
    *
    * @param {number} poolSize - Number of worker threads to spawn
+   * @param {LintStrings} strings - Locale strings for error messages
    */
-  constructor(poolSize: number) {
+  constructor(poolSize: number, strings: LintStrings) {
     this.poolSize = Math.max(1, poolSize);
+    this.strings = strings;
     this.readyPromises = [];
 
     for (let i: number = 0; i < this.poolSize; i++) {
       const worker: Worker = new Worker(WORKER_ENTRY, {
         execArgv: ['--import', 'tsx'],
+        workerData: { strings: this.strings },
       });
 
       /* Track ready state via promise */
@@ -224,7 +229,7 @@ export class WorkerPool {
   ): void {
     const worker: Worker | undefined = this.workers[workerIdx];
     if (!worker) {
-      reject(new Error(format(en.errors.workerNotFound, { index: workerIdx })));
+      reject(new Error(format(this.strings.errors.workerNotFound, { index: workerIdx })));
       return;
     }
 

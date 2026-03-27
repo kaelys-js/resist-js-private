@@ -13,8 +13,7 @@ import * as v from 'valibot';
 import { LINTER_NAME } from '@/lint/constants.ts';
 import { buildCaretMarker } from '@/lint/framework/source-reader.ts';
 import type { LintResult } from '@/lint/framework/types.ts';
-import { format as formatTemplate } from '@/lint/locale/schema.ts';
-import { en } from '@/lint/locale/locales/en.ts';
+import { format as formatTemplate, type LintStrings } from '@/lint/locale/schema.ts';
 
 // =============================================================================
 // Types
@@ -58,8 +57,13 @@ export type OutputFormat = v.InferOutput<typeof OutputFormatSchema>;
  * //      '----
  * //   help: suggestion text
  * ```
+  * @param {Type} strings - Description
  */
-export function formatText(results: LintResult[], totalFiles: number): string {
+export function formatText(
+  results: LintResult[],
+  totalFiles: number,
+  strings: LintStrings,
+): string {
   const lines: string[] = [];
   const cwd: string = process.cwd();
 
@@ -94,7 +98,7 @@ export function formatText(results: LintResult[], totalFiles: number): string {
 
     /* Help/tip line */
     if (result.tip) {
-      lines.push(`  ${en.output.helpPrefix}: ${result.tip}`);
+      lines.push(`  ${strings.output.helpPrefix}: ${result.tip}`);
     }
 
     lines.push('');
@@ -102,7 +106,7 @@ export function formatText(results: LintResult[], totalFiles: number): string {
 
   if (results.length > 0) {
     lines.push(
-      formatTemplate(en.output.summary, {
+      formatTemplate(strings.output.summary, {
         errors: errors.length,
         warnings: warnings.length,
         files: totalFiles,
@@ -427,12 +431,14 @@ export function formatCompact(results: LintResult[]): string {
  * @param {number} totalFiles - Total files linted (used by text and junit formats)
  * @param {Map<string, string>} ruleDescriptions - Rule descriptions (used by SARIF)
  * @returns {string} Formatted output string
+  * @param {Type} strings - Description
  */
 export function formatResults(
   results: LintResult[],
   format: OutputFormat,
   totalFiles: number,
   ruleDescriptions: Map<string, string>,
+  strings: LintStrings,
 ): string {
   switch (format) {
     case 'json': {
@@ -451,7 +457,7 @@ export function formatResults(
       return formatCompact(results);
     }
     default: {
-      return formatText(results, totalFiles);
+      return formatText(results, totalFiles, strings);
     }
   }
 }

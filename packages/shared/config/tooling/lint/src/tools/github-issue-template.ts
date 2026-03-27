@@ -13,8 +13,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Required top-level fields in a GitHub issue template YAML file.
@@ -43,8 +42,12 @@ const REQUIRED_FIELDS: readonly string[] = ['name', 'description', 'labels'];
  * // results[0].ruleId === 'github/issue-template'
  * // results[0].message === 'Missing required field: name'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformGithubIssueTemplateOutput(output: string): LintResult[] {
+export function transformGithubIssueTemplateOutput(
+  output: string,
+  strings: LintStrings,
+): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -73,7 +76,7 @@ export function transformGithubIssueTemplateOutput(output: string): LintResult[]
 
       results.push(
         createResult('github/issue-template', file, lineNum, 1, 'error', message, {
-          tip: en.tools.issueTemplateTip,
+          tip: strings.tools.issueTemplateTip,
         }),
       );
     }
@@ -98,14 +101,27 @@ export function transformGithubIssueTemplateOutput(output: string): LintResult[]
  * const results = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', 'name: Bug Report\n');
  * // results[0].message includes 'Missing required field: description'
  * ```
+  * @param {Type} strings - Description
  */
-export function validateIssueTemplate(filePath: string, content: string): LintResult[] {
+export function validateIssueTemplate(
+  filePath: string,
+  content: string,
+  strings: LintStrings,
+): LintResult[] {
   const trimmed: string = content.trim();
   if (trimmed.length === 0) {
     return [
-      createResult('github/issue-template', filePath, 1, 1, 'error', en.tools.issueTemplateEmpty, {
-        tip: en.tools.issueTemplateEmptyTip,
-      }),
+      createResult(
+        'github/issue-template',
+        filePath,
+        1,
+        1,
+        'error',
+        strings.tools.issueTemplateEmpty,
+        {
+          tip: strings.tools.issueTemplateEmptyTip,
+        },
+      ),
     ];
   }
 
@@ -136,10 +152,10 @@ export function validateIssueTemplate(filePath: string, content: string): LintRe
           1,
           1,
           'error',
-          format(en.tools.issueTemplateMissingField, { field }),
+          format(strings.tools.issueTemplateMissingField, { field }),
           {
             example: `${field}: <value>`,
-            tip: format(en.tools.issueTemplateMissingFieldTip, { field }),
+            tip: format(strings.tools.issueTemplateMissingFieldTip, { field }),
           },
         ),
       );

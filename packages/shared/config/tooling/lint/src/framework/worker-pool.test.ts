@@ -10,6 +10,8 @@
 import { describe, expect, it } from 'vitest';
 import { cpus } from 'node:os';
 
+import { en } from '@/lint/locale/locales/en.ts';
+
 import {
   WorkerPool,
   getDefaultPoolSize,
@@ -39,19 +41,19 @@ describe('getDefaultPoolSize', () => {
 
 describe('WorkerPool — initialization', () => {
   it('creates a pool with the specified size', () => {
-    const pool: WorkerPool = new WorkerPool(2);
+    const pool: WorkerPool = new WorkerPool(2, en);
     expect(pool.poolSize).toBe(2);
     const _ = pool.shutdown();
   });
 
   it('clamps pool size to at least 1', () => {
-    const pool: WorkerPool = new WorkerPool(0);
+    const pool: WorkerPool = new WorkerPool(0, en);
     expect(pool.poolSize).toBe(1);
     const _ = pool.shutdown();
   });
 
   it('clamps negative pool size to 1', () => {
-    const pool: WorkerPool = new WorkerPool(-5);
+    const pool: WorkerPool = new WorkerPool(-5, en);
     expect(pool.poolSize).toBe(1);
     const _ = pool.shutdown();
   });
@@ -63,7 +65,7 @@ describe('WorkerPool — initialization', () => {
 
 describe('WorkerPool — task execution', () => {
   it('executes a single task and returns results', async () => {
-    const pool: WorkerPool = new WorkerPool(1);
+    const pool: WorkerPool = new WorkerPool(1, en);
     await pool.waitForReady();
 
     const task: WorkerTask = {
@@ -82,7 +84,7 @@ describe('WorkerPool — task execution', () => {
   }, 60_000);
 
   it('executes multiple tasks via executeAll', async () => {
-    const pool: WorkerPool = new WorkerPool(2);
+    const pool: WorkerPool = new WorkerPool(2, en);
     await pool.waitForReady();
 
     const tasks: WorkerTask[] = [
@@ -111,7 +113,7 @@ describe('WorkerPool — task execution', () => {
   }, 60_000);
 
   it('queues tasks when all workers are busy', async () => {
-    const pool: WorkerPool = new WorkerPool(1);
+    const pool: WorkerPool = new WorkerPool(1, en);
     await pool.waitForReady();
 
     /* Submit two tasks to a single worker — one will be queued */
@@ -144,7 +146,7 @@ describe('WorkerPool — task execution', () => {
   }, 60_000);
 
   it('filters rules by ruleIds when specified', async () => {
-    const pool: WorkerPool = new WorkerPool(1);
+    const pool: WorkerPool = new WorkerPool(1, en);
     await pool.waitForReady();
 
     const task: WorkerTask = {
@@ -170,7 +172,7 @@ describe('WorkerPool — task execution', () => {
 
 describe('WorkerPool — shutdown', () => {
   it('shuts down cleanly after tasks complete', async () => {
-    const pool: WorkerPool = new WorkerPool(2);
+    const pool: WorkerPool = new WorkerPool(2, en);
     await pool.waitForReady();
 
     /* Execute a task first */
@@ -189,7 +191,7 @@ describe('WorkerPool — shutdown', () => {
   }, 60_000);
 
   it('shutdown is idempotent', async () => {
-    const pool: WorkerPool = new WorkerPool(1);
+    const pool: WorkerPool = new WorkerPool(1, en);
     await pool.waitForReady();
     await pool.shutdown();
     /* Second shutdown should not throw */

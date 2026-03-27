@@ -13,6 +13,7 @@ import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 /** Source file extensions to check for emptiness. */
 const SOURCE_EXTENSIONS: ReadonlySet<string> = new Set(['.ts', '.js', '.mjs', '.svelte']);
 
+/** Description. */
 const rule: WorkspaceRule = {
   id: 'workspace/no-empty-files',
   description: 'Source files must not be empty or contain only whitespace.',

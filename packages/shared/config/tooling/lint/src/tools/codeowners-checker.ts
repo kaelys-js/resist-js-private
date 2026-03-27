@@ -9,7 +9,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
+import { type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform codeowners-checker text output into LintResult[].
@@ -29,8 +29,12 @@ import { en } from '@/lint/locale/locales/en.ts';
  * // results[0].ruleId === 'codeowners-checker/validate'
  * // results[0].severity === 'warning'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformCodeownersCheckerOutput(output: string): LintResult[] {
+export function transformCodeownersCheckerOutput(
+  output: string,
+  strings: LintStrings,
+): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -81,7 +85,7 @@ export function transformCodeownersCheckerOutput(output: string): LintResult[] {
 
     results.push(
       createResult('codeowners-checker/validate', file, lineNum, 1, 'warning', message, {
-        tip: en.tools.codeownersCheckerTip,
+        tip: strings.tools.codeownersCheckerTip,
       }),
     );
   }

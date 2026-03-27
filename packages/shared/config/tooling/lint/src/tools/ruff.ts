@@ -9,8 +9,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform Ruff JSON output into LintResult[].
@@ -20,8 +19,9 @@ import { format } from '@/lint/locale/schema.ts';
  *
  * @param {string} output - Raw JSON output from Ruff
  * @returns {LintResult[]} Transformed lint results
+  * @param {Type} strings - Description
  */
-export function transformRuffOutput(output: string): LintResult[] {
+export function transformRuffOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -51,7 +51,9 @@ export function transformRuffOutput(output: string): LintResult[] {
       createResult(`ruff/${code}`, file, line, column, 'warning', message, {
         endColumn: (endLocation.column as number) ?? undefined,
         endLine: (endLocation.row as number) ?? undefined,
-        tip: format(en.tools.toolSeeDocsAt, { url: `https://docs.astral.sh/ruff/rules/${code}` }),
+        tip: format(strings.tools.toolSeeDocsAt, {
+          url: `https://docs.astral.sh/ruff/rules/${code}`,
+        }),
       }),
     );
   }

@@ -10,8 +10,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * A single knip JSON issue entry.
@@ -55,8 +54,9 @@ type KnipIssue = {
  * const results = transformKnipOutput(json);
  * // results[0].ruleId === 'knip/unused-export'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformKnipOutput(output: string): LintResult[] {
+export function transformKnipOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -77,8 +77,8 @@ export function transformKnipOutput(output: string): LintResult[] {
     const filePath: string = typeof file === 'string' ? file : '';
     if (filePath.length > 0) {
       results.push(
-        createResult('knip/unused-file', filePath, 1, 1, 'warning', en.tools.knipUnusedFile, {
-          tip: en.tools.knipUnusedFileTip,
+        createResult('knip/unused-file', filePath, 1, 1, 'warning', strings.tools.knipUnusedFile, {
+          tip: strings.tools.knipUnusedFileTip,
         }),
       );
     }
@@ -95,20 +95,20 @@ export function transformKnipOutput(output: string): LintResult[] {
     const symbol: string = obj.symbol ?? '';
 
     let ruleId: string = 'knip/unused';
-    let message: string = format(en.tools.knipUnused, { issueType });
+    let message: string = format(strings.tools.knipUnused, { issueType });
 
     if (issueType === 'exports') {
       ruleId = 'knip/unused-export';
-      message = format(en.tools.knipUnusedExport, { symbol });
+      message = format(strings.tools.knipUnusedExport, { symbol });
     } else if (issueType === 'types') {
       ruleId = 'knip/unused-type';
-      message = format(en.tools.knipUnusedType, { symbol });
+      message = format(strings.tools.knipUnusedType, { symbol });
     } else if (issueType === 'dependencies') {
       ruleId = 'knip/unused-dependency';
-      message = format(en.tools.knipUnusedDep, { symbol });
+      message = format(strings.tools.knipUnusedDep, { symbol });
     } else if (issueType === 'devDependencies') {
       ruleId = 'knip/unused-dev-dependency';
-      message = format(en.tools.knipUnusedDevDep, { symbol });
+      message = format(strings.tools.knipUnusedDevDep, { symbol });
     }
 
     results.push(createResult(ruleId, filePath, line, col, 'warning', message));

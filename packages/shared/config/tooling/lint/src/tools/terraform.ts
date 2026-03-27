@@ -10,8 +10,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /** Regex to extract filenames from diff output headers: `--- a/filename` or `diff --git a/filename` */
 const DIFF_FILE: RegExp = /^(?:---\s+a\/|diff\s+--git\s+a\/)(.+?)(?:\s|$)/;
@@ -32,8 +31,9 @@ const DIFF_FILE: RegExp = /^(?:---\s+a\/|diff\s+--git\s+a\/)(.+?)(?:\s|$)/;
  * const results = transformTerraformOutput('--- a/main.tf\n+++ b/main.tf\n@@ -1,2 +1,2 @@\n...');
  * // results[0].ruleId === 'terraform/format'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformTerraformOutput(output: string): LintResult[] {
+export function transformTerraformOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -62,9 +62,9 @@ export function transformTerraformOutput(output: string): LintResult[] {
         1,
         1,
         'warning',
-        format(en.tools.formatNotProperlyFormattedWithFix, { tool: 'terraform fmt' }),
+        format(strings.tools.formatNotProperlyFormattedWithFix, { tool: 'terraform fmt' }),
         {
-          tip: format(en.tools.formatRunTool, { tool: 'terraform fmt' }),
+          tip: format(strings.tools.formatRunTool, { tool: 'terraform fmt' }),
         },
       ),
     );
@@ -79,9 +79,9 @@ export function transformTerraformOutput(output: string): LintResult[] {
         1,
         1,
         'warning',
-        en.tools.terraformNeedsFormatting,
+        strings.tools.terraformNeedsFormatting,
         {
-          tip: en.tools.terraformNeedsFormattingTip,
+          tip: strings.tools.terraformNeedsFormattingTip,
         },
       ),
     );

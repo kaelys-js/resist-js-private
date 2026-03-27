@@ -10,8 +10,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * A single violation entry from dependency-cruiser JSON output.
@@ -70,8 +69,12 @@ function mapSeverity(severity: string): 'error' | 'warning' | 'info' {
  * const results = transformDependencyCruiserOutput(json);
  * // results[0].ruleId === 'dependency-cruiser/no-circular'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformDependencyCruiserOutput(output: string): LintResult[] {
+export function transformDependencyCruiserOutput(
+  output: string,
+  strings: LintStrings,
+): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -103,9 +106,9 @@ export function transformDependencyCruiserOutput(output: string): LintResult[] {
         1,
         1,
         mapSeverity(severity),
-        format(en.tools.dependencyCruiserMessage, { from, to, rule: ruleName }),
+        format(strings.tools.dependencyCruiserMessage, { from, to, rule: ruleName }),
         {
-          tip: en.tools.dependencyCruiserTip,
+          tip: strings.tools.dependencyCruiserTip,
         },
       ),
     );

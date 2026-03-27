@@ -97,7 +97,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 2.1: Add `--locale` flag to CLI argument parsing
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `parseCliArgs()` has no `--locale` flag. All 47 files import `en` directly with no runtime locale selection. The @/cli package has a proper implementation via `resolveLocale()` that supports `--locale` flag, `LANG` env var, and config fallback.
 
@@ -117,7 +117,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 2.2: Create locale registry with runtime selection
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: Currently `en.ts` is imported at compile-time in 47 files. Need a runtime locale registry that maps locale codes to string sets, with dynamic selection based on the `--locale` flag.
 
@@ -141,7 +141,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 2.3: Replace direct `en` imports with locale parameter threading
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 47 files import `en` directly. These need to receive the resolved locale strings as a parameter instead of importing the hardcoded English locale.
 

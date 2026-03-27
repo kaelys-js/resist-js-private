@@ -43,6 +43,7 @@ function getExtension(filePath: string): string {
   return name.slice(dotIdx);
 }
 
+/** Description. */
 const rule: WorkspaceRule = {
   id: 'workspace/no-crlf',
   description: 'Text files must use LF line endings, not CRLF.',

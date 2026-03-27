@@ -9,8 +9,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /** Regex for markdownlint output: `file:line[:col] rule/alias description` */
 const MARKDOWNLINT_LINE: RegExp = /^(.+?):(\d+)(?::(\d+))?\s+(MD\d+\/\S+)\s+(.+)$/;
@@ -24,8 +23,9 @@ const MARKDOWNLINT_LINE: RegExp = /^(.+?):(\d+)(?::(\d+))?\s+(MD\d+\/\S+)\s+(.+)
  *
  * @param {string} output - Raw text output from markdownlint
  * @returns {LintResult[]} Transformed lint results
+  * @param {Type} strings - Description
  */
-export function transformMarkdownlintOutput(output: string): LintResult[] {
+export function transformMarkdownlintOutput(output: string, strings: LintStrings): LintResult[] {
   const results: LintResult[] = [];
 
   for (const line of output.split('\n')) {
@@ -45,7 +45,7 @@ export function transformMarkdownlintOutput(output: string): LintResult[] {
 
     results.push(
       createResult(ruleId, file, lineNum, column, 'warning', message, {
-        tip: format(en.tools.markdownlintTip, { rule: ruleAlias }),
+        tip: format(strings.tools.markdownlintTip, { rule: ruleAlias }),
       }),
     );
   }

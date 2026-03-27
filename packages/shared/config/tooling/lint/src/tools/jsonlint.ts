@@ -9,7 +9,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
+import { type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform jsonlint text output into LintResult[].
@@ -32,8 +32,9 @@ import { en } from '@/lint/locale/locales/en.ts';
  * const results = transformJsonlintOutput('config.json: line 5, col 10, Error - Expected comma');
  * // results[0].ruleId === 'jsonlint/parse-error'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformJsonlintOutput(output: string): LintResult[] {
+export function transformJsonlintOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -86,7 +87,7 @@ export function transformJsonlintOutput(output: string): LintResult[] {
       const lineNum: number = Number.parseInt(standardMatch[1] ?? '1', 10);
 
       /* Grab the next non-empty line as context/message */
-      let message: string = en.errors.jsonParseError;
+      let message: string = strings.errors.jsonParseError;
       for (let j: number = i + 1; j < lines.length; j++) {
         const nextLine: string = (lines[j] ?? '').trim();
         if (nextLine.length > 0) {

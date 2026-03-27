@@ -13,6 +13,7 @@ import { execFileSync } from 'node:child_process';
 import * as v from 'valibot';
 
 import type { LintResult } from '@/lint/framework/types.ts';
+import type { LintStrings } from '@/lint/locale/schema.ts';
 
 // =============================================================================
 // Types
@@ -38,8 +39,8 @@ export const ExternalToolSchema = v.strictObject({
   outputFormat: v.picklist(['json', 'text', 'sarif']),
   /** File patterns this tool applies to (glob-like, e.g., '**\/*.sh'). */
   filePatterns: v.array(v.string()),
-  /** Transform raw tool output into LintResult[]. */
-  transform: v.custom<(output: string) => LintResult[]>(isFn),
+  /** Transform raw tool output into LintResult[]. Accepts locale strings for message localization. */
+  transform: v.custom<(output: string, strings: LintStrings) => LintResult[]>(isFn),
   /** Optional check if the tool is available on the system (sync or async). */
   isAvailable: v.optional(v.custom<() => boolean | Promise<boolean>>(isFn)),
 });
@@ -67,6 +68,18 @@ export type ExternalTool = v.InferOutput<typeof ExternalToolSchema>;
 export class ToolRegistry {
   /** All registered tools. */
   private readonly tools: ExternalTool[] = [];
+
+  /** Locale strings for tool message localization. */
+  private readonly strings: LintStrings;
+
+  /**
+   * Create a tool registry.
+   *
+   * @param {LintStrings} strings - Locale strings for message localization
+   */
+  constructor(strings: LintStrings) {
+    this.strings = strings;
+  }
 
   /**
    * Register an external tool.
@@ -128,12 +141,12 @@ export class ToolRegistry {
         timeout: 60_000,
       });
 
-      return tool.transform(output);
+      return tool.transform(output, this.strings);
     } catch (error: unknown) {
       /* Many lint tools exit non-zero when they find issues — capture stdout */
       const execError = error as { stdout?: string; status?: number };
       if (execError.stdout && typeof execError.stdout === 'string') {
-        return tool.transform(execError.stdout);
+        return tool.transform(execError.stdout, this.strings);
       }
       return [];
     }

@@ -9,7 +9,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
+import { type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Regex for just error output: `error: ... at line N`
@@ -33,8 +33,9 @@ const JUST_ERROR_LINE: RegExp = /^error:\s*(.+?)\s+at\s+line\s+(\d+)/i;
  * const results = transformJustOutput('error: unexpected token at line 5');
  * // results[0].ruleId === 'justfile/format'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformJustOutput(output: string): LintResult[] {
+export function transformJustOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -52,7 +53,7 @@ export function transformJustOutput(output: string): LintResult[] {
 
     const match: RegExpMatchArray | null = JUST_ERROR_LINE.exec(stripped);
     if (match) {
-      const message: string = match[1] ?? en.tools.justfileFormattingIssue;
+      const message: string = match[1] ?? strings.tools.justfileFormattingIssue;
       const lineNum: number = Number.parseInt(match[2] ?? '1', 10);
 
       results.push(createResult('justfile/format', '', lineNum, 1, 'error', message));
@@ -62,7 +63,9 @@ export function transformJustOutput(output: string): LintResult[] {
 
   /* If there was non-empty output but no regex matches, report a generic issue */
   if (!hasMatch) {
-    results.push(createResult('justfile/format', '', 1, 1, 'warning', en.tools.justfileFormatting));
+    results.push(
+      createResult('justfile/format', '', 1, 1, 'warning', strings.tools.justfileFormatting),
+    );
   }
 
   return results;

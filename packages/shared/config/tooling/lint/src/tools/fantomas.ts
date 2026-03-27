@@ -13,8 +13,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
-import { format } from '@/lint/locale/schema.ts';
+import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Regex for Fantomas "not formatted" output: `filename was not formatted`
@@ -47,8 +46,9 @@ const FANTOMAS_ERROR: RegExp = /^Error:\s*(.+)$/;
  * // results[0].ruleId === 'fantomas/format'
  * // results[0].severity === 'warning'
  * ```
+  * @param {Type} strings - Description
  */
-export function transformFantomasOutput(output: string): LintResult[] {
+export function transformFantomasOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
   if (trimmed.length === 0) {
     return [];
@@ -80,9 +80,9 @@ export function transformFantomasOutput(output: string): LintResult[] {
           1,
           1,
           'warning',
-          en.tools.formatFileNotProperlyFormatted,
+          strings.tools.formatFileNotProperlyFormatted,
           {
-            tip: format(en.tools.formatRunTool, { tool: 'fantomas' }),
+            tip: format(strings.tools.formatRunTool, { tool: 'fantomas' }),
           },
         ),
       );
@@ -96,7 +96,7 @@ export function transformFantomasOutput(output: string): LintResult[] {
 
       results.push(
         createResult('fantomas/format', 'unknown', 1, 1, 'error', message, {
-          tip: format(en.tools.formatRunTool, { tool: 'fantomas' }),
+          tip: format(strings.tools.formatRunTool, { tool: 'fantomas' }),
         }),
       );
     }
