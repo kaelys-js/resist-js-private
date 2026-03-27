@@ -9,8 +9,12 @@ import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { runTypeScriptRules } from '../../framework/oxc-runner.ts';
 import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
+import type { WorkspaceContext, WorkspacePackage } from '../../framework/rule-context.ts';
 
 import requireColocatedTests from './require-colocated-tests.ts';
+import requireTestSuffix from './require-test-suffix.ts';
+import requireE2eLocation from './require-e2e-location.ts';
+import requireIntegrationLocation from './require-integration-location.ts';
 
 /**
  * Run a single rule against fixture source code with a custom filename.
@@ -206,5 +210,242 @@ export default function handler(req: Request): Response {
       '/tmp/nonexistent-dir-abc123/handler.ts',
     );
     expect(results.length).toBe(1);
+  });
+});
+
+// =============================================================================
+// Helpers for workspace rules
+// =============================================================================
+
+/**
+ * Create a mock WorkspaceContext for testing workspace rules.
+ *
+ * @param {object} overrides - Context overrides
+ * @param {string} [overrides.rootDir] - Root directory path
+ * @param {Map<string, string>} [overrides.files] - Map of file paths to contents
+ * @param {WorkspacePackage[]} [overrides.packages] - Workspace packages
+ * @returns {WorkspaceContext} Mock WorkspaceContext
+ */
+function mockContext(
+  overrides: { rootDir?: string; files?: Map<string, string>; packages?: WorkspacePackage[] } = {},
+): WorkspaceContext {
+  const files: Map<string, string> = overrides.files ?? new Map();
+  const packages: WorkspacePackage[] = overrides.packages ?? [];
+
+  return {
+    allFiles: async function* (): AsyncIterable<string> {
+      for (const path of files.keys()) {
+        yield path;
+      }
+    },
+    dirExists: (_path: string): Promise<boolean> =>
+      new Promise<boolean>((resolve: (v: boolean) => void): void => {
+        resolve(true);
+      }),
+    fileExists: (path: string): Promise<boolean> =>
+      new Promise<boolean>((resolve: (v: boolean) => void): void => {
+        resolve(files.has(path));
+      }),
+    getWorkspacePackages: (): Promise<WorkspacePackage[]> =>
+      new Promise<WorkspacePackage[]>((resolve: (v: WorkspacePackage[]) => void): void => {
+        resolve(packages);
+      }),
+    readFile: (path: string): Promise<string> =>
+      new Promise<string>((resolve: (v: string) => void, reject: (e: Error) => void): void => {
+        const content: string | undefined = files.get(path);
+        if (content === undefined) {
+          reject(new Error(`File not found: ${path}`));
+          return;
+        }
+        resolve(content);
+      }),
+    rootDir: overrides.rootDir ?? '/workspace',
+  };
+}
+
+// =============================================================================
+// testing/require-test-suffix
+// =============================================================================
+
+describe('testing/require-test-suffix', () => {
+  it('has correct rule metadata', () => {
+    expect(requireTestSuffix.id).toBe('testing/require-test-suffix');
+    expect(requireTestSuffix.scope).toBe('workspace');
+    expect(typeof requireTestSuffix.check).toBe('function');
+  });
+
+  it('flags *.spec.ts files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/utils.spec.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireTestSuffix.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('testing/require-test-suffix');
+    expect(results[0]!.message).toContain('utils.spec.ts');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('flags *-test.ts files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/utils-test.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireTestSuffix.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('utils-test.ts');
+  });
+
+  it('flags *_test.ts files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/utils_test.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireTestSuffix.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('utils_test.ts');
+  });
+
+  it('allows *.test.ts files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/utils.test.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireTestSuffix.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-test files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/utils.ts', ''],
+      ['/workspace/src/index.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireTestSuffix.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags *.spec.tsx files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/Button.spec.tsx', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireTestSuffix.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Button.spec.tsx');
+  });
+});
+
+// =============================================================================
+// testing/require-e2e-location
+// =============================================================================
+
+describe('testing/require-e2e-location', () => {
+  it('has correct rule metadata', () => {
+    expect(requireE2eLocation.id).toBe('testing/require-e2e-location');
+    expect(requireE2eLocation.scope).toBe('workspace');
+    expect(typeof requireE2eLocation.check).toBe('function');
+  });
+
+  it('flags *.e2e.ts outside e2e/ directory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/login.e2e.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireE2eLocation.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('testing/require-e2e-location');
+    expect(results[0]!.message).toContain('login.e2e.ts');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('allows *.e2e.ts in e2e/ directory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/e2e/login.e2e.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireE2eLocation.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows *.e2e.ts in tests/e2e/ directory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tests/e2e/login.e2e.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireE2eLocation.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows *.e2e.ts in nested e2e/ directory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/e2e/login.e2e.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireE2eLocation.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-e2e files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/utils.ts', ''],
+      ['/workspace/src/utils.test.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireE2eLocation.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// testing/require-integration-location
+// =============================================================================
+
+describe('testing/require-integration-location', () => {
+  it('has correct rule metadata', () => {
+    expect(requireIntegrationLocation.id).toBe('testing/require-integration-location');
+    expect(requireIntegrationLocation.scope).toBe('workspace');
+    expect(typeof requireIntegrationLocation.check).toBe('function');
+  });
+
+  it('flags *.integration.ts in random directory with no source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/random/api.integration.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireIntegrationLocation.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('testing/require-integration-location');
+    expect(results[0]!.message).toContain('api.integration.ts');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('allows *.integration.ts in tests/integration/', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tests/integration/api.integration.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireIntegrationLocation.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows colocated *.integration.ts (source file in same dir)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/api.ts', ''],
+      ['/workspace/src/api.integration.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireIntegrationLocation.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-integration files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/utils.ts', ''],
+      ['/workspace/src/utils.test.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireIntegrationLocation.check(ctx);
+    expect(results.length).toBe(0);
   });
 });
