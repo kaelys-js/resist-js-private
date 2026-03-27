@@ -199,7 +199,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 7.1: Run complete QA suite
 
-**Status**: [ ]
+**Status**: [x] — Verified: type-check passes, format passes, 2529 tests pass (all 20 tasks successful).
 
 **Plan**:
 - Run: `pnpm --filter @/lint qa:type-check`
@@ -211,7 +211,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 7.2: Verify test coverage thresholds
 
-**Status**: [ ]
+**Status**: [x] — Verified: Statements 90.3% (≥80%), Branches 76.28% (≥75%), Functions 84.65% (≥80%), Lines 90.28% (≥80%). 2529 tests (baseline 2507, +22 new).
 
 **Plan**:
 - Run: `pnpm --filter @/lint qa:test:coverage`
@@ -226,7 +226,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 8.1: Verify all changes against approved changelog
 
-**Status**: [ ]
+**Status**: [x] — Verified: All 5 rules exist with `fixable: false`, correct severities (4 error, 1 warning), all have tests (21 total new tests), all registered in `.resist-lint.jsonc`. 2529 tests pass, all coverage thresholds met.
 
 **Plan**:
 - Verify each new rule exists, has `fixable: false`, correct severity
