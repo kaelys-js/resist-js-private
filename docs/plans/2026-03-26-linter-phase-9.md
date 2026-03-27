@@ -62,7 +62,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 2.1: Tests + Implementation
 
-**Status**: [ ]
+**Status**: [x] — Verified: Rule at `rules/workspace/no-empty-directories.ts`. `fixable: false` (line 91), `scope: 'workspace'` (line 88), severity `warning` (line 122). 2 tests. 2513 total tests pass.
 
 **Plan**:
 - Add tests to `rules/workspace/workspace-rules.test.ts`:
