@@ -45,6 +45,7 @@ const rule: TypeScriptRule = {
   description: 'Types derived from Valibot schemas must include {@link SchemaName} in JSDoc',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['jsdoc', 'valibot'],
+  fixable: true,
   stages: ['lint'],
 
   visitor: {
@@ -71,6 +72,25 @@ const rule: TypeScriptRule = {
       if (!hasSchemaLink(context.content, node.start, schemaName)) {
         const typeName: string =
           ((declaration.id as AstNode | undefined)?.name as string) ?? '<anonymous>';
+
+        // Compute fix: insert {@link} into existing JSDoc or create new JSDoc
+        const before: string = context.content.slice(0, node.start);
+        const trimmed: string = before.trimEnd();
+        const hasJsDoc: boolean = trimmed.endsWith('*/');
+        let fixRange: { start: number; end: number };
+        let fixText: string;
+
+        if (hasJsDoc) {
+          // Insert " See {@link SchemaName}. " before the closing */
+          const closeOffset: number = trimmed.length - 2;
+          fixRange = { start: closeOffset, end: closeOffset };
+          fixText = ` See {@link ${schemaName}}. `;
+        } else {
+          // No JSDoc — insert a full comment before the export node
+          fixRange = { start: node.start, end: node.start };
+          fixText = `/** See {@link ${schemaName}}. */\n`;
+        }
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -79,7 +99,7 @@ const rule: TypeScriptRule = {
           message: `Type '${typeName}' is derived from '${schemaName}' but JSDoc is missing {@link ${schemaName}}`,
           ruleId: 'jsdoc/require-schema-link',
           tip: `Add '{@link ${schemaName}}' to the JSDoc comment`,
-          fix: { range: { start: node.start, end: node.start }, text: '' },
+          fix: { range: fixRange, text: fixText },
         });
       }
 

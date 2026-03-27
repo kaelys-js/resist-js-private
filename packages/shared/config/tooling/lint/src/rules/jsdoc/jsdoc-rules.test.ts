@@ -288,6 +288,45 @@ export async function foo(): Promise<void> {}
     const results: LintResult[] = await lint(requireReturns, code);
     expect(results.length).toBe(0);
   });
+
+  it('fix inserts {Type} after @returns when type is missing', async () => {
+    const code: string = `
+/**
+ * Does something.
+ * @returns The result
+ */
+export function foo(): string { return ''; }
+`;
+    const results: LintResult[] = await lint(requireReturns, code);
+    expect(results.length).toBe(1);
+    const fix = results[0]!.fix;
+    expect(fix.text).toBe('{string} ');
+    // The fix range should be a zero-width insert after "@returns "
+    expect(fix.range.start).toBe(fix.range.end);
+    // Verify it inserts right after "@returns " — the text at the insert point should be "The"
+    expect(code.slice(fix.range.start, fix.range.start + 3)).toBe('The');
+  });
+
+  it('fix replaces mismatched @returns {Type} with actual type', async () => {
+    const code: string = `
+/**
+ * Does something.
+ * @returns {number} The result
+ */
+export function foo(): string { return ''; }
+`;
+    const results: LintResult[] = await lint(requireReturns, code);
+    expect(results.length).toBe(1);
+    const fix = results[0]!.fix;
+    expect(fix.text).toBe('{string}');
+    // The fix range should cover {number}
+    const replaced: string = code.slice(fix.range.start, fix.range.end);
+    expect(replaced).toBe('{number}');
+  });
+
+  it('has fixable: true', () => {
+    expect(requireReturns.fixable).toBe(true);
+  });
 });
 
 // =============================================================================
@@ -400,6 +439,27 @@ export function foo(name: string): void {}
 `;
     const results: LintResult[] = await lint(paramTypeMatch, code);
     expect(results.length).toBe(0);
+  });
+
+  it('fix replaces mismatched {Type} with actual type', async () => {
+    const code: string = `
+/**
+ * Does something.
+ * @param {string} x - The value
+ */
+export function foo(x: number): void {}
+`;
+    const results: LintResult[] = await lint(paramTypeMatch, code);
+    expect(results.length).toBe(1);
+    const fix = results[0]!.fix;
+    expect(fix.text).toBe('{number}');
+    // The fix range should cover the {string} substring in the JSDoc
+    const replaced: string = code.slice(fix.range.start, fix.range.end);
+    expect(replaced).toBe('{string}');
+  });
+
+  it('has fixable: true', () => {
+    expect(paramTypeMatch.fixable).toBe(true);
   });
 });
 
@@ -1007,5 +1067,41 @@ export type Foo = { name: string };
 `;
     const results: LintResult[] = await lint(requireSchemaLink, code);
     expect(results.length).toBe(0);
+  });
+
+  it('fix inserts {@link SchemaName} before closing */ when JSDoc exists', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const FooSchema = v.strictObject({ name: v.string() });
+/** A foo. */
+export type Foo = v.InferOutput<typeof FooSchema>;
+`;
+    const results: LintResult[] = await lint(requireSchemaLink, code);
+    expect(results.length).toBe(1);
+    const fix = results[0]!.fix;
+    expect(fix.text).toContain('{@link FooSchema}');
+    // The fix should insert before the closing */
+    const textAtRange: string = code.slice(fix.range.start, fix.range.end);
+    // It's an insert (zero-width range) at the */ position
+    expect(fix.range.start).toBe(fix.range.end);
+    // Verify the insert position is at the `*/` in the JSDoc
+    expect(code.slice(fix.range.start, fix.range.start + 2)).toBe('*/');
+  });
+
+  it('fix inserts full JSDoc when no JSDoc exists', async () => {
+    const code: string = `
+import * as v from 'valibot';
+const BarSchema = v.strictObject({ age: v.number() });
+export type Bar = v.InferOutput<typeof BarSchema>;
+`;
+    const results: LintResult[] = await lint(requireSchemaLink, code);
+    expect(results.length).toBe(1);
+    const fix = results[0]!.fix;
+    expect(fix.text).toContain('/** See {@link BarSchema}.');
+    expect(fix.text).toContain('*/');
+  });
+
+  it('has fixable: true', () => {
+    expect(requireSchemaLink.fixable).toBe(true);
   });
 });

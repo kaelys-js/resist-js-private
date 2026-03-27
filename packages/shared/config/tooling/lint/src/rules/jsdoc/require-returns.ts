@@ -168,6 +168,16 @@ function checkFunction(
   // @returns exists — check that it has a {Type} and it matches
   const docReturnsType: string | null = extractReturnsType(jsDoc);
   if (!docReturnsType) {
+    // Find "@returns " in the JSDoc to compute the insert offset after it
+    const before: string = context.content.slice(0, exportNode.start);
+    const trimmed: string = before.trimEnd();
+    const docStart: number = trimmed.lastIndexOf('/**');
+    const jsDocText: string = trimmed.slice(docStart);
+    const returnsMatch: RegExpExecArray | null = /@returns\s+/.exec(jsDocText);
+    const returnsInsert: number = returnsMatch
+      ? docStart + returnsMatch.index + returnsMatch[0].length
+      : exportNode.start;
+
     results.push({
       file: context.file,
       line: exportNode.loc.start.line,
@@ -176,7 +186,7 @@ function checkFunction(
       message: `@returns is missing {Type} for function '${funcName}' (returns ${returnType})`,
       ruleId: 'jsdoc/require-returns',
       tip: `Add type to @returns: @returns {${returnType}} Description`,
-      fix: { range: { start: exportNode.start, end: exportNode.start }, text: '' },
+      fix: { range: { start: returnsInsert, end: returnsInsert }, text: `{${returnType}} ` },
     });
     return results;
   }
@@ -185,6 +195,19 @@ function checkFunction(
   const normalizedDoc: string = normalizeType(docReturnsType);
   const normalizedActual: string = normalizeType(returnType);
   if (normalizedDoc !== normalizedActual) {
+    // Find {WrongType} in the JSDoc to compute fix range
+    const before: string = context.content.slice(0, exportNode.start);
+    const trimmed: string = before.trimEnd();
+    const docStart: number = trimmed.lastIndexOf('/**');
+    const jsDocText: string = trimmed.slice(docStart);
+    const typePattern: string = `{${docReturnsType}}`;
+    // Search after @returns to avoid matching other {Type} patterns
+    const returnsIdx: number = jsDocText.indexOf('@returns');
+    const searchText: string = jsDocText.slice(returnsIdx);
+    const typeOffset: number = searchText.indexOf(typePattern);
+    const absStart: number = docStart + returnsIdx + typeOffset;
+    const absEnd: number = absStart + typePattern.length;
+
     results.push({
       file: context.file,
       line: exportNode.loc.start.line,
@@ -193,7 +216,7 @@ function checkFunction(
       message: `@returns {${docReturnsType}} does not match actual return type '${returnType}' in '${funcName}'`,
       ruleId: 'jsdoc/require-returns',
       tip: `Update @returns type to match: @returns {${returnType}}`,
-      fix: { range: { start: exportNode.start, end: exportNode.start }, text: '' },
+      fix: { range: { start: absStart, end: absEnd }, text: `{${returnType}}` },
     });
   }
 
@@ -205,6 +228,7 @@ const rule: TypeScriptRule = {
   description: 'Exported functions with non-void return types must have @returns {Type}',
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['jsdoc'],
+  fixable: true,
   stages: ['lint', 'ci'],
 
   visitor: {
