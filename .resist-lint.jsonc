@@ -1,17 +1,6 @@
 {
   "$schema": "./.resist-lint.schema.json",
-  "include": [
-    "packages/products/storylyne/editor",
-    "packages/products-template",
-    "packages/shared/config",
-    "packages/shared/extensions",
-    "packages/shared/locale",
-    "packages/shared/schemas",
-    "packages/shared/secrets",
-    "packages/shared/ui",
-    "packages/shared/utils",
-    "packages/tools"
-  ],
+  "include": ["packages"],
   "exclude": [
     "node_modules",
     ".git",
@@ -23,7 +12,7 @@
     "_INTEGRATE",
     "*.test.ts",
     "*.d.ts",
-    "cli"
+    "packages/shared/utils/cli"
   ],
   "extensions": [".ts", ".svelte.ts", ".mjs"],
   "rules": {

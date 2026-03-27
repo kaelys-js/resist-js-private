@@ -16,6 +16,7 @@ import {
   isBinaryFile,
   collectFiles,
   collectPackageJsonFiles,
+  shouldExcludeDir,
   getGitChangedFiles,
   writeJsonSchema,
   runPkgRules,
@@ -173,6 +174,113 @@ describe('isBinaryFile', () => {
 });
 
 // =============================================================================
+// shouldExcludeDir
+// =============================================================================
+
+describe('shouldExcludeDir', () => {
+  it('excludes by name when entry matches excludeNames', () => {
+    const result: boolean = shouldExcludeDir(
+      'node_modules',
+      '/root/packages/node_modules',
+      '/root',
+      new Set(['node_modules']),
+      [],
+    );
+    expect(result).toBe(true);
+  });
+
+  it('does not exclude when name is not in excludeNames', () => {
+    const result: boolean = shouldExcludeDir(
+      'src',
+      '/root/packages/src',
+      '/root',
+      new Set(['node_modules']),
+      [],
+    );
+    expect(result).toBe(false);
+  });
+
+  it('excludes by exact path-prefix match', () => {
+    const result: boolean = shouldExcludeDir(
+      'cli',
+      '/root/packages/shared/utils/cli',
+      '/root',
+      new Set(),
+      ['packages/shared/utils/cli'],
+    );
+    expect(result).toBe(true);
+  });
+
+  it('excludes subdirectories of a path-prefix match', () => {
+    const result: boolean = shouldExcludeDir(
+      'src',
+      '/root/packages/shared/utils/cli/src',
+      '/root',
+      new Set(),
+      ['packages/shared/utils/cli'],
+    );
+    expect(result).toBe(true);
+  });
+
+  it('does not exclude a directory that merely shares a prefix string', () => {
+    const result: boolean = shouldExcludeDir(
+      'cli-tools',
+      '/root/packages/shared/utils/cli-tools',
+      '/root',
+      new Set(),
+      ['packages/shared/utils/cli'],
+    );
+    expect(result).toBe(false);
+  });
+
+  it('does not exclude unrelated path', () => {
+    const result: boolean = shouldExcludeDir(
+      'core',
+      '/root/packages/shared/utils/core',
+      '/root',
+      new Set(),
+      ['packages/shared/utils/cli'],
+    );
+    expect(result).toBe(false);
+  });
+
+  it('returns false when both exclude lists are empty', () => {
+    const result: boolean = shouldExcludeDir('anything', '/root/anything', '/root', new Set(), []);
+    expect(result).toBe(false);
+  });
+
+  it('name-based match takes priority over path check', () => {
+    const result: boolean = shouldExcludeDir(
+      'dist',
+      '/root/packages/dist',
+      '/root',
+      new Set(['dist']),
+      ['packages/other'],
+    );
+    expect(result).toBe(true);
+  });
+
+  it('handles multiple path-prefix excludes', () => {
+    const excludePaths: string[] = ['packages/shared/utils/cli', 'packages/tools/internal'];
+    expect(
+      shouldExcludeDir('cli', '/root/packages/shared/utils/cli', '/root', new Set(), excludePaths),
+    ).toBe(true);
+    expect(
+      shouldExcludeDir(
+        'internal',
+        '/root/packages/tools/internal',
+        '/root',
+        new Set(),
+        excludePaths,
+      ),
+    ).toBe(true);
+    expect(
+      shouldExcludeDir('other', '/root/packages/tools/other', '/root', new Set(), excludePaths),
+    ).toBe(false);
+  });
+});
+
+// =============================================================================
 // collectFiles
 // =============================================================================
 
@@ -209,6 +317,44 @@ describe('collectFiles', () => {
       f.includes('/node_modules/'),
     );
     expect(hasNodeModules).toBe(false);
+  });
+
+  it('skips directories matching a path-prefix exclude', () => {
+    // The workspace root is 6 levels up from src/
+    const workspaceRoot: string = resolve(import.meta.dirname, '..', '..', '..', '..', '..', '..');
+    const config: LintConfig = makeConfig({
+      exclude: [
+        '*.test.ts',
+        '*.d.ts',
+        'node_modules',
+        '.git',
+        'packages/shared/config/tooling/lint/src/framework',
+      ],
+    });
+    const lintSrcDir: string = resolve(import.meta.dirname);
+    const files: string[] = collectFiles(lintSrcDir, config, workspaceRoot);
+    const hasFramework: boolean = files.some((f: string): boolean => f.includes('/framework/'));
+    expect(hasFramework).toBe(false);
+    // Should still find files in the current directory
+    expect(files.length).toBeGreaterThan(0);
+  });
+
+  it('does not exclude directories that merely share a path prefix string', () => {
+    const workspaceRoot: string = resolve(import.meta.dirname, '..', '..', '..', '..', '..', '..');
+    const config: LintConfig = makeConfig({
+      exclude: [
+        '*.test.ts',
+        '*.d.ts',
+        'node_modules',
+        '.git',
+        'packages/shared/config/tooling/lint/src/tool',
+      ],
+    });
+    const lintSrcDir: string = resolve(import.meta.dirname);
+    const files: string[] = collectFiles(lintSrcDir, config, workspaceRoot);
+    // 'tools' directory should NOT be excluded (path is 'src/tools', not 'src/tool')
+    const hasTools: boolean = files.some((f: string): boolean => f.includes('/tools/'));
+    expect(hasTools).toBe(true);
   });
 });
 
@@ -1709,6 +1855,7 @@ describe('runPkgRules — additional branches', () => {
               severity: 'warning',
               message: 'Scoped package',
               ruleId: 'test/name-check',
+              fix: { range: { start: 0, end: 0 }, text: '' },
             },
           ];
         }

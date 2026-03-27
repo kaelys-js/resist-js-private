@@ -741,3 +741,37 @@ describe('resolveRuleSeverity — additional branches', () => {
     expect(severity).toBe('warn');
   });
 });
+
+// =============================================================================
+// Config structure — simplified config with path-prefix exclusion
+// =============================================================================
+
+describe('simplified config structure', () => {
+  it('loadConfig accepts a config with single include and path-prefix exclude', () => {
+    const jsonc: string = JSON.stringify({
+      include: ['packages'],
+      exclude: ['node_modules', 'packages/shared/utils/cli'],
+      extensions: ['.ts'],
+    });
+    vi.mocked(readFileSync).mockReturnValueOnce(jsonc);
+    const config: LintConfig = loadConfig('/fake');
+    expect(config.include).toEqual(['packages']);
+    expect(config.exclude).toContain('packages/shared/utils/cli');
+    expect(config.exclude).toContain('node_modules');
+  });
+
+  it('path-prefix excludes contain / while name-based excludes do not', () => {
+    const jsonc: string = JSON.stringify({
+      include: ['packages'],
+      exclude: ['node_modules', '.git', 'packages/shared/utils/cli'],
+      extensions: ['.ts'],
+    });
+    vi.mocked(readFileSync).mockReturnValueOnce(jsonc);
+    const config: LintConfig = loadConfig('/fake');
+    const nameExcludes: string[] = config.exclude.filter((e: string): boolean => !e.includes('/'));
+    const pathExcludes: string[] = config.exclude.filter((e: string): boolean => e.includes('/'));
+    expect(nameExcludes).toContain('node_modules');
+    expect(nameExcludes).toContain('.git');
+    expect(pathExcludes).toContain('packages/shared/utils/cli');
+  });
+});
