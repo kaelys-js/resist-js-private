@@ -45,6 +45,7 @@ const CRYSTAL_FILE_LINE: RegExp = /^(.+\.cr)$/;
  * produces a lint result.
  *
  * @param {string} output - Raw text output from crystal tool format --check
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -53,7 +54,6 @@ const CRYSTAL_FILE_LINE: RegExp = /^(.+\.cr)$/;
  * // results[0].ruleId === 'crystal/format'
  * // results[0].severity === 'warning'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformCrystalOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

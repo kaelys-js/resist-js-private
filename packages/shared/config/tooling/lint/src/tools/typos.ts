@@ -45,6 +45,7 @@ type TyposEntry = {
  * `{ type, path, line_num, byte_offset, typo, corrections }`
  *
  * @param {string} output - Raw JSONL output from typos
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -52,7 +53,6 @@ type TyposEntry = {
  * const results = transformTyposOutput('{"type":"typo","path":"foo.ts","line_num":1,"byte_offset":0,"typo":"teh","corrections":["the"]}');
  * // results[0].ruleId === 'typos/misspelling'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformTyposOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

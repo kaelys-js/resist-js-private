@@ -18,8 +18,8 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * `{ file, line, column, endLine, endColumn, level, code, message }`
  *
  * @param {string} output - Raw JSON output from ShellCheck
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
-  * @param {Type} strings - Description
  */
 export function transformShellcheckOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

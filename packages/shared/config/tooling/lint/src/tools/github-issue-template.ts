@@ -32,6 +32,7 @@ const REQUIRED_FIELDS: readonly string[] = ['name', 'description', 'labels'];
  * diagnostic. If the output is empty or only whitespace, no issues were found.
  *
  * @param {string} output - Raw text output in `filename:line: message` format
+ * @param {LintStrings} strings - Locale strings for user-facing messages
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -42,7 +43,6 @@ const REQUIRED_FIELDS: readonly string[] = ['name', 'description', 'labels'];
  * // results[0].ruleId === 'github/issue-template'
  * // results[0].message === 'Missing required field: name'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformGithubIssueTemplateOutput(
   output: string,
@@ -94,6 +94,7 @@ export function transformGithubIssueTemplateOutput(
  *
  * @param {string} filePath - Absolute path to the issue template file
  * @param {string} content - Raw file content
+ * @param {LintStrings} strings - Locale strings for user-facing messages
  * @returns {LintResult[]} Validation diagnostics
  *
  * @example
@@ -101,7 +102,6 @@ export function transformGithubIssueTemplateOutput(
  * const results = validateIssueTemplate('.github/ISSUE_TEMPLATE/bug.yml', 'name: Bug Report\n');
  * // results[0].message includes 'Missing required field: description'
  * ```
-  * @param {Type} strings - Description
  */
 export function validateIssueTemplate(
   filePath: string,

@@ -40,6 +40,7 @@ type AttwProblem = {
  * `{ problems: [{ kind, title, entrypoint }] }`
  *
  * @param {string} output - Raw JSON output from attw
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -48,7 +49,6 @@ type AttwProblem = {
  * const results = transformAttwOutput(json);
  * // results[0].ruleId === 'attw/FalseESM'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformAttwOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

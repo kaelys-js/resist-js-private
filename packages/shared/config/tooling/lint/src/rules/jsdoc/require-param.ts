@@ -74,7 +74,7 @@ type ParamEntry = v.InferOutput<typeof ParamEntrySchema>;
  */
 function extractParamEntries(jsDoc: string): ParamEntry[] {
   const entries: ParamEntry[] = [];
-  const regex: RegExp = /^\s*\*\s*@param\s+(?:(\{[^}]*\})\s+)?([\w.]+)/gm;
+  const regex: RegExp = /^\s*\*\s*@param\s+(?:(\{[^}]*\})\s+)?\[?([\w.]+)\]?/gm;
   let match: RegExpExecArray | null = regex.exec(jsDoc);
   while (match) {
     entries.push({
@@ -87,10 +87,29 @@ function extractParamEntries(jsDoc: string): ParamEntry[] {
 }
 
 /**
+ * Extract the TypeScript type annotation text from a parameter AST node.
+ *
+ * @param {AstNode} param - The parameter AST node
+ * @param {string} content - Full file source text
+ * @returns {string} The type string, or 'unknown' if no annotation
+ */
+function extractParamType(param: AstNode, content: string): string {
+  const annotation = param.typeAnnotation as AstNode | undefined;
+  if (!annotation) {
+    return 'unknown';
+  }
+  const typeNode = annotation.typeAnnotation as AstNode | undefined;
+  if (!typeNode) {
+    return 'unknown';
+  }
+  return content.slice(typeNode.start, typeNode.end);
+}
+
+/**
  * Extract parameter names from a function's AST params array.
  *
- * @param params - The function's params AST nodes
- * @returns Array of parameter names
+ * @param {AstNode[]} params - The function's params AST nodes
+ * @returns {string[]} Array of parameter names
  */
 function extractFunctionParamNames(params: AstNode[]): string[] {
   const names: string[] = [];
@@ -153,13 +172,15 @@ function checkFunction(
   const insertOffset: number = getJsDocEndOffset(exportNode, context.content);
   const funcName: string = ((funcNode.id as AstNode | undefined)?.name as string) ?? '<anonymous>';
 
-  for (const paramName of funcParamNames) {
+  for (let i = 0; i < funcParamNames.length; i++) {
+    const paramName: string = funcParamNames[i]!;
     if (paramName.startsWith('__destructured_')) {
       continue;
     }
 
     if (!docParamNames.includes(paramName)) {
-      const fixText: string = ` * @param {Type} ${paramName} - Description\n `;
+      const paramType: string = extractParamType(params[i]!, context.content);
+      const fixText: string = ` * @param {${paramType}} ${paramName} - Description\n `;
       results.push({
         file: context.file,
         line: exportNode.loc.start.line,
@@ -167,8 +188,8 @@ function checkFunction(
         severity: 'error',
         message: `Missing @param tag for '${paramName}' in function '${funcName}'`,
         ruleId: 'jsdoc/require-param',
-        tip: `Add @param {Type} ${paramName} - <description> to the JSDoc comment`,
-        example: `@param {Type} ${paramName} - Description of the parameter`,
+        tip: `Add @param {${paramType}} ${paramName} - <description> to the JSDoc comment`,
+        example: `@param {${paramType}} ${paramName} - Description of the parameter`,
         fix: {
           range: { start: insertOffset, end: insertOffset },
           text: fixText,
@@ -180,6 +201,9 @@ function checkFunction(
   // Check that existing @param tags have {Type}
   for (const entry of docEntries) {
     if (!entry.hasType && funcParamNames.includes(entry.name)) {
+      const paramIdx: number = funcParamNames.indexOf(entry.name);
+      const actualType: string =
+        paramIdx >= 0 ? extractParamType(params[paramIdx]!, context.content) : 'unknown';
       results.push({
         file: context.file,
         line: exportNode.loc.start.line,
@@ -187,8 +211,8 @@ function checkFunction(
         severity: 'error',
         message: `@param '${entry.name}' is missing {Type} in function '${funcName}'`,
         ruleId: 'jsdoc/require-param',
-        tip: `Add type: @param {Type} ${entry.name} - description`,
-        example: `@param {Type} ${entry.name} - Description`,
+        tip: `Add type: @param {${actualType}} ${entry.name} - description`,
+        example: `@param {${actualType}} ${entry.name} - Description`,
         fix: { range: { start: exportNode.start, end: exportNode.start }, text: '' },
       });
     }

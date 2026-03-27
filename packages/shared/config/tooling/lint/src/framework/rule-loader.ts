@@ -77,8 +77,8 @@ export type LoadedRules = v.InferOutput<typeof LoadedRulesSchema>;
  * and categorizes the default export as either a TypeScriptRule or
  * PackageJsonRule based on its shape.
  *
+ * @param {LintStrings} strings - Locale strings for user-facing messages
  * @returns {Promise<LoadedRules>} All discovered rules, categorized by type
-  * @param {Type} strings - Description
  */
 export async function loadAllRules(strings: LintStrings): Promise<LoadedRules> {
   const currentDir: string = fileURLToPath(new URL('.', import.meta.url));

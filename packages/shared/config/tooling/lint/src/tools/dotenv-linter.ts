@@ -18,6 +18,7 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * `file:line rule: message`
  *
  * @param {string} output - Raw text output from dotenv-linter
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -25,7 +26,6 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * const results = transformDotenvLinterOutput('.env:3 DuplicatedKey: The FOO key is duplicated');
  * // results[0].ruleId === 'dotenv-linter/DuplicatedKey'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformDotenvLinterOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

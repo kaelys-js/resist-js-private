@@ -21,6 +21,7 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * and entries with missing or unresolvable owners.
  *
  * @param {string} output - Raw text output from codeowners-checker
+ * @param {LintStrings} strings - Locale strings for user-facing messages
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -29,7 +30,6 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * // results[0].ruleId === 'codeowners-checker/validate'
  * // results[0].severity === 'warning'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformCodeownersCheckerOutput(
   output: string,

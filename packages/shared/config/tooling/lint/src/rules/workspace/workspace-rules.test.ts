@@ -5,8 +5,10 @@
  */
 
 import { describe, expect, it } from 'vitest';
+
 import type { WorkspaceContext, WorkspacePackage } from '../../framework/rule-context.ts';
 import type { LintResult } from '../../framework/types.ts';
+import noMergeConflicts from './no-merge-conflicts.ts';
 import namesValid from '../package/names-valid.ts';
 import workspaceValid from './workspace-valid.ts';
 
@@ -311,5 +313,109 @@ describe('package/names-valid', () => {
     const results: LintResult[] = await namesValid.check(ctx);
     expect(results.length).toBe(1);
     expect(results[0]!.message).toContain('Missing "name"');
+  });
+});
+
+// =============================================================================
+// workspace/no-merge-conflicts — regex precision
+// =============================================================================
+
+describe('workspace/no-merge-conflicts', () => {
+  it('has correct rule metadata', () => {
+    expect(noMergeConflicts.id).toBe('workspace/no-merge-conflicts');
+    expect(noMergeConflicts.scope).toBe('workspace');
+    expect(typeof noMergeConflicts.check).toBe('function');
+  });
+
+  it('detects real <<<<<<< conflict marker', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/src/file.ts',
+        '<<<<<<< HEAD\nconst x = 1;\n=======\nconst x = 2;\n>>>>>>> branch\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMergeConflicts.check(ctx);
+    expect(results.length).toBe(3);
+    expect(results[0]!.message).toContain('<<<<<<<');
+    expect(results[1]!.message).toContain('=======');
+    expect(results[2]!.message).toContain('>>>>>>>');
+  });
+
+  it('detects ======= on its own line (no trailing text)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/file.ts', 'some code\n=======\nmore code\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMergeConflicts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.line).toBe(2);
+  });
+
+  it('does NOT match long separator lines (e.g. ====...====)', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/src/file.ts',
+        [
+          '/**',
+          ' * ============================================================ */',
+          '============================================================',
+          '================================================================',
+          'const x = 1;',
+          '',
+        ].join('\n'),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMergeConflicts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('does NOT match >>>>>>>> with 8+ chars', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/file.ts', '>>>>>>>>>>>>>>\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMergeConflicts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('does NOT match <<<<<<<< with 8+ chars', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/file.ts', '<<<<<<<<<<<<<<\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMergeConflicts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('matches ======= followed by space (merge conflict)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/file.ts', '======= some marker\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMergeConflicts.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('matches <<<<<<< HEAD (standard conflict marker)', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/file.ts', '<<<<<<< HEAD\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMergeConflicts.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('matches >>>>>>> branch-name (standard conflict marker)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/file.ts', '>>>>>>> feature/my-branch\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMergeConflicts.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('returns no results for clean files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/clean.ts', 'export const x: number = 1;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMergeConflicts.check(ctx);
+    expect(results.length).toBe(0);
   });
 });

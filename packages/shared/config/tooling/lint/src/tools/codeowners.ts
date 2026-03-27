@@ -32,6 +32,7 @@ const OWNER_PATTERN: RegExp = /^(@[\w-]+(?:\/[\w.-]+)?|[\w.+-]+@[\w.-]+\.\w+)$/;
  * diagnostic. If the output is empty or only whitespace, no issues were found.
  *
  * @param {string} output - Raw text output in `filename:line: message` format
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -42,7 +43,6 @@ const OWNER_PATTERN: RegExp = /^(@[\w-]+(?:\/[\w.-]+)?|[\w.+-]+@[\w.-]+\.\w+)$/;
  * // results[0].ruleId === 'codeowners/syntax'
  * // results[0].severity === 'error'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformCodeownersOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
@@ -96,6 +96,7 @@ export function transformCodeownersOutput(output: string, strings: LintStrings):
  *
  * @param {string} filePath - Absolute path to the CODEOWNERS file
  * @param {string} content - Raw file content
+ * @param {LintStrings} strings - Locale strings for user-facing messages
  * @returns {LintResult[]} Validation diagnostics
  *
  * @example
@@ -104,7 +105,6 @@ export function transformCodeownersOutput(output: string, strings: LintStrings):
  * // results[0].message includes 'overly broad'
  * // results[1].message includes 'Invalid owner format'
  * ```
-  * @param {Type} strings - Description
  */
 export function validateCodeowners(
   filePath: string,

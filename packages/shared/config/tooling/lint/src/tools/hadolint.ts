@@ -18,8 +18,8 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * `{ line, code, message, column, file, level }`
  *
  * @param {string} output - Raw JSON output from Hadolint
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
-  * @param {Type} strings - Description
  */
 export function transformHadolintOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

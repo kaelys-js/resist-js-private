@@ -64,6 +64,7 @@ type JscpdDuplicate = {
  * `{ duplicates: [{ firstFile: {name, start, end}, secondFile: {name, start, end}, lines, tokens }] }`
  *
  * @param {string} output - Raw JSON output from jscpd
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -72,7 +73,6 @@ type JscpdDuplicate = {
  * const results = transformJscpdOutput(json);
  * // results[0].ruleId === 'jscpd/duplicate'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformJscpdOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

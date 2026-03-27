@@ -22,6 +22,7 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * diagnostic. If the output is empty or only whitespace, no issues were found.
  *
  * @param {string} output - Raw text output in `filename:line: message` format
+ * @param {LintStrings} strings - Locale strings for user-facing messages
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -32,7 +33,6 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * // results[0].ruleId === 'github/pr-template'
  * // results[0].severity === 'error'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformGithubPrTemplateOutput(
   output: string,
@@ -85,6 +85,7 @@ export function transformGithubPrTemplateOutput(
  *
  * @param {string} filePath - Absolute path to the PR template file
  * @param {string} content - Raw file content
+ * @param {LintStrings} strings - Locale strings for user-facing messages
  * @returns {LintResult[]} Validation diagnostics
  *
  * @example
@@ -92,7 +93,6 @@ export function transformGithubPrTemplateOutput(
  * const results = validatePrTemplate('pull_request_template.md', '');
  * // results[0].message === 'PR template file is empty'
  * ```
-  * @param {Type} strings - Description
  */
 export function validatePrTemplate(
   filePath: string,

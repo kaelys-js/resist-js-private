@@ -59,6 +59,7 @@ function mapSeverity(type: string): 'error' | 'warning' | 'info' {
  * `{ messages: [{ code, path, type, args }] }`
  *
  * @param {string} output - Raw JSON output from publint
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -67,7 +68,6 @@ function mapSeverity(type: string): 'error' | 'warning' | 'info' {
  * const results = transformPublintOutput(json);
  * // results[0].ruleId === 'publint/MISSING_EXPORTS'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformPublintOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

@@ -66,6 +66,7 @@ function isProblematicLicense(license: string): boolean {
  * Only packages with problematic licenses are reported.
  *
  * @param {string} output - Raw JSON output from license-checker
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -74,7 +75,6 @@ function isProblematicLicense(license: string): boolean {
  * const results = transformLicenseCheckerOutput(json);
  * // results[0].ruleId === 'license-checker/problematic-license'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformLicenseCheckerOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

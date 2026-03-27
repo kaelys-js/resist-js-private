@@ -139,7 +139,6 @@ const SILENT_OUTPUT: CliOutput = {
  *   console.log(`Found ${result.data.results.length} issues`);
  * }
  * ```
-  * @param {Type} options - Description
  */
 export async function lint(options?: LintOptions): Promise<LintApiResult<LintResultSummary>> {
   const opts: LintOptions = options ?? {};
@@ -306,7 +305,6 @@ export async function lint(options?: LintOptions): Promise<LintApiResult<LintRes
  *   console.log(`Found ${result.data.length} issues`);
  * }
  * ```
-  * @param {Type} options - Description
  */
 export async function lintSource(
   source: LintSource,

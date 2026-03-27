@@ -20,6 +20,7 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * `[["a.ts", "b.ts", "a.ts"], ["c.ts", "d.ts", "e.ts", "c.ts"]]`
  *
  * @param {string} output - Raw JSON output from madge
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -29,7 +30,6 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  * // results[0].ruleId === 'madge/circular-dependency'
  * // results[0].message === 'Circular dependency: src/a.ts → src/b.ts → src/a.ts'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformMadgeOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

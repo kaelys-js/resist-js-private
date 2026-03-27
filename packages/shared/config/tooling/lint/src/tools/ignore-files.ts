@@ -21,6 +21,7 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * `filename:line: message`
  *
  * @param {string} output - Raw text output from the ignore-file validator
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -28,7 +29,6 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * const results = transformIgnoreFilesOutput('.gitignore:5: Invalid glob pattern "***"');
  * // results[0].ruleId === 'ignore-file/lint'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformIgnoreFilesOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

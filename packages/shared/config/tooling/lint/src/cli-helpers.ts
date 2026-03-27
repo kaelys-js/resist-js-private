@@ -437,7 +437,6 @@ function splitExcludes(exclude: readonly string[]): {
  * @param {LintConfig} config - Linter configuration (provides exclude list)
  * @param {string} [rootDir] - Workspace root for path-prefix exclusion (defaults to dir)
  * @returns {string[]} Array of absolute file paths
- * @param {Type} rootDir - Description
  */
 export function collectFiles(dir: string, config: LintConfig, rootDir?: string): string[] {
   const root: string = rootDir ?? dir;
@@ -475,7 +474,6 @@ export function collectFiles(dir: string, config: LintConfig, rootDir?: string):
  * @param {LintConfig} config - Linter configuration (provides exclude list)
  * @param {string} [rootDir] - Workspace root for path-prefix exclusion (defaults to dir)
  * @returns {string[]} Array of absolute file paths
- * @param {Type} rootDir - Description
  */
 export function collectPackageJsonFiles(
   dir: string,
@@ -844,7 +842,7 @@ function processBailTasks(
  * @param {CliOutput} output - Output sink for messages
  * @param {LintStrings} strings - Locale strings for user-facing messages
  * @param {LintConfig} config - Loaded and merged config
- * @param loaded - All discovered rules
+ * @param {Awaited<ReturnType<typeof loadAllRules>>} loaded - All discovered rules
  * @param {string} cwd - Working directory
  * @returns {Promise<LintCoreResult>} Lint results, file count, and fix count
  */
@@ -1224,14 +1222,28 @@ export async function _runLintCore(
       dbg(format(strings.debug.workspaceRunning, { count: wsRules.length }));
       const wsContext: ReturnType<typeof createWorkspaceContext> = createWorkspaceContext(
         resolve(cwd),
+        config.exclude,
       );
 
       const wsResults: LintResult[][] = await Promise.all(
         wsRules.map((rule: WorkspaceRule): Promise<LintResult[]> => rule.check(wsContext)),
       );
 
+      /* Post-filter: strip results from excluded paths (defense in depth) */
+      const { excludeNames: wsExcNames, excludePaths: wsExcPaths } = splitExcludes(config.exclude);
+      const cwdResolved: string = resolve(cwd);
       for (const results of wsResults) {
-        allResults.push(...results);
+        for (const r of results) {
+          const relFile: string = relative(cwdResolved, r.file);
+          const parts: string[] = relFile.split('/');
+          const nameExcluded: boolean = parts.some((p: string): boolean => wsExcNames.has(p));
+          const pathExcluded: boolean = wsExcPaths.some(
+            (ep: string): boolean => relFile === ep || relFile.startsWith(`${ep}/`),
+          );
+          if (!nameExcluded && !pathExcluded) {
+            allResults.push(r);
+          }
+        }
       }
 
       dbg(format(strings.debug.workspaceResults, { count: wsResults.flat().length }));
@@ -1450,9 +1462,7 @@ export async function runLinter(
   dbg(format(strings.debug.totalTime, { ms: Date.now() - lintStartTime }));
 
   /* Exit with error if any errors found (unless --warn-only) */
-  const hasErrors: boolean = core.results.some(
-    (r: LintResult): boolean => r.severity === 'error',
-  );
+  const hasErrors: boolean = core.results.some((r: LintResult): boolean => r.severity === 'error');
   if (cliArgs.warnOnly) {
     return 0;
   }

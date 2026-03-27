@@ -19,6 +19,7 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * `filename:line: message`
  *
  * @param {string} output - Raw text output from the npmrc validator
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -26,7 +27,6 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * const results = transformNpmrcOutput('.npmrc:3: Invalid syntax — expected key=value');
  * // results[0].ruleId === 'npmrc/syntax'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformNpmrcOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

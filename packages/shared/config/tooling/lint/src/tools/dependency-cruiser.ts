@@ -61,6 +61,7 @@ function mapSeverity(severity: string): 'error' | 'warning' | 'info' {
  * `{ output: { violations: [{ from, to, rule: { severity, name } }] } }`
  *
  * @param {string} output - Raw JSON output from depcruise
+ * @param {LintStrings} strings - Locale strings for user-facing messages
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -69,7 +70,6 @@ function mapSeverity(severity: string): 'error' | 'warning' | 'info' {
  * const results = transformDependencyCruiserOutput(json);
  * // results[0].ruleId === 'dependency-cruiser/no-circular'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformDependencyCruiserOutput(
   output: string,

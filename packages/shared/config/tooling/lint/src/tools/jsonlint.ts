@@ -25,6 +25,7 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * `file.json: line N, col N, Error - message`
  *
  * @param {string} output - Raw text output from jsonlint
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -32,7 +33,6 @@ import { type LintStrings } from '@/lint/locale/schema.ts';
  * const results = transformJsonlintOutput('config.json: line 5, col 10, Error - Expected comma');
  * // results[0].ruleId === 'jsonlint/parse-error'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformJsonlintOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();

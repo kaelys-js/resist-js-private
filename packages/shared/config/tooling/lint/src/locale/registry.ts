@@ -52,7 +52,6 @@ export type LocaleResult = LocaleOk | LocaleErr;
  *
  * @param {string} [requested] - Locale code from `--locale` flag
  * @returns {LocaleResult} Resolved strings or error
-  * @param {Type} requested - Description
  */
 export function resolveLocale(requested?: string): LocaleResult {
   if (requested === undefined) {

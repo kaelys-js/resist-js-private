@@ -24,6 +24,7 @@ const DIFF_FILE: RegExp = /^(?:---\s+a\/|diff\s+--git\s+a\/)(.+?)(?:\s|$)/;
  * a single generic result is produced.
  *
  * @param {string} output - Raw text output from `terraform fmt -check -diff`
+ * @param {LintStrings} strings - Locale strings
  * @returns {LintResult[]} Transformed lint results
  *
  * @example
@@ -31,7 +32,6 @@ const DIFF_FILE: RegExp = /^(?:---\s+a\/|diff\s+--git\s+a\/)(.+?)(?:\s|$)/;
  * const results = transformTerraformOutput('--- a/main.tf\n+++ b/main.tf\n@@ -1,2 +1,2 @@\n...');
  * // results[0].ruleId === 'terraform/format'
  * ```
-  * @param {Type} strings - Description
  */
 export function transformTerraformOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
