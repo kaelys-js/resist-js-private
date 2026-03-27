@@ -152,8 +152,13 @@
     "package/valid-project-ref": "error",
     "package/valid-tsconfig": "error",
     "workspace/no-broken-symlinks": "error",
+    "workspace/no-empty-directories": "warn",
     "workspace/no-leftover-sqlite": "warn",
+    "workspace/no-lockfile-local-links": "error",
+    "workspace/no-unpinned-git-deps": "error",
     "workspace/no-untracked-artifacts": "warn",
+    "workspace/require-git-repo": "error",
+    "workspace/require-lockfile": "error",
     "workspace/workspace-valid": "error"
   },
   "ruleOptions": {
