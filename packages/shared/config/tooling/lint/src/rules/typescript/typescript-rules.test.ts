@@ -26,6 +26,7 @@ import noDefaultParams from './no-default-params.ts';
 import noGenericFunctionType from './no-generic-function-type.ts';
 import noUnionParams from './no-union-params.ts';
 import requireFunctionSchema from './require-function-schema.ts';
+import requireSvelteTsExtension from './require-svelte-ts-extension.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -1483,5 +1484,45 @@ describe('typescript/require-function-schema', () => {
       'packages/shared/schemas/common/src/index.ts',
     );
     expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// typescript/require-svelte-ts-extension
+// =============================================================================
+
+describe('typescript/require-svelte-ts-extension', () => {
+  it('flags $state() in plain .ts file', async () => {
+    const results: LintResult[] = await lint(requireSvelteTsExtension, 'const count = $state(0);', '/src/state.ts');
+    expect(results).toHaveLength(1);
+    expect(results[0]!.ruleId).toBe('typescript/require-svelte-ts-extension');
+  });
+  it('flags $derived() in plain .ts file', async () => {
+    const results: LintResult[] = await lint(requireSvelteTsExtension, 'const x = $derived(count * 2);', '/src/s.ts');
+    expect(results).toHaveLength(1);
+  });
+  it('flags $effect() in plain .ts file', async () => {
+    const results: LintResult[] = await lint(requireSvelteTsExtension, '$effect(() => {});', '/src/s.ts');
+    expect(results).toHaveLength(1);
+  });
+  it('flags $props() in plain .ts file', async () => {
+    const results: LintResult[] = await lint(requireSvelteTsExtension, 'const { name } = $props();', '/src/s.ts');
+    expect(results).toHaveLength(1);
+  });
+  it('allows $state() in .svelte.ts file', async () => {
+    const results: LintResult[] = await lint(requireSvelteTsExtension, 'const count = $state(0);', '/src/state.svelte.ts');
+    expect(results).toHaveLength(0);
+  });
+  it('ignores files without rune calls', async () => {
+    const results: LintResult[] = await lint(requireSvelteTsExtension, 'const x: number = 42;', '/src/util.ts');
+    expect(results).toHaveLength(0);
+  });
+  it('reports only once per file with multiple runes', async () => {
+    const results: LintResult[] = await lint(requireSvelteTsExtension, 'const a = $state(0);\nconst b = $derived(a * 2);', '/src/s.ts');
+    expect(results).toHaveLength(1);
+  });
+  it('does not flag $state in strings', async () => {
+    const results: LintResult[] = await lint(requireSvelteTsExtension, 'const s = "$state(0)";', '/src/util.ts');
+    expect(results).toHaveLength(0);
   });
 });
