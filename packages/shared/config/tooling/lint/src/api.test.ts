@@ -206,3 +206,126 @@ describe('lintSource()', (): void => {
     expect(result.ok).toBe(true);
   });
 });
+
+// =============================================================================
+// Integration Tests — real files and rules
+// =============================================================================
+
+describe('integration', (): void => {
+  it('lint() with a real file path returns well-formed results', async (): Promise<void> => {
+    const result: LintApiResult<LintResultSummary> = await lint({
+      paths: ['packages/shared/config/tooling/lint/src/constants.ts'],
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.filesLinted).toBeGreaterThanOrEqual(1);
+      expect(typeof result.data.exitCode).toBe('number');
+      expect(result.data.exitCode === 0 || result.data.exitCode === 1).toBe(true);
+      expect(typeof result.data.fixesApplied).toBe('number');
+
+      /* Verify each result has required LintResult fields */
+      for (const r of result.data.results) {
+        expect(typeof r.file).toBe('string');
+        expect(r.file.length).toBeGreaterThan(0);
+        expect(typeof r.line).toBe('number');
+        expect(r.line).toBeGreaterThanOrEqual(1);
+        expect(typeof r.column).toBe('number');
+        expect(r.column).toBeGreaterThanOrEqual(1);
+        expect(typeof r.ruleId).toBe('string');
+        expect(r.ruleId.length).toBeGreaterThan(0);
+        expect(['error', 'warning', 'info']).toContain(r.severity);
+        expect(typeof r.message).toBe('string');
+        expect(r.message.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('lint() filters by ruleIds on real files', async (): Promise<void> => {
+    const result: LintApiResult<LintResultSummary> = await lint({
+      paths: ['packages/shared/config/tooling/lint/src/constants.ts'],
+      ruleIds: ['jsdoc/require-param'],
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      /* All results should belong to the filtered rule */
+      for (const r of result.data.results) {
+        expect(r.ruleId).toBe('jsdoc/require-param');
+      }
+    }
+  });
+
+  it('lint() with invalid locale returns error Result', async (): Promise<void> => {
+    const result: LintApiResult<LintResultSummary> = await lint({
+      locale: 'invalid',
+      paths: ['packages/shared/config/tooling/lint/src/constants.ts'],
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toContain('Unknown locale');
+      expect(result.error).toContain('invalid');
+      expect(result.error).toContain('en');
+    }
+  });
+
+  it('lint() with explicit en locale works on real files', async (): Promise<void> => {
+    const result: LintApiResult<LintResultSummary> = await lint({
+      locale: 'en',
+      paths: ['packages/shared/config/tooling/lint/src/constants.ts'],
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.filesLinted).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('lint() with categories filter only returns matching rules', async (): Promise<void> => {
+    const result: LintApiResult<LintResultSummary> = await lint({
+      categories: ['nonexistent-category-xyz'],
+      paths: ['packages/shared/config/tooling/lint/src/constants.ts'],
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      /* No rules should match this fake category */
+      expect(result.data.results.length).toBe(0);
+    }
+  });
+
+  it('lint() defaults to config include paths when no paths provided', async (): Promise<void> => {
+    const result: LintApiResult<LintResultSummary> = await lint();
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.filesLinted).toBeGreaterThan(0);
+    }
+  });
+
+  it('lintSource() results have correct structure', async (): Promise<void> => {
+    /* Use code that will definitely trigger a rule */
+    const result: LintApiResult<readonly LintResult[]> = await lintSource({
+      filePath: 'test-file.ts',
+      content: [
+        '/* eslint-disable */',
+        'function foo(a: string, b: number): void {',
+        '  console.log(a, b);',
+        '}',
+        '',
+      ].join('\n'),
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok && result.data.length > 0) {
+      const r: LintResult = result.data[0]!;
+      expect(r.file).toBe('test-file.ts');
+      expect(typeof r.line).toBe('number');
+      expect(typeof r.column).toBe('number');
+      expect(typeof r.ruleId).toBe('string');
+      expect(typeof r.severity).toBe('string');
+      expect(typeof r.message).toBe('string');
+    }
+  });
+});

@@ -256,7 +256,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 3.3: Export public API from package
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: The package has no `exports` field in `package.json` and no barrel file. External consumers can't import the API cleanly.
 
@@ -291,7 +291,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ### Task 3.4: Add integration test for programmatic API
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: Need an end-to-end test that exercises the `lint()` API with real files and rules, verifying the full pipeline works programmatically.
 
