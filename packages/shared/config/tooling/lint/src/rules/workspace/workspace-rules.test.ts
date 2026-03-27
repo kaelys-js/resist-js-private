@@ -24,6 +24,9 @@ import noNodeModulesWorkspaceGlobs from './no-node-modules-workspace-globs.ts';
 import noTestDirWorkspaceGlobs from './no-test-dir-workspace-globs.ts';
 import noTrailingSlashGlobs from './no-trailing-slash-globs.ts';
 import requireWorkspaceSchema from './require-workspace-schema.ts';
+import workspaceGlobsResolve from './workspace-globs-resolve.ts';
+import workspacePackagesExist from './workspace-packages-exist.ts';
+import workspacePathsExist from './workspace-paths-exist.ts';
 import workspaceValid from './workspace-valid.ts';
 
 // =============================================================================
@@ -1078,6 +1081,151 @@ describe('workspace/require-workspace-schema', () => {
   it('returns empty when workspace file missing', async () => {
     const ctx: WorkspaceContext = mockContext({ files: new Map() });
     const results: LintResult[] = await requireWorkspaceSchema.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/workspace-globs-resolve
+// =============================================================================
+
+describe('workspace/workspace-globs-resolve', () => {
+  it('has correct rule metadata', () => {
+    expect(workspaceGlobsResolve.id).toBe('workspace/workspace-globs-resolve');
+    expect(workspaceGlobsResolve.scope).toBe('workspace');
+    expect(workspaceGlobsResolve.fixable).toBe(false);
+    expect(typeof workspaceGlobsResolve.check).toBe('function');
+  });
+
+  it('flags glob whose base directory does not exist', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "nonexistent/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = {
+      ...mockContext({ files }),
+      dirExists: (path: string): Promise<boolean> =>
+        new Promise<boolean>((resolve: (v: boolean) => void): void => {
+          resolve(!path.includes('nonexistent'));
+        }),
+    };
+    const results: LintResult[] = await workspaceGlobsResolve.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('nonexistent');
+  });
+
+  it('passes when base directory exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "packages/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await workspaceGlobsResolve.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when workspace file missing', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await workspaceGlobsResolve.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/workspace-packages-exist
+// =============================================================================
+
+describe('workspace/workspace-packages-exist', () => {
+  it('has correct rule metadata', () => {
+    expect(workspacePackagesExist.id).toBe('workspace/workspace-packages-exist');
+    expect(workspacePackagesExist.scope).toBe('workspace');
+    expect(workspacePackagesExist.fixable).toBe(false);
+    expect(typeof workspacePackagesExist.check).toBe('function');
+  });
+
+  it('flags glob with no matching packages', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "empty/*"\n'],
+    ]);
+    const packages: WorkspacePackage[] = [
+      {
+        dir: '/workspace/packages/lib',
+        name: '@test/lib',
+        packageJson: { name: '@test/lib' },
+        path: '/workspace/packages/lib/package.json',
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await workspacePackagesExist.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('No packages found');
+  });
+
+  it('passes when packages match glob', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "packages/*"\n'],
+    ]);
+    const packages: WorkspacePackage[] = [
+      {
+        dir: '/workspace/packages/lib',
+        name: '@test/lib',
+        packageJson: { name: '@test/lib' },
+        path: '/workspace/packages/lib/package.json',
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await workspacePackagesExist.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when workspace file missing', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await workspacePackagesExist.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/workspace-paths-exist
+// =============================================================================
+
+describe('workspace/workspace-paths-exist', () => {
+  it('has correct rule metadata', () => {
+    expect(workspacePathsExist.id).toBe('workspace/workspace-paths-exist');
+    expect(workspacePathsExist.scope).toBe('workspace');
+    expect(workspacePathsExist.fixable).toBe(false);
+    expect(typeof workspacePathsExist.check).toBe('function');
+  });
+
+  it('flags glob whose parent directory does not exist', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "missing/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = {
+      ...mockContext({ files }),
+      dirExists: (path: string): Promise<boolean> =>
+        new Promise<boolean>((resolve: (v: boolean) => void): void => {
+          resolve(!path.includes('missing'));
+        }),
+    };
+    const results: LintResult[] = await workspacePathsExist.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('missing');
+  });
+
+  it('passes when parent directory exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "packages/*"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await workspacePathsExist.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when workspace file missing', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await workspacePathsExist.check(ctx);
     expect(results.length).toBe(0);
   });
 });
