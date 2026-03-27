@@ -315,7 +315,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 ## TASK 16 — Final Verification + Commit
 
-**Status**: [ ]
+**Status**: [x] — Verified: All 13 rules match changelog. Committed.
 
 **Plan**:
 - Verify all 13 rules implemented against changelog
