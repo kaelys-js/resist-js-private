@@ -478,7 +478,7 @@ export default rule;
 
 ### Task 5.1: Run complete QA suite
 
-**Status**: [ ]
+**Status**: [x] — Verified: type-check passes, format clean (no changes), 2507/2507 tests pass. No lint errors in @/lint src.
 
 **Plan**:
 - Run: `pnpm --filter @/lint qa:type-check`
@@ -491,7 +491,7 @@ export default rule;
 
 ### Task 5.2: Verify test coverage thresholds
 
-**Status**: [ ]
+**Status**: [x] — Verified: Statements 90.2% (≥80%), Branches 76.17% (≥75%), Functions 84.53% (≥80%), Lines 90.18% (≥80%). 2507 tests pass (13 above 2494 baseline).
 
 **Plan**:
 - Run: `pnpm --filter @/lint qa:test:coverage`
