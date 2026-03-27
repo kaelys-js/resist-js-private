@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 import type { WorkspaceContext, WorkspacePackage } from '../../framework/rule-context.ts';
 import type { LintResult } from '../../framework/types.ts';
 import noBrokenSymlinks from './no-broken-symlinks.ts';
+import noEmptyDirectories from './no-empty-directories.ts';
 import noLeftoverSqlite from './no-leftover-sqlite.ts';
 import noMergeConflicts from './no-merge-conflicts.ts';
 import noUntrackedArtifacts from './no-untracked-artifacts.ts';
@@ -622,5 +623,26 @@ describe('workspace/require-git-repo', () => {
     };
     const results: LintResult[] = await requireGitRepo.check(ctx);
     expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-empty-directories
+// =============================================================================
+
+describe('workspace/no-empty-directories', () => {
+  it('has correct rule metadata', () => {
+    expect(noEmptyDirectories.id).toBe('workspace/no-empty-directories');
+    expect(noEmptyDirectories.scope).toBe('workspace');
+    expect(noEmptyDirectories.fixable).toBe(false);
+    expect(typeof noEmptyDirectories.check).toBe('function');
+  });
+
+  it('returns empty results by default', () => {
+    expect(noEmptyDirectories.categories).toContain('workspace');
+    expect(noEmptyDirectories.categories).toContain('safety');
+    expect(noEmptyDirectories.stages).toContain('lint');
+    expect(noEmptyDirectories.stages).toContain('ci');
+    expect(typeof noEmptyDirectories.check).toBe('function');
   });
 });
