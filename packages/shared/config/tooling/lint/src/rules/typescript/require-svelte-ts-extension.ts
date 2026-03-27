@@ -6,10 +6,23 @@
  *
  * @module
  */
-import type { TypeScriptRule, LintResult, AstNode, VisitorContext } from '@/lint/framework/types.ts';
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
 
 /** Svelte 5 rune identifiers that require `.svelte.ts` file extension. */
-const SVELTE_RUNES: ReadonlySet<string> = new Set(['$state', '$derived', '$effect', '$props', '$bindable', '$inspect', '$host']);
+const SVELTE_RUNES: ReadonlySet<string> = new Set([
+  '$state',
+  '$derived',
+  '$effect',
+  '$props',
+  '$bindable',
+  '$inspect',
+  '$host',
+]);
 
 function findRuneCall(node: AstNode): AstNode | null {
   if (node.type === 'CallExpression') {
@@ -52,16 +65,18 @@ const rule: TypeScriptRule = {
       if (!runeCall) return [];
       const callee = runeCall.callee as AstNode;
       const name = (callee.name as string) ?? '$state';
-      return [{
-        file: context.file,
-        line: runeCall.loc.start.line,
-        column: runeCall.loc.start.column + 1,
-        severity: 'error',
-        message: `Svelte rune '${name}()' requires .svelte.ts extension`,
-        ruleId: 'typescript/require-svelte-ts-extension',
-        tip: 'Rename this file from .ts to .svelte.ts',
-        fix: { range: { start: 0, end: 0 }, text: '' },
-      }];
+      return [
+        {
+          file: context.file,
+          line: runeCall.loc.start.line,
+          column: runeCall.loc.start.column + 1,
+          severity: 'error',
+          message: `Svelte rune '${name}()' requires .svelte.ts extension`,
+          ruleId: 'typescript/require-svelte-ts-extension',
+          tip: 'Rename this file from .ts to .svelte.ts',
+          fix: { range: { start: 0, end: 0 }, text: '' },
+        },
+      ];
     },
   },
 };

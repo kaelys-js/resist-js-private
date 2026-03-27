@@ -69,10 +69,17 @@ const rule: WorkspaceRule = {
       }
 
       results.push(
-        createResult('testing/require-integration-location', file, 1, 1, 'warning',
-          `Integration test '${name}' should be in tests/integration/ or colocated with source`, {
+        createResult(
+          'testing/require-integration-location',
+          file,
+          1,
+          1,
+          'warning',
+          `Integration test '${name}' should be in tests/integration/ or colocated with source`,
+          {
             tip: 'Move to tests/integration/ or place next to the source file it tests',
-          }),
+          },
+        ),
       );
     }
 

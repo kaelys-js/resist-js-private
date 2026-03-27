@@ -275,9 +275,7 @@ describe('testing/require-test-suffix', () => {
   });
 
   it('flags *.spec.ts files', async () => {
-    const files: Map<string, string> = new Map([
-      ['/workspace/src/utils.spec.ts', ''],
-    ]);
+    const files: Map<string, string> = new Map([['/workspace/src/utils.spec.ts', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireTestSuffix.check(ctx);
     expect(results.length).toBe(1);
@@ -287,9 +285,7 @@ describe('testing/require-test-suffix', () => {
   });
 
   it('flags *-test.ts files', async () => {
-    const files: Map<string, string> = new Map([
-      ['/workspace/src/utils-test.ts', ''],
-    ]);
+    const files: Map<string, string> = new Map([['/workspace/src/utils-test.ts', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireTestSuffix.check(ctx);
     expect(results.length).toBe(1);
@@ -297,9 +293,7 @@ describe('testing/require-test-suffix', () => {
   });
 
   it('flags *_test.ts files', async () => {
-    const files: Map<string, string> = new Map([
-      ['/workspace/src/utils_test.ts', ''],
-    ]);
+    const files: Map<string, string> = new Map([['/workspace/src/utils_test.ts', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireTestSuffix.check(ctx);
     expect(results.length).toBe(1);
@@ -307,9 +301,7 @@ describe('testing/require-test-suffix', () => {
   });
 
   it('allows *.test.ts files', async () => {
-    const files: Map<string, string> = new Map([
-      ['/workspace/src/utils.test.ts', ''],
-    ]);
+    const files: Map<string, string> = new Map([['/workspace/src/utils.test.ts', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireTestSuffix.check(ctx);
     expect(results.length).toBe(0);
@@ -326,9 +318,7 @@ describe('testing/require-test-suffix', () => {
   });
 
   it('flags *.spec.tsx files', async () => {
-    const files: Map<string, string> = new Map([
-      ['/workspace/src/Button.spec.tsx', ''],
-    ]);
+    const files: Map<string, string> = new Map([['/workspace/src/Button.spec.tsx', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireTestSuffix.check(ctx);
     expect(results.length).toBe(1);
@@ -348,9 +338,7 @@ describe('testing/require-e2e-location', () => {
   });
 
   it('flags *.e2e.ts outside e2e/ directory', async () => {
-    const files: Map<string, string> = new Map([
-      ['/workspace/src/login.e2e.ts', ''],
-    ]);
+    const files: Map<string, string> = new Map([['/workspace/src/login.e2e.ts', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireE2eLocation.check(ctx);
     expect(results.length).toBe(1);
@@ -360,27 +348,21 @@ describe('testing/require-e2e-location', () => {
   });
 
   it('allows *.e2e.ts in e2e/ directory', async () => {
-    const files: Map<string, string> = new Map([
-      ['/workspace/e2e/login.e2e.ts', ''],
-    ]);
+    const files: Map<string, string> = new Map([['/workspace/e2e/login.e2e.ts', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireE2eLocation.check(ctx);
     expect(results.length).toBe(0);
   });
 
   it('allows *.e2e.ts in tests/e2e/ directory', async () => {
-    const files: Map<string, string> = new Map([
-      ['/workspace/tests/e2e/login.e2e.ts', ''],
-    ]);
+    const files: Map<string, string> = new Map([['/workspace/tests/e2e/login.e2e.ts', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireE2eLocation.check(ctx);
     expect(results.length).toBe(0);
   });
 
   it('allows *.e2e.ts in nested e2e/ directory', async () => {
-    const files: Map<string, string> = new Map([
-      ['/workspace/packages/app/e2e/login.e2e.ts', ''],
-    ]);
+    const files: Map<string, string> = new Map([['/workspace/packages/app/e2e/login.e2e.ts', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireE2eLocation.check(ctx);
     expect(results.length).toBe(0);
@@ -409,9 +391,7 @@ describe('testing/require-integration-location', () => {
   });
 
   it('flags *.integration.ts in random directory with no source files', async () => {
-    const files: Map<string, string> = new Map([
-      ['/workspace/random/api.integration.ts', ''],
-    ]);
+    const files: Map<string, string> = new Map([['/workspace/random/api.integration.ts', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireIntegrationLocation.check(ctx);
     expect(results.length).toBe(1);
