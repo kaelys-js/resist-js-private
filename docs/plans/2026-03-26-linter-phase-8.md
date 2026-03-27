@@ -506,7 +506,14 @@ export default rule;
 
 ### Task 6.1: Verify all changes against approved changelog
 
-**Status**: [ ]
+**Status**: [x] — Verified by spec reviewer subagent. All 21 sub-items pass. Every rule exists with correct metadata, severity, detection logic, tests, and config registration.
+
+**Verification results**:
+- ✅ `workspace/no-untracked-artifacts` — file exists, `fixable: false` (line 25), severity `warning` (line 59), detects .DS_Store/tmp/bak, 5 tests, registered as `"warn"` (line 156)
+- ✅ `workspace/no-broken-symlinks` — file exists, `fixable: false` (line 55), severity `error` (line 92), uses direct node:fs APIs, 2 tests, registered as `"error"` (line 154)
+- ✅ `workspace/no-leftover-sqlite` — file exists, `fixable: false` (line 28), severity `warning` (line 61), detects .wrangler/state/*.sqlite*, 6 tests, registered as `"warn"` (line 155)
+- ✅ Coverage thresholds met: statements 90.2%, branches 76.17%, functions 84.53%, lines 90.18%
+- ✅ 2507 tests pass (13 above 2494 baseline)
 
 **Plan**:
 - Verify each new rule exists, has `fixable: false`, correct severity
