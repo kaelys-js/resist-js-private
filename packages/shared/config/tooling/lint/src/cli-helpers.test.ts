@@ -3010,15 +3010,14 @@ describe('runLinter — no lintable files branches', () => {
 // =============================================================================
 
 describe('runLinter — listRules output branches', () => {
-  it('--list-rules shows rules without fixable marker when no rules are fixable', async () => {
+  it('--list-rules shows fixable marker for rules with fixable: true', async () => {
     const { stdoutLines, output } = captureOutput();
     await runLinter(makeCliArgs({ listRules: true }), output, en);
 
     const combined: string = stdoutLines.join('');
-    // No rules currently have fixable: true, so [fixable] marker should not appear
-    // This exercises the `rule.fixable ? ... : ''` false branch
-    expect(combined).not.toContain('[fixable]');
-    // But rules should still be listed
+    // Rules with fixable: true should show the [fixable] marker
+    expect(combined).toContain('[fixable]');
+    // Rules should still be listed
     expect(combined).toContain('(error)');
   });
 

@@ -382,4 +382,21 @@ describe('comments/require-blank-line-groups', () => {
     const results: LintResult[] = await lint(requireBlankLineGroups, code);
     expect(results.length).toBe(1);
   });
+
+  it('provides fix with newline text to insert blank line between groups', async () => {
+    const code: string = `function foo(): void {
+  const x: Num = 1;
+  if (x > 0) {
+    return;
+  }
+}`;
+    const results: LintResult[] = await lint(requireBlankLineGroups, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix).toBeDefined();
+    expect(results[0]!.fix.text).toBe('\n');
+  });
+
+  it('has fixable: true in the rule definition', () => {
+    expect(requireBlankLineGroups.fixable).toBe(true);
+  });
 });

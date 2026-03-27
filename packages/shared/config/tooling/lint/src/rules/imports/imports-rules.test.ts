@@ -397,4 +397,18 @@ import * as v from 'valibot';
     expect(results.length).toBe(1);
     expect(results[0]!.message).toContain('node');
   });
+
+  it('provides fix with newline text to insert blank line between groups', async () => {
+    const code: string = `import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
+`;
+    const results: LintResult[] = await lint(requireImportGroups, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix).toBeDefined();
+    expect(results[0]!.fix.text).toBe('\n');
+  });
+
+  it('has fixable: true in the rule definition', () => {
+    expect(requireImportGroups.fixable).toBe(true);
+  });
 });
