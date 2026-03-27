@@ -779,6 +779,18 @@ ${t.cli.examplesHeader}
 }
 
 // =============================================================================
+// Core Lint Result
+// =============================================================================
+
+/** Result of the core lint pipeline (before formatting/output). */
+export type LintCoreResult = {
+  readonly results: LintResult[];
+  readonly filesLinted: number;
+  readonly fixesApplied: number;
+  readonly ruleDescs: Map<string, string>;
+};
+
+// =============================================================================
 // Main Linter Loop
 // =============================================================================
 
@@ -823,104 +835,36 @@ function processBailTasks(
 }
 
 /**
- * Run the full linter pipeline.
+ * Run the core lint pipeline (file collection through fix application).
  *
- * Loads config, discovers rules, collects files, runs rules,
- * applies fixes, and outputs results. Returns an exit code.
+ * Separated from {@link runLinter} so the programmatic API can call this
+ * directly without CLI-specific I/O (help text, formatting, exit codes).
  *
- * @param {CliArgs} cliArgs - Parsed CLI arguments
+ * @param {CliArgs} cliArgs - Parsed CLI arguments (or synthesized from API options)
  * @param {CliOutput} output - Output sink for messages
  * @param {LintStrings} strings - Locale strings for user-facing messages
- * @returns {Promise<number>} Exit code (0 = clean, 1 = errors, 2 = crash)
+ * @param {LintConfig} config - Loaded and merged config
+ * @param loaded - All discovered rules
+ * @param {string} cwd - Working directory
+ * @returns {Promise<LintCoreResult>} Lint results, file count, and fix count
  */
-export async function runLinter(
+export async function _runLintCore(
   cliArgs: CliArgs,
   output: CliOutput,
   strings: LintStrings,
-): Promise<number> {
-  /* --help flag */
-  if (cliArgs.help) {
-    output.stdout(buildHelpText(LINTER_NAME, CONFIG_FILENAME, SCHEMA_FILENAME, strings));
-    return 0;
-  }
-
-  /**
-   * Write debug message to stderr when --debug is active.
-   *
-   * @param msg - Debug message to output
-   */
+  config: LintConfig,
+  loaded: Awaited<ReturnType<typeof loadAllRules>>,
+  cwd: string,
+): Promise<LintCoreResult> {
   const dbg = (msg: string): void => {
     if (cliArgs.debug) {
       output.stderr(`${strings.listRulesFormat.debugPrefix} ${msg}\n`);
     }
   };
 
-  const lintStartTime: number = Date.now();
-
-  /* Load config */
-  const config: LintConfig = loadConfig(process.cwd(), cliArgs.configPath, strings);
-  dbg(format(strings.debug.configLoaded, { path: cliArgs.configPath ?? CONFIG_FILENAME }));
-
-  /* Merge CLI --ignore patterns into config excludes */
-  if (cliArgs.ignore.length > 0) {
-    config.exclude = [...config.exclude, ...cliArgs.ignore];
-    dbg(format(strings.debug.ignorePatternsMerged, { count: cliArgs.ignore.length }));
-  }
-
-  /* Auto-discover all rules */
-  const loaded: Awaited<ReturnType<typeof loadAllRules>> = await loadAllRules(strings);
-  let allTsRules: TypeScriptRule[] = loaded.typescript;
-  let allPkgRules: PackageJsonRule[] = loaded.packageJson;
-  dbg(
-    format(strings.debug.rulesLoaded, { pkgCount: allPkgRules.length, tsCount: allTsRules.length }),
-  );
-
-  /* Auto-generate JSON Schema for IDE autocomplete */
-  writeJsonSchema(allTsRules, allPkgRules, strings);
-
-  /* List rules mode */
-  if (cliArgs.listRules) {
-    output.stdout(`${strings.listRules.typescriptHeader}\n\n`);
-    for (const rule of allTsRules) {
-      const severity: string = config.rules[rule.id] ?? 'error';
-      const fixable: string = rule.fixable ? strings.listRules.fixable : '';
-      const cats: string = (rule.categories ?? []).join(', ');
-      const stgs: string = (rule.stages ?? ['lint']).join(', ');
-      output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
-      output.stdout(`    ${rule.description}\n`);
-      output.stdout(`    ${strings.listRulesFormat.patternsLabel} ${rule.patterns.join(', ')}\n`);
-      output.stdout(
-        `    ${strings.listRulesFormat.categoriesLabel} ${cats}  ${strings.listRulesFormat.stagesLabel} ${stgs}\n\n`,
-      );
-    }
-    output.stdout(`${strings.listRules.packageJsonHeader}\n\n`);
-    for (const rule of allPkgRules) {
-      const severity: string = config.rules[rule.id] ?? 'error';
-      const fixable: string = rule.fixable ? strings.listRules.fixable : '';
-      const cats: string = (rule.categories ?? []).join(', ');
-      const stgs: string = (rule.stages ?? ['lint']).join(', ');
-      output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
-      output.stdout(`    ${rule.description}\n`);
-      output.stdout(
-        `    ${strings.listRulesFormat.categoriesLabel} ${cats}  ${strings.listRulesFormat.stagesLabel} ${stgs}\n\n`,
-      );
-    }
-    if (loaded.workspace.length > 0) {
-      output.stdout(`${strings.listRules.workspaceHeader}\n\n`);
-      for (const rule of loaded.workspace) {
-        const severity: string = config.rules[rule.id] ?? 'error';
-        const fixable: string = rule.fixable ? strings.listRules.fixable : '';
-        const cats: string = (rule.categories ?? []).join(', ');
-        const stgs: string = (rule.stages ?? ['lint']).join(', ');
-        output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
-        output.stdout(`    ${rule.description}\n`);
-        output.stdout(
-          `    ${strings.listRulesFormat.categoriesLabel} ${cats}  ${strings.listRulesFormat.stagesLabel} ${stgs}\n\n`,
-        );
-      }
-    }
-    return 0;
-  }
+  /* Filter rules (make copies to avoid mutating caller's arrays) */
+  let allTsRules: TypeScriptRule[] = [...loaded.typescript];
+  let allPkgRules: PackageJsonRule[] = [...loaded.packageJson];
 
   /* Resolve paths from CLI or config */
   const paths: string[] = cliArgs.paths.length > 0 ? cliArgs.paths : [...config.include];
@@ -930,7 +874,7 @@ export async function runLinter(
       `${format(strings.errors.usageError, { name: LINTER_NAME })}\n` +
         `${format(strings.errors.usageErrorConfig, { configFilename: CONFIG_FILENAME })}\n`,
     );
-    return 1;
+    return { filesLinted: 0, fixesApplied: 0, results: [], ruleDescs: new Map() };
   }
 
   /* Filter rules by --rule= flag if specified (O(1) lookup via byId) */
@@ -987,7 +931,6 @@ export async function runLinter(
   );
 
   /* Collect files */
-  const cwd: string = process.cwd();
   const allFiles: string[] = [];
   for (const p of paths) {
     const resolved: string = resolve(p);
@@ -1024,15 +967,27 @@ export async function runLinter(
     }
   }
 
+  /* Build rule description map (needed for SARIF format and API consumers) */
+  const ruleDescs: Map<string, string> = new Map<string, string>();
+  for (const rule of loaded.typescript) {
+    ruleDescs.set(rule.id, rule.description);
+  }
+  for (const rule of loaded.packageJson) {
+    ruleDescs.set(rule.id, rule.description);
+  }
+  for (const rule of loaded.workspace) {
+    ruleDescs.set(rule.id, rule.description);
+  }
+
   if (allFiles.length === 0) {
     if (!cliArgs.json) {
       output.stdout(`${strings.output.noFiles}\n`);
     }
-    return 0;
+    return { filesLinted: 0, fixesApplied: 0, results: [], ruleDescs };
   }
 
   /* Initialize cache when --cache is enabled */
-  const cachePath: string = resolve(process.cwd(), CACHE_FILENAME);
+  const cachePath: string = resolve(cwd, CACHE_FILENAME);
   const allRuleIds: string[] = [
     ...allTsRules.map((r: TypeScriptRule): string => r.id),
     ...allPkgRules.map((r: PackageJsonRule): string => r.id),
@@ -1268,7 +1223,7 @@ export async function runLinter(
     if (wsRules.length > 0) {
       dbg(format(strings.debug.workspaceRunning, { count: wsRules.length }));
       const wsContext: ReturnType<typeof createWorkspaceContext> = createWorkspaceContext(
-        resolve(process.cwd()),
+        resolve(cwd),
       );
 
       const wsResults: LintResult[][] = await Promise.all(
@@ -1321,6 +1276,7 @@ export async function runLinter(
   }
 
   /* Apply fixes if --fix */
+  let fixesApplied: number = 0;
   if (cliArgs.fix && allResults.length > 0) {
     const fixesByFile: Map<string, LintFix[]> = new Map();
     for (const result of allResults) {
@@ -1332,14 +1288,13 @@ export async function runLinter(
       fixesByFile.set(result.file, existing);
     }
 
-    let fixedFiles: number = 0;
     for (const [filePath, fixes] of fixesByFile) {
       try {
         const original: string = readFileSync(filePath, 'utf8');
         const fixed: string = applyFixes(original, fixes);
         if (fixed !== original) {
           writeFileSync(filePath, fixed, 'utf8');
-          fixedFiles++;
+          fixesApplied++;
         }
       } catch {
         /* File write failed — skip */
@@ -1348,40 +1303,8 @@ export async function runLinter(
     }
 
     if (!cliArgs.json) {
-      output.stdout(`${format(strings.errors.fixApplied, { count: fixedFiles })}\n`);
+      output.stdout(`${format(strings.errors.fixApplied, { count: fixesApplied })}\n`);
     }
-  }
-
-  /* When --quiet, only display errors (but still count warnings for summary) */
-  const displayResults: LintResult[] = cliArgs.quiet
-    ? allResults.filter((r: LintResult): boolean => r.severity === 'error')
-    : allResults;
-
-  /* Resolve output format: --format= takes priority, --json is alias for --format=json */
-  const outputFormat: OutputFormat = cliArgs.format ?? (cliArgs.json ? 'json' : 'text');
-
-  /* Build rule description map for SARIF */
-  const ruleDescs: Map<string, string> = new Map<string, string>();
-  for (const rule of loaded.typescript) {
-    ruleDescs.set(rule.id, rule.description);
-  }
-  for (const rule of loaded.packageJson) {
-    ruleDescs.set(rule.id, rule.description);
-  }
-  for (const rule of loaded.workspace) {
-    ruleDescs.set(rule.id, rule.description);
-  }
-
-  /* Format and output results */
-  const formatted: string = formatResults(
-    displayResults,
-    outputFormat,
-    allFiles.length,
-    ruleDescs,
-    strings,
-  );
-  if (formatted.length > 0) {
-    output.stdout(formatted);
   }
 
   /* Save cache to disk */
@@ -1396,10 +1319,140 @@ export async function runLinter(
     );
   }
 
+  return { filesLinted: allFiles.length, fixesApplied, results: allResults, ruleDescs };
+}
+
+/**
+ * Run the full linter pipeline.
+ *
+ * Loads config, discovers rules, collects files, runs rules,
+ * applies fixes, and outputs results. Returns an exit code.
+ *
+ * @param {CliArgs} cliArgs - Parsed CLI arguments
+ * @param {CliOutput} output - Output sink for messages
+ * @param {LintStrings} strings - Locale strings for user-facing messages
+ * @returns {Promise<number>} Exit code (0 = clean, 1 = errors, 2 = crash)
+ */
+export async function runLinter(
+  cliArgs: CliArgs,
+  output: CliOutput,
+  strings: LintStrings,
+): Promise<number> {
+  /* --help flag */
+  if (cliArgs.help) {
+    output.stdout(buildHelpText(LINTER_NAME, CONFIG_FILENAME, SCHEMA_FILENAME, strings));
+    return 0;
+  }
+
+  /**
+   * Write debug message to stderr when --debug is active.
+   *
+   * @param msg - Debug message to output
+   */
+  const dbg = (msg: string): void => {
+    if (cliArgs.debug) {
+      output.stderr(`${strings.listRulesFormat.debugPrefix} ${msg}\n`);
+    }
+  };
+
+  const lintStartTime: number = Date.now();
+  const cwd: string = process.cwd();
+
+  /* Load config */
+  const config: LintConfig = loadConfig(cwd, cliArgs.configPath, strings);
+  dbg(format(strings.debug.configLoaded, { path: cliArgs.configPath ?? CONFIG_FILENAME }));
+
+  /* Merge CLI --ignore patterns into config excludes */
+  if (cliArgs.ignore.length > 0) {
+    config.exclude = [...config.exclude, ...cliArgs.ignore];
+    dbg(format(strings.debug.ignorePatternsMerged, { count: cliArgs.ignore.length }));
+  }
+
+  /* Auto-discover all rules */
+  const loaded: Awaited<ReturnType<typeof loadAllRules>> = await loadAllRules(strings);
+  dbg(
+    format(strings.debug.rulesLoaded, {
+      pkgCount: loaded.packageJson.length,
+      tsCount: loaded.typescript.length,
+    }),
+  );
+
+  /* Auto-generate JSON Schema for IDE autocomplete */
+  writeJsonSchema(loaded.typescript, loaded.packageJson, strings);
+
+  /* List rules mode */
+  if (cliArgs.listRules) {
+    output.stdout(`${strings.listRules.typescriptHeader}\n\n`);
+    for (const rule of loaded.typescript) {
+      const severity: string = config.rules[rule.id] ?? 'error';
+      const fixable: string = rule.fixable ? strings.listRules.fixable : '';
+      const cats: string = (rule.categories ?? []).join(', ');
+      const stgs: string = (rule.stages ?? ['lint']).join(', ');
+      output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
+      output.stdout(`    ${rule.description}\n`);
+      output.stdout(`    ${strings.listRulesFormat.patternsLabel} ${rule.patterns.join(', ')}\n`);
+      output.stdout(
+        `    ${strings.listRulesFormat.categoriesLabel} ${cats}  ${strings.listRulesFormat.stagesLabel} ${stgs}\n\n`,
+      );
+    }
+    output.stdout(`${strings.listRules.packageJsonHeader}\n\n`);
+    for (const rule of loaded.packageJson) {
+      const severity: string = config.rules[rule.id] ?? 'error';
+      const fixable: string = rule.fixable ? strings.listRules.fixable : '';
+      const cats: string = (rule.categories ?? []).join(', ');
+      const stgs: string = (rule.stages ?? ['lint']).join(', ');
+      output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
+      output.stdout(`    ${rule.description}\n`);
+      output.stdout(
+        `    ${strings.listRulesFormat.categoriesLabel} ${cats}  ${strings.listRulesFormat.stagesLabel} ${stgs}\n\n`,
+      );
+    }
+    if (loaded.workspace.length > 0) {
+      output.stdout(`${strings.listRules.workspaceHeader}\n\n`);
+      for (const rule of loaded.workspace) {
+        const severity: string = config.rules[rule.id] ?? 'error';
+        const fixable: string = rule.fixable ? strings.listRules.fixable : '';
+        const cats: string = (rule.categories ?? []).join(', ');
+        const stgs: string = (rule.stages ?? ['lint']).join(', ');
+        output.stdout(`  ${rule.id} (${severity})${fixable}\n`);
+        output.stdout(`    ${rule.description}\n`);
+        output.stdout(
+          `    ${strings.listRulesFormat.categoriesLabel} ${cats}  ${strings.listRulesFormat.stagesLabel} ${stgs}\n\n`,
+        );
+      }
+    }
+    return 0;
+  }
+
+  /* Run core lint pipeline */
+  const core: LintCoreResult = await _runLintCore(cliArgs, output, strings, config, loaded, cwd);
+
+  /* When --quiet, only display errors (but still count warnings for summary) */
+  const displayResults: LintResult[] = cliArgs.quiet
+    ? core.results.filter((r: LintResult): boolean => r.severity === 'error')
+    : core.results;
+
+  /* Resolve output format: --format= takes priority, --json is alias for --format=json */
+  const outputFormat: OutputFormat = cliArgs.format ?? (cliArgs.json ? 'json' : 'text');
+
+  /* Format and output results */
+  const formatted: string = formatResults(
+    displayResults,
+    outputFormat,
+    core.filesLinted,
+    core.ruleDescs,
+    strings,
+  );
+  if (formatted.length > 0) {
+    output.stdout(formatted);
+  }
+
   dbg(format(strings.debug.totalTime, { ms: Date.now() - lintStartTime }));
 
   /* Exit with error if any errors found (unless --warn-only) */
-  const hasErrors: boolean = allResults.some((r: LintResult): boolean => r.severity === 'error');
+  const hasErrors: boolean = core.results.some(
+    (r: LintResult): boolean => r.severity === 'error',
+  );
   if (cliArgs.warnOnly) {
     return 0;
   }
