@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 import type { WorkspaceContext, WorkspacePackage } from '../../framework/rule-context.ts';
 import type { LintResult } from '../../framework/types.ts';
 import noBrokenSymlinks from './no-broken-symlinks.ts';
+import noLeftoverSqlite from './no-leftover-sqlite.ts';
 import noMergeConflicts from './no-merge-conflicts.ts';
 import noUntrackedArtifacts from './no-untracked-artifacts.ts';
 import namesValid from '../package/names-valid.ts';
@@ -469,6 +470,72 @@ describe('workspace/no-untracked-artifacts', () => {
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noUntrackedArtifacts.check(ctx);
+    expect(results.length).toBe(3);
+  });
+});
+
+// =============================================================================
+// workspace/no-broken-symlinks
+// =============================================================================
+
+// =============================================================================
+// workspace/no-leftover-sqlite
+// =============================================================================
+
+describe('workspace/no-leftover-sqlite', () => {
+  it('flags .sqlite file in .wrangler/state/', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/products/app/.wrangler/state/d1.sqlite', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLeftoverSqlite.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-leftover-sqlite');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('flags .sqlite-wal file in .wrangler/state/', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/products/app/.wrangler/state/d1.sqlite-wal', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLeftoverSqlite.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('flags .sqlite-shm file in .wrangler/state/', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/products/app/.wrangler/state/d1.sqlite-shm', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLeftoverSqlite.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('ignores sqlite files outside .wrangler/state/', async () => {
+    const files: Map<string, string> = new Map([['/workspace/data/local.sqlite', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLeftoverSqlite.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-sqlite files in .wrangler/state/', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/products/app/.wrangler/state/config.json', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLeftoverSqlite.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags multiple sqlite artifacts', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/products/app-a/.wrangler/state/d1.sqlite', ''],
+      ['/workspace/packages/products/app-b/.wrangler/state/d1.sqlite-wal', ''],
+      ['/workspace/packages/products/app-c/.wrangler/state/d1.sqlite-shm', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLeftoverSqlite.check(ctx);
     expect(results.length).toBe(3);
   });
 });
