@@ -331,7 +331,24 @@
     "workspace/no-deploy-scripts": "error",
     "workspace/no-lint-ignore-directives": "warn",
     "workspace/validate-package-tags": "error",
-    "workspace/no-env-or-globals-in-shared-libs": "error"
+    "workspace/no-env-or-globals-in-shared-libs": "error",
+
+    // Phase 23 — TSConfig, Wrangler, Infrastructure & Store Safety
+    "workspace/no-tsconfig-duplicate-extends": "error",
+    "workspace/validate-tsconfig-rootdir-layout": "warn",
+    "workspace/no-tsconfig-outdir-rootdir-files": "warn",
+    "workspace/validate-tsconfig-include-patterns": "error",
+    "workspace/validate-wrangler-cron-syntax": "error",
+    "workspace/wrangler-name-matches-package": "error",
+    "workspace/wrangler-main-entrypoint-exists": "error",
+    "workspace/wrangler-binding-names-unique": "error",
+    "workspace/no-forbidden-node-imports-in-workers": "error",
+    "workspace/no-hardcoded-localhost-ports": "error",
+    "workspace/no-migration-tempfiles": "error",
+    "workspace/no-nonpreferred-image-formats": "error",
+    "workspace/validate-formatting-config-consistency": "error",
+    "workspace/validate-nanostores-safety": "error",
+    "workspace/validate-tsconfig-paths-resolution": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {

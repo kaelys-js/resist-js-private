@@ -188,6 +188,21 @@ import noDeployScripts from './no-deploy-scripts.ts';
 import noLintIgnoreDirectives from './no-lint-ignore-directives.ts';
 import validatePackageTags from './validate-package-tags.ts';
 import noEnvOrGlobalsInSharedLibs from './no-env-or-globals-in-shared-libs.ts';
+import noTsconfigDuplicateExtends from './no-tsconfig-duplicate-extends.ts';
+import validateTsconfigRootdirLayout from './validate-tsconfig-rootdir-layout.ts';
+import noTsconfigOutdirRootdirFiles from './no-tsconfig-outdir-rootdir-files.ts';
+import validateTsconfigIncludePatterns from './validate-tsconfig-include-patterns.ts';
+import validateWranglerCronSyntax from './validate-wrangler-cron-syntax.ts';
+import wranglerNameMatchesPackage from './wrangler-name-matches-package.ts';
+import wranglerMainEntrypointExists from './wrangler-main-entrypoint-exists.ts';
+import wranglerBindingNamesUnique from './wrangler-binding-names-unique.ts';
+import noForbiddenNodeImportsInWorkers from './no-forbidden-node-imports-in-workers.ts';
+import noHardcodedLocalhostPorts from './no-hardcoded-localhost-ports.ts';
+import noMigrationTempfiles from './no-migration-tempfiles.ts';
+import noNonpreferredImageFormats from './no-nonpreferred-image-formats.ts';
+import validateFormattingConfigConsistency from './validate-formatting-config-consistency.ts';
+import validateNanostoresSafety from './validate-nanostores-safety.ts';
+import validateTsconfigPathsResolution from './validate-tsconfig-paths-resolution.ts';
 
 // =============================================================================
 // Helpers
@@ -9547,6 +9562,916 @@ describe('workspace/no-env-or-globals-in-shared-libs', () => {
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noEnvOrGlobalsInSharedLibs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 23 — no-tsconfig-duplicate-extends
+// =============================================================================
+
+describe('workspace/no-tsconfig-duplicate-extends', () => {
+  it('has correct rule metadata', () => {
+    expect(noTsconfigDuplicateExtends.id).toBe('workspace/no-tsconfig-duplicate-extends');
+    expect(noTsconfigDuplicateExtends.scope).toBe('workspace');
+  });
+
+  it('detects circular self-extends', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"extends": "./tsconfig.json"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigDuplicateExtends.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.message).toContain('Circular');
+  });
+
+  it('detects circular extends chain between two files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.a.json', '{"extends": "./tsconfig.b.json"}'],
+      ['/workspace/tsconfig.b.json', '{"extends": "./tsconfig.a.json"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigDuplicateExtends.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results.some((r: LintResult) => r.message.includes('Circular'))).toBe(true);
+  });
+
+  it('passes for clean extends chain', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"extends": "./tsconfig.base.json"}'],
+      ['/workspace/tsconfig.base.json', '{"compilerOptions": {"strict": true}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigDuplicateExtends.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for tsconfig with no extends', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"compilerOptions": {"strict": true}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigDuplicateExtends.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 23 — validate-tsconfig-rootdir-layout
+// =============================================================================
+
+describe('workspace/validate-tsconfig-rootdir-layout', () => {
+  it('has correct rule metadata', () => {
+    expect(validateTsconfigRootdirLayout.id).toBe('workspace/validate-tsconfig-rootdir-layout');
+    expect(validateTsconfigRootdirLayout.scope).toBe('workspace');
+  });
+
+  it('warns on non-standard rootDir', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"compilerOptions": {"rootDir": "lib"}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateTsconfigRootdirLayout.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('lib');
+  });
+
+  it('passes for rootDir set to src/', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"compilerOptions": {"rootDir": "src"}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateTsconfigRootdirLayout.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for rootDir set to ./', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"compilerOptions": {"rootDir": "./"}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateTsconfigRootdirLayout.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no rootDir is set', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"compilerOptions": {"strict": true}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateTsconfigRootdirLayout.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 23 — no-tsconfig-outdir-rootdir-files
+// =============================================================================
+
+describe('workspace/no-tsconfig-outdir-rootdir-files', () => {
+  it('has correct rule metadata', () => {
+    expect(noTsconfigOutdirRootdirFiles.id).toBe('workspace/no-tsconfig-outdir-rootdir-files');
+    expect(noTsconfigOutdirRootdirFiles.scope).toBe('workspace');
+  });
+
+  it('warns on outDir in monorepo tsconfig', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/tsconfig.json', '{"compilerOptions": {"outDir": "dist"}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigOutdirRootdirFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('outDir');
+  });
+
+  it('warns on rootDir in monorepo tsconfig', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/tsconfig.json', '{"compilerOptions": {"rootDir": "src"}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigOutdirRootdirFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('rootDir');
+  });
+
+  it('warns on files field in monorepo tsconfig', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/tsconfig.json', '{"files": ["src/index.ts"]}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigOutdirRootdirFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('files');
+  });
+
+  it('skips root tsconfig', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"compilerOptions": {"outDir": "dist"}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigOutdirRootdirFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for clean monorepo tsconfig', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/app/tsconfig.json',
+        '{"compilerOptions": {"strict": true}, "include": ["src"]}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigOutdirRootdirFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 23 — validate-tsconfig-include-patterns
+// =============================================================================
+
+describe('workspace/validate-tsconfig-include-patterns', () => {
+  it('has correct rule metadata', () => {
+    expect(validateTsconfigIncludePatterns.id).toBe('workspace/validate-tsconfig-include-patterns');
+    expect(validateTsconfigIncludePatterns.scope).toBe('workspace');
+  });
+
+  it('detects empty include pattern', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"include": ["src", ""]}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateTsconfigIncludePatterns.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Empty include');
+  });
+
+  it('detects absolute path in exclude', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"exclude": ["/usr/local/lib"]}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateTsconfigIncludePatterns.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Absolute path');
+  });
+
+  it('detects empty exclude pattern', async () => {
+    const files: Map<string, string> = new Map([['/workspace/tsconfig.json', '{"exclude": [""]}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateTsconfigIncludePatterns.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Empty exclude');
+  });
+
+  it('passes for valid patterns', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"include": ["src/**/*.ts"], "exclude": ["node_modules"]}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateTsconfigIncludePatterns.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no include/exclude is set', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"compilerOptions": {"strict": true}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateTsconfigIncludePatterns.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 23 — validate-wrangler-cron-syntax
+// =============================================================================
+
+describe('workspace/validate-wrangler-cron-syntax', () => {
+  it('has correct rule metadata', () => {
+    expect(validateWranglerCronSyntax.id).toBe('workspace/validate-wrangler-cron-syntax');
+    expect(validateWranglerCronSyntax.scope).toBe('workspace');
+  });
+
+  it('passes for valid cron expression', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/wrangler.json', '{"triggers": {"cron": ["0 0 * * *"]}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateWranglerCronSyntax.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for cron with step notation', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/wrangler.json', '{"triggers": {"cron": ["*/10 * * * *"]}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateWranglerCronSyntax.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('detects invalid field count', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/wrangler.json', '{"triggers": {"cron": ["0 0 *"]}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateWranglerCronSyntax.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('expected 5 fields');
+  });
+
+  it('detects out-of-range minute value', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/wrangler.json', '{"triggers": {"cron": ["60 0 * * *"]}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateWranglerCronSyntax.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('minute');
+  });
+
+  it('detects out-of-range hour value', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/wrangler.json', '{"triggers": {"cron": ["0 25 * * *"]}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateWranglerCronSyntax.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('hour');
+  });
+
+  it('passes when no wrangler.json exists', async () => {
+    const files: Map<string, string> = new Map([['/workspace/package.json', '{"name": "app"}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateWranglerCronSyntax.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('checks env-level cron triggers', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/wrangler.json',
+        '{"env": {"production": {"triggers": {"cron": ["60 0 * * *"]}}}}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateWranglerCronSyntax.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('minute');
+  });
+});
+
+// =============================================================================
+// Phase 23 — wrangler-name-matches-package
+// =============================================================================
+
+describe('workspace/wrangler-name-matches-package', () => {
+  it('has correct rule metadata', () => {
+    expect(wranglerNameMatchesPackage.id).toBe('workspace/wrangler-name-matches-package');
+    expect(wranglerNameMatchesPackage.scope).toBe('workspace');
+  });
+
+  it('passes when names match', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/api/wrangler.json', '{"name": "api"}'],
+      ['/workspace/workers/api/package.json', '{"name": "@scope/api"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerNameMatchesPackage.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('detects name mismatch', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/api/wrangler.json', '{"name": "worker-api"}'],
+      ['/workspace/workers/api/package.json', '{"name": "@scope/api"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerNameMatchesPackage.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('does not match');
+  });
+
+  it('passes when no wrangler.json exists', async () => {
+    const files: Map<string, string> = new Map([['/workspace/package.json', '{"name": "app"}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerNameMatchesPackage.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for unscoped package name match', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/api/wrangler.json', '{"name": "api"}'],
+      ['/workspace/workers/api/package.json', '{"name": "api"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerNameMatchesPackage.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 23 — wrangler-main-entrypoint-exists
+// =============================================================================
+
+describe('workspace/wrangler-main-entrypoint-exists', () => {
+  it('has correct rule metadata', () => {
+    expect(wranglerMainEntrypointExists.id).toBe('workspace/wrangler-main-entrypoint-exists');
+    expect(wranglerMainEntrypointExists.scope).toBe('workspace');
+  });
+
+  it('passes when main entrypoint exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/api/wrangler.json', '{"main": "src/index.ts"}'],
+      ['/workspace/workers/api/src/index.ts', 'export default {}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerMainEntrypointExists.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('detects missing main entrypoint', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/api/wrangler.json', '{"main": "src/index.ts"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerMainEntrypointExists.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('does not exist');
+  });
+
+  it('passes when no main field is set', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/api/wrangler.json', '{"name": "api"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerMainEntrypointExists.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no wrangler.json exists', async () => {
+    const files: Map<string, string> = new Map([['/workspace/package.json', '{"name": "app"}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerMainEntrypointExists.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 23 — wrangler-binding-names-unique
+// =============================================================================
+
+describe('workspace/wrangler-binding-names-unique', () => {
+  it('has correct rule metadata', () => {
+    expect(wranglerBindingNamesUnique.id).toBe('workspace/wrangler-binding-names-unique');
+    expect(wranglerBindingNamesUnique.scope).toBe('workspace');
+  });
+
+  it('detects duplicate KV binding names across files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/a/wrangler.json', '{"kv_namespaces": [{"binding": "MY_KV"}]}'],
+      ['/workspace/workers/b/wrangler.json', '{"kv_namespaces": [{"binding": "MY_KV"}]}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerBindingNamesUnique.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Duplicate binding');
+    expect(results[0]!.message).toContain('MY_KV');
+  });
+
+  it('passes for unique binding names', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/a/wrangler.json', '{"kv_namespaces": [{"binding": "KV_A"}]}'],
+      ['/workspace/workers/b/wrangler.json', '{"kv_namespaces": [{"binding": "KV_B"}]}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerBindingNamesUnique.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('checks multiple binding types', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/wrangler.json',
+        '{"kv_namespaces": [{"binding": "STORE"}], "r2_buckets": [{"binding": "BUCKET"}], "d1_databases": [{"binding": "DB"}]}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerBindingNamesUnique.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('detects duplicate durable object bindings', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/workers/a/wrangler.json',
+        '{"durable_objects": {"bindings": [{"name": "DO_COUNTER"}]}}',
+      ],
+      [
+        '/workspace/workers/b/wrangler.json',
+        '{"durable_objects": {"bindings": [{"name": "DO_COUNTER"}]}}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerBindingNamesUnique.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('DO_COUNTER');
+  });
+});
+
+// =============================================================================
+// Phase 23 — no-forbidden-node-imports-in-workers
+// =============================================================================
+
+describe('workspace/no-forbidden-node-imports-in-workers', () => {
+  it('has correct rule metadata', () => {
+    expect(noForbiddenNodeImportsInWorkers.id).toBe(
+      'workspace/no-forbidden-node-imports-in-workers',
+    );
+    expect(noForbiddenNodeImportsInWorkers.scope).toBe('workspace');
+  });
+
+  it('detects fs import in worker', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/api/wrangler.json', '{"name": "api"}'],
+      [
+        '/workspace/workers/api/src/index.ts',
+        'import { readFileSync } from "node:fs";\nexport default {};',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noForbiddenNodeImportsInWorkers.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('node:fs');
+  });
+
+  it('detects path import in worker', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/api/wrangler.json', '{"name": "api"}'],
+      ['/workspace/workers/api/src/index.ts', 'import { join } from "path";\nexport default {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noForbiddenNodeImportsInWorkers.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('path');
+  });
+
+  it('skips non-worker files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/index.ts', 'import fs from "node:fs";\nexport default {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noForbiddenNodeImportsInWorkers.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows non-forbidden modules in workers', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/api/wrangler.json', '{"name": "api"}'],
+      [
+        '/workspace/workers/api/src/index.ts',
+        'import { Buffer } from "node:buffer";\nexport default {};',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noForbiddenNodeImportsInWorkers.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for clean worker code', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/api/wrangler.json', '{"name": "api"}'],
+      [
+        '/workspace/workers/api/src/index.ts',
+        'export default { fetch() { return new Response("ok"); } };',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noForbiddenNodeImportsInWorkers.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 23 — no-hardcoded-localhost-ports
+// =============================================================================
+
+describe('workspace/no-hardcoded-localhost-ports', () => {
+  it('has correct rule metadata', () => {
+    expect(noHardcodedLocalhostPorts.id).toBe('workspace/no-hardcoded-localhost-ports');
+    expect(noHardcodedLocalhostPorts.scope).toBe('workspace');
+  });
+
+  it('detects localhost:3000', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/api.ts', 'const url = "http://localhost:3000/api";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHardcodedLocalhostPorts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('localhost:3000');
+  });
+
+  it('detects 127.0.0.1', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/api.ts', 'const url = "http://127.0.0.1:8080/api";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHardcodedLocalhostPorts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('127.0.0.1');
+  });
+
+  it('excludes test files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/api.test.ts', 'const url = "http://localhost:3000/api";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHardcodedLocalhostPorts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for clean source code', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/api.ts', 'const url = process.env.API_URL;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHardcodedLocalhostPorts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/README.md', 'Visit http://localhost:3000 to test'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHardcodedLocalhostPorts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 23 — no-migration-tempfiles
+// =============================================================================
+
+describe('workspace/no-migration-tempfiles', () => {
+  it('has correct rule metadata', () => {
+    expect(noMigrationTempfiles.id).toBe('workspace/no-migration-tempfiles');
+    expect(noMigrationTempfiles.scope).toBe('workspace');
+  });
+
+  it('detects .bak file in migrations', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/db/migrations/001_init.sql.bak', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMigrationTempfiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.bak');
+  });
+
+  it('detects .tmp file in migrations', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/db/migrations/temp.tmp', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMigrationTempfiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.tmp');
+  });
+
+  it('detects tilde backup in migrations', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/db/migrations/001_init.sql~', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMigrationTempfiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('~');
+  });
+
+  it('passes for normal .sql in migrations', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/db/migrations/001_init.sql', 'CREATE TABLE users;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMigrationTempfiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for temp file outside migrations', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/app/src/temp.bak', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMigrationTempfiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 23 — no-nonpreferred-image-formats
+// =============================================================================
+
+describe('workspace/no-nonpreferred-image-formats', () => {
+  it('has correct rule metadata', () => {
+    expect(noNonpreferredImageFormats.id).toBe('workspace/no-nonpreferred-image-formats');
+    expect(noNonpreferredImageFormats.scope).toBe('workspace');
+  });
+
+  it('detects .png file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/app/assets/logo.png', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNonpreferredImageFormats.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.png');
+  });
+
+  it('detects .jpg file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/app/assets/photo.jpg', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNonpreferredImageFormats.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.jpg');
+  });
+
+  it('detects .gif file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/assets/animation.gif', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNonpreferredImageFormats.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.gif');
+  });
+
+  it('passes for .webp file', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/app/assets/logo.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNonpreferredImageFormats.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for .svg file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/assets/icon.svg', '<svg></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNonpreferredImageFormats.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for .ico file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/public/favicon.ico', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNonpreferredImageFormats.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 23 — validate-formatting-config-consistency
+// =============================================================================
+
+describe('workspace/validate-formatting-config-consistency', () => {
+  it('has correct rule metadata', () => {
+    expect(validateFormattingConfigConsistency.id).toBe(
+      'workspace/validate-formatting-config-consistency',
+    );
+    expect(validateFormattingConfigConsistency.scope).toBe('workspace');
+  });
+
+  it('detects indent size mismatch between editorconfig and biome', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.editorconfig', 'root = true\n\n[*]\nindent_size = 2\nindent_style = space'],
+      ['/workspace/biome.base.json', '{"formatter": {"indentWidth": 4, "indentStyle": "space"}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateFormattingConfigConsistency.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results.some((r: LintResult) => r.message.includes('Indent size'))).toBe(true);
+  });
+
+  it('detects indent style mismatch', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.editorconfig', 'root = true\n\n[*]\nindent_style = tab'],
+      ['/workspace/biome.base.json', '{"formatter": {"indentStyle": "space"}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateFormattingConfigConsistency.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results.some((r: LintResult) => r.message.includes('Indent style'))).toBe(true);
+  });
+
+  it('passes when all configs align', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.editorconfig', 'root = true\n\n[*]\nindent_size = 2\nindent_style = space'],
+      ['/workspace/biome.base.json', '{"formatter": {"indentWidth": 2, "indentStyle": "space"}}'],
+      ['/workspace/.vscode/settings.json', '{"editor.tabSize": 2, "editor.insertSpaces": true}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateFormattingConfigConsistency.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when only one config exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.editorconfig', 'root = true\n\n[*]\nindent_size = 2'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateFormattingConfigConsistency.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 23 — validate-nanostores-safety
+// =============================================================================
+
+describe('workspace/validate-nanostores-safety', () => {
+  it('has correct rule metadata', () => {
+    expect(validateNanostoresSafety.id).toBe('workspace/validate-nanostores-safety');
+    expect(validateNanostoresSafety.scope).toBe('workspace');
+  });
+
+  it('detects atom + set mutation', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/app/src/store.ts',
+        'import { atom } from "nanostores";\nconst count = atom(0);\ncount.set(1);',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateNanostoresSafety.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results.some((r: LintResult) => r.message.includes('Writable mutation'))).toBe(true);
+  });
+
+  it('detects process.env in store file', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/app/src/store.ts',
+        'import { atom } from "nanostores";\nconst apiUrl = atom(process.env.API_URL);',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateNanostoresSafety.check(ctx);
+    expect(results.some((r: LintResult) => r.message.includes('environment access'))).toBe(true);
+  });
+
+  it('warns on side effects in store file', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/app/src/store.ts',
+        'import { atom } from "nanostores";\nconst data = atom(localStorage.getItem("key"));',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateNanostoresSafety.check(ctx);
+    expect(results.some((r: LintResult) => r.severity === 'warning')).toBe(true);
+    expect(results.some((r: LintResult) => r.message.includes('side effect'))).toBe(true);
+  });
+
+  it('detects invalid persistentAtom key', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/app/src/store.ts',
+        'import { persistentAtom } from "@nanostores/persistent";\nconst theme = persistentAtom("THEME_KEY", "dark");',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateNanostoresSafety.check(ctx);
+    expect(results.some((r: LintResult) => r.message.includes('Invalid persistentAtom key'))).toBe(
+      true,
+    );
+  });
+
+  it('passes for valid store code', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/app/src/store.ts',
+        'import { writable } from "nanostores";\nconst count = writable(0);\nexport { count };',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateNanostoresSafety.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-store files', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/app/src/utils.ts',
+        'export function add(a: number, b: number) { return a + b; }',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateNanostoresSafety.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 23 — validate-tsconfig-paths-resolution
+// =============================================================================
+
+describe('workspace/validate-tsconfig-paths-resolution', () => {
+  it('has correct rule metadata', () => {
+    expect(validateTsconfigPathsResolution.id).toBe('workspace/validate-tsconfig-paths-resolution');
+    expect(validateTsconfigPathsResolution.scope).toBe('workspace');
+  });
+
+  it('detects empty paths array', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"compilerOptions": {"paths": {"@/*": []}}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateTsconfigPathsResolution.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('empty targets');
+  });
+
+  it('detects empty string target', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"compilerOptions": {"paths": {"@/*": [""]}}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateTsconfigPathsResolution.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('empty string');
+  });
+
+  it('passes for valid paths', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"compilerOptions": {"paths": {"@/*": ["./src/*"]}}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateTsconfigPathsResolution.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no paths field exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', '{"compilerOptions": {"strict": true}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateTsconfigPathsResolution.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for multiple valid path entries', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/tsconfig.json',
+        '{"compilerOptions": {"paths": {"@/*": ["./src/*"], "@/utils/*": ["./src/utils/*"]}}}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateTsconfigPathsResolution.check(ctx);
     expect(results.length).toBe(0);
   });
 });
