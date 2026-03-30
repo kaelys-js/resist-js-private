@@ -21,7 +21,7 @@
 # Stages:
 #   lint, check, pre-commit
 # ------------------------------------------------------------------------------
-check::env_files_not_git_tracked() {
+ported::env_files_not_git_tracked() {
   # ✅ Check: Disallow committed .env* files except .env.example
   # Category: secrets, safety, ci, dotenv
   # Stages: lint, check, pre-commit
@@ -1658,7 +1658,7 @@ ported::git_alternate_refs() {
 # Stages:
 #   pre-commit, check
 # ------------------------------------------------------------------------------
-check::git_stdin_input_blocked() {
+ported::git_stdin_input_blocked() {
   # ✅ Check: Block interactive git in CI
   # Category: ci
   # Stages: pre-commit, check
@@ -1699,7 +1699,7 @@ check::git_stdin_input_blocked() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::git_reflog_disabled_ci() {
+ported::git_reflog_disabled_ci() {
   # ✅ Check: CI environments must not persist reflog history
   # Category: ci, safety
   # Stages: check, lint
@@ -1733,7 +1733,7 @@ check::git_reflog_disabled_ci() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::git_sparse_index_check() {
+ported::git_sparse_index_check() {
   # ✅ Check: sparse index should be enabled
   # Category: infra
   # Stages: check, lint
@@ -2047,7 +2047,7 @@ ported::git_commit_bloat() {
 # Stages:
 #   commit-msg
 # ------------------------------------------------------------------------------
-check::git_commit_no_diff_only_metadata() {
+ported::git_commit_no_diff_only_metadata() {
   # ✅ Check: commits must include real file changes
   # Category: ci
   # Stages: commit-msg
@@ -2080,7 +2080,7 @@ check::git_commit_no_diff_only_metadata() {
 # Stages:
 #   deploy, validate
 # ------------------------------------------------------------------------------
-check::git_commit_tagged() {
+ported::git_commit_tagged() {
   # ✅ Check: release commits should be tagged
   # Category: ci
   # Stages: deploy, validate
@@ -2114,7 +2114,7 @@ check::git_commit_tagged() {
 # Stages:
 #   pre-commit, validate
 # ------------------------------------------------------------------------------
-check::git_commit_uncommitted_patches() {
+ported::git_commit_uncommitted_patches() {
   # ✅ Check: Uncommitted .patch or .diff files must be committed or deleted
   # Category: ci, lint
   # Stages: pre-commit, validate
@@ -2186,7 +2186,7 @@ ported::git_commit_date_skew() {
 # Stages:
 #   commit-msg
 # ------------------------------------------------------------------------------
-check::git_commit_branch_scope() {
+ported::git_commit_branch_scope() {
   # ✅ Check: commit scope should align with branch name
   # Category: ci
   # Stages: commit-msg
@@ -5769,7 +5769,7 @@ check::sync_node_config() {
 # Stages:
 #   lint, test, check
 # ------------------------------------------------------------------------------
-check::utility_stateless_integrity() {
+ported::utility_stateless_integrity() {
   # ✅ Check: @stateless utilities must not contain side effects or mutation
   # Category: lint, boundaries, safety
   # Stages: lint, test, check
@@ -5848,7 +5848,7 @@ check::utility_stateless_integrity() {
 # Stages:
 #   check, lint, validate
 # ------------------------------------------------------------------------------
-check::docs_locale_structure() {
+ported::docs_locale_structure() {
   # ✅ Check: all /docs/{locale} match /docs/en-US/
   # Category: naming, paths, lint
   # Stages: check, lint, validate
@@ -5924,7 +5924,7 @@ check::docs_locale_structure() {
 # Stages:
 #   check, lint, validate
 # ------------------------------------------------------------------------------
-check::docs_workspace_structure() {
+ported::docs_workspace_structure() {
   # ✅ Check: /docs/en-US mirrors all workspace folders under packages/, apps/, etc.
   # Category: naming, docs, paths
   # Stages: check, lint, validate
@@ -5995,7 +5995,7 @@ check::docs_workspace_structure() {
 # Stages:
 #   lint, validate
 # ------------------------------------------------------------------------------
-check::biome_config_rule_validity() {
+ported::biome_config_rule_validity() {
   # ✅ Check: biome.base.json has valid rule definitions
   # Category: biome
   # Stages: lint, validate
@@ -6051,7 +6051,7 @@ check::biome_config_rule_validity() {
 # Stages:
 #   lint, validate
 # ------------------------------------------------------------------------------
-check::biome_config_no_disable() {
+ported::biome_config_no_disable() {
   # ✅ Check: biome.base.json must not disable any rules
   # Category: biome, safety
   # Stages: lint, validate
@@ -6107,7 +6107,7 @@ check::biome_config_no_disable() {
 # Stages:
 #   lint, check, build
 # ------------------------------------------------------------------------------
-check::image_format_and_compression() {
+ported::image_format_and_compression() {
   # ✅ Check: only webp/svg/ico are allowed; webp/svg must be reasonably compressed
   # Category: encoding, safety, lint, paths
   # Stages: lint, check, build
@@ -6163,7 +6163,7 @@ check::image_format_and_compression() {
 # Stages:
 #   check, lint, build
 # ------------------------------------------------------------------------------
-check::images_referenced_in_source() {
+ported::images_referenced_in_source() {
   # ✅ Check: Ensure all image files are referenced in source/content
   # Category: lint, paths, encoding
   # Stages: check, lint, build
@@ -6226,7 +6226,7 @@ check::images_referenced_in_source() {
 # Stages:
 #   check, lint, build
 # ------------------------------------------------------------------------------
-check::images_referenced_but_missing() {
+ported::images_referenced_but_missing() {
   # ✅ Check: Detect referenced images that do not exist on disk
   # Category: lint, paths, encoding
   # Stages: check, lint, build
