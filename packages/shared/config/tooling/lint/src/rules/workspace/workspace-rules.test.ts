@@ -158,6 +158,21 @@ import noDeepRelativeSharedImports from './no-deep-relative-shared-imports.ts';
 import noCrossLayerImports from './no-cross-layer-imports.ts';
 import noEmptyTestsDirectory from './no-empty-tests-directory.ts';
 import noEmptyBenchmarksDirectory from './no-empty-benchmarks-directory.ts';
+import validateFilenameCasing from './validate-filename-casing.ts';
+import enforceDocsNaming from './enforce-docs-naming.ts';
+import enforceTestFileNaming from './enforce-test-file-naming.ts';
+import noTodoInDocs from './no-todo-in-docs.ts';
+import noBrokenMarkdownLinks from './no-broken-markdown-links.ts';
+import noNextjsArtifacts from './no-nextjs-artifacts.ts';
+import noGatsbyArtifacts from './no-gatsby-artifacts.ts';
+import noHugoConfigs from './no-hugo-configs.ts';
+import noUnapprovedSsg from './no-unapproved-ssg.ts';
+import validateMjsCjsUsage from './validate-mjs-cjs-usage.ts';
+import noExportsOverlap from './no-exports-overlap.ts';
+import enforceWorkspaceVersionAlignment from './enforce-workspace-version-alignment.ts';
+import validateRootBiomeJson from './validate-root-biome-json.ts';
+import validateRootOxlintrcJson from './validate-root-oxlintrc-json.ts';
+import enforceBenchmarkFileNaming from './enforce-benchmark-file-naming.ts';
 
 // =============================================================================
 // Helpers
@@ -7687,6 +7702,776 @@ describe('workspace/no-empty-benchmarks-directory', () => {
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noEmptyBenchmarksDirectory.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/validate-filename-casing
+// =============================================================================
+
+describe('workspace/validate-filename-casing', () => {
+  it('has correct rule metadata', () => {
+    expect(validateFilenameCasing.id).toBe('workspace/validate-filename-casing');
+    expect(validateFilenameCasing.scope).toBe('workspace');
+  });
+
+  it('passes for valid kebab-case filenames', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/utils/my-helper.ts', ''],
+      ['/workspace/packages/products/app/src/index.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateFilenameCasing.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for uppercase filenames in packages', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/utils/MyHelper.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateFilenameCasing.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/validate-filename-casing');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('MyHelper.ts');
+  });
+
+  it('ignores files outside scoped directories', async () => {
+    const files: Map<string, string> = new Map([['/workspace/scripts/MyScript.sh', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateFilenameCasing.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/enforce-docs-naming
+// =============================================================================
+
+describe('workspace/enforce-docs-naming', () => {
+  it('has correct rule metadata', () => {
+    expect(enforceDocsNaming.id).toBe('workspace/enforce-docs-naming');
+    expect(enforceDocsNaming.scope).toBe('workspace');
+  });
+
+  it('passes for valid lowercase markdown files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/getting-started.md', ''],
+      ['/workspace/docs/api_reference.md', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceDocsNaming.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows standard uppercase files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/README.md', ''],
+      ['/workspace/docs/CHANGELOG.md', ''],
+      ['/workspace/docs/LICENSE', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceDocsNaming.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for non-markdown files in docs', async () => {
+    const files: Map<string, string> = new Map([['/workspace/docs/notes.txt', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceDocsNaming.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Non-markdown');
+  });
+
+  it('reports error for uppercase markdown filenames', async () => {
+    const files: Map<string, string> = new Map([['/workspace/docs/MyGuide.md', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceDocsNaming.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('casing');
+  });
+
+  it('ignores files not under /docs/', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/MyFile.ts', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceDocsNaming.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/enforce-test-file-naming
+// =============================================================================
+
+describe('workspace/enforce-test-file-naming', () => {
+  it('has correct rule metadata', () => {
+    expect(enforceTestFileNaming.id).toBe('workspace/enforce-test-file-naming');
+    expect(enforceTestFileNaming.scope).toBe('workspace');
+  });
+
+  it('passes for test files in __tests__ with correct naming', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/__tests__/utils.test.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceTestFileNaming.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for test files outside __tests__', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/app/src/utils.test.ts', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceTestFileNaming.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('not in __tests__');
+  });
+
+  it('reports error for non-test files in __tests__', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/__tests__/helpers.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceTestFileNaming.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.test.ts(x) naming');
+  });
+
+  it('ignores non-source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/__tests__/fixture.json', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceTestFileNaming.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-todo-in-docs
+// =============================================================================
+
+describe('workspace/no-todo-in-docs', () => {
+  it('has correct rule metadata', () => {
+    expect(noTodoInDocs.id).toBe('workspace/no-todo-in-docs');
+    expect(noTodoInDocs.scope).toBe('workspace');
+  });
+
+  it('passes for clean documentation', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/guide.md', '# Guide\n\nThis is a complete guide.'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTodoInDocs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports warning for TODO in docs', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/guide.md', '# Guide\n\nTODO: finish this section'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTodoInDocs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('Placeholder');
+  });
+
+  it('reports warning for FIXME in docs', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/api.md', '# API\n\nFIXME: broken link'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTodoInDocs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('ignores markdown files not in /docs/', async () => {
+    const files: Map<string, string> = new Map([['/workspace/README.md', 'TODO: update readme']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTodoInDocs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-broken-markdown-links
+// =============================================================================
+
+describe('workspace/no-broken-markdown-links', () => {
+  it('has correct rule metadata', () => {
+    expect(noBrokenMarkdownLinks.id).toBe('workspace/no-broken-markdown-links');
+    expect(noBrokenMarkdownLinks.scope).toBe('workspace');
+  });
+
+  it('passes when local links resolve', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/guide.md', 'See [other](./other.md) for details.'],
+      ['/workspace/docs/other.md', '# Other'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBrokenMarkdownLinks.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports warning for broken local links', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/guide.md', 'See [missing](./nonexistent.md) for details.'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBrokenMarkdownLinks.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('nonexistent.md');
+  });
+
+  it('skips external links', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/guide.md', 'See [docs](https://example.com) and [mail](mailto:a@b.com).'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBrokenMarkdownLinks.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips anchor-only links', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/guide.md', 'See [section](#overview) for details.'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBrokenMarkdownLinks.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-nextjs-artifacts
+// =============================================================================
+
+describe('workspace/no-nextjs-artifacts', () => {
+  it('has correct rule metadata', () => {
+    expect(noNextjsArtifacts.id).toBe('workspace/no-nextjs-artifacts');
+    expect(noNextjsArtifacts.scope).toBe('workspace');
+  });
+
+  it('reports error for next.config.js', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/next.config.js', 'module.exports = {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNextjsArtifacts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Next.js');
+  });
+
+  it('reports error for next-env.d.ts', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/next-env.d.ts', '/// <reference types="next" />'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNextjsArtifacts.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes for normal files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/index.ts', 'export const foo = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNextjsArtifacts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-gatsby-artifacts
+// =============================================================================
+
+describe('workspace/no-gatsby-artifacts', () => {
+  it('has correct rule metadata', () => {
+    expect(noGatsbyArtifacts.id).toBe('workspace/no-gatsby-artifacts');
+    expect(noGatsbyArtifacts.scope).toBe('workspace');
+  });
+
+  it('reports error for gatsby-config.js', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/gatsby-config.js', 'module.exports = {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noGatsbyArtifacts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Gatsby');
+  });
+
+  it('passes for normal files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/index.ts', 'export const foo = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noGatsbyArtifacts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for gatsby-node.js', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/gatsby-node.js', 'exports.onCreateNode = () => {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noGatsbyArtifacts.check(ctx);
+    expect(results.length).toBe(1);
+  });
+});
+
+// =============================================================================
+// workspace/no-hugo-configs
+// =============================================================================
+
+describe('workspace/no-hugo-configs', () => {
+  it('has correct rule metadata', () => {
+    expect(noHugoConfigs.id).toBe('workspace/no-hugo-configs');
+    expect(noHugoConfigs.scope).toBe('workspace');
+  });
+
+  it('reports error for root config.toml', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/config.toml', 'baseURL = "https://example.com"'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHugoConfigs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Hugo');
+  });
+
+  it('ignores config.toml in subdirectories', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/config.toml', '[server]\nport = 8080'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHugoConfigs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for files in archetypes directory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/archetypes/default.md', '---\ntitle: ""\n---'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHugoConfigs.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes for normal files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/index.ts', 'export const foo = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHugoConfigs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-unapproved-ssg
+// =============================================================================
+
+describe('workspace/no-unapproved-ssg', () => {
+  it('has correct rule metadata', () => {
+    expect(noUnapprovedSsg.id).toBe('workspace/no-unapproved-ssg');
+    expect(noUnapprovedSsg.scope).toBe('workspace');
+  });
+
+  it('reports error for mkdocs.yml', async () => {
+    const files: Map<string, string> = new Map([['/workspace/mkdocs.yml', 'site_name: My Docs']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnapprovedSsg.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('static site generator');
+  });
+
+  it('reports error for docusaurus.config.js', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docusaurus.config.js', 'module.exports = {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnapprovedSsg.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes for normal files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/app/src/index.ts', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnapprovedSsg.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/validate-mjs-cjs-usage
+// =============================================================================
+
+describe('workspace/validate-mjs-cjs-usage', () => {
+  it('has correct rule metadata', () => {
+    expect(validateMjsCjsUsage.id).toBe('workspace/validate-mjs-cjs-usage');
+    expect(validateMjsCjsUsage.scope).toBe('workspace');
+  });
+
+  it('passes for .mjs with type=module', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/utils.mjs', 'export const x = 1;'],
+      ['/workspace/packages/app/package.json', '{"name": "@app/core", "type": "module"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateMjsCjsUsage.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for .mjs without type=module', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/utils.mjs', 'export const x = 1;'],
+      ['/workspace/packages/app/package.json', '{"name": "@app/core"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateMjsCjsUsage.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('.mjs');
+  });
+
+  it('passes for .cjs with type=commonjs', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/utils.cjs', 'module.exports = {};'],
+      ['/workspace/packages/app/package.json', '{"name": "@app/core", "type": "commonjs"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateMjsCjsUsage.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for .cjs without type=commonjs', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/utils.cjs', 'module.exports = {};'],
+      ['/workspace/packages/app/package.json', '{"name": "@app/core", "type": "module"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateMjsCjsUsage.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.cjs');
+  });
+
+  it('ignores non-mjs-cjs files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/index.ts', 'export const x = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateMjsCjsUsage.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-exports-overlap
+// =============================================================================
+
+describe('workspace/no-exports-overlap', () => {
+  it('has correct rule metadata', () => {
+    expect(noExportsOverlap.id).toBe('workspace/no-exports-overlap');
+    expect(noExportsOverlap.scope).toBe('workspace');
+  });
+
+  it('passes when no export overlap exists', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/a/package.json',
+        '{"name": "@app/a", "exports": {"./utils": "./src/utils.ts"}}',
+      ],
+      [
+        '/workspace/packages/b/package.json',
+        '{"name": "@app/b", "exports": {"./helpers": "./src/helpers.ts"}}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noExportsOverlap.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error when two packages export same subpath', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/a/package.json',
+        '{"name": "@app/a", "exports": {"./utils": "./src/utils.ts"}}',
+      ],
+      [
+        '/workspace/packages/b/package.json',
+        '{"name": "@app/a", "exports": {"./utils": "./src/other.ts"}}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noExportsOverlap.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('conflict');
+  });
+
+  it('passes when packages have no exports field', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/a/package.json', '{"name": "@app/a"}'],
+      ['/workspace/packages/b/package.json', '{"name": "@app/b"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noExportsOverlap.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/enforce-workspace-version-alignment
+// =============================================================================
+
+describe('workspace/enforce-workspace-version-alignment', () => {
+  it('has correct rule metadata', () => {
+    expect(enforceWorkspaceVersionAlignment.id).toBe(
+      'workspace/enforce-workspace-version-alignment',
+    );
+    expect(enforceWorkspaceVersionAlignment.scope).toBe('workspace');
+  });
+
+  it('passes when versions are aligned', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        path: '/workspace/packages/a/package.json',
+        dir: '/workspace/packages/a',
+        packageJson: { name: '@app/a', version: '2.0.0' },
+        name: '@app/a',
+      },
+      {
+        path: '/workspace/packages/b/package.json',
+        dir: '/workspace/packages/b',
+        packageJson: { name: '@app/b', version: '1.0.0', dependencies: { '@app/a': '^2.0.0' } },
+        name: '@app/b',
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ packages });
+    const results: LintResult[] = await enforceWorkspaceVersionAlignment.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for misaligned major versions', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        path: '/workspace/packages/a/package.json',
+        dir: '/workspace/packages/a',
+        packageJson: { name: '@app/a', version: '2.0.0' },
+        name: '@app/a',
+      },
+      {
+        path: '/workspace/packages/b/package.json',
+        dir: '/workspace/packages/b',
+        packageJson: { name: '@app/b', version: '1.0.0', dependencies: { '@app/a': '^1.0.0' } },
+        name: '@app/b',
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ packages });
+    const results: LintResult[] = await enforceWorkspaceVersionAlignment.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('@app/a');
+  });
+
+  it('skips workspace: protocol dependencies', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        path: '/workspace/packages/a/package.json',
+        dir: '/workspace/packages/a',
+        packageJson: { name: '@app/a', version: '2.0.0' },
+        name: '@app/a',
+      },
+      {
+        path: '/workspace/packages/b/package.json',
+        dir: '/workspace/packages/b',
+        packageJson: {
+          name: '@app/b',
+          version: '1.0.0',
+          dependencies: { '@app/a': 'workspace:*' },
+        },
+        name: '@app/b',
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ packages });
+    const results: LintResult[] = await enforceWorkspaceVersionAlignment.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips external dependencies', async () => {
+    const packages: WorkspacePackage[] = [
+      {
+        path: '/workspace/packages/a/package.json',
+        dir: '/workspace/packages/a',
+        packageJson: { name: '@app/a', version: '1.0.0', dependencies: { lodash: '^4.0.0' } },
+        name: '@app/a',
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ packages });
+    const results: LintResult[] = await enforceWorkspaceVersionAlignment.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/validate-root-biome-json
+// =============================================================================
+
+describe('workspace/validate-root-biome-json', () => {
+  it('has correct rule metadata', () => {
+    expect(validateRootBiomeJson.id).toBe('workspace/validate-root-biome-json');
+    expect(validateRootBiomeJson.scope).toBe('workspace');
+  });
+
+  it('passes for valid biome.json with only $schema and extends', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/biome.json',
+        '{"$schema": "https://biomejs.dev/schemas/1.0.0/schema.json", "extends": "./biome.base.json"}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootBiomeJson.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error when biome.json is missing', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/app/src/index.ts', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootBiomeJson.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Missing');
+  });
+
+  it('reports error when extends field is missing', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.json', '{"$schema": "https://biomejs.dev/schemas/1.0.0/schema.json"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootBiomeJson.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('extends');
+  });
+
+  it('reports error for unexpected top-level keys', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.json', '{"$schema": "x", "extends": "y", "linter": {}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootBiomeJson.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('linter');
+  });
+});
+
+// =============================================================================
+// workspace/validate-root-oxlintrc-json
+// =============================================================================
+
+describe('workspace/validate-root-oxlintrc-json', () => {
+  it('has correct rule metadata', () => {
+    expect(validateRootOxlintrcJson.id).toBe('workspace/validate-root-oxlintrc-json');
+    expect(validateRootOxlintrcJson.scope).toBe('workspace');
+  });
+
+  it('passes for valid .oxlintrc.json with only $schema and extends', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/.oxlintrc.json',
+        '{"$schema": "https://oxc-project.github.io/oxlint/schema.json", "extends": "./oxlintrc.base.json"}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootOxlintrcJson.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error when .oxlintrc.json is missing', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/app/src/index.ts', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootOxlintrcJson.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Missing');
+  });
+
+  it('reports error when extends field is missing', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/.oxlintrc.json',
+        '{"$schema": "https://oxc-project.github.io/oxlint/schema.json"}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootOxlintrcJson.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('extends');
+  });
+
+  it('reports error for unexpected top-level keys', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.oxlintrc.json', '{"$schema": "x", "extends": "y", "rules": {}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootOxlintrcJson.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('rules');
+  });
+});
+
+// =============================================================================
+// workspace/enforce-benchmark-file-naming
+// =============================================================================
+
+describe('workspace/enforce-benchmark-file-naming', () => {
+  it('has correct rule metadata', () => {
+    expect(enforceBenchmarkFileNaming.id).toBe('workspace/enforce-benchmark-file-naming');
+    expect(enforceBenchmarkFileNaming.scope).toBe('workspace');
+  });
+
+  it('passes for benchmark files in __benchmarks__ with correct naming', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/__benchmarks__/parser.benchmark.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceBenchmarkFileNaming.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for benchmark files outside __benchmarks__', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/parser.benchmark.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceBenchmarkFileNaming.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('not in __benchmarks__');
+  });
+
+  it('reports error for non-benchmark files in __benchmarks__', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/__benchmarks__/helpers.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceBenchmarkFileNaming.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.benchmark.ts(x) naming');
+  });
+
+  it('ignores non-ts files in __benchmarks__', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/__benchmarks__/config.json', '{}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceBenchmarkFileNaming.check(ctx);
     expect(results.length).toBe(0);
   });
 });

@@ -301,7 +301,22 @@
     "workspace/require-gitignore": "error",
     "workspace/require-oxlint-extends-root": "error",
     "workspace/require-vscode-folder": "warn",
-    "workspace/require-vscode-valid-json": "error"
+    "workspace/require-vscode-valid-json": "error",
+    "workspace/enforce-benchmark-file-naming": "error",
+    "workspace/enforce-docs-naming": "error",
+    "workspace/enforce-test-file-naming": "error",
+    "workspace/enforce-workspace-version-alignment": "error",
+    "workspace/no-broken-markdown-links": "warn",
+    "workspace/no-exports-overlap": "error",
+    "workspace/no-gatsby-artifacts": "error",
+    "workspace/no-hugo-configs": "error",
+    "workspace/no-nextjs-artifacts": "error",
+    "workspace/no-todo-in-docs": "warn",
+    "workspace/no-unapproved-ssg": "error",
+    "workspace/validate-filename-casing": "error",
+    "workspace/validate-mjs-cjs-usage": "error",
+    "workspace/validate-root-biome-json": "error",
+    "workspace/validate-root-oxlintrc-json": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
