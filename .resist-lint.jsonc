@@ -619,7 +619,27 @@
 
     // Primitives — Object
     "primitives/no-object-prototype-access": "warn",
-    "primitives/no-in-operator-primitive": "error"
+    "primitives/no-in-operator-primitive": "error",
+
+    // Directives — TypeScript Suppressions
+    "directives/no-ts-ignore": "error",
+    "directives/no-ts-nocheck": "error",
+    "directives/require-ts-expect-error-reason": "error",
+    "directives/no-ts-expect-error-on-any": "warn",
+
+    // Directives — Third-Party Linter Suppressions
+    "directives/no-eslint-disable": "error",
+    "directives/no-prettier-ignore": "error",
+    "directives/no-biome-ignore": "error",
+    "directives/no-oxlint-ignore": "error",
+
+    // Directives — Type Assertion Safety
+    "directives/no-type-assertion-chain": "error",
+    "directives/no-generic-any-assertion": "error",
+
+    // Directives — Suppression Density
+    "directives/max-suppressions-per-file": "warn",
+    "directives/no-suppression-in-new-code": "warn"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
