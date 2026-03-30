@@ -1,3 +1,0 @@
-/*
-    all package.json from branding
-*/
