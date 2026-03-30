@@ -527,7 +527,24 @@
     "workspace/mr-labels-required-per-scope": "error",
     "workspace/mr-dependency-changes-reviewed": "error",
     "workspace/mr-ci-pipeline-passed": "error",
-    "workspace/mr-up-to-date-with-target": "error"
+    "workspace/mr-up-to-date-with-target": "error",
+
+    // Phase 35 — MR Metadata, Valibot & Vitest Rules
+    "workspace/mr-cherry-pick-label": "error",
+    "workspace/mr-test-coverage-diff": "warn",
+    "workspace/mr-label-format": "error",
+    "workspace/mr-release-label-required": "error",
+    "workspace/mr-no-force-push-after-review": "error",
+    "workspace/mr-license-change-reviewed": "error",
+    "workspace/mr-config-changes-approved": "error",
+    "workspace/mr-open-too-long": "warn",
+    "workspace/mr-automerge-not-enabled-by-default": "error",
+    "workspace/mr-label-conflict-matrix": "error",
+    "workspace/mr-sensitive-path-changes": "error",
+    "workspace/mr-test-or-benchmark-regressions": "error",
+    "workspace/valibot-consistency": "warn",
+    "workspace/vitest-config-and-coverage": "error",
+    "workspace/vitest-config-and-usage": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
