@@ -1612,7 +1612,7 @@ check::warn_bash_shebang_on_portable_scripts() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_nextjs_artifacts() {
+ported::disallow_nextjs_artifacts() {
   # ✅ Check: Disallow all Next.js-related artifacts
   # Category: lint, package, paths
   # Stages: lint, check
@@ -1700,7 +1700,7 @@ check::disallow_docker_compose_v1() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_gatsby_artifacts() {
+ported::disallow_gatsby_artifacts() {
   # ✅ Check: Block Gatsby usage
   # Category: lint, package
   # Stages: lint, check
@@ -1739,7 +1739,7 @@ check::disallow_gatsby_artifacts() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_hugo_configs() {
+ported::disallow_hugo_configs() {
   # ✅ Check: Block Hugo configuration
   # Category: lint, package
   # Stages: lint, check
@@ -1815,7 +1815,7 @@ check::disallow_react_native_configs() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_static_site_generators() {
+ported::disallow_static_site_generators() {
   # ✅ Check: Block unapproved static site generator configurations
   # Category: lint, package, paths
   # Stages: lint, check
@@ -1863,7 +1863,7 @@ check::disallow_static_site_generators() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::enforce_test_file_naming() {
+ported::enforce_test_file_naming() {
   # ✅ Check: Test files must follow *.test.ts[x] and be located in __tests__ folders
   # Category: lint, paths
   # Stages: lint, check
@@ -1921,7 +1921,7 @@ check::enforce_test_file_naming() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::enforce_benchmark_file_naming() {
+ported::enforce_benchmark_file_naming() {
   # ✅ Check: Benchmark files must follow *.benchmark.ts[x] and be located in __benchmarks__ directories
   # Category: lint, paths
   # Stages: lint, check
@@ -2136,7 +2136,7 @@ check::disallow_merge_commits_on_main() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::disallow_todo_in_docs() {
+ported::disallow_todo_in_docs() {
   # ✅ Check: Docs must not contain TODO, FIXME, or <insert ... here> placeholders
   # Category: lint, paths, docs
   # Stages: check, lint
@@ -2184,7 +2184,7 @@ check::disallow_todo_in_docs() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::validate_markdown_links() {
+ported::validate_markdown_links() {
   # ✅ Check: All local markdown links resolve to real files
   # Category: lint, paths, docs
   # Stages: lint, check
@@ -2802,7 +2802,7 @@ check::detect_duplicate_gitlab_ci_job_names() {
 # Stages:
 #   lint, check, build
 # ------------------------------------------------------------------------------
-check::validate_mjs_cjs_usage() {
+ported::validate_mjs_cjs_usage() {
   # ✅ Check: Only allow .mjs/.cjs if justified by "type" in package.json
   # Category: tsconfig, lint, package
   # Stages: lint, check, build
@@ -2865,7 +2865,7 @@ check::validate_mjs_cjs_usage() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::validate_filename_casing() {
+ported::validate_filename_casing() {
   # ✅ Check: Enforce kebab-case or snake_case for filenames
   # Category: lint, paths, naming
   # Stages: lint, check
@@ -2919,7 +2919,7 @@ check::validate_filename_casing() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::enforce_docs_naming_conventions() {
+ported::enforce_docs_naming_conventions() {
   # ✅ Check: Enforce kebab-case/snake_case .md files in /docs and /docs/<locale>
   # Category: lint, naming, paths
   # Stages: lint, check
@@ -2995,7 +2995,7 @@ check::enforce_docs_naming_conventions() {
 # Stages:
 #   lint, check, build
 # ------------------------------------------------------------------------------
-check::validate_exports_overlap() {
+ported::validate_exports_overlap() {
   # ✅ Check: No export field overlap or path shadowing across workspace packages
   # Category: tsconfig, package, paths
   # Stages: lint, check, build
@@ -3063,7 +3063,7 @@ check::validate_exports_overlap() {
 # Stages:
 #   check, lint, build
 # ------------------------------------------------------------------------------
-check::enforce_workspace_version_alignment() {
+ported::enforce_workspace_version_alignment() {
   # ✅ Check: Ensure workspace dependencies do not cross major versions
   # Category: package, safety
   # Stages: check, lint, build
@@ -3424,7 +3424,7 @@ check::validate_conventional_commits() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::validate_root_biome_json() {
+ported::validate_root_biome_json() {
   # ✅ Check: Root biome.json delegates to biome.base.json and does not redefine rules
   # Category: lint, biome, paths
   # Stages: lint, check
@@ -3503,7 +3503,7 @@ check::validate_root_biome_json() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::validate_root_oxlintrc_json() {
+ported::validate_root_oxlintrc_json() {
   # ✅ Check: Root .oxlintrc.json must delegate to oxlintrc.base.json only
   # Category: lint, oxlint, paths
   # Stages: lint, check
