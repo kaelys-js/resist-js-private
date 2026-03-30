@@ -6278,7 +6278,7 @@ ported::images_referenced_but_missing() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::images_svg_has_title_or_desc() {
+ported::images_svg_has_title_or_desc() {
   # ✅ Check: Inline SVGs must include a <title> or <desc> for accessibility
   # Category: lint, encoding, accessibility
   # Stages: check, lint
@@ -6441,7 +6441,7 @@ check::images_webp_lossless_unused() {
 # Stages:
 #   lint, check, build
 # ------------------------------------------------------------------------------
-check::images_svg_inline_style_blocked() {
+ported::images_svg_inline_style_blocked() {
   # ✅ Check: SVGs must not contain inline style attributes
   # Category: lint, encoding, paths
   # Stages: lint, check, build
@@ -6481,7 +6481,7 @@ check::images_svg_inline_style_blocked() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::images_svg_viewbox_required() {
+ported::images_svg_viewbox_required() {
   # ✅ Check: SVGs must declare viewBox attribute
   # Category: lint, encoding
   # Stages: check, lint
@@ -6521,7 +6521,7 @@ check::images_svg_viewbox_required() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::images_svg_dimensions_static() {
+ported::images_svg_dimensions_static() {
   # ✅ Check: SVGs must have width and height attributes
   # Category: lint, encoding
   # Stages: lint, check
@@ -6561,7 +6561,7 @@ check::images_svg_dimensions_static() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::images_svg_fill_not_black() {
+ported::images_svg_fill_not_black() {
   # ✅ Check: SVGs should not use black fills
   # Category: lint, encoding
   # Stages: check, lint
@@ -6641,7 +6641,7 @@ check::images_webp_metadata_stripped() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::images_svg_font_embedding_blocked() {
+ported::images_svg_font_embedding_blocked() {
   # ✅ Check: SVGs must not embed fonts
   # Category: lint, encoding
   # Stages: lint, check
@@ -6824,7 +6824,7 @@ check::images_misleading_file_extension() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::images_svg_script_block() {
+ported::images_svg_script_block() {
   # ✅ Check: disallow <script> in SVG
   # Category: safety, encoding
   # Stages: check, lint
@@ -6860,7 +6860,7 @@ check::images_svg_script_block() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::images_svg_css_href_exploit() {
+ported::images_svg_css_href_exploit() {
   # ✅ Check: disallow external URL href() in SVGs
   # Category: safety, encoding
   # Stages: check, lint
@@ -6896,7 +6896,7 @@ check::images_svg_css_href_exploit() {
 # Stages:
 #   check, lint, build
 # ------------------------------------------------------------------------------
-check::images_raster_in_svg() {
+ported::images_raster_in_svg() {
   # ✅ Check: no base64 PNG/JPG/GIF embedded inside SVG
   # Category: encoding, accessibility
   # Stages: check, lint, build
@@ -6967,7 +6967,7 @@ check::images_inline_svg_ban() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::images_svg_external_font_url() {
+ported::images_svg_external_font_url() {
   # ✅ Check: external font URLs should not appear in SVGs
   # Category: safety, encoding
   # Stages: check, lint
@@ -7003,7 +7003,7 @@ check::images_svg_external_font_url() {
 # Stages:
 #   lint, build
 # ------------------------------------------------------------------------------
-check::images_svg_text_not_converted() {
+ported::images_svg_text_not_converted() {
   # ✅ Check: raw <text> nodes should be avoided in final SVG
   # Category: encoding, accessibility
   # Stages: lint, build
@@ -7039,7 +7039,7 @@ check::images_svg_text_not_converted() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::images_svg_xlink_href_http() {
+ported::images_svg_xlink_href_http() {
   # ✅ Check: avoid insecure xlink:href links
   # Category: safety, encoding
   # Stages: check, lint
@@ -7075,7 +7075,7 @@ check::images_svg_xlink_href_http() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::images_svg_namespace_missing() {
+ported::images_svg_namespace_missing() {
   # ✅ Check: all SVGs must declare xmlns attribute
   # Category: encoding
   # Stages: lint, check
@@ -7651,7 +7651,7 @@ check::images_svg_mask_url_fragment() {
 # Stages:
 #   check, lint, deploy
 # ------------------------------------------------------------------------------
-check::images_svg_remote_href_any() {
+ported::images_svg_remote_href_any() {
   # ✅ Check: <svg> hrefs must not point to remote HTTP/S URLs
   # Category: safety, encoding, boundaries
   # Stages: check, lint, deploy
@@ -7689,7 +7689,7 @@ check::images_svg_remote_href_any() {
 # Stages:
 #   check, lint, build
 # ------------------------------------------------------------------------------
-check::images_svg_event_handlers_blocked() {
+ported::images_svg_event_handlers_blocked() {
   # ✅ Check: Block on* event handlers in SVG files
   # Category: encoding, safety
   # Stages: check, lint, build
@@ -7841,7 +7841,7 @@ check::images_svg_title_desc_missing_lang() {
 # Stages:
 #   lint, pre-commit
 # ------------------------------------------------------------------------------
-check::images_svg_embedded_media_blocked() {
+ported::images_svg_embedded_media_blocked() {
   # ✅ Check: Block <image>, <video>, <audio> elements inside SVGs
   # Category: lint, safety
   # Stages: lint, pre-commit

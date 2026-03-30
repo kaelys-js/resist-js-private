@@ -1,0 +1,73 @@
+/**
+ * Rule: workspace/svg-no-external-url
+ *
+ * SVG files must not contain external URL references in CSS.
+ *
+ * @module
+ */
+
+import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
+import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
+
+/** SVG files must not contain external URL references in CSS. */
+const rule: WorkspaceRule = {
+  id: 'workspace/svg-no-external-url',
+  description: 'SVG files must not contain external URL references in CSS.',
+  scope: 'workspace',
+  categories: ['workspace', 'encoding', 'safety'],
+  stages: ['lint', 'check'],
+  fixable: false,
+  async check(context: unknown): Promise<
+    Array<{
+      ruleId: string;
+      file: string;
+      line: number;
+      column: number;
+      severity: 'error' | 'warning' | 'info';
+      message: string;
+      fix: { range: { start: number; end: number }; text: string };
+      tip?: string;
+      example?: string;
+      source?: string;
+      url?: string;
+      endLine?: number;
+      endColumn?: number;
+    }>
+  > {
+    const ctx: WorkspaceContext = context as WorkspaceContext;
+    const results: Array<ReturnType<typeof createResult>> = [];
+
+    for (const filePath of await ctx.allFiles()) {
+      if (!filePath.toLowerCase().endsWith('.svg')) {
+        continue;
+      }
+
+      let content: string;
+      try {
+        content = await ctx.readFile(filePath);
+      } catch {
+        continue;
+      }
+
+      if (/url\(['"]?https?:\/\//.test(content)) {
+        results.push(
+          createResult(
+            'workspace/svg-no-external-url',
+            filePath,
+            1,
+            1,
+            'error',
+            `External URL detected in CSS url() in SVG: ${filePath}`,
+            {
+              tip: 'Avoid linking to external resources inside SVGs',
+            },
+          ),
+        );
+      }
+    }
+
+    return results;
+  },
+};
+
+export default rule;

@@ -445,7 +445,25 @@
     "workspace/no-biome-disable": "error",
     "workspace/no-legacy-image-formats": "error",
     "workspace/no-unreferenced-images": "warn",
-    "workspace/no-missing-image-refs": "error"
+    "workspace/no-missing-image-refs": "error",
+
+    // Phase 30 — SVG Validation Rules
+    "workspace/svg-requires-title-or-desc": "error",
+    "workspace/svg-no-inline-style": "error",
+    "workspace/svg-requires-viewbox": "error",
+    "workspace/svg-requires-dimensions": "warn",
+    "workspace/svg-no-black-fill": "warn",
+    "workspace/svg-no-embedded-font": "error",
+    "workspace/svg-no-script": "error",
+    "workspace/svg-no-external-url": "error",
+    "workspace/svg-no-raster-image": "error",
+    "workspace/svg-no-external-font-url": "error",
+    "workspace/svg-no-text-element": "warn",
+    "workspace/svg-no-xlink-http": "error",
+    "workspace/svg-requires-namespace": "error",
+    "workspace/svg-no-event-handler": "error",
+    "workspace/svg-no-remote-href": "error",
+    "workspace/svg-no-embedded-media": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
