@@ -508,7 +508,7 @@ check::validate_gitlab_ci_jobs_have_script() {
 # Stages:
 #   pre-commit, check
 # ------------------------------------------------------------------------------
-check::git_protect_main_branch() {
+ported::git_protect_main_branch() {
   # ✅ Check: main/master is protected from force-push and amend
   # Category: safety, git
   # Stages: pre-commit, check
@@ -1025,7 +1025,7 @@ check::gitlab_ci_stages_defined() {
 # Stages:
 #   pre-commit, lint, deploy
 # ------------------------------------------------------------------------------
-check::git_protected_branch_push() {
+ported::git_protected_branch_push() {
   # ✅ Check: prevent direct push to protected branches
   # Category: ci, safety
   # Stages: pre-commit, lint, deploy
@@ -1190,7 +1190,7 @@ check::cli_tools_help_and_version() {
 # Stages:
 #   commit-msg, lint
 # ------------------------------------------------------------------------------
-check::commit_body_size() {
+ported::commit_body_size() {
   # ✅ Check: Commit bodies must not exceed allowed lines/chars
   # Category: ci, lint, mr
   # Stages: commit-msg, lint
@@ -1390,7 +1390,7 @@ ported::git_sparse_checkout_consistency() {
 # Stages:
 #   pre-commit, build, deploy
 # ------------------------------------------------------------------------------
-check::git_repo_clean() {
+ported::git_repo_clean() {
   # ✅ Check: working directory and index must be clean
   # Category: ci, safety
   # Stages: pre-commit, build, deploy
@@ -1473,7 +1473,7 @@ ported::git_config_enforced() {
 # Stages:
 #   validate, check
 # ------------------------------------------------------------------------------
-check::git_ref_integrity() {
+ported::git_ref_integrity() {
   # ✅ Check: Git HEAD and refs must resolve cleanly
   # Category: ci, safety
   # Stages: validate, check
@@ -1514,7 +1514,7 @@ check::git_ref_integrity() {
 # Stages:
 #   check, lint, validate
 # ------------------------------------------------------------------------------
-check::git_head_consistency() {
+ported::git_head_consistency() {
   # ✅ Check: .git/HEAD must point to a valid reference
   # Category: safety, ci
   # Stages: check, lint, validate
@@ -1572,7 +1572,7 @@ check::git_head_consistency() {
 # Stages:
 #   check, validate
 # ------------------------------------------------------------------------------
-check::git_config_global_blacklist() {
+ported::git_config_global_blacklist() {
   # ✅ Check: Detect unsafe global git settings
   # Category: ci, safety
   # Stages: check, validate
@@ -1617,7 +1617,7 @@ check::git_config_global_blacklist() {
 # Stages:
 #   check, validate
 # ------------------------------------------------------------------------------
-check::git_alternate_refs() {
+ported::git_alternate_refs() {
   # ✅ Check: refs must be reachable and valid
   # Category: ci, safety
   # Stages: check, validate
@@ -1766,7 +1766,7 @@ check::git_sparse_index_check() {
 # Stages:
 #   check
 # ------------------------------------------------------------------------------
-check::git_object_reuse_disabled() {
+ported::git_object_reuse_disabled() {
   # ✅ Check: object reuse must be disabled in secure builds
   # Category: safety
   # Stages: check
@@ -1800,7 +1800,7 @@ check::git_object_reuse_disabled() {
 # Stages:
 #   check, pre-commit
 # ------------------------------------------------------------------------------
-check::git_alternate_object_dir_blocked() {
+ported::git_alternate_object_dir_blocked() {
   # ✅ Check: environment must not allow GIT_ALTERNATE_OBJECT_DIRECTORIES
   # Category: safety
   # Stages: check, pre-commit
@@ -1868,7 +1868,7 @@ ported::git_index_lock_orphans() {
 # Stages:
 #   commit-msg
 # ------------------------------------------------------------------------------
-check::git_commit_message_nodiff() {
+ported::git_commit_message_nodiff() {
   # ✅ Check: prevent empty commits
   # Category: ci
   # Stages: commit-msg
@@ -1902,7 +1902,7 @@ check::git_commit_message_nodiff() {
 # Stages:
 #   check
 # ------------------------------------------------------------------------------
-check::git_worktree_consistency() {
+ported::git_worktree_consistency() {
   # ✅ Check: all Git worktrees must be valid and registered
   # Category: infra
   # Stages: check
@@ -1938,7 +1938,7 @@ check::git_worktree_consistency() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::git_fsmonitor_safety() {
+ported::git_fsmonitor_safety() {
   # ✅ Check: fsmonitor should be disabled in CI
   # Category: ci
   # Stages: check, lint
@@ -1972,7 +1972,7 @@ check::git_fsmonitor_safety() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::git_repo_size_budget() {
+ported::git_repo_size_budget() {
   # ✅ Check: Git repo should not exceed recommended object DB size
   # Category: safety
   # Stages: check, lint
@@ -2009,7 +2009,7 @@ check::git_repo_size_budget() {
 # Stages:
 #   check
 # ------------------------------------------------------------------------------
-check::git_commit_bloat() {
+ported::git_commit_bloat() {
   # ✅ Check: warn on commits with too many files or large size
   # Category: ci
   # Stages: check
@@ -2149,7 +2149,7 @@ check::git_commit_uncommitted_patches() {
 # Stages:
 #   validate
 # ------------------------------------------------------------------------------
-check::git_commit_date_skew() {
+ported::git_commit_date_skew() {
   # ✅ Check: warn on commit timestamps in the future or heavily skewed
   # Category: ci, safety
   # Stages: validate

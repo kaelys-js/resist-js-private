@@ -409,7 +409,25 @@
     "workspace/no-rebase-in-progress": "error",
     "workspace/no-stale-index-lock": "error",
     "workspace/enforce-git-config": "error",
-    "workspace/no-sparse-checkout": "error"
+    "workspace/no-sparse-checkout": "error",
+
+    // Phase 28 — Git Safety & Workflow Rules Batch 2 (ported from common.checks.sh)
+    "workspace/no-unsafe-main-push": "error",
+    "workspace/no-protected-branch-push": "error",
+    "workspace/no-oversized-commit-body": "error",
+    "workspace/no-dirty-working-tree": "error",
+    "workspace/no-broken-git-refs": "error",
+    "workspace/no-broken-git-head": "error",
+    "workspace/no-unsafe-global-gitconfig": "warn",
+    "workspace/no-orphaned-git-refs": "error",
+    "workspace/no-git-object-reuse": "error",
+    "workspace/no-git-alternate-objects": "error",
+    "workspace/no-empty-commit-diff": "error",
+    "workspace/no-inconsistent-worktrees": "error",
+    "workspace/no-fsmonitor-in-ci": "warn",
+    "workspace/no-oversized-repo": "warn",
+    "workspace/no-bloated-commits": "warn",
+    "workspace/no-commit-date-skew": "warn"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
