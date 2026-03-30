@@ -569,7 +569,57 @@
     "complexity/no-await-in-loop": "warn",
     "complexity/no-filter-map-chain": "warn",
     "complexity/array-size-warning": "warn",
-    "complexity/recursive-depth": "warn"
+    "complexity/recursive-depth": "warn",
+
+    // Primitives — Number Safety
+    "primitives/no-unsafe-integer": "error",
+    "primitives/no-float-equality": "error",
+    "primitives/no-infinity-arithmetic": "warn",
+    "primitives/use-number-is-finite": "error",
+    "primitives/use-number-is-integer": "warn",
+    "primitives/no-toFixed-rounding": "warn",
+
+    // Primitives — BigInt
+    "primitives/prefer-bigint-for-ids": "warn",
+    "primitives/no-bigint-number-mix": "error",
+
+    // Primitives — Math
+    "primitives/no-math-random-crypto": "error",
+    "primitives/division-by-zero": "error",
+    "primitives/no-modulo-negative": "warn",
+    "primitives/prefer-math-trunc": "warn",
+    "primitives/no-lossy-math-operation": "warn",
+
+    // Primitives — String Unicode
+    "primitives/no-string-length-unicode": "warn",
+    "primitives/no-string-index-unicode": "warn",
+    "primitives/prefer-normalize-comparison": "warn",
+    "primitives/no-regex-on-untrusted": "error",
+
+    // Primitives — Date
+    "primitives/no-new-date-string-parse": "warn",
+    "primitives/no-date-mutation": "warn",
+    "primitives/no-date-arithmetic": "warn",
+
+    // Primitives — JSON
+    "primitives/no-json-bigint": "warn",
+    "primitives/no-json-undefined": "warn",
+    "primitives/no-json-circular": "error",
+    "primitives/no-json-nan-infinity": "warn",
+
+    // Primitives — Comparison
+    "primitives/no-compare-different-types": "error",
+    "primitives/no-relational-null-undefined": "error",
+    "primitives/object-is-for-special": "warn",
+
+    // Primitives — Array
+    "primitives/no-array-hole": "error",
+    "primitives/no-array-length-mutation": "warn",
+    "primitives/no-array-index-string": "error",
+
+    // Primitives — Object
+    "primitives/no-object-prototype-access": "warn",
+    "primitives/no-in-operator-primitive": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {

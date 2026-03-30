@@ -269,6 +269,18 @@ export const AstVisitorSchema = v.strictObject({
   WhileStatement: v.optional(VisitorFnSchema),
   /** Visitor for do...while loops. */
   DoWhileStatement: v.optional(VisitorFnSchema),
+  /** Visitor for binary expressions (arithmetic, comparison, logical). */
+  BinaryExpression: v.optional(VisitorFnSchema),
+  /** Visitor for new expressions (constructor calls). */
+  NewExpression: v.optional(VisitorFnSchema),
+  /** Visitor for assignment expressions. */
+  AssignmentExpression: v.optional(VisitorFnSchema),
+  /** Visitor for unary expressions (delete, typeof, void, !, ~). */
+  UnaryExpression: v.optional(VisitorFnSchema),
+  /** Visitor for array literal expressions. */
+  ArrayExpression: v.optional(VisitorFnSchema),
+  /** Visitor for literal values (numbers, strings, booleans, bigints). */
+  Literal: v.optional(VisitorFnSchema),
 });
 
 /** Map of AST node types to visitor functions. See {@link AstVisitorSchema}. */
