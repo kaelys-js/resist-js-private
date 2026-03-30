@@ -365,7 +365,24 @@
     "workspace/no-hardcoded-service-urls": "warn",
     "workspace/no-multiple-env-files": "warn",
     "workspace/validate-sql-migrations": "error",
-    "workspace/validate-shell-scripts": "error"
+    "workspace/validate-shell-scripts": "error",
+
+    // Phase 25 — Config Integrity, Contributor Validation & Script Safety
+    "workspace/validate-ci-folder-structure": "error",
+    "workspace/require-vscode-settings": "error",
+    "workspace/no-empty-vscode-settings": "error",
+    "workspace/validate-all-contributorsrc": "error",
+    "workspace/validate-codeowners": "error",
+    "workspace/prefer-env-bash-shebang": "warn",
+    "workspace/validate-tsconfig-path-aliases": "error",
+    "workspace/require-script-descriptions": "error",
+    "workspace/wrangler-tail-consumers-unique": "error",
+    "workspace/no-unreferenced-shell-scripts": "warn",
+    "workspace/validate-env-file-integrity": "error",
+    "workspace/validate-wrangler-config": "error",
+    "workspace/validate-db-name-safety": "error",
+    "workspace/validate-monorepo-schema-example": "error",
+    "workspace/no-unlinked-workspace-deps": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {

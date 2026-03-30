@@ -210,7 +210,7 @@ ported::markdown_docs_location() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::gitlab_folder_structure() {
+ported::gitlab_folder_structure() {
   # ✅ Check: .gitlab/ only contains valid YAML/CI/schema files
   # Category: ci, lint, naming, paths, boundaries
   # Stages: lint, check
@@ -266,7 +266,7 @@ check::gitlab_folder_structure() {
 # Stages:
 #   lint, check, pre-commit
 # ------------------------------------------------------------------------------
-check::vscode_settings_present() {
+ported::vscode_settings_present() {
   # ✅ Check: .vscode/settings.json must be present
   # Category: lint, naming, shell, paths, boundaries
   # Stages: lint, check, pre-commit
@@ -303,7 +303,7 @@ check::vscode_settings_present() {
 # Stages:
 #   lint, check, pre-commit
 # ------------------------------------------------------------------------------
-check::vscode_settings_not_empty() {
+ported::vscode_settings_not_empty() {
   # ✅ Check: .vscode/settings.json is not empty
   # Category: lint, shell, boundaries, paths
   # Stages: lint, check, pre-commit
@@ -338,7 +338,7 @@ check::vscode_settings_not_empty() {
 # Stages:
 #   lint, check, pre-commit
 # ------------------------------------------------------------------------------
-check::vscode_settings_not_empty() {
+ported::vscode_settings_not_empty() {
   # ✅ Check: .vscode/settings.json is not empty
   # Category: lint, shell, boundaries, paths
   # Stages: lint, check, pre-commit
@@ -789,7 +789,7 @@ ported::monorepo_layout_schema() {
 # Stages:
 #   lint, validate, pre-commit
 # ------------------------------------------------------------------------------
-check::monorepo_layout_example_schema_valid() {
+ported::monorepo_layout_example_schema_valid() {
   # ✅ Check: example layout schema file exists and is valid
   # Category: ci, naming, paths, encoding
   # Stages: lint, validate, pre-commit
@@ -1109,7 +1109,7 @@ ported::validate_json_schemas() {
 # Stages:
 #   check, lint, test
 # ------------------------------------------------------------------------------
-check::validate_all_contributorsrc() {
+ported::validate_all_contributorsrc() {
   # ✅ Check: .all-contributorsrc must exist, be valid JSON, and define all required fields
   # Category: lint, encoding, naming, ci
   # Stages: check, lint, test
@@ -1262,7 +1262,7 @@ ported::validate_makefiles() {
 # Stages:
 #   lint, check, integration
 # ------------------------------------------------------------------------------
-check::validate_gitlab_codeowners() {
+ported::validate_gitlab_codeowners() {
   # ✅ Check: CODEOWNERS file is present, valid, and safely structured
   # Category: ci, naming, paths, lint
   # Stages: lint, check, integration
@@ -1575,7 +1575,7 @@ check::warn_unused_gitignore_patterns() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::warn_bash_shebang_on_portable_scripts() {
+ported::warn_bash_shebang_on_portable_scripts() {
   # ✅ Check: Recommend env-based shebang instead of hardcoded /bin/bash
   # Category: shell, lint
   # Stages: lint, check
@@ -1980,7 +1980,7 @@ ported::enforce_benchmark_file_naming() {
 # Stages:
 #   check, lint, build
 # ------------------------------------------------------------------------------
-check::validate_tsconfig_paths() {
+ported::validate_tsconfig_paths() {
   # ✅ Check: All tsconfig.json paths resolve within the monorepo
   # Category: tsconfig, paths, lint
   # Stages: check, lint, build
@@ -2242,7 +2242,7 @@ ported::validate_markdown_links() {
 # Stages:
 #   check, lint, pre-commit
 # ------------------------------------------------------------------------------
-check::enforce_script_descriptions() {
+ported::enforce_script_descriptions() {
   # ✅ Check: Every script in package.json must have a meta.scripts.description entry
   # Category: lint, package
   # Stages: check, lint, pre-commit
@@ -4169,7 +4169,7 @@ ported::wrangler_bindings_consistent_across_envs() {
 # Stages:
 #   check, lint, pre-commit, build
 # ------------------------------------------------------------------------------
-check::wrangler_tail_consumer_services_unique() {
+ported::wrangler_tail_consumer_services_unique() {
   # ✅ Check: tail_consumers[].service names must be globally unique across wrangler.json
   # Category: cloudflare:do, cloudflare:kv, wrangler, safety
   # Stages: check, lint, pre-commit, build
@@ -4419,7 +4419,7 @@ ported::wrangler_environments_valid() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::detect_unreferenced_shell_scripts() {
+ported::detect_unreferenced_shell_scripts() {
   # ✅ Check: Warn if any shell script is not referenced anywhere in the project
   # Category: shell, lint, ci, paths
   # Stages: lint, check
@@ -4531,7 +4531,7 @@ ported::warn_on_hardcoded_service_urls() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::detect_unlinked_workspace_dependencies() {
+ported::detect_unlinked_workspace_dependencies() {
   # ✅ Check: Warn if any workspace dependency is missing/unlinked
   # Category: pnpm, lint, ci
   # Stages: lint, check
@@ -5599,7 +5599,7 @@ ported::shell_scripts_integrity() {
 # Stages:
 #   lint, check, pre-commit, deploy
 # ------------------------------------------------------------------------------
-check::env_file_integrity() {
+ported::env_file_integrity() {
   # ✅ Check: .env file must exist and be valid
   # Category: dotenv
   # Stages: lint, check, pre-commit, deploy
@@ -5771,7 +5771,7 @@ check::wrangler_authenticated() {
 # Stages:
 #   check, deploy, pre-commit
 # ------------------------------------------------------------------------------
-check::wrangler_config_integrity() {
+ported::wrangler_config_integrity() {
   # ✅ Check: Validate wrangler.json storage binding integrity
   # Category: wrangler
   # Stages: check, deploy, pre-commit
@@ -5888,7 +5888,7 @@ check::wrangler_config_integrity() {
 # Stages:
 #   pre-commit, validate, deploy
 # ------------------------------------------------------------------------------
-check::db_name_safety() {
+ported::db_name_safety() {
   # ✅ Check: DB_NAME must be shell-safe and protected from accidental prod access
   # Category: database, safety
   # Stages: pre-commit, validate, deploy
