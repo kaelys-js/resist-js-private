@@ -42,7 +42,7 @@ const rule: WorkspaceRule = {
     /** Map of lowercased relative paths to original relative paths. */
     const caseMap: Map<string, string[]> = new Map();
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const relativePath: string = relative(ctx.rootDir, filePath);
       const lower: string = relativePath.toLowerCase();
       const existing: string[] | undefined = caseMap.get(lower);

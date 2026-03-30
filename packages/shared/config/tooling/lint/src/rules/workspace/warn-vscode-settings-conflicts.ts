@@ -44,7 +44,7 @@ const rule: WorkspaceRule = {
     let editorconfigPath: string | undefined;
     let biomePath: string | undefined;
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const rel: string = relative(ctx.rootDir, filePath);
       if (rel === '.vscode/settings.json') {
         vscodeSettingsPath = filePath;

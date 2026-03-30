@@ -44,7 +44,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
     let found: boolean = false;
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const relativePath: string = relative(ctx.rootDir, filePath);
 
       if (relativePath !== '.oxlintrc.json') {

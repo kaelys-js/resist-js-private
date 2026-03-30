@@ -53,7 +53,7 @@ const rule: WorkspaceRule = {
     const githubPrefix: string = join(ctx.rootDir, '.github');
     const gitlabPrefix: string = join(ctx.rootDir, '.gitlab');
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const isGithub: boolean = filePath.startsWith(githubPrefix + '/');
       const isGitlab: boolean = filePath.startsWith(gitlabPrefix + '/');
 

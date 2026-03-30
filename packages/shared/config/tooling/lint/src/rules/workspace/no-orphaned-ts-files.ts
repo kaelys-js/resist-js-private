@@ -39,11 +39,7 @@ const rule: WorkspaceRule = {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const results: Array<ReturnType<typeof createResult>> = [];
 
-    /** Collect all files first since allFiles is an async iterable that can only be iterated once. */
-    const allFiles: Array<string> = [];
-    for await (const filePath of ctx.allFiles()) {
-      allFiles.push(filePath);
-    }
+    const allFiles: readonly string[] = await ctx.allFiles();
 
     /** Collect tsconfig directories — each tsconfig covers files under its directory. */
     const tsconfigDirs: Array<string> = [];

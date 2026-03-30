@@ -42,7 +42,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     let fileCount: number = 0;
-    for await (const _filePath of ctx.allFiles()) {
+    for (const _filePath of await ctx.allFiles()) {
       fileCount++;
     }
 

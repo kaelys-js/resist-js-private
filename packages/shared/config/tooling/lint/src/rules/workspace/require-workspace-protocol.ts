@@ -54,7 +54,7 @@ const rule: WorkspaceRule = {
         .filter((n: string | undefined): n is string => typeof n === 'string'),
     );
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const fileName: string = basename(filePath);
       if (fileName !== 'package.json') {
         continue;

@@ -50,7 +50,7 @@ const rule: WorkspaceRule = {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const results: Array<ReturnType<typeof createResult>> = [];
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const shouldCheck: boolean = CHECKED_SEGMENTS.some((segment: string): boolean =>
         filePath.includes(segment),
       );

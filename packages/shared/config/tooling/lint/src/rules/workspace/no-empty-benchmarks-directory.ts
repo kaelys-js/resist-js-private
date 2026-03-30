@@ -46,7 +46,7 @@ const rule: WorkspaceRule = {
 
     /** Collect all file paths in a single pass (allFiles is async iterable). */
     const allPaths: string[] = [];
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       allPaths.push(filePath);
     }
 

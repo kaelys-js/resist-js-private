@@ -96,7 +96,7 @@ const rule: WorkspaceRule = {
         ...Object.keys(devDeps),
       ]);
 
-      for await (const filePath of ctx.allFiles()) {
+      for (const filePath of await ctx.allFiles()) {
         /* Only check files inside this package. */
         const relToPackage: string = relative(pkgDir, filePath);
         if (relToPackage.startsWith('..') || relToPackage.startsWith('/')) {

@@ -46,7 +46,7 @@ const rule: WorkspaceRule = {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const results: Array<ReturnType<typeof createResult>> = [];
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
       if (GULP_CONFIG_NAMES.has(name)) {
         const relativePath: string = relative(ctx.rootDir, filePath);

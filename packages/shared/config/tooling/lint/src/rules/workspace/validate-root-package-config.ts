@@ -62,7 +62,7 @@ const rule: WorkspaceRule = {
     /* Find root package.json */
     let rootPkgPath: string | undefined;
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const relativePath: string = relative(ctx.rootDir, filePath);
       if (relativePath === 'package.json') {
         rootPkgPath = filePath;

@@ -51,7 +51,7 @@ const rule: WorkspaceRule = {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const results: Array<ReturnType<typeof createResult>> = [];
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const lowerPath: string = filePath.toLowerCase();
       const isWebp: boolean = lowerPath.endsWith('.webp');
       const isSvg: boolean = lowerPath.endsWith('.svg');

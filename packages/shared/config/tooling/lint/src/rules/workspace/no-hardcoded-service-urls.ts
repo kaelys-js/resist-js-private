@@ -57,7 +57,7 @@ const rule: WorkspaceRule = {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const results: Array<ReturnType<typeof createResult>> = [];
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const hasSrcExt: boolean = [...SOURCE_EXTENSIONS].some((ext: string): boolean =>
         filePath.endsWith(ext),
       );

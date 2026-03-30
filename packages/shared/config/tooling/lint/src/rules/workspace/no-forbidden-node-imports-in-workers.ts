@@ -71,7 +71,7 @@ const rule: WorkspaceRule = {
     /* First pass: identify directories containing wrangler.json. */
     const workerDirs: Set<string> = new Set<string>();
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
       if (name === 'wrangler.json' || name === 'wrangler.jsonc') {
         workerDirs.add(dirname(filePath));
@@ -83,7 +83,7 @@ const rule: WorkspaceRule = {
     }
 
     /* Second pass: scan source files in worker directories. */
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       /* Check if file is in a worker directory. */
       const isInWorkerDir: boolean = [...workerDirs].some(
         (dir: string): boolean => filePath.startsWith(dir + '/') || filePath === dir,

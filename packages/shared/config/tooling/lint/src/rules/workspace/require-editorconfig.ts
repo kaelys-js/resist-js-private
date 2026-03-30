@@ -43,7 +43,7 @@ const rule: WorkspaceRule = {
     let rootFilePath: string = join(ctx.rootDir, '.editorconfig');
     let rootContent: string = '';
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       if (basename(filePath) === '.editorconfig' && dirname(filePath) === ctx.rootDir) {
         found = true;
         rootFilePath = filePath;

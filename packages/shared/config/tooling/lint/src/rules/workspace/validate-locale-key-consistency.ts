@@ -51,7 +51,7 @@ const rule: WorkspaceRule = {
     /** Group locale JSON files by their parent directory. */
     const groups: Map<string, Array<string>> = new Map<string, Array<string>>();
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       if (!filePath.endsWith('.json')) {
         continue;
       }

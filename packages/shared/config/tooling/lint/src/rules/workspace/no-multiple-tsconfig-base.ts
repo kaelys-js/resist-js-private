@@ -45,7 +45,7 @@ const rule: WorkspaceRule = {
     /** Collect all tsconfig.base.json files. */
     const baseFiles: Array<string> = [];
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
       if (name === 'tsconfig.base.json') {
         baseFiles.push(filePath);
