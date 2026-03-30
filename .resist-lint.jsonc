@@ -544,7 +544,14 @@
     "workspace/mr-test-or-benchmark-regressions": "error",
     "workspace/valibot-consistency": "warn",
     "workspace/vitest-config-and-coverage": "error",
-    "workspace/vitest-config-and-usage": "error"
+    "workspace/vitest-config-and-usage": "error",
+
+    // Phase 36 — DangerJS PR Rules Migration
+    "workspace/pr-svg-optimized": "warn",
+    "workspace/pr-branch-commit-mismatch": "error",
+    "workspace/pr-description-required": "error",
+    "workspace/pr-no-merge-commits": "error",
+    "workspace/pr-wip-warning": "warn"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
