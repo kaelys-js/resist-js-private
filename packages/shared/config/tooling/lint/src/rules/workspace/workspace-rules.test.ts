@@ -113,6 +113,21 @@ import requireTsconfigSchema from './require-tsconfig-schema.ts';
 import noTsconfigTypesDuplicates from './no-tsconfig-types-duplicates.ts';
 import tsconfigReferencesResolve from './tsconfig-references-resolve.ts';
 import noTsconfigImportInconsistency from './no-tsconfig-import-inconsistency.ts';
+import noWildcardVersions from './no-wildcard-versions.ts';
+import noTarballDeps from './no-tarball-deps.ts';
+import noOptionalDependencies from './no-optional-dependencies.ts';
+import validatePackageEntrypoints from './validate-package-entrypoints.ts';
+import requirePackageDescription from './require-package-description.ts';
+import requirePackageNameVersion from './require-package-name-version.ts';
+import requirePackageSchema from './require-package-schema.ts';
+import requirePackageNameMatchesPath from './require-package-name-matches-path.ts';
+import noInvalidPackageVersion from './no-invalid-package-version.ts';
+import requirePackageMetadata from './require-package-metadata.ts';
+import requireWorkspaceProtocol from './require-workspace-protocol.ts';
+import noScriptConflicts from './no-script-conflicts.ts';
+import requirePackageAuthor from './require-package-author.ts';
+import noDuplicatePackageNames from './no-duplicate-package-names.ts';
+import requireSpdxLicense from './require-spdx-license.ts';
 
 // =============================================================================
 // Helpers
@@ -5303,6 +5318,803 @@ describe('workspace/no-tsconfig-import-inconsistency', () => {
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noTsconfigImportInconsistency.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 18 — package.json Validation Rules
+// =============================================================================
+
+describe('workspace/no-wildcard-versions', () => {
+  it('flags "latest" dep version', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ dependencies: { foo: 'latest' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWildcardVersions.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-wildcard-versions');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('latest');
+  });
+
+  it('flags "*" dep version', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ devDependencies: { bar: '*' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWildcardVersions.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('*');
+  });
+
+  it('flags empty dep version', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ dependencies: { baz: '' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWildcardVersions.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('(empty)');
+  });
+
+  it('passes valid semver versions', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ dependencies: { foo: '^1.2.3' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWildcardVersions.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ dependencies: { foo: 'latest' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWildcardVersions.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-tarball-deps', () => {
+  it('flags .tgz dep in dependencies', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({ dependencies: { foo: 'https://example.com/foo-1.0.0.tgz' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTarballDeps.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-tarball-deps');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('.tgz');
+  });
+
+  it('flags .tgz dep in devDependencies', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({ devDependencies: { bar: 'file:./bar-0.1.0.tgz' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTarballDeps.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes normal registry versions', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ dependencies: { foo: '^1.0.0' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTarballDeps.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/other.json',
+        JSON.stringify({ dependencies: { foo: 'https://example.com/foo.tgz' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTarballDeps.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-optional-dependencies', () => {
+  it('flags package.json with optionalDependencies', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ optionalDependencies: { foo: '^1.0.0' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noOptionalDependencies.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-optional-dependencies');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('optionalDependencies');
+  });
+
+  it('passes package.json without optionalDependencies', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ dependencies: { foo: '^1.0.0' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noOptionalDependencies.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/other.json', JSON.stringify({ optionalDependencies: { foo: '^1.0.0' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noOptionalDependencies.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/validate-package-entrypoints', () => {
+  it('flags missing main entry file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pkg/package.json', JSON.stringify({ main: './dist/index.js' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    vi.spyOn(ctx, 'fileExists').mockImplementation(() => Promise.resolve(false));
+    const results: LintResult[] = await validatePackageEntrypoints.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/validate-package-entrypoints');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('main');
+  });
+
+  it('flags missing module entry file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pkg/package.json', JSON.stringify({ module: './dist/index.mjs' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    vi.spyOn(ctx, 'fileExists').mockImplementation(() => Promise.resolve(false));
+    const results: LintResult[] = await validatePackageEntrypoints.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('module');
+  });
+
+  it('flags missing exports path', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/pkg/package.json',
+        JSON.stringify({ exports: { '.': { import: './dist/index.mjs' } } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    vi.spyOn(ctx, 'fileExists').mockImplementation(() => Promise.resolve(false));
+    const results: LintResult[] = await validatePackageEntrypoints.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('./dist/index.mjs');
+  });
+
+  it('passes when main file exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pkg/package.json', JSON.stringify({ main: './dist/index.js' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    vi.spyOn(ctx, 'fileExists').mockImplementation(() => Promise.resolve(true));
+    const results: LintResult[] = await validatePackageEntrypoints.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no entrypoints', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/pkg/package.json', JSON.stringify({ name: '@scope/pkg' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validatePackageEntrypoints.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/other.json', JSON.stringify({ main: './missing.js' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validatePackageEntrypoints.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/require-package-description', () => {
+  it('flags missing description', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: '@scope/pkg' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageDescription.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-package-description');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('description');
+  });
+
+  it('flags empty description', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ description: '' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageDescription.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes non-empty description', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ description: 'A useful package' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageDescription.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/other.json', JSON.stringify({ name: '@scope/pkg' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageDescription.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/require-package-name-version', () => {
+  it('flags missing name', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ version: '1.0.0' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageNameVersion.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-package-name-version');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('name');
+  });
+
+  it('flags missing version', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: '@scope/pkg' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageNameVersion.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results.some((r: LintResult) => r.message.includes('version'))).toBe(true);
+  });
+
+  it('flags empty name', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: '', version: '1.0.0' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageNameVersion.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('passes with both name and version', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: '@scope/pkg', version: '1.0.0' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageNameVersion.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/other.json', JSON.stringify({})]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageNameVersion.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/require-package-schema', () => {
+  it('flags missing $schema', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: '@scope/pkg' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageSchema.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-package-schema');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('$schema');
+  });
+
+  it('flags wrong $schema value', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({ $schema: 'https://wrong.example.com/schema.json' }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageSchema.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Invalid');
+  });
+
+  it('passes correct $schema', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({ $schema: 'https://json.schemastore.org/package.json' }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageSchema.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/other.json', JSON.stringify({})]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageSchema.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/require-package-name-matches-path', () => {
+  it('flags when name does not match directory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/foo/package.json', JSON.stringify({ name: '@scope/bar' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageNameMatchesPath.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-package-name-matches-path');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('bar');
+    expect(results[0]!.message).toContain('foo');
+  });
+
+  it('passes when scoped name matches directory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/foo/package.json', JSON.stringify({ name: '@scope/foo' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageNameMatchesPath.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when unscoped name matches directory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/foo/package.json', JSON.stringify({ name: 'foo' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageNameMatchesPath.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips package.json with no name', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/foo/package.json', JSON.stringify({})],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageNameMatchesPath.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/foo/other.json', JSON.stringify({ name: '@scope/bar' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageNameMatchesPath.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-invalid-package-version', () => {
+  it('flags missing version', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: '@scope/pkg' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInvalidPackageVersion.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-invalid-package-version');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('flags invalid version string', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ version: 'abc' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInvalidPackageVersion.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('abc');
+  });
+
+  it('flags workspace:* in non-private package', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ version: 'workspace:*' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInvalidPackageVersion.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('workspace:*');
+  });
+
+  it('passes valid semver', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ version: '1.2.3' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInvalidPackageVersion.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes workspace:* in private package', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ version: 'workspace:*', private: true })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInvalidPackageVersion.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes prerelease version', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ version: '0.1.0-beta.1' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInvalidPackageVersion.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/require-package-metadata', () => {
+  it('flags inconsistent author', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({ author: { name: 'Root Author' }, homepage: 'https://example.com' }),
+      ],
+      ['/workspace/packages/foo/package.json', JSON.stringify({ author: { name: 'Other' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageMetadata.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-package-metadata');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('flags missing homepage in child', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ homepage: 'https://example.com' })],
+      ['/workspace/packages/foo/package.json', JSON.stringify({})],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageMetadata.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('passes when metadata matches root', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ homepage: 'https://example.com' })],
+      ['/workspace/packages/foo/package.json', JSON.stringify({ homepage: 'https://example.com' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageMetadata.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when root has no metadata', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: 'root' })],
+      ['/workspace/packages/foo/package.json', JSON.stringify({})],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageMetadata.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ homepage: 'https://example.com' })],
+      ['/workspace/other.json', JSON.stringify({})],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageMetadata.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/require-workspace-protocol', () => {
+  it('flags internal dep without workspace: protocol', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/bar/package.json',
+        JSON.stringify({ dependencies: { '@scope/foo': '^1.0.0' } }),
+      ],
+    ]);
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@scope/foo',
+        path: '/workspace/packages/foo/package.json',
+        dir: '/workspace/packages/foo',
+        packageJson: {},
+      },
+      {
+        name: '@scope/bar',
+        path: '/workspace/packages/bar/package.json',
+        dir: '/workspace/packages/bar',
+        packageJson: {},
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await requireWorkspaceProtocol.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-workspace-protocol');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('@scope/foo');
+  });
+
+  it('flags internal dep in devDependencies', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/bar/package.json',
+        JSON.stringify({ devDependencies: { '@scope/foo': '~2.0.0' } }),
+      ],
+    ]);
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@scope/foo',
+        path: '/workspace/packages/foo/package.json',
+        dir: '/workspace/packages/foo',
+        packageJson: {},
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await requireWorkspaceProtocol.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes internal dep with workspace:*', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/bar/package.json',
+        JSON.stringify({ dependencies: { '@scope/foo': 'workspace:*' } }),
+      ],
+    ]);
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@scope/foo',
+        path: '/workspace/packages/foo/package.json',
+        dir: '/workspace/packages/foo',
+        packageJson: {},
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await requireWorkspaceProtocol.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes external dep with normal version', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/bar/package.json',
+        JSON.stringify({ dependencies: { react: '^18.0.0' } }),
+      ],
+    ]);
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@scope/bar',
+        path: '/workspace/packages/bar/package.json',
+        dir: '/workspace/packages/bar',
+        packageJson: {},
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await requireWorkspaceProtocol.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/other.json', JSON.stringify({ dependencies: { '@scope/foo': '^1.0.0' } })],
+    ]);
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@scope/foo',
+        path: '/workspace/packages/foo/package.json',
+        dir: '/workspace/packages/foo',
+        packageJson: {},
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ files, packages });
+    const results: LintResult[] = await requireWorkspaceProtocol.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-script-conflicts', () => {
+  it('flags conflicting scripts across packages', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/a/package.json', JSON.stringify({ scripts: { build: 'tsc' } })],
+      ['/workspace/packages/b/package.json', JSON.stringify({ scripts: { build: 'vite build' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noScriptConflicts.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-script-conflicts');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('build');
+  });
+
+  it('passes same script values across packages', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/a/package.json', JSON.stringify({ scripts: { build: 'tsc' } })],
+      ['/workspace/packages/b/package.json', JSON.stringify({ scripts: { build: 'tsc' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noScriptConflicts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes single package', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ scripts: { build: 'tsc' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noScriptConflicts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/other.json', JSON.stringify({ scripts: { build: 'tsc' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noScriptConflicts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/require-package-author', () => {
+  it('flags missing author', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: '@scope/pkg' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageAuthor.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-package-author');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('author');
+  });
+
+  it('flags null author', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ author: null })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageAuthor.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes string author', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ author: 'Some Author' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageAuthor.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes object author with name', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ author: { name: 'Some Author' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePackageAuthor.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-duplicate-package-names', () => {
+  it('flags duplicate package names', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/a/package.json', JSON.stringify({ name: '@scope/same' })],
+      ['/workspace/packages/b/package.json', JSON.stringify({ name: '@scope/same' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDuplicatePackageNames.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-duplicate-package-names');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('@scope/same');
+  });
+
+  it('passes unique package names', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/a/package.json', JSON.stringify({ name: '@scope/a' })],
+      ['/workspace/packages/b/package.json', JSON.stringify({ name: '@scope/b' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDuplicatePackageNames.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips packages with no name', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/a/package.json', JSON.stringify({})],
+      ['/workspace/packages/b/package.json', JSON.stringify({})],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDuplicatePackageNames.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/other.json', JSON.stringify({ name: '@scope/same' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDuplicatePackageNames.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/require-spdx-license', () => {
+  it('flags missing license', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: '@scope/pkg' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireSpdxLicense.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-spdx-license');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('license');
+  });
+
+  it('flags invalid SPDX license', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ license: 'INVALID-LICENSE' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireSpdxLicense.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('INVALID-LICENSE');
+  });
+
+  it('passes MIT license', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ license: 'MIT' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireSpdxLicense.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes Apache-2.0 license', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ license: 'Apache-2.0' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireSpdxLicense.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/other.json', JSON.stringify({ license: 'INVALID' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireSpdxLicense.check(ctx);
     expect(results.length).toBe(0);
   });
 });
