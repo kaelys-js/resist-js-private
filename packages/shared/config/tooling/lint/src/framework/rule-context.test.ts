@@ -551,6 +551,17 @@ describe('createWorkspaceContext — allFiles caching', () => {
   });
 });
 
+describe('createWorkspaceContext — readFile caching', () => {
+  it('returns identical content on repeated reads of the same file', async () => {
+    const ctx: WorkspaceContext = createWorkspaceContext(THIS_DIR);
+    const path: string = join(THIS_DIR, 'rule-context.ts');
+    const first: string = await ctx.readFile(path);
+    const second: string = await ctx.readFile(path);
+    expect(first).toBe(second);
+    expect(first.length).toBeGreaterThan(0);
+  });
+});
+
 describe('createWorkspaceContext — exclude', () => {
   it('accepts exclude parameter and filters allFiles accordingly', async () => {
     const lintSrcDir: string = join(THIS_DIR, '..');
