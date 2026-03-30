@@ -11,7 +11,8 @@
  * @module
  */
 
-import { type Dirent, readdirSync } from 'node:fs';
+import type { Dirent } from 'node:fs';
+import { readdir } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -95,7 +96,7 @@ async function _loadAllRulesUncached(strings: LintStrings): Promise<LoadedRules>
   const currentDir: string = fileURLToPath(new URL('.', import.meta.url));
   const rulesDir: string = join(currentDir, '..', 'rules');
 
-  const ruleFiles: string[] = collectRuleFiles(rulesDir);
+  const ruleFiles: string[] = await collectRuleFiles(rulesDir);
 
   const tsRules: TypeScriptRule[] = [];
   const pkgRules: PackageJsonRule[] = [];
@@ -293,26 +294,29 @@ function backfillDefaults(rules: BaseRule[]): void {
  * Recursively collect all rule file paths from a directory.
  *
  * Skips test files, barrel files, and non-TypeScript files.
+ * Subdirectories are scanned concurrently via Promise.all.
  *
  * @param dir - Directory to scan
  * @returns Array of absolute file paths to rule modules
  */
-function collectRuleFiles(dir: string): string[] {
+async function collectRuleFiles(dir: string): Promise<string[]> {
   const files: string[] = [];
 
   let entries: Dirent[];
   try {
-    entries = readdirSync(dir, { withFileTypes: true }) as Dirent[];
+    entries = (await readdir(dir, { withFileTypes: true })) as Dirent[];
   } catch {
     return files;
   }
+
+  const subdirPromises: Promise<string[]>[] = [];
 
   for (const entry of entries) {
     const name: string = entry.name as string;
     const fullPath: string = join(dir, name);
 
     if (entry.isDirectory()) {
-      files.push(...collectRuleFiles(fullPath));
+      subdirPromises.push(collectRuleFiles(fullPath));
       continue;
     }
 
@@ -336,6 +340,13 @@ function collectRuleFiles(dir: string): string[] {
     }
 
     files.push(fullPath);
+  }
+
+  if (subdirPromises.length > 0) {
+    const subdirResults: string[][] = await Promise.all(subdirPromises);
+    for (const subFiles of subdirResults) {
+      files.push(...subFiles);
+    }
   }
 
   return files;

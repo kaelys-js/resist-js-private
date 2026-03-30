@@ -90,8 +90,12 @@ function offsetToLoc(offset: number, lineStarts: number[]): { line: number; colu
 }
 
 /**
- * Patch `loc` onto all AST nodes using byte offsets and a line map.
+ * Install lazy `loc` getters on all AST nodes using byte offsets and a line map.
  * oxc-parser only provides `start`/`end` byte offsets, not `loc`.
+ *
+ * Each node gets a getter that computes line/column on first access via binary
+ * search, then replaces itself with the computed value (self-caching). Nodes
+ * whose `loc` is never accessed pay zero computation cost.
  *
  * @param node - Root AST node
  * @param lineStarts - Line start offsets
@@ -101,13 +105,33 @@ function patchLoc(node: unknown, lineStarts: number[]): void {
     return;
   }
 
-  const astNode: AstNode = node as AstNode; // Cast safe: guarded by type check
+  const astNode: Record<string, unknown> = node as Record<string, unknown>;
 
   if (astNode.type && typeof astNode.start === 'number' && typeof astNode.end === 'number') {
-    astNode.loc = {
-      start: offsetToLoc(astNode.start, lineStarts),
-      end: offsetToLoc(astNode.end, lineStarts),
-    };
+    const startOffset: number = astNode.start as number;
+    const endOffset: number = astNode.end as number;
+
+    Object.defineProperty(astNode, 'loc', {
+      configurable: true,
+      enumerable: true,
+      get(): { start: { line: number; column: number }; end: { line: number; column: number } } {
+        const computed: {
+          start: { line: number; column: number };
+          end: { line: number; column: number };
+        } = {
+          start: offsetToLoc(startOffset, lineStarts),
+          end: offsetToLoc(endOffset, lineStarts),
+        };
+        /* Replace getter with computed value — subsequent accesses are free */
+        Object.defineProperty(astNode, 'loc', {
+          configurable: true,
+          enumerable: true,
+          writable: true,
+          value: computed,
+        });
+        return computed;
+      },
+    });
   }
 
   for (const key of Object.keys(astNode)) {
@@ -148,6 +172,10 @@ export function walkNode(node: unknown, callback: (node: AstNode) => void): void
   }
 
   for (const key of Object.keys(astNode)) {
+    /* Skip loc — it's a leaf (no child AST nodes) and may be a lazy getter */
+    if (key === 'loc') {
+      continue;
+    }
     const value: unknown = astNode[key];
 
     if (Array.isArray(value)) {

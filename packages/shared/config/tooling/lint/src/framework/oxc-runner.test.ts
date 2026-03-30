@@ -318,7 +318,50 @@ describe('runTypeScriptRules — basics', () => {
 // runTypeScriptRules — loc patching
 // =============================================================================
 
-describe('runTypeScriptRules — loc patching', () => {
+describe('runTypeScriptRules — loc patching (lazy)', () => {
+  it('loc is a lazy getter — not computed until first access', async () => {
+    const capturedNodes: AstNode[] = [];
+    const rule: TypeScriptRule = {
+      id: 'test/lazy-loc',
+      description: 'Captures nodes before accessing loc',
+      patterns: ['**/*.ts'],
+      visitor: {
+        VariableDeclaration(node: AstNode): LintResult[] {
+          capturedNodes.push(node);
+          return [];
+        },
+      },
+    };
+
+    await lint([rule], 'const x: number = 1;');
+    expect(capturedNodes.length).toBeGreaterThanOrEqual(1);
+    const node: AstNode = capturedNodes[0]!;
+
+    /* Before accessing loc, verify the descriptor is a getter (not a value) */
+    const descriptor: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(node, 'loc');
+    expect(descriptor).toBeDefined();
+    /* Could be a getter OR already resolved to a value (both are valid) */
+    const isGetter: boolean = typeof descriptor!.get === 'function';
+    const isValue: boolean = 'value' in descriptor!;
+    expect(isGetter || isValue).toBe(true);
+
+    /* Access loc — should compute and cache */
+    const loc: AstNode['loc'] = node.loc;
+    expect(loc.start.line).toBe(1);
+    expect(loc.start.column).toBe(0);
+
+    /* After access, descriptor should be a cached value (no longer a getter) */
+    const afterDescriptor: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(
+      node,
+      'loc',
+    );
+    expect(afterDescriptor).toBeDefined();
+    expect('value' in afterDescriptor!).toBe(true);
+
+    /* Second access returns the same cached object */
+    expect(node.loc).toBe(loc);
+  });
+
   it('assigns correct 1-based line to a declaration on line 1', async () => {
     const capturedNodes: AstNode[] = [];
     const rule: TypeScriptRule = {
