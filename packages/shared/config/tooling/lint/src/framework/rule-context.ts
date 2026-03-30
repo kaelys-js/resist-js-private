@@ -56,6 +56,8 @@ export type WorkspaceContext = {
   rootDir: string;
   /** All files in the workspace (skips ignored dirs). Cached after first call. */
   allFiles: () => Promise<readonly string[]>;
+  /** Files matching one or more extensions (e.g. '.ts', '.json'). Cached per extension set. */
+  filesByExtension: (...exts: string[]) => Promise<readonly string[]>;
   /** Read a file's contents. */
   readFile: (path: string) => Promise<string>;
   /** Check if a file exists. */
@@ -498,9 +500,25 @@ export function createWorkspaceContext(
     return cached;
   }
 
+  /** Extension-filtered file cache — keyed by sorted comma-joined extensions. */
+  const extCache: Map<string, Promise<readonly string[]>> = new Map();
+
+  function cachedFilesByExtension(...exts: string[]): Promise<readonly string[]> {
+    const key: string = exts.slice().sort().join(',');
+    let cached: Promise<readonly string[]> | undefined = extCache.get(key);
+    if (cached === undefined) {
+      cached = getFileCache().then((files: readonly string[]): readonly string[] =>
+        files.filter((f: string): boolean => exts.some((ext: string): boolean => f.endsWith(ext))),
+      );
+      extCache.set(key, cached);
+    }
+    return cached;
+  }
+
   return {
     rootDir,
     allFiles: (): Promise<readonly string[]> => getFileCache(),
+    filesByExtension: cachedFilesByExtension,
     readFile: cachedReadFile,
     fileExists: cachedFileExists,
     dirExists: cachedDirExists,

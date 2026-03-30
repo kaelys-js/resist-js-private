@@ -544,6 +544,64 @@ describe('createWorkspaceContext — readFile caching', () => {
   });
 });
 
+describe('createWorkspaceContext — filesByExtension', () => {
+  it('returns only files matching the given extension', async () => {
+    const ctx: WorkspaceContext = createWorkspaceContext(THIS_DIR);
+    const tsFiles: readonly string[] = await ctx.filesByExtension('.ts');
+    expect(tsFiles.length).toBeGreaterThan(0);
+    for (const f of tsFiles) {
+      expect(f.endsWith('.ts')).toBe(true);
+    }
+  });
+
+  it('returns files matching multiple extensions', async () => {
+    const lintSrcDir: string = join(THIS_DIR, '..');
+    const ctx: WorkspaceContext = createWorkspaceContext(lintSrcDir);
+    const files: readonly string[] = await ctx.filesByExtension('.ts', '.json');
+    expect(files.length).toBeGreaterThan(0);
+    for (const f of files) {
+      expect(f.endsWith('.ts') || f.endsWith('.json')).toBe(true);
+    }
+  });
+
+  it('returns empty array when no files match', async () => {
+    const ctx: WorkspaceContext = createWorkspaceContext(THIS_DIR);
+    const files: readonly string[] = await ctx.filesByExtension('.xyz999');
+    expect(files).toEqual([]);
+  });
+
+  it('caches results — same reference on repeated calls', async () => {
+    const ctx: WorkspaceContext = createWorkspaceContext(THIS_DIR);
+    const first: readonly string[] = await ctx.filesByExtension('.ts');
+    const second: readonly string[] = await ctx.filesByExtension('.ts');
+    expect(first).toBe(second);
+  });
+
+  it('caches independently per extension set', async () => {
+    const ctx: WorkspaceContext = createWorkspaceContext(THIS_DIR);
+    const tsFiles: readonly string[] = await ctx.filesByExtension('.ts');
+    const jsonFiles: readonly string[] = await ctx.filesByExtension('.json');
+    expect(tsFiles).not.toBe(jsonFiles);
+  });
+
+  it('returns same cache regardless of extension argument order', async () => {
+    const lintSrcDir: string = join(THIS_DIR, '..');
+    const ctx: WorkspaceContext = createWorkspaceContext(lintSrcDir);
+    const a: readonly string[] = await ctx.filesByExtension('.ts', '.json');
+    const b: readonly string[] = await ctx.filesByExtension('.json', '.ts');
+    expect(a).toBe(b);
+  });
+
+  it('is a subset of allFiles', async () => {
+    const ctx: WorkspaceContext = createWorkspaceContext(THIS_DIR);
+    const all: readonly string[] = await ctx.allFiles();
+    const tsFiles: readonly string[] = await ctx.filesByExtension('.ts');
+    for (const f of tsFiles) {
+      expect(all).toContain(f);
+    }
+  });
+});
+
 describe('createWorkspaceContext — exclude', () => {
   it('accepts exclude parameter and filters allFiles accordingly', async () => {
     const lintSrcDir: string = join(THIS_DIR, '..');

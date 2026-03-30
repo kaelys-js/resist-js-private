@@ -73,6 +73,14 @@ export type LintConfig = v.InferOutput<typeof LintConfigSchema>;
  * @param {LintStrings} strings - Locale strings for user-facing messages
  * @throws If the config file contains invalid JSON or fails schema validation
  */
+/** Per-path config cache — config files don't change within a process. */
+const CONFIG_CACHE = new Map();
+
+/** Clear the config cache (for testing only). */
+export function _resetConfigCache(): void {
+  CONFIG_CACHE.clear();
+}
+
 export function loadConfig(
   cwd: string,
   customConfigPath: string | undefined,
@@ -81,13 +89,22 @@ export function loadConfig(
   const configPath: string = customConfigPath
     ? resolve(cwd, customConfigPath)
     : resolve(cwd, CONFIG_FILENAME);
+
+  const cached: LintConfig | undefined = CONFIG_CACHE.get(configPath);
+  if (cached !== undefined) {
+    /* Return a shallow copy so callers can mutate exclude/rules without poisoning the cache. */
+    return { ...cached, exclude: [...cached.exclude], rules: { ...cached.rules } };
+  }
+
   let raw: string;
 
   try {
     raw = readFileSync(configPath, 'utf8');
   } catch {
     /* No config file — return defaults */
-    return v.parse(LintConfigSchema, {});
+    const defaults: LintConfig = v.parse(LintConfigSchema, {});
+    CONFIG_CACHE.set(configPath, defaults);
+    return { ...defaults, exclude: [...defaults.exclude], rules: { ...defaults.rules } };
   }
 
   /* Strip JSONC comments before parsing */
@@ -119,7 +136,12 @@ export function loadConfig(
     throw new Error(format(strings.errors.invalidConfig, { issues, path: configPath }));
   }
 
-  return result.output;
+  CONFIG_CACHE.set(configPath, result.output);
+  return {
+    ...result.output,
+    exclude: [...result.output.exclude],
+    rules: { ...result.output.rules },
+  };
 }
 
 /**

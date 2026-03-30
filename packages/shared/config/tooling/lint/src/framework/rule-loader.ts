@@ -80,7 +80,18 @@ export type LoadedRules = v.InferOutput<typeof LoadedRulesSchema>;
  * @param {LintStrings} strings - Locale strings for user-facing messages
  * @returns {Promise<LoadedRules>} All discovered rules, categorized by type
  */
-export async function loadAllRules(strings: LintStrings): Promise<LoadedRules> {
+/** Module-level cache — rules never change within a process lifetime. */
+let cachedRules: Promise<LoadedRules> | undefined;
+
+export function loadAllRules(strings: LintStrings): Promise<LoadedRules> {
+  if (cachedRules === undefined) {
+    cachedRules = _loadAllRulesUncached(strings);
+  }
+  return cachedRules;
+}
+
+/** Uncached implementation — called once per process. */
+async function _loadAllRulesUncached(strings: LintStrings): Promise<LoadedRules> {
   const currentDir: string = fileURLToPath(new URL('.', import.meta.url));
   const rulesDir: string = join(currentDir, '..', 'rules');
 

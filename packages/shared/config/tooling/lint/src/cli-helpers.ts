@@ -607,11 +607,19 @@ export function applyFixes(content: string, fixes: LintFix[]): string {
  * @param {PackageJsonRule[]} pkgRules - All package.json rules
  * @param {LintStrings} strings - Locale strings for schema descriptions
  */
+/** Track whether the JSON schema has already been written this process. */
+let schemaWritten: boolean = false;
+
 export function writeJsonSchema(
   tsRules: TypeScriptRule[],
   pkgRules: PackageJsonRule[],
   strings: LintStrings,
 ): void {
+  if (schemaWritten) {
+    return;
+  }
+  schemaWritten = true;
+
   const allRuleIds: string[] = [
     ...tsRules.map((r: TypeScriptRule): string => r.id),
     ...pkgRules.map((r: PackageJsonRule): string => r.id),

@@ -6,7 +6,7 @@
 
 import { readFileSync } from 'node:fs';
 
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as v from 'valibot';
 
 import { en } from '@/lint/locale/locales/en.ts';
@@ -16,12 +16,17 @@ import {
   OverrideSchema,
   LintConfigSchema,
   loadConfig,
+  _resetConfigCache,
   resolveRuleSeverity,
   generateJsonSchema,
   type LintConfig,
 } from './schema.ts';
 
 vi.mock('node:fs');
+
+beforeEach(() => {
+  _resetConfigCache();
+});
 
 // =============================================================================
 // RuleSeveritySchema
@@ -665,6 +670,60 @@ describe('loadConfig — ruleOptions', () => {
 
     const config: LintConfig = loadConfig('/some/dir', undefined, en);
     expect(config.ruleOptions).toEqual({});
+  });
+});
+
+// =============================================================================
+// loadConfig — caching
+// =============================================================================
+
+describe('loadConfig — caching', () => {
+  it('returns cached result on second call with same path', () => {
+    vi.mocked(readFileSync).mockClear();
+    vi.mocked(readFileSync).mockReturnValue('{ "rules": { "foo/bar": "warn" } }');
+
+    const first: LintConfig = loadConfig('/cache/dir', undefined, en);
+    const second: LintConfig = loadConfig('/cache/dir', undefined, en);
+    expect(first.rules['foo/bar']).toBe('warn');
+    expect(second.rules['foo/bar']).toBe('warn');
+    /* readFileSync should only be called once for this path. */
+    expect(vi.mocked(readFileSync)).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns shallow copies so mutations do not poison the cache', () => {
+    vi.mocked(readFileSync).mockReturnValue('{ "rules": { "a/b": "error" } }');
+
+    const first: LintConfig = loadConfig('/mutate/dir', undefined, en);
+    first.exclude.push('extra-pattern');
+    first.rules['a/b'] = 'off';
+
+    const second: LintConfig = loadConfig('/mutate/dir', undefined, en);
+    expect(second.exclude).not.toContain('extra-pattern');
+    expect(second.rules['a/b']).toBe('error');
+  });
+
+  it('caches defaults when config file does not exist', () => {
+    vi.mocked(readFileSync).mockClear();
+    vi.mocked(readFileSync).mockImplementation(() => {
+      throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
+    });
+
+    const first: LintConfig = loadConfig('/no/file', undefined, en);
+    const second: LintConfig = loadConfig('/no/file', undefined, en);
+    expect(first.include).toEqual([]);
+    expect(second.include).toEqual([]);
+    expect(vi.mocked(readFileSync)).toHaveBeenCalledTimes(1);
+  });
+
+  it('_resetConfigCache clears the cache', () => {
+    vi.mocked(readFileSync).mockReturnValue('{ "rules": { "x/y": "warn" } }');
+    loadConfig('/reset/dir', undefined, en);
+
+    _resetConfigCache();
+
+    vi.mocked(readFileSync).mockReturnValue('{ "rules": { "x/y": "off" } }');
+    const after: LintConfig = loadConfig('/reset/dir', undefined, en);
+    expect(after.rules['x/y']).toBe('off');
   });
 });
 
