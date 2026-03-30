@@ -280,7 +280,7 @@ auto_register_checks
 # ------
 
 # ------------------------------------------------------------------------------
-# 🧪 check::no_empty_files — Detect and warn about unexpected empty files
+# 🧪 ported::no_empty_files — Detect and warn about unexpected empty files
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects empty files in the project that are not intentionally allowed
@@ -295,7 +295,7 @@ auto_register_checks
 #
 # Example:
 #   ROOT_DIR="/repo"
-#   check::no_empty_files
+#   ported::no_empty_files
 #
 # Categories:
 #   lint, safety, ci, encoding
@@ -303,7 +303,7 @@ auto_register_checks
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::no_empty_files() {
+ported::no_empty_files() {
   # ✅ Check: Empty files should not exist unless intentionally allowed
   # Category: lint, safety, ci, encoding
   # Stages: check, lint
@@ -327,7 +327,7 @@ check::no_empty_files() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::no_exec_bit_on_non_scripts — Disallow exec permissions on non-script files
+# 🧪 ported::no_exec_bit_on_non_scripts — Disallow exec permissions on non-script files
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Scans all files for +x (executable) permission
@@ -342,7 +342,7 @@ check::no_empty_files() {
 #
 # Example:
 #   ROOT_DIR="/repo"
-#   check::no_exec_bit_on_non_scripts
+#   ported::no_exec_bit_on_non_scripts
 #
 # Categories:
 #   safety, lint, shell
@@ -350,7 +350,7 @@ check::no_empty_files() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::no_exec_bit_on_non_scripts() {
+ported::no_exec_bit_on_non_scripts() {
   # ✅ Check: No non-script files should have executable permission
   # Category: safety, lint, shell
   # Stages: lint, check
@@ -370,7 +370,7 @@ check::no_exec_bit_on_non_scripts() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::no_broken_symlinks — Detect broken symbolic links across the project
+# 🧪 ported::no_broken_symlinks — Detect broken symbolic links across the project
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Searches for symbolic links that point to non-existent files
@@ -385,7 +385,7 @@ check::no_exec_bit_on_non_scripts() {
 #
 # Example:
 #   ROOT_DIR="/repo"
-#   check::no_broken_symlinks
+#   ported::no_broken_symlinks
 #
 # Categories:
 #   ci, safety, paths
@@ -393,7 +393,7 @@ check::no_exec_bit_on_non_scripts() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::no_broken_symlinks() {
+ported::no_broken_symlinks() {
   # ✅ Check: No broken symbolic links exist
   # Category: ci, safety, paths
   # Stages: lint, check
@@ -413,7 +413,7 @@ check::no_broken_symlinks() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::no_temp_or_debug_files — Ensure no leftover temp or debug artifacts
+# 🧪 ported::no_temp_or_debug_files — Ensure no leftover temp or debug artifacts
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects common temporary or debug files committed accidentally
@@ -428,7 +428,7 @@ check::no_broken_symlinks() {
 #
 # Example:
 #   ROOT_DIR="/repo"
-#   check::no_temp_or_debug_files
+#   ported::no_temp_or_debug_files
 #
 # Categories:
 #   ci, safety, shell, lint
@@ -436,7 +436,7 @@ check::no_broken_symlinks() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::no_temp_or_debug_files() {
+ported::no_temp_or_debug_files() {
   # ✅ Check: No *.log, *.tmp, *.bak, *.orig, *.swp, .DS_Store, *~ files exist
   # Category: ci, safety, shell, lint
   # Stages: check, lint
@@ -460,7 +460,7 @@ check::no_temp_or_debug_files() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::no_excess_trailing_newlines — Disallow multiple trailing newlines
+# 🧪 ported::no_excess_trailing_newlines — Disallow multiple trailing newlines
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Scans all text files for multiple trailing newlines
@@ -474,7 +474,7 @@ check::no_temp_or_debug_files() {
 #   - None
 #
 # Example:
-#   check::no_excess_trailing_newlines
+#   ported::no_excess_trailing_newlines
 #
 # Categories:
 #   encoding, lint, ci
@@ -482,7 +482,7 @@ check::no_temp_or_debug_files() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::no_excess_trailing_newlines() {
+ported::no_excess_trailing_newlines() {
   # ✅ Check: Files must not end with more than one newline
   # Category: encoding, lint, ci
   # Stages: lint, check
@@ -503,7 +503,7 @@ check::no_excess_trailing_newlines() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::no_mixed_indentation — Disallow mixing tabs and spaces
+# 🧪 ported::no_mixed_indentation — Disallow mixing tabs and spaces
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Searches for lines that begin with both tab and space characters
@@ -517,7 +517,7 @@ check::no_excess_trailing_newlines() {
 #   - None
 #
 # Example:
-#   check::no_mixed_indentation
+#   ported::no_mixed_indentation
 #
 # Categories:
 #   lint, encoding, ci
@@ -525,7 +525,7 @@ check::no_excess_trailing_newlines() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::no_mixed_indentation() {
+ported::no_mixed_indentation() {
   # ✅ Check: No lines use both tab and space indentation
   # Category: lint, encoding, ci
   # Stages: lint, check
@@ -545,7 +545,7 @@ check::no_mixed_indentation() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::no_hardcoded_ips — Warn on hardcoded IP addresses in source files
+# 🧪 ported::no_hardcoded_ips — Warn on hardcoded IP addresses in source files
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Scans for hardcoded IPv4 addresses across the codebase
@@ -559,7 +559,7 @@ check::no_mixed_indentation() {
 #   - None
 #
 # Example:
-#   check::no_hardcoded_ips
+#   ported::no_hardcoded_ips
 #
 # Categories:
 #   safety, lint, ci
@@ -567,7 +567,7 @@ check::no_mixed_indentation() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::no_hardcoded_ips() {
+ported::no_hardcoded_ips() {
   # ✅ Check: Warn on hardcoded IP addresses in non-excluded files
   # Category: safety, lint, ci
   # Stages: lint, check
@@ -586,7 +586,7 @@ check::no_hardcoded_ips() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::no_hardcoded_urls — Warn on hardcoded external URLs or domains
+# 🧪 ported::no_hardcoded_urls — Warn on hardcoded external URLs or domains
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Scans the codebase for http/https URLs embedded in source files
@@ -600,7 +600,7 @@ check::no_hardcoded_ips() {
 #   - None
 #
 # Example:
-#   check::no_hardcoded_urls
+#   ported::no_hardcoded_urls
 #
 # Categories:
 #   safety, lint, ci
@@ -608,7 +608,7 @@ check::no_hardcoded_ips() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::no_hardcoded_urls() {
+ported::no_hardcoded_urls() {
   # ✅ Check: Warn on hardcoded URLs/domains — use ENV vars for production endpoints
   # Category: safety, lint, ci
   # Stages: lint, check
@@ -628,7 +628,7 @@ check::no_hardcoded_urls() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::no_broken_symlinks — Detect and block broken symlinks in workspace
+# 🧪 ported::no_broken_symlinks — Detect and block broken symlinks in workspace
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Scans the entire repo (excluding .git and node_modules) for symlinks
@@ -643,7 +643,7 @@ check::no_hardcoded_urls() {
 #
 # Example:
 #   ROOT_DIR="/repo"
-#   check::no_broken_symlinks
+#   ported::no_broken_symlinks
 #
 # Categories:
 #   ci, paths, safety
@@ -651,7 +651,7 @@ check::no_hardcoded_urls() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::no_broken_symlinks() {
+ported::no_broken_symlinks() {
   # ✅ Check: Broken symlinks should not exist anywhere in the project
   # Category: ci, paths, safety
   # Stages: lint, check
@@ -674,7 +674,7 @@ check::no_broken_symlinks() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::no_committed_todos — Warn on TODO/FIXME in committed source files
+# 🧪 ported::no_committed_todos — Warn on TODO/FIXME in committed source files
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Scans committed files for TODO or FIXME comments
@@ -689,7 +689,7 @@ check::no_broken_symlinks() {
 #
 # Example:
 #   ROOT_DIR="/repo"
-#   check::no_committed_todos
+#   ported::no_committed_todos
 #
 # Categories:
 #   lint, safety, ci
@@ -697,7 +697,7 @@ check::no_broken_symlinks() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::no_committed_todos() {
+ported::no_committed_todos() {
   # ✅ Check: Warn if TODO or FIXME comments are committed to source
   # Category: lint, safety, ci
   # Stages: lint, check
@@ -716,7 +716,7 @@ check::no_committed_todos() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::no_fixup_or_squash_commits — Block unrebased fixup! or squash! commits
+# 🧪 ported::no_fixup_or_squash_commits — Block unrebased fixup! or squash! commits
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Scans the most recent Git commit for fixup! or squash! patterns
@@ -730,7 +730,7 @@ check::no_committed_todos() {
 #   - None
 #
 # Example:
-#   check::no_fixup_or_squash_commits
+#   ported::no_fixup_or_squash_commits
 #
 # Categories:
 #   ci, safety, naming
@@ -738,7 +738,7 @@ check::no_committed_todos() {
 # Stages:
 #   pre-commit, check
 # ------------------------------------------------------------------------------
-check::no_fixup_or_squash_commits() {
+ported::no_fixup_or_squash_commits() {
   # ✅ Check: Prevent fixup! or squash! commits from merging
   # Category: ci, safety, naming
   # Stages: pre-commit, check
@@ -876,7 +876,7 @@ check::detached_head_state() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::no_js_files_committed — Disallow .js, .cjs, and .mjs files in workspace
+# 🧪 ported::no_js_files_committed — Disallow .js, .cjs, and .mjs files in workspace
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Scans for committed JavaScript files (excluding node_modules and .git)
@@ -890,7 +890,7 @@ check::detached_head_state() {
 #   - None
 #
 # Example:
-#   check::no_js_files_committed
+#   ported::no_js_files_committed
 #
 # Categories:
 #   lint, safety, tsconfig, naming
@@ -898,7 +898,7 @@ check::detached_head_state() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::no_js_files_committed() {
+ported::no_js_files_committed() {
   # ✅ Check: Disallow any committed .js, .cjs, or .mjs files in workspace
   # Category: lint, safety, tsconfig, naming
   # Stages: lint, check
@@ -1804,7 +1804,7 @@ check::monorepo_layout_example_schema_valid() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_nvmrc_file — Prevent accidental use of .nvmrc files
+# 🧪 ported::disallow_nvmrc_file — Prevent accidental use of .nvmrc files
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Ensures no `.nvmrc` files exist anywhere in the workspace
@@ -1818,7 +1818,7 @@ check::monorepo_layout_example_schema_valid() {
 #
 # Example:
 #   ROOT_DIR="/path/to/repo"
-#   check::disallow_nvmrc_file
+#   ported::disallow_nvmrc_file
 #
 # Categories:
 #   safety, ci, paths
@@ -1826,7 +1826,7 @@ check::monorepo_layout_example_schema_valid() {
 # Stages:
 #   lint, validate, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_nvmrc_file() {
+ported::disallow_nvmrc_file() {
   # ✅ Check: .nvmrc is not allowed anywhere in the repo
   # Category: safety, ci, paths
   # Stages: lint, validate, pre-commit
@@ -1885,7 +1885,7 @@ check::disallow_npmrc_file() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_package_lock_json — Disallow package-lock.json in workspace
+# 🧪 ported::disallow_package_lock_json — Disallow package-lock.json in workspace
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Ensures no `package-lock.json` files exist anywhere in the monorepo
@@ -1900,7 +1900,7 @@ check::disallow_npmrc_file() {
 #
 # Example:
 #   ROOT_DIR="/my/repo"
-#   check::disallow_package_lock_json
+#   ported::disallow_package_lock_json
 #
 # Categories:
 #   safety, ci, paths, pnpm
@@ -1908,7 +1908,7 @@ check::disallow_npmrc_file() {
 # Stages:
 #   lint, validate, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_package_lock_json() {
+ported::disallow_package_lock_json() {
   # ✅ Check: package-lock.json must not exist anywhere in the repo
   # Category: safety, ci, paths, pnpm
   # Stages: lint, validate, pre-commit
@@ -1926,7 +1926,7 @@ check::disallow_package_lock_json() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_wrangler_toml — Enforce wrangler.json over wrangler.toml
+# 🧪 ported::disallow_wrangler_toml — Enforce wrangler.json over wrangler.toml
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Scans the workspace for any wrangler.toml files
@@ -1941,7 +1941,7 @@ check::disallow_package_lock_json() {
 #
 # Example:
 #   ROOT_DIR="/my/repo"
-#   check::disallow_wrangler_toml
+#   ported::disallow_wrangler_toml
 #
 # Categories:
 #   safety, ci, wrangler, paths
@@ -1949,7 +1949,7 @@ check::disallow_package_lock_json() {
 # Stages:
 #   lint, validate, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_wrangler_toml() {
+ported::disallow_wrangler_toml() {
   # ✅ Check: Ensure wrangler.toml is not present — require wrangler.json instead
   # Category: safety, ci, wrangler, paths
   # Stages: lint, validate, pre-commit
@@ -1969,7 +1969,7 @@ check::disallow_wrangler_toml() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_tests_directories — Require __tests__ naming convention
+# 🧪 ported::disallow_tests_directories — Require __tests__ naming convention
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects directories named test/ or tests/ anywhere in the workspace
@@ -1984,7 +1984,7 @@ check::disallow_wrangler_toml() {
 #   - ROOT_DIR → path to monorepo root
 #
 # Example:
-#   check::disallow_tests_directories
+#   ported::disallow_tests_directories
 #
 # Categories:
 #   lint, naming, boundaries, paths
@@ -1992,7 +1992,7 @@ check::disallow_wrangler_toml() {
 # Stages:
 #   lint, validate
 # ------------------------------------------------------------------------------
-check::disallow_tests_directories() {
+ported::disallow_tests_directories() {
   # ✅ Check: Disallow 'test' and 'tests' directories — enforce '__tests__'
   # Category: lint, naming, boundaries, paths
   # Stages: lint, validate
@@ -2016,7 +2016,7 @@ check::disallow_tests_directories() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_bench_directories — Enforce __benchmarks__ naming convention
+# 🧪 ported::disallow_bench_directories — Enforce __benchmarks__ naming convention
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects usage of disallowed benchmark folder names: bench/ or benchmarks/
@@ -2030,7 +2030,7 @@ check::disallow_tests_directories() {
 #   - ROOT_DIR → path to the project root (must be set externally)
 #
 # Example:
-#   check::disallow_bench_directories
+#   ported::disallow_bench_directories
 #
 # Categories:
 #   lint, naming, boundaries, paths
@@ -2038,7 +2038,7 @@ check::disallow_tests_directories() {
 # Stages:
 #   lint, validate
 # ------------------------------------------------------------------------------
-check::disallow_bench_directories() {
+ported::disallow_bench_directories() {
   # ✅ Check: Disallow 'bench' and 'benchmarks' directories — enforce '__benchmarks__'
   # Category: lint, naming, boundaries, paths
   # Stages: lint, validate
@@ -2062,7 +2062,7 @@ check::disallow_bench_directories() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_coverage_directories — Enforce __coverage__ naming convention
+# 🧪 ported::disallow_coverage_directories — Enforce __coverage__ naming convention
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects use of the disallowed default coverage/ folder name
@@ -2076,7 +2076,7 @@ check::disallow_bench_directories() {
 #   - ROOT_DIR → path to project root
 #
 # Example:
-#   check::disallow_coverage_directories
+#   ported::disallow_coverage_directories
 #
 # Categories:
 #   lint, boundaries, naming, paths
@@ -2084,7 +2084,7 @@ check::disallow_bench_directories() {
 # Stages:
 #   lint, validate
 # ------------------------------------------------------------------------------
-check::disallow_coverage_directories() {
+ported::disallow_coverage_directories() {
   # ✅ Check: Disallow use of 'coverage/' — enforce '__coverage__' naming
   # Category: lint, boundaries, naming, paths
   # Stages: lint, validate
@@ -3389,7 +3389,7 @@ check::enforce_shared_linter_inheritance() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_nested_node_modules — Prevent nested node_modules folders
+# 🧪 ported::disallow_nested_node_modules — Prevent nested node_modules folders
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects node_modules folders nested outside of the root directory
@@ -3404,7 +3404,7 @@ check::enforce_shared_linter_inheritance() {
 #
 # Example:
 #   ROOT_DIR=$(git rev-parse --show-toplevel)
-#   check::disallow_nested_node_modules
+#   ported::disallow_nested_node_modules
 #
 # Categories:
 #   pnpm, paths, safety, ci
@@ -3412,7 +3412,7 @@ check::enforce_shared_linter_inheritance() {
 # Stages:
 #   check, lint, test
 # ------------------------------------------------------------------------------
-check::disallow_nested_node_modules() {
+ported::disallow_nested_node_modules() {
   # ✅ Check: Disallow nested node_modules folders (only root allowed)
   # Category: pnpm, paths, safety, ci
   # Stages: check, lint, test
@@ -3610,7 +3610,7 @@ check::prevent_multiple_tsconfig_base() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::prevent_committed_editor_artifacts — Disallow common temp/editor files in Git
+# 🧪 ported::prevent_committed_editor_artifacts — Disallow common temp/editor files in Git
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects committed files matching editor/IDE artifact patterns (e.g., .swp, .idea/)
@@ -3625,7 +3625,7 @@ check::prevent_multiple_tsconfig_base() {
 #   - ROOT_DIR → path to monorepo root
 #
 # Example:
-#   check::prevent_committed_editor_artifacts
+#   ported::prevent_committed_editor_artifacts
 #
 # Categories:
 #   safety, lint, git
@@ -3633,7 +3633,7 @@ check::prevent_multiple_tsconfig_base() {
 # Stages:
 #   check, pre-commit
 # ------------------------------------------------------------------------------
-check::prevent_committed_editor_artifacts() {
+ported::prevent_committed_editor_artifacts() {
   # ✅ Check: Disallow committed temp/editor artifacts in version control
   # Category: safety, lint, git
   # Stages: check, pre-commit
@@ -3664,7 +3664,7 @@ check::prevent_committed_editor_artifacts() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_binary_commits — Block committed binary artifacts
+# 🧪 ported::disallow_binary_commits — Block committed binary artifacts
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects committed binary files based on common binary extensions
@@ -3679,7 +3679,7 @@ check::prevent_committed_editor_artifacts() {
 #   - ROOT_DIR → path to monorepo root
 #
 # Example:
-#   check::disallow_binary_commits
+#   ported::disallow_binary_commits
 #
 # Categories:
 #   safety, lint, git
@@ -3687,7 +3687,7 @@ check::prevent_committed_editor_artifacts() {
 # Stages:
 #   check, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_binary_commits() {
+ported::disallow_binary_commits() {
   # ✅ Check: Block committed binary files (compiled artifacts)
   # Category: safety, lint, git
   # Stages: check, pre-commit
@@ -3828,7 +3828,7 @@ check::warn_unused_gitignore_patterns() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::detect_case_insensitive_collisions — Detect filename conflicts on case-insensitive filesystems
+# 🧪 ported::detect_case_insensitive_collisions — Detect filename conflicts on case-insensitive filesystems
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects multiple files that differ only by case (e.g. foo.ts vs Foo.ts)
@@ -3842,7 +3842,7 @@ check::warn_unused_gitignore_patterns() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::detect_case_insensitive_collisions
+#   ported::detect_case_insensitive_collisions
 #
 # Categories:
 #   safety, paths
@@ -3850,7 +3850,7 @@ check::warn_unused_gitignore_patterns() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::detect_case_insensitive_collisions() {
+ported::detect_case_insensitive_collisions() {
   # ✅ Check: Warn or fail if multiple files differ only by case
   # Category: safety, paths
   # Stages: check, lint
@@ -3917,7 +3917,7 @@ check::warn_bash_shebang_on_portable_scripts() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_eslint_configs — Disallow ESLint config files in monorepo
+# 🧪 ported::disallow_eslint_configs — Disallow ESLint config files in monorepo
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects presence of any ESLint configuration files
@@ -3931,7 +3931,7 @@ check::warn_bash_shebang_on_portable_scripts() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_eslint_configs
+#   ported::disallow_eslint_configs
 #
 # Categories:
 #   lint, package
@@ -3939,7 +3939,7 @@ check::warn_bash_shebang_on_portable_scripts() {
 # Stages:
 #   lint, check, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_eslint_configs() {
+ported::disallow_eslint_configs() {
   # ✅ Check: Disallow all ESLint config files
   # Category: lint, package
   # Stages: lint, check, pre-commit
@@ -3970,7 +3970,7 @@ check::disallow_eslint_configs() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_prettier_configs — Disallow Prettier config files in monorepo
+# 🧪 ported::disallow_prettier_configs — Disallow Prettier config files in monorepo
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects any Prettier configuration or ignore files in the workspace
@@ -3984,7 +3984,7 @@ check::disallow_eslint_configs() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_prettier_configs
+#   ported::disallow_prettier_configs
 #
 # Categories:
 #   lint, package, pnpm
@@ -3992,7 +3992,7 @@ check::disallow_eslint_configs() {
 # Stages:
 #   lint, check, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_prettier_configs() {
+ported::disallow_prettier_configs() {
   # ✅ Check: Block all Prettier config/ignore files in monorepo
   # Category: lint, package, pnpm
   # Stages: lint, check, pre-commit
@@ -4024,7 +4024,7 @@ check::disallow_prettier_configs() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_yarn_files — Disallow Yarn-related files in the monorepo
+# 🧪 ported::disallow_yarn_files — Disallow Yarn-related files in the monorepo
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects yarn.lock and all known .yarnrc variants
@@ -4040,7 +4040,7 @@ check::disallow_prettier_configs() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_yarn_files
+#   ported::disallow_yarn_files
 #
 # Categories:
 #   pnpm, lint, package
@@ -4048,7 +4048,7 @@ check::disallow_prettier_configs() {
 # Stages:
 #   lint, check, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_yarn_files() {
+ported::disallow_yarn_files() {
   # ✅ Check: Block all Yarn-related files in pnpm-based monorepo
   # Category: pnpm, lint, package
   # Stages: lint, check, pre-commit
@@ -4083,7 +4083,7 @@ check::disallow_yarn_files() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_npm_files — Disallow npm-related files and configs
+# 🧪 ported::disallow_npm_files — Disallow npm-related files and configs
 # ------------------------------------------------------------------------------
 # This check ensures that npm-specific lock/config files are not present
 # in a pnpm-managed monorepo. It blocks:
@@ -4102,7 +4102,7 @@ check::disallow_yarn_files() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_npm_files
+#   ported::disallow_npm_files
 #
 # Categories:
 #   pnpm, package, lint
@@ -4110,7 +4110,7 @@ check::disallow_yarn_files() {
 # Stages:
 #   check, lint, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_npm_files() {
+ported::disallow_npm_files() {
   # ✅ Check: Block npm-related files in favor of pnpm
   # Category: pnpm, package, lint
   # Stages: check, lint, pre-commit
@@ -4141,7 +4141,7 @@ check::disallow_npm_files() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_stylelint_configs — Disallow Stylelint config files in monorepo
+# 🧪 ported::disallow_stylelint_configs — Disallow Stylelint config files in monorepo
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects presence of Stylelint configuration files
@@ -4155,7 +4155,7 @@ check::disallow_npm_files() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_stylelint_configs
+#   ported::disallow_stylelint_configs
 #
 # Categories:
 #   lint, package
@@ -4163,7 +4163,7 @@ check::disallow_npm_files() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_stylelint_configs() {
+ported::disallow_stylelint_configs() {
   # ✅ Check: Disallow all Stylelint config files
   # Category: lint, package
   # Stages: lint, check
@@ -4191,7 +4191,7 @@ check::disallow_stylelint_configs() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_commitlint_configs — Disallow Commitlint config files
+# 🧪 ported::disallow_commitlint_configs — Disallow Commitlint config files
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects presence of Commitlint configuration files
@@ -4205,7 +4205,7 @@ check::disallow_stylelint_configs() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_commitlint_configs
+#   ported::disallow_commitlint_configs
 #
 # Categories:
 #   lint, ci
@@ -4213,7 +4213,7 @@ check::disallow_stylelint_configs() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_commitlint_configs() {
+ported::disallow_commitlint_configs() {
   # ✅ Check: Disallow all Commitlint config files
   # Category: lint, ci
   # Stages: lint, check
@@ -4240,7 +4240,7 @@ check::disallow_commitlint_configs() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_babel_configs — Disallow Babel config files
+# 🧪 ported::disallow_babel_configs — Disallow Babel config files
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Blocks use of .babelrc*, babel.config.* files
@@ -4254,7 +4254,7 @@ check::disallow_commitlint_configs() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_babel_configs
+#   ported::disallow_babel_configs
 #
 # Categories:
 #   lint, package
@@ -4262,7 +4262,7 @@ check::disallow_commitlint_configs() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_babel_configs() {
+ported::disallow_babel_configs() {
   # ✅ Check: Disallow all Babel configuration files
   # Category: lint, package
   # Stages: lint, check
@@ -4288,7 +4288,7 @@ check::disallow_babel_configs() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_jest_configs — Disallow Jest config files
+# 🧪 ported::disallow_jest_configs — Disallow Jest config files
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Blocks use of jest.config.*, jest.setup.* or .jestrc files
@@ -4301,7 +4301,7 @@ check::disallow_babel_configs() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_jest_configs
+#   ported::disallow_jest_configs
 #
 # Categories:
 #   lint, test
@@ -4309,7 +4309,7 @@ check::disallow_babel_configs() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_jest_configs() {
+ported::disallow_jest_configs() {
   # ✅ Check: Disallow all Jest configuration files
   # Category: lint, test
   # Stages: lint, check
@@ -4337,7 +4337,7 @@ check::disallow_jest_configs() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_tslint_files — Disallow deprecated tslint.json
+# 🧪 ported::disallow_tslint_files — Disallow deprecated tslint.json
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects use of tslint.json files
@@ -4350,7 +4350,7 @@ check::disallow_jest_configs() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_tslint_files
+#   ported::disallow_tslint_files
 #
 # Categories:
 #   lint, tsconfig
@@ -4358,7 +4358,7 @@ check::disallow_jest_configs() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_tslint_files() {
+ported::disallow_tslint_files() {
   # ✅ Check: Block all tslint.json files
   # Category: lint, tsconfig
   # Stages: lint, check
@@ -4376,7 +4376,7 @@ check::disallow_tslint_files() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_huskyrc_files — Disallow .huskyrc files (inline Husky configs)
+# 🧪 ported::disallow_huskyrc_files — Disallow .huskyrc files (inline Husky configs)
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects .huskyrc* and blocks them in favor of script-based hooks
@@ -4388,7 +4388,7 @@ check::disallow_tslint_files() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_huskyrc_files
+#   ported::disallow_huskyrc_files
 #
 # Categories:
 #   shell, lint
@@ -4396,7 +4396,7 @@ check::disallow_tslint_files() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_huskyrc_files() {
+ported::disallow_huskyrc_files() {
   # ✅ Check: Disallow all inline Husky config files
   # Category: shell, lint
   # Stages: lint, check
@@ -4420,7 +4420,7 @@ check::disallow_huskyrc_files() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_tsconfig_overrides — Disallow legacy or override tsconfig files
+# 🧪 ported::disallow_tsconfig_overrides — Disallow legacy or override tsconfig files
 # ------------------------------------------------------------------------------
 # This check blocks override-style tsconfig files such as:
 #   - tsconfig.eslint.json, tsconfig.test.json, tsconfig.build.json, etc.
@@ -4433,7 +4433,7 @@ check::disallow_huskyrc_files() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_tsconfig_overrides
+#   ported::disallow_tsconfig_overrides
 #
 # Categories:
 #   tsconfig, lint
@@ -4441,7 +4441,7 @@ check::disallow_huskyrc_files() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_tsconfig_overrides() {
+ported::disallow_tsconfig_overrides() {
   # ✅ Check: Disallow override tsconfig.*.json files
   # Category: tsconfig, lint
   # Stages: lint, check
@@ -4462,7 +4462,7 @@ check::disallow_tsconfig_overrides() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_bower_json — Disallow legacy bower.json files
+# 🧪 ported::disallow_bower_json — Disallow legacy bower.json files
 # ------------------------------------------------------------------------------
 # This check blocks use of `bower.json`, a deprecated package manager.
 #
@@ -4474,7 +4474,7 @@ check::disallow_tsconfig_overrides() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_bower_json
+#   ported::disallow_bower_json
 #
 # Categories:
 #   package, lint
@@ -4482,7 +4482,7 @@ check::disallow_tsconfig_overrides() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_bower_json() {
+ported::disallow_bower_json() {
   # ✅ Check: Disallow bower.json
   # Category: package, lint
   # Stages: lint, check
@@ -4500,7 +4500,7 @@ check::disallow_bower_json() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_env_variants — Disallow unapproved .env variants
+# 🧪 ported::disallow_env_variants — Disallow unapproved .env variants
 # ------------------------------------------------------------------------------
 # This check blocks risky or local-only .env.* files such as:
 #   - .env.test, .env.development.local, .env.staging.local, etc.
@@ -4513,7 +4513,7 @@ check::disallow_bower_json() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_env_variants
+#   ported::disallow_env_variants
 #
 # Categories:
 #   secrets, dotenv
@@ -4521,7 +4521,7 @@ check::disallow_bower_json() {
 # Stages:
 #   check, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_env_variants() {
+ported::disallow_env_variants() {
   # ✅ Check: Disallow sensitive or local-only .env variants
   # Category: secrets, dotenv
   # Stages: check, pre-commit
@@ -4552,7 +4552,7 @@ check::disallow_env_variants() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_pnpmfile_js — Block use of pnpmfile.js for unsafe hooks
+# 🧪 ported::disallow_pnpmfile_js — Block use of pnpmfile.js for unsafe hooks
 # ------------------------------------------------------------------------------
 # This check prevents usage of `pnpmfile.js`, which allows dangerous hooks into resolution
 #
@@ -4564,7 +4564,7 @@ check::disallow_env_variants() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_pnpmfile_js
+#   ported::disallow_pnpmfile_js
 #
 # Categories:
 #   pnpm, safety
@@ -4572,7 +4572,7 @@ check::disallow_env_variants() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::disallow_pnpmfile_js() {
+ported::disallow_pnpmfile_js() {
   # ✅ Check: Prevent pnpmfile.js resolution overrides
   # Category: pnpm, safety
   # Stages: check, lint
@@ -4590,7 +4590,7 @@ check::disallow_pnpmfile_js() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_webpack_configs — Disallow use of webpack config files
+# 🧪 ported::disallow_webpack_configs — Disallow use of webpack config files
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Blocks any file matching common webpack config patterns
@@ -4603,7 +4603,7 @@ check::disallow_pnpmfile_js() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_webpack_configs
+#   ported::disallow_webpack_configs
 #
 # Categories:
 #   lint, package
@@ -4611,7 +4611,7 @@ check::disallow_pnpmfile_js() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_webpack_configs() {
+ported::disallow_webpack_configs() {
   # ✅ Check: Disallow webpack config files in monorepo
   # Category: lint, package
   # Stages: lint, check
@@ -4635,7 +4635,7 @@ check::disallow_webpack_configs() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_rollup_configs — Disallow use of Rollup config files
+# 🧪 ported::disallow_rollup_configs — Disallow use of Rollup config files
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects rollup.config.js/mjs/cjs files and blocks them
@@ -4648,7 +4648,7 @@ check::disallow_webpack_configs() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_rollup_configs
+#   ported::disallow_rollup_configs
 #
 # Categories:
 #   lint, package
@@ -4656,7 +4656,7 @@ check::disallow_webpack_configs() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_rollup_configs() {
+ported::disallow_rollup_configs() {
   # ✅ Check: Disallow rollup config files in monorepo
   # Category: lint, package
   # Stages: lint, check
@@ -4679,7 +4679,7 @@ check::disallow_rollup_configs() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_tsbuildinfo_files — Disallow committed .tsbuildinfo files
+# 🧪 ported::disallow_tsbuildinfo_files — Disallow committed .tsbuildinfo files
 # ------------------------------------------------------------------------------
 # This function prevents accidental commits of TypeScript build artifacts.
 #
@@ -4690,7 +4690,7 @@ check::disallow_rollup_configs() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_tsbuildinfo_files
+#   ported::disallow_tsbuildinfo_files
 #
 # Categories:
 #   tsconfig, lint
@@ -4698,7 +4698,7 @@ check::disallow_rollup_configs() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_tsbuildinfo_files() {
+ported::disallow_tsbuildinfo_files() {
   # ✅ Check: Disallow .tsbuildinfo from being committed
   # Category: tsconfig, lint
   # Stages: lint, check
@@ -4764,7 +4764,7 @@ check::disallow_nextjs_artifacts() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_gulp_configs — Disallow legacy Gulp build configs
+# 🧪 ported::disallow_gulp_configs — Disallow legacy Gulp build configs
 # ------------------------------------------------------------------------------
 # This function blocks any use of Gulp by rejecting gulpfile definitions.
 #
@@ -4776,7 +4776,7 @@ check::disallow_nextjs_artifacts() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_gulp_configs
+#   ported::disallow_gulp_configs
 #
 # Categories:
 #   lint, package
@@ -4784,7 +4784,7 @@ check::disallow_nextjs_artifacts() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_gulp_configs() {
+ported::disallow_gulp_configs() {
   # ✅ Check: Block all gulp-related configs
   # Category: lint, package
   # Stages: lint, check
@@ -4808,7 +4808,7 @@ check::disallow_gulp_configs() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_grunt_configs — Disallow legacy Grunt build configs
+# 🧪 ported::disallow_grunt_configs — Disallow legacy Grunt build configs
 # ------------------------------------------------------------------------------
 # This function blocks any use of Grunt by rejecting Gruntfile definitions.
 #
@@ -4820,7 +4820,7 @@ check::disallow_gulp_configs() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_grunt_configs
+#   ported::disallow_grunt_configs
 #
 # Categories:
 #   lint, package
@@ -4828,7 +4828,7 @@ check::disallow_gulp_configs() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_grunt_configs() {
+ported::disallow_grunt_configs() {
   # ✅ Check: Block all grunt-related configs
   # Category: lint, package
   # Stages: lint, check
@@ -4892,7 +4892,7 @@ check::disallow_docker_compose_v1() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_jsconfig_json — Disallow jsconfig.json in favor of tsconfig.json
+# 🧪 ported::disallow_jsconfig_json — Disallow jsconfig.json in favor of tsconfig.json
 # ------------------------------------------------------------------------------
 # This check prevents usage of jsconfig.json, which is redundant in TypeScript-based repos.
 #
@@ -4904,7 +4904,7 @@ check::disallow_docker_compose_v1() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_jsconfig_json
+#   ported::disallow_jsconfig_json
 #
 # Categories:
 #   tsconfig, lint
@@ -4912,7 +4912,7 @@ check::disallow_docker_compose_v1() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_jsconfig_json() {
+ported::disallow_jsconfig_json() {
   # ✅ Check: Disallow jsconfig.json in TypeScript monorepo
   # Category: tsconfig, lint
   # Stages: lint, check
@@ -4930,7 +4930,7 @@ check::disallow_jsconfig_json() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_nodemon_configs — Disallow nodemon configuration files
+# 🧪 ported::disallow_nodemon_configs — Disallow nodemon configuration files
 # ------------------------------------------------------------------------------
 # This check blocks all nodemon config files to avoid tooling conflicts in modern runtimes.
 #
@@ -4938,7 +4938,7 @@ check::disallow_jsconfig_json() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_nodemon_configs
+#   ported::disallow_nodemon_configs
 #
 # Categories:
 #   package, lint
@@ -4946,7 +4946,7 @@ check::disallow_jsconfig_json() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_nodemon_configs() {
+ported::disallow_nodemon_configs() {
   # ✅ Check: Disallow nodemon config files
   # Category: package, lint
   # Stages: lint, check
@@ -4964,7 +4964,7 @@ check::disallow_nodemon_configs() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_browserslist_files — Disallow browserslist config files
+# 🧪 ported::disallow_browserslist_files — Disallow browserslist config files
 # ------------------------------------------------------------------------------
 # Prevents usage of legacy `.browserslistrc` or browserslist fields in `package.json`
 #
@@ -4972,7 +4972,7 @@ check::disallow_nodemon_configs() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_browserslist_files
+#   ported::disallow_browserslist_files
 #
 # Categories:
 #   lint, package
@@ -4980,7 +4980,7 @@ check::disallow_nodemon_configs() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_browserslist_files() {
+ported::disallow_browserslist_files() {
   # ✅ Check: Disallow browserslist config files
   # Category: lint, package
   # Stages: lint, check
@@ -5005,7 +5005,7 @@ check::disallow_browserslist_files() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_cypress_configs — Block use of Cypress config files
+# 🧪 ported::disallow_cypress_configs — Block use of Cypress config files
 # ------------------------------------------------------------------------------
 # This check disables Cypress tooling by blocking its config files
 #
@@ -5013,7 +5013,7 @@ check::disallow_browserslist_files() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_cypress_configs
+#   ported::disallow_cypress_configs
 #
 # Categories:
 #   lint, ci
@@ -5021,7 +5021,7 @@ check::disallow_browserslist_files() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_cypress_configs() {
+ported::disallow_cypress_configs() {
   # ✅ Check: Disallow Cypress config files
   # Category: lint, ci
   # Stages: lint, check
@@ -5039,7 +5039,7 @@ check::disallow_cypress_configs() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_puppeteer_usage — Disallow Puppeteer usage and enforce Playwright
+# 🧪 ported::disallow_puppeteer_usage — Disallow Puppeteer usage and enforce Playwright
 # ------------------------------------------------------------------------------
 # This check blocks the use of Puppeteer-related tooling or dependencies in favor of Playwright.
 #
@@ -5051,7 +5051,7 @@ check::disallow_cypress_configs() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_puppeteer_usage
+#   ported::disallow_puppeteer_usage
 #
 # Categories:
 #   lint, test, package
@@ -5059,7 +5059,7 @@ check::disallow_cypress_configs() {
 # Stages:
 #   lint, check, test
 # ------------------------------------------------------------------------------
-check::disallow_puppeteer_usage() {
+ported::disallow_puppeteer_usage() {
   # ✅ Check: Disallow Puppeteer and related files
   # Category: lint, test, package
   # Stages: lint, check, test
@@ -5105,7 +5105,7 @@ check::disallow_puppeteer_usage() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_swcrc_files — Disallow .swcrc config files
+# 🧪 ported::disallow_swcrc_files — Disallow .swcrc config files
 # ------------------------------------------------------------------------------
 # This function detects and blocks usage of SWC configuration files (.swcrc)
 #
@@ -5117,7 +5117,7 @@ check::disallow_puppeteer_usage() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_swcrc_files
+#   ported::disallow_swcrc_files
 #
 # Categories:
 #   lint, package
@@ -5125,7 +5125,7 @@ check::disallow_puppeteer_usage() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_swcrc_files() {
+ported::disallow_swcrc_files() {
   # ✅ Check: Block .swcrc usage in monorepo
   # Category: lint, package
   # Stages: lint, check
@@ -5143,7 +5143,7 @@ check::disallow_swcrc_files() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_parcel_configs — Block use of Parcel bundler
+# 🧪 ported::disallow_parcel_configs — Block use of Parcel bundler
 # ------------------------------------------------------------------------------
 # This function blocks any Parcel configuration files or directories
 #
@@ -5155,7 +5155,7 @@ check::disallow_swcrc_files() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_parcel_configs
+#   ported::disallow_parcel_configs
 #
 # Categories:
 #   lint, package
@@ -5163,7 +5163,7 @@ check::disallow_swcrc_files() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_parcel_configs() {
+ported::disallow_parcel_configs() {
   # ✅ Check: Block Parcel bundler configs
   # Category: lint, package
   # Stages: lint, check
@@ -5342,7 +5342,7 @@ check::disallow_static_site_generators() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_sudo_in_scripts — Ban use of `sudo` in shell scripts
+# 🧪 ported::disallow_sudo_in_scripts — Ban use of `sudo` in shell scripts
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects 'sudo' usage in any *.sh script in the project
@@ -5356,7 +5356,7 @@ check::disallow_static_site_generators() {
 #   - ROOT_DIR → path to monorepo root
 #
 # Example:
-#   check::disallow_sudo_in_scripts
+#   ported::disallow_sudo_in_scripts
 #
 # Categories:
 #   shell, safety
@@ -5364,7 +5364,7 @@ check::disallow_static_site_generators() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_sudo_in_scripts() {
+ported::disallow_sudo_in_scripts() {
   # ✅ Check: Shell scripts must not contain sudo
   # Category: shell, safety
   # Stages: lint, check
@@ -5554,7 +5554,7 @@ check::enforce_private_internal_packages() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::validate_spdx_license_field — Ensure SPDX-compliant license in all packages
+# 🧪 ported::validate_spdx_license_field — Ensure SPDX-compliant license in all packages
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Ensures every package.json includes a valid SPDX license identifier
@@ -5568,7 +5568,7 @@ check::enforce_private_internal_packages() {
 #   - ROOT_DIR → path to monorepo root
 #
 # Example:
-#   check::validate_spdx_license_field
+#   ported::validate_spdx_license_field
 #
 # Categories:
 #   package, safety
@@ -5576,7 +5576,7 @@ check::enforce_private_internal_packages() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::validate_spdx_license_field() {
+ported::validate_spdx_license_field() {
   # ✅ Check: All packages must declare valid SPDX license
   # Category: package, safety
   # Stages: lint, check
@@ -5637,7 +5637,7 @@ check::validate_spdx_license_field() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_nonroot_ignore_files — Prevent .*ignore files outside root
+# 🧪 ported::disallow_nonroot_ignore_files — Prevent .*ignore files outside root
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects any .gitignore, .dockerignore, or other ignore files outside root
@@ -5651,7 +5651,7 @@ check::validate_spdx_license_field() {
 #   - ROOT_DIR → path to the monorepo root
 #
 # Example:
-#   check::disallow_nonroot_ignore_files
+#   ported::disallow_nonroot_ignore_files
 #
 # Categories:
 #   lint, paths
@@ -5659,7 +5659,7 @@ check::validate_spdx_license_field() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_nonroot_ignore_files() {
+ported::disallow_nonroot_ignore_files() {
   # ✅ Check: Disallow .*ignore files outside the project root
   # Category: lint, paths
   # Stages: lint, check
@@ -5684,7 +5684,7 @@ check::disallow_nonroot_ignore_files() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::enforce_package_name_matches_path — Enforce package.json name consistency
+# 🧪 ported::enforce_package_name_matches_path — Enforce package.json name consistency
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Ensures the name field in each package.json matches its directory name
@@ -5700,7 +5700,7 @@ check::disallow_nonroot_ignore_files() {
 #
 # Example:
 #   EXPECTED_SCOPE="@my-company"
-#   check::enforce_package_name_matches_path
+#   ported::enforce_package_name_matches_path
 #
 # Categories:
 #   naming, package
@@ -5708,7 +5708,7 @@ check::disallow_nonroot_ignore_files() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::enforce_package_name_matches_path() {
+ported::enforce_package_name_matches_path() {
   # ✅ Check: Ensure package name in package.json matches folder structure
   # Category: naming, package
   # Stages: check, lint
@@ -5952,7 +5952,7 @@ check::disallow_non_fast_forward_on_main() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_latest_or_wildcard_versions — Prevent unsafe dependency ranges
+# 🧪 ported::disallow_latest_or_wildcard_versions — Prevent unsafe dependency ranges
 # ------------------------------------------------------------------------------
 # This function detects any use of "latest", "*", or empty string as a dependency
 # version in package.json files. These version specs are non-deterministic and
@@ -5966,7 +5966,7 @@ check::disallow_non_fast_forward_on_main() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_latest_or_wildcard_versions
+#   ported::disallow_latest_or_wildcard_versions
 #
 # Categories:
 #   package, safety, pnpm
@@ -5974,7 +5974,7 @@ check::disallow_non_fast_forward_on_main() {
 # Stages:
 #   lint, check, build
 # ------------------------------------------------------------------------------
-check::disallow_latest_or_wildcard_versions() {
+ported::disallow_latest_or_wildcard_versions() {
   # ✅ Check: No "latest" or "*" dependency versions in any package.json
   # Category: package, safety, pnpm
   # Stages: lint, check, build
@@ -6201,7 +6201,7 @@ check::validate_markdown_links() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_duplicate_package_names — Prevent duplicate package.json names
+# 🧪 ported::disallow_duplicate_package_names — Prevent duplicate package.json names
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Scans all package.json files in the repo
@@ -6216,7 +6216,7 @@ check::validate_markdown_links() {
 #   - ROOT_DIR → path to monorepo root
 #
 # Example:
-#   check::disallow_duplicate_package_names
+#   ported::disallow_duplicate_package_names
 #
 # Categories:
 #   package, lint, naming
@@ -6224,7 +6224,7 @@ check::validate_markdown_links() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_duplicate_package_names() {
+ported::disallow_duplicate_package_names() {
   # ✅ Check: All packages must have unique "name" in package.json
   # Category: package, lint, naming
   # Stages: lint, check
@@ -6259,7 +6259,7 @@ check::disallow_duplicate_package_names() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_env_file_clones — Block unsafe or copied .env variants
+# 🧪 ported::disallow_env_file_clones — Block unsafe or copied .env variants
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Searches for any .env-like files that are not valid (e.g., .env.local)
@@ -6273,7 +6273,7 @@ check::disallow_duplicate_package_names() {
 #   - ROOT_DIR → project root path
 #
 # Example:
-#   check::disallow_env_file_clones
+#   ported::disallow_env_file_clones
 #
 # Categories:
 #   secrets, lint, dotenv
@@ -6281,7 +6281,7 @@ check::disallow_duplicate_package_names() {
 # Stages:
 #   check, lint, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_env_file_clones() {
+ported::disallow_env_file_clones() {
   # ✅ Check: No invalid .env file clones present (e.g., .env2, .env.copy, etc.)
   # Category: secrets, lint, dotenv
   # Stages: check, lint, pre-commit
@@ -6362,7 +6362,7 @@ check::enforce_script_descriptions() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_git_protocol_dependencies — Block git+ssh:// or git:// deps
+# 🧪 ported::disallow_git_protocol_dependencies — Block git+ssh:// or git:// deps
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Iterates all workspace package.json files
@@ -6377,7 +6377,7 @@ check::enforce_script_descriptions() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_git_protocol_dependencies
+#   ported::disallow_git_protocol_dependencies
 #
 # Categories:
 #   package, safety
@@ -6385,7 +6385,7 @@ check::enforce_script_descriptions() {
 # Stages:
 #   check, lint, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_git_protocol_dependencies() {
+ported::disallow_git_protocol_dependencies() {
   # ✅ Check: Disallow git:// and git+ssh:// in package.json dependencies
   # Category: package, safety
   # Stages: check, lint, pre-commit
@@ -6412,7 +6412,7 @@ check::disallow_git_protocol_dependencies() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_tgz_tarball_dependencies — Block .tgz tarball dependency sources
+# 🧪 ported::disallow_tgz_tarball_dependencies — Block .tgz tarball dependency sources
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Iterates over all workspace package.json files
@@ -6427,7 +6427,7 @@ check::disallow_git_protocol_dependencies() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_tgz_tarball_dependencies
+#   ported::disallow_tgz_tarball_dependencies
 #
 # Categories:
 #   package, safety
@@ -6435,7 +6435,7 @@ check::disallow_git_protocol_dependencies() {
 # Stages:
 #   check, lint, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_tgz_tarball_dependencies() {
+ported::disallow_tgz_tarball_dependencies() {
   # ✅ Check: Disallow .tgz tarball URLs in package.json
   # Category: package, safety
   # Stages: check, lint, pre-commit
@@ -6466,7 +6466,7 @@ check::disallow_tgz_tarball_dependencies() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_optional_dependencies — Block use of optionalDependencies
+# 🧪 ported::disallow_optional_dependencies — Block use of optionalDependencies
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Searches all package.json files in the repo
@@ -6480,7 +6480,7 @@ check::disallow_tgz_tarball_dependencies() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_optional_dependencies
+#   ported::disallow_optional_dependencies
 #
 # Categories:
 #   package, lint
@@ -6488,7 +6488,7 @@ check::disallow_tgz_tarball_dependencies() {
 # Stages:
 #   check, lint, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_optional_dependencies() {
+ported::disallow_optional_dependencies() {
   # ✅ Check: Disallow use of optionalDependencies in package.json
   # Category: package, lint
   # Stages: check, lint, pre-commit
@@ -6511,7 +6511,7 @@ check::disallow_optional_dependencies() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_sensitive_cert_files — Block committed cert/key artifacts
+# 🧪 ported::disallow_sensitive_cert_files — Block committed cert/key artifacts
 # ------------------------------------------------------------------------------
 # This check prevents dangerous or confidential cryptographic artifacts from being
 # committed into the repo. It blocks files with extensions like `.key`, `.crt`, `.pem`, `.p12`.
@@ -6524,7 +6524,7 @@ check::disallow_optional_dependencies() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_sensitive_cert_files
+#   ported::disallow_sensitive_cert_files
 #
 # Categories:
 #   secrets, safety
@@ -6532,7 +6532,7 @@ check::disallow_optional_dependencies() {
 # Stages:
 #   check, lint, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_sensitive_cert_files() {
+ported::disallow_sensitive_cert_files() {
   # ✅ Check: Disallow .key, .crt, .pem, .p12, etc. anywhere in the repo
   # Category: secrets, safety
   # Stages: check, lint, pre-commit
@@ -6556,7 +6556,7 @@ check::disallow_sensitive_cert_files() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_nested_git_folders — Prevent .git/ folders outside root
+# 🧪 ported::disallow_nested_git_folders — Prevent .git/ folders outside root
 # ------------------------------------------------------------------------------
 # This check scans the monorepo for nested `.git/` directories, which can appear
 # when submodules are misused, repos are cloned inside each other, or bad merges occur.
@@ -6570,7 +6570,7 @@ check::disallow_sensitive_cert_files() {
 #   - ROOT_DIR → path to the project root
 #
 # Example:
-#   check::disallow_nested_git_folders
+#   ported::disallow_nested_git_folders
 #
 # Categories:
 #   safety, ci
@@ -6578,7 +6578,7 @@ check::disallow_sensitive_cert_files() {
 # Stages:
 #   check, lint, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_nested_git_folders() {
+ported::disallow_nested_git_folders() {
   # ✅ Check: No .git folders allowed outside the monorepo root
   # Category: safety, ci
   # Stages: check, lint, pre-commit
@@ -6660,7 +6660,7 @@ check::enforce_branch_naming_convention() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_git_submodules — Prevent use of Git submodules in monorepo
+# 🧪 ported::disallow_git_submodules — Prevent use of Git submodules in monorepo
 # ------------------------------------------------------------------------------
 # This check ensures that `.gitmodules` is not present and no submodules exist.
 #
@@ -6672,7 +6672,7 @@ check::enforce_branch_naming_convention() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_git_submodules
+#   ported::disallow_git_submodules
 #
 # Categories:
 #   safety, ci, paths
@@ -6680,7 +6680,7 @@ check::enforce_branch_naming_convention() {
 # Stages:
 #   pre-commit, check, lint
 # ------------------------------------------------------------------------------
-check::disallow_git_submodules() {
+ported::disallow_git_submodules() {
   # ✅ Check: Disallow Git submodules in the monorepo
   # Category: safety, ci, paths
   # Stages: pre-commit, check, lint
@@ -7020,7 +7020,7 @@ check::disallow_tsconfig_duplicate_extends_chain() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_http_urls — Disallow use of non-HTTPS URLs in source/config
+# 🧪 ported::disallow_http_urls — Disallow use of non-HTTPS URLs in source/config
 # ------------------------------------------------------------------------------
 # This function scans all project files (excluding node_modules, .git, etc.)
 # for usage of plain `http://` URLs and fails if any are found.
@@ -7033,7 +7033,7 @@ check::disallow_tsconfig_duplicate_extends_chain() {
 #   - ROOT_DIR → path to the monorepo root
 #
 # Example:
-#   check::disallow_http_urls
+#   ported::disallow_http_urls
 #
 # Categories:
 #   lint, safety
@@ -7041,7 +7041,7 @@ check::disallow_tsconfig_duplicate_extends_chain() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::disallow_http_urls() {
+ported::disallow_http_urls() {
   # ✅ Check: Fail if any HTTP (non-HTTPS) URLs are found in the project
   # Category: lint, safety
   # Stages: check, lint
@@ -7109,7 +7109,7 @@ check::warn_on_sideeffects_true() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::warn_on_large_files — Warn if any file exceeds 1000 lines
+# 🧪 ported::warn_on_large_files — Warn if any file exceeds 1000 lines
 # ------------------------------------------------------------------------------
 # This function detects source or config files that are unusually large and
 # may indicate the need for refactoring, modularization, or splitting.
@@ -7122,7 +7122,7 @@ check::warn_on_sideeffects_true() {
 #   - ROOT_DIR → project root
 #
 # Example:
-#   check::warn_on_large_files
+#   ported::warn_on_large_files
 #
 # Categories:
 #   lint, paths
@@ -7130,7 +7130,7 @@ check::warn_on_sideeffects_true() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::warn_on_large_files() {
+ported::warn_on_large_files() {
   # ✅ Check: Warn if any file exceeds 1000 lines
   # Category: lint, paths
   # Stages: lint, check
@@ -7388,7 +7388,7 @@ check::enforce_gitlab_ci_trigger_conditions() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::validate_package_entrypoints — Ensure all declared entrypoints exist
+# 🧪 ported::validate_package_entrypoints — Ensure all declared entrypoints exist
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Verifies that all "main", "module", and "exports" paths exist
@@ -7402,7 +7402,7 @@ check::enforce_gitlab_ci_trigger_conditions() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::validate_package_entrypoints
+#   ported::validate_package_entrypoints
 #
 # Categories:
 #   package, paths
@@ -7410,7 +7410,7 @@ check::enforce_gitlab_ci_trigger_conditions() {
 # Stages:
 #   lint, check, build
 # ------------------------------------------------------------------------------
-check::validate_package_entrypoints() {
+ported::validate_package_entrypoints() {
   # ✅ Check: Ensure all declared package.json entrypoints exist
   # Category: package, paths
   # Stages: lint, check, build
@@ -7452,7 +7452,7 @@ check::validate_package_entrypoints() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_tool_overrides_in_package_json — Prevent inline lint config overrides
+# 🧪 ported::disallow_tool_overrides_in_package_json — Prevent inline lint config overrides
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Blocks tools like biome, oxlint, eslintConfig, prettier inside package.json
@@ -7466,7 +7466,7 @@ check::validate_package_entrypoints() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_tool_overrides_in_package_json
+#   ported::disallow_tool_overrides_in_package_json
 #
 # Categories:
 #   biome, oxlint, lint, package
@@ -7474,7 +7474,7 @@ check::validate_package_entrypoints() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_tool_overrides_in_package_json() {
+ported::disallow_tool_overrides_in_package_json() {
   # ✅ Check: Disallow biome/oxlint/other overrides inside package.json
   # Category: biome, oxlint, lint, package
   # Stages: lint, check
@@ -7561,7 +7561,7 @@ check::detect_duplicate_gitlab_ci_job_names() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_postinstall_scripts — Block use of postinstall in package.json
+# 🧪 ported::disallow_postinstall_scripts — Block use of postinstall in package.json
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Scans all package.json files in the monorepo
@@ -7575,7 +7575,7 @@ check::detect_duplicate_gitlab_ci_job_names() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::disallow_postinstall_scripts
+#   ported::disallow_postinstall_scripts
 #
 # Categories:
 #   safety, pnpm, lint
@@ -7583,7 +7583,7 @@ check::detect_duplicate_gitlab_ci_job_names() {
 # Stages:
 #   lint, check, test
 # ------------------------------------------------------------------------------
-check::disallow_postinstall_scripts() {
+ported::disallow_postinstall_scripts() {
   # ✅ Check: Block "postinstall" script in any package.json
   # Category: safety, pnpm, lint
   # Stages: lint, check, test
@@ -8514,7 +8514,7 @@ check::enforce_standard_gitlab_job_naming() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::detect_skipped_tests — Detect skipped tests in committed source
+# 🧪 ported::detect_skipped_tests — Detect skipped tests in committed source
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects test.skip, it.skip, describe.skip blocks in source files
@@ -8529,7 +8529,7 @@ check::enforce_standard_gitlab_job_naming() {
 #   - ROOT_DIR → project root
 #
 # Example:
-#   check::detect_skipped_tests
+#   ported::detect_skipped_tests
 #
 # Categories:
 #   lint, test
@@ -8537,7 +8537,7 @@ check::enforce_standard_gitlab_job_naming() {
 # Stages:
 #   pre-commit, lint, check, test
 # ------------------------------------------------------------------------------
-check::detect_skipped_tests() {
+ported::detect_skipped_tests() {
   # ✅ Check: Detect skipped or focused test blocks in committed source code
   # Category: lint, test
   # Stages: pre-commit, lint, check, test
@@ -9554,7 +9554,7 @@ check::disallow_sensitive_public_files() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_extends_base — Ensure all tsconfig.json files extend shared base config
+# 🧪 ported::tsconfig_extends_base — Ensure all tsconfig.json files extend shared base config
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Checks that all tsconfig.json files extend from a shared base
@@ -9571,7 +9571,7 @@ check::disallow_sensitive_public_files() {
 #
 # Example:
 #   SCOPE="@my-company"
-#   check::tsconfig_extends_base
+#   ported::tsconfig_extends_base
 #
 # Categories:
 #   tsconfig, paths, naming
@@ -9579,7 +9579,7 @@ check::disallow_sensitive_public_files() {
 # Stages:
 #   lint, check, build
 # ------------------------------------------------------------------------------
-check::tsconfig_extends_base() {
+ported::tsconfig_extends_base() {
   # ✅ Check: All tsconfig.json files must extend a shared base config
   # Category: tsconfig, paths, naming
   # Stages: lint, check, build
@@ -9601,7 +9601,7 @@ check::tsconfig_extends_base() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_types_duplicates — Detect duplicate type entries in tsconfig
+# 🧪 ported::tsconfig_types_duplicates — Detect duplicate type entries in tsconfig
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Parses all tsconfig*.json files for `compilerOptions.types`
@@ -9615,7 +9615,7 @@ check::tsconfig_extends_base() {
 #   - ROOT_DIR → project root
 #
 # Example:
-#   check::tsconfig_types_duplicates
+#   ported::tsconfig_types_duplicates
 #
 # Categories:
 #   tsconfig, lint
@@ -9623,7 +9623,7 @@ check::tsconfig_extends_base() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_types_duplicates() {
+ported::tsconfig_types_duplicates() {
   # ✅ Check: Detect duplicate entries in compilerOptions.types array
   # Category: tsconfig, lint
   # Stages: lint, check
@@ -9651,7 +9651,7 @@ check::tsconfig_types_duplicates() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_include_exclude_duplicates — Detect duplicate include/exclude paths
+# 🧪 ported::tsconfig_include_exclude_duplicates — Detect duplicate include/exclude paths
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Parses tsconfig*.json files for `include[]` and `exclude[]` entries
@@ -9665,7 +9665,7 @@ check::tsconfig_types_duplicates() {
 #   - ROOT_DIR → project root
 #
 # Example:
-#   check::tsconfig_include_exclude_duplicates
+#   ported::tsconfig_include_exclude_duplicates
 #
 # Categories:
 #   tsconfig, lint
@@ -9673,7 +9673,7 @@ check::tsconfig_types_duplicates() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_include_exclude_duplicates() {
+ported::tsconfig_include_exclude_duplicates() {
   # ✅ Check: No duplicate globs between include[] and exclude[]
   # Category: tsconfig, lint
   # Stages: lint, check
@@ -9706,7 +9706,7 @@ check::tsconfig_include_exclude_duplicates() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_path_aliases_resolve — Ensure TypeScript path aliases resolve
+# 🧪 ported::tsconfig_path_aliases_resolve — Ensure TypeScript path aliases resolve
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Parses compilerOptions.paths in all tsconfig*.json files
@@ -9720,7 +9720,7 @@ check::tsconfig_include_exclude_duplicates() {
 #   - ROOT_DIR → path to monorepo root
 #
 # Example:
-#   check::tsconfig_path_aliases_resolve
+#   ported::tsconfig_path_aliases_resolve
 #
 # Categories:
 #   tsconfig, paths
@@ -9728,7 +9728,7 @@ check::tsconfig_include_exclude_duplicates() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_path_aliases_resolve() {
+ported::tsconfig_path_aliases_resolve() {
   # ✅ Check: Each tsconfig path alias must resolve to an existing file or folder
   # Category: tsconfig, paths
   # Stages: lint, check
@@ -9811,7 +9811,7 @@ check::tsconfig_conflicting_node_types() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_extends_target_exists — Validate extended tsconfig exists
+# 🧪 ported::tsconfig_extends_target_exists — Validate extended tsconfig exists
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects the file specified in the `"extends"` field of tsconfig*.json files
@@ -9825,7 +9825,7 @@ check::tsconfig_conflicting_node_types() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::tsconfig_extends_target_exists
+#   ported::tsconfig_extends_target_exists
 #
 # Categories:
 #   tsconfig, paths
@@ -9833,7 +9833,7 @@ check::tsconfig_conflicting_node_types() {
 # Stages:
 #   check, lint, build
 # ------------------------------------------------------------------------------
-check::tsconfig_extends_target_exists() {
+ported::tsconfig_extends_target_exists() {
   # ✅ Check: Extended tsconfig base must resolve to an actual file
   # Category: tsconfig, paths
   # Stages: check, lint, build
@@ -9869,7 +9869,7 @@ check::tsconfig_extends_target_exists() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::package_manifest_name_and_version — Ensure all packages declare name and version
+# 🧪 ported::package_manifest_name_and_version — Ensure all packages declare name and version
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Confirms every package.json file declares a valid `name`
@@ -9883,7 +9883,7 @@ check::tsconfig_extends_target_exists() {
 #   - ROOT_DIR → monorepo root directory
 #
 # Example:
-#   check::package_manifest_name_and_version
+#   ported::package_manifest_name_and_version
 #
 # Categories:
 #   package
@@ -9891,7 +9891,7 @@ check::tsconfig_extends_target_exists() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::package_manifest_name_and_version() {
+ported::package_manifest_name_and_version() {
   # ✅ Check: All package.json files declare name and version
   # Category: package
   # Stages: check, lint
@@ -9918,7 +9918,7 @@ check::package_manifest_name_and_version() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::package_schema_reference — Ensure all package.json files declare $schema
+# 🧪 ported::package_schema_reference — Ensure all package.json files declare $schema
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Confirms each package.json declares the correct $schema property
@@ -9932,7 +9932,7 @@ check::package_manifest_name_and_version() {
 #   - ROOT_DIR → monorepo root path
 #
 # Example:
-#   check::package_schema_reference
+#   ported::package_schema_reference
 #
 # Categories:
 #   package
@@ -9940,7 +9940,7 @@ check::package_manifest_name_and_version() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::package_schema_reference() {
+ported::package_schema_reference() {
   # ✅ Check: All package.json files declare the correct $schema
   # Category: package
   # Stages: check, lint
@@ -9973,7 +9973,7 @@ check::package_schema_reference() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::package_has_description — Ensure all package.json files have a description
+# 🧪 ported::package_has_description — Ensure all package.json files have a description
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Confirms each package.json contains a non-empty "description" field
@@ -9986,7 +9986,7 @@ check::package_schema_reference() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::package_has_description
+#   ported::package_has_description
 #
 # Categories:
 #   package
@@ -9994,7 +9994,7 @@ check::package_schema_reference() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::package_has_description() {
+ported::package_has_description() {
   # ✅ Check: Each package.json includes a non-empty "description"
   # Category: package
   # Stages: check, lint
@@ -10019,7 +10019,7 @@ check::package_has_description() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::package_metadata_consistency — Enforce metadata consistency in package.json files
+# 🧪 ported::package_metadata_consistency — Enforce metadata consistency in package.json files
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Ensures author.name and author.email are present and consistent
@@ -10036,7 +10036,7 @@ check::package_has_description() {
 #   - ROOT_DIR → monorepo root
 #
 # Example:
-#   check::package_metadata_consistency
+#   ported::package_metadata_consistency
 #
 # Categories:
 #   package
@@ -10044,7 +10044,7 @@ check::package_has_description() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::package_metadata_consistency() {
+ported::package_metadata_consistency() {
   # ✅ Check: All package.json files define consistent author, homepage, repo, and bugs metadata
   # Category: package
   # Stages: check, lint
@@ -10669,7 +10669,7 @@ check::tsconfig_paths_resolution() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_strict_mode — Warn if strict mode is not enabled
+# 🧪 ported::tsconfig_strict_mode — Warn if strict mode is not enabled
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Ensures compilerOptions.strict is present and truthy in all tsconfig*.json files
@@ -10682,7 +10682,7 @@ check::tsconfig_paths_resolution() {
 #   - ROOT_DIR → monorepo root path to scan tsconfig files
 #
 # Example:
-#   ROOT_DIR=. check::tsconfig_strict_mode
+#   ROOT_DIR=. ported::tsconfig_strict_mode
 #
 # Categories:
 #   tsconfig
@@ -10690,7 +10690,7 @@ check::tsconfig_paths_resolution() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_strict_mode() {
+ported::tsconfig_strict_mode() {
   # ✅ Check: compilerOptions.strict must be enabled in all tsconfig files
   # Category: tsconfig
   # Stages: lint, check
@@ -10710,7 +10710,7 @@ check::tsconfig_strict_mode() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_target_level — Enforce target to be ES2022 or ESNext
+# 🧪 ported::tsconfig_target_level — Enforce target to be ES2022 or ESNext
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Ensures compilerOptions.target is set to ES2022 or ESNext
@@ -10723,7 +10723,7 @@ check::tsconfig_strict_mode() {
 #   - ROOT_DIR → monorepo root directory
 #
 # Example:
-#   ROOT_DIR=. check::tsconfig_target_level
+#   ROOT_DIR=. ported::tsconfig_target_level
 #
 # Categories:
 #   tsconfig
@@ -10731,7 +10731,7 @@ check::tsconfig_strict_mode() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_target_level() {
+ported::tsconfig_target_level() {
   # ✅ Check: compilerOptions.target must be ES2022 or ESNext
   # Category: tsconfig
   # Stages: lint, check
@@ -10805,7 +10805,7 @@ check::tsconfig_outdir_equals_rootdir() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_missing_exclude_defaults — Warn if exclude is missing common folders
+# 🧪 ported::tsconfig_missing_exclude_defaults — Warn if exclude is missing common folders
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Ensures "exclude" includes dist/, build/, coverage/, tmp/, node_modules/
@@ -10819,7 +10819,7 @@ check::tsconfig_outdir_equals_rootdir() {
 #   - ROOT_DIR → monorepo root directory for scanning tsconfig files
 #
 # Example:
-#   ROOT_DIR=. check::tsconfig_missing_exclude_defaults
+#   ROOT_DIR=. ported::tsconfig_missing_exclude_defaults
 #
 # Categories:
 #   tsconfig
@@ -10827,7 +10827,7 @@ check::tsconfig_outdir_equals_rootdir() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_missing_exclude_defaults() {
+ported::tsconfig_missing_exclude_defaults() {
   # ✅ Check: exclude should include dist/, build/, coverage/, tmp/, node_modules
   # Category: tsconfig
   # Stages: lint, check
@@ -10898,7 +10898,7 @@ check::tsconfig_rootdir_layout() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_import_inconsistency — Validate esModuleInterop vs synthetic default imports
+# 🧪 ported::tsconfig_import_inconsistency — Validate esModuleInterop vs synthetic default imports
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects if allowSyntheticDefaultImports is true but esModuleInterop is false
@@ -10912,7 +10912,7 @@ check::tsconfig_rootdir_layout() {
 #   - ROOT_DIR → monorepo root directory for scanning tsconfig files
 #
 # Example:
-#   ROOT_DIR=. check::tsconfig_import_inconsistency
+#   ROOT_DIR=. ported::tsconfig_import_inconsistency
 #
 # Categories:
 #   tsconfig, lint
@@ -10920,7 +10920,7 @@ check::tsconfig_rootdir_layout() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_import_inconsistency() {
+ported::tsconfig_import_inconsistency() {
   # ✅ Check: allowSyntheticDefaultImports=true requires esModuleInterop=true
   # Category: tsconfig, lint
   # Stages: lint, check
@@ -10945,7 +10945,7 @@ check::tsconfig_import_inconsistency() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_path_shadowing — Warn on path aliases that shadow node_modules
+# 🧪 ported::tsconfig_path_shadowing — Warn on path aliases that shadow node_modules
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Identifies alias keys that match common node_modules packages (e.g. react, vite)
@@ -10959,7 +10959,7 @@ check::tsconfig_import_inconsistency() {
 #   - ROOT_DIR → monorepo root directory for scanning tsconfig files
 #
 # Example:
-#   ROOT_DIR=. check::tsconfig_path_shadowing
+#   ROOT_DIR=. ported::tsconfig_path_shadowing
 #
 # Categories:
 #   tsconfig, lint
@@ -10967,7 +10967,7 @@ check::tsconfig_import_inconsistency() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::tsconfig_path_shadowing() {
+ported::tsconfig_path_shadowing() {
   # ✅ Check: paths aliases must not shadow node_modules like "react", "vite", or "@types/*"
   # Category: tsconfig, lint
   # Stages: check, lint
@@ -10992,7 +10992,7 @@ check::tsconfig_path_shadowing() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_deprecated_keys — Warn on deprecated or obscure flags
+# 🧪 ported::tsconfig_deprecated_keys — Warn on deprecated or obscure flags
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Scans for discouraged compilerOptions keys that are obsolete or rarely useful
@@ -11006,7 +11006,7 @@ check::tsconfig_path_shadowing() {
 #   - ROOT_DIR → monorepo root directory for scanning tsconfig files
 #
 # Example:
-#   ROOT_DIR=. check::tsconfig_deprecated_keys
+#   ROOT_DIR=. ported::tsconfig_deprecated_keys
 #
 # Categories:
 #   tsconfig, lint
@@ -11014,7 +11014,7 @@ check::tsconfig_path_shadowing() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_deprecated_keys() {
+ported::tsconfig_deprecated_keys() {
   # ✅ Check: discourage obscure or deprecated compilerOptions (diagnostics, listFiles, etc)
   # Category: tsconfig, lint
   # Stages: lint, check
@@ -11037,7 +11037,7 @@ check::tsconfig_deprecated_keys() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_project_references — Ensure project references resolve
+# 🧪 ported::tsconfig_project_references — Ensure project references resolve
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Iterates through all `references[].path` entries in tsconfig
@@ -11050,7 +11050,7 @@ check::tsconfig_deprecated_keys() {
 #   - ROOT_DIR → monorepo root directory for scanning tsconfig files
 #
 # Example:
-#   ROOT_DIR=. check::tsconfig_project_references
+#   ROOT_DIR=. ported::tsconfig_project_references
 #
 # Categories:
 #   tsconfig, paths
@@ -11058,7 +11058,7 @@ check::tsconfig_deprecated_keys() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_project_references() {
+ported::tsconfig_project_references() {
   # ✅ Check: All project references must resolve to an existing folder or tsconfig
   # Category: tsconfig, paths
   # Stages: lint, check
@@ -11084,7 +11084,7 @@ check::tsconfig_project_references() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_module_resolution — Validate moduleResolution for ESNext
+# 🧪 ported::tsconfig_module_resolution — Validate moduleResolution for ESNext
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects when module is set to "ESNext"
@@ -11098,7 +11098,7 @@ check::tsconfig_project_references() {
 #   - ROOT_DIR → monorepo root directory for scanning tsconfig files
 #
 # Example:
-#   ROOT_DIR=. check::tsconfig_module_resolution
+#   ROOT_DIR=. ported::tsconfig_module_resolution
 #
 # Categories:
 #   tsconfig
@@ -11106,7 +11106,7 @@ check::tsconfig_project_references() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_module_resolution() {
+ported::tsconfig_module_resolution() {
   # ✅ Check: ESNext module settings should use moduleResolution: bundler
   # Category: tsconfig
   # Stages: lint, check
@@ -11130,7 +11130,7 @@ check::tsconfig_module_resolution() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_circular_extends — Detect circular extends in tsconfigs
+# 🧪 ported::tsconfig_circular_extends — Detect circular extends in tsconfigs
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Follows the "extends" chain in each tsconfig
@@ -11144,7 +11144,7 @@ check::tsconfig_module_resolution() {
 #   - ROOT_DIR → monorepo root for recursive search
 #
 # Example:
-#   ROOT_DIR=. check::tsconfig_circular_extends
+#   ROOT_DIR=. ported::tsconfig_circular_extends
 #
 # Categories:
 #   tsconfig
@@ -11152,7 +11152,7 @@ check::tsconfig_module_resolution() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_circular_extends() {
+ported::tsconfig_circular_extends() {
   # ✅ Check: extends chains must not form recursive cycles
   # Category: tsconfig
   # Stages: lint, check
@@ -11308,7 +11308,7 @@ check::tsconfig_outdir_rootdir_files() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_target_level — Warn if target is not ES2022 or ESNext
+# 🧪 ported::tsconfig_target_level — Warn if target is not ES2022 or ESNext
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Verifies that compilerOptions.target is set to ES2022 or ESNext
@@ -11322,7 +11322,7 @@ check::tsconfig_outdir_rootdir_files() {
 #   - ROOT_DIR → monorepo root directory for scanning tsconfig files
 #
 # Example:
-#   ROOT_DIR=. check::tsconfig_target_level
+#   ROOT_DIR=. ported::tsconfig_target_level
 #
 # Categories:
 #   tsconfig
@@ -11330,7 +11330,7 @@ check::tsconfig_outdir_rootdir_files() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_target_level() {
+ported::tsconfig_target_level() {
   # ✅ Check: compilerOptions.target should be ES2022 or ESNext
   # Category: tsconfig
   # Stages: lint, check
@@ -11353,7 +11353,7 @@ check::tsconfig_target_level() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_strict_mode — Warn if strict mode is not enabled
+# 🧪 ported::tsconfig_strict_mode — Warn if strict mode is not enabled
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Warns if compilerOptions.strict is not explicitly enabled
@@ -11367,7 +11367,7 @@ check::tsconfig_target_level() {
 #   - ROOT_DIR → monorepo root directory for scanning tsconfig files
 #
 # Example:
-#   ROOT_DIR=. check::tsconfig_strict_mode
+#   ROOT_DIR=. ported::tsconfig_strict_mode
 #
 # Categories:
 #   tsconfig
@@ -11375,7 +11375,7 @@ check::tsconfig_target_level() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_strict_mode() {
+ported::tsconfig_strict_mode() {
   # ✅ Check: compilerOptions.strict should be enabled in all tsconfig files
   # Category: tsconfig
   # Stages: lint, check
@@ -11547,7 +11547,7 @@ check::tsconfig_paths_resolution() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::tsconfig_schema_declaration — Ensure $schema is set on all tsconfig*.json files
+# 🧪 ported::tsconfig_schema_declaration — Ensure $schema is set on all tsconfig*.json files
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Verifies that every tsconfig*.json declares a $schema field
@@ -11561,7 +11561,7 @@ check::tsconfig_paths_resolution() {
 #   - ROOT_DIR → monorepo root directory for scanning tsconfig files
 #
 # Example:
-#   ROOT_DIR=. check::tsconfig_schema_declaration
+#   ROOT_DIR=. ported::tsconfig_schema_declaration
 #
 # Categories:
 #   tsconfig
@@ -11569,7 +11569,7 @@ check::tsconfig_paths_resolution() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_schema_declaration() {
+ported::tsconfig_schema_declaration() {
   # ✅ Check: all tsconfig*.json files must declare a $schema field
   # Category: tsconfig
   # Stages: lint, check
@@ -11601,7 +11601,7 @@ check::tsconfig_schema_declaration() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::workspace_dependency_versions — Enforce workspace:* for internal packages
+# 🧪 ported::workspace_dependency_versions — Enforce workspace:* for internal packages
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Scans all package.json files for internal scoped dependencies
@@ -11615,7 +11615,7 @@ check::tsconfig_schema_declaration() {
 #   - ROOT_DIR → monorepo root directory for scanning package.json files
 #
 # Example:
-#   ROOT_DIR=. check::workspace_dependency_versions
+#   ROOT_DIR=. ported::workspace_dependency_versions
 #
 # Categories:
 #   package
@@ -11623,7 +11623,7 @@ check::tsconfig_schema_declaration() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::workspace_dependency_versions() {
+ported::workspace_dependency_versions() {
   # ✅ Check: internal dependencies must use version "workspace:*"
   # Category: package
   # Stages: lint, check
@@ -12322,7 +12322,7 @@ check::db_name_safety() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::validate_package_author — Ensure package.json author is from approved list
+# 🧪 ported::validate_package_author — Ensure package.json author is from approved list
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Parses each package.json
@@ -12336,7 +12336,7 @@ check::db_name_safety() {
 #   - ROOT_DIR → monorepo root directory
 #
 # Example:
-#   check::validate_package_author
+#   ported::validate_package_author
 #
 # Categories:
 #   package, lint
@@ -12344,7 +12344,7 @@ check::db_name_safety() {
 # Stages:
 #   pre-commit, lint, validate
 # ------------------------------------------------------------------------------
-check::validate_package_author() {
+ported::validate_package_author() {
   # ✅ Check: All packages must declare a known, approved author
   # Category: package, lint
   # Stages: pre-commit, lint, validate
@@ -13495,7 +13495,7 @@ check::cloudflare_worker_disallowed_headers() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::package_version_consistency — Enforce consistent package versioning
+# 🧪 ported::package_version_consistency — Enforce consistent package versioning
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Ensures version field is present in all package.json files
@@ -13510,7 +13510,7 @@ check::cloudflare_worker_disallowed_headers() {
 #   - ROOT_DIR → path to monorepo root
 #
 # Example:
-#   check::package_version_consistency
+#   ported::package_version_consistency
 #
 # Categories:
 #   package, pnpm
@@ -13518,7 +13518,7 @@ check::cloudflare_worker_disallowed_headers() {
 # Stages:
 #   lint, validate, pre-commit
 # ------------------------------------------------------------------------------
-check::package_version_consistency() {
+ported::package_version_consistency() {
   # ✅ Check: enforce consistent and valid versioning across all packages
   # Category: package, pnpm
   # Stages: lint, validate, pre-commit
@@ -13700,7 +13700,7 @@ check::docker_compose_schema_annotation() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::disallow_scss_sass — Prevent use of SCSS or SASS in workspace
+# 🧪 ported::disallow_scss_sass — Prevent use of SCSS or SASS in workspace
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Recursively scans the workspace for any `.scss` or `.sass` files
@@ -13714,7 +13714,7 @@ check::docker_compose_schema_annotation() {
 #   - ROOT_DIR → monorepo root path
 #
 # Example:
-#   check::disallow_scss_sass
+#   ported::disallow_scss_sass
 #
 # Categories:
 #   lint, paths
@@ -13722,7 +13722,7 @@ check::docker_compose_schema_annotation() {
 # Stages:
 #   lint, check, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_scss_sass() {
+ported::disallow_scss_sass() {
   # ✅ Check: No .scss or .sass files allowed in workspace
   # Category: lint, paths
   # Stages: lint, check, pre-commit
@@ -14789,7 +14789,7 @@ check::git_commit_bloat() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::regex_safety_hazards — Detect unsafe or complex RegExp patterns
+# 🧪 ported::regex_safety_hazards — Detect unsafe or complex RegExp patterns
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Detects catastrophic backtracking patterns
@@ -14804,7 +14804,7 @@ check::git_commit_bloat() {
 #   - ROOT_DIR → monorepo root to scan for source code files
 #
 # Example:
-#   ROOT_DIR=. check::regex_safety_hazards
+#   ROOT_DIR=. ported::regex_safety_hazards
 #
 # Categories:
 #   safety, lint, encoding
@@ -14812,7 +14812,7 @@ check::git_commit_bloat() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::regex_safety_hazards() {
+ported::regex_safety_hazards() {
   # ✅ Check: Detect unsafe, unescaped, or inefficient regular expressions
   # Category: safety, lint, encoding
   # Stages: lint, check
@@ -18693,7 +18693,7 @@ check::sync_node_config() {
 }
 
 # ------------------------------------------------------------------------------
-# 🧪 check::package_script_conflicts — Warn on conflicting script definitions
+# 🧪 ported::package_script_conflicts — Warn on conflicting script definitions
 # ------------------------------------------------------------------------------
 # This function performs validation such as:
 #   - Scans all package.json files for scripts
@@ -18708,7 +18708,7 @@ check::sync_node_config() {
 #
 # Example:
 #   ROOT_DIR=.
-#   check::package_script_conflicts
+#   ported::package_script_conflicts
 #
 # Categories:
 #   package, naming
@@ -18716,7 +18716,7 @@ check::sync_node_config() {
 # Stages:
 #   lint, check, pre-commit
 # ------------------------------------------------------------------------------
-check::package_script_conflicts() {
+ported::package_script_conflicts() {
   # ✅ Check: detect same-named scripts with different values across packages
   # Category: package, naming
   # Stages: lint, check, pre-commit
