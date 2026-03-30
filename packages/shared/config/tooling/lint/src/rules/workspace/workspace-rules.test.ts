@@ -345,6 +345,22 @@ import icoOptimalPalette from './ico-optimal-palette.ts';
 import webpNoColorProfile from './webp-no-color-profile.ts';
 import webpYuv420Required from './webp-yuv420-required.ts';
 
+// Phase 33 — GitLab CI, Shell Docblocks, Workspace & MR Rules
+import gitlabCiFileRequired from './gitlab-ci-file-required.ts';
+import gitlabCiSchemaHeader from './gitlab-ci-schema-header.ts';
+import gitlabCiYamlSyntax from './gitlab-ci-yaml-syntax.ts';
+import gitlabCiStagesDeclared from './gitlab-ci-stages-declared.ts';
+import gitlabCiIncludesValid from './gitlab-ci-includes-valid.ts';
+import shellFunctionDocblocks from './shell-function-docblocks.ts';
+import gitlabCiJobsHaveScript from './gitlab-ci-jobs-have-script.ts';
+import gitlabCiStandardNaming from './gitlab-ci-standard-naming.ts';
+import wranglerAuthenticated from './wrangler-authenticated.ts';
+import gitlabCiStagesStandard from './gitlab-ci-stages-standard.ts';
+import cliToolsHelpVersion from './cli-tools-help-version.ts';
+import workspaceSpelling from './workspace-spelling.ts';
+import mrTitleFormat from './mr-title-format.ts';
+import mrDescriptionRequired from './mr-description-required.ts';
+
 // =============================================================================
 // Helpers
 // =============================================================================
@@ -18654,5 +18670,833 @@ describe('workspace/webp-yuv420-required', () => {
     const results: LintResult[] = await webpYuv420Required.check(ctx);
     expect(results.length).toBe(0);
     vi.mocked(readFileSync).mockReset();
+  });
+});
+
+// =============================================================================
+// Phase 33 — GitLab CI, Shell Docblocks, Workspace & MR Rules
+// =============================================================================
+
+// workspace/gitlab-ci-file-required
+// =============================================================================
+
+describe('workspace/gitlab-ci-file-required', () => {
+  it('has correct rule metadata', () => {
+    expect(gitlabCiFileRequired.id).toBe('workspace/gitlab-ci-file-required');
+    expect(gitlabCiFileRequired.scope).toBe('workspace');
+    expect(typeof gitlabCiFileRequired.check).toBe('function');
+  });
+
+  it('reports error when .gitlab-ci.yml is missing', async () => {
+    const files: Map<string, string> = new Map([['/workspace/package.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiFileRequired.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/gitlab-ci-file-required');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Missing .gitlab-ci.yml');
+  });
+
+  it('passes when .gitlab-ci.yml exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab-ci.yml', 'stages:\n  - build\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiFileRequired.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// workspace/gitlab-ci-schema-header
+// =============================================================================
+
+describe('workspace/gitlab-ci-schema-header', () => {
+  it('has correct rule metadata', () => {
+    expect(gitlabCiSchemaHeader.id).toBe('workspace/gitlab-ci-schema-header');
+    expect(gitlabCiSchemaHeader.scope).toBe('workspace');
+    expect(typeof gitlabCiSchemaHeader.check).toBe('function');
+  });
+
+  it('reports error when CI YAML is missing schema header', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab-ci.yml', 'stages:\n  - build\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiSchemaHeader.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('missing required YAML schema header');
+  });
+
+  it('passes when CI YAML has correct schema header', async () => {
+    const header: string =
+      '# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json';
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab-ci.yml', `${header}\nstages:\n  - build\n`],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiSchemaHeader.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-CI YAML files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/config.yml', 'key: value\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiSchemaHeader.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('checks nested CI YAML files under .gitlab/ci/', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab/ci/deploy.yml', 'deploy:\n  script: echo\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiSchemaHeader.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('missing required YAML schema header');
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      files: new Map([['/workspace/.gitlab-ci.yml', '']]),
+    });
+    const badCtx: WorkspaceContext = {
+      ...ctx,
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await gitlabCiSchemaHeader.check(badCtx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// workspace/gitlab-ci-yaml-syntax
+// =============================================================================
+
+describe('workspace/gitlab-ci-yaml-syntax', () => {
+  it('has correct rule metadata', () => {
+    expect(gitlabCiYamlSyntax.id).toBe('workspace/gitlab-ci-yaml-syntax');
+    expect(gitlabCiYamlSyntax.scope).toBe('workspace');
+    expect(typeof gitlabCiYamlSyntax.check).toBe('function');
+  });
+
+  it('reports error for tab indentation in CI YAML', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab-ci.yml', 'stages:\n\t- build\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiYamlSyntax.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Tab character');
+  });
+
+  it('reports error for unbalanced braces', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab-ci.yml', 'variables: {\n  KEY: value\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiYamlSyntax.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Unbalanced braces');
+  });
+
+  it('passes for valid CI YAML', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab-ci.yml', 'stages:\n  - build\n  - test\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiYamlSyntax.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-CI YAML files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/data.yml', '\t- bad tabs\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiYamlSyntax.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      files: new Map([['/workspace/.gitlab-ci.yml', '']]),
+    });
+    const badCtx: WorkspaceContext = {
+      ...ctx,
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await gitlabCiYamlSyntax.check(badCtx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// workspace/gitlab-ci-stages-declared
+// =============================================================================
+
+describe('workspace/gitlab-ci-stages-declared', () => {
+  it('has correct rule metadata', () => {
+    expect(gitlabCiStagesDeclared.id).toBe('workspace/gitlab-ci-stages-declared');
+    expect(gitlabCiStagesDeclared.scope).toBe('workspace');
+    expect(typeof gitlabCiStagesDeclared.check).toBe('function');
+  });
+
+  it('reports error when .gitlab-ci.yml lacks stages:', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab-ci.yml', 'build:\n  script: echo hi\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiStagesDeclared.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain("Missing required top-level 'stages:'");
+  });
+
+  it('passes when stages: is present (list format)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab-ci.yml', 'stages:\n  - build\n  - test\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiStagesDeclared.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when stages: is present (inline format)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab-ci.yml', 'stages: [build, test]\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiStagesDeclared.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when .gitlab-ci.yml does not exist', async () => {
+    const files: Map<string, string> = new Map([['/workspace/package.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiStagesDeclared.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// workspace/gitlab-ci-includes-valid
+// =============================================================================
+
+describe('workspace/gitlab-ci-includes-valid', () => {
+  it('has correct rule metadata', () => {
+    expect(gitlabCiIncludesValid.id).toBe('workspace/gitlab-ci-includes-valid');
+    expect(gitlabCiIncludesValid.scope).toBe('workspace');
+    expect(typeof gitlabCiIncludesValid.check).toBe('function');
+  });
+
+  it('reports error for broken include paths', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/.gitlab-ci.yml',
+        'include:\n  - local: .gitlab/ci/deploy.yml\n  - local: .gitlab/ci/missing.yml\n',
+      ],
+      ['/workspace/.gitlab/ci/deploy.yml', 'deploy:\n  script: echo\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiIncludesValid.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('.gitlab/ci/missing.yml');
+  });
+
+  it('passes when all include paths exist', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab-ci.yml', 'include:\n  - local: .gitlab/ci/deploy.yml\n'],
+      ['/workspace/.gitlab/ci/deploy.yml', 'deploy:\n  script: echo\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiIncludesValid.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no includes are present', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab-ci.yml', 'stages:\n  - build\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiIncludesValid.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when .gitlab-ci.yml does not exist', async () => {
+    const files: Map<string, string> = new Map([['/workspace/package.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiIncludesValid.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// workspace/shell-function-docblocks
+// =============================================================================
+
+describe('workspace/shell-function-docblocks', () => {
+  it('has correct rule metadata', () => {
+    expect(shellFunctionDocblocks.id).toBe('workspace/shell-function-docblocks');
+    expect(shellFunctionDocblocks.scope).toBe('workspace');
+    expect(typeof shellFunctionDocblocks.check).toBe('function');
+  });
+
+  it('reports error for missing Check/Category/Stages comments', async () => {
+    const shContent: string = ['check::my_func() {', '  log FATAL "error"', '  return 1', '}'].join(
+      '\n',
+    );
+    const files: Map<string, string> = new Map([['/workspace/checks.sh', shContent]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await shellFunctionDocblocks.check(ctx);
+    expect(results.length).toBe(3);
+    expect(results.some((r: LintResult): boolean => r.message.includes("'# ✅ Check:'"))).toBe(
+      true,
+    );
+    expect(results.some((r: LintResult): boolean => r.message.includes("'# Category:'"))).toBe(
+      true,
+    );
+    expect(results.some((r: LintResult): boolean => r.message.includes("'# Stages:'"))).toBe(true);
+  });
+
+  it('reports error for raw echo/printf', async () => {
+    const shContent: string = [
+      'check::bad_echo() {',
+      '  # ✅ Check: test',
+      '  # Category: test',
+      '  # Stages: test',
+      '  echo "bad output"',
+      '  return 1',
+      '}',
+    ].join('\n');
+    const files: Map<string, string> = new Map([['/workspace/checks.sh', shContent]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await shellFunctionDocblocks.check(ctx);
+    expect(results.some((r: LintResult): boolean => r.message.includes('raw echo/printf'))).toBe(
+      true,
+    );
+  });
+
+  it('reports error for exit 1 instead of return 1', async () => {
+    const shContent: string = [
+      'check::bad_exit() {',
+      '  # ✅ Check: test',
+      '  # Category: test',
+      '  # Stages: test',
+      '  log FATAL "error"',
+      '  exit 1',
+      '}',
+    ].join('\n');
+    const files: Map<string, string> = new Map([['/workspace/checks.sh', shContent]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await shellFunctionDocblocks.check(ctx);
+    expect(results.some((r: LintResult): boolean => r.message.includes("'exit 1'"))).toBe(true);
+  });
+
+  it('reports error for log FATAL without return 1', async () => {
+    const shContent: string = [
+      'check::no_return() {',
+      '  # ✅ Check: test',
+      '  # Category: test',
+      '  # Stages: test',
+      '  log FATAL "error"',
+      '}',
+    ].join('\n');
+    const files: Map<string, string> = new Map([['/workspace/checks.sh', shContent]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await shellFunctionDocblocks.check(ctx);
+    expect(results.some((r: LintResult): boolean => r.message.includes("missing 'return 1'"))).toBe(
+      true,
+    );
+  });
+
+  it('passes for properly formatted function', async () => {
+    const shContent: string = [
+      'check::good_func() {',
+      '  # ✅ Check: validates good things',
+      '  # Category: test',
+      '  # Stages: lint, check',
+      '  log FATAL "error found"',
+      '  return 1',
+      '}',
+    ].join('\n');
+    const files: Map<string, string> = new Map([['/workspace/checks.sh', shContent]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await shellFunctionDocblocks.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-.sh files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/script.ts', 'check::my_func() {\n}\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await shellFunctionDocblocks.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      files: new Map([['/workspace/checks.sh', '']]),
+    });
+    const badCtx: WorkspaceContext = {
+      ...ctx,
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await shellFunctionDocblocks.check(badCtx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// workspace/gitlab-ci-jobs-have-script
+// =============================================================================
+
+describe('workspace/gitlab-ci-jobs-have-script', () => {
+  it('has correct rule metadata', () => {
+    expect(gitlabCiJobsHaveScript.id).toBe('workspace/gitlab-ci-jobs-have-script');
+    expect(gitlabCiJobsHaveScript.scope).toBe('workspace');
+    expect(typeof gitlabCiJobsHaveScript.check).toBe('function');
+  });
+
+  it('reports error for CI job without script:', async () => {
+    const content: string = ['stages:', '  - build', 'build:', '  stage: build'].join('\n');
+    const files: Map<string, string> = new Map([['/workspace/.gitlab-ci.yml', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiJobsHaveScript.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain("'build'");
+    expect(results[0]!.message).toContain('missing a script:');
+  });
+
+  it('passes when all jobs have script:', async () => {
+    const content: string = [
+      'stages:',
+      '  - build',
+      'build:',
+      '  stage: build',
+      '  script:',
+      '    - echo "building"',
+    ].join('\n');
+    const files: Map<string, string> = new Map([['/workspace/.gitlab-ci.yml', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiJobsHaveScript.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-job keys like stages/include/default', async () => {
+    const content: string = [
+      'stages:',
+      '  - build',
+      'include:',
+      '  - local: ci.yml',
+      'variables:',
+      '  KEY: val',
+    ].join('\n');
+    const files: Map<string, string> = new Map([['/workspace/.gitlab-ci.yml', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiJobsHaveScript.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-CI YAML files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/config.yml', 'job:\n  no_script: true\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiJobsHaveScript.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      files: new Map([['/workspace/.gitlab-ci.yml', '']]),
+    });
+    const badCtx: WorkspaceContext = {
+      ...ctx,
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await gitlabCiJobsHaveScript.check(badCtx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// workspace/gitlab-ci-standard-naming
+// =============================================================================
+
+describe('workspace/gitlab-ci-standard-naming', () => {
+  it('has correct rule metadata', () => {
+    expect(gitlabCiStandardNaming.id).toBe('workspace/gitlab-ci-standard-naming');
+    expect(gitlabCiStandardNaming.scope).toBe('workspace');
+    expect(typeof gitlabCiStandardNaming.check).toBe('function');
+  });
+
+  it('warns for non-standard job name', async () => {
+    const content: string = 'custom_job:\n  script: echo\n';
+    const files: Map<string, string> = new Map([['/workspace/.gitlab-ci.yml', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiStandardNaming.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('custom_job');
+  });
+
+  it('warns for non-standard stage value', async () => {
+    const content: string = 'build:\n  stage: custom_stage\n';
+    const files: Map<string, string> = new Map([['/workspace/.gitlab-ci.yml', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiStandardNaming.check(ctx);
+    expect(results.some((r: LintResult): boolean => r.message.includes('custom_stage'))).toBe(true);
+  });
+
+  it('passes for standard job name and stage', async () => {
+    const content: string = 'build:\n  stage: build\n';
+    const files: Map<string, string> = new Map([['/workspace/.gitlab-ci.yml', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiStandardNaming.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-CI YAML files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/config.yml', 'bad_name:\n  stage: bad\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiStandardNaming.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      files: new Map([['/workspace/.gitlab-ci.yml', '']]),
+    });
+    const badCtx: WorkspaceContext = {
+      ...ctx,
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await gitlabCiStandardNaming.check(badCtx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// workspace/wrangler-authenticated
+// =============================================================================
+
+describe('workspace/wrangler-authenticated', () => {
+  it('has correct rule metadata', () => {
+    expect(wranglerAuthenticated.id).toBe('workspace/wrangler-authenticated');
+    expect(wranglerAuthenticated.scope).toBe('workspace');
+    expect(typeof wranglerAuthenticated.check).toBe('function');
+  });
+
+  it('warns when wrangler whoami fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('Not authenticated');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await wranglerAuthenticated.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('not authenticated');
+    vi.mocked(execSync).mockReset();
+  });
+
+  it('passes when wrangler whoami succeeds', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue(Buffer.from('user@example.com') as never);
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await wranglerAuthenticated.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(execSync).mockReset();
+  });
+});
+
+// workspace/gitlab-ci-stages-standard
+// =============================================================================
+
+describe('workspace/gitlab-ci-stages-standard', () => {
+  it('has correct rule metadata', () => {
+    expect(gitlabCiStagesStandard.id).toBe('workspace/gitlab-ci-stages-standard');
+    expect(gitlabCiStagesStandard.scope).toBe('workspace');
+    expect(typeof gitlabCiStagesStandard.check).toBe('function');
+  });
+
+  it('reports error for missing required stages', async () => {
+    const content: string = 'stages:\n  - build\n  - test\n';
+    const files: Map<string, string> = new Map([['/workspace/.gitlab-ci.yml', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiStagesStandard.check(ctx);
+    expect(results.length).toBeGreaterThan(0);
+    expect(results.some((r: LintResult): boolean => r.message.includes('Missing required'))).toBe(
+      true,
+    );
+  });
+
+  it('reports error for unapproved stages', async () => {
+    const stages: string[] = [
+      'setup',
+      'check',
+      'lint',
+      'test',
+      'build',
+      'migrate',
+      'deploy',
+      'integration',
+      'docs',
+      'custom',
+    ];
+    const content: string = `stages:\n${stages.map((s: string): string => `  - ${s}`).join('\n')}\n`;
+    const files: Map<string, string> = new Map([['/workspace/.gitlab-ci.yml', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiStagesStandard.check(ctx);
+    expect(results.some((r: LintResult): boolean => r.message.includes("'custom'"))).toBe(true);
+  });
+
+  it('reports error for incorrect stage order', async () => {
+    const content: string =
+      'stages:\n  - test\n  - setup\n  - check\n  - lint\n  - build\n  - migrate\n  - deploy\n  - integration\n  - docs\n';
+    const files: Map<string, string> = new Map([['/workspace/.gitlab-ci.yml', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiStagesStandard.check(ctx);
+    expect(
+      results.some((r: LintResult): boolean => r.message.includes('Incorrect stage order')),
+    ).toBe(true);
+  });
+
+  it('passes when all stages are correct and in order', async () => {
+    const content: string =
+      'stages:\n  - setup\n  - check\n  - lint\n  - test\n  - build\n  - migrate\n  - deploy\n  - integration\n  - docs\n';
+    const files: Map<string, string> = new Map([['/workspace/.gitlab-ci.yml', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiStagesStandard.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-CI YAML files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/config.yml', 'stages:\n  - bad\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiStagesStandard.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      files: new Map([['/workspace/.gitlab-ci.yml', '']]),
+    });
+    const badCtx: WorkspaceContext = {
+      ...ctx,
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await gitlabCiStagesStandard.check(badCtx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files without stages array', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab-ci.yml', 'build:\n  script: echo\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await gitlabCiStagesStandard.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// workspace/cli-tools-help-version
+// =============================================================================
+
+describe('workspace/cli-tools-help-version', () => {
+  it('has correct rule metadata', () => {
+    expect(cliToolsHelpVersion.id).toBe('workspace/cli-tools-help-version');
+    expect(cliToolsHelpVersion.scope).toBe('workspace');
+    expect(typeof cliToolsHelpVersion.check).toBe('function');
+  });
+
+  it('warns when CLI tool lacks --help', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/bin/my-tool.sh', '#!/bin/bash\necho "running"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await cliToolsHelpVersion.check(ctx);
+    expect(results.some((r: LintResult): boolean => r.message.includes('--help'))).toBe(true);
+  });
+
+  it('warns when CLI tool lacks --version', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/bin/my-tool.sh',
+        '#!/bin/bash\nif [[ "$1" == "--help" ]]; then echo "usage"; fi\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await cliToolsHelpVersion.check(ctx);
+    expect(results.some((r: LintResult): boolean => r.message.includes('--version'))).toBe(true);
+  });
+
+  it('passes when CLI tool supports both flags', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/bin/my-tool.sh',
+        '#!/bin/bash\n# --help and --version supported\nversion="1.0"\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await cliToolsHelpVersion.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-bin/scripts files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/tool.sh', '#!/bin/bash\necho "no help"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await cliToolsHelpVersion.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      files: new Map([['/workspace/bin/tool.sh', '']]),
+    });
+    const badCtx: WorkspaceContext = {
+      ...ctx,
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await cliToolsHelpVersion.check(badCtx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// workspace/workspace-spelling
+// =============================================================================
+
+describe('workspace/workspace-spelling', () => {
+  it('has correct rule metadata', () => {
+    expect(workspaceSpelling.id).toBe('workspace/workspace-spelling');
+    expect(workspaceSpelling.scope).toBe('workspace');
+    expect(typeof workspaceSpelling.check).toBe('function');
+  });
+
+  it('warns when cspell finds errors', async () => {
+    const { execSync } = await import('node:child_process');
+    const err: Error & { stderr?: Buffer; stdout?: Buffer } = new Error('cspell failed');
+    err.stderr = Buffer.from('misspelled word found');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw err;
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await workspaceSpelling.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('Spelling errors');
+    vi.mocked(execSync).mockReset();
+  });
+
+  it('passes when cspell succeeds', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue(Buffer.from('') as never);
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await workspaceSpelling.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(execSync).mockReset();
+  });
+});
+
+// workspace/mr-title-format
+// =============================================================================
+
+describe('workspace/mr-title-format', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrTitleFormat.id).toBe('workspace/mr-title-format');
+    expect(mrTitleFormat.scope).toBe('workspace');
+    expect(typeof mrTitleFormat.check).toBe('function');
+  });
+
+  it('reports error for invalid MR title', async () => {
+    process.env['CI_MERGE_REQUEST_TITLE'] = 'bad title format';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrTitleFormat.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Conventional Commit');
+    process.env = { ...originalEnv };
+  });
+
+  it('passes for valid conventional commit title', async () => {
+    process.env['CI_MERGE_REQUEST_TITLE'] = 'feat(api): add streaming support';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrTitleFormat.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('passes for title without scope', async () => {
+    process.env['CI_MERGE_REQUEST_TITLE'] = 'fix: resolve memory leak';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrTitleFormat.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when CI_MERGE_REQUEST_TITLE is not set', async () => {
+    delete process.env['CI_MERGE_REQUEST_TITLE'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrTitleFormat.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when CI_MERGE_REQUEST_TITLE is empty', async () => {
+    process.env['CI_MERGE_REQUEST_TITLE'] = '';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrTitleFormat.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// workspace/mr-description-required
+// =============================================================================
+
+describe('workspace/mr-description-required', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrDescriptionRequired.id).toBe('workspace/mr-description-required');
+    expect(mrDescriptionRequired.scope).toBe('workspace');
+    expect(typeof mrDescriptionRequired.check).toBe('function');
+  });
+
+  it('reports error when description is empty', async () => {
+    process.env['CI_MERGE_REQUEST_DESCRIPTION'] = '';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrDescriptionRequired.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('no description');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports error when description is "null"', async () => {
+    process.env['CI_MERGE_REQUEST_DESCRIPTION'] = 'null';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrDescriptionRequired.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    process.env = { ...originalEnv };
+  });
+
+  it('passes when description is present', async () => {
+    process.env['CI_MERGE_REQUEST_DESCRIPTION'] = 'Adds metrics exporter for Prometheus';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrDescriptionRequired.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when CI_MERGE_REQUEST_DESCRIPTION is not set', async () => {
+    delete process.env['CI_MERGE_REQUEST_DESCRIPTION'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrDescriptionRequired.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
   });
 });

@@ -493,7 +493,23 @@
     "workspace/ico-requires-multiresolution": "error",
     "workspace/ico-optimal-palette": "warn",
     "workspace/webp-no-color-profile": "warn",
-    "workspace/webp-yuv420-required": "warn"
+    "workspace/webp-yuv420-required": "warn",
+
+    // Phase 33 — GitLab CI, Shell Docblocks, Workspace & MR Rules
+    "workspace/gitlab-ci-file-required": "error",
+    "workspace/gitlab-ci-schema-header": "error",
+    "workspace/gitlab-ci-yaml-syntax": "error",
+    "workspace/gitlab-ci-stages-declared": "error",
+    "workspace/gitlab-ci-includes-valid": "error",
+    "workspace/shell-function-docblocks": "error",
+    "workspace/gitlab-ci-jobs-have-script": "error",
+    "workspace/gitlab-ci-standard-naming": "warn",
+    "workspace/wrangler-authenticated": "warn",
+    "workspace/gitlab-ci-stages-standard": "error",
+    "workspace/cli-tools-help-version": "warn",
+    "workspace/workspace-spelling": "warn",
+    "workspace/mr-title-format": "error",
+    "workspace/mr-description-required": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
