@@ -22,7 +22,7 @@
 # Stages:
 #   check, lint, pre-commit, deploy
 # ------------------------------------------------------------------------------
-check::gitlab_ci_file_exists() {
+ported::gitlab_ci_file_exists() {
   # ✅ Check: .gitlab-ci.yml must exist at project root
   # Category: ci, infra, naming, shell
   # Stages: check, lint, pre-commit, deploy
@@ -60,7 +60,7 @@ check::gitlab_ci_file_exists() {
 # Stages:
 #   check, lint, pre-commit
 # ------------------------------------------------------------------------------
-check::gitlab_ci_yaml_schema_headers() {
+ported::gitlab_ci_yaml_schema_headers() {
   # ✅ Check: All GitLab CI YAML files include the required $schema header
   # Category: ci, infra, naming, shell
   # Stages: check, lint, pre-commit
@@ -117,7 +117,7 @@ check::gitlab_ci_yaml_schema_headers() {
 # Stages:
 #   check, lint, pre-commit
 # ------------------------------------------------------------------------------
-check::gitlab_ci_yaml_valid_syntax() {
+ported::gitlab_ci_yaml_valid_syntax() {
   # ✅ Check: All GitLab CI YAML files must parse successfully with yq
   # Category: ci, lint, infra, shell
   # Stages: check, lint, pre-commit
@@ -171,7 +171,7 @@ check::gitlab_ci_yaml_valid_syntax() {
 # Stages:
 #   check, lint, pre-commit
 # ------------------------------------------------------------------------------
-check::gitlab_ci_stages_defined() {
+ported::gitlab_ci_stages_defined() {
   # ✅ Check: .gitlab-ci.yml contains a top-level `stages:` key
   # Category: ci, lint, infra
   # Stages: check, lint, pre-commit
@@ -215,7 +215,7 @@ check::gitlab_ci_stages_defined() {
 # Stages:
 #   check, lint, pre-commit
 # ------------------------------------------------------------------------------
-check::gitlab_ci_includes_exist() {
+ported::gitlab_ci_includes_exist() {
   # ✅ Check: All local includes referenced in .gitlab-ci.yml exist
   # Category: ci, infra, lint
   # Stages: check, lint, pre-commit
@@ -258,7 +258,7 @@ check::gitlab_ci_includes_exist() {
 # Stages:
 #   lint, test
 # ------------------------------------------------------------------------------
-check::check_function_docblocks() {
+ported::check_function_docblocks() {
   # ✅ Check: Enforce structure of all check::* validation function headers
   # Category: lint, shell, ci
   # Stages: lint, test
@@ -360,7 +360,7 @@ check::check_function_docblocks() {
 # Stages:
 #   lint, check, integration
 # ------------------------------------------------------------------------------
-check::validate_gitlab_ci_jobs_have_script() {
+ported::validate_gitlab_ci_jobs_have_script() {
   # ✅ Check: All GitLab CI jobs define a `script:` key
   # Category: ci, lint, paths
   # Stages: lint, check, integration
@@ -431,7 +431,7 @@ check::validate_gitlab_ci_jobs_have_script() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::enforce_standard_gitlab_job_naming() {
+ported::enforce_standard_gitlab_job_naming() {
   # ✅ Check: CI jobs use standard names and stage values
   # Category: ci, naming
   # Stages: lint, check
@@ -501,7 +501,7 @@ check::enforce_standard_gitlab_job_naming() {
 # Stages:
 #   check, lint, test
 # ------------------------------------------------------------------------------
-check::validate_gitlab_ci_includes() {
+ported::validate_gitlab_ci_includes() {
   # ✅ Check: Validate include:local paths in GitLab CI files resolve correctly
   # Category: ci, paths
   # Stages: check, lint, test
@@ -554,7 +554,7 @@ check::validate_gitlab_ci_includes() {
 # Stages:
 #   pre-commit, check, deploy
 # ------------------------------------------------------------------------------
-check::wrangler_authenticated() {
+ported::wrangler_authenticated() {
   # ✅ Check: wrangler must be authenticated via `wrangler login`
   # Category: wrangler
   # Stages: pre-commit, check, deploy
@@ -601,7 +601,7 @@ check::wrangler_authenticated() {
 # Stages:
 #   lint, validate
 # ------------------------------------------------------------------------------
-check::gitlab_ci_stages_defined() {
+ported::gitlab_ci_stages_defined() {
   # ✅ Check: GitLab CI config must define required stages in correct order
   # Category: ci
   # Stages: lint, validate
@@ -686,7 +686,7 @@ check::gitlab_ci_stages_defined() {
 # Stages:
 #   lint, validate
 # ------------------------------------------------------------------------------
-check::test_and_benchmark_file_naming() {
+ported::test_and_benchmark_file_naming() {
   # ✅ Check: All test/benchmark files must follow exact suffix conventions
   # Category: lint, paths
   # Stages: lint, validate
@@ -744,7 +744,7 @@ check::test_and_benchmark_file_naming() {
 # Stages:
 #   lint, check, integration
 # ------------------------------------------------------------------------------
-check::cli_tools_help_and_version() {
+ported::cli_tools_help_and_version() {
   # ✅ Check: All CLI tools must support --help and --version flags
   # Category: safety, shell, naming
   # Stages: lint, check, integration
@@ -806,7 +806,7 @@ check::cli_tools_help_and_version() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::workspace_spelling() {
+ported::workspace_spelling() {
   # ✅ Check: spelling errors via inline-config cspell
   # Category: lint
   # Stages: lint, check
@@ -886,7 +886,7 @@ check::workspace_spelling() {
 # Stages:
 #   pre-commit, validate
 # ------------------------------------------------------------------------------
-check::mr_title_format() {
+ported::mr_title_format() {
   # ✅ Check: MR title must follow conventional commit format
   # Category: mr, ci
   # Stages: pre-commit, validate
@@ -922,7 +922,7 @@ check::mr_title_format() {
 # Stages:
 #   validate
 # ------------------------------------------------------------------------------
-check::mr_description_required() {
+ported::mr_description_required() {
   # ✅ Check: MR description must not be empty
   # Category: mr, ci
   # Stages: validate
