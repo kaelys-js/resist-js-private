@@ -481,7 +481,19 @@
     "workspace/no-webp-icons": "error",
     "workspace/no-inline-svg-in-source": "error",
     "workspace/no-webp-in-css": "warn",
-    "workspace/no-raw-svg-in-components": "error"
+    "workspace/no-raw-svg-in-components": "error",
+
+    // Phase 32 — Image Quality, ICO/WebP Binary Validation Rules
+    "workspace/webp-max-size": "warn",
+    "workspace/webp-no-lossless": "warn",
+    "workspace/webp-no-metadata": "warn",
+    "workspace/ico-min-resolution": "warn",
+    "workspace/no-misleading-image-extension": "error",
+    "workspace/svg-valid-xml": "error",
+    "workspace/ico-requires-multiresolution": "error",
+    "workspace/ico-optimal-palette": "warn",
+    "workspace/webp-no-color-profile": "warn",
+    "workspace/webp-yuv420-required": "warn"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {

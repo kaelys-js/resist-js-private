@@ -333,6 +333,18 @@ import noInlineSvgInSource from './no-inline-svg-in-source.ts';
 import noWebpInCss from './no-webp-in-css.ts';
 import noRawSvgInComponents from './no-raw-svg-in-components.ts';
 
+// Phase 32 — Image Quality, ICO/WebP Binary Validation Rules
+import webpMaxSize from './webp-max-size.ts';
+import webpNoLossless from './webp-no-lossless.ts';
+import webpNoMetadata from './webp-no-metadata.ts';
+import icoMinResolution from './ico-min-resolution.ts';
+import noMisleadingImageExtension from './no-misleading-image-extension.ts';
+import svgValidXml from './svg-valid-xml.ts';
+import icoRequiresMultiresolution from './ico-requires-multiresolution.ts';
+import icoOptimalPalette from './ico-optimal-palette.ts';
+import webpNoColorProfile from './webp-no-color-profile.ts';
+import webpYuv420Required from './webp-yuv420-required.ts';
+
 // =============================================================================
 // Helpers
 // =============================================================================
@@ -17879,5 +17891,768 @@ describe('workspace/no-raw-svg-in-components', () => {
     };
     const results: LintResult[] = await noRawSvgInComponents.check(ctx);
     expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 32 — Image Quality, ICO/WebP Binary Validation Rules
+// =============================================================================
+
+// =============================================================================
+// workspace/webp-max-size
+// =============================================================================
+
+describe('workspace/webp-max-size', () => {
+  it('has correct rule metadata', () => {
+    expect(webpMaxSize.id).toBe('workspace/webp-max-size');
+    expect(webpMaxSize.scope).toBe('workspace');
+    expect(typeof webpMaxSize.check).toBe('function');
+  });
+
+  it('warns when .webp file exceeds 250KB', async () => {
+    const largeContent: string = 'x'.repeat(256001);
+    const files: Map<string, string> = new Map([['/workspace/hero.webp', largeContent]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpMaxSize.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when .webp file is under 250KB', async () => {
+    const smallContent: string = 'x'.repeat(100000);
+    const files: Map<string, string> = new Map([['/workspace/icon.webp', smallContent]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpMaxSize.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-.webp files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/big.png', 'x'.repeat(500000)]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpMaxSize.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.webp']),
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await webpMaxSize.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/webp-no-lossless
+// =============================================================================
+
+describe('workspace/webp-no-lossless', () => {
+  it('has correct rule metadata', () => {
+    expect(webpNoLossless.id).toBe('workspace/webp-no-lossless');
+    expect(webpNoLossless.scope).toBe('workspace');
+    expect(typeof webpNoLossless.check).toBe('function');
+  });
+
+  it('warns when .webp uses lossless VP8L encoding', async () => {
+    const { readFileSync } = await import('node:fs');
+    // Build a minimal RIFF/WEBP header with VP8L chunk
+    const buf: Buffer = Buffer.alloc(16);
+    buf.write('RIFF', 0, 'ascii');
+    buf.writeUInt32LE(8, 4);
+    buf.write('WEBP', 8, 'ascii');
+    buf.write('VP8L', 12, 'ascii');
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/photo.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpNoLossless.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('passes when .webp uses lossy VP8 encoding', async () => {
+    const { readFileSync } = await import('node:fs');
+    const buf: Buffer = Buffer.alloc(16);
+    buf.write('RIFF', 0, 'ascii');
+    buf.writeUInt32LE(8, 4);
+    buf.write('WEBP', 8, 'ascii');
+    buf.write('VP8 ', 12, 'ascii');
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/photo.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpNoLossless.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('skips .webp files too small for header', async () => {
+    const { readFileSync } = await import('node:fs');
+    vi.mocked(readFileSync).mockReturnValue(Buffer.alloc(10) as never);
+    const files: Map<string, string> = new Map([['/workspace/tiny.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpNoLossless.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('skips non-.webp files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/photo.png', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpNoLossless.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const { readFileSync } = await import('node:fs');
+    vi.mocked(readFileSync).mockImplementation(() => {
+      throw new Error('ENOENT');
+    });
+    const files: Map<string, string> = new Map([['/workspace/bad.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpNoLossless.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+});
+
+// =============================================================================
+// workspace/webp-no-metadata
+// =============================================================================
+
+describe('workspace/webp-no-metadata', () => {
+  it('has correct rule metadata', () => {
+    expect(webpNoMetadata.id).toBe('workspace/webp-no-metadata');
+    expect(webpNoMetadata.scope).toBe('workspace');
+    expect(typeof webpNoMetadata.check).toBe('function');
+  });
+
+  it('warns when .webp contains ICC_PROFILE', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/photo.webp', 'RIFFWEBPICC_PROFILEdata'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpNoMetadata.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('warns when .webp contains XMP', async () => {
+    const files: Map<string, string> = new Map([['/workspace/photo.webp', 'RIFFWEBPsomeXMPdata']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpNoMetadata.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('warns when .webp contains Exif', async () => {
+    const files: Map<string, string> = new Map([['/workspace/photo.webp', 'RIFFWEBPsomeExifdata']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpNoMetadata.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when .webp has no metadata strings', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/photo.webp', 'RIFFWEBPVP8 cleandata'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpNoMetadata.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-.webp files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/photo.png', 'ICC_PROFILE']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpNoMetadata.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.webp']),
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await webpNoMetadata.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/ico-min-resolution
+// =============================================================================
+
+describe('workspace/ico-min-resolution', () => {
+  it('has correct rule metadata', () => {
+    expect(icoMinResolution.id).toBe('workspace/ico-min-resolution');
+    expect(icoMinResolution.scope).toBe('workspace');
+    expect(typeof icoMinResolution.check).toBe('function');
+  });
+
+  it('warns when ICO has resolution below 64x64', async () => {
+    const { readFileSync } = await import('node:fs');
+    // ICO header: 00 00 01 00 (magic), 01 00 (1 image)
+    // ICONDIRENTRY at offset 6: width=32, height=32
+    const buf: Buffer = Buffer.alloc(22);
+    buf[2] = 1; // type = 1 (ICO)
+    buf.writeUInt16LE(1, 4); // 1 image
+    buf[6] = 32; // width
+    buf[7] = 32; // height
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/favicon.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoMinResolution.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('passes when ICO has 64x64 resolution', async () => {
+    const { readFileSync } = await import('node:fs');
+    const buf: Buffer = Buffer.alloc(22);
+    buf[2] = 1;
+    buf.writeUInt16LE(1, 4);
+    buf[6] = 64; // width
+    buf[7] = 64; // height
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/favicon.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoMinResolution.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('passes when ICO has 256x256 resolution (width=0 means 256)', async () => {
+    const { readFileSync } = await import('node:fs');
+    const buf: Buffer = Buffer.alloc(22);
+    buf[2] = 1;
+    buf.writeUInt16LE(1, 4);
+    buf[6] = 0; // width=0 → 256
+    buf[7] = 0; // height=0 → 256
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/favicon.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoMinResolution.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('skips ICO files too small for header', async () => {
+    const { readFileSync } = await import('node:fs');
+    vi.mocked(readFileSync).mockReturnValue(Buffer.alloc(10) as never);
+    const files: Map<string, string> = new Map([['/workspace/tiny.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoMinResolution.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('skips non-.ico files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/icon.png', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoMinResolution.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const { readFileSync } = await import('node:fs');
+    vi.mocked(readFileSync).mockImplementation(() => {
+      throw new Error('ENOENT');
+    });
+    const files: Map<string, string> = new Map([['/workspace/bad.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoMinResolution.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+});
+
+// =============================================================================
+// workspace/no-misleading-image-extension
+// =============================================================================
+
+describe('workspace/no-misleading-image-extension', () => {
+  it('has correct rule metadata', () => {
+    expect(noMisleadingImageExtension.id).toBe('workspace/no-misleading-image-extension');
+    expect(noMisleadingImageExtension.scope).toBe('workspace');
+    expect(typeof noMisleadingImageExtension.check).toBe('function');
+  });
+
+  it('errors when .svg file does not start with XML/SVG content', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', 'This is not an SVG at all'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMisleadingImageExtension.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when .svg starts with <svg', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMisleadingImageExtension.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when .svg starts with <?xml', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<?xml version="1.0"?><svg><path/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMisleadingImageExtension.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when .svg starts with <!DOCTYPE', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"><svg></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMisleadingImageExtension.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when .webp file has wrong RIFF header', async () => {
+    const { readFileSync } = await import('node:fs');
+    const buf: Buffer = Buffer.alloc(12);
+    buf.write('NOTARIFF', 0, 'ascii');
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/photo.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMisleadingImageExtension.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('passes when .webp has correct RIFF/WEBP header', async () => {
+    const { readFileSync } = await import('node:fs');
+    const buf: Buffer = Buffer.alloc(12);
+    buf.write('RIFF', 0, 'ascii');
+    buf.writeUInt32LE(100, 4);
+    buf.write('WEBP', 8, 'ascii');
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/photo.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMisleadingImageExtension.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('errors when .ico file has wrong magic bytes', async () => {
+    const { readFileSync } = await import('node:fs');
+    const buf: Buffer = Buffer.from([0xff, 0xff, 0xff, 0xff]);
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/favicon.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMisleadingImageExtension.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('passes when .ico has correct magic bytes', async () => {
+    const { readFileSync } = await import('node:fs');
+    const buf: Buffer = Buffer.from([0x00, 0x00, 0x01, 0x00]);
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/favicon.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMisleadingImageExtension.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('skips non-image files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/app.ts', 'const x = 1;']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMisleadingImageExtension.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips SVG files that cannot be read', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await noMisleadingImageExtension.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips .webp files that cannot be read', async () => {
+    const { readFileSync } = await import('node:fs');
+    vi.mocked(readFileSync).mockImplementation(() => {
+      throw new Error('ENOENT');
+    });
+    const files: Map<string, string> = new Map([['/workspace/bad.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMisleadingImageExtension.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('skips .ico files that cannot be read', async () => {
+    const { readFileSync } = await import('node:fs');
+    vi.mocked(readFileSync).mockImplementation(() => {
+      throw new Error('ENOENT');
+    });
+    const files: Map<string, string> = new Map([['/workspace/bad.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMisleadingImageExtension.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+});
+
+// =============================================================================
+// workspace/svg-valid-xml
+// =============================================================================
+
+describe('workspace/svg-valid-xml', () => {
+  it('has correct rule metadata', () => {
+    expect(svgValidXml.id).toBe('workspace/svg-valid-xml');
+    expect(svgValidXml.scope).toBe('workspace');
+    expect(typeof svgValidXml.check).toBe('function');
+  });
+
+  it('errors when SVG has no <svg> element', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<html><body>Not an SVG</body></html>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgValidXml.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('errors when SVG has unclosed <svg> tag', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg viewBox="0 0 24 24"><path d="M0 0"/>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgValidXml.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for well-formed SVG', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgValidXml.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-.svg files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/index.html', '<html><body></body></html>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgValidXml.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await svgValidXml.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/ico-requires-multiresolution
+// =============================================================================
+
+describe('workspace/ico-requires-multiresolution', () => {
+  it('has correct rule metadata', () => {
+    expect(icoRequiresMultiresolution.id).toBe('workspace/ico-requires-multiresolution');
+    expect(icoRequiresMultiresolution.scope).toBe('workspace');
+    expect(typeof icoRequiresMultiresolution.check).toBe('function');
+  });
+
+  it('errors when ICO has fewer than 3 images', async () => {
+    const { readFileSync } = await import('node:fs');
+    const buf: Buffer = Buffer.alloc(6);
+    buf[2] = 1; // type = ICO
+    buf.writeUInt16LE(1, 4); // 1 image
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/favicon.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoRequiresMultiresolution.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('passes when ICO has 3 or more images', async () => {
+    const { readFileSync } = await import('node:fs');
+    const buf: Buffer = Buffer.alloc(6);
+    buf[2] = 1;
+    buf.writeUInt16LE(3, 4); // 3 images
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/favicon.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoRequiresMultiresolution.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('skips ICO files too small for header', async () => {
+    const { readFileSync } = await import('node:fs');
+    vi.mocked(readFileSync).mockReturnValue(Buffer.alloc(4) as never);
+    const files: Map<string, string> = new Map([['/workspace/tiny.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoRequiresMultiresolution.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('skips non-.ico files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/icon.png', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoRequiresMultiresolution.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const { readFileSync } = await import('node:fs');
+    vi.mocked(readFileSync).mockImplementation(() => {
+      throw new Error('ENOENT');
+    });
+    const files: Map<string, string> = new Map([['/workspace/bad.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoRequiresMultiresolution.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+});
+
+// =============================================================================
+// workspace/ico-optimal-palette
+// =============================================================================
+
+describe('workspace/ico-optimal-palette', () => {
+  it('has correct rule metadata', () => {
+    expect(icoOptimalPalette.id).toBe('workspace/ico-optimal-palette');
+    expect(icoOptimalPalette.scope).toBe('workspace');
+    expect(typeof icoOptimalPalette.check).toBe('function');
+  });
+
+  it('warns when ICO uses 32-bit color (colorCount=0)', async () => {
+    const { readFileSync } = await import('node:fs');
+    const buf: Buffer = Buffer.alloc(22);
+    buf[2] = 1; // type = ICO
+    buf.writeUInt16LE(1, 4);
+    buf[6] = 64; // width
+    buf[7] = 64; // height
+    buf[8] = 0; // colorCount=0 means ≥256 colors
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/favicon.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoOptimalPalette.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('passes when ICO uses 256 or fewer colors', async () => {
+    const { readFileSync } = await import('node:fs');
+    const buf: Buffer = Buffer.alloc(22);
+    buf[2] = 1;
+    buf.writeUInt16LE(1, 4);
+    buf[6] = 64;
+    buf[7] = 64;
+    buf[8] = 128; // 128 colors
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/favicon.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoOptimalPalette.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('skips ICO files too small for header', async () => {
+    const { readFileSync } = await import('node:fs');
+    vi.mocked(readFileSync).mockReturnValue(Buffer.alloc(5) as never);
+    const files: Map<string, string> = new Map([['/workspace/tiny.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoOptimalPalette.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('skips non-.ico files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/icon.png', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoOptimalPalette.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const { readFileSync } = await import('node:fs');
+    vi.mocked(readFileSync).mockImplementation(() => {
+      throw new Error('ENOENT');
+    });
+    const files: Map<string, string> = new Map([['/workspace/bad.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await icoOptimalPalette.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+});
+
+// =============================================================================
+// workspace/webp-no-color-profile
+// =============================================================================
+
+describe('workspace/webp-no-color-profile', () => {
+  it('has correct rule metadata', () => {
+    expect(webpNoColorProfile.id).toBe('workspace/webp-no-color-profile');
+    expect(webpNoColorProfile.scope).toBe('workspace');
+    expect(typeof webpNoColorProfile.check).toBe('function');
+  });
+
+  it('warns when .webp contains ICCP chunk', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/photo.webp', 'RIFFWEBPVP8 dataICCPprofiledata'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpNoColorProfile.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('warns when .webp contains EXIF chunk', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/photo.webp', 'RIFFWEBPVP8 dataEXIFmetadata'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpNoColorProfile.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when .webp has no color profiles', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/photo.webp', 'RIFFWEBPVP8 cleandata'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpNoColorProfile.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-.webp files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/photo.png', 'ICCP data']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpNoColorProfile.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.webp']),
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await webpNoColorProfile.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/webp-yuv420-required
+// =============================================================================
+
+describe('workspace/webp-yuv420-required', () => {
+  it('has correct rule metadata', () => {
+    expect(webpYuv420Required.id).toBe('workspace/webp-yuv420-required');
+    expect(webpYuv420Required.scope).toBe('workspace');
+    expect(typeof webpYuv420Required.check).toBe('function');
+  });
+
+  it('warns when .webp uses VP8L (lossless, not YUV420)', async () => {
+    const { readFileSync } = await import('node:fs');
+    const buf: Buffer = Buffer.alloc(16);
+    buf.write('RIFF', 0, 'ascii');
+    buf.writeUInt32LE(8, 4);
+    buf.write('WEBP', 8, 'ascii');
+    buf.write('VP8L', 12, 'ascii');
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/photo.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpYuv420Required.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('passes when .webp uses VP8 (lossy, YUV420)', async () => {
+    const { readFileSync } = await import('node:fs');
+    const buf: Buffer = Buffer.alloc(16);
+    buf.write('RIFF', 0, 'ascii');
+    buf.writeUInt32LE(8, 4);
+    buf.write('WEBP', 8, 'ascii');
+    buf.write('VP8 ', 12, 'ascii');
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/photo.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpYuv420Required.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('passes when .webp uses VP8X (extended)', async () => {
+    const { readFileSync } = await import('node:fs');
+    const buf: Buffer = Buffer.alloc(16);
+    buf.write('RIFF', 0, 'ascii');
+    buf.writeUInt32LE(8, 4);
+    buf.write('WEBP', 8, 'ascii');
+    buf.write('VP8X', 12, 'ascii');
+    vi.mocked(readFileSync).mockReturnValue(buf as never);
+    const files: Map<string, string> = new Map([['/workspace/photo.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpYuv420Required.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('skips .webp files too small for header', async () => {
+    const { readFileSync } = await import('node:fs');
+    vi.mocked(readFileSync).mockReturnValue(Buffer.alloc(10) as never);
+    const files: Map<string, string> = new Map([['/workspace/tiny.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpYuv420Required.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
+  });
+
+  it('skips non-.webp files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/photo.png', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpYuv420Required.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const { readFileSync } = await import('node:fs');
+    vi.mocked(readFileSync).mockImplementation(() => {
+      throw new Error('ENOENT');
+    });
+    const files: Map<string, string> = new Map([['/workspace/bad.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await webpYuv420Required.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(readFileSync).mockReset();
   });
 });
