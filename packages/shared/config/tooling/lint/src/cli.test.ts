@@ -3,12 +3,13 @@
  *
  * The CLI uses top-level `process.exit()` so it cannot be imported directly.
  * Every test spawns it as a subprocess via `npx tsx`.
+ * Tests run concurrently since each subprocess is independent.
  *
  * @module
  */
 
 import { describe, expect, it } from 'vitest';
-import { execFileSync } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { resolve } from 'node:path';
 
 // =============================================================================
@@ -29,62 +30,67 @@ const WORKSPACE_ROOT: string = resolve(import.meta.dirname, '..', '..', '..', '.
 // =============================================================================
 
 /**
- * Run the CLI with the given arguments as a subprocess.
+ * Run the CLI with the given arguments as a subprocess (async).
  *
  * @param args - CLI arguments to pass after the script path
- * @returns Object containing stdout, stderr, and the process exit code
+ * @returns Promise resolving to stdout, stderr, and the process exit code
  */
-function runCli(args: string[]): { stdout: string; stderr: string; exitCode: number } {
-  try {
-    const stdout: string = execFileSync('npx', ['tsx', CLI_PATH, ...args], {
-      cwd: WORKSPACE_ROOT,
-      encoding: 'utf8',
-      timeout: 30_000,
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return { stdout, stderr: '', exitCode: 0 };
-  } catch (error: unknown) {
-    const execError = error as { stdout?: string; stderr?: string; status?: number };
-    return {
-      stdout: (execError.stdout ?? '') as string,
-      stderr: (execError.stderr ?? '') as string,
-      exitCode: (execError.status ?? 1) as number,
-    };
-  }
+function runCli(args: string[]): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+  return new Promise<{ stdout: string; stderr: string; exitCode: number }>(
+    (res: (v: { stdout: string; stderr: string; exitCode: number }) => void): void => {
+      execFile(
+        'npx',
+        ['tsx', CLI_PATH, ...args],
+        { cwd: WORKSPACE_ROOT, encoding: 'utf8', timeout: 30_000 },
+        (error: Error | null, stdout: string, stderr: string): void => {
+          if (error) {
+            const execError = error as unknown as { status?: number };
+            res({
+              stdout: stdout ?? '',
+              stderr: stderr ?? '',
+              exitCode: (execError.status ?? 1) as number,
+            });
+          } else {
+            res({ stdout, stderr: stderr ?? '', exitCode: 0 });
+          }
+        },
+      );
+    },
+  );
 }
 
 // =============================================================================
 // --help flag
 // =============================================================================
 
-describe('--help flag', () => {
-  it('exits with code 0', () => {
-    const { exitCode } = runCli(['--help']);
+describe.concurrent('--help flag', () => {
+  it('exits with code 0', async () => {
+    const { exitCode } = await runCli(['--help']);
     expect(exitCode).toBe(0);
   }, 30_000);
 
-  it('output contains "resist-lint"', () => {
-    const { stdout } = runCli(['--help']);
+  it('output contains "resist-lint"', async () => {
+    const { stdout } = await runCli(['--help']);
     expect(stdout).toContain('resist-lint');
   }, 30_000);
 
-  it('output contains USAGE section', () => {
-    const { stdout } = runCli(['--help']);
+  it('output contains USAGE section', async () => {
+    const { stdout } = await runCli(['--help']);
     expect(stdout).toContain('USAGE');
   }, 30_000);
 
-  it('output contains OPTIONS section', () => {
-    const { stdout } = runCli(['--help']);
+  it('output contains OPTIONS section', async () => {
+    const { stdout } = await runCli(['--help']);
     expect(stdout).toContain('OPTIONS');
   }, 30_000);
 
-  it('output contains CONFIGURATION section', () => {
-    const { stdout } = runCli(['--help']);
+  it('output contains CONFIGURATION section', async () => {
+    const { stdout } = await runCli(['--help']);
     expect(stdout).toContain('CONFIGURATION');
   }, 30_000);
 
-  it('-h flag also shows help and exits 0', () => {
-    const { exitCode, stdout } = runCli(['-h']);
+  it('-h flag also shows help and exits 0', async () => {
+    const { exitCode, stdout } = await runCli(['-h']);
     expect(exitCode).toBe(0);
     expect(stdout).toContain('USAGE');
   }, 30_000);
@@ -94,34 +100,34 @@ describe('--help flag', () => {
 // --list-rules flag
 // =============================================================================
 
-describe('--list-rules flag', () => {
-  it('exits with code 0', () => {
-    const { exitCode } = runCli(['--list-rules']);
+describe.concurrent('--list-rules flag', () => {
+  it('exits with code 0', async () => {
+    const { exitCode } = await runCli(['--list-rules']);
     expect(exitCode).toBe(0);
   }, 30_000);
 
-  it('stdout contains "TypeScript rules:"', () => {
-    const { stdout } = runCli(['--list-rules']);
+  it('stdout contains "TypeScript rules:"', async () => {
+    const { stdout } = await runCli(['--list-rules']);
     expect(stdout).toContain('TypeScript rules:');
   }, 30_000);
 
-  it('stdout contains "Package.json rules:"', () => {
-    const { stdout } = runCli(['--list-rules']);
+  it('stdout contains "Package.json rules:"', async () => {
+    const { stdout } = await runCli(['--list-rules']);
     expect(stdout).toContain('Package.json rules:');
   }, 30_000);
 
-  it('stdout contains known TypeScript rule "jsdoc/require-param"', () => {
-    const { stdout } = runCli(['--list-rules']);
+  it('stdout contains known TypeScript rule "jsdoc/require-param"', async () => {
+    const { stdout } = await runCli(['--list-rules']);
     expect(stdout).toContain('jsdoc/require-param');
   }, 30_000);
 
-  it('stdout contains known package.json rule "package/require-tsgo"', () => {
-    const { stdout } = runCli(['--list-rules']);
+  it('stdout contains known package.json rule "package/require-tsgo"', async () => {
+    const { stdout } = await runCli(['--list-rules']);
     expect(stdout).toContain('package/require-tsgo');
   }, 30_000);
 
-  it('stdout contains known TypeScript rule "typescript/no-throw"', () => {
-    const { stdout } = runCli(['--list-rules']);
+  it('stdout contains known TypeScript rule "typescript/no-throw"', async () => {
+    const { stdout } = await runCli(['--list-rules']);
     expect(stdout).toContain('typescript/no-throw');
   }, 30_000);
 });
@@ -130,14 +136,20 @@ describe('--list-rules flag', () => {
 // --json flag
 // =============================================================================
 
-describe('--json flag', () => {
-  it('output is valid JSON when linting a known file', () => {
-    const { stdout } = runCli(['--json', 'packages/shared/config/tooling/lint/src/constants.ts']);
+describe.concurrent('--json flag', () => {
+  it('output is valid JSON when linting a known file', async () => {
+    const { stdout } = await runCli([
+      '--json',
+      'packages/shared/config/tooling/lint/src/constants.ts',
+    ]);
     expect(() => JSON.parse(stdout)).not.toThrow();
   }, 30_000);
 
-  it('JSON output is an array', () => {
-    const { stdout } = runCli(['--json', 'packages/shared/config/tooling/lint/src/constants.ts']);
+  it('JSON output is an array', async () => {
+    const { stdout } = await runCli([
+      '--json',
+      'packages/shared/config/tooling/lint/src/constants.ts',
+    ]);
     const parsed: unknown = JSON.parse(stdout);
     expect(Array.isArray(parsed)).toBe(true);
   }, 30_000);
@@ -147,9 +159,9 @@ describe('--json flag', () => {
 // Nonexistent path
 // =============================================================================
 
-describe('nonexistent path', () => {
-  it('reports path not found and does not crash', () => {
-    const { exitCode, stdout, stderr } = runCli(['nonexistent_directory_abc123xyz']);
+describe.concurrent('nonexistent path', () => {
+  it('reports path not found and does not crash', async () => {
+    const { exitCode, stdout, stderr } = await runCli(['nonexistent_directory_abc123xyz']);
     // Should either report "Path not found" on stderr or "No lintable files" on stdout
     const combined: string = stdout + stderr;
     const handledGracefully: boolean =
@@ -164,9 +176,9 @@ describe('nonexistent path', () => {
 // --rule= filter
 // =============================================================================
 
-describe('--rule= filter', () => {
-  it('exits with code 0 when filtering to a single known rule on a clean file', () => {
-    const { exitCode } = runCli([
+describe.concurrent('--rule= filter', () => {
+  it('exits with code 0 when filtering to a single known rule on a clean file', async () => {
+    const { exitCode } = await runCli([
       '--rule=jsdoc/require-param',
       'packages/shared/config/tooling/lint/src/constants.ts',
     ]);
@@ -174,8 +186,8 @@ describe('--rule= filter', () => {
     expect(exitCode).toBe(0);
   }, 30_000);
 
-  it('--json output only contains the filtered rule ID when results are present', () => {
-    const { stdout, exitCode } = runCli([
+  it('--json output only contains the filtered rule ID when results are present', async () => {
+    const { stdout, exitCode } = await runCli([
       '--json',
       '--rule=typescript/no-throw',
       'packages/shared/config/tooling/lint/src/constants.ts',
@@ -190,8 +202,8 @@ describe('--rule= filter', () => {
     expect([0, 1]).toContain(exitCode);
   }, 30_000);
 
-  it('--json with an unrecognised rule ID produces an empty array', () => {
-    const { stdout } = runCli([
+  it('--json with an unrecognised rule ID produces an empty array', async () => {
+    const { stdout } = await runCli([
       '--json',
       '--rule=nonexistent/fake-rule',
       'packages/shared/config/tooling/lint/src/constants.ts',
@@ -205,10 +217,10 @@ describe('--rule= filter', () => {
 // --warn-only flag
 // =============================================================================
 
-describe('--warn-only flag', () => {
-  it('exits with code 0 even when linting a path that may have errors', () => {
+describe.concurrent('--warn-only flag', () => {
+  it('exits with code 0 even when linting a path that may have errors', async () => {
     // Lint a real directory; --warn-only must force exit 0 regardless of findings
-    const { exitCode } = runCli([
+    const { exitCode } = await runCli([
       '--warn-only',
       'packages/shared/config/tooling/lint/src/constants.ts',
     ]);
@@ -220,14 +232,14 @@ describe('--warn-only flag', () => {
 // Linting a real file
 // =============================================================================
 
-describe('linting a real file', () => {
-  it('exits with code 0 or 1 (not a crash code) when linting constants.ts', () => {
-    const { exitCode } = runCli(['packages/shared/config/tooling/lint/src/constants.ts']);
+describe.concurrent('linting a real file', () => {
+  it('exits with code 0 or 1 (not a crash code) when linting constants.ts', async () => {
+    const { exitCode } = await runCli(['packages/shared/config/tooling/lint/src/constants.ts']);
     expect([0, 1]).toContain(exitCode);
   }, 30_000);
 
-  it('does not crash (exit 2) when given a valid file path', () => {
-    const { exitCode } = runCli(['packages/shared/config/tooling/lint/src/constants.ts']);
+  it('does not crash (exit 2) when given a valid file path', async () => {
+    const { exitCode } = await runCli(['packages/shared/config/tooling/lint/src/constants.ts']);
     expect(exitCode).not.toBe(2);
   }, 30_000);
 });
@@ -236,11 +248,11 @@ describe('linting a real file', () => {
 // No arguments
 // =============================================================================
 
-describe('no arguments', () => {
-  it('exits with code 0 or 1 when run from workspace root (uses config include paths)', () => {
+describe.concurrent('no arguments', () => {
+  it('exits with code 0 or 1 when run from workspace root (uses config include paths)', async () => {
     // The workspace .resist-lint.jsonc has "include" entries, so this should run
     // (slowly — hence 30-second timeout). Exit code 0 = clean, 1 = errors found.
-    const { exitCode } = runCli([]);
+    const { exitCode } = await runCli([]);
     expect([0, 1]).toContain(exitCode);
   }, 30_000);
 });
