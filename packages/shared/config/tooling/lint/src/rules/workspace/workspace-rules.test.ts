@@ -261,6 +261,24 @@ import noStaleIndexLock from './no-stale-index-lock.ts';
 import enforceGitConfig from './enforce-git-config.ts';
 import noSparseCheckout from './no-sparse-checkout.ts';
 
+// Phase 28 — Git Safety & Workflow Rules Batch 2 (ported from common.checks.sh)
+import noUnsafeMainPush from './no-unsafe-main-push.ts';
+import noProtectedBranchPush from './no-protected-branch-push.ts';
+import noOversizedCommitBody from './no-oversized-commit-body.ts';
+import noDirtyWorkingTree from './no-dirty-working-tree.ts';
+import noBrokenGitRefs from './no-broken-git-refs.ts';
+import noBrokenGitHead from './no-broken-git-head.ts';
+import noUnsafeGlobalGitconfig from './no-unsafe-global-gitconfig.ts';
+import noOrphanedGitRefs from './no-orphaned-git-refs.ts';
+import noGitObjectReuse from './no-git-object-reuse.ts';
+import noGitAlternateObjects from './no-git-alternate-objects.ts';
+import noEmptyCommitDiff from './no-empty-commit-diff.ts';
+import noInconsistentWorktrees from './no-inconsistent-worktrees.ts';
+import noFsmonitorInCi from './no-fsmonitor-in-ci.ts';
+import noOversizedRepo from './no-oversized-repo.ts';
+import noBloatedCommits from './no-bloated-commits.ts';
+import noCommitDateSkew from './no-commit-date-skew.ts';
+
 // =============================================================================
 // Helpers
 // =============================================================================
@@ -13011,6 +13029,7 @@ vi.mock('node:child_process', () => ({
 
 vi.mock('node:fs', () => ({
   existsSync: vi.fn(),
+  readFileSync: vi.fn(),
 }));
 
 describe('workspace/no-detached-head', () => {
@@ -13423,6 +13442,925 @@ describe('workspace/no-sparse-checkout', () => {
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
     const results: LintResult[] = await noSparseCheckout.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 28 — Git Safety & Workflow Rules Batch 2
+// =============================================================================
+
+// =============================================================================
+// workspace/no-unsafe-main-push
+// =============================================================================
+
+describe('workspace/no-unsafe-main-push', () => {
+  it('has correct rule metadata', () => {
+    expect(noUnsafeMainPush.id).toBe('workspace/no-unsafe-main-push');
+    expect(noUnsafeMainPush.scope).toBe('workspace');
+    expect(noUnsafeMainPush.fixable).toBe(false);
+    expect(typeof noUnsafeMainPush.check).toBe('function');
+  });
+
+  it('errors on unsafe push.default on main', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('symbolic-ref')) return 'main\n';
+      if (command.includes('push.default')) return 'force\n';
+      if (command.includes('git log')) return 'feat: normal commit\n';
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUnsafeMainPush.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-unsafe-main-push');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('force');
+  });
+
+  it('errors on matching push.default on master', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('symbolic-ref')) return 'master\n';
+      if (command.includes('push.default')) return 'matching\n';
+      if (command.includes('git log')) return 'feat: normal commit\n';
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUnsafeMainPush.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('matching');
+  });
+
+  it('errors on fixup commit on main', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('symbolic-ref')) return 'main\n';
+      if (command.includes('push.default')) return 'simple\n';
+      if (command.includes('git log')) return 'fixup! something\n';
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUnsafeMainPush.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('fixup');
+  });
+
+  it('errors on squash commit on main', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('symbolic-ref')) return 'main\n';
+      if (command.includes('push.default')) return 'simple\n';
+      if (command.includes('git log')) return 'squash! something\n';
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUnsafeMainPush.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('squash');
+  });
+
+  it('passes on feature branch', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('symbolic-ref')) return 'feature/my-feature\n';
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUnsafeMainPush.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when git fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('not a git repo');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUnsafeMainPush.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-protected-branch-push
+// =============================================================================
+
+describe('workspace/no-protected-branch-push', () => {
+  it('has correct rule metadata', () => {
+    expect(noProtectedBranchPush.id).toBe('workspace/no-protected-branch-push');
+    expect(noProtectedBranchPush.scope).toBe('workspace');
+    expect(noProtectedBranchPush.fixable).toBe(false);
+    expect(typeof noProtectedBranchPush.check).toBe('function');
+  });
+
+  it('errors on main branch', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('main\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noProtectedBranchPush.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-protected-branch-push');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('main');
+  });
+
+  it('errors on master branch', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('master\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noProtectedBranchPush.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('master');
+  });
+
+  it('errors on production branch', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('production\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noProtectedBranchPush.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('production');
+  });
+
+  it('errors on release branch', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('release\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noProtectedBranchPush.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('release');
+  });
+
+  it('errors on prod branch', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('prod\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noProtectedBranchPush.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('prod');
+  });
+
+  it('passes on feature branch', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('feature/my-work\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noProtectedBranchPush.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when git fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('not a git repo');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noProtectedBranchPush.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-oversized-commit-body
+// =============================================================================
+
+describe('workspace/no-oversized-commit-body', () => {
+  it('has correct rule metadata', () => {
+    expect(noOversizedCommitBody.id).toBe('workspace/no-oversized-commit-body');
+    expect(noOversizedCommitBody.scope).toBe('workspace');
+    expect(noOversizedCommitBody.fixable).toBe(false);
+    expect(typeof noOversizedCommitBody.check).toBe('function');
+  });
+
+  it('warns on commit body exceeding 20 lines', async () => {
+    const { execSync } = await import('node:child_process');
+    const longBody: string = Array.from(
+      { length: 25 },
+      (_: unknown, i: number) => `line ${String(i)}`,
+    ).join('\n');
+    vi.mocked(execSync).mockReturnValue(`abc1234\n${longBody}\n---COMMIT-END---`);
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noOversizedCommitBody.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-oversized-commit-body');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('abc1234');
+  });
+
+  it('warns on commit body exceeding 1000 characters', async () => {
+    const { execSync } = await import('node:child_process');
+    const longLine: string = 'x'.repeat(1100);
+    vi.mocked(execSync).mockReturnValue(`def5678\n${longLine}\n---COMMIT-END---`);
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noOversizedCommitBody.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('def5678');
+  });
+
+  it('passes on normal commit body', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('abc1234\nShort body\n---COMMIT-END---');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noOversizedCommitBody.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when git fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('not a git repo');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noOversizedCommitBody.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-dirty-working-tree
+// =============================================================================
+
+describe('workspace/no-dirty-working-tree', () => {
+  it('has correct rule metadata', () => {
+    expect(noDirtyWorkingTree.id).toBe('workspace/no-dirty-working-tree');
+    expect(noDirtyWorkingTree.scope).toBe('workspace');
+    expect(noDirtyWorkingTree.fixable).toBe(false);
+    expect(typeof noDirtyWorkingTree.check).toBe('function');
+  });
+
+  it('errors on dirty working tree', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('git diff --quiet') && !command.includes('--cached')) {
+        throw new Error('exit code 1');
+      }
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noDirtyWorkingTree.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-dirty-working-tree');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Uncommitted');
+  });
+
+  it('errors on dirty index', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('--cached')) {
+        throw new Error('exit code 1');
+      }
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noDirtyWorkingTree.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Uncommitted');
+  });
+
+  it('passes on clean tree', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noDirtyWorkingTree.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports dirty when both diff commands fail', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('exit code 1');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noDirtyWorkingTree.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Uncommitted');
+  });
+});
+
+// =============================================================================
+// workspace/no-broken-git-refs
+// =============================================================================
+
+describe('workspace/no-broken-git-refs', () => {
+  it('has correct rule metadata', () => {
+    expect(noBrokenGitRefs.id).toBe('workspace/no-broken-git-refs');
+    expect(noBrokenGitRefs.scope).toBe('workspace');
+    expect(noBrokenGitRefs.fixable).toBe(false);
+    expect(typeof noBrokenGitRefs.check).toBe('function');
+  });
+
+  it('errors when HEAD does not resolve', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('rev-parse --verify HEAD')) {
+        throw new Error('fatal: not a valid ref');
+      }
+      if (command.includes('fsck')) return '';
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noBrokenGitRefs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-broken-git-refs');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('HEAD');
+  });
+
+  it('errors on fsck issues', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('rev-parse')) return 'abc123\n';
+      if (command.includes('fsck')) return 'broken link from tree abc123\nmissing blob def456\n';
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noBrokenGitRefs.check(ctx);
+    expect(results.length).toBe(2);
+    expect(results[0]!.message).toContain('broken');
+    expect(results[1]!.message).toContain('missing');
+  });
+
+  it('passes when HEAD resolves and fsck clean', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('rev-parse')) return 'abc123\n';
+      if (command.includes('fsck')) return 'Checking object directories: 100% done.\n';
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noBrokenGitRefs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('detects dangling objects from fsck', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('rev-parse')) return 'abc123\n';
+      if (command.includes('fsck')) return 'dangling commit abc456\n';
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noBrokenGitRefs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('dangling');
+  });
+});
+
+// =============================================================================
+// workspace/no-broken-git-head
+// =============================================================================
+
+describe('workspace/no-broken-git-head', () => {
+  it('has correct rule metadata', () => {
+    expect(noBrokenGitHead.id).toBe('workspace/no-broken-git-head');
+    expect(noBrokenGitHead.scope).toBe('workspace');
+    expect(noBrokenGitHead.fixable).toBe(false);
+    expect(typeof noBrokenGitHead.check).toBe('function');
+  });
+
+  it('errors when .git/HEAD is missing', async () => {
+    const { existsSync } = await import('node:fs');
+    vi.mocked(existsSync).mockReturnValue(false);
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noBrokenGitHead.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-broken-git-head');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Missing .git/HEAD');
+  });
+
+  it('passes when HEAD points to valid ref', async () => {
+    const { existsSync, readFileSync } = await import('node:fs');
+    vi.mocked(existsSync).mockReturnValue(true);
+    vi.mocked(readFileSync).mockReturnValue('ref: refs/heads/main\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noBrokenGitHead.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when HEAD ref file is missing', async () => {
+    const { existsSync, readFileSync } = await import('node:fs');
+    vi.mocked(existsSync).mockImplementation((p: unknown) => {
+      const path: string = String(p);
+      if (path.endsWith('HEAD')) return true;
+      return false;
+    });
+    vi.mocked(readFileSync).mockReturnValue('ref: refs/heads/missing-branch\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noBrokenGitHead.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('non-existent ref');
+  });
+
+  it('passes when detached HEAD points to valid commit', async () => {
+    const { existsSync, readFileSync } = await import('node:fs');
+    const { execSync } = await import('node:child_process');
+    vi.mocked(existsSync).mockReturnValue(true);
+    vi.mocked(readFileSync).mockReturnValue('abc123def456\n');
+    vi.mocked(execSync).mockReturnValue('');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noBrokenGitHead.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when detached HEAD points to invalid commit', async () => {
+    const { existsSync, readFileSync } = await import('node:fs');
+    const { execSync } = await import('node:child_process');
+    vi.mocked(existsSync).mockReturnValue(true);
+    vi.mocked(readFileSync).mockReturnValue('deadbeef123\n');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('bad object');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noBrokenGitHead.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('invalid commit');
+  });
+});
+
+// =============================================================================
+// workspace/no-unsafe-global-gitconfig
+// =============================================================================
+
+describe('workspace/no-unsafe-global-gitconfig', () => {
+  it('has correct rule metadata', () => {
+    expect(noUnsafeGlobalGitconfig.id).toBe('workspace/no-unsafe-global-gitconfig');
+    expect(noUnsafeGlobalGitconfig.scope).toBe('workspace');
+    expect(noUnsafeGlobalGitconfig.fixable).toBe(false);
+    expect(typeof noUnsafeGlobalGitconfig.check).toBe('function');
+  });
+
+  it('warns on push.default=matching', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('push.default')) return 'matching\n';
+      throw new Error('unset');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUnsafeGlobalGitconfig.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-unsafe-global-gitconfig');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('push.default');
+  });
+
+  it('warns on core.autocrlf=true', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('core.autocrlf')) return 'true\n';
+      throw new Error('unset');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUnsafeGlobalGitconfig.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('core.autocrlf');
+  });
+
+  it('warns on core.ignorecase=true', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('core.ignorecase')) return 'true\n';
+      throw new Error('unset');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUnsafeGlobalGitconfig.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('core.ignorecase');
+  });
+
+  it('reports multiple unsafe settings', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('push.default')) return 'matching\n';
+      if (command.includes('core.autocrlf')) return 'true\n';
+      if (command.includes('core.ignorecase')) return 'true\n';
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUnsafeGlobalGitconfig.check(ctx);
+    expect(results.length).toBe(3);
+  });
+
+  it('passes when all configs are safe', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('unset');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUnsafeGlobalGitconfig.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-orphaned-git-refs
+// =============================================================================
+
+describe('workspace/no-orphaned-git-refs', () => {
+  it('has correct rule metadata', () => {
+    expect(noOrphanedGitRefs.id).toBe('workspace/no-orphaned-git-refs');
+    expect(noOrphanedGitRefs.scope).toBe('workspace');
+    expect(noOrphanedGitRefs.fixable).toBe(false);
+    expect(typeof noOrphanedGitRefs.check).toBe('function');
+  });
+
+  it('errors on broken ref', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('for-each-ref')) return 'refs/heads/broken abc123\n';
+      if (command.includes('cat-file')) throw new Error('bad object');
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noOrphanedGitRefs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-orphaned-git-refs');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Broken git ref');
+  });
+
+  it('passes when all refs are valid', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+      const command: string = String(cmd);
+      if (command.includes('for-each-ref')) return 'refs/heads/main abc123\n';
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noOrphanedGitRefs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when git fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('not a git repo');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noOrphanedGitRefs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-git-object-reuse
+// =============================================================================
+
+describe('workspace/no-git-object-reuse', () => {
+  it('has correct rule metadata', () => {
+    expect(noGitObjectReuse.id).toBe('workspace/no-git-object-reuse');
+    expect(noGitObjectReuse.scope).toBe('workspace');
+    expect(noGitObjectReuse.fixable).toBe(false);
+    expect(typeof noGitObjectReuse.check).toBe('function');
+  });
+
+  it('errors when alternates file exists', async () => {
+    const { existsSync } = await import('node:fs');
+    vi.mocked(existsSync).mockReturnValue(true);
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noGitObjectReuse.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-git-object-reuse');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('alternates');
+  });
+
+  it('passes when alternates file does not exist', async () => {
+    const { existsSync } = await import('node:fs');
+    vi.mocked(existsSync).mockReturnValue(false);
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noGitObjectReuse.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-git-alternate-objects
+// =============================================================================
+
+describe('workspace/no-git-alternate-objects', () => {
+  it('has correct rule metadata', () => {
+    expect(noGitAlternateObjects.id).toBe('workspace/no-git-alternate-objects');
+    expect(noGitAlternateObjects.scope).toBe('workspace');
+    expect(noGitAlternateObjects.fixable).toBe(false);
+    expect(typeof noGitAlternateObjects.check).toBe('function');
+  });
+
+  it('errors when env var is set', async () => {
+    const original: string | undefined = process.env['GIT_ALTERNATE_OBJECT_DIRECTORIES'];
+    process.env['GIT_ALTERNATE_OBJECT_DIRECTORIES'] = '/some/path';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noGitAlternateObjects.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-git-alternate-objects');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('GIT_ALTERNATE_OBJECT_DIRECTORIES');
+    if (original === undefined) {
+      delete process.env['GIT_ALTERNATE_OBJECT_DIRECTORIES'];
+    } else {
+      process.env['GIT_ALTERNATE_OBJECT_DIRECTORIES'] = original;
+    }
+  });
+
+  it('passes when env var is not set', async () => {
+    const original: string | undefined = process.env['GIT_ALTERNATE_OBJECT_DIRECTORIES'];
+    delete process.env['GIT_ALTERNATE_OBJECT_DIRECTORIES'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noGitAlternateObjects.check(ctx);
+    expect(results.length).toBe(0);
+    if (original !== undefined) {
+      process.env['GIT_ALTERNATE_OBJECT_DIRECTORIES'] = original;
+    }
+  });
+});
+
+// =============================================================================
+// workspace/no-empty-commit-diff
+// =============================================================================
+
+describe('workspace/no-empty-commit-diff', () => {
+  it('has correct rule metadata', () => {
+    expect(noEmptyCommitDiff.id).toBe('workspace/no-empty-commit-diff');
+    expect(noEmptyCommitDiff.scope).toBe('workspace');
+    expect(noEmptyCommitDiff.fixable).toBe(false);
+    expect(typeof noEmptyCommitDiff.check).toBe('function');
+  });
+
+  it('errors on empty diff commit', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noEmptyCommitDiff.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-empty-commit-diff');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('no file changes');
+  });
+
+  it('passes when commit has file changes', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('src/main.ts\nREADME.md\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noEmptyCommitDiff.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when git fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('not a git repo');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noEmptyCommitDiff.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-inconsistent-worktrees
+// =============================================================================
+
+describe('workspace/no-inconsistent-worktrees', () => {
+  it('has correct rule metadata', () => {
+    expect(noInconsistentWorktrees.id).toBe('workspace/no-inconsistent-worktrees');
+    expect(noInconsistentWorktrees.scope).toBe('workspace');
+    expect(noInconsistentWorktrees.fixable).toBe(false);
+    expect(typeof noInconsistentWorktrees.check).toBe('function');
+  });
+
+  it('errors when no valid worktree found', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('bare\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noInconsistentWorktrees.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-inconsistent-worktrees');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('No valid Git worktree');
+  });
+
+  it('passes when worktree is valid', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue(
+      'worktree /workspace\nHEAD abc123\nbranch refs/heads/main\n',
+    );
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noInconsistentWorktrees.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when git fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('not a git repo');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noInconsistentWorktrees.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-fsmonitor-in-ci
+// =============================================================================
+
+describe('workspace/no-fsmonitor-in-ci', () => {
+  it('has correct rule metadata', () => {
+    expect(noFsmonitorInCi.id).toBe('workspace/no-fsmonitor-in-ci');
+    expect(noFsmonitorInCi.scope).toBe('workspace');
+    expect(noFsmonitorInCi.fixable).toBe(false);
+    expect(typeof noFsmonitorInCi.check).toBe('function');
+  });
+
+  it('warns when fsmonitor is set', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('true\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noFsmonitorInCi.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-fsmonitor-in-ci');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('fsmonitor');
+  });
+
+  it('passes when fsmonitor is unset', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('key not found');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noFsmonitorInCi.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when fsmonitor returns empty', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noFsmonitorInCi.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-oversized-repo
+// =============================================================================
+
+describe('workspace/no-oversized-repo', () => {
+  it('has correct rule metadata', () => {
+    expect(noOversizedRepo.id).toBe('workspace/no-oversized-repo');
+    expect(noOversizedRepo.scope).toBe('workspace');
+    expect(noOversizedRepo.fixable).toBe(false);
+    expect(typeof noOversizedRepo.check).toBe('function');
+  });
+
+  it('warns when .git exceeds 500MB', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('600000\t.git/objects\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noOversizedRepo.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-oversized-repo');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('600000');
+  });
+
+  it('passes when .git is small', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('50000\t.git/objects\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noOversizedRepo.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when du fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('du failed');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noOversizedRepo.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-bloated-commits
+// =============================================================================
+
+describe('workspace/no-bloated-commits', () => {
+  it('has correct rule metadata', () => {
+    expect(noBloatedCommits.id).toBe('workspace/no-bloated-commits');
+    expect(noBloatedCommits.scope).toBe('workspace');
+    expect(noBloatedCommits.fixable).toBe(false);
+    expect(typeof noBloatedCommits.check).toBe('function');
+  });
+
+  it('warns when commit touches >100 files', async () => {
+    const { execSync } = await import('node:child_process');
+    const files: string = Array.from(
+      { length: 120 },
+      (_: unknown, i: number) => `file${String(i)}.ts`,
+    ).join('\n');
+    vi.mocked(execSync).mockReturnValue(files + '\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noBloatedCommits.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-bloated-commits');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('120');
+  });
+
+  it('passes when commit touches ≤100 files', async () => {
+    const { execSync } = await import('node:child_process');
+    const files: string = Array.from(
+      { length: 50 },
+      (_: unknown, i: number) => `file${String(i)}.ts`,
+    ).join('\n');
+    vi.mocked(execSync).mockReturnValue(files + '\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noBloatedCommits.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when git fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('not a git repo');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noBloatedCommits.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-commit-date-skew
+// =============================================================================
+
+describe('workspace/no-commit-date-skew', () => {
+  it('has correct rule metadata', () => {
+    expect(noCommitDateSkew.id).toBe('workspace/no-commit-date-skew');
+    expect(noCommitDateSkew.scope).toBe('workspace');
+    expect(noCommitDateSkew.fixable).toBe(false);
+    expect(typeof noCommitDateSkew.check).toBe('function');
+  });
+
+  it('warns on future commit date', async () => {
+    const { execSync } = await import('node:child_process');
+    const futureTs: number = Math.floor(Date.now() / 1000) + 7200;
+    vi.mocked(execSync).mockReturnValue(String(futureTs) + '\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noCommitDateSkew.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-commit-date-skew');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('future');
+  });
+
+  it('warns on very old commit date', async () => {
+    const { execSync } = await import('node:child_process');
+    const oldTs: number = Math.floor(Date.now() / 1000) - 63072000;
+    vi.mocked(execSync).mockReturnValue(String(oldTs) + '\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noCommitDateSkew.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('year old');
+  });
+
+  it('passes on recent commit', async () => {
+    const { execSync } = await import('node:child_process');
+    const recentTs: number = Math.floor(Date.now() / 1000) - 3600;
+    vi.mocked(execSync).mockReturnValue(String(recentTs) + '\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noCommitDateSkew.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when git fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('not a git repo');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noCommitDateSkew.check(ctx);
     expect(results.length).toBe(0);
   });
 });
