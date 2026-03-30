@@ -361,6 +361,24 @@ import workspaceSpelling from './workspace-spelling.ts';
 import mrTitleFormat from './mr-title-format.ts';
 import mrDescriptionRequired from './mr-description-required.ts';
 
+// Phase 34 — MR Validation Rules
+import mrLabelEnforcement from './mr-label-enforcement.ts';
+import mrTargetBranchProtected from './mr-target-branch-protected.ts';
+import mrDraftBlock from './mr-draft-block.ts';
+import mrConflictingLabels from './mr-conflicting-labels.ts';
+import mrSizeLimit from './mr-size-limit.ts';
+import mrAssigneeRequired from './mr-assignee-required.ts';
+import mrReviewerRequired from './mr-reviewer-required.ts';
+import mrBlockingDiscussions from './mr-blocking-discussions.ts';
+import mrWipCommitCheck from './mr-wip-commit-check.ts';
+import mrApprovalRequired from './mr-approval-required.ts';
+import mrBranchSourceRules from './mr-branch-source-rules.ts';
+import mrCodeownersApproval from './mr-codeowners-approval.ts';
+import mrLabelsRequiredPerScope from './mr-labels-required-per-scope.ts';
+import mrDependencyChangesReviewed from './mr-dependency-changes-reviewed.ts';
+import mrCiPipelinePassed from './mr-ci-pipeline-passed.ts';
+import mrUpToDateWithTarget from './mr-up-to-date-with-target.ts';
+
 // =============================================================================
 // Helpers
 // =============================================================================
@@ -19496,6 +19514,899 @@ describe('workspace/mr-description-required', () => {
     delete process.env['CI_MERGE_REQUEST_DESCRIPTION'];
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
     const results: LintResult[] = await mrDescriptionRequired.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// Phase 34 — MR Validation Rules
+// =============================================================================
+
+// =============================================================================
+// workspace/mr-label-enforcement
+// =============================================================================
+
+describe('workspace/mr-label-enforcement', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrLabelEnforcement.id).toBe('workspace/mr-label-enforcement');
+    expect(mrLabelEnforcement.scope).toBe('workspace');
+    expect(typeof mrLabelEnforcement.check).toBe('function');
+  });
+
+  it('reports error when no approved label is present', async () => {
+    process.env['CI_MERGE_REQUEST_LABELS'] = 'random-label,misc';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrLabelEnforcement.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('missing required domain');
+    process.env = { ...originalEnv };
+  });
+
+  it('passes when an approved label is present', async () => {
+    process.env['CI_MERGE_REQUEST_LABELS'] = 'api,random-label';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrLabelEnforcement.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('passes with multiple approved labels', async () => {
+    process.env['CI_MERGE_REQUEST_LABELS'] = 'frontend,backend,tests';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrLabelEnforcement.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when CI_MERGE_REQUEST_LABELS is not set', async () => {
+    delete process.env['CI_MERGE_REQUEST_LABELS'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrLabelEnforcement.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// workspace/mr-target-branch-protected
+// =============================================================================
+
+describe('workspace/mr-target-branch-protected', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrTargetBranchProtected.id).toBe('workspace/mr-target-branch-protected');
+    expect(mrTargetBranchProtected.scope).toBe('workspace');
+    expect(typeof mrTargetBranchProtected.check).toBe('function');
+  });
+
+  it('reports error when targeting main', async () => {
+    process.env['CI_MERGE_REQUEST_TARGET_BRANCH_NAME'] = 'main';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrTargetBranchProtected.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('main');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports error when targeting production', async () => {
+    process.env['CI_MERGE_REQUEST_TARGET_BRANCH_NAME'] = 'production';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrTargetBranchProtected.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('production');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports error when targeting prod', async () => {
+    process.env['CI_MERGE_REQUEST_TARGET_BRANCH_NAME'] = 'prod';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrTargetBranchProtected.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    process.env = { ...originalEnv };
+  });
+
+  it('passes for non-protected branch', async () => {
+    process.env['CI_MERGE_REQUEST_TARGET_BRANCH_NAME'] = 'staging';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrTargetBranchProtected.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when CI_MERGE_REQUEST_TARGET_BRANCH_NAME is not set', async () => {
+    delete process.env['CI_MERGE_REQUEST_TARGET_BRANCH_NAME'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrTargetBranchProtected.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// workspace/mr-draft-block
+// =============================================================================
+
+describe('workspace/mr-draft-block', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrDraftBlock.id).toBe('workspace/mr-draft-block');
+    expect(mrDraftBlock.scope).toBe('workspace');
+    expect(typeof mrDraftBlock.check).toBe('function');
+  });
+
+  it('reports error for draft title with uppercase Draft:', async () => {
+    process.env['CI_MERGE_REQUEST_TITLE'] = 'Draft: work in progress';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrDraftBlock.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Draft');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports error for draft title with lowercase draft:', async () => {
+    process.env['CI_MERGE_REQUEST_TITLE'] = 'draft: still working';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrDraftBlock.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    process.env = { ...originalEnv };
+  });
+
+  it('passes for non-draft title', async () => {
+    process.env['CI_MERGE_REQUEST_TITLE'] = 'feat: add new feature';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrDraftBlock.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when CI_MERGE_REQUEST_TITLE is not set', async () => {
+    delete process.env['CI_MERGE_REQUEST_TITLE'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrDraftBlock.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// workspace/mr-conflicting-labels
+// =============================================================================
+
+describe('workspace/mr-conflicting-labels', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrConflictingLabels.id).toBe('workspace/mr-conflicting-labels');
+    expect(mrConflictingLabels.scope).toBe('workspace');
+    expect(typeof mrConflictingLabels.check).toBe('function');
+  });
+
+  it('reports error for hotfix+refactor conflict', async () => {
+    process.env['CI_MERGE_REQUEST_LABELS'] = 'hotfix,refactor';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrConflictingLabels.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('hotfix');
+    expect(results[0]!.message).toContain('refactor');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports error for breaking-change+patch conflict', async () => {
+    process.env['CI_MERGE_REQUEST_LABELS'] = 'breaking-change,patch';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrConflictingLabels.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('breaking-change');
+    expect(results[0]!.message).toContain('patch');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports error for feature+remove conflict', async () => {
+    process.env['CI_MERGE_REQUEST_LABELS'] = 'feature,remove';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrConflictingLabels.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports multiple errors for multiple conflicts', async () => {
+    process.env['CI_MERGE_REQUEST_LABELS'] = 'hotfix,refactor,feature,remove';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrConflictingLabels.check(ctx);
+    expect(results.length).toBe(2);
+    process.env = { ...originalEnv };
+  });
+
+  it('passes with non-conflicting labels', async () => {
+    process.env['CI_MERGE_REQUEST_LABELS'] = 'feature,api,frontend';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrConflictingLabels.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when CI_MERGE_REQUEST_LABELS is not set', async () => {
+    delete process.env['CI_MERGE_REQUEST_LABELS'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrConflictingLabels.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// workspace/mr-size-limit
+// =============================================================================
+
+describe('workspace/mr-size-limit', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrSizeLimit.id).toBe('workspace/mr-size-limit');
+    expect(mrSizeLimit.scope).toBe('workspace');
+    expect(typeof mrSizeLimit.check).toBe('function');
+  });
+
+  it('warns when total lines exceed 800', async () => {
+    process.env['MR_LINES_ADDED'] = '500';
+    process.env['MR_LINES_REMOVED'] = '400';
+    delete process.env['MR_FILES_CHANGED'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrSizeLimit.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('900');
+    process.env = { ...originalEnv };
+  });
+
+  it('warns when files exceed 20', async () => {
+    delete process.env['MR_LINES_ADDED'];
+    delete process.env['MR_LINES_REMOVED'];
+    process.env['MR_FILES_CHANGED'] = '25';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrSizeLimit.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('25');
+    process.env = { ...originalEnv };
+  });
+
+  it('warns on both lines and files exceeding limits', async () => {
+    process.env['MR_LINES_ADDED'] = '600';
+    process.env['MR_LINES_REMOVED'] = '300';
+    process.env['MR_FILES_CHANGED'] = '30';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrSizeLimit.check(ctx);
+    expect(results.length).toBe(2);
+    process.env = { ...originalEnv };
+  });
+
+  it('passes when under limits', async () => {
+    process.env['MR_LINES_ADDED'] = '100';
+    process.env['MR_LINES_REMOVED'] = '50';
+    process.env['MR_FILES_CHANGED'] = '5';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrSizeLimit.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('passes at exact boundary (800 lines, 20 files)', async () => {
+    process.env['MR_LINES_ADDED'] = '400';
+    process.env['MR_LINES_REMOVED'] = '400';
+    process.env['MR_FILES_CHANGED'] = '20';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrSizeLimit.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when no size env vars are set', async () => {
+    delete process.env['MR_LINES_ADDED'];
+    delete process.env['MR_LINES_REMOVED'];
+    delete process.env['MR_FILES_CHANGED'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrSizeLimit.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// workspace/mr-assignee-required
+// =============================================================================
+
+describe('workspace/mr-assignee-required', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrAssigneeRequired.id).toBe('workspace/mr-assignee-required');
+    expect(mrAssigneeRequired.scope).toBe('workspace');
+    expect(typeof mrAssigneeRequired.check).toBe('function');
+  });
+
+  it('reports error when assignee is empty', async () => {
+    process.env['MR_ASSIGNEE'] = '';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrAssigneeRequired.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('no assignee');
+    process.env = { ...originalEnv };
+  });
+
+  it('passes when assignee is set', async () => {
+    process.env['MR_ASSIGNEE'] = 'john.doe';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrAssigneeRequired.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when MR_ASSIGNEE is not set', async () => {
+    delete process.env['MR_ASSIGNEE'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrAssigneeRequired.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// workspace/mr-reviewer-required
+// =============================================================================
+
+describe('workspace/mr-reviewer-required', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrReviewerRequired.id).toBe('workspace/mr-reviewer-required');
+    expect(mrReviewerRequired.scope).toBe('workspace');
+    expect(typeof mrReviewerRequired.check).toBe('function');
+  });
+
+  it('reports error when reviewers is empty', async () => {
+    process.env['MR_REVIEWERS'] = '';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrReviewerRequired.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('missing reviewers');
+    process.env = { ...originalEnv };
+  });
+
+  it('passes when reviewers are set', async () => {
+    process.env['MR_REVIEWERS'] = 'alice,bob';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrReviewerRequired.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when MR_REVIEWERS is not set', async () => {
+    delete process.env['MR_REVIEWERS'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrReviewerRequired.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// workspace/mr-blocking-discussions
+// =============================================================================
+
+describe('workspace/mr-blocking-discussions', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrBlockingDiscussions.id).toBe('workspace/mr-blocking-discussions');
+    expect(mrBlockingDiscussions.scope).toBe('workspace');
+    expect(typeof mrBlockingDiscussions.check).toBe('function');
+  });
+
+  it('reports error when unresolved discussions exist', async () => {
+    process.env['MR_BLOCKING_DISCUSSIONS_COUNT'] = '3';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrBlockingDiscussions.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('3');
+    process.env = { ...originalEnv };
+  });
+
+  it('passes when count is zero', async () => {
+    process.env['MR_BLOCKING_DISCUSSIONS_COUNT'] = '0';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrBlockingDiscussions.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when MR_BLOCKING_DISCUSSIONS_COUNT is not set', async () => {
+    delete process.env['MR_BLOCKING_DISCUSSIONS_COUNT'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrBlockingDiscussions.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// workspace/mr-wip-commit-check
+// =============================================================================
+
+describe('workspace/mr-wip-commit-check', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrWipCommitCheck.id).toBe('workspace/mr-wip-commit-check');
+    expect(mrWipCommitCheck.scope).toBe('workspace');
+    expect(typeof mrWipCommitCheck.check).toBe('function');
+  });
+
+  it('reports error for wip commit message', async () => {
+    process.env['MR_COMMITS'] = 'abc1234 wip stuff';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrWipCommitCheck.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('WIP');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports error for tmp commit message', async () => {
+    process.env['MR_COMMITS'] = 'def5678 tmp save';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrWipCommitCheck.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports error for debug commit message', async () => {
+    process.env['MR_COMMITS'] = 'abc1234 debug logging added';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrWipCommitCheck.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports error for fixme commit message', async () => {
+    process.env['MR_COMMITS'] = 'abc1234 fixme later';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrWipCommitCheck.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    process.env = { ...originalEnv };
+  });
+
+  it('passes for clean commit messages', async () => {
+    process.env['MR_COMMITS'] = 'abc1234 feat: add new feature\ndef5678 fix: resolve bug';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrWipCommitCheck.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when MR_COMMITS is not set', async () => {
+    delete process.env['MR_COMMITS'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrWipCommitCheck.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// workspace/mr-approval-required
+// =============================================================================
+
+describe('workspace/mr-approval-required', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrApprovalRequired.id).toBe('workspace/mr-approval-required');
+    expect(mrApprovalRequired.scope).toBe('workspace');
+    expect(typeof mrApprovalRequired.check).toBe('function');
+  });
+
+  it('reports error when approvals are insufficient (default min=1)', async () => {
+    process.env['MR_APPROVAL_COUNT'] = '0';
+    delete process.env['MR_APPROVAL_MIN_REQUIRED'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrApprovalRequired.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('0');
+    expect(results[0]!.message).toContain('1');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports error when approvals below custom minimum', async () => {
+    process.env['MR_APPROVAL_COUNT'] = '1';
+    process.env['MR_APPROVAL_MIN_REQUIRED'] = '3';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrApprovalRequired.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('3');
+    process.env = { ...originalEnv };
+  });
+
+  it('passes when approvals meet default minimum', async () => {
+    process.env['MR_APPROVAL_COUNT'] = '1';
+    delete process.env['MR_APPROVAL_MIN_REQUIRED'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrApprovalRequired.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('passes when approvals exceed custom minimum', async () => {
+    process.env['MR_APPROVAL_COUNT'] = '5';
+    process.env['MR_APPROVAL_MIN_REQUIRED'] = '3';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrApprovalRequired.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when MR_APPROVAL_COUNT is not set', async () => {
+    delete process.env['MR_APPROVAL_COUNT'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrApprovalRequired.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// workspace/mr-branch-source-rules
+// =============================================================================
+
+describe('workspace/mr-branch-source-rules', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrBranchSourceRules.id).toBe('workspace/mr-branch-source-rules');
+    expect(mrBranchSourceRules.scope).toBe('workspace');
+    expect(typeof mrBranchSourceRules.check).toBe('function');
+  });
+
+  it('reports error for invalid branch name', async () => {
+    process.env['MR_SOURCE_BRANCH'] = 'my-random-branch';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrBranchSourceRules.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('my-random-branch');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports error for branch missing slash', async () => {
+    process.env['MR_SOURCE_BRANCH'] = 'feature';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrBranchSourceRules.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    process.env = { ...originalEnv };
+  });
+
+  it('passes for valid feature branch', async () => {
+    process.env['MR_SOURCE_BRANCH'] = 'feature/add-auth';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrBranchSourceRules.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('passes for valid fix branch', async () => {
+    process.env['MR_SOURCE_BRANCH'] = 'fix/memory-leak';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrBranchSourceRules.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('passes for valid chore branch', async () => {
+    process.env['MR_SOURCE_BRANCH'] = 'chore/update-deps';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrBranchSourceRules.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('passes for valid hotfix branch', async () => {
+    process.env['MR_SOURCE_BRANCH'] = 'hotfix/critical-fix';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrBranchSourceRules.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when MR_SOURCE_BRANCH is not set', async () => {
+    delete process.env['MR_SOURCE_BRANCH'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrBranchSourceRules.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// workspace/mr-codeowners-approval
+// =============================================================================
+
+describe('workspace/mr-codeowners-approval', () => {
+  it('has correct rule metadata', () => {
+    expect(mrCodeownersApproval.id).toBe('workspace/mr-codeowners-approval');
+    expect(mrCodeownersApproval.scope).toBe('workspace');
+    expect(typeof mrCodeownersApproval.check).toBe('function');
+  });
+
+  it('reports error when CODEOWNERS file is missing', async () => {
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace', files: new Map() });
+    const results: LintResult[] = await mrCodeownersApproval.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('CODEOWNERS');
+  });
+
+  it('passes when CODEOWNERS file exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab/CODEOWNERS', '* @team-lead\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace', files });
+    const results: LintResult[] = await mrCodeownersApproval.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/mr-labels-required-per-scope
+// =============================================================================
+
+describe('workspace/mr-labels-required-per-scope', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrLabelsRequiredPerScope.id).toBe('workspace/mr-labels-required-per-scope');
+    expect(mrLabelsRequiredPerScope.scope).toBe('workspace');
+    expect(typeof mrLabelsRequiredPerScope.check).toBe('function');
+  });
+
+  it('reports error when api label is missing for api path', async () => {
+    process.env['MODIFIED_PATHS'] = 'packages/api/src/index.ts';
+    process.env['MR_LABELS'] = 'frontend';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrLabelsRequiredPerScope.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('api');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports error when ci label is missing for .gitlab path', async () => {
+    process.env['MODIFIED_PATHS'] = '.gitlab/ci.yml';
+    process.env['MR_LABELS'] = 'frontend';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrLabelsRequiredPerScope.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('ci');
+    process.env = { ...originalEnv };
+  });
+
+  it('passes when correct labels are present', async () => {
+    process.env['MODIFIED_PATHS'] = 'packages/api/src/index.ts packages/docs/README.md';
+    process.env['MR_LABELS'] = 'api,docs';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrLabelsRequiredPerScope.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when MODIFIED_PATHS is not set', async () => {
+    delete process.env['MODIFIED_PATHS'];
+    process.env['MR_LABELS'] = 'api';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrLabelsRequiredPerScope.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when MR_LABELS is not set', async () => {
+    process.env['MODIFIED_PATHS'] = 'packages/api/src/index.ts';
+    delete process.env['MR_LABELS'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrLabelsRequiredPerScope.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// workspace/mr-dependency-changes-reviewed
+// =============================================================================
+
+describe('workspace/mr-dependency-changes-reviewed', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrDependencyChangesReviewed.id).toBe('workspace/mr-dependency-changes-reviewed');
+    expect(mrDependencyChangesReviewed.scope).toBe('workspace');
+    expect(typeof mrDependencyChangesReviewed.check).toBe('function');
+  });
+
+  it('reports error when package.json changed without deps-reviewed label', async () => {
+    process.env['MODIFIED_PATHS'] = 'packages/api/package.json';
+    process.env['MR_LABELS'] = 'api';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrDependencyChangesReviewed.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('package.json');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports error when pnpm-lock.yaml changed without deps-reviewed label', async () => {
+    process.env['MODIFIED_PATHS'] = 'pnpm-lock.yaml';
+    delete process.env['MR_LABELS'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrDependencyChangesReviewed.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('pnpm-lock.yaml');
+    process.env = { ...originalEnv };
+  });
+
+  it('passes when deps-reviewed label is present', async () => {
+    process.env['MODIFIED_PATHS'] = 'package.json pnpm-lock.yaml';
+    process.env['MR_LABELS'] = 'api,deps-reviewed';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrDependencyChangesReviewed.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('passes when no dependency files are modified', async () => {
+    process.env['MODIFIED_PATHS'] = 'src/index.ts README.md';
+    process.env['MR_LABELS'] = 'api';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrDependencyChangesReviewed.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when MODIFIED_PATHS is not set', async () => {
+    delete process.env['MODIFIED_PATHS'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrDependencyChangesReviewed.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// workspace/mr-ci-pipeline-passed
+// =============================================================================
+
+describe('workspace/mr-ci-pipeline-passed', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrCiPipelinePassed.id).toBe('workspace/mr-ci-pipeline-passed');
+    expect(mrCiPipelinePassed.scope).toBe('workspace');
+    expect(typeof mrCiPipelinePassed.check).toBe('function');
+  });
+
+  it('reports error when pipeline status is failed', async () => {
+    process.env['CI_PIPELINE_STATUS'] = 'failed';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrCiPipelinePassed.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('failed');
+    process.env = { ...originalEnv };
+  });
+
+  it('reports error when pipeline status is running', async () => {
+    process.env['CI_PIPELINE_STATUS'] = 'running';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrCiPipelinePassed.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('running');
+    process.env = { ...originalEnv };
+  });
+
+  it('passes when pipeline status is success', async () => {
+    process.env['CI_PIPELINE_STATUS'] = 'success';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrCiPipelinePassed.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when CI_PIPELINE_STATUS is not set', async () => {
+    delete process.env['CI_PIPELINE_STATUS'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrCiPipelinePassed.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// workspace/mr-up-to-date-with-target
+// =============================================================================
+
+describe('workspace/mr-up-to-date-with-target', () => {
+  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
+
+  it('has correct rule metadata', () => {
+    expect(mrUpToDateWithTarget.id).toBe('workspace/mr-up-to-date-with-target');
+    expect(mrUpToDateWithTarget.scope).toBe('workspace');
+    expect(typeof mrUpToDateWithTarget.check).toBe('function');
+  });
+
+  it('reports error when source branch is behind target', async () => {
+    process.env['MR_TARGET_BRANCH'] = 'main';
+    process.env['MR_SOURCE_BRANCH'] = 'feature/foo';
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('not ancestor');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrUpToDateWithTarget.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('behind');
+    vi.mocked(execSync).mockReset();
+    process.env = { ...originalEnv };
+  });
+
+  it('passes when source branch is up to date', async () => {
+    process.env['MR_TARGET_BRANCH'] = 'main';
+    process.env['MR_SOURCE_BRANCH'] = 'feature/bar';
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('' as never);
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrUpToDateWithTarget.check(ctx);
+    expect(results.length).toBe(0);
+    vi.mocked(execSync).mockReset();
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when MR_TARGET_BRANCH is not set', async () => {
+    delete process.env['MR_TARGET_BRANCH'];
+    process.env['MR_SOURCE_BRANCH'] = 'feature/foo';
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrUpToDateWithTarget.check(ctx);
+    expect(results.length).toBe(0);
+    process.env = { ...originalEnv };
+  });
+
+  it('skips when MR_SOURCE_BRANCH is not set', async () => {
+    process.env['MR_TARGET_BRANCH'] = 'main';
+    delete process.env['MR_SOURCE_BRANCH'];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await mrUpToDateWithTarget.check(ctx);
     expect(results.length).toBe(0);
     process.env = { ...originalEnv };
   });

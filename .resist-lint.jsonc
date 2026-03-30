@@ -509,7 +509,25 @@
     "workspace/cli-tools-help-version": "warn",
     "workspace/workspace-spelling": "warn",
     "workspace/mr-title-format": "error",
-    "workspace/mr-description-required": "error"
+    "workspace/mr-description-required": "error",
+
+    // Phase 34 — MR Validation Rules
+    "workspace/mr-label-enforcement": "error",
+    "workspace/mr-target-branch-protected": "error",
+    "workspace/mr-draft-block": "error",
+    "workspace/mr-conflicting-labels": "error",
+    "workspace/mr-size-limit": "warn",
+    "workspace/mr-assignee-required": "error",
+    "workspace/mr-reviewer-required": "error",
+    "workspace/mr-blocking-discussions": "error",
+    "workspace/mr-wip-commit-check": "error",
+    "workspace/mr-approval-required": "error",
+    "workspace/mr-branch-source-rules": "error",
+    "workspace/mr-codeowners-approval": "error",
+    "workspace/mr-labels-required-per-scope": "error",
+    "workspace/mr-dependency-changes-reviewed": "error",
+    "workspace/mr-ci-pipeline-passed": "error",
+    "workspace/mr-up-to-date-with-target": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
