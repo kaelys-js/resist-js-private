@@ -5,7 +5,10 @@
   - Review every directory in: /Users/coleb/Desktop/webforge/packages/shared/ui/src
     - Only include directions that have a file that indicates its a placeholder
     - Give a full list of directories to delete that aren't "components" but are "blocks"
-  - Review Every Rule
+  - Rules
+    - Duplicates
+    - Grouping
+    - Accuracy
   - VSCode Extension (linter-test/extensions)
 
   /Users/coleb/Desktop/webforge/packages/shared/schemas/function
