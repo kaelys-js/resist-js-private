@@ -21,7 +21,7 @@
 # Stages:
 #   commit-msg, check
 # ------------------------------------------------------------------------------
-check::commit_too_large() {
+ported::commit_too_large() {
   # ✅ Check: Prevent commits that modify >50 files unless explicitly marked [skip]
   # Category: ci, lint, safety
   # Stages: commit-msg, check
@@ -146,7 +146,7 @@ check::detached_head_state() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::markdown_docs_location() {
+ported::markdown_docs_location() {
   # ✅ Check: All Markdown must live in /docs/<locale>/ with mirrored structure
   # Category: lint, paths, naming, boundaries
   # Stages: lint, check
@@ -715,7 +715,7 @@ check::check_function_docblocks() {
 # Stages:
 #   lint, validate, pre-commit
 # ------------------------------------------------------------------------------
-check::monorepo_layout_schema() {
+ported::monorepo_layout_schema() {
   # ✅ Check: Project structure matches monorepo-layout.schema.yaml
   # Category: safety, ci, naming, paths
   # Stages: lint, validate, pre-commit
@@ -855,7 +855,7 @@ check::monorepo_layout_example_schema_valid() {
 # Stages:
 #   lint, test, validate
 # ------------------------------------------------------------------------------
-check::validate_yaml_language_server_schemas() {
+ported::validate_yaml_language_server_schemas() {
   # ✅ Check: All YAML files declaring $schema are valid against the referenced schema
   # Category: lint, ci, safety, encoding
   # Stages: lint, test, validate
@@ -991,7 +991,7 @@ check::validate_yaml_language_server_schemas() {
 # Stages:
 #   lint, validate, test
 # ------------------------------------------------------------------------------
-check::validate_json_schemas() {
+ported::validate_json_schemas() {
   # ✅ Check: All JSON files with "$schema" must pass schema validation
   # Category: lint, ci, encoding, safety
   # Stages: lint, validate, test
@@ -1195,7 +1195,7 @@ check::validate_all_contributorsrc() {
 # Stages:
 #   check, lint, build
 # ------------------------------------------------------------------------------
-check::validate_makefiles() {
+ported::validate_makefiles() {
   # ✅ Check: All Makefiles must exist, use LF line endings, and pass dry-run syntax check
   # Category: lint, shell, ci, paths
   # Stages: check, lint, build
@@ -3321,7 +3321,7 @@ ported::validate_vscode_extensions() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::disallow_world_writable_files() {
+ported::disallow_world_writable_files() {
   # ✅ Check: No chmod 777 / group or world writable files (except .env.local)
   # Category: safety, lint
   # Stages: check, lint
@@ -3983,7 +3983,7 @@ ported::wrangler_binding_names_unique() {
 # Stages:
 #   check, lint, deploy
 # ------------------------------------------------------------------------------
-check::wrangler_route_collisions() {
+ported::wrangler_route_collisions() {
   # ✅ Check: No route collisions across wrangler.json files or environments
   # Category: wrangler, cloudflare:do
   # Stages: check, lint, deploy
@@ -4070,7 +4070,7 @@ check::wrangler_route_collisions() {
 # Stages:
 #   check, lint, pre-commit
 # ------------------------------------------------------------------------------
-check::wrangler_bindings_consistent_across_envs() {
+ported::wrangler_bindings_consistent_across_envs() {
   # ✅ Check: Ensure all Cloudflare bindings are consistent across environments
   # Category: cloudflare:kv, cloudflare:r2, cloudflare:d1, cloudflare:do, wrangler, safety
   # Stages: check, lint, pre-commit
@@ -4256,7 +4256,7 @@ check::wrangler_tail_consumer_services_unique() {
 # Stages:
 #   check, lint, build, pre-commit
 # ------------------------------------------------------------------------------
-check::wrangler_binding_naming_conventions() {
+ported::wrangler_binding_naming_conventions() {
   # ✅ Check: Valid naming for Cloudflare bindings (KV, R2, D1, DO, tail)
   # Category: cloudflare:kv, cloudflare:r2, cloudflare:d1, cloudflare:do, wrangler, lint
   # Stages: check, lint, build, pre-commit
@@ -4350,7 +4350,7 @@ check::wrangler_binding_naming_conventions() {
 # Stages:
 #   lint, check, deploy
 # ------------------------------------------------------------------------------
-check::wrangler_environments_valid() {
+ported::wrangler_environments_valid() {
   # ✅ Check: Allowed wrangler.json environments = top-level (staging), env.production, env.preview
   # Category: wrangler, cloudflare:r2, cloudflare:kv, cloudflare:d1, cloudflare:do, ci
   # Stages: lint, check, deploy
@@ -4480,7 +4480,7 @@ check::detect_unreferenced_shell_scripts() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::warn_on_hardcoded_service_urls() {
+ported::warn_on_hardcoded_service_urls() {
   # ✅ Check: Detect hardcoded IPs and service URLs in source code
   # Category: lint, safety, ci
   # Stages: lint, check
@@ -5270,7 +5270,7 @@ ported::tsconfig_paths_resolution() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::multiple_env_files() {
+ported::multiple_env_files() {
   # ✅ Check: multiple .env.* files must not conflict with ENV_FILE
   # Category: dotenv
   # Stages: check, lint
@@ -5376,7 +5376,7 @@ ported::migrations_no_tempfiles() {
 # Stages:
 #   lint, check, pre-commit
 # ------------------------------------------------------------------------------
-check::sql_integrity() {
+ported::sql_integrity() {
   # ✅ Check: all SQL files are safe, correct, and consistent with D1 constraints
   # Category: database, safety
   # Stages: lint, check, pre-commit
@@ -5525,7 +5525,7 @@ check::sql_integrity() {
 # Stages:
 #   lint, test, check, pre-commit
 # ------------------------------------------------------------------------------
-check::shell_scripts_integrity() {
+ported::shell_scripts_integrity() {
   # ✅ Check: All workspace shell scripts must be safe, strict, and executable where appropriate
   # Category: shell
   # Stages: lint, test, check, pre-commit
