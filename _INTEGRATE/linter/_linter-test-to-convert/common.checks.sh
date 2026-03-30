@@ -2443,7 +2443,7 @@ ported::detect_undeclared_dependencies() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::disallow_tsconfig_duplicate_extends_chain() {
+ported::disallow_tsconfig_duplicate_extends_chain() {
   # ✅ Check: Fail if tsconfig.json extends same base more than once (directly or indirectly)
   # Category: tsconfig, lint
   # Stages: check, lint
@@ -3703,7 +3703,7 @@ check::validate_gitlab_ci_includes() {
 # Stages:
 #   check, lint, test
 # ------------------------------------------------------------------------------
-check::validate_wrangler_cron_syntax() {
+ported::validate_wrangler_cron_syntax() {
   # ✅ Check: Ensure all wrangler.json cron triggers use valid 5-field syntax
   # Category: cloudflare:kv, wrangler
   # Stages: check, lint, test
@@ -3772,7 +3772,7 @@ check::validate_wrangler_cron_syntax() {
 # Stages:
 #   lint, check, test
 # ------------------------------------------------------------------------------
-check::wrangler_name_matches_package() {
+ported::wrangler_name_matches_package() {
   # ✅ Check: wrangler.json name must match package.json name (ignoring scope)
   # Category: wrangler, cloudflare:kv
   # Stages: lint, check, test
@@ -3843,7 +3843,7 @@ check::wrangler_name_matches_package() {
 # Stages:
 #   lint, check, build, deploy
 # ------------------------------------------------------------------------------
-check::wrangler_main_entrypoint_exists() {
+ported::wrangler_main_entrypoint_exists() {
   # ✅ Check: wrangler.json "main" field must point to a valid file
   # Category: wrangler, cloudflare:do, cloudflare:kv
   # Stages: lint, check, build, deploy
@@ -3910,7 +3910,7 @@ check::wrangler_main_entrypoint_exists() {
 # Stages:
 #   lint, check, deploy
 # ------------------------------------------------------------------------------
-check::wrangler_binding_names_unique() {
+ported::wrangler_binding_names_unique() {
   # ✅ Check: No duplicate binding names across all wrangler.json files
   # Category: wrangler, cloudflare:kv, cloudflare:d1, cloudflare:r2, cloudflare:do
   # Stages: lint, check, deploy
@@ -5018,7 +5018,7 @@ ported::disallow_deploy_scripts() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_paths_resolution() {
+ported::tsconfig_paths_resolution() {
   # ✅ Check: All compilerOptions.paths entries must resolve to valid targets
   # Category: tsconfig, paths
   # Stages: lint, check
@@ -5068,7 +5068,7 @@ check::tsconfig_paths_resolution() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_rootdir_layout() {
+ported::tsconfig_rootdir_layout() {
   # ✅ Check: rootDir must be inside src/, packages/, or apps/
   # Category: tsconfig, paths
   # Stages: lint, check
@@ -5113,7 +5113,7 @@ check::tsconfig_rootdir_layout() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_outdir_rootdir_files() {
+ported::tsconfig_outdir_rootdir_files() {
   # ✅ Check: discourage using outDir, rootDir, or files in monorepo tsconfigs
   # Category: tsconfig
   # Stages: lint, check
@@ -5164,7 +5164,7 @@ check::tsconfig_outdir_rootdir_files() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_include_exclude_patterns() {
+ported::tsconfig_include_exclude_patterns() {
   # ✅ Check: each include/exclude pattern must match at least one file
   # Category: tsconfig
   # Stages: lint, check
@@ -5214,7 +5214,7 @@ check::tsconfig_include_exclude_patterns() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::tsconfig_paths_resolution() {
+ported::tsconfig_paths_resolution() {
   # ✅ Check: all compilerOptions.paths entries must resolve
   # Category: tsconfig
   # Stages: lint, check
@@ -5314,7 +5314,7 @@ check::multiple_env_files() {
 # Stages:
 #   check, lint, pre-commit
 # ------------------------------------------------------------------------------
-check::migrations_no_tempfiles() {
+ported::migrations_no_tempfiles() {
   # ✅ Check: No temp/backup/swap files allowed in migrations/
   # Category: database, safety
   # Stages: check, lint, pre-commit
@@ -6609,7 +6609,7 @@ check::makefile_has_help() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::no_hardcoded_localhost_ports() {
+ported::no_hardcoded_localhost_ports() {
   # ✅ Check: Reject hardcoded localhost URLs for services
   # Category: safety, lint, paths
   # Stages: check, lint
@@ -6916,7 +6916,7 @@ check::tsconfig_orphaned_ts_files() {
 # Stages:
 #   check, lint, test, build, deploy
 # ------------------------------------------------------------------------------
-check::cloudflare_workers_node_compat() {
+ported::cloudflare_workers_node_compat() {
   # ✅ Check: Block unsupported Node APIs and polyfills in Worker code
   # Category: cloudflare:do, cloudflare:kv, cloudflare:r2, wrangler, safety, lint
   # Stages: check, lint, test, build, deploy
@@ -7047,7 +7047,7 @@ check::cloudflare_worker_disallowed_headers() {
 # Stages:
 #   lint, validate, pre-commit
 # ------------------------------------------------------------------------------
-check::formatting_config_consistency() {
+ported::formatting_config_consistency() {
   # ✅ Check: .editorconfig, biome.base.json, and VSCode settings must agree
   # Category: biome, lint, vscode, paths
   # Stages: lint, validate, pre-commit
@@ -7283,7 +7283,7 @@ check::locale_key_consistency() {
 # Stages:
 #   check, lint, validate
 # ------------------------------------------------------------------------------
-check::disallow_nonpreferred_image_formats() {
+ported::disallow_nonpreferred_image_formats() {
   # ✅ Check: Disallow non-webp/svg/ico image formats
   # Category: lint, paths, naming, encoding
   # Stages: check, lint, validate
@@ -9657,7 +9657,7 @@ check::format_biome() {
 # Stages:
 #   lint, check, pre-commit
 # ------------------------------------------------------------------------------
-check::nanostores_safety() {
+ported::nanostores_safety() {
   # ✅ Check: Validate all nanostores follow safe usage patterns
   # Category: lint, boundaries, dotenv, naming, paths, safety
   # Stages: lint, check, pre-commit
