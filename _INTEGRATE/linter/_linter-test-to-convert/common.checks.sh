@@ -4512,7 +4512,7 @@ check::sync_node_config() {
 # Stages:
 #   check, lint, build
 # ------------------------------------------------------------------------------
-check::images_large_webp_warning() {
+ported::images_large_webp_warning() {
   # ✅ Check: .webp images should not exceed 250KB
   # Category: lint, encoding
   # Stages: check, lint, build
@@ -4556,7 +4556,7 @@ check::images_large_webp_warning() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::images_webp_lossless_unused() {
+ported::images_webp_lossless_unused() {
   # ✅ Check: .webp should avoid unnecessary lossless encoding
   # Category: lint, encoding
   # Stages: check, lint
@@ -4596,7 +4596,7 @@ check::images_webp_lossless_unused() {
 # Stages:
 #   build, lint, check
 # ------------------------------------------------------------------------------
-check::images_webp_metadata_stripped() {
+ported::images_webp_metadata_stripped() {
   # ✅ Check: webp files must not contain metadata
   # Category: lint, encoding
   # Stages: build, lint, check
@@ -4636,7 +4636,7 @@ check::images_webp_metadata_stripped() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::images_svg_inaccessible_elements() {
+ported::images_svg_inaccessible_elements() {
   # ✅ Check: SVGs must contain title or desc for accessibility
   # Category: lint, encoding
   # Stages: lint, check
@@ -4676,7 +4676,7 @@ check::images_svg_inaccessible_elements() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::images_ico_color_depth_warn() {
+ported::images_ico_color_depth_warn() {
   # ✅ Check: ICO files should be modern resolution + color depth
   # Category: lint, encoding
   # Stages: lint, check
@@ -4720,7 +4720,7 @@ check::images_ico_color_depth_warn() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::images_misleading_file_extension() {
+ported::images_misleading_file_extension() {
   # ✅ Check: files must match expected format for their extension
   # Category: encoding, safety
   # Stages: check, lint
@@ -4779,7 +4779,7 @@ check::images_misleading_file_extension() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::images_svg_invalid_structure() {
+ported::images_svg_invalid_structure() {
   # ✅ Check: SVG must be well-formed XML
   # Category: encoding, safety
   # Stages: check, lint
@@ -4814,7 +4814,7 @@ check::images_svg_invalid_structure() {
 # Stages:
 #   build, check
 # ------------------------------------------------------------------------------
-check::images_ico_multiresolution() {
+ported::images_ico_multiresolution() {
   # ✅ Check: .ico should contain at least 3 standard resolutions
   # Category: encoding
   # Stages: build, check
@@ -4856,7 +4856,7 @@ check::images_ico_multiresolution() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::images_ico_unoptimized_palette() {
+ported::images_ico_unoptimized_palette() {
   # ✅ Check: .ico files should use minimal color depth where possible
   # Category: encoding
   # Stages: check, lint
@@ -4901,7 +4901,7 @@ check::images_ico_unoptimized_palette() {
 # Stages:
 #   check, lint, build
 # ------------------------------------------------------------------------------
-check::images_svg_with_script_element_blocked() {
+ported::images_svg_with_script_element_blocked() {
   # ✅ Check: Block <script> in SVG files
   # Category: encoding, safety
   # Stages: check, lint, build
@@ -4939,7 +4939,7 @@ check::images_svg_with_script_element_blocked() {
 # Stages:
 #   lint, check, build
 # ------------------------------------------------------------------------------
-check::images_webp_color_profile_stripped() {
+ported::images_webp_color_profile_stripped() {
   # ✅ Check: .webp images must not contain ICC or EXIF color profiles
   # Category: lint, encoding
   # Stages: lint, check, build
@@ -4984,7 +4984,7 @@ check::images_webp_color_profile_stripped() {
 # Stages:
 #   lint, build
 # ------------------------------------------------------------------------------
-check::images_webp_yuv420_subsampling() {
+ported::images_webp_yuv420_subsampling() {
   # ✅ Check: All .webp images must use YUV420 subsampling
   # Category: lint, encoding
   # Stages: lint, build
