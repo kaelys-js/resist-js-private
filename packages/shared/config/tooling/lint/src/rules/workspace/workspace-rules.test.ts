@@ -269,6 +269,12 @@ function mockContext(
 
   return {
     allFiles: (): Promise<readonly string[]> => Promise.resolve([...files.keys()]),
+    filesByExtension: (...exts: string[]): Promise<readonly string[]> =>
+      Promise.resolve(
+        [...files.keys()].filter((f: string): boolean =>
+          exts.some((ext: string): boolean => f.endsWith(ext)),
+        ),
+      ),
     dirExists: (_path: string): Promise<boolean> =>
       new Promise<boolean>((resolve: (v: boolean) => void): void => {
         resolve(true);
