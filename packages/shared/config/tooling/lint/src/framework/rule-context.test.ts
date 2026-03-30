@@ -230,12 +230,9 @@ describe('createWorkspaceContext', () => {
     expect(typeof ctx.getWorkspacePackages).toBe('function');
   });
 
-  it('allFiles() returns an async iterable', async () => {
+  it('allFiles() returns a promise resolving to a file array', async () => {
     const ctx: WorkspaceContext = createWorkspaceContext(THIS_DIR);
-    const files: string[] = [];
-    for await (const file of ctx.allFiles()) {
-      files.push(file);
-    }
+    const files: readonly string[] = await ctx.allFiles();
     expect(files.length).toBeGreaterThan(0);
   });
 
@@ -514,40 +511,25 @@ describe('createWorkspaceContext — allFiles caching', () => {
   it('returns identical results on multiple calls', async () => {
     const ctx: WorkspaceContext = createWorkspaceContext(THIS_DIR);
 
-    const first: string[] = [];
-    for await (const file of ctx.allFiles()) {
-      first.push(file);
-    }
-
-    const second: string[] = [];
-    for await (const file of ctx.allFiles()) {
-      second.push(file);
-    }
+    const first: readonly string[] = await ctx.allFiles();
+    const second: readonly string[] = await ctx.allFiles();
 
     expect(first.length).toBeGreaterThan(0);
-    expect(second).toEqual(first);
+    expect(second).toBe(first);
   });
 
-  it('concurrent calls return the same file set', async () => {
+  it('concurrent calls return the same array reference', async () => {
     const ctx: WorkspaceContext = createWorkspaceContext(THIS_DIR);
 
-    async function collect(): Promise<string[]> {
-      const files: string[] = [];
-      for await (const file of ctx.allFiles()) {
-        files.push(file);
-      }
-      return files;
-    }
-
-    const [a, b, c]: [string[], string[], string[]] = await Promise.all([
-      collect(),
-      collect(),
-      collect(),
+    const [a, b, c]: [readonly string[], readonly string[], readonly string[]] = await Promise.all([
+      ctx.allFiles(),
+      ctx.allFiles(),
+      ctx.allFiles(),
     ]);
 
     expect(a.length).toBeGreaterThan(0);
-    expect(b).toEqual(a);
-    expect(c).toEqual(a);
+    expect(b).toBe(a);
+    expect(c).toBe(a);
   });
 });
 
@@ -566,10 +548,7 @@ describe('createWorkspaceContext — exclude', () => {
   it('accepts exclude parameter and filters allFiles accordingly', async () => {
     const lintSrcDir: string = join(THIS_DIR, '..');
     const ctx: WorkspaceContext = createWorkspaceContext(lintSrcDir, ['rules']);
-    const files: string[] = [];
-    for await (const file of ctx.allFiles()) {
-      files.push(file);
-    }
+    const files: readonly string[] = await ctx.allFiles();
     const rulesFiles: string[] = files.filter((f: string): boolean => f.includes('/rules/'));
     expect(rulesFiles).toEqual([]);
     expect(files.length).toBeGreaterThan(0);
@@ -578,10 +557,7 @@ describe('createWorkspaceContext — exclude', () => {
   it('without exclude, allFiles includes all directories', async () => {
     const lintSrcDir: string = join(THIS_DIR, '..');
     const ctx: WorkspaceContext = createWorkspaceContext(lintSrcDir);
-    const files: string[] = [];
-    for await (const file of ctx.allFiles()) {
-      files.push(file);
-    }
+    const files: readonly string[] = await ctx.allFiles();
     const rulesFiles: string[] = files.filter((f: string): boolean => f.includes('/rules/'));
     expect(rulesFiles.length).toBeGreaterThan(0);
   });

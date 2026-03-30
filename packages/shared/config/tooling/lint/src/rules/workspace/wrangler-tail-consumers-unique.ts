@@ -54,7 +54,7 @@ const rule: WorkspaceRule = {
     /** Collect wrangler config files first. */
     const wranglerFiles: string[] = [];
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
       if (name === 'wrangler.json' || name === 'wrangler.jsonc') {
         wranglerFiles.push(filePath);

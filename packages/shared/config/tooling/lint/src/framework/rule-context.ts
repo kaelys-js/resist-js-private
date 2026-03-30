@@ -54,8 +54,8 @@ export type WorkspacePackage = v.InferOutput<typeof WorkspacePackageSchema>;
 export type WorkspaceContext = {
   /** Root directory of the workspace. */
   rootDir: string;
-  /** Async iterable of all files in the workspace (skips ignored dirs). */
-  allFiles: () => AsyncIterable<string>;
+  /** All files in the workspace (skips ignored dirs). Cached after first call. */
+  allFiles: () => Promise<readonly string[]>;
   /** Read a file's contents. */
   readFile: (path: string) => Promise<string>;
   /** Check if a file exists. */
@@ -500,13 +500,7 @@ export function createWorkspaceContext(
 
   return {
     rootDir,
-    allFiles: (): AsyncIterable<string> =>
-      (async function* cachedAllFiles(): AsyncIterable<string> {
-        const files: readonly string[] = await getFileCache();
-        for (const file of files) {
-          yield file;
-        }
-      })(),
+    allFiles: (): Promise<readonly string[]> => getFileCache(),
     readFile: cachedReadFile,
     fileExists: cachedFileExists,
     dirExists: cachedDirExists,

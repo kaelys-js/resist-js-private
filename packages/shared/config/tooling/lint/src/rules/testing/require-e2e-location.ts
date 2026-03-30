@@ -45,7 +45,7 @@ const rule: WorkspaceRule = {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const results: LintResult[] = [];
 
-    for await (const file of ctx.allFiles()) {
+    for (const file of await ctx.allFiles()) {
       const name: string = basename(file);
       if (E2E_PATTERN.test(name) && !isInE2eDir(file)) {
         results.push(

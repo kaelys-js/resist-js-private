@@ -68,7 +68,7 @@ const rule: WorkspaceRule = {
     let biomePath: string | undefined;
     let vscodePath: string | undefined;
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const rel: string = relative(ctx.rootDir, filePath);
       if (rel === '.editorconfig') {
         editorconfigPath = filePath;

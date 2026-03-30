@@ -40,7 +40,7 @@ const rule: WorkspaceRule = {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const results: Array<ReturnType<typeof createResult>> = [];
 
-    for await (const file of ctx.allFiles()) {
+    for (const file of await ctx.allFiles()) {
       /* Skip shell scripts and files in scripts directories */
       if (file.endsWith('.sh') || file.includes('/scripts/')) {
         continue;

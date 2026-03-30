@@ -102,7 +102,7 @@ const rule: WorkspaceRule = {
 
     const allRoutes: Array<{ route: string; file: string }> = [];
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
       if (name !== 'wrangler.json' && name !== 'wrangler.jsonc') {
         continue;

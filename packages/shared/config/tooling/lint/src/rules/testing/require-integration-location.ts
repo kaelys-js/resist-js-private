@@ -41,7 +41,7 @@ const rule: WorkspaceRule = {
     const allFiles: string[] = [];
     const dirFiles: Map<string, string[]> = new Map();
 
-    for await (const file of ctx.allFiles()) {
+    for (const file of await ctx.allFiles()) {
       allFiles.push(file);
       const dir: string = dirname(file);
       const existing: string[] = dirFiles.get(dir) ?? [];

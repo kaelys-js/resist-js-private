@@ -54,7 +54,7 @@ const rule: WorkspaceRule = {
 
     /** Collect all workspace file paths (relative) for substring matching. */
     const allPaths: Set<string> = new Set();
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       allPaths.add(relative(ctx.rootDir, filePath));
     }
 

@@ -43,7 +43,7 @@ const rule: WorkspaceRule = {
     let rootFilePath: string = '';
     let rootContent: string = '';
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const rel: string = relative(ctx.rootDir, filePath);
       if (rel === '.gitignore') {
         found = true;

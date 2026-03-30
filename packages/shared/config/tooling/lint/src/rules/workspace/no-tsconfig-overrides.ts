@@ -42,7 +42,7 @@ const rule: WorkspaceRule = {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const results: Array<ReturnType<typeof createResult>> = [];
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
       if (TSCONFIG_OVERRIDE_PATTERN.test(name) && name !== 'tsconfig.base.json') {
         const relativePath: string = relative(ctx.rootDir, filePath);

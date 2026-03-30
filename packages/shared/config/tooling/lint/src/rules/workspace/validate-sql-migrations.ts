@@ -46,7 +46,7 @@ const rule: WorkspaceRule = {
     /* Track migration filenames for duplicate detection. */
     const migrationNames: Map<string, string> = new Map();
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       if (!filePath.includes('/migrations/')) {
         continue;
       }

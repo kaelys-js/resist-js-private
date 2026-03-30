@@ -64,7 +64,7 @@ const rule: WorkspaceRule = {
     /** Track job names globally: name → { file, line }. */
     const jobNameMap: Map<string, { file: string; line: number }> = new Map();
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const relativePath: string = relative(ctx.rootDir, filePath);
 
       /** Only check CI YAML files under .github/ or .gitlab/ directories. */

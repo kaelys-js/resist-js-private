@@ -51,7 +51,7 @@ const rule: WorkspaceRule = {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const results: Array<ReturnType<typeof createResult>> = [];
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       /* Skip binary / non-text files by extension */
       if (filePath.endsWith('.png') || filePath.endsWith('.jpg') || filePath.endsWith('.woff2')) {
         continue;

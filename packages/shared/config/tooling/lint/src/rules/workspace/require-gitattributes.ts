@@ -50,7 +50,7 @@ const rule: WorkspaceRule = {
 
     let gitattributesPath: string | undefined;
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const relativePath: string = relative(ctx.rootDir, filePath);
       if (relativePath === '.gitattributes') {
         gitattributesPath = filePath;

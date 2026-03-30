@@ -40,7 +40,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
     const reported: Set<string> = new Set<string>();
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const rel: string = relative(ctx.rootDir, filePath);
       const segments: string[] = rel.split('/');
       const gitIndex: number = segments.indexOf('.git');

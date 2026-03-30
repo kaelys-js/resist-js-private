@@ -47,7 +47,7 @@ const rule: WorkspaceRule = {
     /** Second pass: collect reference file paths. */
     const referenceFiles: string[] = [];
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       if (filePath.endsWith('.sh') && filePath.includes('/scripts/')) {
         shellScripts.push(filePath);
       }

@@ -233,11 +233,7 @@ function mockContext(
   const packages: WorkspacePackage[] = overrides.packages ?? [];
 
   return {
-    allFiles: async function* (): AsyncIterable<string> {
-      for (const path of files.keys()) {
-        yield path;
-      }
-    },
+    allFiles: (): Promise<readonly string[]> => Promise.resolve([...files.keys()]),
     dirExists: (_path: string): Promise<boolean> =>
       new Promise<boolean>((resolve: (v: boolean) => void): void => {
         resolve(true);

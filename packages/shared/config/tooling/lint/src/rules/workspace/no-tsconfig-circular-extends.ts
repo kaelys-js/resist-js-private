@@ -42,7 +42,7 @@ const rule: WorkspaceRule = {
     // First pass: collect all tsconfig files and their resolved extends targets
     const extendsMap: Map<string, string | undefined> = new Map<string, string | undefined>();
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
       if (!name.startsWith('tsconfig') || !name.endsWith('.json')) {
         continue;

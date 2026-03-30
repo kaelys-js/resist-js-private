@@ -96,7 +96,7 @@ const rule: WorkspaceRule = {
     /* Collect all binding names across all wrangler files. */
     const allBindings: Array<{ name: string; source: string; file: string }> = [];
 
-    for await (const filePath of ctx.allFiles()) {
+    for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
       if (name !== 'wrangler.json' && name !== 'wrangler.jsonc') {
         continue;
