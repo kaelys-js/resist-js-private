@@ -323,6 +323,7 @@ export default defineConfig({
           name: 'lint',
           root: 'packages/shared/config/tooling/lint',
           include: ['src/**/*.test.ts'],
+          pool: 'threads',
         },
       },
       {

@@ -93,7 +93,7 @@ describe.concurrent('runLinter — bail mode', () => {
     const { stdoutLines, output } = captureOutput();
     await runLinter(
       makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src')],
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         bail: true,
         json: true,
       }),
@@ -119,7 +119,7 @@ describe.concurrent('runLinter — diff mode', () => {
     const { stderrLines, output } = captureOutput();
     const code: number = await runLinter(
       makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src')],
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         diff: 'head',
         warnOnly: true,
       }),

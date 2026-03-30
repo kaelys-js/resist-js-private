@@ -25,6 +25,9 @@ const CLI_PATH: string = resolve(import.meta.dirname, 'cli.ts');
  */
 const WORKSPACE_ROOT: string = resolve(import.meta.dirname, '..', '..', '..', '..', '..', '..');
 
+/** Absolute path to tsx binary — avoids npx resolution overhead (~100-200ms per spawn). */
+const TSX_PATH: string = resolve(WORKSPACE_ROOT, 'node_modules', '.bin', 'tsx');
+
 // =============================================================================
 // Helper
 // =============================================================================
@@ -50,8 +53,8 @@ function runCli(args: string[]): Promise<CliResult> {
 
   cached = new Promise<CliResult>((res: (v: CliResult) => void): void => {
     execFile(
-      'npx',
-      ['tsx', CLI_PATH, ...args],
+      TSX_PATH,
+      [CLI_PATH, ...args],
       { cwd: WORKSPACE_ROOT, encoding: 'utf8', timeout: 30_000 },
       (error: Error | null, stdout: string, stderr: string): void => {
         if (error) {
