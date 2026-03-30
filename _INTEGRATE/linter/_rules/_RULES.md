@@ -643,6 +643,7 @@ Structured Data
 HTML
 Aria/Accessibility (HTML, Svelte Components, Astro Components)
 Protected Files/Paths
+Boundaries
 
 ...Other categories?
 

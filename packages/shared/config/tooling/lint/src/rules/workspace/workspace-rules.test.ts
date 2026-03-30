@@ -128,6 +128,21 @@ import noScriptConflicts from './no-script-conflicts.ts';
 import requirePackageAuthor from './require-package-author.ts';
 import noDuplicatePackageNames from './no-duplicate-package-names.ts';
 import requireSpdxLicense from './require-spdx-license.ts';
+import requireTsconfigBaseurl from './require-tsconfig-baseurl.ts';
+import tsconfigBaseurlResolves from './tsconfig-baseurl-resolves.ts';
+import noTsconfigConflictingTypes from './no-tsconfig-conflicting-types.ts';
+import noTsconfigOutdirRootdirOverlap from './no-tsconfig-outdir-rootdir-overlap.ts';
+import requireTsconfigTypes from './require-tsconfig-types.ts';
+import noTsconfigUnusedPaths from './no-tsconfig-unused-paths.ts';
+import noMultipleTsconfigBase from './no-multiple-tsconfig-base.ts';
+import requirePnpmScripts from './require-pnpm-scripts.ts';
+import requirePrivateInternalPackages from './require-private-internal-packages.ts';
+import requireScopedPackageNames from './require-scoped-package-names.ts';
+import noDuplicateDeps from './no-duplicate-deps.ts';
+import noCustomDependencySources from './no-custom-dependency-sources.ts';
+import noSideeffectsTrue from './no-sideeffects-true.ts';
+import noLargeDependencies from './no-large-dependencies.ts';
+import noNpmrc from './no-npmrc.ts';
 
 // =============================================================================
 // Helpers
@@ -6116,5 +6131,870 @@ describe('workspace/require-spdx-license', () => {
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireSpdxLicense.check(ctx);
     expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/require-tsconfig-baseurl
+// =============================================================================
+
+describe('workspace/require-tsconfig-baseurl', () => {
+  it('has correct rule metadata', () => {
+    expect(requireTsconfigBaseurl.id).toBe('workspace/require-tsconfig-baseurl');
+    expect(requireTsconfigBaseurl.scope).toBe('workspace');
+  });
+
+  it('reports warning when baseUrl is missing', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ compilerOptions: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireTsconfigBaseurl.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-tsconfig-baseurl');
+    expect(results[0]!.message).toContain('baseUrl');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('reports warning when baseUrl is invalid', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/tsconfig.json',
+        JSON.stringify({ compilerOptions: { baseUrl: '/absolute/path' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireTsconfigBaseurl.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Invalid baseUrl');
+  });
+
+  it('passes when baseUrl is "."', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ compilerOptions: { baseUrl: '.' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireTsconfigBaseurl.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when baseUrl is "src"', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ compilerOptions: { baseUrl: 'src' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireTsconfigBaseurl.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-tsconfig files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ compilerOptions: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireTsconfigBaseurl.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/tsconfig-baseurl-resolves
+// =============================================================================
+
+describe('workspace/tsconfig-baseurl-resolves', () => {
+  it('has correct rule metadata', () => {
+    expect(tsconfigBaseurlResolves.id).toBe('workspace/tsconfig-baseurl-resolves');
+    expect(tsconfigBaseurlResolves.scope).toBe('workspace');
+  });
+
+  it('reports error when baseUrl directory does not exist', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ compilerOptions: { baseUrl: 'src' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    vi.spyOn(ctx, 'dirExists').mockImplementation(
+      (): Promise<boolean> =>
+        new Promise<boolean>((resolve: (v: boolean) => void): void => {
+          resolve(false);
+        }),
+    );
+    const results: LintResult[] = await tsconfigBaseurlResolves.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/tsconfig-baseurl-resolves');
+    expect(results[0]!.message).toContain('does not resolve');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when baseUrl directory exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ compilerOptions: { baseUrl: 'src' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await tsconfigBaseurlResolves.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when no baseUrl defined', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ compilerOptions: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await tsconfigBaseurlResolves.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-tsconfig files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ compilerOptions: { baseUrl: 'src' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await tsconfigBaseurlResolves.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-tsconfig-conflicting-types
+// =============================================================================
+
+describe('workspace/no-tsconfig-conflicting-types', () => {
+  it('has correct rule metadata', () => {
+    expect(noTsconfigConflictingTypes.id).toBe('workspace/no-tsconfig-conflicting-types');
+    expect(noTsconfigConflictingTypes.scope).toBe('workspace');
+  });
+
+  it('reports warning when types includes node and other types', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/tsconfig.json',
+        JSON.stringify({ compilerOptions: { types: ['node', 'jest'] } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigConflictingTypes.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-tsconfig-conflicting-types');
+    expect(results[0]!.message).toContain('Conflicting');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when types only includes node', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ compilerOptions: { types: ['node'] } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigConflictingTypes.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when types does not include node', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/tsconfig.json',
+        JSON.stringify({ compilerOptions: { types: ['jest', 'vitest'] } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigConflictingTypes.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when no types defined', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ compilerOptions: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigConflictingTypes.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-tsconfig files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ compilerOptions: { types: ['node', 'jest'] } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigConflictingTypes.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-tsconfig-outdir-rootdir-overlap
+// =============================================================================
+
+describe('workspace/no-tsconfig-outdir-rootdir-overlap', () => {
+  it('has correct rule metadata', () => {
+    expect(noTsconfigOutdirRootdirOverlap.id).toBe('workspace/no-tsconfig-outdir-rootdir-overlap');
+    expect(noTsconfigOutdirRootdirOverlap.scope).toBe('workspace');
+  });
+
+  it('reports error when outDir equals rootDir', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/tsconfig.json',
+        JSON.stringify({ compilerOptions: { outDir: 'src', rootDir: 'src' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigOutdirRootdirOverlap.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-tsconfig-outdir-rootdir-overlap');
+    expect(results[0]!.message).toContain('outDir must not match rootDir');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('reports error when outDir is "."', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ compilerOptions: { outDir: '.' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigOutdirRootdirOverlap.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('outDir must not match rootDir');
+  });
+
+  it('passes when outDir is "dist"', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/tsconfig.json',
+        JSON.stringify({ compilerOptions: { outDir: 'dist', rootDir: 'src' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigOutdirRootdirOverlap.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when no outDir', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ compilerOptions: { rootDir: 'src' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigOutdirRootdirOverlap.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-tsconfig files', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({ compilerOptions: { outDir: '.', rootDir: '.' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigOutdirRootdirOverlap.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/require-tsconfig-types
+// =============================================================================
+
+describe('workspace/require-tsconfig-types', () => {
+  it('has correct rule metadata', () => {
+    expect(requireTsconfigTypes.id).toBe('workspace/require-tsconfig-types');
+    expect(requireTsconfigTypes.scope).toBe('workspace');
+  });
+
+  it('reports warning for unresolvable type', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ compilerOptions: { types: ['nonexistent'] } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    vi.spyOn(ctx, 'dirExists').mockImplementation(
+      (): Promise<boolean> =>
+        new Promise<boolean>((resolve: (v: boolean) => void): void => {
+          resolve(false);
+        }),
+    );
+    const results: LintResult[] = await requireTsconfigTypes.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-tsconfig-types');
+    expect(results[0]!.message).toContain('Unresolvable');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when type resolves locally', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ compilerOptions: { types: ['node'] } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireTsconfigTypes.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when no types defined', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ compilerOptions: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireTsconfigTypes.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-tsconfig files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ compilerOptions: { types: ['nonexistent'] } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireTsconfigTypes.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-tsconfig-unused-paths
+// =============================================================================
+
+describe('workspace/no-tsconfig-unused-paths', () => {
+  it('has correct rule metadata', () => {
+    expect(noTsconfigUnusedPaths.id).toBe('workspace/no-tsconfig-unused-paths');
+    expect(noTsconfigUnusedPaths.scope).toBe('workspace');
+  });
+
+  it('reports warning for unused path alias', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/tsconfig.json',
+        JSON.stringify({
+          compilerOptions: {
+            paths: { '@/utils/*': ['src/utils/*'], '@/unused/*': ['src/unused/*'] },
+          },
+        }),
+      ],
+      ['/workspace/src/main.ts', 'import { foo } from "@/utils/foo";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigUnusedPaths.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-tsconfig-unused-paths');
+    expect(results[0]!.message).toContain('Unused path alias');
+    expect(results[0]!.message).toContain('@/unused');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when all aliases are used', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/tsconfig.json',
+        JSON.stringify({ compilerOptions: { paths: { '@/utils/*': ['src/utils/*'] } } }),
+      ],
+      ['/workspace/src/main.ts', 'import { foo } from "@/utils/foo";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigUnusedPaths.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when no paths defined', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ compilerOptions: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigUnusedPaths.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-tsconfig files for path collection', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({ compilerOptions: { paths: { '@/unused/*': ['src/unused/*'] } } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noTsconfigUnusedPaths.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-multiple-tsconfig-base
+// =============================================================================
+
+describe('workspace/no-multiple-tsconfig-base', () => {
+  it('has correct rule metadata', () => {
+    expect(noMultipleTsconfigBase.id).toBe('workspace/no-multiple-tsconfig-base');
+    expect(noMultipleTsconfigBase.scope).toBe('workspace');
+  });
+
+  it('passes when only canonical tsconfig.base.json exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/config/typescript/tsconfig.base.json', JSON.stringify({})],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMultipleTsconfigBase.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for tsconfig.base.json outside canonical location', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/config/typescript/tsconfig.base.json', JSON.stringify({})],
+      ['/workspace/packages/app/tsconfig.base.json', JSON.stringify({})],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMultipleTsconfigBase.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-multiple-tsconfig-base');
+    expect(results[0]!.message).toContain('Disallowed');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('reports error when canonical is missing', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/tsconfig.base.json', JSON.stringify({})],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMultipleTsconfigBase.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    const messages: string = results.map((r: LintResult) => r.message).join(' ');
+    expect(messages).toContain('canonical');
+  });
+
+  it('reports error when no tsconfig.base.json files exist (canonical missing)', async () => {
+    const files: Map<string, string> = new Map([['/workspace/tsconfig.json', JSON.stringify({})]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMultipleTsconfigBase.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('canonical');
+  });
+});
+
+// =============================================================================
+// workspace/require-pnpm-scripts
+// =============================================================================
+
+describe('workspace/require-pnpm-scripts', () => {
+  it('has correct rule metadata', () => {
+    expect(requirePnpmScripts.id).toBe('workspace/require-pnpm-scripts');
+    expect(requirePnpmScripts.scope).toBe('workspace');
+  });
+
+  it('reports error when script uses npm', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ scripts: { build: 'npm run compile' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePnpmScripts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-pnpm-scripts');
+    expect(results[0]!.message).toContain('Disallowed package manager');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('reports error when script uses yarn', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ scripts: { test: 'yarn test' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePnpmScripts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Disallowed package manager');
+  });
+
+  it('passes when scripts use pnpm', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({ scripts: { build: 'pnpm run compile', test: 'pnpm vitest' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePnpmScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when no scripts', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: 'test' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePnpmScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ scripts: { build: 'npm run compile' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePnpmScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/require-private-internal-packages
+// =============================================================================
+
+describe('workspace/require-private-internal-packages', () => {
+  it('has correct rule metadata', () => {
+    expect(requirePrivateInternalPackages.id).toBe('workspace/require-private-internal-packages');
+    expect(requirePrivateInternalPackages.scope).toBe('workspace');
+  });
+
+  it('reports error when internal package missing private:true', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/lib/package.json', JSON.stringify({ name: '@scope/lib' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePrivateInternalPackages.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-private-internal-packages');
+    expect(results[0]!.message).toContain('private');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when internal package has private:true', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/lib/package.json',
+        JSON.stringify({ name: '@scope/lib', private: true }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePrivateInternalPackages.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips root package.json (not in /packages/)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: 'root' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePrivateInternalPackages.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error when private is false', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/lib/package.json',
+        JSON.stringify({ name: '@scope/lib', private: false }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requirePrivateInternalPackages.check(ctx);
+    expect(results.length).toBe(1);
+  });
+});
+
+// =============================================================================
+// workspace/require-scoped-package-names
+// =============================================================================
+
+describe('workspace/require-scoped-package-names', () => {
+  it('has correct rule metadata', () => {
+    expect(requireScopedPackageNames.id).toBe('workspace/require-scoped-package-names');
+    expect(requireScopedPackageNames.scope).toBe('workspace');
+  });
+
+  it('reports error for unscoped name', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: 'my-lib' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireScopedPackageNames.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-scoped-package-names');
+    expect(results[0]!.message).toContain('Unscoped');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('reports error for missing name', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ version: '1.0.0' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireScopedPackageNames.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Missing');
+  });
+
+  it('passes for scoped name', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: '@scope/my-lib' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireScopedPackageNames.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for invalid scope format', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: '@scope/' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireScopedPackageNames.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ name: 'unscoped' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireScopedPackageNames.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-duplicate-deps
+// =============================================================================
+
+describe('workspace/no-duplicate-deps', () => {
+  it('has correct rule metadata', () => {
+    expect(noDuplicateDeps.id).toBe('workspace/no-duplicate-deps');
+    expect(noDuplicateDeps.scope).toBe('workspace');
+  });
+
+  it('reports error when dep appears in multiple fields', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({
+          dependencies: { lodash: '4.0.0' },
+          devDependencies: { lodash: '4.0.0' },
+        }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDuplicateDeps.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-duplicate-deps');
+    expect(results[0]!.message).toContain('Duplicate');
+    expect(results[0]!.message).toContain('lodash');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when deps are in separate fields', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({
+          dependencies: { react: '18.0.0' },
+          devDependencies: { vitest: '1.0.0' },
+        }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDuplicateDeps.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when no deps', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: 'test' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDuplicateDeps.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/tsconfig.json',
+        JSON.stringify({ dependencies: { foo: '1.0' }, devDependencies: { foo: '1.0' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDuplicateDeps.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-custom-dependency-sources
+// =============================================================================
+
+describe('workspace/no-custom-dependency-sources', () => {
+  it('has correct rule metadata', () => {
+    expect(noCustomDependencySources.id).toBe('workspace/no-custom-dependency-sources');
+    expect(noCustomDependencySources.scope).toBe('workspace');
+  });
+
+  it('reports error for banned dependency', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ dependencies: { 'node-sass': '7.0.0' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCustomDependencySources.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-custom-dependency-sources');
+    expect(results[0]!.message).toContain('Disallowed');
+    expect(results[0]!.message).toContain('node-sass');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for allowed dependencies', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ dependencies: { react: '18.0.0' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCustomDependencySources.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when no deps', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: 'test' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCustomDependencySources.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ dependencies: { 'node-sass': '7.0.0' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCustomDependencySources.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-sideeffects-true
+// =============================================================================
+
+describe('workspace/no-sideeffects-true', () => {
+  it('has correct rule metadata', () => {
+    expect(noSideeffectsTrue.id).toBe('workspace/no-sideeffects-true');
+    expect(noSideeffectsTrue.scope).toBe('workspace');
+  });
+
+  it('reports warning when sideEffects is true', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ sideEffects: true })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSideeffectsTrue.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-sideeffects-true');
+    expect(results[0]!.message).toContain('Tree-shaking');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when sideEffects is false', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ sideEffects: false })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSideeffectsTrue.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when sideEffects is an array', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ sideEffects: ['./src/polyfills.ts'] })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSideeffectsTrue.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when sideEffects not present', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: 'test' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSideeffectsTrue.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-large-dependencies
+// =============================================================================
+
+describe('workspace/no-large-dependencies', () => {
+  it('has correct rule metadata', () => {
+    expect(noLargeDependencies.id).toBe('workspace/no-large-dependencies');
+    expect(noLargeDependencies.scope).toBe('workspace');
+  });
+
+  it('reports warning for heavy dependency', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ dependencies: { moment: '2.29.0' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLargeDependencies.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-large-dependencies');
+    expect(results[0]!.message).toContain('moment');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes for normal dependencies', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ dependencies: { react: '18.0.0' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLargeDependencies.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when no deps', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: 'test' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLargeDependencies.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-package.json files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/tsconfig.json', JSON.stringify({ dependencies: { moment: '2.29.0' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLargeDependencies.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-npmrc
+// =============================================================================
+
+describe('workspace/no-npmrc', () => {
+  it('has correct rule metadata', () => {
+    expect(noNpmrc.id).toBe('workspace/no-npmrc');
+    expect(noNpmrc.scope).toBe('workspace');
+  });
+
+  it('reports error when .npmrc file found', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.npmrc', 'registry=https://registry.npmjs.org/'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNpmrc.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-npmrc');
+    expect(results[0]!.message).toContain('.npmrc');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when no .npmrc files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: 'test' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNpmrc.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports multiple .npmrc files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.npmrc', 'registry=https://registry.npmjs.org/'],
+      ['/workspace/packages/app/.npmrc', 'save-exact=true'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noNpmrc.check(ctx);
+    expect(results.length).toBe(2);
   });
 });
