@@ -621,7 +621,7 @@ API
 RevenueCat/LemonSqueezy
 Svelte Components
 Null
-Vitest & Testing
+Vitest & Testing & Benchmarkes & Coverage
 Commenting
 Typescript/Javascript
 Capacitor
@@ -640,10 +640,12 @@ SVG
 SEO
 Web Vitals
 Structured Data
+Sitemaps
 HTML
 Aria/Accessibility (HTML, Svelte Components, Astro Components)
 Protected Files/Paths
 Boundaries
+Markdown
 
 ...Other categories?
 
