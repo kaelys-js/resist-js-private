@@ -259,6 +259,16 @@ export const AstVisitorSchema = v.strictObject({
   LogicalExpression: v.optional(VisitorFnSchema),
   /** Visitor for if statements. */
   IfStatement: v.optional(VisitorFnSchema),
+  /** Visitor for classic for loops. */
+  ForStatement: v.optional(VisitorFnSchema),
+  /** Visitor for for...in loops. */
+  ForInStatement: v.optional(VisitorFnSchema),
+  /** Visitor for for...of loops. */
+  ForOfStatement: v.optional(VisitorFnSchema),
+  /** Visitor for while loops. */
+  WhileStatement: v.optional(VisitorFnSchema),
+  /** Visitor for do...while loops. */
+  DoWhileStatement: v.optional(VisitorFnSchema),
 });
 
 /** Map of AST node types to visitor functions. See {@link AstVisitorSchema}. */

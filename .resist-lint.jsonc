@@ -551,7 +551,25 @@
     "workspace/pr-branch-commit-mismatch": "error",
     "workspace/pr-description-required": "error",
     "workspace/pr-no-merge-commits": "error",
-    "workspace/pr-wip-warning": "warn"
+    "workspace/pr-wip-warning": "warn",
+
+    // Phase 37 — O(n) Complexity Rules
+    "complexity/no-nested-array-iteration": "warn",
+    "complexity/no-array-method-in-loop": "warn",
+    "complexity/prefer-map-for-lookup": "warn",
+    "complexity/prefer-set-for-existence": "warn",
+    "complexity/no-repeated-traversal": "warn",
+    "complexity/no-index-of-in-loop": "warn",
+    "complexity/no-spread-in-reduce": "warn",
+    "complexity/no-concat-in-loop": "warn",
+    "complexity/no-dom-query-in-loop": "warn",
+    "complexity/no-regex-in-loop": "warn",
+    "complexity/no-sort-in-loop": "warn",
+    "complexity/no-json-parse-in-loop": "warn",
+    "complexity/no-await-in-loop": "warn",
+    "complexity/no-filter-map-chain": "warn",
+    "complexity/array-size-warning": "warn",
+    "complexity/recursive-depth": "warn"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
