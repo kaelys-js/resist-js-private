@@ -463,7 +463,25 @@
     "workspace/svg-requires-namespace": "error",
     "workspace/svg-no-event-handler": "error",
     "workspace/svg-no-remote-href": "error",
-    "workspace/svg-no-embedded-media": "error"
+    "workspace/svg-no-embedded-media": "error",
+
+    // Phase 31 — SVG Accessibility, Image Quality & Inline SVG Rules
+    "workspace/svg-no-hidden-interactive": "error",
+    "workspace/svg-symbol-requires-viewbox": "error",
+    "workspace/svg-opacity-requires-fill": "warn",
+    "workspace/svg-no-blur-filter": "warn",
+    "workspace/svg-ids-unique": "error",
+    "workspace/svg-requires-aria-role": "warn",
+    "workspace/svg-no-clipped-text": "warn",
+    "workspace/svg-title-first-child": "warn",
+    "workspace/svg-no-tabindex": "warn",
+    "workspace/svg-no-mask-fragment": "warn",
+    "workspace/svg-requires-aria-attrs": "warn",
+    "workspace/svg-title-desc-requires-lang": "warn",
+    "workspace/no-webp-icons": "error",
+    "workspace/no-inline-svg-in-source": "error",
+    "workspace/no-webp-in-css": "warn",
+    "workspace/no-raw-svg-in-components": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {

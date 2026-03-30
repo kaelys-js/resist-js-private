@@ -315,6 +315,24 @@ import svgNoEventHandler from './svg-no-event-handler.ts';
 import svgNoRemoteHref from './svg-no-remote-href.ts';
 import svgNoEmbeddedMedia from './svg-no-embedded-media.ts';
 
+// Phase 31 — SVG Accessibility, Image Quality & Inline SVG Rules
+import svgNoHiddenInteractive from './svg-no-hidden-interactive.ts';
+import svgSymbolRequiresViewbox from './svg-symbol-requires-viewbox.ts';
+import svgOpacityRequiresFill from './svg-opacity-requires-fill.ts';
+import svgNoBlurFilter from './svg-no-blur-filter.ts';
+import svgIdsUnique from './svg-ids-unique.ts';
+import svgRequiresAriaRole from './svg-requires-aria-role.ts';
+import svgNoClippedText from './svg-no-clipped-text.ts';
+import svgTitleFirstChild from './svg-title-first-child.ts';
+import svgNoTabindex from './svg-no-tabindex.ts';
+import svgNoMaskFragment from './svg-no-mask-fragment.ts';
+import svgRequiresAriaAttrs from './svg-requires-aria-attrs.ts';
+import svgTitleDescRequiresLang from './svg-title-desc-requires-lang.ts';
+import noWebpIcons from './no-webp-icons.ts';
+import noInlineSvgInSource from './no-inline-svg-in-source.ts';
+import noWebpInCss from './no-webp-in-css.ts';
+import noRawSvgInComponents from './no-raw-svg-in-components.ts';
+
 // =============================================================================
 // Helpers
 // =============================================================================
@@ -16934,5 +16952,932 @@ describe('workspace/svg-no-embedded-media', () => {
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await svgNoEmbeddedMedia.check(ctx);
     expect(results.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+// =============================================================================
+// Phase 31 — SVG Accessibility, Image Quality & Inline SVG Rules
+// =============================================================================
+
+// =============================================================================
+// workspace/svg-no-hidden-interactive
+// =============================================================================
+
+describe('workspace/svg-no-hidden-interactive', () => {
+  it('has correct rule metadata', () => {
+    expect(svgNoHiddenInteractive.id).toBe('workspace/svg-no-hidden-interactive');
+    expect(svgNoHiddenInteractive.scope).toBe('workspace');
+    expect(typeof svgNoHiddenInteractive.check).toBe('function');
+  });
+
+  it('errors when SVG has hidden <a> with display:none', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><a style="display: none" href="/link">click</a></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoHiddenInteractive.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('errors when SVG has hidden <button> with opacity:0', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><button style="opacity: 0">submit</button></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoHiddenInteractive.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when SVG has visible interactive elements', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><a href="/link">visible link</a></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoHiddenInteractive.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-SVG files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/app.ts', '<a style="display: none">hidden</a>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoHiddenInteractive.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await svgNoHiddenInteractive.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/svg-symbol-requires-viewbox
+// =============================================================================
+
+describe('workspace/svg-symbol-requires-viewbox', () => {
+  it('has correct rule metadata', () => {
+    expect(svgSymbolRequiresViewbox.id).toBe('workspace/svg-symbol-requires-viewbox');
+    expect(svgSymbolRequiresViewbox.scope).toBe('workspace');
+    expect(typeof svgSymbolRequiresViewbox.check).toBe('function');
+  });
+
+  it('errors when <symbol> has no viewBox', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icons.svg', '<svg><symbol id="icon"><path d="M0 0"/></symbol></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgSymbolRequiresViewbox.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when <symbol> has viewBox', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/icons.svg',
+        '<svg><symbol id="icon" viewBox="0 0 24 24"><path d="M0 0"/></symbol></svg>',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgSymbolRequiresViewbox.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when SVG has no <symbol> elements', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgSymbolRequiresViewbox.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-SVG files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/app.ts', '<symbol id="test">no viewBox</symbol>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgSymbolRequiresViewbox.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/svg-opacity-requires-fill
+// =============================================================================
+
+describe('workspace/svg-opacity-requires-fill', () => {
+  it('has correct rule metadata', () => {
+    expect(svgOpacityRequiresFill.id).toBe('workspace/svg-opacity-requires-fill');
+    expect(svgOpacityRequiresFill.scope).toBe('workspace');
+    expect(typeof svgOpacityRequiresFill.check).toBe('function');
+  });
+
+  it('warns when SVG has opacity= but no fill=', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><rect opacity="0.5"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgOpacityRequiresFill.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when SVG has both opacity= and fill=', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><rect opacity="0.5" fill="#000"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgOpacityRequiresFill.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when SVG has no opacity attribute', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><rect fill="#000"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgOpacityRequiresFill.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-SVG files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/app.css', 'div { opacity: 0.5; }']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgOpacityRequiresFill.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/svg-no-blur-filter
+// =============================================================================
+
+describe('workspace/svg-no-blur-filter', () => {
+  it('has correct rule metadata', () => {
+    expect(svgNoBlurFilter.id).toBe('workspace/svg-no-blur-filter');
+    expect(svgNoBlurFilter.scope).toBe('workspace');
+    expect(typeof svgNoBlurFilter.check).toBe('function');
+  });
+
+  it('warns when SVG has feGaussianBlur', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><filter><feGaussianBlur stdDeviation="5"/></filter></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoBlurFilter.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('warns when SVG has blur() CSS function', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><rect style="filter: blur(4px)"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoBlurFilter.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when SVG has no blur filters', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoBlurFilter.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-SVG files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/app.css', 'div { filter: blur(4px); }'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoBlurFilter.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/svg-ids-unique
+// =============================================================================
+
+describe('workspace/svg-ids-unique', () => {
+  it('has correct rule metadata', () => {
+    expect(svgIdsUnique.id).toBe('workspace/svg-ids-unique');
+    expect(svgIdsUnique.scope).toBe('workspace');
+    expect(typeof svgIdsUnique.check).toBe('function');
+  });
+
+  it('errors when same ID appears in different SVG files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/a.svg', '<svg><circle id="icon"/></svg>'],
+      ['/workspace/b.svg', '<svg><rect id="icon"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgIdsUnique.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when all IDs are unique across files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/a.svg', '<svg><circle id="circle-1"/></svg>'],
+      ['/workspace/b.svg', '<svg><rect id="rect-1"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgIdsUnique.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when SVG files have no IDs', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/a.svg', '<svg><circle/></svg>'],
+      ['/workspace/b.svg', '<svg><rect/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgIdsUnique.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-SVG files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/app.html', '<div id="icon"></div>'],
+      ['/workspace/page.html', '<div id="icon"></div>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgIdsUnique.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await svgIdsUnique.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/svg-requires-aria-role
+// =============================================================================
+
+describe('workspace/svg-requires-aria-role', () => {
+  it('has correct rule metadata', () => {
+    expect(svgRequiresAriaRole.id).toBe('workspace/svg-requires-aria-role');
+    expect(svgRequiresAriaRole.scope).toBe('workspace');
+    expect(typeof svgRequiresAriaRole.check).toBe('function');
+  });
+
+  it('warns when SVG has no ARIA role', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgRequiresAriaRole.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when SVG has role="img"', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg role="img" viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgRequiresAriaRole.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when SVG has role="presentation"', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg role="presentation"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgRequiresAriaRole.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when SVG has role="graphics-symbol"', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg role="graphics-symbol"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgRequiresAriaRole.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-SVG files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/app.html', '<div>no role</div>']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgRequiresAriaRole.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/svg-no-clipped-text
+// =============================================================================
+
+describe('workspace/svg-no-clipped-text', () => {
+  it('has correct rule metadata', () => {
+    expect(svgNoClippedText.id).toBe('workspace/svg-no-clipped-text');
+    expect(svgNoClippedText.scope).toBe('workspace');
+    expect(typeof svgNoClippedText.check).toBe('function');
+  });
+
+  it('warns when SVG text has overflow attribute', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><text overflow="hidden">Hello</text></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoClippedText.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('warns when SVG text has clip-path', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><text clip-path="url(#clip)">Hello</text></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoClippedText.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when SVG text has no clipping attributes', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><text>Hello</text></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoClippedText.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when SVG has no text elements', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoClippedText.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-SVG files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/app.html', '<text overflow="hidden">test</text>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoClippedText.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/svg-title-first-child
+// =============================================================================
+
+describe('workspace/svg-title-first-child', () => {
+  it('has correct rule metadata', () => {
+    expect(svgTitleFirstChild.id).toBe('workspace/svg-title-first-child');
+    expect(svgTitleFirstChild.scope).toBe('workspace');
+    expect(typeof svgTitleFirstChild.check).toBe('function');
+  });
+
+  it('warns when SVG has no <title> element', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgTitleFirstChild.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when SVG has <title> element', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><title>Icon</title><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgTitleFirstChild.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-SVG files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/index.html', '<html><head><title>Page</title></head></html>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgTitleFirstChild.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await svgTitleFirstChild.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/svg-no-tabindex
+// =============================================================================
+
+describe('workspace/svg-no-tabindex', () => {
+  it('has correct rule metadata', () => {
+    expect(svgNoTabindex.id).toBe('workspace/svg-no-tabindex');
+    expect(svgNoTabindex.scope).toBe('workspace');
+    expect(typeof svgNoTabindex.check).toBe('function');
+  });
+
+  it('warns when SVG has tabindex attribute', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg tabindex="0" viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoTabindex.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when SVG has no tabindex', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoTabindex.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-SVG files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/app.html', '<div tabindex="0">focusable</div>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoTabindex.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/svg-no-mask-fragment
+// =============================================================================
+
+describe('workspace/svg-no-mask-fragment', () => {
+  it('has correct rule metadata', () => {
+    expect(svgNoMaskFragment.id).toBe('workspace/svg-no-mask-fragment');
+    expect(svgNoMaskFragment.scope).toBe('workspace');
+    expect(typeof svgNoMaskFragment.check).toBe('function');
+  });
+
+  it('warns when SVG has mask="url(#...)"', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><rect mask="url(#myMask)"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoMaskFragment.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when SVG has no mask fragments', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoMaskFragment.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-SVG files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/app.css', 'div { mask: url(#id); }']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgNoMaskFragment.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/svg-requires-aria-attrs
+// =============================================================================
+
+describe('workspace/svg-requires-aria-attrs', () => {
+  it('has correct rule metadata', () => {
+    expect(svgRequiresAriaAttrs.id).toBe('workspace/svg-requires-aria-attrs');
+    expect(svgRequiresAriaAttrs.scope).toBe('workspace');
+    expect(typeof svgRequiresAriaAttrs.check).toBe('function');
+  });
+
+  it('warns when SVG has no ARIA attributes', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgRequiresAriaAttrs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when SVG has role="img"', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg role="img" viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgRequiresAriaAttrs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when SVG has role="presentation"', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg role="presentation"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgRequiresAriaAttrs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when SVG has aria-label', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg aria-label="close icon"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgRequiresAriaAttrs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when SVG has aria-hidden', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg aria-hidden="true"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgRequiresAriaAttrs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-SVG files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/app.html', '<div>no aria</div>']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgRequiresAriaAttrs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/svg-title-desc-requires-lang
+// =============================================================================
+
+describe('workspace/svg-title-desc-requires-lang', () => {
+  it('has correct rule metadata', () => {
+    expect(svgTitleDescRequiresLang.id).toBe('workspace/svg-title-desc-requires-lang');
+    expect(svgTitleDescRequiresLang.scope).toBe('workspace');
+    expect(typeof svgTitleDescRequiresLang.check).toBe('function');
+  });
+
+  it('warns when <title> has no lang attribute', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><title>Icon</title></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgTitleDescRequiresLang.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('title');
+  });
+
+  it('warns when <desc> has no lang attribute', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><desc>A nice icon</desc></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgTitleDescRequiresLang.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('desc');
+  });
+
+  it('warns twice when both <title> and <desc> lack lang', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><title>Icon</title><desc>A nice icon</desc></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgTitleDescRequiresLang.check(ctx);
+    expect(results.length).toBe(2);
+  });
+
+  it('passes when <title> has lang attribute', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><title lang="en">Icon</title></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgTitleDescRequiresLang.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when <desc> has lang attribute', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg><desc lang="en">A nice icon</desc></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgTitleDescRequiresLang.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when SVG has no title or desc', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgTitleDescRequiresLang.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-SVG files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/page.html', '<title>Page Title</title>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await svgTitleDescRequiresLang.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-webp-icons
+// =============================================================================
+
+describe('workspace/no-webp-icons', () => {
+  it('has correct rule metadata', () => {
+    expect(noWebpIcons.id).toBe('workspace/no-webp-icons');
+    expect(noWebpIcons.scope).toBe('workspace');
+    expect(typeof noWebpIcons.check).toBe('function');
+  });
+
+  it('errors when .webp file contains "icon" in name', async () => {
+    const files: Map<string, string> = new Map([['/workspace/public/app-icon.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWebpIcons.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('errors when file is favicon.webp', async () => {
+    const files: Map<string, string> = new Map([['/workspace/public/favicon.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWebpIcons.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for regular .webp files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/public/hero-image.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWebpIcons.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for .ico icon files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/public/favicon.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWebpIcons.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for .svg icon files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/public/icon.svg', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWebpIcons.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-inline-svg-in-source
+// =============================================================================
+
+describe('workspace/no-inline-svg-in-source', () => {
+  it('has correct rule metadata', () => {
+    expect(noInlineSvgInSource.id).toBe('workspace/no-inline-svg-in-source');
+    expect(noInlineSvgInSource.scope).toBe('workspace');
+    expect(typeof noInlineSvgInSource.check).toBe('function');
+  });
+
+  it('errors when .tsx file contains inline <svg>', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/src/App.tsx',
+        'export default () => <svg viewBox="0 0 24 24"><path d="M0"/></svg>',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInlineSvgInSource.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('errors when .jsx file contains inline <svg>', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/App.jsx', 'export default () => <svg><circle r="5"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInlineSvgInSource.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('errors when .html file contains inline <svg>', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/public/index.html', '<html><body><svg><rect/></svg></body></html>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInlineSvgInSource.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('errors when .md file contains inline <svg>', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/readme.md', '# Title\n<svg viewBox="0 0 10 10"><circle r="1"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInlineSvgInSource.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when source files have no inline SVG', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/App.tsx', 'export default () => <div>Hello</div>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInlineSvgInSource.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInlineSvgInSource.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.tsx']),
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await noInlineSvgInSource.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-webp-in-css
+// =============================================================================
+
+describe('workspace/no-webp-in-css', () => {
+  it('has correct rule metadata', () => {
+    expect(noWebpInCss.id).toBe('workspace/no-webp-in-css');
+    expect(noWebpInCss.scope).toBe('workspace');
+    expect(typeof noWebpInCss.check).toBe('function');
+  });
+
+  it('warns when CSS file has url() referencing .webp', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/styles/main.css', 'body { background-image: url(hero.webp); }'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWebpInCss.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('warns when SCSS file has url() referencing .webp', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/styles/main.scss', '.hero { background: url("bg.webp"); }'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWebpInCss.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when CSS file has no .webp references', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/styles/main.css', 'body { background-image: url(hero.svg); }'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWebpInCss.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-CSS files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/App.tsx', 'const bg = "url(hero.webp)"'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWebpInCss.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.css']),
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await noWebpInCss.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-raw-svg-in-components
+// =============================================================================
+
+describe('workspace/no-raw-svg-in-components', () => {
+  it('has correct rule metadata', () => {
+    expect(noRawSvgInComponents.id).toBe('workspace/no-raw-svg-in-components');
+    expect(noRawSvgInComponents.scope).toBe('workspace');
+    expect(typeof noRawSvgInComponents.check).toBe('function');
+  });
+
+  it('errors when .svelte file contains raw <svg>', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/src/Icon.svelte',
+        '<script>export let name;</script>\n<svg viewBox="0 0 24 24"><path d="M0"/></svg>',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noRawSvgInComponents.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('errors when .tsx file contains raw <svg>', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/Icon.tsx', 'export const Icon = () => <svg><path/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noRawSvgInComponents.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when component files have no raw SVG', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/Icon.svelte', '<script>export let name;</script>\n<Icon {name} />'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noRawSvgInComponents.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-component files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/icon.svg', '<svg viewBox="0 0 24 24"><path d="M0 0"/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noRawSvgInComponents.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips .jsx files (only .svelte and .tsx targeted)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/Icon.jsx', 'export const Icon = () => <svg><path/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noRawSvgInComponents.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips files that cannot be read', async () => {
+    const ctx: WorkspaceContext = {
+      ...mockContext(),
+      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svelte']),
+      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+    };
+    const results: LintResult[] = await noRawSvgInComponents.check(ctx);
+    expect(results.length).toBe(0);
   });
 });
