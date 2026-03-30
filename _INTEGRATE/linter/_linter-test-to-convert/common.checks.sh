@@ -146,7 +146,7 @@ check::detached_head_state() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::vscode_folder_exists() {
+ported::vscode_folder_exists() {
   # ✅ Check: .vscode directory is committed and available for team-wide settings
   # Category: infra, safety, naming
   # Stages: lint, check
@@ -246,7 +246,7 @@ check::markdown_docs_location() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::vscode_contents_valid() {
+ported::vscode_contents_valid() {
   # ✅ Check: .vscode only contains settings.json and extensions.json
   # Category: lint, paths, naming, boundaries
   # Stages: lint, check
@@ -460,7 +460,7 @@ check::vscode_settings_not_empty() {
 # Stages:
 #   lint, check, pre-commit
 # ------------------------------------------------------------------------------
-check::vscode_settings_valid_json() {
+ported::vscode_settings_valid_json() {
   # ✅ Check: .vscode/settings.json is valid JSON
   # Category: lint, encoding, paths, shell
   # Stages: lint, check, pre-commit
@@ -1232,7 +1232,7 @@ check::validate_json_schemas() {
 # Stages:
 #   pre-commit, check, lint
 # ------------------------------------------------------------------------------
-check::validate_gitignore_compliance() {
+ported::validate_gitignore_compliance() {
   # ✅ Check: .gitignore is present, formatted, and does not conflict with Git tracking
   # Category: safety, lint, ci, naming, paths
   # Stages: pre-commit, check, lint
@@ -1335,7 +1335,7 @@ check::validate_gitignore_compliance() {
 # Stages:
 #   pre-commit, check, lint, build
 # ------------------------------------------------------------------------------
-check::validate_dockerignore_compliance() {
+ported::validate_dockerignore_compliance() {
   # ✅ Check: .dockerignore is present, formatted, and avoids unsafe patterns
   # Category: safety, lint, ci, naming, paths
   # Stages: pre-commit, check, lint, build
@@ -1437,7 +1437,7 @@ check::validate_dockerignore_compliance() {
 # Stages:
 #   pre-commit, check, lint
 # ------------------------------------------------------------------------------
-check::validate_gitattributes_compliance() {
+ported::validate_gitattributes_compliance() {
   # ✅ Check: .gitattributes file exists and defines all required attributes safely
   # Category: safety, lint, ci, naming, encoding
   # Stages: pre-commit, check, lint
@@ -1565,7 +1565,7 @@ check::validate_gitattributes_compliance() {
 # Stages:
 #   pre-commit, check, lint
 # ------------------------------------------------------------------------------
-check::validate_editorconfig() {
+ported::validate_editorconfig() {
   # ✅ Check: .editorconfig must exist, be populated, and follow conventions
   # Category: lint, encoding, naming
   # Stages: pre-commit, check, lint
@@ -1877,7 +1877,7 @@ check::validate_makefiles() {
 # Stages:
 #   lint, check, integration
 # ------------------------------------------------------------------------------
-check::validate_biome_json_extends_root() {
+ported::validate_biome_json_extends_root() {
   # ✅ Check: Nested biome.json files must declare an extends field to root biome.json
   # Category: lint, biome, boundaries
   # Stages: lint, check, integration
@@ -1931,7 +1931,7 @@ check::validate_biome_json_extends_root() {
 # Stages:
 #   lint, check, integration
 # ------------------------------------------------------------------------------
-check::validate_oxlint_extends_root() {
+ported::validate_oxlint_extends_root() {
   # ✅ Check: All .oxlintrc.json files outside root must extend root config
   # Category: lint, oxlint, boundaries
   # Stages: lint, check, integration
@@ -2199,7 +2199,7 @@ check::disallow_inline_gitlab_scripts() {
 # Stages:
 #   lint, check, test
 # ------------------------------------------------------------------------------
-check::enforce_shared_linter_inheritance() {
+ported::enforce_shared_linter_inheritance() {
   # ✅ Check: Disallow Biome/Oxlint config overrides unless explicitly permitted
   # Category: lint, naming, boundaries, biome, oxlint
   # Stages: lint, check, test
@@ -2257,7 +2257,7 @@ check::enforce_shared_linter_inheritance() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_relative_imports_to_product_siblings() {
+ported::disallow_relative_imports_to_product_siblings() {
   # ✅ Check: Prevent relative imports across product layers (use alias imports instead)
   # Category: lint, boundaries, paths
   # Stages: lint, check
@@ -2306,7 +2306,7 @@ check::disallow_relative_imports_to_product_siblings() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::enforce_project_boundaries() {
+ported::enforce_project_boundaries() {
   # ✅ Check: Product code must not import from sibling products or sibling layers
   # Category: boundaries, lint, paths
   # Stages: lint, check
@@ -2951,7 +2951,7 @@ check::validate_tsconfig_paths() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_relative_imports_to_shared() {
+ported::disallow_relative_imports_to_shared() {
   # ✅ Check: Block deep relative imports to shared — require alias instead
   # Category: boundaries, paths, lint
   # Stages: lint, check
@@ -3397,7 +3397,7 @@ check::detect_undeclared_dependencies() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::disallow_empty_tests_directory() {
+ported::disallow_empty_tests_directory() {
   # ✅ Check: Fail if any __tests__/ directories exist but are empty
   # Category: lint, test, package
   # Stages: check, lint
@@ -3439,7 +3439,7 @@ check::disallow_empty_tests_directory() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::disallow_empty_benchmarks_directory() {
+ported::disallow_empty_benchmarks_directory() {
   # ✅ Check: Fail if any __benchmarks__/ directories exist but are empty
   # Category: lint, test, package
   # Stages: check, lint

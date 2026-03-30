@@ -286,7 +286,22 @@
     "workspace/tsconfig-references-resolve": "error",
     "workspace/validate-package-entrypoints": "error",
     "workspace/valid-bin-targets": "error",
-    "workspace/workspace-valid": "error"
+    "workspace/workspace-valid": "error",
+    "workspace/no-cross-layer-imports": "error",
+    "workspace/no-cross-product-imports": "error",
+    "workspace/no-deep-relative-shared-imports": "error",
+    "workspace/no-empty-benchmarks-directory": "warn",
+    "workspace/no-empty-tests-directory": "warn",
+    "workspace/no-extra-vscode-files": "error",
+    "workspace/no-linter-config-override": "error",
+    "workspace/require-biome-extends-root": "error",
+    "workspace/require-dockerignore": "warn",
+    "workspace/require-editorconfig": "error",
+    "workspace/require-gitattributes": "error",
+    "workspace/require-gitignore": "error",
+    "workspace/require-oxlint-extends-root": "error",
+    "workspace/require-vscode-folder": "warn",
+    "workspace/require-vscode-valid-json": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {

@@ -143,6 +143,21 @@ import noCustomDependencySources from './no-custom-dependency-sources.ts';
 import noSideeffectsTrue from './no-sideeffects-true.ts';
 import noLargeDependencies from './no-large-dependencies.ts';
 import noNpmrc from './no-npmrc.ts';
+import requireVscodeFolder from './require-vscode-folder.ts';
+import noExtraVscodeFiles from './no-extra-vscode-files.ts';
+import requireVscodeValidJson from './require-vscode-valid-json.ts';
+import requireEditorconfig from './require-editorconfig.ts';
+import requireGitignore from './require-gitignore.ts';
+import requireDockerignore from './require-dockerignore.ts';
+import requireGitattributes from './require-gitattributes.ts';
+import requireBiomeExtendsRoot from './require-biome-extends-root.ts';
+import requireOxlintExtendsRoot from './require-oxlint-extends-root.ts';
+import noLinterConfigOverride from './no-linter-config-override.ts';
+import noCrossProductImports from './no-cross-product-imports.ts';
+import noDeepRelativeSharedImports from './no-deep-relative-shared-imports.ts';
+import noCrossLayerImports from './no-cross-layer-imports.ts';
+import noEmptyTestsDirectory from './no-empty-tests-directory.ts';
+import noEmptyBenchmarksDirectory from './no-empty-benchmarks-directory.ts';
 
 // =============================================================================
 // Helpers
@@ -6996,5 +7011,682 @@ describe('workspace/no-npmrc', () => {
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noNpmrc.check(ctx);
     expect(results.length).toBe(2);
+  });
+});
+
+// =============================================================================
+// workspace/require-vscode-folder
+// =============================================================================
+
+describe('workspace/require-vscode-folder', () => {
+  it('has correct rule metadata', () => {
+    expect(requireVscodeFolder.id).toBe('workspace/require-vscode-folder');
+    expect(requireVscodeFolder.scope).toBe('workspace');
+  });
+
+  it('reports warning when .vscode directory is missing', async () => {
+    const ctx: WorkspaceContext = mockContext({});
+    vi.spyOn(ctx, 'dirExists').mockImplementation(
+      (): Promise<boolean> =>
+        new Promise<boolean>((resolve: (v: boolean) => void): void => {
+          resolve(false);
+        }),
+    );
+    const results: LintResult[] = await requireVscodeFolder.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-vscode-folder');
+    expect(results[0]!.message).toContain('.vscode');
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when .vscode directory exists', async () => {
+    const ctx: WorkspaceContext = mockContext({});
+    const results: LintResult[] = await requireVscodeFolder.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-extra-vscode-files
+// =============================================================================
+
+describe('workspace/no-extra-vscode-files', () => {
+  it('has correct rule metadata', () => {
+    expect(noExtraVscodeFiles.id).toBe('workspace/no-extra-vscode-files');
+    expect(noExtraVscodeFiles.scope).toBe('workspace');
+  });
+
+  it('reports error for disallowed file in .vscode', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.vscode/launch.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noExtraVscodeFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-extra-vscode-files');
+    expect(results[0]!.message).toContain('launch.json');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for allowed files in .vscode', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.vscode/settings.json', '{}'],
+      ['/workspace/.vscode/extensions.json', '{}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noExtraVscodeFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores files not in .vscode', async () => {
+    const files: Map<string, string> = new Map([['/workspace/launch.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noExtraVscodeFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/require-vscode-valid-json
+// =============================================================================
+
+describe('workspace/require-vscode-valid-json', () => {
+  it('has correct rule metadata', () => {
+    expect(requireVscodeValidJson.id).toBe('workspace/require-vscode-valid-json');
+    expect(requireVscodeValidJson.scope).toBe('workspace');
+  });
+
+  it('reports error for invalid JSON in settings.json', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.vscode/settings.json', '{invalid json}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireVscodeValidJson.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-vscode-valid-json');
+    expect(results[0]!.message).toContain('Invalid JSON');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for valid JSON settings.json', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.vscode/settings.json', '{"editor.tabSize": 2}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireVscodeValidJson.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-settings files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/settings.json', '{bad}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireVscodeValidJson.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/require-editorconfig
+// =============================================================================
+
+describe('workspace/require-editorconfig', () => {
+  it('has correct rule metadata', () => {
+    expect(requireEditorconfig.id).toBe('workspace/require-editorconfig');
+    expect(requireEditorconfig.scope).toBe('workspace');
+  });
+
+  it('reports error when .editorconfig is missing', async () => {
+    const files: Map<string, string> = new Map([['/workspace/package.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireEditorconfig.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.editorconfig');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('reports error when .editorconfig is empty', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.editorconfig', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireEditorconfig.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    const messages: string = results.map((r: LintResult) => r.message).join(' ');
+    expect(messages).toContain('empty');
+  });
+
+  it('passes for valid .editorconfig', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.editorconfig', 'root = true\n\n[*]\nindent_style = space\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireEditorconfig.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports warning when root = true is missing', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.editorconfig', '[*]\nindent_style = space\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireEditorconfig.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    const warns: LintResult[] = results.filter((r: LintResult) => r.severity === 'warning');
+    expect(warns.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('reports error for duplicate sections', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/.editorconfig',
+        'root = true\n[*]\nindent_style = space\n[*]\ncharset = utf-8\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireEditorconfig.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    const messages: string = results.map((r: LintResult) => r.message).join(' ');
+    expect(messages).toContain('Duplicate');
+  });
+});
+
+// =============================================================================
+// workspace/require-gitignore
+// =============================================================================
+
+describe('workspace/require-gitignore', () => {
+  it('has correct rule metadata', () => {
+    expect(requireGitignore.id).toBe('workspace/require-gitignore');
+    expect(requireGitignore.scope).toBe('workspace');
+  });
+
+  it('reports error when .gitignore is missing', async () => {
+    const files: Map<string, string> = new Map([['/workspace/package.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireGitignore.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.gitignore');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for valid .gitignore', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitignore', 'node_modules/\ndist/\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireGitignore.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for duplicate patterns', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitignore', 'node_modules/\ndist/\nnode_modules/\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireGitignore.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    const messages: string = results.map((r: LintResult) => r.message).join(' ');
+    expect(messages).toContain('Duplicate');
+  });
+
+  it('ignores non-root .gitignore', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/app/.gitignore', 'dist/\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireGitignore.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.message).toContain('Missing');
+  });
+});
+
+// =============================================================================
+// workspace/require-dockerignore
+// =============================================================================
+
+describe('workspace/require-dockerignore', () => {
+  it('has correct rule metadata', () => {
+    expect(requireDockerignore.id).toBe('workspace/require-dockerignore');
+    expect(requireDockerignore.scope).toBe('workspace');
+  });
+
+  it('reports error when .dockerignore is missing', async () => {
+    const files: Map<string, string> = new Map([['/workspace/package.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireDockerignore.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.dockerignore');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for valid .dockerignore', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.dockerignore', 'node_modules\ndist\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireDockerignore.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for duplicate patterns', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.dockerignore', 'node_modules\ndist\nnode_modules\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireDockerignore.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    const messages: string = results.map((r: LintResult) => r.message).join(' ');
+    expect(messages).toContain('Duplicate');
+  });
+});
+
+// =============================================================================
+// workspace/require-gitattributes
+// =============================================================================
+
+describe('workspace/require-gitattributes', () => {
+  it('has correct rule metadata', () => {
+    expect(requireGitattributes.id).toBe('workspace/require-gitattributes');
+    expect(requireGitattributes.scope).toBe('workspace');
+  });
+
+  it('reports error when .gitattributes is missing', async () => {
+    const files: Map<string, string> = new Map([['/workspace/package.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireGitattributes.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.gitattributes');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('reports error for missing required patterns', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitattributes', '*.md text eol=lf\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireGitattributes.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    const messages: string = results.map((r: LintResult) => r.message).join(' ');
+    expect(messages).toContain('Missing required');
+  });
+
+  it('passes for valid .gitattributes with required patterns', async () => {
+    const content: string =
+      [
+        '* text=auto',
+        '*.ts text eol=lf',
+        '*.js text eol=lf',
+        'pnpm-lock.yaml -text',
+        '*.png binary',
+      ].join('\n') + '\n';
+    const files: Map<string, string> = new Map([['/workspace/.gitattributes', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireGitattributes.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for duplicate glob rules', async () => {
+    const content: string =
+      [
+        '* text=auto',
+        '*.ts text eol=lf',
+        '*.ts text eol=crlf',
+        '*.js text eol=lf',
+        'pnpm-lock.yaml -text',
+        '*.png binary',
+      ].join('\n') + '\n';
+    const files: Map<string, string> = new Map([['/workspace/.gitattributes', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireGitattributes.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    const messages: string = results.map((r: LintResult) => r.message).join(' ');
+    expect(messages).toContain('Duplicate');
+  });
+});
+
+// =============================================================================
+// workspace/require-biome-extends-root
+// =============================================================================
+
+describe('workspace/require-biome-extends-root', () => {
+  it('has correct rule metadata', () => {
+    expect(requireBiomeExtendsRoot.id).toBe('workspace/require-biome-extends-root');
+    expect(requireBiomeExtendsRoot.scope).toBe('workspace');
+  });
+
+  it('reports error when nested biome.json missing extends', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.json', JSON.stringify({ formatter: {} })],
+      ['/workspace/packages/app/biome.json', JSON.stringify({ formatter: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireBiomeExtendsRoot.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/require-biome-extends-root');
+    expect(results[0]!.message).toContain('extends');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when nested biome.json has extends', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.json', JSON.stringify({ formatter: {} })],
+      ['/workspace/packages/app/biome.json', JSON.stringify({ extends: '../../biome.json' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireBiomeExtendsRoot.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips root biome.json', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.json', JSON.stringify({ formatter: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireBiomeExtendsRoot.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/require-oxlint-extends-root
+// =============================================================================
+
+describe('workspace/require-oxlint-extends-root', () => {
+  it('has correct rule metadata', () => {
+    expect(requireOxlintExtendsRoot.id).toBe('workspace/require-oxlint-extends-root');
+    expect(requireOxlintExtendsRoot.scope).toBe('workspace');
+  });
+
+  it('reports error when nested .oxlintrc.json missing extends', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.oxlintrc.json', JSON.stringify({ rules: {} })],
+      ['/workspace/packages/app/.oxlintrc.json', JSON.stringify({ rules: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireOxlintExtendsRoot.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('extends');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when nested .oxlintrc.json has extends', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.oxlintrc.json', JSON.stringify({ rules: {} })],
+      [
+        '/workspace/packages/app/.oxlintrc.json',
+        JSON.stringify({ extends: '../../.oxlintrc.json' }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireOxlintExtendsRoot.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips root .oxlintrc.json', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.oxlintrc.json', JSON.stringify({ rules: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireOxlintExtendsRoot.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-linter-config-override
+// =============================================================================
+
+describe('workspace/no-linter-config-override', () => {
+  it('has correct rule metadata', () => {
+    expect(noLinterConfigOverride.id).toBe('workspace/no-linter-config-override');
+    expect(noLinterConfigOverride.scope).toBe('workspace');
+  });
+
+  it('reports error for nested config without override permission', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.json', JSON.stringify({})],
+      ['/workspace/packages/app/biome.json', JSON.stringify({ formatter: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLinterConfigOverride.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-linter-config-override');
+    expect(results[0]!.message).toContain('override');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when nested config has override permission', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.json', JSON.stringify({})],
+      [
+        '/workspace/packages/app/biome.json',
+        JSON.stringify({ '// override': 'allowed', formatter: {} }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLinterConfigOverride.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips root config files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.json', JSON.stringify({})],
+      ['/workspace/.oxlintrc.json', JSON.stringify({})],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLinterConfigOverride.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-cross-product-imports
+// =============================================================================
+
+describe('workspace/no-cross-product-imports', () => {
+  it('has correct rule metadata', () => {
+    expect(noCrossProductImports.id).toBe('workspace/no-cross-product-imports');
+    expect(noCrossProductImports.scope).toBe('workspace');
+  });
+
+  it('reports error for cross-product relative import', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/products/myapp/api/src/handler.ts',
+        'import { foo } from "../../web/utils";',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCrossProductImports.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-cross-product-imports');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for alias imports', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/products/myapp/api/src/handler.ts',
+        'import { foo } from "@/shared/utils";',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCrossProductImports.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores files not under packages/products', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/lib.ts', 'import { foo } from "../../products/web/utils";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCrossProductImports.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-deep-relative-shared-imports
+// =============================================================================
+
+describe('workspace/no-deep-relative-shared-imports', () => {
+  it('has correct rule metadata', () => {
+    expect(noDeepRelativeSharedImports.id).toBe('workspace/no-deep-relative-shared-imports');
+    expect(noDeepRelativeSharedImports.scope).toBe('workspace');
+  });
+
+  it('reports error for deep relative import to shared/', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/products/myapp/src/page.ts',
+        'import { util } from "../../../shared/utils/helper";',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDeepRelativeSharedImports.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-deep-relative-shared-imports');
+    expect(results[0]!.message).toContain('shared');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for alias imports to shared', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/products/myapp/src/page.ts',
+        'import { util } from "@/shared/utils/helper";',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDeepRelativeSharedImports.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/README.md', 'See ../../shared/utils for details'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDeepRelativeSharedImports.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-cross-layer-imports
+// =============================================================================
+
+describe('workspace/no-cross-layer-imports', () => {
+  it('has correct rule metadata', () => {
+    expect(noCrossLayerImports.id).toBe('workspace/no-cross-layer-imports');
+    expect(noCrossLayerImports.scope).toBe('workspace');
+  });
+
+  it('reports error for cross-layer import', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/products/myapp/api/src/handler.ts',
+        'import { page } from "../../web/pages/home";',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCrossLayerImports.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-cross-layer-imports');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes for same-layer imports', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/products/myapp/api/src/handler.ts', 'import { util } from "./utils";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCrossLayerImports.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores files not under packages/products', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/lib.ts', 'import { foo } from "../../web/utils";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCrossLayerImports.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-empty-tests-directory
+// =============================================================================
+
+describe('workspace/no-empty-tests-directory', () => {
+  it('has correct rule metadata', () => {
+    expect(noEmptyTestsDirectory.id).toBe('workspace/no-empty-tests-directory');
+    expect(noEmptyTestsDirectory.scope).toBe('workspace');
+  });
+
+  it('reports error for empty __tests__ directory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/__tests__/.gitkeep', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEmptyTestsDirectory.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-empty-tests-directory');
+    expect(results[0]!.message).toContain('__tests__');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when __tests__ has test files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/__tests__/app.test.ts', 'test("works", () => {});'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEmptyTestsDirectory.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when no __tests__ directories exist', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/index.ts', 'export const foo = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEmptyTestsDirectory.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-empty-benchmarks-directory
+// =============================================================================
+
+describe('workspace/no-empty-benchmarks-directory', () => {
+  it('has correct rule metadata', () => {
+    expect(noEmptyBenchmarksDirectory.id).toBe('workspace/no-empty-benchmarks-directory');
+    expect(noEmptyBenchmarksDirectory.scope).toBe('workspace');
+  });
+
+  it('reports error for empty __benchmarks__ directory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/__benchmarks__/.gitkeep', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEmptyBenchmarksDirectory.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-empty-benchmarks-directory');
+    expect(results[0]!.message).toContain('__benchmarks__');
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('passes when __benchmarks__ has benchmark files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/__benchmarks__/perf.benchmark.ts', 'bench("fast", () => {});'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEmptyBenchmarksDirectory.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when no __benchmarks__ directories exist', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/index.ts', 'export const foo = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEmptyBenchmarksDirectory.check(ctx);
+    expect(results.length).toBe(0);
   });
 });
