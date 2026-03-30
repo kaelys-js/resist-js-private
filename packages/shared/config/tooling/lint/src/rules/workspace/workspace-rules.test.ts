@@ -279,6 +279,24 @@ import noOversizedRepo from './no-oversized-repo.ts';
 import noBloatedCommits from './no-bloated-commits.ts';
 import noCommitDateSkew from './no-commit-date-skew.ts';
 
+// Phase 29 — Git Safety, Code Quality & Image Validation Rules
+import noGitStdinInCi from './no-git-stdin-in-ci.ts';
+import noReflogInCi from './no-reflog-in-ci.ts';
+import noSparseIndexDisabled from './no-sparse-index-disabled.ts';
+import noUntaggedReleases from './no-untagged-releases.ts';
+import noUncommittedPatches from './no-uncommitted-patches.ts';
+import noCommitScopeMismatch from './no-commit-scope-mismatch.ts';
+import noTrackedEnvFiles from './no-tracked-env-files.ts';
+import noMetadataOnlyCommits from './no-metadata-only-commits.ts';
+import validateStatelessUtils from './validate-stateless-utils.ts';
+import validateDocsLocale from './validate-docs-locale.ts';
+import validateDocsWorkspace from './validate-docs-workspace.ts';
+import validateBiomeRules from './validate-biome-rules.ts';
+import noBiomeDisable from './no-biome-disable.ts';
+import noLegacyImageFormats from './no-legacy-image-formats.ts';
+import noUnreferencedImages from './no-unreferenced-images.ts';
+import noMissingImageRefs from './no-missing-image-refs.ts';
+
 // =============================================================================
 // Helpers
 // =============================================================================
@@ -14362,5 +14380,1796 @@ describe('workspace/no-commit-date-skew', () => {
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
     const results: LintResult[] = await noCommitDateSkew.check(ctx);
     expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-git-stdin-in-ci
+// =============================================================================
+
+describe('workspace/no-git-stdin-in-ci', () => {
+  it('has correct rule metadata', () => {
+    expect(noGitStdinInCi.id).toBe('workspace/no-git-stdin-in-ci');
+    expect(noGitStdinInCi.scope).toBe('workspace');
+    expect(noGitStdinInCi.fixable).toBe(false);
+    expect(typeof noGitStdinInCi.check).toBe('function');
+  });
+
+  it('warns when core.editor is vim', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: string) => {
+      if (typeof cmd === 'string' && cmd.includes('core.editor')) {
+        return 'vim\n';
+      }
+      throw new Error('not set');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noGitStdinInCi.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-git-stdin-in-ci');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('core.editor');
+    expect(results[0]!.message).toContain('vim');
+  });
+
+  it('warns when sequence.editor is nano', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: string) => {
+      if (typeof cmd === 'string' && cmd.includes('sequence.editor')) {
+        return 'nano\n';
+      }
+      throw new Error('not set');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noGitStdinInCi.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('sequence.editor');
+    expect(results[0]!.message).toContain('nano');
+  });
+
+  it('warns on both editors set to interactive', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: string) => {
+      if (typeof cmd === 'string' && cmd.includes('core.editor')) {
+        return 'vim\n';
+      }
+      if (typeof cmd === 'string' && cmd.includes('sequence.editor')) {
+        return 'nano\n';
+      }
+      throw new Error('not set');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noGitStdinInCi.check(ctx);
+    expect(results.length).toBe(2);
+  });
+
+  it('passes when editors are non-interactive', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('code --wait\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noGitStdinInCi.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no editors are set', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('key not set');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noGitStdinInCi.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-reflog-in-ci
+// =============================================================================
+
+describe('workspace/no-reflog-in-ci', () => {
+  it('has correct rule metadata', () => {
+    expect(noReflogInCi.id).toBe('workspace/no-reflog-in-ci');
+    expect(noReflogInCi.scope).toBe('workspace');
+    expect(noReflogInCi.fixable).toBe(false);
+    expect(typeof noReflogInCi.check).toBe('function');
+  });
+
+  it('errors when core.logallrefupdates is true', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('true\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noReflogInCi.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-reflog-in-ci');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('reflog');
+  });
+
+  it('passes when core.logallrefupdates is false', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('false\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noReflogInCi.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when config key is not set', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('key not set');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noReflogInCi.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-sparse-index-disabled
+// =============================================================================
+
+describe('workspace/no-sparse-index-disabled', () => {
+  it('has correct rule metadata', () => {
+    expect(noSparseIndexDisabled.id).toBe('workspace/no-sparse-index-disabled');
+    expect(noSparseIndexDisabled.scope).toBe('workspace');
+    expect(noSparseIndexDisabled.fixable).toBe(false);
+    expect(typeof noSparseIndexDisabled.check).toBe('function');
+  });
+
+  it('warns when index.sparse is not set', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('key not set');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noSparseIndexDisabled.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-sparse-index-disabled');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('Sparse index');
+  });
+
+  it('warns when index.sparse is false', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('false\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noSparseIndexDisabled.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+  });
+
+  it('passes when index.sparse is true', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('true\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noSparseIndexDisabled.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-untagged-releases
+// =============================================================================
+
+describe('workspace/no-untagged-releases', () => {
+  it('has correct rule metadata', () => {
+    expect(noUntaggedReleases.id).toBe('workspace/no-untagged-releases');
+    expect(noUntaggedReleases.scope).toBe('workspace');
+    expect(noUntaggedReleases.fixable).toBe(false);
+    expect(typeof noUntaggedReleases.check).toBe('function');
+  });
+
+  it('warns when release commit has no tag', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: string) => {
+      if (typeof cmd === 'string' && cmd.includes('--pretty=%s')) {
+        return 'release(v1.0.0): bump version\n';
+      }
+      if (typeof cmd === 'string' && cmd.includes('tag --points-at')) {
+        return '\n';
+      }
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUntaggedReleases.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-untagged-releases');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('no git tag');
+  });
+
+  it('passes when release commit has a tag', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: string) => {
+      if (typeof cmd === 'string' && cmd.includes('--pretty=%s')) {
+        return 'release(v1.0.0): bump version\n';
+      }
+      if (typeof cmd === 'string' && cmd.includes('tag --points-at')) {
+        return 'v1.0.0\n';
+      }
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUntaggedReleases.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for non-release commit', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('fix(auth): repair login\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUntaggedReleases.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for version() prefix commit with tag', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: string) => {
+      if (typeof cmd === 'string' && cmd.includes('--pretty=%s')) {
+        return 'version(2.0.0): update\n';
+      }
+      if (typeof cmd === 'string' && cmd.includes('tag --points-at')) {
+        return 'v2.0.0\n';
+      }
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUntaggedReleases.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when git log fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('not a git repo');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUntaggedReleases.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when git tag fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: string) => {
+      if (typeof cmd === 'string' && cmd.includes('--pretty=%s')) {
+        return 'release(v1.0.0): bump\n';
+      }
+      throw new Error('git tag failed');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noUntaggedReleases.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-uncommitted-patches
+// =============================================================================
+
+describe('workspace/no-uncommitted-patches', () => {
+  it('has correct rule metadata', () => {
+    expect(noUncommittedPatches.id).toBe('workspace/no-uncommitted-patches');
+    expect(noUncommittedPatches.scope).toBe('workspace');
+    expect(noUncommittedPatches.fixable).toBe(false);
+    expect(typeof noUncommittedPatches.check).toBe('function');
+  });
+
+  it('warns on .patch files', async () => {
+    const files: Map<string, string> = new Map([
+      ['src/fix.patch', 'diff content'],
+      ['src/index.ts', 'code'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUncommittedPatches.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-uncommitted-patches');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('fix.patch');
+  });
+
+  it('warns on .diff files', async () => {
+    const files: Map<string, string> = new Map([['changes.diff', 'diff content']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUncommittedPatches.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('changes.diff');
+  });
+
+  it('warns on multiple patch/diff files', async () => {
+    const files: Map<string, string> = new Map([
+      ['a.patch', ''],
+      ['b.diff', ''],
+      ['c.patch', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUncommittedPatches.check(ctx);
+    expect(results.length).toBe(3);
+  });
+
+  it('passes when no patch or diff files exist', async () => {
+    const files: Map<string, string> = new Map([
+      ['src/index.ts', 'code'],
+      ['README.md', 'docs'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUncommittedPatches.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-commit-scope-mismatch
+// =============================================================================
+
+describe('workspace/no-commit-scope-mismatch', () => {
+  it('has correct rule metadata', () => {
+    expect(noCommitScopeMismatch.id).toBe('workspace/no-commit-scope-mismatch');
+    expect(noCommitScopeMismatch.scope).toBe('workspace');
+    expect(noCommitScopeMismatch.fixable).toBe(false);
+    expect(typeof noCommitScopeMismatch.check).toBe('function');
+  });
+
+  it('warns when scope does not match branch', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: string) => {
+      if (typeof cmd === 'string' && cmd.includes('rev-parse')) {
+        return 'feature/auth\n';
+      }
+      if (typeof cmd === 'string' && cmd.includes('--pretty=%s')) {
+        return 'fix(payments): update logic\n';
+      }
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noCommitScopeMismatch.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-commit-scope-mismatch');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('payments');
+    expect(results[0]!.message).toContain('feature/auth');
+  });
+
+  it('passes when scope matches branch', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: string) => {
+      if (typeof cmd === 'string' && cmd.includes('rev-parse')) {
+        return 'feature/auth\n';
+      }
+      if (typeof cmd === 'string' && cmd.includes('--pretty=%s')) {
+        return 'fix(auth): repair login\n';
+      }
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noCommitScopeMismatch.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips main branch', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('main\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noCommitScopeMismatch.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips master branch', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('master\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noCommitScopeMismatch.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips HEAD (detached)', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('HEAD\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noCommitScopeMismatch.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when commit has no scope', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: string) => {
+      if (typeof cmd === 'string' && cmd.includes('rev-parse')) {
+        return 'feature/auth\n';
+      }
+      if (typeof cmd === 'string' && cmd.includes('--pretty=%s')) {
+        return 'fix: general repair\n';
+      }
+      return '';
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noCommitScopeMismatch.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when git rev-parse fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('not a git repo');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noCommitScopeMismatch.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when git log fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation((cmd: string) => {
+      if (typeof cmd === 'string' && cmd.includes('rev-parse')) {
+        return 'feature/auth\n';
+      }
+      throw new Error('git log failed');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noCommitScopeMismatch.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-tracked-env-files
+// =============================================================================
+
+describe('workspace/no-tracked-env-files', () => {
+  it('has correct rule metadata', () => {
+    expect(noTrackedEnvFiles.id).toBe('workspace/no-tracked-env-files');
+    expect(noTrackedEnvFiles.scope).toBe('workspace');
+    expect(noTrackedEnvFiles.fixable).toBe(false);
+    expect(typeof noTrackedEnvFiles.check).toBe('function');
+  });
+
+  it('errors on tracked .env file', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('.env\npackage.json\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noTrackedEnvFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-tracked-env-files');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('.env');
+  });
+
+  it('errors on tracked .env.local file', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('.env.local\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noTrackedEnvFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.env.local');
+  });
+
+  it('errors on tracked .env.production file', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('.env.production\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noTrackedEnvFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('.env.production');
+  });
+
+  it('allows .env.example', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('.env.example\npackage.json\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noTrackedEnvFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors on multiple .env files', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('.env\n.env.local\n.env.production\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noTrackedEnvFiles.check(ctx);
+    expect(results.length).toBe(3);
+  });
+
+  it('passes when no env files are tracked', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('package.json\nsrc/index.ts\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noTrackedEnvFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when git ls-files fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('not a git repo');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noTrackedEnvFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-metadata-only-commits
+// =============================================================================
+
+describe('workspace/no-metadata-only-commits', () => {
+  it('has correct rule metadata', () => {
+    expect(noMetadataOnlyCommits.id).toBe('workspace/no-metadata-only-commits');
+    expect(noMetadataOnlyCommits.scope).toBe('workspace');
+    expect(noMetadataOnlyCommits.fixable).toBe(false);
+    expect(typeof noMetadataOnlyCommits.check).toBe('function');
+  });
+
+  it('errors when last commit has no file changes', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noMetadataOnlyCommits.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-metadata-only-commits');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('no file changes');
+  });
+
+  it('passes when commit has file changes', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockReturnValue('src/index.ts\npackage.json\n');
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noMetadataOnlyCommits.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when git log fails', async () => {
+    const { execSync } = await import('node:child_process');
+    vi.mocked(execSync).mockImplementation(() => {
+      throw new Error('not a git repo');
+    });
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const results: LintResult[] = await noMetadataOnlyCommits.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+// =============================================================================
+// workspace/validate-stateless-utils
+// =============================================================================
+
+describe('workspace/validate-stateless-utils', () => {
+  it('has correct rule metadata', () => {
+    expect(validateStatelessUtils.id).toBe('workspace/validate-stateless-utils');
+    expect(validateStatelessUtils.scope).toBe('workspace');
+    expect(typeof validateStatelessUtils.check).toBe('function');
+  });
+
+  it('returns empty for no files', async () => {
+    const files: Map<string, string> = new Map();
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-.ts files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/utils.js', '/** @stateless */\nconsole.log("hi");\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips .ts files not in packages/shared', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/utils.ts', '/** @stateless */\nconsole.log("hi");\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips packages/shared .ts files without @stateless annotation', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/utils.ts', 'export const x = process.env.FOO;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('continues on readFile failure', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/shared/utils.ts', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    ctx.readFile = (): Promise<string> => Promise.reject(new Error('fail'));
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('detects global state (process.env)', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/shared/config.ts',
+        '/** @stateless */\nconst env = process.env.NODE_ENV;\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Global state');
+  });
+
+  it('detects global state (globalThis)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/g.ts', '/** @stateless */\nconst g = globalThis;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Global state');
+  });
+
+  it('detects global state (window)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/w.ts', '/** @stateless */\nconst w = window.location;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Global state');
+  });
+
+  it('detects global state (document)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/d.ts', '/** @stateless */\nconst el = document.body;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Global state');
+  });
+
+  it('detects global state (localStorage)', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/shared/ls.ts',
+        '/** @stateless */\nconst v = localStorage.getItem("k");\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Global state');
+  });
+
+  it('detects global state (sessionStorage)', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/shared/ss.ts',
+        '/** @stateless */\nconst v = sessionStorage.getItem("k");\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Global state');
+  });
+
+  it('detects global state (navigator)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/nav.ts', '/** @stateless */\nconst ua = navigator.userAgent;\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Global state');
+  });
+
+  it('detects side-effectful APIs (console.log)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/log.ts', '/** @stateless */\nconsole.log("debug");\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Side-effectful API');
+  });
+
+  it('detects side-effectful APIs (console.warn)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/warn.ts', '/** @stateless */\nconsole.warn("oops");\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Side-effectful API');
+  });
+
+  it('detects side-effectful APIs (console.error)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/err.ts', '/** @stateless */\nconsole.error("bad");\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Side-effectful API');
+  });
+
+  it('detects side-effectful APIs (console.info)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/info.ts', '/** @stateless */\nconsole.info("info");\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Side-effectful API');
+  });
+
+  it('detects side-effectful APIs (fetch)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/api.ts', '/** @stateless */\nconst res = fetch("/api");\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Side-effectful API');
+  });
+
+  it('detects side-effectful APIs (setTimeout)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/timer.ts', '/** @stateless */\nsetTimeout(() => {}, 100);\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Side-effectful API');
+  });
+
+  it('detects side-effectful APIs (setInterval)', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/shared/interval.ts',
+        '/** @stateless */\nsetInterval(() => {}, 1000);\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Side-effectful API');
+  });
+
+  it('detects non-deterministic calls (Date.now)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/time.ts', '/** @stateless */\nconst ts = Date.now();\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Non-deterministic');
+  });
+
+  it('detects non-deterministic calls (new Date)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/date.ts', '/** @stateless */\nconst d = new Date();\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Non-deterministic');
+  });
+
+  it('detects non-deterministic calls (Math.random)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/rand.ts', '/** @stateless */\nconst r = Math.random();\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Non-deterministic');
+  });
+
+  it('produces up to 3 results for file with all violations', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/shared/bad.ts',
+        '/** @stateless */\nconst e = process.env.X;\nconsole.log("x");\nconst d = Date.now();\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(3);
+    expect(results[0]!.message).toContain('Global state');
+    expect(results[1]!.message).toContain('Side-effectful API');
+    expect(results[2]!.message).toContain('Non-deterministic');
+  });
+
+  it('passes for clean @stateless file', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/shared/pure.ts',
+        '/** @stateless */\nexport const add = (a: number, b: number): number => a + b;\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateStatelessUtils.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/validate-docs-locale
+// =============================================================================
+
+describe('workspace/validate-docs-locale', () => {
+  it('has correct rule metadata', () => {
+    expect(validateDocsLocale.id).toBe('workspace/validate-docs-locale');
+    expect(validateDocsLocale.scope).toBe('workspace');
+    expect(typeof validateDocsLocale.check).toBe('function');
+  });
+
+  it('returns empty when no docs files exist', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', 'export default {};']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsLocale.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when only en-US files exist (no other locales)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/en-US/guide.md', '# Guide'],
+      ['/workspace/docs/en-US/api.md', '# API'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsLocale.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports missing canonical files in other locales', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/en-US/guide.md', '# Guide'],
+      ['/workspace/docs/en-US/api.md', '# API'],
+      ['/workspace/docs/fr-FR/guide.md', '# Guide FR'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsLocale.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Missing locale file');
+    expect(results[0]!.message).toContain('fr-FR');
+    expect(results[0]!.message).toContain('api.md');
+  });
+
+  it('reports extra files in other locales', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/en-US/guide.md', '# Guide'],
+      ['/workspace/docs/fr-FR/guide.md', '# Guide FR'],
+      ['/workspace/docs/fr-FR/extra.md', '# Extra FR'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsLocale.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('Extra file');
+    expect(results[0]!.message).toContain('fr-FR');
+    expect(results[0]!.message).toContain('extra.md');
+  });
+
+  it('reports both missing and extra files for a locale', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/en-US/guide.md', '# Guide'],
+      ['/workspace/docs/en-US/api.md', '# API'],
+      ['/workspace/docs/de-DE/guide.md', '# Guide DE'],
+      ['/workspace/docs/de-DE/bonus.md', '# Bonus DE'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsLocale.check(ctx);
+    expect(results.length).toBe(2);
+    const errors: LintResult[] = results.filter((r: LintResult): boolean => r.severity === 'error');
+    const warnings: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.severity === 'warning',
+    );
+    expect(errors.length).toBe(1);
+    expect(errors[0]!.message).toContain('api.md');
+    expect(warnings.length).toBe(1);
+    expect(warnings[0]!.message).toContain('bonus.md');
+  });
+
+  it('handles multiple locales independently', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/en-US/guide.md', '# Guide'],
+      ['/workspace/docs/fr-FR/guide.md', '# Guide FR'],
+      ['/workspace/docs/ja-JP/guide.md', '# Guide JP'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsLocale.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports missing files for multiple locales', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/en-US/guide.md', '# Guide'],
+      ['/workspace/docs/en-US/api.md', '# API'],
+      ['/workspace/docs/fr-FR/guide.md', '# Guide FR'],
+      ['/workspace/docs/ja-JP/api.md', '# API JP'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsLocale.check(ctx);
+    expect(results.length).toBe(2);
+    const messages: string[] = results.map((r: LintResult): string => r.message);
+    expect(messages.some((m: string): boolean => m.includes('fr-FR') && m.includes('api.md'))).toBe(
+      true,
+    );
+    expect(
+      messages.some((m: string): boolean => m.includes('ja-JP') && m.includes('guide.md')),
+    ).toBe(true);
+  });
+
+  it('ignores files not matching locale pattern', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/en-US/guide.md', '# Guide'],
+      ['/workspace/docs/readme.md', '# Readme'],
+      ['/workspace/docs/changelog.txt', 'v1.0'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsLocale.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles nested canonical files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/en-US/guides/setup.md', '# Setup'],
+      ['/workspace/docs/fr-FR/guides/setup.md', '# Configuration'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsLocale.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/validate-docs-workspace
+// =============================================================================
+
+describe('workspace/validate-docs-workspace', () => {
+  it('has correct rule metadata', () => {
+    expect(validateDocsWorkspace.id).toBe('workspace/validate-docs-workspace');
+    expect(validateDocsWorkspace.scope).toBe('workspace');
+    expect(typeof validateDocsWorkspace.check).toBe('function');
+  });
+
+  it('reports error when docs/en-US/ folder is missing', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/ui/package.json', '{}'],
+      ['/workspace/src/index.ts', 'export default {};'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsWorkspace.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toBe('Missing docs folder');
+  });
+
+  it('returns empty when no packages exist but docs folder exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/en-US/overview.md', '# Overview'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsWorkspace.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when each package has corresponding docs', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/ui/package.json', '{}'],
+      ['/workspace/packages/core/package.json', '{}'],
+      ['/workspace/docs/en-US/ui/readme.md', '# UI docs'],
+      ['/workspace/docs/en-US/core/readme.md', '# Core docs'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsWorkspace.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for package without docs', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/ui/package.json', '{}'],
+      ['/workspace/packages/core/package.json', '{}'],
+      ['/workspace/docs/en-US/ui/readme.md', '# UI docs'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsWorkspace.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Missing documentation');
+    expect(results[0]!.message).toContain('packages/core');
+  });
+
+  it('reports errors for multiple packages without docs', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/ui/package.json', '{}'],
+      ['/workspace/packages/core/package.json', '{}'],
+      ['/workspace/packages/utils/package.json', '{}'],
+      ['/workspace/docs/en-US/overview.md', '# Overview'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsWorkspace.check(ctx);
+    expect(results.length).toBe(3);
+    const messages: string[] = results.map((r: LintResult): string => r.message);
+    expect(messages.some((m: string): boolean => m.includes('packages/ui'))).toBe(true);
+    expect(messages.some((m: string): boolean => m.includes('packages/core'))).toBe(true);
+    expect(messages.some((m: string): boolean => m.includes('packages/utils'))).toBe(true);
+  });
+
+  it('ignores nested package.json files (only direct packages/*)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/ui/package.json', '{}'],
+      ['/workspace/packages/ui/node_modules/dep/package.json', '{}'],
+      ['/workspace/docs/en-US/ui/readme.md', '# UI docs'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsWorkspace.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('packages/ui/node_modules/dep');
+  });
+
+  it('matches docs path containing package name substring', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/package.json', '{}'],
+      ['/workspace/docs/en-US/shared/architecture.md', '# Architecture'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsWorkspace.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/validate-biome-rules
+// =============================================================================
+
+describe('workspace/validate-biome-rules', () => {
+  it('has correct rule metadata', () => {
+    expect(validateBiomeRules.id).toBe('workspace/validate-biome-rules');
+    expect(validateBiomeRules.scope).toBe('workspace');
+    expect(typeof validateBiomeRules.check).toBe('function');
+  });
+
+  it('reports error when biome.base.json is missing', async () => {
+    const files: Map<string, string> = new Map();
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateBiomeRules.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Missing biome.base.json');
+  });
+
+  it('reports error when readFile throws', async () => {
+    const files: Map<string, string> = new Map([['/workspace/biome.base.json', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    ctx.readFile = (): Promise<string> => Promise.reject(new Error('read error'));
+    const results: LintResult[] = await validateBiomeRules.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Failed to read');
+  });
+
+  it('reports error for invalid JSON', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.base.json', '{not valid json}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateBiomeRules.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Invalid JSON');
+  });
+
+  it('passes when no rules key exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.base.json', '{"formatter": {}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateBiomeRules.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when rules is undefined', async () => {
+    const files: Map<string, string> = new Map([['/workspace/biome.base.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateBiomeRules.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when rules is null', async () => {
+    const files: Map<string, string> = new Map([['/workspace/biome.base.json', '{"rules": null}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateBiomeRules.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when rules values are all booleans', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.base.json', '{"rules": {"noVar": true, "noDebugger": false}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateBiomeRules.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when rules values are objects', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/biome.base.json',
+        '{"rules": {"noVar": {"level": "error"}, "semi": {"level": "warn"}}}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateBiomeRules.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for null rule value', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.base.json', '{"rules": {"noVar": null}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateBiomeRules.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Invalid rule value');
+    expect(results[0]!.message).toContain('noVar');
+  });
+
+  it('reports error for string rule value', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.base.json', '{"rules": {"noVar": "error"}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateBiomeRules.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Invalid rule value');
+    expect(results[0]!.message).toContain('noVar');
+  });
+
+  it('reports error for numeric rule value', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.base.json', '{"rules": {"noVar": 1}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateBiomeRules.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Invalid rule value');
+    expect(results[0]!.message).toContain('noVar');
+  });
+
+  it('reports multiple invalid rule values', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.base.json', '{"rules": {"noVar": null, "semi": "warn", "indent": true}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateBiomeRules.check(ctx);
+    expect(results.length).toBe(2);
+    const messages: string[] = results.map((r: LintResult): string => r.message);
+    expect(messages.some((m: string): boolean => m.includes('noVar'))).toBe(true);
+    expect(messages.some((m: string): boolean => m.includes('semi'))).toBe(true);
+  });
+
+  it('passes with mixed valid boolean and object values', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.base.json', '{"rules": {"a": true, "b": false, "c": {"level": "error"}}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateBiomeRules.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-biome-disable
+// =============================================================================
+
+describe('workspace/no-biome-disable', () => {
+  it('has correct rule metadata', () => {
+    expect(noBiomeDisable.id).toBe('workspace/no-biome-disable');
+    expect(noBiomeDisable.scope).toBe('workspace');
+    expect(typeof noBiomeDisable.check).toBe('function');
+  });
+
+  it('reports error when biome.base.json is missing', async () => {
+    const files: Map<string, string> = new Map();
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBiomeDisable.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Missing biome.base.json');
+  });
+
+  it('returns empty when readFile throws', async () => {
+    const files: Map<string, string> = new Map([['/workspace/biome.base.json', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    ctx.readFile = (): Promise<string> => Promise.reject(new Error('read error'));
+    const results: LintResult[] = await noBiomeDisable.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when JSON is invalid', async () => {
+    const files: Map<string, string> = new Map([['/workspace/biome.base.json', '{{invalid}}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBiomeDisable.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when no rules key exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.base.json', '{"formatter": {}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBiomeDisable.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when rules is null', async () => {
+    const files: Map<string, string> = new Map([['/workspace/biome.base.json', '{"rules": null}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBiomeDisable.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when all rules are true', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.base.json', '{"rules": {"noVar": true, "noDebugger": true}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBiomeDisable.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when rules are objects', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.base.json', '{"rules": {"noVar": {"level": "error"}}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBiomeDisable.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error when a rule is set to false', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/biome.base.json', '{"rules": {"noVar": false}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBiomeDisable.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Disabled rule');
+    expect(results[0]!.message).toContain('noVar');
+  });
+
+  it('reports multiple disabled rules', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/biome.base.json',
+        '{"rules": {"noVar": false, "noDebugger": false, "semi": true}}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBiomeDisable.check(ctx);
+    expect(results.length).toBe(2);
+    const messages: string[] = results.map((r: LintResult): string => r.message);
+    expect(messages.some((m: string): boolean => m.includes('noVar'))).toBe(true);
+    expect(messages.some((m: string): boolean => m.includes('noDebugger'))).toBe(true);
+  });
+
+  it('ignores non-false values (true, objects, strings, null)', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/biome.base.json',
+        '{"rules": {"a": true, "b": {"level": "error"}, "c": "warn", "d": null}}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noBiomeDisable.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-legacy-image-formats
+// =============================================================================
+
+describe('workspace/no-legacy-image-formats', () => {
+  it('has correct rule metadata', () => {
+    expect(noLegacyImageFormats.id).toBe('workspace/no-legacy-image-formats');
+    expect(noLegacyImageFormats.scope).toBe('workspace');
+    expect(typeof noLegacyImageFormats.check).toBe('function');
+  });
+
+  it('returns empty for no files', async () => {
+    const files: Map<string, string> = new Map();
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLegacyImageFormats.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags .png files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/assets/logo.png', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLegacyImageFormats.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Legacy image format');
+    expect(results[0]!.message).toContain('logo.png');
+  });
+
+  it('flags .jpg files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/images/photo.jpg', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLegacyImageFormats.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('photo.jpg');
+  });
+
+  it('flags .jpeg files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/images/photo.jpeg', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLegacyImageFormats.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('photo.jpeg');
+  });
+
+  it('skips legacy images in node_modules', async () => {
+    const files: Map<string, string> = new Map([['/workspace/node_modules/dep/icon.png', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLegacyImageFormats.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips legacy images in .git', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.git/objects/logo.png', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLegacyImageFormats.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows .webp files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/assets/logo.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLegacyImageFormats.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows .svg files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/assets/icon.svg', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLegacyImageFormats.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows .ico files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/public/favicon.ico', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLegacyImageFormats.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags multiple legacy image files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/a.png', ''],
+      ['/workspace/b.jpg', ''],
+      ['/workspace/c.jpeg', ''],
+      ['/workspace/d.webp', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLegacyImageFormats.check(ctx);
+    expect(results.length).toBe(3);
+  });
+
+  it('is case-insensitive for extension matching', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/logo.PNG', ''],
+      ['/workspace/assets/photo.JPG', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLegacyImageFormats.check(ctx);
+    expect(results.length).toBe(2);
+  });
+
+  it('includes tip to convert format', async () => {
+    const files: Map<string, string> = new Map([['/workspace/assets/logo.png', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLegacyImageFormats.check(ctx);
+    expect(results[0]!.tip).toContain('Convert to .webp or .svg');
+  });
+
+  it('allows non-image files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.ts', 'export default {};'],
+      ['/workspace/package.json', '{}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLegacyImageFormats.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-unreferenced-images
+// =============================================================================
+
+describe('workspace/no-unreferenced-images', () => {
+  it('has correct rule metadata', () => {
+    expect(noUnreferencedImages.id).toBe('workspace/no-unreferenced-images');
+    expect(noUnreferencedImages.scope).toBe('workspace');
+    expect(typeof noUnreferencedImages.check).toBe('function');
+  });
+
+  it('returns empty when no image files exist', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', 'export default {};']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when image is referenced in a .ts file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/logo.webp', ''],
+      ['/workspace/src/app.ts', 'const img = "logo.webp";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when image is referenced in a .tsx file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/icon.svg', ''],
+      ['/workspace/src/comp.tsx', '<img src="icon.svg" />'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when image is referenced in a .html file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/public/favicon.ico', ''],
+      ['/workspace/public/index.html', '<link rel="icon" href="favicon.ico">'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when image is referenced in a .md file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/diagram.svg', ''],
+      ['/workspace/docs/readme.md', '![diagram](diagram.svg)'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when image is referenced in a .css file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/bg.webp', ''],
+      ['/workspace/src/style.css', 'background: url(bg.webp);'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when image is referenced in a .json file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/logo.webp', ''],
+      ['/workspace/config/manifest.json', '{"icon": "logo.webp"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('warns on unreferenced .webp image', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/unused.webp', ''],
+      ['/workspace/src/app.ts', 'const x = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('Unreferenced image');
+    expect(results[0]!.message).toContain('unused.webp');
+  });
+
+  it('warns on unreferenced .svg image', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/orphan.svg', ''],
+      ['/workspace/src/app.ts', 'const x = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('orphan.svg');
+  });
+
+  it('warns on unreferenced .ico image', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/old.ico', ''],
+      ['/workspace/src/app.ts', 'const x = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('old.ico');
+  });
+
+  it('handles multiple images with some referenced and some not', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/used.webp', ''],
+      ['/workspace/assets/unused.svg', ''],
+      ['/workspace/assets/also-used.ico', ''],
+      ['/workspace/src/app.ts', 'import "used.webp"; import "also-used.ico";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('unused.svg');
+  });
+
+  it('continues when readFile throws for a source file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/logo.webp', ''],
+      ['/workspace/src/app.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const origReadFile: (path: string) => Promise<string> = ctx.readFile.bind(ctx);
+    ctx.readFile = (path: string): Promise<string> => {
+      if (path.endsWith('.ts')) {
+        return Promise.reject(new Error('read error'));
+      }
+      return origReadFile(path);
+    };
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('logo.webp');
+  });
+
+  it('includes tip on unreferenced result', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/orphan.webp', ''],
+      ['/workspace/src/app.ts', 'const x = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results[0]!.tip).toContain('Remove unused images');
+  });
+
+  it('ignores non-image and non-source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/logo.webp', ''],
+      ['/workspace/data/config.yaml', 'logo.webp'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('uses basename for matching (not full path)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/deep/nested/path/icon.svg', ''],
+      ['/workspace/src/app.ts', 'const src = "icon.svg";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnreferencedImages.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// workspace/no-missing-image-refs
+// =============================================================================
+
+describe('workspace/no-missing-image-refs', () => {
+  it('has correct rule metadata', () => {
+    expect(noMissingImageRefs.id).toBe('workspace/no-missing-image-refs');
+    expect(noMissingImageRefs.scope).toBe('workspace');
+    expect(typeof noMissingImageRefs.check).toBe('function');
+  });
+
+  it('returns empty when no source files exist', async () => {
+    const files: Map<string, string> = new Map([['/workspace/assets/logo.webp', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when no image references in source', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/logo.webp', ''],
+      ['/workspace/src/app.ts', 'const x = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when referenced image exists', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/logo.webp', ''],
+      ['/workspace/src/app.ts', 'const img = "./assets/logo.webp";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports error for missing referenced .webp image', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', 'const img = "./assets/missing.webp";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Referenced image not found');
+    expect(results[0]!.message).toContain('missing.webp');
+  });
+
+  it('reports error for missing referenced .svg image', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.tsx', '<img src="icons/arrow.svg" />'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('arrow.svg');
+  });
+
+  it('reports error for missing referenced .ico image', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/public/index.html', '<link rel="icon" href="favicon.ico">'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('favicon.ico');
+  });
+
+  it('scans .ts source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', 'const img = "ghost.webp";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('scans .tsx source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.tsx', '<img src="ghost.svg" />'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('scans .js source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.js', 'const img = "ghost.ico";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('scans .jsx source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.jsx', '<img src="ghost.webp" />'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('scans .html source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/public/index.html', '<img src="ghost.svg">'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('scans .md source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/guide.md', '![screenshot](ghost.webp)'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('scans .css source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/style.css', 'background: url(ghost.webp);'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('does NOT scan .json source files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/config.json', '{"icon": "ghost.webp"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('deduplicates references with same basename', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', 'import "assets/ghost.webp";\nimport "other/ghost.webp";\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('reports multiple distinct missing refs from same file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', 'import "a.webp";\nimport "b.svg";\nimport "c.ico";\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(3);
+  });
+
+  it('continues when readFile throws for a source file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', ''],
+      ['/workspace/src/other.ts', 'import "ghost.webp";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const origReadFile: (path: string) => Promise<string> = ctx.readFile.bind(ctx);
+    ctx.readFile = (path: string): Promise<string> => {
+      if (path.endsWith('app.ts')) {
+        return Promise.reject(new Error('read error'));
+      }
+      return origReadFile(path);
+    };
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('ghost.webp');
+  });
+
+  it('includes tip on missing image ref result', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/app.ts', 'import "missing.webp";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results[0]!.tip).toContain('Fix the path');
+  });
+
+  it('matches basename against image set (not full path)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/deep/nested/logo.webp', ''],
+      ['/workspace/src/app.ts', 'const img = "other/path/logo.webp";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('reports from multiple source files independently', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/a.ts', 'import "missing-a.webp";'],
+      ['/workspace/src/b.ts', 'import "missing-b.svg";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMissingImageRefs.check(ctx);
+    expect(results.length).toBe(2);
+    const messages: string[] = results.map((r: LintResult): string => r.message);
+    expect(messages.some((m: string): boolean => m.includes('missing-a.webp'))).toBe(true);
+    expect(messages.some((m: string): boolean => m.includes('missing-b.svg'))).toBe(true);
   });
 });

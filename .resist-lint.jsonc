@@ -427,7 +427,25 @@
     "workspace/no-fsmonitor-in-ci": "warn",
     "workspace/no-oversized-repo": "warn",
     "workspace/no-bloated-commits": "warn",
-    "workspace/no-commit-date-skew": "warn"
+    "workspace/no-commit-date-skew": "warn",
+
+    // Phase 29 — Git Safety, Code Quality & Image Validation Rules
+    "workspace/no-git-stdin-in-ci": "warn",
+    "workspace/no-reflog-in-ci": "error",
+    "workspace/no-sparse-index-disabled": "warn",
+    "workspace/no-untagged-releases": "warn",
+    "workspace/no-uncommitted-patches": "warn",
+    "workspace/no-commit-scope-mismatch": "warn",
+    "workspace/no-tracked-env-files": "error",
+    "workspace/no-metadata-only-commits": "error",
+    "workspace/validate-stateless-utils": "error",
+    "workspace/validate-docs-locale": "error",
+    "workspace/validate-docs-workspace": "error",
+    "workspace/validate-biome-rules": "error",
+    "workspace/no-biome-disable": "error",
+    "workspace/no-legacy-image-formats": "error",
+    "workspace/no-unreferenced-images": "warn",
+    "workspace/no-missing-image-refs": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
