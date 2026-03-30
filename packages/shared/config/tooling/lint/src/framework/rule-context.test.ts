@@ -510,6 +510,47 @@ describe('getAllFiles — ExcludeConfig', () => {
 // createWorkspaceContext — exclude parameter
 // =============================================================================
 
+describe('createWorkspaceContext — allFiles caching', () => {
+  it('returns identical results on multiple calls', async () => {
+    const ctx: WorkspaceContext = createWorkspaceContext(THIS_DIR);
+
+    const first: string[] = [];
+    for await (const file of ctx.allFiles()) {
+      first.push(file);
+    }
+
+    const second: string[] = [];
+    for await (const file of ctx.allFiles()) {
+      second.push(file);
+    }
+
+    expect(first.length).toBeGreaterThan(0);
+    expect(second).toEqual(first);
+  });
+
+  it('concurrent calls return the same file set', async () => {
+    const ctx: WorkspaceContext = createWorkspaceContext(THIS_DIR);
+
+    async function collect(): Promise<string[]> {
+      const files: string[] = [];
+      for await (const file of ctx.allFiles()) {
+        files.push(file);
+      }
+      return files;
+    }
+
+    const [a, b, c]: [string[], string[], string[]] = await Promise.all([
+      collect(),
+      collect(),
+      collect(),
+    ]);
+
+    expect(a.length).toBeGreaterThan(0);
+    expect(b).toEqual(a);
+    expect(c).toEqual(a);
+  });
+});
+
 describe('createWorkspaceContext — exclude', () => {
   it('accepts exclude parameter and filters allFiles accordingly', async () => {
     const lintSrcDir: string = join(THIS_DIR, '..');

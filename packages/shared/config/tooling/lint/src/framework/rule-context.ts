@@ -418,7 +418,29 @@ export function parseExcludes(exclude: readonly string[]): ExcludeConfig {
 }
 
 /**
+ * Collect all files from an async generator into an array.
+ *
+ * @param {string} rootDir - Directory to scan
+ * @param {ExcludeConfig} [excludes] - Optional exclude config
+ * @returns {Promise<readonly string[]>} All file paths
+ */
+async function collectAllFiles(
+  rootDir: string,
+  excludes?: ExcludeConfig,
+): Promise<readonly string[]> {
+  const files: string[] = [];
+  for await (const file of getAllFiles(rootDir, excludes)) {
+    files.push(file);
+  }
+  return files;
+}
+
+/**
  * Create a workspace context for workspace-scoped rules.
+ *
+ * The `allFiles()` result is cached after the first traversal so that
+ * multiple workspace rules sharing the same context only trigger a single
+ * filesystem walk. Concurrent callers share the same promise.
  *
  * @param {string} rootDir - Workspace root directory
  * @param {readonly string[]} [exclude] - Config exclude patterns
@@ -429,9 +451,26 @@ export function createWorkspaceContext(
   exclude?: readonly string[],
 ): WorkspaceContext {
   const excludes: ExcludeConfig | undefined = exclude ? parseExcludes(exclude) : undefined;
+
+  /** Lazily populated file cache — first call triggers traversal; subsequent calls reuse. */
+  let fileCache: Promise<readonly string[]> | undefined;
+
+  function getFileCache(): Promise<readonly string[]> {
+    if (fileCache === undefined) {
+      fileCache = collectAllFiles(rootDir, excludes);
+    }
+    return fileCache;
+  }
+
   return {
     rootDir,
-    allFiles: (): AsyncIterable<string> => getAllFiles(rootDir, excludes),
+    allFiles: (): AsyncIterable<string> =>
+      (async function* cachedAllFiles(): AsyncIterable<string> {
+        const files: readonly string[] = await getFileCache();
+        for (const file of files) {
+          yield file;
+        }
+      })(),
     readFile: readFileContent,
     fileExists,
     dirExists,
