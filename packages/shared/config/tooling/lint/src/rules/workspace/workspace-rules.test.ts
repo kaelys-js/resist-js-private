@@ -203,6 +203,21 @@ import noNonpreferredImageFormats from './no-nonpreferred-image-formats.ts';
 import validateFormattingConfigConsistency from './validate-formatting-config-consistency.ts';
 import validateNanostoresSafety from './validate-nanostores-safety.ts';
 import validateTsconfigPathsResolution from './validate-tsconfig-paths-resolution.ts';
+import noOversizedCommits from './no-oversized-commits.ts';
+import enforceDocsLocationRule from './enforce-docs-location.ts';
+import validateMonorepoLayout from './validate-monorepo-layout.ts';
+import validateYamlSchemaDirectives from './validate-yaml-schema-directives.ts';
+import validateJsonSchemaFields from './validate-json-schema-fields.ts';
+import validateMakefiles from './validate-makefiles.ts';
+import noWorldWritableFiles from './no-world-writable-files.ts';
+import noWranglerRouteCollisions from './no-wrangler-route-collisions.ts';
+import wranglerBindingsConsistentEnvs from './wrangler-bindings-consistent-envs.ts';
+import wranglerBindingNamingConventions from './wrangler-binding-naming-conventions.ts';
+import validateWranglerEnvironments from './validate-wrangler-environments.ts';
+import noHardcodedServiceUrls from './no-hardcoded-service-urls.ts';
+import noMultipleEnvFiles from './no-multiple-env-files.ts';
+import validateSqlMigrations from './validate-sql-migrations.ts';
+import validateShellScripts from './validate-shell-scripts.ts';
 
 // =============================================================================
 // Helpers
@@ -10472,6 +10487,644 @@ describe('workspace/validate-tsconfig-paths-resolution', () => {
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await validateTsconfigPathsResolution.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 24 — no-oversized-commits
+// =============================================================================
+
+describe('workspace/no-oversized-commits', () => {
+  it('has correct rule metadata', () => {
+    expect(noOversizedCommits.id).toBe('workspace/no-oversized-commits');
+    expect(noOversizedCommits.scope).toBe('workspace');
+  });
+
+  it('warns when file count exceeds 50', async () => {
+    const files: Map<string, string> = new Map();
+    for (let i: number = 0; i < 55; i++) {
+      files.set(`/workspace/src/file${String(i)}.ts`, '');
+    }
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noOversizedCommits.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('55');
+  });
+
+  it('passes when file count is within limit', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.ts', ''],
+      ['/workspace/src/utils.ts', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noOversizedCommits.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 24 — enforce-docs-location
+// =============================================================================
+
+describe('workspace/enforce-docs-location', () => {
+  it('has correct rule metadata', () => {
+    expect(enforceDocsLocationRule.id).toBe('workspace/enforce-docs-location');
+    expect(enforceDocsLocationRule.scope).toBe('workspace');
+  });
+
+  it('flags .md file in packages directory', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/app/NOTES.md', '# Notes']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceDocsLocationRule.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('NOTES.md');
+  });
+
+  it('passes for .md at root', async () => {
+    const files: Map<string, string> = new Map([['/workspace/ARCHITECTURE.md', '# Arch']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceDocsLocationRule.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for .md under docs/', async () => {
+    const files: Map<string, string> = new Map([['/workspace/docs/guide.md', '# Guide']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceDocsLocationRule.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('allows README.md anywhere', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/app/README.md', '# App']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await enforceDocsLocationRule.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 24 — validate-monorepo-layout
+// =============================================================================
+
+describe('workspace/validate-monorepo-layout', () => {
+  it('has correct rule metadata', () => {
+    expect(validateMonorepoLayout.id).toBe('workspace/validate-monorepo-layout');
+    expect(validateMonorepoLayout.scope).toBe('workspace');
+  });
+
+  it('flags missing required directory', async () => {
+    const ctx: WorkspaceContext = mockContext();
+    const dirExistsSpy = vi.spyOn(ctx, 'dirExists');
+    dirExistsSpy.mockResolvedValue(false);
+    const results: LintResult[] = await validateMonorepoLayout.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.message).toContain('missing');
+    dirExistsSpy.mockRestore();
+  });
+
+  it('passes when all required dirs exist', async () => {
+    const ctx: WorkspaceContext = mockContext();
+    const results: LintResult[] = await validateMonorepoLayout.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 24 — validate-yaml-schema-directives
+// =============================================================================
+
+describe('workspace/validate-yaml-schema-directives', () => {
+  it('has correct rule metadata', () => {
+    expect(validateYamlSchemaDirectives.id).toBe('workspace/validate-yaml-schema-directives');
+    expect(validateYamlSchemaDirectives.scope).toBe('workspace');
+  });
+
+  it('flags malformed schema URL', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/config.yml', '# yaml-language-server: $schema=not-a-url\nkey: value'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateYamlSchemaDirectives.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('not-a-url');
+  });
+
+  it('passes for valid schema URL', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/config.yml',
+        '# yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema\nkey: value',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateYamlSchemaDirectives.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no directive exists', async () => {
+    const files: Map<string, string> = new Map([['/workspace/config.yml', 'key: value']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateYamlSchemaDirectives.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags empty schema URL', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/config.yml', '# yaml-language-server: $schema=\nkey: value'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateYamlSchemaDirectives.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Empty');
+  });
+});
+
+// =============================================================================
+// Phase 24 — validate-json-schema-fields
+// =============================================================================
+
+describe('workspace/validate-json-schema-fields', () => {
+  it('has correct rule metadata', () => {
+    expect(validateJsonSchemaFields.id).toBe('workspace/validate-json-schema-fields');
+    expect(validateJsonSchemaFields.scope).toBe('workspace');
+  });
+
+  it('flags invalid $schema URL', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/config.json', '{"$schema": "not-a-url", "key": "value"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateJsonSchemaFields.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('not-a-url');
+  });
+
+  it('passes for valid $schema URL', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/config.json', '{"$schema": "https://json-schema.org/draft/2020-12/schema"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateJsonSchemaFields.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no $schema field', async () => {
+    const files: Map<string, string> = new Map([['/workspace/config.json', '{"key": "value"}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateJsonSchemaFields.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('flags empty $schema', async () => {
+    const files: Map<string, string> = new Map([['/workspace/config.json', '{"$schema": ""}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateJsonSchemaFields.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Empty');
+  });
+});
+
+// =============================================================================
+// Phase 24 — validate-makefiles
+// =============================================================================
+
+describe('workspace/validate-makefiles', () => {
+  it('has correct rule metadata', () => {
+    expect(validateMakefiles.id).toBe('workspace/validate-makefiles');
+    expect(validateMakefiles.scope).toBe('workspace');
+  });
+
+  it('detects CRLF line endings', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/Makefile', 'all:\r\n\techo hello\r\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateMakefiles.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results.some((r: LintResult) => r.message.includes('CRLF'))).toBe(true);
+  });
+
+  it('detects spaces instead of tabs in recipes', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/Makefile', 'build:\n    echo hello\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateMakefiles.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results.some((r: LintResult) => r.message.includes('spaces'))).toBe(true);
+  });
+
+  it('passes for valid Makefile with tabs', async () => {
+    const files: Map<string, string> = new Map([['/workspace/Makefile', 'build:\n\techo hello\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateMakefiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 24 — no-world-writable-files
+// =============================================================================
+
+describe('workspace/no-world-writable-files', () => {
+  it('has correct rule metadata', () => {
+    expect(noWorldWritableFiles.id).toBe('workspace/no-world-writable-files');
+    expect(noWorldWritableFiles.scope).toBe('workspace');
+  });
+
+  it('detects chmod 777', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/setup.sh', '#!/bin/bash\nchmod 777 /tmp/dir\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWorldWritableFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('chmod 777');
+  });
+
+  it('passes for chmod 755', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/setup.sh', '#!/bin/bash\nchmod 755 /tmp/dir\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWorldWritableFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for files without chmod', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/setup.sh', '#!/bin/bash\necho hello\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWorldWritableFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 24 — no-wrangler-route-collisions
+// =============================================================================
+
+describe('workspace/no-wrangler-route-collisions', () => {
+  it('has correct rule metadata', () => {
+    expect(noWranglerRouteCollisions.id).toBe('workspace/no-wrangler-route-collisions');
+    expect(noWranglerRouteCollisions.scope).toBe('workspace');
+  });
+
+  it('detects duplicate routes', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/a/wrangler.json', '{"routes": ["example.com/*"]}'],
+      ['/workspace/workers/b/wrangler.json', '{"routes": ["example.com/*"]}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWranglerRouteCollisions.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Duplicate route');
+  });
+
+  it('passes for unique routes', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/a/wrangler.json', '{"routes": ["api.example.com/*"]}'],
+      ['/workspace/workers/b/wrangler.json', '{"routes": ["app.example.com/*"]}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWranglerRouteCollisions.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('checks route objects with pattern field', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/a/wrangler.json', '{"routes": [{"pattern": "example.com/*"}]}'],
+      ['/workspace/workers/b/wrangler.json', '{"routes": [{"pattern": "example.com/*"}]}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noWranglerRouteCollisions.check(ctx);
+    expect(results.length).toBe(1);
+  });
+});
+
+// =============================================================================
+// Phase 24 — wrangler-bindings-consistent-envs
+// =============================================================================
+
+describe('workspace/wrangler-bindings-consistent-envs', () => {
+  it('has correct rule metadata', () => {
+    expect(wranglerBindingsConsistentEnvs.id).toBe('workspace/wrangler-bindings-consistent-envs');
+    expect(wranglerBindingsConsistentEnvs.scope).toBe('workspace');
+  });
+
+  it('detects missing binding in env', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/wrangler.json',
+        '{"kv_namespaces": [{"binding": "MY_KV"}], "env": {"production": {"kv_namespaces": [{"binding": "OTHER_KV"}]}}}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerBindingsConsistentEnvs.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('MY_KV');
+  });
+
+  it('passes for consistent bindings', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/wrangler.json',
+        '{"kv_namespaces": [{"binding": "MY_KV"}], "env": {"production": {"kv_namespaces": [{"binding": "MY_KV"}]}}}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerBindingsConsistentEnvs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no envs defined', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/wrangler.json', '{"kv_namespaces": [{"binding": "MY_KV"}]}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerBindingsConsistentEnvs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 24 — wrangler-binding-naming-conventions
+// =============================================================================
+
+describe('workspace/wrangler-binding-naming-conventions', () => {
+  it('has correct rule metadata', () => {
+    expect(wranglerBindingNamingConventions.id).toBe(
+      'workspace/wrangler-binding-naming-conventions',
+    );
+    expect(wranglerBindingNamingConventions.scope).toBe('workspace');
+  });
+
+  it('flags invalid binding name', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/wrangler.json', '{"kv_namespaces": [{"binding": "123_invalid"}]}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerBindingNamingConventions.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('123_invalid');
+  });
+
+  it('passes for valid binding name', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/wrangler.json', '{"kv_namespaces": [{"binding": "MY_KV_STORE"}]}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerBindingNamingConventions.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('checks env-level binding names too', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/wrangler.json',
+        '{"env": {"production": {"kv_namespaces": [{"binding": "!bad"}]}}}',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await wranglerBindingNamingConventions.check(ctx);
+    expect(results.length).toBe(1);
+  });
+});
+
+// =============================================================================
+// Phase 24 — validate-wrangler-environments
+// =============================================================================
+
+describe('workspace/validate-wrangler-environments', () => {
+  it('has correct rule metadata', () => {
+    expect(validateWranglerEnvironments.id).toBe('workspace/validate-wrangler-environments');
+    expect(validateWranglerEnvironments.scope).toBe('workspace');
+  });
+
+  it('flags staging environment', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/wrangler.json', '{"env": {"staging": {}}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateWranglerEnvironments.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('staging');
+  });
+
+  it('flags custom environment', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/wrangler.json', '{"env": {"dev": {}}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateWranglerEnvironments.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('dev');
+  });
+
+  it('passes for production and preview', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/wrangler.json', '{"env": {"production": {}, "preview": {}}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateWranglerEnvironments.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no env section', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/wrangler.json', '{"name": "worker"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateWranglerEnvironments.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 24 — no-hardcoded-service-urls
+// =============================================================================
+
+describe('workspace/no-hardcoded-service-urls', () => {
+  it('has correct rule metadata', () => {
+    expect(noHardcodedServiceUrls.id).toBe('workspace/no-hardcoded-service-urls');
+    expect(noHardcodedServiceUrls.scope).toBe('workspace');
+  });
+
+  it('warns on private IP', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/api.ts', 'const url = "http://192.168.1.100:8080";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHardcodedServiceUrls.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('192.168');
+  });
+
+  it('warns on api.cloudflare.com', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/app/src/api.ts',
+        'const url = "https://api.cloudflare.com/v4/accounts";',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHardcodedServiceUrls.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('api.cloudflare.com');
+  });
+
+  it('passes for clean source', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/api.ts', 'const url = process.env.API_URL;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHardcodedServiceUrls.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips test files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/api.test.ts', 'const url = "http://192.168.1.1";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noHardcodedServiceUrls.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 24 — no-multiple-env-files
+// =============================================================================
+
+describe('workspace/no-multiple-env-files', () => {
+  it('has correct rule metadata', () => {
+    expect(noMultipleEnvFiles.id).toBe('workspace/no-multiple-env-files');
+    expect(noMultipleEnvFiles.scope).toBe('workspace');
+  });
+
+  it('flags .env.local at root', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.env.local', 'KEY=value']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMultipleEnvFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('.env.local');
+  });
+
+  it('passes for .env.example', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.env.example', 'KEY=']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMultipleEnvFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for .env at root', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.env', 'KEY=value']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMultipleEnvFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores nested .env files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/.env.local', 'KEY=value'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noMultipleEnvFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 24 — validate-sql-migrations
+// =============================================================================
+
+describe('workspace/validate-sql-migrations', () => {
+  it('has correct rule metadata', () => {
+    expect(validateSqlMigrations.id).toBe('workspace/validate-sql-migrations');
+    expect(validateSqlMigrations.scope).toBe('workspace');
+  });
+
+  it('flags non-.sql file in migrations', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/db/migrations/notes.txt', 'some notes'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateSqlMigrations.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Non-SQL');
+  });
+
+  it('flags duplicate migration filenames', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/db/migrations/001_init.sql', 'CREATE TABLE a;'],
+      ['/workspace/other/migrations/001_init.sql', 'CREATE TABLE b;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateSqlMigrations.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Duplicate');
+  });
+
+  it('flags BOM in migration file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/db/migrations/001_init.sql', '\uFEFFCREATE TABLE users;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateSqlMigrations.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('BOM');
+  });
+
+  it('passes for valid .sql migration', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/db/migrations/001_init.sql', 'CREATE TABLE users (id INT);'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateSqlMigrations.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 24 — validate-shell-scripts
+// =============================================================================
+
+describe('workspace/validate-shell-scripts', () => {
+  it('has correct rule metadata', () => {
+    expect(validateShellScripts.id).toBe('workspace/validate-shell-scripts');
+    expect(validateShellScripts.scope).toBe('workspace');
+  });
+
+  it('flags missing strict mode', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/deploy.sh', '#!/bin/bash\necho hello\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateShellScripts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('set -euo pipefail');
+  });
+
+  it('passes for script with strict mode', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/deploy.sh', '#!/bin/bash\nset -euo pipefail\necho hello\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateShellScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores non-.sh files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/config.ts', 'export const x = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateShellScripts.check(ctx);
     expect(results.length).toBe(0);
   });
 });

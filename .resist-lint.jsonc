@@ -348,7 +348,24 @@
     "workspace/no-nonpreferred-image-formats": "error",
     "workspace/validate-formatting-config-consistency": "error",
     "workspace/validate-nanostores-safety": "error",
-    "workspace/validate-tsconfig-paths-resolution": "error"
+    "workspace/validate-tsconfig-paths-resolution": "error",
+
+    // Phase 24 — Monorepo Layout, Wrangler Routes, File Integrity & Validation
+    "workspace/no-oversized-commits": "warn",
+    "workspace/enforce-docs-location": "error",
+    "workspace/validate-monorepo-layout": "error",
+    "workspace/validate-yaml-schema-directives": "error",
+    "workspace/validate-json-schema-fields": "error",
+    "workspace/validate-makefiles": "error",
+    "workspace/no-world-writable-files": "error",
+    "workspace/no-wrangler-route-collisions": "error",
+    "workspace/wrangler-bindings-consistent-envs": "error",
+    "workspace/wrangler-binding-naming-conventions": "error",
+    "workspace/validate-wrangler-environments": "error",
+    "workspace/no-hardcoded-service-urls": "warn",
+    "workspace/no-multiple-env-files": "warn",
+    "workspace/validate-sql-migrations": "error",
+    "workspace/validate-shell-scripts": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
