@@ -646,6 +646,14 @@ Aria/Accessibility (HTML, Svelte Components, Astro Components)
 Protected Files/Paths
 Boundaries
 Markdown
+Mise
+Lefthook
+.gitlab/.github/docs/.vscode/.devcontainer/.coder: Only allowed filetypes
+Playwright
+Vitest
+pnpm/bun/yarn/node
+Handlebars
+No vitest.config other than worspace root
 
 ...Other categories?
 
