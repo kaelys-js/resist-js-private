@@ -462,6 +462,42 @@ export function createWorkspaceContext(
     return fileCache;
   }
 
+  /** Per-path readFile cache — deduplicates concurrent and repeated reads of the same file. */
+  const readCache: Map<string, Promise<string>> = new Map();
+
+  function cachedReadFile(path: string): Promise<string> {
+    let cached: Promise<string> | undefined = readCache.get(path);
+    if (cached === undefined) {
+      cached = readFileContent(path);
+      readCache.set(path, cached);
+    }
+    return cached;
+  }
+
+  /** Per-path fileExists cache. */
+  const existsCache: Map<string, Promise<boolean>> = new Map();
+
+  function cachedFileExists(path: string): Promise<boolean> {
+    let cached: Promise<boolean> | undefined = existsCache.get(path);
+    if (cached === undefined) {
+      cached = fileExists(path);
+      existsCache.set(path, cached);
+    }
+    return cached;
+  }
+
+  /** Per-path dirExists cache. */
+  const dirExistsCache: Map<string, Promise<boolean>> = new Map();
+
+  function cachedDirExists(path: string): Promise<boolean> {
+    let cached: Promise<boolean> | undefined = dirExistsCache.get(path);
+    if (cached === undefined) {
+      cached = dirExists(path);
+      dirExistsCache.set(path, cached);
+    }
+    return cached;
+  }
+
   return {
     rootDir,
     allFiles: (): AsyncIterable<string> =>
@@ -471,9 +507,9 @@ export function createWorkspaceContext(
           yield file;
         }
       })(),
-    readFile: readFileContent,
-    fileExists,
-    dirExists,
+    readFile: cachedReadFile,
+    fileExists: cachedFileExists,
+    dirExists: cachedDirExists,
     getWorkspacePackages: (): Promise<WorkspacePackage[]> => getWorkspacePackages(rootDir),
   };
 }
