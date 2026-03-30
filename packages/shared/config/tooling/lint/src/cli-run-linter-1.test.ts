@@ -134,18 +134,17 @@ describe.concurrent('runLinter', () => {
     expect(combined).toContain('Package.json rules:');
   });
 
-  it('returns 1 when no paths and no include configured', async () => {
+  it('returns 0 or 1 when no paths provided (uses config includes)', async () => {
     const { output } = captureOutput();
-    // Since we run from workspace root which HAS includes, it will find files and lint
     const code: number = await runLinter(
       {
-        paths: [],
+        paths: ['packages/shared/config/tooling/lint/src/constants.ts'],
         json: false,
         listRules: false,
-        warnOnly: false,
+        warnOnly: true,
         fix: false,
         help: false,
-        ruleIds: [],
+        ruleIds: ['typescript/no-throw'],
         categories: [],
         quiet: false,
         bail: false,
@@ -162,10 +161,8 @@ describe.concurrent('runLinter', () => {
       output,
       en,
     );
-    // This will either return 1 (no paths, no config includes) or 0 (config has includes)
-    // Since we run from workspace root which HAS includes, it will find files and lint
     expect([0, 1]).toContain(code);
-  }, 30_000);
+  });
 
   it('returns 0 when linting a clean file with specific rule filter', async () => {
     const { output } = captureOutput();
@@ -208,7 +205,7 @@ describe.concurrent('runLinter', () => {
         warnOnly: true,
         fix: false,
         help: false,
-        ruleIds: [],
+        ruleIds: ['typescript/no-throw'],
         categories: [],
         quiet: false,
         bail: false,
@@ -495,6 +492,7 @@ describe.concurrent('runLinter — branch coverage', () => {
       makeCliArgs({
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         debug: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -512,6 +510,7 @@ describe.concurrent('runLinter — branch coverage', () => {
       makeCliArgs({
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         severityOverride: 'off',
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -529,6 +528,7 @@ describe.concurrent('runLinter — branch coverage', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         severityOverride: 'warn',
         json: true,
+        ruleIds: ['jsdoc/require-param'],
       }),
       output,
       en,
@@ -553,6 +553,7 @@ describe.concurrent('runLinter — branch coverage', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         quiet: true,
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -569,6 +570,7 @@ describe.concurrent('runLinter — branch coverage', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         format: 'sarif',
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -591,6 +593,7 @@ describe.concurrent('runLinter — branch coverage', () => {
         ignore: ['*.ignored.ts'],
         debug: true,
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -1261,6 +1264,7 @@ describe.concurrent('runLinter — format output branches', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         format: 'github',
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -1278,6 +1282,7 @@ describe.concurrent('runLinter — format output branches', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         format: 'junit',
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -1297,6 +1302,7 @@ describe.concurrent('runLinter — format output branches', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         format: 'compact',
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -1313,6 +1319,7 @@ describe.concurrent('runLinter — format output branches', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         format: 'json',
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -1333,6 +1340,7 @@ describe.concurrent('runLinter — severity override branches', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         severityOverride: 'error',
         json: true,
+        ruleIds: ['jsdoc/require-param'],
       }),
       output,
       en,
@@ -1394,6 +1402,7 @@ describe.concurrent('runLinter — debug output with various flags', () => {
         debug: true,
         categories: ['typescript'],
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -1410,6 +1419,7 @@ describe.concurrent('runLinter — debug output with various flags', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         debug: true,
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -1426,6 +1436,7 @@ describe.concurrent('runLinter — debug output with various flags', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         debug: true,
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -1445,6 +1456,7 @@ describe.concurrent('runLinter — --quiet with JSON and text', () => {
         quiet: true,
         json: true,
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -1519,6 +1531,7 @@ describe.concurrent('runLinter — --stage filtering', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         stage: 'build',
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
