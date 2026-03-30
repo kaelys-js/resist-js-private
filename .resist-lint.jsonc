@@ -316,7 +316,22 @@
     "workspace/validate-filename-casing": "error",
     "workspace/validate-mjs-cjs-usage": "error",
     "workspace/validate-root-biome-json": "error",
-    "workspace/validate-root-oxlintrc-json": "error"
+    "workspace/validate-root-oxlintrc-json": "error",
+    "workspace/no-react-native-artifacts": "error",
+    "workspace/no-docker-compose-v1": "error",
+    "workspace/detect-undeclared-dependencies": "error",
+    "workspace/warn-vscode-settings-conflicts": "warn",
+    "workspace/validate-vscode-extensions": "error",
+    "workspace/enforce-peer-dependency-consistency": "error",
+    "workspace/no-sensitive-public-files": "error",
+    "workspace/validate-root-package-config": "error",
+    "workspace/validate-script-descriptions": "error",
+    "workspace/validate-root-scripts-consistency": "error",
+    "workspace/validate-product-scripts": "error",
+    "workspace/no-deploy-scripts": "error",
+    "workspace/no-lint-ignore-directives": "warn",
+    "workspace/validate-package-tags": "error",
+    "workspace/no-env-or-globals-in-shared-libs": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {

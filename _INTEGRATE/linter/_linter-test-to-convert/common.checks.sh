@@ -1660,7 +1660,7 @@ ported::disallow_nextjs_artifacts() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_docker_compose_v1() {
+ported::disallow_docker_compose_v1() {
   # ✅ Check: Block usage of docker-compose v1 or v2
   # Category: infra, lint
   # Stages: lint, check
@@ -1777,7 +1777,7 @@ ported::disallow_hugo_configs() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_react_native_configs() {
+ported::disallow_react_native_configs() {
   # ✅ Check: Block React Native-specific artifacts
   # Category: lint, mobile, package
   # Stages: lint, check
@@ -2352,7 +2352,7 @@ check::enforce_branch_naming_convention() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::detect_undeclared_dependencies() {
+ported::detect_undeclared_dependencies() {
   # ✅ Check: No undeclared external packages used in source files
   # Category: lint, package
   # Stages: lint, check
@@ -2513,7 +2513,7 @@ check::disallow_tsconfig_duplicate_extends_chain() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::warn_vscode_settings_conflicts() {
+ported::warn_vscode_settings_conflicts() {
   # ✅ Check: VSCode settings must align with .editorconfig, biome*, oxlintrc* files
   # Category: lint, biome, oxlint
   # Stages: check, lint
@@ -3223,7 +3223,7 @@ check::enforce_gitlab_ci_timeouts() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::validate_vscode_extensions() {
+ported::validate_vscode_extensions() {
   # ✅ Check: .vscode/extensions.json matches approved extensions list
   # Category: ci, lint, naming
   # Stages: check, lint
@@ -4581,7 +4581,7 @@ check::detect_unlinked_workspace_dependencies() {
 # Stages:
 #   pre-commit, lint, check, build
 # ------------------------------------------------------------------------------
-check::disallow_sensitive_public_files() {
+ported::disallow_sensitive_public_files() {
   # ✅ Check: Prevent .env, .sql, .bak files in public/ directories
   # Category: safety, secrets, paths
   # Stages: pre-commit, lint, check, build
@@ -4631,7 +4631,7 @@ check::disallow_sensitive_public_files() {
 # Stages:
 #   check, lint, build
 # ------------------------------------------------------------------------------
-check::validate_root_package_config() {
+ported::validate_root_package_config() {
   # ✅ Check: Enforce consistent tooling and versions in root package.json
   # Category: package, pnpm
   # Stages: check, lint, build
@@ -4756,7 +4756,7 @@ check::validate_root_package_config() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::validate_script_descriptions() {
+ported::validate_script_descriptions() {
   # ✅ Check: All scripts must have descriptions in meta.scripts.description
   # Category: package, lint
   # Stages: check, lint
@@ -4818,7 +4818,7 @@ check::validate_script_descriptions() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::validate_root_scripts_consistency() {
+ported::validate_root_scripts_consistency() {
   # ✅ Check: Enforce monorepo root script consistency
   # Category: package, lint
   # Stages: lint, check
@@ -4905,7 +4905,7 @@ check::validate_root_scripts_consistency() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::validate_product_scripts() {
+ported::validate_product_scripts() {
   # ✅ Check: Ensure each /packages/products/[product] has expected scripts
   # Category: package, pnpm
   # Stages: lint, check
@@ -4971,7 +4971,7 @@ check::validate_product_scripts() {
 # Stages:
 #   lint, check, pre-commit
 # ------------------------------------------------------------------------------
-check::disallow_deploy_scripts() {
+ported::disallow_deploy_scripts() {
   # ✅ Check: Disallow deploy:* scripts
   # Category: package, ci
   # Stages: lint, check, pre-commit
@@ -6114,7 +6114,7 @@ check::git_protected_branch_push() {
 # Stages:
 #   lint, validate
 # ------------------------------------------------------------------------------
-check::validate_package_tags() {
+ported::validate_package_tags() {
   # ✅ Check: package.json must contain a valid tags[] array
   # Category: package, boundaries, lint
   # Stages: lint, validate
@@ -6190,7 +6190,7 @@ check::validate_package_tags() {
 # Stages:
 #   validate, lint
 # ------------------------------------------------------------------------------
-check::peer_dependency_consistency() {
+ported::peer_dependency_consistency() {
   # ✅ Check: peerDependencies must match versions across all packages
   # Category: package, lint, boundaries
   # Stages: validate, lint
@@ -6263,7 +6263,7 @@ check::peer_dependency_consistency() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::lint_ignore_directives() {
+ported::lint_ignore_directives() {
   # ✅ Check: Warn on usage of common lint/format ignore directives
   # Category: lint, safety
   # Stages: check, lint
@@ -6722,7 +6722,7 @@ check::cli_tools_help_and_version() {
 # Stages:
 #   lint, test, integration
 # ------------------------------------------------------------------------------
-check::shared_libs_no_direct_env_or_globals() {
+ported::shared_libs_no_direct_env_or_globals() {
   # ✅ Check: shared libs must not access process.env or globalThis
   # Category: safety, boundaries, tsconfig
   # Stages: lint, test, integration

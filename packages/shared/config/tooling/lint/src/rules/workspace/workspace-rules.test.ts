@@ -173,6 +173,21 @@ import enforceWorkspaceVersionAlignment from './enforce-workspace-version-alignm
 import validateRootBiomeJson from './validate-root-biome-json.ts';
 import validateRootOxlintrcJson from './validate-root-oxlintrc-json.ts';
 import enforceBenchmarkFileNaming from './enforce-benchmark-file-naming.ts';
+import noReactNativeArtifacts from './no-react-native-artifacts.ts';
+import noDockerComposeV1 from './no-docker-compose-v1.ts';
+import detectUndeclaredDependencies from './detect-undeclared-dependencies.ts';
+import warnVscodeSettingsConflicts from './warn-vscode-settings-conflicts.ts';
+import validateVscodeExtensions from './validate-vscode-extensions.ts';
+import enforcePeerDependencyConsistency from './enforce-peer-dependency-consistency.ts';
+import noSensitivePublicFiles from './no-sensitive-public-files.ts';
+import validateRootPackageConfig from './validate-root-package-config.ts';
+import validateScriptDescriptions from './validate-script-descriptions.ts';
+import validateRootScriptsConsistency from './validate-root-scripts-consistency.ts';
+import validateProductScripts from './validate-product-scripts.ts';
+import noDeployScripts from './no-deploy-scripts.ts';
+import noLintIgnoreDirectives from './no-lint-ignore-directives.ts';
+import validatePackageTags from './validate-package-tags.ts';
+import noEnvOrGlobalsInSharedLibs from './no-env-or-globals-in-shared-libs.ts';
 
 // =============================================================================
 // Helpers
@@ -8472,6 +8487,1066 @@ describe('workspace/enforce-benchmark-file-naming', () => {
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await enforceBenchmarkFileNaming.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 22 — no-react-native-artifacts
+// =============================================================================
+
+describe('workspace/no-react-native-artifacts', () => {
+  it('reports error for metro.config.js', async () => {
+    const files: Map<string, string> = new Map([['/workspace/metro.config.js', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noReactNativeArtifacts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('React Native artifact');
+  });
+
+  it('reports error for metro.config.ts', async () => {
+    const files: Map<string, string> = new Map([['/workspace/metro.config.ts', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noReactNativeArtifacts.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('reports error for files inside /android/ directory', async () => {
+    const files: Map<string, string> = new Map([['/workspace/android/app/build.gradle', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noReactNativeArtifacts.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('reports error for files inside /ios/ directory', async () => {
+    const files: Map<string, string> = new Map([['/workspace/ios/AppDelegate.swift', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noReactNativeArtifacts.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes for normal files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/app/src/index.ts', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noReactNativeArtifacts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 22 — no-docker-compose-v1
+// =============================================================================
+
+describe('workspace/no-docker-compose-v1', () => {
+  it('reports error for docker-compose.yml with version 1', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docker-compose.yml', 'version: "1"\nservices:\n  app:\n    image: node'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDockerComposeV1.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Deprecated Docker Compose');
+  });
+
+  it('reports error for docker-compose.yml with version 2', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docker-compose.yml', 'version: "2.4"\nservices:\n  app:\n    image: node'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDockerComposeV1.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes for docker-compose.yml with version 3', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docker-compose.yml', 'version: "3.9"\nservices:\n  app:\n    image: node'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDockerComposeV1.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no docker-compose file exists', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDockerComposeV1.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 22 — detect-undeclared-dependencies
+// =============================================================================
+
+describe('workspace/detect-undeclared-dependencies', () => {
+  it('reports error for undeclared import', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/index.ts', 'import { foo } from "lodash";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({
+      files,
+      packages: [
+        {
+          path: '/workspace/packages/app/package.json',
+          dir: '/workspace/packages/app',
+          packageJson: { name: '@test/app', dependencies: {}, devDependencies: {} },
+          name: '@test/app',
+        },
+      ],
+    });
+    const results: LintResult[] = await detectUndeclaredDependencies.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('lodash');
+  });
+
+  it('passes for declared dependency', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/index.ts', 'import { foo } from "lodash";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({
+      files,
+      packages: [
+        {
+          path: '/workspace/packages/app/package.json',
+          dir: '/workspace/packages/app',
+          packageJson: { name: '@test/app', dependencies: { lodash: '^4.0.0' } },
+          name: '@test/app',
+        },
+      ],
+    });
+    const results: LintResult[] = await detectUndeclaredDependencies.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores relative imports', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/index.ts', 'import { foo } from "./utils";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({
+      files,
+      packages: [
+        {
+          path: '/workspace/packages/app/package.json',
+          dir: '/workspace/packages/app',
+          packageJson: { name: '@test/app' },
+          name: '@test/app',
+        },
+      ],
+    });
+    const results: LintResult[] = await detectUndeclaredDependencies.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('ignores Node.js builtins', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/index.ts', 'import { readFile } from "fs";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({
+      files,
+      packages: [
+        {
+          path: '/workspace/packages/app/package.json',
+          dir: '/workspace/packages/app',
+          packageJson: { name: '@test/app' },
+          name: '@test/app',
+        },
+      ],
+    });
+    const results: LintResult[] = await detectUndeclaredDependencies.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles scoped packages correctly', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/src/index.ts', 'import { foo } from "@scope/lib/utils";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({
+      files,
+      packages: [
+        {
+          path: '/workspace/packages/app/package.json',
+          dir: '/workspace/packages/app',
+          packageJson: { name: '@test/app', dependencies: { '@scope/lib': '^1.0.0' } },
+          name: '@test/app',
+        },
+      ],
+    });
+    const results: LintResult[] = await detectUndeclaredDependencies.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 22 — warn-vscode-settings-conflicts
+// =============================================================================
+
+describe('workspace/warn-vscode-settings-conflicts', () => {
+  it('warns when tabSize conflicts with editorconfig indent_size', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.vscode/settings.json', '{"editor.tabSize": 4}'],
+      ['/workspace/.editorconfig', 'indent_size = 2\nindent_style = space'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await warnVscodeSettingsConflicts.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('tabSize');
+  });
+
+  it('warns when insertSpaces conflicts with editorconfig indent_style', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.vscode/settings.json', '{"editor.insertSpaces": false}'],
+      ['/workspace/.editorconfig', 'indent_style = space'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await warnVscodeSettingsConflicts.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results.some((r: LintResult): boolean => r.message.includes('insertSpaces'))).toBe(true);
+  });
+
+  it('passes when settings are aligned', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.vscode/settings.json', '{"editor.tabSize": 2, "editor.insertSpaces": true}'],
+      ['/workspace/.editorconfig', 'indent_size = 2\nindent_style = space'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await warnVscodeSettingsConflicts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no vscode settings exist', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.editorconfig', 'indent_size = 2']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await warnVscodeSettingsConflicts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('warns when tabSize conflicts with biome indentWidth', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.vscode/settings.json', '{"editor.tabSize": 4}'],
+      ['/workspace/biome.json', '{"formatter": {"indentWidth": 2}}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await warnVscodeSettingsConflicts.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results.some((r: LintResult): boolean => r.message.includes('biome'))).toBe(true);
+  });
+});
+
+// =============================================================================
+// Phase 22 — validate-vscode-extensions
+// =============================================================================
+
+describe('workspace/validate-vscode-extensions', () => {
+  it('reports error when extensions.json is missing', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateVscodeExtensions.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Missing');
+  });
+
+  it('reports error for invalid JSON', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.vscode/extensions.json', '{invalid json}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateVscodeExtensions.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Invalid JSON');
+  });
+
+  it('reports missing approved extensions', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.vscode/extensions.json', '{"recommendations": []}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateVscodeExtensions.check(ctx);
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]!.message).toContain('Missing approved extension');
+  });
+
+  it('reports unapproved extra extensions', async () => {
+    const approved: string[] = [
+      'aaron-bond.better-comments',
+      'astro-build.astro-vscode',
+      'anysphere.cpptools',
+      'biomejs.biome',
+      'bradlc.vscode-tailwindcss',
+      'donjayamanne.githistory',
+      'ecmel.vscode-html-css',
+      'GitLab.gitlab-workflow',
+      'Gruntfuggly.todo-tree',
+      'mhutchie.git-graph',
+      'mikestead.dotenv',
+      'ms-azuretools.vscode-docker',
+      'ms-kubernetes-tools.vscode-kubernetes-tools',
+      'ms-python.python',
+      'ms-vscode.makefile-tools',
+      'oxc.oxc-vscode',
+      'pflannery.vscode-versionlens',
+      'redhat.vscode-yaml',
+      'semanticdiff.semanticdiff',
+      'shd101wyy.markdown-preview-enhanced',
+      'streetsidesoftware.code-spell-checker',
+      'svelte.svelte-vscode',
+      'tamasfe.even-better-toml',
+      'usernamehw.errorlens',
+      'vitest.explorer',
+      'WallabyJs.console-ninja',
+      'yzhang.markdown-all-in-one',
+      'YoavBls.pretty-ts-errors',
+      'some.unapproved-extension',
+    ];
+    const files: Map<string, string> = new Map([
+      ['/workspace/.vscode/extensions.json', JSON.stringify({ recommendations: approved })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateVscodeExtensions.check(ctx);
+    expect(results.some((r: LintResult): boolean => r.message.includes('Unapproved'))).toBe(true);
+  });
+
+  it('passes when extensions match exactly', async () => {
+    const approved: string[] = [
+      'aaron-bond.better-comments',
+      'astro-build.astro-vscode',
+      'anysphere.cpptools',
+      'biomejs.biome',
+      'bradlc.vscode-tailwindcss',
+      'donjayamanne.githistory',
+      'ecmel.vscode-html-css',
+      'GitLab.gitlab-workflow',
+      'Gruntfuggly.todo-tree',
+      'mhutchie.git-graph',
+      'mikestead.dotenv',
+      'ms-azuretools.vscode-docker',
+      'ms-kubernetes-tools.vscode-kubernetes-tools',
+      'ms-python.python',
+      'ms-vscode.makefile-tools',
+      'oxc.oxc-vscode',
+      'pflannery.vscode-versionlens',
+      'redhat.vscode-yaml',
+      'semanticdiff.semanticdiff',
+      'shd101wyy.markdown-preview-enhanced',
+      'streetsidesoftware.code-spell-checker',
+      'svelte.svelte-vscode',
+      'tamasfe.even-better-toml',
+      'usernamehw.errorlens',
+      'vitest.explorer',
+      'WallabyJs.console-ninja',
+      'yzhang.markdown-all-in-one',
+      'YoavBls.pretty-ts-errors',
+    ];
+    const files: Map<string, string> = new Map([
+      ['/workspace/.vscode/extensions.json', JSON.stringify({ recommendations: approved })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateVscodeExtensions.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 22 — enforce-peer-dependency-consistency
+// =============================================================================
+
+describe('workspace/enforce-peer-dependency-consistency', () => {
+  it('reports error for inconsistent peerDep versions', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      packages: [
+        {
+          path: '/workspace/packages/a/package.json',
+          dir: '/workspace/packages/a',
+          packageJson: { name: '@test/a', peerDependencies: { react: '^17.0.0' } },
+          name: '@test/a',
+        },
+        {
+          path: '/workspace/packages/b/package.json',
+          dir: '/workspace/packages/b',
+          packageJson: { name: '@test/b', peerDependencies: { react: '^18.0.0' } },
+          name: '@test/b',
+        },
+      ],
+    });
+    const results: LintResult[] = await enforcePeerDependencyConsistency.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(2);
+    expect(results[0]!.message).toContain('Inconsistent');
+  });
+
+  it('reports error for dep in both dependencies and peerDependencies', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      packages: [
+        {
+          path: '/workspace/packages/a/package.json',
+          dir: '/workspace/packages/a',
+          packageJson: {
+            name: '@test/a',
+            dependencies: { react: '^18.0.0' },
+            peerDependencies: { react: '^18.0.0' },
+          },
+          name: '@test/a',
+        },
+      ],
+    });
+    const results: LintResult[] = await enforcePeerDependencyConsistency.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('both dependencies and peerDependencies');
+  });
+
+  it('passes for consistent peerDeps', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      packages: [
+        {
+          path: '/workspace/packages/a/package.json',
+          dir: '/workspace/packages/a',
+          packageJson: { name: '@test/a', peerDependencies: { react: '^18.0.0' } },
+          name: '@test/a',
+        },
+        {
+          path: '/workspace/packages/b/package.json',
+          dir: '/workspace/packages/b',
+          packageJson: { name: '@test/b', peerDependencies: { react: '^18.0.0' } },
+          name: '@test/b',
+        },
+      ],
+    });
+    const results: LintResult[] = await enforcePeerDependencyConsistency.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 22 — no-sensitive-public-files
+// =============================================================================
+
+describe('workspace/no-sensitive-public-files', () => {
+  it('reports error for .env in public directory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/public/.env', 'SECRET=123'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSensitivePublicFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Sensitive file');
+  });
+
+  it('reports error for .sql in public directory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/public/dump.sql', 'SELECT * FROM users;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSensitivePublicFiles.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('reports error for .bak in public directory', async () => {
+    const files: Map<string, string> = new Map([['/workspace/public/data.bak', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSensitivePublicFiles.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes for normal files in public', async () => {
+    const files: Map<string, string> = new Map([['/workspace/public/index.html', '<html></html>']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSensitivePublicFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for .env outside public', async () => {
+    const files: Map<string, string> = new Map([['/workspace/.env', 'SECRET=123']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noSensitivePublicFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 22 — validate-root-package-config
+// =============================================================================
+
+describe('workspace/validate-root-package-config', () => {
+  it('reports error when root package.json is missing', async () => {
+    const files: Map<string, string> = new Map([['/workspace/packages/app/package.json', '{}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootPackageConfig.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Missing root package.json');
+  });
+
+  it('reports error for missing devDependency', async () => {
+    const rootPkg: Record<string, unknown> = {
+      devDependencies: { husky: '^9.0.0' },
+      'lint-staged': { '*.ts': 'biome check && oxlint' },
+      packageManager: 'pnpm@10.12.0',
+      engines: { node: '^24.0.0' },
+    };
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify(rootPkg)],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootPackageConfig.check(ctx);
+    expect(
+      results.some((r: LintResult): boolean =>
+        r.message.includes('Missing required devDependency'),
+      ),
+    ).toBe(true);
+  });
+
+  it('reports error for missing lint-staged', async () => {
+    const rootPkg: Record<string, unknown> = {
+      devDependencies: {
+        '@biomejs/biome': '1',
+        oxlint: '1',
+        husky: '1',
+        'lint-staged': '1',
+        tsx: '1',
+        wrangler: '1',
+        '@cloudflare/workers-types': '1',
+        '@types/ua-parser-js': '1',
+      },
+      packageManager: 'pnpm@10.12.0',
+      engines: { node: '^24.0.0' },
+    };
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify(rootPkg)],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootPackageConfig.check(ctx);
+    expect(results.some((r: LintResult): boolean => r.message.includes('lint-staged'))).toBe(true);
+  });
+
+  it('reports error for low pnpm version', async () => {
+    const rootPkg: Record<string, unknown> = {
+      devDependencies: {
+        '@biomejs/biome': '1',
+        oxlint: '1',
+        husky: '1',
+        'lint-staged': '1',
+        tsx: '1',
+        wrangler: '1',
+        '@cloudflare/workers-types': '1',
+        '@types/ua-parser-js': '1',
+      },
+      'lint-staged': { '*.ts': 'biome check && oxlint' },
+      packageManager: 'pnpm@9.0.0',
+      engines: { node: '^24.0.0' },
+    };
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify(rootPkg)],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootPackageConfig.check(ctx);
+    expect(results.some((r: LintResult): boolean => r.message.includes('pnpm version'))).toBe(true);
+  });
+
+  it('passes for valid root config', async () => {
+    const rootPkg: Record<string, unknown> = {
+      devDependencies: {
+        '@biomejs/biome': '1',
+        oxlint: '1',
+        husky: '1',
+        'lint-staged': '1',
+        tsx: '1',
+        wrangler: '1',
+        '@cloudflare/workers-types': '1',
+        '@types/ua-parser-js': '1',
+      },
+      'lint-staged': { '*.ts': 'biome check && oxlint' },
+      packageManager: 'pnpm@10.12.0',
+      engines: { node: '^24.0.0' },
+    };
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify(rootPkg)],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootPackageConfig.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 22 — validate-script-descriptions
+// =============================================================================
+
+describe('workspace/validate-script-descriptions', () => {
+  it('reports error for missing meta.scripts.description block', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/package.json', JSON.stringify({ scripts: { build: 'tsc' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateScriptDescriptions.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('meta.scripts.description');
+  });
+
+  it('reports error for script missing description', async () => {
+    const pkg: Record<string, unknown> = {
+      scripts: { build: 'tsc', test: 'vitest' },
+      meta: { scripts: { description: { build: 'Compile' } } },
+    };
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/package.json', JSON.stringify(pkg)],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateScriptDescriptions.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("'test'");
+  });
+
+  it('passes when all scripts have descriptions', async () => {
+    const pkg: Record<string, unknown> = {
+      scripts: { build: 'tsc' },
+      meta: { scripts: { description: { build: 'Compile the project' } } },
+    };
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/package.json', JSON.stringify(pkg)],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateScriptDescriptions.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips package.json without scripts', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/package.json', JSON.stringify({ name: '@test/app' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateScriptDescriptions.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 22 — validate-root-scripts-consistency
+// =============================================================================
+
+describe('workspace/validate-root-scripts-consistency', () => {
+  it('reports error for missing expected script', async () => {
+    const rootPkg: Record<string, unknown> = {
+      scripts: { build: 'pnpm -r run build' },
+      meta: { scripts: { description: { build: 'Build all' } } },
+    };
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify(rootPkg)],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootScriptsConsistency.check(ctx);
+    expect(
+      results.some((r: LintResult): boolean => r.message.includes('Missing root script')),
+    ).toBe(true);
+  });
+
+  it('reports error for wrong script format', async () => {
+    const scripts: Record<string, string> = {};
+    const descs: Record<string, string> = {};
+    const expected: string[] = [
+      'benchmark',
+      'bootstrap',
+      'build',
+      'check',
+      'clean',
+      'deploy',
+      'dev',
+      'format',
+      'lint',
+      'logs',
+      'prepare',
+      'preview',
+      'preinstall',
+      'test',
+    ];
+    for (const name of expected) {
+      scripts[name] =
+        name === 'build'
+          ? 'wrong command'
+          : name === 'prepare' || name === 'preinstall'
+            ? 'husky'
+            : `pnpm -r run ${name}`;
+      descs[name] = `Does ${name}`;
+    }
+    const rootPkg: Record<string, unknown> = {
+      scripts,
+      meta: { scripts: { description: descs } },
+    };
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify(rootPkg)],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootScriptsConsistency.check(ctx);
+    expect(
+      results.some(
+        (r: LintResult): boolean =>
+          r.message.includes("'build'") && r.message.includes('pnpm -r run'),
+      ),
+    ).toBe(true);
+  });
+
+  it('reports error for unexpected extra script', async () => {
+    const scripts: Record<string, string> = { extra: 'echo hello' };
+    const descs: Record<string, string> = { extra: 'Extra' };
+    const expected: string[] = [
+      'benchmark',
+      'bootstrap',
+      'build',
+      'check',
+      'clean',
+      'deploy',
+      'dev',
+      'format',
+      'lint',
+      'logs',
+      'prepare',
+      'preview',
+      'preinstall',
+      'test',
+    ];
+    for (const name of expected) {
+      scripts[name] = name === 'prepare' || name === 'preinstall' ? 'husky' : `pnpm -r run ${name}`;
+      descs[name] = `Does ${name}`;
+    }
+    const rootPkg: Record<string, unknown> = {
+      scripts,
+      meta: { scripts: { description: descs } },
+    };
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify(rootPkg)],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootScriptsConsistency.check(ctx);
+    expect(results.some((r: LintResult): boolean => r.message.includes('Unexpected'))).toBe(true);
+  });
+
+  it('passes for valid root scripts', async () => {
+    const scripts: Record<string, string> = {};
+    const descs: Record<string, string> = {};
+    const expected: string[] = [
+      'benchmark',
+      'bootstrap',
+      'build',
+      'check',
+      'clean',
+      'deploy',
+      'dev',
+      'format',
+      'lint',
+      'logs',
+      'prepare',
+      'preview',
+      'preinstall',
+      'test',
+    ];
+    for (const name of expected) {
+      scripts[name] = name === 'prepare' || name === 'preinstall' ? 'husky' : `pnpm -r run ${name}`;
+      descs[name] = `Does ${name}`;
+    }
+    const rootPkg: Record<string, unknown> = {
+      scripts,
+      meta: { scripts: { description: descs } },
+    };
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify(rootPkg)],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateRootScriptsConsistency.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 22 — validate-product-scripts
+// =============================================================================
+
+describe('workspace/validate-product-scripts', () => {
+  it('reports error for missing product script', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      packages: [
+        {
+          path: '/workspace/packages/products/myapp/web/package.json',
+          dir: '/workspace/packages/products/myapp/web',
+          packageJson: { name: '@test/web', scripts: { build: 'tsc' } },
+          name: '@test/web',
+        },
+      ],
+    });
+    const results: LintResult[] = await validateProductScripts.check(ctx);
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]!.message).toContain('Missing script');
+  });
+
+  it('passes when all product scripts are present', async () => {
+    const product: string = 'web';
+    const scripts: Record<string, string> = {
+      [`build:${product}`]: 'cmd',
+      build: 'cmd',
+      [`dev:${product}`]: 'cmd',
+      [`logs:${product}`]: 'cmd',
+      [`test:${product}`]: 'cmd',
+      [`benchmark:${product}`]: 'cmd',
+      [`logs:${product}:dev`]: 'cmd',
+      [`logs:${product}:preview`]: 'cmd',
+      [`logs:${product}:prod`]: 'cmd',
+      [`logs:${product}:staging`]: 'cmd',
+    };
+    const ctx: WorkspaceContext = mockContext({
+      packages: [
+        {
+          path: '/workspace/packages/products/myapp/web/package.json',
+          dir: '/workspace/packages/products/myapp/web',
+          packageJson: { name: '@test/web', scripts },
+          name: '@test/web',
+        },
+      ],
+    });
+    const results: LintResult[] = await validateProductScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-product packages', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      packages: [
+        {
+          path: '/workspace/packages/shared/utils/package.json',
+          dir: '/workspace/packages/shared/utils',
+          packageJson: { name: '@test/utils', scripts: {} },
+          name: '@test/utils',
+        },
+      ],
+    });
+    const results: LintResult[] = await validateProductScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 22 — no-deploy-scripts
+// =============================================================================
+
+describe('workspace/no-deploy-scripts', () => {
+  it('reports error for deploy:prod script', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/app/package.json',
+        JSON.stringify({ scripts: { 'deploy:prod': 'wrangler deploy' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDeployScripts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('deploy:');
+  });
+
+  it('reports error for deploy:staging script', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/app/package.json',
+        JSON.stringify({ scripts: { 'deploy:staging': 'cmd' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDeployScripts.check(ctx);
+    expect(results.length).toBe(1);
+  });
+
+  it('passes for non-deploy scripts', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/app/package.json',
+        JSON.stringify({ scripts: { 'build:prod': 'tsc' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDeployScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for package.json without scripts', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/package.json', JSON.stringify({ name: '@test/app' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDeployScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 22 — no-lint-ignore-directives
+// =============================================================================
+
+describe('workspace/no-lint-ignore-directives', () => {
+  it('warns on eslint-disable directive', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.ts', '// eslint-disable-next-line\nconst x = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLintIgnoreDirectives.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('eslint-disable');
+  });
+
+  it('warns on @ts-ignore directive', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.ts', '// @ts-ignore\nconst x: any = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLintIgnoreDirectives.check(ctx);
+    expect(results.some((r: LintResult): boolean => r.message.includes('@ts-ignore'))).toBe(true);
+  });
+
+  it('warns on biome-ignore directive', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.ts', '// biome-ignore lint: reason\nconst x = 1;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLintIgnoreDirectives.check(ctx);
+    expect(results.some((r: LintResult): boolean => r.message.includes('biome-ignore'))).toBe(true);
+  });
+
+  it('passes for clean code', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/index.ts', 'const x: number = 1;\nexport { x };'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLintIgnoreDirectives.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-scannable extensions', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/data.json', '{"eslint-disable": true}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noLintIgnoreDirectives.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 22 — validate-package-tags
+// =============================================================================
+
+describe('workspace/validate-package-tags', () => {
+  it('reports error for missing tags field', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/package.json', JSON.stringify({ name: '@test/app' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validatePackageTags.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("Missing 'tags'");
+  });
+
+  it('reports error for empty tags array', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/package.json', JSON.stringify({ name: '@test/app', tags: [] })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validatePackageTags.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain("Empty 'tags'");
+  });
+
+  it('reports error for invalid tag format', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/app/package.json',
+        JSON.stringify({ name: '@test/app', tags: ['INVALID_TAG'] }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validatePackageTags.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Invalid tag format');
+  });
+
+  it('reports error for unapproved tag', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/app/package.json',
+        JSON.stringify({ name: '@test/app', tags: ['not-a-real-tag'] }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validatePackageTags.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Unknown tag');
+  });
+
+  it('passes for valid tags', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/app/package.json',
+        JSON.stringify({ name: '@test/app', tags: ['lib', 'shared'] }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validatePackageTags.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips package.json outside packages/', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ name: 'root' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validatePackageTags.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// Phase 22 — no-env-or-globals-in-shared-libs
+// =============================================================================
+
+describe('workspace/no-env-or-globals-in-shared-libs', () => {
+  it('reports error for process.env access in shared lib', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/utils/src/config.ts', 'const key = process.env.API_KEY;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEnvOrGlobalsInSharedLibs.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.message).toContain('process.env');
+  });
+
+  it('reports error for globalThis access in shared lib', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/utils/src/global.ts', 'const w = globalThis.window;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEnvOrGlobalsInSharedLibs.check(ctx);
+    expect(results.some((r: LintResult): boolean => r.message.includes('globalThis'))).toBe(true);
+  });
+
+  it('skips test files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/utils/src/__tests__/config.test.ts', 'process.env.TEST = "1";'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEnvOrGlobalsInSharedLibs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-shared packages', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/products/app/src/config.ts', 'const key = process.env.API_KEY;'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEnvOrGlobalsInSharedLibs.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes for clean shared lib code', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/packages/shared/utils/src/helpers.ts',
+        'export function add(a: number, b: number): number { return a + b; }',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noEnvOrGlobalsInSharedLibs.check(ctx);
     expect(results.length).toBe(0);
   });
 });
