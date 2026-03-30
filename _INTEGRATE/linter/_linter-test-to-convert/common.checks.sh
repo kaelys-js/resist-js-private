@@ -21,7 +21,7 @@
 # Stages:
 #   validate, check
 # ------------------------------------------------------------------------------
-check::mr_label_enforcement() {
+ported::mr_label_enforcement() {
   # ✅ Check: MR must include at least one meaningful label
   # Category: mr, ci
   # Stages: validate, check
@@ -96,7 +96,7 @@ check::mr_label_enforcement() {
 # Stages:
 #   validate, deploy
 # ------------------------------------------------------------------------------
-check::mr_target_branch_protected() {
+ported::mr_target_branch_protected() {
   # ✅ Check: Disallow merges to protected branches without review
   # Category: mr, safety
   # Stages: validate, deploy
@@ -135,7 +135,7 @@ check::mr_target_branch_protected() {
 # Stages:
 #   validate, lint
 # ------------------------------------------------------------------------------
-check::mr_draft_block() {
+ported::mr_draft_block() {
   # ✅ Check: Prevent merge requests marked as draft
   # Category: mr
   # Stages: validate, lint
@@ -169,7 +169,7 @@ check::mr_draft_block() {
 # Stages:
 #   validate
 # ------------------------------------------------------------------------------
-check::mr_conflicting_labels() {
+ported::mr_conflicting_labels() {
   # ✅ Check: Detect conflicting labels on MR
   # Category: mr
   # Stages: validate
@@ -216,7 +216,7 @@ check::mr_conflicting_labels() {
 # Stages:
 #   lint, validate
 # ------------------------------------------------------------------------------
-check::mr_size_limit() {
+ported::mr_size_limit() {
   # ✅ Check: Fail MRs that are too large to reasonably review
   # Category: mr
   # Stages: lint, validate
@@ -257,7 +257,7 @@ check::mr_size_limit() {
 # Stages:
 #   validate
 # ------------------------------------------------------------------------------
-check::mr_assignee_required() {
+ported::mr_assignee_required() {
   # ✅ Check: MRs must be assigned to someone
   # Category: mr
   # Stages: validate
@@ -288,7 +288,7 @@ check::mr_assignee_required() {
 # Stages:
 #   validate, lint
 # ------------------------------------------------------------------------------
-check::mr_reviewer_required() {
+ported::mr_reviewer_required() {
   # ✅ Check: Merge requests must include at least one reviewer
   # Category: mr
   # Stages: validate, lint
@@ -319,7 +319,7 @@ check::mr_reviewer_required() {
 # Stages:
 #   validate
 # ------------------------------------------------------------------------------
-check::mr_blocking_discussions() {
+ported::mr_blocking_discussions() {
   # ✅ Check: Block MRs with unresolved discussions
   # Category: mr
   # Stages: validate
@@ -350,7 +350,7 @@ check::mr_blocking_discussions() {
 # Stages:
 #   validate
 # ------------------------------------------------------------------------------
-check::mr_wip_commit_check() {
+ported::mr_wip_commit_check() {
   # ✅ Check: Reject MRs with WIP/temporary commit messages
   # Category: mr
   # Stages: validate
@@ -383,7 +383,7 @@ check::mr_wip_commit_check() {
 # Stages:
 #   validate, check
 # ------------------------------------------------------------------------------
-check::mr_approval_required() {
+ported::mr_approval_required() {
   # ✅ Check: Merge requests must have sufficient approvals
   # Category: mr
   # Stages: validate, check
@@ -422,7 +422,7 @@ check::mr_approval_required() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::mr_branch_source_rules() {
+ported::mr_branch_source_rules() {
   # ✅ Check: MR source branch must follow naming conventions
   # Category: mr
   # Stages: check, lint
@@ -459,7 +459,7 @@ check::mr_branch_source_rules() {
 # Stages:
 #   check, integration
 # ------------------------------------------------------------------------------
-check::mr_codeowners_approval() {
+ported::mr_codeowners_approval() {
   # ✅ Check: all changed files are approved by corresponding CODEOWNERS
   # Category: mr
   # Stages: check, integration
@@ -499,7 +499,7 @@ check::mr_codeowners_approval() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::mr_labels_required_per_scope() {
+ported::mr_labels_required_per_scope() {
   # ✅ Check: labels must match paths modified in MR
   # Category: mr
   # Stages: check, lint
@@ -548,7 +548,7 @@ check::mr_labels_required_per_scope() {
 # Stages:
 #   check, validate
 # ------------------------------------------------------------------------------
-check::mr_dependency_changes_reviewed() {
+ported::mr_dependency_changes_reviewed() {
   # ✅ Check: dependency changes must be explicitly reviewed
   # Category: mr
   # Stages: check, validate
@@ -583,7 +583,7 @@ check::mr_dependency_changes_reviewed() {
 # Stages:
 #   integration, validate
 # ------------------------------------------------------------------------------
-check::mr_ci_pipeline_passed() {
+ported::mr_ci_pipeline_passed() {
   # ✅ Check: pipeline must be green to merge
   # Category: mr, ci
   # Stages: integration, validate
@@ -615,7 +615,7 @@ check::mr_ci_pipeline_passed() {
 # Stages:
 #   check, validate
 # ------------------------------------------------------------------------------
-check::mr_up_to_date_with_target() {
+ported::mr_up_to_date_with_target() {
   # ✅ Check: MR must be up-to-date with target branch
   # Category: mr
   # Stages: check, validate
