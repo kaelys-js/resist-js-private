@@ -279,41 +279,41 @@ describe('shouldExcludeDir', () => {
 // =============================================================================
 
 describe('collectFiles', () => {
-  it('returns an empty array for a nonexistent directory', () => {
+  it('returns an empty array for a nonexistent directory', async () => {
     const config: LintConfig = makeConfig();
-    const files: string[] = collectFiles('/this/directory/does/not/exist', config);
+    const files: string[] = await collectFiles('/this/directory/does/not/exist', config);
     expect(files.length).toBe(0);
   });
 
-  it('collects .ts files from a real directory', () => {
+  it('collects .ts files from a real directory', async () => {
     const config: LintConfig = makeConfig();
     const dir: string = resolve(import.meta.dirname);
-    const files: string[] = collectFiles(dir, config);
+    const files: string[] = await collectFiles(dir, config);
     expect(files.length).toBeGreaterThan(0);
     // Should find constants.ts in this directory
     const hasConstants: boolean = files.some((f: string): boolean => f.endsWith('constants.ts'));
     expect(hasConstants).toBe(true);
   });
 
-  it('excludes .test.ts files', () => {
+  it('excludes .test.ts files', async () => {
     const config: LintConfig = makeConfig();
     const dir: string = resolve(import.meta.dirname);
-    const files: string[] = collectFiles(dir, config);
+    const files: string[] = await collectFiles(dir, config);
     const hasTestFiles: boolean = files.some((f: string): boolean => f.endsWith('.test.ts'));
     expect(hasTestFiles).toBe(false);
   });
 
-  it('skips directories in the exclude set', () => {
+  it('skips directories in the exclude set', async () => {
     const config: LintConfig = makeConfig({ exclude: ['*.test.ts', '*.d.ts', 'node_modules'] });
     const dir: string = resolve(import.meta.dirname, '..', '..', '..', '..', '..', '..');
-    const files: string[] = collectFiles(dir, config);
+    const files: string[] = await collectFiles(dir, config);
     const hasNodeModules: boolean = files.some((f: string): boolean =>
       f.includes('/node_modules/'),
     );
     expect(hasNodeModules).toBe(false);
   });
 
-  it('skips directories matching a path-prefix exclude', () => {
+  it('skips directories matching a path-prefix exclude', async () => {
     // The workspace root is 6 levels up from src/
     const workspaceRoot: string = resolve(import.meta.dirname, '..', '..', '..', '..', '..', '..');
     const config: LintConfig = makeConfig({
@@ -326,14 +326,14 @@ describe('collectFiles', () => {
       ],
     });
     const lintSrcDir: string = resolve(import.meta.dirname);
-    const files: string[] = collectFiles(lintSrcDir, config, workspaceRoot);
+    const files: string[] = await collectFiles(lintSrcDir, config, workspaceRoot);
     const hasFramework: boolean = files.some((f: string): boolean => f.includes('/framework/'));
     expect(hasFramework).toBe(false);
     // Should still find files in the current directory
     expect(files.length).toBeGreaterThan(0);
   });
 
-  it('does not exclude directories that merely share a path prefix string', () => {
+  it('does not exclude directories that merely share a path prefix string', async () => {
     const workspaceRoot: string = resolve(import.meta.dirname, '..', '..', '..', '..', '..', '..');
     const config: LintConfig = makeConfig({
       exclude: [
@@ -345,7 +345,7 @@ describe('collectFiles', () => {
       ],
     });
     const lintSrcDir: string = resolve(import.meta.dirname);
-    const files: string[] = collectFiles(lintSrcDir, config, workspaceRoot);
+    const files: string[] = await collectFiles(lintSrcDir, config, workspaceRoot);
     // 'tools' directory should NOT be excluded (path is 'src/tools', not 'src/tool')
     const hasTools: boolean = files.some((f: string): boolean => f.includes('/tools/'));
     expect(hasTools).toBe(true);
@@ -357,26 +357,26 @@ describe('collectFiles', () => {
 // =============================================================================
 
 describe('collectPackageJsonFiles', () => {
-  it('returns an empty array for a nonexistent directory', () => {
+  it('returns an empty array for a nonexistent directory', async () => {
     const config: LintConfig = makeConfig();
-    const files: string[] = collectPackageJsonFiles('/no/such/dir', config);
+    const files: string[] = await collectPackageJsonFiles('/no/such/dir', config);
     expect(files.length).toBe(0);
   });
 
-  it('finds package.json files in a real directory tree', () => {
+  it('finds package.json files in a real directory tree', async () => {
     const config: LintConfig = makeConfig({ exclude: ['node_modules', '.git'] });
     const lintDir: string = resolve(import.meta.dirname, '..');
-    const files: string[] = collectPackageJsonFiles(lintDir, config);
+    const files: string[] = await collectPackageJsonFiles(lintDir, config);
     expect(files.length).toBeGreaterThan(0);
     // Should find the lint package's package.json
     const hasPkg: boolean = files.some((f: string): boolean => f.endsWith('lint/package.json'));
     expect(hasPkg).toBe(true);
   });
 
-  it('skips excluded directories', () => {
+  it('skips excluded directories', async () => {
     const config: LintConfig = makeConfig({ exclude: ['node_modules'] });
     const lintDir: string = resolve(import.meta.dirname, '..');
-    const files: string[] = collectPackageJsonFiles(lintDir, config);
+    const files: string[] = await collectPackageJsonFiles(lintDir, config);
     const hasNodeModules: boolean = files.some((f: string): boolean =>
       f.includes('/node_modules/'),
     );

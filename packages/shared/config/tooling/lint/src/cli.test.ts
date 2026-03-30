@@ -2,8 +2,8 @@
  * Tests for the CLI entry point.
  *
  * The CLI uses top-level `process.exit()` so it cannot be imported directly.
- * Every test spawns it as a subprocess via `npx tsx`.
- * Tests run concurrently since each subprocess is independent.
+ * Shared subprocess results are cached per unique arg set to avoid redundant
+ * process spawns (e.g. 5 --help tests share 1 subprocess invocation).
  *
  * @module
  */
@@ -29,34 +29,47 @@ const WORKSPACE_ROOT: string = resolve(import.meta.dirname, '..', '..', '..', '.
 // Helper
 // =============================================================================
 
+/** Cached subprocess results keyed by serialised args. */
+type CliResult = { stdout: string; stderr: string; exitCode: number };
+const CLI_CACHE: Map<string, Promise<CliResult>> = new Map();
+
 /**
  * Run the CLI with the given arguments as a subprocess (async).
+ * Results are cached per unique arg set so multiple tests can
+ * share a single subprocess invocation.
  *
  * @param args - CLI arguments to pass after the script path
  * @returns Promise resolving to stdout, stderr, and the process exit code
  */
-function runCli(args: string[]): Promise<{ stdout: string; stderr: string; exitCode: number }> {
-  return new Promise<{ stdout: string; stderr: string; exitCode: number }>(
-    (res: (v: { stdout: string; stderr: string; exitCode: number }) => void): void => {
-      execFile(
-        'npx',
-        ['tsx', CLI_PATH, ...args],
-        { cwd: WORKSPACE_ROOT, encoding: 'utf8', timeout: 30_000 },
-        (error: Error | null, stdout: string, stderr: string): void => {
-          if (error) {
-            const execError = error as unknown as { status?: number };
-            res({
-              stdout: stdout ?? '',
-              stderr: stderr ?? '',
-              exitCode: (execError.status ?? 1) as number,
-            });
-          } else {
-            res({ stdout, stderr: stderr ?? '', exitCode: 0 });
-          }
-        },
-      );
-    },
-  );
+function runCli(args: string[]): Promise<CliResult> {
+  const key: string = JSON.stringify(args);
+  let cached: Promise<CliResult> | undefined = CLI_CACHE.get(key);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  cached = new Promise<CliResult>((res: (v: CliResult) => void): void => {
+    execFile(
+      'npx',
+      ['tsx', CLI_PATH, ...args],
+      { cwd: WORKSPACE_ROOT, encoding: 'utf8', timeout: 30_000 },
+      (error: Error | null, stdout: string, stderr: string): void => {
+        if (error) {
+          const execError = error as unknown as { status?: number };
+          res({
+            stdout: stdout ?? '',
+            stderr: stderr ?? '',
+            exitCode: (execError.status ?? 1) as number,
+          });
+        } else {
+          res({ stdout, stderr: stderr ?? '', exitCode: 0 });
+        }
+      },
+    );
+  });
+
+  CLI_CACHE.set(key, cached);
+  return cached;
 }
 
 // =============================================================================
