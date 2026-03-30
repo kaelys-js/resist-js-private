@@ -399,7 +399,17 @@
     "workspace/no-disallowed-worker-headers": "error",
     "workspace/require-docker-compose-schema": "error",
     "workspace/validate-locale-key-consistency": "error",
-    "workspace/validate-image-optimization": "warn"
+    "workspace/validate-image-optimization": "warn",
+
+    // Phase 27 — Git Workflow Rules (ported from common.checks.sh)
+    "workspace/no-detached-head": "warn",
+    "workspace/enforce-branch-naming": "error",
+    "workspace/enforce-conventional-commits": "error",
+    "workspace/no-merge-commits-on-main": "error",
+    "workspace/no-rebase-in-progress": "error",
+    "workspace/no-stale-index-lock": "error",
+    "workspace/enforce-git-config": "error",
+    "workspace/no-sparse-checkout": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
