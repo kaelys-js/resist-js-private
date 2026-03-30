@@ -234,6 +234,23 @@ import validateDbNameSafety from './validate-db-name-safety.ts';
 import validateMonorepoSchemaExample from './validate-monorepo-schema-example.ts';
 import noUnlinkedWorkspaceDeps from './no-unlinked-workspace-deps.ts';
 
+// Phase 26 — CI Configuration, Docs Frontmatter & Worker Safety
+import noInlineCiScripts from './no-inline-ci-scripts.ts';
+import warnUnusedGitignorePatterns from './warn-unused-gitignore-patterns.ts';
+import noCiRecursiveTriggers from './no-ci-recursive-triggers.ts';
+import requireCiJobConditions from './require-ci-job-conditions.ts';
+import noDuplicateCiJobNames from './no-duplicate-ci-job-names.ts';
+import requireCiJobTimeouts from './require-ci-job-timeouts.ts';
+import noUnusedCiStages from './no-unused-ci-stages.ts';
+import requireCodeownersCoverage from './require-codeowners-coverage.ts';
+import validateDocsFrontmatter from './validate-docs-frontmatter.ts';
+import requireMakefileHelpTarget from './require-makefile-help-target.ts';
+import noOrphanedTsFiles from './no-orphaned-ts-files.ts';
+import noDisallowedWorkerHeaders from './no-disallowed-worker-headers.ts';
+import requireDockerComposeSchema from './require-docker-compose-schema.ts';
+import validateLocaleKeyConsistency from './validate-locale-key-consistency.ts';
+import validateImageOptimization from './validate-image-optimization.ts';
+
 // =============================================================================
 // Helpers
 // =============================================================================
@@ -12134,6 +12151,837 @@ describe('workspace/no-unlinked-workspace-deps', () => {
     ]);
     const ctx: WorkspaceContext = mockContext({ files, packages: [] });
     const results: LintResult[] = await noUnlinkedWorkspaceDeps.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+/* ─── Phase 26 — CI Configuration, Docs Frontmatter & Worker Safety ─── */
+
+describe('workspace/no-inline-ci-scripts', () => {
+  it('has correct metadata', () => {
+    expect(noInlineCiScripts.id).toBe('workspace/no-inline-ci-scripts');
+    expect(noInlineCiScripts.scope).toBe('workspace');
+  });
+
+  it('passes when CI YAML uses external script references', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', 'jobs:\n  build:\n    run: ./scripts/build.sh\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInlineCiScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors on inline multi-line script blocks', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/.github/workflows/ci.yml',
+        'jobs:\n  build:\n    run: |\n      npm install\n      npm test\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInlineCiScripts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('workspace/no-inline-ci-scripts');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.line).toBe(3);
+  });
+
+  it('errors on GitLab script: | blocks', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab/ci.yml', 'test:\n  script: |\n    echo hello\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInlineCiScripts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('skips non-CI files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/build.yml', 'jobs:\n  build:\n    run: |\n      npm test\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInlineCiScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-YAML files in CI dirs', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/config.json', '{"run": "|"}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noInlineCiScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/warn-unused-gitignore-patterns', () => {
+  it('has correct metadata', () => {
+    expect(warnUnusedGitignorePatterns.id).toBe('workspace/warn-unused-gitignore-patterns');
+    expect(warnUnusedGitignorePatterns.scope).toBe('workspace');
+  });
+
+  it('passes when all patterns match files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitignore', 'node_modules\ndist\n'],
+      ['/workspace/node_modules/pkg/index.js', ''],
+      ['/workspace/dist/bundle.js', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await warnUnusedGitignorePatterns.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('warns on patterns that match no files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitignore', 'node_modules\nstale_pattern_xyz\n'],
+      ['/workspace/node_modules/pkg/index.js', ''],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await warnUnusedGitignorePatterns.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('stale_pattern_xyz');
+  });
+
+  it('skips comments and blank lines', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitignore', '# comment\n\n!negation\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await warnUnusedGitignorePatterns.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when .gitignore does not exist', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await warnUnusedGitignorePatterns.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-ci-recursive-triggers', () => {
+  it('has correct metadata', () => {
+    expect(noCiRecursiveTriggers.id).toBe('workspace/no-ci-recursive-triggers');
+    expect(noCiRecursiveTriggers.scope).toBe('workspace');
+  });
+
+  it('passes on clean CI files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', 'on: push\njobs:\n  build:\n    run: npm test\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCiRecursiveTriggers.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors on git push in CI scripts', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', 'jobs:\n  deploy:\n    run: git push origin main\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCiRecursiveTriggers.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('git push');
+  });
+
+  it('errors on CI_JOB_TOKEN', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab/ci.yml', 'deploy:\n  script: curl -H "JOB-Token: $CI_JOB_TOKEN"\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCiRecursiveTriggers.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('CI_JOB_TOKEN');
+  });
+
+  it('errors on trigger: keyword', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab/ci.yml', 'downstream:\n  trigger: other-project\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCiRecursiveTriggers.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('trigger:');
+  });
+
+  it('skips non-CI files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/scripts/deploy.yml', 'run: git push origin main\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCiRecursiveTriggers.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/require-ci-job-conditions', () => {
+  it('has correct metadata', () => {
+    expect(requireCiJobConditions.id).toBe('workspace/require-ci-job-conditions');
+    expect(requireCiJobConditions.scope).toBe('workspace');
+  });
+
+  it('passes when CI file has trigger conditions', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', 'on: push\njobs:\n  build:\n    runs-on: ubuntu\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireCiJobConditions.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when CI file has no trigger conditions', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/.github/workflows/ci.yml',
+        'jobs:\n  build:\n    image: ubuntu\n    steps:\n      - name: test\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireCiJobConditions.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('no trigger conditions');
+  });
+
+  it('passes with rules: keyword', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab/ci.yml', 'deploy:\n  rules: [{if: "$CI_COMMIT_BRANCH == main"}]\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireCiJobConditions.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-CI files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/config/deploy.yml', 'jobs:\n  build:\n    steps:\n      - run: test\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireCiJobConditions.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-duplicate-ci-job-names', () => {
+  it('has correct metadata', () => {
+    expect(noDuplicateCiJobNames.id).toBe('workspace/no-duplicate-ci-job-names');
+    expect(noDuplicateCiJobNames.scope).toBe('workspace');
+  });
+
+  it('passes with unique job names', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', 'build:\n  script: npm build\n'],
+      ['/workspace/.github/workflows/deploy.yml', 'deploy:\n  script: npm deploy\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDuplicateCiJobNames.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors on duplicate job names across files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', 'build:\n  script: npm build\n'],
+      ['/workspace/.github/workflows/deploy.yml', 'build:\n  script: npm deploy\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDuplicateCiJobNames.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('build');
+  });
+
+  it('skips reserved YAML keys', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', 'name: CI\non: push\njobs:\n  build: {}\n'],
+      ['/workspace/.github/workflows/deploy.yml', 'name: Deploy\non: push\njobs:\n  deploy: {}\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDuplicateCiJobNames.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-CI files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/config/a.yml', 'build:\n  script: test\n'],
+      ['/workspace/config/b.yml', 'build:\n  script: test\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDuplicateCiJobNames.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/require-ci-job-timeouts', () => {
+  it('has correct metadata', () => {
+    expect(requireCiJobTimeouts.id).toBe('workspace/require-ci-job-timeouts');
+    expect(requireCiJobTimeouts.scope).toBe('workspace');
+  });
+
+  it('passes when timeout is within limits', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', 'jobs:\n  build:\n    timeout-minutes: 30\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireCiJobTimeouts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when timeout-minutes exceeds 60', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', 'jobs:\n  build:\n    timeout-minutes: 120\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireCiJobTimeouts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('120');
+  });
+
+  it('errors when GitLab timeout exceeds 60', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab/ci.yml', 'deploy:\n  timeout: 90\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireCiJobTimeouts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('90');
+  });
+
+  it('passes at exactly 60 minutes', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', 'jobs:\n  build:\n    timeout-minutes: 60\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireCiJobTimeouts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-CI files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/config.yml', 'timeout-minutes: 120\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireCiJobTimeouts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-unused-ci-stages', () => {
+  it('has correct metadata', () => {
+    expect(noUnusedCiStages.id).toBe('workspace/no-unused-ci-stages');
+    expect(noUnusedCiStages.scope).toBe('workspace');
+  });
+
+  it('passes when all declared stages are referenced', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/.gitlab/ci.yml',
+        'stages:\n  - build\n  - test\nbuild-job:\n  stage: build\ntest-job:\n  stage: test\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnusedCiStages.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors on declared but unused stages', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.gitlab/ci.yml', 'stages:\n  - build\n  - deploy\nbuild-job:\n  stage: build\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnusedCiStages.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('deploy');
+  });
+
+  it('skips files without stages block', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', 'on: push\njobs:\n  build:\n    runs-on: ubuntu\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnusedCiStages.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-CI files', async () => {
+    const files: Map<string, string> = new Map([['/workspace/config.yml', 'stages:\n  - build\n']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noUnusedCiStages.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/require-codeowners-coverage', () => {
+  it('has correct metadata', () => {
+    expect(requireCodeownersCoverage.id).toBe('workspace/require-codeowners-coverage');
+    expect(requireCodeownersCoverage.scope).toBe('workspace');
+  });
+
+  it('passes when all critical paths are covered', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/CODEOWNERS',
+        'packages/ @org/team\nscripts/ @org/team\n.github/ @org/team\n.vscode/ @org/team\ndocs/ @org/team\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireCodeownersCoverage.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when critical paths are missing', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/CODEOWNERS', 'packages/ @org/team\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireCodeownersCoverage.check(ctx);
+    expect(results.length).toBe(4);
+    expect(results.every((r: LintResult): boolean => r.severity === 'error')).toBe(true);
+  });
+
+  it('skips when no CODEOWNERS file exists', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', '']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireCodeownersCoverage.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('finds CODEOWNERS in .github/ location', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/.github/CODEOWNERS',
+        'packages/ @org/team\nscripts/ @org/team\n.github/ @org/team\n.vscode/ @org/team\ndocs/ @org/team\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireCodeownersCoverage.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/validate-docs-frontmatter', () => {
+  it('has correct metadata', () => {
+    expect(validateDocsFrontmatter.id).toBe('workspace/validate-docs-frontmatter');
+    expect(validateDocsFrontmatter.scope).toBe('workspace');
+  });
+
+  it('passes with valid frontmatter', async () => {
+    const content: string =
+      '---\ntitle: My Page\ndescription: A detailed description of this page\nslug: my-page\ncategory: guides\nupdated: 2024-01-15\n---\n\n# Content\n';
+    const files: Map<string, string> = new Map([['/workspace/docs/guide.md', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsFrontmatter.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors on missing required fields', async () => {
+    const content: string = '---\ntitle: My Page\n---\n\n# Content\n';
+    const files: Map<string, string> = new Map([['/workspace/docs/guide.md', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsFrontmatter.check(ctx);
+    expect(results.length).toBe(4);
+    expect(results.every((r: LintResult): boolean => r.severity === 'error')).toBe(true);
+  });
+
+  it('errors on short description', async () => {
+    const content: string =
+      '---\ntitle: My Page\ndescription: Short\nslug: my-page\ncategory: guides\nupdated: 2024-01-15\n---\n';
+    const files: Map<string, string> = new Map([['/workspace/docs/guide.md', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsFrontmatter.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('at least 10 characters');
+  });
+
+  it('errors on non-kebab-case slug', async () => {
+    const content: string =
+      '---\ntitle: My Page\ndescription: A detailed description of this page\nslug: My_Page_Here\ncategory: guides\nupdated: 2024-01-15\n---\n';
+    const files: Map<string, string> = new Map([['/workspace/docs/guide.md', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsFrontmatter.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('kebab-case');
+  });
+
+  it('errors on invalid date format', async () => {
+    const content: string =
+      '---\ntitle: My Page\ndescription: A detailed description of this page\nslug: my-page\ncategory: guides\nupdated: Jan 15, 2024\n---\n';
+    const files: Map<string, string> = new Map([['/workspace/docs/guide.md', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsFrontmatter.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('YYYY-MM-DD');
+  });
+
+  it('skips non-docs markdown files', async () => {
+    const content: string = '---\ntitle: README\n---\n\n# Hello\n';
+    const files: Map<string, string> = new Map([['/workspace/README.md', content]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsFrontmatter.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips docs files without frontmatter', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docs/guide.md', '# No Frontmatter\n\nJust content.\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateDocsFrontmatter.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/require-makefile-help-target', () => {
+  it('has correct metadata', () => {
+    expect(requireMakefileHelpTarget.id).toBe('workspace/require-makefile-help-target');
+    expect(requireMakefileHelpTarget.scope).toBe('workspace');
+  });
+
+  it('passes when Makefile has help: target', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/Makefile',
+        '.PHONY: build help\n\nbuild:\n\techo build\n\nhelp:\n\techo available targets\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireMakefileHelpTarget.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when Makefile is missing help: target', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/Makefile', '.PHONY: build\n\nbuild:\n\techo build\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireMakefileHelpTarget.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('help:');
+  });
+
+  it('skips non-Makefile files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/makefile.txt', 'build:\n\techo build\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireMakefileHelpTarget.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/no-orphaned-ts-files', () => {
+  it('has correct metadata', () => {
+    expect(noOrphanedTsFiles.id).toBe('workspace/no-orphaned-ts-files');
+    expect(noOrphanedTsFiles.scope).toBe('workspace');
+  });
+
+  it('passes when all .ts files are under a tsconfig directory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/tsconfig.json', '{}'],
+      ['/workspace/packages/app/src/index.ts', 'export {}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noOrphanedTsFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors on .ts files not under any tsconfig directory', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/tsconfig.json', '{}'],
+      ['/workspace/orphan/util.ts', 'export {}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noOrphanedTsFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('orphan/util.ts');
+  });
+
+  it('skips .d.ts files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/tsconfig.json', '{}'],
+      ['/workspace/orphan/types.d.ts', 'declare module "x" {}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noOrphanedTsFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips when no tsconfig files exist', async () => {
+    const files: Map<string, string> = new Map([['/workspace/src/index.ts', 'export {}']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noOrphanedTsFiles.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles .tsx files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/app/tsconfig.json', '{}'],
+      ['/workspace/orphan/Component.tsx', 'export default () => <div/>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noOrphanedTsFiles.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('orphan/Component.tsx');
+  });
+});
+
+describe('workspace/no-disallowed-worker-headers', () => {
+  it('has correct metadata', () => {
+    expect(noDisallowedWorkerHeaders.id).toBe('workspace/no-disallowed-worker-headers');
+    expect(noDisallowedWorkerHeaders.scope).toBe('workspace');
+  });
+
+  it('passes when worker code uses allowed headers', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/api/worker.ts', "headers.set('Content-Type', 'application/json');\n"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDisallowedWorkerHeaders.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors on Transfer-Encoding header in worker files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/api/worker.ts', "headers.set('Transfer-Encoding', 'chunked');\n"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDisallowedWorkerHeaders.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('Transfer-Encoding');
+  });
+
+  it('errors on Connection header (case-insensitive)', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/workers/api/worker.ts', "headers.append('connection', 'close');\n"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDisallowedWorkerHeaders.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('Connection');
+  });
+
+  it('skips non-worker files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/src/api/index.ts', "headers.set('Transfer-Encoding', 'chunked');\n"],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDisallowedWorkerHeaders.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('detects multiple disallowed headers', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/workers/api/worker.ts',
+        "headers.set('Transfer-Encoding', 'chunked');\nheaders.set('Connection', 'close');\n",
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noDisallowedWorkerHeaders.check(ctx);
+    expect(results.length).toBe(2);
+  });
+});
+
+describe('workspace/require-docker-compose-schema', () => {
+  it('has correct metadata', () => {
+    expect(requireDockerComposeSchema.id).toBe('workspace/require-docker-compose-schema');
+    expect(requireDockerComposeSchema.scope).toBe('workspace');
+  });
+
+  it('passes when docker-compose has schema annotation', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/docker-compose.yml',
+        '# yaml-language-server: $schema=https://json.schemastore.org/docker-compose\nservices:\n  app:\n    image: node\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireDockerComposeSchema.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes with shorthand $schema annotation', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/docker-compose.yml',
+        '# $schema=https://json.schemastore.org/docker-compose\nservices:\n  app:\n    image: node\n',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireDockerComposeSchema.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when schema annotation is missing', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/docker-compose.yml', 'services:\n  app:\n    image: node\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireDockerComposeSchema.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('checks compose.yaml variant', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/compose.yaml', 'services:\n  db:\n    image: postgres\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireDockerComposeSchema.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+  });
+
+  it('skips non-compose files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/config.yml', 'services:\n  app:\n    image: node\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await requireDockerComposeSchema.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/validate-locale-key-consistency', () => {
+  it('has correct metadata', () => {
+    expect(validateLocaleKeyConsistency.id).toBe('workspace/validate-locale-key-consistency');
+    expect(validateLocaleKeyConsistency.scope).toBe('workspace');
+  });
+
+  it('passes when all locale files have consistent keys', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/locales/en.json', JSON.stringify({ hello: 'Hello', bye: 'Goodbye' })],
+      ['/workspace/locales/fr.json', JSON.stringify({ hello: 'Bonjour', bye: 'Au revoir' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateLocaleKeyConsistency.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors on missing keys in a locale file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/locales/en.json', JSON.stringify({ hello: 'Hello', bye: 'Goodbye' })],
+      ['/workspace/locales/fr.json', JSON.stringify({ hello: 'Bonjour' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateLocaleKeyConsistency.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('missing keys');
+    expect(results[0]!.message).toContain('bye');
+  });
+
+  it('errors on extra keys in a locale file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/locales/en.json', JSON.stringify({ hello: 'Hello' })],
+      ['/workspace/locales/fr.json', JSON.stringify({ hello: 'Bonjour', extra: 'Suppl' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateLocaleKeyConsistency.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('extra keys');
+    expect(results[0]!.message).toContain('extra');
+  });
+
+  it('skips groups with only one locale file', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/locales/en.json', JSON.stringify({ hello: 'Hello' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateLocaleKeyConsistency.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips non-locale directories', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/config/en.json', JSON.stringify({ hello: 'Hello' })],
+      ['/workspace/config/fr.json', JSON.stringify({ bye: 'Au revoir' })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateLocaleKeyConsistency.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+describe('workspace/validate-image-optimization', () => {
+  it('has correct metadata', () => {
+    expect(validateImageOptimization.id).toBe('workspace/validate-image-optimization');
+    expect(validateImageOptimization.scope).toBe('workspace');
+  });
+
+  it('passes on small image files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/logo.webp', 'x'.repeat(1000)],
+      ['/workspace/assets/icon.svg', '<svg><circle/></svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateImageOptimization.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('warns on .webp files exceeding 300KB', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/large.webp', 'x'.repeat(400000)],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateImageOptimization.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('300KB');
+  });
+
+  it('warns on .svg files exceeding 100KB', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/huge.svg', '<svg>' + 'x'.repeat(110000) + '</svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateImageOptimization.check(ctx);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('100KB');
+  });
+
+  it('warns on unminified SVG with excessive indentation', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/assets/unminified.svg',
+        '<svg>\n        <circle cx="50" cy="50" r="40"/>\n</svg>',
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateImageOptimization.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('unminified');
+  });
+
+  it('warns on SVG with multiple consecutive blank lines', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/spacey.svg', '<svg>\n\n\n<circle/>\n</svg>'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateImageOptimization.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('unminified');
+  });
+
+  it('skips non-image files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/assets/data.json', 'x'.repeat(400000)],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await validateImageOptimization.check(ctx);
     expect(results.length).toBe(0);
   });
 });

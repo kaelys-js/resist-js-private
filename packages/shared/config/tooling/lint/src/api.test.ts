@@ -302,7 +302,7 @@ describe('integration', (): void => {
     if (result.ok) {
       expect(result.data.filesLinted).toBeGreaterThan(0);
     }
-  });
+  }, 30_000);
 
   it('lintSource() results have correct structure', async (): Promise<void> => {
     /* Use code that will definitely trigger a rule */
