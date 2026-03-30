@@ -1,7 +1,5 @@
 Implement the **O(n) Complexity** lint rules (16 rules).
 
-Create files in: `_INTEGRATE/linter-test/scripts/rules/typescript/complexity/`
-
 Rules to implement:
 1. `complexity/no-nested-array-iteration` - No O(n²) nested loops over arrays
 2. `complexity/no-array-method-in-loop` - No .find/.filter/.includes in loops
