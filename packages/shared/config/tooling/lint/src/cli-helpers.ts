@@ -9,7 +9,8 @@
  */
 
 import { execSync } from 'node:child_process';
-import { type Dirent, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { type Dirent, writeFileSync } from 'node:fs';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import { extname, join, relative, resolve } from 'node:path';
 
 import * as v from 'valibot';
@@ -436,20 +437,26 @@ function splitExcludes(exclude: readonly string[]): {
  * @param {string} dir - Directory to scan
  * @param {LintConfig} config - Linter configuration (provides exclude list)
  * @param {string} [rootDir] - Workspace root for path-prefix exclusion (defaults to dir)
- * @returns {string[]} Array of absolute file paths
+ * @returns {Promise<string[]>} Array of absolute file paths
  */
-export function collectFiles(dir: string, config: LintConfig, rootDir?: string): string[] {
+export async function collectFiles(
+  dir: string,
+  config: LintConfig,
+  rootDir?: string,
+): Promise<string[]> {
   const root: string = rootDir ?? dir;
   const files: string[] = [];
   const { excludeNames, excludePaths } = splitExcludes(config.exclude);
 
   let entries: Dirent[];
   try {
-    entries = readdirSync(dir, { withFileTypes: true }) as Dirent[];
+    entries = (await readdir(dir, { withFileTypes: true })) as Dirent[];
   } catch {
     /* Directory not readable — skip */
     return files;
   }
+
+  const subdirPromises: Promise<string[]>[] = [];
 
   for (const entry of entries) {
     const fullPath: string = join(dir, entry.name as string);
@@ -458,9 +465,16 @@ export function collectFiles(dir: string, config: LintConfig, rootDir?: string):
       if (shouldExcludeDir(entry.name as string, fullPath, root, excludeNames, excludePaths)) {
         continue;
       }
-      files.push(...collectFiles(fullPath, config, root));
+      subdirPromises.push(collectFiles(fullPath, config, root));
     } else if (entry.isFile() && shouldLint(fullPath, config)) {
       files.push(fullPath);
+    }
+  }
+
+  if (subdirPromises.length > 0) {
+    const subdirResults: string[][] = await Promise.all(subdirPromises);
+    for (const subFiles of subdirResults) {
+      files.push(...subFiles);
     }
   }
 
@@ -473,23 +487,25 @@ export function collectFiles(dir: string, config: LintConfig, rootDir?: string):
  * @param {string} dir - Directory to scan
  * @param {LintConfig} config - Linter configuration (provides exclude list)
  * @param {string} [rootDir] - Workspace root for path-prefix exclusion (defaults to dir)
- * @returns {string[]} Array of absolute file paths
+ * @returns {Promise<string[]>} Array of absolute file paths
  */
-export function collectPackageJsonFiles(
+export async function collectPackageJsonFiles(
   dir: string,
   config: LintConfig,
   rootDir?: string,
-): string[] {
+): Promise<string[]> {
   const root: string = rootDir ?? dir;
   const files: string[] = [];
   const { excludeNames, excludePaths } = splitExcludes(config.exclude);
 
   let entries: Dirent[];
   try {
-    entries = readdirSync(dir, { withFileTypes: true }) as Dirent[];
+    entries = (await readdir(dir, { withFileTypes: true })) as Dirent[];
   } catch {
     return files;
   }
+
+  const subdirPromises: Promise<string[]>[] = [];
 
   for (const entry of entries) {
     const fullPath: string = join(dir, entry.name as string);
@@ -497,9 +513,16 @@ export function collectPackageJsonFiles(
       if (shouldExcludeDir(entry.name as string, fullPath, root, excludeNames, excludePaths)) {
         continue;
       }
-      files.push(...collectPackageJsonFiles(fullPath, config, root));
+      subdirPromises.push(collectPackageJsonFiles(fullPath, config, root));
     } else if (entry.isFile() && (entry.name as string) === 'package.json') {
       files.push(fullPath);
+    }
+  }
+
+  if (subdirPromises.length > 0) {
+    const subdirResults: string[][] = await Promise.all(subdirPromises);
+    for (const subFiles of subdirResults) {
+      files.push(...subFiles);
     }
   }
 
@@ -941,9 +964,9 @@ export async function _runLintCore(
   for (const p of paths) {
     const resolved: string = resolve(p);
     try {
-      const s: ReturnType<typeof statSync> = statSync(resolved);
+      const s: Awaited<ReturnType<typeof stat>> = await stat(resolved);
       if (s.isDirectory()) {
-        allFiles.push(...collectFiles(resolved, config, cwd));
+        allFiles.push(...(await collectFiles(resolved, config, cwd)));
       } else if (s.isFile() && shouldLint(resolved, config)) {
         allFiles.push(resolved);
       }
@@ -1012,16 +1035,25 @@ export async function _runLintCore(
     dbg(strings.debug.cacheDeleted);
   }
 
-  /* Run TypeScript rules on each file */
+  /* Run TypeScript rules on each file — read all files concurrently */
   type FileTask = { filePath: string; content: string; applicableRules: TypeScriptRule[] };
   const tasks: FileTask[] = [];
   const cachedResults: LintResult[] = [];
 
+  const fileContents: Map<string, string> = new Map();
+  const readResults: PromiseSettledResult<string>[] = await Promise.allSettled(
+    allFiles.map((filePath: string): Promise<string> => readFile(filePath, 'utf8')),
+  );
+  for (let i: number = 0; i < allFiles.length; i++) {
+    const result: PromiseSettledResult<string> | undefined = readResults[i];
+    if (result?.status === 'fulfilled') {
+      fileContents.set(allFiles[i] ?? '', result.value);
+    }
+  }
+
   for (const filePath of allFiles) {
-    let content: string;
-    try {
-      content = readFileSync(filePath, 'utf8');
-    } catch {
+    const content: string | undefined = fileContents.get(filePath);
+    if (content === undefined) {
       /* File not readable — skip */
       continue;
     }
@@ -1159,9 +1191,9 @@ export async function _runLintCore(
   for (const p of paths) {
     const resolved: string = resolve(p);
     try {
-      const s: ReturnType<typeof statSync> = statSync(resolved);
+      const s: Awaited<ReturnType<typeof stat>> = await stat(resolved);
       if (s.isDirectory()) {
-        pkgFiles.push(...collectPackageJsonFiles(resolved, config, cwd));
+        pkgFiles.push(...(await collectPackageJsonFiles(resolved, config, cwd)));
       }
     } catch {
       /* skip */
@@ -1169,9 +1201,18 @@ export async function _runLintCore(
   }
 
   const workspaceRootPkg: string = resolve('package.json');
-  for (const pkgPath of pkgFiles) {
+  /* Read all package.json files concurrently */
+  const pkgReadResults: PromiseSettledResult<string>[] = await Promise.allSettled(
+    pkgFiles.map((pkgPath: string): Promise<string> => readFile(pkgPath, 'utf8')),
+  );
+  for (let i: number = 0; i < pkgFiles.length; i++) {
+    const pkgPath: string = pkgFiles[i] ?? '';
+    const pkgResult: PromiseSettledResult<string> | undefined = pkgReadResults[i];
+    if (pkgResult?.status !== 'fulfilled') {
+      continue;
+    }
     try {
-      const raw: string = readFileSync(pkgPath, 'utf8');
+      const raw: string = pkgResult.value;
       const pkg: PackageJson = JSON.parse(raw) as PackageJson;
       const isRoot: boolean = resolve(pkgPath) === workspaceRootPkg;
 
@@ -1189,13 +1230,16 @@ export async function _runLintCore(
   /* Run workspace rules (skip if bailed or if only individual files were provided).
    * Workspace rules scan the entire repo so they only make sense when linting
    * directories (e.g., `resist-lint packages/` or the default config include paths). */
-  const hasDirectoryPaths: boolean = paths.some((p: string): boolean => {
-    try {
-      return statSync(resolve(p)).isDirectory();
-    } catch {
-      return false;
-    }
-  });
+  const dirChecks: boolean[] = await Promise.all(
+    paths.map(async (p: string): Promise<boolean> => {
+      try {
+        return (await stat(resolve(p))).isDirectory();
+      } catch {
+        return false;
+      }
+    }),
+  );
+  const hasDirectoryPaths: boolean = dirChecks.some((v: boolean): boolean => v);
 
   if (!bailed && hasDirectoryPaths && loaded.workspace.length > 0) {
     let wsRules: WorkspaceRule[] = [...loaded.workspace];
@@ -1308,9 +1352,19 @@ export async function _runLintCore(
       fixesByFile.set(result.file, existing);
     }
 
-    for (const [filePath, fixes] of fixesByFile) {
+    const fixEntries: [string, LintFix[]][] = [...fixesByFile.entries()];
+    const fixReads: PromiseSettledResult<string>[] = await Promise.allSettled(
+      fixEntries.map(([fp]: [string, LintFix[]]): Promise<string> => readFile(fp, 'utf8')),
+    );
+    for (let i: number = 0; i < fixEntries.length; i++) {
+      const [filePath, fixes] = fixEntries[i] ?? ['', []];
+      const fixRead: PromiseSettledResult<string> | undefined = fixReads[i];
+      if (fixRead?.status !== 'fulfilled') {
+        output.stderr(`${format(strings.errors.fixFailed, { filePath })}\n`);
+        continue;
+      }
       try {
-        const original: string = readFileSync(filePath, 'utf8');
+        const original: string = fixRead.value;
         const fixed: string = applyFixes(original, fixes);
         if (fixed !== original) {
           writeFileSync(filePath, fixed, 'utf8');

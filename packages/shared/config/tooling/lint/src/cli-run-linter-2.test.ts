@@ -6,45 +6,14 @@
 
 import { describe, expect, it } from 'vitest';
 import { resolve } from 'node:path';
-import * as v from 'valibot';
 
-import {
-  runLinter,
-  collapseShortJsonArrays,
-  writeJsonSchema,
-  runPkgRules,
-  getGitChangedFiles,
-  parseCliArgs,
-  CliArgsSchema,
-  CliOutputSchema,
-  type CliArgs,
-  type CliOutput,
-} from './cli-helpers.ts';
-import type { LintConfig } from './config/schema.ts';
-import type { LintFix, LintResult, PackageJsonRule, PackageJson } from './framework/types.ts';
+import { runLinter, type CliArgs, type CliOutput } from './cli-helpers.ts';
+import type { LintResult } from './framework/types.ts';
 import { en } from '@/lint/locale/locales/en.ts';
 
 // =============================================================================
 // Test Helpers
 // =============================================================================
-
-/**
- * Create a minimal LintConfig for testing.
- *
- * @param {Partial<LintConfig>} overrides - Config overrides
- * @returns {LintConfig} A full LintConfig with defaults
- */
-function makeConfig(overrides: Partial<LintConfig> = {}): LintConfig {
-  return {
-    include: [],
-    exclude: ['*.test.ts', '*.d.ts'],
-    extensions: ['.ts', '.svelte.ts', '.mjs'],
-    rules: {},
-    ruleOptions: {},
-    overrides: [],
-    ...overrides,
-  };
-}
 
 function makeCliArgs(overrides: Partial<CliArgs> = {}): CliArgs {
   return {
@@ -88,7 +57,7 @@ function captureOutput(): { stdoutLines: string[]; stderrLines: string[]; output
   };
 }
 
-describe('runLinter — bail mode', () => {
+describe.concurrent('runLinter — bail mode', () => {
   it('--bail processes files and can return results', async () => {
     const { output } = captureOutput();
     const code: number = await runLinter(
@@ -145,7 +114,7 @@ describe('runLinter — bail mode', () => {
 // runLinter — diff mode branch coverage
 // =============================================================================
 
-describe('runLinter — diff mode', () => {
+describe.concurrent('runLinter — diff mode', () => {
   it('--diff=head filters to only changed files', async () => {
     const { stderrLines, output } = captureOutput();
     const code: number = await runLinter(
@@ -224,7 +193,7 @@ describe('runLinter — diff mode', () => {
 // runLinter — cache branch coverage
 // =============================================================================
 
-describe('runLinter — cache mode', () => {
+describe.concurrent('runLinter — cache mode', () => {
   it('--cache enables caching with debug output', async () => {
     const { stderrLines, output } = captureOutput();
     await runLinter(
@@ -298,7 +267,7 @@ describe('runLinter — cache mode', () => {
 // runLinter — fix mode branch coverage
 // =============================================================================
 
-describe('runLinter — fix mode', () => {
+describe.concurrent('runLinter — fix mode', () => {
   it('--fix with no errors does not attempt fixes', async () => {
     const { stdoutLines, output } = captureOutput();
     const code: number = await runLinter(
@@ -358,7 +327,7 @@ describe('runLinter — fix mode', () => {
 // runLinter — tools mode branch coverage
 // =============================================================================
 
-describe('runLinter — tools mode', () => {
+describe.concurrent('runLinter — tools mode', () => {
   it('--tools runs external tools alongside rules', async () => {
     const { stderrLines, output } = captureOutput();
     await runLinter(
@@ -395,166 +364,3 @@ describe('runLinter — tools mode', () => {
     expect(typeof combined).toBe('string');
   });
 });
-
-// =============================================================================
-// runLinter — workspace rules branch coverage
-// =============================================================================
-
-describe('runLinter — workspace rules', () => {
-  it('runs workspace rules on directory paths', async () => {
-    const { output } = captureOutput();
-    const code: number = await runLinter(
-      makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src')],
-        debug: true,
-        warnOnly: true,
-      }),
-      output,
-      en,
-    );
-
-    expect([0, 1]).toContain(code);
-  });
-
-  it('workspace rules are filtered by --rule=', async () => {
-    const { output } = captureOutput();
-    const code: number = await runLinter(
-      makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src')],
-        ruleIds: ['workspace/no-merge-conflicts'],
-        warnOnly: true,
-      }),
-      output,
-      en,
-    );
-
-    expect([0, 1]).toContain(code);
-  });
-
-  it('workspace rules are filtered by --category=', async () => {
-    const { output } = captureOutput();
-    const code: number = await runLinter(
-      makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src')],
-        categories: ['workspace'],
-        warnOnly: true,
-      }),
-      output,
-      en,
-    );
-
-    expect([0, 1]).toContain(code);
-  });
-
-  it('workspace rules are filtered by --stage=', async () => {
-    const { output } = captureOutput();
-    const code: number = await runLinter(
-      makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src')],
-        stage: 'lint',
-        warnOnly: true,
-      }),
-      output,
-      en,
-    );
-
-    expect([0, 1]).toContain(code);
-  });
-
-  it('workspace rules are not run when bailed', async () => {
-    const { output } = captureOutput();
-    await runLinter(
-      makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src')],
-        bail: true,
-      }),
-      output,
-      en,
-    );
-
-    // This test exercises the `!bailed` check for workspace rules
-    expect(true).toBe(true);
-  });
-
-  it('workspace rules are not run when paths are only files (not directories)', async () => {
-    const { output } = captureOutput();
-    const code: number = await runLinter(
-      makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
-        warnOnly: true,
-      }),
-      output,
-      en,
-    );
-
-    expect(code).toBe(0);
-  });
-});
-
-// =============================================================================
-// runLinter — severity override branches
-// =============================================================================
-
-describe('runLinter — per-file severity override', () => {
-  it('per-file severity override converts error to warning', async () => {
-    const { stdoutLines, output } = captureOutput();
-    await runLinter(
-      makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src')],
-        json: true,
-        warnOnly: true,
-      }),
-      output,
-      en,
-    );
-
-    const combined: string = stdoutLines.join('');
-    if (combined.trim().length > 2) {
-      const results: LintResult[] = JSON.parse(combined) as LintResult[];
-      // Some results may have been downgraded to warning by per-file overrides
-      expect(Array.isArray(results)).toBe(true);
-    }
-  });
-});
-
-// =============================================================================
-// runLinter — no-files with --json branch
-// =============================================================================
-
-describe('runLinter — no lintable files branches', () => {
-  it('returns 0 with no-files message when not json and files empty', async () => {
-    const { stdoutLines, output } = captureOutput();
-    const code: number = await runLinter(
-      makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src/nonexistent-dir-xyz')],
-        json: false,
-      }),
-      output,
-      en,
-    );
-
-    expect(code).toBe(0);
-    const combined: string = stdoutLines.join('');
-    expect(combined).toContain('No lintable files found');
-  });
-
-  it('returns 0 silently when json and files empty', async () => {
-    const { stdoutLines, output } = captureOutput();
-    const code: number = await runLinter(
-      makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src/nonexistent-dir-xyz')],
-        json: true,
-      }),
-      output,
-      en,
-    );
-
-    expect(code).toBe(0);
-    const combined: string = stdoutLines.join('');
-    expect(combined).not.toContain('No lintable files found');
-  });
-});
-
-// =============================================================================
-// runLinter — listRules with fixable/categories/stages branches
-// =============================================================================

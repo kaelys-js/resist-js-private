@@ -67,7 +67,7 @@ function captureOutput(): { stdoutLines: string[]; stderrLines: string[]; output
   };
 }
 
-describe('runLinter', () => {
+describe.concurrent('runLinter', () => {
   it('returns 0 and prints help when help flag is set', async () => {
     const { stdoutLines, output } = captureOutput();
     const code: number = await runLinter(
@@ -488,7 +488,7 @@ function makeCliArgs(overrides: Partial<CliArgs> = {}): CliArgs {
   };
 }
 
-describe('runLinter — branch coverage', () => {
+describe.concurrent('runLinter — branch coverage', () => {
   it('--debug writes to stderr', async () => {
     const { stderrLines, output } = captureOutput();
     await runLinter(
@@ -1253,7 +1253,7 @@ describe('buildHelpText — additional coverage', () => {
 // runLinter — additional branch coverage
 // =============================================================================
 
-describe('runLinter — format output branches', () => {
+describe.concurrent('runLinter — format output branches', () => {
   it('--format=github produces output', async () => {
     const { stdoutLines, output } = captureOutput();
     const code: number = await runLinter(
@@ -1325,7 +1325,7 @@ describe('runLinter — format output branches', () => {
   });
 });
 
-describe('runLinter — severity override branches', () => {
+describe.concurrent('runLinter — severity override branches', () => {
   it('--severity=error converts all results to errors', async () => {
     const { stdoutLines, output } = captureOutput();
     await runLinter(
@@ -1348,7 +1348,7 @@ describe('runLinter — severity override branches', () => {
   });
 });
 
-describe('runLinter — no files with --json flag', () => {
+describe.concurrent('runLinter — no files with --json flag', () => {
   it('returns 0 without printing no-files message when --json is set', async () => {
     const { stdoutLines, output } = captureOutput();
     const code: number = await runLinter(
@@ -1368,7 +1368,7 @@ describe('runLinter — no files with --json flag', () => {
   });
 });
 
-describe('runLinter — debug output with various flags', () => {
+describe.concurrent('runLinter — debug output with various flags', () => {
   it('debug shows rule filter info when --rule= is used', async () => {
     const { stderrLines, output } = captureOutput();
     await runLinter(
@@ -1436,7 +1436,7 @@ describe('runLinter — debug output with various flags', () => {
   });
 });
 
-describe('runLinter — --quiet with JSON and text', () => {
+describe.concurrent('runLinter — --quiet with JSON and text', () => {
   it('--quiet with JSON still produces valid JSON', async () => {
     const { stdoutLines, output } = captureOutput();
     await runLinter(
@@ -1457,7 +1457,7 @@ describe('runLinter — --quiet with JSON and text', () => {
   });
 });
 
-describe('runLinter — single file path (not directory)', () => {
+describe.concurrent('runLinter — single file path (not directory)', () => {
   it('lints a single file path directly', async () => {
     const { output } = captureOutput();
     const code: number = await runLinter(
@@ -1490,7 +1490,7 @@ describe('runLinter — single file path (not directory)', () => {
   });
 });
 
-describe('runLinter — --stage filtering', () => {
+describe.concurrent('runLinter — --stage filtering', () => {
   it('--stage=pre-commit filters rules to pre-commit stage only', async () => {
     const { stdoutLines, output } = captureOutput();
     await runLinter(
