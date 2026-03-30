@@ -648,12 +648,17 @@ Boundaries
 Markdown
 Mise
 Lefthook
-.gitlab/.github/docs/.vscode/.devcontainer/.coder: Only allowed filetypes
+.gitlab/.github/docs/.vscode/.devcontainer/.coder: Only allowed filetypes/files
+Workspace Root: Only allowed file
 Playwright
 Vitest
 pnpm/bun/yarn/node
 Handlebars
 No vitest.config other than worspace root
+MR/PR Blocking Comment When:
+  Certain Files/Folders Modified/Deleted
+  When Certain Dependency Versions Change
+  New Dependencies
 
 ...Other categories?
 

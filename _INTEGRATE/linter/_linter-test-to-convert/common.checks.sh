@@ -509,7 +509,7 @@ check::validate_gitlab_ci_jobs_have_script() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::disallow_inline_gitlab_scripts() {
+ported::disallow_inline_gitlab_scripts() {
   # ✅ Check: Disallow inline GitLab CI scripts — enforce external shell scripts
   # Category: ci, lint, shell
   # Stages: lint, check
@@ -638,7 +638,7 @@ check::git_protect_main_branch() {
 # Stages:
 #   check
 # ------------------------------------------------------------------------------
-check::warn_unused_gitignore_patterns() {
+ported::warn_unused_gitignore_patterns() {
   # ✅ Check: Warn if .gitignore has unused or legacy globs
   # Category: lint, paths
   # Stages: check
@@ -833,7 +833,7 @@ check::enforce_branch_naming_convention() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::detect_gitlab_ci_infinite_loops() {
+ported::detect_gitlab_ci_infinite_loops() {
   # ✅ Check: Block CI job patterns that can cause recursive trigger loops
   # Category: ci, safety
   # Stages: lint, check
@@ -891,7 +891,7 @@ check::detect_gitlab_ci_infinite_loops() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::enforce_gitlab_ci_trigger_conditions() {
+ported::enforce_gitlab_ci_trigger_conditions() {
   # ✅ Check: Every GitLab CI job defines rules:, only:, or except:
   # Category: ci
   # Stages: lint, check
@@ -969,7 +969,7 @@ check::enforce_gitlab_ci_trigger_conditions() {
 # Stages:
 #   lint, check, test
 # ------------------------------------------------------------------------------
-check::detect_duplicate_gitlab_ci_job_names() {
+ported::detect_duplicate_gitlab_ci_job_names() {
   # ✅ Check: Detect duplicate GitLab CI job names across .gitlab-ci.yml and gitlab/ci/*.yml
   # Category: ci
   # Stages: lint, check, test
@@ -1033,7 +1033,7 @@ check::detect_duplicate_gitlab_ci_job_names() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::enforce_gitlab_ci_timeouts() {
+ported::enforce_gitlab_ci_timeouts() {
   # ✅ Check: All GitLab CI jobs define timeouts within safe limits
   # Category: ci, lint
   # Stages: check, lint
@@ -1421,7 +1421,7 @@ check::gitlab_ci_stages_defined() {
 # Stages:
 #   lint, validate
 # ------------------------------------------------------------------------------
-check::gitlab_ci_unused_stages() {
+ported::gitlab_ci_unused_stages() {
   # ✅ Check: Detect any unused stage declarations in GitLab CI configs
   # Category: ci
   # Stages: lint, validate
@@ -1518,7 +1518,7 @@ check::git_protected_branch_push() {
 # Stages:
 #   validate, lint
 # ------------------------------------------------------------------------------
-check::verify_gitlab_codeowners_coverage() {
+ported::verify_gitlab_codeowners_coverage() {
   # ✅ Check: All critical folders must be listed in CODEOWNERS
   # Category: ci, safety
   # Stages: validate, lint
@@ -1645,7 +1645,7 @@ check::test_and_benchmark_file_naming() {
 # Stages:
 #   lint, validate
 # ------------------------------------------------------------------------------
-check::docs_markdown_frontmatter_strict() {
+ported::docs_markdown_frontmatter_strict() {
   # ✅ Check: Validate YAML frontmatter block and required fields in /docs/*.md
   # Category: docs, lint
   # Stages: lint, validate
@@ -1742,7 +1742,7 @@ check::docs_markdown_frontmatter_strict() {
 # Stages:
 #   lint, check
 # ------------------------------------------------------------------------------
-check::makefile_has_help() {
+ported::makefile_has_help() {
   # ✅ Check: All Makefiles must include a 'help' target with description
   # Category: shell, naming
   # Stages: lint, check
@@ -1929,7 +1929,7 @@ check::commit_body_size() {
 # Stages:
 #   check, lint, build
 # ------------------------------------------------------------------------------
-check::tsconfig_orphaned_ts_files() {
+ported::tsconfig_orphaned_ts_files() {
   # ✅ Check: orphaned *.ts files must be included in a tsconfig
   # Category: tsconfig, lint, paths
   # Stages: check, lint, build
@@ -1998,7 +1998,7 @@ check::tsconfig_orphaned_ts_files() {
 # Stages:
 #   lint, test
 # ------------------------------------------------------------------------------
-check::cloudflare_worker_disallowed_headers() {
+ported::cloudflare_worker_disallowed_headers() {
   # ✅ Check: disallow headers unsupported in Cloudflare Workers
   # Category: wrangler, lint, cloudflare:kv,cloudflare:r2,cloudflare:d1,cloudflare:do
   # Stages: lint, test
@@ -2059,7 +2059,7 @@ check::cloudflare_worker_disallowed_headers() {
 # Stages:
 #   lint, check, deploy
 # ------------------------------------------------------------------------------
-check::docker_compose_schema_annotation() {
+ported::docker_compose_schema_annotation() {
   # ✅ Check: All docker-compose YAMLs include yaml-language-server schema comment
   # Category: infra, lint
   # Stages: lint, check, deploy
@@ -2108,7 +2108,7 @@ check::docker_compose_schema_annotation() {
 # Stages:
 #   lint, check, validate, pre-commit
 # ------------------------------------------------------------------------------
-check::locale_key_consistency() {
+ported::locale_key_consistency() {
   # ✅ Check: All i18n files must match keys defined in en-US source locale
   # Category: lint, paths, naming, encoding
   # Stages: lint, check, validate, pre-commit
@@ -2196,7 +2196,7 @@ check::locale_key_consistency() {
 # Stages:
 #   check, lint
 # ------------------------------------------------------------------------------
-check::image_optimization() {
+ported::image_optimization() {
   # ✅ Check: image files (webp, svg) should be reasonably compressed
   # Category: encoding, naming, lint
   # Stages: check, lint

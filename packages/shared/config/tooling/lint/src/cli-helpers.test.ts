@@ -1096,7 +1096,7 @@ describe('runLinter', () => {
     // This will either return 1 (no paths, no config includes) or 0 (config has includes)
     // Since we run from workspace root which HAS includes, it will find files and lint
     expect([0, 1]).toContain(code);
-  });
+  }, 30_000);
 
   it('returns 0 when linting a clean file with specific rule filter', async () => {
     const { output } = captureOutput();

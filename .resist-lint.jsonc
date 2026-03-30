@@ -382,7 +382,24 @@
     "workspace/validate-wrangler-config": "error",
     "workspace/validate-db-name-safety": "error",
     "workspace/validate-monorepo-schema-example": "error",
-    "workspace/no-unlinked-workspace-deps": "error"
+    "workspace/no-unlinked-workspace-deps": "error",
+
+    // Phase 26 — CI Configuration, Docs Frontmatter & Worker Safety
+    "workspace/no-inline-ci-scripts": "error",
+    "workspace/warn-unused-gitignore-patterns": "warn",
+    "workspace/no-ci-recursive-triggers": "error",
+    "workspace/require-ci-job-conditions": "error",
+    "workspace/no-duplicate-ci-job-names": "error",
+    "workspace/require-ci-job-timeouts": "error",
+    "workspace/no-unused-ci-stages": "error",
+    "workspace/require-codeowners-coverage": "error",
+    "workspace/validate-docs-frontmatter": "error",
+    "workspace/require-makefile-help-target": "error",
+    "workspace/no-orphaned-ts-files": "error",
+    "workspace/no-disallowed-worker-headers": "error",
+    "workspace/require-docker-compose-schema": "error",
+    "workspace/validate-locale-key-consistency": "error",
+    "workspace/validate-image-optimization": "warn"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
