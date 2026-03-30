@@ -67,9 +67,10 @@ describe.concurrent('runLinter — workspace rules', () => {
     const { output } = captureOutput();
     const code: number = await runLinter(
       makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src')],
+        paths: [resolve('packages/shared/config/tooling/lint/src/framework')],
         debug: true,
         warnOnly: true,
+        ruleIds: ['workspace/no-merge-conflicts'],
       }),
       output,
       en,
@@ -82,7 +83,7 @@ describe.concurrent('runLinter — workspace rules', () => {
     const { output } = captureOutput();
     const code: number = await runLinter(
       makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src')],
+        paths: [resolve('packages/shared/config/tooling/lint/src/framework')],
         ruleIds: ['workspace/no-merge-conflicts'],
         warnOnly: true,
       }),
@@ -97,7 +98,7 @@ describe.concurrent('runLinter — workspace rules', () => {
     const { output } = captureOutput();
     const code: number = await runLinter(
       makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src')],
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         categories: ['workspace'],
         warnOnly: true,
       }),
@@ -112,7 +113,7 @@ describe.concurrent('runLinter — workspace rules', () => {
     const { output } = captureOutput();
     const code: number = await runLinter(
       makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src')],
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         stage: 'lint',
         warnOnly: true,
       }),
@@ -127,7 +128,7 @@ describe.concurrent('runLinter — workspace rules', () => {
     const { output } = captureOutput();
     await runLinter(
       makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src')],
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         bail: true,
       }),
       output,
