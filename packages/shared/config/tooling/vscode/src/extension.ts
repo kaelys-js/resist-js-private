@@ -16,6 +16,8 @@ import { createStatusBar, updateStatusBar, getFileDiagnosticCounts } from './sha
 import { createOutputChannel, log, logError } from './shared/output';
 import { safeRun, safeRunAsync } from './shared/errors';
 import { getBinaryPath } from './shared/workspace';
+import { isWorkspaceDocument, forEachOpenDocument } from './shared/document-filter';
+import { NotificationManager } from './shared/notifications';
 import { lintDocument, type LintOptions } from './lint/provider';
 import { ResistCodeActionProvider } from './lint/code-actions';
 import { createConfigWatcher } from './lint/watcher';
@@ -27,7 +29,7 @@ import { en } from './locale/en';
 // =============================================================================
 
 let debouncer: DocumentDebouncer;
-let hasWarnedMissingBinary = false;
+let notificationManager: NotificationManager;
 
 // =============================================================================
 // Activation
@@ -53,9 +55,12 @@ export function activate(context: vscode.ExtensionContext): void {
     logError(outputChannel, error instanceof Error ? error.message : String(error));
   });
 
+  notificationManager = new NotificationManager(outputChannel);
+
   context.subscriptions.push(diagnosticCollection);
   context.subscriptions.push(outputChannel);
   context.subscriptions.push({ dispose: () => debouncer.dispose() });
+  context.subscriptions.push({ dispose: () => notificationManager.dispose() });
 
   log(outputChannel, en.output.activated);
 
@@ -65,10 +70,7 @@ export function activate(context: vscode.ExtensionContext): void {
     const binPath: string | undefined = getBinaryPath('resist-lint', folders[0].uri);
     if (!binPath) {
       logError(outputChannel, en.messages.binaryNotFoundLog);
-      if (!hasWarnedMissingBinary) {
-        vscode.window.showWarningMessage(en.messages.binaryNotFound);
-        hasWarnedMissingBinary = true;
-      }
+      notificationManager.warnOnce('missing-binary', en.messages.binaryNotFound);
       updateStatusBar(statusBarItem, 'disabled');
     }
   }
@@ -160,7 +162,7 @@ export function activate(context: vscode.ExtensionContext): void {
         }
 
         const doc: vscode.TextDocument = event.document;
-        if (doc.uri.scheme !== 'file' || doc.isUntitled) {
+        if (!isWorkspaceDocument(doc)) {
           return;
         }
 
@@ -206,11 +208,7 @@ export function activate(context: vscode.ExtensionContext): void {
       safeRun(outputChannel, 'onDidChangeConfig', () => {
         if (event.affectsConfiguration('resist.lint')) {
           // Re-lint all open documents with new settings
-          for (const doc of vscode.workspace.textDocuments) {
-            if (doc.uri.scheme === 'file' && !doc.isUntitled) {
-              lintDoc(doc);
-            }
-          }
+          forEachOpenDocument(isWorkspaceDocument, lintDoc, outputChannel);
         }
       });
     }),
@@ -232,13 +230,13 @@ export function activate(context: vscode.ExtensionContext): void {
   // Lint Already-Open Documents
   // ========================================================================
 
-  for (const doc of vscode.workspace.textDocuments) {
-    const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('resist');
-    if (config.get<boolean>('lint.enable', true) && config.get<boolean>('lint.onOpen', true)) {
-      if (doc.uri.scheme === 'file' && !doc.isUntitled) {
-        lintDoc(doc);
-      }
-    }
+  const activationConfig: vscode.WorkspaceConfiguration =
+    vscode.workspace.getConfiguration('resist');
+  if (
+    activationConfig.get<boolean>('lint.enable', true) &&
+    activationConfig.get<boolean>('lint.onOpen', true)
+  ) {
+    forEachOpenDocument(isWorkspaceDocument, lintDoc, outputChannel);
   }
 }
 
@@ -254,6 +252,9 @@ export function deactivate(): void {
   try {
     if (debouncer) {
       debouncer.dispose();
+    }
+    if (notificationManager) {
+      notificationManager.dispose();
     }
   } catch {
     // Best-effort cleanup — extension host is shutting down

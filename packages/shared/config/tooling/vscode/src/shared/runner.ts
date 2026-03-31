@@ -11,6 +11,128 @@ import { spawn } from 'child_process';
 import * as path from 'path';
 import type { RunOptions, RunResult } from './types';
 
+/** Raw process result from runTool. */
+export interface ToolResult {
+  readonly stdout: string;
+  readonly stderr: string;
+  readonly exitCode: number | null;
+  readonly elapsed: number;
+}
+
+/**
+ * Spawns a CLI tool and returns raw stdout/stderr/exitCode.
+ *
+ * This is the base function that `runToolJson`, `runToolText`, and
+ * `runToolLines` are built on.
+ *
+ * @param options - Spawn configuration (command, args, cwd, env, timeout)
+ * @returns Raw process result
+ */
+export function runTool(options: RunOptions): Promise<ToolResult> {
+  return new Promise((resolve) => {
+    const timeoutMs: number = options.timeout ?? 30000;
+    const startTime: number = Date.now();
+
+    const nodeModulesBin: string = path.join(options.cwd, 'node_modules', '.bin');
+    const env: NodeJS.ProcessEnv = {
+      ...process.env,
+      ...options.env,
+      FORCE_COLOR: '0',
+      PATH: `${nodeModulesBin}${path.delimiter}${process.env['PATH'] ?? ''}`,
+    };
+
+    const child = spawn(options.command, options.args as string[], {
+      cwd: options.cwd,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env,
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    child.stdout.on('data', (data: Buffer) => {
+      stdout += data.toString();
+    });
+
+    child.stderr.on('data', (data: Buffer) => {
+      stderr += data.toString();
+    });
+
+    const timer: NodeJS.Timeout = setTimeout(() => {
+      child.kill();
+      resolve({
+        stdout,
+        stderr,
+        exitCode: null,
+        elapsed: Date.now() - startTime,
+      });
+    }, timeoutMs);
+
+    child.on('close', (code: number | null) => {
+      clearTimeout(timer);
+      resolve({
+        stdout,
+        stderr,
+        exitCode: code,
+        elapsed: Date.now() - startTime,
+      });
+    });
+
+    child.on('error', (err: Error) => {
+      clearTimeout(timer);
+      resolve({
+        stdout,
+        stderr: `Failed to spawn: ${err.message}`,
+        exitCode: null,
+        elapsed: Date.now() - startTime,
+      });
+    });
+  });
+}
+
+/**
+ * Spawns a CLI tool and returns the raw text output.
+ *
+ * @param options - Spawn configuration
+ * @returns Success with text data, or failure with error
+ */
+export async function runToolText(options: RunOptions): Promise<RunResult<string>> {
+  const result: ToolResult = await runTool(options);
+
+  if (result.exitCode === null) {
+    return { ok: false, error: result.stderr, stderr: result.stderr, code: null };
+  }
+
+  if (result.exitCode !== 0) {
+    return {
+      ok: false,
+      error: result.stderr.trim() || `Process exited with code ${result.exitCode}`,
+      stderr: result.stderr,
+      code: result.exitCode,
+    };
+  }
+
+  return { ok: true, data: result.stdout, stderr: result.stderr, elapsed: result.elapsed };
+}
+
+/**
+ * Spawns a CLI tool and returns the output split into lines.
+ *
+ * @param options - Spawn configuration
+ * @returns Success with array of lines, or failure with error
+ */
+export async function runToolLines(options: RunOptions): Promise<RunResult<string[]>> {
+  const result: RunResult<string> = await runToolText(options);
+
+  if (!result.ok) {
+    return result;
+  }
+
+  const lines: string[] = result.data.split('\n').filter((line) => line.length > 0);
+
+  return { ok: true, data: lines, stderr: result.stderr, elapsed: result.elapsed };
+}
+
 /**
  * Spawns a CLI tool and parses its JSON stdout output.
  *
