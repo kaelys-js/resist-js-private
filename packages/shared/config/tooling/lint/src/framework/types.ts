@@ -281,6 +281,10 @@ export const AstVisitorSchema = v.strictObject({
   ArrayExpression: v.optional(VisitorFnSchema),
   /** Visitor for literal values (numbers, strings, booleans, bigints). */
   Literal: v.optional(VisitorFnSchema),
+  /** Visitor for template literal expressions. */
+  TemplateLiteral: v.optional(VisitorFnSchema),
+  /** Visitor for string literal nodes. */
+  StringLiteral: v.optional(VisitorFnSchema),
 });
 
 /** Map of AST node types to visitor functions. See {@link AstVisitorSchema}. */

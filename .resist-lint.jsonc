@@ -52,6 +52,7 @@
     "testing/require-test-suffix": "error",
     "testing/require-e2e-location": "error",
     "testing/require-integration-location": "warn",
+    "typescript/lint-embedded-strings": "warn",
     "typescript/no-bare-as-cast": "error",
     "typescript/no-bare-data-types": "error",
     "typescript/no-builtin-types": "error",

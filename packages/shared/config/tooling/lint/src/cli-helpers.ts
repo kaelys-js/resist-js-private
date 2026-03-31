@@ -23,7 +23,7 @@ import {
 import { CONFIG_FILENAME, LINTER_NAME, SCHEMA_FILENAME } from '@/lint/constants.ts';
 import { CACHE_FILENAME, computeRuleHash, LintCache } from '@/lint/framework/cache.ts';
 import { formatResults, type OutputFormat } from '@/lint/framework/formatters.ts';
-import { runTypeScriptRules } from '@/lint/framework/oxc-runner.ts';
+import { runTypeScriptRules, EMBEDDED_CODE_EXTENSIONS } from '@/lint/framework/oxc-runner.ts';
 import { createWorkspaceContext } from '@/lint/framework/rule-context.ts';
 import { loadAllRules } from '@/lint/framework/rule-loader.ts';
 import { ToolRegistry } from '@/lint/framework/tool-orchestrator.ts';
@@ -1070,15 +1070,17 @@ export async function _runLintCore(
     /* Filter rules by file pattern AND per-file severity (overrides may disable) */
     const applicableRules: TypeScriptRule[] = allTsRules.filter((rule: TypeScriptRule): boolean => {
       /* Check file pattern match */
-      const isSvelteFile: boolean = filePath.endsWith('.svelte');
+      const isEmbeddedFile: boolean = EMBEDDED_CODE_EXTENSIONS.some((ext: string): boolean =>
+        filePath.endsWith(ext),
+      );
       const patternMatch: boolean = rule.patterns.some((pattern: string): boolean => {
         if (pattern.startsWith('**/*.')) {
           const ext: string = pattern.slice(4);
           if (filePath.endsWith(ext)) {
             return true;
           }
-          // .svelte files also match TS patterns — script blocks are TypeScript
-          if (isSvelteFile && (ext === '.ts' || ext === '.svelte.ts')) {
+          // Embedded-code files also match TS patterns — their code blocks are TypeScript
+          if (isEmbeddedFile && (ext === '.ts' || ext === '.svelte.ts')) {
             return true;
           }
           return false;

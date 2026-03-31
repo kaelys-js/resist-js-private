@@ -41,8 +41,18 @@ export const LintConfigSchema = v.strictObject({
   $schema: v.optional(v.string()),
   /** Glob patterns to exclude from linting. */
   exclude: v.optional(v.array(v.string()), ['*.test.ts', '*.d.ts']),
-  /** File extensions to lint (including `.svelte.ts`). */
-  extensions: v.optional(v.array(v.string()), ['.ts', '.svelte.ts', '.svelte', '.mjs']),
+  /** File extensions to lint (including embedded-script formats). */
+  extensions: v.optional(v.array(v.string()), [
+    '.ts',
+    '.svelte.ts',
+    '.svelte',
+    '.astro',
+    '.html',
+    '.vue',
+    '.md',
+    '.mdx',
+    '.mjs',
+  ]),
   /** Paths to include in linting (relative to workspace root). */
   include: v.optional(v.array(v.string()), []),
   /** File-specific rule overrides (like oxlint overrides). */
@@ -404,7 +414,7 @@ export function generateJsonSchema(
         type: 'array',
       },
       extensions: {
-        default: ['.ts', '.svelte.ts', '.svelte', '.mjs'],
+        default: ['.ts', '.svelte.ts', '.svelte', '.astro', '.html', '.vue', '.md', '.mdx', '.mjs'],
         description: strings.schema.extensionsDescription,
         items: { type: 'string' },
         type: 'array',
