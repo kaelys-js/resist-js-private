@@ -9,7 +9,8 @@
         "--extensionDevelopmentPath=${workspaceFolder}/packages/shared/config/tooling/vscode"
       ],
       "outFiles": ["${workspaceFolder}/packages/shared/config/tooling/vscode/out/**/*.js"],
-      "sourceMaps": true
+      "sourceMaps": true,
+      "preLaunchTask": "Watch Resist Extension"
     }
   ]
 }

@@ -328,6 +328,20 @@ export default defineConfig({
       },
       {
         extends: true,
+        test: {
+          name: 'config-tooling-vscode',
+          root: 'packages/shared/config/tooling/vscode',
+          include: ['src/**/*.test.ts'],
+          alias: {
+            vscode: path.resolve(
+              root,
+              'packages/shared/config/tooling/vscode/src/__mocks__/vscode.ts',
+            ),
+          },
+        },
+      },
+      {
+        extends: true,
         plugins: [svelte({ hot: false }), svelteTesting()],
         define: {
           __APP_VERSION__: JSON.stringify('0.0.0-test'),

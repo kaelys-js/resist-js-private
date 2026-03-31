@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { runToolJson } from '../runner';
+import { runToolJson } from './runner';
 import { EventEmitter } from 'events';
 
 // Mock child_process.spawn using EventEmitter-based streams

@@ -76,7 +76,8 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
 
         actions.push(action);
       } catch {
-        // Skip this fix if position conversion fails
+        // Intentional: skip fix if position conversion fails for malformed byte offsets.
+        // No output channel available here — logging would require injecting the channel.
         continue;
       }
     }
@@ -115,7 +116,8 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
         fixAllAction.edit = edit;
         actions.push(fixAllAction);
       } catch {
-        // Skip "Fix all" if any position conversion fails
+        // Intentional: skip "Fix all" if any position conversion fails.
+        // No output channel available here — logging would require injecting the channel.
       }
     }
 

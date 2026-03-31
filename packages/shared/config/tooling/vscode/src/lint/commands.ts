@@ -11,6 +11,7 @@ import { lintWorkspace, type LintOptions, type DiagnosticWithData } from './prov
 import { clearCache, getBinaryPath } from '../shared/workspace';
 import { updateStatusBar } from '../shared/status-bar';
 import { log, logCommand, logError } from '../shared/output';
+import { safeRunAsync } from '../shared/errors';
 import { runToolJson } from '../shared/runner';
 
 /** Dependencies injected from the extension entry point. */
@@ -44,8 +45,8 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
 
   // resist.lint.workspace — Lint all files with progress bar
   context.subscriptions.push(
-    vscode.commands.registerCommand('resist.lint.workspace', async () => {
-      try {
+    vscode.commands.registerCommand('resist.lint.workspace', () =>
+      safeRunAsync(outputChannel, 'resist.lint.workspace', async () => {
         await vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
@@ -62,18 +63,14 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
             );
           },
         );
-      } catch (err: unknown) {
-        const msg: string = err instanceof Error ? err.message : String(err);
-        logError(outputChannel, `Workspace lint command failed: ${msg}`);
-        vscode.window.showErrorMessage(`Resist: Workspace lint failed — ${msg}`);
-      }
-    }),
+      }),
+    ),
   );
 
   // resist.lint.fix — Apply all auto-fixable diagnostics in current file
   context.subscriptions.push(
-    vscode.commands.registerCommand('resist.lint.fix', async () => {
-      try {
+    vscode.commands.registerCommand('resist.lint.fix', () =>
+      safeRunAsync(outputChannel, 'resist.lint.fix', async () => {
         const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
         if (!editor) {
           return;
@@ -121,12 +118,8 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
 
         // Re-lint after fixing
         lintDocumentFn(editor.document);
-      } catch (err: unknown) {
-        const msg: string = err instanceof Error ? err.message : String(err);
-        logError(outputChannel, `Fix command failed: ${msg}`);
-        vscode.window.showErrorMessage(`Resist: Fix failed — ${msg}`);
-      }
-    }),
+      }),
+    ),
   );
 
   // resist.lint.clear — Clear all diagnostics
@@ -140,8 +133,8 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
 
   // resist.lint.listRules — Show available rules in output channel
   context.subscriptions.push(
-    vscode.commands.registerCommand('resist.lint.listRules', async () => {
-      try {
+    vscode.commands.registerCommand('resist.lint.listRules', () =>
+      safeRunAsync(outputChannel, 'resist.lint.listRules', async () => {
         const folders: readonly vscode.WorkspaceFolder[] | undefined =
           vscode.workspace.workspaceFolders;
         if (!folders || folders.length === 0) {
@@ -176,12 +169,8 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
           outputChannel.appendLine(result.stderr || result.error);
         }
         outputChannel.show();
-      } catch (err: unknown) {
-        const msg: string = err instanceof Error ? err.message : String(err);
-        logError(outputChannel, `List rules command failed: ${msg}`);
-        vscode.window.showErrorMessage(`Resist: Failed to list rules — ${msg}`);
-      }
-    }),
+      }),
+    ),
   );
 
   // resist.lint.restart — Clear cache, re-lint all open files
@@ -208,8 +197,8 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
 
   // resist.lint.staged — Lint only staged changes
   context.subscriptions.push(
-    vscode.commands.registerCommand('resist.lint.staged', async () => {
-      try {
+    vscode.commands.registerCommand('resist.lint.staged', () =>
+      safeRunAsync(outputChannel, 'resist.lint.staged', async () => {
         await vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
@@ -224,18 +213,14 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
             await lintWorkspace(diagnosticCollection, outputChannel, statusBarItem, opts, progress);
           },
         );
-      } catch (err: unknown) {
-        const msg: string = err instanceof Error ? err.message : String(err);
-        logError(outputChannel, `Lint staged command failed: ${msg}`);
-        vscode.window.showErrorMessage(`Resist: Lint staged failed — ${msg}`);
-      }
-    }),
+      }),
+    ),
   );
 
   // resist.lint.uncommitted — Lint only uncommitted changes
   context.subscriptions.push(
-    vscode.commands.registerCommand('resist.lint.uncommitted', async () => {
-      try {
+    vscode.commands.registerCommand('resist.lint.uncommitted', () =>
+      safeRunAsync(outputChannel, 'resist.lint.uncommitted', async () => {
         await vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
@@ -250,11 +235,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
             await lintWorkspace(diagnosticCollection, outputChannel, statusBarItem, opts, progress);
           },
         );
-      } catch (err: unknown) {
-        const msg: string = err instanceof Error ? err.message : String(err);
-        logError(outputChannel, `Lint uncommitted command failed: ${msg}`);
-        vscode.window.showErrorMessage(`Resist: Lint uncommitted failed — ${msg}`);
-      }
-    }),
+      }),
+    ),
   );
 }

@@ -37,7 +37,9 @@ export function createConfigWatcher(
             try {
               lintFn(doc);
             } catch {
-              // Errors from individual lint calls should not stop re-linting other files
+              // Intentional: errors from individual lint calls must not stop re-linting
+              // remaining files. Each lintFn call is wrapped in safeRunAsync at the
+              // call site (extension.ts), so errors are already logged to the output channel.
             }
           }
         }

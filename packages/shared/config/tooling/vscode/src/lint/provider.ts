@@ -79,21 +79,8 @@ export async function lintDocument(
     args.push(`--category=${options.categories.join(',')}`);
   }
 
-  // New settings: cache, quiet, debug, severityOverride
-  const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('resist');
-  if (config.get<boolean>('lint.cache', true) === false) {
-    args.push('--no-cache');
-  }
-  if (config.get<boolean>('lint.quiet', false)) {
-    args.push('--quiet');
-  }
-  if (config.get<boolean>('lint.debug', false)) {
-    args.push('--debug');
-  }
-  const severityOverride: string = config.get<string>('lint.severityOverride', '');
-  if (severityOverride) {
-    args.push(`--severity=${severityOverride}`);
-  }
+  // Append config-driven CLI flags
+  appendConfigArgs(args);
 
   if (options.extraArgs) {
     args.push(...options.extraArgs);
@@ -122,7 +109,8 @@ export async function lintDocument(
   // Log timing
   logTiming(channel, `Linted ${filePath}`, result.elapsed);
 
-  // Read max problems setting (reuse config from above)
+  // Read max problems setting
+  const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('resist');
   const maxProblems: number = config.get<number>('lint.maxProblems', 100);
 
   // Map entries to diagnostics (skip malformed entries instead of crashing)
@@ -195,6 +183,7 @@ export async function lintWorkspace(
   if (options.categories && options.categories.length > 0) {
     args.push(`--category=${options.categories.join(',')}`);
   }
+  appendConfigArgs(args);
   if (options.extraArgs) {
     args.push(...options.extraArgs);
   }
@@ -269,6 +258,56 @@ export async function lintWorkspace(
     updateStatusBar(statusBarItem, 'ready', counts);
   } else {
     updateStatusBar(statusBarItem, 'ready');
+  }
+}
+
+// =============================================================================
+// Config-Driven CLI Args
+// =============================================================================
+
+/**
+ * Appends CLI flags derived from resist.lint.* settings to the args array.
+ *
+ * Reads cache, quiet, debug, severityOverride, rule, ignorePatterns,
+ * jobs, tools, locale, and bail settings.
+ */
+function appendConfigArgs(args: string[]): void {
+  const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('resist');
+
+  if (config.get<boolean>('lint.cache', true) === false) {
+    args.push('--no-cache');
+  }
+  if (config.get<boolean>('lint.quiet', false)) {
+    args.push('--quiet');
+  }
+  if (config.get<boolean>('lint.debug', false)) {
+    args.push('--debug');
+  }
+  const severityOverride: string = config.get<string>('lint.severityOverride', '');
+  if (severityOverride) {
+    args.push(`--severity=${severityOverride}`);
+  }
+  const rule: string = config.get<string>('lint.rule', '');
+  if (rule) {
+    args.push(`--rule=${rule}`);
+  }
+  const ignorePatterns: string[] = config.get<string[]>('lint.ignorePatterns', []);
+  for (const pattern of ignorePatterns) {
+    args.push(`--ignore=${pattern}`);
+  }
+  const jobs: number = config.get<number>('lint.jobs', 0);
+  if (jobs > 0) {
+    args.push(`--jobs=${jobs}`);
+  }
+  if (config.get<boolean>('lint.tools', false)) {
+    args.push('--tools');
+  }
+  const locale: string = config.get<string>('lint.locale', '');
+  if (locale) {
+    args.push(`--locale=${locale}`);
+  }
+  if (config.get<boolean>('lint.bail', false)) {
+    args.push('--bail');
   }
 }
 

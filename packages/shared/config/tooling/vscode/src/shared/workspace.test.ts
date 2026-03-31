@@ -13,7 +13,7 @@ vi.mock('fs', () => ({
 }));
 
 import { existsSync } from 'fs';
-import { getWorkspaceRoot, getBinaryPath, clearCache } from '../workspace';
+import { getWorkspaceRoot, getBinaryPath, clearCache } from './workspace';
 
 describe('Workspace Resolution', () => {
   beforeEach(() => {
