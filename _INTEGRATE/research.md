@@ -1,39 +1,35 @@
-- [Research]
-   - [AI]
-     - agentation.dev
-   - [Marketing]
-    	- https://docs.google.com/document/d/1bOXukva76JMLq-xmW4xFpATvLzFvDzKwbfRXaTQWpCQ/mobilebasic
-   - [Doc]
-      - https://github.com/scalar/scalar
-      - https://gource.io/
-      - https://github.com/dyatko/arkit
-   - [Utils]
-      - https://www.jsonviewer.tools/editor
-      - https://youmightnotneed.com/lodash
-      - https://github.com/remeda/remeda
-      - https://github.com/angus-c/just
-      - https://github.com/unjs
-      - https://github.com/thoughtspile/awesome-tiny-js
-      - https://obfuscator.io/
-      - util-string: https://github.com/gustavoguichard/string-ts
-      - util-patterns: https://github.com/gvergnaud/ts-pattern
-      - util-notifications: https://github.com/novuhq/novu
-      - util-email-template: https://github.com/mjmlio/mjml-app
-      - util-test: https://github.com/goldbergyoni/javascript-testing-best-practices
-      - util-benchmark: https://www.npmjs.com/package/artillery
-      - https://github.com/nolanlawson/fuite
-      - https://miragejs.com/
-      - util-random: https://chriscavs.github.io/aimless-demo/
-      - utl-cli: https://github.com/google/zx
-      - https://www.npmjs.com/package/commander
-      - https://www.npmjs.com/package/nanothreads
-   - [Test]
-      - https://webdriver.io
-      - https://www.npmjs.com/package/loki
-      - https://github.com/lost-pixel/lost-pixel
-      - https://uitest.com/
-   - [Test - CWV]
-      - https://gist.github.com/paulirish/5d52fb081b3570c81e3a
-      - https://github.com/harlan-zw/unlighthouse
-   - [CI/CD]
-      - https://medium.com/codeapprove/the-best-modern-code-review-tools-2022-468b51751fa
+- [Test]
+   - https://webdriver.io
+   - https://www.npmjs.com/package/loki
+   - https://github.com/lost-pixel/lost-pixel
+   - https://uitest.com/
+   - https://gist.github.com/paulirish/5d52fb081b3570c81e3a
+   - https://github.com/harlan-zw/unlighthouse
+- [AI]
+   - agentation.dev
+- [Marketing]
+   - https://docs.google.com/document/d/1bOXukva76JMLq-xmW4xFpATvLzFvDzKwbfRXaTQWpCQ/mobilebasic
+- [Documentation]
+   - https://github.com/scalar/scalar
+   - https://gource.io/
+   - https://github.com/dyatko/arkit
+- [Utils]
+   - https://www.jsonviewer.tools/editor
+   - https://youmightnotneed.com/lodash
+   - https://github.com/remeda/remeda
+   - https://github.com/angus-c/just
+   - https://github.com/unjs
+   - https://github.com/thoughtspile/awesome-tiny-js
+   - https://obfuscator.io/
+   - util-string: https://github.com/gustavoguichard/string-ts
+   - util-patterns: https://github.com/gvergnaud/ts-pattern
+   - util-notifications: https://github.com/novuhq/novu
+   - util-email-template: https://github.com/mjmlio/mjml-app
+   - util-test: https://github.com/goldbergyoni/javascript-testing-best-practices
+   - util-benchmark: https://www.npmjs.com/package/artillery
+   - https://github.com/nolanlawson/fuite
+   - https://miragejs.com/
+   - util-random: https://chriscavs.github.io/aimless-demo/
+   - utl-cli: https://github.com/google/zx
+   - https://www.npmjs.com/package/commander
+   - https://www.npmjs.com/package/nanothreads
