@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Resist Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/shared/config/tooling/vscode"
+      ],
+      "outFiles": ["${workspaceFolder}/packages/shared/config/tooling/vscode/out/**/*.js"],
+      "sourceMaps": true
+    }
+  ]
+}

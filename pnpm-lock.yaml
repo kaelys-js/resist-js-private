@@ -248,7 +248,7 @@ importers:
 
   packages/shared/config/tooling/vite: {}
 
-  packages/shared/extensions/vscode-formatter:
+  packages/shared/config/tooling/vscode:
     devDependencies:
       '@types/vscode':
         specifier: ^1.85.0
@@ -364,6 +364,18 @@ importers:
       '@types/diff':
         specifier: ^8.0.0
         version: 8.0.0
+
+  packages/shared/utils/cli/src/extensions/vscode:
+    devDependencies:
+      '@types/vscode':
+        specifier: ^1.85.0
+        version: 1.110.0
+      '@vscode/vsce':
+        specifier: ^2.22.0
+        version: 2.32.0
+      typescript:
+        specifier: ^5.3.0
+        version: 5.9.3
 
   packages/shared/utils/core: {}
 
