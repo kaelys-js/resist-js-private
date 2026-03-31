@@ -2286,7 +2286,7 @@ describe('Phase 51 — TypeScript parse error diagnostic', () => {
       (r: LintResult): boolean => r.ruleId === 'internal/ts-parse-error',
     );
     expect(parseErrors.length).toBeGreaterThanOrEqual(1);
-    expect(parseErrors[0]?.severity).toBe('warning');
+    expect(parseErrors[0]?.severity).toBe('error');
     expect(parseErrors[0]?.message).toContain('TypeScript parse error');
     expect(parseErrors[0]?.message).toContain('Unexpected token');
     expect(parseErrors[0]?.file).toBe('broken.ts');
@@ -2331,7 +2331,7 @@ describe('Phase 51 — rule visitor crash diagnostic', () => {
       (r: LintResult): boolean => r.ruleId === 'internal/rule-crash',
     );
     expect(crashes.length).toBe(1);
-    expect(crashes[0]?.severity).toBe('warning');
+    expect(crashes[0]?.severity).toBe('error');
     expect(crashes[0]?.message).toContain("'test/crasher'");
     expect(crashes[0]?.message).toContain('intentional test crash');
     expect(crashes[0]?.message).toContain('Program');

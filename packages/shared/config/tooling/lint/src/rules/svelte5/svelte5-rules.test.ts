@@ -752,7 +752,7 @@ describe('Phase 50 — error reporting', () => {
       (r: LintResult): boolean => r.ruleId === 'svelte5/template-parse-error',
     );
     expect(parseErrors.length).toBe(1);
-    expect(parseErrors[0]?.severity).toBe('warning');
+    expect(parseErrors[0]?.severity).toBe('error');
     expect(parseErrors[0]?.message).toContain('Svelte template parse error');
     expect(parseErrors[0]?.message).toContain('template-based lint rules were skipped');
     expect(parseErrors[0]?.line).toBe(1);

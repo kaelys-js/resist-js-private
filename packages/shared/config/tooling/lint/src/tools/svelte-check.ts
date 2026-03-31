@@ -118,7 +118,7 @@ export function runSvelteCheckAllPackages(cwd: string): LintResult[] {
           file: pkgDir,
           line: 1,
           column: 1,
-          severity: 'warning',
+          severity: 'error',
           message: `svelte-check crashed for ${pkgDir} — type checking was skipped (${message})`,
           ruleId: 'internal/tool-crash',
           fix: { range: { start: 0, end: 0 }, text: '' },
