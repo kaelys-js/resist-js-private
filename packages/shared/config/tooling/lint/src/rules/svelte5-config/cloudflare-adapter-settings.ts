@@ -1,0 +1,110 @@
+/**
+ * Rule: svelte5-config/cloudflare-adapter-settings
+ *
+ * Cloudflare adapter should have explicit `routes` config for optimal
+ * edge deployment.
+ *
+ * @module
+ */
+
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+} from '@/lint/framework/types.ts';
+import {
+  getDefaultExportObject,
+  getNestedValue,
+  getAdapterImport,
+  CLOUDFLARE_ADAPTERS,
+} from './_config-ast.ts';
+
+/**
+ * Check if the adapter call expression has a `routes` argument property.
+ *
+ * @param adapterNode - The adapter CallExpression node
+ * @returns True if routes config is present and non-empty
+ */
+function hasRoutesConfig(adapterNode: AstNode): boolean {
+  if (adapterNode.type !== 'CallExpression') {
+    return false;
+  }
+
+  const args: AstNode[] | undefined = adapterNode.arguments as AstNode[] | undefined;
+  if (!args || args.length === 0) {
+    return false;
+  }
+
+  const firstArg: AstNode | undefined = args[0];
+  if (!firstArg || firstArg.type !== 'ObjectExpression') {
+    return false;
+  }
+
+  const routesValue: AstNode | undefined = getNestedValue(firstArg, 'routes');
+  if (!routesValue) {
+    return false;
+  }
+
+  // Empty routes object `{}` is not sufficient
+  if (routesValue.type === 'ObjectExpression') {
+    const props: AstNode[] | undefined = routesValue.properties as AstNode[] | undefined;
+    if (!props || props.length === 0) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/** The cloudflare-adapter-settings lint rule. */
+const rule: TypeScriptRule = {
+  id: 'svelte5-config/cloudflare-adapter-settings',
+  description: 'Cloudflare adapter should have explicit routes config for optimal deployment',
+  patterns: ['**/svelte.config.*'],
+  categories: ['svelte5-config'],
+  stages: ['lint', 'ci'],
+
+  visitor: {
+    Program(node: AstNode, context: VisitorContext): LintResult[] {
+      const adapterPkg: string | undefined = getAdapterImport(context.imports);
+      if (!adapterPkg || !CLOUDFLARE_ADAPTERS.has(adapterPkg)) {
+        return [];
+      }
+
+      // cloudflare-workers uses wrangler.toml config, not routes option
+      if (adapterPkg === '@sveltejs/adapter-cloudflare-workers') {
+        return [];
+      }
+
+      const configObj: AstNode | undefined = getDefaultExportObject(context.ast);
+      if (!configObj) {
+        return [];
+      }
+
+      const adapterValue: AstNode | undefined = getNestedValue(configObj, 'kit.adapter');
+      if (!adapterValue) {
+        return [];
+      }
+
+      if (!hasRoutesConfig(adapterValue)) {
+        return [
+          {
+            file: context.file,
+            line: node.loc.start.line,
+            column: node.loc.start.column + 1,
+            severity: 'warning',
+            message: 'Cloudflare adapter should have explicit routes config for optimal deployment',
+            ruleId: rule.id,
+            tip: "Add routes: { include: ['/*'], exclude: ['<all>'] } to exclude static assets from Worker",
+            fix: { range: { start: 0, end: 0 }, text: '' },
+          },
+        ];
+      }
+
+      return [];
+    },
+  },
+};
+
+export default rule;

@@ -509,6 +509,81 @@
                 "enum": ["error", "warn", "off"],
                 "type": "string"
               },
+              "svelte5-config/cloudflare-adapter-settings": {
+                "description": "Cloudflare adapter should have explicit routes config for optimal deployment",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5-config/csp-headers": {
+                "description": "Consider adding CSP configuration for security",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5-config/env-prefix-consistency": {
+                "description": "Environment variable prefix configuration issue",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5-config/kit-alias-consistency": {
+                "description": "Alias in svelte.config.js not found in tsconfig.json paths",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5-config/no-deprecated-options": {
+                "description": "Deprecated Svelte 4 config options should be removed",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5-config/no-inline-preprocess": {
+                "description": "Complex inline preprocessor should be extracted to a separate module",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5-config/no-node-adapter-cloudflare": {
+                "description": "Node.js adapter incompatible with Cloudflare Workers — use @sveltejs/adapter-cloudflare",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5-config/output-directory": {
+                "description": "Output directory conflicts with source directory",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5-config/prerender-config": {
+                "description": "Static adapter requires prerender configuration",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5-config/require-adapter": {
+                "description": "SvelteKit config missing adapter — build will fail without one",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5-config/require-runes-mode": {
+                "description": "Svelte 5 project should have compilerOptions.runes: true",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5-config/static-adapter-for-capacitor": {
+                "description": "Capacitor project requires @sveltejs/adapter-static — current adapter won't work",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5-config/trailing-slash-consistency": {
+                "description": "Trailing slash handling not explicitly configured",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5-config/version-skew-handling": {
+                "description": "Consider adding version config for deployment updates",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5-config/vite-optimizeDeps": {
+                "description": "Svelte packages should not be excluded from Vite optimizeDeps",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
               "testing/multi-export-a": {
                 "description": "Multi-export fixture rule A (no-op).",
                 "enum": ["error", "warn", "off"],
@@ -1521,6 +1596,81 @@
         },
         "result/validate-function-input": {
           "description": "Exported/handler functions should validate input with safeParse()",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/cloudflare-adapter-settings": {
+          "description": "Cloudflare adapter should have explicit routes config for optimal deployment",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/csp-headers": {
+          "description": "Consider adding CSP configuration for security",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/env-prefix-consistency": {
+          "description": "Environment variable prefix configuration issue",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/kit-alias-consistency": {
+          "description": "Alias in svelte.config.js not found in tsconfig.json paths",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/no-deprecated-options": {
+          "description": "Deprecated Svelte 4 config options should be removed",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/no-inline-preprocess": {
+          "description": "Complex inline preprocessor should be extracted to a separate module",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/no-node-adapter-cloudflare": {
+          "description": "Node.js adapter incompatible with Cloudflare Workers — use @sveltejs/adapter-cloudflare",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/output-directory": {
+          "description": "Output directory conflicts with source directory",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/prerender-config": {
+          "description": "Static adapter requires prerender configuration",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/require-adapter": {
+          "description": "SvelteKit config missing adapter — build will fail without one",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/require-runes-mode": {
+          "description": "Svelte 5 project should have compilerOptions.runes: true",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/static-adapter-for-capacitor": {
+          "description": "Capacitor project requires @sveltejs/adapter-static — current adapter won't work",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/trailing-slash-consistency": {
+          "description": "Trailing slash handling not explicitly configured",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/version-skew-handling": {
+          "description": "Consider adding version config for deployment updates",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5-config/vite-optimizeDeps": {
+          "description": "Svelte packages should not be excluded from Vite optimizeDeps",
           "enum": ["error", "warn", "off"],
           "type": "string"
         },
