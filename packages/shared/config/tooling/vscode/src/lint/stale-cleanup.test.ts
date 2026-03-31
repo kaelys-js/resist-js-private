@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as vscode from 'vscode';
 import { StaleDiagnosticCleaner } from './stale-cleanup';
+import { BRAND_NAME } from '../shared/brand';
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -19,7 +20,7 @@ describe('StaleDiagnosticCleaner', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
-    channel = { appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn(), name: 'Resist' };
+    channel = { appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn(), name: BRAND_NAME };
     cleaner = new StaleDiagnosticCleaner(1000, channel); // 1 second timeout for tests
   });
 

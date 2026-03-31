@@ -8,6 +8,7 @@ import { describe, it, expect } from 'vitest';
 import { format, formatPlural, formatNumber } from './schema';
 import { en } from './en';
 import type { VscodeStrings } from './schema';
+import { BRAND_NAME, BINARY_NAME } from '../shared/brand';
 
 describe('Locale', () => {
   describe('format', () => {
@@ -43,13 +44,13 @@ describe('Locale', () => {
     });
 
     it('has all output strings', () => {
-      expect(en.output.channelName).toBe('Resist');
+      expect(en.output.channelName).toBe(BRAND_NAME);
       expect(en.output.errorPrefix).toBe('ERROR');
       expect(en.output.activated).toBeTruthy();
     });
 
     it('has all status bar strings', () => {
-      expect(en.statusBar.tooltip).toContain('Resist');
+      expect(en.statusBar.tooltip).toContain(BRAND_NAME);
       expect(en.statusBar.ready).toContain('$(check)');
       expect(en.statusBar.linting).toContain('$(sync~spin)');
       expect(en.statusBar.error).toContain('$(error)');
@@ -57,7 +58,7 @@ describe('Locale', () => {
     });
 
     it('has all message strings', () => {
-      expect(en.messages.binaryNotFound).toContain('resist-lint');
+      expect(en.messages.binaryNotFound).toContain(BINARY_NAME);
       expect(en.messages.noWorkspaceFolder).toBeTruthy();
       expect(en.messages.noFixableProblems).toBeTruthy();
       expect(en.messages.fixRejected).toBeTruthy();

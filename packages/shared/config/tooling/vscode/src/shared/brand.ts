@@ -79,9 +79,13 @@ export const DISABLE_FILE_PREFIX = 'resist-lint-disable';
 
 /**
  * Regex pattern matching all disable comment forms.
+ * Derived from DISABLE_FILE_PREFIX so the pattern stays in sync.
  * Groups: full match, optional rule list after colon.
  */
-export const DISABLE_PATTERN = /\/\/\s*resist-lint-disable(?:-next-line)?(?:\s*:\s*(.+))?/g;
+export const DISABLE_PATTERN = new RegExp(
+  `\\/\\/\\s*${DISABLE_FILE_PREFIX}(?:-next-line)?(?:\\s*:\\s*(.+))?`,
+  'g',
+);
 
 // =============================================================================
 // Virtual Document Schemes

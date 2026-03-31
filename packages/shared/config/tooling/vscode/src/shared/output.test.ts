@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createOutputChannel, log, logError, logCommand, logTiming } from './output';
 import * as vscode from 'vscode';
+import { BRAND_NAME, BINARY_NAME } from './brand';
 
 describe('Output Channel', () => {
   let channel: vscode.OutputChannel;
@@ -17,7 +18,7 @@ describe('Output Channel', () => {
   });
 
   it('createOutputChannel creates channel named Resist', () => {
-    expect(vscode.window.createOutputChannel).toHaveBeenCalledWith('Resist');
+    expect(vscode.window.createOutputChannel).toHaveBeenCalledWith(BRAND_NAME);
   });
 
   it('log() appends timestamped message', () => {
@@ -34,9 +35,11 @@ describe('Output Channel', () => {
   });
 
   it('logCommand() appends timestamped command with args', () => {
-    logCommand(channel, 'resist-lint', ['--format=json', 'file.ts']);
+    logCommand(channel, BINARY_NAME, ['--format=json', 'file.ts']);
     const line = (channel.appendLine as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
-    expect(line).toMatch(/^\[\d{2}:\d{2}:\d{2}\] \$ resist-lint --format=json file.ts$/);
+    expect(line).toMatch(
+      new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\] \\$ ${BINARY_NAME} --format=json file\\.ts$`),
+    );
   });
 
   it('logTiming() appends timestamped timing message', () => {

@@ -8,7 +8,7 @@
  * Integrated into the `build` script so out-of-sync manifests are caught
  * before compilation.
  *
- * Plan: docs/plans/2026-03-31-vscode-phase-63.md TASK 4
+ * Plan: docs/plans/2026-03-31-vscode-phase-64.md TASK 3-4
  *
  * @module
  */
@@ -56,6 +56,26 @@ if (!configMatch) {
 }
 const configSection: string = configMatch[1];
 
+// Extract BRAND_NAME
+const brandNameMatch: RegExpMatchArray | null = brandSource.match(
+  /export\s+const\s+BRAND_NAME\s*=\s*'([^']+)'/,
+);
+if (!brandNameMatch) {
+  console.error('FAIL: Could not parse BRAND_NAME from brand.ts');
+  process.exit(1);
+}
+const brandName: string = brandNameMatch[1];
+
+// Extract BINARY_NAME
+const binaryNameMatch: RegExpMatchArray | null = brandSource.match(
+  /export\s+const\s+BINARY_NAME\s*=\s*'([^']+)'/,
+);
+if (!binaryNameMatch) {
+  console.error('FAIL: Could not parse BINARY_NAME from brand.ts');
+  process.exit(1);
+}
+const binaryName: string = binaryNameMatch[1];
+
 // ---------------------------------------------------------------------------
 // 2. Read package.json
 // ---------------------------------------------------------------------------
@@ -63,9 +83,11 @@ const configSection: string = configMatch[1];
 const pkgPath: string = resolve(__dirname, '../package.json');
 const pkgRaw: string = readFileSync(pkgPath, 'utf-8');
 const pkg = JSON.parse(pkgRaw) as {
+  displayName: string;
+  description: string;
   contributes: {
     commands: Array<{ command: string; title: string; category?: string }>;
-    configuration: { properties: Record<string, unknown> };
+    configuration: { title: string; properties: Record<string, { description?: string }> };
   };
 };
 
@@ -109,6 +131,28 @@ for (const key of Object.keys(pkg.contributes.configuration.properties)) {
   }
 }
 
+// Check displayName contains brand name
+if (!pkg.displayName.includes(brandName)) {
+  console.error(`FAIL: displayName "${pkg.displayName}" doesn't contain brand name "${brandName}"`);
+  errors++;
+}
+
+// Check configuration title contains brand name
+if (!pkg.contributes.configuration.title.includes(brandName)) {
+  console.error(
+    `FAIL: configuration.title "${pkg.contributes.configuration.title}" doesn't contain "${brandName}"`,
+  );
+  errors++;
+}
+
+// Check all command categories match brand name
+for (const cmd of pkg.contributes.commands) {
+  if (cmd.category && cmd.category !== brandName) {
+    console.error(`FAIL: command "${cmd.command}" category "${cmd.category}" != "${brandName}"`);
+    errors++;
+  }
+}
+
 // Check command order matches brand.ts order
 const brandOrder: string[] = [...brandCommands.values()];
 const pkgOrder: string[] = pkg.contributes.commands.map((c) => c.command);
@@ -124,6 +168,60 @@ for (let i = 0; i < brandOrder.length; i++) {
     }
   }
 }
+
+// Check setting descriptions don't hardcode the binary name as a plain string
+// (command IDs like "resist.lint.enable" are fine — they come from brand.ts)
+for (const [key, prop] of Object.entries(pkg.contributes.configuration.properties)) {
+  if (prop.description && prop.description.includes(binaryName)) {
+    console.error(`WARN: setting "${key}" description hardcodes "${binaryName}"`);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 4b. Validate README.md and CHANGELOG.md brand references
+// ---------------------------------------------------------------------------
+
+const readmePath: string = resolve(__dirname, '../README.md');
+const changelogPath: string = resolve(__dirname, '../CHANGELOG.md');
+
+function validateMarkdown(filePath: string, label: string): void {
+  let content: string;
+  try {
+    content = readFileSync(filePath, 'utf-8');
+  } catch {
+    console.error(`WARN: ${label} not found at ${filePath}`);
+    return;
+  }
+
+  if (!content.includes(brandName)) {
+    console.error(`FAIL: ${label} doesn't contain brand name "${brandName}"`);
+    errors++;
+  }
+
+  // Check binary name appears where expected (e.g. "The `resist-lint` CLI")
+  if (label === 'README.md' && !content.includes(binaryName)) {
+    console.error(`FAIL: ${label} doesn't contain binary name "${binaryName}"`);
+    errors++;
+  }
+
+  // Validate README command table row count matches brand.ts
+  if (label === 'README.md') {
+    const cmdSection = content.match(/## Commands[\s\S]*?(?=\n## |$)/);
+    if (cmdSection) {
+      const tableRows = cmdSection[0].match(/^\| .+\| .+\|$/gm);
+      // Subtract 1 for header row (separator row uses dashes, won't match .+)
+      const cmdRows: number = tableRows ? tableRows.length - 1 : 0;
+      if (cmdRows > 0 && cmdRows !== brandCommands.size) {
+        console.error(
+          `WARN: ${label} command table has ${cmdRows} rows, brand.ts has ${brandCommands.size}`,
+        );
+      }
+    }
+  }
+}
+
+validateMarkdown(readmePath, 'README.md');
+validateMarkdown(changelogPath, 'CHANGELOG.md');
 
 // ---------------------------------------------------------------------------
 // 5. Fix mode: rewrite commands array from brand.ts order
@@ -145,7 +243,7 @@ if (FIX_MODE && errors > 0) {
       newCommands.push({
         command: cmdId,
         title: `Lint: ${titleFromId.charAt(0).toUpperCase() + titleFromId.slice(1)}`,
-        category: 'Resist',
+        category: brandName,
       });
       console.log(`ADDED: "${cmdId}" with placeholder title`);
     }

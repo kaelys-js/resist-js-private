@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
 import { createConfigWatcher } from './watcher';
+import { CONFIG_FILE_PATTERNS } from '../shared/brand';
 
 describe('Config File Watcher', () => {
   let lintFn: ReturnType<typeof vi.fn>;
@@ -30,11 +31,14 @@ describe('Config File Watcher', () => {
     ];
   });
 
-  it('creates watchers for resist.config.ts and .resist-lint.jsonc', () => {
+  it('creates watchers for all config file patterns', () => {
     createConfigWatcher(lintFn);
-    expect(vscode.workspace.createFileSystemWatcher).toHaveBeenCalledTimes(2);
-    expect(vscode.workspace.createFileSystemWatcher).toHaveBeenCalledWith('**/resist.config.ts');
-    expect(vscode.workspace.createFileSystemWatcher).toHaveBeenCalledWith('**/.resist-lint.jsonc');
+    expect(vscode.workspace.createFileSystemWatcher).toHaveBeenCalledTimes(
+      CONFIG_FILE_PATTERNS.length,
+    );
+    for (const pattern of CONFIG_FILE_PATTERNS) {
+      expect(vscode.workspace.createFileSystemWatcher).toHaveBeenCalledWith(pattern);
+    }
   });
 
   it('returns disposables array for cleanup', () => {

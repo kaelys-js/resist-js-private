@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createStatusBar, updateStatusBar, getFileDiagnosticCounts } from './status-bar';
 import * as vscode from 'vscode';
-import { COMMANDS } from './brand';
+import { COMMANDS, BRAND_NAME } from './brand';
 
 describe('Status Bar', () => {
   let statusBarItem: ReturnType<typeof vscode.window.createStatusBarItem>;
@@ -25,15 +25,15 @@ describe('Status Bar', () => {
       vscode.StatusBarAlignment.Right,
       100,
     );
-    expect(statusBarItem.text).toBe('$(check) Resist');
-    expect(statusBarItem.tooltip).toBe('Resist Linter — Click to show output');
+    expect(statusBarItem.text).toBe(`$(check) ${BRAND_NAME}`);
+    expect(statusBarItem.tooltip).toBe(`${BRAND_NAME} Linter — Click to show output`);
     expect(statusBarItem.command).toBe(COMMANDS.showOutput);
     expect(statusBarItem.show).toHaveBeenCalled();
   });
 
   it('updateStatusBar("ready") shows check icon', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready');
-    expect(statusBarItem.text).toBe('$(check) Resist');
+    expect(statusBarItem.text).toBe(`$(check) ${BRAND_NAME}`);
     expect(statusBarItem.backgroundColor).toBeUndefined();
   });
 
@@ -66,7 +66,7 @@ describe('Status Bar', () => {
       errors: 0,
       warnings: 0,
     });
-    expect(statusBarItem.text).toBe('$(check) Resist');
+    expect(statusBarItem.text).toBe(`$(check) ${BRAND_NAME}`);
   });
 
   it('updateStatusBar("linting") shows spinner', () => {
@@ -77,13 +77,13 @@ describe('Status Bar', () => {
 
   it('updateStatusBar("error") shows error background', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'error');
-    expect(statusBarItem.text).toBe('$(error) Resist');
+    expect(statusBarItem.text).toBe(`$(error) ${BRAND_NAME}`);
     expect(statusBarItem.backgroundColor).toBeDefined();
   });
 
   it('updateStatusBar("disabled") shows slash icon', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'disabled');
-    expect(statusBarItem.text).toBe('$(circle-slash) Resist');
+    expect(statusBarItem.text).toBe(`$(circle-slash) ${BRAND_NAME}`);
     expect(statusBarItem.backgroundColor).toBeUndefined();
   });
 
