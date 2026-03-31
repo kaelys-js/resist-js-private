@@ -48,6 +48,27 @@ export const ExternalToolSchema = v.strictObject({
 /** An external tool definition. See {@link ExternalToolSchema}. */
 export type ExternalTool = v.InferOutput<typeof ExternalToolSchema>;
 
+/** Schema for a workspace-level tool that runs once (not per-file). */
+export const WorkspaceToolSchema = v.strictObject({
+  /** Human-readable tool name. */
+  name: v.string(),
+  /** Command to execute (e.g., 'tsgo', 'svelte-check'). */
+  command: v.string(),
+  /** Default arguments to pass to the command. */
+  args: v.array(v.string()),
+  /** Working directory to run the command in (defaults to process.cwd()). */
+  cwd: v.optional(v.string()),
+  /** Output format the tool produces. */
+  outputFormat: v.picklist(['json', 'text', 'sarif']),
+  /** Transform raw tool output into LintResult[]. */
+  transform: v.custom<(output: string, strings: LintStrings) => LintResult[]>(isFn),
+  /** Optional check if the tool is available on the system. */
+  isAvailable: v.optional(v.custom<() => boolean | Promise<boolean>>(isFn)),
+});
+
+/** A workspace-level tool definition. See {@link WorkspaceToolSchema}. */
+export type WorkspaceTool = v.InferOutput<typeof WorkspaceToolSchema>;
+
 // =============================================================================
 // Tool Registry
 // =============================================================================
@@ -66,8 +87,11 @@ export type ExternalTool = v.InferOutput<typeof ExternalToolSchema>;
  * ```
  */
 export class ToolRegistry {
-  /** All registered tools. */
+  /** All registered per-file tools. */
   private readonly tools: ExternalTool[] = [];
+
+  /** All registered workspace-level tools. */
+  private readonly workspaceTools: WorkspaceTool[] = [];
 
   /** Locale strings for tool message localization. */
   private readonly strings: LintStrings;
@@ -179,6 +203,76 @@ export class ToolRegistry {
     for (const [tool, toolFileList] of toolFiles) {
       promises.push(this.runTool(tool, toolFileList));
     }
+
+    const results: LintResult[][] = await Promise.all(promises);
+    return results.flat();
+  }
+
+  /**
+   * Register a workspace-level tool.
+   *
+   * @param {WorkspaceTool} tool - Workspace tool definition to register
+   */
+  registerWorkspaceTool(tool: WorkspaceTool): void {
+    this.workspaceTools.push(tool);
+  }
+
+  /**
+   * Get all registered workspace tools.
+   *
+   * @returns {readonly WorkspaceTool[]} Array of all registered workspace tools
+   */
+  getAllWorkspaceTools(): readonly WorkspaceTool[] {
+    return this.workspaceTools;
+  }
+
+  /**
+   * Run a single workspace tool.
+   *
+   * @param {WorkspaceTool} tool - Workspace tool to run
+   * @returns {Promise<LintResult[]>} Lint results from the tool
+   */
+  async runWorkspaceTool(tool: WorkspaceTool): Promise<LintResult[]> {
+    /* Check availability */
+    if (tool.isAvailable) {
+      const available: boolean = await tool.isAvailable();
+      if (!available) {
+        return [];
+      }
+    }
+
+    try {
+      const output: string = execFileSync(tool.command, tool.args, {
+        cwd: tool.cwd ?? process.cwd(),
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+        timeout: 120_000,
+      });
+
+      return tool.transform(output, this.strings);
+    } catch (error: unknown) {
+      /* Type-check tools exit non-zero when they find errors — capture stdout */
+      const execError = error as { stdout?: string; status?: number };
+      if (execError.stdout && typeof execError.stdout === 'string') {
+        return tool.transform(execError.stdout, this.strings);
+      }
+      return [];
+    }
+  }
+
+  /**
+   * Run all registered workspace tools in parallel.
+   *
+   * @returns {Promise<LintResult[]>} Aggregated lint results from all workspace tools
+   */
+  async runAllWorkspaceTools(): Promise<LintResult[]> {
+    if (this.workspaceTools.length === 0) {
+      return [];
+    }
+
+    const promises: Array<Promise<LintResult[]>> = this.workspaceTools.map(
+      (tool: WorkspaceTool): Promise<LintResult[]> => this.runWorkspaceTool(tool),
+    );
 
     const results: LintResult[][] = await Promise.all(promises);
     return results.flat();

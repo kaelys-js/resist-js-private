@@ -14,8 +14,7 @@
     "clean": "rm -rf dist coverage .turbo",
     "qa:test": "pnpm -w exec vitest run --project lint",
     "qa:test:coverage": "pnpm -w exec vitest run --project lint --coverage",
-    "qa:benchmark": "pnpm -w exec vitest bench --project lint",
-    "qa:type-check": "tsgo --noEmit"
+    "qa:benchmark": "pnpm -w exec vitest bench --project lint"
   },
   "dependencies": {
     "oxc-parser": "^0.72.3"

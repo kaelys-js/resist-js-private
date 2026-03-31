@@ -70,12 +70,6 @@
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": [],
       "outputLogs": "new-only"
-    },
-    "qa:type-check": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$"],
-      "outputs": [],
-      "outputLogs": "new-only"
     }
   }
 }

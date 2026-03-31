@@ -9,7 +9,6 @@
     "qa:test:unit": "pnpm -w exec vitest run --project config-core",
     "qa:test:coverage": "pnpm -w exec vitest run --project config-core --coverage",
     "qa:benchmark": "pnpm -w exec vitest bench --project config-core",
-    "qa:type-check": "tsgo --noEmit",
     "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
   }
 }

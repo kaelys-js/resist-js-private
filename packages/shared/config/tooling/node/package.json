@@ -8,7 +8,6 @@
     "qa:test": "echo 'no tests'",
     "qa:test:unit": "echo 'no tests'",
     "qa:test:coverage": "echo 'no tests'",
-    "qa:benchmark": "echo 'no tests'",
-    "qa:type-check": "tsgo --noEmit"
+    "qa:benchmark": "echo 'no tests'"
   }
 }

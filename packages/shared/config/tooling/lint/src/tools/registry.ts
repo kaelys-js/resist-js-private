@@ -8,7 +8,7 @@
  */
 
 /* oxlint-disable max-dependencies -- registry file intentionally imports all tools */
-import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
+import type { ExternalTool, WorkspaceTool } from '@/lint/framework/tool-orchestrator.ts';
 import { actionlintTool } from '@/lint/tools/actionlint.ts';
 import { asciidocTool } from '@/lint/tools/asciidoc.ts';
 import { astroTool } from '@/lint/tools/astro.ts';
@@ -121,6 +121,8 @@ import { xmlTool } from '@/lint/tools/xml.ts';
 import { yamllintTool } from '@/lint/tools/yamllint.ts';
 import { zigTool } from '@/lint/tools/zig.ts';
 import { zshTool } from '@/lint/tools/zsh.ts';
+import { svelteCheckTool } from '@/lint/tools/svelte-check.ts';
+import { tsgoTool } from '@/lint/tools/tsgo.ts';
 
 /** All registered external linting tools. */
 export const ALL_TOOLS: readonly ExternalTool[] = [
@@ -237,3 +239,6 @@ export const ALL_TOOLS: readonly ExternalTool[] = [
   zigTool,
   zshTool,
 ];
+
+/** All registered workspace-level tools (type-checkers, etc.). */
+export const ALL_WORKSPACE_TOOLS: readonly WorkspaceTool[] = [svelteCheckTool, tsgoTool];

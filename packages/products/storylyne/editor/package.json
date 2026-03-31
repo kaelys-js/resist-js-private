@@ -14,7 +14,6 @@
     "qa:test:coverage": "pnpm -w exec vitest run --project storylyne-editor --coverage",
     "qa:benchmark": "pnpm -w exec vitest bench --project storylyne-editor",
     "qa:test:e2e": "playwright test",
-    "qa:type-check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --compiler-warnings \"state_referenced_locally:ignore\"",
     "generate-icons": "bash ../../../../packages/shared/utils/cli/src/tools/generate-icons/generate-icons.sh ."
   },
   "dependencies": {

@@ -8,7 +8,6 @@
     "qa:test": "pnpm -w exec vitest run --project utils-core",
     "qa:test:unit": "pnpm -w exec vitest run --project utils-core",
     "qa:test:coverage": "pnpm -w exec vitest run --project utils-core --coverage",
-    "qa:benchmark": "pnpm -w exec vitest bench --project utils-core",
-    "qa:type-check": "tsgo --noEmit"
+    "qa:benchmark": "pnpm -w exec vitest bench --project utils-core"
   }
 }

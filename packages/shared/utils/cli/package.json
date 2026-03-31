@@ -9,7 +9,6 @@
     "qa:test:unit": "vitest run",
     "qa:test:coverage": "vitest run --coverage",
     "qa:benchmark": "vitest bench",
-    "qa:type-check": "tsgo --noEmit",
     "tool": "node --import tsx src/utils/tool.ts",
     "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
   },

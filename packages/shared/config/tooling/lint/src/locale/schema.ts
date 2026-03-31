@@ -159,6 +159,12 @@ const DebugStringsSchema = v.strictObject({
   toolResults: v.string(),
   /** External tool running. */
   toolRunning: v.string(),
+  /** Workspace tool loading. */
+  workspaceToolLoading: v.string(),
+  /** Workspace tool results. */
+  workspaceToolResults: v.string(),
+  /** Workspace tool running. */
+  workspaceToolRunning: v.string(),
   /** Total lint time. */
   totalTime: v.string(),
   /** Worker pool results. */

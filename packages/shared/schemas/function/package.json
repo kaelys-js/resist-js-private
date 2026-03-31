@@ -8,7 +8,6 @@
     "qa:test": "pnpm -w exec vitest run --project schemas-function",
     "qa:test:unit": "pnpm -w exec vitest run --project schemas-function",
     "qa:test:coverage": "pnpm -w exec vitest run --project schemas-function --coverage",
-    "qa:benchmark": "pnpm -w exec vitest bench --project schemas-function",
-    "qa:type-check": "tsgo --noEmit"
+    "qa:benchmark": "pnpm -w exec vitest bench --project schemas-function"
   }
 }

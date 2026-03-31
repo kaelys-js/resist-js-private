@@ -142,6 +142,8 @@ import { transformXmlOutput, xmlTool } from './xml.ts';
 import { transformYamllintOutput, yamllintTool } from './yamllint.ts';
 import { transformZigOutput, zigTool } from './zig.ts';
 import { transformZshOutput, zshTool } from './zsh.ts';
+import { svelteCheckTool, transformSvelteCheckOutput } from './svelte-check.ts';
+import { tsgoTool, transformTsgoOutput } from './tsgo.ts';
 
 // Mock isCommandAvailable to avoid real `which` calls
 vi.mock('@/lint/framework/tool-orchestrator.ts', async (importOriginal) => {
@@ -5365,5 +5367,187 @@ describe('validatePackageJson', () => {
       '{"name":"my-pkg","version":"1.0.0","main":"index.js"}',
     );
     expect(output).toBe('');
+  });
+});
+
+// =============================================================================
+// tsgo transform
+// =============================================================================
+
+describe('transformTsgoOutput', () => {
+  it('parses a single error diagnostic', () => {
+    const output: string =
+      'src/index.ts(10,5): error TS2322: Type "string" is not assignable to type "number".';
+    const results: LintResult[] = transformTsgoOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.ruleId).toBe('tsgo/TS2322');
+    expect(results[0]!.file).toBe('src/index.ts');
+    expect(results[0]!.line).toBe(10);
+    expect(results[0]!.column).toBe(5);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toBe('Type "string" is not assignable to type "number".');
+  });
+
+  it('parses a warning diagnostic', () => {
+    const output: string =
+      'lib/utils.ts(3,1): warning TS6133: "x" is declared but its value is never read.';
+    const results: LintResult[] = transformTsgoOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.ruleId).toBe('tsgo/TS6133');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.file).toBe('lib/utils.ts');
+    expect(results[0]!.line).toBe(3);
+    expect(results[0]!.column).toBe(1);
+    expect(results[0]!.message).toBe('"x" is declared but its value is never read.');
+  });
+
+  it('parses multiple diagnostics', () => {
+    const output: string = [
+      'src/a.ts(1,1): error TS2304: Cannot find name "foo".',
+      'src/b.ts(20,10): error TS2345: Argument of type "string" is not assignable to parameter of type "number".',
+      'src/c.ts(5,3): warning TS6196: "bar" is declared but never used.',
+    ].join('\n');
+    const results: LintResult[] = transformTsgoOutput(output);
+    expect(results).toHaveLength(3);
+    expect(results[0]!.ruleId).toBe('tsgo/TS2304');
+    expect(results[0]!.file).toBe('src/a.ts');
+    expect(results[1]!.ruleId).toBe('tsgo/TS2345');
+    expect(results[1]!.file).toBe('src/b.ts');
+    expect(results[2]!.ruleId).toBe('tsgo/TS6196');
+    expect(results[2]!.severity).toBe('warning');
+  });
+
+  it('returns empty array for empty output', () => {
+    expect(transformTsgoOutput('')).toEqual([]);
+    expect(transformTsgoOutput('   ')).toEqual([]);
+    expect(transformTsgoOutput('\n\n')).toEqual([]);
+  });
+
+  it('skips continuation lines and non-diagnostic output', () => {
+    const output: string = [
+      'src/index.ts(10,5): error TS2322: Type mismatch.',
+      '  The expected type comes from property "x".',
+      '  which is declared on type "Foo".',
+      '',
+      'Found 1 error.',
+    ].join('\n');
+    const results: LintResult[] = transformTsgoOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.ruleId).toBe('tsgo/TS2322');
+  });
+
+  it('handles file paths with spaces and special characters', () => {
+    const output: string = 'src/my file (copy).ts(1,1): error TS1005: ";" expected.';
+    const results: LintResult[] = transformTsgoOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.file).toBe('src/my file (copy).ts');
+    expect(results[0]!.ruleId).toBe('tsgo/TS1005');
+  });
+});
+
+describe('tsgoTool definition', () => {
+  it('has correct name and command', () => {
+    expect(tsgoTool.name).toBe('tsgo');
+    expect(tsgoTool.command).toBe('tsgo');
+    expect(tsgoTool.args).toEqual(['--noEmit']);
+    expect(tsgoTool.outputFormat).toBe('text');
+  });
+
+  it('has an isAvailable function', () => {
+    expect(typeof tsgoTool.isAvailable).toBe('function');
+  });
+
+  it('uses transformTsgoOutput as transform', () => {
+    expect(tsgoTool.transform).toBe(transformTsgoOutput);
+  });
+});
+
+// =============================================================================
+// svelte-check transform
+// =============================================================================
+
+describe('transformSvelteCheckOutput', () => {
+  it('parses a single ERROR diagnostic', () => {
+    const output: string =
+      '1711814400000 ERROR "src/App.svelte" 15:8 "Type error: cannot assign string to number"';
+    const results: LintResult[] = transformSvelteCheckOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.ruleId).toBe('svelte-check/error');
+    expect(results[0]!.file).toBe('src/App.svelte');
+    expect(results[0]!.line).toBe(15);
+    expect(results[0]!.column).toBe(8);
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toBe('Type error: cannot assign string to number');
+  });
+
+  it('parses a WARNING diagnostic', () => {
+    const output: string = '1711814400000 WARNING "src/Lib.svelte" 3:1 "Unused CSS selector .foo"';
+    const results: LintResult[] = transformSvelteCheckOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.ruleId).toBe('svelte-check/warning');
+    expect(results[0]!.file).toBe('src/Lib.svelte');
+    expect(results[0]!.line).toBe(3);
+    expect(results[0]!.column).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toBe('Unused CSS selector .foo');
+  });
+
+  it('parses multiple diagnostics', () => {
+    const output: string = [
+      '1711814400000 ERROR "src/A.svelte" 10:5 "Cannot find name x"',
+      '1711814400001 WARNING "src/B.svelte" 20:12 "Unused variable y"',
+      '1711814400002 ERROR "src/C.svelte" 1:1 "Missing semicolon"',
+    ].join('\n');
+    const results: LintResult[] = transformSvelteCheckOutput(output);
+    expect(results).toHaveLength(3);
+    expect(results[0]!.ruleId).toBe('svelte-check/error');
+    expect(results[0]!.file).toBe('src/A.svelte');
+    expect(results[1]!.ruleId).toBe('svelte-check/warning');
+    expect(results[1]!.file).toBe('src/B.svelte');
+    expect(results[2]!.ruleId).toBe('svelte-check/error');
+    expect(results[2]!.file).toBe('src/C.svelte');
+  });
+
+  it('returns empty array for empty output', () => {
+    expect(transformSvelteCheckOutput('')).toEqual([]);
+    expect(transformSvelteCheckOutput('   ')).toEqual([]);
+    expect(transformSvelteCheckOutput('\n\n')).toEqual([]);
+  });
+
+  it('skips START lines and other non-diagnostic output', () => {
+    const output: string = [
+      '1711814400000 START ""',
+      '1711814400001 ERROR "src/App.svelte" 5:3 "Type mismatch"',
+      '====================================',
+      'svelte-check found 1 error',
+    ].join('\n');
+    const results: LintResult[] = transformSvelteCheckOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.ruleId).toBe('svelte-check/error');
+    expect(results[0]!.message).toBe('Type mismatch');
+  });
+
+  it('handles file paths with spaces', () => {
+    const output: string = '1711814400000 ERROR "src/my component.svelte" 1:1 "Parse error"';
+    const results: LintResult[] = transformSvelteCheckOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.file).toBe('src/my component.svelte');
+  });
+});
+
+describe('svelteCheckTool definition', () => {
+  it('has correct name and command', () => {
+    expect(svelteCheckTool.name).toBe('svelte-check');
+    expect(svelteCheckTool.command).toBe('svelte-check');
+    expect(svelteCheckTool.args).toEqual(['--tsconfig', './tsconfig.json']);
+    expect(svelteCheckTool.outputFormat).toBe('text');
+  });
+
+  it('has an isAvailable function', () => {
+    expect(typeof svelteCheckTool.isAvailable).toBe('function');
+  });
+
+  it('uses transformSvelteCheckOutput as transform', () => {
+    expect(svelteCheckTool.transform).toBe(transformSvelteCheckOutput);
   });
 });
