@@ -16,6 +16,7 @@ import type {
   ImportInfo,
   ImportSpecifier,
 } from '@/lint/framework/types.ts';
+import { parseSvelteTemplate, walkSvelteNode } from '@/lint/framework/svelte-template.ts';
 
 // =============================================================================
 // Parser
@@ -375,6 +376,8 @@ function createVisitorContext(
   imports: ImportInfo[],
   rule: TypeScriptRule,
   ruleOptions?: Record<string, unknown>,
+  templateAst?: AstNode,
+  originalContent?: string,
 ): VisitorContext {
   return {
     file,
@@ -383,6 +386,9 @@ function createVisitorContext(
     imports,
     rule,
     ruleOptions,
+    templateAst,
+    ruleState: new Map<string, unknown>(),
+    originalContent,
 
     getNodeText(node: AstNode): string {
       return content.slice(node.start, node.end);
@@ -455,10 +461,12 @@ export async function runTypeScriptRules(
   let parseContent: string = content;
   let parseFilePath: string = filePath;
 
+  const isSvelteFile: boolean = filePath.endsWith('.svelte');
+
   if (SCRIPT_BLOCK_EXTENSIONS.some((ext: string): boolean => filePath.endsWith(ext))) {
     const extracted: string = extractScriptBlocks(content);
-    if (extracted.trim() === '') {
-      return []; // No script block — nothing to lint
+    if (extracted.trim() === '' && !isSvelteFile) {
+      return []; // No script block — nothing to lint (unless .svelte with template-only rules)
     }
     parseContent = extracted;
     parseFilePath = filePath + '.ts'; // Tell oxc-parser to treat as TypeScript
@@ -472,55 +480,122 @@ export async function runTypeScriptRules(
   }
 
   let ast: AstNode;
-  try {
-    const result: { program: unknown } = parseSync(parseFilePath, parseContent) as {
-      program: unknown;
+  const hasScript: boolean = parseContent.trim() !== '';
+
+  if (hasScript) {
+    try {
+      const result: { program: unknown } = parseSync(parseFilePath, parseContent) as {
+        program: unknown;
+      };
+      ast = result.program as AstNode; // Safe: oxc-parser returns AST program node
+    } catch {
+      /* Parse error — skip file */
+      return [];
+    }
+  } else {
+    /* No script content — create empty Program node for context */
+    ast = {
+      type: 'Program',
+      start: 0,
+      end: 0,
+      loc: { start: { line: 1, column: 0 }, end: { line: 1, column: 0 } },
+      body: [],
     };
-    ast = result.program as AstNode; // Safe: oxc-parser returns AST program node
-  } catch {
-    /* Parse error — skip file */
-    return [];
   }
 
   // oxc-parser only provides byte offsets — patch loc using the PARSED content's line map
   // For embedded files, parseContent has blanked non-code lines so byte offsets
   // map to the correct line numbers in the original file
-  const lineStarts: number[] = buildLineStarts(parseContent);
-  patchLoc(ast, lineStarts);
+  if (hasScript) {
+    const lineStarts: number[] = buildLineStarts(parseContent);
+    patchLoc(ast, lineStarts);
+  }
 
   // Extract imports ONCE per file, create contexts ONCE per rule (not per node)
-  const imports: ImportInfo[] = extractImports(ast);
+  const imports: ImportInfo[] = hasScript ? extractImports(ast) : [];
+
+  // For .svelte files, parse the template AST using svelte/compiler
+  let templateAst: AstNode | undefined;
+  if (isSvelteFile) {
+    const parsed: AstNode | null = await parseSvelteTemplate(content);
+    if (parsed) {
+      // Patch loc on template nodes using the ORIGINAL content's line map
+      // (template node positions reference the original file, not extracted script)
+      const templateLineStarts: number[] = buildLineStarts(content);
+      patchLoc(parsed, templateLineStarts);
+      templateAst = parsed;
+    }
+  }
+
   const contexts: Map<string, VisitorContext> = new Map();
   for (const rule of rules) {
     const ruleOpts: Record<string, unknown> | undefined = allRuleOptions?.[rule.id];
     contexts.set(
       rule.id,
-      createVisitorContext(filePath, parseContent, ast, imports, rule, ruleOpts),
+      createVisitorContext(
+        filePath,
+        parseContent,
+        ast,
+        imports,
+        rule,
+        ruleOpts,
+        templateAst,
+        content,
+      ),
     );
   }
 
   const results: LintResult[] = [];
 
-  walkNode(ast, (node: AstNode): void => {
-    for (const rule of rules) {
-      const visitorFn: VisitorFn | undefined = rule.visitor[node.type as keyof typeof rule.visitor];
-      if (!visitorFn) {
-        continue;
-      }
+  // Walk TypeScript AST — invoke script-level visitors
+  if (hasScript) {
+    walkNode(ast, (node: AstNode): void => {
+      for (const rule of rules) {
+        const visitorFn: VisitorFn | undefined =
+          rule.visitor[node.type as keyof typeof rule.visitor];
+        if (!visitorFn) {
+          continue;
+        }
 
-      const context: VisitorContext | undefined = contexts.get(rule.id);
-      if (!context) {
-        continue;
-      }
+        const context: VisitorContext | undefined = contexts.get(rule.id);
+        if (!context) {
+          continue;
+        }
 
-      try {
-        const ruleResults: LintResult[] = visitorFn(node, context);
-        results.push(...ruleResults);
-      } catch {
-        /* Rule threw — skip this node for this rule */
+        try {
+          const ruleResults: LintResult[] = visitorFn(node, context);
+          results.push(...ruleResults);
+        } catch {
+          /* Rule threw — skip this node for this rule */
+        }
       }
-    }
-  });
+    });
+  }
+
+  // Walk Svelte template AST — invoke template-level visitors
+  if (templateAst) {
+    walkSvelteNode(templateAst, (node: AstNode): void => {
+      for (const rule of rules) {
+        const visitorFn: VisitorFn | undefined =
+          rule.visitor[node.type as keyof typeof rule.visitor];
+        if (!visitorFn) {
+          continue;
+        }
+
+        const context: VisitorContext | undefined = contexts.get(rule.id);
+        if (!context) {
+          continue;
+        }
+
+        try {
+          const ruleResults: LintResult[] = visitorFn(node, context);
+          results.push(...ruleResults);
+        } catch {
+          /* Rule threw — skip this node for this rule */
+        }
+      }
+    });
+  }
 
   /* Backfill `source` on results that don't already have it — use original content for source lines */
   const lines: string[] = content.split('\n');
