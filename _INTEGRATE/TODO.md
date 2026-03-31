@@ -18,17 +18,6 @@
   shared/utils/cli
   products/storylyne
 
-- Compare the @/cli/sync hbs templated files against these workspace files for the differences and what's missing (cli/sync is the baseline but the workspace root files have have additional specifics not present in cli/sync templates)
-  - .editorconfig
-  - .*ignore
-  - .npmrc
-  - biome.jsonc
-  - package.json
-  - pnpm-workspace.yaml
-  - turbo.json
-  - .prettierrc.json
-  - (other missing workspace root files from sync tool)
-
 - Review every directory in: /Users/coleb/Desktop/webforge/packages/shared/ui/src
   - Only include directions that have a file that indicates its a placeholder
   - Give a full list of directories to delete that aren't "components" but are "blocks"
