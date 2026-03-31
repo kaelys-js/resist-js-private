@@ -158,4 +158,25 @@ describe('ResistCodeActionProvider', () => {
 
     expect(actions.length).toBe(0);
   });
+
+  it('accepts output channel in constructor', () => {
+    const channel = vscode.window.createOutputChannel('Test');
+    const providerWithChannel = new ResistCodeActionProvider(
+      channel as unknown as vscode.OutputChannel,
+    );
+    expect(providerWithChannel).toBeInstanceOf(ResistCodeActionProvider);
+  });
+
+  it('works without output channel (backwards compatible)', () => {
+    const providerNoChannel = new ResistCodeActionProvider();
+    const doc = createMockDocument('const x = 1;\n');
+    const diag = createDiagnostic({ start: 6, end: 7, text: 'y' });
+
+    const actions = providerNoChannel.provideCodeActions(doc, new vscode.Range(0, 0, 0, 5), {
+      diagnostics: [diag],
+    } as vscode.CodeActionContext);
+
+    expect(actions.length).toBe(1);
+    expect(actions[0].title).toBe('Fix: test/rule');
+  });
 });

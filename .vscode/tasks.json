@@ -33,7 +33,7 @@
       }
     },
     {
-      "label": "Package Resist Extension",
+      "label": "Install Resist Extension Locally",
       "type": "shell",
       "command": "pnpm",
       "args": ["--filter", "@resist/vscode", "install-local"],
@@ -41,8 +41,7 @@
       "presentation": {
         "reveal": "always",
         "panel": "shared"
-      },
-      "dependsOn": ["Watch Resist Extension"]
+      }
     }
   ]
 }

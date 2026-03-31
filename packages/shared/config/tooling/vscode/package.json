@@ -203,7 +203,7 @@
     "qa:test:coverage": "pnpm -w exec vitest run --project config-tooling-vscode --coverage",
     "clean": "rm -rf out",
     "package": "vsce package --no-dependencies",
-    "install-local": "pnpm build && pnpm package && code --install-extension resist-vscode-0.0.1.vsix",
+    "install-local": "pnpm build && pnpm package && code --install-extension $(ls -t *.vsix | head -1)",
     "vscode:prepublish": "pnpm build"
   },
   "devDependencies": {

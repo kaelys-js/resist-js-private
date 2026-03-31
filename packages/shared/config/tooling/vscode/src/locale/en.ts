@@ -47,6 +47,8 @@ export const en: VscodeStrings = {
     binaryNotFoundShort: 'resist-lint binary not found',
     foundDiagnostics: 'Found {count} diagnostics',
     runningLinter: 'Running resist-lint...',
+    progressFiles: '{processed}/{total} files',
+    availableRulesHeader: '=== Available Rules ===',
   },
 
   progress: {

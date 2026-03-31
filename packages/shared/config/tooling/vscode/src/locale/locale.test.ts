@@ -71,6 +71,8 @@ describe('Locale', () => {
         'Lint failed for a.ts: boom',
       );
       expect(format(en.messages.foundDiagnostics, { count: 10 })).toBe('Found 10 diagnostics');
+      expect(format(en.messages.progressFiles, { processed: 5, total: 20 })).toBe('5/20 files');
+      expect(en.messages.availableRulesHeader).toBe('=== Available Rules ===');
     });
 
     it('has all progress strings', () => {

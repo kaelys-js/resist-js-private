@@ -101,7 +101,7 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
       { scheme: 'file' },
-      new ResistCodeActionProvider(),
+      new ResistCodeActionProvider(outputChannel),
       { providedCodeActionKinds: ResistCodeActionProvider.providedCodeActionKinds },
     ),
   );
