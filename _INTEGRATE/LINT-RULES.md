@@ -1,5 +1,6 @@
 Review the README rules. Figure out best practices for README (do research, etc). README rule should be able to handle generating a perfect README.
 ALL *.test.ts files should use stuff from packages/shared/config/test, if things are shared across test files then move it into that utility package -- then create custom lint rules enforcing useage in test files, review and present all custom rules that don't make sense for test files.
+VSCode Extensions
 API
 RevenueCat/LemonSqueezy
 Svelte Components
