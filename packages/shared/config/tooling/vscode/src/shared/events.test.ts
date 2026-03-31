@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as vscode from 'vscode';
 import { DocumentEventRegistry } from './events';
+import { BRAND_NAME } from './brand';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -25,7 +26,7 @@ function createMockChannel(): any {
     appendLine: vi.fn(),
     show: vi.fn(),
     dispose: vi.fn(),
-    name: 'Resist',
+    name: BRAND_NAME,
   };
 }
 

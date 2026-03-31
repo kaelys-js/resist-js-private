@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as vscode from 'vscode';
 import { DiagnosticFilter } from './diagnostic-filter';
-import { DIAGNOSTIC_SOURCE } from '../shared/brand';
+import { BRAND_NAME, DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -24,7 +24,7 @@ function createDiag(ruleId: string): any {
 }
 
 function createChannel(): any {
-  return { appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn(), name: 'Resist' };
+  return { appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn(), name: BRAND_NAME };
 }
 
 // ---------------------------------------------------------------------------

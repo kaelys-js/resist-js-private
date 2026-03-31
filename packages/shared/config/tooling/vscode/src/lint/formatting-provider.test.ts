@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
 import { ResistFormattingProvider } from './formatting-provider';
-import { DIAGNOSTIC_SOURCE } from '../shared/brand';
+import { BRAND_NAME, DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -45,7 +45,7 @@ describe('ResistFormattingProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     collection = vscode.languages.createDiagnosticCollection('test');
-    channel = { appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn(), name: 'Resist' };
+    channel = { appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn(), name: BRAND_NAME };
   });
 
   it('returns TextEdits for fixable diagnostics', () => {

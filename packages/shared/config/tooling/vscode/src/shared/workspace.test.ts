@@ -6,6 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
+import { BINARY_NAME } from './brand';
 
 // Mock fs module
 vi.mock('fs', () => ({
@@ -89,11 +90,11 @@ describe('Workspace Resolution', () => {
 
       vi.mocked(existsSync).mockImplementation((path: unknown) => {
         const p = String(path);
-        return p === '/repo/pnpm-workspace.yaml' || p === '/repo/node_modules/.bin/resist-lint';
+        return p === '/repo/pnpm-workspace.yaml' || p === `/repo/node_modules/.bin/${BINARY_NAME}`;
       });
 
-      const result = getBinaryPath('resist-lint', uri);
-      expect(result).toBe('/repo/node_modules/.bin/resist-lint');
+      const result = getBinaryPath(BINARY_NAME, uri);
+      expect(result).toBe(`/repo/node_modules/.bin/${BINARY_NAME}`);
     });
 
     it('returns undefined when binary does not exist', () => {
@@ -107,14 +108,14 @@ describe('Workspace Resolution', () => {
         return String(path) === '/repo/pnpm-workspace.yaml';
       });
 
-      const result = getBinaryPath('resist-lint', uri);
+      const result = getBinaryPath(BINARY_NAME, uri);
       expect(result).toBeUndefined();
     });
 
     it('returns undefined when workspace root not found', () => {
       // No workspace folder
       vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(undefined);
-      const result = getBinaryPath('resist-lint', vscode.Uri.file('/random/file.ts'));
+      const result = getBinaryPath(BINARY_NAME, vscode.Uri.file('/random/file.ts'));
       expect(result).toBeUndefined();
     });
   });

@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as vscode from 'vscode';
 import { InlineOverrideDecorator } from './inline-overrides';
+import { DISABLE_FILE_PREFIX, DISABLE_NEXT_LINE_PREFIX } from '../shared/brand';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -51,25 +52,25 @@ describe('InlineOverrideDecorator', () => {
     decorator.dispose();
   });
 
-  it('detects resist-lint-disable comments', () => {
-    const text = '// resist-lint-disable: no-console\nconst x = 1;';
+  it('detects disable comments', () => {
+    const text = `// ${DISABLE_FILE_PREFIX}: no-console\nconst x = 1;`;
     const count = decorator.countOverrides(text);
     expect(count).toBe(1);
   });
 
-  it('detects resist-lint-disable-next-line comments', () => {
-    const text = '// resist-lint-disable-next-line: no-var\nvar x = 1;';
+  it('detects disable-next-line comments', () => {
+    const text = `// ${DISABLE_NEXT_LINE_PREFIX}: no-var\nvar x = 1;`;
     const count = decorator.countOverrides(text);
     expect(count).toBe(1);
   });
 
   it('detects multiple override comments', () => {
     const text = [
-      '// resist-lint-disable: no-console',
+      `// ${DISABLE_FILE_PREFIX}: no-console`,
       'console.log("hi");',
-      '// resist-lint-disable-next-line: no-var',
+      `// ${DISABLE_NEXT_LINE_PREFIX}: no-var`,
       'var x = 1;',
-      '// resist-lint-disable',
+      `// ${DISABLE_FILE_PREFIX}`,
     ].join('\n');
 
     const count = decorator.countOverrides(text);
@@ -83,7 +84,7 @@ describe('InlineOverrideDecorator', () => {
   });
 
   it('applies decorations to editor', () => {
-    const text = '// resist-lint-disable: no-console\nconst x = 1;';
+    const text = `// ${DISABLE_FILE_PREFIX}: no-console\nconst x = 1;`;
     const editor = createMockEditor(text);
 
     decorator.updateDecorations(editor);
@@ -91,7 +92,7 @@ describe('InlineOverrideDecorator', () => {
     expect(editor.setDecorations).toHaveBeenCalledTimes(1);
     const decorations = editor.setDecorations.mock.calls[0][1];
     expect(decorations).toHaveLength(1);
-    expect(decorations[0].hoverMessage).toContain('resist-lint');
+    expect(decorations[0].hoverMessage).toContain(DISABLE_FILE_PREFIX);
   });
 
   it('applies no decorations for clean files', () => {

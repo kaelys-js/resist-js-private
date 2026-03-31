@@ -189,7 +189,7 @@
             "type": "string"
           },
           "default": [],
-          "description": "Additional CLI arguments passed directly to the resist-lint process. Use for flags not exposed as dedicated settings."
+          "description": "Additional CLI arguments passed directly to the linter process. Use for flags not exposed as dedicated settings."
         },
         "resist.lint.cache": {
           "type": "boolean",
@@ -265,7 +265,7 @@
         "resist.lint.formatOnSave": {
           "type": "boolean",
           "default": false,
-          "description": "Register resist-lint as a formatting provider so lint fixes run as part of format-on-save."
+          "description": "Register the linter as a formatting provider so lint fixes run as part of format-on-save."
         },
         "resist.lint.showTiming": {
           "type": "boolean",

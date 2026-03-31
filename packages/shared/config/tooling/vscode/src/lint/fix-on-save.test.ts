@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as vscode from 'vscode';
 import { FixOnSaveManager } from './fix-on-save';
-import { DIAGNOSTIC_SOURCE } from '../shared/brand';
+import { BRAND_NAME, DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -27,7 +27,7 @@ function createMockChannel(): any {
     appendLine: vi.fn(),
     show: vi.fn(),
     dispose: vi.fn(),
-    name: 'Resist',
+    name: BRAND_NAME,
   };
 }
 

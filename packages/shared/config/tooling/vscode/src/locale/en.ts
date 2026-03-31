@@ -10,44 +10,47 @@
  */
 
 import type { VscodeStrings } from './schema';
+import { BRAND_NAME, BINARY_NAME, PREVIEW_SCHEME } from '../shared/brand';
 
 /**
- * English locale strings for the Resist VSCode extension.
+ * English locale strings for the VSCode extension.
+ *
+ * All brand references use constants from brand.ts so the extension
+ * can be white-labelled by changing only that file.
  */
 export const en: VscodeStrings = {
   output: {
-    channelName: 'Resist',
+    channelName: BRAND_NAME,
     errorPrefix: 'ERROR',
-    activated: 'Resist extension activated',
+    activated: `${BRAND_NAME} extension activated`,
   },
 
   statusBar: {
-    tooltip: 'Resist Linter — Click to show output',
-    tooltipPrefix: 'Resist —',
-    ready: '$(check) Resist',
+    tooltip: `${BRAND_NAME} Linter — Click to show output`,
+    tooltipPrefix: `${BRAND_NAME} —`,
+    ready: `$(check) ${BRAND_NAME}`,
     linting: '$(sync~spin) Linting...',
-    error: '$(error) Resist',
-    disabled: '$(circle-slash) Resist',
+    error: `$(error) ${BRAND_NAME}`,
+    disabled: `$(circle-slash) ${BRAND_NAME}`,
   },
 
   messages: {
-    binaryNotFound: 'Resist: resist-lint not found in node_modules/.bin. Linting is disabled.',
-    binaryNotFoundLog:
-      'resist-lint not found in node_modules/.bin. Install @/lint to enable linting.',
+    binaryNotFound: `${BRAND_NAME}: ${BINARY_NAME} not found in node_modules/.bin. Linting is disabled.`,
+    binaryNotFoundLog: `${BINARY_NAME} not found in node_modules/.bin. Install @/lint to enable linting.`,
     noWorkspaceFolder: 'No workspace folder open',
-    binaryNotInNodeModules: 'resist-lint not found in node_modules/.bin',
+    binaryNotInNodeModules: `${BINARY_NAME} not found in node_modules/.bin`,
     noFixableProblems: 'No auto-fixable problems found',
-    fixRejected: 'Resist: Failed to apply auto-fixes',
+    fixRejected: `${BRAND_NAME}: Failed to apply auto-fixes`,
     fixRejectedLog: 'Failed to apply auto-fixes — workspace edit rejected',
     diagnosticsCleared: 'Diagnostics cleared',
     linterRestarted: 'Linter restarted — cache cleared, re-linting open files',
     fixesApplied: 'Applied {count} auto-fix(es)',
-    skipBinaryNotFound: 'Skipping lint: resist-lint binary not found for {file}',
+    skipBinaryNotFound: `Skipping lint: ${BINARY_NAME} binary not found for {file}`,
     skipWorkspaceNotFound: 'Skipping lint: workspace root not found for {file}',
     lintFailed: 'Lint failed for {file}: {error}',
-    binaryNotFoundShort: 'resist-lint binary not found',
+    binaryNotFoundShort: `${BINARY_NAME} binary not found`,
     foundDiagnostics: 'Found {count} diagnostics',
-    runningLinter: 'Running resist-lint...',
+    runningLinter: `Running ${BINARY_NAME}...`,
     progressFiles: '{processed}/{total} files',
     availableRulesHeader: '=== Available Rules ===',
     lintedFile: 'Linted {file}',
@@ -59,9 +62,9 @@ export const en: VscodeStrings = {
   },
 
   progress: {
-    workspace: 'Resist: Linting workspace',
-    staged: 'Resist: Linting staged changes',
-    uncommitted: 'Resist: Linting uncommitted changes',
+    workspace: `${BRAND_NAME}: Linting workspace`,
+    staged: `${BRAND_NAME}: Linting staged changes`,
+    uncommitted: `${BRAND_NAME}: Linting uncommitted changes`,
   },
 
   codeActions: {
@@ -158,9 +161,9 @@ export const en: VscodeStrings = {
   },
 
   diffPreview: {
-    title: 'Resist: Fix Preview ↔ {file}',
+    title: `${BRAND_NAME}: Fix Preview ↔ {file}`,
     noFixes: 'No auto-fixable problems to preview',
-    scheme: 'resist-fix-preview',
+    scheme: PREVIEW_SCHEME,
   },
 
   formatting: {
@@ -200,12 +203,12 @@ export const en: VscodeStrings = {
   },
 
   inlineOverrides: {
-    decorationTooltip: 'Resist lint override: {directive}',
+    decorationTooltip: `${BRAND_NAME} lint override: {directive}`,
     foundOverrides: 'Found {count} inline override comments',
   },
 
   stageIndicator: {
-    currentStage: '$(check) Resist [{stage}]',
+    currentStage: `$(check) ${BRAND_NAME} [{stage}]`,
     selectStage: 'Select lint stage',
     stageChanged: 'Lint stage changed to: {stage}',
   },

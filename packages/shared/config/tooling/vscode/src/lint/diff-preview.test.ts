@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
 import { FixDiffPreviewProvider, applyFixes, showFixDiffPreview } from './diff-preview';
-import { DIAGNOSTIC_SOURCE } from '../shared/brand';
+import { DIAGNOSTIC_SOURCE, PREVIEW_SCHEME } from '../shared/brand';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -106,7 +106,7 @@ describe('FixDiffPreviewProvider', () => {
     collection.set(doc.uri, [createDiagWithFix(0, 5, 'let')]);
 
     const provider = new FixDiffPreviewProvider(collection);
-    const uri = vscode.Uri.parse('resist-fix-preview:/test/file.ts');
+    const uri = vscode.Uri.parse(`${PREVIEW_SCHEME}:/test/file.ts`);
     const content = provider.provideTextDocumentContent(uri);
 
     expect(content).toBe('let x = 1;');
@@ -116,7 +116,7 @@ describe('FixDiffPreviewProvider', () => {
     vscode.workspace.textDocuments = [];
     const collection = vscode.languages.createDiagnosticCollection('test');
     const provider = new FixDiffPreviewProvider(collection);
-    const uri = vscode.Uri.parse('resist-fix-preview:/nonexistent.ts');
+    const uri = vscode.Uri.parse(`${PREVIEW_SCHEME}:/nonexistent.ts`);
 
     const content = provider.provideTextDocumentContent(uri);
     expect(content).toBe('');

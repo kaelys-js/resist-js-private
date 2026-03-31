@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
 import { registerLintCommands } from './commands';
-import { COMMANDS, DIAGNOSTIC_COLLECTION_NAME } from '../shared/brand';
+import { COMMANDS, DIAGNOSTIC_COLLECTION_NAME, BRAND_NAME } from '../shared/brand';
 
 // Capture registered command handlers
 const commandHandlers = new Map<string, (...args: unknown[]) => unknown>();
@@ -39,7 +39,7 @@ describe('Lint Commands', () => {
 
     context = createMockContext();
     diagnosticCollection = vscode.languages.createDiagnosticCollection(DIAGNOSTIC_COLLECTION_NAME);
-    outputChannel = vscode.window.createOutputChannel('Resist');
+    outputChannel = vscode.window.createOutputChannel(BRAND_NAME);
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     lintDocumentFn = vi.fn();
     getLintOptions = vi.fn(() => ({

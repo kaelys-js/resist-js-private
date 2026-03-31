@@ -10,6 +10,7 @@
  */
 
 import { vi } from 'vitest';
+import { BRAND_NAME, DIAGNOSTIC_COLLECTION_NAME } from '../shared/brand';
 
 // =============================================================================
 // Enums
@@ -214,7 +215,7 @@ function createMockOutputChannel(): {
     appendLine: vi.fn(),
     show: vi.fn(),
     dispose: vi.fn(),
-    name: 'Resist',
+    name: BRAND_NAME,
   };
 }
 
@@ -249,7 +250,7 @@ function createMockDiagnosticCollection(): {
 } {
   const store = new Map<string, Diagnostic[]>();
   return {
-    name: 'resist-linter',
+    name: DIAGNOSTIC_COLLECTION_NAME,
     set: vi.fn((uri: Uri, diags: Diagnostic[]) => {
       store.set(uri.toString(), diags);
     }),

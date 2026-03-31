@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as vscode from 'vscode';
 import { StageIndicator } from './stage-indicator';
+import { BRAND_NAME } from '../shared/brand';
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -28,7 +29,7 @@ describe('StageIndicator', () => {
       hide: vi.fn(),
       dispose: vi.fn(),
     };
-    channel = { appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn(), name: 'Resist' };
+    channel = { appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn(), name: BRAND_NAME };
     indicator = new StageIndicator(statusBarItem, channel);
   });
 
