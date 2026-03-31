@@ -13,6 +13,7 @@ import { getBinaryPath, getWorkspaceRoot } from '../shared/workspace';
 import { logError, logCommand } from '../shared/output';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
+import { BINARY_NAME } from '../shared/brand';
 
 /** Parsed timing entry from CLI output. */
 export interface TimingEntry {
@@ -83,7 +84,7 @@ export async function showTimingReport(channel: vscode.OutputChannel): Promise<v
     return;
   }
 
-  const binPath: string | undefined = getBinaryPath('resist-lint', folders[0].uri);
+  const binPath: string | undefined = getBinaryPath(BINARY_NAME, folders[0].uri);
   if (!binPath) {
     vscode.window.showErrorMessage(en.messages.binaryNotInNodeModules);
     return;
@@ -105,7 +106,7 @@ export async function showTimingReport(channel: vscode.OutputChannel): Promise<v
   });
 
   if (!result.ok) {
-    logError(channel, `Timing report failed: ${result.error}`);
+    logError(channel, format(en.messages.timingReportFailed, { error: result.error }));
     return;
   }
 

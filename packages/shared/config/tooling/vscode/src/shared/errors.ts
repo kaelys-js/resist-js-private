@@ -13,6 +13,8 @@
 
 import type * as vscode from 'vscode';
 import { logError } from './output';
+import { en } from '../locale/en';
+import { format } from '../locale/schema';
 
 /**
  * Wraps a synchronous function in a try/catch boundary.
@@ -28,7 +30,7 @@ export function safeRun(channel: vscode.OutputChannel, label: string, fn: () => 
   try {
     fn();
   } catch (err: unknown) {
-    logError(channel, `${label}: ${extractMessage(err)}`);
+    logError(channel, format(en.errorBoundary.errorLog, { label, message: extractMessage(err) }));
   }
 }
 
@@ -51,7 +53,7 @@ export async function safeRunAsync(
   try {
     await fn();
   } catch (err: unknown) {
-    logError(channel, `${label}: ${extractMessage(err)}`);
+    logError(channel, format(en.errorBoundary.errorLog, { label, message: extractMessage(err) }));
   }
 }
 

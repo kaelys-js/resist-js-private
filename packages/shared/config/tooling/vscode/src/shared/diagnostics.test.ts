@@ -9,6 +9,7 @@ import * as vscode from 'vscode';
 import { mapSeverity, applyMaxProblems, createDiagnosticFromEntry } from './diagnostics';
 import type { DiagnosticEntry, DiagnosticFix } from './types';
 import * as output from './output';
+import { DIAGNOSTIC_SOURCE } from './brand';
 
 vi.mock('./output', () => ({
   log: vi.fn(),
@@ -29,6 +30,7 @@ vi.mock('../locale/en', () => ({
     diagnosticManager: {
       maxProblemsReached: 'Max problems limit reached ({max}), remaining diagnostics truncated',
       invalidEntry: 'Invalid diagnostic entry skipped: {reason}',
+      invalidReason: 'missing message or invalid line: {line}',
     },
   },
 }));
@@ -143,7 +145,7 @@ describe('Diagnostics Manager', () => {
   describe('createDiagnosticFromEntry', () => {
     it('creates diagnostic with correct range', () => {
       const entry = createEntry({ line: 10, column: 5 });
-      const diag = createDiagnosticFromEntry(entry, 'resist-linter', mockChannel);
+      const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE, mockChannel);
 
       expect(diag).toBeDefined();
       expect(diag!.range.start.line).toBe(9); // 0-based
@@ -154,8 +156,8 @@ describe('Diagnostics Manager', () => {
       const errorEntry = createEntry({ severity: 'error' });
       const warnEntry = createEntry({ severity: 'warning' });
 
-      const errorDiag = createDiagnosticFromEntry(errorEntry, 'resist-linter');
-      const warnDiag = createDiagnosticFromEntry(warnEntry, 'resist-linter');
+      const errorDiag = createDiagnosticFromEntry(errorEntry, DIAGNOSTIC_SOURCE);
+      const warnDiag = createDiagnosticFromEntry(warnEntry, DIAGNOSTIC_SOURCE);
 
       expect(errorDiag!.severity).toBe(vscode.DiagnosticSeverity.Error);
       expect(warnDiag!.severity).toBe(vscode.DiagnosticSeverity.Warning);
@@ -163,14 +165,14 @@ describe('Diagnostics Manager', () => {
 
     it('creates diagnostic with correct source', () => {
       const entry = createEntry();
-      const diag = createDiagnosticFromEntry(entry, 'resist-linter');
+      const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE);
 
-      expect(diag!.source).toBe('resist-linter');
+      expect(diag!.source).toBe(DIAGNOSTIC_SOURCE);
     });
 
     it('creates diagnostic with correct code (ruleId)', () => {
       const entry = createEntry({ ruleId: 'no-unused-vars' });
-      const diag = createDiagnosticFromEntry(entry, 'resist-linter');
+      const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE);
 
       expect(diag!.code).toBe('no-unused-vars');
     });
@@ -182,7 +184,7 @@ describe('Diagnostics Manager', () => {
         url: 'https://example.com/rule',
       });
 
-      const diag = createDiagnosticFromEntry(entry, 'resist-linter');
+      const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE);
       const data = (diag as unknown as { data: Record<string, unknown> }).data;
 
       expect(data).toBeDefined();
@@ -193,28 +195,28 @@ describe('Diagnostics Manager', () => {
 
     it('returns undefined for invalid entry (missing message)', () => {
       const entry = createEntry({ message: '' });
-      const diag = createDiagnosticFromEntry(entry, 'resist-linter', mockChannel);
+      const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE, mockChannel);
 
       expect(diag).toBeUndefined();
     });
 
     it('returns undefined for invalid entry (line < 1)', () => {
       const entry = createEntry({ line: 0 });
-      const diag = createDiagnosticFromEntry(entry, 'resist-linter', mockChannel);
+      const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE, mockChannel);
 
       expect(diag).toBeUndefined();
     });
 
     it('returns undefined for invalid entry (line undefined)', () => {
       const entry = createEntry({ line: undefined as unknown as number });
-      const diag = createDiagnosticFromEntry(entry, 'resist-linter', mockChannel);
+      const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE, mockChannel);
 
       expect(diag).toBeUndefined();
     });
 
     it('logs invalid entry when channel provided', () => {
       const entry = createEntry({ message: '', line: 0 });
-      createDiagnosticFromEntry(entry, 'resist-linter', mockChannel);
+      createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE, mockChannel);
 
       expect(output.log).toHaveBeenCalledWith(
         mockChannel,
@@ -224,7 +226,7 @@ describe('Diagnostics Manager', () => {
 
     it('handles endLine and endColumn', () => {
       const entry = createEntry({ line: 5, column: 1, endLine: 7, endColumn: 10 });
-      const diag = createDiagnosticFromEntry(entry, 'resist-linter');
+      const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE);
 
       expect(diag!.range.start.line).toBe(4);
       expect(diag!.range.start.character).toBe(0);
@@ -234,7 +236,7 @@ describe('Diagnostics Manager', () => {
 
     it('defaults endLine/endColumn to start line/col when not provided', () => {
       const entry = createEntry({ line: 3, column: 2 });
-      const diag = createDiagnosticFromEntry(entry, 'resist-linter');
+      const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE);
 
       expect(diag!.range.start.line).toBe(2);
       expect(diag!.range.start.character).toBe(1);
@@ -253,7 +255,7 @@ describe('Diagnostics Manager', () => {
         fix: undefined as unknown as DiagnosticFix,
       };
 
-      const diag = createDiagnosticFromEntry(entry, 'resist-linter');
+      const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE);
       expect((diag as unknown as { data: unknown }).data).toBeUndefined();
     });
   });

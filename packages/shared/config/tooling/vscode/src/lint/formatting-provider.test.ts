@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
 import { ResistFormattingProvider } from './formatting-provider';
+import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -26,7 +27,7 @@ function createDiagWithFix(start: number, end: number, fixText: string): any {
     range: new vscode.Range(0, 0, 0, 5),
     message: 'test issue',
     severity: vscode.DiagnosticSeverity.Warning,
-    source: 'resist-linter',
+    source: DIAGNOSTIC_SOURCE,
     data: {
       fix: { range: { start, end }, text: fixText },
     },
@@ -62,7 +63,7 @@ describe('ResistFormattingProvider', () => {
     const noFixDiag: any = {
       range: new vscode.Range(0, 0, 0, 5),
       message: 'no fix',
-      source: 'resist-linter',
+      source: DIAGNOSTIC_SOURCE,
       data: undefined,
     };
     collection.set(doc.uri, [noFixDiag]);

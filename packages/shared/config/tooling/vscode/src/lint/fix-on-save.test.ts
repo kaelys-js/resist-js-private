@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as vscode from 'vscode';
 import { FixOnSaveManager } from './fix-on-save';
+import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -35,7 +36,7 @@ function createDiagWithFix(start: number, end: number, text: string): any {
     range: new vscode.Range(0, 0, 0, 5),
     message: 'test issue',
     severity: vscode.DiagnosticSeverity.Warning,
-    source: 'resist-linter',
+    source: DIAGNOSTIC_SOURCE,
     data: {
       fix: { range: { start, end }, text },
     },
@@ -47,7 +48,7 @@ function createDiagWithoutFix(): any {
     range: new vscode.Range(0, 0, 0, 5),
     message: 'no fix available',
     severity: vscode.DiagnosticSeverity.Warning,
-    source: 'resist-linter',
+    source: DIAGNOSTIC_SOURCE,
     data: undefined,
   };
 }

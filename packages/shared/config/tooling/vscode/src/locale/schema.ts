@@ -144,6 +144,18 @@ export interface MessageStrings {
   readonly progressFiles: string;
   /** Section header for available rules output. */
   readonly availableRulesHeader: string;
+  /** Log timing label for single file lint. */
+  readonly lintedFile: string;
+  /** Error mapping a diagnostic entry. */
+  readonly diagnosticMapFailed: string;
+  /** Log stderr output from CLI. */
+  readonly stderrOutput: string;
+  /** Error for workspace lint failure. */
+  readonly workspaceLintFailed: string;
+  /** Log timing label for workspace lint. */
+  readonly workspaceLintTiming: string;
+  /** Error for timing report failure. */
+  readonly timingReportFailed: string;
 }
 
 /** Strings for progress bar titles. */
@@ -238,6 +250,14 @@ export interface DiagnosticManagerStrings {
   readonly maxProblemsReached: string;
   /** Warning when an invalid diagnostic entry is skipped. */
   readonly invalidEntry: string;
+  /** Reason detail for missing message or invalid line. */
+  readonly invalidReason: string;
+}
+
+/** Strings for error boundaries. */
+export interface ErrorBoundaryStrings {
+  /** Error log format: "{label}: {message}". */
+  readonly errorLog: string;
 }
 
 /** Strings for tool runner. */
@@ -246,6 +266,10 @@ export interface RunnerStrings {
   readonly timeout: string;
   /** Error log for spawn failure. */
   readonly spawnFailed: string;
+  /** Error log for non-zero exit. */
+  readonly exitCode: string;
+  /** Error log for JSON parse failure. */
+  readonly jsonParseFailed: string;
 }
 
 /** Strings for plural formatting. */
@@ -401,6 +425,7 @@ export interface VscodeStrings {
   readonly state: StateStrings;
   readonly diagnosticManager: DiagnosticManagerStrings;
   readonly runner: RunnerStrings;
+  readonly errorBoundary: ErrorBoundaryStrings;
   readonly plurals: PluralStrings;
   readonly events: EventsStrings;
   readonly fixOnSave: FixOnSaveStrings;

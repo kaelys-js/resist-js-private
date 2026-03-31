@@ -10,6 +10,8 @@
 import { spawn } from 'child_process';
 import * as path from 'path';
 import type { RunOptions, RunResult } from './types';
+import { en } from '../locale/en';
+import { format } from '../locale/schema';
 
 /** Raw process result from runTool. */
 export interface ToolResult {
@@ -82,7 +84,7 @@ export function runTool(options: RunOptions): Promise<ToolResult> {
       clearTimeout(timer);
       resolve({
         stdout,
-        stderr: `Failed to spawn: ${err.message}`,
+        stderr: format(en.runner.spawnFailed, { error: err.message }),
         exitCode: null,
         elapsed: Date.now() - startTime,
       });
@@ -106,7 +108,7 @@ export async function runToolText(options: RunOptions): Promise<RunResult<string
   if (result.exitCode !== 0) {
     return {
       ok: false,
-      error: result.stderr.trim() || `Process exited with code ${result.exitCode}`,
+      error: result.stderr.trim() || format(en.runner.exitCode, { code: String(result.exitCode) }),
       stderr: result.stderr,
       code: result.exitCode,
     };
@@ -176,7 +178,7 @@ export function runToolJson<T>(options: RunOptions): Promise<RunResult<T>> {
       child.kill();
       resolve({
         ok: false,
-        error: `Timed out after ${timeoutMs}ms`,
+        error: format(en.runner.timeout, { ms: timeoutMs }),
         stderr,
         code: null,
       });
@@ -194,7 +196,10 @@ export function runToolJson<T>(options: RunOptions): Promise<RunResult<T>> {
           const parseMsg: string = parseErr instanceof Error ? parseErr.message : String(parseErr);
           resolve({
             ok: false,
-            error: `Failed to parse JSON output (${parseMsg}): ${stdout.slice(0, 200)}`,
+            error: format(en.runner.jsonParseFailed, {
+              error: parseMsg,
+              preview: stdout.slice(0, 200),
+            }),
             stderr,
             code,
           });
@@ -208,7 +213,7 @@ export function runToolJson<T>(options: RunOptions): Promise<RunResult<T>> {
         } else {
           resolve({
             ok: false,
-            error: stderr.trim() || `Process exited with code ${code}`,
+            error: stderr.trim() || format(en.runner.exitCode, { code: String(code) }),
             stderr,
             code,
           });
@@ -220,7 +225,7 @@ export function runToolJson<T>(options: RunOptions): Promise<RunResult<T>> {
       clearTimeout(timer);
       resolve({
         ok: false,
-        error: `Failed to spawn: ${err.message}`,
+        error: format(en.runner.spawnFailed, { error: err.message }),
         stderr,
         code: null,
       });

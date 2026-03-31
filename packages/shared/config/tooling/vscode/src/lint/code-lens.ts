@@ -12,6 +12,7 @@ import * as vscode from 'vscode';
 import type { DiagnosticWithData } from './provider';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
+import { DIAGNOSTIC_SOURCE, COMMANDS } from '../shared/brand';
 
 /**
  * Provides code lenses for resist-linter diagnostics.
@@ -55,7 +56,7 @@ export class ResistCodeLensProvider implements vscode.CodeLensProvider {
     >();
 
     for (const diag of diagnostics) {
-      if (diag.source !== 'resist-linter') {
+      if (diag.source !== DIAGNOSTIC_SOURCE) {
         continue;
       }
 
@@ -83,7 +84,7 @@ export class ResistCodeLensProvider implements vscode.CodeLensProvider {
 
       const command: vscode.Command = url
         ? { title, command: 'vscode.open', arguments: [vscode.Uri.parse(url)] }
-        : { title, command: 'resist.lint.showOutput' };
+        : { title, command: COMMANDS.showOutput };
 
       lenses.push(new vscode.CodeLens(range, command));
     }

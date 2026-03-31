@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
 import { registerLintCommands } from './commands';
+import { COMMANDS, DIAGNOSTIC_COLLECTION_NAME } from '../shared/brand';
 
 // Capture registered command handlers
 const commandHandlers = new Map<string, (...args: unknown[]) => unknown>();
@@ -37,7 +38,7 @@ describe('Lint Commands', () => {
     commandHandlers.clear();
 
     context = createMockContext();
-    diagnosticCollection = vscode.languages.createDiagnosticCollection('resist-linter');
+    diagnosticCollection = vscode.languages.createDiagnosticCollection(DIAGNOSTIC_COLLECTION_NAME);
     outputChannel = vscode.window.createOutputChannel('Resist');
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     lintDocumentFn = vi.fn();
@@ -66,15 +67,15 @@ describe('Lint Commands', () => {
 
   it('registers all 9 commands', () => {
     const expectedCommands = [
-      'resist.lint.file',
-      'resist.lint.workspace',
-      'resist.lint.fix',
-      'resist.lint.clear',
-      'resist.lint.listRules',
-      'resist.lint.restart',
-      'resist.lint.showOutput',
-      'resist.lint.staged',
-      'resist.lint.uncommitted',
+      COMMANDS.lintFile,
+      COMMANDS.lintWorkspace,
+      COMMANDS.lintFix,
+      COMMANDS.lintClear,
+      COMMANDS.listRules,
+      COMMANDS.restart,
+      COMMANDS.showOutput,
+      COMMANDS.lintStaged,
+      COMMANDS.lintUncommitted,
     ];
 
     for (const cmd of expectedCommands) {
@@ -92,7 +93,7 @@ describe('Lint Commands', () => {
       document: doc,
     } as unknown as vscode.TextEditor;
 
-    const handler = commandHandlers.get('resist.lint.file')!;
+    const handler = commandHandlers.get(COMMANDS.lintFile)!;
     handler();
 
     expect(lintDocumentFn).toHaveBeenCalledWith(doc);
@@ -101,21 +102,21 @@ describe('Lint Commands', () => {
   it('resist.lint.file does nothing when no active editor', () => {
     vscode.window.activeTextEditor = undefined;
 
-    const handler = commandHandlers.get('resist.lint.file')!;
+    const handler = commandHandlers.get(COMMANDS.lintFile)!;
     handler();
 
     expect(lintDocumentFn).not.toHaveBeenCalled();
   });
 
   it('resist.lint.clear clears diagnostics and updates status bar', () => {
-    const handler = commandHandlers.get('resist.lint.clear')!;
+    const handler = commandHandlers.get(COMMANDS.lintClear)!;
     handler();
 
     expect(diagnosticCollection.clear).toHaveBeenCalled();
   });
 
   it('resist.lint.showOutput shows the output channel', () => {
-    const handler = commandHandlers.get('resist.lint.showOutput')!;
+    const handler = commandHandlers.get(COMMANDS.showOutput)!;
     handler();
 
     expect(outputChannel.show).toHaveBeenCalled();
@@ -134,7 +135,7 @@ describe('Lint Commands', () => {
     };
     vscode.workspace.textDocuments = [doc];
 
-    const handler = commandHandlers.get('resist.lint.restart')!;
+    const handler = commandHandlers.get(COMMANDS.restart)!;
     handler();
 
     expect(diagnosticCollection.clear).toHaveBeenCalled();
@@ -154,21 +155,21 @@ describe('Lint Commands', () => {
       },
     ];
 
-    const handler = commandHandlers.get('resist.lint.restart')!;
+    const handler = commandHandlers.get(COMMANDS.restart)!;
     handler();
 
     expect(lintDocumentFn).not.toHaveBeenCalled();
   });
 
   it('resist.lint.workspace calls withProgress', async () => {
-    const handler = commandHandlers.get('resist.lint.workspace')!;
+    const handler = commandHandlers.get(COMMANDS.lintWorkspace)!;
     await handler();
 
     expect(vscode.window.withProgress).toHaveBeenCalled();
   });
 
   it('resist.lint.staged calls withProgress with diff=staged option', async () => {
-    const handler = commandHandlers.get('resist.lint.staged')!;
+    const handler = commandHandlers.get(COMMANDS.lintStaged)!;
     await handler();
 
     expect(vscode.window.withProgress).toHaveBeenCalled();
@@ -179,7 +180,7 @@ describe('Lint Commands', () => {
   });
 
   it('resist.lint.uncommitted calls withProgress with uncommitted title', async () => {
-    const handler = commandHandlers.get('resist.lint.uncommitted')!;
+    const handler = commandHandlers.get(COMMANDS.lintUncommitted)!;
     await handler();
 
     expect(vscode.window.withProgress).toHaveBeenCalled();

@@ -12,6 +12,7 @@ import * as vscode from 'vscode';
 import { log } from '../shared/output';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
+import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 /**
  * Manages diagnostic filtering by category.
@@ -47,7 +48,7 @@ export class DiagnosticFilter implements vscode.Disposable {
 
     collection.forEach((_uri: vscode.Uri, diagnostics: readonly vscode.Diagnostic[]) => {
       for (const diag of diagnostics) {
-        if (diag.source !== 'resist-linter') {
+        if (diag.source !== DIAGNOSTIC_SOURCE) {
           continue;
         }
         const ruleId: string =
@@ -116,7 +117,7 @@ export class DiagnosticFilter implements vscode.Disposable {
     const originals = new Map(this.originalDiagnostics);
     for (const [uriStr, diagnostics] of originals) {
       const filtered: vscode.Diagnostic[] = diagnostics.filter((diag) => {
-        if (diag.source !== 'resist-linter') {
+        if (diag.source !== DIAGNOSTIC_SOURCE) {
           return true; // Keep non-resist diagnostics
         }
         const ruleId: string =

@@ -9,6 +9,7 @@
 
 import * as vscode from 'vscode';
 import { DocumentDebouncer } from '../shared/debounce';
+import { CONFIG_FILE_PATTERNS } from '../shared/brand';
 
 const WATCHER_DEBOUNCE_MS = 1000;
 const WATCHER_KEY = '__config-watcher__';
@@ -48,21 +49,14 @@ export function createConfigWatcher(
     );
   };
 
-  // Watch resist.config.ts
-  const configWatcher: vscode.FileSystemWatcher =
-    vscode.workspace.createFileSystemWatcher('**/resist.config.ts');
-  configWatcher.onDidChange(relintAll);
-  configWatcher.onDidCreate(relintAll);
-  configWatcher.onDidDelete(relintAll);
-  disposables.push(configWatcher);
-
-  // Watch .resist-lint.jsonc
-  const lintConfigWatcher: vscode.FileSystemWatcher =
-    vscode.workspace.createFileSystemWatcher('**/.resist-lint.jsonc');
-  lintConfigWatcher.onDidChange(relintAll);
-  lintConfigWatcher.onDidCreate(relintAll);
-  lintConfigWatcher.onDidDelete(relintAll);
-  disposables.push(lintConfigWatcher);
+  // Watch config file patterns
+  for (const pattern of CONFIG_FILE_PATTERNS) {
+    const watcher: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher(pattern);
+    watcher.onDidChange(relintAll);
+    watcher.onDidCreate(relintAll);
+    watcher.onDidDelete(relintAll);
+    disposables.push(watcher);
+  }
 
   return disposables;
 }

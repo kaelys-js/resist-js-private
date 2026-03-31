@@ -11,6 +11,7 @@ import * as vscode from 'vscode';
 import { log } from '../shared/output';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
+import { CONFIG_SECTION } from '../shared/brand';
 
 /** Available lint stages. */
 const STAGES: readonly string[] = ['lint', 'check', 'pre-commit', 'build', 'ci', 'test'];
@@ -71,7 +72,7 @@ export class StageIndicator implements vscode.Disposable {
       return;
     }
 
-    const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('resist');
+    const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(CONFIG_SECTION);
     await config.update('lint.stage', selected, vscode.ConfigurationTarget.Workspace);
 
     this.update(selected);

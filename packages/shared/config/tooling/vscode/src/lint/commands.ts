@@ -15,6 +15,7 @@ import { safeRunAsync } from '../shared/errors';
 import { runToolJson } from '../shared/runner';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
+import { BINARY_NAME, COMMANDS } from '../shared/brand';
 
 /** Dependencies injected from the extension entry point. */
 interface CommandDeps {
@@ -35,9 +36,9 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
   const { diagnosticCollection, outputChannel, statusBarItem, lintDocumentFn, getLintOptions } =
     deps;
 
-  // resist.lint.file — Lint current file
+  // Lint current file
   context.subscriptions.push(
-    vscode.commands.registerCommand('resist.lint.file', () => {
+    vscode.commands.registerCommand(COMMANDS.lintFile, () => {
       const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
       if (editor) {
         lintDocumentFn(editor.document);
@@ -45,10 +46,10 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     }),
   );
 
-  // resist.lint.workspace — Lint all files with progress bar
+  // Lint all files with progress bar
   context.subscriptions.push(
-    vscode.commands.registerCommand('resist.lint.workspace', () =>
-      safeRunAsync(outputChannel, 'resist.lint.workspace', async () => {
+    vscode.commands.registerCommand(COMMANDS.lintWorkspace, () =>
+      safeRunAsync(outputChannel, COMMANDS.lintWorkspace, async () => {
         await vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
@@ -69,10 +70,10 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     ),
   );
 
-  // resist.lint.fix — Apply all auto-fixable diagnostics in current file
+  // Apply all auto-fixable diagnostics in current file
   context.subscriptions.push(
-    vscode.commands.registerCommand('resist.lint.fix', () =>
-      safeRunAsync(outputChannel, 'resist.lint.fix', async () => {
+    vscode.commands.registerCommand(COMMANDS.lintFix, () =>
+      safeRunAsync(outputChannel, COMMANDS.lintFix, async () => {
         const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
         if (!editor) {
           return;
@@ -124,19 +125,19 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     ),
   );
 
-  // resist.lint.clear — Clear all diagnostics
+  // Clear all diagnostics
   context.subscriptions.push(
-    vscode.commands.registerCommand('resist.lint.clear', () => {
+    vscode.commands.registerCommand(COMMANDS.lintClear, () => {
       diagnosticCollection.clear();
       updateStatusBar(statusBarItem, 'ready');
       log(outputChannel, en.messages.diagnosticsCleared);
     }),
   );
 
-  // resist.lint.listRules — Show available rules in output channel
+  // Show available rules in output channel
   context.subscriptions.push(
-    vscode.commands.registerCommand('resist.lint.listRules', () =>
-      safeRunAsync(outputChannel, 'resist.lint.listRules', async () => {
+    vscode.commands.registerCommand(COMMANDS.listRules, () =>
+      safeRunAsync(outputChannel, COMMANDS.listRules, async () => {
         const folders: readonly vscode.WorkspaceFolder[] | undefined =
           vscode.workspace.workspaceFolders;
         if (!folders || folders.length === 0) {
@@ -144,7 +145,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
           return;
         }
 
-        const binPath: string | undefined = getBinaryPath('resist-lint', folders[0].uri);
+        const binPath: string | undefined = getBinaryPath(BINARY_NAME, folders[0].uri);
         if (!binPath) {
           vscode.window.showErrorMessage(en.messages.binaryNotInNodeModules);
           return;
@@ -175,9 +176,9 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     ),
   );
 
-  // resist.lint.restart — Clear cache, re-lint all open files
+  // Clear cache, re-lint all open files
   context.subscriptions.push(
-    vscode.commands.registerCommand('resist.lint.restart', () => {
+    vscode.commands.registerCommand(COMMANDS.restart, () => {
       clearCache();
       diagnosticCollection.clear();
       log(outputChannel, en.messages.linterRestarted);
@@ -190,17 +191,17 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     }),
   );
 
-  // resist.lint.showOutput — Show output channel
+  // Show output channel
   context.subscriptions.push(
-    vscode.commands.registerCommand('resist.lint.showOutput', () => {
+    vscode.commands.registerCommand(COMMANDS.showOutput, () => {
       outputChannel.show();
     }),
   );
 
-  // resist.lint.staged — Lint only staged changes
+  // Lint only staged changes
   context.subscriptions.push(
-    vscode.commands.registerCommand('resist.lint.staged', () =>
-      safeRunAsync(outputChannel, 'resist.lint.staged', async () => {
+    vscode.commands.registerCommand(COMMANDS.lintStaged, () =>
+      safeRunAsync(outputChannel, COMMANDS.lintStaged, async () => {
         await vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
@@ -219,10 +220,10 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     ),
   );
 
-  // resist.lint.uncommitted — Lint only uncommitted changes
+  // Lint only uncommitted changes
   context.subscriptions.push(
-    vscode.commands.registerCommand('resist.lint.uncommitted', () =>
-      safeRunAsync(outputChannel, 'resist.lint.uncommitted', async () => {
+    vscode.commands.registerCommand(COMMANDS.lintUncommitted, () =>
+      safeRunAsync(outputChannel, COMMANDS.lintUncommitted, async () => {
         await vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
