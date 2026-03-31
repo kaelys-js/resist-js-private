@@ -2265,3 +2265,111 @@ describe('runTypeScriptRules — all embedded extensions work', () => {
     expect(Array.isArray(results)).toBe(true);
   });
 });
+
+// =============================================================================
+// Phase 51 — Structured Error Reporting for Silent Failures
+// =============================================================================
+
+describe('Phase 51 — TypeScript parse error diagnostic', () => {
+  it('emits internal/ts-parse-error for invalid TypeScript syntax', async () => {
+    const invalidCode: string = 'const x: = ;; }{{{';
+    const rule: TypeScriptRule = {
+      id: 'test/dummy',
+      description: 'dummy rule',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program: (): LintResult[] => [],
+      },
+    };
+    const results: LintResult[] = await runTypeScriptRules('broken.ts', invalidCode, [rule]);
+    const parseErrors: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'internal/ts-parse-error',
+    );
+    expect(parseErrors.length).toBeGreaterThanOrEqual(1);
+    expect(parseErrors[0]?.severity).toBe('warning');
+    expect(parseErrors[0]?.message).toContain('TypeScript parse error');
+    expect(parseErrors[0]?.message).toContain('Unexpected token');
+    expect(parseErrors[0]?.file).toBe('broken.ts');
+    expect(parseErrors[0]?.line).toBe(1);
+    expect(parseErrors[0]?.column).toBe(10);
+  });
+
+  it('does not emit parse error for valid TypeScript', async () => {
+    const validCode: string = 'const x: number = 42;';
+    const rule: TypeScriptRule = {
+      id: 'test/dummy',
+      description: 'dummy rule',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program: (): LintResult[] => [],
+      },
+    };
+    const results: LintResult[] = await runTypeScriptRules('valid.ts', validCode, [rule]);
+    const parseErrors: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'internal/ts-parse-error',
+    );
+    expect(parseErrors.length).toBe(0);
+  });
+});
+
+describe('Phase 51 — rule visitor crash diagnostic', () => {
+  it('emits internal/rule-crash when a rule visitor throws', async () => {
+    const crashingRule: TypeScriptRule = {
+      id: 'test/crasher',
+      description: 'always crashes',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program: (): LintResult[] => {
+          throw new Error('intentional test crash');
+        },
+      },
+    };
+    const results: LintResult[] = await runTypeScriptRules('file.ts', 'const x = 1;', [
+      crashingRule,
+    ]);
+    const crashes: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'internal/rule-crash',
+    );
+    expect(crashes.length).toBe(1);
+    expect(crashes[0]?.severity).toBe('warning');
+    expect(crashes[0]?.message).toContain("'test/crasher'");
+    expect(crashes[0]?.message).toContain('intentional test crash');
+    expect(crashes[0]?.message).toContain('Program');
+    expect(crashes[0]?.file).toBe('file.ts');
+  });
+
+  it('deduplicates crash diagnostics — only one per rule per file', async () => {
+    const crashingRule: TypeScriptRule = {
+      id: 'test/multi-crasher',
+      description: 'crashes on every VariableDeclaration',
+      patterns: ['**/*.ts'],
+      visitor: {
+        VariableDeclaration: (): LintResult[] => {
+          throw new Error('boom');
+        },
+      },
+    };
+    const code: string = 'const a = 1;\nconst b = 2;\nconst c = 3;';
+    const results: LintResult[] = await runTypeScriptRules('multi.ts', code, [crashingRule]);
+    const crashes: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'internal/rule-crash',
+    );
+    expect(crashes.length).toBe(1);
+  });
+
+  it('valid rules produce no crash diagnostics', async () => {
+    const safeRule: TypeScriptRule = {
+      id: 'test/safe',
+      description: 'never crashes',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program: (): LintResult[] => [],
+      },
+    };
+    const results: LintResult[] = await runTypeScriptRules('ok.ts', 'const x = 1;', [safeRule]);
+    const crashes: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'internal/rule-crash',
+    );
+    expect(crashes.length).toBe(0);
+  });
+});

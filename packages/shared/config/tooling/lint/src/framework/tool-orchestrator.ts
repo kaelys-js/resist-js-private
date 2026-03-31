@@ -168,11 +168,22 @@ export class ToolRegistry {
       return tool.transform(output, this.strings);
     } catch (error: unknown) {
       /* Many lint tools exit non-zero when they find issues — capture stdout */
-      const execError = error as { stdout?: string; status?: number };
+      const execError = error as { stdout?: string; status?: number; message?: string };
       if (execError.stdout && typeof execError.stdout === 'string') {
         return tool.transform(execError.stdout, this.strings);
       }
-      return [];
+      const message: string = error instanceof Error ? error.message : String(error);
+      return [
+        {
+          file: files[0] ?? process.cwd(),
+          line: 1,
+          column: 1,
+          severity: 'warning' as const,
+          message: `Tool '${tool.command}' crashed: ${message}`,
+          ruleId: 'internal/tool-crash',
+          fix: { range: { start: 0, end: 0 }, text: '' },
+        },
+      ];
     }
   }
 
@@ -256,7 +267,18 @@ export class ToolRegistry {
       if (execError.stdout && typeof execError.stdout === 'string') {
         return tool.transform(execError.stdout, this.strings);
       }
-      return [];
+      const message: string = error instanceof Error ? error.message : String(error);
+      return [
+        {
+          file: tool.cwd ?? process.cwd(),
+          line: 1,
+          column: 1,
+          severity: 'warning' as const,
+          message: `Workspace tool '${tool.command}' crashed: ${message}`,
+          ruleId: 'internal/tool-crash',
+          fix: { range: { start: 0, end: 0 }, text: '' },
+        },
+      ];
     }
   }
 
