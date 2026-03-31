@@ -70,6 +70,9 @@ export const en: VscodeStrings = {
     fixAll: 'Fix all auto-fixable problems ({count})',
     disableLine: 'Disable {rule} for this line',
     disableFile: 'Disable {rule} for this file',
+    actionFailed: 'Code action failed for {rule}: {error}',
+    fixAllFailed: 'Fix-all action failed: {error}',
+    disableFailed: 'Disable action failed for {rule}: {error}',
   },
 
   documentFilter: {

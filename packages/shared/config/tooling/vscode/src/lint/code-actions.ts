@@ -97,7 +97,10 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
         if (this.outputChannel) {
           logError(
             this.outputChannel,
-            `Code action failed for ${String(diagnostic.code)}: ${error instanceof Error ? error.message : String(error)}`,
+            format(en.codeActions.actionFailed, {
+              rule: String(diagnostic.code),
+              error: error instanceof Error ? error.message : String(error),
+            }),
           );
         }
         continue;
@@ -141,7 +144,9 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
         if (this.outputChannel) {
           logError(
             this.outputChannel,
-            `Fix-all action failed: ${error instanceof Error ? error.message : String(error)}`,
+            format(en.codeActions.fixAllFailed, {
+              error: error instanceof Error ? error.message : String(error),
+            }),
           );
         }
       }
@@ -185,7 +190,10 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
         if (this.outputChannel) {
           logError(
             this.outputChannel,
-            `Disable action failed for ${ruleId}: ${error instanceof Error ? error.message : String(error)}`,
+            format(en.codeActions.disableFailed, {
+              rule: ruleId,
+              error: error instanceof Error ? error.message : String(error),
+            }),
           );
         }
       }

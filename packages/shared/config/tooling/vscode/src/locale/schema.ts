@@ -180,6 +180,12 @@ export interface CodeActionStrings {
   readonly disableLine: string;
   /** Disable rule for this file. */
   readonly disableFile: string;
+  /** Error log when creating individual code action fails. */
+  readonly actionFailed: string;
+  /** Error log when fix-all action fails. */
+  readonly fixAllFailed: string;
+  /** Error log when creating disable action fails. */
+  readonly disableFailed: string;
 }
 
 /** Strings for document filter operations. */
