@@ -217,7 +217,7 @@ describe('Phase 51 — tool crash diagnostic', () => {
       (r: LintResult): boolean => r.ruleId === 'internal/tool-crash',
     );
     expect(crashes.length).toBe(1);
-    expect(crashes[0]?.severity).toBe('warning');
+    expect(crashes[0]?.severity).toBe('error');
     expect(crashes[0]?.message).toContain("'definitely_not_a_real_command_xyz_crash'");
     expect(crashes[0]?.message).toContain('crashed');
   });
