@@ -1,3 +1,5 @@
+- Review the README rules. Figure out best practices for README (do research, etc). README rule should be able to handle generating a perfect README.
+- ALL *.test.ts files should use stuff from packages/shared/config/test, if things are shared across test files then move it into that utility package -- then create custom lint rules enforcing useage in test files, review and present all custom rules that don't make sense for test files.
 API
 RevenueCat/LemonSqueezy
 Svelte Components
@@ -38,9 +40,9 @@ pnpm/bun/yarn/node
 Handlebars
 No vitest.config other than worspace root
 MR/PR Blocking Comment When:
-  Certain Files/Folders Modified/Deleted
-  When Certain Dependency Versions Change
-  New Dependencies
+Certain Files/Folders Modified/Deleted
+When Certain Dependency Versions Change
+New Dependencies
 
 * Commenter (checks)
 - When important files or paths are changed

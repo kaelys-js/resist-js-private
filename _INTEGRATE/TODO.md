@@ -1,9 +1,4 @@
 - [Lint]
-  - Review the README rules. Figure out best practices for README (do research, etc). README rule should be able to handle generating a perfect README.
-  - ALL *.test.ts files should use stuff from packages/shared/config/test, if things are shared across test files then move it into that utility package -- then create custom lint rules enforcing useage in test files, review and present all custom rules that don't make sense for test files.
-  - Review every directory in: /Users/coleb/Desktop/webforge/packages/shared/ui/src
-    - Only include directions that have a file that indicates its a placeholder
-    - Give a full list of directories to delete that aren't "components" but are "blocks"
   - Rules
     - Duplicates
     - Grouping
@@ -33,6 +28,10 @@
   - turbo.json
   - .prettierrc.json
   - (other missing workspace root files from sync tool)
+
+- Review every directory in: /Users/coleb/Desktop/webforge/packages/shared/ui/src
+  - Only include directions that have a file that indicates its a placeholder
+  - Give a full list of directories to delete that aren't "components" but are "blocks"
 
 - [Lens]
     - Port Lens & Accessibility Rules To Lint AST
