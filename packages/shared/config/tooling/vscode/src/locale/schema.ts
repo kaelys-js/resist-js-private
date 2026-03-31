@@ -33,6 +33,49 @@ export function format(template: string, params: Record<string, string | number>
   return result;
 }
 
+/**
+ * Select singular or plural form based on count.
+ *
+ * Uses `Intl.PluralRules` when available, falls back to simple count === 1 check.
+ *
+ * @param count - The number to determine plural form for
+ * @param forms - Object with `one` (singular) and `other` (plural) forms
+ * @param locale - Optional locale code (defaults to 'en')
+ * @returns The appropriate form string with `#` replaced by the count
+ */
+export function formatPlural(
+  count: number,
+  forms: { readonly one: string; readonly other: string },
+  locale: string = 'en',
+): string {
+  let rule: string;
+  try {
+    const rules = new Intl.PluralRules(locale);
+    rule = rules.select(count);
+  } catch {
+    rule = count === 1 ? 'one' : 'other';
+  }
+  const form: string = rule === 'one' ? forms.one : forms.other;
+  return form.replaceAll('#', String(count));
+}
+
+/**
+ * Format a number with locale-aware separators.
+ *
+ * Uses `Intl.NumberFormat` when available, falls back to `String(value)`.
+ *
+ * @param value - The number to format
+ * @param locale - Optional locale code (defaults to 'en')
+ * @returns Formatted number string
+ */
+export function formatNumber(value: number, locale: string = 'en'): string {
+  try {
+    return new Intl.NumberFormat(locale).format(value);
+  } catch {
+    return String(value);
+  }
+}
+
 // =============================================================================
 // String Group Interfaces
 // =============================================================================
@@ -51,6 +94,8 @@ export interface OutputStrings {
 export interface StatusBarStrings {
   /** Tooltip when hovering the status bar item. */
   readonly tooltip: string;
+  /** Tooltip prefix for tool-specific status bar items. */
+  readonly tooltipPrefix: string;
   /** Text shown in "ready" state with no diagnostics. */
   readonly ready: string;
   /** Text shown while linting is in progress. */
@@ -121,6 +166,98 @@ export interface CodeActionStrings {
   readonly fixAll: string;
 }
 
+/** Strings for document filter operations. */
+export interface DocumentFilterStrings {
+  /** Error message when iteration fails for a document. */
+  readonly iterationError: string;
+}
+
+/** Strings for notification manager. */
+export interface NotificationStrings {
+  /** Log message when a notification is suppressed. */
+  readonly suppressed: string;
+}
+
+/** Strings for configuration manager. */
+export interface ConfigStrings {
+  /** Log when config change detected for a section. */
+  readonly changeDetected: string;
+  /** Log when config cache is refreshed. */
+  readonly refreshed: string;
+}
+
+/** Strings for command registration. */
+export interface CommandStrings {
+  /** Debug log when a command is registered. */
+  readonly registered: string;
+  /** Error log when command execution fails. */
+  readonly executionFailed: string;
+}
+
+/** Strings for lifecycle manager. */
+export interface LifecycleStrings {
+  /** Debug log when disposing a named resource. */
+  readonly disposing: string;
+  /** Debug log after successful disposal. */
+  readonly disposed: string;
+  /** Error log when disposal fails. */
+  readonly disposalError: string;
+}
+
+/** Strings for file watcher. */
+export interface WatcherStrings {
+  /** Log when a config file change is detected. */
+  readonly configChanged: string;
+}
+
+/** Strings for progress reporting. */
+export interface ProgressHelperStrings {
+  /** Progress message while processing files. */
+  readonly processing: string;
+  /** Log when progress operation is cancelled. */
+  readonly cancelled: string;
+  /** Error log for per-file processing failure. */
+  readonly fileError: string;
+}
+
+/** Strings for state manager. */
+export interface StateStrings {
+  /** Debug log when tool state transitions. */
+  readonly transitioned: string;
+}
+
+/** Strings for diagnostics manager. */
+export interface DiagnosticManagerStrings {
+  /** Warning when max problems limit is reached. */
+  readonly maxProblemsReached: string;
+  /** Warning when an invalid diagnostic entry is skipped. */
+  readonly invalidEntry: string;
+}
+
+/** Strings for tool runner. */
+export interface RunnerStrings {
+  /** Error log for timeout. */
+  readonly timeout: string;
+  /** Error log for spawn failure. */
+  readonly spawnFailed: string;
+}
+
+/** Strings for plural formatting. */
+export interface PluralStrings {
+  /** Singular form for "error". */
+  readonly error: string;
+  /** Plural form for "errors". */
+  readonly errors: string;
+  /** Singular form for "warning". */
+  readonly warning: string;
+  /** Plural form for "warnings". */
+  readonly warnings: string;
+  /** Singular form for "file". */
+  readonly file: string;
+  /** Plural form for "files". */
+  readonly files: string;
+}
+
 // =============================================================================
 // Combined Type
 // =============================================================================
@@ -132,4 +269,15 @@ export interface VscodeStrings {
   readonly messages: MessageStrings;
   readonly progress: ProgressStrings;
   readonly codeActions: CodeActionStrings;
+  readonly documentFilter: DocumentFilterStrings;
+  readonly notifications: NotificationStrings;
+  readonly config: ConfigStrings;
+  readonly commands: CommandStrings;
+  readonly lifecycle: LifecycleStrings;
+  readonly watcher: WatcherStrings;
+  readonly progressHelper: ProgressHelperStrings;
+  readonly state: StateStrings;
+  readonly diagnosticManager: DiagnosticManagerStrings;
+  readonly runner: RunnerStrings;
+  readonly plurals: PluralStrings;
 }

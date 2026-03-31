@@ -18,6 +18,12 @@ import { existsSync } from 'fs';
 /** Cached workspace roots keyed by workspace folder path. */
 const rootCache = new Map<string, string>();
 
+/** Cached binary paths keyed by 'tool:workspaceUri'. */
+const binaryCache = new Map<string, string | undefined>();
+
+/** Cached workspace roots keyed by 'startPath:markers'. */
+const markerCache = new Map<string, string | undefined>();
+
 // =============================================================================
 // Public API
 // =============================================================================
@@ -57,17 +63,37 @@ export function getWorkspaceRoot(uri: vscode.Uri): string | undefined {
  * @returns Absolute path to the binary, or undefined if not found
  */
 export function getBinaryPath(tool: string, uri: vscode.Uri): string | undefined {
+  const cacheKey: string = `${tool}:${uri.toString()}`;
+  const cached: string | undefined = binaryCache.get(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+  // Check if key exists with undefined value (negative cache)
+  if (binaryCache.has(cacheKey)) {
+    return undefined;
+  }
+
   const root: string | undefined = getWorkspaceRoot(uri);
   if (!root) {
+    binaryCache.set(cacheKey, undefined);
     return undefined;
   }
 
   const binPath: string = path.join(root, 'node_modules', '.bin', tool);
   if (existsSync(binPath)) {
+    binaryCache.set(cacheKey, binPath);
     return binPath;
   }
 
+  binaryCache.set(cacheKey, undefined);
   return undefined;
+}
+
+/**
+ * Clears the binary path cache. Use after installing new dependencies.
+ */
+export function clearBinaryCache(): void {
+  binaryCache.clear();
 }
 
 /**
@@ -76,6 +102,43 @@ export function getBinaryPath(tool: string, uri: vscode.Uri): string | undefined
  */
 export function clearCache(): void {
   rootCache.clear();
+  binaryCache.clear();
+  markerCache.clear();
+}
+
+/**
+ * Finds a workspace root by walking up from startPath looking for any of the marker files.
+ *
+ * Results are cached per (startPath, markers) pair.
+ *
+ * @param startPath - Directory to start searching from
+ * @param markers - Array of marker file names to look for (e.g. ['pnpm-workspace.yaml', '.git'])
+ * @returns The directory containing a marker file, or undefined if not found
+ */
+export function findWorkspaceRoot(startPath: string, markers: string[]): string | undefined {
+  const cacheKey: string = `${startPath}:${markers.join(',')}`;
+  if (markerCache.has(cacheKey)) {
+    return markerCache.get(cacheKey);
+  }
+
+  let current: string = startPath;
+
+  for (let i = 0; i < 20; i++) {
+    for (const marker of markers) {
+      if (existsSync(path.join(current, marker))) {
+        markerCache.set(cacheKey, current);
+        return current;
+      }
+    }
+    const parent: string = path.dirname(current);
+    if (parent === current) {
+      break;
+    }
+    current = parent;
+  }
+
+  markerCache.set(cacheKey, undefined);
+  return undefined;
 }
 
 // =============================================================================

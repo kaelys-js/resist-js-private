@@ -23,6 +23,7 @@ export const en: VscodeStrings = {
 
   statusBar: {
     tooltip: 'Resist Linter — Click to show output',
+    tooltipPrefix: 'Resist —',
     ready: '$(check) Resist',
     linting: '$(sync~spin) Linting...',
     error: '$(error) Resist',
@@ -61,5 +62,62 @@ export const en: VscodeStrings = {
     fix: 'Fix: {rule}',
     fixWithTip: 'Fix: {rule} — {tip}',
     fixAll: 'Fix all auto-fixable problems ({count})',
+  },
+
+  documentFilter: {
+    iterationError: 'Document iteration failed for {file}: {error}',
+  },
+
+  notifications: {
+    suppressed: 'Notification suppressed (already shown): {key}',
+  },
+
+  config: {
+    changeDetected: 'Configuration change detected for section: {section}',
+    refreshed: 'Configuration cache refreshed',
+  },
+
+  commands: {
+    registered: 'Command registered: {id}',
+    executionFailed: 'Command execution failed: {id}',
+  },
+
+  lifecycle: {
+    disposing: 'Disposing: {name}',
+    disposed: 'Disposed {count} resources',
+    disposalError: 'Disposal failed for {name}: {error}',
+  },
+
+  watcher: {
+    configChanged: 'Config file changed: {pattern}',
+  },
+
+  progressHelper: {
+    processing: 'Processing {file}',
+    cancelled: 'Operation cancelled',
+    fileError: 'Error processing {file}: {error}',
+  },
+
+  state: {
+    transitioned: '{tool} state: {from} → {to}',
+  },
+
+  diagnosticManager: {
+    maxProblemsReached: 'Max problems limit reached ({max}), remaining diagnostics truncated',
+    invalidEntry: 'Invalid diagnostic entry skipped: {reason}',
+  },
+
+  runner: {
+    timeout: 'Process timed out after {ms}ms',
+    spawnFailed: 'Failed to spawn process: {error}',
+  },
+
+  plurals: {
+    error: 'error',
+    errors: 'errors',
+    warning: 'warning',
+    warnings: 'warnings',
+    file: 'file',
+    files: 'files',
   },
 };

@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { format } from './schema';
+import { format, formatPlural, formatNumber } from './schema';
 import { en } from './en';
 import type { VscodeStrings } from './schema';
 
@@ -87,6 +87,87 @@ describe('Locale', () => {
         'Fix: no-var — Use let',
       );
       expect(format(en.codeActions.fixAll, { count: 5 })).toBe('Fix all auto-fixable problems (5)');
+    });
+  });
+
+  describe('formatPlural', () => {
+    it('returns singular form for count 1', () => {
+      expect(formatPlural(1, { one: '# error', other: '# errors' })).toBe('1 error');
+    });
+
+    it('returns plural form for count 0', () => {
+      expect(formatPlural(0, { one: '# error', other: '# errors' })).toBe('0 errors');
+    });
+
+    it('returns plural form for count > 1', () => {
+      expect(formatPlural(5, { one: '# warning', other: '# warnings' })).toBe('5 warnings');
+    });
+
+    it('replaces all # placeholders in form', () => {
+      expect(formatPlural(3, { one: '#/#', other: '#/# items' })).toBe('3/3 items');
+    });
+
+    it('works with custom locale', () => {
+      expect(formatPlural(1, { one: '# file', other: '# files' }, 'en-US')).toBe('1 file');
+    });
+
+    it('falls back to count === 1 check on invalid locale', () => {
+      expect(formatPlural(1, { one: '# item', other: '# items' }, 'invalid-locale-xxx')).toBe(
+        '1 item',
+      );
+      expect(formatPlural(2, { one: '# item', other: '# items' }, 'invalid-locale-xxx')).toBe(
+        '2 items',
+      );
+    });
+
+    it('handles large numbers', () => {
+      expect(formatPlural(1000000, { one: '# result', other: '# results' })).toBe(
+        '1000000 results',
+      );
+    });
+
+    it('works with en locale plurals strings', () => {
+      expect(formatPlural(1, { one: en.plurals.error, other: en.plurals.errors })).toBe('error');
+      expect(formatPlural(2, { one: en.plurals.error, other: en.plurals.errors })).toBe('errors');
+    });
+  });
+
+  describe('formatNumber', () => {
+    it('formats integer with locale separators', () => {
+      const result = formatNumber(1000, 'en');
+      expect(result).toBe('1,000');
+    });
+
+    it('formats zero', () => {
+      expect(formatNumber(0)).toBe('0');
+    });
+
+    it('formats negative numbers', () => {
+      const result = formatNumber(-1234, 'en');
+      expect(result).toContain('1,234');
+    });
+
+    it('formats decimal numbers', () => {
+      const result = formatNumber(3.14, 'en');
+      expect(result).toBe('3.14');
+    });
+
+    it('formats large numbers with separators', () => {
+      const result = formatNumber(1000000, 'en');
+      expect(result).toBe('1,000,000');
+    });
+
+    it('defaults to en locale', () => {
+      const result = formatNumber(1000);
+      expect(result).toBe('1,000');
+    });
+
+    it('falls back to String(value) on invalid locale', () => {
+      // Intl.NumberFormat may throw on invalid locale — fallback should be plain string
+      const result = formatNumber(42, 'invalid-locale-xxx');
+      // Either formatted or plain string fallback
+      expect(result).toBeTruthy();
+      expect(result).toContain('42');
     });
   });
 });

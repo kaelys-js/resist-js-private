@@ -74,6 +74,33 @@ export function updateStatusBar(
 }
 
 /**
+ * Creates a status bar item for a specific tool.
+ *
+ * Factory function that creates consistently styled status bar items
+ * for different tools (lint, format, etc.).
+ *
+ * @param context - Extension context for lifecycle management
+ * @param toolName - Tool name for tooltip (e.g. 'Lint', 'Format')
+ * @param priority - Status bar priority (higher = further left, default 100)
+ * @returns The created status bar item
+ */
+export function createToolStatusBar(
+  context: vscode.ExtensionContext,
+  toolName: string,
+  priority: number = 100,
+): vscode.StatusBarItem {
+  const item: vscode.StatusBarItem = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    priority,
+  );
+  item.text = en.statusBar.ready;
+  item.tooltip = `${en.statusBar.tooltipPrefix} ${toolName}`;
+  item.show();
+  context.subscriptions.push(item);
+  return item;
+}
+
+/**
  * Counts diagnostics by severity for a given URI.
  *
  * @param collection - The diagnostic collection to count from
