@@ -1,3 +1,11 @@
+- [VS Code Extension]
+  - Panel (like there is for git in the sidebar)
+  - Status Bar UX
+  - Will lint workspace/non-ts files also by default and use all available tools?
+
+  - Test/Benchmark/Coverage Intergration
+  - Format Integration
+
 - [Lint]
   - Rules
     - Duplicates
@@ -20,6 +28,9 @@
 - Review every directory in: /Users/coleb/Desktop/webforge/packages/shared/ui/src
   - Only include directions that have a file that indicates its a placeholder
   - Give a full list of directories to delete that aren't "components" but are "blocks"
+
+https://tailgrids.com/docs/components
+https://github.com/Robdel12/OrbitDock
 
 - [Lens]
     - Port Lens & Accessibility Rules To Lint AST
