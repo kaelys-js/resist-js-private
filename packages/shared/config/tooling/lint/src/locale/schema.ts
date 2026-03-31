@@ -399,8 +399,8 @@ const SchemaStringsSchema = v.strictObject({
   ruleOptionsAdditionalDescription: v.string(),
   /** Rule severity enum description. */
   ruleSeverityDescription: v.string(),
-  /** rules object description (has {ruleList} placeholder). */
-  rulesDescription: v.string(),
+  /** rules object base description (no bundled rule list). */
+  rulesBaseDescription: v.string(),
   /** $schema field description. */
   schemaFieldDescription: v.string(),
   /** Schema title: "{linterName} configuration" */

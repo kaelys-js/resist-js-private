@@ -394,9 +394,15 @@ export function generateJsonSchema(
   ruleDescriptions: Map<string, string>,
   strings: LintStrings,
 ): JsonSchemaDocument {
-  const ruleEnumDescription: string = ruleIds
-    .map((id: string): string => `- \`${id}\`: ${ruleDescriptions.get(id) ?? ''}`)
-    .join('\n');
+  // Build per-rule properties — each rule gets its own description, enum, and type
+  const ruleProperties: Record<string, JsonSchemaProperty> = {};
+  for (const id of ruleIds) {
+    ruleProperties[id] = {
+      description: ruleDescriptions.get(id) ?? '',
+      enum: ['error', 'warn', 'off'],
+      type: 'string',
+    };
+  }
 
   return {
     $schema: 'http://json-schema.org/draft-07/schema#',
@@ -440,6 +446,7 @@ export function generateJsonSchema(
                 type: 'string',
               },
               description: strings.schema.overridesRulesDescription,
+              properties: ruleProperties,
               type: 'object',
             },
           },
@@ -462,7 +469,8 @@ export function generateJsonSchema(
           enum: ['error', 'warn', 'off'],
           type: 'string',
         },
-        description: format(strings.schema.rulesDescription, { ruleList: ruleEnumDescription }),
+        description: strings.schema.rulesBaseDescription,
+        properties: ruleProperties,
         type: 'object',
       },
     },
