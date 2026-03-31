@@ -5,11 +5,35 @@
  * for rule visitors. Uses the Svelte 5 modern AST format.
  *
  * Phase 49 — Svelte 5 Runes Lint Rules framework extension.
+ * Phase 50 — Structured error reporting (no silent swallowing).
  *
  * @module
  */
 
 import type { AstNode } from '@/lint/framework/types.ts';
+
+// =============================================================================
+// Svelte Parse Result
+// =============================================================================
+
+/** Successful parse result containing the template AST fragment. */
+interface SvelteParseOk {
+  /** Whether parsing succeeded. */
+  ok: true;
+  /** The parsed template AST fragment node. */
+  ast: AstNode;
+}
+
+/** Failed parse result containing a descriptive error message. */
+interface SvelteParseErr {
+  /** Whether parsing succeeded. */
+  ok: false;
+  /** Descriptive error message explaining why parsing failed. */
+  error: string;
+}
+
+/** Result of parsing a Svelte template — either a parsed AST or a descriptive error. */
+export type SvelteParseResult = SvelteParseOk | SvelteParseErr;
 
 // =============================================================================
 // Svelte Compiler (lazy-loaded)
@@ -21,8 +45,17 @@ type SvelteParseFn = (source: string, options: { modern: true }) => { fragment: 
 /** Lazily loaded svelte/compiler parse function. */
 let svelteParse: SvelteParseFn | null = null;
 
+/** Whether we already attempted and failed to load svelte/compiler. */
+let compilerLoadFailed: boolean = false;
+
+/** Cached error message from failed compiler load. */
+let compilerLoadError: string = '';
+
 /**
  * Lazily load svelte/compiler on first use.
+ *
+ * Caches the result — only attempts import once. On failure, stores the
+ * error message for inclusion in parse results.
  *
  * @returns Whether the parser is available
  */
@@ -31,12 +64,18 @@ async function ensureSvelteCompiler(): Promise<boolean> {
     return true;
   }
 
+  if (compilerLoadFailed) {
+    return false;
+  }
+
   try {
     const mod: Record<string, unknown> = await import('svelte/compiler');
     svelteParse = mod.parse as unknown as SvelteParseFn;
     return true;
-  } catch {
-    /* svelte/compiler not installed — skip template parsing */
+  } catch (err: unknown) {
+    compilerLoadFailed = true;
+    const message: string = err instanceof Error ? err.message : String(err);
+    compilerLoadError = `svelte/compiler not available — install svelte to enable template linting (${message})`;
     return false;
   }
 }
@@ -48,24 +87,28 @@ async function ensureSvelteCompiler(): Promise<boolean> {
 /**
  * Parse a `.svelte` file's template into a Svelte 5 AST Fragment.
  *
- * Returns null if parsing fails (syntax errors, missing compiler, etc.).
+ * Returns a structured result: `{ ok: true, ast }` on success, or
+ * `{ ok: false, error }` with a descriptive message on failure.
  * Uses `{ modern: true }` to get the Svelte 5 AST format.
  *
  * @param {string} content - Full `.svelte` file content
- * @returns {Promise<AstNode | null>} The Fragment AST root, or null
+ * @returns {Promise<SvelteParseResult>} Structured parse result
  */
-export async function parseSvelteTemplate(content: string): Promise<AstNode | null> {
+export async function parseSvelteTemplate(content: string): Promise<SvelteParseResult> {
   const hasCompiler: boolean = await ensureSvelteCompiler();
   if (!hasCompiler || !svelteParse) {
-    return null;
+    return { ok: false, error: compilerLoadError };
   }
 
   try {
     const result: { fragment: unknown } = svelteParse(content, { modern: true });
-    return result.fragment as AstNode;
-  } catch {
-    /* Parse error — skip template analysis for this file */
-    return null;
+    return { ok: true, ast: result.fragment as AstNode };
+  } catch (err: unknown) {
+    const message: string = err instanceof Error ? err.message : String(err);
+    return {
+      ok: false,
+      error: `Svelte template parse error: ${message}`,
+    };
   }
 }
 

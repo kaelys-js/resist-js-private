@@ -328,6 +328,61 @@ export const AstVisitorSchema = v.strictObject({
   HtmlTag: v.optional(VisitorFnSchema),
   /** Visitor for Svelte expression tags ({expression}). */
   ExpressionTag: v.optional(VisitorFnSchema),
+
+  // --- Structure ---
+
+  /** Visitor for Svelte static text content nodes. */
+  Text: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte HTML comment nodes. */
+  Comment: v.optional(VisitorFnSchema),
+
+  // --- Tags ---
+
+  /** Visitor for Svelte {@const} declaration tags. */
+  ConstTag: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte {@debug} tags. */
+  DebugTag: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte {@attach} tags (Svelte 5.36+). */
+  AttachTag: v.optional(VisitorFnSchema),
+
+  // --- Directives ---
+
+  /** Visitor for Svelte animate: directives. */
+  AnimateDirective: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte let: directives (slot props). */
+  LetDirective: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte transition:/in:/out: directives. */
+  TransitionDirective: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte use: action directives. */
+  UseDirective: v.optional(VisitorFnSchema),
+
+  // --- Attributes ---
+
+  /** Visitor for Svelte {...obj} spread attributes. */
+  SpreadAttribute: v.optional(VisitorFnSchema),
+
+  // --- Special Elements ---
+
+  /** Visitor for Svelte <title> elements. */
+  TitleElement: v.optional(VisitorFnSchema),
+  /** Visitor for <svelte:body> elements. */
+  SvelteBody: v.optional(VisitorFnSchema),
+  /** Visitor for <svelte:component> elements (legacy). */
+  SvelteComponent: v.optional(VisitorFnSchema),
+  /** Visitor for <svelte:document> elements. */
+  SvelteDocument: v.optional(VisitorFnSchema),
+  /** Visitor for <svelte:element> dynamic elements. */
+  SvelteElement: v.optional(VisitorFnSchema),
+  /** Visitor for <svelte:fragment> elements. */
+  SvelteFragment: v.optional(VisitorFnSchema),
+  /** Visitor for <svelte:boundary> error boundary elements. */
+  SvelteBoundary: v.optional(VisitorFnSchema),
+  /** Visitor for <svelte:head> elements. */
+  SvelteHead: v.optional(VisitorFnSchema),
+  /** Visitor for <svelte:self> recursive elements (legacy). */
+  SvelteSelf: v.optional(VisitorFnSchema),
+  /** Visitor for <svelte:window> elements. */
+  SvelteWindow: v.optional(VisitorFnSchema),
 });
 
 /** Map of AST node types to visitor functions. See {@link AstVisitorSchema}. */
