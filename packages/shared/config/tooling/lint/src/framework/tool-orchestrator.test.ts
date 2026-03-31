@@ -197,3 +197,45 @@ describe('isCommandAvailable', () => {
     expect(available).toBe(false);
   });
 });
+
+// =============================================================================
+// Phase 51 — Tool crash diagnostic emission
+// =============================================================================
+
+describe('Phase 51 — tool crash diagnostic', () => {
+  it('emits internal/tool-crash when a file tool crashes without stdout', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const crashingTool: ExternalTool = createMockTool({
+      name: 'crash-tool',
+      command: 'definitely_not_a_real_command_xyz_crash',
+      args: [],
+      filePatterns: ['**/*.ts'],
+    });
+
+    const results: LintResult[] = await registry.runTool(crashingTool, ['/tmp/test.ts']);
+    const crashes: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'internal/tool-crash',
+    );
+    expect(crashes.length).toBe(1);
+    expect(crashes[0]?.severity).toBe('warning');
+    expect(crashes[0]?.message).toContain("'definitely_not_a_real_command_xyz_crash'");
+    expect(crashes[0]?.message).toContain('crashed');
+  });
+
+  it('does not emit tool-crash when tool succeeds', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const goodTool: ExternalTool = createMockTool({
+      name: 'echo-tool',
+      command: 'echo',
+      args: ['hello'],
+      filePatterns: ['**/*.ts'],
+      transform: (): LintResult[] => [],
+    });
+
+    const results: LintResult[] = await registry.runTool(goodTool, ['/tmp/test.ts']);
+    const crashes: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'internal/tool-crash',
+    );
+    expect(crashes.length).toBe(0);
+  });
+});

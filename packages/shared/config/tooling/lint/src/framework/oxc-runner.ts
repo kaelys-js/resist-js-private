@@ -27,8 +27,17 @@ import type { SvelteParseResult } from '@/lint/framework/svelte-template.ts';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- oxc-parser has no @types
 let parseSync: ((filename: string, source: string) => { program: unknown }) | null = null;
 
+/** Whether we already attempted and failed to load oxc-parser. */
+let oxcLoadFailed: boolean = false;
+
+/** Cached error message from failed oxc-parser load. */
+let oxcLoadError: string = '';
+
 /**
  * Lazily load oxc-parser on first use.
+ *
+ * Caches the result — only attempts import once. On failure, stores the
+ * error message for inclusion in diagnostics.
  *
  * @returns Whether the parser is available
  */
@@ -37,12 +46,18 @@ async function ensureOxcParser(): Promise<boolean> {
     return true;
   }
 
+  if (oxcLoadFailed) {
+    return false;
+  }
+
   try {
     const oxc: Record<string, unknown> = await import('oxc-parser');
     parseSync = oxc.parseSync as unknown as typeof parseSync;
     return true;
-  } catch {
-    /* oxc-parser not installed — skip AST rules */
+  } catch (err: unknown) {
+    oxcLoadFailed = true;
+    const message: string = err instanceof Error ? err.message : String(err);
+    oxcLoadError = `oxc-parser not available — install oxc-parser to enable TypeScript lint rules (${message})`;
     return false;
   }
 }
@@ -455,7 +470,17 @@ export async function runTypeScriptRules(
 
   const hasParser: boolean = await ensureOxcParser();
   if (!hasParser || !parseSync) {
-    return [];
+    return [
+      {
+        file: filePath,
+        line: 1,
+        column: 1,
+        severity: 'warning',
+        message: `${oxcLoadError} — TypeScript-based lint rules were skipped for this file`,
+        ruleId: 'internal/oxc-parser-unavailable',
+        fix: { range: { start: 0, end: 0 }, text: '' },
+      },
+    ];
   }
 
   // For files with embedded script blocks, extract code and parse as TypeScript
@@ -485,13 +510,51 @@ export async function runTypeScriptRules(
 
   if (hasScript) {
     try {
-      const result: { program: unknown } = parseSync(parseFilePath, parseContent) as {
+      const result: {
         program: unknown;
+        errors: { severity: string; message: string; labels?: { start: number; end: number }[] }[];
+      } = parseSync(parseFilePath, parseContent) as {
+        program: unknown;
+        errors: { severity: string; message: string; labels?: { start: number; end: number }[] }[];
       };
       ast = result.program as AstNode; // Safe: oxc-parser returns AST program node
-    } catch {
-      /* Parse error — skip file */
-      return [];
+
+      // oxc-parser is error-tolerant — it always produces a partial AST.
+      // Only emit parse error diagnostics when the AST body is empty,
+      // meaning the code is truly unparseable (not just a fragment with
+      // context-dependent errors like 'return outside function body').
+      const astBody: unknown[] | undefined = (ast as { body?: unknown[] }).body;
+      if (result.errors && result.errors.length > 0 && (!astBody || astBody.length === 0)) {
+        const lineStarts: number[] = buildLineStarts(parseContent);
+        const parseResults: LintResult[] = [];
+        for (const parseErr of result.errors) {
+          const offset: number = parseErr.labels?.[0]?.start ?? 0;
+          const loc: { line: number; column: number } = offsetToLoc(offset, lineStarts);
+          parseResults.push({
+            file: filePath,
+            line: loc.line,
+            column: loc.column + 1,
+            severity: 'warning',
+            message: `TypeScript parse error: ${parseErr.message}`,
+            ruleId: 'internal/ts-parse-error',
+            fix: { range: { start: 0, end: 0 }, text: '' },
+          });
+        }
+        return parseResults;
+      }
+    } catch (err: unknown) {
+      const message: string = err instanceof Error ? err.message : String(err);
+      return [
+        {
+          file: filePath,
+          line: 1,
+          column: 1,
+          severity: 'warning',
+          message: `TypeScript parse error: ${message} — TypeScript-based lint rules were skipped for this file`,
+          ruleId: 'internal/ts-parse-error',
+          fix: { range: { start: 0, end: 0 }, text: '' },
+        },
+      ];
     }
   } else {
     /* No script content — create empty Program node for context */
@@ -558,6 +621,9 @@ export async function runTypeScriptRules(
     );
   }
 
+  // Track which rules have already crashed to avoid flooding with duplicate diagnostics
+  const crashedRules: Set<string> = new Set<string>();
+
   // Walk TypeScript AST — invoke script-level visitors
   if (hasScript) {
     walkNode(ast, (node: AstNode): void => {
@@ -576,8 +642,20 @@ export async function runTypeScriptRules(
         try {
           const ruleResults: LintResult[] = visitorFn(node, context);
           results.push(...ruleResults);
-        } catch {
-          /* Rule threw — skip this node for this rule */
+        } catch (err: unknown) {
+          if (!crashedRules.has(rule.id)) {
+            crashedRules.add(rule.id);
+            const message: string = err instanceof Error ? err.message : String(err);
+            results.push({
+              file: filePath,
+              line: node.loc?.start?.line ?? 1,
+              column: (node.loc?.start?.column ?? 0) + 1,
+              severity: 'warning',
+              message: `Rule '${rule.id}' crashed on ${node.type} node: ${message}`,
+              ruleId: 'internal/rule-crash',
+              fix: { range: { start: 0, end: 0 }, text: '' },
+            });
+          }
         }
       }
     });
@@ -601,8 +679,20 @@ export async function runTypeScriptRules(
         try {
           const ruleResults: LintResult[] = visitorFn(node, context);
           results.push(...ruleResults);
-        } catch {
-          /* Rule threw — skip this node for this rule */
+        } catch (err: unknown) {
+          if (!crashedRules.has(rule.id)) {
+            crashedRules.add(rule.id);
+            const message: string = err instanceof Error ? err.message : String(err);
+            results.push({
+              file: filePath,
+              line: node.loc?.start?.line ?? 1,
+              column: (node.loc?.start?.column ?? 0) + 1,
+              severity: 'warning',
+              message: `Rule '${rule.id}' crashed on ${node.type} node: ${message}`,
+              ruleId: 'internal/rule-crash',
+              fix: { range: { start: 0, end: 0 }, text: '' },
+            });
+          }
         }
       }
     });

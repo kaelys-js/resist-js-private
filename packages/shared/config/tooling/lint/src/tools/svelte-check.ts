@@ -112,6 +112,17 @@ export function runSvelteCheckAllPackages(cwd: string): LintResult[] {
       const execError = error as { stdout?: string };
       if (execError.stdout && typeof execError.stdout === 'string') {
         results.push(...transformSvelteCheckOutput(execError.stdout));
+      } else {
+        const message: string = error instanceof Error ? error.message : String(error);
+        results.push({
+          file: pkgDir,
+          line: 1,
+          column: 1,
+          severity: 'warning',
+          message: `svelte-check crashed for ${pkgDir} — type checking was skipped (${message})`,
+          ruleId: 'internal/tool-crash',
+          fix: { range: { start: 0, end: 0 }, text: '' },
+        });
       }
     }
   }
