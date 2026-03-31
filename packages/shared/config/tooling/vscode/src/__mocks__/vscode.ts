@@ -33,6 +33,12 @@ export const ProgressLocation = {
   Notification: 15,
 } as const;
 
+export const ConfigurationTarget = {
+  Global: 1,
+  Workspace: 2,
+  WorkspaceFolder: 3,
+} as const;
+
 // =============================================================================
 // Classes
 // =============================================================================
@@ -65,16 +71,27 @@ export class Range {
 }
 
 export class Uri {
+  public readonly path: string;
+
   private constructor(
     public readonly scheme: string,
     public readonly fsPath: string,
-  ) {}
+  ) {
+    this.path = fsPath;
+  }
 
   static file(path: string): Uri {
     return new Uri('file', path);
   }
 
   static parse(value: string): Uri {
+    // Parse "scheme:path" format
+    const colonIndex: number = value.indexOf(':');
+    if (colonIndex > 0) {
+      const scheme: string = value.slice(0, colonIndex);
+      const path: string = value.slice(colonIndex + 1);
+      return new Uri(scheme, path);
+    }
     return new Uri('https', value);
   }
 
@@ -116,6 +133,60 @@ export const CodeActionKind = {
   Refactor: { value: 'refactor' },
   Source: { value: 'source' },
 } as const;
+
+export class EventEmitter<T> {
+  private listeners: Array<(e: T) => void> = [];
+
+  get event(): (listener: (e: T) => void) => { dispose: () => void } {
+    return (listener: (e: T) => void) => {
+      this.listeners.push(listener);
+      return {
+        dispose: () => {
+          const idx = this.listeners.indexOf(listener);
+          if (idx >= 0) {
+            this.listeners.splice(idx, 1);
+          }
+        },
+      };
+    };
+  }
+
+  fire(data: T): void {
+    for (const listener of this.listeners) {
+      listener(data);
+    }
+  }
+
+  dispose(): void {
+    this.listeners = [];
+  }
+}
+
+export class CodeLens {
+  constructor(
+    public readonly range: Range,
+    public readonly command?: { title: string; command: string; arguments?: unknown[] },
+  ) {}
+}
+
+export class TextEdit {
+  constructor(
+    public readonly range: Range,
+    public readonly newText: string,
+  ) {}
+
+  static replace(range: Range, newText: string): TextEdit {
+    return new TextEdit(range, newText);
+  }
+
+  static insert(position: Position, newText: string): TextEdit {
+    return new TextEdit(new Range(position, position), newText);
+  }
+
+  static delete(range: Range): TextEdit {
+    return new TextEdit(range, '');
+  }
+}
 
 export class WorkspaceEdit {
   private edits: Array<{ uri: Uri; range: Range; newText: string }> = [];
@@ -245,10 +316,13 @@ export const window = {
   showWarningMessage: vi.fn(),
   showErrorMessage: vi.fn(),
   showInformationMessage: vi.fn(),
+  createTextEditorDecorationType: vi.fn(() => ({ dispose: vi.fn() })),
   activeTextEditor: undefined as
     | { document: { uri: Uri; getText: () => string; positionAt: (o: number) => Position } }
     | undefined,
+  visibleTextEditors: [] as Array<{ document: { uri: Uri } }>,
   onDidChangeActiveTextEditor: vi.fn(() => createMockDisposable()),
+  showQuickPick: vi.fn(async () => undefined),
   withProgress: vi.fn(
     async (
       _options: unknown,
@@ -268,6 +342,7 @@ export const commands = {
   registerCommand: vi.fn((_cmd: string, _handler: (...args: unknown[]) => unknown) =>
     createMockDisposable(),
   ),
+  executeCommand: vi.fn(async () => undefined),
 };
 
 // =============================================================================

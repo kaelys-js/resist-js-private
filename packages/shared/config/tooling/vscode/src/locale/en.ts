@@ -62,6 +62,8 @@ export const en: VscodeStrings = {
     fix: 'Fix: {rule}',
     fixWithTip: 'Fix: {rule} — {tip}',
     fixAll: 'Fix all auto-fixable problems ({count})',
+    disableLine: 'Disable {rule} for this line',
+    disableFile: 'Disable {rule} for this file',
   },
 
   documentFilter: {
@@ -90,6 +92,7 @@ export const en: VscodeStrings = {
 
   watcher: {
     configChanged: 'Config file changed: {pattern}',
+    batchFired: 'Batched file changes fired: {count} URIs',
   },
 
   progressHelper: {
@@ -119,5 +122,75 @@ export const en: VscodeStrings = {
     warnings: 'warnings',
     file: 'file',
     files: 'files',
+  },
+
+  events: {
+    registered: 'Event handler registered: {tool} → {event}',
+    dispatched: 'Event dispatched: {event} → {count} handlers',
+    handlerError: 'Event handler error ({tool}/{event}): {error}',
+  },
+
+  fixOnSave: {
+    applied: 'Auto-fixed {count} problems on save',
+    loopGuard: 'Skipping auto-fix: recently fixed (loop guard)',
+    skippedNoFixes: 'No auto-fixable problems on save',
+  },
+
+  codeLens: {
+    issueCount: '{rule} ({count} issues)',
+    openDocs: 'Open documentation for {rule}',
+  },
+
+  diffPreview: {
+    title: 'Resist: Fix Preview ↔ {file}',
+    noFixes: 'No auto-fixable problems to preview',
+    scheme: 'resist-fix-preview',
+  },
+
+  formatting: {
+    applied: 'Formatting applied {count} lint fixes',
+    noEdits: 'No lint fixes available for formatting',
+  },
+
+  profiling: {
+    header: '=== Performance Timing ===',
+    ruleTime: '  {rule}: {ms}ms',
+    total: 'Total: {ms}ms ({count} rules)',
+    noData: 'No timing data available. Run lint with --timing flag.',
+  },
+
+  filter: {
+    selectCategories: 'Select categories to show',
+    filterApplied: 'Diagnostic filter applied: {categories}',
+    filterCleared: 'Diagnostic filter cleared',
+    noCategories: 'No categories found in current diagnostics',
+  },
+
+  perFolder: {
+    resolved: 'Per-folder config resolved for {folder}',
+    fallbackGlobal: 'No folder config found, using global settings',
+  },
+
+  staleCleanup: {
+    cleared: 'Cleared stale diagnostics for {count} files',
+    trackingFile: 'Tracking file activity: {file}',
+    skippedVisible: 'Skipped stale cleanup for visible editor: {file}',
+  },
+
+  imports: {
+    removedCount: 'Removed {count} unused imports',
+    noUnused: 'No unused import diagnostics found',
+    commandTitle: 'Lint: Remove Unused Imports',
+  },
+
+  inlineOverrides: {
+    decorationTooltip: 'Resist lint override: {directive}',
+    foundOverrides: 'Found {count} inline override comments',
+  },
+
+  stageIndicator: {
+    currentStage: '$(check) Resist [{stage}]',
+    selectStage: 'Select lint stage',
+    stageChanged: 'Lint stage changed to: {stage}',
   },
 };

@@ -84,6 +84,36 @@
         "command": "resist.lint.uncommitted",
         "title": "Lint: Check Uncommitted Changes Only",
         "category": "Resist"
+      },
+      {
+        "command": "resist.lint.previewFixes",
+        "title": "Lint: Preview All Fixes (Diff)",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.showTiming",
+        "title": "Lint: Show Performance Timing",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.filterByCategory",
+        "title": "Lint: Filter Diagnostics by Category",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.clearFilter",
+        "title": "Lint: Clear Diagnostic Filter",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.removeUnusedImports",
+        "title": "Lint: Remove Unused Imports",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.changeStage",
+        "title": "Lint: Change Active Stage",
+        "category": "Resist"
       }
     ],
     "configuration": {
@@ -212,6 +242,33 @@
           "type": "boolean",
           "default": false,
           "description": "Stop the linter after the first error is found. Useful for large workspaces where you want fast failure."
+        },
+        "resist.lint.fixOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically apply all auto-fixable lint errors when a file is saved."
+        },
+        "resist.lint.codeLens": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show inline code lenses above lines with lint diagnostics displaying rule ID and issue count."
+        },
+        "resist.lint.formatOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Register resist-lint as a formatting provider so lint fixes run as part of format-on-save."
+        },
+        "resist.lint.showTiming": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show per-rule performance timing breakdown in the output channel."
+        },
+        "resist.lint.staleDiagnosticTimeoutMs": {
+          "type": "number",
+          "default": 300000,
+          "minimum": 10000,
+          "maximum": 3600000,
+          "description": "Time in milliseconds after which diagnostics for idle files are automatically cleared. Set to 300000 (5 min) by default."
         }
       }
     }

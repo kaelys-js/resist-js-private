@@ -164,6 +164,10 @@ export interface CodeActionStrings {
   readonly fixWithTip: string;
   /** Fix all title. */
   readonly fixAll: string;
+  /** Disable rule for this line. */
+  readonly disableLine: string;
+  /** Disable rule for this file. */
+  readonly disableFile: string;
 }
 
 /** Strings for document filter operations. */
@@ -208,6 +212,8 @@ export interface LifecycleStrings {
 export interface WatcherStrings {
   /** Log when a config file change is detected. */
   readonly configChanged: string;
+  /** Log when batched file changes are fired. */
+  readonly batchFired: string;
 }
 
 /** Strings for progress reporting. */
@@ -258,6 +264,122 @@ export interface PluralStrings {
   readonly files: string;
 }
 
+/** Strings for document event registry. */
+export interface EventsStrings {
+  /** Log when a handler is registered. */
+  readonly registered: string;
+  /** Log when an event is dispatched to handlers. */
+  readonly dispatched: string;
+  /** Error log when a handler throws. */
+  readonly handlerError: string;
+}
+
+/** Strings for auto-fix on save. */
+export interface FixOnSaveStrings {
+  /** Log when fixes are applied on save. */
+  readonly applied: string;
+  /** Log when loop guard prevents re-fix. */
+  readonly loopGuard: string;
+  /** Log when no fixable diagnostics found on save. */
+  readonly skippedNoFixes: string;
+}
+
+/** Strings for code lens. */
+export interface CodeLensStrings {
+  /** Code lens label showing issue count for a rule. */
+  readonly issueCount: string;
+  /** Code lens click action: open documentation. */
+  readonly openDocs: string;
+}
+
+/** Strings for diff preview. */
+export interface DiffPreviewStrings {
+  /** Diff editor title. */
+  readonly title: string;
+  /** Message when no fixes are available. */
+  readonly noFixes: string;
+  /** URI scheme for virtual fix preview documents. */
+  readonly scheme: string;
+}
+
+/** Strings for formatting provider. */
+export interface FormattingStrings {
+  /** Log when formatting edits are applied. */
+  readonly applied: string;
+  /** Log when no formatting edits found. */
+  readonly noEdits: string;
+}
+
+/** Strings for performance profiling. */
+export interface ProfilingStrings {
+  /** Header for timing report output. */
+  readonly header: string;
+  /** Per-rule timing line: "{rule}: {ms}ms". */
+  readonly ruleTime: string;
+  /** Total timing summary. */
+  readonly total: string;
+  /** Message when no timing data available. */
+  readonly noData: string;
+}
+
+/** Strings for diagnostic filtering. */
+export interface FilterStrings {
+  /** Quick pick title for category selection. */
+  readonly selectCategories: string;
+  /** Log when filter is applied. */
+  readonly filterApplied: string;
+  /** Log when filter is cleared. */
+  readonly filterCleared: string;
+  /** Message when no categories found in diagnostics. */
+  readonly noCategories: string;
+}
+
+/** Strings for per-folder configuration. */
+export interface PerFolderStrings {
+  /** Log when per-folder config is resolved. */
+  readonly resolved: string;
+  /** Log when falling back to global config. */
+  readonly fallbackGlobal: string;
+}
+
+/** Strings for stale diagnostic cleanup. */
+export interface StaleCleanupStrings {
+  /** Log when stale diagnostics are cleared. */
+  readonly cleared: string;
+  /** Log when a file starts being tracked. */
+  readonly trackingFile: string;
+  /** Log when a visible editor is skipped. */
+  readonly skippedVisible: string;
+}
+
+/** Strings for import sorting integration. */
+export interface ImportsStrings {
+  /** Log showing count of removed imports. */
+  readonly removedCount: string;
+  /** Message when no unused imports found. */
+  readonly noUnused: string;
+  /** Command title in palette. */
+  readonly commandTitle: string;
+}
+
+/** Strings for inline severity override decorations. */
+export interface InlineOverridesStrings {
+  /** Tooltip for disable comment decorations. */
+  readonly decorationTooltip: string;
+  /** Log when override comments are found. */
+  readonly foundOverrides: string;
+}
+
+/** Strings for build/stage visual feedback. */
+export interface StageIndicatorStrings {
+  /** Status bar text showing current stage. */
+  readonly currentStage: string;
+  /** Quick pick title for stage selection. */
+  readonly selectStage: string;
+  /** Log when stage is changed. */
+  readonly stageChanged: string;
+}
+
 // =============================================================================
 // Combined Type
 // =============================================================================
@@ -280,4 +402,16 @@ export interface VscodeStrings {
   readonly diagnosticManager: DiagnosticManagerStrings;
   readonly runner: RunnerStrings;
   readonly plurals: PluralStrings;
+  readonly events: EventsStrings;
+  readonly fixOnSave: FixOnSaveStrings;
+  readonly codeLens: CodeLensStrings;
+  readonly diffPreview: DiffPreviewStrings;
+  readonly formatting: FormattingStrings;
+  readonly profiling: ProfilingStrings;
+  readonly filter: FilterStrings;
+  readonly perFolder: PerFolderStrings;
+  readonly staleCleanup: StaleCleanupStrings;
+  readonly imports: ImportsStrings;
+  readonly inlineOverrides: InlineOverridesStrings;
+  readonly stageIndicator: StageIndicatorStrings;
 }
