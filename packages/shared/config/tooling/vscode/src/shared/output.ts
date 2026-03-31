@@ -8,6 +8,7 @@
  */
 
 import * as vscode from 'vscode';
+import { en } from '../locale/en';
 
 /**
  * Creates the Resist output channel.
@@ -15,7 +16,7 @@ import * as vscode from 'vscode';
  * @returns The created output channel
  */
 export function createOutputChannel(): vscode.OutputChannel {
-  return vscode.window.createOutputChannel('Resist');
+  return vscode.window.createOutputChannel(en.output.channelName);
 }
 
 /**
@@ -35,7 +36,7 @@ export function log(channel: vscode.OutputChannel, msg: string): void {
  * @param msg - Error message to log
  */
 export function logError(channel: vscode.OutputChannel, msg: string): void {
-  channel.appendLine(`[${timestamp()}] ERROR: ${msg}`);
+  channel.appendLine(`[${timestamp()}] ${en.output.errorPrefix}: ${msg}`);
 }
 
 /**

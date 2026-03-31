@@ -14,6 +14,18 @@
  */
 export class DocumentDebouncer {
   private readonly timers = new Map<string, NodeJS.Timeout>();
+  private readonly onError?: (error: unknown) => void;
+
+  /**
+   * Creates a new DocumentDebouncer.
+   *
+   * @param onError - Optional callback invoked when a scheduled function throws.
+   *   If not provided, errors are silently swallowed to prevent unhandled
+   *   exceptions in setTimeout.
+   */
+  constructor(onError?: (error: unknown) => void) {
+    this.onError = onError;
+  }
 
   /**
    * Schedules a function to run after a delay, cancelling any pending timer
@@ -29,9 +41,12 @@ export class DocumentDebouncer {
       this.timers.delete(uri);
       try {
         fn();
-      } catch {
-        // Swallow errors from scheduled functions to prevent unhandled
-        // exceptions in setTimeout. Callers should handle their own errors.
+      } catch (error: unknown) {
+        // Prevent unhandled exceptions in setTimeout. If an error callback
+        // was provided, report the error; otherwise swallow silently.
+        if (this.onError) {
+          this.onError(error);
+        }
       }
     }, ms);
     this.timers.set(uri, timer);

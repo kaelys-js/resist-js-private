@@ -9,6 +9,8 @@
 
 import * as vscode from 'vscode';
 import type { DiagnosticWithData } from './provider';
+import { en } from '../locale/en';
+import { format } from '../locale/schema';
 
 /**
  * Provides quick fix code actions for resist-linter diagnostics.
@@ -58,8 +60,8 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
 
       // Create individual fix action
       const title: string = data.tip
-        ? `Fix: ${String(diagnostic.code)} \u2014 ${data.tip}`
-        : `Fix: ${String(diagnostic.code)}`;
+        ? format(en.codeActions.fixWithTip, { rule: String(diagnostic.code), tip: data.tip })
+        : format(en.codeActions.fix, { rule: String(diagnostic.code) });
 
       try {
         const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
@@ -86,7 +88,7 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
     if (fixableDiagnostics.length > 1) {
       try {
         const fixAllAction = new vscode.CodeAction(
-          `Fix all auto-fixable problems (${fixableDiagnostics.length})`,
+          format(en.codeActions.fixAll, { count: fixableDiagnostics.length }),
           vscode.CodeActionKind.QuickFix,
         );
         fixAllAction.diagnostics = fixableDiagnostics;

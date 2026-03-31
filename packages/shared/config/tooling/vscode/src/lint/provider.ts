@@ -14,6 +14,8 @@ import { getBinaryPath, getWorkspaceRoot } from '../shared/workspace';
 import { updateStatusBar, getFileDiagnosticCounts } from '../shared/status-bar';
 import { log, logError, logCommand, logTiming } from '../shared/output';
 import type { DiagnosticEntry, RunResult } from '../shared/types';
+import { en } from '../locale/en';
+import { format } from '../locale/schema';
 
 // =============================================================================
 // Types
@@ -60,13 +62,13 @@ export async function lintDocument(
   // Find resist-lint binary
   const binPath: string | undefined = getBinaryPath('resist-lint', document.uri);
   if (!binPath) {
-    log(channel, `Skipping lint: resist-lint binary not found for ${filePath}`);
+    log(channel, format(en.messages.skipBinaryNotFound, { file: filePath }));
     return;
   }
 
   const cwd: string | undefined = getWorkspaceRoot(document.uri);
   if (!cwd) {
-    log(channel, `Skipping lint: workspace root not found for ${filePath}`);
+    log(channel, format(en.messages.skipWorkspaceNotFound, { file: filePath }));
     return;
   }
 
@@ -101,7 +103,7 @@ export async function lintDocument(
   });
 
   if (!result.ok) {
-    logError(channel, `Lint failed for ${filePath}: ${result.error}`);
+    logError(channel, format(en.messages.lintFailed, { file: filePath, error: result.error }));
     updateStatusBar(statusBarItem, 'error');
     return;
   }
@@ -166,7 +168,7 @@ export async function lintWorkspace(
   const rootUri: vscode.Uri = folders[0].uri;
   const binPath: string | undefined = getBinaryPath('resist-lint', rootUri);
   if (!binPath) {
-    logError(channel, 'resist-lint binary not found');
+    logError(channel, en.messages.binaryNotFoundShort);
     return;
   }
 
@@ -191,7 +193,7 @@ export async function lintWorkspace(
 
   updateStatusBar(statusBarItem, 'linting');
   logCommand(channel, binPath, args);
-  progress.report({ message: 'Running resist-lint...' });
+  progress.report({ message: en.messages.runningLinter });
 
   const result: RunResult<DiagnosticEntry[]> = await runToolJson<DiagnosticEntry[]>({
     command: binPath,
@@ -207,7 +209,7 @@ export async function lintWorkspace(
   }
 
   logTiming(channel, 'Workspace lint', result.elapsed);
-  log(channel, `Found ${result.data.length} diagnostics`);
+  log(channel, format(en.messages.foundDiagnostics, { count: result.data.length }));
 
   // Group results by file
   const byFile = new Map<string, DiagnosticEntry[]>();

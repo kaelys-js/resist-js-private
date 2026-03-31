@@ -9,6 +9,7 @@
 
 import * as vscode from 'vscode';
 import type { ExtensionState } from './types';
+import { en } from '../locale/en';
 
 /**
  * Creates and shows the Resist status bar item.
@@ -21,8 +22,8 @@ export function createStatusBar(context: vscode.ExtensionContext): vscode.Status
     vscode.StatusBarAlignment.Right,
     100,
   );
-  item.text = '$(check) Resist';
-  item.tooltip = 'Resist Linter — Click to show output';
+  item.text = en.statusBar.ready;
+  item.tooltip = en.statusBar.tooltip;
   item.command = 'resist.lint.showOutput';
   item.show();
   context.subscriptions.push(item);
@@ -43,15 +44,15 @@ export function updateStatusBar(
 ): void {
   switch (state) {
     case 'linting':
-      item.text = '$(sync~spin) Linting...';
+      item.text = en.statusBar.linting;
       item.backgroundColor = undefined;
       break;
     case 'error':
-      item.text = '$(error) Resist';
+      item.text = en.statusBar.error;
       item.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
       break;
     case 'disabled':
-      item.text = '$(circle-slash) Resist';
+      item.text = en.statusBar.disabled;
       item.backgroundColor = undefined;
       break;
     case 'ready':
@@ -65,7 +66,7 @@ export function updateStatusBar(
         }
         item.text = parts.join(' ');
       } else {
-        item.text = '$(check) Resist';
+        item.text = en.statusBar.ready;
       }
       item.backgroundColor = undefined;
       break;

@@ -31,6 +31,18 @@
         "reveal": "silent",
         "panel": "dedicated"
       }
+    },
+    {
+      "label": "Package Resist Extension",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "@resist/vscode", "install-local"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "dependsOn": ["Watch Resist Extension"]
     }
   ]
 }
