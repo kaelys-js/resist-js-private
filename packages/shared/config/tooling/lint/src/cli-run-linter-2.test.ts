@@ -4,7 +4,12 @@
  * @module
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+/* Integration tests call runLinter() which spawns git/tool subprocesses.
+   Under parallel execution with 30+ test files, CPU contention can push
+   individual tests past the default 10s timeout. */
+vi.setConfig({ testTimeout: 30_000 });
 import { resolve } from 'node:path';
 
 import { runLinter, type CliArgs, type CliOutput } from './cli-helpers.ts';

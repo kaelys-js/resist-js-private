@@ -8,8 +8,7 @@
     "qa:test": "pnpm -w exec vitest run --project utils-web-vitals",
     "qa:test:unit": "pnpm -w exec vitest run --project utils-web-vitals",
     "qa:test:coverage": "pnpm -w exec vitest run --project utils-web-vitals --coverage",
-    "qa:benchmark": "pnpm -w exec vitest bench --project utils-web-vitals",
-    "qa:type-check": "tsgo --noEmit"
+    "qa:benchmark": "pnpm -w exec vitest bench --project utils-web-vitals"
   },
   "dependencies": {
     "perfume.js": "^9.4.0"

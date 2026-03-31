@@ -26,7 +26,7 @@ import { formatResults, type OutputFormat } from '@/lint/framework/formatters.ts
 import { runTypeScriptRules, EMBEDDED_CODE_EXTENSIONS } from '@/lint/framework/oxc-runner.ts';
 import { createWorkspaceContext } from '@/lint/framework/rule-context.ts';
 import { loadAllRules } from '@/lint/framework/rule-loader.ts';
-import { ToolRegistry } from '@/lint/framework/tool-orchestrator.ts';
+import { ToolRegistry, type WorkspaceTool } from '@/lint/framework/tool-orchestrator.ts';
 import type {
   LintFix,
   LintResult,
@@ -39,7 +39,8 @@ import type {
 } from '@/lint/framework/types.ts';
 import { WorkerPool, type WorkerResult, type WorkerTask } from '@/lint/framework/worker-pool.ts';
 import { format, type LintStrings } from '@/lint/locale/schema.ts';
-import { ALL_TOOLS } from '@/lint/tools/registry.ts';
+import { ALL_TOOLS, ALL_WORKSPACE_TOOLS } from '@/lint/tools/registry.ts';
+import { runSvelteCheckAllPackages, svelteCheckTool } from '@/lint/tools/svelte-check.ts';
 
 // =============================================================================
 // Types
@@ -1329,6 +1330,38 @@ export async function _runLintCore(
     const toolResults: LintResult[] = await toolRegistry.runAll(allFiles);
     allResults.push(...toolResults);
     dbg(format(strings.debug.toolResults, { count: toolResults.length }));
+
+    /* Run workspace-level tools (type-checkers) */
+    dbg(strings.debug.workspaceToolLoading);
+    for (const wsTool of ALL_WORKSPACE_TOOLS) {
+      toolRegistry.registerWorkspaceTool(wsTool);
+    }
+
+    dbg(
+      format(strings.debug.workspaceToolRunning, {
+        toolCount: toolRegistry.getAllWorkspaceTools().length,
+      }),
+    );
+
+    /* svelte-check needs special handling: runs per-package, not once at root */
+    let wsResultCount: number = 0;
+    if (svelteCheckTool.isAvailable?.()) {
+      const svelteResults: LintResult[] = runSvelteCheckAllPackages(process.cwd());
+      allResults.push(...svelteResults);
+      wsResultCount += svelteResults.length;
+    }
+
+    /* Run remaining workspace tools (tsgo, etc.) via the standard runner */
+    const nonSvelteWsTools: readonly WorkspaceTool[] = toolRegistry
+      .getAllWorkspaceTools()
+      .filter((t: WorkspaceTool): boolean => t.name !== 'svelte-check');
+    for (const wsTool of nonSvelteWsTools) {
+      const wsToolResults: LintResult[] = await toolRegistry.runWorkspaceTool(wsTool);
+      allResults.push(...wsToolResults);
+      wsResultCount += wsToolResults.length;
+    }
+
+    dbg(format(strings.debug.workspaceToolResults, { count: wsResultCount }));
   }
 
   /* Apply per-file severity from overrides (convert error to warning based on config) */

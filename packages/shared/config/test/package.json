@@ -9,9 +9,7 @@
     "./svelte": "./src/presets/svelte.ts",
     "./playwright": "./src/presets/playwright.ts"
   },
-  "scripts": {
-    "qa:type-check": "tsgo --noEmit"
-  },
+  "scripts": {},
   "dependencies": {
     "vitest": "^4.0.18"
   },

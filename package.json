@@ -16,7 +16,6 @@
     "qa:test:e2e": "turbo qa:test:e2e",
     "qa:test:coverage": "vitest run --coverage",
     "qa:benchmark": "vitest bench",
-    "qa:type-check": "turbo qa:type-check --filter='!./packages/shared/utils/cli'",
     "qa:format": "biome format --write . && prettier --write '**/*.svelte'",
     "qa:format:check": "biome format . && prettier --check '**/*.svelte'",
     "qa:lint": "node --import ./packages/shared/config/tooling/node/src/register-aliases.mjs packages/shared/config/tooling/lint/src/cli.ts --tools"

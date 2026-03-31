@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "clean": "rm -rf dist coverage .turbo",
-    "qa:type-check": "tsgo --noEmit",
     "qa:test": "pnpm -w exec vitest run --project config-tooling-vite",
     "qa:test:coverage": "pnpm -w exec vitest run --project config-tooling-vite --coverage",
     "qa:benchmark": "pnpm -w exec vitest bench --project config-tooling-vite"
