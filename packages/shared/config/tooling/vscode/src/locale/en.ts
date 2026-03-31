@@ -50,6 +50,12 @@ export const en: VscodeStrings = {
     runningLinter: 'Running resist-lint...',
     progressFiles: '{processed}/{total} files',
     availableRulesHeader: '=== Available Rules ===',
+    lintedFile: 'Linted {file}',
+    diagnosticMapFailed: 'Failed to map diagnostic for {rule} at {location}: {error}',
+    stderrOutput: 'stderr: {output}',
+    workspaceLintFailed: 'Workspace lint failed: {error}',
+    workspaceLintTiming: 'Workspace lint',
+    timingReportFailed: 'Timing report failed: {error}',
   },
 
   progress: {
@@ -108,11 +114,18 @@ export const en: VscodeStrings = {
   diagnosticManager: {
     maxProblemsReached: 'Max problems limit reached ({max}), remaining diagnostics truncated',
     invalidEntry: 'Invalid diagnostic entry skipped: {reason}',
+    invalidReason: 'missing message or invalid line: {line}',
   },
 
   runner: {
     timeout: 'Process timed out after {ms}ms',
     spawnFailed: 'Failed to spawn process: {error}',
+    exitCode: 'Process exited with code {code}',
+    jsonParseFailed: 'Failed to parse JSON output ({error}): {preview}',
+  },
+
+  errorBoundary: {
+    errorLog: '{label}: {message}',
   },
 
   plurals: {

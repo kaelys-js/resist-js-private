@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as vscode from 'vscode';
 import { DiagnosticFilter } from './diagnostic-filter';
+import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -17,7 +18,7 @@ function createDiag(ruleId: string): any {
     range: new vscode.Range(0, 0, 0, 5),
     message: `Issue from ${ruleId}`,
     severity: vscode.DiagnosticSeverity.Warning,
-    source: 'resist-linter',
+    source: DIAGNOSTIC_SOURCE,
     code: ruleId,
   };
 }

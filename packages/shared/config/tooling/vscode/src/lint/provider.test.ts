@@ -8,6 +8,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mapEntryToDiagnostic, type DiagnosticWithData } from './provider';
 import * as vscode from 'vscode';
 import type { DiagnosticEntry } from '../shared/types';
+import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 function createMockDocument(
   lines: string[] = ['const x = 1;', 'const y = 2;'],
@@ -109,7 +110,7 @@ describe('mapEntryToDiagnostic', () => {
 
   it('sets source to resist-linter', () => {
     const diag = mapEntryToDiagnostic(createEntry(), doc);
-    expect(diag.source).toBe('resist-linter');
+    expect(diag.source).toBe(DIAGNOSTIC_SOURCE);
   });
 
   it('sets code to ruleId', () => {

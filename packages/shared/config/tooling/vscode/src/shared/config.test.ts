@@ -10,6 +10,7 @@ import { __setConfigValue, __resetMocks } from 'vscode';
 import { onConfigurationChange, ConfigManager } from './config';
 import * as output from './output';
 import * as errors from './errors';
+import { CONFIG_SECTION } from './brand';
 
 vi.mock('./output', () => ({
   log: vi.fn(),
@@ -131,21 +132,21 @@ describe('Configuration', () => {
   describe('ConfigManager', () => {
     it('gets typed values', () => {
       __setConfigValue('resist.lint.enable', true);
-      const config = new ConfigManager('resist', mockChannel);
+      const config = new ConfigManager(CONFIG_SECTION, mockChannel);
       const value = config.get<boolean>('lint.enable', false);
       expect(value).toBe(true);
       config.dispose();
     });
 
     it('returns defaults when key not set', () => {
-      const config = new ConfigManager('resist', mockChannel);
+      const config = new ConfigManager(CONFIG_SECTION, mockChannel);
       const value = config.get<number>('lint.maxProblems', 100);
       expect(value).toBe(100);
       config.dispose();
     });
 
     it('refreshes on config change', () => {
-      const config = new ConfigManager('resist', mockChannel);
+      const config = new ConfigManager(CONFIG_SECTION, mockChannel);
 
       // The constructor registers a config change listener
       const registerCall = vi.mocked(vscode.workspace.onDidChangeConfiguration).mock.calls[0];
@@ -154,16 +155,16 @@ describe('Configuration', () => {
       }) => void;
 
       configChangeCallback({
-        affectsConfiguration: (section: string) => section === 'resist',
+        affectsConfiguration: (section: string) => section === CONFIG_SECTION,
       });
 
       // getConfiguration should have been called again
-      expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('resist');
+      expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith(CONFIG_SECTION);
       config.dispose();
     });
 
     it('getSection returns raw config', () => {
-      const config = new ConfigManager('resist', mockChannel);
+      const config = new ConfigManager(CONFIG_SECTION, mockChannel);
       const section = config.getSection();
       expect(section).toBeDefined();
       expect(section.get).toBeDefined();
@@ -171,7 +172,7 @@ describe('Configuration', () => {
     });
 
     it('manual refresh works', () => {
-      const config = new ConfigManager('resist', mockChannel);
+      const config = new ConfigManager(CONFIG_SECTION, mockChannel);
       const initialCallCount = vi.mocked(vscode.workspace.getConfiguration).mock.calls.length;
       config.refresh();
       expect(vi.mocked(vscode.workspace.getConfiguration).mock.calls.length).toBe(
@@ -181,7 +182,7 @@ describe('Configuration', () => {
     });
 
     it('dispose stops listening', () => {
-      const config = new ConfigManager('resist', mockChannel);
+      const config = new ConfigManager(CONFIG_SECTION, mockChannel);
       config.dispose();
       // The disposable returned by onDidChangeConfiguration should have been disposed
       const returnedDisposable = vi.mocked(vscode.workspace.onDidChangeConfiguration).mock

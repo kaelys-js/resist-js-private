@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
 import { ResistCodeLensProvider } from './code-lens';
+import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -25,7 +26,7 @@ function createDiag(line: number, ruleId: string, url?: string): any {
     range: new vscode.Range(line, 0, line, 10),
     message: `Issue from ${ruleId}`,
     severity: vscode.DiagnosticSeverity.Warning,
-    source: 'resist-linter',
+    source: DIAGNOSTIC_SOURCE,
     code: ruleId,
     data: url ? { url, fix: { range: { start: 0, end: 0 }, text: '' } } : undefined,
   };

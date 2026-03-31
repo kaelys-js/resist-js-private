@@ -21,6 +21,10 @@
     "url": "https://github.com/kaelys-js/resist-js-private",
     "directory": "packages/shared/config/tooling/vscode"
   },
+  "homepage": "https://github.com/kaelys-js/resist-js-private/tree/main/packages/shared/config/tooling/vscode#readme",
+  "bugs": {
+    "url": "https://github.com/kaelys-js/resist-js-private/issues"
+  },
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": false,
@@ -37,7 +41,7 @@
   "activationEvents": [
     "onStartupFinished"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
@@ -279,7 +283,7 @@
     "qa:lint": "tsgo --noEmit -p ./",
     "qa:test": "pnpm -w exec vitest run --project config-tooling-vscode",
     "qa:test:coverage": "pnpm -w exec vitest run --project config-tooling-vscode --coverage --coverage.thresholds.statements=45 --coverage.thresholds.branches=30 --coverage.thresholds.functions=50 --coverage.thresholds.lines=45",
-    "clean": "rm -rf out",
+    "clean": "rm -rf dist",
     "build:package": "vsce package --no-dependencies",
     "dev:local": "pnpm build && pnpm build:package && code --install-extension $(ls -t *.vsix | head -1)",
     "qa:benchmark": "pnpm -w exec vitest bench --project config-tooling-vscode",

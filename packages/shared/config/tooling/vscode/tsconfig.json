@@ -1,20 +1,24 @@
 {
+  "extends": "../../../../../tsconfig.json",
   "compilerOptions": {
     "module": "commonjs",
+    "moduleResolution": "node",
     "target": "ES2022",
-    "outDir": "out",
+    "outDir": "dist",
     "lib": ["ES2022"],
-    "sourceMap": true,
     "rootDir": "src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "verbatimModuleSyntax": false,
+    "isolatedModules": false,
+    "allowImportingTsExtensions": false,
+    "noEmit": false,
+    "declaration": false,
+    "declarationMap": false,
+    "noUncheckedIndexedAccess": false,
+    "paths": {}
   },
   "include": ["src"],
-  "exclude": ["node_modules", "out", "src/__mocks__", "src/**/*.test.ts"]
+  "exclude": ["node_modules", "dist", "src/__mocks__", "src/**/*.test.ts"]
 }

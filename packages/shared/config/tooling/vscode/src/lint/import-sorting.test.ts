@@ -11,6 +11,7 @@ import {
   collectImportDiagnostics,
   removeUnusedImports,
 } from './import-sorting';
+import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -21,7 +22,7 @@ function createDiag(ruleId: string, fix?: { start: number; end: number; text: st
     range: new vscode.Range(0, 0, 0, 5),
     message: 'test issue',
     severity: vscode.DiagnosticSeverity.Warning,
-    source: 'resist-linter',
+    source: DIAGNOSTIC_SOURCE,
     code: ruleId,
     data: fix ? { fix: { range: { start: fix.start, end: fix.end }, text: fix.text } } : undefined,
   };

@@ -1,0 +1,15 @@
+src/**
+**/*.test.ts
+**/*.test.js
+**/__mocks__/**
+**/coverage/**
+**/.gitignore
+**/tsconfig.json
+**/vitest.config.*
+**/.eslintrc*
+**/.prettierrc*
+**/node_modules/**
+docs/**
+*.vsix
+.vscode/**
+.github/**

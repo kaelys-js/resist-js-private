@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createStatusBar, updateStatusBar, getFileDiagnosticCounts } from './status-bar';
 import * as vscode from 'vscode';
+import { COMMANDS } from './brand';
 
 describe('Status Bar', () => {
   let statusBarItem: ReturnType<typeof vscode.window.createStatusBarItem>;
@@ -26,7 +27,7 @@ describe('Status Bar', () => {
     );
     expect(statusBarItem.text).toBe('$(check) Resist');
     expect(statusBarItem.tooltip).toBe('Resist Linter — Click to show output');
-    expect(statusBarItem.command).toBe('resist.lint.showOutput');
+    expect(statusBarItem.command).toBe(COMMANDS.showOutput);
     expect(statusBarItem.show).toHaveBeenCalled();
   });
 

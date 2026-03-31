@@ -12,6 +12,7 @@ import type { DiagnosticWithData } from './provider';
 import { log } from '../shared/output';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
+import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 /** Rule IDs that indicate unused/unnecessary imports. */
 const IMPORT_RULE_PATTERNS: string[] = ['import', 'unused-import', 'no-unused-import'];
@@ -23,7 +24,7 @@ const IMPORT_RULE_PATTERNS: string[] = ['import', 'unused-import', 'no-unused-im
  * @returns True if the diagnostic is about an unused import
  */
 export function isImportDiagnostic(diag: vscode.Diagnostic): boolean {
-  if (diag.source !== 'resist-linter') {
+  if (diag.source !== DIAGNOSTIC_SOURCE) {
     return false;
   }
 

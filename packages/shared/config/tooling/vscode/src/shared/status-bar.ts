@@ -10,6 +10,7 @@
 import * as vscode from 'vscode';
 import type { ExtensionState } from './types';
 import { en } from '../locale/en';
+import { COMMANDS } from './brand';
 
 /**
  * Creates and shows the Resist status bar item.
@@ -24,7 +25,7 @@ export function createStatusBar(context: vscode.ExtensionContext): vscode.Status
   );
   item.text = en.statusBar.ready;
   item.tooltip = en.statusBar.tooltip;
-  item.command = 'resist.lint.showOutput';
+  item.command = COMMANDS.showOutput;
   item.show();
   context.subscriptions.push(item);
   return item;

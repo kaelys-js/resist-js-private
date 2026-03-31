@@ -12,6 +12,7 @@ import type { LintOptions } from './provider';
 import { log } from '../shared/output';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
+import { CONFIG_SECTION } from '../shared/brand';
 
 /**
  * Resolves lint options for a document based on its workspace folder.
@@ -39,7 +40,7 @@ export function getPerFolderLintOptions(
 
   // Read folder-scoped settings
   const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(
-    'resist',
+    CONFIG_SECTION,
     folder.uri,
   );
 

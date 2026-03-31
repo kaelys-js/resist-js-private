@@ -10,9 +10,7 @@
 import * as vscode from 'vscode';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
-
-/** Pattern matching resist-lint disable comments. */
-const DISABLE_PATTERN = /\/\/\s*resist-lint-disable(?:-next-line)?(?:\s*:\s*(.+))?/g;
+import { DISABLE_PATTERN } from '../shared/brand';
 
 /**
  * Manages decorations for inline lint override comments.

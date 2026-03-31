@@ -12,9 +12,7 @@ import type { DiagnosticWithData } from './provider';
 import { log } from '../shared/output';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
-
-/** URI scheme for virtual fix preview documents. */
-const PREVIEW_SCHEME = 'resist-fix-preview';
+import { PREVIEW_SCHEME } from '../shared/brand';
 
 /**
  * Content provider for virtual documents showing fixed file content.

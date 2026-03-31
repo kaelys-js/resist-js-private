@@ -81,7 +81,7 @@ export function createDiagnosticFromEntry(
       log(
         channel,
         format(en.diagnosticManager.invalidEntry, {
-          reason: `missing message or invalid line: ${entry.line}`,
+          reason: format(en.diagnosticManager.invalidReason, { line: String(entry.line) }),
         }),
       );
     }

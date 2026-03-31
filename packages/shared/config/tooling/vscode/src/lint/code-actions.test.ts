@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ResistCodeActionProvider } from './code-actions';
 import * as vscode from 'vscode';
+import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 function createMockDocument(text: string = 'const x = 1;\n'): vscode.TextDocument {
   return {
@@ -39,7 +40,7 @@ function createDiagnostic(
 ): vscode.Diagnostic {
   const range = new vscode.Range(0, 0, 0, 5);
   const diag = new vscode.Diagnostic(range, 'test message', vscode.DiagnosticSeverity.Error);
-  diag.source = 'resist-linter';
+  diag.source = DIAGNOSTIC_SOURCE;
   diag.code = 'test/rule';
   if (fix) {
     (diag as { data?: unknown }).data = {
