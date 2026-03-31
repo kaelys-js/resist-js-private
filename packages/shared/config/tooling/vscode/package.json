@@ -1,7 +1,7 @@
 {
   "name": "@resist/vscode",
-  "displayName": "Resist",
-  "description": "Custom linting with real-time diagnostics and auto-fix for the Resist workspace",
+  "displayName": "Resist Tooling",
+  "description": "Real-time linting, auto-fix, and workspace tooling for the Resist monorepo",
   "version": "0.0.1",
   "publisher": "resist",
   "private": true,
@@ -10,7 +10,8 @@
     "vscode": "^1.100.0"
   },
   "categories": [
-    "Linters"
+    "Linters",
+    "Formatters"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -20,86 +21,86 @@
     "commands": [
       {
         "command": "resist.lint.file",
-        "title": "Lint Current File",
+        "title": "Lint: Check Current File",
         "category": "Resist"
       },
       {
         "command": "resist.lint.workspace",
-        "title": "Lint Workspace",
+        "title": "Lint: Check Entire Workspace",
         "category": "Resist"
       },
       {
         "command": "resist.lint.fix",
-        "title": "Fix All Auto-fixable",
+        "title": "Lint: Fix All Auto-Fixable Problems",
         "category": "Resist"
       },
       {
         "command": "resist.lint.clear",
-        "title": "Clear Diagnostics",
+        "title": "Lint: Clear All Diagnostics",
         "category": "Resist"
       },
       {
         "command": "resist.lint.listRules",
-        "title": "List Available Rules",
+        "title": "Lint: Show All Available Rules",
         "category": "Resist"
       },
       {
         "command": "resist.lint.restart",
-        "title": "Restart Linter",
+        "title": "Lint: Restart and Re-Check Open Files",
         "category": "Resist"
       },
       {
         "command": "resist.lint.showOutput",
-        "title": "Show Output",
+        "title": "Show Resist Output Channel",
         "category": "Resist"
       },
       {
         "command": "resist.lint.staged",
-        "title": "Lint Staged Changes",
+        "title": "Lint: Check Staged Changes Only",
         "category": "Resist"
       },
       {
         "command": "resist.lint.uncommitted",
-        "title": "Lint Uncommitted Changes",
+        "title": "Lint: Check Uncommitted Changes Only",
         "category": "Resist"
       }
     ],
     "configuration": {
-      "title": "Resist",
+      "title": "Resist Tooling",
       "properties": {
         "resist.lint.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Enable/disable the linter"
+          "description": "Controls whether the Resist linter is active. When disabled, no diagnostics are produced and no CLI processes are spawned."
         },
         "resist.lint.onSave": {
           "type": "boolean",
           "default": true,
-          "description": "Lint files on save"
+          "description": "Automatically lint files each time they are saved."
         },
         "resist.lint.onType": {
           "type": "boolean",
           "default": true,
-          "description": "Lint files as you type (with debounce)"
+          "description": "Lint files as you type, after a configurable debounce delay."
         },
         "resist.lint.onOpen": {
           "type": "boolean",
           "default": true,
-          "description": "Lint files when opened"
+          "description": "Lint files immediately when they are opened in the editor."
         },
         "resist.lint.debounceMs": {
           "type": "number",
           "default": 500,
           "minimum": 100,
           "maximum": 5000,
-          "description": "Debounce delay for lint-on-type (ms)"
+          "description": "Delay in milliseconds before lint-on-type triggers after the last keystroke. Lower values give faster feedback but increase CPU usage."
         },
         "resist.lint.maxProblems": {
           "type": "number",
           "default": 100,
           "minimum": 1,
           "maximum": 1000,
-          "description": "Maximum number of problems to report per file"
+          "description": "Maximum number of diagnostics reported per file. Limits output in files with many issues."
         },
         "resist.lint.stage": {
           "type": "string",
@@ -112,7 +113,7 @@
             "ci",
             "test"
           ],
-          "description": "Stage filter for custom rules"
+          "description": "Stage gate that determines which rules are active. Each rule declares which stages it runs in."
         },
         "resist.lint.categories": {
           "type": "array",
@@ -120,7 +121,7 @@
             "type": "string"
           },
           "default": [],
-          "description": "Category filter for custom rules (empty = all)"
+          "description": "Filter rules by category. Only rules matching these categories will run. Leave empty to run all categories."
         },
         "resist.lint.args": {
           "type": "array",
@@ -128,22 +129,22 @@
             "type": "string"
           },
           "default": [],
-          "description": "Extra CLI arguments passed to resist-lint"
+          "description": "Additional CLI arguments passed directly to the resist-lint process. Use for flags not exposed as dedicated settings."
         },
         "resist.lint.cache": {
           "type": "boolean",
           "default": true,
-          "description": "Enable file hash caching for incremental lint runs"
+          "description": "Cache file hashes to skip unchanged files on subsequent lint runs. Disable to force a full re-check every time."
         },
         "resist.lint.quiet": {
           "type": "boolean",
           "default": false,
-          "description": "Suppress warnings, show errors only"
+          "description": "Suppress warnings and only report errors. Useful for focusing on critical issues."
         },
         "resist.lint.debug": {
           "type": "boolean",
           "default": false,
-          "description": "Enable verbose debug logging to the output channel"
+          "description": "Log detailed debug information (timing, cache stats, rule counts) to the Resist output channel."
         },
         "resist.lint.severityOverride": {
           "type": "string",
@@ -154,12 +155,12 @@
             "warn",
             "off"
           ],
-          "description": "Global severity override for all rules (empty = use rule defaults)"
+          "description": "Override the severity of all rules globally. Leave empty to use each rule's configured severity."
         },
         "resist.lint.rule": {
           "type": "string",
           "default": "",
-          "description": "Run only a specific rule by name (empty = all rules)"
+          "description": "Run only a single rule by its ID (e.g., 'naming/no-default-export'). Useful for debugging individual rules. Leave empty to run all rules."
         },
         "resist.lint.ignorePatterns": {
           "type": "array",
@@ -167,42 +168,43 @@
             "type": "string"
           },
           "default": [],
-          "description": "Glob patterns for files/directories to ignore"
+          "description": "Glob patterns for files and directories to exclude from linting (e.g., 'dist/**', '*.generated.ts')."
         },
         "resist.lint.jobs": {
           "type": "number",
           "default": 0,
           "minimum": 0,
           "maximum": 32,
-          "description": "Number of parallel workers (0 = auto-detect CPU count)"
+          "description": "Number of parallel worker threads for linting. Set to 0 to auto-detect based on available CPU cores."
         },
         "resist.lint.tools": {
           "type": "boolean",
           "default": false,
-          "description": "Enable external tool integration"
+          "description": "Enable external tool integration (e.g., dependency-cruiser, knip, typos). External tools must be installed separately."
         },
         "resist.lint.locale": {
           "type": "string",
           "default": "",
-          "description": "Locale for diagnostic messages (empty = system default)"
+          "description": "Locale code for diagnostic messages (e.g., 'en'). Leave empty to use the system default locale."
         },
         "resist.lint.bail": {
           "type": "boolean",
           "default": false,
-          "description": "Stop linting on first error"
+          "description": "Stop the linter after the first error is found. Useful for large workspaces where you want fast failure."
         }
       }
     }
   },
   "scripts": {
-    "compile": "tsgo -p ./",
+    "build": "tsgo -p ./",
     "watch": "tsgo -w -p ./",
-    "typecheck": "tsgo --noEmit -p ./",
+    "qa:lint": "tsgo --noEmit -p ./",
     "qa:test": "pnpm -w exec vitest run --project config-tooling-vscode",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "qa:test:coverage": "pnpm -w exec vitest run --project config-tooling-vscode --coverage",
+    "clean": "rm -rf out",
     "package": "vsce package --no-dependencies",
-    "vscode:prepublish": "pnpm compile"
+    "install-local": "pnpm build && pnpm package && code --install-extension resist-vscode-0.0.1.vsix",
+    "vscode:prepublish": "pnpm build"
   },
   "devDependencies": {
     "@types/vscode": "^1.100.0",

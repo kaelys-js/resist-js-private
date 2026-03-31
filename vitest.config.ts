@@ -330,6 +330,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'config-tooling-vscode',
+          globals: true,
           root: 'packages/shared/config/tooling/vscode',
           include: ['src/**/*.test.ts'],
           alias: {

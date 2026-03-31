@@ -105,4 +105,38 @@ describe('DocumentDebouncer', () => {
     vi.advanceTimersByTime(100);
     expect(fn2).toHaveBeenCalledOnce();
   });
+
+  it('calls onError callback when fn throws', () => {
+    const onError = vi.fn();
+    const debouncerWithHandler = new DocumentDebouncer(onError);
+    const error = new Error('callback error');
+
+    debouncerWithHandler.schedule(
+      'file:///a.ts',
+      () => {
+        throw error;
+      },
+      100,
+    );
+    vi.advanceTimersByTime(100);
+
+    expect(onError).toHaveBeenCalledOnce();
+    expect(onError).toHaveBeenCalledWith(error);
+    debouncerWithHandler.dispose();
+  });
+
+  it('swallows errors silently when no onError callback is provided', () => {
+    const debouncerNoHandler = new DocumentDebouncer();
+
+    debouncerNoHandler.schedule(
+      'file:///a.ts',
+      () => {
+        throw new Error('silent');
+      },
+      100,
+    );
+
+    expect(() => vi.advanceTimersByTime(100)).not.toThrow();
+    debouncerNoHandler.dispose();
+  });
 });

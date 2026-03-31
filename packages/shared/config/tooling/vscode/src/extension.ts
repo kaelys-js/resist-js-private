@@ -20,6 +20,7 @@ import { lintDocument, type LintOptions } from './lint/provider';
 import { ResistCodeActionProvider } from './lint/code-actions';
 import { createConfigWatcher } from './lint/watcher';
 import { registerLintCommands } from './lint/commands';
+import { en } from './locale/en';
 
 // =============================================================================
 // State
@@ -48,27 +49,24 @@ export function activate(context: vscode.ExtensionContext): void {
   const outputChannel: vscode.OutputChannel = createOutputChannel();
   const statusBarItem: vscode.StatusBarItem = createStatusBar(context);
 
-  debouncer = new DocumentDebouncer();
+  debouncer = new DocumentDebouncer((error: unknown) => {
+    logError(outputChannel, error instanceof Error ? error.message : String(error));
+  });
 
   context.subscriptions.push(diagnosticCollection);
   context.subscriptions.push(outputChannel);
   context.subscriptions.push({ dispose: () => debouncer.dispose() });
 
-  log(outputChannel, 'Resist extension activated');
+  log(outputChannel, en.output.activated);
 
   // Check for resist-lint binary
   const folders: readonly vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
   if (folders && folders.length > 0) {
     const binPath: string | undefined = getBinaryPath('resist-lint', folders[0].uri);
     if (!binPath) {
-      logError(
-        outputChannel,
-        'resist-lint not found in node_modules/.bin. Install @/lint to enable linting.',
-      );
+      logError(outputChannel, en.messages.binaryNotFoundLog);
       if (!hasWarnedMissingBinary) {
-        vscode.window.showWarningMessage(
-          'Resist: resist-lint not found in node_modules/.bin. Linting is disabled.',
-        );
+        vscode.window.showWarningMessage(en.messages.binaryNotFound);
         hasWarnedMissingBinary = true;
       }
       updateStatusBar(statusBarItem, 'disabled');

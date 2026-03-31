@@ -13,6 +13,8 @@ import { updateStatusBar } from '../shared/status-bar';
 import { log, logCommand, logError } from '../shared/output';
 import { safeRunAsync } from '../shared/errors';
 import { runToolJson } from '../shared/runner';
+import { en } from '../locale/en';
+import { format } from '../locale/schema';
 
 /** Dependencies injected from the extension entry point. */
 interface CommandDeps {
@@ -50,7 +52,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
         await vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
-            title: 'Resist: Linting workspace',
+            title: en.progress.workspace,
             cancellable: false,
           },
           async (progress) => {
@@ -93,7 +95,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
         }
 
         if (fixes.length === 0) {
-          vscode.window.showInformationMessage('No auto-fixable problems found');
+          vscode.window.showInformationMessage(en.messages.noFixableProblems);
           return;
         }
 
@@ -109,12 +111,12 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
 
         const applied: boolean = await vscode.workspace.applyEdit(edit);
         if (!applied) {
-          logError(outputChannel, 'Failed to apply auto-fixes — workspace edit rejected');
-          vscode.window.showErrorMessage('Resist: Failed to apply auto-fixes');
+          logError(outputChannel, en.messages.fixRejectedLog);
+          vscode.window.showErrorMessage(en.messages.fixRejected);
           return;
         }
 
-        log(outputChannel, `Applied ${fixes.length} auto-fix(es)`);
+        log(outputChannel, format(en.messages.fixesApplied, { count: fixes.length }));
 
         // Re-lint after fixing
         lintDocumentFn(editor.document);
@@ -127,7 +129,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     vscode.commands.registerCommand('resist.lint.clear', () => {
       diagnosticCollection.clear();
       updateStatusBar(statusBarItem, 'ready');
-      log(outputChannel, 'Diagnostics cleared');
+      log(outputChannel, en.messages.diagnosticsCleared);
     }),
   );
 
@@ -138,13 +140,13 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
         const folders: readonly vscode.WorkspaceFolder[] | undefined =
           vscode.workspace.workspaceFolders;
         if (!folders || folders.length === 0) {
-          vscode.window.showErrorMessage('No workspace folder open');
+          vscode.window.showErrorMessage(en.messages.noWorkspaceFolder);
           return;
         }
 
         const binPath: string | undefined = getBinaryPath('resist-lint', folders[0].uri);
         if (!binPath) {
-          vscode.window.showErrorMessage('resist-lint not found in node_modules/.bin');
+          vscode.window.showErrorMessage(en.messages.binaryNotInNodeModules);
           return;
         }
 
@@ -178,7 +180,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     vscode.commands.registerCommand('resist.lint.restart', () => {
       clearCache();
       diagnosticCollection.clear();
-      log(outputChannel, 'Linter restarted — cache cleared, re-linting open files');
+      log(outputChannel, en.messages.linterRestarted);
 
       for (const doc of vscode.workspace.textDocuments) {
         if (doc.uri.scheme === 'file' && !doc.isUntitled) {
@@ -202,7 +204,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
         await vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
-            title: 'Resist: Linting staged changes',
+            title: en.progress.staged,
             cancellable: false,
           },
           async (progress) => {
@@ -224,7 +226,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
         await vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
-            title: 'Resist: Linting uncommitted changes',
+            title: en.progress.uncommitted,
             cancellable: false,
           },
           async (progress) => {
