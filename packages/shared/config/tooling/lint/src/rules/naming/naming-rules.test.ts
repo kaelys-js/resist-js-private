@@ -188,20 +188,20 @@ describe('naming/pascal-case-types', () => {
 
 describe('naming/svelte-file-pascal-case', () => {
   it('reports non-PascalCase .svelte filename', async () => {
-    const code: string = `<script>let x = 1;</script>`;
+    const code: string = '<script>\nlet x = 1;\n</script>';
     const results: LintResult[] = await lint(svelteFilePascalCase, code, 'scene-editor.svelte');
     expect(results.length).toBe(1);
     expect(results[0]!.message).toContain('scene-editor.svelte');
   });
 
   it('passes PascalCase .svelte filename', async () => {
-    const code: string = `<script>let x = 1;</script>`;
+    const code: string = '<script>\nlet x = 1;\n</script>';
     const results: LintResult[] = await lint(svelteFilePascalCase, code, 'SceneEditor.svelte');
     expect(results.length).toBe(0);
   });
 
   it('exempts SvelteKit convention files', async () => {
-    const code: string = `<script>let x = 1;</script>`;
+    const code: string = '<script>\nlet x = 1;\n</script>';
     const results: LintResult[] = await lint(svelteFilePascalCase, code, '+page.svelte');
     expect(results.length).toBe(0);
   });

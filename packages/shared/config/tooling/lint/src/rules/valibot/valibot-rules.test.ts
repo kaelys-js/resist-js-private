@@ -3126,10 +3126,10 @@ const UserSchema = v.strictObject({ name: v.string() });
   });
 
   it('warns for schema in .svelte file (not .svelte.ts)', async () => {
-    const code: string = `
+    const code: string = `<script lang="ts">
 import * as v from 'valibot';
 const UserSchema = v.strictObject({ name: v.string() });
-`;
+</script>`;
     const results: LintResult[] = await lint(
       noSchemaInComponent,
       code,

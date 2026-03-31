@@ -123,7 +123,7 @@ describe('LintConfigSchema', () => {
     }
     expect(result.output.include).toEqual([]);
     expect(result.output.exclude).toEqual(['*.test.ts', '*.d.ts']);
-    expect(result.output.extensions).toEqual(['.ts', '.svelte.ts', '.mjs']);
+    expect(result.output.extensions).toEqual(['.ts', '.svelte.ts', '.svelte', '.mjs']);
     expect(result.output.rules).toEqual({});
     expect(result.output.overrides).toEqual([]);
     expect(result.output.$schema).toBeUndefined();
@@ -180,7 +180,7 @@ describe('loadConfig', () => {
     const config: LintConfig = loadConfig('/some/nonexistent/dir', undefined, en);
     expect(config.include).toEqual([]);
     expect(config.exclude).toEqual(['*.test.ts', '*.d.ts']);
-    expect(config.extensions).toEqual(['.ts', '.svelte.ts', '.mjs']);
+    expect(config.extensions).toEqual(['.ts', '.svelte.ts', '.svelte', '.mjs']);
     expect(config.rules).toEqual({});
     expect(config.overrides).toEqual([]);
   });
@@ -523,7 +523,12 @@ describe('generateJsonSchema', () => {
 
   it('extensions property has correct default', () => {
     const schema = generateJsonSchema([], new Map(), en);
-    expect(schema.properties['extensions']?.default).toEqual(['.ts', '.svelte.ts', '.mjs']);
+    expect(schema.properties['extensions']?.default).toEqual([
+      '.ts',
+      '.svelte.ts',
+      '.svelte',
+      '.mjs',
+    ]);
   });
 
   it('rules additionalProperties describes severity enum', () => {
