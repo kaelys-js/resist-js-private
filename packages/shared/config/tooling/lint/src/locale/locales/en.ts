@@ -145,8 +145,7 @@ export const en: LintStrings = {
       '- stages: string[] — override pipeline stages (lint, check, pre-commit, build, ci, test)',
     ruleSeverityDescription:
       'Rule severity: "error" (exit 1), "warn" (report but pass), "off" (skip).',
-    rulesDescription:
-      'Rule ID → severity mapping. Unlisted rules default to "error".\n\nAvailable rules:\n{ruleList}',
+    rulesBaseDescription: 'Rule ID → severity mapping. Unlisted rules default to "error".',
     schemaFieldDescription: 'Path to the JSON Schema for IDE autocomplete.',
     title: '{linterName} configuration',
   },

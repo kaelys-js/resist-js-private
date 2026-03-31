@@ -516,18 +516,27 @@ describe('generateJsonSchema', () => {
     expect(propKeys.length).toBe(7);
   });
 
-  it('includes rule IDs in the rules property description', () => {
+  it('has per-rule properties with individual descriptions', () => {
     const schema = generateJsonSchema(ruleIds, ruleDescriptions, en);
-    const rulesDescription: string = schema.properties['rules']?.description ?? '';
-    expect(rulesDescription).toContain('jsdoc/require-param');
-    expect(rulesDescription).toContain('imports/no-relative-imports');
+    const rulesProps = schema.properties['rules']?.properties;
+    expect(rulesProps).toBeDefined();
+    expect(rulesProps?.['jsdoc/require-param']).toEqual({
+      description: 'Requires @param tags for function parameters',
+      enum: ['error', 'warn', 'off'],
+      type: 'string',
+    });
+    expect(rulesProps?.['imports/no-relative-imports']).toEqual({
+      description: 'Disallows relative imports',
+      enum: ['error', 'warn', 'off'],
+      type: 'string',
+    });
   });
 
-  it('includes rule descriptions in the rules property description', () => {
+  it('rules description is base description without bundled rule list', () => {
     const schema = generateJsonSchema(ruleIds, ruleDescriptions, en);
     const rulesDescription: string = schema.properties['rules']?.description ?? '';
-    expect(rulesDescription).toContain('Requires @param tags for function parameters');
-    expect(rulesDescription).toContain('Disallows relative imports');
+    expect(rulesDescription).toBe('Rule ID → severity mapping. Unlisted rules default to "error".');
+    expect(rulesDescription).not.toContain('jsdoc/require-param');
   });
 
   it('works with empty rule lists', () => {
@@ -577,8 +586,35 @@ describe('generateJsonSchema', () => {
 
   it('handles a rule with no description entry gracefully', () => {
     const schema = generateJsonSchema(['unknown/rule'], new Map(), en);
-    const rulesDescription: string = schema.properties['rules']?.description ?? '';
-    expect(rulesDescription).toContain('unknown/rule');
+    const rulesProps = schema.properties['rules']?.properties;
+    expect(rulesProps?.['unknown/rule']).toEqual({
+      description: '',
+      enum: ['error', 'warn', 'off'],
+      type: 'string',
+    });
+  });
+
+  it('empty rule list produces empty properties object', () => {
+    const schema = generateJsonSchema([], new Map(), en);
+    const rulesProps = schema.properties['rules']?.properties;
+    expect(rulesProps).toEqual({});
+  });
+
+  it('overrides rules also have per-rule properties', () => {
+    const schema = generateJsonSchema(ruleIds, ruleDescriptions, en);
+    const overrideItems = schema.properties['overrides']?.items;
+    expect(overrideItems).toBeDefined();
+    if (overrideItems && typeof overrideItems === 'object' && 'properties' in overrideItems) {
+      const overrideRules = (
+        overrideItems.properties as Record<string, { properties?: Record<string, unknown> }>
+      )?.['rules'];
+      expect(overrideRules?.properties).toBeDefined();
+      expect(overrideRules?.properties?.['jsdoc/require-param']).toEqual({
+        description: 'Requires @param tags for function parameters',
+        enum: ['error', 'warn', 'off'],
+        type: 'string',
+      });
+    }
   });
 });
 
