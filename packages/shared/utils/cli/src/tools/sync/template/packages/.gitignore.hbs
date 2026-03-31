@@ -32,6 +32,21 @@
 .branding.*.yml
 .devenv.json
 
+# Claude Code (AI dev tool — workspace config)
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
+!.claude/skills/
+
+# Git worktrees (Claude Code isolation)
+.worktrees/
+
+# Playwright MCP (browser automation state)
+.playwright-mcp
+
+# GitHub Skills (generated)
+.github/skills
+
 # mise tool installations (workspace-scoped, auto-generated)
 .mise/
 # Keep the bootstrap script committed (./bin/mise is the entry point)

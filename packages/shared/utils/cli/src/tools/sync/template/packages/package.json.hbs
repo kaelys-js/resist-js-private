@@ -112,5 +112,12 @@
 		{{#each versions.nodeTools}}
 		"{{@key}}": "{{this}}"{{#unless @last}},{{/unless}}
 		{{/each}}
-	}
+	}{{#ifPm "pnpm"}},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"@biomejs/biome",
+			"esbuild",
+			"workerd"
+		]
+	}{{/ifPm}}
 }
