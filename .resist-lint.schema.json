@@ -584,6 +584,96 @@
                 "enum": ["error", "warn", "off"],
                 "type": "string"
               },
+              "svelte5/component-naming": {
+                "description": "Component file should be PascalCase",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/no-create-event-dispatcher": {
+                "description": "createEventDispatcher is deprecated in Svelte 5 - use callback props instead",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/no-effect-mutation": {
+                "description": "Unguarded $state mutation inside $effect may cause infinite loop",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/no-inline-styles": {
+                "description": "Avoid inline styles - use CSS classes or style: directives",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/no-legacy-event-handlers": {
+                "description": "Legacy event handler 'on:event' - use 'onevent' attribute instead",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/no-legacy-props": {
+                "description": "Legacy prop declaration 'export let' - use $props() instead",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/no-legacy-reactive-statements": {
+                "description": "Legacy reactive statement '$:' - use $derived or $effect instead",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/no-legacy-slots": {
+                "description": "<slot> is deprecated in Svelte 5 - use snippets with {@render}",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/no-reactive-class-properties": {
+                "description": "$state in class property makes all instances deeply reactive - ensure this is intentional",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/no-rest-props-misuse": {
+                "description": "$$restProps is deprecated in Svelte 5 - use rest destructuring with $props()",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/no-state-in-module-context": {
+                "description": "$state in module context creates shared state across all component instances",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/no-untrack-misuse": {
+                "description": "untrack() used on non-reactive value - untrack is only needed for $state/$derived",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/prefer-derived-by": {
+                "description": "Complex derivation should use $derived.by() for clarity",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/prefer-derived-over-effect": {
+                "description": "$effect that only sets a value should use $derived instead",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/require-bindable-for-bind": {
+                "description": "Props used with bind: must be declared as $bindable()",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/require-each-key": {
+                "description": "{#each} block should have a key expression for stable identity",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/require-effect-cleanup": {
+                "description": "$effect with subscriptions/timers must return a cleanup function",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "svelte5/require-snippet-typing": {
+                "description": "Snippet props should be typed as Snippet or Snippet<[...]>",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
               "testing/multi-export-a": {
                 "description": "Multi-export fixture rule A (no-op).",
                 "enum": ["error", "warn", "off"],
@@ -1666,6 +1756,96 @@
         },
         "svelte5-config/vite-optimizeDeps": {
           "description": "Svelte packages should not be excluded from Vite optimizeDeps",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/component-naming": {
+          "description": "Component file should be PascalCase",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/no-create-event-dispatcher": {
+          "description": "createEventDispatcher is deprecated in Svelte 5 - use callback props instead",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/no-effect-mutation": {
+          "description": "Unguarded $state mutation inside $effect may cause infinite loop",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/no-inline-styles": {
+          "description": "Avoid inline styles - use CSS classes or style: directives",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/no-legacy-event-handlers": {
+          "description": "Legacy event handler 'on:event' - use 'onevent' attribute instead",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/no-legacy-props": {
+          "description": "Legacy prop declaration 'export let' - use $props() instead",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/no-legacy-reactive-statements": {
+          "description": "Legacy reactive statement '$:' - use $derived or $effect instead",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/no-legacy-slots": {
+          "description": "<slot> is deprecated in Svelte 5 - use snippets with {@render}",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/no-reactive-class-properties": {
+          "description": "$state in class property makes all instances deeply reactive - ensure this is intentional",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/no-rest-props-misuse": {
+          "description": "$$restProps is deprecated in Svelte 5 - use rest destructuring with $props()",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/no-state-in-module-context": {
+          "description": "$state in module context creates shared state across all component instances",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/no-untrack-misuse": {
+          "description": "untrack() used on non-reactive value - untrack is only needed for $state/$derived",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/prefer-derived-by": {
+          "description": "Complex derivation should use $derived.by() for clarity",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/prefer-derived-over-effect": {
+          "description": "$effect that only sets a value should use $derived instead",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/require-bindable-for-bind": {
+          "description": "Props used with bind: must be declared as $bindable()",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/require-each-key": {
+          "description": "{#each} block should have a key expression for stable identity",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/require-effect-cleanup": {
+          "description": "$effect with subscriptions/timers must return a cleanup function",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "svelte5/require-snippet-typing": {
+          "description": "Snippet props should be typed as Snippet or Snippet<[...]>",
           "enum": ["error", "warn", "off"],
           "type": "string"
         },

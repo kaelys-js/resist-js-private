@@ -285,6 +285,49 @@ export const AstVisitorSchema = v.strictObject({
   TemplateLiteral: v.optional(VisitorFnSchema),
   /** Visitor for string literal nodes. */
   StringLiteral: v.optional(VisitorFnSchema),
+  /** Visitor for labeled statements (e.g. `$:` reactive blocks). */
+  LabeledStatement: v.optional(VisitorFnSchema),
+  /** Visitor for update expressions (++, --). */
+  UpdateExpression: v.optional(VisitorFnSchema),
+
+  // =========================================================================
+  // Svelte Template AST Visitors (from svelte/compiler parse)
+  // =========================================================================
+
+  /** Visitor for Svelte template Fragment (root of template AST). */
+  Fragment: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte regular HTML elements. */
+  RegularElement: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte component elements. */
+  Component: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte HTML attributes (name="value"). */
+  Attribute: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte bind: directives. */
+  BindDirective: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte on: directives (legacy event handlers). */
+  OnDirective: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte style: directives. */
+  StyleDirective: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte class: directives. */
+  ClassDirective: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte {#each} blocks. */
+  EachBlock: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte {#if} blocks. */
+  IfBlock: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte {#await} blocks. */
+  AwaitBlock: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte {#key} blocks. */
+  KeyBlock: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte {#snippet} blocks. */
+  SnippetBlock: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte <slot> elements (legacy). */
+  SlotElement: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte {@render} tags. */
+  RenderTag: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte {@html} tags. */
+  HtmlTag: v.optional(VisitorFnSchema),
+  /** Visitor for Svelte expression tags ({expression}). */
+  ExpressionTag: v.optional(VisitorFnSchema),
 });
 
 /** Map of AST node types to visitor functions. See {@link AstVisitorSchema}. */
@@ -340,6 +383,12 @@ export const VisitorContextSchema = v.strictObject({
   rule: v.custom<TypeScriptRule>(isObj),
   /** Per-rule configuration options from the config file */
   ruleOptions: v.optional(v.record(v.string(), v.unknown())),
+  /** Svelte template AST root (Fragment node) — only set for .svelte files */
+  templateAst: v.optional(v.custom<AstNode | undefined>((): boolean => true)),
+  /** Per-rule per-file scratch state for cross-analysis (script + template coordination) */
+  ruleState: v.optional(v.custom<Map<string, unknown>>(isObj)),
+  /** Original file content (before script extraction) — for rules that need HTML tag inspection */
+  originalContent: v.optional(v.string()),
 });
 
 /** Context passed to visitor functions during AST traversal. See {@link VisitorContextSchema}. */
