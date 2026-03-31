@@ -95,6 +95,10 @@ export interface MessageStrings {
   readonly foundDiagnostics: string;
   /** Progress message while linting. */
   readonly runningLinter: string;
+  /** Progress message showing file count: "{processed}/{total} files". */
+  readonly progressFiles: string;
+  /** Section header for available rules output. */
+  readonly availableRulesHeader: string;
 }
 
 /** Strings for progress bar titles. */

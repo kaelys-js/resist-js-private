@@ -9,6 +9,7 @@
 
 import * as vscode from 'vscode';
 import type { DiagnosticWithData } from './provider';
+import { logError } from '../shared/output';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
 
@@ -21,6 +22,17 @@ import { format } from '../locale/schema';
  */
 export class ResistCodeActionProvider implements vscode.CodeActionProvider {
   static readonly providedCodeActionKinds = [vscode.CodeActionKind.QuickFix];
+  private readonly outputChannel?: vscode.OutputChannel;
+
+  /**
+   * Creates a new ResistCodeActionProvider.
+   *
+   * @param outputChannel - Optional output channel for logging errors
+   *   during code action creation. When not provided, errors are silently skipped.
+   */
+  constructor(outputChannel?: vscode.OutputChannel) {
+    this.outputChannel = outputChannel;
+  }
 
   provideCodeActions(
     document: vscode.TextDocument,
@@ -77,9 +89,13 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
         action.edit = edit;
 
         actions.push(action);
-      } catch {
-        // Intentional: skip fix if position conversion fails for malformed byte offsets.
-        // No output channel available here — logging would require injecting the channel.
+      } catch (error: unknown) {
+        if (this.outputChannel) {
+          logError(
+            this.outputChannel,
+            `Code action failed for ${String(diagnostic.code)}: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
         continue;
       }
     }
@@ -117,9 +133,13 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
 
         fixAllAction.edit = edit;
         actions.push(fixAllAction);
-      } catch {
-        // Intentional: skip "Fix all" if any position conversion fails.
-        // No output channel available here — logging would require injecting the channel.
+      } catch (error: unknown) {
+        if (this.outputChannel) {
+          logError(
+            this.outputChannel,
+            `Fix-all action failed: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
       }
     }
 

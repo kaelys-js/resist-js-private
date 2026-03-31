@@ -248,7 +248,7 @@ export async function lintWorkspace(
     collection.set(uri, diagnostics);
     processed++;
     progress.report({
-      message: `${processed}/${total} files`,
+      message: format(en.messages.progressFiles, { processed, total }),
       increment: (1 / total) * 100,
     });
   }

@@ -161,7 +161,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
 
         // --list-rules outputs text, not JSON, so show whatever we get
         outputChannel.appendLine('');
-        outputChannel.appendLine('=== Available Rules ===');
+        outputChannel.appendLine(en.messages.availableRulesHeader);
         if (result.ok) {
           outputChannel.appendLine(
             typeof result.data === 'string' ? result.data : JSON.stringify(result.data, null, 2),
