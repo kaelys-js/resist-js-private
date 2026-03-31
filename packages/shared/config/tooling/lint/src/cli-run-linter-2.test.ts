@@ -266,6 +266,37 @@ describe.concurrent('runLinter — cache mode', () => {
     const combined: string = stderrLines.join('');
     expect(combined).toContain('Cache saved');
   });
+
+  it('--cache with finalize rules produces consistent results across runs', async () => {
+    const basePath: string = resolve('packages/shared/config/tooling/lint/src/');
+    const args: CliArgs = makeCliArgs({
+      paths: [basePath],
+      cache: true,
+      json: true,
+      ruleIds: ['valibot/no-duplicate-schema'],
+      warnOnly: true,
+    });
+
+    /* Run 1 — cold cache: finalize() has full cross-file state */
+    const { stdoutLines: out1, output: output1 } = captureOutput();
+    await runLinter(args, output1, en);
+    const results1 = JSON.parse(out1.join('')) as Array<{ ruleId: string }>;
+
+    /* Run 2 — warm cache: finalize() must still have complete state
+     * because cached files run check() for finalize rules to populate state. */
+    const { stdoutLines: out2, output: output2 } = captureOutput();
+    await runLinter(args, output2, en);
+    const results2 = JSON.parse(out2.join('')) as Array<{ ruleId: string }>;
+
+    /* Both runs must produce identical result counts for finalize rules */
+    const finalize1: number = results1.filter(
+      (r: { ruleId: string }): boolean => r.ruleId === 'valibot/no-duplicate-schema',
+    ).length;
+    const finalize2: number = results2.filter(
+      (r: { ruleId: string }): boolean => r.ruleId === 'valibot/no-duplicate-schema',
+    ).length;
+    expect(finalize2).toBe(finalize1);
+  });
 });
 
 // =============================================================================

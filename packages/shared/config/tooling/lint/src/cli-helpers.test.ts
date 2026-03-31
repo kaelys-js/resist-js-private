@@ -921,18 +921,23 @@ describe('parseCliArgs — --tools', () => {
 // =============================================================================
 
 describe('parseCliArgs — --cache', () => {
-  it('parses --cache flag', () => {
+  it('defaults cache to true', () => {
+    const args: CliArgs = parseCliArgs([]);
+    expect(args.cache).toBe(true);
+  });
+
+  it('--cache flag keeps cache enabled', () => {
     const args: CliArgs = parseCliArgs(['--cache']);
     expect(args.cache).toBe(true);
   });
 
-  it('--no-cache overrides --cache', () => {
-    const args: CliArgs = parseCliArgs(['--cache', '--no-cache']);
+  it('--no-cache disables cache', () => {
+    const args: CliArgs = parseCliArgs(['--no-cache']);
     expect(args.cache).toBe(false);
   });
 
-  it('defaults cache to false', () => {
-    const args: CliArgs = parseCliArgs([]);
+  it('--no-cache overrides --cache', () => {
+    const args: CliArgs = parseCliArgs(['--cache', '--no-cache']);
     expect(args.cache).toBe(false);
   });
 });

@@ -419,8 +419,8 @@ describe('parseCliArgs — edge cases', () => {
     expect(args.diff).toBe('head');
   });
 
-  it('handles --cache without --no-cache', () => {
-    const args: CliArgs = parseCliArgs(['--cache']);
+  it('cache defaults to true without --no-cache', () => {
+    const args: CliArgs = parseCliArgs([]);
     expect(args.cache).toBe(true);
   });
 
