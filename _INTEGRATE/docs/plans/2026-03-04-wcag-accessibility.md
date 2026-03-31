@@ -35,7 +35,7 @@
 2. Change `:root` `--ring` from `oklch(0.708 0 0)` to `oklch(0.556 0 0)`
 3. Change `.dark` `--ring` from `oklch(0.439 0 0)` to `oklch(0.556 0 0)`
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -71,7 +71,7 @@
    - `copyErrorId: messageTemplate()`
 4. Add translations to all 7 locale files
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test`
 
 ---
 
@@ -101,7 +101,7 @@
    <div aria-live="polite" aria-atomic="true" class="sr-only">{getAnnouncement()}</div>
    ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -121,7 +121,7 @@
 }
 ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -144,7 +144,7 @@
    ```
 3. **AppSidebar:** Add `aria-label={t(localeStore.t.common.sidebar, 'Application sidebar')}` to `<Sidebar.Root>`
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -162,7 +162,7 @@
 1. **ModeToggle:** Import `localeStore, t`. Change `aria-label="Toggle mode"` to `aria-label={t(localeStore.t.common.toggleMode, 'Toggle mode')}`. Add `aria-hidden="true"` to Sun/Moon icons.
 2. **NavUser:** Add `<span class="sr-only">{user.name}</span>` inside the trigger button. Add `aria-hidden="true"` to ChevronsUpDown and other decorative icons.
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -180,7 +180,7 @@
 1. **ThemeSwitcher:** On each `DropdownMenu.RadioItem`, add `aria-current={isActive ? 'true' : undefined}`. Add `aria-hidden="true"` on color dot spans. Add `textValue` prop to items.
 2. **LanguageSwitcher:** On each `DropdownMenu.RadioItem`, add `aria-current={isActive ? 'true' : undefined}`. Add `aria-hidden="true"` on Globe icon. Add `textValue` prop to items.
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -198,7 +198,7 @@
 3. Add `aria-hidden="true"` to Folder, MoreHorizontal icons
 4. Add `aria-current={scene.isActive ? 'page' : undefined}` on active scene link
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -217,7 +217,7 @@
 3. Call `announce(copiedLabel)` after successful clipboard write
 4. Add `aria-hidden="true"` to StatusIcon, Copy, and Check icons
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -243,7 +243,7 @@
 8. Add keyboard repositioning: Shift+Arrow cycles trigger between left/center/right positions
 9. Fix `<kbd>` contrast: replace `bg-muted` with `bg-secondary` on shortcut badges
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -272,7 +272,7 @@
    - Add `announce()` call with filtered count after search
 4. **Debug:** Remove `scale-75` only (no search input in this panel)
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -286,7 +286,7 @@
 **Implementation:**
 1. Ensure all accessibility E2E tests pass
 2. Run full test suite: `pnpm qa:test && pnpm qa:test:e2e`
-3. Run full QA: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+3. Run full QA: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 

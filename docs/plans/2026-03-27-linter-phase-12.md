@@ -249,7 +249,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Status**: [x] — Verified: 2635 tests pass. Type-check clean. Format clean. Coverage: statements 90.58%, branches 76.54%, functions 85.39%, lines 90.56% — all above thresholds.
 
 **Plan**:
-- Run `pnpm --filter @/lint qa:type-check`
+- Run `pnpm -w run qa:lint --tools`
 - Run `pnpm -w run qa:test`
 - Run `pnpm -w run qa:format:check`
 - Run `pnpm --filter @/lint qa:test:coverage`

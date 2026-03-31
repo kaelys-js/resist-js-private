@@ -40,7 +40,7 @@ if (!result.ok) return;
 ### QA Commands (run after every file edit)
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ### Test Command
@@ -120,7 +120,7 @@ Add after `environmentIntensity` in `TimeKeyframeSchema` (line 627):
 **Step 3: Run QA**
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 **Step 4: Commit**
@@ -271,7 +271,7 @@ Expected: All pass including new season tests.
 **Step 3: Run QA**
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 **Step 4: Commit**
@@ -1563,7 +1563,7 @@ cd packages/products/webforge/runtime && pnpm dev
 **Step 1: Run full QA suite**
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && cd packages/products/webforge/runtime && pnpm qa:test
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && cd packages/products/webforge/runtime && pnpm qa:test
 ```
 
 **Step 2: Verify test count increased by ~80-100**

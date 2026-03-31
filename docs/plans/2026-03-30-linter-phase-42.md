@@ -112,7 +112,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Status**: [x]
 
 **Plan**:
-- Run: `pnpm --filter @/lint qa:type-check`
+- Run: `pnpm -w run qa:lint --tools`
 - Run: `pnpm --filter @/lint qa:test`
 - Run: `pnpm -w run qa:format`
 - Run: `pnpm -w run qa:format:check`

@@ -513,7 +513,7 @@ export type ParallaxInstance = {
 
 **Step 3: Run type check**
 
-Run: `pnpm qa:type-check`
+Run: `pnpm -w run qa:lint --tools`
 Expected: all pass.
 
 **Step 4: Commit**

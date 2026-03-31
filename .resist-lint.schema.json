@@ -1099,11 +1099,6 @@
                 "enum": ["error", "warn", "off"],
                 "type": "string"
               },
-              "package/require-tsgo": {
-                "description": "qa:type-check must use tsgo, not tsc",
-                "enum": ["error", "warn", "off"],
-                "type": "string"
-              },
               "package/valid-project-ref": {
                 "description": "Scripts with --project must reference a valid vitest project name",
                 "enum": ["error", "warn", "off"],
@@ -2186,11 +2181,6 @@
         },
         "package/require-standard-scripts": {
           "description": "Sub-packages must have all standard scripts",
-          "enum": ["error", "warn", "off"],
-          "type": "string"
-        },
-        "package/require-tsgo": {
-          "description": "qa:type-check must use tsgo, not tsc",
           "enum": ["error", "warn", "off"],
           "type": "string"
         },

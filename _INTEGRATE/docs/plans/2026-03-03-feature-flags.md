@@ -40,7 +40,7 @@
    appNameInSidebar: true,
    ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -56,7 +56,7 @@
 3. All new flag keys are present in `FeatureFlagsSchema.entries`
 4. Each new flag defaults to `true`
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test`
 
 ---
 
@@ -81,7 +81,7 @@
    {/if}
    ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -131,7 +131,7 @@
    </Sidebar.Footer>
    ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -163,7 +163,7 @@
    {/if}
    ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -195,7 +195,7 @@ Flags to test (13):
 
 **Note:** Svelte component tests require mocking the store singleton. Use `vi.mock()` on `editor-state.svelte` to return a mock store with configurable flags.
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test`
 
 ---
 
@@ -212,7 +212,7 @@ Test scenarios:
 4. URL override `?wf.ff.breadcrumb=false` → element hidden on load
 5. Multiple flags disabled → layout remains functional (no crashes)
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test:e2e`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test:e2e`
 
 ---
 
@@ -226,7 +226,7 @@ Test scenarios:
 - Add all 8 new flags to `createMockEditorStore().features` in both test files
 - Ensures existing tests don't break with new schema fields
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test`
 
 ---
 
@@ -242,4 +242,4 @@ After all tasks complete:
 - [ ] Integration tests pass for all 13 user-requested flags
 - [ ] E2E tests pass
 - [ ] All existing tests still pass (2621+)
-- [ ] QA clean: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+- [ ] QA clean: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`

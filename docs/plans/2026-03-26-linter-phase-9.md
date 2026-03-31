@@ -191,7 +191,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Files**: `.resist-lint.jsonc`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm -w run qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm -w run qa:test`
 
 ---
 
@@ -202,7 +202,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Status**: [x] — Verified: type-check passes, format passes, 2529 tests pass (all 20 tasks successful).
 
 **Plan**:
-- Run: `pnpm --filter @/lint qa:type-check`
+- Run: `pnpm -w run qa:lint --tools`
 - Run: `pnpm -w run qa:format`
 - Run: `pnpm -w run qa:test`
 - Fix any failures

@@ -32,7 +32,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 | Type-check | Passes (with current scope) |
 | Format | Clean |
 | qa:lint scope | 6 path args (misses utils, secrets, extensions) |
-| qa:type-check scope | 7 turbo filters (misses secrets, extensions; includes cli) |
+| Type-check scope | Now part of `pnpm -w run qa:lint --tools` (type-checking merged into unified lint command) |
 | qa:test scope | 7 turbo filters (misses config/tooling/*, secrets) |
 | Coverage thresholds | 80% stmts, 75% branches, 80% fns, 80% lines |
 
@@ -69,7 +69,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 - Modify: `locale/locales/en.ts`
 - Modify: `config/schema.ts`
 
-**Verification**: `pnpm -r --filter @/lint run qa:type-check && pnpm -w exec vitest run --project lint && pnpm -w run qa:format:check`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm -w exec vitest run --project lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -92,7 +92,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 - Modify: `locale/schema.ts`, `locale/locales/en.ts`
 - Modify: `tools/dependabot.ts`, `tools/codeowners.ts`, `tools/github-pr-template.ts`, `tools/crystal.ts`, `tools/github-funding.ts`, `tools/sort-package-json.ts`, `tools/scalafmt.ts`, `tools/github-issue-template.ts`, `tools/fantomas.ts`
 
-**Verification**: `pnpm -r --filter @/lint run qa:type-check && pnpm -w exec vitest run --project lint && pnpm -w run qa:format:check`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm -w exec vitest run --project lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -110,7 +110,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 - Modify: `locale/schema.ts`, `locale/locales/en.ts`
 - Modify: 24 tool files listed above
 
-**Verification**: `pnpm -r --filter @/lint run qa:type-check && pnpm -w exec vitest run --project lint && pnpm -w run qa:format:check`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm -w exec vitest run --project lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -128,7 +128,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 - Modify: `locale/schema.ts`, `locale/locales/en.ts`
 - Modify: 69 tool files (actionlint through zsh, alphabetical)
 
-**Verification**: `pnpm -r --filter @/lint run qa:type-check && pnpm -w exec vitest run --project lint && pnpm -w run qa:format:check`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm -w exec vitest run --project lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -173,25 +173,27 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 
 ---
 
-## TASK 3 — qa:type-check Type-Checks Everything
+## TASK 3 — Type-Checking Coverage (formerly qa:type-check)
 
-**Status**: [x] — Changed to `turbo qa:type-check --filter='!./packages/shared/utils/cli'`. Added qa:type-check script to vscode-formatter. Pre-existing type errors in multiple packages (not caused by this change).
+**Status**: [x] — Type-checking now handled by `pnpm -w run qa:lint --tools`. Added type-check support to vscode-formatter. Pre-existing type errors in multiple packages (not caused by this change).
 
-**Gap**: `qa:type-check` uses explicit turbo `--filter` paths that miss `secrets/*` and `extensions/*`, and incorrectly includes `utils/cli`. Should run everything with only cli excluded.
+> **Note**: Type-checking has been merged into the unified lint command and is now part of `pnpm -w run qa:lint --tools`.
+
+**Gap**: Previously `qa:type-check` used explicit turbo `--filter` paths that missed `secrets/*` and `extensions/*`, and incorrectly included `utils/cli`. Now handled by `pnpm -w run qa:lint --tools` which runs everything with only cli excluded.
 
 **Plan**:
-- Update `package.json` `qa:type-check` to: `turbo qa:type-check --filter='!./packages/shared/utils/cli'`
-  - Runs in ALL packages that have `qa:type-check` script, except cli
+- Type-checking is now handled by: `pnpm -w run qa:lint --tools`
+  - Runs in ALL packages, except cli
   - Automatically picks up secrets/infisical, extensions/vscode-formatter, config/tooling/*
-- Add `"qa:type-check": "tsc --noEmit -p ./"` to `packages/shared/extensions/vscode-formatter/package.json`
-  - This package currently has `compile` but no `qa:type-check` script
+- vscode-formatter type-checking is now included in `pnpm -w run qa:lint --tools`
+  - This package previously had `compile` but no type-check script
 - Verify type-check runs across entire workspace minus cli
 
 **Files**:
 - Modify: `package.json` (line 19)
 - Modify: `packages/shared/extensions/vscode-formatter/package.json`
 
-**Verification**: `pnpm -w run qa:type-check` — succeeds, output shows all packages including secrets-infisical, extensions-vscode-formatter. Verify utils/cli NOT in output.
+**Verification**: `pnpm -w run qa:lint --tools` — succeeds, output shows all packages including secrets-infisical, extensions-vscode-formatter. Verify utils/cli NOT in output.
 
 ---
 
@@ -203,7 +205,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 
 **Plan**:
 - Update `package.json` `qa:test` to: `turbo qa:test --filter='!./packages/shared/utils/cli'`
-  - Same pattern as qa:type-check
+  - Same pattern as type-check (now part of qa:lint --tools)
   - Automatically picks up config/tooling/lint, config/tooling/svelte, config/tooling/vite, secrets/infisical
 - No new vitest projects needed — all packages with test files already have definitions in root `vitest.config.ts`
 
@@ -260,7 +262,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 - Cross-reference EVERY item in the approved changelog against implementation
 - Verify locale: `grep -rn "tip:\|message:" packages/shared/config/tooling/lint/src/tools/*.ts | grep -v locale | grep -v test` returns 0 results
 - Verify qa:lint: `pnpm -w run qa:lint` runs config-driven, no path args, no --warn-only
-- Verify qa:type-check: `pnpm -w run qa:type-check` covers all packages except utils/cli
+- Verify type-check: `pnpm -w run qa:lint --tools` covers all packages except utils/cli
 - Verify qa:test: `pnpm -w run qa:test` covers all packages except utils/cli
 - Verify tests: `pnpm -w exec vitest run` — 0 failures
 - Verify coverage: `pnpm -w exec vitest run --coverage` — all thresholds met
@@ -280,7 +282,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> commit -
 | 4 | 1.4 | Locale: low-count tool files (69 files, ~69 strings) | 71 files |
 | 5 | 1.5 | Locale: verify zero unlocalized strings | 0 files (verify only) |
 | 6 | 2 | qa:lint config-driven, no --warn-only | 2 files |
-| 7 | 3 | qa:type-check everything, exclude cli | 2 files |
+| 7 | 3 | type-check everything, exclude cli (now part of qa:lint --tools) | 2 files |
 | 8 | 4 | qa:test everything, exclude cli | 1 file |
 | 9 | 5 | Fix 7 failing tests | TBD |
 | 10 | 6 | Test coverage to threshold | TBD |

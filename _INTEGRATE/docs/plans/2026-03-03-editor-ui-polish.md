@@ -46,7 +46,7 @@ it('has resizableSidebar feature flag defaulting to true', () => {
 
 ### QA
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---
@@ -167,7 +167,7 @@ export function getLanguageDisplayNames(
 
 ### QA
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test --run src/lib/utils/locale-display.test.ts
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test --run src/lib/utils/locale-display.test.ts
 ```
 
 ---
@@ -259,7 +259,7 @@ function isDuplicate(info: LanguageDisplayInfo): boolean {
 
 ### QA
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test --run src/lib/components/language-switcher.test.ts
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test --run src/lib/components/language-switcher.test.ts
 ```
 
 ---
@@ -326,7 +326,7 @@ const store = useEditorStore();
 
 ### QA
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test --run src/lib/components/nav-user.test.ts src/lib/components/site-header.test.ts
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test --run src/lib/components/nav-user.test.ts src/lib/components/site-header.test.ts
 ```
 
 ---
@@ -464,7 +464,7 @@ $effect(() => {
 
 ### QA
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---
@@ -595,7 +595,7 @@ test('NavUser dropdown does NOT contain mode toggle', async ({ page }) => {
 
 ### QA
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm exec playwright test
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm exec playwright test
 ```
 
 ---
@@ -603,7 +603,7 @@ pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm
 ## Task 7: Final QA sweep
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test && pnpm exec playwright test
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test && pnpm exec playwright test
 ```
 
 Fix any failures.

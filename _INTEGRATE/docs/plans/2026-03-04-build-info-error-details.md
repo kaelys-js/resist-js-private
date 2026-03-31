@@ -60,7 +60,7 @@ export function getBuildInfo(): Result<BuildInfo> {
 - `getBuildInfo()` returns `ok: true` with valid build info (relies on vitest `define`)
 - All fields present and correct types
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format`
 
 ---
 
@@ -128,7 +128,7 @@ define: {
 },
 ```
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format`
 
 ---
 
@@ -185,7 +185,7 @@ response.headers.set('X-Git-Commit', __GIT_COMMIT__);
 - Verify `handle` adds `X-App-Version` and `X-Git-Commit` response headers
 - Verify signal-type errors still log at info level (existing test still passes)
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format`
 
 ---
 
@@ -261,7 +261,7 @@ if (appError.related && appError.related.length > 0) {
 - Verify `logErrorToConsole` logs `Source pointer` when `appError.source` is present
 - Verify `logErrorToConsole` logs `Related errors` when `appError.related` has entries
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format`
 
 ---
 
@@ -309,7 +309,7 @@ dirtyNo: 'No',
 
 **Note:** Locale test at `src/lib/locales/locales.test.ts` auto-validates all locales against the schema — adding keys to schema + all locale files is enough.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format && pnpm qa:test`
 
 ---
 
@@ -348,7 +348,7 @@ Import `getBuildInfo` from `$lib/config/build-info`. Add a "Build Info" section 
 - Renders built timestamp
 - Renders "Copy Build Info" button
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format`
 
 ---
 
@@ -374,7 +374,7 @@ if (browser) {
 
 No separate test needed — this is a console convenience feature. The E2E tests can verify it if needed later.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format`
 
 ---
 
@@ -382,7 +382,7 @@ No separate test needed — this is a console convenience feature. The E2E tests
 
 **Commands:**
 ```bash
-pnpm qa:type-check
+pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format
 pnpm qa:test

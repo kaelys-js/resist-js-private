@@ -179,7 +179,7 @@ Expected: ALL PASS (5 tests).
 
 ### Step 5: Run QA
 
-Run: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+Run: `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 Expected: Clean.
 
 ### Step 6: Commit
@@ -399,7 +399,7 @@ Expected: ALL PASS.
 
 ### Step 5: Run QA
 
-Run: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+Run: `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ### Step 6: Commit
 
@@ -533,7 +533,7 @@ Expected: ALL PASS (~25-30 tests).
 
 ### Step 5: Run QA
 
-Run: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+Run: `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ### Step 6: Commit
 
@@ -594,7 +594,7 @@ Expected: ALL PASS. Old shake tests gone, new ones pass, no regressions.
 
 ### Step 5: Run QA
 
-Run: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+Run: `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ### Step 6: Commit
 
@@ -692,7 +692,7 @@ Remove the old shake wiring (lines 1186-1204). Replace with a `buildShakeUI(scen
 
 ### Step 4: Run QA
 
-Run: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+Run: `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ### Step 5: Commit
 

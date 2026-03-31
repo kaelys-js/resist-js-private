@@ -16,7 +16,7 @@ Install `lucide-svelte` for icons:
 pnpm add lucide-svelte
 ```
 
-QA: `pnpm qa:type-check`
+QA: `pnpm -w run qa:lint --tools`
 
 ## Task 2: Install shadcn-svelte components
 
@@ -27,7 +27,7 @@ pnpm dlx shadcn-svelte@latest add sidebar button separator tooltip breadcrumb av
 
 This populates `src/lib/components/ui/` with all needed primitives.
 
-QA: `pnpm qa:type-check`
+QA: `pnpm -w run qa:lint --tools`
 
 ## Task 3: Create nav-main.svelte
 
@@ -37,7 +37,7 @@ Collapsible navigation groups. Each group has a title, icon, and sub-items. Uses
 
 Props: `items: Array<{ title: string, icon: Component, isActive?: boolean, items: Array<{ title: string, url: string }> }>`
 
-QA: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+QA: `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ## Task 4: Create nav-secondary.svelte
 
@@ -47,7 +47,7 @@ Simple flat nav list for bottom of sidebar. Uses Sidebar.Group, Sidebar.Menu, Si
 
 Props: `items: Array<{ title: string, icon: Component, url: string }>`, `class?: string`
 
-QA: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+QA: `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ## Task 5: Create nav-user.svelte
 
@@ -57,7 +57,7 @@ Project avatar + name in sidebar footer with dropdown menu. Uses Sidebar.Menu, S
 
 Props: `user: { name: string, avatar: string }`
 
-QA: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+QA: `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ## Task 6: Create app-sidebar.svelte
 
@@ -75,7 +75,7 @@ Navigation data:
 - Secondary: Settings, Help
 - User: "WebForge Project"
 
-QA: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+QA: `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ## Task 7: Create site-header.svelte
 
@@ -83,7 +83,7 @@ File: `src/lib/components/site-header.svelte`
 
 Top header bar inside Sidebar.Inset. Contains Sidebar.Trigger, vertical Separator, Breadcrumb (Editor > Section > Panel).
 
-QA: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+QA: `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ## Task 8: Update layout and page
 
@@ -96,12 +96,12 @@ Update `src/routes/+page.svelte`:
 - Simple placeholder with "Canvas will go here" centered text
 - Dark background matching editor aesthetic
 
-QA: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+QA: `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ## Task 9: Final QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 Fix any issues.

@@ -66,7 +66,7 @@ export type AutoExample = v.InferOutput<typeof AutoExampleSchema>;
 
 **Step 2: Run QA**
 
-Run: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+Run: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 Expected: PASS
 
 **Step 3: Commit**
@@ -189,7 +189,7 @@ Expected: PASS
 
 **Step 5: Run QA**
 
-Run: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+Run: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 Expected: PASS
 
 **Step 6: Commit**
@@ -510,7 +510,7 @@ Expected: PASS
 
 **Step 5: Run QA**
 
-Run: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+Run: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 Expected: PASS
 
 **Step 6: Commit**
@@ -610,7 +610,7 @@ Change the `{:else}` block (around line 3258) so it only shows when BOTH manual 
 
 **Step 7: Run QA**
 
-Run: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+Run: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 Expected: PASS
 
 **Step 8: Commit**
@@ -661,7 +661,7 @@ Then replace `{...baseProps}` with `{...effectiveBaseProps}` in the template whe
 
 **Step 4: Run QA**
 
-Run: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+Run: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 Expected: PASS
 
 **Step 5: Commit**
@@ -715,7 +715,7 @@ Note: Check if `LensSection` supports a `titleExtra` snippet. If not, add the ba
 
 **Step 3: Run QA**
 
-Run: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+Run: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 Expected: PASS
 
 **Step 4: Commit**
@@ -799,7 +799,7 @@ const autoExamples: AutoExample[] = $derived.by((): AutoExample[] => {
 
 **Step 6: Run QA**
 
-Run: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+Run: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 Expected: PASS
 
 **Step 7: Commit**
@@ -820,7 +820,7 @@ Expected: All tests pass
 
 **Step 2: Run full QA**
 
-Run: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+Run: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 Expected: PASS
 
 **Step 3: Visual verification via Playwright MCP**

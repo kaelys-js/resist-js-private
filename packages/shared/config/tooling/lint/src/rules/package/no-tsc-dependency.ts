@@ -30,8 +30,9 @@ const rule: PackageJsonRule = {
     if (name.includes('vscode')) {
       return results;
     }
-    const typeCheck: string | undefined = context.pkg.scripts?.['qa:type-check'];
-    if (typeCheck?.includes('svelte-check')) {
+    /* Exempt SvelteKit packages — they need typescript for svelte-check */
+    const deps: Record<string, string> = context.pkg.devDependencies ?? {};
+    if (deps['svelte-check']) {
       return results;
     }
     const hasTsDep: boolean = Boolean(

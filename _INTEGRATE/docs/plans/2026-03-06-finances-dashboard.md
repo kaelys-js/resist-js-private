@@ -48,7 +48,7 @@ Add project entry:
 }
 ```
 
-**QA:** `pnpm install && pnpm qa:type-check`
+**QA:** `pnpm install && pnpm -w run qa:lint --tools`
 
 ---
 
@@ -70,7 +70,7 @@ Add project entry:
 ### `logo.svg`
 Simple finance-themed SVG: chart bars with upward trend line, monochrome, scalable.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -108,7 +108,7 @@ const FinanceFeaturesSchema = v.strictObject({
 
 Remove subscription plan logic. Keep: theme, mode, locale, sidebar width, user info, save/load.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -136,7 +136,7 @@ Finance navigation items with Lucide icons:
 - Remove scene-related props (scenes, loading)
 - Keep: NavSecondary, NavUser, SidebarHeader
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -158,7 +158,7 @@ Finance navigation items with Lucide icons:
 - Remove project/scene props passed to AppSidebar
 - Keep: sidebar resize, mode-watcher, locale sync, user sync, dev toolbar
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm dev` (verify shell renders)
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm dev` (verify shell renders)
 
 ---
 
@@ -171,7 +171,7 @@ Finance navigation items with Lucide icons:
 **Changes:**
 All schemas as defined in design doc section 2. Each uses `v.strictObject()`, JSDoc on every field. Export types via `v.InferOutput`.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
 
 ---
 
@@ -195,7 +195,7 @@ All schemas as defined in design doc section 2. Each uses `v.strictObject()`, JS
 **Changes:**
 Data service with read/write operations returning Result<T>. All seed data pre-populated from user input.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
 
 ---
 
@@ -211,7 +211,7 @@ Data service with read/write operations returning Result<T>. All seed data pre-p
 **Changes:**
 Each endpoint validates with Valibot schemas, calls data service, returns `{ ok, data }` or `{ ok, error }`.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -226,7 +226,7 @@ Each endpoint validates with Valibot schemas, calls data service, returns `{ ok,
 **Changes:**
 Projection + income engines as defined in design doc section 3. All functions return Result<T>.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
 
 ---
 
@@ -241,7 +241,7 @@ Projection + income engines as defined in design doc section 3. All functions re
 **Changes:**
 Components as defined in design doc section 4 (Shared Components). Use shadcn-svelte primitives. Svelte 5 runes ($props, $state).
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -254,7 +254,7 @@ Components as defined in design doc section 4 (Shared Components). Use shadcn-sv
 **Changes:**
 Server load: read all collections + run projections. Render: stat cards, layerchart stacked bar, line chart, debt progress bars, net position summary.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm dev`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm dev`
 
 ---
 
@@ -267,7 +267,7 @@ Server load: read all collections + run projections. Render: stat cards, layerch
 **Changes:**
 DataTable with debts, total header, CRUD via ItemDialog.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -280,7 +280,7 @@ DataTable with debts, total header, CRUD via ItemDialog.
 **Changes:**
 DataTable with income sources, projection chart, EI schedule, CRUD.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -293,7 +293,7 @@ DataTable with income sources, projection chart, EI schedule, CRUD.
 **Changes:**
 Grouped DataTable (fixed/estimated), pie chart, total headers, CRUD.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -306,7 +306,7 @@ Grouped DataTable (fixed/estimated), pie chart, total headers, CRUD.
 **Changes:**
 Two sections: upcoming purchases + lifetime replacements with cycle/annual/lifetime cost columns. CRUD for both.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -319,7 +319,7 @@ Two sections: upcoming purchases + lifetime replacements with cycle/annual/lifet
 **Changes:**
 DataTable with trips, total budget header, CRUD.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -332,7 +332,7 @@ DataTable with trips, total budget header, CRUD.
 **Changes:**
 Year-by-year table, inflation toggle, per-category inflation config, cumulative cost chart, grand total, per-item breakdown.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -345,7 +345,7 @@ Year-by-year table, inflation toggle, per-category inflation config, cumulative 
 **Changes:**
 Birth date, retirement age, inflation rates, theme selection.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -354,7 +354,7 @@ Birth date, retirement age, inflation rates, theme selection.
 1. Run Explore agent — audit every component/schema/route against this plan
 2. Fix all gaps
 3. Re-audit until zero gaps
-4. Full QA: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+4. Full QA: `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
 
 ---
 

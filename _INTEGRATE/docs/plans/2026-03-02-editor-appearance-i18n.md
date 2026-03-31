@@ -10,7 +10,7 @@ cd packages/products/webforge/editor
 
 QA after every file edit:
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---
@@ -363,7 +363,7 @@ Replace hardcoded strings with `localeStore.t.*()` calls:
 ## Task 11: Final QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 Verify editor loads: `cd packages/products/webforge/editor && pnpm dev`

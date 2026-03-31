@@ -133,7 +133,7 @@ Follow these rules exactly:
 ### QA After Every File
 Run after creating or editing each file — no batching:
 ```
-pnpm qa:type-check && pnpm qa:lint && pnpm qa:format
+pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format
 ```
 
 ## Step 4: Verify Against Changelog

@@ -38,7 +38,7 @@ Add `TimeSourceSchema` picklist. Add 4 optional fields to `DayNightCycleConfigSc
 
 **Step 5: Run QA**
 
-`pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+`pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -449,7 +449,7 @@ Smooth Jump:
 ## Verification
 
 After all tasks:
-1. `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+1. `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 2. `pnpm qa:test` — all tests pass
 3. Visual verification via Playwright MCP:
    - Switch time source to realtime → time matches system clock

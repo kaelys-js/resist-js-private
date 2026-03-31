@@ -36,7 +36,7 @@ export function sanitizeSidebarWidth(raw: Str | null): Num | null { ... }
 export function sanitizeTheme(raw: Str | null): Str { ... }
 ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -56,7 +56,7 @@ export function sanitizeTheme(raw: Str | null): Str { ... }
 - In `paneStorage.setItem()`: after `localStorage.setItem(SIDEBAR_PX_KEY, ...)`, also call `setPreferenceCookie('sidebar-px', sidebarPx)`
 - In `handleSidebarResize()`: after `localStorage.setItem(SIDEBAR_PX_KEY, ...)`, also call `setPreferenceCookie('sidebar-px', widthPx)`
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -76,7 +76,7 @@ export function sanitizeTheme(raw: Str | null): Str { ... }
 - In the `setTheme(theme)` method, after updating `_app.theme`, call `setPreferenceCookie('theme', theme)`
 - Guard with `typeof document !== 'undefined'` for SSR safety
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -112,7 +112,7 @@ export function sanitizeTheme(raw: Str | null): Str { ... }
 - Set `event.locals.saveData = saveData`
 - Update `App.Locals` in `app.d.ts` to include `saveData: Bool`
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -158,7 +158,7 @@ Extend inline script:
 })();
 ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -199,7 +199,7 @@ export function setupPerfume(tracker: AnalyticsTrackerFn): Result<Void> {
 }
 ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -243,7 +243,7 @@ export function getConnectionQuality(): ConnectionQuality { ... }
 // ... readonly getters for all fields ...
 ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -287,7 +287,7 @@ export function logVital(metricName: Str, value: Num, rating: Str, navigatorInfo
 }
 ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 

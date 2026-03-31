@@ -17,7 +17,7 @@
 **CRITICAL:** Each feature/option follows this cycle before proceeding to the next:
 
 1. **TDD** — Write failing test, implement, pass
-2. **Full QA** — `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+2. **Full QA** — `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
 3. **Dev harness wiring** — Add editable UI controls (sliders, toggles, dropdowns, inputs) for EVERY new schema field. Info-only rows are NOT acceptable — controls must be interactive. Every control callback must be wired to a real runtime function — `noop` placeholders are not acceptable for shipped features.
 4. **Visual verification (scene — per-control)** — Run `pnpm dev` and test EACH individual control one at a time:
    - **Toggles:** Turn off → verify the visual effect disappears from the scene. Turn on → verify it reappears.
@@ -66,7 +66,7 @@ describe('featureName', () => {
 
 **QA after every file edit:**
 ```bash
-cd packages/products/webforge && pnpm qa:type-check
+cd packages/products/webforge && pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -177,7 +177,7 @@ Expected: PASS
 **Step 5: Run QA**
 
 ```bash
-cd packages/products/webforge && pnpm qa:type-check
+cd packages/products/webforge && pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -1702,7 +1702,7 @@ Take screenshots for evidence.
 ### Task 45: Full QA Pass
 
 ```bash
-cd packages/products/webforge && pnpm qa:type-check
+cd packages/products/webforge && pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 cd packages/products/webforge && pnpm qa:test

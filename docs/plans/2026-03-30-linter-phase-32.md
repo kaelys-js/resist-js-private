@@ -275,7 +275,7 @@ These 2 shell functions are duplicates of existing TS rules:
 **Status**: [x]
 
 **Plan**:
-- Run: `pnpm --filter @/lint qa:type-check`
+- Run: `pnpm -w run qa:lint --tools`
 - Run: `pnpm --filter @/lint qa:test`
 - Run: `pnpm -w run qa:format`
 - Run: `pnpm -w run qa:format:check`

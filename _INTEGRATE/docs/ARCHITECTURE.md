@@ -606,7 +606,7 @@ All modules have colocated `.test.ts` files (2753+ tests total). Pure math modul
 ```bash
 pnpm qa:test              # Run all unit tests (Vitest)
 pnpm qa:test:e2e          # Run E2E tests (Playwright)
-pnpm qa:type-check        # TypeScript type checking
+pnpm -w run qa:lint --tools  # TypeScript type checking (via lint)
 pnpm -w run qa:lint       # oxlint + Biome linting
 pnpm -w run qa:format:check  # Biome format check
 ```

@@ -8,7 +8,7 @@
 
 All paths relative to `packages/products/webforge/editor/src/`.
 
-QA command: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+QA command: `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -296,7 +296,7 @@ BUT: `callSetter` in DevToolbarAppState uses dynamic method dispatch. It constru
 Verify: The dynamic dispatch `set${key.charAt(0).toUpperCase()}${key.slice(1)}` for key `subscriptionPlan` → `setSubscriptionPlan`. ✓
 
 ### Final QA checklist:
-- `pnpm qa:type-check` — 0 errors
+- `pnpm -w run qa:lint --tools` — 0 errors
 - `pnpm -w run qa:lint` — 0 errors
 - `pnpm -w run qa:format:check` — clean
 - `pnpm qa:test` — all pass (including locale schema validation)

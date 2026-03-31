@@ -6,7 +6,7 @@
 
 - Design doc: `docs/plans/2026-03-02-head-meta-security-design.md`
 - All files in `packages/products/webforge/editor/`
-- QA command: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+- QA command: `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 - E2E command: `cd packages/products/webforge/editor && pnpm exec playwright test`
 
 ---
@@ -96,7 +96,7 @@ Run `pnpm qa:test` — all error.html tests pass.
 ### 1e. QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---
@@ -162,7 +162,7 @@ Run `pnpm qa:test`.
 ### 2e. QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---
@@ -201,7 +201,7 @@ Tests to write:
 ### 3a. QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---
@@ -222,7 +222,7 @@ Tests: 5 headers × 2 pages (normal + error) = 10 tests.
 ### 4a. QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---
@@ -261,7 +261,7 @@ Keep: All other tests in that file (status-specific, navigation, accessibility).
 ### 5c. QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---
@@ -279,7 +279,7 @@ All tests must pass. Fix any failures before proceeding.
 ## QA Checklist
 
 After all tasks:
-- [ ] `pnpm qa:type-check` — 0 errors
+- [ ] `pnpm -w run qa:lint --tools` — 0 errors
 - [ ] `pnpm -w run qa:lint` — 0 errors
 - [ ] `pnpm -w run qa:format:check` — 0 errors
 - [ ] `pnpm qa:test` — all unit/integration tests pass

@@ -49,7 +49,7 @@ headerUserLogout: v.optional(v.boolean(), true),
    - `setUserAvatar(url: string)` — validate with `v.string()`
 5. Wire setters into `createEditorStore()` return object
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -133,7 +133,7 @@ userAvatar: messageTemplate(),
 | userEmail | User Email | メールアドレス | 电子邮件 | 이메일 | E-mail | E-Mail | Correo electrónico |
 | userAvatar | User Avatar | アバター | 头像 | 아바타 | Avatar | Benutzerbild | Avatar |
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 **Test:** `pnpm qa:test` — locale validation tests will verify schema/locale alignment
 
 ---
@@ -158,7 +158,7 @@ userAvatar: messageTemplate(),
    - Log Out styled with `text-destructive`
 8. Conditional separators — only render when the preceding group has at least one visible item
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -177,7 +177,7 @@ userAvatar: messageTemplate(),
 {/if}
 ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -211,7 +211,7 @@ Tests:
 5. Monogram generation — two words "John Doe" → "JD"
 6. Monogram generation — three words "John Michael Doe" → "JM" (takes first two)
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 **Test:** `pnpm qa:test`
 
 ---
@@ -250,7 +250,7 @@ Add to `SiteHeader feature flags` describe block:
 
 Note: Individual menu item flags (headerUserAccount, etc.) are inside DropdownMenu.Content which is portalled — same limitation as ThemeSwitcher/LanguageSwitcher. Their `{#if}` wiring is verified via E2E tests.
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 **Test:** `pnpm qa:test`
 
 ---

@@ -54,11 +54,10 @@
 		"qa:test:unit": "{{ pm.run }} _check:onboard && turbo qa:test:unit --",
 		"qa:test:e2e": "{{ pm.run }} _check:onboard && turbo qa:test:e2e --",
 		"qa:test:coverage": "{{ pm.run }} _check:onboard && turbo qa:test:coverage --",
-		"qa:type-check": "{{ pm.run }} _check:onboard && turbo qa:type-check --",
 		"qa:benchmark": "{{ pm.run }} _check:onboard && turbo qa:benchmark --",
 
-		"ci": "turbo //#qa:format:check qa:checks qa:type-check qa:test qa:test:unit build qa:test:e2e --",
-		"ci:local": "turbo //#qa:format:check qa:checks qa:type-check qa:test qa:test:unit build --",
+		"ci": "turbo //#qa:format:check qa:checks qa:test qa:test:unit build qa:test:e2e --",
+		"ci:local": "turbo //#qa:format:check qa:checks qa:test qa:test:unit build --",
 		"local-ci:run": "{{ pm.filter }} @/cli tool local-ci run --",
 		"local-ci:lint": "{{ pm.filter }} @/cli tool local-ci lint",
 		"local-ci:list": "{{ pm.filter }} @/cli tool local-ci list",

@@ -325,7 +325,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Plan**:
 - Add all 15 rule IDs to `.resist-lint.jsonc` rules section with appropriate severity
-- Run `pnpm --filter @/lint qa:type-check` to verify config is valid
+- Run `pnpm -w run qa:lint --tools` to verify config is valid
 - Run `pnpm --filter @/lint qa:test` to verify rules load
 
 **Files**:
@@ -342,7 +342,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Gap**: Need to verify all tests pass and coverage thresholds met after adding 15 rules.
 
 **Plan**:
-- Run `pnpm --filter @/lint qa:type-check`
+- Run `pnpm -w run qa:lint --tools`
 - Run `pnpm -w run qa:lint`
 - Run `pnpm -w run qa:format:check`
 - Run `pnpm --filter @/lint qa:test`

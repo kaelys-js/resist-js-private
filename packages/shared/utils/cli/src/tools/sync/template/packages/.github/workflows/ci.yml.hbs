@@ -52,7 +52,6 @@ jobs:
       - run: {{ pm.installFrozen }}
       - run: {{ pm.run }} qa:checks
       - run: {{ pm.run }} qa:format:check
-      - run: {{ pm.run }} qa:type-check
       - run: {{ pm.run }} qa:test
 
   deploy-staging:

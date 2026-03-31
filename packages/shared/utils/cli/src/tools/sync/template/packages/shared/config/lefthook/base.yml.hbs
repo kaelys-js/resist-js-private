@@ -59,7 +59,7 @@ pre-commit:
 
 # ─── Pre-Push ────────────────────────────────────────────────────────────────
 # Thorough validation before code leaves the machine.
-# Pipeline: type-check + tests + benchmarks (p1) → coverage (p2)
+# Pipeline: boundaries + tests + benchmarks (p1) → coverage (p2)
 
 pre-push:
   piped: true
@@ -70,10 +70,6 @@ pre-push:
       priority: 1
       run: turbo boundaries
       fail_text: "Boundary violations detected. Products must not import from other products."
-    type-check:
-      priority: 1
-      run: {{ pm.run }} qa:type-check
-      fail_text: "Type check failed. Run '{{ pm.run }} qa:type-check' to see errors."
     test-unit:
       priority: 1
       run: {{ pm.run }} qa:test:unit

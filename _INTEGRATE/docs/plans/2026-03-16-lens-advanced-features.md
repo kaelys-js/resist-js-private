@@ -122,7 +122,7 @@ In the `LensHeader` component or the detail page header area, if `figmaUrl` is p
 
 **Step 1:** Run full test suite: `pnpm qa:test`
 
-**Step 2:** Run full QA: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**Step 2:** Run full QA: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 **Step 3:** Visual verification via Playwright MCP:
 1. Navigate to a component → verify Playground section with code editor

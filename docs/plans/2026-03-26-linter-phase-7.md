@@ -46,7 +46,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Edit `require-import-groups.ts` line 115: change `text: ''` to `text: '\n'`
 - Add `fixable: true` to rule definition
 - Run test, verify it passes
-- Run QA: `pnpm qa:type-check && pnpm -w run qa:test`
+- Run QA: `pnpm -w run qa:lint --tools && pnpm -w run qa:test`
 - Commit
 
 **Files**:
@@ -327,7 +327,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Change per rule**: Add `fixable: false,` to the rule definition object, after `stages` or `categories`.
 
 **Files**: All files listed above
-**Verification**: `pnpm qa:type-check && pnpm -w run qa:test` — all pass, no regressions
+**Verification**: `pnpm -w run qa:lint --tools && pnpm -w run qa:test` — all pass, no regressions
 
 ---
 
@@ -965,7 +965,7 @@ Updated implementation in Task 7.2 should use `Program` visitor with early retur
 
 **Files**: `.resist-lint.jsonc`
 
-**Verification**: `pnpm qa:type-check && pnpm -w run qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm -w run qa:test`
 
 ---
 
@@ -976,7 +976,7 @@ Updated implementation in Task 7.2 should use `Program` visitor with early retur
 **Status**: [x] — Verified: type-check passes (tsgo --noEmit), lint has 0 errors in @/lint src, format applied (10 files reformatted), tests 2494/2494 pass. Schema file auto-regenerated with new rules. No false positives from new rules in lint package.
 
 **Plan**:
-- Run: `pnpm --filter @/lint qa:type-check`
+- Run: `pnpm -w run qa:lint --tools`
 - Run: `pnpm -w run qa:lint` (check @/lint src specifically)
 - Run: `pnpm -w run qa:format` (auto-fix, per user correction)
 - Run: `pnpm -w run qa:test`

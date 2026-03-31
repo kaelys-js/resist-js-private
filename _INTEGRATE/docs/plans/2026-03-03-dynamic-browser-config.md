@@ -28,7 +28,7 @@ All paths relative to `packages/products/webforge/editor/`.
    - ICONS array matching current static manifest
    - Security/contact constants
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test`
 
 ## Task 2: Dynamic manifest.webmanifest route
 
@@ -62,7 +62,7 @@ All paths relative to `packages/products/webforge/editor/`.
    - Remove the `manifest.webmanifest` describe block (moved to manifest.test.ts)
    - Keep icon asset HTTP tests and icon link resolution tests
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test && pnpm qa:test:e2e`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test && pnpm qa:test:e2e`
 
 ## Task 3: Dynamic robots.txt route
 
@@ -82,7 +82,7 @@ All paths relative to `packages/products/webforge/editor/`.
    - `export const prerender = true`
    - GET handler returns text/plain response with robots directives
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test:e2e`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test:e2e`
 
 ## Task 4: security.txt route
 
@@ -103,7 +103,7 @@ All paths relative to `packages/products/webforge/editor/`.
    - GET handler returns text/plain with RFC 9116 fields
    - Expires = 1 year from build date
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test:e2e`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test:e2e`
 
 ## Task 5: Dynamic theme-color + Apple PWA meta tags
 
@@ -125,7 +125,7 @@ All paths relative to `packages/products/webforge/editor/`.
 3. Update `src/app.html`:
    - Add `apple-mobile-web-app-capable`, `apple-mobile-web-app-status-bar-style`, `apple-mobile-web-app-title` meta tags
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test && pnpm qa:test:e2e`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test && pnpm qa:test:e2e`
 
 ## Task 6: Update ARCHITECTURE.md + final QA
 
@@ -133,4 +133,4 @@ All paths relative to `packages/products/webforge/editor/`.
    - Central app metadata config pattern
    - Dynamic server routes (manifest, robots, security.txt)
    - Theme-color reactivity
-2. Run full QA: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test && pnpm qa:test:e2e`
+2. Run full QA: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test && pnpm qa:test:e2e`

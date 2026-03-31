@@ -44,7 +44,6 @@ lint-and-test:
   script:
     - {{ pm.run }} qa:checks
     - {{ pm.run }} qa:format:check
-    - {{ pm.run }} qa:type-check
     - {{ pm.run }} qa:test
   rules:
     - if: $CI_MERGE_REQUEST_IID

@@ -382,7 +382,7 @@ Each needs: type annotations on `$state`/`$derived`, `Str`/`Bool` imports, minor
 ## QA After Each Part
 
 ```bash
-pnpm qa:type-check && pnpm qa:lint && pnpm qa:format
+pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format
 pnpm qa:test
 pnpm qa:test:e2e  # after final part
 ```

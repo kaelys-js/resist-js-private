@@ -173,7 +173,7 @@ errors: {
 
 The existing `locales.test.ts` validates all locale files against the schema. Adding the new namespace to both the schema and all locale files should make them pass automatically.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
 
 ---
 
@@ -300,7 +300,7 @@ export const handleError: HandleClientError = ({ error, status, message }) => {
 };
 ```
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
 
 ---
 
@@ -336,7 +336,7 @@ Component structure:
 - "Try again" calls `() => window.location.reload()` — only shown for status >= 500
 - Error ID shown only when `errorId` is truthy
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
 
 ---
 
@@ -375,7 +375,7 @@ Bridge between SvelteKit `page` state and `ErrorPage` component:
 
 Static fallback for when the layout itself crashes. Minimal dark-themed HTML with `%sveltekit.status%` and `%sveltekit.error.message%` placeholders. See design doc for full HTML.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
 
 ---
 
@@ -424,7 +424,7 @@ export const load: PageServerLoad = () => {
 };
 ```
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -475,4 +475,4 @@ test.describe('Error pages', () => {
 });
 ```
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test && pnpm qa:test:e2e`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test && pnpm qa:test:e2e`

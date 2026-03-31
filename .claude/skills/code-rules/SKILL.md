@@ -91,8 +91,7 @@ import { validateAsset } from '../utils';
 ## QA After Every Edit
 
 Run after EVERY file edit. No exceptions:
-- `pnpm qa:type-check`
-- `pnpm -w run qa:lint`
+- `pnpm -w run qa:lint --tools`
 - `pnpm -w run qa:format:check`
 - Fix issues, don't disable rules (only `max-lines`/`max-lines-per-function` OK to disable)
 

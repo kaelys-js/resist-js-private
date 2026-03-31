@@ -83,7 +83,7 @@ export const REFOCUS_DEFAULTS: RefocusConfig = {
 ### QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---
@@ -391,7 +391,7 @@ export function refocusOnTilemap(options: RefocusOptions): BabylonResult<PresetT
 ### QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test
 ```
 
 ---
@@ -577,7 +577,7 @@ if (_refocusHandle) {
 ### QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test
 ```
 
 ---
@@ -599,7 +599,7 @@ Add refocus to the camera system API table.
 ### QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---

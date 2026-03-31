@@ -14,11 +14,11 @@ This is a pnpm + Turborepo monorepo. **ALWAYS use these exact commands. NEVER ru
 | Task | Command | Run From |
 |------|---------|----------|
 | **All tests** | `pnpm qa:test` | workspace root |
-| **Type check** | `pnpm qa:type-check` | workspace root |
-| **Lint** | `pnpm -w run qa:lint` | anywhere (`-w` = workspace root) |
+| **Lint + type-check** | `pnpm -w run qa:lint --tools` | anywhere (`-w` = workspace root) |
+| **Lint (no type-check)** | `pnpm -w run qa:lint` | anywhere (`-w` = workspace root) |
 | **Format check** | `pnpm -w run qa:format:check` | anywhere |
 | **Format fix** | `pnpm qa:format` | workspace root |
-| **Full QA** | `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test` | workspace root |
+| **Full QA** | `pnpm -w run qa:lint --tools && pnpm -w run qa:format:check && pnpm qa:test` | workspace root |
 
 ## NEVER Do This
 

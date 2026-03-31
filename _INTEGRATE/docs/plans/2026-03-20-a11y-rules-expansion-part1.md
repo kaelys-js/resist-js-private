@@ -62,7 +62,7 @@ Add 4 new standard prefix mappings before the default `WCAG 2.1 AA` return:
 
 ### Task 9: Run full QA
 
-- `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+- `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 - Fix any issues
 
 ### Task 10: Commit

@@ -227,7 +227,7 @@ pnpm add @sveltejs/compiler-wasm esbuild-wasm @tailwindcss/browser
 
 ### Task 7: Verification + final QA
 
-**Step 1:** Run full QA: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**Step 1:** Run full QA: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 **Step 2:** Run full test suite: `pnpm qa:test`
 

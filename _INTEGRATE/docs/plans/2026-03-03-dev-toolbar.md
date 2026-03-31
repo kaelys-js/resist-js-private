@@ -59,7 +59,7 @@ type FlagDescriptor = {
 - `generateDebugUrl(editorStore, debugStore, baseUrl?): string` — builds URL with `wf.*` params
 - `humanizeKey(key: string): string` — splits camelCase, capitalizes words
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -86,7 +86,7 @@ type FlagDescriptor = {
 - `$derived` enabledCount from store.features
 - Renders: Input (search) + ScrollArea containing Label+Switch per flag + footer buttons
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -118,7 +118,7 @@ type FlagDescriptor = {
   - `string` → `Input`
 - Footer: "Reset to Defaults" button
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -144,7 +144,7 @@ type FlagDescriptor = {
 - "Copy Debug URL" calls `generateDebugUrl()` then `navigator.clipboard.writeText()`
 - URL overrides: reads `debugStore.urlOverrides`, renders as read-only list
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -176,7 +176,7 @@ type FlagDescriptor = {
 - Keyboard: `Escape` to close panel, arrow keys for navigation
 - Global `Ctrl+Shift+D` listener registered in `$effect` for toggle
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -196,7 +196,7 @@ type FlagDescriptor = {
 - The `DevToolbar` component internally checks `debugStore.debug.enabled` for visibility
 - Add `Ctrl+Shift+D` as a global keyboard shortcut that also enables debug mode if not active
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -217,7 +217,7 @@ type FlagDescriptor = {
 - Keyboard: `Ctrl+Shift+D` toggles toolbar
 - Keyboard: `Escape` closes panel
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test:e2e`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test:e2e`
 
 ---
 
@@ -239,7 +239,7 @@ type FlagDescriptor = {
 ## Verification
 
 After all tasks:
-1. `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format` — all pass
+1. `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format` — all pass
 2. `pnpm qa:test` — all unit tests pass
 3. `pnpm qa:test:e2e` — all E2E tests pass (including new dev toolbar tests)
 4. Adding a new feature flag to `FeatureFlagsSchema` automatically shows in toolbar (manual verify)

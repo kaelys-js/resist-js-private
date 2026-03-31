@@ -245,7 +245,7 @@ Modified:
 ## Verification
 
 1. **Unit tests**: TDD for all 21 server-side utility modules (tests first, then implementation)
-2. **QA**: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format` after every file edit
+2. **QA**: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format` after every file edit
 3. **Integration**: `pnpm qa:test` after each part
 4. **Visual**: Verify via Playwright MCP (`mcp__plugin_playwright_playwright__*`) — navigate to Lens, open Real Browser submenu, test each source
 5. **Completeness**: After all 5 parts, compare every changelog item (1–22) against the task mapping table to verify nothing missed

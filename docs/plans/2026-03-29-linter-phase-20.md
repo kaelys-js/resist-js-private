@@ -381,7 +381,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Files**:
 - Edit: `.resist-lint.jsonc`
 
-**Verification**: Config valid, all rules load, `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: Config valid, all rules load, `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -390,7 +390,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Status**: [x]
 
 **Plan**:
-- Run `pnpm --filter @/lint qa:type-check`
+- Run `pnpm -w run qa:lint --tools`
 - Run `pnpm -w run qa:format`
 - Run `pnpm --filter @/lint qa:test`
 - Run `pnpm --filter @/lint qa:test:coverage`

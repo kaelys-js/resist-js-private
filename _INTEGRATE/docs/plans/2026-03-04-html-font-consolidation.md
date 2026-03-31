@@ -59,7 +59,7 @@ export const FONT_FACES: readonly FontFaceEntry[] = [
 ];
 ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 3: Add @font-face to app.css and remove Google Fonts from app.html
 
@@ -95,7 +95,7 @@ Changes to `app.html` — remove these 3 lines:
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet" />
 ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 4: Create Vite plugin for error.html templating
 
@@ -117,7 +117,7 @@ Placeholder resolution:
 - `{{errors.copied}}` → `en.errors.copied`
 - `{{errors.errorIdPrefix}}` → Derived: split `en.errors.errorId` on `{id}`, take prefix
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 5: Register plugin in vite.config.ts
 
@@ -132,7 +132,7 @@ export default defineConfig({
 });
 ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 6: Rewrite error.html with placeholders and fixes
 
@@ -152,7 +152,7 @@ Changes:
 11. Add clipboard fallback with try/catch + legacy `execCommand('copy')`
 12. Add comment explaining why error.html uses English-only (static fallback, no dynamic locale)
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 7: Add unit tests for the Vite plugin
 
@@ -166,7 +166,7 @@ Tests:
 5. `resolveErrorHtml()` derives errorIdPrefix correctly from parameterized locale string
 6. `resolveErrorHtml()` produces valid HTML (no remaining `{{` placeholders)
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 **Test:** `pnpm qa:test --project editor` — all tests pass
 
 ## Task 8: Verify build works with plugin
@@ -178,7 +178,7 @@ Run a full build to verify:
 
 ## Task 9: Run full QA suite
 
-- `pnpm qa:type-check` — 0 errors
+- `pnpm -w run qa:lint --tools` — 0 errors
 - `pnpm qa:lint` — 0 errors
 - `pnpm qa:format` — clean
 - `pnpm qa:test` — all unit tests pass
