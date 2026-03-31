@@ -17,6 +17,7 @@ import type {
   ImportSpecifier,
 } from '@/lint/framework/types.ts';
 import { parseSvelteTemplate, walkSvelteNode } from '@/lint/framework/svelte-template.ts';
+import type { SvelteParseResult } from '@/lint/framework/svelte-template.ts';
 
 // =============================================================================
 // Parser
@@ -513,17 +514,29 @@ export async function runTypeScriptRules(
 
   // Extract imports ONCE per file, create contexts ONCE per rule (not per node)
   const imports: ImportInfo[] = hasScript ? extractImports(ast) : [];
+  const results: LintResult[] = [];
 
   // For .svelte files, parse the template AST using svelte/compiler
   let templateAst: AstNode | undefined;
   if (isSvelteFile) {
-    const parsed: AstNode | null = await parseSvelteTemplate(content);
-    if (parsed) {
+    const parseResult: SvelteParseResult = await parseSvelteTemplate(content);
+    if (parseResult.ok) {
       // Patch loc on template nodes using the ORIGINAL content's line map
       // (template node positions reference the original file, not extracted script)
       const templateLineStarts: number[] = buildLineStarts(content);
-      patchLoc(parsed, templateLineStarts);
-      templateAst = parsed;
+      patchLoc(parseResult.ast, templateLineStarts);
+      templateAst = parseResult.ast;
+    } else {
+      // Emit a diagnostic so the user knows template rules were skipped
+      results.push({
+        file: filePath,
+        line: 1,
+        column: 1,
+        severity: 'warning',
+        message: `${parseResult.error} — template-based lint rules were skipped for this file`,
+        ruleId: 'svelte5/template-parse-error',
+        fix: { range: { start: 0, end: 0 }, text: '' },
+      });
     }
   }
 
@@ -544,8 +557,6 @@ export async function runTypeScriptRules(
       ),
     );
   }
-
-  const results: LintResult[] = [];
 
   // Walk TypeScript AST — invoke script-level visitors
   if (hasScript) {

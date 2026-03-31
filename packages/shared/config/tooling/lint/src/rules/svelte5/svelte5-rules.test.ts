@@ -5,13 +5,17 @@
  * each rule produces the expected diagnostics.
  *
  * Phase 49 — Svelte 5 Runes Lint Rules.
+ * Phase 50 — Svelte Template AST Completeness + Error Reporting.
  *
  * @module
  */
 
 import { describe, expect, it } from 'vitest';
 import { runTypeScriptRules } from '../../framework/oxc-runner.ts';
-import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
+import type { AstNode, LintResult, TypeScriptRule } from '../../framework/types.ts';
+import { AstVisitorSchema } from '../../framework/types.ts';
+import { parseSvelteTemplate, walkSvelteNode } from '../../framework/svelte-template.ts';
+import type { SvelteParseResult } from '../../framework/svelte-template.ts';
 
 import noLegacyReactiveStatements from './no-legacy-reactive-statements.ts';
 import noLegacyProps from './no-legacy-props.ts';
@@ -725,5 +729,195 @@ describe('svelte5/no-untrack-misuse', () => {
     const results: LintResult[] = await lint(noUntrackMisuse, code);
     expect(results.length).toBe(1);
     expect(results[0]?.message).toContain('Math.random()');
+  });
+});
+
+// =============================================================================
+// Phase 50 — Svelte Template AST Completeness + Error Reporting
+// =============================================================================
+
+describe('Phase 50 — error reporting', () => {
+  it('invalid Svelte syntax produces a warning diagnostic with descriptive message', async () => {
+    const code: string = [
+      '<script lang="ts">',
+      '  let x = 1;',
+      '</script>',
+      '',
+      '{#each}',
+      '<div>test</div>',
+      '{/each}',
+    ].join('\n');
+    const results: LintResult[] = await lint(noLegacyReactiveStatements, code);
+    const parseErrors: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'svelte5/template-parse-error',
+    );
+    expect(parseErrors.length).toBe(1);
+    expect(parseErrors[0]?.severity).toBe('warning');
+    expect(parseErrors[0]?.message).toContain('Svelte template parse error');
+    expect(parseErrors[0]?.message).toContain('template-based lint rules were skipped');
+    expect(parseErrors[0]?.line).toBe(1);
+    expect(parseErrors[0]?.column).toBe(1);
+  });
+
+  it('valid Svelte file produces no parse error diagnostic', async () => {
+    const code: string = svelte('  let x = $state(0);', '<div>{x}</div>');
+    const results: LintResult[] = await lint(noLegacyReactiveStatements, code);
+    const parseErrors: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'svelte5/template-parse-error',
+    );
+    expect(parseErrors.length).toBe(0);
+  });
+});
+
+describe('Phase 50 — AST visitor schema completeness', () => {
+  it('all 37 Svelte visitor types are registered in AstVisitorSchema', () => {
+    const schemaKeys: string[] = Object.keys(AstVisitorSchema.entries);
+
+    const svelteTypes: string[] = [
+      // Original 17 (Phase 49)
+      'Fragment',
+      'RegularElement',
+      'Component',
+      'Attribute',
+      'BindDirective',
+      'OnDirective',
+      'StyleDirective',
+      'ClassDirective',
+      'EachBlock',
+      'IfBlock',
+      'AwaitBlock',
+      'KeyBlock',
+      'SnippetBlock',
+      'SlotElement',
+      'RenderTag',
+      'HtmlTag',
+      'ExpressionTag',
+      // New 20 (Phase 50)
+      'Text',
+      'Comment',
+      'ConstTag',
+      'DebugTag',
+      'AttachTag',
+      'AnimateDirective',
+      'LetDirective',
+      'TransitionDirective',
+      'UseDirective',
+      'SpreadAttribute',
+      'TitleElement',
+      'SvelteBody',
+      'SvelteComponent',
+      'SvelteDocument',
+      'SvelteElement',
+      'SvelteFragment',
+      'SvelteBoundary',
+      'SvelteHead',
+      'SvelteSelf',
+      'SvelteWindow',
+    ];
+
+    expect(svelteTypes.length).toBe(37);
+    for (const type of svelteTypes) {
+      expect(schemaKeys).toContain(type);
+    }
+  });
+});
+
+describe('Phase 50 — template AST walker coverage', () => {
+  it('walker visits all node types in a complex Svelte template', async () => {
+    const templateContent: string = [
+      '<script lang="ts">',
+      '  let items = [{id: 1}];',
+      '  let flag = true;',
+      '</script>',
+      '',
+      '<!-- a comment -->',
+      '<svelte:head><title>Test Title</title></svelte:head>',
+      '<svelte:window bind:innerWidth={w} />',
+      '<svelte:body onclick={fn} />',
+      '<svelte:document onvisibilitychange={fn} />',
+      '',
+      '<div class="wrapper" class:active={flag} style:color="red" bind:this={el} use:action transition:fade {...rest}>',
+      '  some text content',
+      '  {expr}',
+      '  {@html raw}',
+      '  {@const doubled = items.length * 2}',
+      '  {@debug doubled}',
+      '  {#if flag}',
+      '    <span>conditional</span>',
+      '  {/if}',
+      '  {#each items as item (item.id)}',
+      '    <p animate:flip>{item.name}</p>',
+      '  {/each}',
+      '  {#key flag}',
+      '    <div>keyed</div>',
+      '  {/key}',
+      '  {#snippet greeting()}',
+      '    <em>hello</em>',
+      '  {/snippet}',
+      '  {@render greeting()}',
+      '  <slot />',
+      '  <Comp />',
+      '  {#await promise then value}',
+      '    <b>{value}</b>',
+      '  {/await}',
+      '  <svelte:element this="div">dynamic</svelte:element>',
+      '</div>',
+      '',
+      '<svelte:boundary onerror={fn}>',
+      '  <div>safe</div>',
+      '</svelte:boundary>',
+    ].join('\n');
+
+    const result: SvelteParseResult = await parseSvelteTemplate(templateContent);
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    const visitedTypes: Set<string> = new Set<string>();
+    walkSvelteNode(result.ast, (node: AstNode): void => {
+      visitedTypes.add(node.type);
+    });
+
+    // Verify at least 31 distinct Svelte template AST node types are visited
+    const expectedTypes: string[] = [
+      'Fragment',
+      'Text',
+      'Comment',
+      'RegularElement',
+      'Attribute',
+      'BindDirective',
+      'ClassDirective',
+      'StyleDirective',
+      'UseDirective',
+      'TransitionDirective',
+      'AnimateDirective',
+      'SpreadAttribute',
+      'ExpressionTag',
+      'HtmlTag',
+      'ConstTag',
+      'DebugTag',
+      'IfBlock',
+      'EachBlock',
+      'KeyBlock',
+      'SnippetBlock',
+      'AwaitBlock',
+      'RenderTag',
+      'SlotElement',
+      'Component',
+      'SvelteHead',
+      'TitleElement',
+      'SvelteWindow',
+      'SvelteBody',
+      'SvelteDocument',
+      'SvelteElement',
+      'SvelteBoundary',
+    ];
+
+    const visitedArray: string[] = [...visitedTypes];
+    for (const type of expectedTypes) {
+      expect(visitedArray).toContain(type);
+    }
+    expect(visitedTypes.size).toBeGreaterThanOrEqual(31);
   });
 });
