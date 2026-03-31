@@ -105,6 +105,7 @@ export const en: VscodeStrings = {
   watcher: {
     configChanged: 'Config file changed: {pattern}',
     batchFired: 'Batched file changes fired: {count} URIs',
+    relintError: 'Re-lint failed for {file}: {error}',
   },
 
   progressHelper: {
@@ -115,12 +116,14 @@ export const en: VscodeStrings = {
 
   state: {
     transitioned: '{tool} state: {from} → {to}',
+    observerError: 'Observer error for {tool}: {error}',
   },
 
   diagnosticManager: {
     maxProblemsReached: 'Max problems limit reached ({max}), remaining diagnostics truncated',
     invalidEntry: 'Invalid diagnostic entry skipped: {reason}',
     invalidReason: 'missing message or invalid line: {line}',
+    skippedEntries: 'Skipped {count} malformed diagnostic entries for {file}',
   },
 
   runner: {

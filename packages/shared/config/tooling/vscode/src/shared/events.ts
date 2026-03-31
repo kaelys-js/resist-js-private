@@ -192,8 +192,7 @@ export class DocumentEventRegistry implements vscode.Disposable {
           handler(doc);
         } catch (error: unknown) {
           const msg: string = error instanceof Error ? error.message : String(error);
-          // Cannot log without output channel — error is lost but handler is isolated
-          void format(en.events.handlerError, { tool, event, error: msg });
+          console.error(format(en.events.handlerError, { tool, event, error: msg }));
         }
       }
     }

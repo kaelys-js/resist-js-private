@@ -53,10 +53,16 @@ function createDiagnostic(
 
 describe('ResistCodeActionProvider', () => {
   let provider: ResistCodeActionProvider;
+  const mockChannel = {
+    appendLine: vi.fn(),
+    show: vi.fn(),
+    dispose: vi.fn(),
+    name: 'Test',
+  } as unknown as vscode.OutputChannel;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    provider = new ResistCodeActionProvider();
+    provider = new ResistCodeActionProvider(mockChannel);
   });
 
   it('provides QuickFix code action kind', () => {
@@ -168,26 +174,12 @@ describe('ResistCodeActionProvider', () => {
     expect(actions.length).toBe(2);
   });
 
-  it('accepts output channel in constructor', () => {
+  it('requires output channel in constructor', () => {
     const channel = vscode.window.createOutputChannel('Test');
     const providerWithChannel = new ResistCodeActionProvider(
       channel as unknown as vscode.OutputChannel,
     );
     expect(providerWithChannel).toBeInstanceOf(ResistCodeActionProvider);
-  });
-
-  it('works without output channel (backwards compatible)', () => {
-    const providerNoChannel = new ResistCodeActionProvider();
-    const doc = createMockDocument('const x = 1;\n');
-    const diag = createDiagnostic({ start: 6, end: 7, text: 'y' });
-
-    const actions = providerNoChannel.provideCodeActions(doc, new vscode.Range(0, 0, 0, 5), {
-      diagnostics: [diag],
-    } as vscode.CodeActionContext);
-
-    // 1 fix action + 2 disable actions
-    expect(actions.length).toBe(3);
-    expect(actions[0].title).toBe('Fix: test/rule');
   });
 
   it('creates disable-line action with correct comment format', () => {

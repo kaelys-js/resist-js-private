@@ -9,6 +9,9 @@
 
 import * as vscode from 'vscode';
 import { DocumentDebouncer } from '../shared/debounce';
+import { logError } from '../shared/output';
+import { format } from '../locale/schema';
+import { en } from '../locale/en';
 import { CONFIG_FILE_PATTERNS } from '../shared/brand';
 
 const WATCHER_DEBOUNCE_MS = 1000;
@@ -21,10 +24,12 @@ const WATCHER_KEY = '__config-watcher__';
  * are re-linted after a 1-second debounce.
  *
  * @param lintFn - Function to call for each document that needs re-linting
+ * @param outputChannel - Output channel for logging errors
  * @returns Array of disposables for cleanup
  */
 export function createConfigWatcher(
   lintFn: (doc: vscode.TextDocument) => void,
+  outputChannel?: vscode.OutputChannel,
 ): vscode.Disposable[] {
   const debouncer = new DocumentDebouncer();
   const disposables: vscode.Disposable[] = [{ dispose: () => debouncer.dispose() }];
@@ -37,10 +42,14 @@ export function createConfigWatcher(
           if (doc.uri.scheme === 'file' && !doc.isUntitled) {
             try {
               lintFn(doc);
-            } catch {
-              // Intentional: errors from individual lint calls must not stop re-linting
-              // remaining files. Each lintFn call is wrapped in safeRunAsync at the
-              // call site (extension.ts), so errors are already logged to the output channel.
+            } catch (error: unknown) {
+              if (outputChannel) {
+                const msg = error instanceof Error ? error.message : String(error);
+                logError(
+                  outputChannel,
+                  format(en.watcher.relintError, { file: doc.uri.fsPath, error: msg }),
+                );
+              }
             }
           }
         }

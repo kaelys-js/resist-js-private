@@ -243,12 +243,19 @@ export async function lintWorkspace(
       (d) => d.uri.fsPath === filePath,
     );
     const diagnostics: vscode.Diagnostic[] = [];
+    let skipped = 0;
     for (const entry of entries.slice(0, maxProblems)) {
       try {
         diagnostics.push(doc ? mapEntryToDiagnostic(entry, doc) : mapEntryToDiagnosticBasic(entry));
       } catch {
-        // Skip malformed entries during workspace lint (too noisy to log each one)
+        skipped++;
       }
+    }
+    if (skipped > 0) {
+      logError(
+        channel,
+        format(en.diagnosticManager.skippedEntries, { count: skipped, file: filePath }),
+      );
     }
     collection.set(uri, diagnostics);
     processed++;

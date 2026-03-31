@@ -23,15 +23,14 @@ import { DIAGNOSTIC_SOURCE, DISABLE_NEXT_LINE_PREFIX, DISABLE_FILE_PREFIX } from
  */
 export class ResistCodeActionProvider implements vscode.CodeActionProvider {
   static readonly providedCodeActionKinds = [vscode.CodeActionKind.QuickFix];
-  private readonly outputChannel?: vscode.OutputChannel;
+  private readonly outputChannel: vscode.OutputChannel;
 
   /**
    * Creates a new ResistCodeActionProvider.
    *
-   * @param outputChannel - Optional output channel for logging errors
-   *   during code action creation. When not provided, errors are silently skipped.
+   * @param outputChannel - Output channel for logging errors during code action creation
    */
-  constructor(outputChannel?: vscode.OutputChannel) {
+  constructor(outputChannel: vscode.OutputChannel) {
     this.outputChannel = outputChannel;
   }
 
@@ -94,15 +93,13 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
 
         actions.push(action);
       } catch (error: unknown) {
-        if (this.outputChannel) {
-          logError(
-            this.outputChannel,
-            format(en.codeActions.actionFailed, {
-              rule: String(diagnostic.code),
-              error: error instanceof Error ? error.message : String(error),
-            }),
-          );
-        }
+        logError(
+          this.outputChannel,
+          format(en.codeActions.actionFailed, {
+            rule: String(diagnostic.code),
+            error: error instanceof Error ? error.message : String(error),
+          }),
+        );
         continue;
       }
     }
@@ -141,14 +138,12 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
         fixAllAction.edit = edit;
         actions.push(fixAllAction);
       } catch (error: unknown) {
-        if (this.outputChannel) {
-          logError(
-            this.outputChannel,
-            format(en.codeActions.fixAllFailed, {
-              error: error instanceof Error ? error.message : String(error),
-            }),
-          );
-        }
+        logError(
+          this.outputChannel,
+          format(en.codeActions.fixAllFailed, {
+            error: error instanceof Error ? error.message : String(error),
+          }),
+        );
       }
     }
 
@@ -187,15 +182,13 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
         fileAction.edit = fileEdit;
         actions.push(fileAction);
       } catch (error: unknown) {
-        if (this.outputChannel) {
-          logError(
-            this.outputChannel,
-            format(en.codeActions.disableFailed, {
-              rule: ruleId,
-              error: error instanceof Error ? error.message : String(error),
-            }),
-          );
-        }
+        logError(
+          this.outputChannel,
+          format(en.codeActions.disableFailed, {
+            rule: ruleId,
+            error: error instanceof Error ? error.message : String(error),
+          }),
+        );
       }
     }
 

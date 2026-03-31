@@ -118,7 +118,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Config File Watcher
   // ========================================================================
 
-  const watcherDisposables: vscode.Disposable[] = createConfigWatcher(lintDoc);
+  const watcherDisposables: vscode.Disposable[] = createConfigWatcher(lintDoc, outputChannel);
   for (const d of watcherDisposables) {
     context.subscriptions.push(d);
   }
@@ -265,7 +265,7 @@ export function deactivate(): void {
     if (notificationManager) {
       notificationManager.dispose();
     }
-  } catch {
-    // Best-effort cleanup — extension host is shutting down
+  } catch (error: unknown) {
+    console.error('Deactivation error:', error instanceof Error ? error.message : String(error));
   }
 }
