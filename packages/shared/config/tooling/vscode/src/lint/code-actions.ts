@@ -41,11 +41,14 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
   ): vscode.CodeAction[] {
     const actions: vscode.CodeAction[] = [];
     const fixableDiagnostics: vscode.Diagnostic[] = [];
+    const resistDiagnostics: vscode.Diagnostic[] = [];
 
     for (const diagnostic of context.diagnostics) {
       if (diagnostic.source !== 'resist-linter') {
         continue;
       }
+
+      resistDiagnostics.push(diagnostic);
 
       const data = (diagnostic as DiagnosticWithData).data;
       if (!data?.fix) {
@@ -138,6 +141,50 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
           logError(
             this.outputChannel,
             `Fix-all action failed: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
+      }
+    }
+
+    // Per-rule disable actions for each resist diagnostic
+    for (const diagnostic of resistDiagnostics) {
+      const ruleId: string =
+        typeof diagnostic.code === 'object' && diagnostic.code !== null
+          ? String((diagnostic.code as { value: string | number }).value)
+          : String(diagnostic.code ?? 'unknown');
+
+      try {
+        // "Disable [rule] for this line"
+        const lineTitle: string = format(en.codeActions.disableLine, { rule: ruleId });
+        const lineAction = new vscode.CodeAction(lineTitle, vscode.CodeActionKind.QuickFix);
+        lineAction.diagnostics = [diagnostic];
+        lineAction.isPreferred = false;
+
+        const lineEdit = new vscode.WorkspaceEdit();
+        const diagLine: number = diagnostic.range.start.line;
+        const lineText: string = document.lineAt(diagLine).text;
+        const indent: string = lineText.match(/^(\s*)/)?.[1] ?? '';
+        const disableComment = `${indent}// resist-lint-disable-next-line: ${ruleId}\n`;
+        lineEdit.replace(document.uri, new vscode.Range(diagLine, 0, diagLine, 0), disableComment);
+        lineAction.edit = lineEdit;
+        actions.push(lineAction);
+
+        // "Disable [rule] for this file"
+        const fileTitle: string = format(en.codeActions.disableFile, { rule: ruleId });
+        const fileAction = new vscode.CodeAction(fileTitle, vscode.CodeActionKind.QuickFix);
+        fileAction.diagnostics = [diagnostic];
+        fileAction.isPreferred = false;
+
+        const fileEdit = new vscode.WorkspaceEdit();
+        const fileDisableComment = `// resist-lint-disable: ${ruleId}\n`;
+        fileEdit.replace(document.uri, new vscode.Range(0, 0, 0, 0), fileDisableComment);
+        fileAction.edit = fileEdit;
+        actions.push(fileAction);
+      } catch (error: unknown) {
+        if (this.outputChannel) {
+          logError(
+            this.outputChannel,
+            `Disable action failed for ${ruleId}: ${error instanceof Error ? error.message : String(error)}`,
           );
         }
       }

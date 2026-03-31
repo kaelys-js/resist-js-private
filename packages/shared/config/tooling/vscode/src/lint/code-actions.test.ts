@@ -72,7 +72,8 @@ describe('ResistCodeActionProvider', () => {
       diagnostics: [diag],
     } as vscode.CodeActionContext);
 
-    expect(actions.length).toBe(1);
+    // 1 fix action + 2 disable actions (line + file)
+    expect(actions.length).toBe(3);
     expect(actions[0].title).toBe('Fix: test/rule');
     expect(actions[0].isPreferred).toBe(true);
   });
@@ -88,7 +89,7 @@ describe('ResistCodeActionProvider', () => {
     expect(actions[0].title).toContain('Use let instead');
   });
 
-  it('skips diagnostics without fix data', () => {
+  it('skips fix actions for diagnostics without fix data but still adds disable actions', () => {
     const doc = createMockDocument();
     const diag = createDiagnostic(); // No fix
 
@@ -96,10 +97,12 @@ describe('ResistCodeActionProvider', () => {
       diagnostics: [diag],
     } as vscode.CodeActionContext);
 
-    expect(actions.length).toBe(0);
+    // 2 disable actions (line + file) — no fix action
+    expect(actions.length).toBe(2);
+    expect(actions[0].title).toContain('Disable');
   });
 
-  it('skips no-op fixes (start === end && text === empty)', () => {
+  it('skips no-op fixes but still adds disable actions', () => {
     const doc = createMockDocument();
     const diag = createDiagnostic({ start: 0, end: 0, text: '' });
 
@@ -107,7 +110,8 @@ describe('ResistCodeActionProvider', () => {
       diagnostics: [diag],
     } as vscode.CodeActionContext);
 
-    expect(actions.length).toBe(0);
+    // 2 disable actions — no fix action (no-op fix skipped)
+    expect(actions.length).toBe(2);
   });
 
   it('creates "Fix all" action when multiple fixable diagnostics exist', () => {
@@ -119,10 +123,11 @@ describe('ResistCodeActionProvider', () => {
       diagnostics: [diag1, diag2],
     } as vscode.CodeActionContext);
 
-    // 2 individual + 1 fix-all
-    expect(actions.length).toBe(3);
-    expect(actions[2].title).toContain('Fix all');
-    expect(actions[2].title).toContain('2');
+    // 2 individual fix + 1 fix-all + 4 disable actions (2 per diagnostic)
+    expect(actions.length).toBe(7);
+    const fixAllAction = actions.find((a) => a.title.includes('Fix all'));
+    expect(fixAllAction).toBeDefined();
+    expect(fixAllAction!.title).toContain('2');
   });
 
   it('filters out non-resist-linter diagnostics', () => {
@@ -137,7 +142,7 @@ describe('ResistCodeActionProvider', () => {
     expect(actions.length).toBe(0);
   });
 
-  it('skips fixes with out-of-bounds byte offsets', () => {
+  it('skips fixes with out-of-bounds byte offsets but adds disable actions', () => {
     const doc = createMockDocument('hi'); // length 2
     const diag = createDiagnostic({ start: 0, end: 999, text: 'x' });
 
@@ -145,10 +150,12 @@ describe('ResistCodeActionProvider', () => {
       diagnostics: [diag],
     } as vscode.CodeActionContext);
 
-    expect(actions.length).toBe(0);
+    // 2 disable actions — fix skipped due to out-of-bounds
+    expect(actions.length).toBe(2);
+    expect(actions[0].title).toContain('Disable');
   });
 
-  it('skips fixes with negative byte offsets', () => {
+  it('skips fixes with negative byte offsets but adds disable actions', () => {
     const doc = createMockDocument('hello');
     const diag = createDiagnostic({ start: -1, end: 3, text: 'x' });
 
@@ -156,7 +163,8 @@ describe('ResistCodeActionProvider', () => {
       diagnostics: [diag],
     } as vscode.CodeActionContext);
 
-    expect(actions.length).toBe(0);
+    // 2 disable actions — fix skipped due to negative offsets
+    expect(actions.length).toBe(2);
   });
 
   it('accepts output channel in constructor', () => {
@@ -176,7 +184,36 @@ describe('ResistCodeActionProvider', () => {
       diagnostics: [diag],
     } as vscode.CodeActionContext);
 
-    expect(actions.length).toBe(1);
+    // 1 fix action + 2 disable actions
+    expect(actions.length).toBe(3);
     expect(actions[0].title).toBe('Fix: test/rule');
+  });
+
+  it('creates disable-line action with correct comment format', () => {
+    const doc = createMockDocument('  const x = 1;\n');
+    const diag = createDiagnostic({ start: 8, end: 9, text: 'y' });
+
+    const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 0, 5), {
+      diagnostics: [diag],
+    } as vscode.CodeActionContext);
+
+    const disableLineAction = actions.find((a) => a.title.includes('for this line'));
+    expect(disableLineAction).toBeDefined();
+    expect(disableLineAction!.title).toContain('test/rule');
+    expect(disableLineAction!.isPreferred).toBe(false);
+  });
+
+  it('creates disable-file action with correct comment format', () => {
+    const doc = createMockDocument('const x = 1;\n');
+    const diag = createDiagnostic({ start: 6, end: 7, text: 'y' });
+
+    const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 0, 5), {
+      diagnostics: [diag],
+    } as vscode.CodeActionContext);
+
+    const disableFileAction = actions.find((a) => a.title.includes('for this file'));
+    expect(disableFileAction).toBeDefined();
+    expect(disableFileAction!.title).toContain('test/rule');
+    expect(disableFileAction!.isPreferred).toBe(false);
   });
 });
