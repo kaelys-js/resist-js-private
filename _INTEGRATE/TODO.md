@@ -3,7 +3,6 @@
     - Duplicates
     - Grouping
     - Accuracy
-  - VSCode Extension (check existing lint/format extensions, shared foundation)
 
   /Users/coleb/Desktop/webforge/packages/shared/schemas/function
   shared/utils/devtools

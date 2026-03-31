@@ -45,6 +45,12 @@ audit-level = moderate
 
 {{#ifPm "pnpm"}}
 # ============================================
+# pnpm: Peer Dependencies
+# ============================================
+auto-install-peers = true
+strict-peer-dependencies = false
+
+# ============================================
 # pnpm: Workspace
 # ============================================
 link-workspace-packages = true
@@ -74,6 +80,12 @@ public-hoist-pattern[] = *playwright*
 public-hoist-pattern[] = *oxlint*
 public-hoist-pattern[] = *biome*
 public-hoist-pattern[] = *prettier*
+public-hoist-pattern[] = *valibot*
 public-hoist-pattern[] = *capacitor*
 public-hoist-pattern[] = *cloudflare*
+
+# ============================================
+# pnpm: Node Options (alias loader bootstrap)
+# ============================================
+node-options = "--import data:text/javascript,const{pathToFileURL:f}=await%20import('node:url');const{join:j,dirname:d}=await%20import('node:path');const{existsSync:e}=await%20import('node:fs');let%20p=process.cwd();while(!e(j(p,'pnpm-workspace.yaml'))%26%26d(p)!==p)p=d(p);if(e(j(p,'pnpm-workspace.yaml')))await%20import(f(j(p,'packages','shared','config','tooling','node','src','register-aliases.mjs')).href)"
 {{/ifPm}}
