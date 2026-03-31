@@ -7,6 +7,11 @@
   "private": true,
   "license": "MIT",
   "preview": true,
+  "icon": "icon.png",
+  "galleryBanner": {
+    "color": "#1e1e2e",
+    "theme": "dark"
+  },
   "keywords": [
     "resist",
     "linter",
@@ -278,9 +283,9 @@
     }
   },
   "scripts": {
-    "build": "tsgo -p ./",
+    "build": "npx tsx scripts/generate-manifest.ts && tsgo -p ./",
     "watch": "tsgo -w -p ./",
-    "qa:lint": "tsgo --noEmit -p ./",
+    "qa:lint": "tsgo --noEmit -p ./ && npx tsx scripts/validate-brand.ts",
     "qa:test": "pnpm -w exec vitest run --project config-tooling-vscode",
     "qa:test:coverage": "pnpm -w exec vitest run --project config-tooling-vscode --coverage --coverage.thresholds.statements=45 --coverage.thresholds.branches=30 --coverage.thresholds.functions=50 --coverage.thresholds.lines=45",
     "clean": "rm -rf dist",
