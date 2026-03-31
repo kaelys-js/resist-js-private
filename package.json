@@ -19,7 +19,7 @@
     "qa:type-check": "turbo qa:type-check --filter='!./packages/shared/utils/cli'",
     "qa:format": "biome format --write . && prettier --write '**/*.svelte'",
     "qa:format:check": "biome format . && prettier --check '**/*.svelte'",
-    "qa:lint": "npx tsx packages/shared/config/tooling/lint/src/cli.ts --tools"
+    "qa:lint": "node --import ./packages/shared/config/tooling/node/src/register-aliases.mjs packages/shared/config/tooling/lint/src/cli.ts --tools"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

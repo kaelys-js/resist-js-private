@@ -59,6 +59,23 @@ export type WorkerResult = v.InferOutput<typeof WorkerResultSchema>;
 const WORKER_ENTRY: string = join(fileURLToPath(new URL('.', import.meta.url)), 'worker-entry.ts');
 
 /**
+ * Absolute path to the register-aliases bootstrap script.
+ *
+ * Worker threads don't inherit NODE_OPTIONS from `.npmrc`, so they need
+ * an explicit `--import` to resolve `@/` tsconfig path aliases.
+ * Node 25 handles TypeScript type stripping natively.
+ */
+const REGISTER_ALIASES_PATH: string = join(
+  fileURLToPath(new URL('.', import.meta.url)),
+  '..',
+  '..',
+  '..',
+  'node',
+  'src',
+  'register-aliases.mjs',
+);
+
+/**
  * Get the default number of worker threads.
  *
  * Uses the number of CPU cores, clamped to at least 1.
@@ -125,7 +142,7 @@ export class WorkerPool {
 
     for (let i: number = 0; i < this.poolSize; i++) {
       const worker: Worker = new Worker(WORKER_ENTRY, {
-        execArgv: ['--import', 'tsx'],
+        execArgv: ['--import', REGISTER_ALIASES_PATH],
         workerData: { strings: this.strings },
       });
 
