@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ResistCodeActionProvider } from '../code-actions';
+import { ResistCodeActionProvider } from './code-actions';
 import * as vscode from 'vscode';
 
 function createMockDocument(text: string = 'const x = 1;\n'): vscode.TextDocument {

@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { DocumentDebouncer } from '../debounce';
+import { DocumentDebouncer } from './debounce';
 
 describe('DocumentDebouncer', () => {
   let debouncer: DocumentDebouncer;

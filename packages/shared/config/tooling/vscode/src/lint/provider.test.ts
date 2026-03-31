@@ -5,9 +5,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { mapEntryToDiagnostic, type DiagnosticWithData } from '../provider';
+import { mapEntryToDiagnostic, type DiagnosticWithData } from './provider';
 import * as vscode from 'vscode';
-import type { DiagnosticEntry } from '../../shared/types';
+import type { DiagnosticEntry } from '../shared/types';
 
 function createMockDocument(
   lines: string[] = ['const x = 1;', 'const y = 2;'],

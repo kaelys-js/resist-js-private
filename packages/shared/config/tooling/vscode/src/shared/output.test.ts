@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createOutputChannel, log, logError, logCommand, logTiming } from '../output';
+import { createOutputChannel, log, logError, logCommand, logTiming } from './output';
 import * as vscode from 'vscode';
 
 describe('Output Channel', () => {

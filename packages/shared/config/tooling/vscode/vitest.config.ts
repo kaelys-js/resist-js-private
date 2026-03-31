@@ -13,7 +13,7 @@ export default defineConfig({
   test: {
     globals: true,
     root: path.resolve(import.meta.dirname, 'src'),
-    include: ['**/__tests__/**/*.test.ts'],
+    include: ['**/*.test.ts'],
     alias: {
       vscode: path.resolve(import.meta.dirname, 'src/__mocks__/vscode.ts'),
     },

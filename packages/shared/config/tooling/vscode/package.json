@@ -155,6 +155,41 @@
             "off"
           ],
           "description": "Global severity override for all rules (empty = use rule defaults)"
+        },
+        "resist.lint.rule": {
+          "type": "string",
+          "default": "",
+          "description": "Run only a specific rule by name (empty = all rules)"
+        },
+        "resist.lint.ignorePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Glob patterns for files/directories to ignore"
+        },
+        "resist.lint.jobs": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 32,
+          "description": "Number of parallel workers (0 = auto-detect CPU count)"
+        },
+        "resist.lint.tools": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable external tool integration"
+        },
+        "resist.lint.locale": {
+          "type": "string",
+          "default": "",
+          "description": "Locale for diagnostic messages (empty = system default)"
+        },
+        "resist.lint.bail": {
+          "type": "boolean",
+          "default": false,
+          "description": "Stop linting on first error"
         }
       }
     }
@@ -163,6 +198,7 @@
     "compile": "tsgo -p ./",
     "watch": "tsgo -w -p ./",
     "typecheck": "tsgo --noEmit -p ./",
+    "qa:test": "pnpm -w exec vitest run --project config-tooling-vscode",
     "test": "vitest run",
     "test:watch": "vitest",
     "package": "vsce package --no-dependencies",

@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createStatusBar, updateStatusBar, getFileDiagnosticCounts } from '../status-bar';
+import { createStatusBar, updateStatusBar, getFileDiagnosticCounts } from './status-bar';
 import * as vscode from 'vscode';
 
 describe('Status Bar', () => {

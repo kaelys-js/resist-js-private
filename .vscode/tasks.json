@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Watch Resist Extension",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "@resist/vscode", "watch"],
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "applyTo": "closedDocuments",
+        "fileLocation": ["relative", "${workspaceFolder}/packages/shared/config/tooling/vscode"],
+        "pattern": {
+          "regexp": "^(.+)\\((\\d+),(\\d+)\\):\\s+(error|warning)\\s+TS(\\d+):\\s+(.+)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "Found 0 errors"
+        }
+      },
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}
