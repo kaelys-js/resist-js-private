@@ -12,6 +12,7 @@ import * as output from './output';
 
 vi.mock('./output', () => ({
   log: vi.fn(),
+  logError: vi.fn(),
 }));
 
 vi.mock('../locale/schema', () => ({
@@ -28,6 +29,7 @@ vi.mock('../locale/en', () => ({
   en: {
     state: {
       transitioned: '{tool} state: {from} → {to}',
+      observerError: 'Observer error for {tool}: {error}',
     },
   },
 }));
@@ -129,6 +131,21 @@ describe('ToolStateManager', () => {
       expect(() => manager.setState('lint', 'ready')).not.toThrow();
       expect(badCallback).toHaveBeenCalledOnce();
       expect(goodCallback).toHaveBeenCalledOnce();
+    });
+
+    it('logs observer errors to output channel', () => {
+      const badCallback = vi.fn(() => {
+        throw new Error('observer crash');
+      });
+      manager.onStateChange('lint', badCallback);
+
+      manager.setState('lint', 'ready');
+
+      expect(output.logError).toHaveBeenCalledOnce();
+      expect(output.logError).toHaveBeenCalledWith(
+        mockChannel,
+        'Observer error for lint: observer crash',
+      );
     });
   });
 

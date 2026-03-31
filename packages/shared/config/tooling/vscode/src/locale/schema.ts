@@ -232,6 +232,8 @@ export interface WatcherStrings {
   readonly configChanged: string;
   /** Log when batched file changes are fired. */
   readonly batchFired: string;
+  /** Error log when re-lint fails for a file after config change. */
+  readonly relintError: string;
 }
 
 /** Strings for progress reporting. */
@@ -248,6 +250,8 @@ export interface ProgressHelperStrings {
 export interface StateStrings {
   /** Debug log when tool state transitions. */
   readonly transitioned: string;
+  /** Error log when an observer callback throws. */
+  readonly observerError: string;
 }
 
 /** Strings for diagnostics manager. */
@@ -258,6 +262,8 @@ export interface DiagnosticManagerStrings {
   readonly invalidEntry: string;
   /** Reason detail for missing message or invalid line. */
   readonly invalidReason: string;
+  /** Summary log when malformed entries are skipped during workspace lint. */
+  readonly skippedEntries: string;
 }
 
 /** Strings for error boundaries. */

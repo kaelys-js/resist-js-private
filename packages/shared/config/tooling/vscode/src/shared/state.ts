@@ -10,7 +10,7 @@
  */
 
 import type * as vscode from 'vscode';
-import { log } from './output';
+import { log, logError } from './output';
 import { format } from '../locale/schema';
 import { en } from '../locale/en';
 
@@ -75,8 +75,11 @@ export class ToolStateManager {
       if (observer.tool === tool || observer.tool === '*') {
         try {
           observer.callback(tool, from, state);
-        } catch {
-          // Observer errors are silently ignored to prevent cascading failures
+        } catch (error: unknown) {
+          if (this.channel) {
+            const msg = error instanceof Error ? error.message : String(error);
+            logError(this.channel, format(en.state.observerError, { tool, error: msg }));
+          }
         }
       }
     }

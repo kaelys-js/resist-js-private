@@ -188,4 +188,32 @@ describe('Config File Watcher', () => {
     // Both files should have been attempted despite first throwing
     expect(throwingLintFn).toHaveBeenCalledTimes(2);
   });
+
+  it('logs errors to output channel when provided', () => {
+    const mockChannel = { appendLine: vi.fn() } as unknown as import('vscode').OutputChannel;
+
+    const throwingLintFn = vi.fn(() => {
+      throw new Error('lint boom');
+    });
+
+    const mockWatcher = {
+      onDidChange: vi.fn(),
+      onDidCreate: vi.fn(),
+      onDidDelete: vi.fn(),
+      dispose: vi.fn(),
+    };
+    vi.mocked(vscode.workspace.createFileSystemWatcher).mockReturnValue(
+      mockWatcher as unknown as vscode.FileSystemWatcher,
+    );
+
+    createConfigWatcher(throwingLintFn, mockChannel);
+
+    const changeCallback = mockWatcher.onDidChange.mock.calls[0][0] as () => void;
+    changeCallback();
+    vi.advanceTimersByTime(1100);
+
+    expect(mockChannel.appendLine).toHaveBeenCalled();
+    const logged = (mockChannel.appendLine as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+    expect(logged).toContain('lint boom');
+  });
 });

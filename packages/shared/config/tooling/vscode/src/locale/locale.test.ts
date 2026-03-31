@@ -91,6 +91,345 @@ describe('Locale', () => {
     });
   });
 
+  describe('exhaustive field existence', () => {
+    /** Helper: asserts every value in an object is a non-empty string. */
+    function assertAllStrings(group: Record<string, string>, label: string): void {
+      for (const [key, value] of Object.entries(group)) {
+        expect(typeof value).toBe('string');
+        expect(value.length, `${label}.${key} should be non-empty`).toBeGreaterThan(0);
+      }
+    }
+
+    it('documentFilter has all fields', () => {
+      assertAllStrings(en.documentFilter, 'documentFilter');
+      expect(en.documentFilter.iterationError).toContain('{file}');
+    });
+
+    it('notifications has all fields', () => {
+      assertAllStrings(en.notifications, 'notifications');
+      expect(en.notifications.suppressed).toContain('{key}');
+    });
+
+    it('config has all fields', () => {
+      assertAllStrings(en.config, 'config');
+      expect(en.config.changeDetected).toContain('{section}');
+    });
+
+    it('commands has all fields', () => {
+      assertAllStrings(en.commands, 'commands');
+      expect(en.commands.registered).toContain('{id}');
+      expect(en.commands.executionFailed).toContain('{id}');
+    });
+
+    it('lifecycle has all fields', () => {
+      assertAllStrings(en.lifecycle, 'lifecycle');
+      expect(en.lifecycle.disposing).toContain('{name}');
+      expect(en.lifecycle.disposed).toContain('{count}');
+      expect(en.lifecycle.disposalError).toContain('{name}');
+    });
+
+    it('watcher has all fields', () => {
+      assertAllStrings(en.watcher, 'watcher');
+      expect(en.watcher.configChanged).toContain('{pattern}');
+      expect(en.watcher.batchFired).toContain('{count}');
+      expect(en.watcher.relintError).toContain('{file}');
+    });
+
+    it('progressHelper has all fields', () => {
+      assertAllStrings(en.progressHelper, 'progressHelper');
+      expect(en.progressHelper.processing).toContain('{file}');
+      expect(en.progressHelper.fileError).toContain('{error}');
+    });
+
+    it('state has all fields', () => {
+      assertAllStrings(en.state, 'state');
+      expect(en.state.transitioned).toContain('{tool}');
+      expect(en.state.observerError).toContain('{tool}');
+    });
+
+    it('diagnosticManager has all fields', () => {
+      assertAllStrings(en.diagnosticManager, 'diagnosticManager');
+      expect(en.diagnosticManager.maxProblemsReached).toContain('{max}');
+      expect(en.diagnosticManager.invalidEntry).toContain('{reason}');
+      expect(en.diagnosticManager.skippedEntries).toContain('{count}');
+    });
+
+    it('runner has all fields', () => {
+      assertAllStrings(en.runner, 'runner');
+      expect(en.runner.timeout).toContain('{ms}');
+      expect(en.runner.spawnFailed).toContain('{error}');
+      expect(en.runner.exitCode).toContain('{code}');
+      expect(en.runner.jsonParseFailed).toContain('{error}');
+    });
+
+    it('errorBoundary has all fields', () => {
+      assertAllStrings(en.errorBoundary, 'errorBoundary');
+      expect(en.errorBoundary.errorLog).toContain('{label}');
+    });
+
+    it('events has all fields', () => {
+      assertAllStrings(en.events, 'events');
+      expect(en.events.registered).toContain('{tool}');
+      expect(en.events.dispatched).toContain('{event}');
+      expect(en.events.handlerError).toContain('{error}');
+    });
+
+    it('fixOnSave has all fields', () => {
+      assertAllStrings(en.fixOnSave, 'fixOnSave');
+      expect(en.fixOnSave.applied).toContain('{count}');
+    });
+
+    it('codeLens has all fields', () => {
+      assertAllStrings(en.codeLens, 'codeLens');
+      expect(en.codeLens.issueCount).toContain('{rule}');
+      expect(en.codeLens.openDocs).toContain('{rule}');
+    });
+
+    it('diffPreview has all fields', () => {
+      assertAllStrings(en.diffPreview, 'diffPreview');
+      expect(en.diffPreview.title).toContain('{file}');
+    });
+
+    it('formatting has all fields', () => {
+      assertAllStrings(en.formatting, 'formatting');
+      expect(en.formatting.applied).toContain('{count}');
+    });
+
+    it('profiling has all fields', () => {
+      assertAllStrings(en.profiling, 'profiling');
+      expect(en.profiling.ruleTime).toContain('{rule}');
+      expect(en.profiling.total).toContain('{ms}');
+    });
+
+    it('filter has all fields', () => {
+      assertAllStrings(en.filter, 'filter');
+      expect(en.filter.filterApplied).toContain('{categories}');
+    });
+
+    it('perFolder has all fields', () => {
+      assertAllStrings(en.perFolder, 'perFolder');
+      expect(en.perFolder.resolved).toContain('{folder}');
+    });
+
+    it('staleCleanup has all fields', () => {
+      assertAllStrings(en.staleCleanup, 'staleCleanup');
+      expect(en.staleCleanup.cleared).toContain('{count}');
+      expect(en.staleCleanup.trackingFile).toContain('{file}');
+      expect(en.staleCleanup.skippedVisible).toContain('{file}');
+    });
+
+    it('imports has all fields', () => {
+      assertAllStrings(en.imports, 'imports');
+      expect(en.imports.removedCount).toContain('{count}');
+    });
+
+    it('inlineOverrides has all fields', () => {
+      assertAllStrings(en.inlineOverrides, 'inlineOverrides');
+      expect(en.inlineOverrides.decorationTooltip).toContain('{directive}');
+      expect(en.inlineOverrides.foundOverrides).toContain('{count}');
+    });
+
+    it('stageIndicator has all fields', () => {
+      assertAllStrings(en.stageIndicator, 'stageIndicator');
+      expect(en.stageIndicator.currentStage).toContain('{stage}');
+      expect(en.stageIndicator.stageChanged).toContain('{stage}');
+    });
+
+    it('plurals has all fields', () => {
+      assertAllStrings(en.plurals, 'plurals');
+    });
+
+    it('all 29 VscodeStrings groups are present', () => {
+      const groups = Object.keys(en);
+      expect(groups).toHaveLength(29);
+      const expected = [
+        'output',
+        'statusBar',
+        'messages',
+        'progress',
+        'codeActions',
+        'documentFilter',
+        'notifications',
+        'config',
+        'commands',
+        'lifecycle',
+        'watcher',
+        'progressHelper',
+        'state',
+        'diagnosticManager',
+        'runner',
+        'errorBoundary',
+        'plurals',
+        'events',
+        'fixOnSave',
+        'codeLens',
+        'diffPreview',
+        'formatting',
+        'profiling',
+        'filter',
+        'perFolder',
+        'staleCleanup',
+        'imports',
+        'inlineOverrides',
+        'stageIndicator',
+      ];
+      for (const group of expected) {
+        expect(en).toHaveProperty(group);
+      }
+    });
+  });
+
+  describe('parameterized string formatting', () => {
+    it('documentFilter.iterationError formats correctly', () => {
+      const result = format(en.documentFilter.iterationError, { file: 'a.ts', error: 'boom' });
+      expect(result).toBe('Document iteration failed for a.ts: boom');
+      expect(result).not.toContain('{');
+    });
+
+    it('notifications.suppressed formats correctly', () => {
+      const result = format(en.notifications.suppressed, { key: 'missing-binary' });
+      expect(result).not.toContain('{');
+    });
+
+    it('config strings format correctly', () => {
+      expect(format(en.config.changeDetected, { section: 'lint' })).not.toContain('{');
+    });
+
+    it('commands strings format correctly', () => {
+      expect(format(en.commands.registered, { id: 'resist.lint.file' })).not.toContain('{');
+      expect(format(en.commands.executionFailed, { id: 'resist.lint.fix' })).not.toContain('{');
+    });
+
+    it('lifecycle strings format correctly', () => {
+      expect(format(en.lifecycle.disposing, { name: 'debouncer' })).not.toContain('{');
+      expect(format(en.lifecycle.disposed, { count: 3 })).not.toContain('{');
+      expect(format(en.lifecycle.disposalError, { name: 'watcher', error: 'e' })).not.toContain(
+        '{',
+      );
+    });
+
+    it('watcher strings format correctly', () => {
+      expect(format(en.watcher.configChanged, { pattern: '*.ts' })).not.toContain('{');
+      expect(format(en.watcher.batchFired, { count: 5 })).not.toContain('{');
+      expect(format(en.watcher.relintError, { file: 'x.ts', error: 'e' })).not.toContain('{');
+    });
+
+    it('progressHelper strings format correctly', () => {
+      expect(format(en.progressHelper.processing, { file: 'a.ts' })).not.toContain('{');
+      expect(format(en.progressHelper.fileError, { file: 'a.ts', error: 'e' })).not.toContain('{');
+    });
+
+    it('state strings format correctly', () => {
+      const t = format(en.state.transitioned, { tool: 'lint', from: 'ready', to: 'running' });
+      expect(t).toBe('lint state: ready → running');
+      expect(format(en.state.observerError, { tool: 'lint', error: 'e' })).not.toContain('{');
+    });
+
+    it('diagnosticManager strings format correctly', () => {
+      expect(format(en.diagnosticManager.maxProblemsReached, { max: 100 })).not.toContain('{');
+      expect(format(en.diagnosticManager.invalidEntry, { reason: 'bad' })).not.toContain('{');
+      expect(format(en.diagnosticManager.invalidReason, { line: 5 })).not.toContain('{');
+      expect(format(en.diagnosticManager.skippedEntries, { count: 2, file: 'x.ts' })).not.toContain(
+        '{',
+      );
+    });
+
+    it('runner strings format correctly', () => {
+      expect(format(en.runner.timeout, { ms: 5000 })).not.toContain('{');
+      expect(format(en.runner.spawnFailed, { error: 'ENOENT' })).not.toContain('{');
+      expect(format(en.runner.exitCode, { code: 1 })).not.toContain('{');
+      expect(format(en.runner.jsonParseFailed, { error: 'e', preview: '...' })).not.toContain('{');
+    });
+
+    it('errorBoundary.errorLog formats correctly', () => {
+      expect(format(en.errorBoundary.errorLog, { label: 'lint', message: 'e' })).toBe('lint: e');
+    });
+
+    it('events strings format correctly', () => {
+      expect(format(en.events.registered, { tool: 'lint', event: 'open' })).not.toContain('{');
+      expect(format(en.events.dispatched, { event: 'save', count: 3 })).not.toContain('{');
+      expect(
+        format(en.events.handlerError, { tool: 'lint', event: 'save', error: 'e' }),
+      ).not.toContain('{');
+    });
+
+    it('fixOnSave strings format correctly', () => {
+      expect(format(en.fixOnSave.applied, { count: 3 })).toBe('Auto-fixed 3 problems on save');
+    });
+
+    it('codeLens strings format correctly', () => {
+      expect(format(en.codeLens.issueCount, { rule: 'no-var', count: 2 })).not.toContain('{');
+      expect(format(en.codeLens.openDocs, { rule: 'no-var' })).not.toContain('{');
+    });
+
+    it('diffPreview.title formats correctly', () => {
+      expect(format(en.diffPreview.title, { file: 'main.ts' })).not.toContain('{');
+    });
+
+    it('formatting strings format correctly', () => {
+      expect(format(en.formatting.applied, { count: 5 })).not.toContain('{');
+    });
+
+    it('profiling strings format correctly', () => {
+      expect(format(en.profiling.ruleTime, { rule: 'no-var', ms: 42 })).not.toContain('{');
+      expect(format(en.profiling.total, { ms: 100, count: 5 })).not.toContain('{');
+    });
+
+    it('filter strings format correctly', () => {
+      expect(format(en.filter.filterApplied, { categories: 'style,lint' })).not.toContain('{');
+    });
+
+    it('perFolder strings format correctly', () => {
+      expect(format(en.perFolder.resolved, { folder: '/src' })).not.toContain('{');
+    });
+
+    it('staleCleanup strings format correctly', () => {
+      expect(format(en.staleCleanup.cleared, { count: 3 })).not.toContain('{');
+      expect(format(en.staleCleanup.trackingFile, { file: 'a.ts' })).not.toContain('{');
+      expect(format(en.staleCleanup.skippedVisible, { file: 'a.ts' })).not.toContain('{');
+    });
+
+    it('imports strings format correctly', () => {
+      expect(format(en.imports.removedCount, { count: 2 })).toBe('Removed 2 unused imports');
+    });
+
+    it('inlineOverrides strings format correctly', () => {
+      expect(format(en.inlineOverrides.decorationTooltip, { directive: 'disable' })).not.toContain(
+        '{',
+      );
+      expect(format(en.inlineOverrides.foundOverrides, { count: 3 })).not.toContain('{');
+    });
+
+    it('stageIndicator strings format correctly', () => {
+      expect(format(en.stageIndicator.currentStage, { stage: 'lint' })).not.toContain('{');
+      expect(format(en.stageIndicator.stageChanged, { stage: 'build' })).not.toContain('{');
+    });
+
+    it('messages strings with multiple params format correctly', () => {
+      expect(
+        format(en.messages.diagnosticMapFailed, { rule: 'no-var', location: '1:5', error: 'e' }),
+      ).not.toContain('{');
+      expect(format(en.messages.stderrOutput, { output: 'warning' })).not.toContain('{');
+      expect(format(en.messages.workspaceLintFailed, { error: 'e' })).not.toContain('{');
+      expect(format(en.messages.timingReportFailed, { error: 'e' })).not.toContain('{');
+      expect(format(en.messages.skipBinaryNotFound, { file: 'a.ts' })).not.toContain('{');
+      expect(format(en.messages.skipWorkspaceNotFound, { file: 'a.ts' })).not.toContain('{');
+      expect(format(en.messages.lintedFile, { file: 'a.ts' })).not.toContain('{');
+    });
+
+    it('codeActions error strings format correctly', () => {
+      expect(format(en.codeActions.actionFailed, { rule: 'no-var', error: 'boom' })).not.toContain(
+        '{',
+      );
+      expect(format(en.codeActions.fixAllFailed, { error: 'boom' })).not.toContain('{');
+      expect(format(en.codeActions.disableFailed, { rule: 'no-var', error: 'boom' })).not.toContain(
+        '{',
+      );
+      expect(format(en.codeActions.disableLine, { rule: 'no-var' })).not.toContain('{');
+      expect(format(en.codeActions.disableFile, { rule: 'no-var' })).not.toContain('{');
+    });
+  });
+
   describe('formatPlural', () => {
     it('returns singular form for count 1', () => {
       expect(formatPlural(1, { one: '# error', other: '# errors' })).toBe('1 error');

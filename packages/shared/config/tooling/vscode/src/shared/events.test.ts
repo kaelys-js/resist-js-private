@@ -158,6 +158,26 @@ describe('DocumentEventRegistry', () => {
     errorRegistry.dispose();
   });
 
+  it('logs handler errors to console.error when no output channel', () => {
+    const noChannelRegistry = new DocumentEventRegistry();
+    const badHandler = vi.fn(() => {
+      throw new Error('handler boom');
+    });
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    noChannelRegistry.onOpen('bad-tool', badHandler);
+    noChannelRegistry.initialize();
+
+    const openCallback = getLastCallback(vscode.workspace.onDidOpenTextDocument);
+    openCallback(createMockDoc());
+
+    expect(consoleSpy).toHaveBeenCalledOnce();
+    expect(consoleSpy.mock.calls[0][0]).toContain('handler boom');
+
+    consoleSpy.mockRestore();
+    noChannelRegistry.dispose();
+  });
+
   it('clears all handlers and listeners on dispose', () => {
     registry.onOpen('lint', vi.fn());
     registry.onSave('lint', vi.fn());
