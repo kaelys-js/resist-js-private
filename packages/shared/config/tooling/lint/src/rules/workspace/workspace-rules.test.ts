@@ -403,6 +403,15 @@ import prDescriptionRequired from './pr-description-required.ts';
 import prNoMergeCommits from './pr-no-merge-commits.ts';
 import prWipWarning from './pr-wip-warning.ts';
 
+// Phase 48 — Configuration Sync Validation Rules
+import syncTurboTasks from './sync-turbo-tasks.ts';
+import syncTsconfigPaths from './sync-tsconfig-paths.ts';
+import syncLefthookScripts from './sync-lefthook-scripts.ts';
+import syncOnboardingSteps from './sync-onboarding-steps.ts';
+import syncWorkflowScripts from './sync-workflow-scripts.ts';
+import syncFilterPatterns from './sync-filter-patterns.ts';
+import syncPnpmWorkspace from './sync-pnpm-workspace.ts';
+
 // =============================================================================
 // Helpers
 // =============================================================================
@@ -21726,5 +21735,591 @@ describe('workspace/pr-wip-warning', () => {
     const results: LintResult[] = await prWipWarning.check(ctx);
     expect(results.length).toBe(0);
     process.env = { ...originalEnv };
+  });
+});
+
+// =============================================================================
+// Phase 48 — Configuration Sync Validation Rules
+// =============================================================================
+
+// =============================================================================
+// sync/turbo-tasks
+// =============================================================================
+
+describe('sync/turbo-tasks', () => {
+  it('has correct rule metadata', () => {
+    expect(syncTurboTasks.id).toBe('sync/turbo-tasks');
+    expect(syncTurboTasks.scope).toBe('workspace');
+    expect(typeof syncTurboTasks.check).toBe('function');
+  });
+
+  it('passes when all turbo task references are valid', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({
+          scripts: {
+            build: 'turbo build',
+            test: 'turbo qa:test',
+            ci: 'turbo qa:checks qa:test -- --verbose',
+          },
+        }),
+      ],
+      [
+        '/workspace/turbo.json',
+        JSON.stringify({
+          tasks: {
+            build: {},
+            'qa:test': {},
+            'qa:checks': {},
+          },
+        }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncTurboTasks.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when a turbo task reference does not exist', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({
+          scripts: {
+            ci: 'turbo nonexistent-task',
+          },
+        }),
+      ],
+      [
+        '/workspace/turbo.json',
+        JSON.stringify({
+          tasks: {
+            build: {},
+          },
+        }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncTurboTasks.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('sync/turbo-tasks');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('nonexistent-task');
+  });
+
+  it('handles //#  root-task prefix correctly', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({
+          scripts: {
+            format: 'turbo //#qa:format',
+          },
+        }),
+      ],
+      [
+        '/workspace/turbo.json',
+        JSON.stringify({
+          tasks: {
+            '//#qa:format': {},
+          },
+        }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncTurboTasks.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when package.json is missing', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/turbo.json', JSON.stringify({ tasks: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncTurboTasks.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when turbo.json is missing', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ scripts: { ci: 'turbo build' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncTurboTasks.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('passes when no scripts reference turbo', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ scripts: { start: 'node index.js' } })],
+      ['/workspace/turbo.json', JSON.stringify({ tasks: { build: {} } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncTurboTasks.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// sync/tsconfig-paths
+// =============================================================================
+
+describe('sync/tsconfig-paths', () => {
+  it('has correct rule metadata', () => {
+    expect(syncTsconfigPaths.id).toBe('sync/tsconfig-paths');
+    expect(syncTsconfigPaths.scope).toBe('workspace');
+    expect(typeof syncTsconfigPaths.check).toBe('function');
+  });
+
+  it('passes when all path alias targets exist', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/tsconfig.json',
+        JSON.stringify({
+          compilerOptions: {
+            paths: {
+              '@/utils': ['./packages/utils/src/index.ts'],
+            },
+          },
+        }),
+      ],
+      ['/workspace/packages/utils/src/index.ts', 'export {}'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncTsconfigPaths.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when a path alias target does not exist', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/tsconfig.json',
+        JSON.stringify({
+          compilerOptions: {
+            paths: {
+              '@/missing': ['./packages/missing/src/index.ts'],
+            },
+          },
+        }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({
+      files,
+      rootDir: '/workspace',
+    });
+    vi.spyOn(ctx, 'dirExists').mockResolvedValue(false);
+    const results: LintResult[] = await syncTsconfigPaths.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('sync/tsconfig-paths');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('@/missing');
+  });
+
+  it('skips wildcard targets', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/tsconfig.json',
+        JSON.stringify({
+          compilerOptions: {
+            paths: {
+              '@/utils/*': ['./packages/utils/src/*'],
+            },
+          },
+        }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncTsconfigPaths.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when tsconfig.json is missing', async () => {
+    const files: Map<string, string> = new Map();
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncTsconfigPaths.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// sync/lefthook-scripts
+// =============================================================================
+
+describe('sync/lefthook-scripts', () => {
+  it('has correct rule metadata', () => {
+    expect(syncLefthookScripts.id).toBe('sync/lefthook-scripts');
+    expect(syncLefthookScripts.scope).toBe('workspace');
+    expect(typeof syncLefthookScripts.check).toBe('function');
+  });
+
+  it('passes when all lefthook pnpm scripts exist in package.json', async () => {
+    const lefthookContent: string = [
+      'commit-msg:',
+      '  commands:',
+      '    validate:',
+      '      run: pnpm run lint:commit --edit {1}',
+    ].join('\n');
+    const files: Map<string, string> = new Map([
+      ['/workspace/lefthook.yml', lefthookContent],
+      ['/workspace/package.json', JSON.stringify({ scripts: { 'lint:commit': 'commitlint' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncLefthookScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when lefthook references a missing pnpm script', async () => {
+    const lefthookContent: string = [
+      'commit-msg:',
+      '  commands:',
+      '    validate:',
+      '      run: pnpm lint:commit --edit {1}',
+    ].join('\n');
+    const files: Map<string, string> = new Map([
+      ['/workspace/lefthook.yml', lefthookContent],
+      ['/workspace/package.json', JSON.stringify({ scripts: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncLefthookScripts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('sync/lefthook-scripts');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('lint:commit');
+  });
+
+  it('returns empty when no lefthook config found', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ scripts: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncLefthookScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('checks alternate lefthook config paths', async () => {
+    const lefthookContent: string = [
+      'pre-push:',
+      '  commands:',
+      '    test:',
+      '      run: pnpm qa:test',
+    ].join('\n');
+    const files: Map<string, string> = new Map([
+      ['/workspace/packages/shared/config/lefthook/base.yml', lefthookContent],
+      ['/workspace/package.json', JSON.stringify({ scripts: { 'qa:test': 'vitest' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncLefthookScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// sync/onboarding-steps
+// =============================================================================
+
+describe('sync/onboarding-steps', () => {
+  it('has correct rule metadata', () => {
+    expect(syncOnboardingSteps.id).toBe('sync/onboarding-steps');
+    expect(syncOnboardingSteps.scope).toBe('workspace');
+    expect(typeof syncOnboardingSteps.check).toBe('function');
+  });
+
+  it('passes when all onboarding steps are valid scripts', async () => {
+    const configContent: string = [
+      'export default {',
+      '  tooling: {',
+      '    onboarding: {',
+      "      steps: ['i', 'setup:vscode'],",
+      '    },',
+      '  },',
+      '};',
+    ].join('\n');
+    const files: Map<string, string> = new Map([
+      ['/workspace/resist.config.ts', configContent],
+      [
+        '/workspace/package.json',
+        JSON.stringify({ scripts: { i: 'pnpm install', 'setup:vscode': 'echo setup' } }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncOnboardingSteps.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when an onboarding step is not a valid script', async () => {
+    const configContent: string = [
+      'export default {',
+      '  tooling: {',
+      '    onboarding: {',
+      "      steps: ['i', 'nonexistent-step'],",
+      '    },',
+      '  },',
+      '};',
+    ].join('\n');
+    const files: Map<string, string> = new Map([
+      ['/workspace/resist.config.ts', configContent],
+      ['/workspace/package.json', JSON.stringify({ scripts: { i: 'pnpm install' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncOnboardingSteps.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('sync/onboarding-steps');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('nonexistent-step');
+  });
+
+  it('returns empty when no resist config found', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ scripts: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncOnboardingSteps.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when package.json is missing', async () => {
+    const configContent: string = "export default { tooling: { onboarding: { steps: ['i'] } } };";
+    const files: Map<string, string> = new Map([['/workspace/resist.config.ts', configContent]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncOnboardingSteps.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// sync/workflow-scripts
+// =============================================================================
+
+describe('sync/workflow-scripts', () => {
+  it('has correct rule metadata', () => {
+    expect(syncWorkflowScripts.id).toBe('sync/workflow-scripts');
+    expect(syncWorkflowScripts.scope).toBe('workspace');
+    expect(typeof syncWorkflowScripts.check).toBe('function');
+  });
+
+  it('passes when all workflow pnpm scripts are valid', async () => {
+    const workflowContent: string = [
+      'name: CI',
+      'on: push',
+      'jobs:',
+      '  test:',
+      '    runs-on: ubuntu-latest',
+      '    steps:',
+      '      - run: pnpm install',
+      '      - run: pnpm qa:test',
+    ].join('\n');
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', workflowContent],
+      ['/workspace/package.json', JSON.stringify({ scripts: { 'qa:test': 'vitest' } })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncWorkflowScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when workflow references missing pnpm script', async () => {
+    const workflowContent: string = [
+      'name: CI',
+      'on: push',
+      'jobs:',
+      '  test:',
+      '    steps:',
+      '      - run: pnpm nonexistent-script',
+    ].join('\n');
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', workflowContent],
+      ['/workspace/package.json', JSON.stringify({ scripts: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncWorkflowScripts.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('sync/workflow-scripts');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('nonexistent-script');
+  });
+
+  it('skips pnpm built-in commands', async () => {
+    const workflowContent: string = [
+      'name: CI',
+      'on: push',
+      'jobs:',
+      '  test:',
+      '    steps:',
+      '      - run: pnpm install',
+      '      - run: pnpm dlx turbo build',
+      '      - run: pnpm exec vitest',
+    ].join('\n');
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', workflowContent],
+      ['/workspace/package.json', JSON.stringify({ scripts: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncWorkflowScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when no workflow files exist', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/package.json', JSON.stringify({ scripts: {} })],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncWorkflowScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when package.json is missing', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/.github/workflows/ci.yml', 'name: CI\non: push'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncWorkflowScripts.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// sync/filter-patterns
+// =============================================================================
+
+describe('sync/filter-patterns', () => {
+  it('has correct rule metadata', () => {
+    expect(syncFilterPatterns.id).toBe('sync/filter-patterns');
+    expect(syncFilterPatterns.scope).toBe('workspace');
+    expect(typeof syncFilterPatterns.check).toBe('function');
+  });
+
+  it('passes when filter paths exist', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({
+          scripts: {
+            'dev:admin': 'turbo dev --filter=packages/tools/admin --',
+          },
+        }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncFilterPatterns.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('errors when filter path does not exist', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({
+          scripts: {
+            'dev:admin': 'turbo dev --filter=packages/tools/nonexistent --',
+          },
+        }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    vi.spyOn(ctx, 'dirExists').mockResolvedValue(false);
+    const results: LintResult[] = await syncFilterPatterns.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('sync/filter-patterns');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('packages/tools/nonexistent');
+  });
+
+  it('skips glob filter patterns', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({
+          scripts: {
+            all: 'turbo build --filter=packages/*',
+          },
+        }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncFilterPatterns.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips package name selectors', async () => {
+    const files: Map<string, string> = new Map([
+      [
+        '/workspace/package.json',
+        JSON.stringify({
+          scripts: {
+            test: 'turbo test --filter=@my/package',
+          },
+        }),
+      ],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncFilterPatterns.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when package.json is missing', async () => {
+    const files: Map<string, string> = new Map();
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncFilterPatterns.check(ctx);
+    expect(results.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// sync/pnpm-workspace
+// =============================================================================
+
+describe('sync/pnpm-workspace', () => {
+  it('has correct rule metadata', () => {
+    expect(syncPnpmWorkspace.id).toBe('sync/pnpm-workspace');
+    expect(syncPnpmWorkspace.scope).toBe('workspace');
+    expect(typeof syncPnpmWorkspace.check).toBe('function');
+  });
+
+  it('passes when all workspace patterns match directories', async () => {
+    const workspaceYaml: string = "packages:\n  - 'packages/**'\n";
+    const files: Map<string, string> = new Map([['/workspace/pnpm-workspace.yaml', workspaceYaml]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncPnpmWorkspace.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('warns when glob base directory does not exist', async () => {
+    const workspaceYaml: string = "packages:\n  - 'nonexistent/**'\n";
+    const files: Map<string, string> = new Map([['/workspace/pnpm-workspace.yaml', workspaceYaml]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    vi.spyOn(ctx, 'dirExists').mockResolvedValue(false);
+    const results: LintResult[] = await syncPnpmWorkspace.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('sync/pnpm-workspace');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('nonexistent');
+  });
+
+  it('warns when non-glob pattern directory does not exist', async () => {
+    const workspaceYaml: string = "packages:\n  - 'tools/missing'\n";
+    const files: Map<string, string> = new Map([['/workspace/pnpm-workspace.yaml', workspaceYaml]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    vi.spyOn(ctx, 'dirExists').mockResolvedValue(false);
+    const results: LintResult[] = await syncPnpmWorkspace.check(ctx);
+    expect(results.length).toBe(1);
+    expect(results[0]!.ruleId).toBe('sync/pnpm-workspace');
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('tools/missing');
+  });
+
+  it('returns empty when pnpm-workspace.yaml is missing', async () => {
+    const files: Map<string, string> = new Map();
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncPnpmWorkspace.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('returns empty when no patterns in workspace file', async () => {
+    const workspaceYaml: string = "catalogs:\n  default:\n    valibot: '^1.0.0'\n";
+    const files: Map<string, string> = new Map([['/workspace/pnpm-workspace.yaml', workspaceYaml]]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await syncPnpmWorkspace.check(ctx);
+    expect(results.length).toBe(0);
   });
 });

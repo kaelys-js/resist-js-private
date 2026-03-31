@@ -654,7 +654,16 @@
 
     // Directives — Suppression Density
     "directives/max-suppressions-per-file": "warn",
-    "directives/no-suppression-in-new-code": "warn"
+    "directives/no-suppression-in-new-code": "warn",
+
+    // Phase 48 — Configuration Sync Validation Rules
+    "sync/turbo-tasks": "error",
+    "sync/tsconfig-paths": "error",
+    "sync/lefthook-scripts": "error",
+    "sync/onboarding-steps": "error",
+    "sync/workflow-scripts": "error",
+    "sync/filter-patterns": "error",
+    "sync/pnpm-workspace": "warn"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
