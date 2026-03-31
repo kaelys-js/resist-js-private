@@ -68,18 +68,20 @@ export function runToolJson<T>(options: RunOptions): Promise<RunResult<T>> {
         try {
           const data = JSON.parse(stdout) as T;
           resolve({ ok: true, data, stderr, elapsed });
-        } catch {
+        } catch (parseErr: unknown) {
+          const parseMsg: string = parseErr instanceof Error ? parseErr.message : String(parseErr);
           resolve({
             ok: false,
-            error: `Failed to parse JSON output: ${stdout.slice(0, 200)}`,
+            error: `Failed to parse JSON output (${parseMsg}): ${stdout.slice(0, 200)}`,
             stderr,
             code,
           });
         }
       } else {
-        // No stdout — could be an error or just no results
+        // No stdout — could be an error or just no results.
+        // When the CLI exits 0 with empty stdout, it means zero diagnostics
+        // were found. We return an empty array as the typed result.
         if (code === 0) {
-          // Success with no output means no diagnostics
           resolve({ ok: true, data: [] as unknown as T, stderr, elapsed });
         } else {
           resolve({

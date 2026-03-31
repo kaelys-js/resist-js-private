@@ -60,11 +60,13 @@ export async function lintDocument(
   // Find resist-lint binary
   const binPath: string | undefined = getBinaryPath('resist-lint', document.uri);
   if (!binPath) {
-    return; // Binary not found — warning shown on activation
+    log(channel, `Skipping lint: resist-lint binary not found for ${filePath}`);
+    return;
   }
 
   const cwd: string | undefined = getWorkspaceRoot(document.uri);
   if (!cwd) {
+    log(channel, `Skipping lint: workspace root not found for ${filePath}`);
     return;
   }
 
@@ -76,6 +78,23 @@ export async function lintDocument(
   if (options.categories && options.categories.length > 0) {
     args.push(`--category=${options.categories.join(',')}`);
   }
+
+  // New settings: cache, quiet, debug, severityOverride
+  const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('resist');
+  if (config.get<boolean>('lint.cache', true) === false) {
+    args.push('--no-cache');
+  }
+  if (config.get<boolean>('lint.quiet', false)) {
+    args.push('--quiet');
+  }
+  if (config.get<boolean>('lint.debug', false)) {
+    args.push('--debug');
+  }
+  const severityOverride: string = config.get<string>('lint.severityOverride', '');
+  if (severityOverride) {
+    args.push(`--severity=${severityOverride}`);
+  }
+
   if (options.extraArgs) {
     args.push(...options.extraArgs);
   }
@@ -103,15 +122,22 @@ export async function lintDocument(
   // Log timing
   logTiming(channel, `Linted ${filePath}`, result.elapsed);
 
-  // Read max problems setting
-  const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('resist');
+  // Read max problems setting (reuse config from above)
   const maxProblems: number = config.get<number>('lint.maxProblems', 100);
 
-  // Map entries to diagnostics
+  // Map entries to diagnostics (skip malformed entries instead of crashing)
   const entries: DiagnosticEntry[] = result.data.slice(0, maxProblems);
-  const diagnostics: vscode.Diagnostic[] = entries.map((entry) =>
-    mapEntryToDiagnostic(entry, document),
-  );
+  const diagnostics: vscode.Diagnostic[] = [];
+  for (const entry of entries) {
+    try {
+      diagnostics.push(mapEntryToDiagnostic(entry, document));
+    } catch (err: unknown) {
+      logError(
+        channel,
+        `Failed to map diagnostic for ${entry.ruleId} at ${entry.file}:${entry.line}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }
 
   // Set diagnostics on the collection
   collection.set(document.uri, diagnostics);
@@ -220,9 +246,14 @@ export async function lintWorkspace(
     const doc: vscode.TextDocument | undefined = vscode.workspace.textDocuments.find(
       (d) => d.uri.fsPath === filePath,
     );
-    const diagnostics: vscode.Diagnostic[] = entries
-      .slice(0, maxProblems)
-      .map((entry) => (doc ? mapEntryToDiagnostic(entry, doc) : mapEntryToDiagnosticBasic(entry)));
+    const diagnostics: vscode.Diagnostic[] = [];
+    for (const entry of entries.slice(0, maxProblems)) {
+      try {
+        diagnostics.push(doc ? mapEntryToDiagnostic(entry, doc) : mapEntryToDiagnosticBasic(entry));
+      } catch {
+        // Skip malformed entries during workspace lint (too noisy to log each one)
+      }
+    }
     collection.set(uri, diagnostics);
     processed++;
     progress.report({
@@ -253,7 +284,7 @@ export async function lintWorkspace(
  * Stores fix data, tip, example, and url on diagnostic.data for the
  * CodeActionProvider to consume.
  */
-function mapEntryToDiagnostic(
+export function mapEntryToDiagnostic(
   entry: DiagnosticEntry,
   document: vscode.TextDocument,
 ): vscode.Diagnostic {
@@ -278,9 +309,22 @@ function mapEntryToDiagnostic(
   }
 
   const severity: vscode.DiagnosticSeverity = mapSeverity(entry.severity);
-  const diagnostic = new vscode.Diagnostic(range, entry.message, severity);
+
+  // Append example to message when present so it's visible in the Problems panel
+  let message: string = entry.message;
+  if (entry.example) {
+    message += `\n\nExample:\n${entry.example}`;
+  }
+
+  const diagnostic = new vscode.Diagnostic(range, message, severity);
   diagnostic.source = 'resist-linter';
-  diagnostic.code = entry.ruleId;
+
+  // When url is present, make rule ID clickable in the Problems panel
+  if (entry.url) {
+    diagnostic.code = { value: entry.ruleId, target: vscode.Uri.parse(entry.url) };
+  } else {
+    diagnostic.code = entry.ruleId;
+  }
 
   // Store fix data and metadata for CodeActionProvider
   (diagnostic as DiagnosticWithData).data = {
@@ -308,9 +352,22 @@ function mapEntryToDiagnosticBasic(entry: DiagnosticEntry): vscode.Diagnostic {
 
   const range = new vscode.Range(line, column, endLine, endColumn);
   const severity: vscode.DiagnosticSeverity = mapSeverity(entry.severity);
-  const diagnostic = new vscode.Diagnostic(range, entry.message, severity);
+
+  // Append example to message when present
+  let message: string = entry.message;
+  if (entry.example) {
+    message += `\n\nExample:\n${entry.example}`;
+  }
+
+  const diagnostic = new vscode.Diagnostic(range, message, severity);
   diagnostic.source = 'resist-linter';
-  diagnostic.code = entry.ruleId;
+
+  // When url is present, make rule ID clickable
+  if (entry.url) {
+    diagnostic.code = { value: entry.ruleId, target: vscode.Uri.parse(entry.url) };
+  } else {
+    diagnostic.code = entry.ruleId;
+  }
 
   (diagnostic as DiagnosticWithData).data = {
     fix: entry.fix,

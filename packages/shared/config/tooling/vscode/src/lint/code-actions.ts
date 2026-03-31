@@ -43,6 +43,17 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
         continue;
       }
 
+      // Validate byte offsets before conversion
+      const docLength: number = document.getText().length;
+      if (
+        data.fix.range.start < 0 ||
+        data.fix.range.end < 0 ||
+        data.fix.range.start > docLength ||
+        data.fix.range.end > docLength
+      ) {
+        continue; // Skip fixes with out-of-bounds offsets
+      }
+
       fixableDiagnostics.push(diagnostic);
 
       // Create individual fix action
@@ -50,53 +61,62 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
         ? `Fix: ${String(diagnostic.code)} \u2014 ${data.tip}`
         : `Fix: ${String(diagnostic.code)}`;
 
-      const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
-      action.diagnostics = [diagnostic];
-      action.isPreferred = true;
+      try {
+        const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
+        action.diagnostics = [diagnostic];
+        action.isPreferred = true;
 
-      // Create workspace edit from byte offsets
-      const edit = new vscode.WorkspaceEdit();
-      const startPos: vscode.Position = document.positionAt(data.fix.range.start);
-      const endPos: vscode.Position = document.positionAt(data.fix.range.end);
-      const fixRange = new vscode.Range(startPos, endPos);
-      edit.replace(document.uri, fixRange, data.fix.text);
-      action.edit = edit;
+        // Create workspace edit from byte offsets
+        const edit = new vscode.WorkspaceEdit();
+        const startPos: vscode.Position = document.positionAt(data.fix.range.start);
+        const endPos: vscode.Position = document.positionAt(data.fix.range.end);
+        const fixRange = new vscode.Range(startPos, endPos);
+        edit.replace(document.uri, fixRange, data.fix.text);
+        action.edit = edit;
 
-      actions.push(action);
+        actions.push(action);
+      } catch {
+        // Skip this fix if position conversion fails
+        continue;
+      }
     }
 
     // "Fix all" action when multiple fixable diagnostics exist
     if (fixableDiagnostics.length > 1) {
-      const fixAllAction = new vscode.CodeAction(
-        `Fix all auto-fixable problems (${fixableDiagnostics.length})`,
-        vscode.CodeActionKind.QuickFix,
-      );
-      fixAllAction.diagnostics = fixableDiagnostics;
+      try {
+        const fixAllAction = new vscode.CodeAction(
+          `Fix all auto-fixable problems (${fixableDiagnostics.length})`,
+          vscode.CodeActionKind.QuickFix,
+        );
+        fixAllAction.diagnostics = fixableDiagnostics;
 
-      const edit = new vscode.WorkspaceEdit();
+        const edit = new vscode.WorkspaceEdit();
 
-      // Sort fixes by byte offset descending to avoid offset shifting
-      const fixes: { start: number; end: number; text: string }[] = [];
-      for (const diag of fixableDiagnostics) {
-        const data = (diag as DiagnosticWithData).data;
-        if (data?.fix) {
-          fixes.push({
-            start: data.fix.range.start,
-            end: data.fix.range.end,
-            text: data.fix.text,
-          });
+        // Sort fixes by byte offset descending to avoid offset shifting
+        const fixes: { start: number; end: number; text: string }[] = [];
+        for (const diag of fixableDiagnostics) {
+          const data = (diag as DiagnosticWithData).data;
+          if (data?.fix) {
+            fixes.push({
+              start: data.fix.range.start,
+              end: data.fix.range.end,
+              text: data.fix.text,
+            });
+          }
         }
-      }
-      fixes.sort((a, b) => b.start - a.start);
+        fixes.sort((a, b) => b.start - a.start);
 
-      for (const fix of fixes) {
-        const startPos: vscode.Position = document.positionAt(fix.start);
-        const endPos: vscode.Position = document.positionAt(fix.end);
-        edit.replace(document.uri, new vscode.Range(startPos, endPos), fix.text);
-      }
+        for (const fix of fixes) {
+          const startPos: vscode.Position = document.positionAt(fix.start);
+          const endPos: vscode.Position = document.positionAt(fix.end);
+          edit.replace(document.uri, new vscode.Range(startPos, endPos), fix.text);
+        }
 
-      fixAllAction.edit = edit;
-      actions.push(fixAllAction);
+        fixAllAction.edit = edit;
+        actions.push(fixAllAction);
+      } catch {
+        // Skip "Fix all" if any position conversion fails
+      }
     }
 
     return actions;

@@ -27,7 +27,12 @@ export class DocumentDebouncer {
     this.cancel(uri);
     const timer: NodeJS.Timeout = setTimeout(() => {
       this.timers.delete(uri);
-      fn();
+      try {
+        fn();
+      } catch {
+        // Swallow errors from scheduled functions to prevent unhandled
+        // exceptions in setTimeout. Callers should handle their own errors.
+      }
     }, ms);
     this.timers.set(uri, timer);
   }

@@ -7,7 +7,7 @@
   "private": true,
   "license": "MIT",
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.100.0"
   },
   "categories": [
     "Linters"
@@ -51,6 +51,16 @@
       {
         "command": "resist.lint.showOutput",
         "title": "Show Output",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.staged",
+        "title": "Lint Staged Changes",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.uncommitted",
+        "title": "Lint Uncommitted Changes",
         "category": "Resist"
       }
     ],
@@ -119,19 +129,48 @@
           },
           "default": [],
           "description": "Extra CLI arguments passed to resist-lint"
+        },
+        "resist.lint.cache": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable file hash caching for incremental lint runs"
+        },
+        "resist.lint.quiet": {
+          "type": "boolean",
+          "default": false,
+          "description": "Suppress warnings, show errors only"
+        },
+        "resist.lint.debug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable verbose debug logging to the output channel"
+        },
+        "resist.lint.severityOverride": {
+          "type": "string",
+          "default": "",
+          "enum": [
+            "",
+            "error",
+            "warn",
+            "off"
+          ],
+          "description": "Global severity override for all rules (empty = use rule defaults)"
         }
       }
     }
   },
   "scripts": {
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "compile": "tsgo -p ./",
+    "watch": "tsgo -w -p ./",
+    "typecheck": "tsgo --noEmit -p ./",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "package": "vsce package --no-dependencies",
     "vscode:prepublish": "pnpm compile"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
-    "@vscode/vsce": "^2.22.0",
-    "typescript": "^5.3.0"
+    "@types/vscode": "^1.100.0",
+    "@vscode/vsce": "^3.7.0",
+    "vitest": "*"
   }
 }
