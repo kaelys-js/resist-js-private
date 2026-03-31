@@ -1,6 +1,6 @@
 - [Lint]
   - Can merge qa:type-check into the linter and remove all qa:type-check everywhere for one unified lint command?
-  - Can fix the resist-lint.schema generator so each rule gets it's own description and they are not all bundled into the top-level rules description, does that make sense?
+  - Fix all "npx tsx" useage, do we need "npx" at all, isn't that slower? Is tsx the best option for speed/full typescript support?
   - Review the README rules. Figure out best practices for README (do research, etc). README rule should be able to handle generating a perfect README.
   - ALL *.test.ts files should use stuff from packages/shared/config/test, if things are shared across test files then move it into that utility package -- then create custom lint rules enforcing useage in test files, review and present all custom rules that don't make sense for test files.
   - Review every directory in: /Users/coleb/Desktop/webforge/packages/shared/ui/src
@@ -10,7 +10,7 @@
     - Duplicates
     - Grouping
     - Accuracy
-  - VSCode Extension (linter-test/extensions)
+  - VSCode Extension (check existing lint/format extensions)
 
   /Users/coleb/Desktop/webforge/packages/shared/schemas/function
   shared/utils/devtools
