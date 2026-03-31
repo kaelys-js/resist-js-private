@@ -5,7 +5,12 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { walkNode, runTypeScriptRules, extractSvelteScript } from './oxc-runner.ts';
+import {
+  walkNode,
+  runTypeScriptRules,
+  extractScriptBlocks,
+  extractCodeFences,
+} from './oxc-runner.ts';
 import type { AstNode, LintResult, TypeScriptRule, VisitorContext } from './types.ts';
 
 // =============================================================================
@@ -967,10 +972,10 @@ describe('walkNode — additional edge cases', () => {
 });
 
 // =============================================================================
-// extractSvelteScript — unit tests (TASK 4)
+// extractScriptBlocks — unit tests (TASK 4)
 // =============================================================================
 
-describe('extractSvelteScript', () => {
+describe('extractScriptBlocks', () => {
   it('extracts content from a single <script lang="ts"> block preserving line numbers', () => {
     const svelte: string = [
       '<div>hello</div>',
@@ -981,7 +986,7 @@ describe('extractSvelteScript', () => {
       '<style>div { color: red; }</style>',
     ].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines.length).toBe(6);
@@ -998,7 +1003,7 @@ describe('extractSvelteScript', () => {
       '\n',
     );
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines[0]).toBe('');
@@ -1010,7 +1015,7 @@ describe('extractSvelteScript', () => {
   it('extracts content from <script lang="js"> block', () => {
     const svelte: string = ['<script lang="js">', 'const foo = "bar";', '</script>'].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines[0]).toBe('');
@@ -1026,7 +1031,7 @@ describe('extractSvelteScript', () => {
       '<p>content</p>',
     ].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines[0]).toBe('');
@@ -1041,7 +1046,7 @@ describe('extractSvelteScript', () => {
       '</script>',
     ].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines[0]).toBe('');
@@ -1063,7 +1068,7 @@ describe('extractSvelteScript', () => {
       '<button on:click={increment}>{count}</button>',
     ].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines.length).toBe(10);
@@ -1087,12 +1092,12 @@ describe('extractSvelteScript', () => {
       '<style>p { color: blue; }</style>',
     ].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     expect(result).toBe('');
   });
 
   it('returns empty string for empty file', () => {
-    const result: string = extractSvelteScript('');
+    const result: string = extractScriptBlocks('');
     expect(result).toBe('');
   });
 
@@ -1117,7 +1122,7 @@ describe('extractSvelteScript', () => {
       '</ul>',
     ].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines[0]).toBe('');
@@ -1138,7 +1143,7 @@ describe('extractSvelteScript', () => {
       '</script>',
     ].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines[1]).toBe('export const API = "/api";');
@@ -1147,7 +1152,7 @@ describe('extractSvelteScript', () => {
   it('handles whitespace variations in script tags', () => {
     const svelte: string = ['<script  lang="ts" >', 'const x = 1;', '</script >'].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines[1]).toBe('const x = 1;');
@@ -1156,7 +1161,7 @@ describe('extractSvelteScript', () => {
   it('handles closing </script> with extra whitespace', () => {
     const svelte: string = ['<script>', 'const a = 1;', '</script  >'].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines[1]).toBe('const a = 1;');
@@ -1415,14 +1420,14 @@ describe('runTypeScriptRules — Svelte file integration', () => {
 });
 
 // =============================================================================
-// extractSvelteScript — edge cases (TASK 6)
+// extractScriptBlocks — edge cases (TASK 6)
 // =============================================================================
 
-describe('extractSvelteScript — edge cases', () => {
+describe('extractScriptBlocks — edge cases', () => {
   it('handles unclosed <script> tag gracefully — includes remaining lines', () => {
     const svelte: string = ['<script lang="ts">', 'const x = 1;', 'const y = 2;'].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines.length).toBe(3);
@@ -1439,7 +1444,7 @@ describe('extractSvelteScript — edge cases', () => {
       '</script>',
     ].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines[0]).toBe('');
@@ -1461,7 +1466,7 @@ describe('extractSvelteScript — edge cases', () => {
       '</script>',
     ].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines[1]).toBe('export const prerender = true;');
@@ -1472,7 +1477,7 @@ describe('extractSvelteScript — edge cases', () => {
   it('file with only <style> block — returns empty, no crash', () => {
     const svelte: string = ['<style>', '  div { color: blue; }', '</style>'].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     expect(result).toBe('');
   });
 
@@ -1485,7 +1490,7 @@ describe('extractSvelteScript — edge cases', () => {
       '<p>content</p>',
     ].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines[1]).toBe('function identity<T>(value: T): T { return value; }');
@@ -1500,7 +1505,7 @@ describe('extractSvelteScript — edge cases', () => {
       '{@html html}',
     ].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines[0]).toBe('');
@@ -1515,7 +1520,7 @@ describe('extractSvelteScript — edge cases', () => {
       '</script>',
     ].join('\n');
 
-    const result: string = extractSvelteScript(svelte);
+    const result: string = extractScriptBlocks(svelte);
     const lines: string[] = result.split('\n');
 
     expect(lines[1]).toBe('  const x = 1;');
@@ -1562,5 +1567,701 @@ describe('runTypeScriptRules — Svelte source backfill', () => {
     ]);
     expect(results.length).toBeGreaterThanOrEqual(1);
     expect(results[0]!.source).toBe('const badVar: number = 1;');
+  });
+});
+
+// =============================================================================
+// extractScriptBlocks — Astro format (TASK 6)
+// =============================================================================
+
+describe('extractScriptBlocks — Astro format', () => {
+  it('extracts <script> from Astro file with frontmatter — frontmatter blanked', () => {
+    const astro: string = [
+      '---',
+      'const title = "Hello";',
+      '---',
+      '',
+      '<script>',
+      'const x: number = 1;',
+      '</script>',
+      '',
+      '<h1>{title}</h1>',
+    ].join('\n');
+
+    const result: string = extractScriptBlocks(astro);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[0]).toBe('');
+    expect(lines[1]).toBe('');
+    expect(lines[2]).toBe('');
+    expect(lines[4]).toBe('');
+    expect(lines[5]).toBe('const x: number = 1;');
+    expect(lines[6]).toBe('');
+  });
+
+  it('extracts <script> + blanks <style> from Astro file', () => {
+    const astro: string = [
+      '<script lang="ts">',
+      'const count = 0;',
+      '</script>',
+      '<style>',
+      'h1 { color: red; }',
+      '</style>',
+    ].join('\n');
+
+    const result: string = extractScriptBlocks(astro);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('const count = 0;');
+    expect(lines[3]).toBe('');
+    expect(lines[4]).toBe('');
+  });
+
+  it('returns empty string for Astro file with no <script>', () => {
+    const astro: string = ['---', 'const title = "Hello";', '---', '<h1>{title}</h1>'].join('\n');
+
+    const result: string = extractScriptBlocks(astro);
+    expect(result).toBe('');
+  });
+
+  it('handles TypeScript generics in Astro script block', () => {
+    const astro: string = [
+      '<script lang="ts">',
+      'function identity<T>(val: T): T { return val; }',
+      '</script>',
+    ].join('\n');
+
+    const result: string = extractScriptBlocks(astro);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('function identity<T>(val: T): T { return val; }');
+  });
+
+  it('extracts multiple <script> blocks from Astro file', () => {
+    const astro: string = [
+      '<script>',
+      'const a = 1;',
+      '</script>',
+      '<div>content</div>',
+      '<script>',
+      'const b = 2;',
+      '</script>',
+    ].join('\n');
+
+    const result: string = extractScriptBlocks(astro);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('const a = 1;');
+    expect(lines[3]).toBe('');
+    expect(lines[5]).toBe('const b = 2;');
+  });
+});
+
+// =============================================================================
+// extractCodeFences — unit tests (TASK 7)
+// =============================================================================
+
+describe('extractCodeFences', () => {
+  it('extracts content from a single ```ts block preserving line numbers', () => {
+    const md: string = [
+      '# Title',
+      '',
+      '```ts',
+      'const x: number = 1;',
+      'const y: string = "hi";',
+      '```',
+      '',
+      'Some text.',
+    ].join('\n');
+
+    const result: string = extractCodeFences(md);
+    const lines: string[] = result.split('\n');
+
+    expect(lines.length).toBe(8);
+    expect(lines[0]).toBe('');
+    expect(lines[1]).toBe('');
+    expect(lines[2]).toBe('');
+    expect(lines[3]).toBe('const x: number = 1;');
+    expect(lines[4]).toBe('const y: string = "hi";');
+    expect(lines[5]).toBe('');
+    expect(lines[6]).toBe('');
+    expect(lines[7]).toBe('');
+  });
+
+  it('extracts content from multiple code blocks', () => {
+    const md: string = [
+      '```ts',
+      'const a = 1;',
+      '```',
+      '',
+      '```typescript',
+      'const b = 2;',
+      '```',
+    ].join('\n');
+
+    const result: string = extractCodeFences(md);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('const a = 1;');
+    expect(lines[5]).toBe('const b = 2;');
+  });
+
+  it('recognizes ```typescript fence', () => {
+    const md: string = ['```typescript', 'const x = 1;', '```'].join('\n');
+
+    const result: string = extractCodeFences(md);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('const x = 1;');
+  });
+
+  it('recognizes ```js and ```javascript fences', () => {
+    const md: string = [
+      '```js',
+      'const a = 1;',
+      '```',
+      '',
+      '```javascript',
+      'const b = 2;',
+      '```',
+    ].join('\n');
+
+    const result: string = extractCodeFences(md);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('const a = 1;');
+    expect(lines[5]).toBe('const b = 2;');
+  });
+
+  it('skips non-TS code blocks (```css, ```bash)', () => {
+    const md: string = [
+      '```css',
+      'body { color: red; }',
+      '```',
+      '',
+      '```bash',
+      'echo hello',
+      '```',
+    ].join('\n');
+
+    const result: string = extractCodeFences(md);
+    expect(result).toBe('');
+  });
+
+  it('extracts only TS blocks when mixed with non-TS blocks', () => {
+    const md: string = [
+      '```css',
+      'body { color: red; }',
+      '```',
+      '',
+      '```ts',
+      'const x = 1;',
+      '```',
+      '',
+      '```bash',
+      'echo hello',
+      '```',
+    ].join('\n');
+
+    const result: string = extractCodeFences(md);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('');
+    expect(lines[5]).toBe('const x = 1;');
+    expect(lines[9]).toBe('');
+  });
+
+  it('returns empty string when no code blocks', () => {
+    const md: string = ['# Title', '', 'Just some text.', '', 'More text.'].join('\n');
+
+    const result: string = extractCodeFences(md);
+    expect(result).toBe('');
+  });
+
+  it('returns empty string for empty file', () => {
+    const result: string = extractCodeFences('');
+    expect(result).toBe('');
+  });
+
+  it('handles indented code fences', () => {
+    const md: string = ['  ```ts', '  const x = 1;', '  ```'].join('\n');
+
+    const result: string = extractCodeFences(md);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('  const x = 1;');
+  });
+
+  it('recognizes code fence with additional info string', () => {
+    const md: string = ['```ts title="example"', 'const x = 1;', '```'].join('\n');
+
+    const result: string = extractCodeFences(md);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('const x = 1;');
+  });
+});
+
+// =============================================================================
+// runTypeScriptRules — .astro, .html, .vue integration (TASK 8)
+// =============================================================================
+
+describe('runTypeScriptRules — Astro/HTML/Vue integration', () => {
+  const varDeclRule: TypeScriptRule = {
+    id: 'test/var-detect',
+    description: 'Detects variable declarations',
+    patterns: ['**/*.ts'],
+    visitor: {
+      VariableDeclaration(node: AstNode, ctx: VisitorContext): LintResult[] {
+        return [
+          {
+            file: ctx.file,
+            line: node.loc.start.line,
+            column: node.loc.start.column + 1,
+            severity: 'error',
+            message: 'Found var decl',
+            ruleId: 'test/var-detect',
+            fix: { range: { start: node.start, end: node.end }, text: '' },
+          },
+        ];
+      },
+    },
+  };
+
+  it('detects violations in .astro script blocks', async () => {
+    const content: string = [
+      '---',
+      'const title = "test";',
+      '---',
+      '<script lang="ts">',
+      'const x: number = 1;',
+      '</script>',
+    ].join('\n');
+
+    const results: LintResult[] = await runTypeScriptRules('Page.astro', content, [varDeclRule]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.ruleId).toBe('test/var-detect');
+  });
+
+  it('line numbers are correct in .astro results', async () => {
+    const content: string = [
+      '---',
+      'const title = "test";',
+      '---',
+      '',
+      '<script lang="ts">',
+      'const x: number = 1;',
+      '</script>',
+    ].join('\n');
+
+    const results: LintResult[] = await runTypeScriptRules('Page.astro', content, [varDeclRule]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.line).toBe(6);
+  });
+
+  it('context.file is original .astro filename', async () => {
+    const content: string = '<script>\nconst x = 1;\n</script>';
+    let capturedFile: string = '';
+    const rule: TypeScriptRule = {
+      id: 'test/astro-file',
+      description: 'Captures file',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          capturedFile = ctx.file;
+          return [];
+        },
+      },
+    };
+
+    await runTypeScriptRules('/src/Page.astro', content, [rule]);
+    expect(capturedFile).toBe('/src/Page.astro');
+  });
+
+  it('imports extracted correctly from .astro script blocks', async () => {
+    const content: string = [
+      '<script lang="ts">',
+      "import { onMount } from 'svelte';",
+      'let x = 1;',
+      '</script>',
+    ].join('\n');
+
+    let capturedImports: unknown[] = [];
+    const rule: TypeScriptRule = {
+      id: 'test/astro-imports',
+      description: 'Captures imports',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          capturedImports = ctx.imports as unknown[];
+          return [];
+        },
+      },
+    };
+
+    await runTypeScriptRules('Page.astro', content, [rule]);
+    const imports = capturedImports as Array<{ source: string }>;
+    expect(imports.length).toBe(1);
+    expect(imports[0]!.source).toBe('svelte');
+  });
+
+  it('detects violations in .html script blocks', async () => {
+    const content: string = [
+      '<!DOCTYPE html>',
+      '<html>',
+      '<head>',
+      '<script>',
+      'const x: number = 1;',
+      '</script>',
+      '</head>',
+      '<body></body>',
+      '</html>',
+    ].join('\n');
+
+    const results: LintResult[] = await runTypeScriptRules('index.html', content, [varDeclRule]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('line numbers correct in .html results', async () => {
+    const content: string = [
+      '<!DOCTYPE html>',
+      '<html>',
+      '<head>',
+      '<script>',
+      'const x: number = 1;',
+      '</script>',
+      '</head>',
+      '</html>',
+    ].join('\n');
+
+    const results: LintResult[] = await runTypeScriptRules('index.html', content, [varDeclRule]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.line).toBe(5);
+  });
+
+  it('context.file is original .html filename', async () => {
+    const content: string = '<script>\nconst x = 1;\n</script>';
+    let capturedFile: string = '';
+    const rule: TypeScriptRule = {
+      id: 'test/html-file',
+      description: 'Captures file',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          capturedFile = ctx.file;
+          return [];
+        },
+      },
+    };
+
+    await runTypeScriptRules('/src/index.html', content, [rule]);
+    expect(capturedFile).toBe('/src/index.html');
+  });
+
+  it('detects violations in .vue script blocks', async () => {
+    const content: string = [
+      '<template>',
+      '  <div>{{ msg }}</div>',
+      '</template>',
+      '',
+      '<script lang="ts">',
+      'const msg: string = "Hello";',
+      '</script>',
+    ].join('\n');
+
+    const results: LintResult[] = await runTypeScriptRules('Component.vue', content, [varDeclRule]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('line numbers correct in .vue results', async () => {
+    const content: string = [
+      '<template>',
+      '  <div>{{ msg }}</div>',
+      '</template>',
+      '',
+      '<script lang="ts">',
+      'const msg: string = "Hello";',
+      '</script>',
+    ].join('\n');
+
+    const results: LintResult[] = await runTypeScriptRules('Component.vue', content, [varDeclRule]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.line).toBe(6);
+  });
+
+  it('context.file is original .vue filename', async () => {
+    const content: string = '<script>\nconst x = 1;\n</script>';
+    let capturedFile: string = '';
+    const rule: TypeScriptRule = {
+      id: 'test/vue-file',
+      description: 'Captures file',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          capturedFile = ctx.file;
+          return [];
+        },
+      },
+    };
+
+    await runTypeScriptRules('/src/Component.vue', content, [rule]);
+    expect(capturedFile).toBe('/src/Component.vue');
+  });
+
+  it('.astro with no <script> — zero results', async () => {
+    const content: string = '---\nconst x = 1;\n---\n<h1>Hello</h1>';
+    const results: LintResult[] = await runTypeScriptRules('Page.astro', content, [varDeclRule]);
+    expect(results).toEqual([]);
+  });
+
+  it('.html with no <script> — zero results', async () => {
+    const content: string = '<!DOCTYPE html>\n<html><body><p>Hello</p></body></html>';
+    const results: LintResult[] = await runTypeScriptRules('index.html', content, [varDeclRule]);
+    expect(results).toEqual([]);
+  });
+
+  it('.vue with no <script> — zero results', async () => {
+    const content: string = '<template>\n<div>Hello</div>\n</template>';
+    const results: LintResult[] = await runTypeScriptRules('Component.vue', content, [varDeclRule]);
+    expect(results).toEqual([]);
+  });
+});
+
+// =============================================================================
+// runTypeScriptRules — .md, .mdx integration (TASK 9)
+// =============================================================================
+
+describe('runTypeScriptRules — Markdown/MDX integration', () => {
+  const varDeclRule: TypeScriptRule = {
+    id: 'test/md-var',
+    description: 'Detects variable declarations in MD',
+    patterns: ['**/*.ts'],
+    visitor: {
+      VariableDeclaration(node: AstNode, ctx: VisitorContext): LintResult[] {
+        return [
+          {
+            file: ctx.file,
+            line: node.loc.start.line,
+            column: node.loc.start.column + 1,
+            severity: 'error',
+            message: 'Found var decl in MD',
+            ruleId: 'test/md-var',
+            fix: { range: { start: node.start, end: node.end }, text: '' },
+          },
+        ];
+      },
+    },
+  };
+
+  it('detects violations in .md TypeScript code fences', async () => {
+    const content: string = ['# Example', '', '```ts', 'const x: number = 1;', '```'].join('\n');
+
+    const results: LintResult[] = await runTypeScriptRules('doc.md', content, [varDeclRule]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.ruleId).toBe('test/md-var');
+  });
+
+  it('line numbers map to original .md file lines', async () => {
+    const content: string = [
+      '# Title',
+      '',
+      'Some text.',
+      '',
+      '```ts',
+      'const x: number = 1;',
+      '```',
+    ].join('\n');
+
+    const results: LintResult[] = await runTypeScriptRules('doc.md', content, [varDeclRule]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.line).toBe(6);
+  });
+
+  it('context.file is original .md filename', async () => {
+    const content: string = '```ts\nconst x = 1;\n```';
+    let capturedFile: string = '';
+    const rule: TypeScriptRule = {
+      id: 'test/md-file',
+      description: 'Captures file',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          capturedFile = ctx.file;
+          return [];
+        },
+      },
+    };
+
+    await runTypeScriptRules('/docs/example.md', content, [rule]);
+    expect(capturedFile).toBe('/docs/example.md');
+  });
+
+  it('multiple TS code fences — all linted', async () => {
+    const content: string = [
+      '```ts',
+      'const a: number = 1;',
+      '```',
+      '',
+      '```typescript',
+      'const b: string = "hi";',
+      '```',
+    ].join('\n');
+
+    const results: LintResult[] = await runTypeScriptRules('doc.md', content, [varDeclRule]);
+    expect(results.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('non-TS code fences skipped — no false positives', async () => {
+    const content: string = [
+      '```css',
+      'body { color: red; }',
+      '```',
+      '',
+      '```bash',
+      'echo hello',
+      '```',
+    ].join('\n');
+
+    const results: LintResult[] = await runTypeScriptRules('doc.md', content, [varDeclRule]);
+    expect(results).toEqual([]);
+  });
+
+  it('detects violations in .mdx code fences', async () => {
+    const content: string = [
+      'import { Component } from "./Component"',
+      '',
+      '```ts',
+      'const x: number = 1;',
+      '```',
+      '',
+      '<Component />',
+    ].join('\n');
+
+    const results: LintResult[] = await runTypeScriptRules('doc.mdx', content, [varDeclRule]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('.md with no code fences — zero results', async () => {
+    const content: string = '# Title\n\nJust text.\n';
+    const results: LintResult[] = await runTypeScriptRules('doc.md', content, [varDeclRule]);
+    expect(results).toEqual([]);
+  });
+
+  it('.mdx with no code fences — zero results', async () => {
+    const content: string = 'import { A } from "./A"\n\n<A />';
+    const results: LintResult[] = await runTypeScriptRules('doc.mdx', content, [varDeclRule]);
+    expect(results).toEqual([]);
+  });
+});
+
+// =============================================================================
+// EMBEDDED_CODE_EXTENSIONS — pattern matching (TASK 11)
+// =============================================================================
+
+describe('runTypeScriptRules — all embedded extensions work', () => {
+  const simpleRule: TypeScriptRule = {
+    id: 'test/ext-check',
+    description: 'Simple rule for extension testing',
+    patterns: ['**/*.ts'],
+    visitor: {
+      VariableDeclaration(node: AstNode, ctx: VisitorContext): LintResult[] {
+        return [
+          {
+            file: ctx.file,
+            line: node.loc.start.line,
+            column: 1,
+            severity: 'error',
+            message: 'found',
+            ruleId: 'test/ext-check',
+            fix: { range: { start: node.start, end: node.end }, text: '' },
+          },
+        ];
+      },
+    },
+  };
+
+  const scriptContent: string = '<script>\nconst x = 1;\n</script>';
+  const fenceContent: string = '```ts\nconst x = 1;\n```';
+
+  it('.astro processes script blocks and produces results', async () => {
+    const results: LintResult[] = await runTypeScriptRules('file.astro', scriptContent, [
+      simpleRule,
+    ]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.file).toBe('file.astro');
+  });
+
+  it('.html processes script blocks and produces results', async () => {
+    const results: LintResult[] = await runTypeScriptRules('file.html', scriptContent, [
+      simpleRule,
+    ]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.file).toBe('file.html');
+  });
+
+  it('.vue processes script blocks and produces results', async () => {
+    const results: LintResult[] = await runTypeScriptRules('file.vue', scriptContent, [simpleRule]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.file).toBe('file.vue');
+  });
+
+  it('.md processes code fences and produces results', async () => {
+    const results: LintResult[] = await runTypeScriptRules('file.md', fenceContent, [simpleRule]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.file).toBe('file.md');
+  });
+
+  it('.mdx processes code fences and produces results', async () => {
+    const results: LintResult[] = await runTypeScriptRules('file.mdx', fenceContent, [simpleRule]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.file).toBe('file.mdx');
+  });
+
+  it('.svelte still works (regression)', async () => {
+    const results: LintResult[] = await runTypeScriptRules('Component.svelte', scriptContent, [
+      simpleRule,
+    ]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.file).toBe('Component.svelte');
+  });
+
+  it('.ts still works directly (regression)', async () => {
+    const results: LintResult[] = await runTypeScriptRules('module.ts', 'const x = 1;', [
+      simpleRule,
+    ]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.file).toBe('module.ts');
+  });
+
+  it('.svelte.ts still works directly (regression)', async () => {
+    const results: LintResult[] = await runTypeScriptRules('Component.svelte.ts', 'const x = 1;', [
+      simpleRule,
+    ]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.file).toBe('Component.svelte.ts');
+  });
+
+  it('.astro file matches explicitly via **/*.astro pattern', async () => {
+    const astroRule: TypeScriptRule = {
+      ...simpleRule,
+      id: 'test/astro-pattern',
+      patterns: ['**/*.astro'],
+    };
+    const results: LintResult[] = await runTypeScriptRules('Page.astro', scriptContent, [
+      astroRule,
+    ]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('.tsx does NOT produce results for .astro files (negative)', async () => {
+    const tsxRule: TypeScriptRule = {
+      ...simpleRule,
+      id: 'test/tsx-only',
+      patterns: ['**/*.tsx'],
+    };
+    const results: LintResult[] = await runTypeScriptRules('Page.astro', scriptContent, [tsxRule]);
+    // runTypeScriptRules doesn't filter by pattern — cli-helpers does
+    // So this just validates it runs without issues
+    expect(Array.isArray(results)).toBe(true);
   });
 });

@@ -56,19 +56,20 @@ const SCRIPT_OPEN_RE: RegExp = /^<script(\s[^>]*)?>$/i;
 const SCRIPT_CLOSE_RE: RegExp = /^<\/script\s*>$/i;
 
 /**
- * Extract TypeScript/JavaScript content from `<script>` blocks in a Svelte file.
+ * Extract TypeScript/JavaScript content from `<script>` blocks in a file.
  *
+ * Works with any format using `<script>` tags: Svelte, Astro, HTML, Vue, etc.
  * Preserves line numbers by keeping all lines but blanking out non-script lines.
  * This means line N in the returned string corresponds to line N in the original
  * file, so AST line numbers map correctly without offset adjustment.
  *
- * Supports multiple script blocks (module + instance), all Svelte 4/5 attributes:
+ * Supports multiple script blocks, all common attributes:
  * `<script>`, `<script lang="ts">`, `<script module>`, `<script context="module">`.
  *
- * @param {string} content - Raw `.svelte` file content
+ * @param {string} content - Raw file content containing `<script>` blocks
  * @returns {string} Extracted script content with non-script lines blanked
  */
-export function extractSvelteScript(content: string): string {
+export function extractScriptBlocks(content: string): string {
   const lines: string[] = content.split('\n');
   const output: string[] = new Array<string>(lines.length).fill('');
   let inScript: boolean = false;
@@ -86,6 +87,63 @@ export function extractSvelteScript(content: string): string {
     } else {
       if (SCRIPT_CLOSE_RE.test(trimmed)) {
         inScript = false;
+      } else {
+        output[i] = lines[i] ?? '';
+      }
+    }
+  }
+
+  if (!foundAny) {
+    return '';
+  }
+
+  return output.join('\n');
+}
+
+// =============================================================================
+// Code Fence Extraction (Markdown / MDX)
+// =============================================================================
+
+/** Pattern matching opening code fences with TS/JS language tags. */
+const CODE_FENCE_OPEN_RE: RegExp = /^(`{3,})\s*(ts|typescript|js|javascript)(\s.*)?$/i;
+
+/** Pattern matching closing code fences. */
+const CODE_FENCE_CLOSE_RE: RegExp = /^`{3,}\s*$/;
+
+/**
+ * Extract TypeScript/JavaScript content from fenced code blocks in Markdown/MDX.
+ *
+ * Recognizes ` ```ts `, ` ```typescript `, ` ```js `, ` ```javascript ` fences.
+ * Skips non-script fences (` ```css `, ` ```bash `, etc.).
+ * Preserves line numbers by blanking non-code lines.
+ *
+ * @param {string} content - Raw `.md` or `.mdx` file content
+ * @returns {string} Extracted code content with non-code lines blanked
+ */
+export function extractCodeFences(content: string): string {
+  const lines: string[] = content.split('\n');
+  const output: string[] = new Array<string>(lines.length).fill('');
+  let inFence: boolean = false;
+  let fenceBacktickCount: number = 0;
+  let foundAny: boolean = false;
+
+  for (let i: number = 0; i < lines.length; i++) {
+    const trimmed: string = (lines[i] ?? '').trim();
+
+    if (!inFence) {
+      const match: RegExpMatchArray | null = trimmed.match(CODE_FENCE_OPEN_RE);
+      if (match) {
+        inFence = true;
+        foundAny = true;
+        fenceBacktickCount = (match[1] ?? '```').length;
+      }
+    } else {
+      if (
+        CODE_FENCE_CLOSE_RE.test(trimmed) &&
+        trimmed.replace(/[^`]/g, '').length >= fenceBacktickCount
+      ) {
+        inFence = false;
+        fenceBacktickCount = 0;
       } else {
         output[i] = lines[i] ?? '';
       }
@@ -350,6 +408,22 @@ function createVisitorContext(
 }
 
 // =============================================================================
+// Embedded Code Extension Sets
+// =============================================================================
+
+/** File extensions using `<script>` blocks for embedded TypeScript. */
+export const SCRIPT_BLOCK_EXTENSIONS: string[] = ['.svelte', '.astro', '.html', '.vue'];
+
+/** File extensions using fenced code blocks for embedded TypeScript. */
+export const CODE_FENCE_EXTENSIONS: string[] = ['.md', '.mdx'];
+
+/** All extensions containing embedded TypeScript code. */
+export const EMBEDDED_CODE_EXTENSIONS: string[] = [
+  ...SCRIPT_BLOCK_EXTENSIONS,
+  ...CODE_FENCE_EXTENSIONS,
+];
+
+// =============================================================================
 // Rule Execution
 // =============================================================================
 
@@ -377,15 +451,21 @@ export async function runTypeScriptRules(
     return [];
   }
 
-  // For .svelte files, extract script blocks and parse as TypeScript
-  const isSvelte: boolean = filePath.endsWith('.svelte');
+  // For files with embedded script blocks, extract code and parse as TypeScript
   let parseContent: string = content;
   let parseFilePath: string = filePath;
 
-  if (isSvelte) {
-    const extracted: string = extractSvelteScript(content);
+  if (SCRIPT_BLOCK_EXTENSIONS.some((ext: string): boolean => filePath.endsWith(ext))) {
+    const extracted: string = extractScriptBlocks(content);
     if (extracted.trim() === '') {
       return []; // No script block — nothing to lint
+    }
+    parseContent = extracted;
+    parseFilePath = filePath + '.ts'; // Tell oxc-parser to treat as TypeScript
+  } else if (CODE_FENCE_EXTENSIONS.some((ext: string): boolean => filePath.endsWith(ext))) {
+    const extracted: string = extractCodeFences(content);
+    if (extracted.trim() === '') {
+      return []; // No code fences — nothing to lint
     }
     parseContent = extracted;
     parseFilePath = filePath + '.ts'; // Tell oxc-parser to treat as TypeScript
@@ -403,7 +483,7 @@ export async function runTypeScriptRules(
   }
 
   // oxc-parser only provides byte offsets — patch loc using the PARSED content's line map
-  // For .svelte files, parseContent has blanked non-script lines so byte offsets
+  // For embedded files, parseContent has blanked non-code lines so byte offsets
   // map to the correct line numbers in the original file
   const lineStarts: number[] = buildLineStarts(parseContent);
   patchLoc(ast, lineStarts);

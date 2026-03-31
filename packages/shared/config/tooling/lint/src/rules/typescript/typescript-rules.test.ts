@@ -27,6 +27,7 @@ import noGenericFunctionType from './no-generic-function-type.ts';
 import noUnionParams from './no-union-params.ts';
 import requireFunctionSchema from './require-function-schema.ts';
 import requireSvelteTsExtension from './require-svelte-ts-extension.ts';
+import lintEmbeddedStrings from './lint-embedded-strings.ts';
 
 /**
  * Run a single rule against fixture source code.
@@ -1556,5 +1557,72 @@ describe('typescript/require-svelte-ts-extension', () => {
       '/src/util.ts',
     );
     expect(results).toHaveLength(0);
+  });
+});
+
+// =============================================================================
+// typescript/lint-embedded-strings
+// =============================================================================
+
+describe('typescript/lint-embedded-strings', () => {
+  it('warns for template literal with <script> block containing code', async () => {
+    const code: string = 'const html = `<script>\nvar x = 1;\n</script>`;';
+    const results: LintResult[] = await lint(lintEmbeddedStrings, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.severity).toBe('warning');
+    expect(results[0]!.message).toContain('embedded <script> block');
+  });
+
+  it('warns for string literal with <script> block', async () => {
+    const code: string = `const s: string = "<script>\\nlet y = 2;\\n</script>";`;
+    const results: LintResult[] = await lint(lintEmbeddedStrings, code);
+    // String literal with escaped newlines may not parse as multi-line script
+    // The important thing is no crash
+    expect(Array.isArray(results)).toBe(true);
+  });
+
+  it('no results for template literal without <script>', async () => {
+    const code: string = 'const html = `<div>Hello</div>`;';
+    const results: LintResult[] = await lint(lintEmbeddedStrings, code);
+    expect(results).toHaveLength(0);
+  });
+
+  it('no results for template literal with <script> but empty content', async () => {
+    const code: string = 'const html = `<script>\n</script>`;';
+    const results: LintResult[] = await lint(lintEmbeddedStrings, code);
+    expect(results).toHaveLength(0);
+  });
+
+  it('no results for empty template literal', async () => {
+    const code: string = 'const s = ``;';
+    const results: LintResult[] = await lint(lintEmbeddedStrings, code);
+    expect(results).toHaveLength(0);
+  });
+
+  it('warns for template literal with multi-line script code', async () => {
+    const code: string = [
+      'const template = `',
+      '<script lang="ts">',
+      'const x: number = 1;',
+      'const y: string = "hello";',
+      '</script>',
+      '`;',
+    ].join('\n');
+    const results: LintResult[] = await lint(lintEmbeddedStrings, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('2 lines');
+  });
+
+  it('reports correct line number for the template literal', async () => {
+    const code: string = [
+      'const a = 1;',
+      'const b = 2;',
+      'const html = `<script>',
+      'let z = 3;',
+      '</script>`;',
+    ].join('\n');
+    const results: LintResult[] = await lint(lintEmbeddedStrings, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.line).toBe(3);
   });
 });

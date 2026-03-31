@@ -123,7 +123,17 @@ describe('LintConfigSchema', () => {
     }
     expect(result.output.include).toEqual([]);
     expect(result.output.exclude).toEqual(['*.test.ts', '*.d.ts']);
-    expect(result.output.extensions).toEqual(['.ts', '.svelte.ts', '.svelte', '.mjs']);
+    expect(result.output.extensions).toEqual([
+      '.ts',
+      '.svelte.ts',
+      '.svelte',
+      '.astro',
+      '.html',
+      '.vue',
+      '.md',
+      '.mdx',
+      '.mjs',
+    ]);
     expect(result.output.rules).toEqual({});
     expect(result.output.overrides).toEqual([]);
     expect(result.output.$schema).toBeUndefined();
@@ -180,7 +190,17 @@ describe('loadConfig', () => {
     const config: LintConfig = loadConfig('/some/nonexistent/dir', undefined, en);
     expect(config.include).toEqual([]);
     expect(config.exclude).toEqual(['*.test.ts', '*.d.ts']);
-    expect(config.extensions).toEqual(['.ts', '.svelte.ts', '.svelte', '.mjs']);
+    expect(config.extensions).toEqual([
+      '.ts',
+      '.svelte.ts',
+      '.svelte',
+      '.astro',
+      '.html',
+      '.vue',
+      '.md',
+      '.mdx',
+      '.mjs',
+    ]);
     expect(config.rules).toEqual({});
     expect(config.overrides).toEqual([]);
   });
@@ -527,6 +547,11 @@ describe('generateJsonSchema', () => {
       '.ts',
       '.svelte.ts',
       '.svelte',
+      '.astro',
+      '.html',
+      '.vue',
+      '.md',
+      '.mdx',
       '.mjs',
     ]);
   });
