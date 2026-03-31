@@ -6,6 +6,27 @@
   "publisher": "resist",
   "private": true,
   "license": "MIT",
+  "preview": true,
+  "keywords": [
+    "resist",
+    "linter",
+    "formatter",
+    "monorepo",
+    "tooling",
+    "diagnostics",
+    "code-actions"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kaelys-js/resist-js-private",
+    "directory": "packages/shared/config/tooling/vscode"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "This extension executes CLI tools from the workspace and requires a trusted environment."
+    }
+  },
   "engines": {
     "vscode": "^1.100.0"
   },
@@ -200,10 +221,11 @@
     "watch": "tsgo -w -p ./",
     "qa:lint": "tsgo --noEmit -p ./",
     "qa:test": "pnpm -w exec vitest run --project config-tooling-vscode",
-    "qa:test:coverage": "pnpm -w exec vitest run --project config-tooling-vscode --coverage",
+    "qa:test:coverage": "pnpm -w exec vitest run --project config-tooling-vscode --coverage --coverage.thresholds.statements=45 --coverage.thresholds.branches=30 --coverage.thresholds.functions=50 --coverage.thresholds.lines=45",
     "clean": "rm -rf out",
-    "package": "vsce package --no-dependencies",
-    "install-local": "pnpm build && pnpm package && code --install-extension $(ls -t *.vsix | head -1)",
+    "build:package": "vsce package --no-dependencies",
+    "dev:local": "pnpm build && pnpm build:package && code --install-extension $(ls -t *.vsix | head -1)",
+    "qa:benchmark": "pnpm -w exec vitest bench --project config-tooling-vscode",
     "vscode:prepublish": "pnpm build"
   },
   "devDependencies": {
