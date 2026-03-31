@@ -43,6 +43,7 @@ MR/PR Blocking Comment When:
 Certain Files/Folders Modified/Deleted
 When Certain Dependency Versions Change
 New Dependencies
+Error Swallowing
 
 * Commenter (checks)
 - When important files or paths are changed
