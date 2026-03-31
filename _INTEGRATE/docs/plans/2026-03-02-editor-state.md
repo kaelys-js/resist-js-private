@@ -36,7 +36,7 @@ Tests:
 ### QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test
 ```
 
 ---
@@ -96,7 +96,7 @@ Tests:
 ### QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test
 ```
 
 ---
@@ -120,7 +120,7 @@ pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm
 ### QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---
@@ -178,7 +178,7 @@ pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ### QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test
 ```
 
 ---
@@ -186,7 +186,7 @@ pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm
 ## Task 5: Final QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test
 ```
 
 All tests pass, no type errors, no lint errors in editor files, format clean.

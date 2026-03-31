@@ -176,8 +176,10 @@ fi
 if [ -n "$REASON" ]; then
   # Escape quotes in reason for JSON
   ESCAPED_REASON=$(echo "$REASON" | sed 's/"/\\"/g')
-  echo "{\"decision\": \"ask\", \"message\": \"⚠️ Destructive command detected: ${ESCAPED_REASON}. Approve?\"}"
-  exit 0
+  cat << EOF >&2
+{"hookSpecificOutput": {"permissionDecision": "deny"}, "systemMessage": "⛔ BLOCKED: Destructive command detected. Reason: ${ESCAPED_REASON}. You MUST ask the user for explicit permission before running this command. NEVER run destructive commands without permission."}
+EOF
+  exit 2
 fi
 
 # No destructive command detected — allow silently

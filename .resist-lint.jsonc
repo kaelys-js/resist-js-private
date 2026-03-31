@@ -166,7 +166,6 @@
     "package/require-scope": "error",
     "package/require-shared-config": "error",
     "package/require-standard-scripts": "error",
-    "package/require-tsgo": "error",
     "package/names-valid": "error",
     "package/valid-project-ref": "error",
     "package/valid-tsconfig": "error",

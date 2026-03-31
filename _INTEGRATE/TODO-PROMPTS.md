@@ -8,7 +8,7 @@
   1. Run ALL SIX checks and collect ALL errors:
     - `pnpm -w run qa:lint 2>&1 | grep "[TARGET_PATH]"` (oxlint)
     - `pnpm -w run qa:lint:custom -- [TARGET_PATH]` (custom lint — WITHOUT --warn-only)
-    - `pnpm -r --filter [PACKAGE_NAME] run qa:type-check 2>&1` (type-check)
+    - `pnpm -w run qa:lint --tools 2>&1` (type-check)
     - `pnpm -r --filter [PACKAGE_NAME] run qa:test 2>&1` (tests)
     - `pnpm -w run qa:format:check 2>&1 | grep "[TARGET_PATH]"` (formatting)
     - `pnpm -r --filter @/lint run qa:test 2>&1` (lint rule tests — all must pass)
@@ -31,7 +31,7 @@
   6. After implementation, re-run ALL SIX checks and confirm ZERO errors in EACH:
     - `pnpm -w run qa:lint 2>&1 | grep "[TARGET_PATH]"` → 0 errors
     - `pnpm -w run qa:lint:custom -- [TARGET_PATH]` → 0 errors
-    - `pnpm -r --filter [PACKAGE_NAME] run qa:type-check` → 0 errors
+    - `pnpm -w run qa:lint --tools` → 0 errors
     - `pnpm -r --filter [PACKAGE_NAME] run qa:test` → all pass
     - `pnpm -w run qa:format:check 2>&1 | grep "[TARGET_PATH]"` → 0 errors
     - `pnpm -r --filter @/lint run qa:test` → all pass

@@ -104,7 +104,7 @@ else:
     print('missing_section')
 " 2>/dev/null)
     if [[ "$QA_SECTION" == "missing_pnpm" ]]; then
-        ERRORS="${ERRORS}\n- QA task must list specific pnpm commands (qa:type-check, qa:test, qa:format:check, qa:test:coverage)"
+        ERRORS="${ERRORS}\n- QA task must list specific pnpm commands (qa:lint, qa:test, qa:format:check, qa:test:coverage)"
     fi
 fi
 

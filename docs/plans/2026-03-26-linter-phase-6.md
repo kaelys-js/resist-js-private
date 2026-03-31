@@ -51,7 +51,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Modify: `src/cli-helpers.ts` (collectFiles, shouldExcludeDir)
 - Modify: `src/cli-helpers.test.ts` (new tests)
 
-**Verification**: `pnpm -r --filter @/lint run qa:type-check && pnpm -w exec vitest run --project lint -- src/cli-helpers.test.ts`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm -w exec vitest run --project lint -- src/cli-helpers.test.ts`
 
 ---
 
@@ -135,7 +135,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `src/locale/registry.ts`
 - Modify: `src/locale/schema.test.ts` (add registry tests, or create `src/locale/registry.test.ts`)
 
-**Verification**: `pnpm -r --filter @/lint run qa:type-check && pnpm -w exec vitest run --project lint`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm -w exec vitest run --project lint`
 
 ---
 
@@ -164,7 +164,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Verification**:
 - `grep -rn "from '@/lint/locale/locales/en.ts'" packages/shared/config/tooling/lint/src/ | grep -v locale/registry | grep -v locale/locales | grep -v test` — must return 0 results
-- `pnpm -r --filter @/lint run qa:type-check && pnpm -w exec vitest run --project lint && pnpm -w run qa:format:check`
+- `pnpm -w run qa:lint --tools && pnpm -w exec vitest run --project lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -228,7 +228,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `src/api.ts`
 - Create: `src/api.test.ts`
 
-**Verification**: `pnpm -r --filter @/lint run qa:type-check && pnpm -w exec vitest run --project lint -- src/api.test.ts`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm -w exec vitest run --project lint -- src/api.test.ts`
 
 ---
 
@@ -285,7 +285,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Modify: `package.json`
 - Modify: `src/api.test.ts` (add import tests)
 
-**Verification**: `pnpm -r --filter @/lint run qa:type-check && pnpm -w exec vitest run --project lint`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm -w exec vitest run --project lint`
 
 ---
 
@@ -326,7 +326,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Verify API: `import { lint } from '@/lint'` works, returns `Result<LintResultSummary>`
 - Verify tests: `pnpm -w exec vitest run --project lint` — 0 failures
 - Verify coverage: `pnpm -w exec vitest run --project lint --coverage` — all thresholds met
-- Verify type-check: `pnpm -r --filter @/lint run qa:type-check`
+- Verify type-check: `pnpm -w run qa:lint --tools`
 - Verify format: `pnpm -w run qa:format:check`
 - Final commit
 

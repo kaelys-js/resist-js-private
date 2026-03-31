@@ -10,7 +10,6 @@
     "qa:test:unit": "vitest run",
     "qa:test:coverage": "vitest run --coverage",
     "qa:benchmark": "vitest bench",
-    "qa:type-check": "tsgo --noEmit",
     "dev": "vite --config dev/vite.config.ts"
   },
   "dependencies": {

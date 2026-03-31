@@ -31,7 +31,7 @@
 - `toVitalsPayload(metrics, device)` — converts internal state to validated beacon payload
 - Same pattern as `beacon-payload.ts` — strict schemas, PII stripping, Result<T> returns
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -75,7 +75,7 @@ export function getBeaconStatus(): { queued: Num; lastFlushAt: Str | null; sessi
 - Serialize as JSON → `Blob` with `text/plain` type (avoid CORS preflight)
 - `navigator.sendBeacon(BEACON_URL, blob)` or `fetch()` fallback
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -100,7 +100,7 @@ export function getBeaconStatus(): { queued: Num; lastFlushAt: Str | null; sessi
 - Log format: `[vitals] <metric>=<value><unit> rating=<rating> url=<url> device=<lowEnd|normal>`
 - Workers Logs captures `log.info()` output automatically
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -130,7 +130,7 @@ export function getBeaconStatus(): { queued: Num; lastFlushAt: Str | null; sessi
   }
   ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -164,7 +164,7 @@ export function getBeaconStatus(): { queued: Num; lastFlushAt: Str | null; sessi
 - Render `DevToolbarPerf` when `activePanel === 'perf'`
 - Add keyboard shortcut hint
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -188,7 +188,7 @@ export function getBeaconStatus(): { queued: Num; lastFlushAt: Str | null; sessi
 - POST invalid payload → verify 400 response
 - POST oversized body → verify 400 response
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test:e2e`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test:e2e`
 
 ---
 
@@ -209,7 +209,7 @@ export function getBeaconStatus(): { queued: Num; lastFlushAt: Str | null; sessi
   - Inline script behavior
 - Update existing "Error Reporting" section to reference the parallel vitals beacon
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -225,7 +225,7 @@ export function getBeaconStatus(): { queued: Num; lastFlushAt: Str | null; sessi
 
 **Final QA:**
 ```bash
-pnpm qa:type-check && pnpm qa:lint && pnpm qa:format
+pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format
 pnpm qa:test
 pnpm qa:test:e2e
 ```

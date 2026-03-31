@@ -16,7 +16,7 @@ Make autotiles work end-to-end so ANY RPG Maker tileset renders correctly. Then 
 ## QA Commands (run after EVERY file edit)
 
 ```bash
-pnpm qa:type-check
+pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -76,7 +76,7 @@ The existing `autotile-resolver.test.ts` tests will need their expected frame in
 - Bitmask 255 (all neighbors) → frame 0 (fully surrounded)
 - Bitmask with just N+E+S+W (0b01010101 = 0x55) → frame 15 (all cardinals, no diagonals)
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
 
 ---
 
@@ -244,7 +244,7 @@ function copySubTile(
 }
 ```
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
 
 ---
 
@@ -380,7 +380,7 @@ if (config.autotileType === 'terrain_48' && config.columns === 2 && config.rows 
 
 These require browser canvas APIs. For the tileset loader (which runs in browser), this is available. For tests with NullEngine, we'll need to use `createCanvas` from a polyfill or skip the expansion path.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
 
 ---
 
@@ -473,7 +473,7 @@ Same 4-level height map as v1 design. No changes needed.
 
 Same as v1, with updated tileset configs and layer generators.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -505,7 +505,7 @@ All controls from v1 design should work:
 - Atmosphere dropdown (already implemented)
 - Randomize Deco button
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -527,7 +527,7 @@ pnpm qa:test
 
 All 1741+ tests must pass.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
 
 ---
 
@@ -544,7 +544,7 @@ Add section on autotile expansion pipeline:
 
 Document the autotile system: supported formats, how to add new terrain types, FLOOR_AUTOTILE_TABLE reference.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 

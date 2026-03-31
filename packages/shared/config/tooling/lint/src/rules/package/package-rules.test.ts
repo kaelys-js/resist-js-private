@@ -5,7 +5,6 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { LintResult, PackageJsonContext } from '../../framework/types.ts';
-import requireTsgo from './require-tsgo.ts';
 import validTsconfig from './valid-tsconfig.ts';
 import requireProjectTest from './require-project-test.ts';
 import requireStandardScripts from './require-standard-scripts.ts';
@@ -32,33 +31,6 @@ function ctx(
     isRoot: overrides.isRoot ?? false,
   };
 }
-
-// require-tsgo
-describe('package/require-tsgo', () => {
-  it('flags tsc in qa:type-check', () => {
-    const results: LintResult[] = requireTsgo.check(
-      ctx({ pkg: { scripts: { 'qa:type-check': 'tsc --noEmit' } } }),
-    );
-    expect(results.length).toBe(1);
-    expect(results[0]!.ruleId).toBe('package/require-tsgo');
-  });
-  it('passes tsgo', () => {
-    const results: LintResult[] = requireTsgo.check(
-      ctx({ pkg: { scripts: { 'qa:type-check': 'tsgo --noEmit' } } }),
-    );
-    expect(results.length).toBe(0);
-  });
-  it('passes svelte-check', () => {
-    const results: LintResult[] = requireTsgo.check(
-      ctx({ pkg: { scripts: { 'qa:type-check': 'svelte-check --tsconfig ./tsconfig.json' } } }),
-    );
-    expect(results.length).toBe(0);
-  });
-  it('passes when no qa:type-check script', () => {
-    const results: LintResult[] = requireTsgo.check(ctx({ pkg: { scripts: {} } }));
-    expect(results.length).toBe(0);
-  });
-});
 
 // require-project-test
 describe('package/require-project-test', () => {
@@ -101,11 +73,10 @@ describe('package/require-standard-scripts', () => {
     const results: LintResult[] = requireStandardScripts.check(
       ctx({ pkg: { name: '@/test', scripts: {} } }),
     );
-    expect(results.length).toBe(5);
+    expect(results.length).toBe(4);
     const messages: string[] = results.map((r: LintResult) => r.message);
     expect(messages.some((m: string) => m.includes('clean'))).toBe(true);
     expect(messages.some((m: string) => m.includes('qa:test'))).toBe(true);
-    expect(messages.some((m: string) => m.includes('qa:type-check'))).toBe(true);
   });
   it('passes when all scripts present', () => {
     const results: LintResult[] = requireStandardScripts.check(
@@ -116,7 +87,6 @@ describe('package/require-standard-scripts', () => {
             'qa:test': 'pnpm -w exec vitest run --project x',
             'qa:test:coverage': 'pnpm -w exec vitest run --project x --coverage',
             'qa:benchmark': 'pnpm -w exec vitest bench --project x',
-            'qa:type-check': 'tsgo --noEmit',
           },
         },
       }),
@@ -162,11 +132,10 @@ describe('package/no-root-only-scripts', () => {
 
 // no-tsc-dependency
 describe('package/no-tsc-dependency', () => {
-  it('flags typescript dep when using tsgo', () => {
+  it('flags typescript dep in sub-package', () => {
     const results: LintResult[] = noTscDependency.check(
       ctx({
         pkg: {
-          scripts: { 'qa:type-check': 'tsgo --noEmit' },
           devDependencies: { typescript: '^5.9.3' },
         },
       }),
@@ -177,17 +146,16 @@ describe('package/no-tsc-dependency', () => {
   it('passes when no typescript dep', () => {
     const results: LintResult[] = noTscDependency.check(
       ctx({
-        pkg: { scripts: { 'qa:type-check': 'tsgo --noEmit' }, devDependencies: {} },
+        pkg: { devDependencies: {} },
       }),
     );
     expect(results.length).toBe(0);
   });
-  it('exempts svelte-check packages', () => {
+  it('exempts packages with svelte-check devDependency', () => {
     const results: LintResult[] = noTscDependency.check(
       ctx({
         pkg: {
-          scripts: { 'qa:type-check': 'svelte-check --tsconfig ./tsconfig.json' },
-          devDependencies: { typescript: '^5.9.3' },
+          devDependencies: { typescript: '^5.9.3', 'svelte-check': '^4.4.3' },
         },
       }),
     );

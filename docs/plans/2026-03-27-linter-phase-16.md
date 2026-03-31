@@ -46,7 +46,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-sensitive-cert-files.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -67,7 +67,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-env-file-clones.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -87,7 +87,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-git-submodules.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -108,7 +108,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-nested-git-folders.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -129,7 +129,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-nonroot-ignore-files.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -149,7 +149,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-sudo-in-scripts.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -169,7 +169,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-scss-sass.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -188,7 +188,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-cypress-config.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -207,7 +207,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-puppeteer-config.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -226,7 +226,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-pnpmfile.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -245,7 +245,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-browserslist.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -264,7 +264,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-swcrc.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -284,7 +284,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-parcel-config.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -305,7 +305,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-postinstall-scripts.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -326,7 +326,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Create: `rules/workspace/no-tool-overrides-in-package-json.ts`
 - Edit: `rules/workspace/workspace-rules.test.ts`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -363,7 +363,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Status**: [x]
 
 **Plan**:
-- Run `pnpm --filter @/lint qa:type-check`
+- Run `pnpm -w run qa:lint --tools`
 - Run `pnpm -w run qa:test`
 - Run `pnpm -w run qa:format:check`
 - Run `pnpm --filter @/lint qa:test:coverage`

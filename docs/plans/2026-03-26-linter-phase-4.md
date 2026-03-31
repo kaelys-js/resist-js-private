@@ -87,7 +87,7 @@ Two are missing:
 
 **Files**: `rules/package/names-valid.ts` (new), `rules/workspace/workspace-valid.ts` (new), `rules/package/package-rules.test.ts` (modify), `rules/workspace/workspace-rules.test.ts` (new), `.resist-lint.jsonc` (modify)
 
-**Verification**: `pnpm -r --filter @/lint run qa:type-check && pnpm -w exec vitest run --project lint && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm -w exec vitest run --project lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -291,7 +291,7 @@ All new rules are TypeScriptRules with AST visitors. They go in `rules/valibot/`
 
 **Files**: `.resist-lint.jsonc` (modify), `locale/locales/en.ts` (modify), `locale/schema.ts` (modify)
 
-**Verification**: Full QA pass — `pnpm -r --filter @/lint run qa:type-check && pnpm -w exec vitest run --project lint && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**Verification**: Full QA pass — `pnpm -w run qa:lint --tools && pnpm -w exec vitest run --project lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -379,7 +379,7 @@ This means two tools, two configs, two outputs. Goal: bring oxlint into resist-l
 - Format: clean
 - Oxlint (on lint source): 0 errors
 
-**Verification**: `pnpm -r --filter @/lint run qa:type-check && pnpm -w exec vitest run --project lint && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm -w exec vitest run --project lint && pnpm -w run qa:format:check`
 
 ---
 

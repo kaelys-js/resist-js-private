@@ -159,7 +159,7 @@ Expected: PASS
 
 **Step 5: Run QA**
 
-Run: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+Run: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 Expected: PASS
 
 **Step 6: Commit**
@@ -364,7 +364,7 @@ Expected: PASS
 **Step 4: Run QA + Commit**
 
 ```bash
-pnpm qa:type-check && pnpm qa:lint && pnpm qa:format
+pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format
 git add packages/shared/ui/src/lens/recipes/
 git commit -m "feat(lens): add layout container recipe templates"
 ```
@@ -431,7 +431,7 @@ Each recipe generates a complete Svelte snippet with `<script>` imports and real
 
 ```bash
 pnpm qa:test --filter @/ui -- --run src/lens/recipes/overlay-recipes.test.ts
-pnpm qa:type-check && pnpm qa:lint && pnpm qa:format
+pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format
 git add packages/shared/ui/src/lens/recipes/overlay-recipes.ts packages/shared/ui/src/lens/recipes/overlay-recipes.test.ts
 git commit -m "feat(lens): add overlay recipe templates (dialog, alert-dialog, sheet, drawer)"
 ```
@@ -459,7 +459,7 @@ Each generates a complete snippet with `<script>` imports.
 
 ```bash
 pnpm qa:test --filter @/ui -- --run src/lens/recipes/form-recipes.test.ts
-pnpm qa:type-check && pnpm qa:lint && pnpm qa:format
+pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format
 git add packages/shared/ui/src/lens/recipes/form-recipes.ts packages/shared/ui/src/lens/recipes/form-recipes.test.ts
 git commit -m "feat(lens): add form input recipe templates"
 ```
@@ -483,7 +483,7 @@ Covers remaining categories:
 
 ```bash
 pnpm qa:test --filter @/ui -- --run src/lens/recipes/misc-recipes.test.ts
-pnpm qa:type-check && pnpm qa:lint && pnpm qa:format
+pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format
 git add packages/shared/ui/src/lens/recipes/misc-recipes.ts packages/shared/ui/src/lens/recipes/misc-recipes.test.ts
 git commit -m "feat(lens): add navigation, display, and feedback recipe templates"
 ```
@@ -586,7 +586,7 @@ export function generateRecipeExamples(
 
 ```bash
 pnpm qa:test --filter @/ui -- --run src/lens/generate-recipes.test.ts
-pnpm qa:type-check && pnpm qa:lint && pnpm qa:format
+pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format
 git add packages/shared/ui/src/lens/generate-recipes.ts packages/shared/ui/src/lens/generate-recipes.test.ts
 git commit -m "feat(lens): add recipe router dispatching by component category"
 ```
@@ -651,7 +651,7 @@ Update badge count and `hasAnyExamples` to include recipe examples.
 
 **Step 5: Run QA**
 
-Run: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+Run: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 Expected: PASS
 
 **Step 6: Commit**
@@ -699,7 +699,7 @@ For code-only examples, render a `CodeBlock` with the snippet instead of `LensCo
 **Step 3: Run QA + Commit**
 
 ```bash
-pnpm qa:type-check && pnpm qa:lint && pnpm qa:format
+pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format
 git add packages/products/storylyne/editor/src/routes/(testing)/components/[name]/+page.svelte
 git commit -m "feat(lens): add code-only rendering mode for compositional recipe examples"
 ```
@@ -715,7 +715,7 @@ Expected: All tests pass
 
 **Step 2: Run full QA**
 
-Run: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+Run: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 Expected: PASS
 
 **Step 3: Visual verification via Playwright MCP**

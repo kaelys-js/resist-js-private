@@ -37,7 +37,7 @@ Large features MUST be split into multiple implementation plans. A single plan s
 Each plan file contains: bite-sized TDD tasks with exact file paths, test code, implementation code, QA commands. Header must include `> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.`
 
 ### 5. Implement Following the Plan
-TDD: write tests first, watch them fail, implement, watch them pass. Run QA after EVERY file edit (`pnpm qa:type-check`, `pnpm -w run qa:lint`, `pnpm -w run qa:format:check`).
+TDD: write tests first, watch them fail, implement, watch them pass. Run QA after EVERY file edit (`pnpm -w run qa:lint --tools`, `pnpm -w run qa:format:check`).
 
 ### 5b. Verify Implementation Against Design Doc & Plan (MANDATORY)
 
@@ -68,7 +68,7 @@ You MUST use the `Task` tool with `subagent_type=Explore` (set to "very thorough
 
 6. **Fix every MISSING item** — if the plan says it should exist, BUILD IT. No exceptions. No "documented deviations". No "I'll note this as intentionally omitted". BUILD IT.
 7. **Re-run the agent** after fixing — loop until ZERO missing items. Do NOT proceed with any missing items.
-8. **Run full QA** after all fixes: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+8. **Run full QA** after all fixes: `pnpm -w run qa:lint --tools && pnpm -w run qa:format:check && pnpm qa:test`
 
 **⚠️ "DOCUMENTED DEVIATION" IS NOT ALLOWED ⚠️**
 
@@ -120,7 +120,7 @@ Walk through every task in the implementation plan and confirm:
 2. **Every schema field** has a corresponding rendering implementation (not just schema-only stubs)
 3. **Every schema field** has a dev harness control wired up in `dev/dev.ts`
 4. **Every new rendering feature** has tests that pass
-5. **All QA passes**: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+5. **All QA passes**: `pnpm -w run qa:lint --tools && pnpm -w run qa:format:check && pnpm qa:test`
 
 If ANY task is incomplete, go back and finish it NOW. Do NOT proceed to visual testing with partial implementation.
 

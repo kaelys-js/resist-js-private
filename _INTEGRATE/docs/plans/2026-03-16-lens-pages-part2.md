@@ -165,7 +165,7 @@ Each card has: icon, title, description, component count badge.
 
 **Step 1:** Run full test suite: `pnpm qa:test`
 
-**Step 2:** Run full QA: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**Step 2:** Run full QA: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 **Step 3:** Visual verification via Playwright MCP for all new pages.
 

@@ -395,7 +395,7 @@ Runtime has `@babylonjs/core@8.52.1` installed. During Phase 1 expansion, verify
 After implementation of each phase, ALWAYS:
 
 1. **Tests pass:** `pnpm qa:test`
-2. **Types clean:** `pnpm qa:type-check`
+2. **Types clean:** `pnpm -w run qa:lint --tools`
 3. **Lint clean:** `pnpm qa:lint`
 4. **Format clean:** `pnpm qa:format:check`
 5. **Architecture README:** Write a README in the phase's primary package directory documenting:

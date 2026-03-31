@@ -1,5 +1,4 @@
 - [Lint]
-  - Can merge qa:type-check into the linter and remove all qa:type-check everywhere for one unified lint command?
   - Review the README rules. Figure out best practices for README (do research, etc). README rule should be able to handle generating a perfect README.
   - ALL *.test.ts files should use stuff from packages/shared/config/test, if things are shared across test files then move it into that utility package -- then create custom lint rules enforcing useage in test files, review and present all custom rules that don't make sense for test files.
   - Review every directory in: /Users/coleb/Desktop/webforge/packages/shared/ui/src
@@ -24,7 +23,7 @@
   shared/utils/cli
   products/storylyne
 
-- Compare the @/cli/sync hbs templated files against these workspace files for the differences
+- Compare the @/cli/sync hbs templated files against these workspace files for the differences and what's missing (cli/sync is the baseline but the workspace root files have have additional specifics not present in cli/sync templates)
   - .editorconfig
   - .*ignore
   - .npmrc

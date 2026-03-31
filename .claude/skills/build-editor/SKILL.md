@@ -64,7 +64,7 @@ TDD: write tests first, watch them fail, implement, watch them pass.
 
 **QA after EVERY file edit:**
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:format:check
 ```
 
 **shadcn-svelte component installation:**
@@ -109,7 +109,7 @@ You MUST use the `Task` tool with `subagent_type=Explore` (set to "very thorough
 
 6. **Fix every MISSING item** — if the plan says it should exist, BUILD IT. No exceptions. No "documented deviations". No "I'll note this as intentionally omitted". BUILD IT.
 7. **Re-run the agent** after fixing — loop until ZERO missing items. Do NOT proceed with any missing items.
-8. **Run full QA** after all fixes: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+8. **Run full QA** after all fixes: `pnpm -w run qa:lint --tools && pnpm -w run qa:format:check && pnpm qa:test`
 
 **⚠️ "DOCUMENTED DEVIATION" IS NOT ALLOWED ⚠️**
 
@@ -157,7 +157,7 @@ Walk through every task in the implementation plan and confirm:
 2. **Every component** has the props, state, and behavior documented in the design doc
 3. **Every runtime binding** connects to `__WEBFORGE__` correctly
 4. **Every control** (slider, toggle, dropdown, etc.) is wired up and functional
-5. **All QA passes**: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+5. **All QA passes**: `pnpm -w run qa:lint --tools && pnpm -w run qa:format:check`
 
 If ANY task is incomplete, go back and finish it NOW. Do NOT proceed to visual testing with partial implementation.
 

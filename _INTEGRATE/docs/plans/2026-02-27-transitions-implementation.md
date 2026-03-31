@@ -23,7 +23,7 @@ All paths relative to `packages/products/webforge/runtime/` unless stated otherw
 
 **QA commands (ALWAYS use these, never run tools directly):**
 ```bash
-pnpm qa:type-check                  # Type checking
+pnpm -w run qa:lint --tools                  # Type checking
 pnpm -w run qa:lint                 # Linting
 pnpm -w run qa:format:check         # Format check
 pnpm qa:test                        # All tests
@@ -594,7 +594,7 @@ export const TRANSITION_PRESETS = {
 ### Step 4: Run tests and QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 pnpm qa:test 2>&1 | grep -E "(Test Files|Tests )"
 ```
 Expected: All tests pass
@@ -1207,7 +1207,7 @@ export function createTransitionPostProcess(
 ### Step 3: Run QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 Expected: All pass
 
@@ -1808,7 +1808,7 @@ export function screenTint(
 ### Step 4: Run tests and QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 pnpm qa:test 2>&1 | grep -E "(Test Files|Tests )"
 ```
 Expected: All pass
@@ -1896,7 +1896,7 @@ Also update the `triggerEffect` function to use the new API (full replacement in
 ### Step 4: Run QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 pnpm qa:test 2>&1 | grep -E "(Test Files|Tests )"
 ```
 Expected: All pass (old screen-effects tests removed, new transition tests passing)
@@ -2019,7 +2019,7 @@ The `triggerEffect` function is replaced by `playCurrentTransition(reverse)` whi
 ### Step 4: Run QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 pnpm qa:test 2>&1 | grep -E "(Test Files|Tests )"
 ```
 
@@ -2120,5 +2120,5 @@ git commit -m "feat(transitions): complete transition system with 28 types"
 ## Verification After Each Task
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test 2>&1 | grep -E "(Test Files|Tests )"
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test 2>&1 | grep -E "(Test Files|Tests )"
 ```

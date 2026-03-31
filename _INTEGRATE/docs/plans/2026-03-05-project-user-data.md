@@ -106,7 +106,7 @@ Export constants: `MOCK_USER`, `MOCK_PROJECT`, `MOCK_SCENES` per design doc.
 4. scenes.getByProject with matching projectId returns MOCK_SCENES
 5. scenes.getByProject with non-matching projectId returns empty array
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 **Test:** `pnpm qa:test`
 
 ---
@@ -182,7 +182,7 @@ skeletonLoading: 'Skeleton Loading',
 - `dev-toolbar-feature-flags.test.ts`: flag count 24 → 27
 - Update mock stores in: `devtools-api.svelte.test.ts`, `integration.test.ts`, `init.svelte.test.ts`, `url-params.test.ts` — add 3 new feature flags to mock feature objects
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 **Test:** `pnpm qa:test`
 
 ---
@@ -264,7 +264,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 };
 ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -361,7 +361,7 @@ const navSecondary = $derived([
 {/if}
 ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -490,7 +490,7 @@ let { isError = false, user = null }: { isError?: boolean; user?: ServerUser | n
 {/if}
 ```
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -554,7 +554,7 @@ import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 
 **Note:** Skeleton loading is prepared but NOT wired to streaming in this plan. Streaming wiring requires more complex `{#await}` patterns in `+layout.svelte` that depend on actual async data sources. For mock data, all data is synchronous so skeletons never show. The components exist and are ready for when D1 is connected.
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -592,7 +592,7 @@ All test files with mock EditorStore objects must add the 3 new feature flags:
 - `init.svelte.test.ts`
 - `url-params.test.ts`
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 **Test:** `pnpm qa:test`
 
 ---

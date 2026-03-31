@@ -22,7 +22,7 @@ All paths relative to `packages/products/webforge/runtime/` unless stated otherw
 
 **QA commands (run after EVERY file edit):**
 ```bash
-pnpm qa:type-check
+pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -90,7 +90,7 @@ Add to `src/schemas/lighting-config.ts`:
 ### Step 5: QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---

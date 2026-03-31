@@ -16,7 +16,7 @@ All paths relative to `packages/products/webforge/editor/`.
 - `APP_DESCRIPTION` → `'Your Story, Rendered'`
 - `APP_TAGLINE` → `'Your Story, Rendered'` (new constant for brand tagline)
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 2: Wire APP_NAME into editor state schema + store
 
@@ -24,7 +24,7 @@ All paths relative to `packages/products/webforge/editor/`.
 - `src/lib/schemas/editor-state.ts` — import `APP_NAME` from `$lib/config/app-meta`, use as default for `appName`
 - `src/lib/stores/editor-state.svelte.ts` — import `APP_NAME`, use in `APP_DEFAULTS.appName`, change `STORAGE_KEY` to `'app:editor-state'`, update JSDoc
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 3: Update debug state schema + store
 
@@ -32,7 +32,7 @@ All paths relative to `packages/products/webforge/editor/`.
 - `src/lib/schemas/debug-state.ts` — update JSDoc `'webforge:debug-state'` → `'app:debug-state'`
 - `src/lib/stores/debug-state.svelte.ts` — change `STORAGE_KEY` to `'app:debug-state'`, update JSDoc
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 4: Update locale schema + all 7 locale files
 
@@ -46,7 +46,7 @@ All paths relative to `packages/products/webforge/editor/`.
   - Change `description` to parameterized template: `'{appName} — <localized description>'`
   - Rename `webforgeProject` → `project`
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 5: Update +layout.svelte
 
@@ -59,7 +59,7 @@ All paths relative to `packages/products/webforge/editor/`.
 - Update `metaDescription` to call parameterized locale template with `{ appName: store.app.appName }`
 - Update fallback string to remove "WebForge"
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 6: Update DevToolbar.svelte
 
@@ -67,7 +67,7 @@ All paths relative to `packages/products/webforge/editor/`.
 
 - `localStorage.removeItem('webforge:sidebar-px')` → `'app:sidebar-px'`
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 7: Rename WebForgeLogo → AppLogo
 
@@ -77,7 +77,7 @@ All paths relative to `packages/products/webforge/editor/`.
 - Update test file: import `AppLogo` instead of `WebForgeLogo`, update describe block name
 - Update `src/lib/components/AppSidebar.svelte`: import from `./AppLogo.svelte`
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 8: Update app.html + SVG
 
@@ -85,7 +85,7 @@ All paths relative to `packages/products/webforge/editor/`.
 - `src/app.html` — remove `<meta name="apple-mobile-web-app-title" content="WebForge">` (now set dynamically in `<svelte:head>`)
 - `static/favicon.svg` — change comment `WebForge Master Logo` → `App Logo`
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 9: Update all unit tests
 
@@ -98,7 +98,7 @@ All paths relative to `packages/products/webforge/editor/`.
 - `src/lib/components/dev-toolbar-app-state.test.ts` — import `APP_NAME`; replace `'WebForge'` → `APP_NAME`
 - `src/lib/components/feature-flags.integration.test.ts` — import `APP_NAME`; replace `'WebForge'` → `APP_NAME`
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test`
 
 ## Task 10: Update all E2E tests
 
@@ -113,12 +113,12 @@ All paths relative to `packages/products/webforge/editor/`.
 
 **Note:** For regex assertions like `/page not found.*WebForge/i`, use `new RegExp(`page not found.*${APP_NAME}`, 'i')`.
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format && pnpm qa:test:e2e`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format && pnpm qa:test:e2e`
 
 ## Task 11: Run full QA
 
 ```bash
-pnpm qa:type-check && pnpm qa:lint && pnpm qa:format
+pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format
 pnpm qa:test
 pnpm qa:test:e2e
 ```

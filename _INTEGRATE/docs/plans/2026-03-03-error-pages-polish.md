@@ -39,7 +39,7 @@ return emitStructured('error', error.message, 'stderr', {
 });
 ```
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -61,7 +61,7 @@ Update the `errorId` key in each locale file:
 - de: `'Referenz: {id}'`
 - es: `'Referencia: {id}'`
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -95,7 +95,7 @@ In the IIFE that extracts the error ID from raw message:
 In the `copyErrorId()` revert timeout:
 - `label.textContent = 'Reference: ' + id;`
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -114,7 +114,7 @@ In `ErrorPage.svelte` line 105, change fallback:
 return result.ok ? result.data : `Reference: ${errorId}`;
 ```
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -157,7 +157,7 @@ log.error(`Unexpected server error (${status}): ${message}`, {
 
 Update `mockEvent` to include `request.method` and `route` properties.
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -215,7 +215,7 @@ console.table({
 console.groupEnd();
 ```
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 
 ---
 
@@ -261,7 +261,7 @@ test.describe('ErrorId consistency', () => {
 });
 ```
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check`
 **E2E:** `pnpm exec playwright test`
 
 ---
@@ -275,4 +275,4 @@ test.describe('ErrorId consistency', () => {
 - `hooks.server.test.ts`: Change `expect(...).toContain('Error ID:')` → `expect(...).toContain('Reference:')`
 - `error-page.test.ts`: Change any assertions checking for "Error ID:" to "Reference:"
 
-**QA:** `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
+**QA:** `pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`

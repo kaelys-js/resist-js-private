@@ -28,7 +28,7 @@ The `+1` adds half a tile of padding on each edge, preventing floating-point cli
 
 ### QA
 ```
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---
@@ -62,7 +62,7 @@ if (_currentPreset === 'mapeditor') {
 
 ### QA
 ```
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---
@@ -105,7 +105,7 @@ Note: When `_orthoMax` is capped, the "Fit Map" button (which calls `setZoomLeve
 
 ### QA
 ```
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ---

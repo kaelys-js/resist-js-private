@@ -3,7 +3,7 @@
 ## Overview
 
 ~213 remaining violations across ~30 files. Split into 4 parts (max 10 tasks each).
-QA after every file edit: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+QA after every file edit: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 All paths relative to `packages/products/webforge/editor/src/`.
 
@@ -161,7 +161,7 @@ All paths relative to `packages/products/webforge/editor/src/`.
 ## Verification Checklist
 
 After all parts complete:
-- [ ] `pnpm qa:type-check` — zero errors
+- [ ] `pnpm -w run qa:lint --tools` — zero errors
 - [ ] `pnpm qa:lint` — zero new errors
 - [ ] `pnpm qa:format` — clean
 - [ ] `pnpm qa:test` — all unit tests pass

@@ -43,7 +43,7 @@ import { okShallow, type BabylonResult } from '../core/babylon-result';
 
 **QA commands (run after EVERY file edit):**
 ```bash
-cd packages/products/webforge/runtime && pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+cd packages/products/webforge/runtime && pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 **Test command:**
@@ -241,7 +241,7 @@ Expected: ALL PASS.
 ### Step 5: Run QA
 
 ```bash
-cd packages/products/webforge/runtime && pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+cd packages/products/webforge/runtime && pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ### Step 6: Commit
@@ -837,7 +837,7 @@ Expected: ALL PASS.
 ### Step 5: Run QA
 
 ```bash
-cd packages/products/webforge/runtime && pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+cd packages/products/webforge/runtime && pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ### Step 6: Commit
@@ -888,7 +888,7 @@ import { createGlowLayer, excludeUiMeshes } from './glow-manager';
 ### Step 3: Run QA + tests
 
 ```bash
-cd packages/products/webforge/runtime && pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+cd packages/products/webforge/runtime && pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 cd packages/products/webforge/runtime && pnpm qa:test
 ```
 
@@ -938,7 +938,7 @@ Also add the new schema exports. In the lighting schema export block (around lin
 ### Step 2: Run QA
 
 ```bash
-cd packages/products/webforge/runtime && pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+cd packages/products/webforge/runtime && pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ### Step 3: Commit
@@ -1179,7 +1179,7 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 ### Step 2: Run QA
 
 ```bash
-cd packages/products/webforge/runtime && pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+cd packages/products/webforge/runtime && pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ### Step 3: Commit
@@ -1225,7 +1225,7 @@ Visual verification: 32x32 tilemap with cascaded shadows, torch flicker, day/nig
 ### Step 2: Run QA
 
 ```bash
-cd packages/products/webforge/runtime && pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+cd packages/products/webforge/runtime && pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ### Step 3: Commit

@@ -11,7 +11,7 @@
 
 Create mock for SvelteKit's `$app/state` module matching the runes-based API.
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 2: Update Vitest root config
 
@@ -21,7 +21,7 @@ Changes:
 1. Change `pool: 'threads'` → `pool: 'forks'` (root-level test config)
 2. Add `'$app/state'` alias to editor project's alias block, pointing to `packages/products/webforge/editor/src/test-mocks/app-state.ts`
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 **Test:** `pnpm qa:test` — all 2753+ tests must still pass
 
 ## Task 3: Centralize jsdom polyfills in test setup
@@ -32,7 +32,7 @@ Add to end of file:
 1. `ResizeObserver` polyfill (no-op observe/unobserve/disconnect)
 2. `Element.prototype.animate` polyfill (returns object with cancel/finished)
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 4: Remove duplicated polyfills from test files
 
@@ -43,7 +43,7 @@ Add to end of file:
 
 Remove the `beforeAll` blocks that set up `ResizeObserver` and `Element.prototype.animate`. Keep all other imports and test code.
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 **Test:** `pnpm qa:test` — all tests must still pass (polyfills now come from setup file)
 
 ## Task 5: Update Playwright config
@@ -59,7 +59,7 @@ Full rewrite with:
 - CI-aware reporter
 - `webServer`: `port` → `url`, `timeout: 120_000`, `stdout: 'ignore'`, `stderr: 'pipe'`
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 **Test:** `pnpm qa:test:e2e` — all 286 E2E tests must pass
 
 ## Task 6: Delete redundant editor vitest.config.ts
@@ -68,13 +68,13 @@ Full rewrite with:
 
 This file is unused by `pnpm qa:test` (root config's inline editor project runs instead).
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 **Test:** `pnpm qa:test` — verify all tests still pass without the local config
 
 ## Task 7: Run full QA suite
 
 Run complete test suite to verify everything works:
-- `pnpm qa:type-check` — 0 errors
+- `pnpm -w run qa:lint --tools` — 0 errors
 - `pnpm qa:lint` — 0 errors
 - `pnpm qa:format` — clean
 - `pnpm qa:test` — all unit tests pass

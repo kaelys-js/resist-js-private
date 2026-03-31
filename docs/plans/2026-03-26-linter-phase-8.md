@@ -159,7 +159,7 @@ export default rule;
 ```
 
 - Run tests, verify they pass
-- Run QA: `pnpm --filter @/lint qa:type-check && pnpm -w run qa:test`
+- Run QA: `pnpm -w run qa:lint --tools && pnpm -w run qa:test`
 - Commit
 
 **Files**:
@@ -470,7 +470,7 @@ export default rule;
 
 **Files**: `.resist-lint.jsonc`
 
-**Verification**: `pnpm --filter @/lint qa:type-check && pnpm -w run qa:test`
+**Verification**: `pnpm -w run qa:lint --tools && pnpm -w run qa:test`
 
 ---
 
@@ -481,7 +481,7 @@ export default rule;
 **Status**: [x] — Verified: type-check passes, format clean (no changes), 2507/2507 tests pass. No lint errors in @/lint src.
 
 **Plan**:
-- Run: `pnpm --filter @/lint qa:type-check`
+- Run: `pnpm -w run qa:lint --tools`
 - Run: `pnpm -w run qa:lint` (check @/lint src specifically)
 - Run: `pnpm -w run qa:format` (auto-fix, per user preference)
 - Run: `pnpm -w run qa:test`

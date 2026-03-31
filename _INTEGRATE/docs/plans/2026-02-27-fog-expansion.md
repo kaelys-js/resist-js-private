@@ -23,7 +23,7 @@ All paths relative to `packages/products/webforge/runtime/` unless stated otherw
 
 **QA commands (run after EVERY file edit):**
 ```bash
-pnpm qa:type-check
+pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -101,7 +101,7 @@ pnpm qa:test 2>&1 | grep -E "(Test Files|Tests )"
 ### Step 5: Run QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ### Step 6: Update scene-setup-config.ts
@@ -112,7 +112,7 @@ Move `FogConfigSchema` out of `scene-setup-config.ts` into the new `fog-config.t
 
 ```bash
 pnpm qa:test 2>&1 | grep -E "(Test Files|Tests )"
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ### Step 8: Commit
@@ -194,7 +194,7 @@ createOverlayFogPostProcess(options) → BabylonResult<BABYLON.PostProcess>
 ### Step 4: QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ### Step 5: Commit
@@ -281,7 +281,7 @@ Update `applyFog` call in `applySceneSetup` to delegate to fog-manager for advan
 
 ```bash
 pnpm qa:test 2>&1 | grep -E "(Test Files|Tests )"
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ### Step 7: Commit
@@ -327,7 +327,7 @@ Each preset button calls `applyFogPreset(handle, name)` and updates all sliders/
 ### Step 4: QA
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 ```
 
 ### Step 5: Commit
@@ -374,7 +374,7 @@ Add Fog subsection under Runtime describing:
 ### Step 4: QA + Commit
 
 ```bash
-pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check
+pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check
 git commit -m "docs(fog): update README and ARCHITECTURE with expanded fog API"
 ```
 

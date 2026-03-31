@@ -96,8 +96,7 @@
     "lint": "oxlint src/",
     "package": "vsce package --no-dependencies",
     "vscode:prepublish": "pnpm compile",
-    "qa:checks": "pnpm --filter @/cli tool checks --cwd .",
-    "qa:type-check": "tsc --noEmit -p ./"
+    "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",

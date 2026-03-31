@@ -44,7 +44,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - If missing: report warning "compilerOptions.baseUrl not defined"
 - If not `"."` or `"src"`: report warning "Invalid baseUrl — must be '.' or 'src'"
 - Add tests: missing baseUrl → warning, invalid baseUrl → warning, valid "." → pass, valid "src" → pass, non-tsconfig file → skip
-- Run QA: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+- Run QA: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 **Files**:
 - Create: `rules/workspace/require-tsconfig-baseurl.ts`
@@ -396,7 +396,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Files**:
 - Edit: `.resist-lint.jsonc`
 
-**Verification**: Config valid, all rules load, `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+**Verification**: Config valid, all rules load, `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 
 ---
 
@@ -405,7 +405,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Status**: [x] — Verified: type-check passes, 3097 tests pass (79 above 3018 baseline), format clean, coverage: statements 91.7%, branches 78.25%, functions 87.15%, lines 91.69%.
 
 **Plan**:
-- Run `pnpm --filter @/lint qa:type-check`
+- Run `pnpm -w run qa:lint --tools`
 - Run `pnpm -w run qa:format`
 - Run `pnpm --filter @/lint qa:test`
 - Run `pnpm --filter @/lint qa:test:coverage`

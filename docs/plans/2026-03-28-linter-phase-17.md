@@ -52,7 +52,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
   - If not, `createResult('workspace/require-tsconfig-strict', filePath, 1, 1, 'error', ...)` with tip
 - Add import at line ~101 in test file
 - Run tests, verify pass
-- Run QA: `pnpm --filter @/lint qa:type-check && pnpm -w run qa:test`
+- Run QA: `pnpm -w run qa:lint --tools && pnpm -w run qa:test`
 
 **Files**:
 - Create: `rules/workspace/require-tsconfig-strict.ts`
@@ -469,7 +469,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
   "workspace/tsconfig-paths-resolve": "error",
   "workspace/tsconfig-references-resolve": "error",
   ```
-- Run: `pnpm --filter @/lint qa:type-check && pnpm -w run qa:test`
+- Run: `pnpm -w run qa:lint --tools && pnpm -w run qa:test`
 - Verify no regressions
 
 **Files**:
@@ -484,7 +484,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Status**: [x]
 
 **Plan**:
-- Run: `pnpm --filter @/lint qa:type-check` — must exit 0
+- Run: `pnpm -w run qa:lint --tools` — must exit 0
 - Run: `pnpm -w run qa:format` — auto-fix formatting
 - Run: `pnpm -w run qa:test` — must show 0 failures
 - Run: `pnpm --filter @/lint qa:test:coverage` — must meet thresholds:
@@ -511,7 +511,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Verify test count is at or above expected (≥2949)
 - Verify coverage thresholds are met
 - Verify no duplicate rule entries in config
-- Run final: `pnpm --filter @/lint qa:type-check && pnpm -w run qa:test`
+- Run final: `pnpm -w run qa:lint --tools && pnpm -w run qa:test`
 - Commit all changes
 
 **Verification**:

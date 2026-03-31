@@ -168,7 +168,7 @@ These dangerjs-rules are already covered by Phase 34/35 rules and will NOT be re
 **Status**: [x]
 
 **Plan**:
-- Run: `pnpm --filter @/lint qa:type-check`
+- Run: `pnpm -w run qa:lint --tools`
 - Run: `pnpm --filter @/lint qa:test`
 - Run: `pnpm -w run qa:format`
 - Run: `pnpm -w run qa:format:check`

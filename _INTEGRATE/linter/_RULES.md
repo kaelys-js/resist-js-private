@@ -596,7 +596,7 @@ These issues exist in the codebase and would be caught by these rules:
 | package.json script | Current turbo task | Should be |
 |---------------------|-------------------|-----------|
 | `qa:sync-check` | `qa:lint` | `qa:sync-check` |
-| `qa:type-check` | `type-check` | `qa:type-check` |
+| `qa:lint --tools` | `type-check` | `qa:lint --tools` |
 | `qa:test` | `test` | `qa:test` |
 | `qa:test:unit` | `test:unit` | `qa:test:unit` |
 | `qa:test:e2e` | `test:e2e` | `qa:test:e2e` |
@@ -607,7 +607,7 @@ These issues exist in the codebase and would be caught by these rules:
 
 - Uses `pnpm lint` but package.json has no `lint` script
 - Uses `pnpm format:check` but package.json has no `format:check` script
-- Uses `pnpm type-check` but package.json has `qa:type-check`
+- Uses `pnpm type-check` but type-checking is now part of `pnpm -w run qa:lint --tools`
 - Uses `pnpm test` but package.json has `qa:test`
 - Uses `pnpm test:e2e` but package.json has `qa:test:e2e`
 

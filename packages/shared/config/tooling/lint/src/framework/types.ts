@@ -438,7 +438,7 @@ export type PackageJsonContext = v.InferOutput<typeof PackageJsonContextSchema>;
 
 /** Schema for a package.json lint rule. */
 export const PackageJsonRuleSchema = v.strictObject({
-  /** Unique rule ID (e.g. 'package/require-tsgo') */
+  /** Unique rule ID (e.g. 'package/require-standard-scripts') */
   id: v.string(),
   /** Human-readable description */
   description: v.string(),

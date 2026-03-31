@@ -1,7 +1,7 @@
 /**
  * Rule: package/require-standard-scripts
  *
- * Every sub-package must have: clean, qa:test, qa:test:coverage, qa:benchmark, qa:type-check.
+ * Every sub-package must have: clean, qa:test, qa:test:coverage, qa:benchmark.
  * Exempts workspace root.
  *
  * @module
@@ -19,7 +19,6 @@ const REQUIRED_SCRIPTS: readonly string[] = [
   'qa:test',
   'qa:test:coverage',
   'qa:benchmark',
-  'qa:type-check',
 ];
 
 /** The require-standard-scripts lint rule. */

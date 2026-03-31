@@ -43,7 +43,7 @@
 - `applyUrlOverrides`: debug toggle, log level, theme override, feature flag override, invalid values rejected, unknown keys ignored
 - `isValidAppKey` / `isValidFeatureFlag`: known keys return true, unknown false
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -80,7 +80,7 @@
 - Persistence: save/load cycle via localStorage mock
 - Singleton: `initDebugStore` + `useDebugStore` pattern
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -113,7 +113,7 @@
 - `formatTimestamp`: matches `HH:MM:SS.mmm` format
 - `diffSnapshot`: no changes → empty, single change, multiple changes, added key, removed key, nested object change detected, identical objects → empty
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -146,7 +146,7 @@
 - Multiple changes in one tick → each logged separately
 - `destroy()` → subsequent changes produce no output
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -204,7 +204,7 @@
 - `.logState()` / `.logFeatures()` → console methods called
 - `destroy()` → `window.__EDITOR_DEVTOOLS__` === undefined
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -237,7 +237,7 @@
 - `initDebugServices` with enabled=true: window global registered, logger active
 - Toggle enabled false→true→false: global appears then disappears
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -276,7 +276,7 @@
 
 **Tests:** Existing `locales.test.ts` should pass (it validates all locales against schema). Run it to confirm.
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 
@@ -300,7 +300,7 @@
    - Verify: re-enable → everything comes back
 
 2. **Run full test suite:** `pnpm qa:test`
-3. **Run full QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+3. **Run full QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ---
 

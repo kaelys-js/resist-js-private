@@ -57,7 +57,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
   - If dep value is in `UNSAFE_VERSIONS`, `createResult('workspace/no-wildcard-versions', filePath, 1, 1, 'error', ...)` with tip
 - Add import at line ~116 in test file
 - Run tests, verify pass
-- Run QA: `pnpm --filter @/lint qa:type-check && pnpm -w run qa:test`
+- Run QA: `pnpm -w run qa:lint --tools && pnpm -w run qa:test`
 
 **Files**:
 - Create: `rules/workspace/no-wildcard-versions.ts`
@@ -475,7 +475,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Gap**: After all 15 rules + registration, run full QA to confirm no regressions.
 
 **Plan**:
-- Run type-check: `pnpm --filter @/lint qa:type-check`
+- Run type-check: `pnpm -w run qa:lint --tools`
 - Run all tests: `pnpm --filter @/lint qa:test`
 - Run format check: `pnpm -w run qa:format:check`
 - Run coverage: `pnpm --filter @/lint qa:test:coverage`
@@ -500,7 +500,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Verify each rule has correct `id`, `scope`, `categories`, `stages`, `fixable` properties
 - Verify all 15 rules are registered in `.resist-lint.jsonc`
 - Verify total workspace rule file count: 105 + 15 = 120
-- Run final QA: `pnpm --filter @/lint qa:type-check && pnpm --filter @/lint qa:test`
+- Run final QA: `pnpm -w run qa:lint --tools && pnpm --filter @/lint qa:test`
 - Commit: `git add` specific files + `git commit`
 
 **Files**:

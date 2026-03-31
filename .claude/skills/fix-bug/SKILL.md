@@ -83,7 +83,7 @@ Only after user approval:
 - Make the MINIMUM change to fix the bug
 - Change ONLY what you said you would in Step 3
 - If you discover the fix needs to be different, STOP and go back to Step 3
-- Run QA after every file edit: `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check`
+- Run QA after every file edit: `pnpm -w run qa:lint --tools && pnpm -w run qa:format:check`
 - Run tests: `pnpm qa:test`
 
 ### 5. Verify & Report

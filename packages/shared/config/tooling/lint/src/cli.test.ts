@@ -231,10 +231,10 @@ describe.concurrent('--list-rules flag', () => {
     expect(stdoutLines.join('')).toContain('jsdoc/require-param');
   });
 
-  it('stdout contains known package.json rule "package/require-tsgo"', async () => {
+  it('stdout contains known package.json rule "package/require-standard-scripts"', async () => {
     const { stdoutLines, output } = captureOutput();
     await runLinter(makeCliArgs({ listRules: true }), output, en);
-    expect(stdoutLines.join('')).toContain('package/require-tsgo');
+    expect(stdoutLines.join('')).toContain('package/require-standard-scripts');
   });
 
   it('stdout contains known TypeScript rule "typescript/no-throw"', async () => {

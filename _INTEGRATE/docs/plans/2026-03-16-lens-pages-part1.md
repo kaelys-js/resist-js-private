@@ -19,7 +19,7 @@
 
 **Step 2:** Add the new pages to the command search global items so they're searchable.
 
-**Step 3:** Run QA: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**Step 3:** Run QA: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 **Step 4:** Commit: `feat(lens): add sidebar navigation for new pages`
 
@@ -42,7 +42,7 @@
 
 Each section uses collapsible headers matching the component detail page pattern. Code examples use `CodeBlock` component with copy buttons.
 
-**Step 2:** Run QA: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**Step 2:** Run QA: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 **Step 3:** Commit: `feat(lens): add Getting Started page`
 
@@ -68,7 +68,7 @@ Return as structured data to the page.
 - "Show more" pagination (load 50 at a time)
 - Filter chips for: "Added" (new files), "Updated" (modified), "Removed" (deleted)
 
-**Step 3:** Run QA: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**Step 3:** Run QA: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 **Step 4:** Commit: `feat(lens): add library-wide changelog page`
 
@@ -99,7 +99,7 @@ Return as structured data to the page.
 
 5. **Size/stroke controls** — Adjustable preview size and stroke width sliders at the top
 
-**Step 2:** Run QA: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**Step 2:** Run QA: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 **Step 3:** Commit: `feat(lens): add Icons gallery page`
 
@@ -109,7 +109,7 @@ Return as structured data to the page.
 
 **Step 1:** Run full test suite: `pnpm qa:test`
 
-**Step 2:** Run full QA: `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**Step 2:** Run full QA: `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 **Step 3:** Visual verification via Playwright MCP:
 1. Navigate to each new page via sidebar

@@ -21,7 +21,7 @@ Changes:
    - `Popover.Trigger` wraps a `Sidebar.MenuButton` with `MapIcon` + `tooltipContent={scenesLabel}`
    - `Popover.Content` with `side="right"` `align="start"` `class="w-56 rounded-lg p-2"` contains `{@render sceneList()}`
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 2: Update unit tests
 
@@ -39,7 +39,7 @@ Changes to `nav-scenes.test.ts`:
    - Test that popover trigger button renders when sidebar is collapsed
    - Test that scene items are NOT directly visible (inside popover content, hidden until opened)
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 **Test:** `pnpm qa:test --project editor` — all editor tests must pass
 
 ## Task 3: Add E2E test for collapsed sidebar popover
@@ -53,7 +53,7 @@ Tests:
 4. Click a scene in the popover — verify popover closes
 5. Expand sidebar — verify normal collapsible Scenes section returns
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 **Test:** `pnpm qa:test:e2e` — all E2E tests must pass
 
 ## Task 4: Update ARCHITECTURE.md
@@ -63,11 +63,11 @@ Add a note under the sidebar section about the collapsed sidebar pattern:
 - Conditional rendering based on `useSidebar().state`
 - Known shadcn/ui limitation and workaround
 
-**QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
+**QA:** `pnpm -w run qa:lint --tools && pnpm qa:lint && pnpm qa:format`
 
 ## Task 5: Run full QA suite
 
-- `pnpm qa:type-check` — 0 errors
+- `pnpm -w run qa:lint --tools` — 0 errors
 - `pnpm qa:lint` — 0 errors
 - `pnpm qa:format` — clean
 - `pnpm qa:test` — all unit tests pass

@@ -227,9 +227,9 @@ describe('known rules are present', () => {
     expect(ids).toContain('jsdoc/require-param');
   });
 
-  it('package/require-tsgo is in packageJson rules', () => {
+  it('package/require-standard-scripts is in packageJson rules', () => {
     const ids = loaded.packageJson.map((r) => r.id);
-    expect(ids).toContain('package/require-tsgo');
+    expect(ids).toContain('package/require-standard-scripts');
   });
 });
 
@@ -297,7 +297,7 @@ describe('byId index', () => {
   });
 
   it('contains known packageJson rule ID', () => {
-    expect(loaded.byId.has('package/require-tsgo')).toBe(true);
+    expect(loaded.byId.has('package/require-standard-scripts')).toBe(true);
   });
 
   it('every entry key matches the rule id', () => {
