@@ -2,8 +2,8 @@
  * Tests for the CLI entry point.
  *
  * Most tests call `parseCliArgs` + `runLinter` directly (in-process) to avoid
- * subprocess overhead (~800ms per tsx spawn).  Two subprocess smoke tests
- * verify the actual CLI script exits correctly.
+ * subprocess overhead.  Two subprocess smoke tests verify the actual CLI
+ * script exits correctly using native Node TypeScript + alias resolution.
  *
  * @module
  */
@@ -28,8 +28,17 @@ const CLI_PATH: string = resolve(import.meta.dirname, 'cli.ts');
  */
 const WORKSPACE_ROOT: string = resolve(import.meta.dirname, '..', '..', '..', '..', '..', '..');
 
-/** Absolute path to tsx binary — avoids npx resolution overhead (~100-200ms per spawn). */
-const TSX_PATH: string = resolve(WORKSPACE_ROOT, 'node_modules', '.bin', 'tsx');
+/** Absolute path to the register-aliases bootstrap for `@/` path resolution. */
+const REGISTER_ALIASES_PATH: string = resolve(
+  WORKSPACE_ROOT,
+  'packages',
+  'shared',
+  'config',
+  'tooling',
+  'node',
+  'src',
+  'register-aliases.mjs',
+);
 
 // =============================================================================
 // Subprocess Helper (used by smoke tests only)
@@ -56,8 +65,8 @@ function runCli(args: string[]): Promise<CliResult> {
 
   cached = new Promise<CliResult>((res: (v: CliResult) => void): void => {
     execFile(
-      TSX_PATH,
-      [CLI_PATH, ...args],
+      process.execPath,
+      ['--import', REGISTER_ALIASES_PATH, CLI_PATH, ...args],
       { cwd: WORKSPACE_ROOT, encoding: 'utf8', timeout: 30_000 },
       (error: Error | null, stdout: string, stderr: string): void => {
         if (error) {
