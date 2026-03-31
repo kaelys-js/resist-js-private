@@ -16,7 +16,7 @@
       "type": "array"
     },
     "extensions": {
-      "default": [".ts", ".svelte.ts", ".mjs"],
+      "default": [".ts", ".svelte.ts", ".svelte", ".mjs"],
       "description": "File extensions to lint (including .svelte.ts).",
       "items": {
         "type": "string"

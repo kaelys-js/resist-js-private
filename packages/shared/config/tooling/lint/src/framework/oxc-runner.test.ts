@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { walkNode, runTypeScriptRules } from './oxc-runner.ts';
+import { walkNode, runTypeScriptRules, extractSvelteScript } from './oxc-runner.ts';
 import type { AstNode, LintResult, TypeScriptRule, VisitorContext } from './types.ts';
 
 // =============================================================================
@@ -963,5 +963,604 @@ describe('walkNode — additional edge cases', () => {
     walkNode(node, (n) => visited.push(n.type));
     // Only Program should be visited since meta/nested have no type
     expect(visited).toEqual(['Program']);
+  });
+});
+
+// =============================================================================
+// extractSvelteScript — unit tests (TASK 4)
+// =============================================================================
+
+describe('extractSvelteScript', () => {
+  it('extracts content from a single <script lang="ts"> block preserving line numbers', () => {
+    const svelte: string = [
+      '<div>hello</div>',
+      '<script lang="ts">',
+      'const x: number = 1;',
+      'const y: string = "hi";',
+      '</script>',
+      '<style>div { color: red; }</style>',
+    ].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines.length).toBe(6);
+    expect(lines[0]).toBe('');
+    expect(lines[1]).toBe('');
+    expect(lines[2]).toBe('const x: number = 1;');
+    expect(lines[3]).toBe('const y: string = "hi";');
+    expect(lines[4]).toBe('');
+    expect(lines[5]).toBe('');
+  });
+
+  it('extracts content from a single <script> block (no lang attr)', () => {
+    const svelte: string = ['<script>', 'let count = 0;', '</script>', '<p>template</p>'].join(
+      '\n',
+    );
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[0]).toBe('');
+    expect(lines[1]).toBe('let count = 0;');
+    expect(lines[2]).toBe('');
+    expect(lines[3]).toBe('');
+  });
+
+  it('extracts content from <script lang="js"> block', () => {
+    const svelte: string = ['<script lang="js">', 'const foo = "bar";', '</script>'].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[0]).toBe('');
+    expect(lines[1]).toBe('const foo = "bar";');
+    expect(lines[2]).toBe('');
+  });
+
+  it('extracts content from <script module> (Svelte 5 module context)', () => {
+    const svelte: string = [
+      '<script module>',
+      'export const API_URL = "/api";',
+      '</script>',
+      '<p>content</p>',
+    ].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[0]).toBe('');
+    expect(lines[1]).toBe('export const API_URL = "/api";');
+    expect(lines[2]).toBe('');
+  });
+
+  it('extracts content from <script context="module"> (Svelte 4 module context)', () => {
+    const svelte: string = [
+      '<script context="module">',
+      'export const prerender = true;',
+      '</script>',
+    ].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[0]).toBe('');
+    expect(lines[1]).toBe('export const prerender = true;');
+    expect(lines[2]).toBe('');
+  });
+
+  it('extracts content from multiple script blocks (module + instance) preserving positions', () => {
+    const svelte: string = [
+      '<script context="module">',
+      'export const prerender = true;',
+      '</script>',
+      '',
+      '<script lang="ts">',
+      'let count: number = 0;',
+      'function increment(): void { count++; }',
+      '</script>',
+      '',
+      '<button on:click={increment}>{count}</button>',
+    ].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines.length).toBe(10);
+    expect(lines[0]).toBe('');
+    expect(lines[1]).toBe('export const prerender = true;');
+    expect(lines[2]).toBe('');
+    expect(lines[3]).toBe('');
+    expect(lines[4]).toBe('');
+    expect(lines[5]).toBe('let count: number = 0;');
+    expect(lines[6]).toBe('function increment(): void { count++; }');
+    expect(lines[7]).toBe('');
+    expect(lines[8]).toBe('');
+    expect(lines[9]).toBe('');
+  });
+
+  it('returns empty string for template-only file (no script block)', () => {
+    const svelte: string = [
+      '<div>',
+      '  <p>Hello world</p>',
+      '</div>',
+      '<style>p { color: blue; }</style>',
+    ].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    expect(result).toBe('');
+  });
+
+  it('returns empty string for empty file', () => {
+    const result: string = extractSvelteScript('');
+    expect(result).toBe('');
+  });
+
+  it('extracts script block with imports and complex TypeScript', () => {
+    const svelte: string = [
+      '<script lang="ts">',
+      "import { onMount } from 'svelte';",
+      "import type { PageData } from './$types';",
+      '',
+      'export let data: PageData;',
+      'let items: string[] = [];',
+      '',
+      'onMount(async () => {',
+      '  items = await fetch("/api/items").then(r => r.json());',
+      '});',
+      '</script>',
+      '',
+      '<ul>',
+      '  {#each items as item}',
+      '    <li>{item}</li>',
+      '  {/each}',
+      '</ul>',
+    ].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[0]).toBe('');
+    expect(lines[1]).toContain("import { onMount } from 'svelte';");
+    expect(lines[2]).toContain('PageData');
+    expect(lines[3]).toBe('');
+    expect(lines[4]).toBe('export let data: PageData;');
+    expect(lines[5]).toBe('let items: string[] = [];');
+    expect(lines[7]).toBe('onMount(async () => {');
+    expect(lines[10]).toBe('');
+    expect(lines[11]).toBe('');
+  });
+
+  it('handles <script lang="ts" module> — attributes in various orders', () => {
+    const svelte: string = [
+      '<script lang="ts" module>',
+      'export const API = "/api";',
+      '</script>',
+    ].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('export const API = "/api";');
+  });
+
+  it('handles whitespace variations in script tags', () => {
+    const svelte: string = ['<script  lang="ts" >', 'const x = 1;', '</script >'].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('const x = 1;');
+  });
+
+  it('handles closing </script> with extra whitespace', () => {
+    const svelte: string = ['<script>', 'const a = 1;', '</script  >'].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('const a = 1;');
+  });
+});
+
+// =============================================================================
+// runTypeScriptRules — Svelte integration (TASK 5)
+// =============================================================================
+
+describe('runTypeScriptRules — Svelte file integration', () => {
+  it('runs AST rules on .svelte files with <script lang="ts">', async () => {
+    const svelteContent: string = [
+      '<script lang="ts">',
+      'const x: number = 1;',
+      '</script>',
+      '<p>hello</p>',
+    ].join('\n');
+
+    const rule: TypeScriptRule = {
+      id: 'test/svelte-var',
+      description: 'Detects variable declarations in svelte',
+      patterns: ['**/*.ts'],
+      visitor: {
+        VariableDeclaration(node: AstNode, ctx: VisitorContext): LintResult[] {
+          return [
+            {
+              file: ctx.file,
+              line: node.loc.start.line,
+              column: node.loc.start.column + 1,
+              severity: 'error',
+              message: 'Found var decl in svelte',
+              ruleId: 'test/svelte-var',
+              fix: { range: { start: node.start, end: node.end }, text: '' },
+            },
+          ];
+        },
+      },
+    };
+
+    const results: LintResult[] = await runTypeScriptRules('Component.svelte', svelteContent, [
+      rule,
+    ]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.ruleId).toBe('test/svelte-var');
+  });
+
+  it('line numbers in results match original .svelte file lines', async () => {
+    const svelteContent: string = [
+      '<div>template</div>',
+      '',
+      '<script lang="ts">',
+      'const x: number = 1;',
+      '</script>',
+    ].join('\n');
+
+    const rule: TypeScriptRule = {
+      id: 'test/svelte-line',
+      description: 'Reports line number',
+      patterns: ['**/*.ts'],
+      visitor: {
+        VariableDeclaration(node: AstNode, ctx: VisitorContext): LintResult[] {
+          return [
+            {
+              file: ctx.file,
+              line: node.loc.start.line,
+              column: node.loc.start.column + 1,
+              severity: 'error',
+              message: 'line check',
+              ruleId: 'test/svelte-line',
+              fix: { range: { start: node.start, end: node.end }, text: '' },
+            },
+          ];
+        },
+      },
+    };
+
+    const results: LintResult[] = await runTypeScriptRules('Component.svelte', svelteContent, [
+      rule,
+    ]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.line).toBe(4);
+  });
+
+  it('context.content contains only the script block content', async () => {
+    const svelteContent: string = [
+      '<p>template</p>',
+      '<script lang="ts">',
+      'const x: number = 1;',
+      '</script>',
+      '<style>p { color: red; }</style>',
+    ].join('\n');
+
+    let capturedContent: string = '';
+    const rule: TypeScriptRule = {
+      id: 'test/svelte-content',
+      description: 'Captures context.content',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          capturedContent = ctx.content;
+          return [];
+        },
+      },
+    };
+
+    await runTypeScriptRules('Component.svelte', svelteContent, [rule]);
+    expect(capturedContent).not.toContain('<p>template</p>');
+    expect(capturedContent).not.toContain('color: red');
+    expect(capturedContent).toContain('const x: number = 1;');
+  });
+
+  it('context.file is the original .svelte filename', async () => {
+    const svelteContent: string = ['<script lang="ts">', 'const x = 1;', '</script>'].join('\n');
+
+    let capturedFile: string = '';
+    const rule: TypeScriptRule = {
+      id: 'test/svelte-file',
+      description: 'Captures context.file',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          capturedFile = ctx.file;
+          return [];
+        },
+      },
+    };
+
+    await runTypeScriptRules('/path/to/Component.svelte', svelteContent, [rule]);
+    expect(capturedFile).toBe('/path/to/Component.svelte');
+  });
+
+  it('imports are extracted correctly from .svelte script blocks', async () => {
+    const svelteContent: string = [
+      '<script lang="ts">',
+      "import { onMount } from 'svelte';",
+      "import type { PageData } from './$types';",
+      'let x = 1;',
+      '</script>',
+      '<p>content</p>',
+    ].join('\n');
+
+    let capturedImports: unknown[] = [];
+    const rule: TypeScriptRule = {
+      id: 'test/svelte-imports',
+      description: 'Captures imports from svelte',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          capturedImports = ctx.imports as unknown as unknown[];
+          return [];
+        },
+      },
+    };
+
+    await runTypeScriptRules('Component.svelte', svelteContent, [rule]);
+    const imports = capturedImports as Array<{
+      source: string;
+      specifiers: Array<{ local: string }>;
+    }>;
+    expect(imports.length).toBe(2);
+    expect(imports[0]!.source).toBe('svelte');
+    expect(imports[0]!.specifiers[0]!.local).toBe('onMount');
+    expect(imports[1]!.source).toBe('./$types');
+  });
+
+  it('.svelte file with no script block produces zero results', async () => {
+    const svelteContent: string = [
+      '<div>',
+      '  <p>Hello world</p>',
+      '</div>',
+      '<style>p { color: blue; }</style>',
+    ].join('\n');
+
+    const rule: TypeScriptRule = {
+      id: 'test/svelte-empty',
+      description: 'Should not run on template-only svelte',
+      patterns: ['**/*.ts'],
+      visitor: {
+        Program(_node: AstNode, ctx: VisitorContext): LintResult[] {
+          return [
+            {
+              file: ctx.file,
+              line: 1,
+              column: 1,
+              severity: 'error',
+              message: 'should not appear',
+              ruleId: 'test/svelte-empty',
+              fix: { range: { start: 0, end: 0 }, text: '' },
+            },
+          ];
+        },
+      },
+    };
+
+    const results: LintResult[] = await runTypeScriptRules('Component.svelte', svelteContent, [
+      rule,
+    ]);
+    expect(results).toEqual([]);
+  });
+
+  it('non-svelte .ts files are unaffected (regression)', async () => {
+    const rule: TypeScriptRule = {
+      id: 'test/ts-regression',
+      description: 'Normal TS still works',
+      patterns: ['**/*.ts'],
+      visitor: {
+        VariableDeclaration(node: AstNode, ctx: VisitorContext): LintResult[] {
+          return [
+            {
+              file: ctx.file,
+              line: node.loc.start.line,
+              column: 1,
+              severity: 'error',
+              message: 'found var',
+              ruleId: 'test/ts-regression',
+              fix: { range: { start: node.start, end: node.end }, text: '' },
+            },
+          ];
+        },
+      },
+    };
+
+    const results: LintResult[] = await lint([rule], 'const x: number = 1;', 'module.ts');
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.file).toBe('module.ts');
+    expect(results[0]!.line).toBe(1);
+  });
+
+  it('.svelte.ts files still work correctly (regression)', async () => {
+    const rule: TypeScriptRule = {
+      id: 'test/svelte-ts-regression',
+      description: 'svelte.ts still works',
+      patterns: ['**/*.ts'],
+      visitor: {
+        VariableDeclaration(node: AstNode, ctx: VisitorContext): LintResult[] {
+          return [
+            {
+              file: ctx.file,
+              line: node.loc.start.line,
+              column: 1,
+              severity: 'error',
+              message: 'svelte.ts var',
+              ruleId: 'test/svelte-ts-regression',
+              fix: { range: { start: node.start, end: node.end }, text: '' },
+            },
+          ];
+        },
+      },
+    };
+
+    const results: LintResult[] = await lint([rule], 'const x: number = 1;', 'Component.svelte.ts');
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.file).toBe('Component.svelte.ts');
+  });
+});
+
+// =============================================================================
+// extractSvelteScript — edge cases (TASK 6)
+// =============================================================================
+
+describe('extractSvelteScript — edge cases', () => {
+  it('handles unclosed <script> tag gracefully — includes remaining lines', () => {
+    const svelte: string = ['<script lang="ts">', 'const x = 1;', 'const y = 2;'].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines.length).toBe(3);
+    expect(lines[0]).toBe('');
+    expect(lines[1]).toBe('const x = 1;');
+    expect(lines[2]).toBe('const y = 2;');
+  });
+
+  it('handles </script> inside a string literal in script block', () => {
+    const svelte: string = [
+      '<script lang="ts">',
+      'const tag = "</script>";',
+      'const x = 1;',
+      '</script>',
+    ].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[0]).toBe('');
+    expect(lines[1]).toBe('const tag = "</script>";');
+  });
+
+  it('style block between two script blocks — only script content extracted', () => {
+    const svelte: string = [
+      '<script context="module">',
+      'export const prerender = true;',
+      '</script>',
+      '',
+      '<style>',
+      '  div { color: red; }',
+      '</style>',
+      '',
+      '<script lang="ts">',
+      'let count = 0;',
+      '</script>',
+    ].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('export const prerender = true;');
+    expect(lines[5]).toBe('');
+    expect(lines[9]).toBe('let count = 0;');
+  });
+
+  it('file with only <style> block — returns empty, no crash', () => {
+    const svelte: string = ['<style>', '  div { color: blue; }', '</style>'].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    expect(result).toBe('');
+  });
+
+  it('script block with TypeScript generics using <T> — not confused with HTML', () => {
+    const svelte: string = [
+      '<script lang="ts">',
+      'function identity<T>(value: T): T { return value; }',
+      'const result = identity<string>("hello");',
+      '</script>',
+      '<p>content</p>',
+    ].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('function identity<T>(value: T): T { return value; }');
+    expect(lines[2]).toBe('const result = identity<string>("hello");');
+  });
+
+  it('svelte template with {@html} containing script-like content', () => {
+    const svelte: string = [
+      '<script lang="ts">',
+      'let html = "<script>alert(1)</script>";',
+      '</script>',
+      '{@html html}',
+    ].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[0]).toBe('');
+    expect(lines[1]).toContain('let html');
+  });
+
+  it('script block indented content preserves indentation', () => {
+    const svelte: string = [
+      '<script lang="ts">',
+      '  const x = 1;',
+      '    const y = 2;',
+      '</script>',
+    ].join('\n');
+
+    const result: string = extractSvelteScript(svelte);
+    const lines: string[] = result.split('\n');
+
+    expect(lines[1]).toBe('  const x = 1;');
+    expect(lines[2]).toBe('    const y = 2;');
+  });
+});
+
+// =============================================================================
+// runTypeScriptRules — Svelte source backfill (TASK 5 cont.)
+// =============================================================================
+
+describe('runTypeScriptRules — Svelte source backfill', () => {
+  it('backfills source from original content for .svelte files', async () => {
+    const svelteContent: string = [
+      '<p>template line</p>',
+      '<script lang="ts">',
+      'const badVar: number = 1;',
+      '</script>',
+    ].join('\n');
+
+    const rule: TypeScriptRule = {
+      id: 'test/svelte-backfill',
+      description: 'Reports without source',
+      patterns: ['**/*.ts'],
+      visitor: {
+        VariableDeclaration(node: AstNode, ctx: VisitorContext): LintResult[] {
+          return [
+            {
+              file: ctx.file,
+              line: node.loc.start.line,
+              column: 1,
+              severity: 'error',
+              message: 'backfill check',
+              ruleId: 'test/svelte-backfill',
+              fix: { range: { start: node.start, end: node.end }, text: '' },
+            },
+          ];
+        },
+      },
+    };
+
+    const results: LintResult[] = await runTypeScriptRules('Component.svelte', svelteContent, [
+      rule,
+    ]);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0]!.source).toBe('const badVar: number = 1;');
   });
 });

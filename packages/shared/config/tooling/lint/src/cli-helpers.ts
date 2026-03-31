@@ -1070,10 +1070,18 @@ export async function _runLintCore(
     /* Filter rules by file pattern AND per-file severity (overrides may disable) */
     const applicableRules: TypeScriptRule[] = allTsRules.filter((rule: TypeScriptRule): boolean => {
       /* Check file pattern match */
+      const isSvelteFile: boolean = filePath.endsWith('.svelte');
       const patternMatch: boolean = rule.patterns.some((pattern: string): boolean => {
         if (pattern.startsWith('**/*.')) {
           const ext: string = pattern.slice(4);
-          return filePath.endsWith(ext);
+          if (filePath.endsWith(ext)) {
+            return true;
+          }
+          // .svelte files also match TS patterns — script blocks are TypeScript
+          if (isSvelteFile && (ext === '.ts' || ext === '.svelte.ts')) {
+            return true;
+          }
+          return false;
         }
         return filePath.includes(pattern);
       });

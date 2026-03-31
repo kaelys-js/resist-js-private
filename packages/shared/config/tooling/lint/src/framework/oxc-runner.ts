@@ -46,6 +46,60 @@ async function ensureOxcParser(): Promise<boolean> {
 }
 
 // =============================================================================
+// Svelte Script Extraction
+// =============================================================================
+
+/** Pattern matching `<script ...>` opening tags (case-insensitive, multiline-safe). */
+const SCRIPT_OPEN_RE: RegExp = /^<script(\s[^>]*)?>$/i;
+
+/** Pattern matching `</script>` closing tags. */
+const SCRIPT_CLOSE_RE: RegExp = /^<\/script\s*>$/i;
+
+/**
+ * Extract TypeScript/JavaScript content from `<script>` blocks in a Svelte file.
+ *
+ * Preserves line numbers by keeping all lines but blanking out non-script lines.
+ * This means line N in the returned string corresponds to line N in the original
+ * file, so AST line numbers map correctly without offset adjustment.
+ *
+ * Supports multiple script blocks (module + instance), all Svelte 4/5 attributes:
+ * `<script>`, `<script lang="ts">`, `<script module>`, `<script context="module">`.
+ *
+ * @param {string} content - Raw `.svelte` file content
+ * @returns {string} Extracted script content with non-script lines blanked
+ */
+export function extractSvelteScript(content: string): string {
+  const lines: string[] = content.split('\n');
+  const output: string[] = new Array<string>(lines.length).fill('');
+  let inScript: boolean = false;
+  let foundAny: boolean = false;
+
+  for (let i: number = 0; i < lines.length; i++) {
+    const trimmed: string = (lines[i] ?? '').trim();
+
+    if (!inScript) {
+      if (SCRIPT_OPEN_RE.test(trimmed)) {
+        inScript = true;
+        foundAny = true;
+        /* The opening <script> tag line itself is blanked — only content lines are kept */
+      }
+    } else {
+      if (SCRIPT_CLOSE_RE.test(trimmed)) {
+        inScript = false;
+      } else {
+        output[i] = lines[i] ?? '';
+      }
+    }
+  }
+
+  if (!foundAny) {
+    return '';
+  }
+
+  return output.join('\n');
+}
+
+// =============================================================================
 // Line Map (byte offset → line/column)
 // =============================================================================
 
@@ -323,17 +377,35 @@ export async function runTypeScriptRules(
     return [];
   }
 
+  // For .svelte files, extract script blocks and parse as TypeScript
+  const isSvelte: boolean = filePath.endsWith('.svelte');
+  let parseContent: string = content;
+  let parseFilePath: string = filePath;
+
+  if (isSvelte) {
+    const extracted: string = extractSvelteScript(content);
+    if (extracted.trim() === '') {
+      return []; // No script block — nothing to lint
+    }
+    parseContent = extracted;
+    parseFilePath = filePath + '.ts'; // Tell oxc-parser to treat as TypeScript
+  }
+
   let ast: AstNode;
   try {
-    const result: { program: unknown } = parseSync(filePath, content) as { program: unknown };
+    const result: { program: unknown } = parseSync(parseFilePath, parseContent) as {
+      program: unknown;
+    };
     ast = result.program as AstNode; // Safe: oxc-parser returns AST program node
   } catch {
     /* Parse error — skip file */
     return [];
   }
 
-  // oxc-parser only provides byte offsets — patch loc onto all nodes
-  const lineStarts: number[] = buildLineStarts(content);
+  // oxc-parser only provides byte offsets — patch loc using the PARSED content's line map
+  // For .svelte files, parseContent has blanked non-script lines so byte offsets
+  // map to the correct line numbers in the original file
+  const lineStarts: number[] = buildLineStarts(parseContent);
   patchLoc(ast, lineStarts);
 
   // Extract imports ONCE per file, create contexts ONCE per rule (not per node)
@@ -341,7 +413,10 @@ export async function runTypeScriptRules(
   const contexts: Map<string, VisitorContext> = new Map();
   for (const rule of rules) {
     const ruleOpts: Record<string, unknown> | undefined = allRuleOptions?.[rule.id];
-    contexts.set(rule.id, createVisitorContext(filePath, content, ast, imports, rule, ruleOpts));
+    contexts.set(
+      rule.id,
+      createVisitorContext(filePath, parseContent, ast, imports, rule, ruleOpts),
+    );
   }
 
   const results: LintResult[] = [];
@@ -367,7 +442,7 @@ export async function runTypeScriptRules(
     }
   });
 
-  /* Backfill `source` on results that don't already have it */
+  /* Backfill `source` on results that don't already have it — use original content for source lines */
   const lines: string[] = content.split('\n');
   for (const result of results) {
     if (!result.source && result.line >= 1 && result.line <= lines.length) {
