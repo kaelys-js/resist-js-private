@@ -87,7 +87,7 @@ export const en: LintStrings = {
 
   flags: {
     bail: '--bail                Stop on first file with errors',
-    cache: '--cache               Cache file hashes for incremental runs',
+    cache: '--cache               Cache file hashes for incremental runs (default: enabled)',
     category: '--category=name[,...] Run only rules in the specified category(ies)',
     config: '--config=path         Custom config file path',
     debug: '--debug               Verbose debug logging to stderr',

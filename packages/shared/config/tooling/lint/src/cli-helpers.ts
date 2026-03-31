@@ -171,7 +171,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
 
   return {
     bail: flags.includes('--bail'),
-    cache: flags.includes('--cache') && !flags.includes('--no-cache'),
+    cache: !flags.includes('--no-cache'),
     categories,
     configPath,
     debug: flags.includes('--debug'),
@@ -1036,9 +1036,19 @@ export async function _runLintCore(
     dbg(strings.debug.cacheDeleted);
   }
 
+  /* Identify rules with finalize() — these need check() on ALL files for cross-file state */
+  const finalizeRuleIds: Set<string> = new Set();
+  for (const rule of allTsRules) {
+    if (rule.finalize) {
+      finalizeRuleIds.add(rule.id);
+    }
+  }
+  const hasFinalizeRules: boolean = finalizeRuleIds.size > 0;
+
   /* Run TypeScript rules on each file — read all files concurrently */
   type FileTask = { filePath: string; content: string; applicableRules: TypeScriptRule[] };
   const tasks: FileTask[] = [];
+  const finalizeStateTasks: FileTask[] = [];
   const cachedResults: LintResult[] = [];
 
   const fileContents: Map<string, string> = new Map();
@@ -1060,11 +1070,12 @@ export async function _runLintCore(
     }
 
     /* Check cache first */
+    let cacheHit: boolean = false;
     if (lintCache) {
       const cached: LintResult[] | null = lintCache.get(filePath, content);
       if (cached) {
         cachedResults.push(...cached);
-        continue;
+        cacheHit = true;
       }
     }
 
@@ -1101,7 +1112,21 @@ export async function _runLintCore(
     if (applicableRules.length === 0) {
       continue;
     }
-    tasks.push({ applicableRules, content, filePath });
+
+    if (cacheHit) {
+      /* Cache hit — only finalize rules need check() to populate cross-file state.
+       * Non-finalize check() results are already in cachedResults. */
+      if (hasFinalizeRules) {
+        const finalizeRules: TypeScriptRule[] = applicableRules.filter(
+          (r: TypeScriptRule): boolean => r.finalize !== undefined,
+        );
+        if (finalizeRules.length > 0) {
+          finalizeStateTasks.push({ applicableRules: finalizeRules, content, filePath });
+        }
+      }
+    } else {
+      tasks.push({ applicableRules, content, filePath });
+    }
   }
 
   let allResults: LintResult[];
@@ -1161,6 +1186,18 @@ export async function _runLintCore(
     allResults = taskResults.flat();
   }
 
+  /* Populate finalize rule state for cached files — check() must run on ALL files
+   * so finalize() has complete cross-file data. Results are discarded since
+   * cached check() results are already in cachedResults. */
+  if (finalizeStateTasks.length > 0) {
+    await Promise.all(
+      finalizeStateTasks.map(
+        (task: FileTask): Promise<LintResult[]> =>
+          runTypeScriptRules(task.filePath, task.content, task.applicableRules, config.ruleOptions),
+      ),
+    );
+  }
+
   /* Run finalize() on rules that aggregate cross-file data */
   if (!bailed) {
     for (const rule of allTsRules) {
@@ -1170,11 +1207,15 @@ export async function _runLintCore(
     }
   }
 
-  /* Update cache with newly-linted file results */
+  /* Update cache with newly-linted file results (exclude finalize results —
+   * they are cross-file aggregations that can't be correctly cached per-file) */
   if (lintCache) {
     /* Group results by file for cache storage */
     const resultsByFile: Map<string, LintResult[]> = new Map();
     for (const result of allResults) {
+      if (finalizeRuleIds.has(result.ruleId)) {
+        continue;
+      }
       const existing: LintResult[] = resultsByFile.get(result.file) ?? [];
       existing.push(result);
       resultsByFile.set(result.file, existing);
