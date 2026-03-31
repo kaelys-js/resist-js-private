@@ -34,7 +34,11 @@ export function createConfigWatcher(
       () => {
         for (const doc of vscode.workspace.textDocuments) {
           if (doc.uri.scheme === 'file' && !doc.isUntitled) {
-            lintFn(doc);
+            try {
+              lintFn(doc);
+            } catch {
+              // Errors from individual lint calls should not stop re-linting other files
+            }
           }
         }
       },

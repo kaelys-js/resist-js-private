@@ -14,6 +14,7 @@ import * as vscode from 'vscode';
 import { DocumentDebouncer } from './shared/debounce';
 import { createStatusBar, updateStatusBar, getFileDiagnosticCounts } from './shared/status-bar';
 import { createOutputChannel, log, logError } from './shared/output';
+import { safeRun, safeRunAsync } from './shared/errors';
 import { getBinaryPath } from './shared/workspace';
 import { lintDocument, type LintOptions } from './lint/provider';
 import { ResistCodeActionProvider } from './lint/code-actions';
@@ -90,7 +91,9 @@ export function activate(context: vscode.ExtensionContext): void {
     if (!config.get<boolean>('lint.enable', true)) {
       return;
     }
-    void lintDocument(doc, diagnosticCollection, outputChannel, statusBarItem, getLintOptions());
+    void safeRunAsync(outputChannel, 'lintDocument', () =>
+      lintDocument(doc, diagnosticCollection, outputChannel, statusBarItem, getLintOptions()),
+    );
   };
 
   // ========================================================================
@@ -121,50 +124,61 @@ export function activate(context: vscode.ExtensionContext): void {
   // Lint on open
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument((doc) => {
-      const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('resist');
-      if (config.get<boolean>('lint.enable', true) && config.get<boolean>('lint.onOpen', true)) {
-        lintDoc(doc);
-      }
+      safeRun(outputChannel, 'onDidOpen', () => {
+        const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('resist');
+        if (config.get<boolean>('lint.enable', true) && config.get<boolean>('lint.onOpen', true)) {
+          lintDoc(doc);
+        }
+      });
     }),
   );
 
   // Lint on save
   context.subscriptions.push(
     vscode.workspace.onDidSaveTextDocument((doc) => {
-      const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('resist');
-      if (config.get<boolean>('lint.enable', true) && config.get<boolean>('lint.onSave', true)) {
-        lintDoc(doc);
-      }
+      safeRun(outputChannel, 'onDidSave', () => {
+        const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('resist');
+        if (config.get<boolean>('lint.enable', true) && config.get<boolean>('lint.onSave', true)) {
+          lintDoc(doc);
+        }
+      });
     }),
   );
 
   // Lint on type (debounced)
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
-      const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('resist');
-      if (!config.get<boolean>('lint.enable', true) || !config.get<boolean>('lint.onType', true)) {
-        return;
-      }
+      safeRun(outputChannel, 'onDidChange', () => {
+        const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('resist');
+        if (
+          !config.get<boolean>('lint.enable', true) ||
+          !config.get<boolean>('lint.onType', true)
+        ) {
+          return;
+        }
 
-      if (event.contentChanges.length === 0) {
-        return;
-      }
+        if (event.contentChanges.length === 0) {
+          return;
+        }
 
-      const doc: vscode.TextDocument = event.document;
-      if (doc.uri.scheme !== 'file' || doc.isUntitled) {
-        return;
-      }
+        const doc: vscode.TextDocument = event.document;
+        if (doc.uri.scheme !== 'file' || doc.isUntitled) {
+          return;
+        }
 
-      const debounceMs: number = config.get<number>('lint.debounceMs', 500);
-      debouncer.schedule(doc.uri.toString(), () => lintDoc(doc), debounceMs);
+        const debounceMs: number = config.get<number>('lint.debounceMs', 500);
+        debouncer.schedule(doc.uri.toString(), () => lintDoc(doc), debounceMs);
+      });
     }),
   );
 
   // Clear diagnostics on close
   context.subscriptions.push(
     vscode.workspace.onDidCloseTextDocument((doc) => {
-      diagnosticCollection.delete(doc.uri);
-      debouncer.cancel(doc.uri.toString());
+      safeRun(outputChannel, 'onDidClose', () => {
+        diagnosticCollection.delete(doc.uri);
+        debouncer.cancel(doc.uri.toString());
+      });
     }),
   );
 
@@ -174,12 +188,14 @@ export function activate(context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
-      if (editor) {
-        const counts = getFileDiagnosticCounts(diagnosticCollection, editor.document.uri);
-        updateStatusBar(statusBarItem, 'ready', counts);
-      } else {
-        updateStatusBar(statusBarItem, 'ready');
-      }
+      safeRun(outputChannel, 'onDidChangeEditor', () => {
+        if (editor) {
+          const counts = getFileDiagnosticCounts(diagnosticCollection, editor.document.uri);
+          updateStatusBar(statusBarItem, 'ready', counts);
+        } else {
+          updateStatusBar(statusBarItem, 'ready');
+        }
+      });
     }),
   );
 
@@ -189,14 +205,16 @@ export function activate(context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration('resist.lint')) {
-        // Re-lint all open documents with new settings
-        for (const doc of vscode.workspace.textDocuments) {
-          if (doc.uri.scheme === 'file' && !doc.isUntitled) {
-            lintDoc(doc);
+      safeRun(outputChannel, 'onDidChangeConfig', () => {
+        if (event.affectsConfiguration('resist.lint')) {
+          // Re-lint all open documents with new settings
+          for (const doc of vscode.workspace.textDocuments) {
+            if (doc.uri.scheme === 'file' && !doc.isUntitled) {
+              lintDoc(doc);
+            }
           }
         }
-      }
+      });
     }),
   );
 
@@ -235,7 +253,11 @@ export function activate(context: vscode.ExtensionContext): void {
  * Diagnostic collection and output channel are disposed via context.subscriptions.
  */
 export function deactivate(): void {
-  if (debouncer) {
-    debouncer.dispose();
+  try {
+    if (debouncer) {
+      debouncer.dispose();
+    }
+  } catch {
+    // Best-effort cleanup — extension host is shutting down
   }
 }
