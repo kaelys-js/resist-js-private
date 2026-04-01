@@ -135,8 +135,8 @@ elif echo "$COMMAND" | grep -qE '\bdd\s'; then
 elif echo "$COMMAND" | grep -qE '\b(mkfs|fdisk|parted)\b'; then
   REASON="disk formatting commands can destroy data"
 
-# > /dev/sda or similar device writes
-elif echo "$COMMAND" | grep -qE '>\s*/dev/'; then
+# > /dev/sda or similar device writes (exclude 2>/dev/null and 1>/dev/null fd redirects)
+elif echo "$COMMAND" | sed -E 's/[0-9]+>\s*\/dev\/null//g' | grep -qE '>\s*/dev/'; then
   REASON="writing to /dev/ devices can destroy data"
 
 # sudo (elevated privileges)
