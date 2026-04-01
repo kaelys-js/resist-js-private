@@ -5,7 +5,7 @@ This: @/lint
 Custom Linter:
   - Implement these rules "/Users/coleb/Desktop/webforge/_INTEGRATE/linter/.md", provide your explanation of each rule and what you plan to do.
 
-FOLLOW THE SAME PLAN FILE + TODO list + verification + task tracking you did in /Users/coleb/Desktop/webforge/docs/plans/2026-03-30-linter-phase-26.md! EXACTLY THE SAME!!
+FOLLOW THE SAME PLAN FILE + TODO list + verification + task tracking you did in /Users/coleb/Desktop/webforge/docs/plans/TEMPLATE.md! EXACTLY THE SAME!!
 
 DO NOT weaken assertions, skip errors, or dismiss warnings as "acceptable." Every single diagnostic must be resolved — either fix the code or fix the rule. DO NOT skip ANY branch — trace every if/else, try/catch, ternary, ??, ||. Use exact error codes in assertions.
 
