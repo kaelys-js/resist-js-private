@@ -10,7 +10,7 @@
  */
 
 import type { VscodeStrings } from './schema';
-import { BRAND_NAME, BINARY_NAME, PREVIEW_SCHEME } from '../shared/brand';
+import { BRAND_NAME, BINARY_NAME } from '../shared/brand';
 
 /**
  * English locale strings for the VSCode extension.
@@ -138,12 +138,12 @@ export const en: VscodeStrings = {
   },
 
   plurals: {
-    error: 'error',
-    errors: 'errors',
-    warning: 'warning',
-    warnings: 'warnings',
-    file: 'file',
-    files: 'files',
+    error: '# error',
+    errors: '# errors',
+    warning: '# warning',
+    warnings: '# warnings',
+    file: '# file',
+    files: '# files',
   },
 
   events: {
@@ -166,7 +166,6 @@ export const en: VscodeStrings = {
   diffPreview: {
     title: `${BRAND_NAME}: Fix Preview ↔ {file}`,
     noFixes: 'No auto-fixable problems to preview',
-    scheme: PREVIEW_SCHEME,
   },
 
   formatting: {

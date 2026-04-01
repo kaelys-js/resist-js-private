@@ -10,6 +10,7 @@
 import * as vscode from 'vscode';
 import type { ExtensionState } from './types';
 import { en } from '../locale/en';
+import { formatPlural } from '../locale/schema';
 import { COMMANDS } from './brand';
 
 /**
@@ -60,10 +61,18 @@ export function updateStatusBar(
       if (counts && (counts.errors > 0 || counts.warnings > 0)) {
         const parts: string[] = [];
         if (counts.errors > 0) {
-          parts.push(`$(error) ${counts.errors}`);
+          const errorLabel: string = formatPlural(counts.errors, {
+            one: en.plurals.error,
+            other: en.plurals.errors,
+          });
+          parts.push(`$(error) ${errorLabel}`);
         }
         if (counts.warnings > 0) {
-          parts.push(`$(warning) ${counts.warnings}`);
+          const warningLabel: string = formatPlural(counts.warnings, {
+            one: en.plurals.warning,
+            other: en.plurals.warnings,
+          });
+          parts.push(`$(warning) ${warningLabel}`);
         }
         item.text = parts.join(' ');
       } else {

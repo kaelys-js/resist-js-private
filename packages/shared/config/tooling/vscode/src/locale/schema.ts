@@ -334,8 +334,6 @@ export interface DiffPreviewStrings {
   readonly title: string;
   /** Message when no fixes are available. */
   readonly noFixes: string;
-  /** URI scheme for virtual fix preview documents. */
-  readonly scheme: string;
 }
 
 /** Strings for formatting provider. */

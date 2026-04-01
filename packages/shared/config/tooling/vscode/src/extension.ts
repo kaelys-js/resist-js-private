@@ -20,6 +20,13 @@ import { isWorkspaceDocument, forEachOpenDocument } from './shared/document-filt
 import { NotificationManager } from './shared/notifications';
 import { lintDocument, type LintOptions } from './lint/provider';
 import { ResistCodeActionProvider } from './lint/code-actions';
+import { FixDiffPreviewProvider } from './lint/diff-preview';
+import { DiagnosticFilter } from './lint/diagnostic-filter';
+import { StageIndicator } from './lint/stage-indicator';
+import { FixOnSaveManager } from './lint/fix-on-save';
+import { ResistCodeLensProvider } from './lint/code-lens';
+import { StaleDiagnosticCleaner } from './lint/stale-cleanup';
+import { ResistFormattingProvider } from './lint/formatting-provider';
 import { createConfigWatcher } from './lint/watcher';
 import { registerLintCommands } from './lint/commands';
 import { en } from './locale/en';
@@ -28,6 +35,7 @@ import {
   CONFIG_SECTION,
   CONFIG_LINT_SECTION,
   DIAGNOSTIC_COLLECTION_NAME,
+  PREVIEW_SCHEME,
 } from './shared/brand';
 
 // =============================================================================
@@ -36,6 +44,8 @@ import {
 
 let debouncer: DocumentDebouncer;
 let notificationManager: NotificationManager;
+let fixOnSaveManager: FixOnSaveManager;
+let staleDiagnosticCleaner: StaleDiagnosticCleaner;
 
 // =============================================================================
 // Activation
@@ -63,10 +73,30 @@ export function activate(context: vscode.ExtensionContext): void {
 
   notificationManager = new NotificationManager(outputChannel);
 
+  // Read activation-time config for feature flags
+  const activationConfig: vscode.WorkspaceConfiguration =
+    vscode.workspace.getConfiguration(CONFIG_SECTION);
+
+  // Feature class instances
+  const diagnosticFilter = new DiagnosticFilter(outputChannel);
+  const stageIndicator = new StageIndicator(statusBarItem, outputChannel);
+
+  fixOnSaveManager = new FixOnSaveManager(outputChannel);
+
+  const staleDiagnosticTimeoutMs: number = activationConfig.get<number>(
+    'lint.staleDiagnosticTimeoutMs',
+    300000,
+  );
+  staleDiagnosticCleaner = new StaleDiagnosticCleaner(staleDiagnosticTimeoutMs, outputChannel);
+
   context.subscriptions.push(diagnosticCollection);
   context.subscriptions.push(outputChannel);
   context.subscriptions.push({ dispose: () => debouncer.dispose() });
   context.subscriptions.push({ dispose: () => notificationManager.dispose() });
+  context.subscriptions.push(diagnosticFilter);
+  context.subscriptions.push(stageIndicator);
+  context.subscriptions.push({ dispose: () => fixOnSaveManager.dispose() });
+  context.subscriptions.push({ dispose: () => staleDiagnosticCleaner.dispose() });
 
   log(outputChannel, en.output.activated);
 
@@ -115,6 +145,47 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   // ========================================================================
+  // Diff Preview Content Provider
+  // ========================================================================
+
+  const diffPreviewProvider = new FixDiffPreviewProvider(diagnosticCollection);
+  context.subscriptions.push(
+    vscode.workspace.registerTextDocumentContentProvider(PREVIEW_SCHEME, diffPreviewProvider),
+  );
+
+  // ========================================================================
+  // Code Lens Provider
+  // ========================================================================
+
+  if (activationConfig.get<boolean>('lint.codeLens', false)) {
+    const codeLensProvider = new ResistCodeLensProvider(diagnosticCollection);
+    context.subscriptions.push(
+      vscode.languages.registerCodeLensProvider({ scheme: 'file' }, codeLensProvider),
+    );
+    context.subscriptions.push(codeLensProvider);
+  }
+
+  // ========================================================================
+  // Formatting Provider (lint fixes as format-on-save)
+  // ========================================================================
+
+  if (activationConfig.get<boolean>('lint.formatOnSave', false)) {
+    const formattingProvider = new ResistFormattingProvider(diagnosticCollection, outputChannel);
+    context.subscriptions.push(
+      vscode.languages.registerDocumentFormattingEditProvider(
+        { scheme: 'file' },
+        formattingProvider,
+      ),
+    );
+  }
+
+  // ========================================================================
+  // Stale Diagnostic Cleanup
+  // ========================================================================
+
+  staleDiagnosticCleaner.start(diagnosticCollection);
+
+  // ========================================================================
   // Config File Watcher
   // ========================================================================
 
@@ -140,13 +211,22 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
   );
 
-  // Lint on save
+  // Lint on save + fix on save
   context.subscriptions.push(
     vscode.workspace.onDidSaveTextDocument((doc) => {
       safeRun(outputChannel, 'onDidSave', () => {
         const config: vscode.WorkspaceConfiguration =
           vscode.workspace.getConfiguration(CONFIG_SECTION);
-        if (config.get<boolean>('lint.enable', true) && config.get<boolean>('lint.onSave', true)) {
+        if (!config.get<boolean>('lint.enable', true)) {
+          return;
+        }
+        // Auto-fix on save when enabled
+        if (config.get<boolean>('lint.fixOnSave', false)) {
+          void safeRunAsync(outputChannel, 'fixOnSave', async () => {
+            await fixOnSaveManager.handleSave(doc, diagnosticCollection);
+          });
+        }
+        if (config.get<boolean>('lint.onSave', true)) {
           lintDoc(doc);
         }
       });
@@ -174,6 +254,9 @@ export function activate(context: vscode.ExtensionContext): void {
         if (!isWorkspaceDocument(doc)) {
           return;
         }
+
+        // Track edit for stale diagnostic cleanup
+        staleDiagnosticCleaner.trackEdit(doc.uri);
 
         const debounceMs: number = config.get<number>('lint.debounceMs', 500);
         debouncer.schedule(doc.uri.toString(), () => lintDoc(doc), debounceMs);
@@ -233,14 +316,14 @@ export function activate(context: vscode.ExtensionContext): void {
     statusBarItem,
     lintDocumentFn: lintDoc,
     getLintOptions,
+    diagnosticFilter,
+    stageIndicator,
   });
 
   // ========================================================================
   // Lint Already-Open Documents
   // ========================================================================
 
-  const activationConfig: vscode.WorkspaceConfiguration =
-    vscode.workspace.getConfiguration(CONFIG_SECTION);
   if (
     activationConfig.get<boolean>('lint.enable', true) &&
     activationConfig.get<boolean>('lint.onOpen', true)
@@ -264,6 +347,12 @@ export function deactivate(): void {
     }
     if (notificationManager) {
       notificationManager.dispose();
+    }
+    if (fixOnSaveManager) {
+      fixOnSaveManager.dispose();
+    }
+    if (staleDiagnosticCleaner) {
+      staleDiagnosticCleaner.dispose();
     }
   } catch (error: unknown) {
     console.error('Deactivation error:', error instanceof Error ? error.message : String(error));

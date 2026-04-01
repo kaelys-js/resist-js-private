@@ -7,6 +7,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
 import { registerLintCommands } from './commands';
+import { DiagnosticFilter } from './diagnostic-filter';
+import { StageIndicator } from './stage-indicator';
 import { COMMANDS, DIAGNOSTIC_COLLECTION_NAME, BRAND_NAME } from '../shared/brand';
 
 // Capture registered command handlers
@@ -56,16 +58,24 @@ describe('Lint Commands', () => {
       },
     );
 
+    const diagnosticFilter = new DiagnosticFilter(outputChannel as unknown as vscode.OutputChannel);
+    const stageIndicator = new StageIndicator(
+      statusBarItem as unknown as vscode.StatusBarItem,
+      outputChannel as unknown as vscode.OutputChannel,
+    );
+
     registerLintCommands(context, {
       diagnosticCollection: diagnosticCollection as unknown as vscode.DiagnosticCollection,
       outputChannel: outputChannel as unknown as vscode.OutputChannel,
       statusBarItem: statusBarItem as unknown as vscode.StatusBarItem,
       lintDocumentFn,
       getLintOptions,
+      diagnosticFilter,
+      stageIndicator,
     });
   });
 
-  it('registers all 9 commands', () => {
+  it('registers all 15 commands', () => {
     const expectedCommands = [
       COMMANDS.lintFile,
       COMMANDS.lintWorkspace,
@@ -76,12 +86,18 @@ describe('Lint Commands', () => {
       COMMANDS.showOutput,
       COMMANDS.lintStaged,
       COMMANDS.lintUncommitted,
+      COMMANDS.previewFixes,
+      COMMANDS.showTiming,
+      COMMANDS.filterByCategory,
+      COMMANDS.clearFilter,
+      COMMANDS.removeUnusedImports,
+      COMMANDS.changeStage,
     ];
 
     for (const cmd of expectedCommands) {
       expect(commandHandlers.has(cmd), `Command ${cmd} should be registered`).toBe(true);
     }
-    expect(commandHandlers.size).toBe(9);
+    expect(commandHandlers.size).toBe(15);
   });
 
   it('resist.lint.file calls lintDocumentFn for active editor', () => {
@@ -190,7 +206,7 @@ describe('Lint Commands', () => {
   });
 
   it('commands add subscriptions to context', () => {
-    // 9 commands = 9 subscriptions pushed
-    expect(context.subscriptions.length).toBe(9);
+    // 15 commands = 15 subscriptions pushed
+    expect(context.subscriptions.length).toBe(15);
   });
 });
