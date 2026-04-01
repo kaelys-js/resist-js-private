@@ -8,6 +8,11 @@
 
 import * as vscode from 'vscode';
 import { lintWorkspace, type LintOptions, type DiagnosticWithData } from './provider';
+import { showFixDiffPreview } from './diff-preview';
+import { showTimingReport } from './profiling';
+import { removeUnusedImports } from './import-sorting';
+import type { DiagnosticFilter } from './diagnostic-filter';
+import type { StageIndicator } from './stage-indicator';
 import { clearCache, getBinaryPath } from '../shared/workspace';
 import { updateStatusBar } from '../shared/status-bar';
 import { log, logCommand, logError } from '../shared/output';
@@ -24,6 +29,8 @@ interface CommandDeps {
   readonly statusBarItem: vscode.StatusBarItem;
   readonly lintDocumentFn: (doc: vscode.TextDocument) => void;
   readonly getLintOptions: () => LintOptions;
+  readonly diagnosticFilter: DiagnosticFilter;
+  readonly stageIndicator: StageIndicator;
 }
 
 /**
@@ -33,8 +40,15 @@ interface CommandDeps {
  * @param deps - Injected dependencies from the extension entry point
  */
 export function registerLintCommands(context: vscode.ExtensionContext, deps: CommandDeps): void {
-  const { diagnosticCollection, outputChannel, statusBarItem, lintDocumentFn, getLintOptions } =
-    deps;
+  const {
+    diagnosticCollection,
+    outputChannel,
+    statusBarItem,
+    lintDocumentFn,
+    getLintOptions,
+    diagnosticFilter,
+    stageIndicator,
+  } = deps;
 
   // Lint current file
   context.subscriptions.push(
@@ -239,6 +253,57 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
           },
         );
       }),
+    ),
+  );
+
+  // Preview all fixes in a diff view
+  context.subscriptions.push(
+    vscode.commands.registerCommand(COMMANDS.previewFixes, () =>
+      safeRunAsync(outputChannel, COMMANDS.previewFixes, () =>
+        showFixDiffPreview(diagnosticCollection, outputChannel),
+      ),
+    ),
+  );
+
+  // Show per-rule performance timing
+  context.subscriptions.push(
+    vscode.commands.registerCommand(COMMANDS.showTiming, () =>
+      safeRunAsync(outputChannel, COMMANDS.showTiming, () => showTimingReport(outputChannel)),
+    ),
+  );
+
+  // Filter diagnostics by category
+  context.subscriptions.push(
+    vscode.commands.registerCommand(COMMANDS.filterByCategory, () =>
+      safeRunAsync(outputChannel, COMMANDS.filterByCategory, () =>
+        diagnosticFilter.showFilterQuickPick(diagnosticCollection),
+      ),
+    ),
+  );
+
+  // Clear diagnostic filter
+  context.subscriptions.push(
+    vscode.commands.registerCommand(COMMANDS.clearFilter, () => {
+      diagnosticFilter.clearFilter(diagnosticCollection);
+    }),
+  );
+
+  // Remove unused imports
+  context.subscriptions.push(
+    vscode.commands.registerCommand(COMMANDS.removeUnusedImports, () =>
+      safeRunAsync(outputChannel, COMMANDS.removeUnusedImports, async () => {
+        const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
+        if (editor) {
+          await removeUnusedImports(editor.document, diagnosticCollection, outputChannel);
+        }
+      }),
+    ),
+  );
+
+  // Change active lint stage
+  context.subscriptions.push(
+    vscode.commands.registerCommand(COMMANDS.changeStage, () =>
+      safeRunAsync(outputChannel, COMMANDS.changeStage, () => stageIndicator.showQuickPick()),
     ),
   );
 }

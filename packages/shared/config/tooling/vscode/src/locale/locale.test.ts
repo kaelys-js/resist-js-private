@@ -467,8 +467,8 @@ describe('Locale', () => {
     });
 
     it('works with en locale plurals strings', () => {
-      expect(formatPlural(1, { one: en.plurals.error, other: en.plurals.errors })).toBe('error');
-      expect(formatPlural(2, { one: en.plurals.error, other: en.plurals.errors })).toBe('errors');
+      expect(formatPlural(1, { one: en.plurals.error, other: en.plurals.errors })).toBe('1 error');
+      expect(formatPlural(2, { one: en.plurals.error, other: en.plurals.errors })).toBe('2 errors');
     });
   });
 

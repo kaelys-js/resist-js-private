@@ -37,28 +37,36 @@ describe('Status Bar', () => {
     expect(statusBarItem.backgroundColor).toBeUndefined();
   });
 
-  it('updateStatusBar("ready") with counts shows error/warning counts', () => {
+  it('updateStatusBar("ready") with counts shows pluralized error/warning counts', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready', {
       errors: 3,
       warnings: 7,
     });
-    expect(statusBarItem.text).toBe('$(error) 3 $(warning) 7');
+    expect(statusBarItem.text).toBe('$(error) 3 errors $(warning) 7 warnings');
   });
 
-  it('updateStatusBar("ready") with only errors shows error count', () => {
+  it('updateStatusBar("ready") with only errors shows pluralized error count', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready', {
       errors: 5,
       warnings: 0,
     });
-    expect(statusBarItem.text).toBe('$(error) 5');
+    expect(statusBarItem.text).toBe('$(error) 5 errors');
   });
 
-  it('updateStatusBar("ready") with only warnings shows warning count', () => {
+  it('updateStatusBar("ready") with only warnings shows pluralized warning count', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready', {
       errors: 0,
       warnings: 2,
     });
-    expect(statusBarItem.text).toBe('$(warning) 2');
+    expect(statusBarItem.text).toBe('$(warning) 2 warnings');
+  });
+
+  it('updateStatusBar("ready") uses singular form for count of 1', () => {
+    updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready', {
+      errors: 1,
+      warnings: 1,
+    });
+    expect(statusBarItem.text).toBe('$(error) 1 error $(warning) 1 warning');
   });
 
   it('updateStatusBar("ready") with zero counts shows check', () => {
