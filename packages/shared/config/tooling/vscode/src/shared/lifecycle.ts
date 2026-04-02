@@ -11,6 +11,7 @@
  */
 
 import type * as vscode from 'vscode';
+import { extractMessage } from './errors';
 import { logError, log } from './output';
 import { format } from '../locale/schema';
 import { en } from '../locale/en';
@@ -67,7 +68,7 @@ export class LifecycleManager {
       try {
         resource.disposable.dispose();
       } catch (error: unknown) {
-        const message: string = error instanceof Error ? error.message : String(error);
+        const message: string = extractMessage(error);
         if (channel) {
           logError(
             channel,

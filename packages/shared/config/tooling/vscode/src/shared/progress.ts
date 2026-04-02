@@ -11,6 +11,7 @@
  */
 
 import * as vscode from 'vscode';
+import { extractMessage } from './errors';
 import { logError, log } from './output';
 import { format } from '../locale/schema';
 import { en } from '../locale/en';
@@ -73,7 +74,7 @@ export async function withFileProgress<T>(
           const result: T = await processFn(uri);
           results.push({ uri, result });
         } catch (error: unknown) {
-          const message: string = error instanceof Error ? error.message : String(error);
+          const message: string = extractMessage(error);
           logError(
             channel,
             format(en.progressHelper.fileError, { file: uri.fsPath, error: message }),

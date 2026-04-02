@@ -9,6 +9,7 @@
 
 import * as vscode from 'vscode';
 import { createFileWatcher } from '../shared/file-watcher';
+import { extractMessage } from '../shared/errors';
 import { logError } from '../shared/output';
 import { format } from '../locale/schema';
 import { en } from '../locale/en';
@@ -35,7 +36,7 @@ export function createConfigWatcher(
           lintFn(doc);
         } catch (error: unknown) {
           if (outputChannel) {
-            const msg = error instanceof Error ? error.message : String(error);
+            const msg = extractMessage(error);
             logError(
               outputChannel,
               format(en.watcher.relintError, { file: doc.uri.fsPath, error: msg }),

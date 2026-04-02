@@ -11,6 +11,7 @@
  */
 
 import * as vscode from 'vscode';
+import { extractMessage } from './errors';
 import { logError } from './output';
 import { format } from '../locale/schema';
 import { en } from '../locale/en';
@@ -61,7 +62,7 @@ export function forEachOpenDocument(
     try {
       action(doc);
     } catch (error: unknown) {
-      const message: string = error instanceof Error ? error.message : String(error);
+      const message: string = extractMessage(error);
       if (channel) {
         logError(
           channel,
