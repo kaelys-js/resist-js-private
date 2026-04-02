@@ -5,13 +5,16 @@ This: @/lint
 Custom Linter:
   - Implement these rules "/Users/coleb/Desktop/webforge/_INTEGRATE/linter/.md", provide your explanation of each rule and what you plan to do.
 
-Follow /Users/coleb/Desktop/webforge/docs/plans/TEMPLATE.md EXACTLY THEN EnterPlanMode THEN Write The Plan File To docs/plans and lint that specific file to verify its compliance.
-
 DO NOT weaken assertions, skip errors, or dismiss warnings as "acceptable." Every single diagnostic must be resolved — either fix the code or fix the rule. DO NOT skip ANY branch — trace every if/else, try/catch, ternary, ??, ||. Use exact error codes in assertions.
 
-CRITICAL: Re-Invoke the fix-bug skill. Read CLAUDE.md. Read MEMORY.md. Present a detailed changelog. VERIFY IMPLEMENTATION THOROUGHLY AGAINST APPROVED CHANGELOG AT THE END. Use a TodoList to track and verify each step against approved changelog.
-
-<REQUIRED, DO NOT SKIP> DO THIS FIRST: RE-READ EVERY WORD AND RE-READ CLAUDE.md AND MEMORY.md AND RE-INVOKE fix-bug SKILL, THIS IS NOT OPTIONAL!!!
+Steps (MANDATORY, DO NOT SKIP, READ EVERY WORD, FOLLOW EXACTLY):
+- Re-invoke the fix-bug skill
+- Read CLAUDE.md
+- Follow /Users/coleb/Desktop/webforge/docs/plans/TEMPLATE.md EXACTLY THEN EnterPlanMode
+- After ExitPlanMode write the approved plan to docs/plans/[file].md
+- docs/plans/[file].md: Run Linter Against The Plan File And Fix All Issues
+- EnterPlanMode with docs/plans/[file].md
+- Use TodoList for Tracking
 
 - [Prompt 8]
   COMMIT EVERYTHING UNSTAGED AND THEN:

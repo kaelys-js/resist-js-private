@@ -645,6 +645,7 @@
   "ruleOptions": {
     "comments/no-lint-disable": {
       "allowedTargets": [
+        "max-classes-per-file",
         "max-lines",
         "max-lines-per-function",
         "no-array-for-each",

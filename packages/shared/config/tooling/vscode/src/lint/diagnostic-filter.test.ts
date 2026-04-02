@@ -27,6 +27,27 @@ function createChannel(): any {
   return { appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn(), name: BRAND_NAME };
 }
 
+/** Creates a mock collection that is iterable (for...of) and has forEach. */
+function createMockCollection(entries: Array<[vscode.Uri, any[]]>): any {
+  return {
+    *[Symbol.iterator]() {
+      for (const entry of entries) {
+        yield entry;
+      }
+    },
+    forEach: vi.fn((cb: any) => {
+      for (const [uri, diags] of entries) {
+        cb(uri, diags);
+      }
+    }),
+    set: vi.fn(),
+    get: vi.fn(),
+    clear: vi.fn(),
+    delete: vi.fn(),
+    dispose: vi.fn(),
+  };
+}
+
 // =============================================================================
 // Tests
 // =============================================================================
@@ -72,20 +93,16 @@ describe('DiagnosticFilter', () => {
   });
 
   it('applies category filter to diagnostics', () => {
-    const collection: any = {
-      forEach: vi.fn((cb: any) => {
-        cb(vscode.Uri.file('/test.ts'), [
+    const collection = createMockCollection([
+      [
+        vscode.Uri.file('/test.ts'),
+        [
           createDiag('naming/no-default'),
           createDiag('jsdoc/require-param'),
           createDiag('testing/no-skip'),
-        ]);
-      }),
-      set: vi.fn(),
-      get: vi.fn(),
-      clear: vi.fn(),
-      delete: vi.fn(),
-      dispose: vi.fn(),
-    };
+        ],
+      ],
+    ]);
 
     filter.applyFilter(['naming'], collection);
 
@@ -97,16 +114,7 @@ describe('DiagnosticFilter', () => {
 
   it('clears filter and restores original diagnostics', () => {
     const originalDiags = [createDiag('naming/no-default'), createDiag('jsdoc/require-param')];
-    const collection: any = {
-      forEach: vi.fn((cb: any) => {
-        cb(vscode.Uri.file('/test.ts'), originalDiags);
-      }),
-      set: vi.fn(),
-      get: vi.fn(),
-      clear: vi.fn(),
-      delete: vi.fn(),
-      dispose: vi.fn(),
-    };
+    const collection = createMockCollection([[vscode.Uri.file('/test.ts'), originalDiags]]);
 
     // Apply then clear
     filter.applyFilter(['naming'], collection);
@@ -120,10 +128,8 @@ describe('DiagnosticFilter', () => {
   });
 
   it('returns active categories when filter is applied', () => {
-    const collection: any = {
-      forEach: vi.fn(),
-      set: vi.fn(),
-    };
+    const collection = createMockCollection([]);
+
     filter.applyFilter(['naming', 'jsdoc'], collection);
 
     const active = filter.getActiveCategories();
@@ -132,17 +138,15 @@ describe('DiagnosticFilter', () => {
   });
 
   it('clears filter when empty categories provided', () => {
-    const collection: any = {
-      forEach: vi.fn(),
-      set: vi.fn(),
-    };
+    const collection = createMockCollection([]);
 
     filter.applyFilter([], collection);
     expect(filter.getActiveCategories()).toBeUndefined();
   });
 
   it('logs filter application', () => {
-    const collection: any = { forEach: vi.fn(), set: vi.fn() };
+    const collection = createMockCollection([]);
+
     filter.applyFilter(['naming'], collection);
 
     const logCalls = channel.appendLine.mock.calls.map((c: any) => c[0]);

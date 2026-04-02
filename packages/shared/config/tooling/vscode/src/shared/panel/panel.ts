@@ -62,9 +62,10 @@ export function registerPanel(
   /** Updates the TreeView badge with the total lint issue count. */
   function updateBadge(): void {
     let totalCount = 0;
-    diagnosticCollection.forEach((_uri: vscode.Uri, diagnostics: readonly vscode.Diagnostic[]) => {
+
+    for (const [_uri, diagnostics] of diagnosticCollection) {
       totalCount += diagnostics.length;
-    });
+    }
 
     if (totalCount > 0) {
       treeView.badge = {
@@ -105,9 +106,8 @@ export function registerPanel(
   // Expand All — reveal each root section with expand depth 2
   registerCommand(context, outputChannel, COMMANDS.panelExpandAll, async () => {
     const roots = provider.getRoots();
-    for (const root of roots) {
-      await treeView.reveal(root, { select: false, expand: 2 });
-    }
+
+    await Promise.all(roots.map((root) => treeView.reveal(root, { select: false, expand: 2 })));
   });
 
   // Filter — show input box, apply filter to provider
@@ -116,6 +116,7 @@ export function registerPanel(
       placeHolder: en.panel.filterPlaceholder,
       value: provider.getFilterText(),
     });
+
     if (input !== undefined) {
       provider.setFilter(input);
       treeView.description = input ? format(en.panel.filterActive, { text: input }) : undefined;
@@ -123,7 +124,7 @@ export function registerPanel(
   });
 
   // Clear Filter
-  registerCommand(context, outputChannel, COMMANDS.panelClearFilter, async () => {
+  registerCommand(context, outputChannel, COMMANDS.panelClearFilter, () => {
     provider.clearFilter();
     treeView.description = undefined;
   });

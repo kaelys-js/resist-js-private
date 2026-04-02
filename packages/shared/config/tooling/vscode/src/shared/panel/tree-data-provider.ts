@@ -20,8 +20,8 @@ import {
   RuleGroupItem,
   DiagnosticDetailItem,
   PlaceholderItem,
+  type ToolKey,
 } from './tree-items';
-import type { ToolKey } from './tree-items';
 
 // =============================================================================
 // Provider
@@ -91,25 +91,31 @@ export class ResistTreeDataProvider implements vscode.TreeDataProvider<vscode.Tr
 
     if (element instanceof SectionItem) {
       const children = this.getSectionChildren(element.toolKey);
+
       for (const child of children) {
         this.parentMap.set(child, element);
       }
+
       return children;
     }
 
     if (element instanceof FileDiagnosticItem) {
       const children = this.getRuleGroupChildren(element);
+
       for (const child of children) {
         this.parentMap.set(child, element);
       }
+
       return children;
     }
 
     if (element instanceof RuleGroupItem) {
       const children = this.getDiagnosticChildren(element);
+
       for (const child of children) {
         this.parentMap.set(child, element);
       }
+
       return children;
     }
 
@@ -221,56 +227,53 @@ export class ResistTreeDataProvider implements vscode.TreeDataProvider<vscode.Tr
     const fileItems: vscode.TreeItem[] = [];
     const filter = this.filterText.toLowerCase();
 
-    this.diagnosticCollection.forEach(
-      (
-        uri: vscode.Uri,
-        diagnostics: readonly vscode.Diagnostic[],
-        _collection: vscode.DiagnosticCollection,
-      ) => {
-        if (diagnostics.length === 0) {
-          return;
+    for (const [uri, diagnostics] of this.diagnosticCollection) {
+      if (diagnostics.length === 0) {
+        continue;
+      }
+
+      // Apply filter: match filename, message, or rule ID
+      const filtered: vscode.Diagnostic[] = filter
+        ? diagnostics.filter((diag) => {
+            const filename = uri.fsPath.toLowerCase();
+            const message = diag.message.toLowerCase();
+            const { code } = diag;
+
+            let ruleId: string;
+
+            if (typeof code === 'string') {
+              ruleId = code.toLowerCase();
+            } else if (typeof code === 'number') {
+              ruleId = String(code);
+            } else if (code && typeof code === 'object' && 'value' in code) {
+              ruleId = String(code.value).toLowerCase();
+            } else {
+              ruleId = '';
+            }
+
+            return filename.includes(filter) || message.includes(filter) || ruleId.includes(filter);
+          })
+        : [...diagnostics];
+
+      if (filtered.length === 0) {
+        continue;
+      }
+
+      let errors = 0;
+      let warnings = 0;
+
+      for (const diag of filtered) {
+        if (diag.severity === vscode.DiagnosticSeverity.Error) {
+          errors++;
+        } else if (diag.severity === vscode.DiagnosticSeverity.Warning) {
+          warnings++;
         }
+      }
 
-        // Apply filter: match filename, message, or rule ID
-        const filtered: vscode.Diagnostic[] = filter
-          ? diagnostics.filter((diag) => {
-              const filename = uri.fsPath.toLowerCase();
-              const message = diag.message.toLowerCase();
-              const code = diag.code;
-              const ruleId: string =
-                typeof code === 'string'
-                  ? code.toLowerCase()
-                  : typeof code === 'number'
-                    ? String(code)
-                    : code && typeof code === 'object' && 'value' in code
-                      ? String(code.value).toLowerCase()
-                      : '';
-              return (
-                filename.includes(filter) || message.includes(filter) || ruleId.includes(filter)
-              );
-            })
-          : Array.from(diagnostics);
-
-        if (filtered.length === 0) {
-          return;
-        }
-
-        let errors = 0;
-        let warnings = 0;
-
-        for (const diag of filtered) {
-          if (diag.severity === vscode.DiagnosticSeverity.Error) {
-            errors++;
-          } else if (diag.severity === vscode.DiagnosticSeverity.Warning) {
-            warnings++;
-          }
-        }
-
-        if (errors > 0 || warnings > 0) {
-          fileItems.push(new FileDiagnosticItem(uri, errors, warnings, filtered));
-        }
-      },
-    );
+      if (errors > 0 || warnings > 0) {
+        fileItems.push(new FileDiagnosticItem(uri, errors, warnings, filtered));
+      }
+    }
 
     if (fileItems.length === 0) {
       if (filter) {

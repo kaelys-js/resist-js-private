@@ -61,7 +61,7 @@ export class LifecycleManager {
    * @param channel - Optional output channel for logging (should be the last to dispose)
    */
   disposeAll(channel?: vscode.OutputChannel): void {
-    const sorted: ManagedDisposable[] = [...this.resources].sort(
+    const sorted: ManagedDisposable[] = [...this.resources].toSorted(
       (a: ManagedDisposable, b: ManagedDisposable) => b.priority - a.priority,
     );
 

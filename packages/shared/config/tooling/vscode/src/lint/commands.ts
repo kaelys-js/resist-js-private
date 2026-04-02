@@ -9,20 +9,19 @@
 import * as vscode from 'vscode';
 import { lintWorkspace, type LintOptions, type DiagnosticWithData } from './provider';
 import { showFixDiffPreview, applyFixes } from './diff-preview';
-import { showTimingReport } from './profiling';
+import { showRulesViewer } from './rules-viewer';
 import { removeUnusedImports } from './import-sorting';
 import type { DiagnosticFilter } from './diagnostic-filter';
 import type { StageIndicator } from './stage-indicator';
 import type { ConfigManager } from '../shared/config';
 import { registerCommand, registerTextEditorCommand } from '../shared/command-registration';
-import { clearCache, getBinaryPath } from '../shared/workspace';
+import { clearCache } from '../shared/workspace';
 import type { ToolStateManager } from '../shared/state';
 import { withFileProgress } from '../shared/progress';
-import { log, logCommand, logError } from '../shared/output';
-import { runToolText } from '../shared/runner';
+import { log, logError } from '../shared/output';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
-import { BINARY_NAME, COMMANDS } from '../shared/brand';
+import { COMMANDS } from '../shared/brand';
 
 /** Dependencies injected from the extension entry point. */
 type CommandDeps = {
@@ -157,41 +156,9 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     return Promise.resolve();
   });
 
-  // Show available rules in output channel
+  // Show available rules in a formatted markdown tab
   registerCommand(context, outputChannel, COMMANDS.listRules, async () => {
-    const folders: readonly vscode.WorkspaceFolder[] | undefined =
-      vscode.workspace.workspaceFolders;
-    const [firstFolder] = folders ?? [];
-
-    if (!firstFolder) {
-      vscode.window.showErrorMessage(en.messages.noWorkspaceFolder);
-      return;
-    }
-
-    const binPath: string | undefined = getBinaryPath(BINARY_NAME, firstFolder.uri);
-
-    if (!binPath) {
-      vscode.window.showErrorMessage(en.messages.binaryNotInNodeModules);
-      return;
-    }
-
-    const { fsPath: cwd } = firstFolder.uri;
-    logCommand(outputChannel, binPath, ['--list-rules']);
-
-    const result = await runToolText({
-      command: binPath,
-      args: ['--list-rules'],
-      cwd,
-    });
-
-    outputChannel.appendLine('');
-    outputChannel.appendLine(en.messages.availableRulesHeader);
-    if (result.ok) {
-      outputChannel.appendLine(result.data);
-    } else {
-      outputChannel.appendLine(result.error);
-    }
-    outputChannel.show();
+    await showRulesViewer();
   });
 
   // Clear cache, re-lint all open files with progress
@@ -261,11 +228,6 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     await showFixDiffPreview(diagnosticCollection, outputChannel);
   });
 
-  // Show per-rule performance timing
-  registerCommand(context, outputChannel, COMMANDS.showTiming, async () => {
-    await showTimingReport(outputChannel);
-  });
-
   // Filter diagnostics by category
   registerCommand(context, outputChannel, COMMANDS.filterByCategory, async () => {
     await diagnosticFilter.showFilterQuickPick(diagnosticCollection);
@@ -309,6 +271,17 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     await config.update('enable', !currentValue, vscode.ConfigurationTarget.Workspace);
   });
 
+  // Toggle debug mode on/off
+  registerCommand(context, outputChannel, COMMANDS.debugToggle, async () => {
+    const config = vscode.workspace.getConfiguration('resist.lint');
+    const current: boolean = config.get<boolean>('debug', false);
+    await config.update('debug', !current, vscode.ConfigurationTarget.Workspace);
+    const message: string = current
+      ? en.statusBarMenu.debugDisabled
+      : en.statusBarMenu.debugEnabled;
+    await vscode.window.showInformationMessage(message);
+  });
+
   // Status bar click menu
   registerCommand(context, outputChannel, COMMANDS.statusBarMenu, async () => {
     const isEnabled: boolean = deps.configManager.get<boolean>('lint.enable', true);
@@ -332,7 +305,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
       { label: en.statusBarMenu.changeStage },
       { label: '', kind: vscode.QuickPickItemKind.Separator },
       { label: en.statusBarMenu.listRules },
-      { label: en.statusBarMenu.showTiming },
+      { label: en.statusBarMenu.debugToggle },
       { label: '', kind: vscode.QuickPickItemKind.Separator },
       { label: en.statusBarMenu.showOutput },
       { label: en.statusBarMenu.clearOutput },
@@ -361,7 +334,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
       [en.statusBarMenu.clearFilter]: COMMANDS.clearFilter,
       [en.statusBarMenu.changeStage]: COMMANDS.changeStage,
       [en.statusBarMenu.listRules]: COMMANDS.listRules,
-      [en.statusBarMenu.showTiming]: COMMANDS.showTiming,
+      [en.statusBarMenu.debugToggle]: COMMANDS.debugToggle,
       [en.statusBarMenu.showOutput]: COMMANDS.showOutput,
       [en.statusBarMenu.clearOutput]: COMMANDS.clearOutput,
     };

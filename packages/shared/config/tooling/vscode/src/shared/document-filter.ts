@@ -16,6 +16,28 @@ import { logError } from './output';
 import { format } from '../locale/schema';
 import { en } from '../locale/en';
 
+// =============================================================================
+// Constants
+// =============================================================================
+
+/** Language IDs that resist-lint can process on untitled documents. */
+const LINTABLE_LANGUAGES: ReadonlySet<string> = new Set([
+  'typescript',
+  'typescriptreact',
+  'javascript',
+  'javascriptreact',
+  'svelte',
+  'astro',
+  'html',
+  'vue',
+  'markdown',
+  'mdx',
+]);
+
+// =============================================================================
+// Exported API
+// =============================================================================
+
 /**
  * Checks whether a document is a workspace file (not untitled, file scheme).
  *
@@ -33,20 +55,6 @@ import { en } from '../locale/en';
 export function isWorkspaceDocument(doc: vscode.TextDocument): boolean {
   return doc.uri.scheme === 'file' && !doc.isUntitled;
 }
-
-/** Language IDs that resist-lint can process on untitled documents. */
-const LINTABLE_LANGUAGES: ReadonlySet<string> = new Set([
-  'typescript',
-  'typescriptreact',
-  'javascript',
-  'javascriptreact',
-  'svelte',
-  'astro',
-  'html',
-  'vue',
-  'markdown',
-  'mdx',
-]);
 
 /**
  * Checks whether a document can be linted (workspace file OR untitled with supported language).

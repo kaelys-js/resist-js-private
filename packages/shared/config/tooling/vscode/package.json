@@ -100,11 +100,6 @@
         "category": "Resist"
       },
       {
-        "command": "resist.lint.showTiming",
-        "title": "Show Per-Rule Performance Timing",
-        "category": "Resist"
-      },
-      {
         "command": "resist.lint.filterByCategory",
         "title": "Filter Diagnostics by Rule Category",
         "category": "Resist"
@@ -128,6 +123,12 @@
         "command": "resist.lint.clearOutput",
         "title": "Clear Output Channel",
         "category": "Resist"
+      },
+      {
+        "command": "resist.lint.debugToggle",
+        "title": "Toggle Debug Mode",
+        "category": "Resist",
+        "icon": "$(bug)"
       },
       {
         "command": "resist.lint.toggleEnable",
@@ -165,12 +166,12 @@
       },
       {
         "command": "resist.panel.showLocation",
-        "title": "Go to Location",
+        "title": "Ln/Col — Go to Line",
         "category": "Resist"
       },
       {
         "command": "resist.panel.showRule",
-        "title": "Copy Rule Name",
+        "title": "Rule — Copy to Clipboard",
         "category": "Resist"
       },
       {
@@ -286,7 +287,7 @@
           "group": "5_info@1"
         },
         {
-          "command": "resist.lint.showTiming",
+          "command": "resist.lint.debugToggle",
           "group": "5_info@2"
         },
         {
@@ -306,14 +307,6 @@
         {
           "command": "resist.lint.fix",
           "when": "viewItem == resist.fileDiagnostic"
-        },
-        {
-          "command": "resist.lint.workspace",
-          "when": "viewItem == resist.section"
-        },
-        {
-          "command": "resist.lint.clear",
-          "when": "viewItem == resist.section"
         },
         {
           "command": "resist.lint.restart",
@@ -478,11 +471,6 @@
           "type": "boolean",
           "default": false,
           "description": "Register the linter as a formatting provider so lint fixes run as part of format-on-save."
-        },
-        "resist.lint.showTiming": {
-          "type": "boolean",
-          "default": false,
-          "description": "Show per-rule performance timing breakdown in the output channel."
         },
         "resist.lint.staleDiagnosticTimeoutMs": {
           "type": "number",

@@ -102,7 +102,7 @@ function loadExcludeNames(cwd: string): ReadonlySet<string> {
     const configPath: string = join(cwd, '.resist-lint.jsonc');
     const raw: string = readFileSync(configPath, 'utf8');
     // Strip JSONC comments (// and /* */) for JSON.parse
-    const stripped: string = raw.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+    const stripped: string = raw.replaceAll(/\/\/.*$/gm, '').replaceAll(/\/\*[\s\S]*?\*\//g, '');
     const parsed = JSON.parse(stripped) as { exclude?: string[] };
     const names: string[] = (parsed.exclude ?? []).filter(
       (e: string): boolean => !e.includes('/') && !e.startsWith('*'),
@@ -116,6 +116,12 @@ function loadExcludeNames(cwd: string): ReadonlySet<string> {
 
 /**
  * Clears the cached exclude names. Call on config file changes.
+ *
+ * @example
+ * ```typescript
+ * // Listen for config file changes and invalidate the cache
+ * watcher.onDidChange(() => clearExcludeCache());
+ * ```
  */
 export function clearExcludeCache(): void {
   excludeNamesCache = undefined;
@@ -469,7 +475,7 @@ type AppendConfigOptions = {
  * Appends CLI flags derived from resist.lint.* settings to the args array.
  *
  * Reads cache, quiet, debug, severityOverride, rule, ignorePatterns,
- * jobs, tools, locale, bail, and showTiming settings.
+ * jobs, tools, locale, and bail settings.
  *
  * @param {string[]} args - The args array to append flags to
  * @param {AppendConfigOptions} options - Optional flags to control which args are appended
@@ -522,9 +528,6 @@ function appendConfigArgs(args: string[], options: AppendConfigOptions = {}): vo
   }
   if (config.get<boolean>('lint.bail', false)) {
     args.push('--bail');
-  }
-  if (config.get<boolean>('lint.showTiming', false)) {
-    args.push('--timing');
   }
 }
 

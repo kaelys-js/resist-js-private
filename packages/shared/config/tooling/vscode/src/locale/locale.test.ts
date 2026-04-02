@@ -192,12 +192,6 @@ describe('Locale', () => {
       expect(en.formatting.applied).toContain('{count}');
     });
 
-    it('profiling has all fields', () => {
-      assertAllStrings(en.profiling, 'profiling');
-      expect(en.profiling.ruleTime).toContain('{rule}');
-      expect(en.profiling.total).toContain('{ms}');
-    });
-
     it('filter has all fields', () => {
       assertAllStrings(en.filter, 'filter');
       expect(en.filter.filterApplied).toContain('{categories}');
@@ -258,13 +252,13 @@ describe('Locale', () => {
         'codeLens',
         'diffPreview',
         'formatting',
-        'profiling',
         'filter',
         'perFolder',
         'staleCleanup',
         'imports',
-        'statusBarMenu',
         'hover',
+        'rulesViewer',
+        'statusBarMenu',
         'stageIndicator',
         'panel',
       ];
@@ -356,11 +350,6 @@ describe('Locale', () => {
 
     it('formatting strings format correctly', () => {
       expect(format(en.formatting.applied, { count: 5 })).not.toContain('{');
-    });
-
-    it('profiling strings format correctly', () => {
-      expect(format(en.profiling.ruleTime, { rule: 'no-var', ms: 42 })).not.toContain('{');
-      expect(format(en.profiling.total, { ms: 100, count: 5 })).not.toContain('{');
     });
 
     it('filter strings format correctly', () => {

@@ -12,6 +12,8 @@
 
 import * as vscode from 'vscode';
 import type { ToolState } from '../state';
+import type { DiagnosticData } from '../../lint/provider';
+import { cleanExample } from '../../lint/hover';
 import { en } from '../../locale/en';
 import { format } from '../../locale/schema';
 import { COMMANDS } from '../brand';
@@ -93,6 +95,7 @@ export class SectionItem extends vscode.TreeItem {
  *
  * When in error state, clicking triggers a restart command.
  */
+// oxlint-disable-next-line max-classes-per-file
 export class ToolStatusItem extends vscode.TreeItem {
   constructor(state: ToolState) {
     super(STATE_LABELS[state], vscode.TreeItemCollapsibleState.None);
@@ -120,6 +123,7 @@ export class ToolStatusItem extends vscode.TreeItem {
  * Shows filename, error/warning counts. Expandable to show individual
  * diagnostics as children. Clicking opens the file in the editor.
  */
+// oxlint-disable-next-line max-classes-per-file
 export class FileDiagnosticItem extends vscode.TreeItem {
   /** The file URI for this diagnostic group. */
   public readonly fileUri: vscode.Uri;
@@ -159,6 +163,7 @@ export class FileDiagnosticItem extends vscode.TreeItem {
  * Label shows the rule ID, description shows the issue count,
  * and icon reflects the highest severity in the group.
  */
+// oxlint-disable-next-line max-classes-per-file
 export class RuleGroupItem extends vscode.TreeItem {
   /** The file URI containing these diagnostics. */
   public readonly fileUri: vscode.Uri;
@@ -187,16 +192,13 @@ export class RuleGroupItem extends vscode.TreeItem {
 // Diagnostic Detail Item
 // =============================================================================
 
-/** Max label length before truncation. */
-const MAX_LABEL_LENGTH = 80;
-
-/** Codicon IDs for diagnostic severity. */
-const SEVERITY_ICONS: Record<number, string> = {
-  [0]: 'error', // DiagnosticSeverity.Error
-  [1]: 'warning', // DiagnosticSeverity.Warning
-  [2]: 'info', // DiagnosticSeverity.Information
-  [3]: 'info', // DiagnosticSeverity.Hint
-};
+/** Codicon IDs for diagnostic severity (indexed by DiagnosticSeverity). */
+const SEVERITY_ICONS: readonly string[] = [
+  'error', // DiagnosticSeverity.Error
+  'warning', // DiagnosticSeverity.Warning
+  'info', // DiagnosticSeverity.Information
+  'info', // DiagnosticSeverity.Hint
+];
 
 /**
  * An individual diagnostic within a file.
@@ -204,6 +206,7 @@ const SEVERITY_ICONS: Record<number, string> = {
  * Shows the diagnostic message, line number, severity icon, and
  * navigates to the exact location on click.
  */
+// oxlint-disable-next-line max-classes-per-file
 export class DiagnosticDetailItem extends vscode.TreeItem {
   /** The file URI containing this diagnostic. */
   public readonly fileUri: vscode.Uri;
@@ -212,32 +215,34 @@ export class DiagnosticDetailItem extends vscode.TreeItem {
   public readonly diagnostic: vscode.Diagnostic;
 
   constructor(diagnostic: vscode.Diagnostic, fileUri: vscode.Uri) {
-    const message: string =
-      diagnostic.message.length > MAX_LABEL_LENGTH
-        ? `${diagnostic.message.slice(0, MAX_LABEL_LENGTH)}…`
-        : diagnostic.message;
-    super(message, vscode.TreeItemCollapsibleState.None);
+    // Extract rule ID from diagnostic code
+    const { code } = diagnostic;
+
+    let ruleId: string;
+
+    if (typeof code === 'string') {
+      ruleId = code;
+    } else if (typeof code === 'number') {
+      ruleId = String(code);
+    } else if (code && typeof code === 'object' && 'value' in code) {
+      ruleId = String(code.value);
+    } else {
+      ruleId = '';
+    }
+
+    // Label: position + rule (short, always visible — never truncated)
+    const line = diagnostic.range.start.line + 1;
+    const col = diagnostic.range.start.character + 1;
+    const label: string = ruleId
+      ? format(en.panel.diagnosticLineWithRule, { line, col, rule: ruleId })
+      : format(en.panel.diagnosticLine, { line, col });
+    super(label, vscode.TreeItemCollapsibleState.None);
 
     this.fileUri = fileUri;
     this.diagnostic = diagnostic;
 
-    // Extract rule ID from diagnostic code
-    const code = diagnostic.code;
-    const ruleId: string =
-      typeof code === 'string'
-        ? code
-        : typeof code === 'number'
-          ? String(code)
-          : code && typeof code === 'object' && 'value' in code
-            ? String(code.value)
-            : '';
-
-    // Description: position + rule ID when available
-    const line = diagnostic.range.start.line + 1;
-    const col = diagnostic.range.start.character + 1;
-    this.description = ruleId
-      ? format(en.panel.diagnosticLineWithRule, { line, col, rule: ruleId })
-      : format(en.panel.diagnosticLine, { line, col });
+    // Description: full message (VS Code truncates with ellipsis, visible in tooltip)
+    this.description = diagnostic.message;
 
     this.iconPath = new vscode.ThemeIcon(SEVERITY_ICONS[diagnostic.severity] ?? 'info');
     this.contextValue = 'resist.diagnosticDetail';
@@ -247,9 +252,74 @@ export class DiagnosticDetailItem extends vscode.TreeItem {
       arguments: [fileUri, { selection: diagnostic.range }],
     };
 
-    // Tooltip: full message + rule ID
-    this.tooltip = ruleId ? `${diagnostic.message}\n\nRule: ${ruleId}` : diagnostic.message;
+    // Rich tooltip: matches hover popup UX
+    this.tooltip = buildDiagnosticTooltip(diagnostic, ruleId);
   }
+}
+
+// =============================================================================
+// Tooltip Builder
+// =============================================================================
+
+/**
+ * Builds a rich MarkdownString tooltip for a diagnostic detail item.
+ *
+ * Shows the full message, rule ID, and supplemental data (tip, example,
+ * fix indicator, docs link) matching the hover popup UX.
+ *
+ * @param diagnostic - The diagnostic to build a tooltip for
+ * @param ruleId - The extracted rule ID string
+ * @returns A MarkdownString tooltip with supplemental data
+ */
+function buildDiagnosticTooltip(
+  diagnostic: vscode.Diagnostic,
+  ruleId: string,
+): vscode.MarkdownString {
+  const md = new vscode.MarkdownString();
+  md.isTrusted = true;
+  md.supportThemeIcons = true;
+
+  // Full message (sidebar tooltip is the only place to see this for long messages)
+  const sections: string[] = [`**Message:** ${diagnostic.message}`];
+
+  // Rule ID
+  if (ruleId) {
+    sections.push(`**Rule:** \`${ruleId}\``);
+  }
+
+  // Supplemental data from diagnostic
+  const { data }: { data?: DiagnosticData } = diagnostic as vscode.Diagnostic & {
+    data?: DiagnosticData;
+  };
+
+  if (data) {
+    // Tip
+    if (data.tip) {
+      sections.push(`$(lightbulb) **${en.hover.tipPrefix}:** ${data.tip}`);
+    }
+
+    // Example as fenced code block (4-backtick fence so inner ``` can't break it)
+    if (data.example) {
+      const cleaned: string = cleanExample(data.example);
+
+      sections.push(
+        `$(code) **${en.hover.exampleLabel}:**\n\n\`\`\`\`typescript\n${cleaned}\n\`\`\`\``,
+      );
+    }
+
+    // Fix available indicator
+    if (data.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '')) {
+      sections.push(`$(tools) *${en.hover.fixAvailable}*`);
+    }
+
+    // Documentation link
+    if (data.url) {
+      sections.push(`[$(link-external) ${en.hover.viewDocs}](${data.url})`);
+    }
+  }
+
+  md.appendMarkdown(sections.join('\n\n---\n\n'));
+  return md;
 }
 
 // =============================================================================
@@ -259,6 +329,7 @@ export class DiagnosticDetailItem extends vscode.TreeItem {
 /**
  * Informational placeholder (no issues, not configured, etc.).
  */
+// oxlint-disable-next-line max-classes-per-file
 export class PlaceholderItem extends vscode.TreeItem {
   constructor(message: string) {
     super(message, vscode.TreeItemCollapsibleState.None);

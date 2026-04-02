@@ -51,6 +51,7 @@ describe('ResistHoverProvider', () => {
 
     doc = {
       uri: vscode.Uri.file('/test.ts'),
+      getText: () => 'const hello = world;',
     } as unknown as vscode.TextDocument;
   });
 
@@ -113,18 +114,21 @@ describe('ResistHoverProvider', () => {
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
     const md = result!.contents[0] as vscode.MarkdownString;
     expect(md.value).toContain('**Example:**');
-    expect(md.value).toContain('```typescript\n/** @param {string} name */\n```');
+    expect(md.value).toContain('````typescript\n/** @param {string} name */\n````');
   });
 
-  it('shows fix indicator for real fixes', () => {
+  it('shows fix diff preview for real fixes', () => {
     const diag = createDiagnostic({
-      data: { fix: { range: { start: 5, end: 10 }, text: 'replacement' } },
+      data: { fix: { range: { start: 6, end: 11 }, text: 'world' } },
     });
     collection.set(doc.uri, [diag]);
 
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
     const md = result!.contents[0] as vscode.MarkdownString;
-    expect(md.value).toContain('Auto-fix available');
+    expect(md.value).toContain('Auto-fix preview');
+    expect(md.value).toContain('```diff');
+    expect(md.value).toContain('- hello');
+    expect(md.value).toContain('+ world');
   });
 
   it('shows documentation link', () => {
@@ -143,7 +147,7 @@ describe('ResistHoverProvider', () => {
     );
   });
 
-  it('separates fix indicator and docs link with horizontal rule', () => {
+  it('separates fix preview and docs link with horizontal rule', () => {
     const diag = createDiagnostic({
       data: {
         fix: { range: { start: 5, end: 10 }, text: 'x' },
@@ -154,12 +158,12 @@ describe('ResistHoverProvider', () => {
 
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
     const md = result!.contents[0] as vscode.MarkdownString;
-    expect(md.value).toContain('Auto-fix available');
+    expect(md.value).toContain('Auto-fix preview');
     expect(md.value).toContain('---');
     expect(md.value).toContain('View rule documentation');
   });
 
-  it('does not repeat message or rule ID', () => {
+  it('does not repeat message but shows rule ID', () => {
     const diag = createDiagnostic({
       message: 'Missing return type',
       code: 'ts/return-type',
@@ -169,9 +173,10 @@ describe('ResistHoverProvider', () => {
 
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
     const md = result!.contents[0] as vscode.MarkdownString;
-    // Should NOT contain the message or rule ID (VS Code already shows those)
+    // Should NOT contain the message (VS Code already shows it)
     expect(md.value).not.toContain('Missing return type');
-    expect(md.value).not.toContain('ts/return-type');
+    // Should contain the rule ID in a Rule section
+    expect(md.value).toContain('`ts/return-type`');
   });
 
   it('does not include source footer', () => {
@@ -225,10 +230,36 @@ describe('ResistHoverProvider', () => {
 
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
     const md = result!.contents[0] as vscode.MarkdownString;
+    expect(md.value).toContain('`test/rule`');
     expect(md.value).toContain('**Tip:** Use const');
     expect(md.value).toContain('**Example:**');
-    expect(md.value).toContain('```typescript\nconst x = 1;\n```');
-    expect(md.value).toContain('Auto-fix available');
+    expect(md.value).toContain('````typescript\nconst x = 1;\n````');
+    expect(md.value).toContain('Auto-fix preview');
+    expect(md.value).toContain('```diff');
     expect(md.value).toContain('View rule documentation');
+  });
+
+  it('shows insertion-only diff when fix range is empty', () => {
+    const diag = createDiagnostic({
+      data: { fix: { range: { start: 5, end: 5 }, text: 'inserted' } },
+    });
+    collection.set(doc.uri, [diag]);
+
+    const result = provider.provideHover(doc, new vscode.Position(0, 5));
+    const md = result!.contents[0] as vscode.MarkdownString;
+    expect(md.value).toContain('+ inserted');
+    expect(md.value).not.toContain('- ');
+  });
+
+  it('shows deletion-only diff when fix text is empty', () => {
+    const diag = createDiagnostic({
+      data: { fix: { range: { start: 0, end: 5 }, text: '' } },
+    });
+    collection.set(doc.uri, [diag]);
+
+    const result = provider.provideHover(doc, new vscode.Position(0, 5));
+    const md = result!.contents[0] as vscode.MarkdownString;
+    expect(md.value).toContain('- const');
+    expect(md.value).not.toContain('+ ');
   });
 });

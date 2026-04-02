@@ -39,7 +39,7 @@ const SHARED_MENU_COMMANDS: string[] = [
   COMMANDS.clearFilter,
   COMMANDS.changeStage,
   COMMANDS.listRules,
-  COMMANDS.showTiming,
+  COMMANDS.debugToggle,
   COMMANDS.showOutput,
   COMMANDS.clearOutput,
 ];

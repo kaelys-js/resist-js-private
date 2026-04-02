@@ -360,8 +360,10 @@ function createMockDiagnosticCollection(): {
   clear: ReturnType<typeof vi.fn>;
   dispose: ReturnType<typeof vi.fn>;
   forEach: ReturnType<typeof vi.fn>;
+  [Symbol.iterator]: () => IterableIterator<[Uri, Diagnostic[]]>;
 } {
   const store = new Map<string, Diagnostic[]>();
+
   return {
     name: DIAGNOSTIC_COLLECTION_NAME,
     set: vi.fn((uri: Uri, diags: Diagnostic[]) => {
@@ -382,6 +384,11 @@ function createMockDiagnosticCollection(): {
         }
       },
     ),
+    *[Symbol.iterator](): IterableIterator<[Uri, Diagnostic[]]> {
+      for (const [uriStr, diags] of store) {
+        yield [Uri.file(uriStr), diags];
+      }
+    },
   };
 }
 
@@ -428,6 +435,14 @@ export const workspace = {
   onDidCloseTextDocument: vi.fn(() => createMockDisposable()),
   onDidChangeConfiguration: vi.fn(() => createMockDisposable()),
   applyEdit: vi.fn(async () => true),
+  openTextDocument: vi.fn(async () => ({
+    uri: Uri.parse('untitled:mock'),
+    getText: () => '',
+    lineAt: () => ({ text: '' }),
+    lineCount: 0,
+    positionAt: () => new Position(0, 0),
+  })),
+  registerTextDocumentContentProvider: vi.fn(() => createMockDisposable()),
 };
 
 export const window = {
@@ -436,6 +451,7 @@ export const window = {
   showWarningMessage: vi.fn(),
   showErrorMessage: vi.fn(),
   showInformationMessage: vi.fn(),
+  showTextDocument: vi.fn(async () => ({})),
   createTextEditorDecorationType: vi.fn(() => ({ dispose: vi.fn() })),
   activeTextEditor: undefined as
     | { document: { uri: Uri; getText: () => string; positionAt: (o: number) => Position } }
@@ -473,6 +489,7 @@ export const languages = {
   registerCodeLensProvider: vi.fn(() => createMockDisposable()),
   registerDocumentFormattingEditProvider: vi.fn(() => createMockDisposable()),
   onDidChangeDiagnostics: vi.fn(() => createMockDisposable()),
+  setTextDocumentLanguage: vi.fn(async () => ({})),
 };
 
 export const commands = {
