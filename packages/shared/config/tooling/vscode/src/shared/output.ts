@@ -37,7 +37,7 @@ export function createOutputChannel(): vscode.OutputChannel {
  * ```
  */
 export function log(channel: vscode.OutputChannel, msg: string): void {
-  channel.appendLine(`[${timestamp()}] ${msg}`);
+  channel.appendLine(`  [${timestamp()}] ${msg}`);
 }
 
 /**
@@ -52,12 +52,12 @@ export function log(channel: vscode.OutputChannel, msg: string): void {
  * ```
  */
 export function logError(channel: vscode.OutputChannel, msg: string): void {
-  channel.appendLine(`[${timestamp()}] ${en.output.errorPrefix}: ${msg}`);
+  channel.appendLine(`  [${timestamp()}] ${en.output.errorPrefix}: ${msg}`);
 }
 
 /**
- * Logs the full CLI command being spawned so the user can reproduce it
- * in the terminal for debugging.
+ * Logs the start of a lint operation with a visual separator and the CLI
+ * command being spawned, formatted for readability.
  *
  * @param {vscode.OutputChannel} channel - The output channel to write to
  * @param {string} cmd - Command name
@@ -65,8 +65,7 @@ export function logError(channel: vscode.OutputChannel, msg: string): void {
  *
  * @example
  * ```typescript
- * logCommand(channel, 'resist-lint', ['--format', 'json', 'src/app.ts']);
- * // Output: [14:32:01] $ resist-lint --format json src/app.ts
+ * logCommand(channel, 'resist-lint', ['--format=json', '--stdin-filename=/src/app.ts']);
  * ```
  */
 export function logCommand(
@@ -74,11 +73,16 @@ export function logCommand(
   cmd: string,
   args: readonly string[],
 ): void {
-  channel.appendLine(`[${timestamp()}] $ ${cmd} ${args.join(' ')}`);
+  channel.appendLine('');
+  channel.appendLine(`${'─'.repeat(60)}`);
+  channel.appendLine(`  [${timestamp()}] $ ${cmd}`);
+  for (const arg of args) {
+    channel.appendLine(`      ${arg}`);
+  }
 }
 
 /**
- * Logs performance timing for an operation.
+ * Logs performance timing for an operation with visual emphasis.
  *
  * @param {vscode.OutputChannel} channel - The output channel to write to
  * @param {string} label - Description of what was timed
@@ -89,11 +93,41 @@ export function logCommand(
  * const start = Date.now();
  * await lintFile(filePath);
  * logTiming(channel, 'Lint completed', Date.now() - start);
- * // Output: [14:32:01] Lint completed: 245ms
  * ```
  */
 export function logTiming(channel: vscode.OutputChannel, label: string, ms: number): void {
-  channel.appendLine(`[${timestamp()}] ${label}: ${ms}ms`);
+  channel.appendLine(`  [${timestamp()}] ${label} (${ms}ms)`);
+}
+
+/**
+ * Logs a diagnostic summary line showing counts.
+ *
+ * @param {vscode.OutputChannel} channel - The output channel to write to
+ * @param {number} errors - Number of errors found
+ * @param {number} warnings - Number of warnings found
+ *
+ * @example
+ * ```typescript
+ * logSummary(channel, 3, 1);
+ * // Output:   [14:32:01] Result: 3 errors, 1 warning
+ * ```
+ */
+export function logSummary(
+  channel: vscode.OutputChannel,
+  errors: number,
+  warnings: number,
+): void {
+  const parts: string[] = [];
+
+  if (errors > 0) {
+    parts.push(`${errors} error${errors === 1 ? '' : 's'}`);
+  }
+  if (warnings > 0) {
+    parts.push(`${warnings} warning${warnings === 1 ? '' : 's'}`);
+  }
+
+  const summary: string = parts.length > 0 ? parts.join(', ') : 'no issues';
+  channel.appendLine(`  [${timestamp()}] Result: ${summary}`);
 }
 
 /**
