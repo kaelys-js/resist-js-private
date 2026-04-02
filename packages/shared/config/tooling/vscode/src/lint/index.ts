@@ -19,3 +19,4 @@ export { StaleDiagnosticCleaner } from './stale-cleanup';
 export { ResistFormattingProvider } from './formatting-provider';
 export { createConfigWatcher } from './watcher';
 export { registerLintCommands } from './commands';
+export { ResistHoverProvider } from './hover';

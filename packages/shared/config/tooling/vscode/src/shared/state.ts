@@ -15,8 +15,41 @@ import { log, logError } from './output';
 import { format } from '../locale/schema';
 import { en } from '../locale/en';
 
+// =============================================================================
+// Types
+// =============================================================================
+
 /** Valid tool states. */
 export type ToolState = 'ready' | 'running' | 'error' | 'disabled' | 'not-installed';
+
+// =============================================================================
+// Constants
+// =============================================================================
+
+/** Human-readable labels for each tool state. */
+const STATE_LABELS: Record<ToolState, string> = {
+  'ready': 'Ready',
+  'running': 'Running',
+  'error': 'Error',
+  'disabled': 'Disabled',
+  'not-installed': 'Not Installed',
+};
+
+/**
+ * Returns a human-readable label for a tool state.
+ *
+ * @param {ToolState} state - The internal state value
+ * @returns {string} Display label (e.g. 'Ready', 'Running')
+ *
+ * @example
+ * ```typescript
+ * stateLabel('not-installed'); // 'Not Installed'
+ * stateLabel('ready');         // 'Ready'
+ * ```
+ */
+export function stateLabel(state: ToolState): string {
+  return STATE_LABELS[state];
+}
 
 /** Callback invoked when a tool's state changes. */
 type StateChangeCallback = (tool: string, from: ToolState, to: ToolState) => void;
@@ -26,6 +59,10 @@ type Observer = {
   readonly tool: string;
   readonly callback: StateChangeCallback;
 };
+
+// =============================================================================
+// API
+// =============================================================================
 
 /**
  * Manages per-tool state with observer support.
@@ -69,7 +106,8 @@ export class ToolStateManager {
     this.states.set(tool, state);
 
     if (this.channel) {
-      log(this.channel, format(en.state.transitioned, { tool, from, to: state }));
+      const toolLabel: string = tool.charAt(0).toUpperCase() + tool.slice(1);
+      log(this.channel, format(en.state.transitioned, { tool: toolLabel, from: stateLabel(from), to: stateLabel(state) }));
     }
 
     for (const observer of this.observers) {

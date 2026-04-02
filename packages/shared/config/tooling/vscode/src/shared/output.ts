@@ -131,6 +131,42 @@ export function logSummary(
 }
 
 /**
+ * Logs each diagnostic as an indented detail line after the summary.
+ *
+ * Format: `      file:line:col  severity  ruleId  message`
+ *
+ * @param {vscode.OutputChannel} channel - The output channel to write to
+ * @param {readonly vscode.Diagnostic[]} diagnostics - Diagnostics to list
+ * @param {string} filePath - File path for display
+ *
+ * @example
+ * ```typescript
+ * logDiagnosticList(channel, diagnostics, '/src/app.ts');
+ * // Output:       /src/app.ts:3:5  error  ts/return-type  Missing return type
+ * ```
+ */
+export function logDiagnosticList(
+  channel: vscode.OutputChannel,
+  diagnostics: readonly vscode.Diagnostic[],
+  filePath: string,
+): void {
+  for (const diag of diagnostics) {
+    const line: number = diag.range.start.line + 1;
+    const col: number = diag.range.start.character + 1;
+    const sev: string = diag.severity === 0 ? 'error' : diag.severity === 1 ? 'warn' : 'info';
+    const ruleId: string =
+      typeof diag.code === 'object' && diag.code !== null
+        ? String((diag.code as { value: string | number }).value)
+        : String(diag.code ?? '');
+
+    // Truncate message to first line only
+    const msg: string = diag.message.split('\n')[0] ?? diag.message;
+
+    channel.appendLine(`      ${filePath}:${line}:${col}  ${sev}  ${ruleId}  ${msg}`);
+  }
+}
+
+/**
  * Returns a HH:MM:SS timestamp string.
  *
  * @returns {string} Formatted timestamp string

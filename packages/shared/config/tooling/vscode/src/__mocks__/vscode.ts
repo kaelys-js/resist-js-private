@@ -69,6 +69,28 @@ export class Range {
       this.end = new Position(endLine ?? (startLine as number), endColumn ?? 0);
     }
   }
+
+  contains(positionOrRange: Position | Range): boolean {
+    if (positionOrRange instanceof Position) {
+      const pos = positionOrRange;
+
+      if (pos.line < this.start.line || pos.line > this.end.line) {
+        return false;
+      }
+
+      if (pos.line === this.start.line && pos.character < this.start.character) {
+        return false;
+      }
+
+      if (pos.line === this.end.line && pos.character > this.end.character) {
+        return false;
+      }
+
+      return true;
+    }
+
+    return this.contains(positionOrRange.start) && this.contains(positionOrRange.end);
+  }
 }
 
 export class Uri {
@@ -103,6 +125,37 @@ export class Uri {
 
 export class ThemeColor {
   constructor(public readonly id: string) {}
+}
+
+export class MarkdownString {
+  public value: string = '';
+  public isTrusted: boolean = false;
+  public supportHtml: boolean = false;
+
+  constructor(value?: string) {
+    this.value = value ?? '';
+  }
+
+  appendMarkdown(value: string): this {
+    this.value += value;
+    return this;
+  }
+
+  appendText(value: string): this {
+    this.value += value;
+    return this;
+  }
+}
+
+export class Hover {
+  constructor(
+    public readonly contents: MarkdownString | MarkdownString[],
+    public readonly range?: Range,
+  ) {
+    if (!Array.isArray(contents)) {
+      this.contents = [contents];
+    }
+  }
 }
 
 export class Diagnostic {

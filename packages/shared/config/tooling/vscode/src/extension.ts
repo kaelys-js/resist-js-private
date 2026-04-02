@@ -44,6 +44,7 @@ import {
 import {
   lintDocument,
   ResistCodeActionProvider,
+  ResistHoverProvider,
   FixDiffPreviewProvider,
   DiagnosticFilter,
   StageIndicator,
@@ -221,6 +222,19 @@ export function activate(context: vscode.ExtensionContext): void {
       { scheme: 'file' },
       new ResistCodeActionProvider(outputChannel),
       { providedCodeActionKinds: ResistCodeActionProvider.providedCodeActionKinds },
+    ),
+    20,
+  );
+
+  // ========================================================================
+  // Hover Provider (Rich Diagnostic Popups)
+  // ========================================================================
+
+  lifecycle.register(
+    'hover-provider',
+    vscode.languages.registerHoverProvider(
+      { scheme: 'file' },
+      new ResistHoverProvider(diagnosticCollection),
     ),
     20,
   );

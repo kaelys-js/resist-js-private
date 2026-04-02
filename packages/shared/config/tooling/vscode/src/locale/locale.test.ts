@@ -225,13 +225,17 @@ describe('Locale', () => {
       expect(en.stageIndicator.stageChanged).toContain('{stage}');
     });
 
+    it('hover has all fields', () => {
+      assertAllStrings(en.hover, 'hover');
+    });
+
     it('plurals has all fields', () => {
       assertAllStrings(en.plurals, 'plurals');
     });
 
-    it('all 27 VscodeStrings groups are present', () => {
+    it('all 28 VscodeStrings groups are present', () => {
       const groups = Object.keys(en);
-      expect(groups).toHaveLength(27);
+      expect(groups).toHaveLength(28);
       const expected = [
         'output',
         'statusBar',
@@ -259,6 +263,7 @@ describe('Locale', () => {
         'perFolder',
         'staleCleanup',
         'imports',
+        'hover',
         'stageIndicator',
       ];
 
@@ -304,8 +309,8 @@ describe('Locale', () => {
     });
 
     it('state strings format correctly', () => {
-      const t = format(en.state.transitioned, { tool: 'lint', from: 'ready', to: 'running' });
-      expect(t).toBe('lint state: ready → running');
+      const t = format(en.state.transitioned, { tool: 'Lint', from: 'Ready', to: 'Running' });
+      expect(t).toBe('[Lint] Ready → Running');
       expect(format(en.state.observerError, { tool: 'lint', error: 'e' })).not.toContain('{');
     });
 

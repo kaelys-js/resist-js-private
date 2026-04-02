@@ -9,7 +9,7 @@
 
 export { DocumentDebouncer } from './debounce';
 export { createToolStatusBar, updateStatusBar, getFileDiagnosticCounts } from './status-bar';
-export { ToolStateManager } from './state';
+export { ToolStateManager, stateLabel } from './state';
 export type { ToolState } from './state';
 export { createOutputChannel, log, logError } from './output';
 export { extractMessage, safeRun, safeRunAsync } from './errors';

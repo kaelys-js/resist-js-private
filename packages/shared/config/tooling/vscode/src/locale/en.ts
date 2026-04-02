@@ -116,7 +116,7 @@ export const en: VscodeStrings = {
   },
 
   state: {
-    transitioned: '{tool} state: {from} → {to}',
+    transitioned: '[{tool}] {from} → {to}',
     observerError: 'Observer error for {tool}: {error}',
   },
 
@@ -196,6 +196,12 @@ export const en: VscodeStrings = {
   imports: {
     removedCount: 'Removed {count} unused imports',
     noUnused: 'No unused import diagnostics found',
+  },
+
+  hover: {
+    tipPrefix: 'Tip',
+    fixAvailable: 'Fix available',
+    viewDocs: 'View rule documentation',
   },
 
   stageIndicator: {
