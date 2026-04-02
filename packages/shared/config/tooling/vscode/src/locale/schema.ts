@@ -425,6 +425,8 @@ export type StatusBarMenuStrings = {
 export type HoverStrings = {
   /** Label prefix for the tip section. */
   readonly tipPrefix: string;
+  /** Label for the rule description section. */
+  readonly descriptionLabel: string;
   /** Label for the fix-available indicator. */
   readonly fixAvailable: string;
   /** Label for the fix diff preview section. */

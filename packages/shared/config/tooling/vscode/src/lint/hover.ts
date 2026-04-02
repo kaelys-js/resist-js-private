@@ -86,7 +86,7 @@ function hasExtraData(data: DiagnosticData | undefined): boolean {
     return false;
   }
 
-  if (data.tip || data.example || data.url) {
+  if (data.tip || data.example || data.description || data.url) {
     return true;
   }
 
@@ -138,6 +138,11 @@ export function buildHoverContent(
 
   if (ruleId) {
     sections.push(`**Rule:** \`${ruleId}\``);
+  }
+
+  // Rule description
+  if (data?.description) {
+    sections.push(`**${en.hover.descriptionLabel}:** ${data.description}`);
   }
 
   // Tip

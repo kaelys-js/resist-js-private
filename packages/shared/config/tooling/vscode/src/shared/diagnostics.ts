@@ -136,11 +136,12 @@ export function createDiagnosticFromEntry(
     diagnostic.code = entry.ruleId;
   }
 
-  if (entry.fix || entry.tip || entry.example || entry.url) {
+  if (entry.fix || entry.tip || entry.example || entry.description || entry.url) {
     (diagnostic as { data?: unknown }).data = {
       fix: entry.fix,
       tip: entry.tip,
       example: entry.example,
+      description: entry.description,
       url: entry.url,
     };
   }

@@ -20,6 +20,7 @@ function createDiagnostic(
       fix?: { range: { start: number; end: number }; text: string };
       tip?: string;
       example?: string;
+      description?: string;
       url?: string;
     };
   } = {},
@@ -217,11 +218,26 @@ describe('ResistHoverProvider', () => {
     expect(result!.contents.length).toBe(2);
   });
 
-  it('shows all sections together: tip + example + fix + docs', () => {
+  it('shows rule description when present', () => {
+    const diag = createDiagnostic({
+      data: {
+        fix: { range: { start: 0, end: 0 }, text: '' },
+        description: 'Functions must use const declarations',
+      },
+    });
+    collection.set(doc.uri, [diag]);
+
+    const result = provider.provideHover(doc, new vscode.Position(0, 5));
+    const md = result!.contents[0] as vscode.MarkdownString;
+    expect(md.value).toContain('**Description:** Functions must use const declarations');
+  });
+
+  it('shows all sections together: description + tip + example + fix + docs', () => {
     const diag = createDiagnostic({
       data: {
         fix: { range: { start: 5, end: 10 }, text: 'x' },
         tip: 'Use const',
+        description: 'Prefer const over let',
         example: 'const x = 1;',
         url: 'https://example.com/rule',
       },
@@ -231,6 +247,7 @@ describe('ResistHoverProvider', () => {
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
     const md = result!.contents[0] as vscode.MarkdownString;
     expect(md.value).toContain('`test/rule`');
+    expect(md.value).toContain('**Description:** Prefer const over let');
     expect(md.value).toContain('**Tip:** Use const');
     expect(md.value).toContain('**Example:**');
     expect(md.value).toContain('````typescript\nconst x = 1;\n````');

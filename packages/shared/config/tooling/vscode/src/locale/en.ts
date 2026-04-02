@@ -190,6 +190,7 @@ export const en: VscodeStrings = {
 
   hover: {
     tipPrefix: 'Tip',
+    descriptionLabel: 'Description',
     fixAvailable: 'Auto-fix available',
     fixPreview: 'Auto-fix preview',
     viewDocs: 'View rule documentation',

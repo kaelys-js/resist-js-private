@@ -1536,6 +1536,15 @@ export async function _runLintCore(
     );
   }
 
+  // Populate rule description on each result from the ruleDescs map
+  for (const result of allResults) {
+    const desc: string | undefined = ruleDescs.get(result.ruleId);
+
+    if (desc) {
+      result.description = desc;
+    }
+  }
+
   return { filesLinted: allFiles.length, fixesApplied, results: allResults, ruleDescs };
 }
 
