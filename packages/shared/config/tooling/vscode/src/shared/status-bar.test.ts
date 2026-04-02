@@ -180,7 +180,7 @@ describe('Status Bar', () => {
   it('tooltip header badge has double-space horizontal padding', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready');
     const tooltip = statusBarItem.tooltip as vscode.MarkdownString;
-    expect(tooltip.value).toContain('\u00a0\u00a0$(pass-filled) Ready\u00a0\u00a0');
+    expect(tooltip.value).toContain('\u00A0\u00A0$(pass-filled) Ready\u00A0\u00A0');
   });
 
   it('tooltip header uses table with right-aligned badge cell', () => {
@@ -291,8 +291,8 @@ describe('Status Bar', () => {
   it('tooltip footer buttons have double-space padding with icon inside', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready');
     const tooltip = statusBarItem.tooltip as vscode.MarkdownString;
-    // Icon and link inside span with double \u00a0\u00a0 padding
-    expect(tooltip.value).toContain('\u00a0\u00a0$(debug-pause)');
+    // Icon and link inside span with double \u00A0\u00A0 padding
+    expect(tooltip.value).toContain('\u00A0\u00A0$(debug-pause)');
     expect(tooltip.value).toContain(`background-color:#404854;border-radius:4px;`);
   });
 

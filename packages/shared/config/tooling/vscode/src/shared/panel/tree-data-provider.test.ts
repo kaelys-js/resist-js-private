@@ -355,8 +355,8 @@ describe('Multi-level lint tree', () => {
       ruleGroups[0]!,
     ) as DiagnosticDetailItem[];
 
-    expect(detailChildren[0]!.label).toBe('some error message');
-    expect(detailChildren[0]!.description).toBe('Ln 10, Col 1 · my-rule');
+    expect(detailChildren[0]!.label).toBe('Ln 10, Col 1 · my-rule');
+    expect(detailChildren[0]!.description).toBe('some error message');
   });
 });
 

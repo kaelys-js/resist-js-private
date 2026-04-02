@@ -50,10 +50,10 @@ function runTool(options: RunOptions): Promise<ToolResult> {
   });
 
   /* Write stdin content to the child process when provided (--stdin-filename mode) */
-  if (options.stdin !== undefined) {
-    child.stdin.write(options.stdin);
+  if (options.stdin === undefined) {
     child.stdin.end();
   } else {
+    child.stdin.write(options.stdin);
     child.stdin.end();
   }
 
@@ -181,10 +181,10 @@ export function runToolJson<T>(options: RunOptions): Promise<RunResult<T>> {
   });
 
   /* Write stdin content to the child process when provided (--stdin-filename mode) */
-  if (options.stdin !== undefined) {
-    child.stdin.write(options.stdin);
+  if (options.stdin === undefined) {
     child.stdin.end();
   } else {
+    child.stdin.write(options.stdin);
     child.stdin.end();
   }
 

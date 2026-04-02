@@ -25,10 +25,10 @@ function collectEntries(
 ): Array<[vscode.Uri, readonly vscode.Diagnostic[]]> {
   const result: Array<[vscode.Uri, readonly vscode.Diagnostic[]]> = [];
 
-  // DiagnosticCollection only provides forEach — no iterator protocol
-  collection.forEach((uri, diagnostics) => {
+  // DiagnosticCollection implements Iterable<[Uri, readonly Diagnostic[]]>
+  for (const [uri, diagnostics] of collection) {
     result.push([uri, diagnostics]);
-  });
+  }
   return result;
 }
 
@@ -82,7 +82,7 @@ export class DiagnosticFilter implements vscode.Disposable {
       }
     }
 
-    return [...categories].sort();
+    return [...categories].toSorted();
   }
 
   /**

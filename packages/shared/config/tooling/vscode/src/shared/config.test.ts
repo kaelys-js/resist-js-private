@@ -8,15 +8,14 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
+import { onConfigurationChange, ConfigManager } from './config';
+import * as errors from './errors';
+import { CONFIG_SECTION } from './brand';
 
 const { __setConfigValue, __resetMocks } = vscode as unknown as {
   __setConfigValue: (key: string, value: unknown) => void;
   __resetMocks: () => void;
 };
-
-import { onConfigurationChange, ConfigManager } from './config';
-import * as errors from './errors';
-import { CONFIG_SECTION } from './brand';
 
 vi.mock('./output', () => ({
   log: vi.fn(),

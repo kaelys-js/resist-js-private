@@ -264,24 +264,23 @@ describe('DiagnosticDetailItem', () => {
   const uri = vscode.Uri.file('/workspace/src/index.ts');
   const range = new vscode.Range(9, 0, 9, 5);
 
-  it('sets label to diagnostic message', () => {
+  it('sets label to position (always visible)', () => {
     const diag = new vscode.Diagnostic(range, 'unused variable', vscode.DiagnosticSeverity.Warning);
     const item = new DiagnosticDetailItem(diag, uri);
-    expect(item.label).toBe('unused variable');
+    expect(item.label).toBe('Ln 10, Col 1');
   });
 
-  it('truncates long messages at 80 chars', () => {
+  it('sets description to diagnostic message', () => {
+    const diag = new vscode.Diagnostic(range, 'unused variable', vscode.DiagnosticSeverity.Warning);
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect(item.description).toBe('unused variable');
+  });
+
+  it('does not truncate long messages (VS Code handles ellipsis in description)', () => {
     const longMsg = 'a'.repeat(100);
     const diag = new vscode.Diagnostic(range, longMsg, vscode.DiagnosticSeverity.Error);
     const item = new DiagnosticDetailItem(diag, uri);
-    expect((item.label as string).length).toBe(81); // 80 + ellipsis
-    expect((item.label as string).endsWith('\u2026')).toBe(true);
-  });
-
-  it('sets description to line number (1-indexed)', () => {
-    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
-    const item = new DiagnosticDetailItem(diag, uri);
-    expect(item.description).toBe('Ln 10, Col 1');
+    expect(item.description).toBe(longMsg);
   });
 
   it('uses error icon for Error severity', () => {
@@ -321,24 +320,72 @@ describe('DiagnosticDetailItem', () => {
     expect(item.collapsibleState).toBe(vscode.TreeItemCollapsibleState.None);
   });
 
-  it('includes rule ID in description when code is set', () => {
+  it('includes rule ID in label when code is set', () => {
     const diag = new vscode.Diagnostic(range, 'err msg', vscode.DiagnosticSeverity.Error);
     diag.code = 'no-unused-vars';
     const item = new DiagnosticDetailItem(diag, uri);
-    expect(item.description).toBe('Ln 10, Col 1 · no-unused-vars');
+    expect(item.label).toBe('Ln 10, Col 1 · no-unused-vars');
+    expect(item.description).toBe('err msg');
   });
 
-  it('includes rule ID in tooltip when code is a string', () => {
+  it('tooltip is a MarkdownString with labeled message and rule ID', () => {
     const diag = new vscode.Diagnostic(range, 'err msg', vscode.DiagnosticSeverity.Error);
     diag.code = 'no-unused-vars';
     const item = new DiagnosticDetailItem(diag, uri);
-    expect(item.tooltip).toBe('err msg\n\nRule: no-unused-vars');
+    const tooltip = item.tooltip as vscode.MarkdownString;
+    expect(tooltip).toBeInstanceOf(vscode.MarkdownString);
+    expect(tooltip.value).toContain('**Message:** err msg');
+    expect(tooltip.value).toContain('`no-unused-vars`');
   });
 
-  it('shows just message in tooltip when no code', () => {
+  it('tooltip shows labeled message when no code', () => {
     const diag = new vscode.Diagnostic(range, 'err msg', vscode.DiagnosticSeverity.Error);
     const item = new DiagnosticDetailItem(diag, uri);
-    expect(item.tooltip).toBe('err msg');
+    const tooltip = item.tooltip as vscode.MarkdownString;
+    expect(tooltip).toBeInstanceOf(vscode.MarkdownString);
+    expect(tooltip.value).toContain('**Message:** err msg');
+    expect(tooltip.value).not.toContain('Rule:');
+  });
+
+  it('tooltip includes supplemental data when available', () => {
+    const diag = new vscode.Diagnostic(range, 'err msg', vscode.DiagnosticSeverity.Error);
+    diag.code = 'test-rule';
+    (diag as vscode.Diagnostic & { data: unknown }).data = {
+      tip: 'Use const instead',
+      fix: { range: { start: 5, end: 10 }, text: 'const' },
+      url: 'https://docs.example.com/test-rule',
+    };
+    const item = new DiagnosticDetailItem(diag, uri);
+    const tooltip = item.tooltip as vscode.MarkdownString;
+    expect(tooltip.value).toContain('Use const instead');
+    expect(tooltip.value).toContain('Auto-fix available');
+    expect(tooltip.value).toContain('View rule documentation');
+    expect(tooltip.supportThemeIcons).toBe(true);
+  });
+
+  it('tooltip renders example as fenced code block', () => {
+    const diag = new vscode.Diagnostic(range, 'err msg', vscode.DiagnosticSeverity.Error);
+    diag.code = 'test-rule';
+    (diag as vscode.Diagnostic & { data: unknown }).data = {
+      example: 'const x = 1;\nconst y = 2;',
+    };
+    const item = new DiagnosticDetailItem(diag, uri);
+    const tooltip = item.tooltip as vscode.MarkdownString;
+    expect(tooltip.value).toContain('````typescript');
+    expect(tooltip.value).toContain('const x = 1;');
+    expect(tooltip.value).toContain('const y = 2;');
+  });
+
+  it('tooltip strips @example prefix and JSDoc fences from example', () => {
+    const diag = new vscode.Diagnostic(range, 'err msg', vscode.DiagnosticSeverity.Error);
+    diag.code = 'test-rule';
+    (diag as vscode.Diagnostic & { data: unknown }).data = {
+      example: '@example\n * ```typescript\n * const result = myFn(arg);\n * ```',
+    };
+    const item = new DiagnosticDetailItem(diag, uri);
+    const tooltip = item.tooltip as vscode.MarkdownString;
+    expect(tooltip.value).toContain('const result = myFn(arg);');
+    expect(tooltip.value).not.toContain('@example');
   });
 
   it('stores fileUri and diagnostic references', () => {

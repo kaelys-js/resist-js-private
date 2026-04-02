@@ -333,18 +333,6 @@ export type FormattingStrings = {
   readonly noEdits: string;
 };
 
-/** Strings for performance profiling. */
-export type ProfilingStrings = {
-  /** Header for timing report output. */
-  readonly header: string;
-  /** Per-rule timing line: "{rule}: {ms}ms". */
-  readonly ruleTime: string;
-  /** Total timing summary. */
-  readonly total: string;
-  /** Message when no timing data available. */
-  readonly noData: string;
-};
-
 /** Strings for diagnostic filtering. */
 export type FilterStrings = {
   /** Quick pick title for category selection. */
@@ -425,8 +413,12 @@ export type StatusBarMenuStrings = {
   readonly changeStage: string;
   /** Menu item: list available rules. */
   readonly listRules: string;
-  /** Menu item: show per-rule timing report. */
-  readonly showTiming: string;
+  /** Menu item: toggle debug mode. */
+  readonly debugToggle: string;
+  /** Info message: debug mode enabled. */
+  readonly debugEnabled: string;
+  /** Info message: debug mode disabled. */
+  readonly debugDisabled: string;
 };
 
 /** Strings for diagnostic hover popup. */
@@ -435,10 +427,20 @@ export type HoverStrings = {
   readonly tipPrefix: string;
   /** Label for the fix-available indicator. */
   readonly fixAvailable: string;
+  /** Label for the fix diff preview section. */
+  readonly fixPreview: string;
   /** Link text for rule documentation. */
   readonly viewDocs: string;
   /** Label for the example section. */
   readonly exampleLabel: string;
+};
+
+/** Strings for the rules viewer virtual document. */
+export type RulesViewerStrings = {
+  /** Title for the rules viewer tab. */
+  readonly title: string;
+  /** Error message when fetching rules fails. */
+  readonly errorFetching: string;
 };
 
 /** Strings for the sidebar panel (TreeView). */
@@ -538,13 +540,13 @@ export type VscodeStrings = {
   readonly codeLens: CodeLensStrings;
   readonly diffPreview: DiffPreviewStrings;
   readonly formatting: FormattingStrings;
-  readonly profiling: ProfilingStrings;
   readonly filter: FilterStrings;
   readonly perFolder: PerFolderStrings;
   readonly staleCleanup: StaleCleanupStrings;
   readonly imports: ImportsStrings;
   readonly stageIndicator: StageIndicatorStrings;
   readonly hover: HoverStrings;
+  readonly rulesViewer: RulesViewerStrings;
   readonly statusBarMenu: StatusBarMenuStrings;
   readonly panel: PanelStrings;
 };

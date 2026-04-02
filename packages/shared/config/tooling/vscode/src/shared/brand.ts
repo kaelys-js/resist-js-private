@@ -54,12 +54,12 @@ export const COMMANDS = {
   lintStaged: `${COMMAND_PREFIX}.lint.staged`,
   lintUncommitted: `${COMMAND_PREFIX}.lint.uncommitted`,
   previewFixes: `${COMMAND_PREFIX}.lint.previewFixes`,
-  showTiming: `${COMMAND_PREFIX}.lint.showTiming`,
   filterByCategory: `${COMMAND_PREFIX}.lint.filterByCategory`,
   clearFilter: `${COMMAND_PREFIX}.lint.clearFilter`,
   removeUnusedImports: `${COMMAND_PREFIX}.lint.removeUnusedImports`,
   changeStage: `${COMMAND_PREFIX}.lint.changeStage`,
   clearOutput: `${COMMAND_PREFIX}.lint.clearOutput`,
+  debugToggle: `${COMMAND_PREFIX}.lint.debugToggle`,
   toggleEnable: `${COMMAND_PREFIX}.lint.toggleEnable`,
   statusBarMenu: `${COMMAND_PREFIX}.lint.statusBarMenu`,
   panelExpandAll: `${COMMAND_PREFIX}.panel.expandAll`,
@@ -84,6 +84,9 @@ export const CONFIG_FILE_PATTERNS = ['**/resist.config.ts', '**/.resist-lint.jso
 
 /** URI scheme for fix-preview virtual documents. */
 export const PREVIEW_SCHEME = 'resist-fix-preview';
+
+/** URI scheme for rules-viewer virtual documents. */
+export const RULES_SCHEME = 'resist-rules';
 
 // =============================================================================
 // Panel Identifiers

@@ -112,7 +112,13 @@ const TC = {
   btnBg: '#404854',
 } as const;
 
-/** Colored text span. */
+/**
+ * Colored text span.
+ *
+ * @param {string} color - CSS color value
+ * @param {string} text - Text content to color
+ * @returns {string} HTML span with inline color style
+ */
 function cs(color: string, text: string): string {
   return `<span style="color:${color};">${text}</span>`;
 }
@@ -121,22 +127,34 @@ function cs(color: string, text: string): string {
  * Rounded badge — icon and text inside styled span.
  * Vertical spacing comes from `<td height>` on the parent cell, not from
  * inline image shims (which break codicon baseline alignment).
+ *
+ * @param {string} icon - Codicon icon identifier
+ * @param {string} fg - Foreground CSS color
+ * @param {string} bg - Background CSS color
+ * @param {string} text - Badge label text
+ * @returns {string} HTML span styled as a rounded badge
  */
 function badge(icon: string, fg: string, bg: string, text: string): string {
   return (
     `<span style="color:${fg};background-color:${bg};border-radius:4px;">` +
-    `\u00a0\u00a0${icon} ${text}\u00a0\u00a0</span>`
+    `\u00A0\u00A0${icon} ${text}\u00A0\u00A0</span>`
   );
 }
 
 /**
  * Button-styled command link — icon and label inside styled span.
  * Vertical spacing comes from `<td height>` on the parent cell.
+ *
+ * @param {string} icon - Codicon icon identifier
+ * @param {string} label - Button label text
+ * @param {string} command - VS Code command identifier for the link
+ * @param {string} tooltip - Hover tooltip for the link
+ * @returns {string} HTML span styled as a button with command link
  */
 function cmd(icon: string, label: string, command: string, tooltip: string): string {
   return (
     `<span style="background-color:${TC.btnBg};border-radius:4px;">` +
-    `\u00a0\u00a0$(${icon}) <a href="command:${command}" title="${tooltip}">${label}</a>\u00a0\u00a0</span>`
+    `\u00A0\u00A0$(${icon}) <a href="command:${command}" title="${tooltip}">${label}</a>\u00A0\u00A0</span>`
   );
 }
 
@@ -199,8 +217,8 @@ function buildStatusTooltip(
 
   md.appendMarkdown(
     `<table width="100%"><tr>` +
-      `<td>\u00a0\u00a0${cs(TC.brand, '<b>Resist</b>')}</td>` +
-      `<td align="right">${stateBadge}\u00a0\u00a0</td>` +
+      `<td>\u00A0\u00A0${cs(TC.brand, '<b>Resist</b>')}</td>` +
+      `<td align="right">${stateBadge}\u00A0\u00A0</td>` +
       `</tr></table>\n\n`,
   );
 
@@ -244,13 +262,13 @@ function buildStatusTooltip(
       : cmd('debug-pause', 'Pause', COMMANDS.toggleEnable, 'Pause linting');
 
   md.appendMarkdown(
-    `\u00a0${toggleCmd}\u00a0\u00a0` +
-      `${cmd('debug-restart', 'Restart', COMMANDS.restart, 'Clear cache and re-lint')}\u00a0\u00a0` +
-      `${cmd('output', 'Output', COMMANDS.showOutput, 'Show output channel')}\u00a0` +
+    `\u00A0${toggleCmd}\u00A0\u00A0` +
+      `${cmd('debug-restart', 'Restart', COMMANDS.restart, 'Clear cache and re-lint')}\u00A0\u00A0` +
+      `${cmd('output', 'Output', COMMANDS.showOutput, 'Show output channel')}\u00A0` +
       `<br>` +
-      `\u00a0${cmd('file-code', 'Lint File', COMMANDS.lintFile, 'Lint current file')}\u00a0\u00a0` +
-      `${cmd('wand', 'Fix All', COMMANDS.lintFix, 'Fix all auto-fixable problems')}\u00a0\u00a0` +
-      `${cmd('files', 'Lint Workspace', COMMANDS.lintWorkspace, 'Lint entire workspace')}\u00a0`,
+      `\u00A0${cmd('file-code', 'Lint File', COMMANDS.lintFile, 'Lint current file')}\u00A0\u00A0` +
+      `${cmd('wand', 'Fix All', COMMANDS.lintFix, 'Fix all auto-fixable problems')}\u00A0\u00A0` +
+      `${cmd('files', 'Lint Workspace', COMMANDS.lintWorkspace, 'Lint entire workspace')}\u00A0`,
   );
 
   return md;

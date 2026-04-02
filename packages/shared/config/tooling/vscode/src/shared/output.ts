@@ -149,7 +149,16 @@ export function logDiagnosticList(
   for (const diag of diagnostics) {
     const line: number = diag.range.start.line + 1;
     const col: number = diag.range.start.character + 1;
-    const sev: string = diag.severity === 0 ? 'error' : diag.severity === 1 ? 'warn' : 'info';
+    let sev: string;
+
+    if (diag.severity === 0) {
+      sev = 'error';
+    } else if (diag.severity === 1) {
+      sev = 'warn';
+    } else {
+      sev = 'info';
+    }
+
     const ruleId: string =
       typeof diag.code === 'object' && diag.code !== null
         ? String((diag.code as { value: string | number }).value)

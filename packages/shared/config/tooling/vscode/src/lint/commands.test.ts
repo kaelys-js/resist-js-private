@@ -11,13 +11,7 @@ import * as vscode from 'vscode';
 import { registerLintCommands } from './commands';
 import { DiagnosticFilter } from './diagnostic-filter';
 import { StageIndicator } from './stage-indicator';
-import {
-  COMMANDS,
-  DIAGNOSTIC_COLLECTION_NAME,
-  BRAND_NAME,
-  CONFIG_SECTION,
-  BINARY_NAME,
-} from '../shared/brand';
+import { COMMANDS, DIAGNOSTIC_COLLECTION_NAME, BRAND_NAME, CONFIG_SECTION } from '../shared/brand';
 import { ConfigManager } from '../shared/config';
 import { ToolStateManager } from '../shared/state';
 
@@ -135,13 +129,13 @@ describe('Lint Commands', () => {
       COMMANDS.lintStaged,
       COMMANDS.lintUncommitted,
       COMMANDS.previewFixes,
-      COMMANDS.showTiming,
       COMMANDS.filterByCategory,
       COMMANDS.clearFilter,
       COMMANDS.removeUnusedImports,
       COMMANDS.changeStage,
       COMMANDS.clearOutput,
       COMMANDS.toggleEnable,
+      COMMANDS.debugToggle,
       COMMANDS.statusBarMenu,
     ];
 
@@ -261,51 +255,12 @@ describe('Lint Commands', () => {
     expect(context.subscriptions.length).toBe(18);
   });
 
-  it('resist.lint.listRules uses runToolText (not runToolJson)', async () => {
-    mockRunToolText.mockResolvedValue({
-      ok: true,
-      data: 'jsdoc/require-param\njsdoc/require-returns\n',
-      stderr: '',
-      elapsed: 50,
-    });
-
-    // Setup workspace folders
-    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
-      value: [{ uri: vscode.Uri.file('/workspace'), name: 'workspace', index: 0 }],
-      writable: true,
-    });
-
+  it('resist.lint.listRules opens rules viewer', async () => {
     const handler = commandHandlers.get(COMMANDS.listRules)!;
     await handler();
 
-    expect(mockRunToolText).toHaveBeenCalledTimes(1);
-    const options = mockRunToolText.mock.calls[0]![0];
-    expect(options.args).toContain('--list-rules');
-    expect(outputChannel.appendLine).toHaveBeenCalled();
-  });
-
-  it('resist.lint.listRules shows text output directly', async () => {
-    const ruleOutput = 'jsdoc/require-param — error\njsdoc/require-returns — error\n';
-    mockRunToolText.mockResolvedValue({
-      ok: true,
-      data: ruleOutput,
-      stderr: '',
-      elapsed: 50,
-    });
-
-    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
-      value: [{ uri: vscode.Uri.file('/workspace'), name: 'workspace', index: 0 }],
-      writable: true,
-    });
-
-    const handler = commandHandlers.get(COMMANDS.listRules)!;
-    await handler();
-
-    // Should show the raw text output directly
-    const calls = vi.mocked(outputChannel.appendLine).mock.calls.map((c) => c[0]);
-    expect(calls.some((c) => typeof c === 'string' && c.includes('jsdoc/require-param'))).toBe(
-      true,
-    );
+    // showRulesViewer opens a virtual document — verify openTextDocument was called
+    expect(vscode.workspace.openTextDocument).toHaveBeenCalled();
   });
 
   it('resist.lint.clearOutput clears and logs to output channel', () => {

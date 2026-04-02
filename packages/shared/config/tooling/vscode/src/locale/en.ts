@@ -166,13 +166,6 @@ export const en: VscodeStrings = {
     noEdits: 'No lint fixes available for formatting',
   },
 
-  profiling: {
-    header: '=== Performance Timing ===',
-    ruleTime: '  {rule}: {ms}ms',
-    total: 'Total: {ms}ms ({count} rules)',
-    noData: 'No timing data available. Run lint with --timing flag.',
-  },
-
   filter: {
     selectCategories: 'Select categories to show',
     filterApplied: 'Diagnostic filter applied: {categories}',
@@ -198,8 +191,14 @@ export const en: VscodeStrings = {
   hover: {
     tipPrefix: 'Tip',
     fixAvailable: 'Auto-fix available',
+    fixPreview: 'Auto-fix preview',
     viewDocs: 'View rule documentation',
     exampleLabel: 'Example',
+  },
+
+  rulesViewer: {
+    title: 'Resist Lint Rules',
+    errorFetching: 'Error fetching rules: {error}',
   },
 
   statusBarMenu: {
@@ -219,7 +218,9 @@ export const en: VscodeStrings = {
     clearFilter: '$(circle-slash) Clear Filter',
     changeStage: '$(layers) Change Stage',
     listRules: '$(list-unordered) List Rules',
-    showTiming: '$(dashboard) Show Timing',
+    debugToggle: '$(bug) Toggle Debug Mode',
+    debugEnabled: 'Debug mode enabled',
+    debugDisabled: 'Debug mode disabled',
   },
 
   stageIndicator: {
