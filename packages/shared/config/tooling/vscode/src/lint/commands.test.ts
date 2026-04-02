@@ -142,12 +142,13 @@ describe('Lint Commands', () => {
       COMMANDS.changeStage,
       COMMANDS.clearOutput,
       COMMANDS.toggleEnable,
+      COMMANDS.statusBarMenu,
     ];
 
     for (const cmd of expectedCommands) {
       expect(commandHandlers.has(cmd), `Command ${cmd} should be registered`).toBe(true);
     }
-    expect(commandHandlers.size).toBe(17);
+    expect(commandHandlers.size).toBe(18);
   });
 
   it('resist.lint.file calls lintDocumentFn for active editor', () => {
@@ -256,8 +257,8 @@ describe('Lint Commands', () => {
   });
 
   it('commands add subscriptions to context', () => {
-    // 17 commands = 17 subscriptions pushed
-    expect(context.subscriptions.length).toBe(17);
+    // 18 commands = 18 subscriptions pushed
+    expect(context.subscriptions.length).toBe(18);
   });
 
   it('resist.lint.listRules uses runToolText (not runToolJson)', async () => {

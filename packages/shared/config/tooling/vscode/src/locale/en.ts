@@ -205,6 +205,16 @@ export const en: VscodeStrings = {
     exampleLabel: 'Example',
   },
 
+  statusBarMenu: {
+    pause: '$(debug-pause) Pause Linting',
+    resume: '$(debug-start) Resume Linting',
+    restart: '$(debug-restart) Restart Linter',
+    showOutput: '$(output) Show Output',
+    clearOutput: '$(clear-all) Clear Output',
+    lintFile: '$(file-code) Lint Current File',
+    fixAll: '$(wand) Fix All Auto-fixable',
+  },
+
   stageIndicator: {
     currentStage: `$(check) ${BRAND_NAME} [{stage}]`,
     selectStage: 'Select lint stage',

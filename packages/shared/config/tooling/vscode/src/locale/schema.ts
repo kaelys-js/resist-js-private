@@ -397,6 +397,24 @@ export type StageIndicatorStrings = {
   readonly stageChanged: string;
 };
 
+/** Strings for the status bar quick-pick menu. */
+export type StatusBarMenuStrings = {
+  /** Menu item: pause linting. */
+  readonly pause: string;
+  /** Menu item: resume linting. */
+  readonly resume: string;
+  /** Menu item: restart linter. */
+  readonly restart: string;
+  /** Menu item: show output channel. */
+  readonly showOutput: string;
+  /** Menu item: clear output channel. */
+  readonly clearOutput: string;
+  /** Menu item: lint current file. */
+  readonly lintFile: string;
+  /** Menu item: fix all auto-fixable. */
+  readonly fixAll: string;
+};
+
 /** Strings for diagnostic hover popup. */
 export type HoverStrings = {
   /** Label prefix for the tip section. */
@@ -443,4 +461,5 @@ export type VscodeStrings = {
   readonly imports: ImportsStrings;
   readonly stageIndicator: StageIndicatorStrings;
   readonly hover: HoverStrings;
+  readonly statusBarMenu: StatusBarMenuStrings;
 };

@@ -9,7 +9,7 @@
  */
 
 import * as vscode from 'vscode';
-import { isWorkspaceDocument } from './document-filter';
+import { isLintableDocument } from './document-filter';
 import { safeRun } from './errors';
 
 /** Supported document lifecycle event types. */
@@ -178,8 +178,8 @@ export class DocumentEventRegistry implements vscode.Disposable {
    * @param doc - The document that triggered the event
    */
   private dispatch(event: DocumentEventType, doc: vscode.TextDocument): void {
-    // Skip non-workspace documents (except close — always allow cleanup)
-    if (event !== 'close' && !isWorkspaceDocument(doc)) {
+    // Skip non-lintable documents (except close — always allow cleanup)
+    if (event !== 'close' && !isLintableDocument(doc)) {
       return;
     }
 

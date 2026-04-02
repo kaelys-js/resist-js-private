@@ -133,6 +133,11 @@
         "command": "resist.lint.toggleEnable",
         "title": "Pause / Resume Linter",
         "category": "Resist"
+      },
+      {
+        "command": "resist.lint.statusBarMenu",
+        "title": "Status Bar Menu",
+        "category": "Resist"
       }
     ],
     "configuration": {

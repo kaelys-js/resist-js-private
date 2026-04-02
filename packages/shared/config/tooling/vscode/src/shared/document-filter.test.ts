@@ -8,7 +8,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
-import { isWorkspaceDocument, forEachOpenDocument } from './document-filter';
+import { isWorkspaceDocument, isLintableDocument, forEachOpenDocument } from './document-filter';
 import * as output from './output';
 
 vi.mock('./output', () => ({
@@ -39,10 +39,12 @@ function createMockDoc(
   scheme: string,
   isUntitled: boolean,
   fsPath: string = '/test/file.ts',
+  languageId: string = 'typescript',
 ): vscode.TextDocument {
   return {
     uri: { scheme, fsPath } as unknown as vscode.Uri,
     isUntitled,
+    languageId,
   } as unknown as vscode.TextDocument;
 }
 
@@ -75,6 +77,38 @@ describe('Document Filter', () => {
     it('returns false for output scheme', () => {
       const doc = createMockDoc('output', false);
       expect(isWorkspaceDocument(doc)).toBe(false);
+    });
+  });
+
+  describe('isLintableDocument', () => {
+    it('returns true for workspace files', () => {
+      const doc = createMockDoc('file', false);
+      expect(isLintableDocument(doc)).toBe(true);
+    });
+
+    it('returns true for untitled docs with supported language', () => {
+      const doc = createMockDoc('untitled', true, '/Untitled-1', 'typescript');
+      expect(isLintableDocument(doc)).toBe(true);
+    });
+
+    it('returns true for untitled svelte docs', () => {
+      const doc = createMockDoc('untitled', true, '/Untitled-1', 'svelte');
+      expect(isLintableDocument(doc)).toBe(true);
+    });
+
+    it('returns false for untitled docs with unsupported language', () => {
+      const doc = createMockDoc('untitled', true, '/Untitled-1', 'plaintext');
+      expect(isLintableDocument(doc)).toBe(false);
+    });
+
+    it('returns false for output scheme', () => {
+      const doc = createMockDoc('output', false, '/output', 'log');
+      expect(isLintableDocument(doc)).toBe(false);
+    });
+
+    it('returns false for git scheme', () => {
+      const doc = createMockDoc('git', false);
+      expect(isLintableDocument(doc)).toBe(false);
     });
   });
 

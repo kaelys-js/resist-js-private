@@ -14,7 +14,7 @@ export type { ToolState } from './state';
 export { createOutputChannel, log, logError } from './output';
 export { extractMessage, safeRun, safeRunAsync } from './errors';
 export { resolveWorkspace } from './workspace';
-export { isWorkspaceDocument, forEachOpenDocument } from './document-filter';
+export { isWorkspaceDocument, isLintableDocument, forEachOpenDocument } from './document-filter';
 export { withFileProgress } from './progress';
 export { NotificationManager } from './notifications';
 export { LifecycleManager } from './lifecycle';

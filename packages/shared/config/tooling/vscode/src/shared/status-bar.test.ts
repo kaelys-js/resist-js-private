@@ -90,6 +90,35 @@ describe('Status Bar', () => {
     expect(statusBarItem.backgroundColor).toBeUndefined();
   });
 
+  it('updateStatusBar sets MarkdownString tooltip with state info', () => {
+    updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready');
+    const tooltip = statusBarItem.tooltip as vscode.MarkdownString;
+    expect(tooltip).toBeInstanceOf(vscode.MarkdownString);
+    expect(tooltip.value).toContain('Resist Linter');
+    expect(tooltip.value).toContain('Ready');
+    expect(tooltip.value).toContain('Click for actions');
+    expect(tooltip.supportThemeIcons).toBe(true);
+  });
+
+  it('updateStatusBar tooltip shows error/warning counts when present', () => {
+    updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready', { errors: 2, warnings: 3 });
+    const tooltip = statusBarItem.tooltip as vscode.MarkdownString;
+    expect(tooltip.value).toContain('2 errors');
+    expect(tooltip.value).toContain('3 warnings');
+  });
+
+  it('updateStatusBar tooltip shows "No issues" when counts are zero', () => {
+    updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready');
+    const tooltip = statusBarItem.tooltip as vscode.MarkdownString;
+    expect(tooltip.value).toContain('No issues');
+  });
+
+  it('updateStatusBar tooltip shows disabled state', () => {
+    updateStatusBar(statusBarItem as vscode.StatusBarItem, 'disabled');
+    const tooltip = statusBarItem.tooltip as vscode.MarkdownString;
+    expect(tooltip.value).toContain('Disabled');
+  });
+
   it('getFileDiagnosticCounts counts errors and warnings', () => {
     const collection = vscode.languages.createDiagnosticCollection('test');
     const uri = vscode.Uri.file('/test.ts');

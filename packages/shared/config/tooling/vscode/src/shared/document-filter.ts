@@ -34,6 +34,42 @@ export function isWorkspaceDocument(doc: vscode.TextDocument): boolean {
   return doc.uri.scheme === 'file' && !doc.isUntitled;
 }
 
+/** Language IDs that resist-lint can process on untitled documents. */
+const LINTABLE_LANGUAGES: ReadonlySet<string> = new Set([
+  'typescript',
+  'typescriptreact',
+  'javascript',
+  'javascriptreact',
+  'svelte',
+  'astro',
+  'html',
+  'vue',
+  'markdown',
+  'mdx',
+]);
+
+/**
+ * Checks whether a document can be linted (workspace file OR untitled with supported language).
+ *
+ * @param {vscode.TextDocument} doc - The document to check
+ * @returns {boolean} true if the document can be linted
+ *
+ * @example
+ * ```typescript
+ * if (isLintableDocument(doc)) {
+ *   await lintDocument(doc, collection, channel, stateManager, options);
+ * }
+ * ```
+ */
+export function isLintableDocument(doc: vscode.TextDocument): boolean {
+  if (isWorkspaceDocument(doc)) {
+    return true;
+  }
+  return (
+    (doc.isUntitled || doc.uri.scheme === 'untitled') && LINTABLE_LANGUAGES.has(doc.languageId)
+  );
+}
+
 /**
  * Iterates over all open workspace documents, applying a filter and action.
  *

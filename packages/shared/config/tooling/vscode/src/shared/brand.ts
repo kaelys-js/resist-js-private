@@ -61,6 +61,7 @@ export const COMMANDS = {
   changeStage: `${COMMAND_PREFIX}.lint.changeStage`,
   clearOutput: `${COMMAND_PREFIX}.lint.clearOutput`,
   toggleEnable: `${COMMAND_PREFIX}.lint.toggleEnable`,
+  statusBarMenu: `${COMMAND_PREFIX}.lint.statusBarMenu`,
 } as const;
 
 // =============================================================================
