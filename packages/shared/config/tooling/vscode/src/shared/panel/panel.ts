@@ -124,10 +124,16 @@ export function registerPanel(
   });
 
   // Clear Filter
-  registerCommand(context, outputChannel, COMMANDS.panelClearFilter, () => {
-    provider.clearFilter();
-    treeView.description = undefined;
-  });
+  registerCommand(
+    context,
+    outputChannel,
+    COMMANDS.panelClearFilter,
+    (): Promise<void> => {
+      provider.clearFilter();
+      treeView.description = undefined;
+      return Promise.resolve();
+    },
+  );
 
   // Menu — dispatch to status bar menu
   registerCommand(context, outputChannel, COMMANDS.panelMenu, async () => {

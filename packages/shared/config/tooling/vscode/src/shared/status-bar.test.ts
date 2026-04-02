@@ -151,7 +151,7 @@ describe('Status Bar', () => {
         }
 
         // Order check: if multiple props, color < background-color < border-radius
-        const order: string[] = props.map((p) => p.split(':')[0]);
+        const order: string[] = props.map((p) => p.split(':')[0] ?? '');
         const expected: string[] = ['color', 'background-color', 'border-radius'];
         const filtered: string[] = expected.filter((p) => order.includes(p));
         expect(order).toEqual(filtered);

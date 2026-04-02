@@ -27,7 +27,12 @@ function createChannel(): any {
   return { appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn(), name: BRAND_NAME };
 }
 
-/** Creates a mock collection that is iterable (for...of) and has forEach. */
+/**
+ * Creates a mock collection that is iterable (for...of) and has forEach.
+ *
+ * @param {Array<[vscode.Uri, any[]]>} entries - URI-diagnostic pairs
+ * @returns {object} Mock diagnostic collection
+ */
 function createMockCollection(entries: Array<[vscode.Uri, any[]]>): any {
   return {
     *[Symbol.iterator]() {

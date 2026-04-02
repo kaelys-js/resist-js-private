@@ -93,6 +93,8 @@ export type DiagnosticEntry = {
   readonly example?: string;
   /** Source code line that triggered the diagnostic. */
   readonly source?: string;
+  /** Human-readable rule description. */
+  readonly description?: string;
   /** Link to documentation for the rule. */
   readonly url?: string;
   /** Structured auto-fix. */
