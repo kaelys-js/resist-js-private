@@ -455,6 +455,10 @@ export type PanelStrings = {
   readonly formattingSection: string;
   /** Section header: Testing. */
   readonly testingSection: string;
+  /** Section header: Benchmarks. */
+  readonly benchmarksSection: string;
+  /** Section header: E2E Testing. */
+  readonly e2eSection: string;
   /** State label: Ready. */
   readonly stateReady: string;
   /** State label: Running. */
@@ -481,6 +485,30 @@ export type PanelStrings = {
   readonly openFileAction: string;
   /** Per-file issue count summary: "{errors} errors, {warnings} warnings". */
   readonly fileIssueCount: string;
+  /** Diagnostic detail label: "{rule}: {message}". */
+  readonly diagnosticDetailLabel: string;
+  /** Diagnostic position: "Ln {line}, Col {col}". */
+  readonly diagnosticLine: string;
+  /** Diagnostic position with rule: "Ln {line}, Col {col} · {rule}". */
+  readonly diagnosticLineWithRule: string;
+  /** Filter input placeholder text. */
+  readonly filterPlaceholder: string;
+  /** Filter active description: "Filter: {text}". */
+  readonly filterActive: string;
+  /** Log message when filter is cleared. */
+  readonly filterCleared: string;
+  /** Placeholder when filter matches nothing. */
+  readonly filterNoResults: string;
+  /** Panel title menu header. */
+  readonly menuTitle: string;
+  /** Expand all action label. */
+  readonly expandAllAction: string;
+  /** Badge tooltip: "{count} lint issues". */
+  readonly badgeTooltip: string;
+  /** Per-diagnostic action: Apply Fix. */
+  readonly fixAction: string;
+  /** Per-diagnostic action: Go to Line. */
+  readonly goToLineAction: string;
 };
 
 // =============================================================================

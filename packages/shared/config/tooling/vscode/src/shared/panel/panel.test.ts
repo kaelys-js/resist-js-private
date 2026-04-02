@@ -1,7 +1,7 @@
 /**
  * Tests for Panel Registration
  *
- * Plan: .claude/plans/keen-noodling-newt.md TASK 5
+ * Plan: .claude/plans/phase-86-panel-enhancements.md TASK 5
  *
  * @module
  */
@@ -72,10 +72,34 @@ describe('registerPanel', () => {
     expect(vscode.languages.onDidChangeDiagnostics).toHaveBeenCalled();
   });
 
-  it('registers refresh command via registerCommand', () => {
+  it('registers expandAll command', () => {
     registerPanel(context, stateManager, diagnosticCollection, lifecycle, outputChannel);
     expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-      COMMANDS.panelRefresh,
+      COMMANDS.panelExpandAll,
+      expect.any(Function),
+    );
+  });
+
+  it('registers filter command', () => {
+    registerPanel(context, stateManager, diagnosticCollection, lifecycle, outputChannel);
+    expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+      COMMANDS.panelFilter,
+      expect.any(Function),
+    );
+  });
+
+  it('registers clearFilter command', () => {
+    registerPanel(context, stateManager, diagnosticCollection, lifecycle, outputChannel);
+    expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+      COMMANDS.panelClearFilter,
+      expect.any(Function),
+    );
+  });
+
+  it('registers menu command', () => {
+    registerPanel(context, stateManager, diagnosticCollection, lifecycle, outputChannel);
+    expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+      COMMANDS.panelMenu,
       expect.any(Function),
     );
   });

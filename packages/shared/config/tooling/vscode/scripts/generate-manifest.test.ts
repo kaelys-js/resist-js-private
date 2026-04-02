@@ -71,7 +71,7 @@ describe('parseBrandCommands', () => {
     expect(result.get('myCmd')).toBe('acme.tools.run');
   });
 
-  it('parses all 19 commands from real brand.ts pattern', () => {
+  it('parses all 22 commands from real brand.ts pattern', () => {
     const source = makeBrandSource(`
   lintFile: \`\${COMMAND_PREFIX}.lint.file\`,
   lintWorkspace: \`\${COMMAND_PREFIX}.lint.workspace\`,
@@ -91,11 +91,14 @@ describe('parseBrandCommands', () => {
   clearOutput: \`\${COMMAND_PREFIX}.lint.clearOutput\`,
   toggleEnable: \`\${COMMAND_PREFIX}.lint.toggleEnable\`,
   statusBarMenu: \`\${COMMAND_PREFIX}.lint.statusBarMenu\`,
-  panelRefresh: \`\${COMMAND_PREFIX}.panel.refresh\`,
+  panelExpandAll: \`\${COMMAND_PREFIX}.panel.expandAll\`,
+  panelFilter: \`\${COMMAND_PREFIX}.panel.filter\`,
+  panelClearFilter: \`\${COMMAND_PREFIX}.panel.clearFilter\`,
+  panelMenu: \`\${COMMAND_PREFIX}.panel.menu\`,
 `);
     const result = parseBrandCommands(source);
 
-    expect(result.size).toBe(19);
+    expect(result.size).toBe(22);
     expect(result.get('lintFile')).toBe('resist.lint.file');
     expect(result.get('changeStage')).toBe('resist.lint.changeStage');
     expect(result.get('clearOutput')).toBe('resist.lint.clearOutput');
@@ -133,7 +136,7 @@ export const COMMANDS = {
 
     const result = parseBrandCommands(brandSource);
 
-    expect(result.size).toBe(19);
+    expect(result.size).toBe(22);
     // Verify every value starts with the prefix
     for (const [_key, cmdId] of result) {
       expect(cmdId).toMatch(/^resist\./);

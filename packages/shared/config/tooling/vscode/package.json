@@ -140,9 +140,28 @@
         "category": "Resist"
       },
       {
-        "command": "resist.panel.refresh",
-        "title": "Refresh Panel",
-        "category": "Resist"
+        "command": "resist.panel.expandAll",
+        "title": "Expand All Sections",
+        "category": "Resist",
+        "icon": "$(expand-all)"
+      },
+      {
+        "command": "resist.panel.filter",
+        "title": "Filter Lint Issues",
+        "category": "Resist",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "resist.panel.clearFilter",
+        "title": "Clear Filter",
+        "category": "Resist",
+        "icon": "$(close)"
+      },
+      {
+        "command": "resist.panel.menu",
+        "title": "Resist Actions",
+        "category": "Resist",
+        "icon": "$(ellipsis)"
       }
     ],
     "viewsContainers": {
@@ -166,20 +185,115 @@
     "viewsWelcome": [
       {
         "view": "resist.panel",
-        "contents": "Welcome to Resist.\n\nOpen a workspace to get started.\n\n[Open Folder](command:vscode.openFolder)"
+        "contents": "No workspace detected. Open a folder to start linting and formatting.\n\n[Open Folder](command:vscode.openFolder)"
       }
     ],
     "menus": {
-      "view/item/context": [
+      "view/title": [
+        {
+          "command": "resist.panel.expandAll",
+          "when": "view == resist.panel",
+          "group": "navigation@1"
+        },
+        {
+          "command": "resist.panel.filter",
+          "when": "view == resist.panel",
+          "group": "navigation@2"
+        },
+        {
+          "command": "resist.panel.clearFilter",
+          "when": "view == resist.panel",
+          "group": "navigation@3"
+        },
+        {
+          "command": "resist.lint.toggleEnable",
+          "when": "view == resist.panel",
+          "group": "1_control@1"
+        },
+        {
+          "command": "resist.lint.restart",
+          "when": "view == resist.panel",
+          "group": "1_control@2"
+        },
         {
           "command": "resist.lint.file",
-          "when": "viewItem == resist.fileDiagnostic",
-          "group": "inline"
+          "when": "view == resist.panel",
+          "group": "2_lint@1"
+        },
+        {
+          "command": "resist.lint.workspace",
+          "when": "view == resist.panel",
+          "group": "2_lint@2"
+        },
+        {
+          "command": "resist.lint.staged",
+          "when": "view == resist.panel",
+          "group": "2_lint@3"
+        },
+        {
+          "command": "resist.lint.uncommitted",
+          "when": "view == resist.panel",
+          "group": "2_lint@4"
         },
         {
           "command": "resist.lint.fix",
-          "when": "viewItem == resist.fileDiagnostic",
-          "group": "inline"
+          "when": "view == resist.panel",
+          "group": "3_fix@1"
+        },
+        {
+          "command": "resist.lint.previewFixes",
+          "when": "view == resist.panel",
+          "group": "3_fix@2"
+        },
+        {
+          "command": "resist.lint.removeUnusedImports",
+          "when": "view == resist.panel",
+          "group": "3_fix@3"
+        },
+        {
+          "command": "resist.lint.filterByCategory",
+          "when": "view == resist.panel",
+          "group": "4_filter@1"
+        },
+        {
+          "command": "resist.lint.clearFilter",
+          "when": "view == resist.panel",
+          "group": "4_filter@2"
+        },
+        {
+          "command": "resist.lint.changeStage",
+          "when": "view == resist.panel",
+          "group": "4_filter@3"
+        },
+        {
+          "command": "resist.lint.listRules",
+          "when": "view == resist.panel",
+          "group": "5_info@1"
+        },
+        {
+          "command": "resist.lint.showTiming",
+          "when": "view == resist.panel",
+          "group": "5_info@2"
+        },
+        {
+          "command": "resist.lint.showOutput",
+          "when": "view == resist.panel",
+          "group": "6_output@1"
+        },
+        {
+          "command": "resist.lint.clearOutput",
+          "when": "view == resist.panel",
+          "group": "6_output@2"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "resist.lint.file",
+          "when": "viewItem == resist.fileDiagnostic"
+        },
+        {
+          "command": "resist.lint.fix",
+          "when": "viewItem == resist.fileDiagnostic"
         },
         {
           "command": "resist.lint.workspace",
@@ -193,6 +307,18 @@
           "command": "resist.lint.restart",
           "when": "viewItem == resist.toolError",
           "group": "inline"
+        },
+        {
+          "command": "resist.lint.fix",
+          "when": "viewItem == resist.diagnosticDetail"
+        },
+        {
+          "command": "resist.lint.file",
+          "when": "viewItem == resist.diagnosticDetail"
+        },
+        {
+          "command": "resist.lint.listRules",
+          "when": "viewItem == resist.diagnosticDetail"
         }
       ]
     },
