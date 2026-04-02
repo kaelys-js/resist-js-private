@@ -13,6 +13,10 @@
  * @module
  */
 
+// =============================================================================
+// Imports & Helpers
+// =============================================================================
+
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,7 +27,7 @@ const __dirname = dirname(__filename);
 /**
  * Write to stdout.
  *
- * @param msg - Message to write
+ * @param {string} msg - Message to write
  */
 function log(msg: string): void {
   process.stdout.write(`${msg}\n`);
@@ -32,7 +36,7 @@ function log(msg: string): void {
 /**
  * Write to stderr.
  *
- * @param msg - Message to write
+ * @param {string} msg - Message to write
  */
 function logError(msg: string): void {
   process.stderr.write(`${msg}\n`);
@@ -41,10 +45,10 @@ function logError(msg: string): void {
 /**
  * Safely extract a regex capture group, throwing if undefined.
  *
- * @param match - The regex match array
- * @param index - The capture group index
- * @param label - Human-readable label for error messages
- * @returns The captured string
+ * @param {RegExpMatchArray | RegExpExecArray} match - The regex match array
+ * @param {number} index - The capture group index
+ * @param {string} label - Human-readable label for error messages
+ * @returns {string} The captured string
  */
 function capture(match: RegExpMatchArray | RegExpExecArray, index: number, label: string): string {
   const value: string | undefined = match[index];
@@ -67,8 +71,15 @@ const FIX_MODE: boolean = process.argv.includes('--fix');
  * Supports both single-quoted string values and template literals using
  * `${COMMAND_PREFIX}`. Returns a Map of command key to resolved command ID.
  *
- * @param source - The brand.ts source code
- * @returns Map of command key to command ID string
+ * @param {string} source - The brand.ts source code
+ * @returns {Map<string, string>} Map of command key to command ID string
+ *
+ * @example
+ * ```typescript
+ * const source = readFileSync('src/shared/brand.ts', 'utf8');
+ * const commands = parseBrandCommands(source);
+ * // commands.get('lintFile') === 'resist.lint.file'
+ * ```
  */
 export function parseBrandCommands(source: string): Map<string, string> {
   const commandsBlock: RegExpMatchArray | null = source.match(

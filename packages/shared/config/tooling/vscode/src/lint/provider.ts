@@ -14,7 +14,7 @@ import { getBinaryPath, getWorkspaceRoot } from '../shared/workspace';
 import type { ToolStateManager } from '../shared/state';
 import { mapSeverity, applyMaxProblems, createDiagnosticFromEntry } from '../shared/diagnostics';
 import { extractMessage } from '../shared/errors';
-import { log, logError, logCommand, logTiming } from '../shared/output';
+import { log, logError, logCommand, logTiming, logSummary } from '../shared/output';
 import type { DiagnosticEntry, RunResult } from '../shared/types';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
@@ -100,8 +100,8 @@ export async function lintDocument(
     args.push(`--category=${resolvedOptions.categories.join(',')}`);
   }
 
-  // Append config-driven CLI flags
-  appendConfigArgs(args);
+  // Append config-driven CLI flags — skip --tools for stdin mode (too slow for on-type)
+  appendConfigArgs(args, { skipTools: true });
 
   if (resolvedOptions.extraArgs) {
     args.push(...resolvedOptions.extraArgs);
@@ -114,11 +114,13 @@ export async function lintDocument(
   logCommand(channel, binPath, args);
 
   // Spawn resist-lint — pipe the current editor buffer via stdin
+  // Use a shorter timeout for on-type lint (10s vs 30s default)
   const result: RunResult<DiagnosticEntry[]> = await runToolJson<DiagnosticEntry[]>({
     command: binPath,
     args,
     cwd,
     stdin: document.getText(),
+    timeout: 10_000,
   });
 
   if (!result.ok) {
@@ -152,7 +154,17 @@ export async function lintDocument(
   const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(CONFIG_SECTION);
   const maxProblems: number = config.get<number>('lint.maxProblems', 100);
 
-  collection.set(document.uri, applyMaxProblems(diagnostics, maxProblems, channel));
+  const limited: vscode.Diagnostic[] = applyMaxProblems(diagnostics, maxProblems, channel);
+  collection.set(document.uri, limited);
+
+  // Log summary
+  const errorCount: number = limited.filter(
+    (d) => d.severity === vscode.DiagnosticSeverity.Error,
+  ).length;
+  const warnCount: number = limited.filter(
+    (d) => d.severity === vscode.DiagnosticSeverity.Warning,
+  ).length;
+  logSummary(channel, errorCount, warnCount);
 
   // State observer handles status bar counts
   stateManager.setState('lint', 'ready');
@@ -318,15 +330,22 @@ export async function lintWorkspace(
 // Config-Driven CLI Args
 // =============================================================================
 
+/** Options for appendConfigArgs. */
+type AppendConfigOptions = {
+  /** Skip --tools flag (used for on-type stdin lint where external tools are too slow). */
+  readonly skipTools?: boolean;
+};
+
 /**
  * Appends CLI flags derived from resist.lint.* settings to the args array.
  *
  * Reads cache, quiet, debug, severityOverride, rule, ignorePatterns,
  * jobs, tools, locale, bail, and showTiming settings.
  *
- * @param args - The args array to append flags to
+ * @param {string[]} args - The args array to append flags to
+ * @param {AppendConfigOptions} options - Optional flags to control which args are appended
  */
-function appendConfigArgs(args: string[]): void {
+function appendConfigArgs(args: string[], options: AppendConfigOptions = {}): void {
   const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(CONFIG_SECTION);
 
   if (config.get<boolean>('lint.cache', true) === false) {
@@ -363,7 +382,7 @@ function appendConfigArgs(args: string[]): void {
     args.push(`--jobs=${jobs}`);
   }
 
-  if (config.get<boolean>('lint.tools', false)) {
+  if (!options.skipTools && config.get<boolean>('lint.tools', false)) {
     args.push('--tools');
   }
 

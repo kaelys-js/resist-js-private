@@ -208,6 +208,7 @@ vi.mock('../shared/output', () => ({
   logError: vi.fn(),
   logCommand: vi.fn(),
   logTiming: vi.fn(),
+  logSummary: vi.fn(),
 }));
 
 describe('lintDocument — stdin mode', () => {
