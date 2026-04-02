@@ -40,6 +40,11 @@ export const ConfigurationTarget = {
   WorkspaceFolder: 3,
 } as const;
 
+export const QuickPickItemKind = {
+  Default: -1,
+  Separator: 0,
+} as const;
+
 // =============================================================================
 // Classes
 // =============================================================================
@@ -131,6 +136,7 @@ export class MarkdownString {
   public value: string = '';
   public isTrusted: boolean = false;
   public supportHtml: boolean = false;
+  public supportThemeIcons: boolean = false;
 
   constructor(value?: string) {
     this.value = value ?? '';
@@ -295,7 +301,7 @@ function createMockOutputChannel(): {
 
 function createMockStatusBarItem(): {
   text: string;
-  tooltip: string;
+  tooltip: string | MarkdownString | undefined;
   command: string | undefined;
   backgroundColor: unknown;
   show: ReturnType<typeof vi.fn>;
@@ -414,6 +420,9 @@ export const window = {
 export const languages = {
   createDiagnosticCollection: vi.fn(createMockDiagnosticCollection),
   registerCodeActionsProvider: vi.fn(() => createMockDisposable()),
+  registerHoverProvider: vi.fn(() => createMockDisposable()),
+  registerCodeLensProvider: vi.fn(() => createMockDisposable()),
+  registerDocumentFormattingEditProvider: vi.fn(() => createMockDisposable()),
 };
 
 export const commands = {

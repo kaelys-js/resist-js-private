@@ -82,6 +82,58 @@ export function updateStatusBar(
       break;
     }
   }
+
+  item.tooltip = buildStatusTooltip(state, counts);
+}
+
+/**
+ * Builds a rich MarkdownString tooltip for the status bar item.
+ *
+ * Shows current state, error/warning counts, and a click hint.
+ *
+ * @param {ExtensionState} state - Current extension state
+ * @param {DiagnosticCounts} [counts] - Optional diagnostic counts
+ * @returns {vscode.MarkdownString} Rich tooltip content
+ */
+function buildStatusTooltip(
+  state: ExtensionState,
+  counts?: DiagnosticCounts,
+): vscode.MarkdownString {
+  const md = new vscode.MarkdownString();
+  md.isTrusted = true;
+  md.supportThemeIcons = true;
+
+  const stateLabels: Record<ExtensionState, string> = {
+    ready: '$(check) Ready',
+    linting: '$(sync~spin) Linting...',
+    error: '$(error) Error',
+    disabled: '$(circle-slash) Disabled',
+  };
+
+  md.appendMarkdown(`**Resist Linter** — ${stateLabels[state]}\n\n`);
+
+  if (counts && (counts.errors > 0 || counts.warnings > 0)) {
+    if (counts.errors > 0) {
+      const label: string = formatPlural(counts.errors, {
+        one: en.plurals.error,
+        other: en.plurals.errors,
+      });
+      md.appendMarkdown(`$(error) ${label}\n\n`);
+    }
+    if (counts.warnings > 0) {
+      const label: string = formatPlural(counts.warnings, {
+        one: en.plurals.warning,
+        other: en.plurals.warnings,
+      });
+      md.appendMarkdown(`$(warning) ${label}\n\n`);
+    }
+  } else if (state === 'ready') {
+    md.appendMarkdown('No issues in current file\n\n');
+  }
+
+  md.appendMarkdown('---\n\n$(menu) Click for actions');
+
+  return md;
 }
 
 /**

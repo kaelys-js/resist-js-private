@@ -125,21 +125,41 @@ describe('DocumentEventRegistry', () => {
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
-  it('filters non-workspace documents for open but not close', () => {
+  it('dispatches untitled docs with supported language for open and close', () => {
     const openHandler = vi.fn();
     const closeHandler = vi.fn();
     registry.onOpen('lint', openHandler);
     registry.onClose('lint', closeHandler);
     registry.initialize();
 
-    const untitledDoc = createMockDoc('file', true);
+    // Untitled TypeScript doc — should be dispatched (lintable language)
+    const untitledDoc = createMockDoc('untitled', true);
 
     const openCallback = getLastCallback(vscode.workspace.onDidOpenTextDocument);
     openCallback(untitledDoc);
-    expect(openHandler).not.toHaveBeenCalled();
+    expect(openHandler).toHaveBeenCalledTimes(1);
 
     const closeCallback = getLastCallback(vscode.workspace.onDidCloseTextDocument);
     closeCallback(untitledDoc);
+    expect(closeHandler).toHaveBeenCalledTimes(1);
+  });
+
+  it('filters non-lintable documents for open but not close', () => {
+    const openHandler = vi.fn();
+    const closeHandler = vi.fn();
+    registry.onOpen('lint', openHandler);
+    registry.onClose('lint', closeHandler);
+    registry.initialize();
+
+    // Output scheme with non-lintable language — should be filtered for open
+    const outputDoc = { ...createMockDoc('output', false), languageId: 'log' };
+
+    const openCallback = getLastCallback(vscode.workspace.onDidOpenTextDocument);
+    openCallback(outputDoc);
+    expect(openHandler).not.toHaveBeenCalled();
+
+    const closeCallback = getLastCallback(vscode.workspace.onDidCloseTextDocument);
+    closeCallback(outputDoc);
     expect(closeHandler).toHaveBeenCalledTimes(1);
   });
 

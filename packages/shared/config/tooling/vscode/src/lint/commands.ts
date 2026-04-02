@@ -304,4 +304,45 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
       log(outputChannel, en.messages.linterResumed);
     }
   });
+
+  // Status bar click menu
+  registerCommand(context, outputChannel, COMMANDS.statusBarMenu, async () => {
+    const isEnabled: boolean = deps.configManager.get<boolean>('lint.enable', true);
+    const toggleLabel: string = isEnabled ? en.statusBarMenu.pause : en.statusBarMenu.resume;
+
+    const items: vscode.QuickPickItem[] = [
+      { label: toggleLabel },
+      { label: en.statusBarMenu.restart },
+      { label: '', kind: vscode.QuickPickItemKind.Separator },
+      { label: en.statusBarMenu.lintFile },
+      { label: en.statusBarMenu.fixAll },
+      { label: '', kind: vscode.QuickPickItemKind.Separator },
+      { label: en.statusBarMenu.showOutput },
+      { label: en.statusBarMenu.clearOutput },
+    ];
+
+    const picked: vscode.QuickPickItem | undefined = await vscode.window.showQuickPick(items, {
+      placeHolder: `${en.statusBar.tooltipPrefix} Actions`,
+    });
+
+    if (!picked) {
+      return;
+    }
+
+    const commandMap: Record<string, string> = {
+      [en.statusBarMenu.pause]: COMMANDS.toggleEnable,
+      [en.statusBarMenu.resume]: COMMANDS.toggleEnable,
+      [en.statusBarMenu.restart]: COMMANDS.restart,
+      [en.statusBarMenu.showOutput]: COMMANDS.showOutput,
+      [en.statusBarMenu.clearOutput]: COMMANDS.clearOutput,
+      [en.statusBarMenu.lintFile]: COMMANDS.lintFile,
+      [en.statusBarMenu.fixAll]: COMMANDS.lintFix,
+    };
+
+    const commandId: string | undefined = commandMap[picked.label];
+
+    if (commandId) {
+      await vscode.commands.executeCommand(commandId);
+    }
+  });
 }

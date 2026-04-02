@@ -233,9 +233,9 @@ describe('Locale', () => {
       assertAllStrings(en.plurals, 'plurals');
     });
 
-    it('all 28 VscodeStrings groups are present', () => {
+    it('all 29 VscodeStrings groups are present', () => {
       const groups = Object.keys(en);
-      expect(groups).toHaveLength(28);
+      expect(groups).toHaveLength(29);
       const expected = [
         'output',
         'statusBar',
@@ -263,6 +263,7 @@ describe('Locale', () => {
         'perFolder',
         'staleCleanup',
         'imports',
+        'statusBarMenu',
         'hover',
         'stageIndicator',
       ];

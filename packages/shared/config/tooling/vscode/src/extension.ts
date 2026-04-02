@@ -24,7 +24,7 @@ import {
   safeRun,
   safeRunAsync,
   resolveWorkspace,
-  isWorkspaceDocument,
+  isLintableDocument,
   forEachOpenDocument,
   withFileProgress,
   NotificationManager,
@@ -116,7 +116,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.languages.createDiagnosticCollection(DIAGNOSTIC_COLLECTION_NAME);
   const outputChannel: vscode.OutputChannel = createOutputChannel();
   const statusBarItem: vscode.StatusBarItem = createToolStatusBar(context, 'Lint', 100);
-  statusBarItem.command = COMMANDS.showOutput;
+  statusBarItem.command = COMMANDS.statusBarMenu;
 
   // Store refs for deactivation
   outputChannelRef = outputChannel;
@@ -216,10 +216,12 @@ export function activate(context: vscode.ExtensionContext): void {
   // Code Action Provider (Quick Fixes)
   // ========================================================================
 
+  const documentSchemes: vscode.DocumentFilter[] = [{ scheme: 'file' }, { scheme: 'untitled' }];
+
   lifecycle.register(
     'code-actions',
     vscode.languages.registerCodeActionsProvider(
-      { scheme: 'file' },
+      documentSchemes,
       new ResistCodeActionProvider(outputChannel),
       { providedCodeActionKinds: ResistCodeActionProvider.providedCodeActionKinds },
     ),
@@ -233,7 +235,7 @@ export function activate(context: vscode.ExtensionContext): void {
   lifecycle.register(
     'hover-provider',
     vscode.languages.registerHoverProvider(
-      { scheme: 'file' },
+      documentSchemes,
       new ResistHoverProvider(diagnosticCollection),
     ),
     20,
@@ -433,10 +435,13 @@ export function activate(context: vscode.ExtensionContext): void {
     configManager.get<boolean>('lint.enable', true) &&
     configManager.get<boolean>('lint.onOpen', true)
   ) {
-    const openUris: vscode.Uri[] = vscode.workspace.textDocuments
-      .filter((doc) => isWorkspaceDocument(doc))
-      .map((doc) => doc.uri);
+    const openDocs: vscode.TextDocument[] = vscode.workspace.textDocuments.filter((doc) =>
+      isLintableDocument(doc),
+    );
 
+    const openUris: vscode.Uri[] = openDocs.filter((doc) => !doc.isUntitled).map((doc) => doc.uri);
+
+    // Lint saved files with progress bar
     withFileProgress(outputChannel, en.progress.activation, openUris, (uri) => {
       const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);
 
@@ -445,6 +450,13 @@ export function activate(context: vscode.ExtensionContext): void {
       }
       return Promise.resolve();
     });
+
+    // Lint untitled docs directly (no URI-based progress needed)
+    for (const doc of openDocs) {
+      if (doc.isUntitled) {
+        lintDoc(doc);
+      }
+    }
   }
 }
 
