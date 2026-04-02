@@ -74,7 +74,7 @@ export function updateStatusBar(
           });
           parts.push(`$(warning) ${warningLabel}`);
         }
-        item.text = parts.join(' ');
+        item.text = `${en.statusBar.readyPrefix} ${parts.join(', ')}`;
       } else {
         item.text = en.statusBar.ready;
       }

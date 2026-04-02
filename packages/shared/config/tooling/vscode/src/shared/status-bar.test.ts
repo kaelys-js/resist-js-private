@@ -28,28 +28,28 @@ describe('Status Bar', () => {
     expect(statusBarItem.backgroundColor).toBeUndefined();
   });
 
-  it('updateStatusBar("ready") with counts shows pluralized error/warning counts', () => {
+  it('updateStatusBar("ready") with counts shows branded prefix with pluralized counts', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready', {
       errors: 3,
       warnings: 7,
     });
-    expect(statusBarItem.text).toBe('$(error) 3 errors $(warning) 7 warnings');
+    expect(statusBarItem.text).toBe(`$(check) ${BRAND_NAME}: $(error) 3 errors, $(warning) 7 warnings`);
   });
 
-  it('updateStatusBar("ready") with only errors shows pluralized error count', () => {
+  it('updateStatusBar("ready") with only errors shows branded prefix with error count', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready', {
       errors: 5,
       warnings: 0,
     });
-    expect(statusBarItem.text).toBe('$(error) 5 errors');
+    expect(statusBarItem.text).toBe(`$(check) ${BRAND_NAME}: $(error) 5 errors`);
   });
 
-  it('updateStatusBar("ready") with only warnings shows pluralized warning count', () => {
+  it('updateStatusBar("ready") with only warnings shows branded prefix with warning count', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready', {
       errors: 0,
       warnings: 2,
     });
-    expect(statusBarItem.text).toBe('$(warning) 2 warnings');
+    expect(statusBarItem.text).toBe(`$(check) ${BRAND_NAME}: $(warning) 2 warnings`);
   });
 
   it('updateStatusBar("ready") uses singular form for count of 1', () => {
@@ -57,7 +57,7 @@ describe('Status Bar', () => {
       errors: 1,
       warnings: 1,
     });
-    expect(statusBarItem.text).toBe('$(error) 1 error $(warning) 1 warning');
+    expect(statusBarItem.text).toBe(`$(check) ${BRAND_NAME}: $(error) 1 error, $(warning) 1 warning`);
   });
 
   it('updateStatusBar("ready") with zero counts shows check', () => {
@@ -70,7 +70,7 @@ describe('Status Bar', () => {
 
   it('updateStatusBar("linting") shows spinner', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'linting');
-    expect(statusBarItem.text).toBe('$(sync~spin) Linting...');
+    expect(statusBarItem.text).toBe(`$(sync~spin) ${BRAND_NAME}: Linting...`);
     expect(statusBarItem.backgroundColor).toBeUndefined();
   });
 
