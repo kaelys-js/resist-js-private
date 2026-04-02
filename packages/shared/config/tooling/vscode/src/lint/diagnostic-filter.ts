@@ -15,6 +15,25 @@ import { format } from '../locale/schema';
 import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 /**
+ * Collects entries from a DiagnosticCollection into an array.
+ *
+ * @param collection - The diagnostic collection to iterate
+ * @returns Array of [uri, diagnostics] pairs
+ */
+function collectEntries(
+  collection: vscode.DiagnosticCollection,
+): Array<[vscode.Uri, readonly vscode.Diagnostic[]]> {
+  const result: Array<[vscode.Uri, readonly vscode.Diagnostic[]]> = [];
+  // DiagnosticCollection only provides forEach — no iterator protocol.
+  // oxlint/no-array-for-each: this is the only API available on DiagnosticCollection.
+  // eslint-disable-next-line no-array-for-each -- DiagnosticCollection has no iterator
+  collection.forEach((uri, diagnostics) => {
+    result.push([uri, diagnostics]);
+  });
+  return result;
+}
+
+/**
  * Manages diagnostic filtering by category.
  *
  * Stores an active category filter and can apply/clear it on a
@@ -46,7 +65,7 @@ export class DiagnosticFilter implements vscode.Disposable {
   extractCategories(collection: vscode.DiagnosticCollection): string[] {
     const categories = new Set<string>();
 
-    collection.forEach((_uri: vscode.Uri, diagnostics: readonly vscode.Diagnostic[]) => {
+    for (const [_uri, diagnostics] of collectEntries(collection)) {
       for (const diag of diagnostics) {
         if (diag.source !== DIAGNOSTIC_SOURCE) {
           continue;
@@ -60,9 +79,9 @@ export class DiagnosticFilter implements vscode.Disposable {
           categories.add(ruleId.slice(0, slashIndex));
         }
       }
-    });
+    }
 
-    return Array.from(categories).sort();
+    return [...categories].toSorted();
   }
 
   /**
@@ -107,14 +126,15 @@ export class DiagnosticFilter implements vscode.Disposable {
     this.activeCategories = new Set(categories);
 
     // Store originals before filtering
-    collection.forEach((uri: vscode.Uri, diagnostics: readonly vscode.Diagnostic[]) => {
+    for (const [uri, diagnostics] of collectEntries(collection)) {
       if (!this.originalDiagnostics.has(uri.toString())) {
         this.originalDiagnostics.set(uri.toString(), diagnostics);
       }
-    });
+    }
 
     // Apply filter
     const originals = new Map(this.originalDiagnostics);
+    const activeCats: Set<string> = this.activeCategories;
     for (const [uriStr, diagnostics] of originals) {
       const filtered: vscode.Diagnostic[] = diagnostics.filter((diag) => {
         if (diag.source !== DIAGNOSTIC_SOURCE) {
@@ -126,7 +146,7 @@ export class DiagnosticFilter implements vscode.Disposable {
             : String(diag.code ?? '');
         const slashIndex: number = ruleId.indexOf('/');
         const category: string = slashIndex > 0 ? ruleId.slice(0, slashIndex) : '';
-        return this.activeCategories!.has(category);
+        return activeCats.has(category);
       });
 
       const uri: vscode.Uri = vscode.Uri.file(uriStr);
@@ -161,9 +181,11 @@ export class DiagnosticFilter implements vscode.Disposable {
 
   /**
    * Returns the currently active categories, or undefined if no filter.
+   *
+   * @returns Array of active category names, or undefined
    */
   getActiveCategories(): string[] | undefined {
-    return this.activeCategories ? Array.from(this.activeCategories) : undefined;
+    return this.activeCategories ? [...this.activeCategories] : undefined;
   }
 
   /**

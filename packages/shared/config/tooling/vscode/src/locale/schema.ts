@@ -5,7 +5,7 @@
  * Parameterized strings use `{placeholder}` syntax and are rendered
  * via {@link format}.
  *
- * Mirrors the @/lint locale pattern but uses plain TypeScript interfaces
+ * Mirrors the @/lint locale pattern but uses plain TypeScript types
  * (the extension targets CommonJS without a bundler, so Valibot is not
  * available at runtime).
  *
@@ -61,21 +61,21 @@ export function formatPlural(
 }
 
 // =============================================================================
-// String Group Interfaces
+// String Group Types
 // =============================================================================
 
 /** Strings for the output channel. */
-export interface OutputStrings {
+export type OutputStrings = {
   /** Output channel name shown in the dropdown. */
   readonly channelName: string;
   /** Prefix for error log lines. */
   readonly errorPrefix: string;
   /** Log message when extension activates. */
   readonly activated: string;
-}
+};
 
 /** Strings for the status bar item. */
-export interface StatusBarStrings {
+export type StatusBarStrings = {
   /** Tooltip when hovering the status bar item. */
   readonly tooltip: string;
   /** Tooltip prefix for tool-specific status bar items. */
@@ -88,10 +88,10 @@ export interface StatusBarStrings {
   readonly error: string;
   /** Text shown when the linter is disabled. */
   readonly disabled: string;
-}
+};
 
 /** Strings for user-facing error/info messages. */
-export interface MessageStrings {
+export type MessageStrings = {
   /** Warning when resist-lint binary is not found (shown to user). */
   readonly binaryNotFound: string;
   /** Info message when resist-lint binary missing (for output channel). */
@@ -140,10 +140,10 @@ export interface MessageStrings {
   readonly workspaceLintTiming: string;
   /** Error for timing report failure. */
   readonly timingReportFailed: string;
-}
+};
 
 /** Strings for progress bar titles. */
-export interface ProgressStrings {
+export type ProgressStrings = {
   /** Progress title for workspace lint. */
   readonly workspace: string;
   /** Progress title for staged changes lint. */
@@ -154,10 +154,10 @@ export interface ProgressStrings {
   readonly restart: string;
   /** Progress title for activation lint. */
   readonly activation: string;
-}
+};
 
 /** Strings for code action titles. */
-export interface CodeActionStrings {
+export type CodeActionStrings = {
   /** Individual fix title. */
   readonly fix: string;
   /** Individual fix title with tip. */
@@ -174,68 +174,68 @@ export interface CodeActionStrings {
   readonly fixAllFailed: string;
   /** Error log when creating disable action fails. */
   readonly disableFailed: string;
-}
+};
 
 /** Strings for document filter operations. */
-export interface DocumentFilterStrings {
+export type DocumentFilterStrings = {
   /** Error message when iteration fails for a document. */
   readonly iterationError: string;
-}
+};
 
 /** Strings for notification manager. */
-export interface NotificationStrings {
+export type NotificationStrings = {
   /** Log message when a notification is suppressed. */
   readonly suppressed: string;
-}
+};
 
 /** Strings for configuration manager. */
-export interface ConfigStrings {
+export type ConfigStrings = {
   /** Log when config change detected for a section. */
   readonly changeDetected: string;
   /** Log when config cache is refreshed. */
   readonly refreshed: string;
-}
+};
 
 /** Strings for lifecycle manager. */
-export interface LifecycleStrings {
+export type LifecycleStrings = {
   /** Debug log when disposing a named resource. */
   readonly disposing: string;
   /** Debug log after successful disposal. */
   readonly disposed: string;
   /** Error log when disposal fails. */
   readonly disposalError: string;
-}
+};
 
 /** Strings for file watcher. */
-export interface WatcherStrings {
+export type WatcherStrings = {
   /** Log when a config file change is detected. */
   readonly configChanged: string;
   /** Log when batched file changes are fired. */
   readonly batchFired: string;
   /** Error log when re-lint fails for a file after config change. */
   readonly relintError: string;
-}
+};
 
 /** Strings for progress reporting. */
-export interface ProgressHelperStrings {
+export type ProgressHelperStrings = {
   /** Progress message while processing files. */
   readonly processing: string;
   /** Log when progress operation is cancelled. */
   readonly cancelled: string;
   /** Error log for per-file processing failure. */
   readonly fileError: string;
-}
+};
 
 /** Strings for state manager. */
-export interface StateStrings {
+export type StateStrings = {
   /** Debug log when tool state transitions. */
   readonly transitioned: string;
   /** Error log when an observer callback throws. */
   readonly observerError: string;
-}
+};
 
 /** Strings for diagnostics manager. */
-export interface DiagnosticManagerStrings {
+export type DiagnosticManagerStrings = {
   /** Warning when max problems limit is reached. */
   readonly maxProblemsReached: string;
   /** Warning when an invalid diagnostic entry is skipped. */
@@ -244,16 +244,16 @@ export interface DiagnosticManagerStrings {
   readonly invalidReason: string;
   /** Summary log when malformed entries are skipped during workspace lint. */
   readonly skippedEntries: string;
-}
+};
 
 /** Strings for error boundaries. */
-export interface ErrorBoundaryStrings {
+export type ErrorBoundaryStrings = {
   /** Error log format: "{label}: {message}". */
   readonly errorLog: string;
-}
+};
 
 /** Strings for tool runner. */
-export interface RunnerStrings {
+export type RunnerStrings = {
   /** Error log for timeout. */
   readonly timeout: string;
   /** Error log for spawn failure. */
@@ -262,10 +262,10 @@ export interface RunnerStrings {
   readonly exitCode: string;
   /** Error log for JSON parse failure. */
   readonly jsonParseFailed: string;
-}
+};
 
 /** Strings for plural formatting. */
-export interface PluralStrings {
+export type PluralStrings = {
   /** Singular form for "error". */
   readonly error: string;
   /** Plural form for "errors". */
@@ -274,48 +274,48 @@ export interface PluralStrings {
   readonly warning: string;
   /** Plural form for "warnings". */
   readonly warnings: string;
-}
+};
 
 /** Strings for document event registry. */
-export interface EventsStrings {
+export type EventsStrings = {
   /** Error log when a handler throws. */
   readonly handlerError: string;
-}
+};
 
 /** Strings for auto-fix on save. */
-export interface FixOnSaveStrings {
+export type FixOnSaveStrings = {
   /** Log when fixes are applied on save. */
   readonly applied: string;
   /** Log when loop guard prevents re-fix. */
   readonly loopGuard: string;
   /** Log when no fixable diagnostics found on save. */
   readonly skippedNoFixes: string;
-}
+};
 
 /** Strings for code lens. */
-export interface CodeLensStrings {
+export type CodeLensStrings = {
   /** Code lens label showing issue count for a rule. */
   readonly issueCount: string;
-}
+};
 
 /** Strings for diff preview. */
-export interface DiffPreviewStrings {
+export type DiffPreviewStrings = {
   /** Diff editor title. */
   readonly title: string;
   /** Message when no fixes are available. */
   readonly noFixes: string;
-}
+};
 
 /** Strings for formatting provider. */
-export interface FormattingStrings {
+export type FormattingStrings = {
   /** Log when formatting edits are applied. */
   readonly applied: string;
   /** Log when no formatting edits found. */
   readonly noEdits: string;
-}
+};
 
 /** Strings for performance profiling. */
-export interface ProfilingStrings {
+export type ProfilingStrings = {
   /** Header for timing report output. */
   readonly header: string;
   /** Per-rule timing line: "{rule}: {ms}ms". */
@@ -324,10 +324,10 @@ export interface ProfilingStrings {
   readonly total: string;
   /** Message when no timing data available. */
   readonly noData: string;
-}
+};
 
 /** Strings for diagnostic filtering. */
-export interface FilterStrings {
+export type FilterStrings = {
   /** Quick pick title for category selection. */
   readonly selectCategories: string;
   /** Log when filter is applied. */
@@ -336,48 +336,48 @@ export interface FilterStrings {
   readonly filterCleared: string;
   /** Message when no categories found in diagnostics. */
   readonly noCategories: string;
-}
+};
 
 /** Strings for per-folder configuration. */
-export interface PerFolderStrings {
+export type PerFolderStrings = {
   /** Log when per-folder config is resolved. */
   readonly resolved: string;
   /** Log when falling back to global config. */
   readonly fallbackGlobal: string;
-}
+};
 
 /** Strings for stale diagnostic cleanup. */
-export interface StaleCleanupStrings {
+export type StaleCleanupStrings = {
   /** Log when stale diagnostics are cleared. */
   readonly cleared: string;
   /** Log when a visible editor is skipped. */
   readonly skippedVisible: string;
-}
+};
 
 /** Strings for import sorting integration. */
-export interface ImportsStrings {
+export type ImportsStrings = {
   /** Log showing count of removed imports. */
   readonly removedCount: string;
   /** Message when no unused imports found. */
   readonly noUnused: string;
-}
+};
 
 /** Strings for build/stage visual feedback. */
-export interface StageIndicatorStrings {
+export type StageIndicatorStrings = {
   /** Status bar text showing current stage. */
   readonly currentStage: string;
   /** Quick pick title for stage selection. */
   readonly selectStage: string;
   /** Log when stage is changed. */
   readonly stageChanged: string;
-}
+};
 
 // =============================================================================
 // Combined Type
 // =============================================================================
 
 /** Complete set of extension strings. */
-export interface VscodeStrings {
+export type VscodeStrings = {
   readonly output: OutputStrings;
   readonly statusBar: StatusBarStrings;
   readonly messages: MessageStrings;
@@ -405,4 +405,4 @@ export interface VscodeStrings {
   readonly staleCleanup: StaleCleanupStrings;
   readonly imports: ImportsStrings;
   readonly stageIndicator: StageIndicatorStrings;
-}
+};

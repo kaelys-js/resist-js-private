@@ -79,8 +79,8 @@ describe('createFileWatcher', () => {
 
     // Should have the watcher + the timer cleanup disposable
     expect(disposables.length).toBe(2);
-    expect(disposables[0].dispose).toBeDefined();
-    expect(disposables[1].dispose).toBeDefined();
+    expect(disposables[0]!.dispose).toBeDefined();
+    expect(disposables[1]!.dispose).toBeDefined();
   });
 
   it('debounces rapid changes', () => {

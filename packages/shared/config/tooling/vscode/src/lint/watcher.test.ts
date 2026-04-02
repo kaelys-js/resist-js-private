@@ -6,11 +6,12 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
+import type { TextDocument } from 'vscode';
 import { createConfigWatcher } from './watcher';
 import { CONFIG_FILE_PATTERNS } from '../shared/brand';
 
 describe('Config File Watcher', () => {
-  let lintFn: ReturnType<typeof vi.fn>;
+  let lintFn: ReturnType<typeof vi.fn<(doc: TextDocument) => void>>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -18,17 +19,21 @@ describe('Config File Watcher', () => {
     lintFn = vi.fn();
 
     // Set up text documents for re-lint
-    vscode.workspace.textDocuments = [
-      {
-        uri: vscode.Uri.file('/repo/src/file.ts'),
-        isUntitled: false,
-        getText: () => '',
-        lineAt: () => ({ text: '' }),
-        lineCount: 1,
-        positionAt: () => new vscode.Position(0, 0),
-        getWordRangeAtPosition: () => undefined,
-      },
-    ];
+    Object.defineProperty(vscode.workspace, 'textDocuments', {
+      value: [
+        {
+          uri: vscode.Uri.file('/repo/src/file.ts'),
+          isUntitled: false,
+          getText: () => '',
+          lineAt: () => ({ text: '' }),
+          lineCount: 1,
+          positionAt: () => new vscode.Position(0, 0),
+          getWordRangeAtPosition: vi.fn(),
+        },
+      ],
+      writable: true,
+      configurable: true,
+    });
   });
 
   it('creates watchers for all config file patterns', () => {
@@ -84,7 +89,7 @@ describe('Config File Watcher', () => {
     createConfigWatcher(lintFn);
 
     // Get the callback registered for onDidChange (first watcher = resist.config.ts)
-    const changeCallback = mockWatcher.onDidChange.mock.calls[0][0] as () => void;
+    const changeCallback = mockWatcher.onDidChange.mock.calls[0]![0] as () => void;
     changeCallback();
 
     // Debounce hasn't fired yet
@@ -98,26 +103,30 @@ describe('Config File Watcher', () => {
   });
 
   it('skips untitled and non-file documents during re-lint', () => {
-    vscode.workspace.textDocuments = [
-      {
-        uri: vscode.Uri.file('/repo/src/file.ts'),
-        isUntitled: false,
-        getText: () => '',
-        lineAt: () => ({ text: '' }),
-        lineCount: 1,
-        positionAt: () => new vscode.Position(0, 0),
-        getWordRangeAtPosition: () => undefined,
-      },
-      {
-        uri: { scheme: 'untitled', fsPath: 'Untitled-1' } as unknown as vscode.Uri,
-        isUntitled: true,
-        getText: () => '',
-        lineAt: () => ({ text: '' }),
-        lineCount: 1,
-        positionAt: () => new vscode.Position(0, 0),
-        getWordRangeAtPosition: () => undefined,
-      },
-    ];
+    Object.defineProperty(vscode.workspace, 'textDocuments', {
+      value: [
+        {
+          uri: vscode.Uri.file('/repo/src/file.ts'),
+          isUntitled: false,
+          getText: () => '',
+          lineAt: () => ({ text: '' }),
+          lineCount: 1,
+          positionAt: () => new vscode.Position(0, 0),
+          getWordRangeAtPosition: vi.fn(),
+        },
+        {
+          uri: { scheme: 'untitled', fsPath: 'Untitled-1' } as unknown as vscode.Uri,
+          isUntitled: true,
+          getText: () => '',
+          lineAt: () => ({ text: '' }),
+          lineCount: 1,
+          positionAt: () => new vscode.Position(0, 0),
+          getWordRangeAtPosition: vi.fn(),
+        },
+      ],
+      writable: true,
+      configurable: true,
+    });
 
     const mockWatcher = {
       onDidChange: vi.fn(),
@@ -131,7 +140,7 @@ describe('Config File Watcher', () => {
 
     createConfigWatcher(lintFn);
 
-    const changeCallback = mockWatcher.onDidChange.mock.calls[0][0] as () => void;
+    const changeCallback = mockWatcher.onDidChange.mock.calls[0]![0] as () => void;
     changeCallback();
     vi.advanceTimersByTime(1100);
 
@@ -140,26 +149,30 @@ describe('Config File Watcher', () => {
   });
 
   it('continues linting other files when one lint call throws', () => {
-    vscode.workspace.textDocuments = [
-      {
-        uri: vscode.Uri.file('/repo/src/a.ts'),
-        isUntitled: false,
-        getText: () => '',
-        lineAt: () => ({ text: '' }),
-        lineCount: 1,
-        positionAt: () => new vscode.Position(0, 0),
-        getWordRangeAtPosition: () => undefined,
-      },
-      {
-        uri: vscode.Uri.file('/repo/src/b.ts'),
-        isUntitled: false,
-        getText: () => '',
-        lineAt: () => ({ text: '' }),
-        lineCount: 1,
-        positionAt: () => new vscode.Position(0, 0),
-        getWordRangeAtPosition: () => undefined,
-      },
-    ];
+    Object.defineProperty(vscode.workspace, 'textDocuments', {
+      value: [
+        {
+          uri: vscode.Uri.file('/repo/src/a.ts'),
+          isUntitled: false,
+          getText: () => '',
+          lineAt: () => ({ text: '' }),
+          lineCount: 1,
+          positionAt: () => new vscode.Position(0, 0),
+          getWordRangeAtPosition: vi.fn(),
+        },
+        {
+          uri: vscode.Uri.file('/repo/src/b.ts'),
+          isUntitled: false,
+          getText: () => '',
+          lineAt: () => ({ text: '' }),
+          lineCount: 1,
+          positionAt: () => new vscode.Position(0, 0),
+          getWordRangeAtPosition: vi.fn(),
+        },
+      ],
+      writable: true,
+      configurable: true,
+    });
 
     let callCount = 0;
     const throwingLintFn = vi.fn(() => {
@@ -181,7 +194,7 @@ describe('Config File Watcher', () => {
 
     createConfigWatcher(throwingLintFn);
 
-    const changeCallback = mockWatcher.onDidChange.mock.calls[0][0] as () => void;
+    const changeCallback = mockWatcher.onDidChange.mock.calls[0]![0] as () => void;
     changeCallback();
     vi.advanceTimersByTime(1100);
 
@@ -190,7 +203,7 @@ describe('Config File Watcher', () => {
   });
 
   it('logs errors to output channel when provided', () => {
-    const mockChannel = { appendLine: vi.fn() } as unknown as import('vscode').OutputChannel;
+    const mockChannel = { appendLine: vi.fn() } as unknown as vscode.OutputChannel;
 
     const throwingLintFn = vi.fn(() => {
       throw new Error('lint boom');
@@ -208,7 +221,7 @@ describe('Config File Watcher', () => {
 
     createConfigWatcher(throwingLintFn, mockChannel);
 
-    const changeCallback = mockWatcher.onDidChange.mock.calls[0][0] as () => void;
+    const changeCallback = mockWatcher.onDidChange.mock.calls[0]![0] as () => void;
     changeCallback();
     vi.advanceTimersByTime(1100);
 

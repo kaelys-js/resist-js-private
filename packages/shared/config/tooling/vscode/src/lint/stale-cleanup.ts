@@ -32,7 +32,7 @@ export class StaleDiagnosticCleaner implements vscode.Disposable {
    * @param timeoutMs - Time in ms after which diagnostics are considered stale
    * @param channel - Optional output channel for logging
    */
-  constructor(timeoutMs: number = 300000, channel?: vscode.OutputChannel) {
+  constructor(timeoutMs: number = 300_000, channel?: vscode.OutputChannel) {
     this.timeoutMs = timeoutMs;
     this.channel = channel;
   }

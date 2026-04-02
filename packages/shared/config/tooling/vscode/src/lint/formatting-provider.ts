@@ -47,7 +47,7 @@ export class ResistFormattingProvider implements vscode.DocumentFormattingEditPr
     const edits: vscode.TextEdit[] = [];
 
     for (const diag of diagnostics) {
-      const data = (diag as DiagnosticWithData).data;
+      const { data } = diag as DiagnosticWithData;
       if (!data?.fix) {
         continue;
       }

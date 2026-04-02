@@ -46,7 +46,11 @@ function createMockDoc(
 describe('Document Filter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vscode.workspace.textDocuments = [];
+    Object.defineProperty(vscode.workspace, 'textDocuments', {
+      value: [],
+      writable: true,
+      configurable: true,
+    });
   });
 
   describe('isWorkspaceDocument', () => {
@@ -75,7 +79,11 @@ describe('Document Filter', () => {
     it('iterates matching documents', () => {
       const doc1 = createMockDoc('file', false, '/a.ts');
       const doc2 = createMockDoc('file', false, '/b.ts');
-      vscode.workspace.textDocuments = [doc1, doc2] as never;
+      Object.defineProperty(vscode.workspace, 'textDocuments', {
+        value: [doc1, doc2],
+        writable: true,
+        configurable: true,
+      });
 
       const action = vi.fn();
       forEachOpenDocument(() => true, action);
@@ -88,7 +96,11 @@ describe('Document Filter', () => {
     it('skips non-matching documents', () => {
       const doc1 = createMockDoc('file', false, '/a.ts');
       const doc2 = createMockDoc('git', false, '/b.ts');
-      vscode.workspace.textDocuments = [doc1, doc2] as never;
+      Object.defineProperty(vscode.workspace, 'textDocuments', {
+        value: [doc1, doc2],
+        writable: true,
+        configurable: true,
+      });
 
       const action = vi.fn();
       forEachOpenDocument((doc) => doc.uri.scheme === 'file', action);
@@ -100,7 +112,11 @@ describe('Document Filter', () => {
     it('catches per-doc errors and continues', () => {
       const doc1 = createMockDoc('file', false, '/a.ts');
       const doc2 = createMockDoc('file', false, '/b.ts');
-      vscode.workspace.textDocuments = [doc1, doc2] as never;
+      Object.defineProperty(vscode.workspace, 'textDocuments', {
+        value: [doc1, doc2],
+        writable: true,
+        configurable: true,
+      });
 
       const action = vi
         .fn()
@@ -118,7 +134,11 @@ describe('Document Filter', () => {
 
     it('logs errors when channel is provided', () => {
       const doc = createMockDoc('file', false, '/fail.ts');
-      vscode.workspace.textDocuments = [doc] as never;
+      Object.defineProperty(vscode.workspace, 'textDocuments', {
+        value: [doc],
+        writable: true,
+        configurable: true,
+      });
 
       const action = vi.fn(() => {
         throw new Error('test error');
@@ -136,7 +156,11 @@ describe('Document Filter', () => {
 
     it('works without channel (no logging, no crash)', () => {
       const doc = createMockDoc('file', false, '/fail.ts');
-      vscode.workspace.textDocuments = [doc] as never;
+      Object.defineProperty(vscode.workspace, 'textDocuments', {
+        value: [doc],
+        writable: true,
+        configurable: true,
+      });
 
       const action = vi.fn(() => {
         throw new Error('silent error');

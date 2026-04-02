@@ -6,21 +6,24 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
+import { existsSync } from 'node:fs';
 import { BINARY_NAME } from './brand';
+import { getWorkspaceRoot, getBinaryPath, clearCache } from './workspace';
 
 // Mock fs module
-vi.mock('fs', () => ({
+vi.mock('node:fs', () => ({
   existsSync: vi.fn(() => false),
 }));
-
-import { existsSync } from 'fs';
-import { getWorkspaceRoot, getBinaryPath, clearCache } from './workspace';
 
 describe('Workspace Resolution', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     clearCache();
-    vscode.workspace.workspaceFolders = undefined;
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: undefined,
+      writable: true,
+      configurable: true,
+    });
   });
 
   describe('getWorkspaceRoot', () => {
@@ -37,7 +40,7 @@ describe('Workspace Resolution', () => {
       // Mock getWorkspaceFolder to return a folder
       const folder = { uri: vscode.Uri.file('/repo/packages/app'), name: 'app', index: 0 };
       vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(
-        folder as unknown as import('vscode').WorkspaceFolder,
+        folder as unknown as vscode.WorkspaceFolder,
       );
 
       // existsSync returns true for /repo/pnpm-workspace.yaml
@@ -53,7 +56,7 @@ describe('Workspace Resolution', () => {
       const uri = vscode.Uri.file('/standalone/src/file.ts');
       const folder = { uri: vscode.Uri.file('/standalone'), name: 'standalone', index: 0 };
       vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(
-        folder as unknown as import('vscode').WorkspaceFolder,
+        folder as unknown as vscode.WorkspaceFolder,
       );
 
       // existsSync always returns false
@@ -67,7 +70,7 @@ describe('Workspace Resolution', () => {
       const uri = vscode.Uri.file('/repo/src/file.ts');
       const folder = { uri: vscode.Uri.file('/repo'), name: 'repo', index: 0 };
       vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(
-        folder as unknown as import('vscode').WorkspaceFolder,
+        folder as unknown as vscode.WorkspaceFolder,
       );
       vi.mocked(existsSync).mockImplementation((path: unknown) => {
         return String(path) === '/repo/pnpm-workspace.yaml';
@@ -85,7 +88,7 @@ describe('Workspace Resolution', () => {
       const uri = vscode.Uri.file('/repo/src/file.ts');
       const folder = { uri: vscode.Uri.file('/repo'), name: 'repo', index: 0 };
       vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(
-        folder as unknown as import('vscode').WorkspaceFolder,
+        folder as unknown as vscode.WorkspaceFolder,
       );
 
       vi.mocked(existsSync).mockImplementation((path: unknown) => {
@@ -101,7 +104,7 @@ describe('Workspace Resolution', () => {
       const uri = vscode.Uri.file('/repo/src/file.ts');
       const folder = { uri: vscode.Uri.file('/repo'), name: 'repo', index: 0 };
       vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(
-        folder as unknown as import('vscode').WorkspaceFolder,
+        folder as unknown as vscode.WorkspaceFolder,
       );
 
       vi.mocked(existsSync).mockImplementation((path: unknown) => {
@@ -125,7 +128,7 @@ describe('Workspace Resolution', () => {
       const uri = vscode.Uri.file('/repo/src/file.ts');
       const folder = { uri: vscode.Uri.file('/repo'), name: 'repo', index: 0 };
       vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(
-        folder as unknown as import('vscode').WorkspaceFolder,
+        folder as unknown as vscode.WorkspaceFolder,
       );
 
       let callCount = 0;

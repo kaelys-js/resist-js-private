@@ -24,19 +24,22 @@ export function updateStatusBar(
   counts?: { errors: number; warnings: number },
 ): void {
   switch (state) {
-    case 'linting':
+    case 'linting': {
       item.text = en.statusBar.linting;
       item.backgroundColor = undefined;
       break;
-    case 'error':
+    }
+    case 'error': {
       item.text = en.statusBar.error;
       item.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
       break;
-    case 'disabled':
+    }
+    case 'disabled': {
       item.text = en.statusBar.disabled;
       item.backgroundColor = undefined;
       break;
-    case 'ready':
+    }
+    case 'ready': {
       if (counts && (counts.errors > 0 || counts.warnings > 0)) {
         const parts: string[] = [];
         if (counts.errors > 0) {
@@ -59,6 +62,7 @@ export function updateStatusBar(
       }
       item.backgroundColor = undefined;
       break;
+    }
   }
 }
 

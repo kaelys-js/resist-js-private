@@ -135,6 +135,11 @@ export const CodeActionKind = {
   Source: { value: 'source' },
 } as const;
 
+export const CodeActionTriggerKind = {
+  Invoke: 1,
+  Automatic: 2,
+} as const;
+
 export class EventEmitter<T> {
   private listeners: Array<(e: T) => void> = [];
 
@@ -210,12 +215,26 @@ function createMockOutputChannel(): {
   show: ReturnType<typeof vi.fn>;
   dispose: ReturnType<typeof vi.fn>;
   name: string;
+  logLevel: number;
+  onDidChangeLogLevel: ReturnType<typeof vi.fn>;
+  trace: ReturnType<typeof vi.fn>;
+  debug: ReturnType<typeof vi.fn>;
+  info: ReturnType<typeof vi.fn>;
+  warn: ReturnType<typeof vi.fn>;
+  error: ReturnType<typeof vi.fn>;
 } {
   return {
     appendLine: vi.fn(),
     show: vi.fn(),
     dispose: vi.fn(),
     name: BRAND_NAME,
+    logLevel: 1,
+    onDidChangeLogLevel: vi.fn(() => createMockDisposable()),
+    trace: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   };
 }
 

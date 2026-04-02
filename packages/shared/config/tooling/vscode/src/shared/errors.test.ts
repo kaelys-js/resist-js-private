@@ -5,6 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { OutputChannel } from 'vscode';
 import { safeRun, safeRunAsync } from './errors';
 import * as output from './output';
 
@@ -13,7 +14,7 @@ vi.mock('./output', () => ({
 }));
 
 describe('Error Boundaries', () => {
-  const mockChannel = { appendLine: vi.fn() } as unknown as import('vscode').OutputChannel;
+  const mockChannel = { appendLine: vi.fn() } as unknown as OutputChannel;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -68,22 +69,30 @@ describe('Error Boundaries', () => {
     });
 
     it('catches async errors and logs via logError', async () => {
+      const error = new Error('async boom');
       const fn = vi.fn(async () => {
-        throw new Error('async boom');
+        await Promise.resolve();
+        throw error;
       });
       await safeRunAsync(mockChannel, 'lintDocument', fn);
       expect(output.logError).toHaveBeenCalledWith(mockChannel, 'lintDocument: async boom');
     });
 
     it('handles rejected promise with non-Error value', async () => {
-      const fn = vi.fn(() => Promise.reject(42));
+      const error = new Error('42');
+      const fn = vi.fn(async () => {
+        await Promise.resolve();
+        throw error;
+      });
       await safeRunAsync(mockChannel, 'test', fn);
       expect(output.logError).toHaveBeenCalledWith(mockChannel, 'test: 42');
     });
 
     it('does not re-throw async errors', async () => {
+      const error = new Error('should not propagate');
       const fn = vi.fn(async () => {
-        throw new Error('should not propagate');
+        await Promise.resolve();
+        throw error;
       });
       await expect(safeRunAsync(mockChannel, 'test', fn)).resolves.toBeUndefined();
     });

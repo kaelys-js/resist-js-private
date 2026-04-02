@@ -38,7 +38,7 @@ function createMockDocument(
     getWordRangeAtPosition: (pos: vscode.Position) => {
       const lineText = lines[pos.line] ?? '';
       if (lineText.length === 0) {
-        return undefined;
+        return;
       }
       // Simple word range: from position to next whitespace
       let end = pos.character;
@@ -46,7 +46,7 @@ function createMockDocument(
         end++;
       }
       if (end === pos.character) {
-        return undefined;
+        return;
       }
       return new vscode.Range(pos.line, pos.character, pos.line, end);
     },
@@ -121,7 +121,7 @@ describe('mapEntryToDiagnostic', () => {
   it('stores fix data on diagnostic.data', () => {
     const fix = { range: { start: 5, end: 10 }, text: 'replacement' };
     const diag = mapEntryToDiagnostic(createEntry({ fix }), doc);
-    const data = (diag as DiagnosticWithData).data;
+    const { data } = diag as DiagnosticWithData;
     expect(data.fix.range.start).toBe(5);
     expect(data.fix.range.end).toBe(10);
     expect(data.fix.text).toBe('replacement');
@@ -129,19 +129,19 @@ describe('mapEntryToDiagnostic', () => {
 
   it('stores tip on diagnostic.data', () => {
     const diag = mapEntryToDiagnostic(createEntry({ tip: 'Add JSDoc' }), doc);
-    const data = (diag as DiagnosticWithData).data;
+    const { data } = diag as DiagnosticWithData;
     expect(data.tip).toBe('Add JSDoc');
   });
 
   it('stores example on diagnostic.data', () => {
     const diag = mapEntryToDiagnostic(createEntry({ example: '/** @param {string} name */' }), doc);
-    const data = (diag as DiagnosticWithData).data;
+    const { data } = diag as DiagnosticWithData;
     expect(data.example).toBe('/** @param {string} name */');
   });
 
   it('stores url on diagnostic.data', () => {
     const diag = mapEntryToDiagnostic(createEntry({ url: 'https://docs.example.com/rule' }), doc);
-    const data = (diag as DiagnosticWithData).data;
+    const { data } = diag as DiagnosticWithData;
     expect(data.url).toBe('https://docs.example.com/rule');
   });
 

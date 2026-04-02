@@ -57,10 +57,8 @@ describe('DiagnosticFilter', () => {
 
     // Need to make forEach work with our mock
     const mockCollection = collection as any;
-    const store = new Map<string, any[]>();
-    store.set(uri.toString(), [
-      createDiag('naming/no-default-export'),
-      createDiag('jsdoc/require-param'),
+    const store = new Map<string, any[]>([
+      [uri.toString(), [createDiag('naming/no-default-export'), createDiag('jsdoc/require-param')]],
     ]);
     mockCollection.forEach = vi.fn((cb: any) => {
       for (const [key, value] of store) {
@@ -92,8 +90,7 @@ describe('DiagnosticFilter', () => {
     filter.applyFilter(['naming'], collection);
 
     expect(collection.set).toHaveBeenCalled();
-    const setCall = collection.set.mock.calls[0];
-    const filtered = setCall[1];
+    const [, filtered] = collection.set.mock.calls[0]!;
     expect(filtered).toHaveLength(1);
     expect(filtered[0].code).toBe('naming/no-default');
   });

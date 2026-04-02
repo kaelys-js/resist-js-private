@@ -48,7 +48,7 @@ function collectImportDiagnostics(diagnostics: readonly vscode.Diagnostic[]): vs
     if (!isImportDiagnostic(diag)) {
       return false;
     }
-    const data = (diag as DiagnosticWithData).data;
+    const { data } = diag as DiagnosticWithData;
     return data?.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '');
   });
 }
@@ -79,9 +79,9 @@ export async function removeUnusedImports(
   }
 
   // Collect fixes
-  const fixes: { start: number; end: number; text: string }[] = [];
+  const fixes: Array<{ start: number; end: number; text: string }> = [];
   for (const diag of importDiags) {
-    const data = (diag as DiagnosticWithData).data;
+    const { data } = diag as DiagnosticWithData;
     if (data?.fix) {
       fixes.push({
         start: data.fix.range.start,

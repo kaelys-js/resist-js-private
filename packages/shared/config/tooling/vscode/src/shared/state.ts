@@ -22,10 +22,10 @@ export type ToolState = 'ready' | 'running' | 'error' | 'disabled' | 'not-instal
 type StateChangeCallback = (tool: string, from: ToolState, to: ToolState) => void;
 
 /** Managed observer with disposal. */
-interface Observer {
+type Observer = {
   readonly tool: string;
   readonly callback: StateChangeCallback;
-}
+};
 
 /**
  * Manages per-tool state with observer support.

@@ -30,10 +30,15 @@ function createMockChannel(): any {
   };
 }
 
-/** Extracts the last callback registered with a mock VS Code event function. */
+/**
+ * Extracts the last callback registered with a mock VS Code event function.
+ *
+ * @param mockFn - The mock event function
+ * @returns The last registered callback
+ */
 function getLastCallback(mockFn: any): (...args: any[]) => void {
-  const calls = mockFn.mock.calls;
-  return calls[calls.length - 1][0];
+  const { calls } = mockFn.mock;
+  return calls.at(-1)![0];
 }
 
 // ---------------------------------------------------------------------------
@@ -158,23 +163,24 @@ describe('DocumentEventRegistry', () => {
     errorRegistry.dispose();
   });
 
-  it('logs handler errors to console.error when no output channel', () => {
+  it('silently catches handler errors when no output channel', () => {
     const noChannelRegistry = new DocumentEventRegistry();
     const badHandler = vi.fn(() => {
       throw new Error('handler boom');
     });
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const goodHandler = vi.fn();
 
     noChannelRegistry.onOpen('bad-tool', badHandler);
+    noChannelRegistry.onOpen('good-tool', goodHandler);
     noChannelRegistry.initialize();
 
     const openCallback = getLastCallback(vscode.workspace.onDidOpenTextDocument);
     openCallback(createMockDoc());
 
-    expect(consoleSpy).toHaveBeenCalledOnce();
-    expect(consoleSpy.mock.calls[0][0]).toContain('handler boom');
+    // Error is swallowed silently — no console output
+    expect(badHandler).toHaveBeenCalledOnce();
+    expect(goodHandler).toHaveBeenCalledOnce();
 
-    consoleSpy.mockRestore();
     noChannelRegistry.dispose();
   });
 

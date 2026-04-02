@@ -81,12 +81,12 @@ export class NotificationManager {
    * @param key - Optional key to reset. If omitted, resets all keys.
    */
   reset(key?: string): void {
-    if (key !== undefined) {
-      this.shownKeys.delete(key);
-      this.lastShown.delete(key);
-    } else {
+    if (key === undefined) {
       this.shownKeys.clear();
       this.lastShown.clear();
+    } else {
+      this.shownKeys.delete(key);
+      this.lastShown.delete(key);
     }
   }
 

@@ -5,9 +5,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { format, formatPlural } from './schema';
+import { format, formatPlural, type VscodeStrings } from './schema';
 import { en } from './en';
-import type { VscodeStrings } from './schema';
 import { BRAND_NAME, BINARY_NAME } from '../shared/brand';
 
 describe('Locale', () => {
@@ -92,7 +91,12 @@ describe('Locale', () => {
   });
 
   describe('exhaustive field existence', () => {
-    /** Helper: asserts every value in an object is a non-empty string. */
+    /**
+     * Helper: asserts every value in an object is a non-empty string.
+     *
+     * @param group - The string record to check
+     * @param label - Label used in assertion messages
+     */
     function assertAllStrings(group: Record<string, string>, label: string): void {
       for (const [key, value] of Object.entries(group)) {
         expect(typeof value).toBe('string');
@@ -427,7 +431,7 @@ describe('Locale', () => {
     });
 
     it('handles large numbers', () => {
-      expect(formatPlural(1000000, { one: '# result', other: '# results' })).toBe(
+      expect(formatPlural(1_000_000, { one: '# result', other: '# results' })).toBe(
         '1000000 results',
       );
     });

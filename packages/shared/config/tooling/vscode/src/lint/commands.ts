@@ -25,7 +25,7 @@ import { format } from '../locale/schema';
 import { BINARY_NAME, COMMANDS } from '../shared/brand';
 
 /** Dependencies injected from the extension entry point. */
-interface CommandDeps {
+type CommandDeps = {
   readonly diagnosticCollection: vscode.DiagnosticCollection;
   readonly outputChannel: vscode.OutputChannel;
   readonly stateManager: ToolStateManager;
@@ -34,7 +34,7 @@ interface CommandDeps {
   readonly diagnosticFilter: DiagnosticFilter;
   readonly stageIndicator: StageIndicator;
   readonly configManager: ConfigManager;
-}
+};
 
 /**
  * Registers all lint commands on the extension context.
@@ -58,8 +58,9 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
   // ========================================================================
 
   // Lint current file
-  registerTextEditorCommand(context, outputChannel, COMMANDS.lintFile, async (editor) => {
+  registerTextEditorCommand(context, outputChannel, COMMANDS.lintFile, (editor) => {
     lintDocumentFn(editor.document);
+    return Promise.resolve();
   });
 
   // Apply all auto-fixable diagnostics in current file
@@ -89,7 +90,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     const diagnostics: readonly vscode.Diagnostic[] =
       diagnosticCollection.get(editor.document.uri) ?? [];
     const fixCount: number = diagnostics.filter((d) => {
-      const data = (d as DiagnosticWithData).data;
+      const { data } = d as DiagnosticWithData;
       return data?.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '');
     }).length;
     log(outputChannel, format(en.messages.fixesApplied, { count: fixCount }));
@@ -133,28 +134,30 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
   });
 
   // Clear all diagnostics
-  registerCommand(context, outputChannel, COMMANDS.lintClear, async () => {
+  registerCommand(context, outputChannel, COMMANDS.lintClear, () => {
     diagnosticCollection.clear();
     stateManager.setState('lint', 'ready');
     log(outputChannel, en.messages.diagnosticsCleared);
+    return Promise.resolve();
   });
 
   // Show available rules in output channel
   registerCommand(context, outputChannel, COMMANDS.listRules, async () => {
     const folders: readonly vscode.WorkspaceFolder[] | undefined =
       vscode.workspace.workspaceFolders;
-    if (!folders || folders.length === 0) {
+    const [firstFolder] = folders ?? [];
+    if (!firstFolder) {
       vscode.window.showErrorMessage(en.messages.noWorkspaceFolder);
       return;
     }
 
-    const binPath: string | undefined = getBinaryPath(BINARY_NAME, folders[0].uri);
+    const binPath: string | undefined = getBinaryPath(BINARY_NAME, firstFolder.uri);
     if (!binPath) {
       vscode.window.showErrorMessage(en.messages.binaryNotInNodeModules);
       return;
     }
 
-    const cwd: string = folders[0].uri.fsPath;
+    const { fsPath: cwd } = firstFolder.uri;
     logCommand(outputChannel, binPath, ['--list-rules']);
 
     const result = await runToolJson<string>({
@@ -187,17 +190,19 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
       .filter((doc) => doc.uri.scheme === 'file' && !doc.isUntitled)
       .map((doc) => doc.uri);
 
-    await withFileProgress(outputChannel, en.progress.restart, openUris, async (uri) => {
+    await withFileProgress(outputChannel, en.progress.restart, openUris, (uri) => {
       const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);
       if (doc) {
         lintDocumentFn(doc);
       }
+      return Promise.resolve();
     });
   });
 
   // Show output channel
-  registerCommand(context, outputChannel, COMMANDS.showOutput, async () => {
+  registerCommand(context, outputChannel, COMMANDS.showOutput, () => {
     outputChannel.show();
+    return Promise.resolve();
   });
 
   // Lint only staged changes
@@ -252,8 +257,9 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
   });
 
   // Clear diagnostic filter
-  registerCommand(context, outputChannel, COMMANDS.clearFilter, async () => {
+  registerCommand(context, outputChannel, COMMANDS.clearFilter, () => {
     diagnosticFilter.clearFilter(diagnosticCollection);
+    return Promise.resolve();
   });
 
   // Change active lint stage

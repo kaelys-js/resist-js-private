@@ -7,7 +7,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type * as vscode from 'vscode';
 import { ToolStateManager } from './state';
-import type { ToolState } from './state';
 import * as output from './output';
 
 vi.mock('./output', () => ({

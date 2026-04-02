@@ -16,10 +16,10 @@ import { format } from '../locale/schema';
 import { BINARY_NAME } from '../shared/brand';
 
 /** Parsed timing entry from CLI output. */
-export interface TimingEntry {
+export type TimingEntry = {
   readonly rule: string;
   readonly ms: number;
-}
+};
 
 /**
  * Parses timing output from resist-lint --timing.
@@ -37,10 +37,13 @@ export function parseTimingOutput(output: string): TimingEntry[] {
     // Match patterns like "rule-name: 123ms" or "rule-name  123ms"
     const match: RegExpMatchArray | null = line.match(/^\s*(.+?)[\s:]+(\d+(?:\.\d+)?)\s*ms/);
     if (match) {
-      entries.push({
-        rule: match[1].trim(),
-        ms: parseFloat(match[2]),
-      });
+      const [, rule, msStr] = match;
+      if (rule !== undefined && msStr !== undefined) {
+        entries.push({
+          rule: rule.trim(),
+          ms: Number.parseFloat(msStr),
+        });
+      }
     }
   }
 
@@ -84,13 +87,17 @@ export async function showTimingReport(channel: vscode.OutputChannel): Promise<v
     return;
   }
 
-  const binPath: string | undefined = getBinaryPath(BINARY_NAME, folders[0].uri);
+  const [firstFolder] = folders;
+  if (!firstFolder) {
+    return;
+  }
+  const binPath: string | undefined = getBinaryPath(BINARY_NAME, firstFolder.uri);
   if (!binPath) {
     vscode.window.showErrorMessage(en.messages.binaryNotInNodeModules);
     return;
   }
 
-  const cwd: string | undefined = getWorkspaceRoot(folders[0].uri);
+  const cwd: string | undefined = getWorkspaceRoot(firstFolder.uri);
   if (!cwd) {
     return;
   }
@@ -102,7 +109,7 @@ export async function showTimingReport(channel: vscode.OutputChannel): Promise<v
     command: binPath,
     args,
     cwd,
-    timeout: 120000,
+    timeout: 120_000,
   });
 
   if (!result.ok) {

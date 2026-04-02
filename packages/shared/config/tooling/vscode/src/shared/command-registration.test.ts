@@ -43,8 +43,10 @@ describe('Command Registration', () => {
       registerCommand(mockContext, mockChannel, 'resist.test.cmd', handler);
 
       // Get the callback registered with vscode.commands.registerCommand
-      const registerCall = vi.mocked(vscode.commands.registerCommand).mock.calls[0];
-      const wrappedHandler = registerCall[1] as () => void;
+      const [, wrappedHandler] = vi.mocked(vscode.commands.registerCommand).mock.calls[0]! as [
+        string,
+        () => void,
+      ];
 
       // Execute the wrapped handler
       wrappedHandler();
@@ -59,18 +61,19 @@ describe('Command Registration', () => {
       });
     });
 
-    it('handler errors are caught by safeRunAsync boundary', async () => {
-      vi.mocked(errors.safeRunAsync).mockImplementation(async () => {
-        // safeRunAsync swallows errors
-      });
+    it('handler errors are caught by safeRunAsync boundary', () => {
+      vi.mocked(errors.safeRunAsync).mockResolvedValue();
 
       const handler = vi.fn(async () => {
+        await Promise.resolve();
         throw new Error('command failed');
       });
       registerCommand(mockContext, mockChannel, 'resist.test.cmd', handler);
 
-      const registerCall = vi.mocked(vscode.commands.registerCommand).mock.calls[0];
-      const wrappedHandler = registerCall[1] as () => void;
+      const [, wrappedHandler] = vi.mocked(vscode.commands.registerCommand).mock.calls[0]! as [
+        string,
+        () => void,
+      ];
 
       // Should not throw — safeRunAsync catches it
       expect(() => wrappedHandler()).not.toThrow();
@@ -93,8 +96,8 @@ describe('Command Registration', () => {
       const handler = vi.fn(async (_editor: vscode.TextEditor) => {});
       registerTextEditorCommand(mockContext, mockChannel, 'resist.test.editor', handler);
 
-      const registerCall = vi.mocked(vscode.commands.registerTextEditorCommand).mock.calls[0];
-      const wrappedHandler = registerCall[1] as (editor: vscode.TextEditor) => void;
+      const [, wrappedHandler] = vi.mocked(vscode.commands.registerTextEditorCommand).mock
+        .calls[0]! as [string, (editor: vscode.TextEditor) => void];
 
       const mockEditor = {
         document: { uri: vscode.Uri.file('/test.ts') },

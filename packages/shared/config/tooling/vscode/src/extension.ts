@@ -11,38 +11,51 @@
  */
 
 import * as vscode from 'vscode';
-import { DocumentDebouncer } from './shared/debounce';
-import { createToolStatusBar, updateStatusBar, getFileDiagnosticCounts } from './shared/status-bar';
-import { ToolStateManager, type ToolState } from './shared/state';
-import { createOutputChannel, log, logError } from './shared/output';
-import { extractMessage, safeRun, safeRunAsync } from './shared/errors';
-import { resolveWorkspace } from './shared/workspace';
-import { isWorkspaceDocument, forEachOpenDocument } from './shared/document-filter';
-import { withFileProgress } from './shared/progress';
-import { NotificationManager } from './shared/notifications';
-import { LifecycleManager } from './shared/lifecycle';
-import { DocumentEventRegistry } from './shared/events';
-import { lintDocument, type LintOptions } from './lint/provider';
-import { ResistCodeActionProvider } from './lint/code-actions';
-import { FixDiffPreviewProvider } from './lint/diff-preview';
-import { DiagnosticFilter } from './lint/diagnostic-filter';
-import { StageIndicator } from './lint/stage-indicator';
-import { FixOnSaveManager } from './lint/fix-on-save';
-import { ResistCodeLensProvider } from './lint/code-lens';
-import { StaleDiagnosticCleaner } from './lint/stale-cleanup';
-import { ResistFormattingProvider } from './lint/formatting-provider';
-import { createConfigWatcher } from './lint/watcher';
-import { createBatchedFileWatcher } from './shared/file-watcher';
-import { registerLintCommands } from './lint/commands';
-import { en } from './locale/en';
-import { ConfigManager, onConfigurationChange } from './shared/config';
 import {
+  DocumentDebouncer,
+  createToolStatusBar,
+  updateStatusBar,
+  getFileDiagnosticCounts,
+  ToolStateManager,
+  createOutputChannel,
+  log,
+  logError,
+  extractMessage,
+  safeRun,
+  safeRunAsync,
+  resolveWorkspace,
+  isWorkspaceDocument,
+  forEachOpenDocument,
+  withFileProgress,
+  NotificationManager,
+  LifecycleManager,
+  DocumentEventRegistry,
+  createBatchedFileWatcher,
+  ConfigManager,
+  onConfigurationChange,
   BINARY_NAME,
+  COMMANDS,
   CONFIG_SECTION,
   CONFIG_LINT_SECTION,
   DIAGNOSTIC_COLLECTION_NAME,
   PREVIEW_SCHEME,
-} from './shared/brand';
+  type ToolState,
+} from './shared/index';
+import {
+  lintDocument,
+  ResistCodeActionProvider,
+  FixDiffPreviewProvider,
+  DiagnosticFilter,
+  StageIndicator,
+  FixOnSaveManager,
+  ResistCodeLensProvider,
+  StaleDiagnosticCleaner,
+  ResistFormattingProvider,
+  createConfigWatcher,
+  registerLintCommands,
+  type LintOptions,
+} from './lint/index';
+import { en } from './locale/en';
 
 // =============================================================================
 // State
@@ -50,6 +63,30 @@ import {
 
 let lifecycle: LifecycleManager;
 let outputChannelRef: vscode.OutputChannel;
+
+/**
+ * Maps a ToolState value to the corresponding ExtensionState for status bar display.
+ *
+ * @param state - The current tool state from the ToolStateManager
+ * @returns The mapped extension state string for the status bar
+ */
+function mapToolState(state: ToolState): 'linting' | 'ready' | 'error' | 'disabled' {
+  switch (state) {
+    case 'running': {
+      return 'linting';
+    }
+    case 'ready': {
+      return 'ready';
+    }
+    case 'error': {
+      return 'error';
+    }
+    case 'disabled':
+    case 'not-installed': {
+      return 'disabled';
+    }
+  }
+}
 
 // =============================================================================
 // Activation
@@ -78,21 +115,6 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // State manager with observer that updates status bar
   const stateManager = new ToolStateManager(outputChannel);
-
-  /** Maps ToolState to ExtensionState for status bar display. */
-  const mapToolState = (state: ToolState): 'linting' | 'ready' | 'error' | 'disabled' => {
-    switch (state) {
-      case 'running':
-        return 'linting';
-      case 'ready':
-        return 'ready';
-      case 'error':
-        return 'error';
-      case 'disabled':
-      case 'not-installed':
-        return 'disabled';
-    }
-  };
 
   stateManager.onStateChange('lint', (_tool, _from, to) => {
     const mapped = mapToolState(to);
@@ -126,7 +148,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   const staleDiagnosticTimeoutMs: number = configManager.get<number>(
     'lint.staleDiagnosticTimeoutMs',
-    300000,
+    300_000,
   );
   const staleDiagnosticCleaner = new StaleDiagnosticCleaner(
     staleDiagnosticTimeoutMs,
@@ -149,8 +171,9 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Check for resist-lint binary
   const folders: readonly vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
-  if (folders && folders.length > 0) {
-    const workspace = resolveWorkspace(BINARY_NAME, folders[0].uri);
+  const [firstFolder] = folders ?? [];
+  if (firstFolder) {
+    const workspace = resolveWorkspace(BINARY_NAME, firstFolder.uri);
     if (!workspace?.binPath) {
       logError(outputChannel, en.messages.binaryNotFoundLog);
       notificationManager.warnOnce('missing-binary', en.messages.binaryNotFound);
@@ -170,7 +193,7 @@ export function activate(context: vscode.ExtensionContext): void {
     if (!configManager.get<boolean>('lint.enable', true)) {
       return;
     }
-    void safeRunAsync(outputChannel, 'lintDocument', () =>
+    const _lintPromise = safeRunAsync(outputChannel, 'lintDocument', () =>
       lintDocument(doc, diagnosticCollection, outputChannel, stateManager, getLintOptions()),
     );
   };
@@ -241,8 +264,8 @@ export function activate(context: vscode.ExtensionContext): void {
   // ========================================================================
 
   const watcherDisposables: vscode.Disposable[] = createConfigWatcher(lintDoc, outputChannel);
-  for (let i = 0; i < watcherDisposables.length; i++) {
-    lifecycle.register(`config-watcher-${i}`, watcherDisposables[i], 25);
+  for (const [i, disposable] of watcherDisposables.entries()) {
+    lifecycle.register(`config-watcher-${i}`, disposable, 25);
   }
 
   // ========================================================================
@@ -264,8 +287,8 @@ export function activate(context: vscode.ExtensionContext): void {
       outputChannel,
       { batchWindowMs: 1000 },
     );
-    for (let i = 0; i < sourceWatcherDisposables.length; i++) {
-      lifecycle.register(`source-watcher-${i}`, sourceWatcherDisposables[i], 25);
+    for (const [i, disposable] of sourceWatcherDisposables.entries()) {
+      lifecycle.register(`source-watcher-${i}`, disposable, 25);
     }
   }
 
@@ -289,7 +312,7 @@ export function activate(context: vscode.ExtensionContext): void {
       return;
     }
     if (configManager.get<boolean>('lint.fixOnSave', false)) {
-      void safeRunAsync(outputChannel, 'fixOnSave', async () => {
+      const _fixPromise = safeRunAsync(outputChannel, 'fixOnSave', async () => {
         await fixOnSaveManager.handleSave(doc, diagnosticCollection);
       });
     }
@@ -384,12 +407,18 @@ export function activate(context: vscode.ExtensionContext): void {
       .filter((doc) => isWorkspaceDocument(doc))
       .map((doc) => doc.uri);
 
-    void withFileProgress(outputChannel, en.progress.activation, openUris, async (uri) => {
-      const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);
-      if (doc) {
-        lintDoc(doc);
-      }
-    });
+    const _activationPromise = withFileProgress(
+      outputChannel,
+      en.progress.activation,
+      openUris,
+      (uri) => {
+        const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);
+        if (doc) {
+          lintDoc(doc);
+        }
+        return Promise.resolve();
+      },
+    );
   }
 }
 

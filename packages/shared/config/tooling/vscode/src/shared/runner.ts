@@ -7,20 +7,20 @@
  * @module
  */
 
-import { spawn } from 'child_process';
-import * as path from 'path';
+import { spawn } from 'node:child_process';
+import * as path from 'node:path';
 import type { RunOptions, RunResult } from './types';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
 import { extractMessage } from './errors';
 
 /** Raw process result from runTool. */
-interface ToolResult {
+type ToolResult = {
   readonly stdout: string;
   readonly stderr: string;
   readonly exitCode: number | null;
   readonly elapsed: number;
-}
+};
 
 /**
  * Spawns a CLI tool and returns raw stdout/stderr/exitCode.
@@ -32,60 +32,59 @@ interface ToolResult {
  * @returns Raw process result
  */
 function runTool(options: RunOptions): Promise<ToolResult> {
+  const timeoutMs: number = options.timeout ?? 30_000;
+  const startTime: number = Date.now();
+
+  const nodeModulesBin: string = path.join(options.cwd, 'node_modules', '.bin');
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    ...options.env,
+    FORCE_COLOR: '0',
+    PATH: `${nodeModulesBin}${path.delimiter}${process.env['PATH'] ?? ''}`,
+  };
+
+  const child = spawn(options.command, options.args as string[], {
+    cwd: options.cwd,
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env,
+  });
+
+  let stdout = '';
+  let stderr = '';
+
+  child.stdout.on('data', (data: Buffer) => {
+    stdout += data.toString();
+  });
+
+  child.stderr.on('data', (data: Buffer) => {
+    stderr += data.toString();
+  });
+
   return new Promise((resolve) => {
-    const timeoutMs: number = options.timeout ?? 30000;
-    const startTime: number = Date.now();
-
-    const nodeModulesBin: string = path.join(options.cwd, 'node_modules', '.bin');
-    const env: NodeJS.ProcessEnv = {
-      ...process.env,
-      ...options.env,
-      FORCE_COLOR: '0',
-      PATH: `${nodeModulesBin}${path.delimiter}${process.env['PATH'] ?? ''}`,
+    let settled = false;
+    const settle = (result: ToolResult): void => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      resolve(result);
     };
-
-    const child = spawn(options.command, options.args as string[], {
-      cwd: options.cwd,
-      stdio: ['pipe', 'pipe', 'pipe'],
-      env,
-    });
-
-    let stdout = '';
-    let stderr = '';
-
-    child.stdout.on('data', (data: Buffer) => {
-      stdout += data.toString();
-    });
-
-    child.stderr.on('data', (data: Buffer) => {
-      stderr += data.toString();
-    });
 
     const timer: NodeJS.Timeout = setTimeout(() => {
       child.kill();
-      resolve({
-        stdout,
-        stderr,
-        exitCode: null,
-        elapsed: Date.now() - startTime,
-      });
+      settle({ stdout, stderr, exitCode: null, elapsed: Date.now() - startTime });
     }, timeoutMs);
 
     child.on('close', (code: number | null) => {
       clearTimeout(timer);
-      resolve({
-        stdout,
-        stderr,
-        exitCode: code,
-        elapsed: Date.now() - startTime,
-      });
+      settle({ stdout, stderr, exitCode: code, elapsed: Date.now() - startTime });
     });
 
-    child.on('error', (err: Error) => {
+    child.on('error', (error: Error) => {
       clearTimeout(timer);
-      resolve({
+      settle({
         stdout,
-        stderr: format(en.runner.spawnFailed, { error: err.message }),
+        stderr: format(en.runner.spawnFailed, { error: error.message }),
         exitCode: null,
         elapsed: Date.now() - startTime,
       });
@@ -128,38 +127,47 @@ export async function runToolText(options: RunOptions): Promise<RunResult<string
  * @returns Parsed JSON result or failure info
  */
 export function runToolJson<T>(options: RunOptions): Promise<RunResult<T>> {
+  const timeoutMs: number = options.timeout ?? 30_000;
+  const startTime: number = Date.now();
+
+  const nodeModulesBin: string = path.join(options.cwd, 'node_modules', '.bin');
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    ...options.env,
+    FORCE_COLOR: '0',
+    PATH: `${nodeModulesBin}${path.delimiter}${process.env['PATH'] ?? ''}`,
+  };
+
+  const child = spawn(options.command, options.args as string[], {
+    cwd: options.cwd,
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env,
+  });
+
+  let stdout = '';
+  let stderr = '';
+
+  child.stdout.on('data', (data: Buffer) => {
+    stdout += data.toString();
+  });
+
+  child.stderr.on('data', (data: Buffer) => {
+    stderr += data.toString();
+  });
+
   return new Promise((resolve) => {
-    const timeoutMs: number = options.timeout ?? 30000;
-    const startTime: number = Date.now();
-
-    const nodeModulesBin: string = path.join(options.cwd, 'node_modules', '.bin');
-    const env: NodeJS.ProcessEnv = {
-      ...process.env,
-      ...options.env,
-      FORCE_COLOR: '0',
-      PATH: `${nodeModulesBin}${path.delimiter}${process.env['PATH'] ?? ''}`,
+    let settled = false;
+    const settle = (result: RunResult<T>): void => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      resolve(result);
     };
-
-    const child = spawn(options.command, options.args as string[], {
-      cwd: options.cwd,
-      stdio: ['pipe', 'pipe', 'pipe'],
-      env,
-    });
-
-    let stdout = '';
-    let stderr = '';
-
-    child.stdout.on('data', (data: Buffer) => {
-      stdout += data.toString();
-    });
-
-    child.stderr.on('data', (data: Buffer) => {
-      stderr += data.toString();
-    });
 
     const timer: NodeJS.Timeout = setTimeout(() => {
       child.kill();
-      resolve({
+      settle({
         ok: false,
         error: format(en.runner.timeout, { ms: timeoutMs }),
         stderr,
@@ -174,10 +182,10 @@ export function runToolJson<T>(options: RunOptions): Promise<RunResult<T>> {
       if (stdout.trim()) {
         try {
           const data = JSON.parse(stdout) as T;
-          resolve({ ok: true, data, stderr, elapsed });
-        } catch (parseErr: unknown) {
-          const parseMsg: string = extractMessage(parseErr);
-          resolve({
+          settle({ ok: true, data, stderr, elapsed });
+        } catch (parseError: unknown) {
+          const parseMsg: string = extractMessage(parseError);
+          settle({
             ok: false,
             error: format(en.runner.jsonParseFailed, {
               error: parseMsg,
@@ -187,28 +195,24 @@ export function runToolJson<T>(options: RunOptions): Promise<RunResult<T>> {
             code,
           });
         }
+      } else if (code === 0) {
+        // No stdout with exit 0 means zero diagnostics found
+        settle({ ok: true, data: [] as unknown as T, stderr, elapsed });
       } else {
-        // No stdout — could be an error or just no results.
-        // When the CLI exits 0 with empty stdout, it means zero diagnostics
-        // were found. We return an empty array as the typed result.
-        if (code === 0) {
-          resolve({ ok: true, data: [] as unknown as T, stderr, elapsed });
-        } else {
-          resolve({
-            ok: false,
-            error: stderr.trim() || format(en.runner.exitCode, { code: String(code) }),
-            stderr,
-            code,
-          });
-        }
+        settle({
+          ok: false,
+          error: stderr.trim() || format(en.runner.exitCode, { code: String(code) }),
+          stderr,
+          code,
+        });
       }
     });
 
-    child.on('error', (err: Error) => {
+    child.on('error', (error: Error) => {
       clearTimeout(timer);
-      resolve({
+      settle({
         ok: false,
-        error: format(en.runner.spawnFailed, { error: err.message }),
+        error: format(en.runner.spawnFailed, { error: error.message }),
         stderr,
         code: null,
       });

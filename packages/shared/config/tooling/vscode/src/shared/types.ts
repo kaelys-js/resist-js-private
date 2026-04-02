@@ -13,26 +13,26 @@
 // =============================================================================
 
 /** Successful result from spawning a CLI tool. */
-interface RunSuccess<T> {
+type RunSuccess<T> = {
   readonly ok: true;
   readonly data: T;
   readonly stderr: string;
   readonly elapsed: number;
-}
+};
 
 /** Failed result from spawning a CLI tool. */
-interface RunFailure {
+type RunFailure = {
   readonly ok: false;
   readonly error: string;
   readonly stderr: string;
   readonly code: number | null;
-}
+};
 
 /** Result from spawning a CLI tool — either success with parsed data or failure with error info. */
 export type RunResult<T> = RunSuccess<T> | RunFailure;
 
 /** Options for spawning a CLI tool. */
-export interface RunOptions {
+export type RunOptions = {
   /** Binary name or path to execute. */
   readonly command: string;
   /** Arguments to pass to the command. */
@@ -43,14 +43,14 @@ export interface RunOptions {
   readonly env?: Readonly<Record<string, string>>;
   /** Timeout in milliseconds (default: 30000). */
   readonly timeout?: number;
-}
+};
 
 // =============================================================================
 // Diagnostic Entry (mirrors LintResult from @/lint/framework/types.ts)
 // =============================================================================
 
 /** Structured auto-fix from the linter. Byte offsets into the source file. */
-export interface DiagnosticFix {
+export type DiagnosticFix = {
   /** Byte offset range in the source to replace. */
   readonly range: {
     /** Start byte offset (inclusive). */
@@ -60,15 +60,15 @@ export interface DiagnosticFix {
   };
   /** Replacement text (empty string = deletion). */
   readonly text: string;
-}
+};
 
 /**
  * A single diagnostic entry from resist-lint JSON output.
  *
- * This interface mirrors `LintResult` from `@/lint/framework/types.ts` exactly
+ * This type mirrors `LintResult` from `@/lint/framework/types.ts` exactly
  * so that `JSON.parse(stdout)` produces an array of these directly.
  */
-export interface DiagnosticEntry {
+export type DiagnosticEntry = {
   /** Absolute file path. */
   readonly file: string;
   /** 1-based line number. */
@@ -95,7 +95,7 @@ export interface DiagnosticEntry {
   readonly url?: string;
   /** Structured auto-fix. */
   readonly fix: DiagnosticFix;
-}
+};
 
 // =============================================================================
 // Extension State
@@ -105,9 +105,9 @@ export interface DiagnosticEntry {
 export type ExtensionState = 'ready' | 'linting' | 'error' | 'disabled';
 
 /** Cached workspace info for a workspace folder. */
-export interface WorkspaceInfo {
+export type WorkspaceInfo = {
   /** Absolute path to the monorepo root (where pnpm-workspace.yaml lives). */
   readonly rootPath: string;
   /** Absolute path to the resist-lint binary, or undefined if not found. */
   readonly binPath: string | undefined;
-}
+};

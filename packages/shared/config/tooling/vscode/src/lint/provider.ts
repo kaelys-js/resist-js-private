@@ -26,11 +26,11 @@ import { getPerFolderLintOptions } from './per-folder';
 // =============================================================================
 
 /** Options controlling what gets linted and how. */
-export interface LintOptions {
+export type LintOptions = {
   readonly stage?: string;
   readonly categories?: readonly string[];
   readonly extraArgs?: readonly string[];
-}
+};
 
 // =============================================================================
 // Lint Document
@@ -62,7 +62,7 @@ export async function lintDocument(
   }
 
   // Resolve per-folder options for multi-root workspaces
-  options = getPerFolderLintOptions(document.uri, options, channel);
+  const resolvedOptions: LintOptions = getPerFolderLintOptions(document.uri, options, channel);
 
   const filePath: string = document.uri.fsPath;
 
@@ -81,18 +81,18 @@ export async function lintDocument(
 
   // Build CLI args
   const args: string[] = ['--format=json'];
-  if (options.stage) {
-    args.push(`--stage=${options.stage}`);
+  if (resolvedOptions.stage) {
+    args.push(`--stage=${resolvedOptions.stage}`);
   }
-  if (options.categories && options.categories.length > 0) {
-    args.push(`--category=${options.categories.join(',')}`);
+  if (resolvedOptions.categories && resolvedOptions.categories.length > 0) {
+    args.push(`--category=${resolvedOptions.categories.join(',')}`);
   }
 
   // Append config-driven CLI flags
   appendConfigArgs(args);
 
-  if (options.extraArgs) {
-    args.push(...options.extraArgs);
+  if (resolvedOptions.extraArgs) {
+    args.push(...resolvedOptions.extraArgs);
   }
   args.push(filePath);
 
@@ -123,13 +123,13 @@ export async function lintDocument(
   for (const entry of result.data) {
     try {
       diagnostics.push(mapEntryToDiagnostic(entry, document));
-    } catch (err: unknown) {
+    } catch (error: unknown) {
       logError(
         channel,
         format(en.messages.diagnosticMapFailed, {
           rule: entry.ruleId,
           location: `${entry.file}:${entry.line}`,
-          error: extractMessage(err),
+          error: extractMessage(error),
         }),
       );
     }
@@ -168,11 +168,12 @@ export async function lintWorkspace(
   progress: vscode.Progress<{ message?: string; increment?: number }>,
 ): Promise<void> {
   const folders: readonly vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
-  if (!folders || folders.length === 0) {
+  const [firstFolder] = folders ?? [];
+  if (!firstFolder) {
     return;
   }
 
-  const rootUri: vscode.Uri = folders[0].uri;
+  const { uri: rootUri } = firstFolder;
   const binPath: string | undefined = getBinaryPath(BINARY_NAME, rootUri);
   if (!binPath) {
     logError(channel, en.messages.binaryNotFoundShort);
@@ -206,7 +207,7 @@ export async function lintWorkspace(
     command: binPath,
     args,
     cwd,
-    timeout: 120000, // 2 min for workspace-wide lint
+    timeout: 120_000, // 2 min for workspace-wide lint
   });
 
   if (!result.ok) {
@@ -288,7 +289,9 @@ export async function lintWorkspace(
  * Appends CLI flags derived from resist.lint.* settings to the args array.
  *
  * Reads cache, quiet, debug, severityOverride, rule, ignorePatterns,
- * jobs, tools, locale, and bail settings.
+ * jobs, tools, locale, bail, and showTiming settings.
+ *
+ * @param args - The args array to append flags to
  */
 function appendConfigArgs(args: string[]): void {
   const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(CONFIG_SECTION);
@@ -328,6 +331,9 @@ function appendConfigArgs(args: string[]): void {
   if (config.get<boolean>('lint.bail', false)) {
     args.push('--bail');
   }
+  if (config.get<boolean>('lint.showTiming', false)) {
+    args.push('--timing');
+  }
 }
 
 // =============================================================================
@@ -342,7 +348,10 @@ function appendConfigArgs(args: string[]): void {
  * Stores fix data, tip, example, and url on diagnostic.data for the
  * CodeActionProvider to consume.
  *
- * @internal Exported for tests only.
+ * @internal
+ * @param entry - The linter diagnostic entry
+ * @param document - The VS Code document for position resolution
+ * @returns The mapped VS Code diagnostic
  */
 export function mapEntryToDiagnostic(
   entry: DiagnosticEntry,
@@ -371,12 +380,12 @@ export function mapEntryToDiagnostic(
   const severity: vscode.DiagnosticSeverity = mapSeverity(entry.severity);
 
   // Append example to message when present so it's visible in the Problems panel
-  let message: string = entry.message;
-  if (entry.example) {
-    message += `\n\nExample:\n${entry.example}`;
-  }
+  const { message: baseMessage } = entry;
+  const fullMessage: string = entry.example
+    ? `${baseMessage}\n\nExample:\n${entry.example}`
+    : baseMessage;
 
-  const diagnostic = new vscode.Diagnostic(range, message, severity);
+  const diagnostic = new vscode.Diagnostic(range, fullMessage, severity);
   diagnostic.source = DIAGNOSTIC_SOURCE;
 
   // When url is present, make rule ID clickable in the Problems panel
@@ -402,6 +411,9 @@ export function mapEntryToDiagnostic(
  *
  * Uses the shared `createDiagnosticFromEntry` for basic range/severity/data
  * mapping, then enhances with example appending and clickable URLs.
+ *
+ * @param entry - The linter diagnostic entry
+ * @returns The mapped VS Code diagnostic
  */
 function mapEntryToDiagnosticBasic(entry: DiagnosticEntry): vscode.Diagnostic {
   const diagnostic: vscode.Diagnostic | undefined = createDiagnosticFromEntry(
@@ -436,7 +448,7 @@ function mapEntryToDiagnosticBasic(entry: DiagnosticEntry): vscode.Diagnostic {
 // =============================================================================
 
 /** Extended diagnostic with fix data attached. */
-export interface DiagnosticData {
+export type DiagnosticData = {
   readonly fix: {
     readonly range: { readonly start: number; readonly end: number };
     readonly text: string;
@@ -444,9 +456,9 @@ export interface DiagnosticData {
   readonly tip?: string;
   readonly example?: string;
   readonly url?: string;
-}
+};
 
 /** A vscode.Diagnostic with additional data for the CodeActionProvider. */
-export interface DiagnosticWithData extends vscode.Diagnostic {
+export type DiagnosticWithData = vscode.Diagnostic & {
   data: DiagnosticData;
-}
+};
