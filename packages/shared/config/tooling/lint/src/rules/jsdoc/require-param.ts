@@ -75,11 +75,7 @@ type ParamEntry = v.InferOutput<typeof ParamEntrySchema>;
  * @param {string} content - Full file source text
  * @returns {number} The absolute byte offset where `{Type} ` should be inserted, or -1
  */
-function findParamInsertOffset(
-  paramName: string,
-  exportNode: AstNode,
-  content: string,
-): number {
+function findParamInsertOffset(paramName: string, exportNode: AstNode, content: string): number {
   const before: string = content.slice(0, exportNode.start);
   const trimmed: string = before.trimEnd();
   if (!trimmed.endsWith('*/')) {

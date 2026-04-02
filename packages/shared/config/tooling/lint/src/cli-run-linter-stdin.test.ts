@@ -103,9 +103,7 @@ describe.concurrent('runLinter — --stdin-filename', () => {
     const { stdoutLines, output } = captureOutput();
 
     // Use a real file path but provide different content via stdin
-    const filePath: string = resolve(
-      'packages/shared/config/tooling/lint/src/constants.ts',
-    );
+    const filePath: string = resolve('packages/shared/config/tooling/lint/src/constants.ts');
 
     // Provide content with a known lint error (missing @param {Type})
     const stdinContent: string = `/**
@@ -140,7 +138,7 @@ export function greet(name: string): string {
         (r: LintResult): boolean => r.ruleId === 'jsdoc/require-param',
       );
       expect(paramErrors.length).toBeGreaterThan(0);
-      expect(paramErrors[0]!.message).toContain("missing {Type}");
+      expect(paramErrors[0]!.message).toContain('missing {Type}');
     }
   });
 
@@ -148,9 +146,7 @@ export function greet(name: string): string {
     const { stdoutLines, output } = captureOutput();
 
     // Point to a real file that has correct JSDoc
-    const filePath: string = resolve(
-      'packages/shared/config/tooling/lint/src/constants.ts',
-    );
+    const filePath: string = resolve('packages/shared/config/tooling/lint/src/constants.ts');
 
     // Provide intentionally bad content via stdin
     const stdinContent: string = `/**
@@ -191,9 +187,7 @@ export function bad(x: number): number {
   it('reports file path from --stdin-filename in results', async () => {
     const { stdoutLines, output } = captureOutput();
 
-    const filePath: string = resolve(
-      'packages/shared/config/tooling/lint/src/constants.ts',
-    );
+    const filePath: string = resolve('packages/shared/config/tooling/lint/src/constants.ts');
 
     const stdinContent: string = `/**
  * No param type.
@@ -230,9 +224,7 @@ export function convert(val: number): string {
   it('returns empty results for clean stdin content', async () => {
     const { stdoutLines, output } = captureOutput();
 
-    const filePath: string = resolve(
-      'packages/shared/config/tooling/lint/src/constants.ts',
-    );
+    const filePath: string = resolve('packages/shared/config/tooling/lint/src/constants.ts');
 
     // Provide clean content with proper {Type}
     const stdinContent: string = `/**
@@ -272,9 +264,7 @@ export function greet(name: string): string {
   it('disables caching when --stdin-filename is used', async () => {
     const { stderrLines, output } = captureOutput();
 
-    const filePath: string = resolve(
-      'packages/shared/config/tooling/lint/src/constants.ts',
-    );
+    const filePath: string = resolve('packages/shared/config/tooling/lint/src/constants.ts');
 
     const stdinContent: string = `export const FOO: string = 'bar';\n`;
 
@@ -299,9 +289,7 @@ export function greet(name: string): string {
   it('works with --format=json and produces valid JSON', async () => {
     const { stdoutLines, output } = captureOutput();
 
-    const filePath: string = resolve(
-      'packages/shared/config/tooling/lint/src/constants.ts',
-    );
+    const filePath: string = resolve('packages/shared/config/tooling/lint/src/constants.ts');
 
     const stdinContent: string = `export const X: number = 42;\n`;
 
@@ -327,9 +315,7 @@ export function greet(name: string): string {
   it('stdin content with syntax errors produces lint results not crashes', async () => {
     const { output } = captureOutput();
 
-    const filePath: string = resolve(
-      'packages/shared/config/tooling/lint/src/constants.ts',
-    );
+    const filePath: string = resolve('packages/shared/config/tooling/lint/src/constants.ts');
 
     // Intentionally broken TypeScript
     const stdinContent: string = `export function broken( { return "oops" }\n`;
@@ -353,9 +339,7 @@ export function greet(name: string): string {
     const { stdoutLines, output } = captureOutput();
 
     // Lint a real file (not via stdin) for comparison
-    const filePath: string = resolve(
-      'packages/shared/config/tooling/lint/src/constants.ts',
-    );
+    const filePath: string = resolve('packages/shared/config/tooling/lint/src/constants.ts');
 
     const code: number = await runLinter(
       makeCliArgs({
@@ -384,13 +368,13 @@ export function greet(name: string): string {
     const { stdoutLines, output } = captureOutput();
 
     // Read the actual file from disk
-    const filePath: string = resolve(
-      'packages/shared/config/tooling/lint/src/constants.ts',
-    );
+    const filePath: string = resolve('packages/shared/config/tooling/lint/src/constants.ts');
     const diskContent: string = readFileSync(filePath, 'utf8');
 
     // Inject a deliberate error into the "editor buffer"
-    const modifiedContent: string = diskContent + `
+    const modifiedContent: string =
+      diskContent +
+      `
 /**
  * Added function with missing param type.
  *
@@ -421,8 +405,7 @@ export function injectedForTest(value: string): string {
       // The injected function should trigger a missing {Type} error
       const injectedErrors: LintResult[] = results.filter(
         (r: LintResult): boolean =>
-          r.ruleId === 'jsdoc/require-param' &&
-          r.message.includes('injectedForTest'),
+          r.ruleId === 'jsdoc/require-param' && r.message.includes('injectedForTest'),
       );
       expect(injectedErrors.length).toBeGreaterThan(0);
     }

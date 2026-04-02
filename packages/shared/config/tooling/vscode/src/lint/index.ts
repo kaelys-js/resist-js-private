@@ -7,7 +7,7 @@
  * @module
  */
 
-export { lintDocument } from './provider';
+export { lintDocument, isExcludedPath, clearExcludeCache } from './provider';
 export type { LintOptions } from './provider';
 export { ResistCodeActionProvider } from './code-actions';
 export { FixDiffPreviewProvider } from './diff-preview';

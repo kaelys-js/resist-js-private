@@ -64,10 +64,7 @@ describe('parseBrandCommands', () => {
   });
 
   it('resolves custom COMMAND_PREFIX in template literals', () => {
-    const source = makeBrandSource(
-      `  myCmd: \`\${COMMAND_PREFIX}.tools.run\`,`,
-      'acme',
-    );
+    const source = makeBrandSource(`  myCmd: \`\${COMMAND_PREFIX}.tools.run\`,`, 'acme');
     const result = parseBrandCommands(source);
 
     expect(result.size).toBe(1);

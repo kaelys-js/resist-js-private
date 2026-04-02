@@ -437,19 +437,14 @@ export function activate(context: vscode.ExtensionContext): void {
       .filter((doc) => isWorkspaceDocument(doc))
       .map((doc) => doc.uri);
 
-    withFileProgress(
-      outputChannel,
-      en.progress.activation,
-      openUris,
-      (uri) => {
-        const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);
+    withFileProgress(outputChannel, en.progress.activation, openUris, (uri) => {
+      const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);
 
-        if (doc) {
-          lintDoc(doc);
-        }
-        return Promise.resolve();
-      },
-    );
+      if (doc) {
+        lintDoc(doc);
+      }
+      return Promise.resolve();
+    });
   }
 }
 

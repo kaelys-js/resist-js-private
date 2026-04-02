@@ -112,11 +112,7 @@ export function logTiming(channel: vscode.OutputChannel, label: string, ms: numb
  * // Output:   [14:32:01] Result: 3 errors, 1 warning
  * ```
  */
-export function logSummary(
-  channel: vscode.OutputChannel,
-  errors: number,
-  warnings: number,
-): void {
+export function logSummary(channel: vscode.OutputChannel, errors: number, warnings: number): void {
   const parts: string[] = [];
 
   if (errors > 0) {

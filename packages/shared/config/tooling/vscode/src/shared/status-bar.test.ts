@@ -33,7 +33,9 @@ describe('Status Bar', () => {
       errors: 3,
       warnings: 7,
     });
-    expect(statusBarItem.text).toBe(`$(check) ${BRAND_NAME}: $(error) 3 errors, $(warning) 7 warnings`);
+    expect(statusBarItem.text).toBe(
+      `$(check) ${BRAND_NAME}: $(error) 3 errors, $(warning) 7 warnings`,
+    );
   });
 
   it('updateStatusBar("ready") with only errors shows branded prefix with error count', () => {
@@ -57,7 +59,9 @@ describe('Status Bar', () => {
       errors: 1,
       warnings: 1,
     });
-    expect(statusBarItem.text).toBe(`$(check) ${BRAND_NAME}: $(error) 1 error, $(warning) 1 warning`);
+    expect(statusBarItem.text).toBe(
+      `$(check) ${BRAND_NAME}: $(error) 1 error, $(warning) 1 warning`,
+    );
   });
 
   it('updateStatusBar("ready") with zero counts shows check', () => {

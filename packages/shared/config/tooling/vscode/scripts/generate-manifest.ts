@@ -114,10 +114,7 @@ export function parseBrandCommands(source: string): Map<string, string> {
   const templateLiteralRegex: RegExp = /(\w+):\s*`\$\{COMMAND_PREFIX\}\.([^`]+)`/g;
 
   while ((m = templateLiteralRegex.exec(block)) !== null) {
-    result.set(
-      capture(m, 1, 'command key'),
-      `${prefix}.${capture(m, 2, 'template suffix')}`,
-    );
+    result.set(capture(m, 1, 'command key'), `${prefix}.${capture(m, 2, 'template suffix')}`);
   }
 
   return result;

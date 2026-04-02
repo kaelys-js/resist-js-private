@@ -1675,7 +1675,15 @@ export async function runLinter(
   }
 
   /* Run core lint pipeline */
-  const core: LintCoreResult = await _runLintCore(cliArgs, output, strings, config, loaded, cwd, stdinContent);
+  const core: LintCoreResult = await _runLintCore(
+    cliArgs,
+    output,
+    strings,
+    config,
+    loaded,
+    cwd,
+    stdinContent,
+  );
 
   /* When --quiet, only display errors (but still count warnings for summary) */
   const displayResults: LintResult[] = cliArgs.quiet

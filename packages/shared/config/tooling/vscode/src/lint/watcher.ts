@@ -14,6 +14,7 @@ import { logError } from '../shared/output';
 import { format } from '../locale/schema';
 import { en } from '../locale/en';
 import { CONFIG_FILE_PATTERNS } from '../shared/brand';
+import { clearExcludeCache } from './provider';
 
 /**
  * Creates file system watchers for linter configuration files.
@@ -39,6 +40,7 @@ export function createConfigWatcher(
   outputChannel?: vscode.OutputChannel,
 ): vscode.Disposable[] {
   const relintAll = (): void => {
+    clearExcludeCache();
     for (const doc of vscode.workspace.textDocuments) {
       if (doc.uri.scheme === 'file' && !doc.isUntitled) {
         try {

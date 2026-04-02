@@ -7,7 +7,12 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { mapEntryToDiagnostic, lintDocument, type DiagnosticWithData } from './provider';
+import {
+  mapEntryToDiagnostic,
+  lintDocument,
+  clearExcludeCache,
+  type DiagnosticWithData,
+} from './provider';
 import * as vscode from 'vscode';
 import type { DiagnosticEntry, RunOptions } from '../shared/types';
 import { DIAGNOSTIC_SOURCE } from '../shared/brand';
@@ -185,6 +190,11 @@ describe('mapEntryToDiagnostic', () => {
 // lintDocument — stdin integration
 // =============================================================================
 
+// Mock node:fs so isExcludedPath can read .resist-lint.jsonc
+vi.mock('node:fs', () => ({
+  readFileSync: vi.fn(() => JSON.stringify({ exclude: ['node_modules', '_INTEGRATE', 'dist'] })),
+}));
+
 // Mock workspace module to provide binary path and workspace root
 vi.mock('../shared/workspace', () => ({
   getBinaryPath: vi.fn(() => '/usr/local/bin/resist-lint'),
@@ -220,12 +230,16 @@ describe('lintDocument — stdin mode', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    clearExcludeCache();
 
     mockDocument = {
       uri: vscode.Uri.file('/workspace/src/test.ts'),
       getText: () => 'export const x: number = 42;',
       lineCount: 1,
-      lineAt: () => ({ text: 'export const x: number = 42;', range: new vscode.Range(0, 0, 0, 28) }),
+      lineAt: () => ({
+        text: 'export const x: number = 42;',
+        range: new vscode.Range(0, 0, 0, 28),
+      }),
       isUntitled: false,
     } as unknown as vscode.TextDocument;
 
@@ -252,43 +266,25 @@ describe('lintDocument — stdin mode', () => {
   });
 
   it('passes --stdin-filename in CLI args', async () => {
-    await lintDocument(
-      mockDocument,
-      mockCollection,
-      mockChannel,
-      mockStateManager as never,
-      {},
-    );
+    await lintDocument(mockDocument, mockCollection, mockChannel, mockStateManager as never, {});
 
     expect(mockRunToolJson).toHaveBeenCalledTimes(1);
     const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
-    const hasStdinFilename: boolean = options.args.some(
-      (a: string): boolean => a.startsWith('--stdin-filename='),
+    const hasStdinFilename: boolean = options.args.some((a: string): boolean =>
+      a.startsWith('--stdin-filename='),
     );
     expect(hasStdinFilename).toBe(true);
   });
 
   it('passes document text content as stdin', async () => {
-    await lintDocument(
-      mockDocument,
-      mockCollection,
-      mockChannel,
-      mockStateManager as never,
-      {},
-    );
+    await lintDocument(mockDocument, mockCollection, mockChannel, mockStateManager as never, {});
 
     const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
     expect(options.stdin).toBe('export const x: number = 42;');
   });
 
   it('does not pass file path as positional arg when using stdin', async () => {
-    await lintDocument(
-      mockDocument,
-      mockCollection,
-      mockChannel,
-      mockStateManager as never,
-      {},
-    );
+    await lintDocument(mockDocument, mockCollection, mockChannel, mockStateManager as never, {});
 
     const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
     // File path should be in --stdin-filename, not as a bare positional arg
@@ -299,66 +295,73 @@ describe('lintDocument — stdin mode', () => {
   });
 
   it('--stdin-filename value matches document file path', async () => {
-    await lintDocument(
-      mockDocument,
-      mockCollection,
-      mockChannel,
-      mockStateManager as never,
-      {},
-    );
+    await lintDocument(mockDocument, mockCollection, mockChannel, mockStateManager as never, {});
 
     const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
-    const stdinFlag: string | undefined = options.args.find(
-      (a: string): boolean => a.startsWith('--stdin-filename='),
+    const stdinFlag: string | undefined = options.args.find((a: string): boolean =>
+      a.startsWith('--stdin-filename='),
     );
     expect(stdinFlag).toBe(`--stdin-filename=${mockDocument.uri.fsPath}`);
   });
 
   it('includes --format=json in args alongside --stdin-filename', async () => {
-    await lintDocument(
-      mockDocument,
-      mockCollection,
-      mockChannel,
-      mockStateManager as never,
-      {},
-    );
+    await lintDocument(mockDocument, mockCollection, mockChannel, mockStateManager as never, {});
 
     const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
     expect(options.args).toContain('--format=json');
   });
 
-  it('skips untitled documents', async () => {
+  it('lints untitled documents with supported language using synthetic filename', async () => {
     const untitledDoc = {
       ...mockDocument,
       isUntitled: true,
-      uri: { ...mockDocument.uri, scheme: 'file' },
+      languageId: 'typescript',
+      uri: { ...mockDocument.uri, scheme: 'untitled' },
     } as unknown as vscode.TextDocument;
 
-    await lintDocument(
-      untitledDoc,
-      mockCollection,
-      mockChannel,
-      mockStateManager as never,
-      {},
+    await lintDocument(untitledDoc, mockCollection, mockChannel, mockStateManager as never, {});
+
+    expect(mockRunToolJson).toHaveBeenCalledTimes(1);
+    const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
+    const stdinFlag: string | undefined = options.args.find((a: string): boolean =>
+      a.startsWith('--stdin-filename='),
     );
+    expect(stdinFlag).toBe('--stdin-filename=untitled.ts');
+  });
+
+  it('skips untitled documents with unsupported language', async () => {
+    const untitledDoc = {
+      ...mockDocument,
+      isUntitled: true,
+      languageId: 'plaintext',
+      uri: { ...mockDocument.uri, scheme: 'untitled' },
+    } as unknown as vscode.TextDocument;
+
+    await lintDocument(untitledDoc, mockCollection, mockChannel, mockStateManager as never, {});
 
     expect(mockRunToolJson).not.toHaveBeenCalled();
   });
 
-  it('skips non-file scheme documents', async () => {
+  it('skips non-file scheme documents with unsupported language', async () => {
     const virtualDoc = {
       ...mockDocument,
-      uri: { ...mockDocument.uri, scheme: 'untitled', fsPath: '/test.ts' },
+      uri: { ...mockDocument.uri, scheme: 'output', fsPath: '/test.ts' },
       isUntitled: false,
+      languageId: 'log',
     } as unknown as vscode.TextDocument;
 
-    await lintDocument(
-      virtualDoc,
-      mockCollection,
-      mockChannel,
-      mockStateManager as never,
-      {},
-    );
+    await lintDocument(virtualDoc, mockCollection, mockChannel, mockStateManager as never, {});
+
+    expect(mockRunToolJson).not.toHaveBeenCalled();
+  });
+
+  it('skips files in excluded directories', async () => {
+    const excludedDoc = {
+      ...mockDocument,
+      uri: vscode.Uri.file('/workspace/_INTEGRATE/src/test.ts'),
+    } as unknown as vscode.TextDocument;
+
+    await lintDocument(excludedDoc, mockCollection, mockChannel, mockStateManager as never, {});
 
     expect(mockRunToolJson).not.toHaveBeenCalled();
   });
