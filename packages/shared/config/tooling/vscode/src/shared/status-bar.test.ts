@@ -90,21 +90,24 @@ describe('Status Bar', () => {
     expect(statusBarItem.backgroundColor).toBeUndefined();
   });
 
-  it('updateStatusBar sets MarkdownString tooltip with state info', () => {
+  it('updateStatusBar sets rich MarkdownString tooltip with command links', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready');
     const tooltip = statusBarItem.tooltip as vscode.MarkdownString;
     expect(tooltip).toBeInstanceOf(vscode.MarkdownString);
     expect(tooltip.value).toContain('Resist Linter');
-    expect(tooltip.value).toContain('Ready');
-    expect(tooltip.value).toContain('Click for actions');
+    expect(tooltip.value).toContain('**ready**');
+    expect(tooltip.value).toContain('command:resist.lint.toggleEnable');
+    expect(tooltip.value).toContain('command:resist.lint.showOutput');
     expect(tooltip.supportThemeIcons).toBe(true);
+    expect(tooltip.isTrusted).toBe(true);
   });
 
-  it('updateStatusBar tooltip shows error/warning counts when present', () => {
+  it('updateStatusBar tooltip shows error/warning counts with separator', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready', { errors: 2, warnings: 3 });
     const tooltip = statusBarItem.tooltip as vscode.MarkdownString;
     expect(tooltip.value).toContain('2 errors');
     expect(tooltip.value).toContain('3 warnings');
+    expect(tooltip.value).toContain('in current file');
   });
 
   it('updateStatusBar tooltip shows "No issues" when counts are zero', () => {
@@ -113,10 +116,19 @@ describe('Status Bar', () => {
     expect(tooltip.value).toContain('No issues');
   });
 
-  it('updateStatusBar tooltip shows disabled state', () => {
+  it('updateStatusBar tooltip shows Resume action when disabled', () => {
     updateStatusBar(statusBarItem as vscode.StatusBarItem, 'disabled');
     const tooltip = statusBarItem.tooltip as vscode.MarkdownString;
-    expect(tooltip.value).toContain('Disabled');
+    expect(tooltip.value).toContain('**paused**');
+    expect(tooltip.value).toContain('Resume Linting');
+    expect(tooltip.value).not.toContain('Pause');
+  });
+
+  it('updateStatusBar tooltip shows Pause action when ready', () => {
+    updateStatusBar(statusBarItem as vscode.StatusBarItem, 'ready');
+    const tooltip = statusBarItem.tooltip as vscode.MarkdownString;
+    expect(tooltip.value).toContain('Pause');
+    expect(tooltip.value).toContain('Restart');
   });
 
   it('getFileDiagnosticCounts counts errors and warnings', () => {
