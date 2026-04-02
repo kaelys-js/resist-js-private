@@ -23,12 +23,13 @@ vi.mocked(vscode.commands.registerCommand).mockImplementation(
   },
 );
 
-vi.mocked(vscode.commands.registerTextEditorCommand).mockImplementation(
-  (cmd: string, handler: (...args: unknown[]) => unknown) => {
-    commandHandlers.set(cmd, handler);
-    return { dispose: vi.fn() };
-  },
-);
+vi.mocked(vscode.commands.registerTextEditorCommand).mockImplementation(((
+  cmd: string,
+  handler: (...args: unknown[]) => unknown,
+) => {
+  commandHandlers.set(cmd, handler);
+  return { dispose: vi.fn() };
+}) as typeof vscode.commands.registerTextEditorCommand);
 
 function createMockContext(): vscode.ExtensionContext {
   return {
@@ -39,10 +40,12 @@ function createMockContext(): vscode.ExtensionContext {
 describe('Lint Commands', () => {
   let context: vscode.ExtensionContext;
   let diagnosticCollection: ReturnType<typeof vscode.languages.createDiagnosticCollection>;
-  let outputChannel: ReturnType<typeof vscode.window.createOutputChannel>;
+  let outputChannel: vscode.OutputChannel;
   let stateManager: ToolStateManager;
-  let lintDocumentFn: ReturnType<typeof vi.fn>;
-  let getLintOptions: ReturnType<typeof vi.fn>;
+  let lintDocumentFn: ReturnType<typeof vi.fn<(doc: vscode.TextDocument) => void>>;
+  let getLintOptions: ReturnType<
+    typeof vi.fn<() => { stage: string; categories: string[]; extraArgs: string[] }>
+  >;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -50,7 +53,7 @@ describe('Lint Commands', () => {
 
     context = createMockContext();
     diagnosticCollection = vscode.languages.createDiagnosticCollection(DIAGNOSTIC_COLLECTION_NAME);
-    outputChannel = vscode.window.createOutputChannel(BRAND_NAME);
+    outputChannel = vscode.window.createOutputChannel(BRAND_NAME) as vscode.OutputChannel;
     stateManager = new ToolStateManager();
     lintDocumentFn = vi.fn();
     getLintOptions = vi.fn(() => ({
@@ -66,12 +69,13 @@ describe('Lint Commands', () => {
         return { dispose: vi.fn() };
       },
     );
-    vi.mocked(vscode.commands.registerTextEditorCommand).mockImplementation(
-      (cmd: string, handler: (...args: unknown[]) => unknown) => {
-        commandHandlers.set(cmd, handler);
-        return { dispose: vi.fn() };
-      },
-    );
+    vi.mocked(vscode.commands.registerTextEditorCommand).mockImplementation(((
+      cmd: string,
+      handler: (...args: unknown[]) => unknown,
+    ) => {
+      commandHandlers.set(cmd, handler);
+      return { dispose: vi.fn() };
+    }) as typeof vscode.commands.registerTextEditorCommand);
 
     const diagnosticFilter = new DiagnosticFilter(outputChannel as unknown as vscode.OutputChannel);
     const mockStatusBarItem = vscode.window.createStatusBarItem(
@@ -166,9 +170,9 @@ describe('Lint Commands', () => {
       lineAt: () => ({ text: '' }),
       lineCount: 1,
       positionAt: () => new vscode.Position(0, 0),
-      getWordRangeAtPosition: () => undefined,
+      getWordRangeAtPosition: vi.fn(),
     };
-    vscode.workspace.textDocuments = [doc];
+    Object.defineProperty(vscode.workspace, 'textDocuments', { value: [doc], writable: true });
 
     const handler = commandHandlers.get(COMMANDS.restart)!;
     await handler();
@@ -178,17 +182,20 @@ describe('Lint Commands', () => {
   });
 
   it('resist.lint.restart skips untitled and non-file documents', async () => {
-    vscode.workspace.textDocuments = [
-      {
-        uri: { scheme: 'untitled', fsPath: 'Untitled-1' } as unknown as vscode.Uri,
-        isUntitled: true,
-        getText: () => '',
-        lineAt: () => ({ text: '' }),
-        lineCount: 1,
-        positionAt: () => new vscode.Position(0, 0),
-        getWordRangeAtPosition: () => undefined,
-      },
-    ];
+    Object.defineProperty(vscode.workspace, 'textDocuments', {
+      value: [
+        {
+          uri: { scheme: 'untitled', fsPath: 'Untitled-1' } as unknown as vscode.Uri,
+          isUntitled: true,
+          getText: () => '',
+          lineAt: () => ({ text: '' }),
+          lineCount: 1,
+          positionAt: () => new vscode.Position(0, 0),
+          getWordRangeAtPosition: vi.fn(),
+        },
+      ],
+      writable: true,
+    });
 
     const handler = commandHandlers.get(COMMANDS.restart)!;
     await handler();
@@ -209,8 +216,8 @@ describe('Lint Commands', () => {
 
     expect(vscode.window.withProgress).toHaveBeenCalled();
     // Verify the progress title mentions staged
-    const call = vi.mocked(vscode.window.withProgress).mock.calls[0];
-    const options = call[0] as { title: string };
+    const [progressOptions] = vi.mocked(vscode.window.withProgress).mock.calls[0]!;
+    const options = progressOptions as { title: string };
     expect(options.title).toContain('staged');
   });
 
@@ -219,8 +226,8 @@ describe('Lint Commands', () => {
     await handler();
 
     expect(vscode.window.withProgress).toHaveBeenCalled();
-    const call = vi.mocked(vscode.window.withProgress).mock.calls[0];
-    const options = call[0] as { title: string };
+    const [uncommittedOptions] = vi.mocked(vscode.window.withProgress).mock.calls[0]!;
+    const options = uncommittedOptions as { title: string };
     expect(options.title).toContain('uncommitted');
   });
 

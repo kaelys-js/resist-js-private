@@ -10,18 +10,16 @@
 
 import * as vscode from 'vscode';
 import { isWorkspaceDocument } from './document-filter';
-import { extractMessage, safeRun } from './errors';
-import { en } from '../locale/en';
-import { format } from '../locale/schema';
+import { safeRun } from './errors';
 
 /** Supported document lifecycle event types. */
 type DocumentEventType = 'open' | 'save' | 'change' | 'close';
 
 /** A registered event handler with its associated tool name. */
-interface RegisteredHandler {
+type RegisteredHandler = {
   readonly tool: string;
   readonly handler: (doc: vscode.TextDocument) => void;
-}
+};
 
 /**
  * Registry for document lifecycle events.
@@ -153,6 +151,10 @@ export class DocumentEventRegistry implements vscode.Disposable {
 
   /**
    * Registers a handler for a specific event type.
+   *
+   * @param event - The event type to register for
+   * @param tool - Tool name identifier
+   * @param handler - Handler function for the event
    */
   private registerHandler(
     event: DocumentEventType,
@@ -170,6 +172,9 @@ export class DocumentEventRegistry implements vscode.Disposable {
    *
    * Filters out non-workspace documents (except for 'close' events).
    * Each handler is wrapped in a safeRun error boundary.
+   *
+   * @param event - The event type to dispatch
+   * @param doc - The document that triggered the event
    */
   private dispatch(event: DocumentEventType, doc: vscode.TextDocument): void {
     // Skip non-workspace documents (except close — always allow cleanup)
@@ -190,9 +195,8 @@ export class DocumentEventRegistry implements vscode.Disposable {
       } else {
         try {
           handler(doc);
-        } catch (error: unknown) {
-          const msg: string = extractMessage(error);
-          console.error(format(en.events.handlerError, { tool, event, error: msg }));
+        } catch {
+          // Error caught to prevent unhandled exception — no output channel available for logging
         }
       }
     }

@@ -64,11 +64,11 @@ describe('ResistCodeLensProvider', () => {
 
     expect(lenses).toHaveLength(2);
     // First lens: no-console on line 0 with count 2
-    expect(lenses[0].command?.title).toContain('no-console');
-    expect(lenses[0].command?.title).toContain('2');
+    expect(lenses[0]!.command?.title).toContain('no-console');
+    expect(lenses[0]!.command?.title).toContain('2');
     // Second lens: no-var on line 2 with count 1
-    expect(lenses[1].command?.title).toContain('no-var');
-    expect(lenses[1].command?.title).toContain('1');
+    expect(lenses[1]!.command?.title).toContain('no-var');
+    expect(lenses[1]!.command?.title).toContain('1');
   });
 
   it('uses vscode.open command when URL is available', () => {
@@ -78,7 +78,7 @@ describe('ResistCodeLensProvider', () => {
     const lenses = provider.provideCodeLenses(doc);
 
     expect(lenses).toHaveLength(1);
-    expect(lenses[0].command?.command).toBe('vscode.open');
+    expect(lenses[0]!.command?.command).toBe('vscode.open');
   });
 
   it('uses showOutput command when no URL', () => {
@@ -88,7 +88,7 @@ describe('ResistCodeLensProvider', () => {
     const lenses = provider.provideCodeLenses(doc);
 
     expect(lenses).toHaveLength(1);
-    expect(lenses[0].command?.command).toBe('resist.lint.showOutput');
+    expect(lenses[0]!.command?.command).toBe('resist.lint.showOutput');
   });
 
   it('skips non-resist-linter diagnostics', () => {

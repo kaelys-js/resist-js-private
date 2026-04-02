@@ -94,12 +94,12 @@ export function createFileWatcher(
 }
 
 /** Options for batched file watching. */
-export interface BatchedWatcherOptions {
+export type BatchedWatcherOptions = {
   /** Batch window in milliseconds (default 500). */
   readonly batchWindowMs?: number;
   /** Deduplicate URIs within a batch (default true). */
   readonly deduplicateByUri?: boolean;
-}
+};
 
 /**
  * Creates file system watchers that batch multiple rapid changes.
@@ -151,7 +151,7 @@ export function createBatchedFileWatcher(
 
   const addToBatch = (uri: vscode.Uri): void => {
     if (deduplicateByUri) {
-      const fsPath: string = uri.fsPath;
+      const { fsPath } = uri;
       const alreadyExists: boolean = pendingUris.some((u) => u.fsPath === fsPath);
       if (!alreadyExists) {
         pendingUris.push(uri);

@@ -68,6 +68,8 @@ export function logTiming(channel: vscode.OutputChannel, label: string, ms: numb
 
 /**
  * Returns a HH:MM:SS timestamp string.
+ *
+ * @returns Formatted timestamp string
  */
 function timestamp(): string {
   const now: Date = new Date();

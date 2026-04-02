@@ -36,10 +36,18 @@ describe('getPerFolderLintOptions', () => {
     vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(folder);
     vi.mocked(vscode.workspace.getConfiguration).mockReturnValue({
       get: vi.fn((key: string) => {
-        if (key === 'lint.stage') return 'build';
-        if (key === 'lint.categories') return ['testing'];
-        if (key === 'lint.args') return ['--strict'];
-        return undefined;
+        switch (key) {
+          case 'lint.stage': {
+            return 'build';
+          }
+          case 'lint.categories': {
+            return ['testing'];
+          }
+          case 'lint.args': {
+            return ['--strict'];
+          }
+          default:
+        }
       }),
       update: vi.fn(),
       has: vi.fn(),
@@ -57,7 +65,7 @@ describe('getPerFolderLintOptions', () => {
     const folder = { uri: vscode.Uri.file('/workspace'), name: 'my-project', index: 0 };
     vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(folder);
     vi.mocked(vscode.workspace.getConfiguration).mockReturnValue({
-      get: vi.fn((_key: string) => undefined),
+      get: vi.fn(),
       update: vi.fn(),
       has: vi.fn(),
       inspect: vi.fn(),
@@ -75,8 +83,9 @@ describe('getPerFolderLintOptions', () => {
     vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(folder);
     vi.mocked(vscode.workspace.getConfiguration).mockReturnValue({
       get: vi.fn((key: string) => {
-        if (key === 'lint.categories') return [];
-        return undefined;
+        if (key === 'lint.categories') {
+          return [];
+        }
       }),
       update: vi.fn(),
       has: vi.fn(),
@@ -92,7 +101,7 @@ describe('getPerFolderLintOptions', () => {
     const folder = { uri: vscode.Uri.file('/workspace'), name: 'my-project', index: 0 };
     vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(folder);
     vi.mocked(vscode.workspace.getConfiguration).mockReturnValue({
-      get: vi.fn(() => undefined),
+      get: vi.fn(),
       update: vi.fn(),
       has: vi.fn(),
       inspect: vi.fn(),

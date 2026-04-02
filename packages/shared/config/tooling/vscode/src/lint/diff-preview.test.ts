@@ -100,7 +100,7 @@ describe('applyFixes', () => {
 describe('FixDiffPreviewProvider', () => {
   it('provides fixed content for virtual document', () => {
     const doc = createMockDoc('const x = 1;');
-    vscode.workspace.textDocuments = [doc] as any;
+    Object.defineProperty(vscode.workspace, 'textDocuments', { value: [doc], writable: true });
 
     const collection = vscode.languages.createDiagnosticCollection('test');
     collection.set(doc.uri, [createDiagWithFix(0, 5, 'let')]);
@@ -113,7 +113,7 @@ describe('FixDiffPreviewProvider', () => {
   });
 
   it('returns empty string when document not found', () => {
-    vscode.workspace.textDocuments = [];
+    Object.defineProperty(vscode.workspace, 'textDocuments', { value: [], writable: true });
     const collection = vscode.languages.createDiagnosticCollection('test');
     const provider = new FixDiffPreviewProvider(collection);
     const uri = vscode.Uri.parse(`${PREVIEW_SCHEME}:/nonexistent.ts`);

@@ -24,19 +24,19 @@ describe('Output Channel', () => {
   it('log() appends timestamped message', () => {
     log(channel, 'hello world');
     expect(channel.appendLine).toHaveBeenCalledOnce();
-    const line = (channel.appendLine as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+    const line = (channel.appendLine as ReturnType<typeof vi.fn>).mock.calls[0]![0] as string;
     expect(line).toMatch(/^\[\d{2}:\d{2}:\d{2}\] hello world$/);
   });
 
   it('logError() appends timestamped ERROR message', () => {
     logError(channel, 'something broke');
-    const line = (channel.appendLine as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+    const line = (channel.appendLine as ReturnType<typeof vi.fn>).mock.calls[0]![0] as string;
     expect(line).toMatch(/^\[\d{2}:\d{2}:\d{2}\] ERROR: something broke$/);
   });
 
   it('logCommand() appends timestamped command with args', () => {
     logCommand(channel, BINARY_NAME, ['--format=json', 'file.ts']);
-    const line = (channel.appendLine as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+    const line = (channel.appendLine as ReturnType<typeof vi.fn>).mock.calls[0]![0] as string;
     expect(line).toMatch(
       new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\] \\$ ${BINARY_NAME} --format=json file\\.ts$`),
     );
@@ -44,7 +44,7 @@ describe('Output Channel', () => {
 
   it('logTiming() appends timestamped timing message', () => {
     logTiming(channel, 'Linted file.ts', 42);
-    const line = (channel.appendLine as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+    const line = (channel.appendLine as ReturnType<typeof vi.fn>).mock.calls[0]![0] as string;
     expect(line).toMatch(/^\[\d{2}:\d{2}:\d{2}\] Linted file.ts: 42ms$/);
   });
 });

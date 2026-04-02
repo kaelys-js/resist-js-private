@@ -17,14 +17,14 @@ import { format } from '../locale/schema';
 import { en } from '../locale/en';
 
 /** Result of a file processing operation. */
-interface FileProcessResult<T> {
+type FileProcessResult<T> = {
   /** The file URI that was processed. */
   readonly uri: vscode.Uri;
   /** The result if processing succeeded. */
   readonly result?: T;
   /** The error if processing failed. */
   readonly error?: string;
-}
+};
 
 /**
  * Processes files with a VS Code progress bar.
@@ -44,19 +44,19 @@ export async function withFileProgress<T>(
   title: string,
   files: readonly vscode.Uri[],
   processFn: (uri: vscode.Uri) => Promise<T>,
-): Promise<FileProcessResult<T>[]> {
+): Promise<Array<FileProcessResult<T>>> {
   if (files.length === 0) {
     return [];
   }
 
-  return vscode.window.withProgress(
+  return await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
       title,
       cancellable: true,
     },
     async (progress, token) => {
-      const results: FileProcessResult<T>[] = [];
+      const results: Array<FileProcessResult<T>> = [];
       const increment: number = 100 / files.length;
 
       for (const uri of files) {
@@ -71,7 +71,8 @@ export async function withFileProgress<T>(
         });
 
         try {
-          const result: T = await processFn(uri);
+          // Sequential processing is intentional — progress increments require serial execution
+          const result: T = await processFn(uri); // eslint-disable-line no-await-in-loop
           results.push({ uri, result });
         } catch (error: unknown) {
           const message: string = extractMessage(error);

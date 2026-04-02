@@ -47,5 +47,5 @@ export function createConfigWatcher(
     }
   };
 
-  return createFileWatcher(CONFIG_FILE_PATTERNS as string[], relintAll, outputChannel);
+  return createFileWatcher([...CONFIG_FILE_PATTERNS], relintAll, outputChannel);
 }

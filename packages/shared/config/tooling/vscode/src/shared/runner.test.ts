@@ -5,25 +5,25 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { EventEmitter } from 'node:events';
 import { runToolJson } from './runner';
-import { EventEmitter } from 'events';
 
 // Mock child_process.spawn using EventEmitter-based streams
-vi.mock('child_process', () => {
-  const { EventEmitter } = require('events');
+vi.mock('node:child_process', async () => {
+  const { EventEmitter: EE } = await import('node:events');
 
   function createMockChild(): EventEmitter & {
     stdout: EventEmitter;
     stderr: EventEmitter;
     kill: ReturnType<typeof vi.fn>;
   } {
-    const child = new EventEmitter() as EventEmitter & {
+    const child = new EE() as EventEmitter & {
       stdout: EventEmitter;
       stderr: EventEmitter;
       kill: ReturnType<typeof vi.fn>;
     };
-    child.stdout = new EventEmitter();
-    child.stderr = new EventEmitter();
+    child.stdout = new EE();
+    child.stderr = new EE();
     child.kill = vi.fn();
     return child;
   }
@@ -34,26 +34,38 @@ vi.mock('child_process', () => {
 });
 
 // Import after mock setup
-const { spawn } = await import('child_process');
+const { spawn } = await import('node:child_process');
 
-interface MockChild extends EventEmitter {
+type MockChild = EventEmitter & {
   stdout: EventEmitter;
   stderr: EventEmitter;
   kill: ReturnType<typeof vi.fn>;
-}
+};
 
 function getLastChild(): MockChild {
-  const calls = (spawn as unknown as ReturnType<typeof vi.fn>).mock.results;
-  return calls[calls.length - 1].value as MockChild;
+  const { results } = (spawn as unknown as ReturnType<typeof vi.fn>).mock;
+  return results.at(-1)!.value as MockChild;
 }
 
-/** Emit stdout data then close the process. */
+/**
+ * Emit stdout data then close the process.
+ *
+ * @param child - The mock child process
+ * @param data - The stdout data to emit
+ * @param exitCode - The exit code to emit on close
+ */
 function emitStdout(child: MockChild, data: string, exitCode: number): void {
   child.stdout.emit('data', Buffer.from(data));
   child.emit('close', exitCode);
 }
 
-/** Emit stderr data then close the process. */
+/**
+ * Emit stderr data then close the process.
+ *
+ * @param child - The mock child process
+ * @param data - The stderr data to emit
+ * @param exitCode - The exit code to emit on close
+ */
 function emitStderr(child: MockChild, data: string, exitCode: number): void {
   child.stderr.emit('data', Buffer.from(data));
   child.emit('close', exitCode);
@@ -160,7 +172,7 @@ describe('runToolJson', () => {
       cwd: '/my/project',
     });
 
-    const spawnCall = (spawn as unknown as ReturnType<typeof vi.fn>).mock.calls[0];
+    const spawnCall = (spawn as unknown as ReturnType<typeof vi.fn>).mock.calls[0]!;
     const env = spawnCall[2].env as Record<string, string>;
     expect(env['PATH']).toContain('/my/project/node_modules/.bin');
   });
@@ -172,7 +184,7 @@ describe('runToolJson', () => {
       cwd: '/tmp',
     });
 
-    const spawnCall = (spawn as unknown as ReturnType<typeof vi.fn>).mock.calls[0];
+    const spawnCall = (spawn as unknown as ReturnType<typeof vi.fn>).mock.calls[0]!;
     const env = spawnCall[2].env as Record<string, string>;
     expect(env['FORCE_COLOR']).toBe('0');
   });

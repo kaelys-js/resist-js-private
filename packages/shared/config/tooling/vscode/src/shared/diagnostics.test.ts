@@ -104,8 +104,8 @@ describe('Diagnostics Manager', () => {
 
       const result = applyMaxProblems(diags, 2, mockChannel);
       expect(result).toHaveLength(2);
-      expect(result[0].message).toBe('a');
-      expect(result[1].message).toBe('b');
+      expect(result[0]!.message).toBe('a');
+      expect(result[1]!.message).toBe('b');
     });
 
     it('logs truncation to channel', () => {
@@ -185,7 +185,7 @@ describe('Diagnostics Manager', () => {
       });
 
       const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE);
-      const data = (diag as unknown as { data: Record<string, unknown> }).data;
+      const { data } = diag as unknown as { data: Record<string, unknown> };
 
       expect(data).toBeDefined();
       expect(data.fix).toEqual({ range: { start: 0, end: 10 }, text: 'replacement' });

@@ -13,18 +13,18 @@ describe('parseTimingOutput', () => {
     const entries = parseTimingOutput(output);
 
     expect(entries).toHaveLength(3);
-    expect(entries[0]).toEqual({ rule: 'no-console', ms: 150 });
-    expect(entries[1]).toEqual({ rule: 'no-var', ms: 80 });
-    expect(entries[2]).toEqual({ rule: 'jsdoc/require-param', ms: 45 });
+    expect(entries[0]!).toEqual({ rule: 'no-console', ms: 150 });
+    expect(entries[1]!).toEqual({ rule: 'no-var', ms: 80 });
+    expect(entries[2]!).toEqual({ rule: 'jsdoc/require-param', ms: 45 });
   });
 
   it('sorts by time descending', () => {
     const output = 'rule-a: 10ms\nrule-b: 100ms\nrule-c: 50ms\n';
     const entries = parseTimingOutput(output);
 
-    expect(entries[0].rule).toBe('rule-b');
-    expect(entries[1].rule).toBe('rule-c');
-    expect(entries[2].rule).toBe('rule-a');
+    expect(entries[0]!.rule).toBe('rule-b');
+    expect(entries[1]!.rule).toBe('rule-c');
+    expect(entries[2]!.rule).toBe('rule-a');
   });
 
   it('handles decimal milliseconds', () => {
@@ -32,7 +32,7 @@ describe('parseTimingOutput', () => {
     const entries = parseTimingOutput(output);
 
     expect(entries).toHaveLength(1);
-    expect(entries[0].ms).toBe(12.5);
+    expect(entries[0]!.ms).toBe(12.5);
   });
 
   it('returns empty array for non-timing output', () => {

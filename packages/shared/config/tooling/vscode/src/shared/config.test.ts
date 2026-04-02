@@ -6,9 +6,9 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
+// @ts-expect-error -- mock-only export
 import { __setConfigValue, __resetMocks } from 'vscode';
 import { onConfigurationChange, ConfigManager } from './config';
-import * as output from './output';
 import * as errors from './errors';
 import { CONFIG_SECTION } from './brand';
 
@@ -55,10 +55,8 @@ describe('Configuration', () => {
       onConfigurationChange('resist.lint', handler, mockChannel);
 
       // Get the callback registered with onDidChangeConfiguration
-      const registerCall = vi.mocked(vscode.workspace.onDidChangeConfiguration).mock.calls[0];
-      const configChangeCallback = registerCall[0] as (event: {
-        affectsConfiguration: (section: string) => boolean;
-      }) => void;
+      const [configChangeCallback] = vi.mocked(vscode.workspace.onDidChangeConfiguration).mock
+        .calls[0]! as [(event: { affectsConfiguration: (section: string) => boolean }) => void];
 
       // Simulate a config change event that affects our section
       configChangeCallback({
@@ -72,10 +70,8 @@ describe('Configuration', () => {
       const handler = vi.fn();
       onConfigurationChange('resist.lint', handler, mockChannel);
 
-      const registerCall = vi.mocked(vscode.workspace.onDidChangeConfiguration).mock.calls[0];
-      const configChangeCallback = registerCall[0] as (event: {
-        affectsConfiguration: (section: string) => boolean;
-      }) => void;
+      const [configChangeCallback] = vi.mocked(vscode.workspace.onDidChangeConfiguration).mock
+        .calls[0]! as [(event: { affectsConfiguration: (section: string) => boolean }) => void];
 
       configChangeCallback({
         affectsConfiguration: (section: string) => section === 'editor.fontSize',
@@ -95,10 +91,8 @@ describe('Configuration', () => {
       const handler = vi.fn();
       onConfigurationChange('resist.lint', handler, mockChannel);
 
-      const registerCall = vi.mocked(vscode.workspace.onDidChangeConfiguration).mock.calls[0];
-      const configChangeCallback = registerCall[0] as (event: {
-        affectsConfiguration: (section: string) => boolean;
-      }) => void;
+      const [configChangeCallback] = vi.mocked(vscode.workspace.onDidChangeConfiguration).mock
+        .calls[0]! as [(event: { affectsConfiguration: (section: string) => boolean }) => void];
 
       configChangeCallback({
         affectsConfiguration: (section: string) => section === 'resist.lint',
@@ -115,10 +109,8 @@ describe('Configuration', () => {
       const handler = vi.fn();
       onConfigurationChange('resist.lint', handler);
 
-      const registerCall = vi.mocked(vscode.workspace.onDidChangeConfiguration).mock.calls[0];
-      const configChangeCallback = registerCall[0] as (event: {
-        affectsConfiguration: (section: string) => boolean;
-      }) => void;
+      const [configChangeCallback] = vi.mocked(vscode.workspace.onDidChangeConfiguration).mock
+        .calls[0]! as [(event: { affectsConfiguration: (section: string) => boolean }) => void];
 
       configChangeCallback({
         affectsConfiguration: (section: string) => section === 'resist.lint',
@@ -149,10 +141,8 @@ describe('Configuration', () => {
       const config = new ConfigManager(CONFIG_SECTION, mockChannel);
 
       // The constructor registers a config change listener
-      const registerCall = vi.mocked(vscode.workspace.onDidChangeConfiguration).mock.calls[0];
-      const configChangeCallback = registerCall[0] as (event: {
-        affectsConfiguration: (section: string) => boolean;
-      }) => void;
+      const [configChangeCallback] = vi.mocked(vscode.workspace.onDidChangeConfiguration).mock
+        .calls[0]! as [(event: { affectsConfiguration: (section: string) => boolean }) => void];
 
       configChangeCallback({
         affectsConfiguration: (section: string) => section === CONFIG_SECTION,
@@ -186,7 +176,7 @@ describe('Configuration', () => {
       config.dispose();
       // The disposable returned by onDidChangeConfiguration should have been disposed
       const returnedDisposable = vi.mocked(vscode.workspace.onDidChangeConfiguration).mock
-        .results[0].value;
+        .results[0]!.value;
       expect(returnedDisposable.dispose).toHaveBeenCalled();
     });
   });

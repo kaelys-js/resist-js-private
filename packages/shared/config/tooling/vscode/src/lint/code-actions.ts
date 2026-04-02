@@ -51,7 +51,7 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
 
       resistDiagnostics.push(diagnostic);
 
-      const data = (diagnostic as DiagnosticWithData).data;
+      const { data } = diagnostic as DiagnosticWithData;
       if (!data?.fix) {
         continue;
       }
@@ -117,9 +117,9 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
         const edit = new vscode.WorkspaceEdit();
 
         // Sort fixes by byte offset descending to avoid offset shifting
-        const fixes: { start: number; end: number; text: string }[] = [];
+        const fixes: Array<{ start: number; end: number; text: string }> = [];
         for (const diag of fixableDiagnostics) {
-          const data = (diag as DiagnosticWithData).data;
+          const { data } = diag as DiagnosticWithData;
           if (data?.fix) {
             fixes.push({
               start: data.fix.range.start,

@@ -17,11 +17,11 @@ import { format } from '../locale/schema';
 import { en } from '../locale/en';
 
 /** A named disposable with priority for ordered cleanup. */
-interface ManagedDisposable {
+type ManagedDisposable = {
   readonly name: string;
   readonly disposable: vscode.Disposable;
   readonly priority: number;
-}
+};
 
 /**
  * Manages extension lifecycle with priority-based disposal.
@@ -45,6 +45,8 @@ export class LifecycleManager {
 
   /**
    * Returns the number of managed resources.
+   *
+   * @returns The count of managed resources
    */
   count(): number {
     return this.resources.length;
@@ -59,7 +61,9 @@ export class LifecycleManager {
    * @param channel - Optional output channel for logging (should be the last to dispose)
    */
   disposeAll(channel?: vscode.OutputChannel): void {
-    const sorted: ManagedDisposable[] = [...this.resources].sort((a, b) => b.priority - a.priority);
+    const sorted: ManagedDisposable[] = [...this.resources].toSorted(
+      (a, b) => b.priority - a.priority,
+    );
 
     for (const resource of sorted) {
       if (channel) {

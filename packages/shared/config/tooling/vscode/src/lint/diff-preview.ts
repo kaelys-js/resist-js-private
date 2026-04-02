@@ -70,9 +70,9 @@ export function applyFixes(
   const diagnostics: readonly vscode.Diagnostic[] = collection.get(doc.uri) ?? [];
 
   // Collect all fixes
-  const fixes: { start: number; end: number; text: string }[] = [];
+  const fixes: Array<{ start: number; end: number; text: string }> = [];
   for (const diag of diagnostics) {
-    const data = (diag as DiagnosticWithData).data;
+    const { data } = diag as DiagnosticWithData;
     if (data?.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '')) {
       fixes.push({
         start: data.fix.range.start,
@@ -117,7 +117,7 @@ export async function showFixDiffPreview(
 
   // Check if there are any fixable diagnostics
   const hasFixable: boolean = diagnostics.some((diag) => {
-    const data = (diag as DiagnosticWithData).data;
+    const { data } = diag as DiagnosticWithData;
     return data?.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '');
   });
 

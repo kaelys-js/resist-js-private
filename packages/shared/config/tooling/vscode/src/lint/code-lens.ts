@@ -60,7 +60,7 @@ export class ResistCodeLensProvider implements vscode.CodeLensProvider {
         continue;
       }
 
-      const line: number = diag.range.start.line;
+      const { line } = diag.range.start;
       const ruleId: string =
         typeof diag.code === 'object' && diag.code !== null
           ? String((diag.code as { value: string | number }).value)
@@ -71,7 +71,7 @@ export class ResistCodeLensProvider implements vscode.CodeLensProvider {
       if (existing) {
         existing.count++;
       } else {
-        const data = (diag as DiagnosticWithData).data;
+        const { data } = diag as DiagnosticWithData;
         byLineRule.set(key, { line, ruleId, count: 1, url: data?.url });
       }
     }

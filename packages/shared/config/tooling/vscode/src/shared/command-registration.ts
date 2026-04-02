@@ -29,8 +29,8 @@ export function registerCommand(
   id: string,
   handler: () => Promise<void>,
 ): void {
-  const disposable: vscode.Disposable = vscode.commands.registerCommand(id, () => {
-    void safeRunAsync(channel, id, handler);
+  const disposable: vscode.Disposable = vscode.commands.registerCommand(id, async () => {
+    await safeRunAsync(channel, id, handler);
   });
   context.subscriptions.push(disposable);
 }
@@ -53,8 +53,8 @@ export function registerTextEditorCommand(
 ): void {
   const disposable: vscode.Disposable = vscode.commands.registerTextEditorCommand(
     id,
-    (editor: vscode.TextEditor) => {
-      void safeRunAsync(channel, id, () => handler(editor));
+    async (editor: vscode.TextEditor) => {
+      await safeRunAsync(channel, id, () => handler(editor));
     },
   );
   context.subscriptions.push(disposable);

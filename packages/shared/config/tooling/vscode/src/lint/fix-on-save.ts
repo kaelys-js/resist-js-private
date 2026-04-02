@@ -70,10 +70,10 @@ export class FixOnSaveManager implements vscode.Disposable {
 
     // Collect fixable diagnostics
     const diagnostics: readonly vscode.Diagnostic[] = diagnosticCollection.get(doc.uri) ?? [];
-    const fixes: { start: number; end: number; text: string }[] = [];
+    const fixes: Array<{ start: number; end: number; text: string }> = [];
 
     for (const diag of diagnostics) {
-      const data = (diag as DiagnosticWithData).data;
+      const { data } = diag as DiagnosticWithData;
       if (data?.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '')) {
         fixes.push({
           start: data.fix.range.start,

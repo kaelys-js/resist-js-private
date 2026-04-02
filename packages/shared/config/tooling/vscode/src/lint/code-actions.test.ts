@@ -30,7 +30,7 @@ function createMockDocument(text: string = 'const x = 1;\n'): vscode.TextDocumen
     isUntitled: false,
     lineCount: text.split('\n').length,
     lineAt: (line: number) => ({ text: text.split('\n')[line] ?? '' }),
-    getWordRangeAtPosition: () => undefined,
+    getWordRangeAtPosition: vi.fn(),
   } as unknown as vscode.TextDocument;
 }
 
@@ -77,12 +77,12 @@ describe('ResistCodeActionProvider', () => {
 
     const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 0, 5), {
       diagnostics: [diag],
-    } as vscode.CodeActionContext);
+    } as unknown as vscode.CodeActionContext);
 
     // 1 fix action + 2 disable actions (line + file)
     expect(actions.length).toBe(3);
-    expect(actions[0].title).toBe('Fix: test/rule');
-    expect(actions[0].isPreferred).toBe(true);
+    expect(actions[0]!.title).toBe('Fix: test/rule');
+    expect(actions[0]!.isPreferred).toBe(true);
   });
 
   it('includes tip in action title when present', () => {
@@ -91,9 +91,9 @@ describe('ResistCodeActionProvider', () => {
 
     const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 0, 5), {
       diagnostics: [diag],
-    } as vscode.CodeActionContext);
+    } as unknown as vscode.CodeActionContext);
 
-    expect(actions[0].title).toContain('Use let instead');
+    expect(actions[0]!.title).toContain('Use let instead');
   });
 
   it('skips fix actions for diagnostics without fix data but still adds disable actions', () => {
@@ -102,11 +102,11 @@ describe('ResistCodeActionProvider', () => {
 
     const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 0, 5), {
       diagnostics: [diag],
-    } as vscode.CodeActionContext);
+    } as unknown as vscode.CodeActionContext);
 
     // 2 disable actions (line + file) — no fix action
     expect(actions.length).toBe(2);
-    expect(actions[0].title).toContain('Disable');
+    expect(actions[0]!.title).toContain('Disable');
   });
 
   it('skips no-op fixes but still adds disable actions', () => {
@@ -115,7 +115,7 @@ describe('ResistCodeActionProvider', () => {
 
     const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 0, 5), {
       diagnostics: [diag],
-    } as vscode.CodeActionContext);
+    } as unknown as vscode.CodeActionContext);
 
     // 2 disable actions — no fix action (no-op fix skipped)
     expect(actions.length).toBe(2);
@@ -128,7 +128,7 @@ describe('ResistCodeActionProvider', () => {
 
     const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 1, 5), {
       diagnostics: [diag1, diag2],
-    } as vscode.CodeActionContext);
+    } as unknown as vscode.CodeActionContext);
 
     // 2 individual fix + 1 fix-all + 4 disable actions (2 per diagnostic)
     expect(actions.length).toBe(7);
@@ -144,7 +144,7 @@ describe('ResistCodeActionProvider', () => {
 
     const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 0, 5), {
       diagnostics: [diag],
-    } as vscode.CodeActionContext);
+    } as unknown as vscode.CodeActionContext);
 
     expect(actions.length).toBe(0);
   });
@@ -155,11 +155,11 @@ describe('ResistCodeActionProvider', () => {
 
     const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 0, 2), {
       diagnostics: [diag],
-    } as vscode.CodeActionContext);
+    } as unknown as vscode.CodeActionContext);
 
     // 2 disable actions — fix skipped due to out-of-bounds
     expect(actions.length).toBe(2);
-    expect(actions[0].title).toContain('Disable');
+    expect(actions[0]!.title).toContain('Disable');
   });
 
   it('skips fixes with negative byte offsets but adds disable actions', () => {
@@ -168,7 +168,7 @@ describe('ResistCodeActionProvider', () => {
 
     const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 0, 5), {
       diagnostics: [diag],
-    } as vscode.CodeActionContext);
+    } as unknown as vscode.CodeActionContext);
 
     // 2 disable actions — fix skipped due to negative offsets
     expect(actions.length).toBe(2);
@@ -188,7 +188,7 @@ describe('ResistCodeActionProvider', () => {
 
     const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 0, 5), {
       diagnostics: [diag],
-    } as vscode.CodeActionContext);
+    } as unknown as vscode.CodeActionContext);
 
     const disableLineAction = actions.find((a) => a.title.includes('for this line'));
     expect(disableLineAction).toBeDefined();
@@ -202,7 +202,7 @@ describe('ResistCodeActionProvider', () => {
 
     const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 0, 5), {
       diagnostics: [diag],
-    } as vscode.CodeActionContext);
+    } as unknown as vscode.CodeActionContext);
 
     const disableFileAction = actions.find((a) => a.title.includes('for this file'));
     expect(disableFileAction).toBeDefined();

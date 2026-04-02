@@ -23,15 +23,19 @@ import type { DiagnosticEntry } from './types';
  */
 export function mapSeverity(severity: string): vscode.DiagnosticSeverity {
   switch (severity) {
-    case 'error':
+    case 'error': {
       return vscode.DiagnosticSeverity.Error;
+    }
     case 'warn':
-    case 'warning':
+    case 'warning': {
       return vscode.DiagnosticSeverity.Warning;
-    case 'info':
+    }
+    case 'info': {
       return vscode.DiagnosticSeverity.Information;
-    default:
+    }
+    default: {
       return vscode.DiagnosticSeverity.Hint;
+    }
   }
 }
 
@@ -90,8 +94,8 @@ export function createDiagnosticFromEntry(
 
   const line: number = entry.line - 1; // VS Code uses 0-based lines
   const col: number = (entry.column ?? 1) - 1;
-  const endLine: number = entry.endLine !== undefined ? entry.endLine - 1 : line;
-  const endCol: number = entry.endColumn !== undefined ? entry.endColumn - 1 : col;
+  const endLine: number = entry.endLine === undefined ? line : entry.endLine - 1;
+  const endCol: number = entry.endColumn === undefined ? col : entry.endColumn - 1;
 
   const range = new vscode.Range(line, col, endLine, endCol);
   const severity: vscode.DiagnosticSeverity = mapSeverity(entry.severity ?? 'error');

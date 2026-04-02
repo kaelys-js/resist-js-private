@@ -41,25 +41,22 @@ describe('withFileProgress', () => {
     vi.clearAllMocks();
 
     // Reset withProgress mock to properly provide progress and token
-    vi.mocked(vscode.window.withProgress).mockImplementation(
-      async (
-        _options: unknown,
-        task: (
-          progress: { report: (value: unknown) => void },
-          token: { isCancellationRequested: boolean },
-        ) => Promise<unknown>,
-      ) => {
-        const progress = { report: vi.fn() };
-        const token = { isCancellationRequested: false };
-        return task(progress, token);
-      },
-    );
+    vi.mocked(vscode.window.withProgress).mockImplementation(((
+      _options: unknown,
+      task: (...args: unknown[]) => Promise<unknown>,
+    ) => {
+      const progress = { report: vi.fn() };
+      const token = { isCancellationRequested: false };
+      return task(progress, token);
+    }) as unknown as typeof vscode.window.withProgress);
   });
 
   it('processes all files', async () => {
     const files = [vscode.Uri.file('/a.ts'), vscode.Uri.file('/b.ts'), vscode.Uri.file('/c.ts')];
 
-    const processFn = vi.fn(async (uri: vscode.Uri) => `processed:${uri.fsPath}`);
+    const processFn = vi.fn(
+      async (uri: vscode.Uri) => await Promise.resolve(`processed:${uri.fsPath}`),
+    );
 
     const results = await withFileProgress(mockChannel, 'Test', files, processFn);
 
@@ -69,14 +66,14 @@ describe('withFileProgress', () => {
 
   it('returns results array', async () => {
     const files = [vscode.Uri.file('/a.ts')];
-    const processFn = vi.fn(async () => 'result-data');
+    const processFn = vi.fn(async () => await Promise.resolve('result-data'));
 
     const results = await withFileProgress(mockChannel, 'Test', files, processFn);
 
     expect(results).toHaveLength(1);
-    expect(results[0].uri).toEqual(files[0]);
-    expect(results[0].result).toBe('result-data');
-    expect(results[0].error).toBeUndefined();
+    expect(results[0]!.uri).toEqual(files[0]);
+    expect(results[0]!.result).toBe('result-data');
+    expect(results[0]!.error).toBeUndefined();
   });
 
   it('catches per-file errors and continues', async () => {
@@ -90,14 +87,19 @@ describe('withFileProgress', () => {
     const results = await withFileProgress(mockChannel, 'Test', files, processFn);
 
     expect(results).toHaveLength(2);
-    expect(results[0].error).toBe('file-a failed');
-    expect(results[0].result).toBeUndefined();
-    expect(results[1].result).toBe('b-ok');
-    expect(results[1].error).toBeUndefined();
+    expect(results[0]!.error).toBe('file-a failed');
+    expect(results[0]!.result).toBeUndefined();
+    expect(results[1]!.result).toBe('b-ok');
+    expect(results[1]!.error).toBeUndefined();
   });
 
   it('handles empty file list', async () => {
-    const results = await withFileProgress(mockChannel, 'Test', [], async () => 'never');
+    const results = await withFileProgress(
+      mockChannel,
+      'Test',
+      [],
+      async () => await Promise.resolve('never'),
+    );
 
     expect(results).toEqual([]);
     expect(vscode.window.withProgress).not.toHaveBeenCalled();
@@ -106,6 +108,7 @@ describe('withFileProgress', () => {
   it('logs errors to channel', async () => {
     const files = [vscode.Uri.file('/fail.ts')];
     const processFn = vi.fn(async () => {
+      await Promise.resolve();
       throw new Error('process boom');
     });
 
@@ -118,22 +121,17 @@ describe('withFileProgress', () => {
   });
 
   it('handles cancellation', async () => {
-    vi.mocked(vscode.window.withProgress).mockImplementation(
-      async (
-        _options: unknown,
-        task: (
-          progress: { report: (value: unknown) => void },
-          token: { isCancellationRequested: boolean },
-        ) => Promise<unknown>,
-      ) => {
-        const progress = { report: vi.fn() };
-        const token = { isCancellationRequested: true }; // Already cancelled
-        return task(progress, token);
-      },
-    );
+    vi.mocked(vscode.window.withProgress).mockImplementation(((
+      _options: unknown,
+      task: (...args: unknown[]) => Promise<unknown>,
+    ) => {
+      const progress = { report: vi.fn() };
+      const token = { isCancellationRequested: true }; // Already cancelled
+      return task(progress, token);
+    }) as unknown as typeof vscode.window.withProgress);
 
     const files = [vscode.Uri.file('/a.ts'), vscode.Uri.file('/b.ts')];
-    const processFn = vi.fn(async () => 'data');
+    const processFn = vi.fn(async () => await Promise.resolve('data'));
 
     const results = await withFileProgress(mockChannel, 'Test', files, processFn);
 

@@ -27,20 +27,6 @@ export function isWorkspaceDocument(doc: vscode.TextDocument): boolean {
 }
 
 /**
- * Checks whether a document is lintable (workspace file, not output/debug).
- *
- * @param doc - The document to check
- * @returns true if the document should be linted
- */
-function isLintableDocument(doc: vscode.TextDocument): boolean {
-  if (doc.isUntitled) {
-    return false;
-  }
-  const scheme: string = doc.uri.scheme;
-  return scheme === 'file';
-}
-
-/**
  * Iterates over all open workspace documents, applying a filter and action.
  *
  * Catches per-document errors and continues processing remaining documents.

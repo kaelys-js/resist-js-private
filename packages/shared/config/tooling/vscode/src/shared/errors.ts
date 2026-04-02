@@ -29,8 +29,8 @@ import { format } from '../locale/schema';
 export function safeRun(channel: vscode.OutputChannel, label: string, fn: () => void): void {
   try {
     fn();
-  } catch (err: unknown) {
-    logError(channel, format(en.errorBoundary.errorLog, { label, message: extractMessage(err) }));
+  } catch (error: unknown) {
+    logError(channel, format(en.errorBoundary.errorLog, { label, message: extractMessage(error) }));
   }
 }
 
@@ -52,8 +52,8 @@ export async function safeRunAsync(
 ): Promise<void> {
   try {
     await fn();
-  } catch (err: unknown) {
-    logError(channel, format(en.errorBoundary.errorLog, { label, message: extractMessage(err) }));
+  } catch (error: unknown) {
+    logError(channel, format(en.errorBoundary.errorLog, { label, message: extractMessage(error) }));
   }
 }
 

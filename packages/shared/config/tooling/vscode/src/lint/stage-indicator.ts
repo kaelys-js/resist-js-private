@@ -84,6 +84,8 @@ export class StageIndicator implements vscode.Disposable {
 
   /**
    * Returns the current stage.
+   *
+   * @returns The current stage name
    */
   getStage(): string {
     return this.currentStage;

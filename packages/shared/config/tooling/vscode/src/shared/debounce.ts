@@ -67,7 +67,9 @@ export class DocumentDebouncer {
 
   /** Cancels all pending timers and clears the internal map. */
   dispose(): void {
-    this.timers.forEach((timer) => clearTimeout(timer));
+    for (const timer of this.timers.values()) {
+      clearTimeout(timer);
+    }
     this.timers.clear();
   }
 }
