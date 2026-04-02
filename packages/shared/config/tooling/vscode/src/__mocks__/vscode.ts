@@ -45,6 +45,12 @@ export const QuickPickItemKind = {
   Separator: 0,
 } as const;
 
+export const TreeItemCollapsibleState = {
+  None: 0,
+  Collapsed: 1,
+  Expanded: 2,
+} as const;
+
 // =============================================================================
 // Classes
 // =============================================================================
@@ -234,6 +240,30 @@ export class CodeLens {
   ) {}
 }
 
+export class ThemeIcon {
+  constructor(
+    public readonly id: string,
+    public readonly color?: ThemeColor,
+  ) {}
+}
+
+export class TreeItem {
+  public label?: string;
+  public description?: string;
+  public tooltip?: string | MarkdownString;
+  public iconPath?: ThemeIcon | Uri | { light: Uri; dark: Uri };
+  public command?: { title: string; command: string; arguments?: unknown[] };
+  public contextValue?: string;
+  public collapsibleState?: number;
+  public resourceUri?: Uri;
+  public id?: string;
+
+  constructor(label: string, collapsibleState?: number) {
+    this.label = label;
+    this.collapsibleState = collapsibleState;
+  }
+}
+
 export class TextEdit {
   constructor(
     public readonly range: Range,
@@ -342,7 +372,13 @@ function createMockDiagnosticCollection(): {
       store.clear();
     }),
     dispose: vi.fn(),
-    forEach: vi.fn(),
+    forEach: vi.fn(
+      (callback: (uri: Uri, diagnostics: Diagnostic[], collection: unknown) => void) => {
+        for (const [uriStr, diags] of store) {
+          callback(Uri.file(uriStr), diags, undefined);
+        }
+      },
+    ),
   };
 }
 
@@ -403,6 +439,13 @@ export const window = {
     | undefined,
   visibleTextEditors: [] as Array<{ document: { uri: Uri } }>,
   onDidChangeActiveTextEditor: vi.fn(() => createMockDisposable()),
+  createTreeView: vi.fn((_viewId: string, _options: unknown) => ({
+    reveal: vi.fn(),
+    dispose: vi.fn(),
+    visible: true,
+    onDidChangeVisibility: vi.fn(() => createMockDisposable()),
+    badge: undefined,
+  })),
   showQuickPick: vi.fn(async () => undefined),
   withProgress: vi.fn(
     async (
@@ -423,6 +466,7 @@ export const languages = {
   registerHoverProvider: vi.fn(() => createMockDisposable()),
   registerCodeLensProvider: vi.fn(() => createMockDisposable()),
   registerDocumentFormattingEditProvider: vi.fn(() => createMockDisposable()),
+  onDidChangeDiagnostics: vi.fn(() => createMockDisposable()),
 };
 
 export const commands = {

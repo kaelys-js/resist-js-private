@@ -62,6 +62,7 @@ export const COMMANDS = {
   clearOutput: `${COMMAND_PREFIX}.lint.clearOutput`,
   toggleEnable: `${COMMAND_PREFIX}.lint.toggleEnable`,
   statusBarMenu: `${COMMAND_PREFIX}.lint.statusBarMenu`,
+  panelRefresh: `${COMMAND_PREFIX}.panel.refresh`,
 } as const;
 
 // =============================================================================
@@ -97,3 +98,13 @@ export const DISABLE_PATTERN = new RegExp(
 
 /** URI scheme for fix-preview virtual documents. */
 export const PREVIEW_SCHEME = 'resist-fix-preview';
+
+// =============================================================================
+// Panel Identifiers
+// =============================================================================
+
+/** Activity bar view container ID for the sidebar panel. */
+export const PANEL_CONTAINER_ID = 'resist';
+
+/** TreeView ID for the main sidebar panel. */
+export const PANEL_VIEW_ID = 'resist.panel';

@@ -230,4 +230,23 @@ export const en: VscodeStrings = {
     selectStage: 'Select lint stage',
     stageChanged: 'Lint stage changed to: {stage}',
   },
+
+  panel: {
+    lintingSection: 'Linting',
+    formattingSection: 'Formatting',
+    testingSection: 'Testing',
+    stateReady: 'Ready',
+    stateRunning: 'Running\u2026',
+    stateError: 'Linter encountered an error',
+    stateDisabled: 'Linting is paused',
+    stateNotInstalled: 'Not installed',
+    noIssues: 'No issues found',
+    noWorkspace: 'No workspace open',
+    notConfigured: 'Not configured',
+    welcomeTitle: `Welcome to ${BRAND_NAME}`,
+    welcomeMessage: 'Open a workspace to get started.',
+    restartAction: 'Restart',
+    openFileAction: 'Open File',
+    fileIssueCount: '{errors} errors, {warnings} warnings',
+  },
 };

@@ -447,6 +447,42 @@ export type HoverStrings = {
   readonly exampleLabel: string;
 };
 
+/** Strings for the sidebar panel (TreeView). */
+export type PanelStrings = {
+  /** Section header: Linting. */
+  readonly lintingSection: string;
+  /** Section header: Formatting. */
+  readonly formattingSection: string;
+  /** Section header: Testing. */
+  readonly testingSection: string;
+  /** State label: Ready. */
+  readonly stateReady: string;
+  /** State label: Running. */
+  readonly stateRunning: string;
+  /** State label: Error. */
+  readonly stateError: string;
+  /** State label: Disabled. */
+  readonly stateDisabled: string;
+  /** State label: Not installed. */
+  readonly stateNotInstalled: string;
+  /** Placeholder: No issues found. */
+  readonly noIssues: string;
+  /** Placeholder: No workspace open. */
+  readonly noWorkspace: string;
+  /** Placeholder: Tool not configured. */
+  readonly notConfigured: string;
+  /** Welcome view title. */
+  readonly welcomeTitle: string;
+  /** Welcome view message. */
+  readonly welcomeMessage: string;
+  /** Action label: Restart. */
+  readonly restartAction: string;
+  /** Action label: Open file. */
+  readonly openFileAction: string;
+  /** Per-file issue count summary: "{errors} errors, {warnings} warnings". */
+  readonly fileIssueCount: string;
+};
+
 // =============================================================================
 // Combined Type
 // =============================================================================
@@ -482,4 +518,5 @@ export type VscodeStrings = {
   readonly stageIndicator: StageIndicatorStrings;
   readonly hover: HoverStrings;
   readonly statusBarMenu: StatusBarMenuStrings;
+  readonly panel: PanelStrings;
 };

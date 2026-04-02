@@ -169,6 +169,10 @@ const pkg = JSON.parse(pkgRaw) as {
   contributes: {
     commands: Array<{ command: string; title: string; category?: string }>;
     configuration: { title: string; properties: Record<string, { description?: string }> };
+    viewsContainers?: Record<string, unknown[]>;
+    views?: Record<string, unknown[]>;
+    viewsWelcome?: unknown[];
+    menus?: Record<string, unknown[]>;
   };
 };
 

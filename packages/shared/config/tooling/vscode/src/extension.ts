@@ -57,6 +57,7 @@ import {
   type LintOptions,
 } from './lint/index';
 import { en } from './locale/en';
+import { registerPanel } from './shared/panel/index';
 
 // =============================================================================
 // State
@@ -410,6 +411,12 @@ export function activate(context: vscode.ExtensionContext): void {
     ),
     30,
   );
+
+  // ========================================================================
+  // Sidebar Panel (TreeView)
+  // ========================================================================
+
+  registerPanel(context, stateManager, diagnosticCollection, lifecycle, outputChannel);
 
   // ========================================================================
   // Commands
