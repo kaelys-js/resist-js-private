@@ -1222,6 +1222,41 @@
                 "enum": ["error", "warn", "off"],
                 "type": "string"
               },
+              "plans/files-exist": {
+                "description": "Files declared as Create: in completed plan tasks must exist on disk — catches unwired/unimplemented features.",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "plans/no-empty-plan-sections": {
+                "description": "Task sections (Gap, Plan, Files, Verification) must contain meaningful content — not empty or minimal text.",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "plans/no-incomplete-tasks": {
+                "description": "Plan files older than maxAgeDays must have all tasks marked [x] — incomplete tasks indicate missed work.",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "plans/no-template-placeholders": {
+                "description": "Plan files must not contain leftover template placeholders — replace all placeholders with real content.",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "plans/require-concrete-verification": {
+                "description": "Verification sections must contain specific commands, file paths, or expected counts — not just generic \"Tests pass\" text.",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "plans/require-test-files": {
+                "description": "Implementation tasks that create/edit source files must declare test files — enforces TDD at the plan level.",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "plans/status-dependency-order": {
+                "description": "Task marked [x] must not depend on tasks that are still [ ] or [~] — dependencies must be completed first.",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
               "sync/filter-patterns": {
                 "description": "Turbo/pnpm filter patterns must match folder structure.",
                 "enum": ["error", "warn", "off"],
@@ -4128,6 +4163,48 @@
           "description": "Options for package/names-valid",
           "type": "object"
         },
+        "plans/files-exist": {
+          "additionalProperties": false,
+          "description": "Options for plans/files-exist",
+          "properties": {
+            "planDir": {
+              "description": "Directory containing plan files (default: docs/plans/).",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "plans/no-empty-plan-sections": {
+          "description": "Options for plans/no-empty-plan-sections",
+          "type": "object"
+        },
+        "plans/no-incomplete-tasks": {
+          "additionalProperties": false,
+          "description": "Options for plans/no-incomplete-tasks",
+          "properties": {
+            "maxAgeDays": {
+              "description": "Only warn on plans older than N days (default: 7).",
+              "type": "number"
+            }
+          },
+          "type": "object"
+        },
+        "plans/no-template-placeholders": {
+          "description": "Options for plans/no-template-placeholders",
+          "type": "object"
+        },
+        "plans/require-concrete-verification": {
+          "description": "Options for plans/require-concrete-verification",
+          "type": "object"
+        },
+        "plans/require-test-files": {
+          "description": "Options for plans/require-test-files",
+          "type": "object"
+        },
+        "plans/status-dependency-order": {
+          "description": "Options for plans/status-dependency-order",
+          "type": "object"
+        },
         "sync/filter-patterns": {
           "description": "Options for sync/filter-patterns",
           "type": "object"
@@ -6839,6 +6916,41 @@
         },
         "package/names-valid": {
           "description": "Package names must be valid npm names and unique across workspace.",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "plans/files-exist": {
+          "description": "Files declared as Create: in completed plan tasks must exist on disk — catches unwired/unimplemented features.",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "plans/no-empty-plan-sections": {
+          "description": "Task sections (Gap, Plan, Files, Verification) must contain meaningful content — not empty or minimal text.",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "plans/no-incomplete-tasks": {
+          "description": "Plan files older than maxAgeDays must have all tasks marked [x] — incomplete tasks indicate missed work.",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "plans/no-template-placeholders": {
+          "description": "Plan files must not contain leftover template placeholders — replace all placeholders with real content.",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "plans/require-concrete-verification": {
+          "description": "Verification sections must contain specific commands, file paths, or expected counts — not just generic \"Tests pass\" text.",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "plans/require-test-files": {
+          "description": "Implementation tasks that create/edit source files must declare test files — enforces TDD at the plan level.",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "plans/status-dependency-order": {
+          "description": "Task marked [x] must not depend on tasks that are still [ ] or [~] — dependencies must be completed first.",
           "enum": ["error", "warn", "off"],
           "type": "string"
         },
