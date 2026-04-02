@@ -105,6 +105,8 @@ export type StatusBarStrings = {
   readonly error: string;
   /** Text shown when the linter is disabled. */
   readonly disabled: string;
+  /** Prefix for ready state with diagnostic counts. */
+  readonly readyPrefix: string;
 };
 
 /** Strings for user-facing error/info messages. */

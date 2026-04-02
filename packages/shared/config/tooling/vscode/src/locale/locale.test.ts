@@ -68,11 +68,11 @@ describe('Locale', () => {
     });
 
     it('has parameterized message strings', () => {
-      expect(format(en.messages.fixesApplied, { count: 3 })).toBe('Applied 3 auto-fix(es)');
+      expect(format(en.messages.fixesApplied, { count: 3 })).toBe('Applied 3 fixes');
       expect(format(en.messages.lintFailed, { file: 'a.ts', error: 'boom' })).toBe(
         'Lint failed for a.ts: boom',
       );
-      expect(format(en.messages.foundDiagnostics, { count: 10 })).toBe('Found 10 diagnostics');
+      expect(format(en.messages.foundDiagnostics, { count: 10 })).toBe('Set 10 diagnostics');
       expect(format(en.messages.progressFiles, { processed: 5, total: 20 })).toBe('5/20 files');
       expect(en.messages.availableRulesHeader).toBe('=== Available Rules ===');
     });
