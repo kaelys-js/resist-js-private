@@ -1,9 +1,0 @@
-{
-  "$schema": "../../../../../.resist-lint.schema.json",
-  "include": ["packages/shared/config/tooling/vscode/src"],
-  "exclude": ["node_modules", "dist", "*.test.ts", "*.d.ts", "__mocks__"],
-  "extensions": [".ts"],
-  "rules": {
-    "hygiene/no-bare-catch": "error"
-  }
-}
