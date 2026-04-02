@@ -12,6 +12,7 @@ import {
   SectionItem,
   ToolStatusItem,
   FileDiagnosticItem,
+  RuleGroupItem,
   DiagnosticDetailItem,
   PlaceholderItem,
 } from './tree-items';
@@ -184,6 +185,74 @@ describe('FileDiagnosticItem', () => {
   it('stores fileUri', () => {
     const item = new FileDiagnosticItem(uri, 1, 0, diags);
     expect(item.fileUri).toBe(uri);
+  });
+});
+
+// =============================================================================
+// RuleGroupItem
+// =============================================================================
+
+describe('RuleGroupItem', () => {
+  const uri = vscode.Uri.file('/workspace/src/index.ts');
+  const range = new vscode.Range(0, 0, 0, 1);
+
+  it('sets label to rule ID', () => {
+    const diags = [new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error)];
+    const item = new RuleGroupItem('no-unused-vars', uri, diags);
+    expect(item.label).toBe('no-unused-vars');
+  });
+
+  it('sets description with issue count', () => {
+    const diags = [
+      new vscode.Diagnostic(range, 'err1', vscode.DiagnosticSeverity.Error),
+      new vscode.Diagnostic(range, 'err2', vscode.DiagnosticSeverity.Error),
+      new vscode.Diagnostic(range, 'err3', vscode.DiagnosticSeverity.Warning),
+    ];
+    const item = new RuleGroupItem('no-console', uri, diags);
+    expect(item.description).toBe('3 issues');
+  });
+
+  it('sets contextValue to resist.ruleGroup', () => {
+    const diags = [new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error)];
+    const item = new RuleGroupItem('no-unused-vars', uri, diags);
+    expect(item.contextValue).toBe('resist.ruleGroup');
+  });
+
+  it('sets collapsibleState to Collapsed', () => {
+    const diags = [new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error)];
+    const item = new RuleGroupItem('no-unused-vars', uri, diags);
+    expect(item.collapsibleState).toBe(vscode.TreeItemCollapsibleState.Collapsed);
+  });
+
+  it('uses error icon when any diagnostic is an error', () => {
+    const diags = [
+      new vscode.Diagnostic(range, 'warn', vscode.DiagnosticSeverity.Warning),
+      new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error),
+    ];
+    const item = new RuleGroupItem('no-unused-vars', uri, diags);
+    expect((item.iconPath as vscode.ThemeIcon).id).toBe('error');
+  });
+
+  it('uses warning icon when only warnings', () => {
+    const diags = [
+      new vscode.Diagnostic(range, 'warn1', vscode.DiagnosticSeverity.Warning),
+      new vscode.Diagnostic(range, 'warn2', vscode.DiagnosticSeverity.Warning),
+    ];
+    const item = new RuleGroupItem('no-console', uri, diags);
+    expect((item.iconPath as vscode.ThemeIcon).id).toBe('warning');
+  });
+
+  it('stores fileUri and diagnostics', () => {
+    const diags = [new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error)];
+    const item = new RuleGroupItem('no-unused-vars', uri, diags);
+    expect(item.fileUri).toBe(uri);
+    expect(item.diagnostics).toBe(diags);
+  });
+
+  it('stores ruleId', () => {
+    const diags = [new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error)];
+    const item = new RuleGroupItem('naming/camelCase', uri, diags);
+    expect(item.ruleId).toBe('naming/camelCase');
   });
 });
 

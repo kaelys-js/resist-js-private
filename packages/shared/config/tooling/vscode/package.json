@@ -162,6 +162,21 @@
         "title": "Resist Actions",
         "category": "Resist",
         "icon": "$(ellipsis)"
+      },
+      {
+        "command": "resist.panel.showLocation",
+        "title": "Go to Location",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.panel.showRule",
+        "title": "Copy Rule Name",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.panel.autoFix",
+        "title": "Auto-Fix Issue",
+        "category": "Resist"
       }
     ],
     "viewsContainers": {
@@ -188,6 +203,12 @@
         "contents": "No workspace detected. Open a folder to start linting and formatting.\n\n[Open Folder](command:vscode.openFolder)"
       }
     ],
+    "submenus": [
+      {
+        "id": "resist.panel.linting",
+        "label": "Linting"
+      }
+    ],
     "menus": {
       "view/title": [
         {
@@ -206,83 +227,74 @@
           "group": "navigation@3"
         },
         {
-          "command": "resist.lint.toggleEnable",
+          "submenu": "resist.panel.linting",
           "when": "view == resist.panel",
+          "group": "1_actions"
+        }
+      ],
+      "resist.panel.linting": [
+        {
+          "command": "resist.lint.toggleEnable",
           "group": "1_control@1"
         },
         {
           "command": "resist.lint.restart",
-          "when": "view == resist.panel",
           "group": "1_control@2"
         },
         {
           "command": "resist.lint.file",
-          "when": "view == resist.panel",
           "group": "2_lint@1"
         },
         {
           "command": "resist.lint.workspace",
-          "when": "view == resist.panel",
           "group": "2_lint@2"
         },
         {
           "command": "resist.lint.staged",
-          "when": "view == resist.panel",
           "group": "2_lint@3"
         },
         {
           "command": "resist.lint.uncommitted",
-          "when": "view == resist.panel",
           "group": "2_lint@4"
         },
         {
           "command": "resist.lint.fix",
-          "when": "view == resist.panel",
           "group": "3_fix@1"
         },
         {
           "command": "resist.lint.previewFixes",
-          "when": "view == resist.panel",
           "group": "3_fix@2"
         },
         {
           "command": "resist.lint.removeUnusedImports",
-          "when": "view == resist.panel",
           "group": "3_fix@3"
         },
         {
           "command": "resist.lint.filterByCategory",
-          "when": "view == resist.panel",
           "group": "4_filter@1"
         },
         {
           "command": "resist.lint.clearFilter",
-          "when": "view == resist.panel",
           "group": "4_filter@2"
         },
         {
           "command": "resist.lint.changeStage",
-          "when": "view == resist.panel",
           "group": "4_filter@3"
         },
         {
           "command": "resist.lint.listRules",
-          "when": "view == resist.panel",
           "group": "5_info@1"
         },
         {
           "command": "resist.lint.showTiming",
-          "when": "view == resist.panel",
           "group": "5_info@2"
         },
         {
           "command": "resist.lint.showOutput",
-          "when": "view == resist.panel",
           "group": "6_output@1"
         },
         {
           "command": "resist.lint.clearOutput",
-          "when": "view == resist.panel",
           "group": "6_output@2"
         }
       ],
@@ -309,16 +321,19 @@
           "group": "inline"
         },
         {
-          "command": "resist.lint.fix",
-          "when": "viewItem == resist.diagnosticDetail"
+          "command": "resist.panel.showLocation",
+          "when": "viewItem == resist.diagnosticDetail",
+          "group": "0_info@1"
         },
         {
-          "command": "resist.lint.file",
-          "when": "viewItem == resist.diagnosticDetail"
+          "command": "resist.panel.showRule",
+          "when": "viewItem == resist.diagnosticDetail",
+          "group": "0_info@2"
         },
         {
-          "command": "resist.lint.listRules",
-          "when": "viewItem == resist.diagnosticDetail"
+          "command": "resist.panel.autoFix",
+          "when": "viewItem == resist.diagnosticDetail",
+          "group": "1_actions@1"
         }
       ]
     },

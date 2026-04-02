@@ -402,11 +402,6 @@ describe('Locale', () => {
         '{',
       );
       expect(format(en.codeActions.fixAllFailed, { error: 'boom' })).not.toContain('{');
-      expect(format(en.codeActions.disableFailed, { rule: 'no-var', error: 'boom' })).not.toContain(
-        '{',
-      );
-      expect(format(en.codeActions.disableLine, { rule: 'no-var' })).not.toContain('{');
-      expect(format(en.codeActions.disableFile, { rule: 'no-var' })).not.toContain('{');
     });
   });
 

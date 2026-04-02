@@ -13,7 +13,7 @@ import { extractMessage } from '../shared/errors';
 import { logError } from '../shared/output';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
-import { DIAGNOSTIC_SOURCE, DISABLE_NEXT_LINE_PREFIX, DISABLE_FILE_PREFIX } from '../shared/brand';
+import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 /**
  * Provides quick fix code actions for resist-linter diagnostics.
@@ -42,14 +42,11 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
   ): vscode.CodeAction[] {
     const actions: vscode.CodeAction[] = [];
     const fixableDiagnostics: vscode.Diagnostic[] = [];
-    const resistDiagnostics: vscode.Diagnostic[] = [];
 
     for (const diagnostic of context.diagnostics) {
       if (diagnostic.source !== DIAGNOSTIC_SOURCE) {
         continue;
       }
-
-      resistDiagnostics.push(diagnostic);
 
       const { data } = diagnostic as DiagnosticWithData;
 
@@ -146,51 +143,6 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
         logError(
           this.outputChannel,
           format(en.codeActions.fixAllFailed, {
-            error: extractMessage(error),
-          }),
-        );
-      }
-    }
-
-    // Per-rule disable actions for each resist diagnostic
-    for (const diagnostic of resistDiagnostics) {
-      const ruleId: string =
-        typeof diagnostic.code === 'object' && diagnostic.code !== null
-          ? String((diagnostic.code as { value: string | number }).value)
-          : String(diagnostic.code ?? 'unknown');
-
-      try {
-        // "Disable [rule] for this line"
-        const lineTitle: string = format(en.codeActions.disableLine, { rule: ruleId });
-        const lineAction = new vscode.CodeAction(lineTitle, vscode.CodeActionKind.QuickFix);
-        lineAction.diagnostics = [diagnostic];
-        lineAction.isPreferred = false;
-
-        const lineEdit = new vscode.WorkspaceEdit();
-        const diagLine: number = diagnostic.range.start.line;
-        const lineText: string = document.lineAt(diagLine).text;
-        const indent: string = lineText.match(/^(\s*)/)?.[1] ?? '';
-        const disableComment = `${indent}// ${DISABLE_NEXT_LINE_PREFIX}: ${ruleId}\n`;
-        lineEdit.replace(document.uri, new vscode.Range(diagLine, 0, diagLine, 0), disableComment);
-        lineAction.edit = lineEdit;
-        actions.push(lineAction);
-
-        // "Disable [rule] for this file"
-        const fileTitle: string = format(en.codeActions.disableFile, { rule: ruleId });
-        const fileAction = new vscode.CodeAction(fileTitle, vscode.CodeActionKind.QuickFix);
-        fileAction.diagnostics = [diagnostic];
-        fileAction.isPreferred = false;
-
-        const fileEdit = new vscode.WorkspaceEdit();
-        const fileDisableComment = `// ${DISABLE_FILE_PREFIX}: ${ruleId}\n`;
-        fileEdit.replace(document.uri, new vscode.Range(0, 0, 0, 0), fileDisableComment);
-        fileAction.edit = fileEdit;
-        actions.push(fileAction);
-      } catch (error: unknown) {
-        logError(
-          this.outputChannel,
-          format(en.codeActions.disableFailed, {
-            rule: ruleId,
             error: extractMessage(error),
           }),
         );

@@ -16,6 +16,7 @@ import type { ToolStateManager } from '../state';
 import type { LifecycleManager } from '../lifecycle';
 import { registerCommand } from '../command-registration';
 import { ResistTreeDataProvider } from './tree-data-provider';
+import { DiagnosticDetailItem } from './tree-items';
 import { COMMANDS, PANEL_VIEW_ID } from '../brand';
 import { en } from '../../locale/en';
 import { format } from '../../locale/schema';
@@ -130,6 +131,59 @@ export function registerPanel(
   // Menu — dispatch to status bar menu
   registerCommand(context, outputChannel, COMMANDS.panelMenu, async () => {
     await vscode.commands.executeCommand(COMMANDS.statusBarMenu);
+  });
+
+  // Show Location — navigate to diagnostic position
+  registerCommand(context, outputChannel, COMMANDS.panelShowLocation, async (item: unknown) => {
+    if (item instanceof DiagnosticDetailItem) {
+      await vscode.commands.executeCommand('vscode.open', item.fileUri, {
+        selection: item.diagnostic.range,
+      });
+    }
+  });
+
+  // Show Rule — copy rule name to clipboard
+  registerCommand(context, outputChannel, COMMANDS.panelShowRule, async (item: unknown) => {
+    if (item instanceof DiagnosticDetailItem) {
+      const { code } = item.diagnostic;
+      let ruleId = '';
+
+      if (typeof code === 'string') {
+        ruleId = code;
+      } else if (typeof code === 'number') {
+        ruleId = String(code);
+      } else if (code && typeof code === 'object' && 'value' in code) {
+        ruleId = String(code.value);
+      }
+
+      if (ruleId) {
+        await vscode.env.clipboard.writeText(ruleId);
+        await vscode.window.showInformationMessage(en.panel.ruleCopied);
+      }
+    }
+  });
+
+  // Auto-Fix Issue — apply fix or show "not available" message
+  registerCommand(context, outputChannel, COMMANDS.panelAutoFix, async (item: unknown) => {
+    if (item instanceof DiagnosticDetailItem) {
+      const { data } = item.diagnostic as vscode.Diagnostic & {
+        data?: { fix?: { range: { start: number; end: number }; text: string } };
+      };
+      const fix = data?.fix;
+
+      if (!fix || (fix.range.start === fix.range.end && fix.text === '')) {
+        await vscode.window.showInformationMessage(en.panel.autoFixNotAvailable);
+        return;
+      }
+
+      const doc = await vscode.workspace.openTextDocument(item.fileUri);
+      const editor = await vscode.window.showTextDocument(doc);
+      const startPos = doc.positionAt(fix.range.start);
+      const endPos = doc.positionAt(fix.range.end);
+      await editor.edit((editBuilder) => {
+        editBuilder.replace(new vscode.Range(startPos, endPos), fix.text);
+      });
+    }
   });
 
   // =========================================================================
