@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@/lint':
+        specifier: workspace:*
+        version: link:packages/shared/config/tooling/lint
       '@biomejs/biome':
         specifier: ^2.4.4
         version: 2.4.4

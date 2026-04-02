@@ -1,6 +1,6 @@
 - [VS Code Extension]
   - Panel (like there is for git in the sidebar)
-  - Status Bar UX
+  - Status Bar UX: Hover (like console ninja) + Click (like console ninja) (Pause/Resume, Restart, Show Output/Clear Output, Toggle All Options Available)
 
   - Test/Benchmark/Coverage Intergration
   - Format Integration
