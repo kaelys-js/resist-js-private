@@ -12,6 +12,7 @@ import * as path from 'path';
 import type { RunOptions, RunResult } from './types';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
+import { extractMessage } from './errors';
 
 /** Raw process result from runTool. */
 interface ToolResult {
@@ -175,7 +176,7 @@ export function runToolJson<T>(options: RunOptions): Promise<RunResult<T>> {
           const data = JSON.parse(stdout) as T;
           resolve({ ok: true, data, stderr, elapsed });
         } catch (parseErr: unknown) {
-          const parseMsg: string = parseErr instanceof Error ? parseErr.message : String(parseErr);
+          const parseMsg: string = extractMessage(parseErr);
           resolve({
             ok: false,
             error: format(en.runner.jsonParseFailed, {

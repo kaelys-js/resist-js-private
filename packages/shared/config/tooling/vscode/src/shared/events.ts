@@ -10,7 +10,7 @@
 
 import * as vscode from 'vscode';
 import { isWorkspaceDocument } from './document-filter';
-import { safeRun } from './errors';
+import { extractMessage, safeRun } from './errors';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
 
@@ -191,7 +191,7 @@ export class DocumentEventRegistry implements vscode.Disposable {
         try {
           handler(doc);
         } catch (error: unknown) {
-          const msg: string = error instanceof Error ? error.message : String(error);
+          const msg: string = extractMessage(error);
           console.error(format(en.events.handlerError, { tool, event, error: msg }));
         }
       }

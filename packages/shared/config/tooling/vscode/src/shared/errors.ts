@@ -63,7 +63,7 @@ export async function safeRunAsync(
  * @param err - The caught error (could be anything)
  * @returns A string message suitable for logging
  */
-function extractMessage(err: unknown): string {
+export function extractMessage(err: unknown): string {
   if (err instanceof Error) {
     return err.message;
   }

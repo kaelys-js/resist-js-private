@@ -13,6 +13,7 @@ import { runToolJson } from '../shared/runner';
 import { getBinaryPath, getWorkspaceRoot } from '../shared/workspace';
 import type { ToolStateManager } from '../shared/state';
 import { mapSeverity, applyMaxProblems, createDiagnosticFromEntry } from '../shared/diagnostics';
+import { extractMessage } from '../shared/errors';
 import { log, logError, logCommand, logTiming } from '../shared/output';
 import type { DiagnosticEntry, RunResult } from '../shared/types';
 import { en } from '../locale/en';
@@ -128,7 +129,7 @@ export async function lintDocument(
         format(en.messages.diagnosticMapFailed, {
           rule: entry.ruleId,
           location: `${entry.file}:${entry.line}`,
-          error: err instanceof Error ? err.message : String(err),
+          error: extractMessage(err),
         }),
       );
     }
@@ -249,7 +250,7 @@ export async function lintWorkspace(
       try {
         diagnostics.push(doc ? mapEntryToDiagnostic(entry, doc) : mapEntryToDiagnosticBasic(entry));
       } catch (error: unknown) {
-        const msg: string = error instanceof Error ? error.message : String(error);
+        const msg: string = extractMessage(error);
         logError(
           channel,
           format(en.messages.diagnosticMapFailed, {

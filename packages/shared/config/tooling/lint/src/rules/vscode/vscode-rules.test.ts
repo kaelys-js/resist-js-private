@@ -2,8 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import type { WorkspaceContext, WorkspacePackage } from '../../framework/rule-context.ts';
 import type { LintResult } from '../../framework/types.ts';
-import noUnwiredCommands from './no-unwired-commands.ts';
+import noHardcodedBrand from './no-hardcoded-brand.ts';
+import noUnlocalizedStrings from './no-unlocalized-strings.ts';
 import noUnreadSettings from './no-unread-settings.ts';
+import noUnwiredCommands from './no-unwired-commands.ts';
+import requireErrorBoundary from './require-error-boundary.ts';
 
 // =============================================================================
 // Test Helpers
@@ -325,5 +328,486 @@ const debounceMs = configManager.get<number>('lint.debounceMs', 500);
     const results: LintResult[] = await noUnreadSettings.check(ctx);
     expect(results).toHaveLength(1);
     expect(results[0]?.message).toContain('resist.lint.debounceMs');
+  });
+});
+
+// =============================================================================
+// vscode/no-hardcoded-brand
+// =============================================================================
+
+describe('vscode/no-hardcoded-brand', () => {
+  it('reports hardcoded brand string in source file', async () => {
+    const sourceTs = `
+const channelName = 'Resist';
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/shared/output.ts': sourceTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await noHardcodedBrand.check(ctx);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('vscode/no-hardcoded-brand');
+    expect(results[0]?.message).toContain('BRAND_NAME');
+  });
+
+  it('reports hardcoded binary name', async () => {
+    const sourceTs = `
+const binary = 'resist-lint';
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/shared/workspace.ts': sourceTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await noHardcodedBrand.check(ctx);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.message).toContain('BINARY_NAME');
+  });
+
+  it('passes when no hardcoded brand strings', async () => {
+    const sourceTs = `
+import { BRAND_NAME } from './shared/brand';
+const channelName = BRAND_NAME;
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/extension.ts': sourceTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await noHardcodedBrand.check(ctx);
+    expect(results).toHaveLength(0);
+  });
+
+  it('skips brand.ts itself', async () => {
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await noHardcodedBrand.check(ctx);
+    expect(results).toHaveLength(0);
+  });
+
+  it('skips test files', async () => {
+    const testTs = `
+const name = 'Resist';
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/extension.test.ts': testTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await noHardcodedBrand.check(ctx);
+    expect(results).toHaveLength(0);
+  });
+
+  it('detects hardcoded diagnostic source', async () => {
+    const sourceTs = `
+const source = 'resist-linter';
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/lint/provider.ts': sourceTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await noHardcodedBrand.check(ctx);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.message).toContain('DIAGNOSTIC_SOURCE');
+  });
+});
+
+// =============================================================================
+// vscode/no-unlocalized-strings
+// =============================================================================
+
+describe('vscode/no-unlocalized-strings', () => {
+  it('reports raw string in showErrorMessage', async () => {
+    const sourceTs = `
+vscode.window.showErrorMessage('Something went wrong');
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/lint/commands.ts': sourceTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await noUnlocalizedStrings.check(ctx);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('vscode/no-unlocalized-strings');
+    expect(results[0]?.message).toContain('showErrorMessage');
+  });
+
+  it('reports raw strings in showInformationMessage and showWarningMessage', async () => {
+    const sourceTs = `
+vscode.window.showInformationMessage('All done');
+vscode.window.showWarningMessage("Be careful");
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/lint/commands.ts': sourceTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await noUnlocalizedStrings.check(ctx);
+    expect(results).toHaveLength(2);
+    expect(results[0]?.message).toContain('showInformationMessage');
+    expect(results[1]?.message).toContain('showWarningMessage');
+  });
+
+  it('passes when using locale strings (variable reference)', async () => {
+    const sourceTs = `
+vscode.window.showErrorMessage(en.messages.fixRejected);
+vscode.window.showInformationMessage(en.messages.noFixableProblems);
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/lint/commands.ts': sourceTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await noUnlocalizedStrings.check(ctx);
+    expect(results).toHaveLength(0);
+  });
+
+  it('skips test files', async () => {
+    const testTs = `
+vscode.window.showErrorMessage('test error');
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/lint/commands.test.ts': testTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await noUnlocalizedStrings.check(ctx);
+    expect(results).toHaveLength(0);
+  });
+
+  it('skips locale files', async () => {
+    const localeTs = `
+showErrorMessage('Some default string for locale definition');
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/locale/en.ts': localeTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await noUnlocalizedStrings.check(ctx);
+    expect(results).toHaveLength(0);
+  });
+});
+
+// =============================================================================
+// vscode/require-error-boundary
+// =============================================================================
+
+describe('vscode/require-error-boundary', () => {
+  it('reports direct vscode.commands.registerCommand', async () => {
+    const sourceTs = `
+const disposable = vscode.commands.registerCommand('resist.lint.file', () => {});
+context.subscriptions.push(disposable);
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/extension.ts': sourceTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await requireErrorBoundary.check(ctx);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('vscode/require-error-boundary');
+    expect(results[0]?.message).toContain('registerCommand');
+    expect(results[0]?.message).toContain('command-registration.ts');
+  });
+
+  it('reports direct vscode.commands.registerTextEditorCommand', async () => {
+    const sourceTs = `
+vscode.commands.registerTextEditorCommand('resist.lint.fix', (editor) => {});
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/lint/commands.ts': sourceTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await requireErrorBoundary.check(ctx);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.message).toContain('registerCommand');
+  });
+
+  it('skips command-registration.ts (wrapper implementation)', async () => {
+    const wrapperTs = `
+const disposable = vscode.commands.registerCommand(id, () => {
+  void safeRunAsync(channel, id, handler);
+});
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/shared/command-registration.ts': wrapperTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await requireErrorBoundary.check(ctx);
+    expect(results).toHaveLength(0);
+  });
+
+  it('reports inline error extraction pattern', async () => {
+    const sourceTs = `
+catch (error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  logError(channel, message);
+}
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/lint/provider.ts': sourceTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await requireErrorBoundary.check(ctx);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.message).toContain('extractMessage');
+  });
+
+  it('skips errors.ts (utility definition)', async () => {
+    const errorsTs = `
+function extractMessage(err: unknown): string {
+  if (err instanceof Error) {
+    return err.message;
+  }
+  return String(err);
+}
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/shared/errors.ts': errorsTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await requireErrorBoundary.check(ctx);
+    expect(results).toHaveLength(0);
+  });
+
+  it('passes when using wrappers and extractMessage', async () => {
+    const sourceTs = `
+import { registerCommand } from './shared/command-registration';
+import { extractMessage } from './shared/errors';
+
+registerCommand(context, channel, COMMANDS.lintFile, async () => {});
+
+catch (error: unknown) {
+  logError(channel, extractMessage(error));
+}
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/extension.ts': sourceTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await requireErrorBoundary.check(ctx);
+    expect(results).toHaveLength(0);
+  });
+
+  it('skips test files', async () => {
+    const testTs = `
+vscode.commands.registerCommand('resist.lint.file', () => {});
+const msg = error instanceof Error ? error.message : String(error);
+`;
+    const ctx = createMockContext(
+      {
+        '/mock/ext/package.json': PKG_JSON_STR,
+        '/mock/ext/src/shared/brand.ts': BRAND_TS,
+        '/mock/ext/src/lint/commands.test.ts': testTs,
+      },
+      [
+        {
+          path: '/mock/ext/package.json',
+          dir: '/mock/ext',
+          packageJson: PKG_JSON_OBJ,
+          name: '@resist/vscode',
+        },
+      ],
+    );
+
+    const results: LintResult[] = await requireErrorBoundary.check(ctx);
+    expect(results).toHaveLength(0);
   });
 });

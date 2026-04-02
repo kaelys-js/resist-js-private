@@ -1312,6 +1312,16 @@
                 "enum": ["error", "warn", "off"],
                 "type": "string"
               },
+              "vscode/no-hardcoded-brand": {
+                "description": "Hardcoded brand strings must use constants from brand.ts — ensures white-label readiness.",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "vscode/no-unlocalized-strings": {
+                "description": "User-facing messages must use locale strings from en — prevents unlocalized English strings.",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
               "vscode/no-unread-settings": {
                 "description": "Every setting in package.json contributes.configuration must be read via config.get — prevents phantom settings.",
                 "enum": ["error", "warn", "off"],
@@ -1319,6 +1329,11 @@
               },
               "vscode/no-unwired-commands": {
                 "description": "Every command in brand.ts COMMANDS must have a registerCommand/registerTextEditorCommand call — prevents orphaned commands.",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "vscode/require-error-boundary": {
+                "description": "Use registerCommand() wrapper and extractMessage() utility — prevents raw error handling patterns.",
                 "enum": ["error", "warn", "off"],
                 "type": "string"
               },
@@ -4264,12 +4279,24 @@
           "description": "Options for testing/require-test-suffix",
           "type": "object"
         },
+        "vscode/no-hardcoded-brand": {
+          "description": "Options for vscode/no-hardcoded-brand",
+          "type": "object"
+        },
+        "vscode/no-unlocalized-strings": {
+          "description": "Options for vscode/no-unlocalized-strings",
+          "type": "object"
+        },
         "vscode/no-unread-settings": {
           "description": "Options for vscode/no-unread-settings",
           "type": "object"
         },
         "vscode/no-unwired-commands": {
           "description": "Options for vscode/no-unwired-commands",
+          "type": "object"
+        },
+        "vscode/require-error-boundary": {
+          "description": "Options for vscode/require-error-boundary",
           "type": "object"
         },
         "workspace/cli-tools-help-version": {
@@ -7036,6 +7063,16 @@
           "enum": ["error", "warn", "off"],
           "type": "string"
         },
+        "vscode/no-hardcoded-brand": {
+          "description": "Hardcoded brand strings must use constants from brand.ts — ensures white-label readiness.",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "vscode/no-unlocalized-strings": {
+          "description": "User-facing messages must use locale strings from en — prevents unlocalized English strings.",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
         "vscode/no-unread-settings": {
           "description": "Every setting in package.json contributes.configuration must be read via config.get — prevents phantom settings.",
           "enum": ["error", "warn", "off"],
@@ -7043,6 +7080,11 @@
         },
         "vscode/no-unwired-commands": {
           "description": "Every command in brand.ts COMMANDS must have a registerCommand/registerTextEditorCommand call — prevents orphaned commands.",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "vscode/require-error-boundary": {
+          "description": "Use registerCommand() wrapper and extractMessage() utility — prevents raw error handling patterns.",
           "enum": ["error", "warn", "off"],
           "type": "string"
         },

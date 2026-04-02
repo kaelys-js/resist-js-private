@@ -9,6 +9,7 @@
 
 import * as vscode from 'vscode';
 import type { DiagnosticWithData } from './provider';
+import { extractMessage } from '../shared/errors';
 import { logError } from '../shared/output';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
@@ -97,7 +98,7 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
           this.outputChannel,
           format(en.codeActions.actionFailed, {
             rule: String(diagnostic.code),
-            error: error instanceof Error ? error.message : String(error),
+            error: extractMessage(error),
           }),
         );
         continue;
@@ -141,7 +142,7 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
         logError(
           this.outputChannel,
           format(en.codeActions.fixAllFailed, {
-            error: error instanceof Error ? error.message : String(error),
+            error: extractMessage(error),
           }),
         );
       }
@@ -186,7 +187,7 @@ export class ResistCodeActionProvider implements vscode.CodeActionProvider {
           this.outputChannel,
           format(en.codeActions.disableFailed, {
             rule: ruleId,
-            error: error instanceof Error ? error.message : String(error),
+            error: extractMessage(error),
           }),
         );
       }

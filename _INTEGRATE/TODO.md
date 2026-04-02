@@ -1,7 +1,6 @@
 - [VS Code Extension]
   - Panel (like there is for git in the sidebar)
   - Status Bar UX
-  - Will lint workspace/non-ts files also by default and use all available tools?
 
   - Test/Benchmark/Coverage Intergration
   - Format Integration

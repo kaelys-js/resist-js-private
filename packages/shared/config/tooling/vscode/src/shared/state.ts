@@ -10,6 +10,7 @@
  */
 
 import type * as vscode from 'vscode';
+import { extractMessage } from './errors';
 import { log, logError } from './output';
 import { format } from '../locale/schema';
 import { en } from '../locale/en';
@@ -77,7 +78,7 @@ export class ToolStateManager {
           observer.callback(tool, from, state);
         } catch (error: unknown) {
           if (this.channel) {
-            const msg = error instanceof Error ? error.message : String(error);
+            const msg = extractMessage(error);
             logError(this.channel, format(en.state.observerError, { tool, error: msg }));
           }
         }

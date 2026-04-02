@@ -15,7 +15,7 @@ import { DocumentDebouncer } from './shared/debounce';
 import { createToolStatusBar, updateStatusBar, getFileDiagnosticCounts } from './shared/status-bar';
 import { ToolStateManager, type ToolState } from './shared/state';
 import { createOutputChannel, log, logError } from './shared/output';
-import { safeRun, safeRunAsync } from './shared/errors';
+import { extractMessage, safeRun, safeRunAsync } from './shared/errors';
 import { resolveWorkspace } from './shared/workspace';
 import { isWorkspaceDocument, forEachOpenDocument } from './shared/document-filter';
 import { withFileProgress } from './shared/progress';
@@ -110,7 +110,7 @@ export function activate(context: vscode.ExtensionContext): void {
   });
 
   const debouncer = new DocumentDebouncer((error: unknown) => {
-    logError(outputChannel, error instanceof Error ? error.message : String(error));
+    logError(outputChannel, extractMessage(error));
   });
 
   const notificationManager = new NotificationManager(outputChannel);
