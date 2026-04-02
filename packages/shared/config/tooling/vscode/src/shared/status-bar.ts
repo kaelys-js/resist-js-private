@@ -11,27 +11,6 @@ import * as vscode from 'vscode';
 import type { ExtensionState } from './types';
 import { en } from '../locale/en';
 import { formatPlural } from '../locale/schema';
-import { COMMANDS } from './brand';
-
-/**
- * Creates and shows the Resist status bar item.
- *
- * @param context - Extension context for lifecycle management
- * @returns The created status bar item
- */
-export function createStatusBar(context: vscode.ExtensionContext): vscode.StatusBarItem {
-  const item: vscode.StatusBarItem = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right,
-    100,
-  );
-  item.text = en.statusBar.ready;
-  item.tooltip = en.statusBar.tooltip;
-  item.command = COMMANDS.showOutput;
-  item.show();
-  context.subscriptions.push(item);
-  return item;
-}
-
 /**
  * Updates the status bar to reflect the current extension state.
  *

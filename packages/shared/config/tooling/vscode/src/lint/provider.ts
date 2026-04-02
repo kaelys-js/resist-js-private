@@ -11,12 +11,14 @@
 import * as vscode from 'vscode';
 import { runToolJson } from '../shared/runner';
 import { getBinaryPath, getWorkspaceRoot } from '../shared/workspace';
-import { updateStatusBar, getFileDiagnosticCounts } from '../shared/status-bar';
+import type { ToolStateManager } from '../shared/state';
+import { mapSeverity, applyMaxProblems, createDiagnosticFromEntry } from '../shared/diagnostics';
 import { log, logError, logCommand, logTiming } from '../shared/output';
 import type { DiagnosticEntry, RunResult } from '../shared/types';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
 import { BINARY_NAME, CONFIG_SECTION, DIAGNOSTIC_SOURCE } from '../shared/brand';
+import { getPerFolderLintOptions } from './per-folder';
 
 // =============================================================================
 // Types
@@ -43,20 +45,23 @@ export interface LintOptions {
  * @param document - The document to lint
  * @param collection - The diagnostic collection to update
  * @param channel - Output channel for logging
- * @param statusBarItem - Status bar item to update
+ * @param stateManager - Tool state manager for status updates
  * @param options - Lint options (stage, categories, extra args)
  */
 export async function lintDocument(
   document: vscode.TextDocument,
   collection: vscode.DiagnosticCollection,
   channel: vscode.OutputChannel,
-  statusBarItem: vscode.StatusBarItem,
+  stateManager: ToolStateManager,
   options: LintOptions,
 ): Promise<void> {
   // Skip non-file schemes and untitled documents
   if (document.uri.scheme !== 'file' || document.isUntitled) {
     return;
   }
+
+  // Resolve per-folder options for multi-root workspaces
+  options = getPerFolderLintOptions(document.uri, options, channel);
 
   const filePath: string = document.uri.fsPath;
 
@@ -90,8 +95,8 @@ export async function lintDocument(
   }
   args.push(filePath);
 
-  // Update status bar
-  updateStatusBar(statusBarItem, 'linting');
+  // Update state
+  stateManager.setState('lint', 'running');
 
   // Log the command for debugging
   logCommand(channel, binPath, args);
@@ -105,21 +110,16 @@ export async function lintDocument(
 
   if (!result.ok) {
     logError(channel, format(en.messages.lintFailed, { file: filePath, error: result.error }));
-    updateStatusBar(statusBarItem, 'error');
+    stateManager.setState('lint', 'error');
     return;
   }
 
   // Log timing
   logTiming(channel, format(en.messages.lintedFile, { file: filePath }), result.elapsed);
 
-  // Read max problems setting
-  const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(CONFIG_SECTION);
-  const maxProblems: number = config.get<number>('lint.maxProblems', 100);
-
   // Map entries to diagnostics (skip malformed entries instead of crashing)
-  const entries: DiagnosticEntry[] = result.data.slice(0, maxProblems);
   const diagnostics: vscode.Diagnostic[] = [];
-  for (const entry of entries) {
+  for (const entry of result.data) {
     try {
       diagnostics.push(mapEntryToDiagnostic(entry, document));
     } catch (err: unknown) {
@@ -134,12 +134,13 @@ export async function lintDocument(
     }
   }
 
-  // Set diagnostics on the collection
-  collection.set(document.uri, diagnostics);
+  // Apply max problems limit
+  const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(CONFIG_SECTION);
+  const maxProblems: number = config.get<number>('lint.maxProblems', 100);
+  collection.set(document.uri, applyMaxProblems(diagnostics, maxProblems, channel));
 
-  // Update status bar with counts
-  const counts = getFileDiagnosticCounts(collection, document.uri);
-  updateStatusBar(statusBarItem, 'ready', counts);
+  // State observer handles status bar counts
+  stateManager.setState('lint', 'ready');
 
   if (result.stderr.trim()) {
     log(channel, format(en.messages.stderrOutput, { output: result.stderr.trim() }));
@@ -154,14 +155,14 @@ export async function lintDocument(
  *
  * @param collection - The diagnostic collection to update
  * @param channel - Output channel for logging
- * @param statusBarItem - Status bar item to update
+ * @param stateManager - Tool state manager for status updates
  * @param options - Lint options
  * @param progress - Progress reporter for the progress bar
  */
 export async function lintWorkspace(
   collection: vscode.DiagnosticCollection,
   channel: vscode.OutputChannel,
-  statusBarItem: vscode.StatusBarItem,
+  stateManager: ToolStateManager,
   options: LintOptions,
   progress: vscode.Progress<{ message?: string; increment?: number }>,
 ): Promise<void> {
@@ -196,7 +197,7 @@ export async function lintWorkspace(
   }
   args.push('.');
 
-  updateStatusBar(statusBarItem, 'linting');
+  stateManager.setState('lint', 'running');
   logCommand(channel, binPath, args);
   progress.report({ message: en.messages.runningLinter });
 
@@ -209,7 +210,7 @@ export async function lintWorkspace(
 
   if (!result.ok) {
     logError(channel, format(en.messages.workspaceLintFailed, { error: result.error }));
-    updateStatusBar(statusBarItem, 'error');
+    stateManager.setState('lint', 'error');
     return;
   }
 
@@ -244,10 +245,19 @@ export async function lintWorkspace(
     );
     const diagnostics: vscode.Diagnostic[] = [];
     let skipped = 0;
-    for (const entry of entries.slice(0, maxProblems)) {
+    for (const entry of entries) {
       try {
         diagnostics.push(doc ? mapEntryToDiagnostic(entry, doc) : mapEntryToDiagnosticBasic(entry));
-      } catch {
+      } catch (error: unknown) {
+        const msg: string = error instanceof Error ? error.message : String(error);
+        logError(
+          channel,
+          format(en.messages.diagnosticMapFailed, {
+            rule: entry.ruleId ?? 'unknown',
+            location: `${entry.line ?? '?'}:${entry.column ?? '?'}`,
+            error: msg,
+          }),
+        );
         skipped++;
       }
     }
@@ -257,7 +267,7 @@ export async function lintWorkspace(
         format(en.diagnosticManager.skippedEntries, { count: skipped, file: filePath }),
       );
     }
-    collection.set(uri, diagnostics);
+    collection.set(uri, applyMaxProblems(diagnostics, maxProblems, channel));
     processed++;
     progress.report({
       message: format(en.messages.progressFiles, { processed, total }),
@@ -265,14 +275,8 @@ export async function lintWorkspace(
     });
   }
 
-  // Update status bar for active editor
-  const activeUri: vscode.Uri | undefined = vscode.window.activeTextEditor?.document.uri;
-  if (activeUri) {
-    const counts = getFileDiagnosticCounts(collection, activeUri);
-    updateStatusBar(statusBarItem, 'ready', counts);
-  } else {
-    updateStatusBar(statusBarItem, 'ready');
-  }
+  // State observer handles status bar counts
+  stateManager.setState('lint', 'ready');
 }
 
 // =============================================================================
@@ -336,6 +340,8 @@ function appendConfigArgs(args: string[]): void {
  * Falls back to word range at position, then cursor-to-EOL.
  * Stores fix data, tip, example, and url on diagnostic.data for the
  * CodeActionProvider to consume.
+ *
+ * @internal Exported for tests only.
  */
 export function mapEntryToDiagnostic(
   entry: DiagnosticEntry,
@@ -393,57 +399,35 @@ export function mapEntryToDiagnostic(
 /**
  * Maps a DiagnosticEntry to a vscode.Diagnostic without document context.
  *
- * Used for files that are not currently open in the editor. Creates a
- * single-line range based on line/column info.
+ * Uses the shared `createDiagnosticFromEntry` for basic range/severity/data
+ * mapping, then enhances with example appending and clickable URLs.
  */
 function mapEntryToDiagnosticBasic(entry: DiagnosticEntry): vscode.Diagnostic {
-  const line: number = Math.max(0, entry.line - 1);
-  const column: number = Math.max(0, entry.column - 1);
-  const endLine: number = entry.endLine !== undefined ? Math.max(0, entry.endLine - 1) : line;
-  const endColumn: number =
-    entry.endColumn !== undefined ? Math.max(0, entry.endColumn - 1) : column + 1;
+  const diagnostic: vscode.Diagnostic | undefined = createDiagnosticFromEntry(
+    entry,
+    DIAGNOSTIC_SOURCE,
+  );
 
-  const range = new vscode.Range(line, column, endLine, endColumn);
-  const severity: vscode.DiagnosticSeverity = mapSeverity(entry.severity);
-
-  // Append example to message when present
-  let message: string = entry.message;
-  if (entry.example) {
-    message += `\n\nExample:\n${entry.example}`;
+  if (!diagnostic) {
+    // Fallback for invalid entries — createDiagnosticFromEntry returns undefined
+    return new vscode.Diagnostic(
+      new vscode.Range(0, 0, 0, 0),
+      entry.message || 'Unknown diagnostic',
+      vscode.DiagnosticSeverity.Warning,
+    );
   }
 
-  const diagnostic = new vscode.Diagnostic(range, message, severity);
-  diagnostic.source = DIAGNOSTIC_SOURCE;
+  // Enhance: append example to message
+  if (entry.example) {
+    (diagnostic as { message: string }).message += `\n\nExample:\n${entry.example}`;
+  }
 
-  // When url is present, make rule ID clickable
+  // Enhance: make rule ID clickable when url is present
   if (entry.url) {
     diagnostic.code = { value: entry.ruleId, target: vscode.Uri.parse(entry.url) };
-  } else {
-    diagnostic.code = entry.ruleId;
   }
-
-  (diagnostic as DiagnosticWithData).data = {
-    fix: entry.fix,
-    tip: entry.tip,
-    example: entry.example,
-    url: entry.url,
-  };
 
   return diagnostic;
-}
-
-/** Maps severity string to vscode.DiagnosticSeverity. */
-function mapSeverity(severity: string): vscode.DiagnosticSeverity {
-  switch (severity) {
-    case 'error':
-      return vscode.DiagnosticSeverity.Error;
-    case 'warning':
-      return vscode.DiagnosticSeverity.Warning;
-    case 'info':
-      return vscode.DiagnosticSeverity.Information;
-    default:
-      return vscode.DiagnosticSeverity.Warning;
-  }
 }
 
 // =============================================================================

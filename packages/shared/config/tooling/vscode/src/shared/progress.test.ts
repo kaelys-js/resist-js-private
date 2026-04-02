@@ -7,7 +7,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
 import { withFileProgress } from './progress';
-import type { FileProcessResult } from './progress';
 import * as output from './output';
 
 vi.mock('./output', () => ({

@@ -35,29 +35,30 @@ export const DIAGNOSTIC_SOURCE = 'resist-linter';
 export const DIAGNOSTIC_COLLECTION_NAME = 'resist-linter';
 
 /** Prefix for all registered command IDs (e.g. 'resist.lint.file'). */
+// resist-lint-allow: hygiene/no-orphaned-exports -- white-label API
 export const COMMAND_PREFIX = 'resist';
 
 // =============================================================================
 // Command IDs
 // =============================================================================
 
-/** All command identifiers registered by the extension. */
+/** All command identifiers registered by the extension, derived from COMMAND_PREFIX. */
 export const COMMANDS = {
-  lintFile: 'resist.lint.file',
-  lintWorkspace: 'resist.lint.workspace',
-  lintFix: 'resist.lint.fix',
-  lintClear: 'resist.lint.clear',
-  listRules: 'resist.lint.listRules',
-  restart: 'resist.lint.restart',
-  showOutput: 'resist.lint.showOutput',
-  lintStaged: 'resist.lint.staged',
-  lintUncommitted: 'resist.lint.uncommitted',
-  previewFixes: 'resist.lint.previewFixes',
-  showTiming: 'resist.lint.showTiming',
-  filterByCategory: 'resist.lint.filterByCategory',
-  clearFilter: 'resist.lint.clearFilter',
-  removeUnusedImports: 'resist.lint.removeUnusedImports',
-  changeStage: 'resist.lint.changeStage',
+  lintFile: `${COMMAND_PREFIX}.lint.file`,
+  lintWorkspace: `${COMMAND_PREFIX}.lint.workspace`,
+  lintFix: `${COMMAND_PREFIX}.lint.fix`,
+  lintClear: `${COMMAND_PREFIX}.lint.clear`,
+  listRules: `${COMMAND_PREFIX}.lint.listRules`,
+  restart: `${COMMAND_PREFIX}.lint.restart`,
+  showOutput: `${COMMAND_PREFIX}.lint.showOutput`,
+  lintStaged: `${COMMAND_PREFIX}.lint.staged`,
+  lintUncommitted: `${COMMAND_PREFIX}.lint.uncommitted`,
+  previewFixes: `${COMMAND_PREFIX}.lint.previewFixes`,
+  showTiming: `${COMMAND_PREFIX}.lint.showTiming`,
+  filterByCategory: `${COMMAND_PREFIX}.lint.filterByCategory`,
+  clearFilter: `${COMMAND_PREFIX}.lint.clearFilter`,
+  removeUnusedImports: `${COMMAND_PREFIX}.lint.removeUnusedImports`,
+  changeStage: `${COMMAND_PREFIX}.lint.changeStage`,
 } as const;
 
 // =============================================================================

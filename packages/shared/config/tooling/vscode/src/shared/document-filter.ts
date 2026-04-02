@@ -31,7 +31,7 @@ export function isWorkspaceDocument(doc: vscode.TextDocument): boolean {
  * @param doc - The document to check
  * @returns true if the document should be linted
  */
-export function isLintableDocument(doc: vscode.TextDocument): boolean {
+function isLintableDocument(doc: vscode.TextDocument): boolean {
   if (doc.isUntitled) {
     return false;
   }

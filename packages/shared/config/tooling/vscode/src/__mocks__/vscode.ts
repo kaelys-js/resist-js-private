@@ -327,9 +327,12 @@ export const window = {
   withProgress: vi.fn(
     async (
       _options: unknown,
-      task: (progress: { report: (value: unknown) => void }) => Promise<void>,
+      task: (
+        progress: { report: (value: unknown) => void },
+        token: { isCancellationRequested: boolean },
+      ) => Promise<void>,
     ) => {
-      await task({ report: vi.fn() });
+      await task({ report: vi.fn() }, { isCancellationRequested: false });
     },
   ),
 };
@@ -342,6 +345,10 @@ export const languages = {
 export const commands = {
   registerCommand: vi.fn((_cmd: string, _handler: (...args: unknown[]) => unknown) =>
     createMockDisposable(),
+  ),
+  registerTextEditorCommand: vi.fn(
+    (_cmd: string, _handler: (editor: unknown, edit: unknown, ...args: unknown[]) => unknown) =>
+      createMockDisposable(),
   ),
   executeCommand: vi.fn(async () => undefined),
 };

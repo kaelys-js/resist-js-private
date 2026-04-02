@@ -16,7 +16,7 @@ import { format } from '../locale/schema';
 import { en } from '../locale/en';
 
 /** Result of a file processing operation. */
-export interface FileProcessResult<T> {
+interface FileProcessResult<T> {
   /** The file URI that was processed. */
   readonly uri: vscode.Uri;
   /** The result if processing succeeded. */

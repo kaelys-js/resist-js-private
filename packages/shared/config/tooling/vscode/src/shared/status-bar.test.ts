@@ -5,9 +5,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createStatusBar, updateStatusBar, getFileDiagnosticCounts } from './status-bar';
+import { updateStatusBar, createToolStatusBar, getFileDiagnosticCounts } from './status-bar';
 import * as vscode from 'vscode';
-import { COMMANDS, BRAND_NAME } from './brand';
+import { BRAND_NAME } from './brand';
 
 describe('Status Bar', () => {
   let statusBarItem: ReturnType<typeof vscode.window.createStatusBarItem>;
@@ -17,18 +17,7 @@ describe('Status Bar', () => {
     const context = {
       subscriptions: [] as Array<{ dispose: () => void }>,
     } as unknown as vscode.ExtensionContext;
-    statusBarItem = createStatusBar(context);
-  });
-
-  it('createStatusBar creates item with correct defaults', () => {
-    expect(vscode.window.createStatusBarItem).toHaveBeenCalledWith(
-      vscode.StatusBarAlignment.Right,
-      100,
-    );
-    expect(statusBarItem.text).toBe(`$(check) ${BRAND_NAME}`);
-    expect(statusBarItem.tooltip).toBe(`${BRAND_NAME} Linter — Click to show output`);
-    expect(statusBarItem.command).toBe(COMMANDS.showOutput);
-    expect(statusBarItem.show).toHaveBeenCalled();
+    statusBarItem = createToolStatusBar(context, 'Lint');
   });
 
   it('updateStatusBar("ready") shows check icon', () => {

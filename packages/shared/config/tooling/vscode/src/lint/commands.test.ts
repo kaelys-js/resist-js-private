@@ -9,12 +9,21 @@ import * as vscode from 'vscode';
 import { registerLintCommands } from './commands';
 import { DiagnosticFilter } from './diagnostic-filter';
 import { StageIndicator } from './stage-indicator';
-import { COMMANDS, DIAGNOSTIC_COLLECTION_NAME, BRAND_NAME } from '../shared/brand';
+import { COMMANDS, DIAGNOSTIC_COLLECTION_NAME, BRAND_NAME, CONFIG_SECTION } from '../shared/brand';
+import { ConfigManager } from '../shared/config';
+import { ToolStateManager } from '../shared/state';
 
-// Capture registered command handlers
+// Capture registered command handlers (both regular and text editor commands)
 const commandHandlers = new Map<string, (...args: unknown[]) => unknown>();
 
 vi.mocked(vscode.commands.registerCommand).mockImplementation(
+  (cmd: string, handler: (...args: unknown[]) => unknown) => {
+    commandHandlers.set(cmd, handler);
+    return { dispose: vi.fn() };
+  },
+);
+
+vi.mocked(vscode.commands.registerTextEditorCommand).mockImplementation(
   (cmd: string, handler: (...args: unknown[]) => unknown) => {
     commandHandlers.set(cmd, handler);
     return { dispose: vi.fn() };
@@ -31,7 +40,7 @@ describe('Lint Commands', () => {
   let context: vscode.ExtensionContext;
   let diagnosticCollection: ReturnType<typeof vscode.languages.createDiagnosticCollection>;
   let outputChannel: ReturnType<typeof vscode.window.createOutputChannel>;
-  let statusBarItem: ReturnType<typeof vscode.window.createStatusBarItem>;
+  let stateManager: ToolStateManager;
   let lintDocumentFn: ReturnType<typeof vi.fn>;
   let getLintOptions: ReturnType<typeof vi.fn>;
 
@@ -42,7 +51,7 @@ describe('Lint Commands', () => {
     context = createMockContext();
     diagnosticCollection = vscode.languages.createDiagnosticCollection(DIAGNOSTIC_COLLECTION_NAME);
     outputChannel = vscode.window.createOutputChannel(BRAND_NAME);
-    statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+    stateManager = new ToolStateManager();
     lintDocumentFn = vi.fn();
     getLintOptions = vi.fn(() => ({
       stage: 'lint',
@@ -50,8 +59,14 @@ describe('Lint Commands', () => {
       extraArgs: [],
     }));
 
-    // Re-register mock implementation (cleared by vi.clearAllMocks)
+    // Re-register mock implementations (cleared by vi.clearAllMocks)
     vi.mocked(vscode.commands.registerCommand).mockImplementation(
+      (cmd: string, handler: (...args: unknown[]) => unknown) => {
+        commandHandlers.set(cmd, handler);
+        return { dispose: vi.fn() };
+      },
+    );
+    vi.mocked(vscode.commands.registerTextEditorCommand).mockImplementation(
       (cmd: string, handler: (...args: unknown[]) => unknown) => {
         commandHandlers.set(cmd, handler);
         return { dispose: vi.fn() };
@@ -59,19 +74,26 @@ describe('Lint Commands', () => {
     );
 
     const diagnosticFilter = new DiagnosticFilter(outputChannel as unknown as vscode.OutputChannel);
+    const mockStatusBarItem = vscode.window.createStatusBarItem(
+      vscode.StatusBarAlignment.Right,
+      100,
+    );
     const stageIndicator = new StageIndicator(
-      statusBarItem as unknown as vscode.StatusBarItem,
+      mockStatusBarItem as unknown as vscode.StatusBarItem,
       outputChannel as unknown as vscode.OutputChannel,
     );
+
+    const configMgr = new ConfigManager(CONFIG_SECTION);
 
     registerLintCommands(context, {
       diagnosticCollection: diagnosticCollection as unknown as vscode.DiagnosticCollection,
       outputChannel: outputChannel as unknown as vscode.OutputChannel,
-      statusBarItem: statusBarItem as unknown as vscode.StatusBarItem,
+      stateManager,
       lintDocumentFn,
       getLintOptions,
       diagnosticFilter,
       stageIndicator,
+      configManager: configMgr,
     });
   });
 
@@ -105,23 +127,20 @@ describe('Lint Commands', () => {
       uri: vscode.Uri.file('/test.ts'),
       getText: () => 'const x = 1;',
     };
-    vscode.window.activeTextEditor = {
-      document: doc,
-    } as unknown as vscode.TextEditor;
+    const editor = { document: doc } as unknown as vscode.TextEditor;
 
     const handler = commandHandlers.get(COMMANDS.lintFile)!;
-    handler();
+    handler(editor);
 
     expect(lintDocumentFn).toHaveBeenCalledWith(doc);
   });
 
-  it('resist.lint.file does nothing when no active editor', () => {
-    vscode.window.activeTextEditor = undefined;
-
-    const handler = commandHandlers.get(COMMANDS.lintFile)!;
-    handler();
-
-    expect(lintDocumentFn).not.toHaveBeenCalled();
+  it('resist.lint.file is registered as a text editor command', () => {
+    // registerTextEditorCommand means VS Code handles the no-editor case
+    expect(vscode.commands.registerTextEditorCommand).toHaveBeenCalledWith(
+      COMMANDS.lintFile,
+      expect.any(Function),
+    );
   });
 
   it('resist.lint.clear clears diagnostics and updates status bar', () => {
@@ -138,7 +157,7 @@ describe('Lint Commands', () => {
     expect(outputChannel.show).toHaveBeenCalled();
   });
 
-  it('resist.lint.restart clears cache and re-lints open documents', () => {
+  it('resist.lint.restart clears cache and re-lints open documents', async () => {
     // Set up text documents
     const doc = {
       uri: vscode.Uri.file('/repo/src/file.ts'),
@@ -152,13 +171,13 @@ describe('Lint Commands', () => {
     vscode.workspace.textDocuments = [doc];
 
     const handler = commandHandlers.get(COMMANDS.restart)!;
-    handler();
+    await handler();
 
     expect(diagnosticCollection.clear).toHaveBeenCalled();
     expect(lintDocumentFn).toHaveBeenCalledWith(doc);
   });
 
-  it('resist.lint.restart skips untitled and non-file documents', () => {
+  it('resist.lint.restart skips untitled and non-file documents', async () => {
     vscode.workspace.textDocuments = [
       {
         uri: { scheme: 'untitled', fsPath: 'Untitled-1' } as unknown as vscode.Uri,
@@ -172,7 +191,7 @@ describe('Lint Commands', () => {
     ];
 
     const handler = commandHandlers.get(COMMANDS.restart)!;
-    handler();
+    await handler();
 
     expect(lintDocumentFn).not.toHaveBeenCalled();
   });

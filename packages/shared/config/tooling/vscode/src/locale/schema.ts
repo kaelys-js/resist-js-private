@@ -52,28 +52,12 @@ export function formatPlural(
   try {
     const rules = new Intl.PluralRules(locale);
     rule = rules.select(count);
+    // resist-lint-disable-next-line: hygiene/no-bare-catch -- Intl API fallback
   } catch {
     rule = count === 1 ? 'one' : 'other';
   }
   const form: string = rule === 'one' ? forms.one : forms.other;
   return form.replaceAll('#', String(count));
-}
-
-/**
- * Format a number with locale-aware separators.
- *
- * Uses `Intl.NumberFormat` when available, falls back to `String(value)`.
- *
- * @param value - The number to format
- * @param locale - Optional locale code (defaults to 'en')
- * @returns Formatted number string
- */
-export function formatNumber(value: number, locale: string = 'en'): string {
-  try {
-    return new Intl.NumberFormat(locale).format(value);
-  } catch {
-    return String(value);
-  }
 }
 
 // =============================================================================
@@ -166,6 +150,10 @@ export interface ProgressStrings {
   readonly staged: string;
   /** Progress title for uncommitted changes lint. */
   readonly uncommitted: string;
+  /** Progress title for restart re-lint. */
+  readonly restart: string;
+  /** Progress title for activation lint. */
+  readonly activation: string;
 }
 
 /** Strings for code action titles. */
@@ -206,14 +194,6 @@ export interface ConfigStrings {
   readonly changeDetected: string;
   /** Log when config cache is refreshed. */
   readonly refreshed: string;
-}
-
-/** Strings for command registration. */
-export interface CommandStrings {
-  /** Debug log when a command is registered. */
-  readonly registered: string;
-  /** Error log when command execution fails. */
-  readonly executionFailed: string;
 }
 
 /** Strings for lifecycle manager. */
@@ -294,18 +274,10 @@ export interface PluralStrings {
   readonly warning: string;
   /** Plural form for "warnings". */
   readonly warnings: string;
-  /** Singular form for "file". */
-  readonly file: string;
-  /** Plural form for "files". */
-  readonly files: string;
 }
 
 /** Strings for document event registry. */
 export interface EventsStrings {
-  /** Log when a handler is registered. */
-  readonly registered: string;
-  /** Log when an event is dispatched to handlers. */
-  readonly dispatched: string;
   /** Error log when a handler throws. */
   readonly handlerError: string;
 }
@@ -324,8 +296,6 @@ export interface FixOnSaveStrings {
 export interface CodeLensStrings {
   /** Code lens label showing issue count for a rule. */
   readonly issueCount: string;
-  /** Code lens click action: open documentation. */
-  readonly openDocs: string;
 }
 
 /** Strings for diff preview. */
@@ -380,8 +350,6 @@ export interface PerFolderStrings {
 export interface StaleCleanupStrings {
   /** Log when stale diagnostics are cleared. */
   readonly cleared: string;
-  /** Log when a file starts being tracked. */
-  readonly trackingFile: string;
   /** Log when a visible editor is skipped. */
   readonly skippedVisible: string;
 }
@@ -392,16 +360,6 @@ export interface ImportsStrings {
   readonly removedCount: string;
   /** Message when no unused imports found. */
   readonly noUnused: string;
-  /** Command title in palette. */
-  readonly commandTitle: string;
-}
-
-/** Strings for inline severity override decorations. */
-export interface InlineOverridesStrings {
-  /** Tooltip for disable comment decorations. */
-  readonly decorationTooltip: string;
-  /** Log when override comments are found. */
-  readonly foundOverrides: string;
 }
 
 /** Strings for build/stage visual feedback. */
@@ -428,7 +386,6 @@ export interface VscodeStrings {
   readonly documentFilter: DocumentFilterStrings;
   readonly notifications: NotificationStrings;
   readonly config: ConfigStrings;
-  readonly commands: CommandStrings;
   readonly lifecycle: LifecycleStrings;
   readonly watcher: WatcherStrings;
   readonly progressHelper: ProgressHelperStrings;
@@ -447,6 +404,5 @@ export interface VscodeStrings {
   readonly perFolder: PerFolderStrings;
   readonly staleCleanup: StaleCleanupStrings;
   readonly imports: ImportsStrings;
-  readonly inlineOverrides: InlineOverridesStrings;
   readonly stageIndicator: StageIndicatorStrings;
 }

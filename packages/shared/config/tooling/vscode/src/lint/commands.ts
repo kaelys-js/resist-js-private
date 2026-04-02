@@ -8,15 +8,17 @@
 
 import * as vscode from 'vscode';
 import { lintWorkspace, type LintOptions, type DiagnosticWithData } from './provider';
-import { showFixDiffPreview } from './diff-preview';
+import { showFixDiffPreview, applyFixes } from './diff-preview';
 import { showTimingReport } from './profiling';
 import { removeUnusedImports } from './import-sorting';
 import type { DiagnosticFilter } from './diagnostic-filter';
 import type { StageIndicator } from './stage-indicator';
+import type { ConfigManager } from '../shared/config';
+import { registerCommand, registerTextEditorCommand } from '../shared/command-registration';
 import { clearCache, getBinaryPath } from '../shared/workspace';
-import { updateStatusBar } from '../shared/status-bar';
+import type { ToolStateManager } from '../shared/state';
+import { withFileProgress } from '../shared/progress';
 import { log, logCommand, logError } from '../shared/output';
-import { safeRunAsync } from '../shared/errors';
 import { runToolJson } from '../shared/runner';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
@@ -26,11 +28,12 @@ import { BINARY_NAME, COMMANDS } from '../shared/brand';
 interface CommandDeps {
   readonly diagnosticCollection: vscode.DiagnosticCollection;
   readonly outputChannel: vscode.OutputChannel;
-  readonly statusBarItem: vscode.StatusBarItem;
+  readonly stateManager: ToolStateManager;
   readonly lintDocumentFn: (doc: vscode.TextDocument) => void;
   readonly getLintOptions: () => LintOptions;
   readonly diagnosticFilter: DiagnosticFilter;
   readonly stageIndicator: StageIndicator;
+  readonly configManager: ConfigManager;
 }
 
 /**
@@ -43,267 +46,218 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
   const {
     diagnosticCollection,
     outputChannel,
-    statusBarItem,
+    stateManager,
     lintDocumentFn,
     getLintOptions,
     diagnosticFilter,
     stageIndicator,
   } = deps;
 
-  // Lint current file
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.lintFile, () => {
-      const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
-      if (editor) {
-        lintDocumentFn(editor.document);
-      }
-    }),
-  );
+  // ========================================================================
+  // Text Editor Commands (receive active editor automatically)
+  // ========================================================================
 
-  // Lint all files with progress bar
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.lintWorkspace, () =>
-      safeRunAsync(outputChannel, COMMANDS.lintWorkspace, async () => {
-        await vscode.window.withProgress(
-          {
-            location: vscode.ProgressLocation.Notification,
-            title: en.progress.workspace,
-            cancellable: false,
-          },
-          async (progress) => {
-            await lintWorkspace(
-              diagnosticCollection,
-              outputChannel,
-              statusBarItem,
-              getLintOptions(),
-              progress,
-            );
-          },
-        );
-      }),
-    ),
-  );
+  // Lint current file
+  registerTextEditorCommand(context, outputChannel, COMMANDS.lintFile, async (editor) => {
+    lintDocumentFn(editor.document);
+  });
 
   // Apply all auto-fixable diagnostics in current file
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.lintFix, () =>
-      safeRunAsync(outputChannel, COMMANDS.lintFix, async () => {
-        const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
-        if (!editor) {
-          return;
-        }
+  registerTextEditorCommand(context, outputChannel, COMMANDS.lintFix, async (editor) => {
+    const fixedText: string = applyFixes(editor.document, diagnosticCollection);
+    const originalText: string = editor.document.getText();
 
-        const diagnostics: readonly vscode.Diagnostic[] =
-          diagnosticCollection.get(editor.document.uri) ?? [];
+    if (fixedText === originalText) {
+      vscode.window.showInformationMessage(en.messages.noFixableProblems);
+      return;
+    }
 
-        // Collect fixable diagnostics
-        const fixes: { start: number; end: number; text: string }[] = [];
-        for (const diag of diagnostics) {
-          const data = (diag as DiagnosticWithData).data;
-          if (data?.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '')) {
-            fixes.push({
-              start: data.fix.range.start,
-              end: data.fix.range.end,
-              text: data.fix.text,
-            });
-          }
-        }
+    const edit = new vscode.WorkspaceEdit();
+    const fullRange = new vscode.Range(
+      editor.document.positionAt(0),
+      editor.document.positionAt(originalText.length),
+    );
+    edit.replace(editor.document.uri, fullRange, fixedText);
 
-        if (fixes.length === 0) {
-          vscode.window.showInformationMessage(en.messages.noFixableProblems);
-          return;
-        }
+    const applied: boolean = await vscode.workspace.applyEdit(edit);
+    if (!applied) {
+      logError(outputChannel, en.messages.fixRejectedLog);
+      vscode.window.showErrorMessage(en.messages.fixRejected);
+      return;
+    }
 
-        // Sort descending by offset to avoid shift issues
-        fixes.sort((a, b) => b.start - a.start);
+    const diagnostics: readonly vscode.Diagnostic[] =
+      diagnosticCollection.get(editor.document.uri) ?? [];
+    const fixCount: number = diagnostics.filter((d) => {
+      const data = (d as DiagnosticWithData).data;
+      return data?.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '');
+    }).length;
+    log(outputChannel, format(en.messages.fixesApplied, { count: fixCount }));
 
-        const edit = new vscode.WorkspaceEdit();
-        for (const fix of fixes) {
-          const startPos: vscode.Position = editor.document.positionAt(fix.start);
-          const endPos: vscode.Position = editor.document.positionAt(fix.end);
-          edit.replace(editor.document.uri, new vscode.Range(startPos, endPos), fix.text);
-        }
-
-        const applied: boolean = await vscode.workspace.applyEdit(edit);
-        if (!applied) {
-          logError(outputChannel, en.messages.fixRejectedLog);
-          vscode.window.showErrorMessage(en.messages.fixRejected);
-          return;
-        }
-
-        log(outputChannel, format(en.messages.fixesApplied, { count: fixes.length }));
-
-        // Re-lint after fixing
-        lintDocumentFn(editor.document);
-      }),
-    ),
-  );
-
-  // Clear all diagnostics
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.lintClear, () => {
-      diagnosticCollection.clear();
-      updateStatusBar(statusBarItem, 'ready');
-      log(outputChannel, en.messages.diagnosticsCleared);
-    }),
-  );
-
-  // Show available rules in output channel
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.listRules, () =>
-      safeRunAsync(outputChannel, COMMANDS.listRules, async () => {
-        const folders: readonly vscode.WorkspaceFolder[] | undefined =
-          vscode.workspace.workspaceFolders;
-        if (!folders || folders.length === 0) {
-          vscode.window.showErrorMessage(en.messages.noWorkspaceFolder);
-          return;
-        }
-
-        const binPath: string | undefined = getBinaryPath(BINARY_NAME, folders[0].uri);
-        if (!binPath) {
-          vscode.window.showErrorMessage(en.messages.binaryNotInNodeModules);
-          return;
-        }
-
-        const cwd: string = folders[0].uri.fsPath;
-        logCommand(outputChannel, binPath, ['--list-rules']);
-
-        const result = await runToolJson<string>({
-          command: binPath,
-          args: ['--list-rules'],
-          cwd,
-        });
-
-        // --list-rules outputs text, not JSON, so show whatever we get
-        outputChannel.appendLine('');
-        outputChannel.appendLine(en.messages.availableRulesHeader);
-        if (result.ok) {
-          outputChannel.appendLine(
-            typeof result.data === 'string' ? result.data : JSON.stringify(result.data, null, 2),
-          );
-        } else {
-          // stderr likely has the text output
-          outputChannel.appendLine(result.stderr || result.error);
-        }
-        outputChannel.show();
-      }),
-    ),
-  );
-
-  // Clear cache, re-lint all open files
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.restart, () => {
-      clearCache();
-      diagnosticCollection.clear();
-      log(outputChannel, en.messages.linterRestarted);
-
-      for (const doc of vscode.workspace.textDocuments) {
-        if (doc.uri.scheme === 'file' && !doc.isUntitled) {
-          lintDocumentFn(doc);
-        }
-      }
-    }),
-  );
-
-  // Show output channel
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.showOutput, () => {
-      outputChannel.show();
-    }),
-  );
-
-  // Lint only staged changes
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.lintStaged, () =>
-      safeRunAsync(outputChannel, COMMANDS.lintStaged, async () => {
-        await vscode.window.withProgress(
-          {
-            location: vscode.ProgressLocation.Notification,
-            title: en.progress.staged,
-            cancellable: false,
-          },
-          async (progress) => {
-            const opts: LintOptions = {
-              ...getLintOptions(),
-              extraArgs: [...(getLintOptions().extraArgs ?? []), '--diff=staged'],
-            };
-            await lintWorkspace(diagnosticCollection, outputChannel, statusBarItem, opts, progress);
-          },
-        );
-      }),
-    ),
-  );
-
-  // Lint only uncommitted changes
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.lintUncommitted, () =>
-      safeRunAsync(outputChannel, COMMANDS.lintUncommitted, async () => {
-        await vscode.window.withProgress(
-          {
-            location: vscode.ProgressLocation.Notification,
-            title: en.progress.uncommitted,
-            cancellable: false,
-          },
-          async (progress) => {
-            const opts: LintOptions = {
-              ...getLintOptions(),
-              extraArgs: [...(getLintOptions().extraArgs ?? []), '--diff=head'],
-            };
-            await lintWorkspace(diagnosticCollection, outputChannel, statusBarItem, opts, progress);
-          },
-        );
-      }),
-    ),
-  );
-
-  // Preview all fixes in a diff view
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.previewFixes, () =>
-      safeRunAsync(outputChannel, COMMANDS.previewFixes, () =>
-        showFixDiffPreview(diagnosticCollection, outputChannel),
-      ),
-    ),
-  );
-
-  // Show per-rule performance timing
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.showTiming, () =>
-      safeRunAsync(outputChannel, COMMANDS.showTiming, () => showTimingReport(outputChannel)),
-    ),
-  );
-
-  // Filter diagnostics by category
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.filterByCategory, () =>
-      safeRunAsync(outputChannel, COMMANDS.filterByCategory, () =>
-        diagnosticFilter.showFilterQuickPick(diagnosticCollection),
-      ),
-    ),
-  );
-
-  // Clear diagnostic filter
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.clearFilter, () => {
-      diagnosticFilter.clearFilter(diagnosticCollection);
-    }),
-  );
+    // Re-lint after fixing
+    lintDocumentFn(editor.document);
+  });
 
   // Remove unused imports
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.removeUnusedImports, () =>
-      safeRunAsync(outputChannel, COMMANDS.removeUnusedImports, async () => {
-        const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
-        if (editor) {
-          await removeUnusedImports(editor.document, diagnosticCollection, outputChannel);
-        }
-      }),
-    ),
+  registerTextEditorCommand(
+    context,
+    outputChannel,
+    COMMANDS.removeUnusedImports,
+    async (editor) => {
+      await removeUnusedImports(editor.document, diagnosticCollection, outputChannel);
+    },
   );
 
+  // ========================================================================
+  // Regular Commands
+  // ========================================================================
+
+  // Lint all files with progress bar
+  registerCommand(context, outputChannel, COMMANDS.lintWorkspace, async () => {
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: en.progress.workspace,
+        cancellable: false,
+      },
+      async (progress) => {
+        await lintWorkspace(
+          diagnosticCollection,
+          outputChannel,
+          stateManager,
+          getLintOptions(),
+          progress,
+        );
+      },
+    );
+  });
+
+  // Clear all diagnostics
+  registerCommand(context, outputChannel, COMMANDS.lintClear, async () => {
+    diagnosticCollection.clear();
+    stateManager.setState('lint', 'ready');
+    log(outputChannel, en.messages.diagnosticsCleared);
+  });
+
+  // Show available rules in output channel
+  registerCommand(context, outputChannel, COMMANDS.listRules, async () => {
+    const folders: readonly vscode.WorkspaceFolder[] | undefined =
+      vscode.workspace.workspaceFolders;
+    if (!folders || folders.length === 0) {
+      vscode.window.showErrorMessage(en.messages.noWorkspaceFolder);
+      return;
+    }
+
+    const binPath: string | undefined = getBinaryPath(BINARY_NAME, folders[0].uri);
+    if (!binPath) {
+      vscode.window.showErrorMessage(en.messages.binaryNotInNodeModules);
+      return;
+    }
+
+    const cwd: string = folders[0].uri.fsPath;
+    logCommand(outputChannel, binPath, ['--list-rules']);
+
+    const result = await runToolJson<string>({
+      command: binPath,
+      args: ['--list-rules'],
+      cwd,
+    });
+
+    // --list-rules outputs text, not JSON, so show whatever we get
+    outputChannel.appendLine('');
+    outputChannel.appendLine(en.messages.availableRulesHeader);
+    if (result.ok) {
+      outputChannel.appendLine(
+        typeof result.data === 'string' ? result.data : JSON.stringify(result.data, null, 2),
+      );
+    } else {
+      // stderr likely has the text output
+      outputChannel.appendLine(result.stderr || result.error);
+    }
+    outputChannel.show();
+  });
+
+  // Clear cache, re-lint all open files with progress
+  registerCommand(context, outputChannel, COMMANDS.restart, async () => {
+    clearCache();
+    diagnosticCollection.clear();
+    log(outputChannel, en.messages.linterRestarted);
+
+    const openUris: vscode.Uri[] = vscode.workspace.textDocuments
+      .filter((doc) => doc.uri.scheme === 'file' && !doc.isUntitled)
+      .map((doc) => doc.uri);
+
+    await withFileProgress(outputChannel, en.progress.restart, openUris, async (uri) => {
+      const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);
+      if (doc) {
+        lintDocumentFn(doc);
+      }
+    });
+  });
+
+  // Show output channel
+  registerCommand(context, outputChannel, COMMANDS.showOutput, async () => {
+    outputChannel.show();
+  });
+
+  // Lint only staged changes
+  registerCommand(context, outputChannel, COMMANDS.lintStaged, async () => {
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: en.progress.staged,
+        cancellable: false,
+      },
+      async (progress) => {
+        const opts: LintOptions = {
+          ...getLintOptions(),
+          extraArgs: [...(getLintOptions().extraArgs ?? []), '--diff=staged'],
+        };
+        await lintWorkspace(diagnosticCollection, outputChannel, stateManager, opts, progress);
+      },
+    );
+  });
+
+  // Lint only uncommitted changes
+  registerCommand(context, outputChannel, COMMANDS.lintUncommitted, async () => {
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: en.progress.uncommitted,
+        cancellable: false,
+      },
+      async (progress) => {
+        const opts: LintOptions = {
+          ...getLintOptions(),
+          extraArgs: [...(getLintOptions().extraArgs ?? []), '--diff=head'],
+        };
+        await lintWorkspace(diagnosticCollection, outputChannel, stateManager, opts, progress);
+      },
+    );
+  });
+
+  // Preview all fixes in a diff view
+  registerCommand(context, outputChannel, COMMANDS.previewFixes, async () => {
+    await showFixDiffPreview(diagnosticCollection, outputChannel);
+  });
+
+  // Show per-rule performance timing
+  registerCommand(context, outputChannel, COMMANDS.showTiming, async () => {
+    await showTimingReport(outputChannel);
+  });
+
+  // Filter diagnostics by category
+  registerCommand(context, outputChannel, COMMANDS.filterByCategory, async () => {
+    await diagnosticFilter.showFilterQuickPick(diagnosticCollection);
+  });
+
+  // Clear diagnostic filter
+  registerCommand(context, outputChannel, COMMANDS.clearFilter, async () => {
+    diagnosticFilter.clearFilter(diagnosticCollection);
+  });
+
   // Change active lint stage
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMANDS.changeStage, () =>
-      safeRunAsync(outputChannel, COMMANDS.changeStage, () => stageIndicator.showQuickPick()),
-    ),
-  );
+  registerCommand(context, outputChannel, COMMANDS.changeStage, async () => {
+    await stageIndicator.showQuickPick();
+  });
 }

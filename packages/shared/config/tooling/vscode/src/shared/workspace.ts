@@ -10,6 +10,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { existsSync } from 'fs';
+import type { WorkspaceInfo } from './types';
 
 // =============================================================================
 // Cache
@@ -20,9 +21,6 @@ const rootCache = new Map<string, string>();
 
 /** Cached binary paths keyed by 'tool:workspaceUri'. */
 const binaryCache = new Map<string, string | undefined>();
-
-/** Cached workspace roots keyed by 'startPath:markers'. */
-const markerCache = new Map<string, string | undefined>();
 
 // =============================================================================
 // Public API
@@ -90,55 +88,31 @@ export function getBinaryPath(tool: string, uri: vscode.Uri): string | undefined
 }
 
 /**
- * Clears the binary path cache. Use after installing new dependencies.
- */
-export function clearBinaryCache(): void {
-  binaryCache.clear();
-}
-
-/**
  * Clears the workspace root cache. Called by the restart command to force
  * re-resolution after workspace structure changes.
  */
 export function clearCache(): void {
   rootCache.clear();
   binaryCache.clear();
-  markerCache.clear();
 }
 
 /**
- * Finds a workspace root by walking up from startPath looking for any of the marker files.
+ * Resolves workspace info for a given URI.
  *
- * Results are cached per (startPath, markers) pair.
+ * Combines `getWorkspaceRoot()` and `getBinaryPath()` into a single call
+ * that returns a `WorkspaceInfo` object, or undefined if no workspace folder.
  *
- * @param startPath - Directory to start searching from
- * @param markers - Array of marker file names to look for (e.g. ['pnpm-workspace.yaml', '.git'])
- * @returns The directory containing a marker file, or undefined if not found
+ * @param tool - Binary name (e.g. 'resist-lint')
+ * @param uri - Document URI to resolve workspace from
+ * @returns Workspace info with rootPath and binPath, or undefined
  */
-export function findWorkspaceRoot(startPath: string, markers: string[]): string | undefined {
-  const cacheKey: string = `${startPath}:${markers.join(',')}`;
-  if (markerCache.has(cacheKey)) {
-    return markerCache.get(cacheKey);
+export function resolveWorkspace(tool: string, uri: vscode.Uri): WorkspaceInfo | undefined {
+  const rootPath: string | undefined = getWorkspaceRoot(uri);
+  if (!rootPath) {
+    return undefined;
   }
-
-  let current: string = startPath;
-
-  for (let i = 0; i < 20; i++) {
-    for (const marker of markers) {
-      if (existsSync(path.join(current, marker))) {
-        markerCache.set(cacheKey, current);
-        return current;
-      }
-    }
-    const parent: string = path.dirname(current);
-    if (parent === current) {
-      break;
-    }
-    current = parent;
-  }
-
-  markerCache.set(cacheKey, undefined);
-  return undefined;
+  const binPath: string | undefined = getBinaryPath(tool, uri);
+  return { rootPath, binPath };
 }
 
 // =============================================================================

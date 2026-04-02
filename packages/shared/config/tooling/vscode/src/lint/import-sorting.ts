@@ -23,7 +23,7 @@ const IMPORT_RULE_PATTERNS: string[] = ['import', 'unused-import', 'no-unused-im
  * @param diag - The diagnostic to check
  * @returns True if the diagnostic is about an unused import
  */
-export function isImportDiagnostic(diag: vscode.Diagnostic): boolean {
+function isImportDiagnostic(diag: vscode.Diagnostic): boolean {
   if (diag.source !== DIAGNOSTIC_SOURCE) {
     return false;
   }
@@ -43,9 +43,7 @@ export function isImportDiagnostic(diag: vscode.Diagnostic): boolean {
  * @param diagnostics - Array of diagnostics to filter
  * @returns Array of fixable import diagnostics
  */
-export function collectImportDiagnostics(
-  diagnostics: readonly vscode.Diagnostic[],
-): vscode.Diagnostic[] {
+function collectImportDiagnostics(diagnostics: readonly vscode.Diagnostic[]): vscode.Diagnostic[] {
   return diagnostics.filter((diag) => {
     if (!isImportDiagnostic(diag)) {
       return false;
