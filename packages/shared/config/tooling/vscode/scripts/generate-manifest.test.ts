@@ -4,6 +4,8 @@
  * @module
  */
 
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, it, expect } from 'vitest';
 
 import { parseBrandCommands } from './generate-manifest';
@@ -12,7 +14,13 @@ import { parseBrandCommands } from './generate-manifest';
 // Helpers
 // =============================================================================
 
-/** Minimal brand.ts source with template literal COMMANDS. */
+/**
+ * Minimal brand.ts source with template literal COMMANDS.
+ *
+ * @param {string} commandsBody - COMMANDS object body
+ * @param {string} prefix - Command prefix
+ * @returns {string} Fake brand.ts source
+ */
 function makeBrandSource(commandsBody: string, prefix = 'resist'): string {
   return `
 export const COMMAND_PREFIX = '${prefix}';
@@ -27,7 +35,7 @@ ${commandsBody}
 // =============================================================================
 
 describe('parseBrandCommands', () => {
-  it('parses template literal commands using ${COMMAND_PREFIX}', () => {
+  it('parses template literal commands using COMMAND_PREFIX', () => {
     const source = makeBrandSource(`
   lintFile: \`\${COMMAND_PREFIX}.lint.file\`,
   lintFix: \`\${COMMAND_PREFIX}.lint.fix\`,
@@ -133,8 +141,6 @@ export const COMMANDS = {
   });
 
   it('parses actual brand.ts file without error', () => {
-    const { readFileSync } = require('node:fs');
-    const { resolve } = require('node:path');
     const brandPath = resolve(__dirname, '../src/shared/brand.ts');
     const brandSource = readFileSync(brandPath, 'utf8');
 

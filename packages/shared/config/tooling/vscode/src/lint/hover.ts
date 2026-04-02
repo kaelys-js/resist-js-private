@@ -129,12 +129,13 @@ export function buildHoverContent(
 
   // Rule ID (when code is available)
   const { code } = diag;
-  const ruleId: string =
-    typeof code === 'string'
-      ? code
-      : code && typeof code === 'object' && 'value' in code
-        ? String(code.value)
-        : '';
+  let ruleId = '';
+
+  if (typeof code === 'string') {
+    ruleId = code;
+  } else if (code && typeof code === 'object' && 'value' in code) {
+    ruleId = String(code.value);
+  }
 
   if (ruleId) {
     sections.push(`**Rule:** \`${ruleId}\``);
@@ -231,8 +232,8 @@ function buildFixDiff(
  *
  * @example
  * ```typescript
- * cleanExample('@example\n * ```typescript\n * const x = 1;\n * ```');
- * // → 'const x = 1;'
+ * const result = cleanExample('@example\n * const x = 1;');
+ * // result === 'const x = 1;'
  * ```
  */
 export function cleanExample(raw: string): string {

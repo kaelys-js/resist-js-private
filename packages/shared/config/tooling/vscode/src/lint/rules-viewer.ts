@@ -236,20 +236,24 @@ export function renderRulesHtml(sections: RuleSection[], nonce: string): string 
     for (const rule of section.rules) {
       if (rule.stages) {
         for (const s of rule.stages.split(/,\s*/)) {
-          if (s) allStages.add(s);
+          if (s) {
+            allStages.add(s);
+          }
         }
       }
 
       if (rule.categories) {
         for (const c of rule.categories.split(/,\s*/)) {
-          if (c) allCategories.add(c);
+          if (c) {
+            allCategories.add(c);
+          }
         }
       }
     }
   }
 
-  const sortedStages: string[] = [...allStages].sort();
-  const sortedCategories: string[] = [...allCategories].sort();
+  const sortedStages: string[] = [...allStages].toSorted();
+  const sortedCategories: string[] = [...allCategories].toSorted();
 
   const sectionHtml: string = sections
     .map((section) => {
