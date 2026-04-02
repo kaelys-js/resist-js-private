@@ -638,11 +638,6 @@ function mapEntryToDiagnosticBasic(entry: DiagnosticEntry): vscode.Diagnostic {
     );
   }
 
-  // Enhance: append example to message
-  if (entry.example) {
-    (diagnostic as { message: string }).message += `\n\nExample:\n${entry.example}`;
-  }
-
   // Enhance: make rule ID clickable when url is present
   if (entry.url) {
     diagnostic.code = { value: entry.ruleId, target: vscode.Uri.parse(entry.url) };
