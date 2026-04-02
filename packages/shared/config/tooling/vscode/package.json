@@ -138,8 +138,64 @@
         "command": "resist.lint.statusBarMenu",
         "title": "Status Bar Menu",
         "category": "Resist"
+      },
+      {
+        "command": "resist.panel.refresh",
+        "title": "Refresh Panel",
+        "category": "Resist"
       }
     ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "resist",
+          "title": "Resist",
+          "icon": "resources/resist-panel.svg"
+        }
+      ]
+    },
+    "views": {
+      "resist": [
+        {
+          "id": "resist.panel",
+          "name": "Resist",
+          "type": "tree"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "resist.panel",
+        "contents": "Welcome to Resist.\n\nOpen a workspace to get started.\n\n[Open Folder](command:vscode.openFolder)"
+      }
+    ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "resist.lint.file",
+          "when": "viewItem == resist.fileDiagnostic",
+          "group": "inline"
+        },
+        {
+          "command": "resist.lint.fix",
+          "when": "viewItem == resist.fileDiagnostic",
+          "group": "inline"
+        },
+        {
+          "command": "resist.lint.workspace",
+          "when": "viewItem == resist.section"
+        },
+        {
+          "command": "resist.lint.clear",
+          "when": "viewItem == resist.section"
+        },
+        {
+          "command": "resist.lint.restart",
+          "when": "viewItem == resist.toolError",
+          "group": "inline"
+        }
+      ]
+    },
     "configuration": {
       "title": "Resist Tooling",
       "properties": {
