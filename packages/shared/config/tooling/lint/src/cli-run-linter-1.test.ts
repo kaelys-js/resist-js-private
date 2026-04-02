@@ -756,6 +756,10 @@ describe('writeJsonSchema', () => {
       ),
     ).not.toThrow();
   });
+
+  it('accepts an explicit cwd parameter', () => {
+    expect(() => writeJsonSchema([], [], en, [], process.cwd())).not.toThrow();
+  });
 });
 
 // =============================================================================

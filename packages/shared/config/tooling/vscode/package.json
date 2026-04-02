@@ -239,7 +239,7 @@
         },
         "resist.lint.tools": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Enable external tool integration (e.g., dependency-cruiser, knip, typos). External tools must be installed separately."
         },
         "resist.lint.locale": {

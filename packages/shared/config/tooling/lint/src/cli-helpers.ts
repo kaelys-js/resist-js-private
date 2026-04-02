@@ -642,6 +642,7 @@ export function writeJsonSchema(
   pkgRules: PackageJsonRule[],
   strings: LintStrings,
   wsRules: WorkspaceRule[] = [],
+  cwd: string = process.cwd(),
 ): void {
   if (schemaWritten) {
     return;
@@ -685,7 +686,7 @@ export function writeJsonSchema(
     strings,
     ruleOptSchemas,
   );
-  const outPath: string = resolve(process.cwd(), SCHEMA_FILENAME);
+  const outPath: string = resolve(cwd, SCHEMA_FILENAME);
   try {
     const raw: string = JSON.stringify(schema, null, 2);
     writeFileSync(outPath, `${collapseShortJsonArrays(raw, 100)}\n`, 'utf8');
@@ -1601,7 +1602,7 @@ export async function runLinter(
   }
 
   /* Auto-generate JSON Schema for IDE autocomplete */
-  writeJsonSchema(loaded.typescript, loaded.packageJson, strings, loaded.workspace);
+  writeJsonSchema(loaded.typescript, loaded.packageJson, strings, loaded.workspace, cwd);
 
   /* List rules mode */
   if (cliArgs.listRules) {

@@ -649,6 +649,32 @@
   },
   "overrides": [
     // =========================================================================
+    // Directive rule source + test files — contain directive examples as fixtures
+    // =========================================================================
+    {
+      "files": [
+        "**/rules/directives/*.ts",
+        "**/rules/directives/*.test.ts",
+        "**/rules/comments/no-lint-disable.ts",
+        "**/rules/comments/comments-rules.test.ts",
+        "**/workspace/no-lint-ignore-directives.ts",
+        "**/workspace/workspace-rules.test.ts",
+        "**/test-mocks/**",
+        "**/test-setup-component.ts"
+      ],
+      "rules": {
+        "directives/no-biome-ignore": "off",
+        "directives/no-eslint-disable": "off",
+        "directives/no-generic-any-assertion": "off",
+        "directives/no-oxlint-ignore": "off",
+        "directives/no-prettier-ignore": "off",
+        "directives/no-ts-expect-error-on-any": "off",
+        "directives/no-ts-ignore": "off",
+        "directives/no-ts-nocheck": "off"
+      }
+    },
+
+    // =========================================================================
     // Lint tooling — CLI tool, no Result pattern, uses raw Node APIs
     // =========================================================================
     {
