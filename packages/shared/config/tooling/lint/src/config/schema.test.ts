@@ -19,6 +19,7 @@ import {
   loadConfig,
   _resetConfigCache,
   resolveRuleSeverity,
+  isRuleEnabledAnywhere,
   generateJsonSchema,
   validateConfig,
   type LintConfig,
@@ -1132,5 +1133,71 @@ describe('validateConfig', () => {
     expect(warnings).toHaveLength(1);
     expect(warnings[0]!.path).toBe('ruleOptions.jsdoc/require-param');
     expect(warnings[0]!.message).toContain('does not declare an optionsSchema');
+  });
+});
+
+// =============================================================================
+// isRuleEnabledAnywhere
+// =============================================================================
+
+describe('isRuleEnabledAnywhere', () => {
+  it('returns true for a rule that is globally "error"', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      rules: { 'jsdoc/require-param': 'error' },
+    };
+    expect(isRuleEnabledAnywhere(config, 'jsdoc/require-param')).toBe(true);
+  });
+
+  it('returns true for an unknown rule (defaults to "error")', () => {
+    const config: LintConfig = baseConfig();
+    expect(isRuleEnabledAnywhere(config, 'unknown/rule')).toBe(true);
+  });
+
+  it('returns false for a rule that is globally "off" with no overrides', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      rules: { 'jsdoc/require-param': 'off' },
+    };
+    expect(isRuleEnabledAnywhere(config, 'jsdoc/require-param')).toBe(false);
+  });
+
+  it('returns true for a globally "off" rule re-enabled by an override', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      rules: { 'jsdoc/require-param': 'off' },
+      overrides: [{ files: ['**/vscode/**'], rules: { 'jsdoc/require-param': 'error' } }],
+    };
+    expect(isRuleEnabledAnywhere(config, 'jsdoc/require-param')).toBe(true);
+  });
+
+  it('returns false when override also sets the rule to "off"', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      rules: { 'jsdoc/require-param': 'off' },
+      overrides: [{ files: ['**/vscode/**'], rules: { 'jsdoc/require-param': 'off' } }],
+    };
+    expect(isRuleEnabledAnywhere(config, 'jsdoc/require-param')).toBe(false);
+  });
+
+  it('returns true when one of multiple overrides enables the rule', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      rules: { 'jsdoc/require-param': 'off' },
+      overrides: [
+        { files: ['**/test/**'], rules: { 'jsdoc/require-param': 'off' } },
+        { files: ['**/vscode/**'], rules: { 'jsdoc/require-param': 'warn' } },
+      ],
+    };
+    expect(isRuleEnabledAnywhere(config, 'jsdoc/require-param')).toBe(true);
+  });
+
+  it('returns false when overrides exist but do not mention the rule', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      rules: { 'jsdoc/require-param': 'off' },
+      overrides: [{ files: ['**/vscode/**'], rules: { 'other/rule': 'error' } }],
+    };
+    expect(isRuleEnabledAnywhere(config, 'jsdoc/require-param')).toBe(false);
   });
 });

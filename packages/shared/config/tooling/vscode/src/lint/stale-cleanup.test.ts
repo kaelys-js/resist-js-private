@@ -9,9 +9,9 @@ import * as vscode from 'vscode';
 import { StaleDiagnosticCleaner } from './stale-cleanup';
 import { BRAND_NAME } from '../shared/brand';
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // Tests
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 describe('StaleDiagnosticCleaner', () => {
   let cleaner: StaleDiagnosticCleaner;

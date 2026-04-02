@@ -28,8 +28,8 @@ type ToolResult = {
  * This is the base function that `runToolJson` and `runToolText`
  * are built on.
  *
- * @param options - Spawn configuration (command, args, cwd, env, timeout)
- * @returns Raw process result
+ * @param {RunOptions} options - Spawn configuration (command, args, cwd, env, timeout)
+ * @returns {Promise<ToolResult>} Raw process result
  */
 function runTool(options: RunOptions): Promise<ToolResult> {
   const timeoutMs: number = options.timeout ?? 30_000;
@@ -95,8 +95,21 @@ function runTool(options: RunOptions): Promise<ToolResult> {
 /**
  * Spawns a CLI tool and returns the raw text output.
  *
- * @param options - Spawn configuration
- * @returns Success with text data, or failure with error
+ * @param {RunOptions} options - Spawn configuration
+ * @returns {Promise<RunResult<string>>} Success with text data, or failure with error
+ *
+ * @example
+ * ```typescript
+ * const result = await runToolText({
+ *   command: 'resist-lint',
+ *   args: ['--format', 'text', 'src/app.ts'],
+ *   cwd: workspaceRoot,
+ *   timeout: 15_000,
+ * });
+ * if (result.ok) {
+ *   log(channel, result.data);
+ * }
+ * ```
  */
 export async function runToolText(options: RunOptions): Promise<RunResult<string>> {
   const result: ToolResult = await runTool(options);
@@ -123,8 +136,23 @@ export async function runToolText(options: RunOptions): Promise<RunResult<string
  * Augments PATH with node_modules/.bin so locally-installed binaries resolve.
  * Disables color output via FORCE_COLOR=0. Kills the child on timeout.
  *
- * @param options - Spawn configuration (command, args, cwd, env, timeout)
- * @returns Parsed JSON result or failure info
+ * @param {RunOptions} options - Spawn configuration (command, args, cwd, env, timeout)
+ * @returns {Promise<RunResult<T>>} Parsed JSON result or failure info
+ *
+ * @example
+ * ```typescript
+ * const result = await runToolJson<DiagnosticEntry[]>({
+ *   command: 'resist-lint',
+ *   args: ['--format', 'json', 'src/app.ts'],
+ *   cwd: workspaceRoot,
+ *   timeout: 30_000,
+ * });
+ * if (result.ok) {
+ *   for (const entry of result.data) {
+ *     const diagnostic = createDiagnosticFromEntry(entry, 'resist-linter');
+ *   }
+ * }
+ * ```
  */
 export function runToolJson<T>(options: RunOptions): Promise<RunResult<T>> {
   const timeoutMs: number = options.timeout ?? 30_000;

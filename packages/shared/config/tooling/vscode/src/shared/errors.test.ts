@@ -2,6 +2,8 @@
  * Tests for Shared Error Boundary Helpers
  *
  * Plan: docs/plans/2026-03-31-vscode-phase-56.md TASK 4
+ *
+ * @module
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -38,7 +40,10 @@ describe('Error Boundaries', () => {
 
     it('handles non-Error thrown values', () => {
       const fn = vi.fn(() => {
-        throw 'string error'; // eslint-disable-line no-throw-literal
+        // Intentionally throw non-Error to test extractMessage fallback
+        const nonError: unknown = 'string error';
+
+        throw nonError;
       });
       safeRun(mockChannel, 'test', fn);
       expect(output.logError).toHaveBeenCalledWith(mockChannel, 'test: string error');
@@ -46,7 +51,10 @@ describe('Error Boundaries', () => {
 
     it('handles null thrown value', () => {
       const fn = vi.fn(() => {
-        throw null; // eslint-disable-line no-throw-literal
+        // Intentionally throw non-Error to test extractMessage fallback
+        const nonError: unknown = null;
+
+        throw nonError;
       });
       safeRun(mockChannel, 'test', fn);
       expect(output.logError).toHaveBeenCalledWith(mockChannel, 'test: null');

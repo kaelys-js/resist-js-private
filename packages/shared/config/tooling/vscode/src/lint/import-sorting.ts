@@ -14,8 +14,16 @@ import { en } from '../locale/en';
 import { format } from '../locale/schema';
 import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 
+// =============================================================================
+// Constants
+// =============================================================================
+
 /** Rule IDs that indicate unused/unnecessary imports. */
 const IMPORT_RULE_PATTERNS: string[] = ['import', 'unused-import', 'no-unused-import'];
+
+// =============================================================================
+// Helpers
+// =============================================================================
 
 /**
  * Checks if a diagnostic is related to unused imports.
@@ -34,6 +42,7 @@ function isImportDiagnostic(diag: vscode.Diagnostic): boolean {
       : String(diag.code ?? '');
 
   const lowerRule: string = ruleId.toLowerCase();
+
   return IMPORT_RULE_PATTERNS.some((pattern) => lowerRule.includes(pattern));
 }
 
@@ -48,18 +57,32 @@ function collectImportDiagnostics(diagnostics: readonly vscode.Diagnostic[]): vs
     if (!isImportDiagnostic(diag)) {
       return false;
     }
+
     const { data } = diag as DiagnosticWithData;
+
     return data?.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '');
   });
 }
 
+// =============================================================================
+// Exported API
+// =============================================================================
+
 /**
  * Removes unused imports by applying fixes from import-related diagnostics.
  *
- * @param document - The document to fix
- * @param diagnosticCollection - Collection containing diagnostics
- * @param channel - Optional output channel for logging
- * @returns True if fixes were applied
+ * @param {vscode.TextDocument} document - The document to fix
+ * @param {vscode.DiagnosticCollection} diagnosticCollection - Collection containing diagnostics
+ * @param {vscode.OutputChannel} channel - Optional output channel for logging
+ * @returns {Promise<boolean>} True if fixes were applied
+ *
+ * @example
+ * ```typescript
+ * const applied = await removeUnusedImports(editor.document, diagnosticCollection, outputChannel);
+ * if (applied) {
+ *   lintDocument(editor.document, diagnosticCollection, outputChannel, stateManager, options);
+ * }
+ * ```
  */
 export async function removeUnusedImports(
   document: vscode.TextDocument,
@@ -80,8 +103,10 @@ export async function removeUnusedImports(
 
   // Collect fixes
   const fixes: Array<{ start: number; end: number; text: string }> = [];
+
   for (const diag of importDiags) {
     const { data } = diag as DiagnosticWithData;
+
     if (data?.fix) {
       fixes.push({
         start: data.fix.range.start,
@@ -95,6 +120,7 @@ export async function removeUnusedImports(
   fixes.sort((a, b) => b.start - a.start);
 
   const edit = new vscode.WorkspaceEdit();
+
   for (const fix of fixes) {
     const startPos: vscode.Position = document.positionAt(fix.start);
     const endPos: vscode.Position = document.positionAt(fix.end);
@@ -102,6 +128,7 @@ export async function removeUnusedImports(
   }
 
   const applied: boolean = await vscode.workspace.applyEdit(edit);
+
   if (applied && channel) {
     log(channel, format(en.imports.removedCount, { count: fixes.length }));
   }

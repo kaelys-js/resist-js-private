@@ -20,10 +20,17 @@ import { CONFIG_SECTION } from '../shared/brand';
  * In multi-root workspaces, each folder can override the global lint settings.
  * Falls back to global options when no folder-specific config exists.
  *
- * @param docUri - URI of the document to resolve options for
- * @param globalOptions - Default lint options from workspace settings
- * @param channel - Optional output channel for logging
- * @returns Resolved lint options for the document's folder
+ * @param {vscode.Uri} docUri - URI of the document to resolve options for
+ * @param {LintOptions} globalOptions - Default lint options from workspace settings
+ * @param {vscode.OutputChannel} channel - Optional output channel for logging
+ * @returns {LintOptions} Resolved lint options for the document's folder
+ *
+ * @example
+ * ```typescript
+ * const globalOptions: LintOptions = { stage: 'lint', categories: [], extraArgs: [] };
+ * const resolved = getPerFolderLintOptions(document.uri, globalOptions, outputChannel);
+ * // resolved may override stage/categories/extraArgs for the document's workspace folder
+ * ```
  */
 export function getPerFolderLintOptions(
   docUri: vscode.Uri,
@@ -31,6 +38,7 @@ export function getPerFolderLintOptions(
   channel?: vscode.OutputChannel,
 ): LintOptions {
   const folder: vscode.WorkspaceFolder | undefined = vscode.workspace.getWorkspaceFolder(docUri);
+
   if (!folder) {
     if (channel) {
       log(channel, en.perFolder.fallbackGlobal);

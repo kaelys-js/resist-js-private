@@ -73,6 +73,7 @@ export class LifecycleManager {
         resource.disposable.dispose();
       } catch (error: unknown) {
         const message: string = extractMessage(error);
+
         if (channel) {
           logError(
             channel,

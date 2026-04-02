@@ -21,9 +21,18 @@ import { CONFIG_FILE_PATTERNS } from '../shared/brand';
  * When resist.config.ts or .resist-lint.jsonc changes, all open documents
  * are re-linted after a 1-second debounce.
  *
- * @param lintFn - Function to call for each document that needs re-linting
- * @param outputChannel - Output channel for logging errors
- * @returns Array of disposables for cleanup
+ * @param {(doc: vscode.TextDocument) => void} lintFn - Function to call for each document that needs re-linting
+ * @param {vscode.OutputChannel} outputChannel - Output channel for logging errors
+ * @returns {vscode.Disposable[]} Array of disposables for cleanup
+ *
+ * @example
+ * ```typescript
+ * const watchers = createConfigWatcher(
+ *   (doc) => lintDocument(doc, diagnosticCollection, outputChannel, stateManager, options),
+ *   outputChannel,
+ * );
+ * context.subscriptions.push(...watchers);
+ * ```
  */
 export function createConfigWatcher(
   lintFn: (doc: vscode.TextDocument) => void,

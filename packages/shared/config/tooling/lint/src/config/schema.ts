@@ -197,6 +197,26 @@ export function resolveRuleSeverity(
 }
 
 /**
+ * Check whether a rule could fire on any file.
+ *
+ * Returns true when the rule is globally enabled, or when at least one
+ * override entry sets it to something other than "off". Used by the
+ * pre-filter in cli-helpers to avoid discarding override-enabled rules.
+ *
+ * @param {LintConfig} config - Linter configuration
+ * @param {string} ruleId - Rule ID (e.g. 'jsdoc/require-param')
+ * @returns {boolean} Whether the rule is enabled globally or in any override
+ */
+export function isRuleEnabledAnywhere(config: LintConfig, ruleId: string): boolean {
+  if ((config.rules[ruleId] ?? 'error') !== 'off') {
+    return true;
+  }
+  return config.overrides.some(
+    (o: Override): boolean => ruleId in o.rules && o.rules[ruleId] !== 'off',
+  );
+}
+
+/**
  * Check if a file path matches a glob-like pattern.
  *
  * Supports simple patterns:

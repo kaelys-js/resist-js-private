@@ -21,34 +21,49 @@
 /**
  * Replace `{placeholder}` tokens in a template string with values.
  *
- * @param template - Template string with `{key}` placeholders
- * @param params - Key-value pairs to substitute
- * @returns Rendered string
+ * @param {string} template - Template string with `{key}` placeholders
+ * @param {Record<string, string | number>} params - Key-value pairs to substitute
+ * @returns {string} Rendered string
+ *
+ * @example
+ * ```typescript
+ * const message = format('Found {count} issues in {file}', { count: 3, file: 'index.ts' });
+ * // message = 'Found 3 issues in index.ts'
+ * ```
  */
 export function format(template: string, params: Record<string, string | number>): string {
   let result: string = template;
+
   for (const [key, value] of Object.entries(params)) {
     result = result.replaceAll(`{${key}}`, String(value));
   }
   return result;
 }
 
+/** Singular and plural form pair for {@link formatPlural}. */
+export type PluralForms = { readonly one: string; readonly other: string };
+
 /**
  * Select singular or plural form based on count.
  *
  * Uses `Intl.PluralRules` when available, falls back to simple count === 1 check.
  *
- * @param count - The number to determine plural form for
- * @param forms - Object with `one` (singular) and `other` (plural) forms
- * @param locale - Optional locale code (defaults to 'en')
- * @returns The appropriate form string with `#` replaced by the count
+ * @param {number} count - The number to determine plural form for
+ * @param {PluralForms} forms - Object with `one` (singular) and `other` (plural) forms
+ * @param {string} locale - Optional locale code (defaults to 'en')
+ * @returns {string} The appropriate form string with `#` replaced by the count
+ *
+ * @example
+ * ```typescript
+ * const label = formatPlural(3, { one: '# error', other: '# errors' });
+ * // label = '3 errors'
+ * const singular = formatPlural(1, { one: '# warning', other: '# warnings' }, 'en');
+ * // singular = '1 warning'
+ * ```
  */
-export function formatPlural(
-  count: number,
-  forms: { readonly one: string; readonly other: string },
-  locale: string = 'en',
-): string {
+export function formatPlural(count: number, forms: PluralForms, locale: string = 'en'): string {
   let rule: string;
+
   try {
     const rules = new Intl.PluralRules(locale);
     rule = rules.select(count);
@@ -56,7 +71,9 @@ export function formatPlural(
   } catch {
     rule = count === 1 ? 'one' : 'other';
   }
+
   const form: string = rule === 'one' ? forms.one : forms.other;
+
   return form.replaceAll('#', String(count));
 }
 

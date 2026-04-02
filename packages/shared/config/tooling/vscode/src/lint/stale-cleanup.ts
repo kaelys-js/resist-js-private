@@ -128,6 +128,7 @@ function getVisibleEditorUris(): Set<string> {
 
   // Active editor
   const active: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
+
   if (active) {
     uris.add(active.document.uri.toString());
   }

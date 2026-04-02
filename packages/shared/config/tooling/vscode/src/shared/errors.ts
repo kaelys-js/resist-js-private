@@ -22,9 +22,19 @@ import { format } from '../locale/schema';
  * Use this for VSCode event listener callbacks where throwing would kill
  * the listener silently. Errors are logged to the Resist output channel.
  *
- * @param channel - Output channel for error logging
- * @param label - Short label identifying the operation (e.g. 'onDidSave')
- * @param fn - The function to execute safely
+ * @param {vscode.OutputChannel} channel - Output channel for error logging
+ * @param {string} label - Short label identifying the operation (e.g. 'onDidSave')
+ * @param {() => void} fn - The function to execute safely
+ *
+ * @example
+ * ```typescript
+ * vscode.workspace.onDidSaveTextDocument((doc) => {
+ *   safeRun(outputChannel, 'onDidSave', () => {
+ *     diagnosticCollection.delete(doc.uri);
+ *     refreshDiagnostics(doc);
+ *   });
+ * });
+ * ```
  */
 export function safeRun(channel: vscode.OutputChannel, label: string, fn: () => void): void {
   try {
@@ -41,9 +51,18 @@ export function safeRun(channel: vscode.OutputChannel, label: string, fn: () => 
  * promise rejections (e.g. `void lintDocument(...)`). Errors are logged
  * to the Resist output channel.
  *
- * @param channel - Output channel for error logging
- * @param label - Short label identifying the operation (e.g. 'lintDocument')
- * @param fn - The async function to execute safely
+ * @param {vscode.OutputChannel} channel - Output channel for error logging
+ * @param {string} label - Short label identifying the operation (e.g. 'lintDocument')
+ * @param {() => Promise<void>} fn - The async function to execute safely
+ *
+ * @example
+ * ```typescript
+ * vscode.workspace.onDidSaveTextDocument((doc) => {
+ *   void safeRunAsync(outputChannel, 'lintDocument', async () => {
+ *     await lintDocument(doc);
+ *   });
+ * });
+ * ```
  */
 export async function safeRunAsync(
   channel: vscode.OutputChannel,
@@ -60,8 +79,18 @@ export async function safeRunAsync(
 /**
  * Extracts a human-readable message from an unknown error value.
  *
- * @param err - The caught error (could be anything)
- * @returns A string message suitable for logging
+ * @param {unknown} err - The caught error (could be anything)
+ * @returns {string} A string message suitable for logging
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   await riskyOperation();
+ * } catch (error: unknown) {
+ *   const message = extractMessage(error);
+ *   logError(outputChannel, message);
+ * }
+ * ```
  */
 export function extractMessage(err: unknown): string {
   if (err instanceof Error) {

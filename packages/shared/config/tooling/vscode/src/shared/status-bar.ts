@@ -11,17 +11,34 @@ import * as vscode from 'vscode';
 import type { ExtensionState } from './types';
 import { en } from '../locale/en';
 import { formatPlural } from '../locale/schema';
+
+// =============================================================================
+// Types
+// =============================================================================
+
+/** Error and warning counts for the active file. */
+export type DiagnosticCounts = { errors: number; warnings: number };
+
+// =============================================================================
+// Exported API
+// =============================================================================
+
 /**
  * Updates the status bar to reflect the current extension state.
  *
- * @param item - The status bar item to update
- * @param state - Current state (ready, linting, error, disabled)
- * @param counts - Optional error/warning counts for the active file
+ * @param {vscode.StatusBarItem} item - The status bar item to update
+ * @param {ExtensionState} state - Current state (ready, linting, error, disabled)
+ * @param {DiagnosticCounts} [counts] - Optional error/warning counts for the active file
+ *
+ * @example
+ * ```typescript
+ * updateStatusBar(statusBarItem, 'ready', { errors: 2, warnings: 5 });
+ * ```
  */
 export function updateStatusBar(
   item: vscode.StatusBarItem,
   state: ExtensionState,
-  counts?: { errors: number; warnings: number },
+  counts?: DiagnosticCounts,
 ): void {
   switch (state) {
     case 'linting': {
@@ -42,6 +59,7 @@ export function updateStatusBar(
     case 'ready': {
       if (counts && (counts.errors > 0 || counts.warnings > 0)) {
         const parts: string[] = [];
+
         if (counts.errors > 0) {
           const errorLabel: string = formatPlural(counts.errors, {
             one: en.plurals.error,
@@ -72,10 +90,16 @@ export function updateStatusBar(
  * Factory function that creates consistently styled status bar items
  * for different tools (lint, format, etc.).
  *
- * @param context - Extension context for lifecycle management
- * @param toolName - Tool name for tooltip (e.g. 'Lint', 'Format')
- * @param priority - Status bar priority (higher = further left, default 100)
- * @returns The created status bar item
+ * @param {vscode.ExtensionContext} context - Extension context for lifecycle management
+ * @param {string} toolName - Tool name for tooltip (e.g. 'Lint', 'Format')
+ * @param {number} priority - Status bar priority (higher = further left, default 100)
+ * @returns {vscode.StatusBarItem} The created status bar item
+ *
+ * @example
+ * ```typescript
+ * const lintStatusBar = createToolStatusBar(context, 'Lint', 100);
+ * updateStatusBar(lintStatusBar, 'ready');
+ * ```
  */
 export function createToolStatusBar(
   context: vscode.ExtensionContext,
@@ -96,14 +120,21 @@ export function createToolStatusBar(
 /**
  * Counts diagnostics by severity for a given URI.
  *
- * @param collection - The diagnostic collection to count from
- * @param uri - The document URI to count diagnostics for
- * @returns Error and warning counts
+ * @param {vscode.DiagnosticCollection} collection - The diagnostic collection to count from
+ * @param {vscode.Uri} uri - The document URI to count diagnostics for
+ * @returns {DiagnosticCounts} Error and warning counts
+ *
+ * @example
+ * ```typescript
+ * const uri = editor.document.uri;
+ * const counts = getFileDiagnosticCounts(diagnosticCollection, uri);
+ * updateStatusBar(statusBarItem, 'ready', counts);
+ * ```
  */
 export function getFileDiagnosticCounts(
   collection: vscode.DiagnosticCollection,
   uri: vscode.Uri,
-): { errors: number; warnings: number } {
+): DiagnosticCounts {
   const diagnostics: readonly vscode.Diagnostic[] = collection.get(uri) ?? [];
   let errors = 0;
   let warnings = 0;

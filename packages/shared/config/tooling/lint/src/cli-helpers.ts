@@ -19,6 +19,7 @@ import {
   type LintConfig,
   loadConfig,
   resolveRuleSeverity,
+  isRuleEnabledAnywhere,
   validateConfig,
   type ConfigWarning,
 } from '@/lint/config/schema.ts';
@@ -982,13 +983,14 @@ export async function _runLintCore(
     );
   }
 
-  /* Filter out globally disabled rules (skip when --rule= explicitly selects rules) */
+  /* Filter out disabled rules — respects overrides that re-enable globally-off rules.
+   * Skip when --rule= explicitly selects rules. */
   if (cliArgs.ruleIds.length === 0) {
-    allTsRules = allTsRules.filter(
-      (r: TypeScriptRule): boolean => (config.rules[r.id] ?? 'error') !== 'off',
+    allTsRules = allTsRules.filter((r: TypeScriptRule): boolean =>
+      isRuleEnabledAnywhere(config, r.id),
     );
-    allPkgRules = allPkgRules.filter(
-      (r: PackageJsonRule): boolean => (config.rules[r.id] ?? 'error') !== 'off',
+    allPkgRules = allPkgRules.filter((r: PackageJsonRule): boolean =>
+      isRuleEnabledAnywhere(config, r.id),
     );
   }
 
@@ -1349,11 +1351,10 @@ export async function _runLintCore(
       );
     }
 
-    /* Filter out globally disabled workspace rules (skip when --rule= explicitly selects rules) */
+    /* Filter out disabled workspace rules — respects overrides that re-enable globally-off rules.
+     * Skip when --rule= explicitly selects rules. */
     if (cliArgs.ruleIds.length === 0) {
-      wsRules = wsRules.filter(
-        (r: WorkspaceRule): boolean => (config.rules[r.id] ?? 'error') !== 'off',
-      );
+      wsRules = wsRules.filter((r: WorkspaceRule): boolean => isRuleEnabledAnywhere(config, r.id));
     }
 
     if (wsRules.length > 0) {

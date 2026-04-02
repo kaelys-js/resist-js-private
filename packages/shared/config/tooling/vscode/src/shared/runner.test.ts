@@ -2,6 +2,8 @@
  * Tests for CLI Process Runner
  *
  * Plan: docs/plans/2026-03-31-vscode-phase-55.md TASK 11
+ *
+ * @module
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -44,6 +46,7 @@ type MockChild = EventEmitter & {
 
 function getLastChild(): MockChild {
   const { results } = (spawn as unknown as ReturnType<typeof vi.fn>).mock;
+
   return results.at(-1)!.value as MockChild;
 }
 

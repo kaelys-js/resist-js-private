@@ -644,7 +644,12 @@
   },
   "ruleOptions": {
     "comments/no-lint-disable": {
-      "allowedTargets": ["max-lines", "max-lines-per-function"]
+      "allowedTargets": [
+        "max-lines",
+        "max-lines-per-function",
+        "no-array-for-each",
+        "no-await-in-loop"
+      ]
     }
   },
   "overrides": [
@@ -671,6 +676,27 @@
         "directives/no-ts-expect-error-on-any": "off",
         "directives/no-ts-ignore": "off",
         "directives/no-ts-nocheck": "off"
+      }
+    },
+
+    // =========================================================================
+    // VSCode extension — stricter JSDoc + comments rules
+    // =========================================================================
+    {
+      "files": ["**/config/tooling/vscode/**"],
+      "rules": {
+        "comments/no-lint-disable": "error",
+        "comments/require-blank-line-groups": "error",
+        "comments/require-section-marker-style": "error",
+        "comments/require-section-order": "error",
+        "jsdoc/param-type-match": "error",
+        "jsdoc/require-example": "error",
+        "jsdoc/require-jsdoc": "error",
+        "jsdoc/require-module": "error",
+        "jsdoc/require-param": "error",
+        "jsdoc/require-returns": "error",
+        "jsdoc/require-schema-link": "error",
+        "jsdoc/validate-example": "error"
       }
     },
 

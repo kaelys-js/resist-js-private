@@ -59,6 +59,7 @@ export class DocumentDebouncer {
    */
   cancel(uri: string): void {
     const existing: NodeJS.Timeout | undefined = this.timers.get(uri);
+
     if (existing) {
       clearTimeout(existing);
       this.timers.delete(uri);

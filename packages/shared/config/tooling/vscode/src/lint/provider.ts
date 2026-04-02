@@ -32,6 +32,9 @@ export type LintOptions = {
   readonly extraArgs?: readonly string[];
 };
 
+/** Progress reporter type for workspace lint. */
+export type LintProgress = vscode.Progress<{ message?: string; increment?: number }>;
+
 // =============================================================================
 // Lint Document
 // =============================================================================
@@ -43,11 +46,17 @@ export type LintOptions = {
  * Maps each DiagnosticEntry from the CLI output to a vscode.Diagnostic and sets
  * them on the diagnostic collection. Updates the status bar with counts.
  *
- * @param document - The document to lint
- * @param collection - The diagnostic collection to update
- * @param channel - Output channel for logging
- * @param stateManager - Tool state manager for status updates
- * @param options - Lint options (stage, categories, extra args)
+ * @param {vscode.TextDocument} document - The document to lint
+ * @param {vscode.DiagnosticCollection} collection - The diagnostic collection to update
+ * @param {vscode.OutputChannel} channel - Output channel for logging
+ * @param {ToolStateManager} stateManager - Tool state manager for status updates
+ * @param {LintOptions} options - Lint options (stage, categories, extra args)
+ *
+ * @example
+ * ```typescript
+ * const options: LintOptions = { stage: 'lint', categories: ['style'], extraArgs: [] };
+ * await lintDocument(editor.document, diagnosticCollection, outputChannel, stateManager, options);
+ * ```
  */
 export async function lintDocument(
   document: vscode.TextDocument,
@@ -68,12 +77,14 @@ export async function lintDocument(
 
   // Find resist-lint binary
   const binPath: string | undefined = getBinaryPath(BINARY_NAME, document.uri);
+
   if (!binPath) {
     log(channel, format(en.messages.skipBinaryNotFound, { file: filePath }));
     return;
   }
 
   const cwd: string | undefined = getWorkspaceRoot(document.uri);
+
   if (!cwd) {
     log(channel, format(en.messages.skipWorkspaceNotFound, { file: filePath }));
     return;
@@ -81,6 +92,7 @@ export async function lintDocument(
 
   // Build CLI args
   const args: string[] = ['--format=json'];
+
   if (resolvedOptions.stage) {
     args.push(`--stage=${resolvedOptions.stage}`);
   }
@@ -94,6 +106,7 @@ export async function lintDocument(
   if (resolvedOptions.extraArgs) {
     args.push(...resolvedOptions.extraArgs);
   }
+
   args.push(filePath);
 
   // Update state
@@ -120,6 +133,7 @@ export async function lintDocument(
 
   // Map entries to diagnostics (skip malformed entries instead of crashing)
   const diagnostics: vscode.Diagnostic[] = [];
+
   for (const entry of result.data) {
     try {
       diagnostics.push(mapEntryToDiagnostic(entry, document));
@@ -138,6 +152,7 @@ export async function lintDocument(
   // Apply max problems limit
   const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(CONFIG_SECTION);
   const maxProblems: number = config.get<number>('lint.maxProblems', 100);
+
   collection.set(document.uri, applyMaxProblems(diagnostics, maxProblems, channel));
 
   // State observer handles status bar counts
@@ -154,52 +169,68 @@ export async function lintDocument(
  * Spawns resist-lint on the workspace root directory and maps results
  * grouped by file URI.
  *
- * @param collection - The diagnostic collection to update
- * @param channel - Output channel for logging
- * @param stateManager - Tool state manager for status updates
- * @param options - Lint options
- * @param progress - Progress reporter for the progress bar
+ * @param {vscode.DiagnosticCollection} collection - The diagnostic collection to update
+ * @param {vscode.OutputChannel} channel - Output channel for logging
+ * @param {ToolStateManager} stateManager - Tool state manager for status updates
+ * @param {LintOptions} options - Lint options
+ * @param {LintProgress} progress - Progress reporter for the progress bar
+ *
+ * @example
+ * ```typescript
+ * await vscode.window.withProgress(
+ *   { location: vscode.ProgressLocation.Notification, title: 'Linting workspace' },
+ *   (progress) => lintWorkspace(diagnosticCollection, outputChannel, stateManager, options, progress),
+ * );
+ * ```
  */
 export async function lintWorkspace(
   collection: vscode.DiagnosticCollection,
   channel: vscode.OutputChannel,
   stateManager: ToolStateManager,
   options: LintOptions,
-  progress: vscode.Progress<{ message?: string; increment?: number }>,
+  progress: LintProgress,
 ): Promise<void> {
   const folders: readonly vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
   const [firstFolder] = folders ?? [];
+
   if (!firstFolder) {
     return;
   }
 
   const { uri: rootUri } = firstFolder;
   const binPath: string | undefined = getBinaryPath(BINARY_NAME, rootUri);
+
   if (!binPath) {
     logError(channel, en.messages.binaryNotFoundShort);
     return;
   }
 
   const cwd: string | undefined = getWorkspaceRoot(rootUri);
+
   if (!cwd) {
     return;
   }
 
   // Build CLI args for workspace-wide lint
   const args: string[] = ['--format=json'];
+
   if (options.stage) {
     args.push(`--stage=${options.stage}`);
   }
   if (options.categories && options.categories.length > 0) {
     args.push(`--category=${options.categories.join(',')}`);
   }
+
   appendConfigArgs(args);
+
   if (options.extraArgs) {
     args.push(...options.extraArgs);
   }
+
   args.push('.');
 
   stateManager.setState('lint', 'running');
+
   logCommand(channel, binPath, args);
   progress.report({ message: en.messages.runningLinter });
 
@@ -221,8 +252,10 @@ export async function lintWorkspace(
 
   // Group results by file
   const byFile = new Map<string, DiagnosticEntry[]>();
+
   for (const entry of result.data) {
     const existing: DiagnosticEntry[] | undefined = byFile.get(entry.file);
+
     if (existing) {
       existing.push(entry);
     } else {
@@ -247,6 +280,7 @@ export async function lintWorkspace(
     );
     const diagnostics: vscode.Diagnostic[] = [];
     let skipped = 0;
+
     for (const entry of entries) {
       try {
         diagnostics.push(doc ? mapEntryToDiagnostic(entry, doc) : mapEntryToDiagnosticBasic(entry));
@@ -305,26 +339,37 @@ function appendConfigArgs(args: string[]): void {
   if (config.get<boolean>('lint.debug', false)) {
     args.push('--debug');
   }
+
   const severityOverride: string = config.get<string>('lint.severityOverride', '');
+
   if (severityOverride) {
     args.push(`--severity=${severityOverride}`);
   }
+
   const rule: string = config.get<string>('lint.rule', '');
+
   if (rule) {
     args.push(`--rule=${rule}`);
   }
+
   const ignorePatterns: string[] = config.get<string[]>('lint.ignorePatterns', []);
+
   for (const pattern of ignorePatterns) {
     args.push(`--ignore=${pattern}`);
   }
+
   const jobs: number = config.get<number>('lint.jobs', 0);
+
   if (jobs > 0) {
     args.push(`--jobs=${jobs}`);
   }
+
   if (config.get<boolean>('lint.tools', false)) {
     args.push('--tools');
   }
+
   const locale: string = config.get<string>('lint.locale', '');
+
   if (locale) {
     args.push(`--locale=${locale}`);
   }
@@ -349,9 +394,22 @@ function appendConfigArgs(args: string[]): void {
  * CodeActionProvider to consume.
  *
  * @internal
- * @param entry - The linter diagnostic entry
- * @param document - The VS Code document for position resolution
- * @returns The mapped VS Code diagnostic
+ * @param {DiagnosticEntry} entry - The linter diagnostic entry
+ * @param {vscode.TextDocument} document - The VS Code document for position resolution
+ * @returns {vscode.Diagnostic} The mapped VS Code diagnostic
+ *
+ * @example
+ * ```typescript
+ * const entry: DiagnosticEntry = {
+ *   file: '/src/index.ts',
+ *   line: 10,
+ *   column: 5,
+ *   message: 'Unused variable',
+ *   severity: 'warning',
+ *   ruleId: 'no-unused-vars',
+ * };
+ * const diagnostic = mapEntryToDiagnostic(entry, editor.document);
+ * ```
  */
 export function mapEntryToDiagnostic(
   entry: DiagnosticEntry,

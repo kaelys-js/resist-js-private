@@ -2,6 +2,8 @@
  * Tests for Locale Module
  *
  * Plan: docs/plans/2026-03-31-vscode-phase-57.md TASK 2
+ *
+ * @module
  */
 
 import { describe, it, expect } from 'vitest';
@@ -259,6 +261,7 @@ describe('Locale', () => {
         'imports',
         'stageIndicator',
       ];
+
       for (const group of expected) {
         expect(en).toHaveProperty(group);
       }

@@ -48,6 +48,7 @@ function logError(msg: string): void {
  */
 function capture(match: RegExpMatchArray | RegExpExecArray, index: number, label: string): string {
   const value: string | undefined = match[index];
+
   if (value === undefined) {
     throw new Error(`Missing capture group ${index} in ${label}`);
   }
@@ -56,9 +57,9 @@ function capture(match: RegExpMatchArray | RegExpExecArray, index: number, label
 
 const FIX_MODE: boolean = process.argv.includes('--fix');
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // 1. Parse brand.ts
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 const brandPath: string = resolve(__dirname, '../src/shared/brand.ts');
 const brandSource: string = readFileSync(brandPath, 'utf8');
@@ -67,6 +68,7 @@ const brandSource: string = readFileSync(brandPath, 'utf8');
 const commandsBlock: RegExpMatchArray | null = brandSource.match(
   /export\s+const\s+COMMANDS\s*=\s*\{([\s\S]*?)\}\s*as\s+const/,
 );
+
 if (!commandsBlock) {
   throw new Error('FAIL: Could not parse COMMANDS from brand.ts');
 }
@@ -75,6 +77,7 @@ if (!commandsBlock) {
 const brandCommands = new Map<string, string>();
 const commandEntryRegex: RegExp = /(\w+):\s*'([^']+)'/g;
 let m: RegExpExecArray | null;
+
 while ((m = commandEntryRegex.exec(capture(commandsBlock, 1, 'COMMANDS block'))) !== null) {
   brandCommands.set(capture(m, 1, 'command key'), capture(m, 2, 'command id'));
 }
@@ -83,32 +86,38 @@ while ((m = commandEntryRegex.exec(capture(commandsBlock, 1, 'COMMANDS block')))
 const configMatch: RegExpMatchArray | null = brandSource.match(
   /export\s+const\s+CONFIG_SECTION\s*=\s*'([^']+)'/,
 );
+
 if (!configMatch) {
   throw new Error('FAIL: Could not parse CONFIG_SECTION from brand.ts');
 }
+
 const configSection: string = capture(configMatch, 1, 'CONFIG_SECTION');
 
 // Extract BRAND_NAME
 const brandNameMatch: RegExpMatchArray | null = brandSource.match(
   /export\s+const\s+BRAND_NAME\s*=\s*'([^']+)'/,
 );
+
 if (!brandNameMatch) {
   throw new Error('FAIL: Could not parse BRAND_NAME from brand.ts');
 }
+
 const brandName: string = capture(brandNameMatch, 1, 'BRAND_NAME');
 
 // Extract BINARY_NAME
 const binaryNameMatch: RegExpMatchArray | null = brandSource.match(
   /export\s+const\s+BINARY_NAME\s*=\s*'([^']+)'/,
 );
+
 if (!binaryNameMatch) {
   throw new Error('FAIL: Could not parse BINARY_NAME from brand.ts');
 }
+
 const binaryName: string = capture(binaryNameMatch, 1, 'BINARY_NAME');
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // 2. Read package.json
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 const pkgPath: string = resolve(__dirname, '../package.json');
 const pkgRaw: string = readFileSync(pkgPath, 'utf8');
@@ -121,18 +130,19 @@ const pkg = JSON.parse(pkgRaw) as {
   };
 };
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // 3. Build existing title map from package.json
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 const existingTitles = new Map<string, { title: string; category?: string }>();
+
 for (const cmd of pkg.contributes.commands) {
   existingTitles.set(cmd.command, { title: cmd.title, category: cmd.category });
 }
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // 4. Validate or fix
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 let errors = 0;
 
@@ -146,6 +156,7 @@ for (const [key, cmdId] of brandCommands) {
 
 // Check every package.json command exists in brand.ts
 const brandCommandIds = new Set(brandCommands.values());
+
 for (const cmd of pkg.contributes.commands) {
   if (!brandCommandIds.has(cmd.command)) {
     logError(`FAIL: package.json command "${cmd.command}" not in brand.ts COMMANDS`);
@@ -186,18 +197,25 @@ for (const cmd of pkg.contributes.commands) {
 // Check command order matches brand.ts order
 const brandOrder: string[] = [...brandCommands.values()];
 const pkgOrder: string[] = pkg.contributes.commands.map((c) => c.command);
+
 for (let i = 0; i < brandOrder.length; i++) {
   const currentCmd: string | undefined = brandOrder[i];
+
   if (currentCmd === undefined) {
     continue;
   }
+
   const pkgIdx: number = pkgOrder.indexOf(currentCmd);
+
   if (pkgIdx !== -1 && i > 0) {
     const prevCmd: string | undefined = brandOrder[i - 1];
+
     if (prevCmd === undefined) {
       continue;
     }
+
     const prevIdx: number = pkgOrder.indexOf(prevCmd);
+
     if (prevIdx !== -1 && pkgIdx < prevIdx) {
       logError(
         `WARN: package.json command order doesn't match brand.ts order ("${currentCmd}" before "${prevCmd}")`,
@@ -214,15 +232,16 @@ for (const [key, prop] of Object.entries(pkg.contributes.configuration.propertie
   }
 }
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // 4b. Validate README.md and CHANGELOG.md brand references
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 const readmePath: string = resolve(__dirname, '../README.md');
 const changelogPath: string = resolve(__dirname, '../CHANGELOG.md');
 
 function validateMarkdown(filePath: string, label: string): void {
   let content: string;
+
   try {
     content = readFileSync(filePath, 'utf8');
   } catch {
@@ -244,10 +263,12 @@ function validateMarkdown(filePath: string, label: string): void {
   // Validate README command table row count matches brand.ts
   if (label === 'README.md') {
     const cmdSection = content.match(/## Commands[\s\S]*?(?=\n## |$)/);
+
     if (cmdSection) {
       const tableRows = cmdSection[0].match(/^\| .+\| .+\|$/gm);
       // Subtract 1 for header row (separator row uses dashes, won't match .+)
       const cmdRows: number = tableRows ? tableRows.length - 1 : 0;
+
       if (cmdRows > 0 && cmdRows !== brandCommands.size) {
         logError(
           `WARN: ${label} command table has ${cmdRows} rows, brand.ts has ${brandCommands.size}`,
@@ -260,24 +281,30 @@ function validateMarkdown(filePath: string, label: string): void {
 validateMarkdown(readmePath, 'README.md');
 validateMarkdown(changelogPath, 'CHANGELOG.md');
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // 5. Fix mode: rewrite commands array from brand.ts order
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 if (FIX_MODE && errors > 0) {
   const newCommands: Array<{ command: string; title: string; category?: string }> = [];
+
   for (const [_key, cmdId] of brandCommands) {
     const existing = existingTitles.get(cmdId);
+
     if (existing) {
       newCommands.push({ command: cmdId, title: existing.title, category: existing.category });
     } else {
       // New command: generate placeholder title
       const parts: string[] = cmdId.split('.');
+
       const lastPart: string | undefined = parts.at(-1);
+
       if (lastPart === undefined) {
         continue;
       }
+
       const titleFromId: string = lastPart.replaceAll(/([A-Z])/g, ' $1').trim();
+
       newCommands.push({
         command: cmdId,
         title: `Lint: ${titleFromId.charAt(0).toUpperCase()}${titleFromId.slice(1)}`,
@@ -292,9 +319,9 @@ if (FIX_MODE && errors > 0) {
   log(`Fixed: regenerated ${newCommands.length} commands in package.json`);
 }
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // 6. Report
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 if (errors > 0) {
   throw new Error(`Manifest validation FAILED: ${errors} error(s). Run with --fix to auto-repair.`);
