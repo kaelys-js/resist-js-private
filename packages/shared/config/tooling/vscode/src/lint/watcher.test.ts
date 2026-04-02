@@ -213,7 +213,10 @@ describe('Config File Watcher', () => {
     vi.advanceTimersByTime(1100);
 
     expect(mockChannel.appendLine).toHaveBeenCalled();
-    const logged = (mockChannel.appendLine as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
-    expect(logged).toContain('lint boom');
+    const allLogs: string[] = (mockChannel.appendLine as ReturnType<typeof vi.fn>).mock.calls.map(
+      (call: unknown[]) => call[0] as string,
+    );
+    const hasErrorLog: boolean = allLogs.some((msg) => msg.includes('lint boom'));
+    expect(hasErrorLog, 'Expected "lint boom" in output channel logs').toBe(true);
   });
 });

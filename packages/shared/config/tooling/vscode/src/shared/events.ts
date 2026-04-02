@@ -15,7 +15,7 @@ import { en } from '../locale/en';
 import { format } from '../locale/schema';
 
 /** Supported document lifecycle event types. */
-export type DocumentEventType = 'open' | 'save' | 'change' | 'close';
+type DocumentEventType = 'open' | 'save' | 'change' | 'close';
 
 /** A registered event handler with its associated tool name. */
 interface RegisteredHandler {

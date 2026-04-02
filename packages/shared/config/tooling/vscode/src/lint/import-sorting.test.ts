@@ -6,11 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
-import {
-  isImportDiagnostic,
-  collectImportDiagnostics,
-  removeUnusedImports,
-} from './import-sorting';
+import { removeUnusedImports } from './import-sorting';
 import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 // ---------------------------------------------------------------------------
@@ -39,54 +35,6 @@ function createMockDoc(): any {
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
-
-describe('isImportDiagnostic', () => {
-  it('returns true for import-related rules', () => {
-    expect(isImportDiagnostic(createDiag('no-unused-import'))).toBe(true);
-    expect(isImportDiagnostic(createDiag('import/no-duplicates'))).toBe(true);
-    expect(isImportDiagnostic(createDiag('unused-import/check'))).toBe(true);
-  });
-
-  it('returns false for non-import rules', () => {
-    expect(isImportDiagnostic(createDiag('no-console'))).toBe(false);
-    expect(isImportDiagnostic(createDiag('naming/camelCase'))).toBe(false);
-  });
-
-  it('returns false for non-resist diagnostics', () => {
-    const diag = createDiag('import/no-duplicates');
-    diag.source = 'eslint';
-    expect(isImportDiagnostic(diag)).toBe(false);
-  });
-});
-
-describe('collectImportDiagnostics', () => {
-  it('collects fixable import diagnostics', () => {
-    const diagnostics = [
-      createDiag('no-unused-import', { start: 0, end: 25, text: '' }),
-      createDiag('no-console'), // not import
-      createDiag('import/order', { start: 0, end: 10, text: 'sorted' }),
-    ];
-
-    const result = collectImportDiagnostics(diagnostics);
-    expect(result).toHaveLength(2);
-  });
-
-  it('excludes import diagnostics without fixes', () => {
-    const diagnostics = [
-      createDiag('no-unused-import'), // no fix
-    ];
-
-    const result = collectImportDiagnostics(diagnostics);
-    expect(result).toHaveLength(0);
-  });
-
-  it('excludes no-op fixes', () => {
-    const diagnostics = [createDiag('no-unused-import', { start: 5, end: 5, text: '' })];
-
-    const result = collectImportDiagnostics(diagnostics);
-    expect(result).toHaveLength(0);
-  });
-});
 
 describe('removeUnusedImports', () => {
   beforeEach(() => {

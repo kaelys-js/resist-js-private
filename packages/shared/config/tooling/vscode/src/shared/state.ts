@@ -18,7 +18,7 @@ import { en } from '../locale/en';
 export type ToolState = 'ready' | 'running' | 'error' | 'disabled' | 'not-installed';
 
 /** Callback invoked when a tool's state changes. */
-export type StateChangeCallback = (tool: string, from: ToolState, to: ToolState) => void;
+type StateChangeCallback = (tool: string, from: ToolState, to: ToolState) => void;
 
 /** Managed observer with disposal. */
 interface Observer {

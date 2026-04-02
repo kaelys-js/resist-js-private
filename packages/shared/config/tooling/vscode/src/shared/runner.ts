@@ -14,7 +14,7 @@ import { en } from '../locale/en';
 import { format } from '../locale/schema';
 
 /** Raw process result from runTool. */
-export interface ToolResult {
+interface ToolResult {
   readonly stdout: string;
   readonly stderr: string;
   readonly exitCode: number | null;
@@ -24,13 +24,13 @@ export interface ToolResult {
 /**
  * Spawns a CLI tool and returns raw stdout/stderr/exitCode.
  *
- * This is the base function that `runToolJson`, `runToolText`, and
- * `runToolLines` are built on.
+ * This is the base function that `runToolJson` and `runToolText`
+ * are built on.
  *
  * @param options - Spawn configuration (command, args, cwd, env, timeout)
  * @returns Raw process result
  */
-export function runTool(options: RunOptions): Promise<ToolResult> {
+function runTool(options: RunOptions): Promise<ToolResult> {
   return new Promise((resolve) => {
     const timeoutMs: number = options.timeout ?? 30000;
     const startTime: number = Date.now();
@@ -115,24 +115,6 @@ export async function runToolText(options: RunOptions): Promise<RunResult<string
   }
 
   return { ok: true, data: result.stdout, stderr: result.stderr, elapsed: result.elapsed };
-}
-
-/**
- * Spawns a CLI tool and returns the output split into lines.
- *
- * @param options - Spawn configuration
- * @returns Success with array of lines, or failure with error
- */
-export async function runToolLines(options: RunOptions): Promise<RunResult<string[]>> {
-  const result: RunResult<string> = await runToolText(options);
-
-  if (!result.ok) {
-    return result;
-  }
-
-  const lines: string[] = result.data.split('\n').filter((line) => line.length > 0);
-
-  return { ok: true, data: lines, stderr: result.stderr, elapsed: result.elapsed };
 }
 
 /**

@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
-import { isWorkspaceDocument, isLintableDocument, forEachOpenDocument } from './document-filter';
+import { isWorkspaceDocument, forEachOpenDocument } from './document-filter';
 import * as output from './output';
 
 vi.mock('./output', () => ({
@@ -68,23 +68,6 @@ describe('Document Filter', () => {
     it('returns false for output scheme', () => {
       const doc = createMockDoc('output', false);
       expect(isWorkspaceDocument(doc)).toBe(false);
-    });
-  });
-
-  describe('isLintableDocument', () => {
-    it('returns true for file scheme + not untitled', () => {
-      const doc = createMockDoc('file', false);
-      expect(isLintableDocument(doc)).toBe(true);
-    });
-
-    it('returns false for untitled document', () => {
-      const doc = createMockDoc('file', true);
-      expect(isLintableDocument(doc)).toBe(false);
-    });
-
-    it('returns false for git scheme', () => {
-      const doc = createMockDoc('git', false);
-      expect(isLintableDocument(doc)).toBe(false);
     });
   });
 

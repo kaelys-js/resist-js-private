@@ -12,12 +12,16 @@
 
 import * as vscode from 'vscode';
 import { DocumentDebouncer } from './shared/debounce';
-import { createStatusBar, updateStatusBar, getFileDiagnosticCounts } from './shared/status-bar';
+import { createToolStatusBar, updateStatusBar, getFileDiagnosticCounts } from './shared/status-bar';
+import { ToolStateManager, type ToolState } from './shared/state';
 import { createOutputChannel, log, logError } from './shared/output';
 import { safeRun, safeRunAsync } from './shared/errors';
-import { getBinaryPath } from './shared/workspace';
+import { resolveWorkspace } from './shared/workspace';
 import { isWorkspaceDocument, forEachOpenDocument } from './shared/document-filter';
+import { withFileProgress } from './shared/progress';
 import { NotificationManager } from './shared/notifications';
+import { LifecycleManager } from './shared/lifecycle';
+import { DocumentEventRegistry } from './shared/events';
 import { lintDocument, type LintOptions } from './lint/provider';
 import { ResistCodeActionProvider } from './lint/code-actions';
 import { FixDiffPreviewProvider } from './lint/diff-preview';
@@ -28,8 +32,10 @@ import { ResistCodeLensProvider } from './lint/code-lens';
 import { StaleDiagnosticCleaner } from './lint/stale-cleanup';
 import { ResistFormattingProvider } from './lint/formatting-provider';
 import { createConfigWatcher } from './lint/watcher';
+import { createBatchedFileWatcher } from './shared/file-watcher';
 import { registerLintCommands } from './lint/commands';
 import { en } from './locale/en';
+import { ConfigManager, onConfigurationChange } from './shared/config';
 import {
   BINARY_NAME,
   CONFIG_SECTION,
@@ -42,10 +48,8 @@ import {
 // State
 // =============================================================================
 
-let debouncer: DocumentDebouncer;
-let notificationManager: NotificationManager;
-let fixOnSaveManager: FixOnSaveManager;
-let staleDiagnosticCleaner: StaleDiagnosticCleaner;
+let lifecycle: LifecycleManager;
+let outputChannelRef: vscode.OutputChannel;
 
 // =============================================================================
 // Activation
@@ -65,70 +69,109 @@ export function activate(context: vscode.ExtensionContext): void {
   const diagnosticCollection: vscode.DiagnosticCollection =
     vscode.languages.createDiagnosticCollection(DIAGNOSTIC_COLLECTION_NAME);
   const outputChannel: vscode.OutputChannel = createOutputChannel();
-  const statusBarItem: vscode.StatusBarItem = createStatusBar(context);
+  const statusBarItem: vscode.StatusBarItem = createToolStatusBar(context, 'Lint', 100);
+  statusBarItem.command = COMMANDS.showOutput;
 
-  debouncer = new DocumentDebouncer((error: unknown) => {
+  // Store refs for deactivation
+  outputChannelRef = outputChannel;
+  lifecycle = new LifecycleManager();
+
+  // State manager with observer that updates status bar
+  const stateManager = new ToolStateManager(outputChannel);
+
+  /** Maps ToolState to ExtensionState for status bar display. */
+  const mapToolState = (state: ToolState): 'linting' | 'ready' | 'error' | 'disabled' => {
+    switch (state) {
+      case 'running':
+        return 'linting';
+      case 'ready':
+        return 'ready';
+      case 'error':
+        return 'error';
+      case 'disabled':
+      case 'not-installed':
+        return 'disabled';
+    }
+  };
+
+  stateManager.onStateChange('lint', (_tool, _from, to) => {
+    const mapped = mapToolState(to);
+    if (mapped === 'ready') {
+      const activeUri: vscode.Uri | undefined = vscode.window.activeTextEditor?.document.uri;
+      if (activeUri) {
+        const counts = getFileDiagnosticCounts(diagnosticCollection, activeUri);
+        updateStatusBar(statusBarItem, 'ready', counts);
+      } else {
+        updateStatusBar(statusBarItem, 'ready');
+      }
+    } else {
+      updateStatusBar(statusBarItem, mapped);
+    }
+  });
+
+  const debouncer = new DocumentDebouncer((error: unknown) => {
     logError(outputChannel, error instanceof Error ? error.message : String(error));
   });
 
-  notificationManager = new NotificationManager(outputChannel);
+  const notificationManager = new NotificationManager(outputChannel);
 
-  // Read activation-time config for feature flags
-  const activationConfig: vscode.WorkspaceConfiguration =
-    vscode.workspace.getConfiguration(CONFIG_SECTION);
+  // Typed config manager with auto-refresh on settings change
+  const configManager = new ConfigManager(CONFIG_SECTION, outputChannel);
 
   // Feature class instances
   const diagnosticFilter = new DiagnosticFilter(outputChannel);
   const stageIndicator = new StageIndicator(statusBarItem, outputChannel);
 
-  fixOnSaveManager = new FixOnSaveManager(outputChannel);
+  const fixOnSaveManager = new FixOnSaveManager(outputChannel);
 
-  const staleDiagnosticTimeoutMs: number = activationConfig.get<number>(
+  const staleDiagnosticTimeoutMs: number = configManager.get<number>(
     'lint.staleDiagnosticTimeoutMs',
     300000,
   );
-  staleDiagnosticCleaner = new StaleDiagnosticCleaner(staleDiagnosticTimeoutMs, outputChannel);
+  const staleDiagnosticCleaner = new StaleDiagnosticCleaner(
+    staleDiagnosticTimeoutMs,
+    outputChannel,
+  );
 
-  context.subscriptions.push(diagnosticCollection);
-  context.subscriptions.push(outputChannel);
-  context.subscriptions.push({ dispose: () => debouncer.dispose() });
-  context.subscriptions.push({ dispose: () => notificationManager.dispose() });
-  context.subscriptions.push(diagnosticFilter);
-  context.subscriptions.push(stageIndicator);
-  context.subscriptions.push({ dispose: () => fixOnSaveManager.dispose() });
-  context.subscriptions.push({ dispose: () => staleDiagnosticCleaner.dispose() });
+  // Register resources with lifecycle (higher priority = disposed first)
+  lifecycle.register('state-manager', { dispose: () => stateManager.dispose() }, 15);
+  lifecycle.register('debouncer', { dispose: () => debouncer.dispose() }, 15);
+  lifecycle.register('notifications', { dispose: () => notificationManager.dispose() }, 15);
+  lifecycle.register('config-manager', { dispose: () => configManager.dispose() }, 15);
+  lifecycle.register('diagnostic-filter', diagnosticFilter, 15);
+  lifecycle.register('stage-indicator', stageIndicator, 15);
+  lifecycle.register('fix-on-save', { dispose: () => fixOnSaveManager.dispose() }, 15);
+  lifecycle.register('stale-cleaner', { dispose: () => staleDiagnosticCleaner.dispose() }, 10);
+  lifecycle.register('diagnostics', diagnosticCollection, 5);
+  lifecycle.register('output-channel', outputChannel, 0); // Last — so cleanup errors can be logged
 
   log(outputChannel, en.output.activated);
 
   // Check for resist-lint binary
   const folders: readonly vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
   if (folders && folders.length > 0) {
-    const binPath: string | undefined = getBinaryPath(BINARY_NAME, folders[0].uri);
-    if (!binPath) {
+    const workspace = resolveWorkspace(BINARY_NAME, folders[0].uri);
+    if (!workspace?.binPath) {
       logError(outputChannel, en.messages.binaryNotFoundLog);
       notificationManager.warnOnce('missing-binary', en.messages.binaryNotFound);
-      updateStatusBar(statusBarItem, 'disabled');
+      stateManager.setState('lint', 'disabled');
     }
   }
 
   // Helper: read current lint options from settings
-  const getLintOptions = (): LintOptions => {
-    const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(CONFIG_SECTION);
-    return {
-      stage: config.get<string>('lint.stage', 'lint'),
-      categories: config.get<string[]>('lint.categories', []),
-      extraArgs: config.get<string[]>('lint.args', []),
-    };
-  };
+  const getLintOptions = (): LintOptions => ({
+    stage: configManager.get<string>('lint.stage', 'lint'),
+    categories: configManager.get<string[]>('lint.categories', []),
+    extraArgs: configManager.get<string[]>('lint.args', []),
+  });
 
   // Helper: lint a document with current settings
   const lintDoc = (doc: vscode.TextDocument): void => {
-    const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(CONFIG_SECTION);
-    if (!config.get<boolean>('lint.enable', true)) {
+    if (!configManager.get<boolean>('lint.enable', true)) {
       return;
     }
     void safeRunAsync(outputChannel, 'lintDocument', () =>
-      lintDocument(doc, diagnosticCollection, outputChannel, statusBarItem, getLintOptions()),
+      lintDocument(doc, diagnosticCollection, outputChannel, stateManager, getLintOptions()),
     );
   };
 
@@ -136,12 +179,14 @@ export function activate(context: vscode.ExtensionContext): void {
   // Code Action Provider (Quick Fixes)
   // ========================================================================
 
-  context.subscriptions.push(
+  lifecycle.register(
+    'code-actions',
     vscode.languages.registerCodeActionsProvider(
       { scheme: 'file' },
       new ResistCodeActionProvider(outputChannel),
       { providedCodeActionKinds: ResistCodeActionProvider.providedCodeActionKinds },
     ),
+    20,
   );
 
   // ========================================================================
@@ -149,33 +194,39 @@ export function activate(context: vscode.ExtensionContext): void {
   // ========================================================================
 
   const diffPreviewProvider = new FixDiffPreviewProvider(diagnosticCollection);
-  context.subscriptions.push(
+  lifecycle.register(
+    'diff-preview',
     vscode.workspace.registerTextDocumentContentProvider(PREVIEW_SCHEME, diffPreviewProvider),
+    20,
   );
 
   // ========================================================================
   // Code Lens Provider
   // ========================================================================
 
-  if (activationConfig.get<boolean>('lint.codeLens', false)) {
+  if (configManager.get<boolean>('lint.codeLens', false)) {
     const codeLensProvider = new ResistCodeLensProvider(diagnosticCollection);
-    context.subscriptions.push(
+    lifecycle.register(
+      'code-lens-provider',
       vscode.languages.registerCodeLensProvider({ scheme: 'file' }, codeLensProvider),
+      20,
     );
-    context.subscriptions.push(codeLensProvider);
+    lifecycle.register('code-lens', codeLensProvider, 20);
   }
 
   // ========================================================================
   // Formatting Provider (lint fixes as format-on-save)
   // ========================================================================
 
-  if (activationConfig.get<boolean>('lint.formatOnSave', false)) {
+  if (configManager.get<boolean>('lint.formatOnSave', false)) {
     const formattingProvider = new ResistFormattingProvider(diagnosticCollection, outputChannel);
-    context.subscriptions.push(
+    lifecycle.register(
+      'formatting-provider',
       vscode.languages.registerDocumentFormattingEditProvider(
         { scheme: 'file' },
         formattingProvider,
       ),
+      20,
     );
   }
 
@@ -190,95 +241,89 @@ export function activate(context: vscode.ExtensionContext): void {
   // ========================================================================
 
   const watcherDisposables: vscode.Disposable[] = createConfigWatcher(lintDoc, outputChannel);
-  for (const d of watcherDisposables) {
-    context.subscriptions.push(d);
+  for (let i = 0; i < watcherDisposables.length; i++) {
+    lifecycle.register(`config-watcher-${i}`, watcherDisposables[i], 25);
   }
 
   // ========================================================================
-  // Document Event Listeners
+  // Source File Watcher (external changes: git, terminal edits)
   // ========================================================================
 
-  // Lint on open
-  context.subscriptions.push(
-    vscode.workspace.onDidOpenTextDocument((doc) => {
-      safeRun(outputChannel, 'onDidOpen', () => {
-        const config: vscode.WorkspaceConfiguration =
-          vscode.workspace.getConfiguration(CONFIG_SECTION);
-        if (config.get<boolean>('lint.enable', true) && config.get<boolean>('lint.onOpen', true)) {
-          lintDoc(doc);
+  if (configManager.get<boolean>('lint.watchFiles', false)) {
+    const sourcePatterns = ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'];
+    const sourceWatcherDisposables = createBatchedFileWatcher(
+      sourcePatterns,
+      (uris) => {
+        for (const uri of uris) {
+          const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);
+          if (doc) {
+            lintDoc(doc);
+          }
         }
+      },
+      outputChannel,
+      { batchWindowMs: 1000 },
+    );
+    for (let i = 0; i < sourceWatcherDisposables.length; i++) {
+      lifecycle.register(`source-watcher-${i}`, sourceWatcherDisposables[i], 25);
+    }
+  }
+
+  // ========================================================================
+  // Document Event Registry
+  // ========================================================================
+
+  const eventRegistry = new DocumentEventRegistry(outputChannel);
+
+  eventRegistry.onOpen('lint', (doc) => {
+    if (
+      configManager.get<boolean>('lint.enable', true) &&
+      configManager.get<boolean>('lint.onOpen', true)
+    ) {
+      lintDoc(doc);
+    }
+  });
+
+  eventRegistry.onSave('lint', (doc) => {
+    if (!configManager.get<boolean>('lint.enable', true)) {
+      return;
+    }
+    if (configManager.get<boolean>('lint.fixOnSave', false)) {
+      void safeRunAsync(outputChannel, 'fixOnSave', async () => {
+        await fixOnSaveManager.handleSave(doc, diagnosticCollection);
       });
-    }),
-  );
+    }
+    if (configManager.get<boolean>('lint.onSave', true)) {
+      lintDoc(doc);
+    }
+  });
 
-  // Lint on save + fix on save
-  context.subscriptions.push(
-    vscode.workspace.onDidSaveTextDocument((doc) => {
-      safeRun(outputChannel, 'onDidSave', () => {
-        const config: vscode.WorkspaceConfiguration =
-          vscode.workspace.getConfiguration(CONFIG_SECTION);
-        if (!config.get<boolean>('lint.enable', true)) {
-          return;
-        }
-        // Auto-fix on save when enabled
-        if (config.get<boolean>('lint.fixOnSave', false)) {
-          void safeRunAsync(outputChannel, 'fixOnSave', async () => {
-            await fixOnSaveManager.handleSave(doc, diagnosticCollection);
-          });
-        }
-        if (config.get<boolean>('lint.onSave', true)) {
-          lintDoc(doc);
-        }
-      });
-    }),
-  );
+  eventRegistry.onChange('lint', (doc) => {
+    if (
+      !configManager.get<boolean>('lint.enable', true) ||
+      !configManager.get<boolean>('lint.onType', true)
+    ) {
+      return;
+    }
+    staleDiagnosticCleaner.trackEdit(doc.uri);
+    const debounceMs: number = configManager.get<number>('lint.debounceMs', 500);
+    debouncer.schedule(doc.uri.toString(), () => lintDoc(doc), debounceMs);
+  });
 
-  // Lint on type (debounced)
-  context.subscriptions.push(
-    vscode.workspace.onDidChangeTextDocument((event) => {
-      safeRun(outputChannel, 'onDidChange', () => {
-        const config: vscode.WorkspaceConfiguration =
-          vscode.workspace.getConfiguration(CONFIG_SECTION);
-        if (
-          !config.get<boolean>('lint.enable', true) ||
-          !config.get<boolean>('lint.onType', true)
-        ) {
-          return;
-        }
+  eventRegistry.onClose('lint', (doc) => {
+    diagnosticCollection.delete(doc.uri);
+    debouncer.cancel(doc.uri.toString());
+  });
 
-        if (event.contentChanges.length === 0) {
-          return;
-        }
-
-        const doc: vscode.TextDocument = event.document;
-        if (!isWorkspaceDocument(doc)) {
-          return;
-        }
-
-        // Track edit for stale diagnostic cleanup
-        staleDiagnosticCleaner.trackEdit(doc.uri);
-
-        const debounceMs: number = config.get<number>('lint.debounceMs', 500);
-        debouncer.schedule(doc.uri.toString(), () => lintDoc(doc), debounceMs);
-      });
-    }),
-  );
-
-  // Clear diagnostics on close
-  context.subscriptions.push(
-    vscode.workspace.onDidCloseTextDocument((doc) => {
-      safeRun(outputChannel, 'onDidClose', () => {
-        diagnosticCollection.delete(doc.uri);
-        debouncer.cancel(doc.uri.toString());
-      });
-    }),
-  );
+  eventRegistry.initialize();
+  lifecycle.register('event-registry', eventRegistry, 30);
 
   // ========================================================================
   // Active Editor Change — Update Status Bar Counts
   // ========================================================================
 
-  context.subscriptions.push(
+  lifecycle.register(
+    'on-did-change-editor',
     vscode.window.onDidChangeActiveTextEditor((editor) => {
       safeRun(outputChannel, 'onDidChangeEditor', () => {
         if (editor) {
@@ -289,21 +334,21 @@ export function activate(context: vscode.ExtensionContext): void {
         }
       });
     }),
+    30,
   );
 
   // ========================================================================
   // Configuration Change — Re-lint if settings changed
   // ========================================================================
 
-  context.subscriptions.push(
-    vscode.workspace.onDidChangeConfiguration((event) => {
-      safeRun(outputChannel, 'onDidChangeConfig', () => {
-        if (event.affectsConfiguration(CONFIG_LINT_SECTION)) {
-          // Re-lint all open documents with new settings
-          forEachOpenDocument(isWorkspaceDocument, lintDoc, outputChannel);
-        }
-      });
-    }),
+  lifecycle.register(
+    'on-did-change-config',
+    onConfigurationChange(
+      CONFIG_LINT_SECTION,
+      () => forEachOpenDocument(isWorkspaceDocument, lintDoc, outputChannel),
+      outputChannel,
+    ),
+    30,
   );
 
   // ========================================================================
@@ -313,22 +358,38 @@ export function activate(context: vscode.ExtensionContext): void {
   registerLintCommands(context, {
     diagnosticCollection,
     outputChannel,
-    statusBarItem,
+    stateManager,
     lintDocumentFn: lintDoc,
     getLintOptions,
     diagnosticFilter,
     stageIndicator,
+    configManager,
   });
+
+  // ========================================================================
+  // Lifecycle → VS Code Integration
+  // ========================================================================
+
+  context.subscriptions.push({ dispose: () => lifecycle.disposeAll(outputChannel) });
 
   // ========================================================================
   // Lint Already-Open Documents
   // ========================================================================
 
   if (
-    activationConfig.get<boolean>('lint.enable', true) &&
-    activationConfig.get<boolean>('lint.onOpen', true)
+    configManager.get<boolean>('lint.enable', true) &&
+    configManager.get<boolean>('lint.onOpen', true)
   ) {
-    forEachOpenDocument(isWorkspaceDocument, lintDoc, outputChannel);
+    const openUris: vscode.Uri[] = vscode.workspace.textDocuments
+      .filter((doc) => isWorkspaceDocument(doc))
+      .map((doc) => doc.uri);
+
+    void withFileProgress(outputChannel, en.progress.activation, openUris, async (uri) => {
+      const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);
+      if (doc) {
+        lintDoc(doc);
+      }
+    });
   }
 }
 
@@ -337,24 +398,14 @@ export function activate(context: vscode.ExtensionContext): void {
 // =============================================================================
 
 /**
- * Deactivates the extension, cleaning up debounce timers.
- * Diagnostic collection and output channel are disposed via context.subscriptions.
+ * Deactivates the extension.
+ *
+ * LifecycleManager handles priority-ordered disposal with per-resource
+ * error boundaries. Output channel is disposed last so cleanup errors
+ * can be logged.
  */
 export function deactivate(): void {
-  try {
-    if (debouncer) {
-      debouncer.dispose();
-    }
-    if (notificationManager) {
-      notificationManager.dispose();
-    }
-    if (fixOnSaveManager) {
-      fixOnSaveManager.dispose();
-    }
-    if (staleDiagnosticCleaner) {
-      staleDiagnosticCleaner.dispose();
-    }
-  } catch (error: unknown) {
-    console.error('Deactivation error:', error instanceof Error ? error.message : String(error));
+  if (lifecycle) {
+    lifecycle.disposeAll(outputChannelRef);
   }
 }

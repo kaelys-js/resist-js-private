@@ -79,13 +79,6 @@ describe('Command Registration', () => {
 
   describe('registerTextEditorCommand', () => {
     it('registers text editor command', () => {
-      // Add registerTextEditorCommand to the commands mock if missing
-      if (!vscode.commands.registerTextEditorCommand) {
-        (vscode.commands as Record<string, unknown>).registerTextEditorCommand = vi.fn(
-          (_cmd: string, _handler: unknown) => ({ dispose: vi.fn() }),
-        );
-      }
-
       const handler = vi.fn(async (_editor: vscode.TextEditor) => {});
       registerTextEditorCommand(mockContext, mockChannel, 'resist.test.editor', handler);
 
@@ -97,12 +90,6 @@ describe('Command Registration', () => {
     });
 
     it('passes editor to the handler', async () => {
-      if (!vscode.commands.registerTextEditorCommand) {
-        (vscode.commands as Record<string, unknown>).registerTextEditorCommand = vi.fn(
-          (_cmd: string, _handler: unknown) => ({ dispose: vi.fn() }),
-        );
-      }
-
       const handler = vi.fn(async (_editor: vscode.TextEditor) => {});
       registerTextEditorCommand(mockContext, mockChannel, 'resist.test.editor', handler);
 

@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { format, formatPlural, formatNumber } from './schema';
+import { format, formatPlural } from './schema';
 import { en } from './en';
 import type { VscodeStrings } from './schema';
 import { BRAND_NAME, BINARY_NAME } from '../shared/brand';
@@ -115,12 +115,6 @@ describe('Locale', () => {
       expect(en.config.changeDetected).toContain('{section}');
     });
 
-    it('commands has all fields', () => {
-      assertAllStrings(en.commands, 'commands');
-      expect(en.commands.registered).toContain('{id}');
-      expect(en.commands.executionFailed).toContain('{id}');
-    });
-
     it('lifecycle has all fields', () => {
       assertAllStrings(en.lifecycle, 'lifecycle');
       expect(en.lifecycle.disposing).toContain('{name}');
@@ -169,8 +163,6 @@ describe('Locale', () => {
 
     it('events has all fields', () => {
       assertAllStrings(en.events, 'events');
-      expect(en.events.registered).toContain('{tool}');
-      expect(en.events.dispatched).toContain('{event}');
       expect(en.events.handlerError).toContain('{error}');
     });
 
@@ -182,7 +174,6 @@ describe('Locale', () => {
     it('codeLens has all fields', () => {
       assertAllStrings(en.codeLens, 'codeLens');
       expect(en.codeLens.issueCount).toContain('{rule}');
-      expect(en.codeLens.openDocs).toContain('{rule}');
     });
 
     it('diffPreview has all fields', () => {
@@ -214,19 +205,12 @@ describe('Locale', () => {
     it('staleCleanup has all fields', () => {
       assertAllStrings(en.staleCleanup, 'staleCleanup');
       expect(en.staleCleanup.cleared).toContain('{count}');
-      expect(en.staleCleanup.trackingFile).toContain('{file}');
       expect(en.staleCleanup.skippedVisible).toContain('{file}');
     });
 
     it('imports has all fields', () => {
       assertAllStrings(en.imports, 'imports');
       expect(en.imports.removedCount).toContain('{count}');
-    });
-
-    it('inlineOverrides has all fields', () => {
-      assertAllStrings(en.inlineOverrides, 'inlineOverrides');
-      expect(en.inlineOverrides.decorationTooltip).toContain('{directive}');
-      expect(en.inlineOverrides.foundOverrides).toContain('{count}');
     });
 
     it('stageIndicator has all fields', () => {
@@ -239,9 +223,9 @@ describe('Locale', () => {
       assertAllStrings(en.plurals, 'plurals');
     });
 
-    it('all 29 VscodeStrings groups are present', () => {
+    it('all 27 VscodeStrings groups are present', () => {
       const groups = Object.keys(en);
-      expect(groups).toHaveLength(29);
+      expect(groups).toHaveLength(27);
       const expected = [
         'output',
         'statusBar',
@@ -251,7 +235,6 @@ describe('Locale', () => {
         'documentFilter',
         'notifications',
         'config',
-        'commands',
         'lifecycle',
         'watcher',
         'progressHelper',
@@ -270,7 +253,6 @@ describe('Locale', () => {
         'perFolder',
         'staleCleanup',
         'imports',
-        'inlineOverrides',
         'stageIndicator',
       ];
       for (const group of expected) {
@@ -293,11 +275,6 @@ describe('Locale', () => {
 
     it('config strings format correctly', () => {
       expect(format(en.config.changeDetected, { section: 'lint' })).not.toContain('{');
-    });
-
-    it('commands strings format correctly', () => {
-      expect(format(en.commands.registered, { id: 'resist.lint.file' })).not.toContain('{');
-      expect(format(en.commands.executionFailed, { id: 'resist.lint.fix' })).not.toContain('{');
     });
 
     it('lifecycle strings format correctly', () => {
@@ -346,8 +323,6 @@ describe('Locale', () => {
     });
 
     it('events strings format correctly', () => {
-      expect(format(en.events.registered, { tool: 'lint', event: 'open' })).not.toContain('{');
-      expect(format(en.events.dispatched, { event: 'save', count: 3 })).not.toContain('{');
       expect(
         format(en.events.handlerError, { tool: 'lint', event: 'save', error: 'e' }),
       ).not.toContain('{');
@@ -359,7 +334,6 @@ describe('Locale', () => {
 
     it('codeLens strings format correctly', () => {
       expect(format(en.codeLens.issueCount, { rule: 'no-var', count: 2 })).not.toContain('{');
-      expect(format(en.codeLens.openDocs, { rule: 'no-var' })).not.toContain('{');
     });
 
     it('diffPreview.title formats correctly', () => {
@@ -385,19 +359,11 @@ describe('Locale', () => {
 
     it('staleCleanup strings format correctly', () => {
       expect(format(en.staleCleanup.cleared, { count: 3 })).not.toContain('{');
-      expect(format(en.staleCleanup.trackingFile, { file: 'a.ts' })).not.toContain('{');
       expect(format(en.staleCleanup.skippedVisible, { file: 'a.ts' })).not.toContain('{');
     });
 
     it('imports strings format correctly', () => {
       expect(format(en.imports.removedCount, { count: 2 })).toBe('Removed 2 unused imports');
-    });
-
-    it('inlineOverrides strings format correctly', () => {
-      expect(format(en.inlineOverrides.decorationTooltip, { directive: 'disable' })).not.toContain(
-        '{',
-      );
-      expect(format(en.inlineOverrides.foundOverrides, { count: 3 })).not.toContain('{');
     });
 
     it('stageIndicator strings format correctly', () => {
@@ -469,45 +435,6 @@ describe('Locale', () => {
     it('works with en locale plurals strings', () => {
       expect(formatPlural(1, { one: en.plurals.error, other: en.plurals.errors })).toBe('1 error');
       expect(formatPlural(2, { one: en.plurals.error, other: en.plurals.errors })).toBe('2 errors');
-    });
-  });
-
-  describe('formatNumber', () => {
-    it('formats integer with locale separators', () => {
-      const result = formatNumber(1000, 'en');
-      expect(result).toBe('1,000');
-    });
-
-    it('formats zero', () => {
-      expect(formatNumber(0)).toBe('0');
-    });
-
-    it('formats negative numbers', () => {
-      const result = formatNumber(-1234, 'en');
-      expect(result).toContain('1,234');
-    });
-
-    it('formats decimal numbers', () => {
-      const result = formatNumber(3.14, 'en');
-      expect(result).toBe('3.14');
-    });
-
-    it('formats large numbers with separators', () => {
-      const result = formatNumber(1000000, 'en');
-      expect(result).toBe('1,000,000');
-    });
-
-    it('defaults to en locale', () => {
-      const result = formatNumber(1000);
-      expect(result).toBe('1,000');
-    });
-
-    it('falls back to String(value) on invalid locale', () => {
-      // Intl.NumberFormat may throw on invalid locale — fallback should be plain string
-      const result = formatNumber(42, 'invalid-locale-xxx');
-      // Either formatted or plain string fallback
-      expect(result).toBeTruthy();
-      expect(result).toContain('42');
     });
   });
 });

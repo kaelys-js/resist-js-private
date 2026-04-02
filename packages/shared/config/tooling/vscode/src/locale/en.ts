@@ -65,6 +65,8 @@ export const en: VscodeStrings = {
     workspace: `${BRAND_NAME}: Linting workspace`,
     staged: `${BRAND_NAME}: Linting staged changes`,
     uncommitted: `${BRAND_NAME}: Linting uncommitted changes`,
+    restart: `${BRAND_NAME}: Re-linting open files`,
+    activation: `${BRAND_NAME}: Linting open files`,
   },
 
   codeActions: {
@@ -89,11 +91,6 @@ export const en: VscodeStrings = {
   config: {
     changeDetected: 'Configuration change detected for section: {section}',
     refreshed: 'Configuration cache refreshed',
-  },
-
-  commands: {
-    registered: 'Command registered: {id}',
-    executionFailed: 'Command execution failed: {id}',
   },
 
   lifecycle: {
@@ -142,13 +139,9 @@ export const en: VscodeStrings = {
     errors: '# errors',
     warning: '# warning',
     warnings: '# warnings',
-    file: '# file',
-    files: '# files',
   },
 
   events: {
-    registered: 'Event handler registered: {tool} → {event}',
-    dispatched: 'Event dispatched: {event} → {count} handlers',
     handlerError: 'Event handler error ({tool}/{event}): {error}',
   },
 
@@ -160,7 +153,6 @@ export const en: VscodeStrings = {
 
   codeLens: {
     issueCount: '{rule} ({count} issues)',
-    openDocs: 'Open documentation for {rule}',
   },
 
   diffPreview: {
@@ -194,19 +186,12 @@ export const en: VscodeStrings = {
 
   staleCleanup: {
     cleared: 'Cleared stale diagnostics for {count} files',
-    trackingFile: 'Tracking file activity: {file}',
     skippedVisible: 'Skipped stale cleanup for visible editor: {file}',
   },
 
   imports: {
     removedCount: 'Removed {count} unused imports',
     noUnused: 'No unused import diagnostics found',
-    commandTitle: 'Lint: Remove Unused Imports',
-  },
-
-  inlineOverrides: {
-    decorationTooltip: `${BRAND_NAME} lint override: {directive}`,
-    foundOverrides: 'Found {count} inline override comments',
   },
 
   stageIndicator: {
