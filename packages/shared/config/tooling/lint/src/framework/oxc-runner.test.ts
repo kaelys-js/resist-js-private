@@ -2270,6 +2270,48 @@ describe('runTypeScriptRules — all embedded extensions work', () => {
 // Phase 51 — Structured Error Reporting for Silent Failures
 // =============================================================================
 
+describe('Phase 69 — .md/.mdx parse error suppression', () => {
+  const dummyRule: TypeScriptRule = {
+    id: 'test/dummy',
+    description: 'dummy rule',
+    patterns: ['**/*.ts'],
+    visitor: {
+      Program: (): LintResult[] => [],
+    },
+  };
+
+  it('does not emit internal/ts-parse-error for fragmentary .md code fences', async () => {
+    const content: string = ['# Example', '', '```ts', 'return { status: "ok" };', '```'].join(
+      '\n',
+    );
+    const results: LintResult[] = await runTypeScriptRules('docs/example.md', content, [dummyRule]);
+    const parseErrors: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'internal/ts-parse-error',
+    );
+    expect(parseErrors).toHaveLength(0);
+  });
+
+  it('does not emit internal/ts-parse-error for fragmentary .mdx code fences', async () => {
+    const content: string = ['```typescript', 'type Props = { name: string }', '```'].join('\n');
+    const results: LintResult[] = await runTypeScriptRules('docs/example.mdx', content, [
+      dummyRule,
+    ]);
+    const parseErrors: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'internal/ts-parse-error',
+    );
+    expect(parseErrors).toHaveLength(0);
+  });
+
+  it('still emits internal/ts-parse-error for .ts files (regression)', async () => {
+    const invalidCode: string = 'const x: = ;; }{{{';
+    const results: LintResult[] = await runTypeScriptRules('broken.ts', invalidCode, [dummyRule]);
+    const parseErrors: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'internal/ts-parse-error',
+    );
+    expect(parseErrors.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
 describe('Phase 51 — TypeScript parse error diagnostic', () => {
   it('emits internal/ts-parse-error for invalid TypeScript syntax', async () => {
     const invalidCode: string = 'const x: = ;; }{{{';

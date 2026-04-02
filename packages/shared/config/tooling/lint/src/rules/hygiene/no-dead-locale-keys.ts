@@ -122,6 +122,16 @@ const rule: WorkspaceRule = {
   categories: ['hygiene'],
   stages: ['ci'],
   fixable: false,
+  optionsSchema: {
+    localeFile: {
+      type: 'string',
+      description: 'Suffix path to the locale definition file (default: "locale/en.ts").',
+    },
+    localePrefix: {
+      type: 'string',
+      description: 'Export name prefix for the locale object (default: "en").',
+    },
+  },
   async check(context: unknown): Promise<
     Array<{
       ruleId: string;

@@ -488,6 +488,9 @@ export async function runTypeScriptRules(
   let parseFilePath: string = filePath;
 
   const isSvelteFile: boolean = filePath.endsWith('.svelte');
+  const isCodeFenceFile: boolean = CODE_FENCE_EXTENSIONS.some((ext: string): boolean =>
+    filePath.endsWith(ext),
+  );
 
   if (SCRIPT_BLOCK_EXTENSIONS.some((ext: string): boolean => filePath.endsWith(ext))) {
     const extracted: string = extractScriptBlocks(content);
@@ -496,7 +499,7 @@ export async function runTypeScriptRules(
     }
     parseContent = extracted;
     parseFilePath = filePath + '.ts'; // Tell oxc-parser to treat as TypeScript
-  } else if (CODE_FENCE_EXTENSIONS.some((ext: string): boolean => filePath.endsWith(ext))) {
+  } else if (isCodeFenceFile) {
     const extracted: string = extractCodeFences(content);
     if (extracted.trim() === '') {
       return []; // No code fences — nothing to lint
@@ -523,8 +526,13 @@ export async function runTypeScriptRules(
       // Only emit parse error diagnostics when the AST body is empty,
       // meaning the code is truly unparseable (not just a fragment with
       // context-dependent errors like 'return outside function body').
+      // For code fence files (.md/.mdx), suppress parse errors entirely —
+      // documentation code fences are often intentionally fragmentary.
       const astBody: unknown[] | undefined = (ast as { body?: unknown[] }).body;
       if (result.errors && result.errors.length > 0 && (!astBody || astBody.length === 0)) {
+        if (isCodeFenceFile) {
+          return [];
+        }
         const lineStarts: number[] = buildLineStarts(parseContent);
         const parseResults: LintResult[] = [];
         for (const parseErr of result.errors) {

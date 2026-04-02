@@ -21,6 +21,12 @@ const rule: PackageJsonRule = {
   categories: ['package', 'naming'],
   stages: ['lint', 'check', 'build'],
   fixable: false,
+  optionsSchema: {
+    scope: {
+      type: 'string',
+      description: 'Required scope prefix for package names (default: "@/").',
+    },
+  },
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
     if (context.isRoot) {
