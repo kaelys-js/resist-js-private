@@ -117,6 +117,14 @@ const OutputStringsSchema = v.strictObject({
   noFiles: v.string(),
   /** Summary line: "Found {errors} error(s) and {warnings} warning(s) in {files} file(s)." */
   summary: v.string(),
+  /** Tool summary header: "Breakdown by tool:" */
+  toolSummaryHeader: v.string(),
+  /** Per-tool summary line: "  {tool} ({errors} error(s), {warnings} warning(s)):" */
+  toolSummaryLine: v.string(),
+  /** Per-tool file path line: "    {file}" */
+  toolSummaryFile: v.string(),
+  /** Per-tool no-errors line: "  {tool} (0 errors)" */
+  toolSummaryClean: v.string(),
 });
 
 /** Strings for --list-rules output. */

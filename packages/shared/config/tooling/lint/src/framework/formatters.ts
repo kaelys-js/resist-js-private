@@ -6,7 +6,7 @@
  * @module
  */
 
-import { relative } from 'node:path';
+import { relative, resolve } from 'node:path';
 
 import * as v from 'valibot';
 
@@ -112,6 +112,72 @@ export function formatText(
         files: totalFiles,
       }),
     );
+
+    /* Per-tool breakdown with file listing */
+    lines.push(strings.output.toolSummaryHeader);
+
+    const toolGroups: Map<string, LintResult[]> = new Map();
+    for (const result of results) {
+      const slashIndex: number = result.ruleId.indexOf('/');
+      const toolName: string = slashIndex > 0 ? result.ruleId.slice(0, slashIndex) : 'custom';
+      const group: LintResult[] | undefined = toolGroups.get(toolName);
+      if (group) {
+        group.push(result);
+      } else {
+        toolGroups.set(toolName, [result]);
+      }
+    }
+
+    /* Stable ordering: oxlint first, tsgo second, rest alphabetical */
+    const toolNames: string[] = [...toolGroups.keys()].toSorted((a: string, b: string): number => {
+      if (a === 'oxlint') {
+        return -1;
+      }
+      if (b === 'oxlint') {
+        return 1;
+      }
+      if (a === 'tsgo') {
+        return -1;
+      }
+      if (b === 'tsgo') {
+        return 1;
+      }
+      return a.localeCompare(b);
+    });
+
+    for (const toolName of toolNames) {
+      const group: LintResult[] | undefined = toolGroups.get(toolName);
+      if (!group) {
+        continue;
+      }
+      const toolErrors: number = group.filter(
+        (r: LintResult): boolean => r.severity === 'error',
+      ).length;
+      const toolWarnings: number = group.filter(
+        (r: LintResult): boolean => r.severity === 'warning',
+      ).length;
+
+      if (toolErrors === 0 && toolWarnings === 0) {
+        lines.push(formatTemplate(strings.output.toolSummaryClean, { tool: toolName }));
+      } else {
+        lines.push(
+          formatTemplate(strings.output.toolSummaryLine, {
+            tool: toolName,
+            errors: toolErrors,
+            warnings: toolWarnings,
+          }),
+        );
+
+        /* Deduplicated absolute file paths */
+        const files: Set<string> = new Set<string>();
+        for (const r of group) {
+          files.add(resolve(cwd, r.file));
+        }
+        for (const file of [...files].toSorted()) {
+          lines.push(formatTemplate(strings.output.toolSummaryFile, { file }));
+        }
+      }
+    }
   }
 
   return lines.length > 0 ? `${lines.join('\n')}\n` : '';
