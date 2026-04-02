@@ -8,7 +8,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type * as vscode from 'vscode';
-import { ToolStateManager } from './state';
+import { ToolStateManager, stateLabel } from './state';
 import * as output from './output';
 
 vi.mock('./output', () => ({
@@ -30,7 +30,7 @@ vi.mock('../locale/schema', () => ({
 vi.mock('../locale/en', () => ({
   en: {
     state: {
-      transitioned: '{tool} state: {from} → {to}',
+      transitioned: '[{tool}] {from} → {to}',
       observerError: 'Observer error for {tool}: {error}',
     },
   },
@@ -148,6 +148,28 @@ describe('ToolStateManager', () => {
         mockChannel,
         'Observer error for lint: observer crash',
       );
+    });
+  });
+
+  describe('stateLabel', () => {
+    it('maps ready to Ready', () => {
+      expect(stateLabel('ready')).toBe('Ready');
+    });
+
+    it('maps running to Running', () => {
+      expect(stateLabel('running')).toBe('Running');
+    });
+
+    it('maps error to Error', () => {
+      expect(stateLabel('error')).toBe('Error');
+    });
+
+    it('maps disabled to Disabled', () => {
+      expect(stateLabel('disabled')).toBe('Disabled');
+    });
+
+    it('maps not-installed to Not Installed', () => {
+      expect(stateLabel('not-installed')).toBe('Not Installed');
     });
   });
 

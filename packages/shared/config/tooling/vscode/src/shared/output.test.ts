@@ -7,7 +7,15 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createOutputChannel, log, logError, logCommand, logTiming, logSummary } from './output';
+import {
+  createOutputChannel,
+  log,
+  logError,
+  logCommand,
+  logTiming,
+  logSummary,
+  logDiagnosticList,
+} from './output';
 import * as vscode from 'vscode';
 import { BRAND_NAME, BINARY_NAME } from './brand';
 
@@ -73,5 +81,45 @@ describe('Output Channel', () => {
     const line = (channel.appendLine as ReturnType<typeof vi.fn>).mock.calls[0]![0] as string;
     expect(line).toContain('1 error');
     expect(line).not.toContain('1 errors');
+  });
+
+  it('logDiagnosticList() logs each diagnostic as an indented detail line', () => {
+    const diags: vscode.Diagnostic[] = [
+      Object.assign(
+        new vscode.Diagnostic(new vscode.Range(2, 4, 2, 10), 'Missing return type', 0),
+        { code: 'ts/return-type' },
+      ),
+      Object.assign(
+        new vscode.Diagnostic(new vscode.Range(5, 0, 5, 8), 'Unused variable', 1),
+        { code: 'no-unused-vars' },
+      ),
+    ];
+
+    logDiagnosticList(channel, diags, '/src/app.ts');
+
+    const calls = (channel.appendLine as ReturnType<typeof vi.fn>).mock.calls.map(
+      (c: unknown[]) => c[0] as string,
+    );
+
+    expect(calls.length).toBe(2);
+    expect(calls[0]).toBe('      /src/app.ts:3:5  error  ts/return-type  Missing return type');
+    expect(calls[1]).toBe('      /src/app.ts:6:1  warn  no-unused-vars  Unused variable');
+  });
+
+  it('logDiagnosticList() truncates multi-line messages to first line', () => {
+    const diag = Object.assign(
+      new vscode.Diagnostic(
+        new vscode.Range(0, 0, 0, 5),
+        'First line\n\nExample:\nsome code',
+        0,
+      ),
+      { code: 'rule/x' },
+    );
+
+    logDiagnosticList(channel, [diag], '/test.ts');
+
+    const line = (channel.appendLine as ReturnType<typeof vi.fn>).mock.calls[0]![0] as string;
+    expect(line).toContain('First line');
+    expect(line).not.toContain('Example');
   });
 });

@@ -397,6 +397,16 @@ export type StageIndicatorStrings = {
   readonly stageChanged: string;
 };
 
+/** Strings for diagnostic hover popup. */
+export type HoverStrings = {
+  /** Label prefix for the tip section. */
+  readonly tipPrefix: string;
+  /** Label for the fix-available indicator. */
+  readonly fixAvailable: string;
+  /** Link text for rule documentation. */
+  readonly viewDocs: string;
+};
+
 // =============================================================================
 // Combined Type
 // =============================================================================
@@ -430,4 +440,5 @@ export type VscodeStrings = {
   readonly staleCleanup: StaleCleanupStrings;
   readonly imports: ImportsStrings;
   readonly stageIndicator: StageIndicatorStrings;
+  readonly hover: HoverStrings;
 };

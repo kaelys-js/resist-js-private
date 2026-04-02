@@ -14,7 +14,7 @@ import { getBinaryPath, getWorkspaceRoot } from '../shared/workspace';
 import type { ToolStateManager } from '../shared/state';
 import { mapSeverity, applyMaxProblems, createDiagnosticFromEntry } from '../shared/diagnostics';
 import { extractMessage } from '../shared/errors';
-import { log, logError, logCommand, logTiming, logSummary } from '../shared/output';
+import { log, logError, logCommand, logTiming, logSummary, logDiagnosticList } from '../shared/output';
 import type { DiagnosticEntry, RunResult } from '../shared/types';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
@@ -165,6 +165,10 @@ export async function lintDocument(
     (d) => d.severity === vscode.DiagnosticSeverity.Warning,
   ).length;
   logSummary(channel, errorCount, warnCount);
+
+  if (limited.length > 0) {
+    logDiagnosticList(channel, limited, filePath);
+  }
 
   // State observer handles status bar counts
   stateManager.setState('lint', 'ready');
