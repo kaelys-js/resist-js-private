@@ -376,6 +376,17 @@ describe('DiagnosticDetailItem', () => {
     expect(tooltip.value).toContain('const y = 2;');
   });
 
+  it('tooltip shows rule description when present', () => {
+    const diag = new vscode.Diagnostic(range, 'err msg', vscode.DiagnosticSeverity.Error);
+    diag.code = 'test-rule';
+    (diag as vscode.Diagnostic & { data: unknown }).data = {
+      description: 'Variables must be declared with const',
+    };
+    const item = new DiagnosticDetailItem(diag, uri);
+    const tooltip = item.tooltip as vscode.MarkdownString;
+    expect(tooltip.value).toContain('**Description:** Variables must be declared with const');
+  });
+
   it('tooltip strips @example prefix and JSDoc fences from example', () => {
     const diag = new vscode.Diagnostic(range, 'err msg', vscode.DiagnosticSeverity.Error);
     diag.code = 'test-rule';

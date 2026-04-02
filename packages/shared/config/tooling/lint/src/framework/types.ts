@@ -75,6 +75,8 @@ export const LintResultSchema = v.strictObject({
   source: v.optional(v.string()),
   /** Link to documentation for the rule */
   url: v.optional(v.string()),
+  /** Human-readable description of the rule that produced this diagnostic */
+  description: v.optional(v.string()),
   /** Structured auto-fix — every result MUST include a fix */
   fix: LintFixSchema,
 });

@@ -587,13 +587,7 @@ export function mapEntryToDiagnostic(
 
   const severity: vscode.DiagnosticSeverity = mapSeverity(entry.severity);
 
-  // Append example to message when present so it's visible in the Problems panel
-  const { message: baseMessage } = entry;
-  const fullMessage: string = entry.example
-    ? `${baseMessage}\n\nExample:\n${entry.example}`
-    : baseMessage;
-
-  const diagnostic = new vscode.Diagnostic(range, fullMessage, severity);
+  const diagnostic = new vscode.Diagnostic(range, entry.message, severity);
   diagnostic.source = DIAGNOSTIC_SOURCE;
 
   // When url is present, make rule ID clickable in the Problems panel
@@ -608,6 +602,7 @@ export function mapEntryToDiagnostic(
     fix: entry.fix,
     tip: entry.tip,
     example: entry.example,
+    description: entry.description,
     url: entry.url,
   };
 
@@ -658,6 +653,7 @@ export type DiagnosticData = {
   };
   readonly tip?: string;
   readonly example?: string;
+  readonly description?: string;
   readonly url?: string;
 };
 

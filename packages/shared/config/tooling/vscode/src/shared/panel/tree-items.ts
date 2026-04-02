@@ -293,6 +293,11 @@ function buildDiagnosticTooltip(
   };
 
   if (data) {
+    // Rule description
+    if (data.description) {
+      sections.push(`**${en.hover.descriptionLabel}:** ${data.description}`);
+    }
+
     // Tip
     if (data.tip) {
       sections.push(`$(lightbulb) **${en.hover.tipPrefix}:** ${data.tip}`);
