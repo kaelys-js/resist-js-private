@@ -59,6 +59,8 @@ export const COMMANDS = {
   clearFilter: `${COMMAND_PREFIX}.lint.clearFilter`,
   removeUnusedImports: `${COMMAND_PREFIX}.lint.removeUnusedImports`,
   changeStage: `${COMMAND_PREFIX}.lint.changeStage`,
+  clearOutput: `${COMMAND_PREFIX}.lint.clearOutput`,
+  toggleEnable: `${COMMAND_PREFIX}.lint.toggleEnable`,
 } as const;
 
 // =============================================================================

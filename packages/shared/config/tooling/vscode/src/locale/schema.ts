@@ -157,6 +157,12 @@ export type MessageStrings = {
   readonly workspaceLintTiming: string;
   /** Error for timing report failure. */
   readonly timingReportFailed: string;
+  /** Log message after clearing output channel. */
+  readonly outputCleared: string;
+  /** Log message when linter is paused. */
+  readonly linterPaused: string;
+  /** Log message when linter is resumed. */
+  readonly linterResumed: string;
 };
 
 /** Strings for progress bar titles. */

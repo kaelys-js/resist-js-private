@@ -215,6 +215,90 @@ export function foo({ plugins }: Options): void {}
     );
     expect(stale.length).toBe(0);
   });
+
+  it('provides a real fix for missing {Type} (not a no-op)', async () => {
+    const code: string = `
+/**
+ * Does something.
+ * @param name - The name
+ */
+export function foo(name: string): void {}
+`;
+    const results: LintResult[] = await lint(requireParam, code);
+    expect(results.length).toBe(1);
+    const fix = results[0]!.fix;
+    // Fix must NOT be a no-op (start === end && text === '')
+    const isNoOp: boolean = fix.range.start === fix.range.end && fix.text === '';
+    expect(isNoOp).toBe(false);
+    // Fix text should insert {string} before the param name
+    expect(fix.text).toContain('{string}');
+  });
+
+  it('fix for missing {Type} inserts at the correct byte offset', async () => {
+    const code: string = `
+/**
+ * Greet someone.
+ * @param name - The name
+ */
+export function greet(name: string): void {}
+`;
+    const results: LintResult[] = await lint(requireParam, code);
+    expect(results.length).toBe(1);
+    const fix = results[0]!.fix;
+    // Applying the fix should produce valid JSDoc with {string} name
+    const fixed: string = code.slice(0, fix.range.start) + fix.text + code.slice(fix.range.end);
+    expect(fixed).toContain('@param {string} name');
+  });
+
+  it('fix for missing {Type} uses actual TypeScript type', async () => {
+    const code: string = `
+/**
+ * Process items.
+ * @param count - How many
+ */
+export function process(count: number): void {}
+`;
+    const results: LintResult[] = await lint(requireParam, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.text).toContain('{number}');
+    // Verify applied fix is correct
+    const fix = results[0]!.fix;
+    const fixed: string = code.slice(0, fix.range.start) + fix.text + code.slice(fix.range.end);
+    expect(fixed).toContain('@param {number} count');
+  });
+
+  it('fix for missing {Type} handles multiple params correctly', async () => {
+    const code: string = `
+/**
+ * Add two numbers.
+ * @param a - First
+ * @param b - Second
+ */
+export function add(a: number, b: number): number { return a + b; }
+`;
+    const results: LintResult[] = await lint(requireParam, code);
+    expect(results.length).toBe(2);
+    // Both fixes should be non-no-op
+    for (const r of results) {
+      const isNoOp: boolean = r.fix.range.start === r.fix.range.end && r.fix.text === '';
+      expect(isNoOp).toBe(false);
+      expect(r.fix.text).toContain('{number}');
+    }
+  });
+
+  it('fix for missing @param inserts before closing */', async () => {
+    const code: string = `
+/** Does something. */
+export function foo(name: string): void {}
+`;
+    const results: LintResult[] = await lint(requireParam, code);
+    expect(results.length).toBe(1);
+    const fix = results[0]!.fix;
+    // The fix text should include @param with {Type}
+    expect(fix.text).toContain('@param {string} name');
+    // Should be an insertion (start === end)
+    expect(fix.range.start).toBe(fix.range.end);
+  });
 });
 
 // =============================================================================

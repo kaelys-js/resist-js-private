@@ -1,5 +1,5 @@
 /**
- * Tests for Lint Provider — Diagnostic Mapping
+ * Tests for Lint Provider — Diagnostic Mapping & stdin integration
  *
  * Plan: docs/plans/2026-03-31-vscode-phase-55.md TASK 16
  *
@@ -7,9 +7,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { mapEntryToDiagnostic, type DiagnosticWithData } from './provider';
+import { mapEntryToDiagnostic, lintDocument, type DiagnosticWithData } from './provider';
 import * as vscode from 'vscode';
-import type { DiagnosticEntry } from '../shared/types';
+import type { DiagnosticEntry, RunOptions } from '../shared/types';
 import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 
 function createMockDocument(
@@ -178,5 +178,186 @@ describe('mapEntryToDiagnostic', () => {
   it('sets message from entry', () => {
     const diag = mapEntryToDiagnostic(createEntry({ message: 'Missing return type' }), doc);
     expect(diag.message).toBe('Missing return type');
+  });
+});
+
+// =============================================================================
+// lintDocument — stdin integration
+// =============================================================================
+
+// Mock workspace module to provide binary path and workspace root
+vi.mock('../shared/workspace', () => ({
+  getBinaryPath: vi.fn(() => '/usr/local/bin/resist-lint'),
+  getWorkspaceRoot: vi.fn(() => '/workspace'),
+}));
+
+// Mock runner to capture args
+const mockRunToolJson = vi.fn();
+vi.mock('../shared/runner', () => ({
+  runToolJson: (...args: unknown[]) => mockRunToolJson(...args),
+}));
+
+// Mock per-folder options (pass-through)
+vi.mock('./per-folder', () => ({
+  getPerFolderLintOptions: (_uri: unknown, opts: unknown) => opts,
+}));
+
+// Mock output functions
+vi.mock('../shared/output', () => ({
+  log: vi.fn(),
+  logError: vi.fn(),
+  logCommand: vi.fn(),
+  logTiming: vi.fn(),
+}));
+
+describe('lintDocument — stdin mode', () => {
+  let mockDocument: vscode.TextDocument;
+  let mockCollection: vscode.DiagnosticCollection;
+  let mockChannel: vscode.OutputChannel;
+  let mockStateManager: { setState: ReturnType<typeof vi.fn>; getState: ReturnType<typeof vi.fn> };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    mockDocument = {
+      uri: vscode.Uri.file('/workspace/src/test.ts'),
+      getText: () => 'export const x: number = 42;',
+      lineCount: 1,
+      lineAt: () => ({ text: 'export const x: number = 42;', range: new vscode.Range(0, 0, 0, 28) }),
+      isUntitled: false,
+    } as unknown as vscode.TextDocument;
+
+    mockCollection = {
+      set: vi.fn(),
+      delete: vi.fn(),
+    } as unknown as vscode.DiagnosticCollection;
+
+    mockChannel = {
+      appendLine: vi.fn(),
+    } as unknown as vscode.OutputChannel;
+
+    mockStateManager = {
+      setState: vi.fn(),
+      getState: vi.fn(() => 'ready'),
+    };
+
+    mockRunToolJson.mockResolvedValue({
+      ok: true,
+      data: [],
+      stderr: '',
+      elapsed: 50,
+    });
+  });
+
+  it('passes --stdin-filename in CLI args', async () => {
+    await lintDocument(
+      mockDocument,
+      mockCollection,
+      mockChannel,
+      mockStateManager as never,
+      {},
+    );
+
+    expect(mockRunToolJson).toHaveBeenCalledTimes(1);
+    const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
+    const hasStdinFilename: boolean = options.args.some(
+      (a: string): boolean => a.startsWith('--stdin-filename='),
+    );
+    expect(hasStdinFilename).toBe(true);
+  });
+
+  it('passes document text content as stdin', async () => {
+    await lintDocument(
+      mockDocument,
+      mockCollection,
+      mockChannel,
+      mockStateManager as never,
+      {},
+    );
+
+    const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
+    expect(options.stdin).toBe('export const x: number = 42;');
+  });
+
+  it('does not pass file path as positional arg when using stdin', async () => {
+    await lintDocument(
+      mockDocument,
+      mockCollection,
+      mockChannel,
+      mockStateManager as never,
+      {},
+    );
+
+    const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
+    // File path should be in --stdin-filename, not as a bare positional arg
+    const positionalPaths: string[] = options.args.filter(
+      (a: string): boolean => !a.startsWith('--') && a.includes('/'),
+    );
+    expect(positionalPaths.length).toBe(0);
+  });
+
+  it('--stdin-filename value matches document file path', async () => {
+    await lintDocument(
+      mockDocument,
+      mockCollection,
+      mockChannel,
+      mockStateManager as never,
+      {},
+    );
+
+    const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
+    const stdinFlag: string | undefined = options.args.find(
+      (a: string): boolean => a.startsWith('--stdin-filename='),
+    );
+    expect(stdinFlag).toBe(`--stdin-filename=${mockDocument.uri.fsPath}`);
+  });
+
+  it('includes --format=json in args alongside --stdin-filename', async () => {
+    await lintDocument(
+      mockDocument,
+      mockCollection,
+      mockChannel,
+      mockStateManager as never,
+      {},
+    );
+
+    const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
+    expect(options.args).toContain('--format=json');
+  });
+
+  it('skips untitled documents', async () => {
+    const untitledDoc = {
+      ...mockDocument,
+      isUntitled: true,
+      uri: { ...mockDocument.uri, scheme: 'file' },
+    } as unknown as vscode.TextDocument;
+
+    await lintDocument(
+      untitledDoc,
+      mockCollection,
+      mockChannel,
+      mockStateManager as never,
+      {},
+    );
+
+    expect(mockRunToolJson).not.toHaveBeenCalled();
+  });
+
+  it('skips non-file scheme documents', async () => {
+    const virtualDoc = {
+      ...mockDocument,
+      uri: { ...mockDocument.uri, scheme: 'untitled', fsPath: '/test.ts' },
+      isUntitled: false,
+    } as unknown as vscode.TextDocument;
+
+    await lintDocument(
+      virtualDoc,
+      mockCollection,
+      mockChannel,
+      mockStateManager as never,
+      {},
+    );
+
+    expect(mockRunToolJson).not.toHaveBeenCalled();
   });
 });

@@ -61,26 +61,60 @@ const FIX_MODE: boolean = process.argv.includes('--fix');
 // 1. Parse brand.ts
 // =============================================================================
 
+/**
+ * Parse COMMANDS from brand.ts source code.
+ *
+ * Supports both single-quoted string values and template literals using
+ * `${COMMAND_PREFIX}`. Returns a Map of command key to resolved command ID.
+ *
+ * @param source - The brand.ts source code
+ * @returns Map of command key to command ID string
+ */
+export function parseBrandCommands(source: string): Map<string, string> {
+  const commandsBlock: RegExpMatchArray | null = source.match(
+    /export\s+const\s+COMMANDS\s*=\s*\{([\s\S]*?)\}\s*as\s+const/,
+  );
+
+  if (!commandsBlock) {
+    throw new Error('FAIL: Could not parse COMMANDS from brand.ts');
+  }
+
+  const commandPrefixMatch: RegExpMatchArray | null = source.match(
+    /export\s+const\s+COMMAND_PREFIX\s*=\s*'([^']+)'/,
+  );
+
+  if (!commandPrefixMatch) {
+    throw new Error('FAIL: Could not parse COMMAND_PREFIX from brand.ts');
+  }
+
+  const prefix: string = capture(commandPrefixMatch, 1, 'COMMAND_PREFIX');
+  const block: string = capture(commandsBlock, 1, 'COMMANDS block');
+  const result = new Map<string, string>();
+
+  // Match: key: 'value' (single-quoted)
+  const singleQuoteRegex: RegExp = /(\w+):\s*'([^']+)'/g;
+  let m: RegExpExecArray | null;
+
+  while ((m = singleQuoteRegex.exec(block)) !== null) {
+    result.set(capture(m, 1, 'command key'), capture(m, 2, 'command id'));
+  }
+
+  // Match: key: `${COMMAND_PREFIX}.rest.of.id` (template literal)
+  const templateLiteralRegex: RegExp = /(\w+):\s*`\$\{COMMAND_PREFIX\}\.([^`]+)`/g;
+
+  while ((m = templateLiteralRegex.exec(block)) !== null) {
+    result.set(
+      capture(m, 1, 'command key'),
+      `${prefix}.${capture(m, 2, 'template suffix')}`,
+    );
+  }
+
+  return result;
+}
+
 const brandPath: string = resolve(__dirname, '../src/shared/brand.ts');
 const brandSource: string = readFileSync(brandPath, 'utf8');
-
-// Extract COMMANDS object
-const commandsBlock: RegExpMatchArray | null = brandSource.match(
-  /export\s+const\s+COMMANDS\s*=\s*\{([\s\S]*?)\}\s*as\s+const/,
-);
-
-if (!commandsBlock) {
-  throw new Error('FAIL: Could not parse COMMANDS from brand.ts');
-}
-
-// Build map of key -> command ID
-const brandCommands = new Map<string, string>();
-const commandEntryRegex: RegExp = /(\w+):\s*'([^']+)'/g;
-let m: RegExpExecArray | null;
-
-while ((m = commandEntryRegex.exec(capture(commandsBlock, 1, 'COMMANDS block'))) !== null) {
-  brandCommands.set(capture(m, 1, 'command key'), capture(m, 2, 'command id'));
-}
+const brandCommands: Map<string, string> = parseBrandCommands(brandSource);
 
 // Extract CONFIG_SECTION
 const configMatch: RegExpMatchArray | null = brandSource.match(
@@ -323,7 +357,7 @@ if (FIX_MODE && errors > 0) {
 // 6. Report
 // =============================================================================
 
-if (errors > 0) {
+if (errors > 0 && !FIX_MODE) {
   throw new Error(`Manifest validation FAILED: ${errors} error(s). Run with --fix to auto-repair.`);
 } else {
   log(

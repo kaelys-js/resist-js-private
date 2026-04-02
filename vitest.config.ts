@@ -332,7 +332,7 @@ export default defineConfig({
           name: 'config-tooling-vscode',
           globals: true,
           root: 'packages/shared/config/tooling/vscode',
-          include: ['src/**/*.test.ts'],
+          include: ['src/**/*.test.ts', 'scripts/**/*.test.ts'],
           alias: {
             vscode: path.resolve(
               root,

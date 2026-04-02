@@ -17,8 +17,32 @@ import { format } from '@/lint/locale/schema.ts';
 // Entry Point
 // =============================================================================
 
+/**
+ * Read all data from stdin as a UTF-8 string.
+ *
+ * @returns {Promise<string>} The complete stdin content
+ */
+function readStdin(): Promise<string> {
+  return new Promise((resolve) => {
+    const chunks: Buffer[] = [];
+    process.stdin.setEncoding('utf8');
+    process.stdin.on('data', (chunk: Buffer) => {
+      chunks.push(Buffer.from(chunk));
+    });
+    process.stdin.on('end', () => {
+      resolve(Buffer.concat(chunks).toString('utf8'));
+    });
+  });
+}
+
 try {
   const args: CliArgs = parseCliArgs(process.argv.slice(2));
+
+  /* Read stdin when --stdin-filename is set */
+  let stdinContent: string | undefined;
+  if (args.stdinFilename) {
+    stdinContent = await readStdin();
+  }
 
   /* Resolve locale from --locale flag */
   const localeResult: LocaleResult = resolveLocale(args.locale);
@@ -35,7 +59,7 @@ try {
       process.stdout.write(msg);
     },
   };
-  const code: number = await runLinter(args, output, localeResult.strings);
+  const code: number = await runLinter(args, output, localeResult.strings, stdinContent);
   process.exit(code);
 } catch (error: unknown) {
   /* Fallback to en for crash messages since locale may not be resolved */

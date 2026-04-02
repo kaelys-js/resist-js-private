@@ -67,6 +67,49 @@ const ParamEntrySchema = v.strictObject({
 type ParamEntry = v.InferOutput<typeof ParamEntrySchema>;
 
 /**
+ * Find the byte offset within the source where `{Type} ` should be inserted
+ * for a `@param name` that is missing its type annotation.
+ *
+ * @param {string} paramName - The parameter name to search for
+ * @param {AstNode} exportNode - The export node (for JSDoc location)
+ * @param {string} content - Full file source text
+ * @returns {number} The absolute byte offset where `{Type} ` should be inserted, or -1
+ */
+function findParamInsertOffset(
+  paramName: string,
+  exportNode: AstNode,
+  content: string,
+): number {
+  const before: string = content.slice(0, exportNode.start);
+  const trimmed: string = before.trimEnd();
+  if (!trimmed.endsWith('*/')) {
+    return -1;
+  }
+  const docEnd: number = trimmed.length;
+  const docStart: number = trimmed.lastIndexOf('/**');
+  if (docStart === -1) {
+    return -1;
+  }
+
+  const jsDocText: string = content.slice(docStart, docEnd);
+  // Match @param without {Type} followed by the specific param name
+  const pattern = new RegExp(`@param\\s+(\\[?${paramName}\\]?)`, 'gm');
+  const match: RegExpExecArray | null = pattern.exec(jsDocText);
+  if (!match) {
+    return -1;
+  }
+  // Insert point is right after "@param " (before the param name)
+  // match.index is the start of "@param", we need position after "@param "
+  const atParamStart: number = docStart + match.index;
+  const afterAtParam: string = content.slice(atParamStart);
+  const spaceBeforeName: RegExpExecArray | null = /^@param\s+/.exec(afterAtParam);
+  if (!spaceBeforeName) {
+    return -1;
+  }
+  return atParamStart + spaceBeforeName[0].length;
+}
+
+/**
  * Extract `@param` entries from a JSDoc comment, including type presence.
  *
  * @param jsDoc - The JSDoc comment string
@@ -204,6 +247,11 @@ function checkFunction(
       const paramIdx: number = funcParamNames.indexOf(entry.name);
       const actualType: string =
         paramIdx >= 0 ? extractParamType(params[paramIdx]!, context.content) : 'unknown';
+      const insertAt: number = findParamInsertOffset(entry.name, exportNode, context.content);
+      const fixData =
+        insertAt >= 0
+          ? { range: { start: insertAt, end: insertAt }, text: `{${actualType}} ` }
+          : { range: { start: exportNode.start, end: exportNode.start }, text: '' };
       results.push({
         file: context.file,
         line: exportNode.loc.start.line,
@@ -213,7 +261,7 @@ function checkFunction(
         ruleId: 'jsdoc/require-param',
         tip: `Add type: @param {${actualType}} ${entry.name} - description`,
         example: `@param {${actualType}} ${entry.name} - Description`,
-        fix: { range: { start: exportNode.start, end: exportNode.start }, text: '' },
+        fix: fixData,
       });
     }
   }

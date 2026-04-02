@@ -35,6 +35,7 @@ function makeCliArgs(overrides: Partial<CliArgs> = {}): CliArgs {
     debug: false,
     format: undefined,
     jobs: undefined,
+    stdinFilename: undefined,
     tools: false,
     cache: false,
     ...overrides,

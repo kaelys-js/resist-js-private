@@ -19,7 +19,7 @@ import { clearCache, getBinaryPath } from '../shared/workspace';
 import type { ToolStateManager } from '../shared/state';
 import { withFileProgress } from '../shared/progress';
 import { log, logCommand, logError } from '../shared/output';
-import { runToolJson } from '../shared/runner';
+import { runToolText } from '../shared/runner';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
 import { BINARY_NAME, COMMANDS } from '../shared/brand';
@@ -178,22 +178,18 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     const { fsPath: cwd } = firstFolder.uri;
     logCommand(outputChannel, binPath, ['--list-rules']);
 
-    const result = await runToolJson<string>({
+    const result = await runToolText({
       command: binPath,
       args: ['--list-rules'],
       cwd,
     });
 
-    // --list-rules outputs text, not JSON, so show whatever we get
     outputChannel.appendLine('');
     outputChannel.appendLine(en.messages.availableRulesHeader);
     if (result.ok) {
-      outputChannel.appendLine(
-        typeof result.data === 'string' ? result.data : JSON.stringify(result.data, null, 2),
-      );
+      outputChannel.appendLine(result.data);
     } else {
-      // stderr likely has the text output
-      outputChannel.appendLine(result.stderr || result.error);
+      outputChannel.appendLine(result.error);
     }
     outputChannel.show();
   });
@@ -284,5 +280,28 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
   // Change active lint stage
   registerCommand(context, outputChannel, COMMANDS.changeStage, async () => {
     await stageIndicator.showQuickPick();
+  });
+
+  // Clear output channel
+  registerCommand(context, outputChannel, COMMANDS.clearOutput, () => {
+    outputChannel.clear();
+    log(outputChannel, en.messages.outputCleared);
+    return Promise.resolve();
+  });
+
+  // Pause / Resume linter
+  registerCommand(context, outputChannel, COMMANDS.toggleEnable, async () => {
+    const config = vscode.workspace.getConfiguration('resist.lint');
+    const currentValue: boolean = config.get<boolean>('enable', true);
+    await config.update('enable', !currentValue, vscode.ConfigurationTarget.Workspace);
+
+    if (currentValue) {
+      diagnosticCollection.clear();
+      stateManager.setState('lint', 'disabled');
+      log(outputChannel, en.messages.linterPaused);
+    } else {
+      stateManager.setState('lint', 'ready');
+      log(outputChannel, en.messages.linterResumed);
+    }
   });
 }
