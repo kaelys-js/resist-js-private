@@ -8,7 +8,13 @@
 
 import { describe, it, expect } from 'vitest';
 import * as vscode from 'vscode';
-import { SectionItem, ToolStatusItem, FileDiagnosticItem, PlaceholderItem } from './tree-items';
+import {
+  SectionItem,
+  ToolStatusItem,
+  FileDiagnosticItem,
+  DiagnosticDetailItem,
+  PlaceholderItem,
+} from './tree-items';
 import { en } from '../../locale/en';
 import { COMMANDS } from '../brand';
 
@@ -46,6 +52,16 @@ describe('SectionItem', () => {
   it('uses beaker icon for test', () => {
     const item = new SectionItem('Testing', 'test');
     expect((item.iconPath as vscode.ThemeIcon).id).toBe('beaker');
+  });
+
+  it('uses rocket icon for benchmark', () => {
+    const item = new SectionItem('Benchmarks', 'benchmark');
+    expect((item.iconPath as vscode.ThemeIcon).id).toBe('rocket');
+  });
+
+  it('uses globe icon for e2e', () => {
+    const item = new SectionItem('E2E Testing', 'e2e');
+    expect((item.iconPath as vscode.ThemeIcon).id).toBe('globe');
   });
 
   it('sets label from constructor', () => {
@@ -125,37 +141,142 @@ describe('ToolStatusItem', () => {
 
 describe('FileDiagnosticItem', () => {
   const uri = vscode.Uri.file('/workspace/src/index.ts');
+  const range = new vscode.Range(0, 0, 0, 1);
+  const diags = [new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error)];
 
   it('sets label to basename of file path', () => {
-    const item = new FileDiagnosticItem(uri, 2, 3);
+    const item = new FileDiagnosticItem(uri, 2, 3, diags);
     expect(item.label).toBe('index.ts');
   });
 
   it('sets description with error and warning counts', () => {
-    const item = new FileDiagnosticItem(uri, 2, 3);
+    const item = new FileDiagnosticItem(uri, 2, 3, diags);
     expect(item.description).toBe('2 errors, 3 warnings');
   });
 
   it('sets resourceUri for file icon', () => {
-    const item = new FileDiagnosticItem(uri, 1, 0);
+    const item = new FileDiagnosticItem(uri, 1, 0, diags);
     expect(item.resourceUri).toBe(uri);
   });
 
   it('sets contextValue to resist.fileDiagnostic', () => {
-    const item = new FileDiagnosticItem(uri, 1, 0);
+    const item = new FileDiagnosticItem(uri, 1, 0, diags);
     expect(item.contextValue).toBe('resist.fileDiagnostic');
   });
 
   it('sets command to open file in editor', () => {
-    const item = new FileDiagnosticItem(uri, 1, 0);
+    const item = new FileDiagnosticItem(uri, 1, 0, diags);
     expect(item.command).toBeDefined();
     expect(item.command?.command).toBe('vscode.open');
     expect(item.command?.arguments).toEqual([uri]);
   });
 
+  it('sets collapsibleState to Collapsed', () => {
+    const item = new FileDiagnosticItem(uri, 1, 0, diags);
+    expect(item.collapsibleState).toBe(vscode.TreeItemCollapsibleState.Collapsed);
+  });
+
+  it('stores diagnostics array', () => {
+    const item = new FileDiagnosticItem(uri, 1, 0, diags);
+    expect(item.diagnostics).toBe(diags);
+  });
+
+  it('stores fileUri', () => {
+    const item = new FileDiagnosticItem(uri, 1, 0, diags);
+    expect(item.fileUri).toBe(uri);
+  });
+});
+
+// =============================================================================
+// DiagnosticDetailItem
+// =============================================================================
+
+describe('DiagnosticDetailItem', () => {
+  const uri = vscode.Uri.file('/workspace/src/index.ts');
+  const range = new vscode.Range(9, 0, 9, 5);
+
+  it('sets label to diagnostic message', () => {
+    const diag = new vscode.Diagnostic(range, 'unused variable', vscode.DiagnosticSeverity.Warning);
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect(item.label).toBe('unused variable');
+  });
+
+  it('truncates long messages at 80 chars', () => {
+    const longMsg = 'a'.repeat(100);
+    const diag = new vscode.Diagnostic(range, longMsg, vscode.DiagnosticSeverity.Error);
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect((item.label as string).length).toBe(81); // 80 + ellipsis
+    expect((item.label as string).endsWith('\u2026')).toBe(true);
+  });
+
+  it('sets description to line number (1-indexed)', () => {
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect(item.description).toBe('Ln 10, Col 1');
+  });
+
+  it('uses error icon for Error severity', () => {
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect((item.iconPath as vscode.ThemeIcon).id).toBe('error');
+  });
+
+  it('uses warning icon for Warning severity', () => {
+    const diag = new vscode.Diagnostic(range, 'warn', vscode.DiagnosticSeverity.Warning);
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect((item.iconPath as vscode.ThemeIcon).id).toBe('warning');
+  });
+
+  it('uses info icon for Information severity', () => {
+    const diag = new vscode.Diagnostic(range, 'info', vscode.DiagnosticSeverity.Information);
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect((item.iconPath as vscode.ThemeIcon).id).toBe('info');
+  });
+
+  it('sets contextValue to resist.diagnosticDetail', () => {
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect(item.contextValue).toBe('resist.diagnosticDetail');
+  });
+
+  it('sets command to open file at diagnostic range', () => {
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect(item.command?.command).toBe('vscode.open');
+    expect(item.command?.arguments).toEqual([uri, { selection: range }]);
+  });
+
   it('sets collapsibleState to None', () => {
-    const item = new FileDiagnosticItem(uri, 1, 0);
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    const item = new DiagnosticDetailItem(diag, uri);
     expect(item.collapsibleState).toBe(vscode.TreeItemCollapsibleState.None);
+  });
+
+  it('includes rule ID in description when code is set', () => {
+    const diag = new vscode.Diagnostic(range, 'err msg', vscode.DiagnosticSeverity.Error);
+    diag.code = 'no-unused-vars';
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect(item.description).toBe('Ln 10, Col 1 · no-unused-vars');
+  });
+
+  it('includes rule ID in tooltip when code is a string', () => {
+    const diag = new vscode.Diagnostic(range, 'err msg', vscode.DiagnosticSeverity.Error);
+    diag.code = 'no-unused-vars';
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect(item.tooltip).toBe('err msg\n\nRule: no-unused-vars');
+  });
+
+  it('shows just message in tooltip when no code', () => {
+    const diag = new vscode.Diagnostic(range, 'err msg', vscode.DiagnosticSeverity.Error);
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect(item.tooltip).toBe('err msg');
+  });
+
+  it('stores fileUri and diagnostic references', () => {
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect(item.fileUri).toBe(uri);
+    expect(item.diagnostic).toBe(diag);
   });
 });
 

@@ -62,7 +62,10 @@ export const COMMANDS = {
   clearOutput: `${COMMAND_PREFIX}.lint.clearOutput`,
   toggleEnable: `${COMMAND_PREFIX}.lint.toggleEnable`,
   statusBarMenu: `${COMMAND_PREFIX}.lint.statusBarMenu`,
-  panelRefresh: `${COMMAND_PREFIX}.panel.refresh`,
+  panelExpandAll: `${COMMAND_PREFIX}.panel.expandAll`,
+  panelFilter: `${COMMAND_PREFIX}.panel.filter`,
+  panelClearFilter: `${COMMAND_PREFIX}.panel.clearFilter`,
+  panelMenu: `${COMMAND_PREFIX}.panel.menu`,
 } as const;
 
 // =============================================================================

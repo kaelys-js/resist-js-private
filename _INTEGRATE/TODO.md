@@ -1,10 +1,3 @@
-- [VS Code Extension]
-  - Panel (like there is for git in the sidebar)
-  - Status Bar UX: Hover (like console ninja) + Click (like console ninja) (Pause/Resume, Restart, Show Output/Clear Output, Toggle All Options Available)
-
-  - Test/Benchmark/Coverage Intergration
-  - Format Integration
-
 - [Lint]
   - Rules
     - Duplicates
@@ -307,3 +300,5 @@ https://github.com/Robdel12/OrbitDock
   - Local Split-Screen, Multiply Input Controller
   - Rpg Maker MV3D: Where 2d tiles/objects/etc can become 2.5d/3d or also if use actual models in 2d, 2.5d mode they will show appropriately if that makes sense
   - Prebuilt game presets for different game types
+- [VSCode]
+  - Integrate: Formatting, Testing, Benchmarks, E2E, Coverage, Config, Secrets, Commands/Tasks

@@ -21,10 +21,15 @@ import { COMMANDS } from '../brand';
 // =============================================================================
 
 /** Discriminant for tree item kinds. */
-export type TreeItemKind = 'section' | 'tool-status' | 'file-diagnostic' | 'placeholder';
+export type TreeItemKind =
+  | 'section'
+  | 'tool-status'
+  | 'file-diagnostic'
+  | 'diagnostic-detail'
+  | 'placeholder';
 
 /** Tool key for panel sections. */
-export type ToolKey = 'lint' | 'format' | 'test';
+export type ToolKey = 'lint' | 'format' | 'test' | 'benchmark' | 'e2e';
 
 // =============================================================================
 // Constants
@@ -35,6 +40,8 @@ const SECTION_ICONS: Record<ToolKey, string> = {
   lint: 'checklist',
   format: 'symbol-color',
   test: 'beaker',
+  benchmark: 'rocket',
+  e2e: 'globe',
 };
 
 /** Codicon IDs for each tool state. */
@@ -109,13 +116,27 @@ export class ToolStatusItem extends vscode.TreeItem {
 /**
  * A file with diagnostic issues.
  *
- * Shows filename, error/warning counts, and opens the file on click.
+ * Shows filename, error/warning counts. Expandable to show individual
+ * diagnostics as children. Clicking opens the file in the editor.
  */
 export class FileDiagnosticItem extends vscode.TreeItem {
-  constructor(uri: vscode.Uri, errors: number, warnings: number) {
-    const basename: string = uri.fsPath.split('/').pop() ?? uri.fsPath;
-    super(basename, vscode.TreeItemCollapsibleState.None);
+  /** The file URI for this diagnostic group. */
+  public readonly fileUri: vscode.Uri;
 
+  /** Individual diagnostics for this file (used by provider for children). */
+  public readonly diagnostics: readonly vscode.Diagnostic[];
+
+  constructor(
+    uri: vscode.Uri,
+    errors: number,
+    warnings: number,
+    diagnostics: readonly vscode.Diagnostic[],
+  ) {
+    const basename: string = uri.fsPath.split('/').pop() ?? uri.fsPath;
+    super(basename, vscode.TreeItemCollapsibleState.Collapsed);
+
+    this.fileUri = uri;
+    this.diagnostics = diagnostics;
     this.description = format(en.panel.fileIssueCount, { errors, warnings });
     this.resourceUri = uri;
     this.contextValue = 'resist.fileDiagnostic';
@@ -124,6 +145,75 @@ export class FileDiagnosticItem extends vscode.TreeItem {
       command: 'vscode.open',
       arguments: [uri],
     };
+  }
+}
+
+// =============================================================================
+// Diagnostic Detail Item
+// =============================================================================
+
+/** Max label length before truncation. */
+const MAX_LABEL_LENGTH = 80;
+
+/** Codicon IDs for diagnostic severity. */
+const SEVERITY_ICONS: Record<number, string> = {
+  [0]: 'error', // DiagnosticSeverity.Error
+  [1]: 'warning', // DiagnosticSeverity.Warning
+  [2]: 'info', // DiagnosticSeverity.Information
+  [3]: 'info', // DiagnosticSeverity.Hint
+};
+
+/**
+ * An individual diagnostic within a file.
+ *
+ * Shows the diagnostic message, line number, severity icon, and
+ * navigates to the exact location on click.
+ */
+export class DiagnosticDetailItem extends vscode.TreeItem {
+  /** The file URI containing this diagnostic. */
+  public readonly fileUri: vscode.Uri;
+
+  /** The diagnostic this item represents. */
+  public readonly diagnostic: vscode.Diagnostic;
+
+  constructor(diagnostic: vscode.Diagnostic, fileUri: vscode.Uri) {
+    const message: string =
+      diagnostic.message.length > MAX_LABEL_LENGTH
+        ? `${diagnostic.message.slice(0, MAX_LABEL_LENGTH)}…`
+        : diagnostic.message;
+    super(message, vscode.TreeItemCollapsibleState.None);
+
+    this.fileUri = fileUri;
+    this.diagnostic = diagnostic;
+
+    // Extract rule ID from diagnostic code
+    const code = diagnostic.code;
+    const ruleId: string =
+      typeof code === 'string'
+        ? code
+        : typeof code === 'number'
+          ? String(code)
+          : code && typeof code === 'object' && 'value' in code
+            ? String(code.value)
+            : '';
+
+    // Description: position + rule ID when available
+    const line = diagnostic.range.start.line + 1;
+    const col = diagnostic.range.start.character + 1;
+    this.description = ruleId
+      ? format(en.panel.diagnosticLineWithRule, { line, col, rule: ruleId })
+      : format(en.panel.diagnosticLine, { line, col });
+
+    this.iconPath = new vscode.ThemeIcon(SEVERITY_ICONS[diagnostic.severity] ?? 'info');
+    this.contextValue = 'resist.diagnosticDetail';
+    this.command = {
+      title: en.panel.goToLineAction,
+      command: 'vscode.open',
+      arguments: [fileUri, { selection: diagnostic.range }],
+    };
+
+    // Tooltip: full message + rule ID
+    this.tooltip = ruleId ? `${diagnostic.message}\n\nRule: ${ruleId}` : diagnostic.message;
   }
 }
 

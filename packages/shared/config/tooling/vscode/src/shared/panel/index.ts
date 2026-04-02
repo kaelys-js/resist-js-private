@@ -8,7 +8,13 @@
  * @module
  */
 
-export { SectionItem, ToolStatusItem, FileDiagnosticItem, PlaceholderItem } from './tree-items';
+export {
+  SectionItem,
+  ToolStatusItem,
+  FileDiagnosticItem,
+  DiagnosticDetailItem,
+  PlaceholderItem,
+} from './tree-items';
 export type { TreeItemKind, ToolKey } from './tree-items';
 export { ResistTreeDataProvider } from './tree-data-provider';
 export { registerPanel } from './panel';

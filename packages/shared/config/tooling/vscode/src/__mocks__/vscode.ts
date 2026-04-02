@@ -241,6 +241,9 @@ export class CodeLens {
 }
 
 export class ThemeIcon {
+  static readonly File = new ThemeIcon('file');
+  static readonly Folder = new ThemeIcon('folder');
+
   constructor(
     public readonly id: string,
     public readonly color?: ThemeColor,
@@ -444,9 +447,12 @@ export const window = {
     dispose: vi.fn(),
     visible: true,
     onDidChangeVisibility: vi.fn(() => createMockDisposable()),
-    badge: undefined,
+    badge: undefined as { value: number; tooltip: string } | undefined,
+    description: undefined as string | undefined,
+    message: undefined as string | undefined,
   })),
   showQuickPick: vi.fn(async () => undefined),
+  showInputBox: vi.fn(async () => undefined),
   withProgress: vi.fn(
     async (
       _options: unknown,

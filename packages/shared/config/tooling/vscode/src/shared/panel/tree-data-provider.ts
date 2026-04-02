@@ -3,8 +3,9 @@
  *
  * Implements `vscode.TreeDataProvider` for the sidebar panel.
  * Driven by `ToolStateManager` state and `DiagnosticCollection` contents.
+ * Supports 3-level tree: section → file → individual diagnostic.
  *
- * Plan: .claude/plans/keen-noodling-newt.md TASK 4
+ * Plan: .claude/plans/phase-86-panel-enhancements.md TASK 4
  *
  * @module
  */
@@ -12,7 +13,13 @@
 import * as vscode from 'vscode';
 import type { ToolStateManager } from '../state';
 import { en } from '../../locale/en';
-import { SectionItem, ToolStatusItem, FileDiagnosticItem, PlaceholderItem } from './tree-items';
+import {
+  SectionItem,
+  ToolStatusItem,
+  FileDiagnosticItem,
+  DiagnosticDetailItem,
+  PlaceholderItem,
+} from './tree-items';
 import type { ToolKey } from './tree-items';
 
 // =============================================================================
@@ -22,8 +29,9 @@ import type { ToolKey } from './tree-items';
 /**
  * TreeDataProvider for the Resist sidebar panel.
  *
- * Root level shows 3 collapsible sections (Linting, Formatting, Testing).
- * Each section shows its tool state and, for lint, per-file diagnostics.
+ * Root level shows 5 collapsible sections (Linting, Formatting, Testing,
+ * Benchmarks, E2E Testing). Each section shows its tool state and, for lint,
+ * per-file diagnostics that expand into individual diagnostic details.
  */
 export class ResistTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   /** Fires to signal that the tree data has changed. */
@@ -37,6 +45,15 @@ export class ResistTreeDataProvider implements vscode.TreeDataProvider<vscode.Tr
 
   /** Diagnostic collection for reading per-file issues. */
   private readonly diagnosticCollection: vscode.DiagnosticCollection;
+
+  /** Cached root sections for getParent() and reveal(). */
+  private cachedRoots: SectionItem[] = [];
+
+  /** Maps child items to their parent for getParent(). */
+  private readonly parentMap = new WeakMap<vscode.TreeItem, vscode.TreeItem>();
+
+  /** Current filter text for narrowing lint results. */
+  private filterText = '';
 
   constructor(stateManager: ToolStateManager, diagnosticCollection: vscode.DiagnosticCollection) {
     this.stateManager = stateManager;
@@ -61,18 +78,52 @@ export class ResistTreeDataProvider implements vscode.TreeDataProvider<vscode.Tr
    */
   getChildren(element?: vscode.TreeItem): vscode.TreeItem[] {
     if (!element) {
-      return [
+      this.cachedRoots = [
         new SectionItem(en.panel.lintingSection, 'lint'),
         new SectionItem(en.panel.formattingSection, 'format'),
         new SectionItem(en.panel.testingSection, 'test'),
+        new SectionItem(en.panel.benchmarksSection, 'benchmark'),
+        new SectionItem(en.panel.e2eSection, 'e2e'),
       ];
+      return this.cachedRoots;
     }
 
     if (element instanceof SectionItem) {
-      return this.getSectionChildren(element.toolKey);
+      const children = this.getSectionChildren(element.toolKey);
+      for (const child of children) {
+        this.parentMap.set(child, element);
+      }
+      return children;
+    }
+
+    if (element instanceof FileDiagnosticItem) {
+      const children = this.getDiagnosticChildren(element);
+      for (const child of children) {
+        this.parentMap.set(child, element);
+      }
+      return children;
     }
 
     return [];
+  }
+
+  /**
+   * Returns the parent of a tree item for reveal() support.
+   *
+   * @param element - The child element
+   * @returns The parent element, or undefined for root items
+   */
+  getParent(element: vscode.TreeItem): vscode.TreeItem | undefined {
+    return this.parentMap.get(element);
+  }
+
+  /**
+   * Returns the cached root section items.
+   *
+   * @returns Array of cached root SectionItems
+   */
+  getRoots(): SectionItem[] {
+    return this.cachedRoots;
   }
 
   /**
@@ -80,6 +131,33 @@ export class ResistTreeDataProvider implements vscode.TreeDataProvider<vscode.Tr
    */
   refresh(): void {
     this._onDidChangeTreeData.fire(undefined);
+  }
+
+  /**
+   * Sets the filter text and refreshes the tree.
+   *
+   * @param text - Filter text to match against file names, rules, and messages
+   */
+  setFilter(text: string): void {
+    this.filterText = text;
+    this.refresh();
+  }
+
+  /**
+   * Clears the active filter and refreshes the tree.
+   */
+  clearFilter(): void {
+    this.filterText = '';
+    this.refresh();
+  }
+
+  /**
+   * Returns the current filter text.
+   *
+   * @returns The active filter string
+   */
+  getFilterText(): string {
+    return this.filterText;
   }
 
   /**
@@ -107,7 +185,7 @@ export class ResistTreeDataProvider implements vscode.TreeDataProvider<vscode.Tr
       return [...children, ...this.getLintChildren(state)];
     }
 
-    // Format and test: always show "not configured" placeholder
+    // Format, test, benchmark, e2e: always show "not configured" placeholder
     children.push(new PlaceholderItem(en.panel.notConfigured));
     return children;
   }
@@ -133,6 +211,7 @@ export class ResistTreeDataProvider implements vscode.TreeDataProvider<vscode.Tr
 
     // ready or running: show per-file diagnostics
     const fileItems: vscode.TreeItem[] = [];
+    const filter = this.filterText.toLowerCase();
 
     this.diagnosticCollection.forEach(
       (
@@ -144,10 +223,34 @@ export class ResistTreeDataProvider implements vscode.TreeDataProvider<vscode.Tr
           return;
         }
 
+        // Apply filter: match filename, message, or rule ID
+        const filtered: vscode.Diagnostic[] = filter
+          ? diagnostics.filter((diag) => {
+              const filename = uri.fsPath.toLowerCase();
+              const message = diag.message.toLowerCase();
+              const code = diag.code;
+              const ruleId: string =
+                typeof code === 'string'
+                  ? code.toLowerCase()
+                  : typeof code === 'number'
+                    ? String(code)
+                    : code && typeof code === 'object' && 'value' in code
+                      ? String(code.value).toLowerCase()
+                      : '';
+              return (
+                filename.includes(filter) || message.includes(filter) || ruleId.includes(filter)
+              );
+            })
+          : Array.from(diagnostics);
+
+        if (filtered.length === 0) {
+          return;
+        }
+
         let errors = 0;
         let warnings = 0;
 
-        for (const diag of diagnostics) {
+        for (const diag of filtered) {
           if (diag.severity === vscode.DiagnosticSeverity.Error) {
             errors++;
           } else if (diag.severity === vscode.DiagnosticSeverity.Warning) {
@@ -156,15 +259,28 @@ export class ResistTreeDataProvider implements vscode.TreeDataProvider<vscode.Tr
         }
 
         if (errors > 0 || warnings > 0) {
-          fileItems.push(new FileDiagnosticItem(uri, errors, warnings));
+          fileItems.push(new FileDiagnosticItem(uri, errors, warnings, filtered));
         }
       },
     );
 
     if (fileItems.length === 0) {
+      if (filter) {
+        return [new PlaceholderItem(en.panel.filterNoResults)];
+      }
       return [new PlaceholderItem(en.panel.noIssues)];
     }
 
     return fileItems;
+  }
+
+  /**
+   * Builds individual diagnostic items for a file.
+   *
+   * @param fileItem - The parent file diagnostic item
+   * @returns Array of DiagnosticDetailItem children
+   */
+  private getDiagnosticChildren(fileItem: FileDiagnosticItem): vscode.TreeItem[] {
+    return fileItem.diagnostics.map((diag) => new DiagnosticDetailItem(diag, fileItem.fileUri));
   }
 }
