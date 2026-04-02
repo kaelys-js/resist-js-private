@@ -232,6 +232,13 @@ describe('lintDocument — stdin mode', () => {
     vi.clearAllMocks();
     clearExcludeCache();
 
+    // Set workspace folders so untitled docs can resolve binary/workspace
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: [{ uri: vscode.Uri.file('/workspace'), name: 'workspace', index: 0 }],
+      writable: true,
+      configurable: true,
+    });
+
     mockDocument = {
       uri: vscode.Uri.file('/workspace/src/test.ts'),
       getText: () => 'export const x: number = 42;',

@@ -11,6 +11,7 @@ import * as vscode from 'vscode';
 import type { ExtensionState } from './types';
 import { en } from '../locale/en';
 import { formatPlural } from '../locale/schema';
+import { COMMANDS } from './brand';
 
 // =============================================================================
 // Types
@@ -89,7 +90,8 @@ export function updateStatusBar(
 /**
  * Builds a rich MarkdownString tooltip for the status bar item.
  *
- * Shows current state, error/warning counts, and a click hint.
+ * Renders a Console Ninja-style tooltip with state, diagnostics,
+ * and clickable command links for quick actions.
  *
  * @param {ExtensionState} state - Current extension state
  * @param {DiagnosticCounts} [counts] - Optional diagnostic counts
@@ -103,35 +105,62 @@ function buildStatusTooltip(
   md.isTrusted = true;
   md.supportThemeIcons = true;
 
-  const stateLabels: Record<ExtensionState, string> = {
-    ready: '$(check) Ready',
-    linting: '$(sync~spin) Linting...',
-    error: '$(error) Error',
-    disabled: '$(circle-slash) Disabled',
+  // Header
+  const stateIcons: Record<ExtensionState, string> = {
+    ready: '$(pass-filled)',
+    linting: '$(sync~spin)',
+    error: '$(error)',
+    disabled: '$(circle-slash)',
+  };
+  const stateDescriptions: Record<ExtensionState, string> = {
+    ready: 'is **ready**',
+    linting: 'is **linting**...',
+    error: 'encountered an **error**',
+    disabled: 'is **paused**',
   };
 
-  md.appendMarkdown(`**Resist Linter** — ${stateLabels[state]}\n\n`);
+  md.appendMarkdown(`${stateIcons[state]} Resist Linter ${stateDescriptions[state]}\n\n`);
 
+  // Diagnostics
   if (counts && (counts.errors > 0 || counts.warnings > 0)) {
+    const parts: string[] = [];
+
     if (counts.errors > 0) {
-      const label: string = formatPlural(counts.errors, {
-        one: en.plurals.error,
-        other: en.plurals.errors,
-      });
-      md.appendMarkdown(`$(error) ${label}\n\n`);
+      parts.push(
+        `$(error) ${formatPlural(counts.errors, { one: en.plurals.error, other: en.plurals.errors })}`,
+      );
     }
     if (counts.warnings > 0) {
-      const label: string = formatPlural(counts.warnings, {
-        one: en.plurals.warning,
-        other: en.plurals.warnings,
-      });
-      md.appendMarkdown(`$(warning) ${label}\n\n`);
+      parts.push(
+        `$(warning) ${formatPlural(counts.warnings, { one: en.plurals.warning, other: en.plurals.warnings })}`,
+      );
     }
+    md.appendMarkdown(`${parts.join(' · ')} in current file\n\n`);
   } else if (state === 'ready') {
-    md.appendMarkdown('No issues in current file\n\n');
+    md.appendMarkdown('$(check) No issues in current file\n\n');
   }
 
-  md.appendMarkdown('---\n\n$(menu) Click for actions');
+  md.appendMarkdown('---\n\n');
+
+  // Quick actions as command links
+  if (state === 'disabled') {
+    md.appendMarkdown(`[$(debug-start) Resume Linting](command:${COMMANDS.toggleEnable})\n\n`);
+  } else {
+    md.appendMarkdown(
+      `[$(debug-pause) Pause](command:${COMMANDS.toggleEnable}) · ` +
+        `[$(debug-restart) Restart](command:${COMMANDS.restart})\n\n`,
+    );
+  }
+
+  md.appendMarkdown(
+    `[$(file-code) Lint File](command:${COMMANDS.lintFile}) · ` +
+      `[$(wand) Fix All](command:${COMMANDS.lintFix})\n\n`,
+  );
+
+  md.appendMarkdown(
+    `[$(output) Output](command:${COMMANDS.showOutput}) · ` +
+      `[$(clear-all) Clear](command:${COMMANDS.clearOutput})`,
+  );
 
   return md;
 }

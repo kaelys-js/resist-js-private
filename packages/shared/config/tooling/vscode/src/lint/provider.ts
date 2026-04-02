@@ -184,20 +184,26 @@ export async function lintDocument(
     filePath = document.uri.fsPath;
   }
 
+  // For untitled docs, use the first workspace folder for binary/workspace resolution
+  // since untitled:// URIs can't be resolved by getWorkspaceFolder()
+  const resolveUri: vscode.Uri = isUntitled
+    ? (vscode.workspace.workspaceFolders?.[0]?.uri ?? document.uri)
+    : document.uri;
+
   // Resolve per-folder options for multi-root workspaces
   const resolvedOptions: LintOptions = isUntitled
     ? options
     : getPerFolderLintOptions(document.uri, options, channel);
 
   // Find resist-lint binary
-  const binPath: string | undefined = getBinaryPath(BINARY_NAME, document.uri);
+  const binPath: string | undefined = getBinaryPath(BINARY_NAME, resolveUri);
 
   if (!binPath) {
     log(channel, format(en.messages.skipBinaryNotFound, { file: filePath }));
     return;
   }
 
-  const cwd: string | undefined = getWorkspaceRoot(document.uri);
+  const cwd: string | undefined = getWorkspaceRoot(resolveUri);
 
   if (!cwd) {
     log(channel, format(en.messages.skipWorkspaceNotFound, { file: filePath }));
