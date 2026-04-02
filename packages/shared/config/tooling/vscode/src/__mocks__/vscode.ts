@@ -28,6 +28,14 @@ export const StatusBarAlignment = {
   Right: 2,
 } as const;
 
+export const ViewColumn = {
+  Active: -1,
+  Beside: -2,
+  One: 1,
+  Two: 2,
+  Three: 3,
+} as const;
+
 export const ProgressLocation = {
   SourceControl: 1,
   Window: 10,
@@ -467,6 +475,19 @@ export const window = {
     description: undefined as string | undefined,
     message: undefined as string | undefined,
   })),
+  createWebviewPanel: vi.fn(
+    (_viewType: string, _title: string, _showOptions: unknown, _options?: unknown) => ({
+      webview: { html: '', cspSource: 'https://test.csp', asWebviewUri: vi.fn((uri: Uri) => uri) },
+      reveal: vi.fn(),
+      dispose: vi.fn(),
+      onDidDispose: vi.fn((cb: () => void) => {
+        // Store callback for test access
+        (window.createWebviewPanel as ReturnType<typeof vi.fn>).__disposeCallback = cb;
+        return createMockDisposable();
+      }),
+      visible: true,
+    }),
+  ),
   showQuickPick: vi.fn(async () => undefined),
   showInputBox: vi.fn(async () => undefined),
   withProgress: vi.fn(

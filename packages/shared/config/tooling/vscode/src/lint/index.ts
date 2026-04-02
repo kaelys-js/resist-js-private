@@ -20,4 +20,4 @@ export { ResistFormattingProvider } from './formatting-provider';
 export { createConfigWatcher } from './watcher';
 export { registerLintCommands } from './commands';
 export { ResistHoverProvider, cleanExample } from './hover';
-export { RulesViewerProvider } from './rules-viewer';
+export { showRulesViewer } from './rules-viewer';

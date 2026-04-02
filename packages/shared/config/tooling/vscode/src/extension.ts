@@ -39,7 +39,6 @@ import {
   CONFIG_LINT_SECTION,
   DIAGNOSTIC_COLLECTION_NAME,
   PREVIEW_SCHEME,
-  RULES_SCHEME,
   type ToolState,
 } from './shared/index';
 import {
@@ -47,7 +46,6 @@ import {
   ResistCodeActionProvider,
   ResistHoverProvider,
   FixDiffPreviewProvider,
-  RulesViewerProvider,
   DiagnosticFilter,
   StageIndicator,
   FixOnSaveManager,
@@ -257,17 +255,6 @@ export function activate(context: vscode.ExtensionContext): void {
   lifecycle.register(
     'diff-preview',
     vscode.workspace.registerTextDocumentContentProvider(PREVIEW_SCHEME, diffPreviewProvider),
-    20,
-  );
-
-  // ========================================================================
-  // Rules Viewer Content Provider
-  // ========================================================================
-
-  const rulesViewerProvider = new RulesViewerProvider();
-  lifecycle.register(
-    'rules-viewer',
-    vscode.workspace.registerTextDocumentContentProvider(RULES_SCHEME, rulesViewerProvider),
     20,
   );
 
