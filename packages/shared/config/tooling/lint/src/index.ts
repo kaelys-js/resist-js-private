@@ -18,7 +18,7 @@ export type {
 export type { LintFix, LintResult } from '@/lint/framework/types.ts';
 
 export type { LintConfig } from '@/lint/config/schema.ts';
-export { loadConfig, resolveRuleSeverity } from '@/lint/config/schema.ts';
+export { loadConfig, resolveRuleSeverity, isRuleEnabledAnywhere } from '@/lint/config/schema.ts';
 
 export { formatResults } from '@/lint/framework/formatters.ts';
 export type { OutputFormat } from '@/lint/framework/formatters.ts';

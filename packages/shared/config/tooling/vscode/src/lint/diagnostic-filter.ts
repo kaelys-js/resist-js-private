@@ -24,9 +24,8 @@ function collectEntries(
   collection: vscode.DiagnosticCollection,
 ): Array<[vscode.Uri, readonly vscode.Diagnostic[]]> {
   const result: Array<[vscode.Uri, readonly vscode.Diagnostic[]]> = [];
-  // DiagnosticCollection only provides forEach — no iterator protocol.
-  // oxlint/no-array-for-each: this is the only API available on DiagnosticCollection.
-  // eslint-disable-next-line no-array-for-each -- DiagnosticCollection has no iterator
+
+  // DiagnosticCollection only provides forEach — no iterator protocol
   collection.forEach((uri, diagnostics) => {
     result.push([uri, diagnostics]);
   });
@@ -70,11 +69,13 @@ export class DiagnosticFilter implements vscode.Disposable {
         if (diag.source !== DIAGNOSTIC_SOURCE) {
           continue;
         }
+
         const ruleId: string =
           typeof diag.code === 'object' && diag.code !== null
             ? String((diag.code as { value: string | number }).value)
             : String(diag.code ?? '');
         const slashIndex: number = ruleId.indexOf('/');
+
         if (slashIndex > 0) {
           categories.add(ruleId.slice(0, slashIndex));
         }
@@ -135,17 +136,20 @@ export class DiagnosticFilter implements vscode.Disposable {
     // Apply filter
     const originals = new Map(this.originalDiagnostics);
     const activeCats: Set<string> = this.activeCategories;
+
     for (const [uriStr, diagnostics] of originals) {
       const filtered: vscode.Diagnostic[] = diagnostics.filter((diag) => {
         if (diag.source !== DIAGNOSTIC_SOURCE) {
           return true; // Keep non-resist diagnostics
         }
+
         const ruleId: string =
           typeof diag.code === 'object' && diag.code !== null
             ? String((diag.code as { value: string | number }).value)
             : String(diag.code ?? '');
         const slashIndex: number = ruleId.indexOf('/');
         const category: string = slashIndex > 0 ? ruleId.slice(0, slashIndex) : '';
+
         return activeCats.has(category);
       });
 

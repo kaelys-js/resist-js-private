@@ -8,9 +8,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
 import { getPerFolderLintOptions } from './per-folder';
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // Tests
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 describe('getPerFolderLintOptions', () => {
   const globalOptions = {

@@ -38,6 +38,7 @@ export class FixOnSaveManager implements vscode.Disposable {
     // Periodic cleanup of stale loop guard entries
     this.cleanupTimer = setInterval(() => {
       const now: number = Date.now();
+
       for (const [key, timestamp] of this.recentlyFixed) {
         if (now - timestamp > LOOP_GUARD_MS * 2) {
           this.recentlyFixed.delete(key);
@@ -61,6 +62,7 @@ export class FixOnSaveManager implements vscode.Disposable {
 
     // Loop guard: skip if we recently fixed this file
     const lastFixed: number | undefined = this.recentlyFixed.get(uriKey);
+
     if (lastFixed !== undefined && Date.now() - lastFixed < LOOP_GUARD_MS) {
       if (this.channel) {
         log(this.channel, en.fixOnSave.loopGuard);
@@ -74,6 +76,7 @@ export class FixOnSaveManager implements vscode.Disposable {
 
     for (const diag of diagnostics) {
       const { data } = diag as DiagnosticWithData;
+
       if (data?.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '')) {
         fixes.push({
           start: data.fix.range.start,
@@ -94,6 +97,7 @@ export class FixOnSaveManager implements vscode.Disposable {
     fixes.sort((a, b) => b.start - a.start);
 
     const edit = new vscode.WorkspaceEdit();
+
     for (const fix of fixes) {
       const startPos: vscode.Position = doc.positionAt(fix.start);
       const endPos: vscode.Position = doc.positionAt(fix.end);
@@ -104,6 +108,7 @@ export class FixOnSaveManager implements vscode.Disposable {
     this.recentlyFixed.set(uriKey, Date.now());
 
     const applied: boolean = await vscode.workspace.applyEdit(edit);
+
     if (applied && this.channel) {
       log(this.channel, format(en.fixOnSave.applied, { count: fixes.length }));
     }

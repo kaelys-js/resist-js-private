@@ -33,11 +33,23 @@ type FileProcessResult<T> = {
  * per-file errors and continues processing remaining files. All errors
  * are logged to the output channel.
  *
- * @param channel - Output channel for logging
- * @param title - Progress bar title
- * @param files - Array of file URIs to process
- * @param processFn - Async function to process each file
- * @returns Array of results (success or error) for each file
+ * @param {vscode.OutputChannel} channel - Output channel for logging
+ * @param {string} title - Progress bar title
+ * @param {readonly vscode.Uri[]} files - Array of file URIs to process
+ * @param {(uri: vscode.Uri) => Promise<T>} processFn - Async function to process each file
+ * @returns {Promise<Array<FileProcessResult<T>>>} Array of results (success or error) for each file
+ *
+ * @example
+ * ```typescript
+ * const fileUris = await vscode.workspace.findFiles('**\/*.ts');
+ * const results = await withFileProgress(
+ *   outputChannel,
+ *   'Linting workspace',
+ *   fileUris,
+ *   async (uri) => lintFile(uri.fsPath),
+ * );
+ * const failures = results.filter((r) => r.error);
+ * ```
  */
 export async function withFileProgress<T>(
   channel: vscode.OutputChannel,

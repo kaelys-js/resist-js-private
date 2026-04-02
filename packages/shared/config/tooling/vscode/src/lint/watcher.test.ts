@@ -2,6 +2,8 @@
  * Tests for Config File Watcher
  *
  * Plan: docs/plans/2026-03-31-vscode-phase-56.md TASK 5
+ *
+ * @module
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

@@ -2,6 +2,8 @@
  * Tests for Tool State Manager
  *
  * Plan: docs/plans/2026-03-31-vscode-phase-60.md TASK 11
+ *
+ * @module
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -17,6 +19,7 @@ vi.mock('./output', () => ({
 vi.mock('../locale/schema', () => ({
   format: vi.fn((template: string, params: Record<string, string | number>) => {
     let result: string = template;
+
     for (const [key, value] of Object.entries(params)) {
       result = result.replaceAll(`{${key}}`, String(value));
     }

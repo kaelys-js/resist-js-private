@@ -15,17 +15,44 @@ import { logError, log } from './output';
 import { format } from '../locale/schema';
 import { en } from '../locale/en';
 
+// =============================================================================
+// Types
+// =============================================================================
+
+/** Options for batched file watching. */
+export type BatchedWatcherOptions = {
+  /** Batch window in milliseconds (default 500). */
+  readonly batchWindowMs?: number;
+  /** Deduplicate URIs within a batch (default true). */
+  readonly deduplicateByUri?: boolean;
+};
+
+// =============================================================================
+// Exported API
+// =============================================================================
+
 /**
  * Creates file system watchers for the given glob patterns.
  *
  * Changes are debounced to avoid rapid re-triggering. Callback errors
  * are caught and logged — the watcher stays alive.
  *
- * @param patterns - Glob patterns to watch (e.g. ['**\/.resist-lint.jsonc'])
- * @param callback - Function to call when a matching file changes
- * @param channel - Optional output channel for logging
- * @param debounceMs - Debounce delay in milliseconds (default 1000)
- * @returns Array of disposables for cleanup
+ * @param {string[]} patterns - Glob patterns to watch (e.g. ['**\/.resist-lint.jsonc'])
+ * @param {() => void} callback - Function to call when a matching file changes
+ * @param {vscode.OutputChannel} [channel] - Optional output channel for logging
+ * @param {number} debounceMs - Debounce delay in milliseconds (default 1000)
+ * @returns {vscode.Disposable[]} Array of disposables for cleanup
+ *
+ * @example
+ * ```typescript
+ * const disposables = createFileWatcher(
+ *   ['**\/.resist-lint.jsonc', '**\/biome.jsonc'],
+ *   () => reloadConfig(),
+ *   outputChannel,
+ *   1500,
+ * );
+ * context.subscriptions.push(...disposables);
+ * ```
  */
 export function createFileWatcher(
   patterns: string[],
@@ -46,6 +73,7 @@ export function createFileWatcher(
         callback();
       } catch (error: unknown) {
         const message: string = extractMessage(error);
+
         if (channel) {
           logError(channel, message);
         }
@@ -93,25 +121,32 @@ export function createFileWatcher(
   return disposables;
 }
 
-/** Options for batched file watching. */
-export type BatchedWatcherOptions = {
-  /** Batch window in milliseconds (default 500). */
-  readonly batchWindowMs?: number;
-  /** Deduplicate URIs within a batch (default true). */
-  readonly deduplicateByUri?: boolean;
-};
-
 /**
  * Creates file system watchers that batch multiple rapid changes.
  *
  * Instead of firing the callback on each individual change, collects
  * all changed URIs within a batch window and fires once with the full list.
  *
- * @param patterns - Glob patterns to watch
- * @param callback - Function called with array of changed URIs
- * @param channel - Optional output channel for logging
- * @param options - Batch window and deduplication options
- * @returns Array of disposables for cleanup
+ * @param {string[]} patterns - Glob patterns to watch
+ * @param {(uris: vscode.Uri[]) => void} callback - Function called with array of changed URIs
+ * @param {vscode.OutputChannel} [channel] - Optional output channel for logging
+ * @param {BatchedWatcherOptions} [options] - Batch window and deduplication options
+ * @returns {vscode.Disposable[]} Array of disposables for cleanup
+ *
+ * @example
+ * ```typescript
+ * const disposables = createBatchedFileWatcher(
+ *   ['**\/*.ts', '**\/*.svelte'],
+ *   (uris) => {
+ *     for (const uri of uris) {
+ *       lintFile(uri);
+ *     }
+ *   },
+ *   outputChannel,
+ *   { batchWindowMs: 300, deduplicateByUri: true },
+ * );
+ * context.subscriptions.push(...disposables);
+ * ```
  */
 export function createBatchedFileWatcher(
   patterns: string[],
@@ -143,6 +178,7 @@ export function createBatchedFileWatcher(
       callback(uris);
     } catch (error: unknown) {
       const message: string = extractMessage(error);
+
       if (channel) {
         logError(channel, message);
       }
@@ -153,6 +189,7 @@ export function createBatchedFileWatcher(
     if (deduplicateByUri) {
       const { fsPath } = uri;
       const alreadyExists: boolean = pendingUris.some((u) => u.fsPath === fsPath);
+
       if (!alreadyExists) {
         pendingUris.push(uri);
       }

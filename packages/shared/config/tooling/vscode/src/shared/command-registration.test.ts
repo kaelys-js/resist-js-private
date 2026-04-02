@@ -2,6 +2,8 @@
  * Tests for Command Registration
  *
  * Plan: docs/plans/2026-03-31-vscode-phase-60.md TASK 5
+ *
+ * @module
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

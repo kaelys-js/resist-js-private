@@ -2,6 +2,8 @@
  * Tests for Output Channel Logging
  *
  * Plan: docs/plans/2026-03-31-vscode-phase-55.md TASK 14
+ *
+ * @module
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

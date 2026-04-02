@@ -162,6 +162,7 @@ export class DocumentEventRegistry implements vscode.Disposable {
     handler: (doc: vscode.TextDocument) => void,
   ): void {
     const handlers: RegisteredHandler[] | undefined = this.handlers.get(event);
+
     if (handlers) {
       handlers.push({ tool, handler });
     }
@@ -183,6 +184,7 @@ export class DocumentEventRegistry implements vscode.Disposable {
     }
 
     const handlers: RegisteredHandler[] | undefined = this.handlers.get(event);
+
     if (!handlers || handlers.length === 0) {
       return;
     }

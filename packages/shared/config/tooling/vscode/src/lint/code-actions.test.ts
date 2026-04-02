@@ -2,6 +2,8 @@
  * Tests for Code Action Provider
  *
  * Plan: docs/plans/2026-03-31-vscode-phase-55.md TASK 15
+ *
+ * @module
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -17,6 +19,7 @@ function createMockDocument(text: string = 'const x = 1;\n'): vscode.TextDocumen
       // Simple offset-to-position: count newlines
       let line = 0;
       let col = 0;
+
       for (let i = 0; i < offset && i < text.length; i++) {
         if (text[i] === '\n') {
           line++;

@@ -19,8 +19,16 @@ import { en } from '../locale/en';
 /**
  * Checks whether a document is a workspace file (not untitled, file scheme).
  *
- * @param doc - The document to check
- * @returns true if the document is a workspace file
+ * @param {vscode.TextDocument} doc - The document to check
+ * @returns {boolean} true if the document is a workspace file
+ *
+ * @example
+ * ```typescript
+ * const editor = vscode.window.activeTextEditor;
+ * if (editor && isWorkspaceDocument(editor.document)) {
+ *   await lintDocument(editor.document);
+ * }
+ * ```
  */
 export function isWorkspaceDocument(doc: vscode.TextDocument): boolean {
   return doc.uri.scheme === 'file' && !doc.isUntitled;
@@ -32,9 +40,18 @@ export function isWorkspaceDocument(doc: vscode.TextDocument): boolean {
  * Catches per-document errors and continues processing remaining documents.
  * Errors are logged to the output channel — never swallowed.
  *
- * @param filter - Predicate to select documents
- * @param action - Callback to execute for each matching document
- * @param channel - Optional output channel for error logging
+ * @param {(doc: vscode.TextDocument) => boolean} filter - Predicate to select documents
+ * @param {(doc: vscode.TextDocument) => void} action - Callback to execute for each matching document
+ * @param {vscode.OutputChannel} [channel] - Optional output channel for error logging
+ *
+ * @example
+ * ```typescript
+ * forEachOpenDocument(
+ *   isWorkspaceDocument,
+ *   (doc) => lintDocument(doc),
+ *   outputChannel,
+ * );
+ * ```
  */
 export function forEachOpenDocument(
   filter: (doc: vscode.TextDocument) => boolean,
@@ -49,6 +66,7 @@ export function forEachOpenDocument(
       action(doc);
     } catch (error: unknown) {
       const message: string = extractMessage(error);
+
       if (channel) {
         logError(
           channel,

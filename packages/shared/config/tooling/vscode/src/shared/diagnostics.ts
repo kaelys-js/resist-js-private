@@ -18,8 +18,14 @@ import type { DiagnosticEntry } from './types';
 /**
  * Maps a severity string to a VS Code DiagnosticSeverity.
  *
- * @param severity - Severity string from the linter ('error', 'warn', 'info', 'off')
- * @returns VS Code DiagnosticSeverity
+ * @param {string} severity - Severity string from the linter ('error', 'warn', 'info', 'off')
+ * @returns {vscode.DiagnosticSeverity} VS Code DiagnosticSeverity
+ *
+ * @example
+ * ```typescript
+ * const severity = mapSeverity('warn');
+ * // severity === vscode.DiagnosticSeverity.Warning
+ * ```
  */
 export function mapSeverity(severity: string): vscode.DiagnosticSeverity {
   switch (severity) {
@@ -44,10 +50,17 @@ export function mapSeverity(severity: string): vscode.DiagnosticSeverity {
  *
  * Logs a warning when diagnostics are truncated.
  *
- * @param diagnostics - Array of diagnostics to limit
- * @param max - Maximum number of diagnostics to keep
- * @param channel - Optional output channel for logging
- * @returns Truncated array of diagnostics
+ * @param {vscode.Diagnostic[]} diagnostics - Array of diagnostics to limit
+ * @param {number} max - Maximum number of diagnostics to keep
+ * @param {vscode.OutputChannel} [channel] - Optional output channel for logging
+ * @returns {vscode.Diagnostic[]} Truncated array of diagnostics
+ *
+ * @example
+ * ```typescript
+ * const allDiagnostics = [diag1, diag2, diag3, diag4, diag5];
+ * const limited = applyMaxProblems(allDiagnostics, 3, outputChannel);
+ * // limited.length === 3
+ * ```
  */
 export function applyMaxProblems(
   diagnostics: vscode.Diagnostic[],
@@ -70,10 +83,26 @@ export function applyMaxProblems(
  *
  * Invalid entries are logged and result in undefined return.
  *
- * @param entry - The linter diagnostic entry
- * @param source - Source attribution string (e.g. 'resist-linter')
- * @param channel - Optional output channel for logging
- * @returns The created diagnostic, or undefined if the entry is invalid
+ * @param {DiagnosticEntry} entry - The linter diagnostic entry
+ * @param {string} source - Source attribution string (e.g. 'resist-linter')
+ * @param {vscode.OutputChannel} [channel] - Optional output channel for logging
+ * @returns {vscode.Diagnostic | undefined} The created diagnostic, or undefined if the entry is invalid
+ *
+ * @example
+ * ```typescript
+ * const entry: DiagnosticEntry = {
+ *   file: '/src/app.ts',
+ *   line: 10,
+ *   column: 5,
+ *   severity: 'error',
+ *   message: 'Missing return type',
+ *   ruleId: 'jsdoc/require-returns',
+ * };
+ * const diagnostic = createDiagnosticFromEntry(entry, 'resist-linter', outputChannel);
+ * if (diagnostic) {
+ *   diagnostics.push(diagnostic);
+ * }
+ * ```
  */
 export function createDiagnosticFromEntry(
   entry: DiagnosticEntry,

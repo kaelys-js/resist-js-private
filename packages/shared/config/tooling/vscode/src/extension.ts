@@ -99,7 +99,15 @@ function mapToolState(state: ToolState): 'linting' | 'ready' | 'error' | 'disabl
  * Registers lint event listeners, code action provider, config watcher,
  * and commands. Lints all already-open documents on activation.
  *
- * @param context - VS Code extension context for managing subscriptions
+ * @param {vscode.ExtensionContext} context - VS Code extension context for managing subscriptions
+ *
+ * @example
+ * ```typescript
+ * // Called automatically by VS Code when the extension is activated
+ * export function activate(context: vscode.ExtensionContext): void {
+ *   activate(context);
+ * }
+ * ```
  */
 export function activate(context: vscode.ExtensionContext): void {
   // Create infrastructure
@@ -118,8 +126,10 @@ export function activate(context: vscode.ExtensionContext): void {
 
   stateManager.onStateChange('lint', (_tool, _from, to) => {
     const mapped = mapToolState(to);
+
     if (mapped === 'ready') {
       const activeUri: vscode.Uri | undefined = vscode.window.activeTextEditor?.document.uri;
+
       if (activeUri) {
         const counts = getFileDiagnosticCounts(diagnosticCollection, activeUri);
         updateStatusBar(statusBarItem, 'ready', counts);
@@ -172,8 +182,10 @@ export function activate(context: vscode.ExtensionContext): void {
   // Check for resist-lint binary
   const folders: readonly vscode.WorkspaceFolder[] | undefined = vscode.workspace.workspaceFolders;
   const [firstFolder] = folders ?? [];
+
   if (firstFolder) {
     const workspace = resolveWorkspace(BINARY_NAME, firstFolder.uri);
+
     if (!workspace?.binPath) {
       logError(outputChannel, en.messages.binaryNotFoundLog);
       notificationManager.warnOnce('missing-binary', en.messages.binaryNotFound);
@@ -193,6 +205,7 @@ export function activate(context: vscode.ExtensionContext): void {
     if (!configManager.get<boolean>('lint.enable', true)) {
       return;
     }
+
     const _lintPromise = safeRunAsync(outputChannel, 'lintDocument', () =>
       lintDocument(doc, diagnosticCollection, outputChannel, stateManager, getLintOptions()),
     );
@@ -264,6 +277,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // ========================================================================
 
   const watcherDisposables: vscode.Disposable[] = createConfigWatcher(lintDoc, outputChannel);
+
   for (const [i, disposable] of watcherDisposables.entries()) {
     lifecycle.register(`config-watcher-${i}`, disposable, 25);
   }
@@ -279,6 +293,7 @@ export function activate(context: vscode.ExtensionContext): void {
       (uris) => {
         for (const uri of uris) {
           const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);
+
           if (doc) {
             lintDoc(doc);
           }
@@ -287,6 +302,7 @@ export function activate(context: vscode.ExtensionContext): void {
       outputChannel,
       { batchWindowMs: 1000 },
     );
+
     for (const [i, disposable] of sourceWatcherDisposables.entries()) {
       lifecycle.register(`source-watcher-${i}`, disposable, 25);
     }
@@ -413,6 +429,7 @@ export function activate(context: vscode.ExtensionContext): void {
       openUris,
       (uri) => {
         const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);
+
         if (doc) {
           lintDoc(doc);
         }
@@ -432,6 +449,12 @@ export function activate(context: vscode.ExtensionContext): void {
  * LifecycleManager handles priority-ordered disposal with per-resource
  * error boundaries. Output channel is disposed last so cleanup errors
  * can be logged.
+ *
+ * @example
+ * ```typescript
+ * // Called automatically by VS Code when the extension is deactivated
+ * deactivate();
+ * ```
  */
 export function deactivate(): void {
   if (lifecycle) {

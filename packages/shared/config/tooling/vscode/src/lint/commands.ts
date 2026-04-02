@@ -39,8 +39,22 @@ type CommandDeps = {
 /**
  * Registers all lint commands on the extension context.
  *
- * @param context - Extension context for subscription management
- * @param deps - Injected dependencies from the extension entry point
+ * @param {vscode.ExtensionContext} context - Extension context for subscription management
+ * @param {CommandDeps} deps - Injected dependencies from the extension entry point
+ *
+ * @example
+ * ```typescript
+ * registerLintCommands(context, {
+ *   diagnosticCollection,
+ *   outputChannel,
+ *   stateManager,
+ *   lintDocumentFn: (doc) => lintDocument(doc, diagnosticCollection, outputChannel, stateManager, options),
+ *   getLintOptions: () => ({ stage: 'lint', categories: [], extraArgs: [] }),
+ *   diagnosticFilter,
+ *   stageIndicator,
+ *   configManager,
+ * });
+ * ```
  */
 export function registerLintCommands(context: vscode.ExtensionContext, deps: CommandDeps): void {
   const {
@@ -81,6 +95,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     edit.replace(editor.document.uri, fullRange, fixedText);
 
     const applied: boolean = await vscode.workspace.applyEdit(edit);
+
     if (!applied) {
       logError(outputChannel, en.messages.fixRejectedLog);
       vscode.window.showErrorMessage(en.messages.fixRejected);
@@ -91,6 +106,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
       diagnosticCollection.get(editor.document.uri) ?? [];
     const fixCount: number = diagnostics.filter((d) => {
       const { data } = d as DiagnosticWithData;
+
       return data?.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '');
     }).length;
     log(outputChannel, format(en.messages.fixesApplied, { count: fixCount }));
@@ -146,12 +162,14 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     const folders: readonly vscode.WorkspaceFolder[] | undefined =
       vscode.workspace.workspaceFolders;
     const [firstFolder] = folders ?? [];
+
     if (!firstFolder) {
       vscode.window.showErrorMessage(en.messages.noWorkspaceFolder);
       return;
     }
 
     const binPath: string | undefined = getBinaryPath(BINARY_NAME, firstFolder.uri);
+
     if (!binPath) {
       vscode.window.showErrorMessage(en.messages.binaryNotInNodeModules);
       return;
@@ -192,6 +210,7 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
 
     await withFileProgress(outputChannel, en.progress.restart, openUris, (uri) => {
       const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);
+
       if (doc) {
         lintDocumentFn(doc);
       }

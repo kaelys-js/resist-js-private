@@ -2,6 +2,8 @@
  * Tests for Lint Provider — Diagnostic Mapping
  *
  * Plan: docs/plans/2026-03-31-vscode-phase-55.md TASK 16
+ *
+ * @module
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -14,6 +16,7 @@ function createMockDocument(
   lines: string[] = ['const x = 1;', 'const y = 2;'],
 ): vscode.TextDocument {
   const text = lines.join('\n');
+
   return {
     uri: vscode.Uri.file('/test.ts'),
     getText: () => text,
@@ -25,6 +28,7 @@ function createMockDocument(
     positionAt: (offset: number) => {
       let line = 0;
       let col = 0;
+
       for (let i = 0; i < offset && i < text.length; i++) {
         if (text[i] === '\n') {
           line++;
@@ -37,11 +41,14 @@ function createMockDocument(
     },
     getWordRangeAtPosition: (pos: vscode.Position) => {
       const lineText = lines[pos.line] ?? '';
+
       if (lineText.length === 0) {
         return;
       }
+
       // Simple word range: from position to next whitespace
       let end = pos.character;
+
       while (end < lineText.length && lineText[end] !== ' ') {
         end++;
       }

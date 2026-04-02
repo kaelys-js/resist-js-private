@@ -114,6 +114,7 @@ export class ToolStateManager {
     return {
       dispose: () => {
         const index: number = this.observers.indexOf(observer);
+
         if (index !== -1) {
           this.observers.splice(index, 1);
         }

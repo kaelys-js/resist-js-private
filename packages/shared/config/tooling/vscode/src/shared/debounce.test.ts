@@ -2,6 +2,8 @@
  * Tests for DocumentDebouncer
  *
  * Plan: docs/plans/2026-03-31-vscode-phase-55.md TASK 10
+ *
+ * @module
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';

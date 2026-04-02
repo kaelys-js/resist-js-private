@@ -20,10 +20,21 @@ import { en } from '../locale/en';
  *
  * Handler is wrapped in safeRun — errors are logged, never swallowed.
  *
- * @param section - Configuration section to watch (e.g. 'resist.lint')
- * @param handler - Callback invoked when the section changes
- * @param channel - Optional output channel for error logging
- * @returns Disposable to stop listening
+ * @param {string} section - Configuration section to watch (e.g. 'resist.lint')
+ * @param {() => void} handler - Callback invoked when the section changes
+ * @param {vscode.OutputChannel} channel - Optional output channel for error logging
+ * @returns {vscode.Disposable} Disposable to stop listening
+ *
+ * @example
+ * ```typescript
+ * const disposable = onConfigurationChange('resist.lint', () => {
+ *   // Re-lint all open documents when lint settings change
+ *   for (const doc of vscode.workspace.textDocuments) {
+ *     lintDocument(doc, diagnosticCollection, outputChannel, stateManager, options);
+ *   }
+ * }, outputChannel);
+ * context.subscriptions.push(disposable);
+ * ```
  */
 export function onConfigurationChange(
   section: string,

@@ -2,12 +2,18 @@
  * Tests for Configuration Manager
  *
  * Plan: docs/plans/2026-03-31-vscode-phase-60.md TASK 3-4
+ *
+ * @module
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
-// @ts-expect-error -- mock-only export
-import { __setConfigValue, __resetMocks } from 'vscode';
+
+const { __setConfigValue, __resetMocks } = vscode as unknown as {
+  __setConfigValue: (key: string, value: unknown) => void;
+  __resetMocks: () => void;
+};
+
 import { onConfigurationChange, ConfigManager } from './config';
 import * as errors from './errors';
 import { CONFIG_SECTION } from './brand';
@@ -25,6 +31,7 @@ vi.mock('./errors', () => ({
 vi.mock('../locale/schema', () => ({
   format: vi.fn((template: string, params: Record<string, string | number>) => {
     let result: string = template;
+
     for (const [key, value] of Object.entries(params)) {
       result = result.replaceAll(`{${key}}`, String(value));
     }

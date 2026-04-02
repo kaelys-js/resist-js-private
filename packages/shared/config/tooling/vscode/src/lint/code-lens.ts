@@ -68,6 +68,7 @@ export class ResistCodeLensProvider implements vscode.CodeLensProvider {
       const key = `${line}:${ruleId}`;
 
       const existing = byLineRule.get(key);
+
       if (existing) {
         existing.count++;
       } else {
@@ -78,6 +79,7 @@ export class ResistCodeLensProvider implements vscode.CodeLensProvider {
 
     // Create lenses
     const lenses: vscode.CodeLens[] = [];
+
     for (const { line, ruleId, count, url } of byLineRule.values()) {
       const range = new vscode.Range(line, 0, line, 0);
       const title: string = format(en.codeLens.issueCount, { rule: ruleId, count });

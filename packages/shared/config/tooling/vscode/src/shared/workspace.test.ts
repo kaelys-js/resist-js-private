@@ -2,6 +2,8 @@
  * Tests for Workspace Resolution
  *
  * Plan: docs/plans/2026-03-31-vscode-phase-55.md TASK 12
+ *
+ * @module
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -93,6 +95,7 @@ describe('Workspace Resolution', () => {
 
       vi.mocked(existsSync).mockImplementation((path: unknown) => {
         const p = String(path);
+
         return p === '/repo/pnpm-workspace.yaml' || p === `/repo/node_modules/.bin/${BINARY_NAME}`;
       });
 
@@ -134,6 +137,7 @@ describe('Workspace Resolution', () => {
       let callCount = 0;
       vi.mocked(existsSync).mockImplementation((path: unknown) => {
         const p = String(path);
+
         if (p.endsWith('pnpm-workspace.yaml')) {
           callCount++;
           return true;

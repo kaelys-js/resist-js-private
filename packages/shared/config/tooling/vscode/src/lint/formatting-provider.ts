@@ -48,6 +48,7 @@ export class ResistFormattingProvider implements vscode.DocumentFormattingEditPr
 
     for (const diag of diagnostics) {
       const { data } = diag as DiagnosticWithData;
+
       if (!data?.fix) {
         continue;
       }
@@ -59,6 +60,7 @@ export class ResistFormattingProvider implements vscode.DocumentFormattingEditPr
 
       // Validate bounds
       const docLength: number = document.getText().length;
+
       if (
         data.fix.range.start < 0 ||
         data.fix.range.end < 0 ||

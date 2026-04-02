@@ -59,9 +59,19 @@ export class FixDiffPreviewProvider implements vscode.TextDocumentContentProvide
 /**
  * Applies all auto-fixes to a document's text and returns the result.
  *
- * @param doc - The document to apply fixes to
- * @param collection - The diagnostic collection containing fixes
- * @returns The fixed text content
+ * @param {vscode.TextDocument} doc - The document to apply fixes to
+ * @param {vscode.DiagnosticCollection} collection - The diagnostic collection containing fixes
+ * @returns {string} The fixed text content
+ *
+ * @example
+ * ```typescript
+ * const fixedText = applyFixes(editor.document, diagnosticCollection);
+ * if (fixedText !== editor.document.getText()) {
+ *   const edit = new vscode.WorkspaceEdit();
+ *   edit.replace(editor.document.uri, fullRange, fixedText);
+ *   await vscode.workspace.applyEdit(edit);
+ * }
+ * ```
  */
 export function applyFixes(
   doc: vscode.TextDocument,
@@ -71,8 +81,10 @@ export function applyFixes(
 
   // Collect all fixes
   const fixes: Array<{ start: number; end: number; text: string }> = [];
+
   for (const diag of diagnostics) {
     const { data } = diag as DiagnosticWithData;
+
     if (data?.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '')) {
       fixes.push({
         start: data.fix.range.start,
@@ -90,6 +102,7 @@ export function applyFixes(
   fixes.sort((a, b) => b.start - a.start);
 
   let text: string = doc.getText();
+
   for (const fix of fixes) {
     text = text.slice(0, fix.start) + fix.text + text.slice(fix.end);
   }
@@ -100,14 +113,20 @@ export function applyFixes(
 /**
  * Opens a diff preview showing fixes for the active document.
  *
- * @param diagnosticCollection - Collection containing fix data
- * @param channel - Optional output channel for logging
+ * @param {vscode.DiagnosticCollection} diagnosticCollection - Collection containing fix data
+ * @param {vscode.OutputChannel} channel - Optional output channel for logging
+ *
+ * @example
+ * ```typescript
+ * await showFixDiffPreview(diagnosticCollection, outputChannel);
+ * ```
  */
 export async function showFixDiffPreview(
   diagnosticCollection: vscode.DiagnosticCollection,
   channel?: vscode.OutputChannel,
 ): Promise<void> {
   const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
+
   if (!editor) {
     return;
   }
@@ -118,6 +137,7 @@ export async function showFixDiffPreview(
   // Check if there are any fixable diagnostics
   const hasFixable: boolean = diagnostics.some((diag) => {
     const { data } = diag as DiagnosticWithData;
+
     return data?.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '');
   });
 
