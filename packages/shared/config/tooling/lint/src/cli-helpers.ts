@@ -1351,7 +1351,7 @@ export async function _runLintCore(
   );
   const hasDirectoryPaths: boolean = dirChecks.some((v: boolean): boolean => v);
 
-  if (!bailed && hasDirectoryPaths && loaded.workspace.length > 0) {
+  if (!bailed && hasDirectoryPaths && !cliArgs.stdinFilename && loaded.workspace.length > 0) {
     let wsRules: WorkspaceRule[] = [...loaded.workspace];
 
     /* Filter workspace rules by --rule= */

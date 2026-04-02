@@ -413,6 +413,26 @@ export type StatusBarMenuStrings = {
   readonly lintFile: string;
   /** Menu item: fix all auto-fixable. */
   readonly fixAll: string;
+  /** Menu item: lint entire workspace. */
+  readonly lintWorkspace: string;
+  /** Menu item: lint staged changes. */
+  readonly lintStaged: string;
+  /** Menu item: lint uncommitted changes. */
+  readonly lintUncommitted: string;
+  /** Menu item: preview fixes in diff view. */
+  readonly previewFixes: string;
+  /** Menu item: remove unused imports. */
+  readonly removeUnusedImports: string;
+  /** Menu item: filter diagnostics by category. */
+  readonly filterByCategory: string;
+  /** Menu item: clear diagnostic filter. */
+  readonly clearFilter: string;
+  /** Menu item: change active lint stage. */
+  readonly changeStage: string;
+  /** Menu item: list available rules. */
+  readonly listRules: string;
+  /** Menu item: show per-rule timing report. */
+  readonly showTiming: string;
 };
 
 /** Strings for diagnostic hover popup. */

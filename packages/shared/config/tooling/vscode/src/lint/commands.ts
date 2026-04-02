@@ -290,10 +290,12 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
   });
 
   // Pause / Resume linter
+  // State change BEFORE config.update to prevent race condition:
+  // config.update fires change event during await, which triggers lintDoc.
+  // If setState hasn't run yet, lintDoc sees 'ready' and re-enables linting.
   registerCommand(context, outputChannel, COMMANDS.toggleEnable, async () => {
     const config = vscode.workspace.getConfiguration('resist.lint');
     const currentValue: boolean = config.get<boolean>('enable', true);
-    await config.update('enable', !currentValue, vscode.ConfigurationTarget.Workspace);
 
     if (currentValue) {
       diagnosticCollection.clear();
@@ -303,6 +305,8 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
       stateManager.setState('lint', 'ready');
       log(outputChannel, en.messages.linterResumed);
     }
+
+    await config.update('enable', !currentValue, vscode.ConfigurationTarget.Workspace);
   });
 
   // Status bar click menu
@@ -315,7 +319,20 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
       { label: en.statusBarMenu.restart },
       { label: '', kind: vscode.QuickPickItemKind.Separator },
       { label: en.statusBarMenu.lintFile },
+      { label: en.statusBarMenu.lintWorkspace },
+      { label: en.statusBarMenu.lintStaged },
+      { label: en.statusBarMenu.lintUncommitted },
+      { label: '', kind: vscode.QuickPickItemKind.Separator },
       { label: en.statusBarMenu.fixAll },
+      { label: en.statusBarMenu.previewFixes },
+      { label: en.statusBarMenu.removeUnusedImports },
+      { label: '', kind: vscode.QuickPickItemKind.Separator },
+      { label: en.statusBarMenu.filterByCategory },
+      { label: en.statusBarMenu.clearFilter },
+      { label: en.statusBarMenu.changeStage },
+      { label: '', kind: vscode.QuickPickItemKind.Separator },
+      { label: en.statusBarMenu.listRules },
+      { label: en.statusBarMenu.showTiming },
       { label: '', kind: vscode.QuickPickItemKind.Separator },
       { label: en.statusBarMenu.showOutput },
       { label: en.statusBarMenu.clearOutput },
@@ -333,10 +350,20 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
       [en.statusBarMenu.pause]: COMMANDS.toggleEnable,
       [en.statusBarMenu.resume]: COMMANDS.toggleEnable,
       [en.statusBarMenu.restart]: COMMANDS.restart,
+      [en.statusBarMenu.lintFile]: COMMANDS.lintFile,
+      [en.statusBarMenu.lintWorkspace]: COMMANDS.lintWorkspace,
+      [en.statusBarMenu.lintStaged]: COMMANDS.lintStaged,
+      [en.statusBarMenu.lintUncommitted]: COMMANDS.lintUncommitted,
+      [en.statusBarMenu.fixAll]: COMMANDS.lintFix,
+      [en.statusBarMenu.previewFixes]: COMMANDS.previewFixes,
+      [en.statusBarMenu.removeUnusedImports]: COMMANDS.removeUnusedImports,
+      [en.statusBarMenu.filterByCategory]: COMMANDS.filterByCategory,
+      [en.statusBarMenu.clearFilter]: COMMANDS.clearFilter,
+      [en.statusBarMenu.changeStage]: COMMANDS.changeStage,
+      [en.statusBarMenu.listRules]: COMMANDS.listRules,
+      [en.statusBarMenu.showTiming]: COMMANDS.showTiming,
       [en.statusBarMenu.showOutput]: COMMANDS.showOutput,
       [en.statusBarMenu.clearOutput]: COMMANDS.clearOutput,
-      [en.statusBarMenu.lintFile]: COMMANDS.lintFile,
-      [en.statusBarMenu.fixAll]: COMMANDS.lintFix,
     };
 
     const commandId: string | undefined = commandMap[picked.label];

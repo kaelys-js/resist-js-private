@@ -203,6 +203,11 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Helper: lint a document with current settings
   const lintDoc = (doc: vscode.TextDocument): void => {
+    // Check state manager first — avoids race condition where config cache
+    // hasn't refreshed yet after toggleEnable sets state to 'disabled'
+    if (stateManager.getState('lint') === 'disabled') {
+      return;
+    }
     if (!configManager.get<boolean>('lint.enable', true)) {
       return;
     }
@@ -400,7 +405,7 @@ export function activate(context: vscode.ExtensionContext): void {
     'on-did-change-config',
     onConfigurationChange(
       CONFIG_LINT_SECTION,
-      () => forEachOpenDocument(isWorkspaceDocument, lintDoc, outputChannel),
+      () => forEachOpenDocument(isLintableDocument, lintDoc, outputChannel),
       outputChannel,
     ),
     30,
