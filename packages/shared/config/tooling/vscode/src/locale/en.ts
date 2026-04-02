@@ -213,6 +213,16 @@ export const en: VscodeStrings = {
     clearOutput: '$(clear-all) Clear Output',
     lintFile: '$(file-code) Lint Current File',
     fixAll: '$(wand) Fix All Auto-fixable',
+    lintWorkspace: '$(files) Lint Workspace',
+    lintStaged: '$(git-commit) Lint Staged Changes',
+    lintUncommitted: '$(git-compare) Lint Uncommitted Changes',
+    previewFixes: '$(diff) Preview Fixes',
+    removeUnusedImports: '$(package) Remove Unused Imports',
+    filterByCategory: '$(filter) Filter by Category',
+    clearFilter: '$(circle-slash) Clear Filter',
+    changeStage: '$(layers) Change Stage',
+    listRules: '$(list-unordered) List Rules',
+    showTiming: '$(dashboard) Show Timing',
   },
 
   stageIndicator: {

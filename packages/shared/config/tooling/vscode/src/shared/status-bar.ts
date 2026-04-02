@@ -88,10 +88,67 @@ export function updateStatusBar(
 }
 
 /**
+ * Tooltip color palette — semantic colors for state and diagnostics.
+ *
+ * VS Code MarkdownString constraints:
+ * - `style` attribute ONLY works on `<span>` elements (stripped from td/div/table)
+ * - Only 3 CSS properties: color, background-color, border-radius (px values)
+ * - Strict format: no spaces around `:`, trailing `;`, order: color → bg → radius
+ * - Full-width section backgrounds are impossible (spans are inline)
+ */
+
+const TC = {
+  brand: '#4ec9b0',
+  ready: '#89d185',
+  readyBg: '#1e3a1e',
+  linting: '#dcdcaa',
+  lintingBg: '#3a3520',
+  error: '#f14c4c',
+  errorBg: '#3d2020',
+  warning: '#cca700',
+  warningBg: '#3d3520',
+  disabled: '#858585',
+  disabledBg: '#2d2d2d',
+  btnBg: '#404854',
+} as const;
+
+/** Colored text span. */
+function cs(color: string, text: string): string {
+  return `<span style="color:${color};">${text}</span>`;
+}
+
+/**
+ * Rounded badge — icon and text inside styled span.
+ * Vertical spacing comes from `<td height>` on the parent cell, not from
+ * inline image shims (which break codicon baseline alignment).
+ */
+function badge(icon: string, fg: string, bg: string, text: string): string {
+  return (
+    `<span style="color:${fg};background-color:${bg};border-radius:4px;">` +
+    `\u00a0\u00a0${icon} ${text}\u00a0\u00a0</span>`
+  );
+}
+
+/**
+ * Button-styled command link — icon and label inside styled span.
+ * Vertical spacing comes from `<td height>` on the parent cell.
+ */
+function cmd(icon: string, label: string, command: string, tooltip: string): string {
+  return (
+    `<span style="background-color:${TC.btnBg};border-radius:4px;">` +
+    `\u00a0\u00a0$(${icon}) <a href="command:${command}" title="${tooltip}">${label}</a>\u00a0\u00a0</span>`
+  );
+}
+
+/**
  * Builds a rich MarkdownString tooltip for the status bar item.
  *
- * Renders a Console Ninja-style tooltip with state, diagnostics,
- * and clickable command links for quick actions.
+ * Layout:
+ * - Header: brand name (left) + state badge with icon (right)
+ * - Separator
+ * - Content: diagnostic counts or "no issues"
+ * - Separator
+ * - Footer: 3x2 action grid with rounded button labels
  *
  * @param {ExtensionState} state - Current extension state
  * @param {DiagnosticCounts} [counts] - Optional diagnostic counts
@@ -104,62 +161,96 @@ function buildStatusTooltip(
   const md = new vscode.MarkdownString();
   md.isTrusted = true;
   md.supportThemeIcons = true;
+  md.supportHtml = true;
 
-  // Header
+  // ── State data ──────────────────────────────────────────────────────
   const stateIcons: Record<ExtensionState, string> = {
     ready: '$(pass-filled)',
     linting: '$(sync~spin)',
     error: '$(error)',
     disabled: '$(circle-slash)',
   };
-  const stateDescriptions: Record<ExtensionState, string> = {
-    ready: 'is **ready**',
-    linting: 'is **linting**...',
-    error: 'encountered an **error**',
-    disabled: 'is **paused**',
+  const stateFg: Record<ExtensionState, string> = {
+    ready: TC.ready,
+    linting: TC.linting,
+    error: TC.error,
+    disabled: TC.disabled,
+  };
+  const stateBg: Record<ExtensionState, string> = {
+    ready: TC.readyBg,
+    linting: TC.lintingBg,
+    error: TC.errorBg,
+    disabled: TC.disabledBg,
+  };
+  const stateLabels: Record<ExtensionState, string> = {
+    ready: 'Ready',
+    linting: 'Linting\u2026',
+    error: 'Error',
+    disabled: 'Paused',
   };
 
-  md.appendMarkdown(`${stateIcons[state]} Resist Linter ${stateDescriptions[state]}\n\n`);
+  // ── Header — brand left, state badge right ──────────────────────────
+  const stateBadge: string = badge(
+    stateIcons[state],
+    stateFg[state],
+    stateBg[state],
+    stateLabels[state],
+  );
 
-  // Diagnostics
+  md.appendMarkdown(
+    `<table width="100%"><tr>` +
+      `<td>\u00a0\u00a0${cs(TC.brand, '<b>Resist</b>')}</td>` +
+      `<td align="right">${stateBadge}\u00a0\u00a0</td>` +
+      `</tr></table>\n\n`,
+  );
+
+  md.appendMarkdown('---\n\n');
+
+  // ── Content — diagnostics or "no issues" ────────────────────────────
   if (counts && (counts.errors > 0 || counts.warnings > 0)) {
     const parts: string[] = [];
 
     if (counts.errors > 0) {
-      parts.push(
-        `$(error) ${formatPlural(counts.errors, { one: en.plurals.error, other: en.plurals.errors })}`,
-      );
+      const label: string = formatPlural(counts.errors, {
+        one: en.plurals.error,
+        other: en.plurals.errors,
+      });
+      parts.push(badge('$(error)', TC.error, TC.errorBg, label));
     }
     if (counts.warnings > 0) {
-      parts.push(
-        `$(warning) ${formatPlural(counts.warnings, { one: en.plurals.warning, other: en.plurals.warnings })}`,
-      );
+      const label: string = formatPlural(counts.warnings, {
+        one: en.plurals.warning,
+        other: en.plurals.warnings,
+      });
+      parts.push(badge('$(warning)', TC.warning, TC.warningBg, label));
     }
-    md.appendMarkdown(`${parts.join(' · ')} in current file\n\n`);
+    md.appendMarkdown(`${parts.join('\u2003')}\n\n`);
   } else if (state === 'ready') {
-    md.appendMarkdown('$(check) No issues in current file\n\n');
+    md.appendMarkdown(`$(check) ${cs(TC.ready, 'No issues in current file')}\n\n`);
+  } else if (state === 'linting') {
+    md.appendMarkdown(`$(sync~spin) ${cs(TC.linting, 'Analyzing\u2026')}\n\n`);
+  } else if (state === 'error') {
+    md.appendMarkdown(`$(error) ${cs(TC.error, 'Linter encountered an error')}\n\n`);
+  } else if (state === 'disabled') {
+    md.appendMarkdown(`$(circle-slash) ${cs(TC.disabled, 'Linting is paused')}\n\n`);
   }
 
   md.appendMarkdown('---\n\n');
 
-  // Quick actions as command links
-  if (state === 'disabled') {
-    md.appendMarkdown(`[$(debug-start) Resume Linting](command:${COMMANDS.toggleEnable})\n\n`);
-  } else {
-    md.appendMarkdown(
-      `[$(debug-pause) Pause](command:${COMMANDS.toggleEnable}) · ` +
-        `[$(debug-restart) Restart](command:${COMMANDS.restart})\n\n`,
-    );
-  }
+  // ── Footer — action grid ────────────────────────────────────────────
+  const toggleCmd: string =
+    state === 'disabled'
+      ? cmd('debug-start', 'Resume', COMMANDS.toggleEnable, 'Resume linting')
+      : cmd('debug-pause', 'Pause', COMMANDS.toggleEnable, 'Pause linting');
 
   md.appendMarkdown(
-    `[$(file-code) Lint File](command:${COMMANDS.lintFile}) · ` +
-      `[$(wand) Fix All](command:${COMMANDS.lintFix})\n\n`,
-  );
-
-  md.appendMarkdown(
-    `[$(output) Output](command:${COMMANDS.showOutput}) · ` +
-      `[$(clear-all) Clear](command:${COMMANDS.clearOutput})`,
+    `\u00a0${toggleCmd}\u00a0\u00a0` +
+      `${cmd('debug-restart', 'Restart', COMMANDS.restart, 'Clear cache and re-lint')}\u00a0\u00a0` +
+      `${cmd('output', 'Output', COMMANDS.showOutput, 'Show output channel')}\u00a0` +
+      `<br>` +
+      `\u00a0${cmd('file-code', 'Lint File', COMMANDS.lintFile, 'Lint current file')}\u00a0\u00a0` +
+      `${cmd('wand', 'Fix All', COMMANDS.lintFix, 'Fix all auto-fixable problems')}\u00a0\u00a0` +
+      `${cmd('files', 'Lint Workspace', COMMANDS.lintWorkspace, 'Lint entire workspace')}\u00a0`,
   );
 
   return md;
