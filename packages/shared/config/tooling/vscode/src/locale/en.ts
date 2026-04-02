@@ -200,6 +200,21 @@ export const en: VscodeStrings = {
   rulesViewer: {
     title: 'Resist Lint Rules',
     errorFetching: 'Error fetching rules: {error}',
+    searchPlaceholder: 'Search rules\u2026',
+    fixableLabel: 'fixable',
+    patternsLabel: 'Patterns',
+    categoriesLabel: 'Categories',
+    stagesLabel: 'Stages',
+    rulesCount: '{count} rules',
+    noMatchingRules: 'No rules match your search.',
+    collapseAll: 'Collapse All',
+    expandAll: 'Expand All',
+    filterBtn: 'Filter',
+    severityGroup: 'Severity',
+    stagesGroup: 'Stages',
+    categoriesGroup: 'Categories',
+    fixableOnly: 'Fixable only',
+    clearFilters: 'Clear Filters',
   },
 
   statusBarMenu: {

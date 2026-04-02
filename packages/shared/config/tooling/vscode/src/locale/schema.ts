@@ -443,6 +443,36 @@ export type RulesViewerStrings = {
   readonly title: string;
   /** Error message when fetching rules fails. */
   readonly errorFetching: string;
+  /** Placeholder text for the search input. */
+  readonly searchPlaceholder: string;
+  /** Label for the fixable badge. */
+  readonly fixableLabel: string;
+  /** Label for the patterns metadata. */
+  readonly patternsLabel: string;
+  /** Label for the categories metadata. */
+  readonly categoriesLabel: string;
+  /** Label for the stages metadata. */
+  readonly stagesLabel: string;
+  /** Rules count display (e.g. '42 rules'). */
+  readonly rulesCount: string;
+  /** Message shown when search has no results. */
+  readonly noMatchingRules: string;
+  /** Button label: collapse all sections. */
+  readonly collapseAll: string;
+  /** Button label: expand all sections. */
+  readonly expandAll: string;
+  /** Button label: open filter dropdown. */
+  readonly filterBtn: string;
+  /** Group heading for severity checkboxes. */
+  readonly severityGroup: string;
+  /** Group heading for stage checkboxes. */
+  readonly stagesGroup: string;
+  /** Group heading for category checkboxes. */
+  readonly categoriesGroup: string;
+  /** Checkbox label: show only fixable rules. */
+  readonly fixableOnly: string;
+  /** Button label: clear all active filters. */
+  readonly clearFilters: string;
 };
 
 /** Strings for the sidebar panel (TreeView). */

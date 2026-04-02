@@ -14,6 +14,7 @@ import { StageIndicator } from './stage-indicator';
 import { COMMANDS, DIAGNOSTIC_COLLECTION_NAME, BRAND_NAME, CONFIG_SECTION } from '../shared/brand';
 import { ConfigManager } from '../shared/config';
 import { ToolStateManager } from '../shared/state';
+import { en } from '../locale/en';
 
 // Mock runner to capture which function is called
 const mockRunToolText = vi.fn();
@@ -255,12 +256,12 @@ describe('Lint Commands', () => {
     expect(context.subscriptions.length).toBe(18);
   });
 
-  it('resist.lint.listRules opens rules viewer', async () => {
+  it('resist.lint.listRules invokes rules viewer', async () => {
     const handler = commandHandlers.get(COMMANDS.listRules)!;
     await handler();
 
-    // showRulesViewer opens a virtual document — verify openTextDocument was called
-    expect(vscode.workspace.openTextDocument).toHaveBeenCalled();
+    // No workspace folders in test → showRulesViewer shows error message
+    expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(en.messages.noWorkspaceFolder);
   });
 
   it('resist.lint.clearOutput clears and logs to output channel', () => {
