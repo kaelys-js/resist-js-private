@@ -67,46 +67,25 @@ describe('ResistHoverProvider', () => {
     expect(result).toBeUndefined();
   });
 
-  it('returns hover with rule ID header for matching diagnostic', () => {
-    const diag = createDiagnostic({ code: 'jsdoc/require-param' });
+  it('returns undefined when diagnostic has no extra data', () => {
+    const diag = createDiagnostic();
     collection.set(doc.uri, [diag]);
 
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
-    expect(result).toBeDefined();
-    expect(result!.contents.length).toBe(1);
-
-    const md = result!.contents[0] as vscode.MarkdownString;
-    expect(md.value).toContain('**jsdoc/require-param**');
+    expect(result).toBeUndefined();
   });
 
-  it('includes error icon for error severity', () => {
-    const diag = createDiagnostic({ severity: vscode.DiagnosticSeverity.Error });
+  it('returns undefined when diagnostic has only a no-op fix', () => {
+    const diag = createDiagnostic({
+      data: { fix: { range: { start: 0, end: 0 }, text: '' } },
+    });
     collection.set(doc.uri, [diag]);
 
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
-    const md = result!.contents[0] as vscode.MarkdownString;
-    expect(md.value).toContain('$(error)');
+    expect(result).toBeUndefined();
   });
 
-  it('includes warning icon for warning severity', () => {
-    const diag = createDiagnostic({ severity: vscode.DiagnosticSeverity.Warning });
-    collection.set(doc.uri, [diag]);
-
-    const result = provider.provideHover(doc, new vscode.Position(0, 5));
-    const md = result!.contents[0] as vscode.MarkdownString;
-    expect(md.value).toContain('$(warning)');
-  });
-
-  it('includes message text', () => {
-    const diag = createDiagnostic({ message: 'Missing return type annotation' });
-    collection.set(doc.uri, [diag]);
-
-    const result = provider.provideHover(doc, new vscode.Position(0, 5));
-    const md = result!.contents[0] as vscode.MarkdownString;
-    expect(md.value).toContain('Missing return type annotation');
-  });
-
-  it('includes tip as blockquote when present', () => {
+  it('shows tip as blockquote with lightbulb icon', () => {
     const diag = createDiagnostic({
       data: {
         fix: { range: { start: 0, end: 0 }, text: '' },
@@ -116,11 +95,13 @@ describe('ResistHoverProvider', () => {
     collection.set(doc.uri, [diag]);
 
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
+    expect(result).toBeDefined();
+
     const md = result!.contents[0] as vscode.MarkdownString;
-    expect(md.value).toContain('> **Tip:** Add a JSDoc @param tag');
+    expect(md.value).toContain('> $(lightbulb) **Tip:** Add a JSDoc @param tag');
   });
 
-  it('includes example as fenced code block when present', () => {
+  it('shows example as fenced code block with label', () => {
     const diag = createDiagnostic({
       data: {
         fix: { range: { start: 0, end: 0 }, text: '' },
@@ -131,36 +112,22 @@ describe('ResistHoverProvider', () => {
 
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
     const md = result!.contents[0] as vscode.MarkdownString;
+    expect(md.value).toContain('**Example:**');
     expect(md.value).toContain('```ts\n/** @param {string} name */\n```');
   });
 
-  it('shows fix available indicator for non-empty fixes', () => {
+  it('shows fix indicator for real fixes', () => {
     const diag = createDiagnostic({
-      data: {
-        fix: { range: { start: 5, end: 10 }, text: 'replacement' },
-      },
+      data: { fix: { range: { start: 5, end: 10 }, text: 'replacement' } },
     });
     collection.set(doc.uri, [diag]);
 
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
     const md = result!.contents[0] as vscode.MarkdownString;
-    expect(md.value).toContain('Fix available');
+    expect(md.value).toContain('Auto-fix available');
   });
 
-  it('does not show fix indicator for no-op fixes', () => {
-    const diag = createDiagnostic({
-      data: {
-        fix: { range: { start: 0, end: 0 }, text: '' },
-      },
-    });
-    collection.set(doc.uri, [diag]);
-
-    const result = provider.provideHover(doc, new vscode.Position(0, 5));
-    const md = result!.contents[0] as vscode.MarkdownString;
-    expect(md.value).not.toContain('Fix available');
-  });
-
-  it('includes documentation link when url present', () => {
+  it('shows documentation link', () => {
     const diag = createDiagnostic({
       data: {
         fix: { range: { start: 0, end: 0 }, text: '' },
@@ -171,32 +138,73 @@ describe('ResistHoverProvider', () => {
 
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
     const md = result!.contents[0] as vscode.MarkdownString;
-    expect(md.value).toContain('[View rule documentation](https://docs.example.com/rules/test)');
+    expect(md.value).toContain(
+      '[$(link-external) View rule documentation](https://docs.example.com/rules/test)',
+    );
   });
 
-  it('includes source footer', () => {
-    const diag = createDiagnostic();
-    collection.set(doc.uri, [diag]);
-
-    const result = provider.provideHover(doc, new vscode.Position(0, 5));
-    const md = result!.contents[0] as vscode.MarkdownString;
-    expect(md.value).toContain(`*${DIAGNOSTIC_SOURCE}*`);
-  });
-
-  it('handles object code with value property', () => {
+  it('joins fix indicator and docs link with separator', () => {
     const diag = createDiagnostic({
-      code: { value: 'linked/rule', target: vscode.Uri.parse('https://example.com') },
+      data: {
+        fix: { range: { start: 5, end: 10 }, text: 'x' },
+        url: 'https://example.com',
+      },
     });
     collection.set(doc.uri, [diag]);
 
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
     const md = result!.contents[0] as vscode.MarkdownString;
-    expect(md.value).toContain('**linked/rule**');
+    expect(md.value).toContain('Auto-fix available');
+    expect(md.value).toContain(' · ');
+    expect(md.value).toContain('View rule documentation');
   });
 
-  it('renders multiple diagnostics at same position', () => {
-    const diag1 = createDiagnostic({ code: 'rule-a', message: 'First issue' });
-    const diag2 = createDiagnostic({ code: 'rule-b', message: 'Second issue' });
+  it('does not repeat message or rule ID', () => {
+    const diag = createDiagnostic({
+      message: 'Missing return type',
+      code: 'ts/return-type',
+      data: { fix: { range: { start: 0, end: 0 }, text: '' }, tip: 'Add type' },
+    });
+    collection.set(doc.uri, [diag]);
+
+    const result = provider.provideHover(doc, new vscode.Position(0, 5));
+    const md = result!.contents[0] as vscode.MarkdownString;
+    // Should NOT contain the message or rule ID (VS Code already shows those)
+    expect(md.value).not.toContain('Missing return type');
+    expect(md.value).not.toContain('ts/return-type');
+  });
+
+  it('does not include source footer', () => {
+    const diag = createDiagnostic({
+      data: { fix: { range: { start: 0, end: 0 }, text: '' }, tip: 'Fix it' },
+    });
+    collection.set(doc.uri, [diag]);
+
+    const result = provider.provideHover(doc, new vscode.Position(0, 5));
+    const md = result!.contents[0] as vscode.MarkdownString;
+    expect(md.value).not.toContain(DIAGNOSTIC_SOURCE);
+  });
+
+  it('enables theme icons on MarkdownString', () => {
+    const diag = createDiagnostic({
+      data: { fix: { range: { start: 0, end: 0 }, text: '' }, tip: 'Fix it' },
+    });
+    collection.set(doc.uri, [diag]);
+
+    const result = provider.provideHover(doc, new vscode.Position(0, 5));
+    const md = result!.contents[0] as vscode.MarkdownString;
+    expect(md.supportThemeIcons).toBe(true);
+  });
+
+  it('renders multiple diagnostics with extra data', () => {
+    const diag1 = createDiagnostic({
+      code: 'rule-a',
+      data: { fix: { range: { start: 0, end: 0 }, text: '' }, tip: 'Tip A' },
+    });
+    const diag2 = createDiagnostic({
+      code: 'rule-b',
+      data: { fix: { range: { start: 0, end: 0 }, text: '' }, tip: 'Tip B' },
+    });
     collection.set(doc.uri, [diag1, diag2]);
 
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
@@ -204,22 +212,23 @@ describe('ResistHoverProvider', () => {
     expect(result!.contents.length).toBe(2);
   });
 
-  it('strips appended example from message before rendering', () => {
+  it('shows all sections together: tip + example + fix + docs', () => {
     const diag = createDiagnostic({
-      message: 'Missing param\n\nExample:\n/** @param {string} x */',
       data: {
-        fix: { range: { start: 0, end: 0 }, text: '' },
-        example: '/** @param {string} x */',
+        fix: { range: { start: 5, end: 10 }, text: 'x' },
+        tip: 'Use const',
+        example: 'const x = 1;',
+        url: 'https://example.com/rule',
       },
     });
     collection.set(doc.uri, [diag]);
 
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
     const md = result!.contents[0] as vscode.MarkdownString;
-    // Message section should only have the base message, not the appended example
-    const messageSection: string = md.value.split('```')[0] ?? '';
-    expect(messageSection).not.toContain('Example:\n/** @param');
-    // Example should be in fenced code block
-    expect(md.value).toContain('```ts\n/** @param {string} x */\n```');
+    expect(md.value).toContain('**Tip:** Use const');
+    expect(md.value).toContain('**Example:**');
+    expect(md.value).toContain('```ts\nconst x = 1;\n```');
+    expect(md.value).toContain('Auto-fix available');
+    expect(md.value).toContain('View rule documentation');
   });
 });

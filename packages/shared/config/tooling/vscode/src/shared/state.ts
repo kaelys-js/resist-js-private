@@ -28,10 +28,10 @@ export type ToolState = 'ready' | 'running' | 'error' | 'disabled' | 'not-instal
 
 /** Human-readable labels for each tool state. */
 const STATE_LABELS: Record<ToolState, string> = {
-  'ready': 'Ready',
-  'running': 'Running',
-  'error': 'Error',
-  'disabled': 'Disabled',
+  ready: 'Ready',
+  running: 'Running',
+  error: 'Error',
+  disabled: 'Disabled',
   'not-installed': 'Not Installed',
 };
 
@@ -107,7 +107,14 @@ export class ToolStateManager {
 
     if (this.channel) {
       const toolLabel: string = tool.charAt(0).toUpperCase() + tool.slice(1);
-      log(this.channel, format(en.state.transitioned, { tool: toolLabel, from: stateLabel(from), to: stateLabel(state) }));
+      log(
+        this.channel,
+        format(en.state.transitioned, {
+          tool: toolLabel,
+          from: stateLabel(from),
+          to: stateLabel(state),
+        }),
+      );
     }
 
     for (const observer of this.observers) {

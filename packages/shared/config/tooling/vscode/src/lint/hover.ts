@@ -1,28 +1,24 @@
 /**
  * Hover Provider
  *
- * Renders rich Markdown hover popups for resist-linter diagnostics.
- * Shows rule ID, message, tip, example (as fenced code block),
- * fix availability, and documentation link.
+ * Renders supplemental hover content for resist-linter diagnostics.
+ * Only shows information VS Code doesn't already display: tips,
+ * examples (as fenced code blocks), fix indicators, and doc links.
  *
  * @module
  */
 
 import * as vscode from 'vscode';
-import type { DiagnosticWithData } from './provider';
+import type { DiagnosticWithData, DiagnosticData } from './provider';
 import { DIAGNOSTIC_SOURCE } from '../shared/brand';
 import { en } from '../locale/en';
 
 /**
- * Provides rich hover content for resist-linter diagnostics.
+ * Provides supplemental hover content for resist-linter diagnostics.
  *
- * Renders diagnostic information as styled Markdown with:
- * - Rule ID as bold header
- * - Diagnostic message
- * - Tip as blockquote
- * - Example as fenced code block
- * - Fix available indicator
- * - Clickable documentation link
+ * Only renders when a diagnostic has extra metadata (tip, example,
+ * url, or a real fix). Avoids duplicating the message, rule ID,
+ * severity, and source that VS Code already shows.
  */
 export class ResistHoverProvider implements vscode.HoverProvider {
   private readonly diagnosticCollection: vscode.DiagnosticCollection;
@@ -36,14 +32,11 @@ export class ResistHoverProvider implements vscode.HoverProvider {
     this.diagnosticCollection = diagnosticCollection;
   }
 
-  provideHover(
-    document: vscode.TextDocument,
-    position: vscode.Position,
-  ): vscode.Hover | undefined {
+  provideHover(document: vscode.TextDocument, position: vscode.Position): vscode.Hover | undefined {
     const diagnostics: readonly vscode.Diagnostic[] =
       this.diagnosticCollection.get(document.uri) ?? [];
 
-    // Find resist diagnostics at this position
+    // Find resist diagnostics at this position that have extra data
     const matching: vscode.Diagnostic[] = [];
 
     for (const diag of diagnostics) {
@@ -51,7 +44,13 @@ export class ResistHoverProvider implements vscode.HoverProvider {
         continue;
       }
 
-      if (diag.range.contains(position)) {
+      if (!diag.range.contains(position)) {
+        continue;
+      }
+
+      const { data } = diag as DiagnosticWithData;
+
+      if (hasExtraData(data)) {
         matching.push(diag);
       }
     }
@@ -71,7 +70,32 @@ export class ResistHoverProvider implements vscode.HoverProvider {
 }
 
 /**
- * Builds styled Markdown content for a single diagnostic.
+ * Checks whether a diagnostic has extra data worth showing in the hover.
+ *
+ * @param {DiagnosticData | undefined} data - The diagnostic's extra data
+ * @returns {boolean} True if there's a tip, example, url, or real fix
+ */
+function hasExtraData(data: DiagnosticData | undefined): boolean {
+  if (!data) {
+    return false;
+  }
+
+  if (data.tip || data.example || data.url) {
+    return true;
+  }
+
+  // Real fix (not a no-op)
+  if (data.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '')) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Builds compact Markdown content showing only supplemental data.
+ *
+ * Skips message, rule ID, severity, and source — VS Code already shows those.
  *
  * @param {vscode.Diagnostic} diag - The diagnostic to render
  * @returns {vscode.MarkdownString} Formatted Markdown content
@@ -79,49 +103,37 @@ export class ResistHoverProvider implements vscode.HoverProvider {
 function buildHoverContent(diag: vscode.Diagnostic): vscode.MarkdownString {
   const md = new vscode.MarkdownString();
   md.isTrusted = true;
-  md.supportHtml = true;
+  md.supportThemeIcons = true;
 
   const { data } = diag as DiagnosticWithData;
-
-  // Rule ID header
-  const ruleId: string =
-    typeof diag.code === 'object' && diag.code !== null
-      ? String((diag.code as { value: string | number }).value)
-      : String(diag.code ?? '');
-
-  const sevIcon: string =
-    diag.severity === vscode.DiagnosticSeverity.Error ? '$(error)' : '$(warning)';
-
-  md.appendMarkdown(`${sevIcon} **${ruleId}**\n\n`);
-
-  // Message — use only the base message (before any appended example)
-  const baseMessage: string = diag.message.split('\n\nExample:\n')[0] ?? diag.message;
-  md.appendMarkdown(`${baseMessage}\n\n`);
+  const sections: string[] = [];
 
   // Tip
   if (data?.tip) {
-    md.appendMarkdown(`> **${en.hover.tipPrefix}:** ${data.tip}\n\n`);
+    sections.push(`> $(lightbulb) **${en.hover.tipPrefix}:** ${data.tip}`);
   }
 
   // Example as fenced code block
   if (data?.example) {
-    md.appendMarkdown('```ts\n');
-    md.appendMarkdown(data.example);
-    md.appendMarkdown('\n```\n\n');
+    sections.push(`**${en.hover.exampleLabel}:**\n\`\`\`ts\n${data.example}\n\`\`\``);
   }
 
-  // Fix available
+  // Fix available + docs link on same line
+  const inlineItems: string[] = [];
+
   if (data?.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '')) {
-    md.appendMarkdown(`$(lightbulb) *${en.hover.fixAvailable}*\n\n`);
+    inlineItems.push(`$(tools) *${en.hover.fixAvailable}*`);
   }
 
-  // Documentation link
   if (data?.url) {
-    md.appendMarkdown(`[${en.hover.viewDocs}](${data.url})\n\n`);
+    inlineItems.push(`[$(link-external) ${en.hover.viewDocs}](${data.url})`);
   }
 
-  // Source
-  md.appendMarkdown(`---\n*${DIAGNOSTIC_SOURCE}*`);
+  if (inlineItems.length > 0) {
+    sections.push(inlineItems.join(' · '));
+  }
+
+  md.appendMarkdown(sections.join('\n\n'));
 
   return md;
 }

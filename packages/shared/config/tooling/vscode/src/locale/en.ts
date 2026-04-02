@@ -200,8 +200,9 @@ export const en: VscodeStrings = {
 
   hover: {
     tipPrefix: 'Tip',
-    fixAvailable: 'Fix available',
+    fixAvailable: 'Auto-fix available',
     viewDocs: 'View rule documentation',
+    exampleLabel: 'Example',
   },
 
   stageIndicator: {

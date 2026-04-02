@@ -9,12 +9,21 @@
  */
 
 import * as vscode from 'vscode';
+import { readFileSync } from 'node:fs';
+import { join, relative, sep } from 'node:path';
 import { runToolJson } from '../shared/runner';
 import { getBinaryPath, getWorkspaceRoot } from '../shared/workspace';
 import type { ToolStateManager } from '../shared/state';
 import { mapSeverity, applyMaxProblems, createDiagnosticFromEntry } from '../shared/diagnostics';
 import { extractMessage } from '../shared/errors';
-import { log, logError, logCommand, logTiming, logSummary, logDiagnosticList } from '../shared/output';
+import {
+  log,
+  logError,
+  logCommand,
+  logTiming,
+  logSummary,
+  logDiagnosticList,
+} from '../shared/output';
 import type { DiagnosticEntry, RunResult } from '../shared/types';
 import { en } from '../locale/en';
 import { format } from '../locale/schema';
@@ -34,6 +43,101 @@ export type LintOptions = {
 
 /** Progress reporter type for workspace lint. */
 export type LintProgress = vscode.Progress<{ message?: string; increment?: number }>;
+
+// =============================================================================
+// Exclude Check
+// =============================================================================
+
+/** Cached exclude directory names from .resist-lint.jsonc. */
+let excludeNamesCache: ReadonlySet<string> | undefined;
+
+/**
+ * Checks if a file path passes through an excluded directory.
+ *
+ * Reads the workspace's `.resist-lint.jsonc` exclude patterns (cached)
+ * and checks each path segment against the name-based exclusions.
+ *
+ * @param {string} filePath - Absolute file path to check
+ * @param {string} cwd - Workspace root for resolving config
+ * @returns {boolean} True if the file is inside an excluded directory
+ *
+ * @example
+ * ```typescript
+ * isExcludedPath('/workspace/_INTEGRATE/foo.ts', '/workspace'); // true
+ * isExcludedPath('/workspace/src/app.ts', '/workspace');        // false
+ * ```
+ */
+export function isExcludedPath(filePath: string, cwd: string): boolean {
+  if (!excludeNamesCache) {
+    excludeNamesCache = loadExcludeNames(cwd);
+  }
+
+  if (excludeNamesCache.size === 0) {
+    return false;
+  }
+
+  const rel: string = relative(cwd, filePath);
+  const segments: string[] = rel.split(sep);
+
+  for (const segment of segments) {
+    if (excludeNamesCache.has(segment)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Reads exclude patterns from .resist-lint.jsonc in the workspace root.
+ *
+ * Only returns name-based excludes (no `/`), since those match directory
+ * names at any depth.
+ *
+ * @param {string} cwd - Workspace root
+ * @returns {ReadonlySet<string>} Set of excluded directory names
+ */
+function loadExcludeNames(cwd: string): ReadonlySet<string> {
+  try {
+    const configPath: string = join(cwd, '.resist-lint.jsonc');
+    const raw: string = readFileSync(configPath, 'utf8');
+    // Strip JSONC comments (// and /* */) for JSON.parse
+    const stripped: string = raw.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+    const parsed = JSON.parse(stripped) as { exclude?: string[] };
+    const names: string[] = (parsed.exclude ?? []).filter(
+      (e: string): boolean => !e.includes('/') && !e.startsWith('*'),
+    );
+
+    return new Set(names);
+  } catch {
+    return new Set();
+  }
+}
+
+/**
+ * Clears the cached exclude names. Call on config file changes.
+ */
+export function clearExcludeCache(): void {
+  excludeNamesCache = undefined;
+}
+
+// =============================================================================
+// Untitled Document Support
+// =============================================================================
+
+/** Map of VS Code language IDs to file extensions for untitled documents. */
+const LANGUAGE_EXTENSIONS: ReadonlyMap<string, string> = new Map([
+  ['typescript', '.ts'],
+  ['typescriptreact', '.tsx'],
+  ['javascript', '.js'],
+  ['javascriptreact', '.jsx'],
+  ['svelte', '.svelte'],
+  ['astro', '.astro'],
+  ['html', '.html'],
+  ['vue', '.vue'],
+  ['markdown', '.md'],
+  ['mdx', '.mdx'],
+]);
 
 // =============================================================================
 // Lint Document
@@ -65,15 +169,25 @@ export async function lintDocument(
   stateManager: ToolStateManager,
   options: LintOptions,
 ): Promise<void> {
-  // Skip non-file schemes and untitled documents
-  if (document.uri.scheme !== 'file' || document.isUntitled) {
-    return;
+  // Determine file path — for untitled docs, generate synthetic filename
+  let filePath: string;
+  const isUntitled: boolean = document.isUntitled || document.uri.scheme !== 'file';
+
+  if (isUntitled) {
+    const ext: string | undefined = LANGUAGE_EXTENSIONS.get(document.languageId);
+
+    if (!ext) {
+      return; // Unsupported language for linting
+    }
+    filePath = `untitled${ext}`;
+  } else {
+    filePath = document.uri.fsPath;
   }
 
   // Resolve per-folder options for multi-root workspaces
-  const resolvedOptions: LintOptions = getPerFolderLintOptions(document.uri, options, channel);
-
-  const filePath: string = document.uri.fsPath;
+  const resolvedOptions: LintOptions = isUntitled
+    ? options
+    : getPerFolderLintOptions(document.uri, options, channel);
 
   // Find resist-lint binary
   const binPath: string | undefined = getBinaryPath(BINARY_NAME, document.uri);
@@ -87,6 +201,11 @@ export async function lintDocument(
 
   if (!cwd) {
     log(channel, format(en.messages.skipWorkspaceNotFound, { file: filePath }));
+    return;
+  }
+
+  // Skip files in excluded directories (e.g. _INTEGRATE, node_modules)
+  if (!isUntitled && isExcludedPath(filePath, cwd)) {
     return;
   }
 

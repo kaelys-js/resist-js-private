@@ -89,10 +89,9 @@ describe('Output Channel', () => {
         new vscode.Diagnostic(new vscode.Range(2, 4, 2, 10), 'Missing return type', 0),
         { code: 'ts/return-type' },
       ),
-      Object.assign(
-        new vscode.Diagnostic(new vscode.Range(5, 0, 5, 8), 'Unused variable', 1),
-        { code: 'no-unused-vars' },
-      ),
+      Object.assign(new vscode.Diagnostic(new vscode.Range(5, 0, 5, 8), 'Unused variable', 1), {
+        code: 'no-unused-vars',
+      }),
     ];
 
     logDiagnosticList(channel, diags, '/src/app.ts');
@@ -108,11 +107,7 @@ describe('Output Channel', () => {
 
   it('logDiagnosticList() truncates multi-line messages to first line', () => {
     const diag = Object.assign(
-      new vscode.Diagnostic(
-        new vscode.Range(0, 0, 0, 5),
-        'First line\n\nExample:\nsome code',
-        0,
-      ),
+      new vscode.Diagnostic(new vscode.Range(0, 0, 0, 5), 'First line\n\nExample:\nsome code', 0),
       { code: 'rule/x' },
     );
 

@@ -405,6 +405,8 @@ export type HoverStrings = {
   readonly fixAvailable: string;
   /** Link text for rule documentation. */
   readonly viewDocs: string;
+  /** Label for the example section. */
+  readonly exampleLabel: string;
 };
 
 // =============================================================================

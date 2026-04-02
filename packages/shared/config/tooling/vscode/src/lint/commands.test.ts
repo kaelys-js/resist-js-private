@@ -11,7 +11,13 @@ import * as vscode from 'vscode';
 import { registerLintCommands } from './commands';
 import { DiagnosticFilter } from './diagnostic-filter';
 import { StageIndicator } from './stage-indicator';
-import { COMMANDS, DIAGNOSTIC_COLLECTION_NAME, BRAND_NAME, CONFIG_SECTION, BINARY_NAME } from '../shared/brand';
+import {
+  COMMANDS,
+  DIAGNOSTIC_COLLECTION_NAME,
+  BRAND_NAME,
+  CONFIG_SECTION,
+  BINARY_NAME,
+} from '../shared/brand';
 import { ConfigManager } from '../shared/config';
 import { ToolStateManager } from '../shared/state';
 
