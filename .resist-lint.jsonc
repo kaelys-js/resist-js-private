@@ -56,6 +56,7 @@
     "plans/no-template-placeholders": "error",
     "plans/require-concrete-verification": "error",
     "plans/require-test-files": "error",
+    "plans/require-plan-structure": "error",
     "plans/status-dependency-order": "error",
     "imports/no-barrel-files": "off",
     "imports/no-js-extension": "off",
@@ -634,7 +635,9 @@
     "workspace/wrangler-bindings-consistent-envs": "off",
     "workspace/wrangler-main-entrypoint-exists": "off",
     "workspace/wrangler-name-matches-package": "off",
-    "workspace/wrangler-tail-consumers-unique": "off"
+    "workspace/wrangler-tail-consumers-unique": "off",
+    "vscode/no-unread-settings": "error",
+    "vscode/no-unwired-commands": "error"
   },
   "ruleOptions": {
     "comments/no-lint-disable": {

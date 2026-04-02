@@ -1247,6 +1247,11 @@
                 "enum": ["error", "warn", "off"],
                 "type": "string"
               },
+              "plans/require-plan-structure": {
+                "description": "Plan files must have Status Legend, Baseline, Execution Order, and all 4 required tail tasks — mirrors hook validation at CI time.",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
               "plans/require-test-files": {
                 "description": "Implementation tasks that create/edit source files must declare test files — enforces TDD at the plan level.",
                 "enum": ["error", "warn", "off"],
@@ -1304,6 +1309,16 @@
               },
               "testing/require-test-suffix": {
                 "description": "Test files must use *.test.ts naming",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "vscode/no-unread-settings": {
+                "description": "Every setting in package.json contributes.configuration must be read via config.get — prevents phantom settings.",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
+              "vscode/no-unwired-commands": {
+                "description": "Every command in brand.ts COMMANDS must have a registerCommand/registerTextEditorCommand call — prevents orphaned commands.",
                 "enum": ["error", "warn", "off"],
                 "type": "string"
               },
@@ -4197,6 +4212,10 @@
           "description": "Options for plans/require-concrete-verification",
           "type": "object"
         },
+        "plans/require-plan-structure": {
+          "description": "Options for plans/require-plan-structure",
+          "type": "object"
+        },
         "plans/require-test-files": {
           "description": "Options for plans/require-test-files",
           "type": "object"
@@ -4243,6 +4262,14 @@
         },
         "testing/require-test-suffix": {
           "description": "Options for testing/require-test-suffix",
+          "type": "object"
+        },
+        "vscode/no-unread-settings": {
+          "description": "Options for vscode/no-unread-settings",
+          "type": "object"
+        },
+        "vscode/no-unwired-commands": {
+          "description": "Options for vscode/no-unwired-commands",
           "type": "object"
         },
         "workspace/cli-tools-help-version": {
@@ -6944,6 +6971,11 @@
           "enum": ["error", "warn", "off"],
           "type": "string"
         },
+        "plans/require-plan-structure": {
+          "description": "Plan files must have Status Legend, Baseline, Execution Order, and all 4 required tail tasks — mirrors hook validation at CI time.",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
         "plans/require-test-files": {
           "description": "Implementation tasks that create/edit source files must declare test files — enforces TDD at the plan level.",
           "enum": ["error", "warn", "off"],
@@ -7001,6 +7033,16 @@
         },
         "testing/require-test-suffix": {
           "description": "Test files must use *.test.ts naming",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "vscode/no-unread-settings": {
+          "description": "Every setting in package.json contributes.configuration must be read via config.get — prevents phantom settings.",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "vscode/no-unwired-commands": {
+          "description": "Every command in brand.ts COMMANDS must have a registerCommand/registerTextEditorCommand call — prevents orphaned commands.",
           "enum": ["error", "warn", "off"],
           "type": "string"
         },
