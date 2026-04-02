@@ -35,6 +35,13 @@ const rule: TypeScriptRule = {
   categories: ['comments', 'hygiene'],
   stages: ['lint', 'ci'],
   fixable: false,
+  optionsSchema: {
+    allowedTargets: {
+      type: 'array',
+      items: 'string',
+      description: 'Rule IDs that are allowed to be suppressed (e.g. "max-lines").',
+    },
+  },
 
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {

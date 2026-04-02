@@ -463,6 +463,25 @@ export type Stage = v.InferOutput<typeof StageSchema>;
 // Rule Interface
 // =============================================================================
 
+/** Schema for a single option in a rule's optionsSchema. */
+export const RuleOptionDefSchema = v.strictObject({
+  /** JSON Schema type of the option value. */
+  type: v.picklist(['string', 'boolean', 'number', 'array']),
+  /** For array options, the type of each item. */
+  items: v.optional(v.picklist(['string', 'boolean', 'number'])),
+  /** Human-readable description of the option. */
+  description: v.optional(v.string()),
+});
+
+/** A single option definition. See {@link RuleOptionDefSchema}. */
+export type RuleOptionDef = v.InferOutput<typeof RuleOptionDefSchema>;
+
+/** Schema for a rule's options declaration. Maps option key → definition. */
+export const OptionsSchemaSchema = v.record(v.string(), RuleOptionDefSchema);
+
+/** A rule's options declaration. See {@link OptionsSchemaSchema}. */
+export type OptionsSchema = v.InferOutput<typeof OptionsSchemaSchema>;
+
 /** Schema for a TypeScript AST-based lint rule. */
 export const TypeScriptRuleSchema = v.strictObject({
   /** Unique rule ID (e.g. 'jsdoc/require-param') */
@@ -481,6 +500,8 @@ export const TypeScriptRuleSchema = v.strictObject({
   finalize: v.optional(v.custom<() => LintResult[]>(isFn)),
   /** Whether this rule provides real auto-fixes (not just placeholder no-ops) */
   fixable: v.optional(v.boolean()),
+  /** Declares accepted ruleOptions keys and their types (for config validation + IDE autocomplete) */
+  optionsSchema: v.optional(OptionsSchemaSchema),
 });
 
 /** A TypeScript AST-based lint rule. See {@link TypeScriptRuleSchema}. */
@@ -554,6 +575,8 @@ export const PackageJsonRuleSchema = v.strictObject({
   check: v.custom<(context: PackageJsonContext) => LintResult[]>(isFn),
   /** Whether this rule provides real auto-fixes (not just placeholder no-ops) */
   fixable: v.optional(v.boolean()),
+  /** Declares accepted ruleOptions keys and their types (for config validation + IDE autocomplete) */
+  optionsSchema: v.optional(OptionsSchemaSchema),
 });
 
 /** A package.json lint rule. See {@link PackageJsonRuleSchema}. */
@@ -592,6 +615,8 @@ export const WorkspaceRuleSchema = v.strictObject({
   check: v.custom<(context: unknown) => Promise<LintResult[]>>(isFn),
   /** Whether this rule provides real auto-fixes (not just placeholder no-ops) */
   fixable: v.optional(v.boolean()),
+  /** Declares accepted ruleOptions keys and their types (for config validation + IDE autocomplete) */
+  optionsSchema: v.optional(OptionsSchemaSchema),
 });
 
 /** A workspace-scoped lint rule. See {@link WorkspaceRuleSchema}. */

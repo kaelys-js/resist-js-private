@@ -19,6 +19,8 @@ import {
   type LintConfig,
   loadConfig,
   resolveRuleSeverity,
+  validateConfig,
+  type ConfigWarning,
 } from '@/lint/config/schema.ts';
 import { CONFIG_FILENAME, LINTER_NAME, SCHEMA_FILENAME } from '@/lint/constants.ts';
 import { CACHE_FILENAME, computeRuleHash, LintCache } from '@/lint/framework/cache.ts';
@@ -30,6 +32,7 @@ import { ToolRegistry, type WorkspaceTool } from '@/lint/framework/tool-orchestr
 import type {
   LintFix,
   LintResult,
+  OptionsSchema,
   PackageJson,
   PackageJsonContext,
   PackageJsonRule,
@@ -638,6 +641,7 @@ export function writeJsonSchema(
   tsRules: TypeScriptRule[],
   pkgRules: PackageJsonRule[],
   strings: LintStrings,
+  wsRules: WorkspaceRule[] = [],
 ): void {
   if (schemaWritten) {
     return;
@@ -647,6 +651,7 @@ export function writeJsonSchema(
   const allRuleIds: string[] = [
     ...tsRules.map((r: TypeScriptRule): string => r.id),
     ...pkgRules.map((r: PackageJsonRule): string => r.id),
+    ...wsRules.map((r: WorkspaceRule): string => r.id),
   ];
   const descriptions: Map<string, string> = new Map();
   for (const r of tsRules) {
@@ -655,7 +660,31 @@ export function writeJsonSchema(
   for (const r of pkgRules) {
     descriptions.set(r.id, r.description);
   }
-  const schema: Record<string, unknown> = generateJsonSchema(allRuleIds, descriptions, strings);
+  for (const r of wsRules) {
+    descriptions.set(r.id, r.description);
+  }
+  const ruleOptSchemas: Map<string, OptionsSchema> = new Map();
+  for (const r of tsRules) {
+    if (r.optionsSchema) {
+      ruleOptSchemas.set(r.id, r.optionsSchema);
+    }
+  }
+  for (const r of pkgRules) {
+    if (r.optionsSchema) {
+      ruleOptSchemas.set(r.id, r.optionsSchema);
+    }
+  }
+  for (const r of wsRules) {
+    if (r.optionsSchema) {
+      ruleOptSchemas.set(r.id, r.optionsSchema);
+    }
+  }
+  const schema: Record<string, unknown> = generateJsonSchema(
+    allRuleIds,
+    descriptions,
+    strings,
+    ruleOptSchemas,
+  );
   const outPath: string = resolve(process.cwd(), SCHEMA_FILENAME);
   try {
     const raw: string = JSON.stringify(schema, null, 2);
@@ -952,13 +981,15 @@ export async function _runLintCore(
     );
   }
 
-  /* Filter out globally disabled rules */
-  allTsRules = allTsRules.filter(
-    (r: TypeScriptRule): boolean => (config.rules[r.id] ?? 'error') !== 'off',
-  );
-  allPkgRules = allPkgRules.filter(
-    (r: PackageJsonRule): boolean => (config.rules[r.id] ?? 'error') !== 'off',
-  );
+  /* Filter out globally disabled rules (skip when --rule= explicitly selects rules) */
+  if (cliArgs.ruleIds.length === 0) {
+    allTsRules = allTsRules.filter(
+      (r: TypeScriptRule): boolean => (config.rules[r.id] ?? 'error') !== 'off',
+    );
+    allPkgRules = allPkgRules.filter(
+      (r: PackageJsonRule): boolean => (config.rules[r.id] ?? 'error') !== 'off',
+    );
+  }
 
   /* Collect files */
   const allFiles: string[] = [];
@@ -1317,10 +1348,12 @@ export async function _runLintCore(
       );
     }
 
-    /* Filter out globally disabled workspace rules */
-    wsRules = wsRules.filter(
-      (r: WorkspaceRule): boolean => (config.rules[r.id] ?? 'error') !== 'off',
-    );
+    /* Filter out globally disabled workspace rules (skip when --rule= explicitly selects rules) */
+    if (cliArgs.ruleIds.length === 0) {
+      wsRules = wsRules.filter(
+        (r: WorkspaceRule): boolean => (config.rules[r.id] ?? 'error') !== 'off',
+      );
+    }
 
     if (wsRules.length > 0) {
       dbg(format(strings.debug.workspaceRunning, { count: wsRules.length }));
@@ -1535,8 +1568,40 @@ export async function runLinter(
     }),
   );
 
+  /* Validate config against known rule IDs — emit warnings for suspect entries */
+  const knownRuleIds: Set<string> = new Set<string>();
+  const optionsSchemas: Map<string, OptionsSchema> = new Map();
+  for (const r of loaded.typescript) {
+    knownRuleIds.add(r.id);
+    if (r.optionsSchema) {
+      optionsSchemas.set(r.id, r.optionsSchema);
+    }
+  }
+  for (const r of loaded.packageJson) {
+    knownRuleIds.add(r.id);
+    if (r.optionsSchema) {
+      optionsSchemas.set(r.id, r.optionsSchema);
+    }
+  }
+  for (const r of loaded.workspace) {
+    knownRuleIds.add(r.id);
+    if (r.optionsSchema) {
+      optionsSchemas.set(r.id, r.optionsSchema);
+    }
+  }
+  const configWarnings: ConfigWarning[] = validateConfig(config, knownRuleIds, optionsSchemas);
+  for (const w of configWarnings) {
+    output.stderr(`[error] ${w.path}: ${w.message}\n`);
+  }
+  if (configWarnings.length > 0) {
+    output.stderr(
+      `[error] ${configWarnings.length} config validation error(s) — fix ${CONFIG_FILENAME}\n`,
+    );
+    return { filesLinted: 0, fixesApplied: 0, results: [], ruleDescs: new Map() };
+  }
+
   /* Auto-generate JSON Schema for IDE autocomplete */
-  writeJsonSchema(loaded.typescript, loaded.packageJson, strings);
+  writeJsonSchema(loaded.typescript, loaded.packageJson, strings, loaded.workspace);
 
   /* List rules mode */
   if (cliArgs.listRules) {

@@ -11,6 +11,7 @@ import * as v from 'valibot';
 
 import { en } from '@/lint/locale/locales/en.ts';
 
+import type { OptionsSchema } from '../framework/types.ts';
 import {
   RuleSeveritySchema,
   OverrideSchema,
@@ -19,7 +20,9 @@ import {
   _resetConfigCache,
   resolveRuleSeverity,
   generateJsonSchema,
+  validateConfig,
   type LintConfig,
+  type ConfigWarning,
 } from './schema.ts';
 
 vi.mock('node:fs');
@@ -565,13 +568,56 @@ describe('generateJsonSchema', () => {
     ]);
   });
 
-  it('rules additionalProperties describes severity enum', () => {
+  it('rules additionalProperties is false (rejects unknown rule IDs)', () => {
     const schema = generateJsonSchema([], new Map(), en);
-    const addlProps = schema.properties['rules']?.additionalProperties;
-    expect(addlProps).toBeDefined();
-    if (typeof addlProps === 'object' && addlProps !== null) {
-      expect(addlProps.enum).toEqual(['error', 'warn', 'off']);
-    }
+    expect(schema.properties['rules']?.additionalProperties).toBe(false);
+  });
+
+  it('ruleOptions additionalProperties is false (rejects unknown rule IDs)', () => {
+    const schema = generateJsonSchema([], new Map(), en);
+    expect(schema.properties['ruleOptions']?.additionalProperties).toBe(false);
+  });
+
+  it('ruleOptions has per-rule properties (no optionsSchema)', () => {
+    const schema = generateJsonSchema(ruleIds, ruleDescriptions, en);
+    const optProps = schema.properties['ruleOptions']?.properties;
+    expect(optProps).toBeDefined();
+    expect(optProps?.['jsdoc/require-param']).toEqual({
+      description: 'Options for jsdoc/require-param',
+      type: 'object',
+    });
+  });
+
+  it('ruleOptions has typed properties when optionsSchema is provided', () => {
+    const schemas: Map<string, OptionsSchema> = new Map([
+      [
+        'jsdoc/require-param',
+        {
+          allowedTargets: { type: 'array', items: 'string', description: 'Allowed targets' },
+          strict: { type: 'boolean', description: 'Strict mode' },
+        },
+      ],
+    ]);
+    const schema = generateJsonSchema(ruleIds, ruleDescriptions, en, schemas);
+    const optProps = schema.properties['ruleOptions']?.properties;
+    expect(optProps?.['jsdoc/require-param']).toEqual({
+      additionalProperties: false,
+      description: 'Options for jsdoc/require-param',
+      properties: {
+        allowedTargets: {
+          description: 'Allowed targets',
+          items: { type: 'string' },
+          type: 'array',
+        },
+        strict: { description: 'Strict mode', type: 'boolean' },
+      },
+      type: 'object',
+    });
+    // Rule without optionsSchema stays generic
+    expect(optProps?.['imports/no-relative-imports']).toEqual({
+      description: 'Options for imports/no-relative-imports',
+      type: 'object',
+    });
   });
 
   it('overrides items have required files and rules', () => {
@@ -900,5 +946,191 @@ describe('simplified config structure', () => {
     expect(nameExcludes).toContain('node_modules');
     expect(nameExcludes).toContain('.git');
     expect(pathExcludes).toContain('packages/shared/utils/cli');
+  });
+});
+
+// =============================================================================
+// validateConfig — semantic warnings
+// =============================================================================
+
+describe('validateConfig', () => {
+  const knownRules: ReadonlySet<string> = new Set([
+    'jsdoc/require-param',
+    'imports/no-relative-imports',
+    'naming/no-default-export',
+  ]);
+
+  it('returns no warnings for a valid config', () => {
+    const schemas: Map<string, OptionsSchema> = new Map([
+      ['imports/no-relative-imports', { allow: { type: 'array', items: 'string' } }],
+    ]);
+    const config: LintConfig = {
+      ...baseConfig(),
+      extensions: ['.ts', '.svelte'],
+      rules: { 'jsdoc/require-param': 'warn' },
+      ruleOptions: { 'imports/no-relative-imports': { allow: ['./'] } },
+      overrides: [{ files: ['**/*.test.ts'], rules: { 'naming/no-default-export': 'off' } }],
+    };
+    const warnings: ConfigWarning[] = validateConfig(config, knownRules, schemas);
+    expect(warnings).toHaveLength(0);
+  });
+
+  it('warns on extension without leading dot', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      extensions: ['.ts', 'svelte', 'md'],
+    };
+    const warnings: ConfigWarning[] = validateConfig(config, knownRules);
+    expect(warnings).toHaveLength(2);
+    expect(warnings[0]!.path).toBe('extensions');
+    expect(warnings[0]!.message).toContain('"svelte"');
+    expect(warnings[0]!.message).toContain('does not start with "."');
+    expect(warnings[1]!.message).toContain('"md"');
+  });
+
+  it('warns on unknown rule ID in rules section', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      rules: { 'jsdoc/require-param': 'warn', 'fake/nonexistent-rule': 'error' },
+    };
+    const warnings: ConfigWarning[] = validateConfig(config, knownRules);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]!.path).toBe('rules');
+    expect(warnings[0]!.message).toContain('fake/nonexistent-rule');
+    expect(warnings[0]!.message).toContain('Unknown rule');
+  });
+
+  it('warns on unknown rule ID in ruleOptions section', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      ruleOptions: { 'made-up/option': { foo: true } },
+    };
+    const warnings: ConfigWarning[] = validateConfig(config, knownRules);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]!.path).toBe('ruleOptions');
+    expect(warnings[0]!.message).toContain('made-up/option');
+  });
+
+  it('warns on unknown rule ID in overrides', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      overrides: [
+        { files: ['**/*.ts'], rules: { 'jsdoc/require-param': 'off', 'bogus/rule': 'warn' } },
+      ],
+    };
+    const warnings: ConfigWarning[] = validateConfig(config, knownRules);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]!.path).toBe('overrides[0].rules');
+    expect(warnings[0]!.message).toContain('bogus/rule');
+  });
+
+  it('reports warnings from multiple sections simultaneously', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      extensions: ['ts'],
+      rules: { 'unknown/a': 'off' },
+      ruleOptions: { 'unknown/b': {} },
+      overrides: [{ files: ['**/*.ts'], rules: { 'unknown/c': 'warn' } }],
+    };
+    const warnings: ConfigWarning[] = validateConfig(config, knownRules);
+    expect(warnings).toHaveLength(4);
+    expect(warnings.map((w: ConfigWarning): string => w.path)).toEqual([
+      'extensions',
+      'rules',
+      'ruleOptions',
+      'overrides[0].rules',
+    ]);
+  });
+
+  it('returns no warnings when knownRuleIds is empty and config has no rules', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      extensions: ['.ts'],
+    };
+    const warnings: ConfigWarning[] = validateConfig(config, new Set());
+    expect(warnings).toHaveLength(0);
+  });
+
+  it('warns on multiple unknown rules in the same override', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      overrides: [{ files: ['**/*.ts'], rules: { 'bad/one': 'off', 'bad/two': 'warn' } }],
+    };
+    const warnings: ConfigWarning[] = validateConfig(config, knownRules);
+    expect(warnings).toHaveLength(2);
+    expect(warnings.every((w: ConfigWarning): boolean => w.path === 'overrides[0].rules')).toBe(
+      true,
+    );
+  });
+
+  it('warns on empty string in include', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      include: ['packages', ''],
+    };
+    const warnings: ConfigWarning[] = validateConfig(config, knownRules);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]!.path).toBe('include');
+    expect(warnings[0]!.message).toContain('Empty string');
+  });
+
+  it('warns on empty string in exclude', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      exclude: ['node_modules', '', '  '],
+    };
+    const warnings: ConfigWarning[] = validateConfig(config, knownRules);
+    expect(warnings).toHaveLength(2);
+    expect(warnings.every((w: ConfigWarning): boolean => w.path === 'exclude')).toBe(true);
+  });
+
+  it('warns on empty string in overrides.files', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      overrides: [{ files: ['**/*.ts', ''], rules: { 'jsdoc/require-param': 'off' } }],
+    };
+    const warnings: ConfigWarning[] = validateConfig(config, knownRules);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]!.path).toBe('overrides[0].files');
+    expect(warnings[0]!.message).toContain('Empty string');
+  });
+
+  it('warns on unknown option key in ruleOptions', () => {
+    const schemas: Map<string, OptionsSchema> = new Map([
+      ['jsdoc/require-param', { scope: { type: 'string' } }],
+    ]);
+    const config: LintConfig = {
+      ...baseConfig(),
+      ruleOptions: { 'jsdoc/require-param': { scope: 'test', bogusKey: true } },
+    };
+    const warnings: ConfigWarning[] = validateConfig(config, knownRules, schemas);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]!.path).toBe('ruleOptions.jsdoc/require-param.bogusKey');
+    expect(warnings[0]!.message).toContain('Unknown option "bogusKey"');
+    expect(warnings[0]!.message).toContain('scope');
+  });
+
+  it('no warning for valid option keys matching optionsSchema', () => {
+    const schemas: Map<string, OptionsSchema> = new Map([
+      ['jsdoc/require-param', { allowedTargets: { type: 'array', items: 'string' } }],
+    ]);
+    const config: LintConfig = {
+      ...baseConfig(),
+      ruleOptions: { 'jsdoc/require-param': { allowedTargets: ['max-lines'] } },
+    };
+    const warnings: ConfigWarning[] = validateConfig(config, knownRules, schemas);
+    expect(warnings).toHaveLength(0);
+  });
+
+  it('warns when rule has ruleOptions but no optionsSchema declared', () => {
+    const schemas: Map<string, OptionsSchema> = new Map();
+    const config: LintConfig = {
+      ...baseConfig(),
+      ruleOptions: { 'jsdoc/require-param': { anything: 'goes' } },
+    };
+    const warnings: ConfigWarning[] = validateConfig(config, knownRules, schemas);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]!.path).toBe('ruleOptions.jsdoc/require-param');
+    expect(warnings[0]!.message).toContain('does not declare an optionsSchema');
   });
 });

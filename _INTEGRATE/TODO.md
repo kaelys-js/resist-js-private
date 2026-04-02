@@ -1,6 +1,7 @@
 - [VS Code Extension]
+  - New Lint Rules:
+    - Unlocalized English Strings
   - Find any unimplemented/unwired features and design lint rules to prevent that
-  - Design lint rules based on docs/plans/TEMPLATE.md so when implementing plans nothing is missed (task detail, task status update, detailed verification, etc)
   - Panel (like there is for git in the sidebar)
   - Status Bar UX
   - Will lint workspace/non-ts files also by default and use all available tools?

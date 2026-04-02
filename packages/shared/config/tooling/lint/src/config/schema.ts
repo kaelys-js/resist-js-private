@@ -12,6 +12,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import * as v from 'valibot';
 import { CONFIG_FILENAME, LINTER_NAME } from '@/lint/constants.ts';
+import type { OptionsSchema } from '@/lint/framework/types.ts';
 import { format, type LintStrings } from '@/lint/locale/schema.ts';
 
 // =============================================================================
@@ -306,6 +307,141 @@ function stripJsoncComments(input: string): string {
 }
 
 // =============================================================================
+// Config Validation (semantic warnings)
+// =============================================================================
+
+/** A warning about a config value that is syntactically valid but semantically suspect. */
+export type ConfigWarning = {
+  /** Dot-separated path in the config (e.g. 'rules', 'overrides[0].rules'). */
+  path: string;
+  /** Human-readable warning message. */
+  message: string;
+};
+
+/**
+ * Validate a loaded config against known rule IDs and return warnings.
+ *
+ * This performs semantic validation beyond what the Valibot schema checks:
+ * - Extensions must start with '.'
+ * - Rule keys in `rules`, `ruleOptions`, and `overrides[].rules` must match known rule IDs
+ * - Option keys in `ruleOptions[ruleId]` must match the rule's declared `optionsSchema`
+ *
+ * Returns warnings (not errors) since unknown rules may come from future versions.
+ *
+ * @param config - Validated linter configuration
+ * @param knownRuleIds - Set of all known rule IDs
+ * @param optionsSchemas - Map of rule ID → declared options schema (from rules with optionsSchema)
+ * @returns Array of config warnings (empty if config is clean)
+ */
+export function validateConfig(
+  config: LintConfig,
+  knownRuleIds: ReadonlySet<string>,
+  optionsSchemas?: ReadonlyMap<string, OptionsSchema>,
+): ConfigWarning[] {
+  const warnings: ConfigWarning[] = [];
+
+  /* Validate extensions start with '.' */
+  for (const ext of config.extensions) {
+    if (!ext.startsWith('.')) {
+      warnings.push({
+        path: 'extensions',
+        message: `Extension "${ext}" does not start with ".".`,
+      });
+    }
+  }
+
+  /* Validate top-level rule keys */
+  for (const ruleId of Object.keys(config.rules)) {
+    if (!knownRuleIds.has(ruleId)) {
+      warnings.push({
+        path: 'rules',
+        message: `Unknown rule "${ruleId}" — not found in loaded rules.`,
+      });
+    }
+  }
+
+  /* Validate ruleOptions keys and option values */
+  for (const ruleId of Object.keys(config.ruleOptions)) {
+    if (!knownRuleIds.has(ruleId)) {
+      warnings.push({
+        path: 'ruleOptions',
+        message: `Unknown rule "${ruleId}" in ruleOptions — not found in loaded rules.`,
+      });
+      continue;
+    }
+
+    /* Validate individual option keys against the rule's declared optionsSchema */
+    const schema: OptionsSchema | undefined = optionsSchemas?.get(ruleId);
+    if (!schema) {
+      warnings.push({
+        path: `ruleOptions.${ruleId}`,
+        message: `Rule "${ruleId}" does not declare an optionsSchema — config options will be ignored.`,
+      });
+      continue;
+    }
+
+    const optionObj = config.ruleOptions[ruleId];
+    if (optionObj && typeof optionObj === 'object') {
+      for (const key of Object.keys(optionObj)) {
+        if (!(key in schema)) {
+          const validKeys: string = Object.keys(schema).join(', ');
+          warnings.push({
+            path: `ruleOptions.${ruleId}.${key}`,
+            message: `Unknown option "${key}" for rule "${ruleId}". Valid options: ${validKeys}.`,
+          });
+        }
+      }
+    }
+  }
+
+  /* Validate include entries */
+  for (const entry of config.include) {
+    if (entry.trim() === '') {
+      warnings.push({
+        path: 'include',
+        message: 'Empty string in include patterns.',
+      });
+    }
+  }
+
+  /* Validate exclude entries */
+  for (const entry of config.exclude) {
+    if (entry.trim() === '') {
+      warnings.push({
+        path: 'exclude',
+        message: 'Empty string in exclude patterns.',
+      });
+    }
+  }
+
+  /* Validate override rule keys and file patterns */
+  for (let i = 0; i < config.overrides.length; i++) {
+    const override: Override | undefined = config.overrides[i];
+    if (!override) {
+      continue;
+    }
+    for (const pattern of override.files) {
+      if (pattern.trim() === '') {
+        warnings.push({
+          path: `overrides[${i}].files`,
+          message: 'Empty string in override file patterns.',
+        });
+      }
+    }
+    for (const ruleId of Object.keys(override.rules)) {
+      if (!knownRuleIds.has(ruleId)) {
+        warnings.push({
+          path: `overrides[${i}].rules`,
+          message: `Unknown rule "${ruleId}" in override — not found in loaded rules.`,
+        });
+      }
+    }
+  }
+
+  return warnings;
+}
+
+// =============================================================================
 // JSON Schema Generation
 // =============================================================================
 
@@ -393,15 +529,43 @@ export function generateJsonSchema(
   ruleIds: string[],
   ruleDescriptions: Map<string, string>,
   strings: LintStrings,
+  optionsSchemas?: ReadonlyMap<string, OptionsSchema>,
 ): JsonSchemaDocument {
   // Build per-rule properties — each rule gets its own description, enum, and type
   const ruleProperties: Record<string, JsonSchemaProperty> = {};
+  const ruleOptionProperties: Record<string, JsonSchemaProperty> = {};
   for (const id of ruleIds) {
     ruleProperties[id] = {
       description: ruleDescriptions.get(id) ?? '',
       enum: ['error', 'warn', 'off'],
       type: 'string',
     };
+
+    const optSchema: OptionsSchema | undefined = optionsSchemas?.get(id);
+    if (optSchema) {
+      const optProps: Record<string, JsonSchemaProperty> = {};
+      for (const [key, def] of Object.entries(optSchema)) {
+        const prop: JsonSchemaProperty = {
+          description: def.description ?? '',
+          type: def.type,
+        };
+        if (def.type === 'array' && def.items) {
+          prop.items = { type: def.items };
+        }
+        optProps[key] = prop;
+      }
+      ruleOptionProperties[id] = {
+        additionalProperties: false,
+        description: `Options for ${id}`,
+        properties: optProps,
+        type: 'object',
+      };
+    } else {
+      ruleOptionProperties[id] = {
+        description: `Options for ${id}`,
+        type: 'object',
+      };
+    }
   }
 
   return {
@@ -434,6 +598,7 @@ export function generateJsonSchema(
       overrides: {
         description: strings.schema.overridesDescription,
         items: {
+          additionalProperties: false,
           properties: {
             files: {
               description: strings.schema.overridesFilesDescription,
@@ -441,10 +606,7 @@ export function generateJsonSchema(
               type: 'array',
             },
             rules: {
-              additionalProperties: {
-                enum: ['error', 'warn', 'off'],
-                type: 'string',
-              },
+              additionalProperties: false,
               description: strings.schema.overridesRulesDescription,
               properties: ruleProperties,
               type: 'object',
@@ -456,19 +618,13 @@ export function generateJsonSchema(
         type: 'array',
       },
       ruleOptions: {
-        additionalProperties: {
-          description: strings.schema.ruleOptionsAdditionalDescription,
-          type: 'object',
-        },
+        additionalProperties: false,
         description: strings.schema.ruleOptionsDescription,
+        properties: ruleOptionProperties,
         type: 'object',
       },
       rules: {
-        additionalProperties: {
-          description: strings.schema.ruleSeverityDescription,
-          enum: ['error', 'warn', 'off'],
-          type: 'string',
-        },
+        additionalProperties: false,
         description: strings.schema.rulesBaseDescription,
         properties: ruleProperties,
         type: 'object',

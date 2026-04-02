@@ -30,6 +30,13 @@ const rule: WorkspaceRule = {
   categories: ['hygiene'],
   stages: ['ci'],
   fixable: false,
+  optionsSchema: {
+    allowedNames: {
+      type: 'array',
+      items: 'string',
+      description: 'Function names allowed to appear in multiple files.',
+    },
+  },
 
   async check(context: unknown): Promise<LintResult[]> {
     const ctx: DuplicateFnContext = context as DuplicateFnContext;
