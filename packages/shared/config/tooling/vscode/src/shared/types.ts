@@ -41,6 +41,8 @@ export type RunOptions = {
   readonly cwd: string;
   /** Additional environment variables (merged with process.env). */
   readonly env?: Readonly<Record<string, string>>;
+  /** Content to write to the child process stdin (for --stdin-filename mode). */
+  readonly stdin?: string;
   /** Timeout in milliseconds (default: 30000). */
   readonly timeout?: number;
 };

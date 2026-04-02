@@ -59,6 +59,9 @@ export const en: VscodeStrings = {
     workspaceLintFailed: 'Workspace lint failed: {error}',
     workspaceLintTiming: 'Workspace lint',
     timingReportFailed: 'Timing report failed: {error}',
+    outputCleared: 'Output channel cleared',
+    linterPaused: 'Linter paused',
+    linterResumed: 'Linter resumed',
   },
 
   progress: {

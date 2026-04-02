@@ -11,9 +11,23 @@ import * as vscode from 'vscode';
 import { registerLintCommands } from './commands';
 import { DiagnosticFilter } from './diagnostic-filter';
 import { StageIndicator } from './stage-indicator';
-import { COMMANDS, DIAGNOSTIC_COLLECTION_NAME, BRAND_NAME, CONFIG_SECTION } from '../shared/brand';
+import { COMMANDS, DIAGNOSTIC_COLLECTION_NAME, BRAND_NAME, CONFIG_SECTION, BINARY_NAME } from '../shared/brand';
 import { ConfigManager } from '../shared/config';
 import { ToolStateManager } from '../shared/state';
+
+// Mock runner to capture which function is called
+const mockRunToolText = vi.fn();
+vi.mock('../shared/runner', () => ({
+  runToolText: (...args: unknown[]) => mockRunToolText(...args),
+  runToolJson: vi.fn(),
+}));
+
+// Mock workspace to provide binary path
+vi.mock('../shared/workspace', () => ({
+  getBinaryPath: vi.fn(() => '/usr/local/bin/resist-lint'),
+  getWorkspaceRoot: vi.fn(() => '/workspace'),
+  clearCache: vi.fn(),
+}));
 
 // Capture registered command handlers (both regular and text editor commands)
 const commandHandlers = new Map<string, (...args: unknown[]) => unknown>();
@@ -103,7 +117,7 @@ describe('Lint Commands', () => {
     });
   });
 
-  it('registers all 15 commands', () => {
+  it('registers all 17 commands', () => {
     const expectedCommands = [
       COMMANDS.lintFile,
       COMMANDS.lintWorkspace,
@@ -120,12 +134,14 @@ describe('Lint Commands', () => {
       COMMANDS.clearFilter,
       COMMANDS.removeUnusedImports,
       COMMANDS.changeStage,
+      COMMANDS.clearOutput,
+      COMMANDS.toggleEnable,
     ];
 
     for (const cmd of expectedCommands) {
       expect(commandHandlers.has(cmd), `Command ${cmd} should be registered`).toBe(true);
     }
-    expect(commandHandlers.size).toBe(15);
+    expect(commandHandlers.size).toBe(17);
   });
 
   it('resist.lint.file calls lintDocumentFn for active editor', () => {
@@ -234,7 +250,95 @@ describe('Lint Commands', () => {
   });
 
   it('commands add subscriptions to context', () => {
-    // 15 commands = 15 subscriptions pushed
-    expect(context.subscriptions.length).toBe(15);
+    // 17 commands = 17 subscriptions pushed
+    expect(context.subscriptions.length).toBe(17);
+  });
+
+  it('resist.lint.listRules uses runToolText (not runToolJson)', async () => {
+    mockRunToolText.mockResolvedValue({
+      ok: true,
+      data: 'jsdoc/require-param\njsdoc/require-returns\n',
+      stderr: '',
+      elapsed: 50,
+    });
+
+    // Setup workspace folders
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: [{ uri: vscode.Uri.file('/workspace'), name: 'workspace', index: 0 }],
+      writable: true,
+    });
+
+    const handler = commandHandlers.get(COMMANDS.listRules)!;
+    await handler();
+
+    expect(mockRunToolText).toHaveBeenCalledTimes(1);
+    const options = mockRunToolText.mock.calls[0]![0];
+    expect(options.args).toContain('--list-rules');
+    expect(outputChannel.appendLine).toHaveBeenCalled();
+  });
+
+  it('resist.lint.listRules shows text output directly', async () => {
+    const ruleOutput = 'jsdoc/require-param — error\njsdoc/require-returns — error\n';
+    mockRunToolText.mockResolvedValue({
+      ok: true,
+      data: ruleOutput,
+      stderr: '',
+      elapsed: 50,
+    });
+
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: [{ uri: vscode.Uri.file('/workspace'), name: 'workspace', index: 0 }],
+      writable: true,
+    });
+
+    const handler = commandHandlers.get(COMMANDS.listRules)!;
+    await handler();
+
+    // Should show the raw text output directly
+    const calls = vi.mocked(outputChannel.appendLine).mock.calls.map((c) => c[0]);
+    expect(calls.some((c) => typeof c === 'string' && c.includes('jsdoc/require-param'))).toBe(
+      true,
+    );
+  });
+
+  it('resist.lint.clearOutput clears and logs to output channel', () => {
+    const handler = commandHandlers.get(COMMANDS.clearOutput)!;
+    handler();
+
+    expect(outputChannel.clear).toHaveBeenCalled();
+    expect(outputChannel.appendLine).toHaveBeenCalled();
+  });
+
+  it('resist.lint.toggleEnable pauses linter when enabled', async () => {
+    const mockConfig = {
+      get: vi.fn(() => true),
+      update: vi.fn(),
+    };
+    vi.mocked(vscode.workspace.getConfiguration).mockReturnValue(
+      mockConfig as unknown as vscode.WorkspaceConfiguration,
+    );
+
+    const handler = commandHandlers.get(COMMANDS.toggleEnable)!;
+    await handler();
+
+    expect(mockConfig.update).toHaveBeenCalledWith('enable', false, expect.anything());
+    expect(diagnosticCollection.clear).toHaveBeenCalled();
+  });
+
+  it('resist.lint.toggleEnable resumes linter when disabled', async () => {
+    const mockConfig = {
+      get: vi.fn(() => false),
+      update: vi.fn(),
+    };
+    vi.mocked(vscode.workspace.getConfiguration).mockReturnValue(
+      mockConfig as unknown as vscode.WorkspaceConfiguration,
+    );
+
+    const handler = commandHandlers.get(COMMANDS.toggleEnable)!;
+    await handler();
+
+    expect(mockConfig.update).toHaveBeenCalledWith('enable', true, expect.anything());
+    // Should NOT clear diagnostics when resuming
+    expect(diagnosticCollection.clear).not.toHaveBeenCalled();
   });
 });

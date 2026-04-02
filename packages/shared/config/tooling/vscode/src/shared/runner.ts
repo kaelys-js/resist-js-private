@@ -49,6 +49,14 @@ function runTool(options: RunOptions): Promise<ToolResult> {
     env,
   });
 
+  /* Write stdin content to the child process when provided (--stdin-filename mode) */
+  if (options.stdin !== undefined) {
+    child.stdin.write(options.stdin);
+    child.stdin.end();
+  } else {
+    child.stdin.end();
+  }
+
   let stdout = '';
   let stderr = '';
 
@@ -171,6 +179,14 @@ export function runToolJson<T>(options: RunOptions): Promise<RunResult<T>> {
     stdio: ['pipe', 'pipe', 'pipe'],
     env,
   });
+
+  /* Write stdin content to the child process when provided (--stdin-filename mode) */
+  if (options.stdin !== undefined) {
+    child.stdin.write(options.stdin);
+    child.stdin.end();
+  } else {
+    child.stdin.end();
+  }
 
   let stdout = '';
   let stderr = '';

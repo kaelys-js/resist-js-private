@@ -15,15 +15,18 @@ vi.mock('node:child_process', async () => {
   const { EventEmitter: EE } = await import('node:events');
 
   function createMockChild(): EventEmitter & {
+    stdin: { write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn> };
     stdout: EventEmitter;
     stderr: EventEmitter;
     kill: ReturnType<typeof vi.fn>;
   } {
     const child = new EE() as EventEmitter & {
+      stdin: { write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn> };
       stdout: EventEmitter;
       stderr: EventEmitter;
       kill: ReturnType<typeof vi.fn>;
     };
+    child.stdin = { write: vi.fn(), end: vi.fn() };
     child.stdout = new EE();
     child.stderr = new EE();
     child.kill = vi.fn();
@@ -39,6 +42,7 @@ vi.mock('node:child_process', async () => {
 const { spawn } = await import('node:child_process');
 
 type MockChild = EventEmitter & {
+  stdin: { write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn> };
   stdout: EventEmitter;
   stderr: EventEmitter;
   kill: ReturnType<typeof vi.fn>;
@@ -207,6 +211,82 @@ describe('runToolJson', () => {
     if (!result.ok) {
       // Should include the SyntaxError message from JSON.parse
       expect(result.error).toMatch(/Failed to parse JSON output \(/);
+    }
+  });
+
+  it('writes stdin content to child process when provided', async () => {
+    const stdinContent = 'export const x: number = 42;';
+    const promise = runToolJson<string[]>({
+      command: 'test-tool',
+      args: ['--stdin-filename=/src/foo.ts'],
+      cwd: '/tmp',
+      stdin: stdinContent,
+    });
+
+    const child = getLastChild();
+    expect(child.stdin.write).toHaveBeenCalledWith(stdinContent);
+    expect(child.stdin.end).toHaveBeenCalled();
+
+    emitStdout(child, '[]', 0);
+    const result = await promise;
+    expect(result.ok).toBe(true);
+  });
+
+  it('closes stdin without writing when no stdin option provided', async () => {
+    const promise = runToolJson<string[]>({
+      command: 'test-tool',
+      args: [],
+      cwd: '/tmp',
+    });
+
+    const child = getLastChild();
+    expect(child.stdin.write).not.toHaveBeenCalled();
+    expect(child.stdin.end).toHaveBeenCalled();
+
+    emitStdout(child, '[]', 0);
+    const result = await promise;
+    expect(result.ok).toBe(true);
+  });
+
+  it('writes stdin and parses JSON response correctly', async () => {
+    const stdinContent = '/** @param x */ export function f(x: number) {}';
+    const diagnostics = [{ file: '/src/foo.ts', line: 1, message: 'error' }];
+
+    const promise = runToolJson<typeof diagnostics>({
+      command: 'resist-lint',
+      args: ['--format=json', '--stdin-filename=/src/foo.ts'],
+      cwd: '/tmp',
+      stdin: stdinContent,
+    });
+
+    const child = getLastChild();
+    expect(child.stdin.write).toHaveBeenCalledWith(stdinContent);
+    emitStdout(child, JSON.stringify(diagnostics), 0);
+
+    const result = await promise;
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toEqual(diagnostics);
+    }
+  });
+
+  it('handles empty stdin content', async () => {
+    const promise = runToolJson<string[]>({
+      command: 'test-tool',
+      args: [],
+      cwd: '/tmp',
+      stdin: '',
+    });
+
+    const child = getLastChild();
+    expect(child.stdin.write).toHaveBeenCalledWith('');
+    expect(child.stdin.end).toHaveBeenCalled();
+
+    child.emit('close', 0);
+    const result = await promise;
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toEqual([]);
     }
   });
 });

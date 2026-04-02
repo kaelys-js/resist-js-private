@@ -82,7 +82,7 @@ export class DiagnosticFilter implements vscode.Disposable {
       }
     }
 
-    return [...categories].toSorted();
+    return [...categories].sort();
   }
 
   /**

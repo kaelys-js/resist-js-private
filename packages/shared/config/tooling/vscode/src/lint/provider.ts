@@ -90,8 +90,8 @@ export async function lintDocument(
     return;
   }
 
-  // Build CLI args
-  const args: string[] = ['--format=json'];
+  // Build CLI args — always use --stdin-filename so the CLI reads the editor buffer
+  const args: string[] = ['--format=json', `--stdin-filename=${filePath}`];
 
   if (resolvedOptions.stage) {
     args.push(`--stage=${resolvedOptions.stage}`);
@@ -107,19 +107,18 @@ export async function lintDocument(
     args.push(...resolvedOptions.extraArgs);
   }
 
-  args.push(filePath);
-
   // Update state
   stateManager.setState('lint', 'running');
 
   // Log the command for debugging
   logCommand(channel, binPath, args);
 
-  // Spawn resist-lint
+  // Spawn resist-lint — pipe the current editor buffer via stdin
   const result: RunResult<DiagnosticEntry[]> = await runToolJson<DiagnosticEntry[]>({
     command: binPath,
     args,
     cwd,
+    stdin: document.getText(),
   });
 
   if (!result.ok) {

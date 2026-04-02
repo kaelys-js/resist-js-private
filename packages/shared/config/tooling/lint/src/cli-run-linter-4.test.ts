@@ -35,6 +35,7 @@ function makeCliArgs(overrides: Partial<CliArgs> = {}): CliArgs {
     debug: false,
     format: undefined,
     jobs: undefined,
+    stdinFilename: undefined,
     tools: false,
     cache: false,
     ...overrides,
@@ -208,6 +209,22 @@ describe.concurrent('runLinter — no lintable files branches', () => {
       makeCliArgs({
         paths: [resolve('packages/shared/config/tooling/lint/src/nonexistent-dir-xyz')],
         json: true,
+      }),
+      output,
+      en,
+    );
+
+    expect(code).toBe(0);
+    const combined: string = stdoutLines.join('');
+    expect(combined).not.toContain('No lintable files found');
+  });
+
+  it('returns 0 silently when --format=json and files empty', async () => {
+    const { stdoutLines, output } = captureOutput();
+    const code: number = await runLinter(
+      makeCliArgs({
+        paths: [resolve('packages/shared/config/tooling/lint/src/nonexistent-dir-xyz')],
+        format: 'json',
       }),
       output,
       en,

@@ -206,7 +206,7 @@ export function activate(context: vscode.ExtensionContext): void {
       return;
     }
 
-    const _lintPromise = safeRunAsync(outputChannel, 'lintDocument', () =>
+    safeRunAsync(outputChannel, 'lintDocument', () =>
       lintDocument(doc, diagnosticCollection, outputChannel, stateManager, getLintOptions()),
     );
   };
@@ -328,7 +328,7 @@ export function activate(context: vscode.ExtensionContext): void {
       return;
     }
     if (configManager.get<boolean>('lint.fixOnSave', false)) {
-      const _fixPromise = safeRunAsync(outputChannel, 'fixOnSave', async () => {
+      safeRunAsync(outputChannel, 'fixOnSave', async () => {
         await fixOnSaveManager.handleSave(doc, diagnosticCollection);
       });
     }
@@ -423,7 +423,7 @@ export function activate(context: vscode.ExtensionContext): void {
       .filter((doc) => isWorkspaceDocument(doc))
       .map((doc) => doc.uri);
 
-    const _activationPromise = withFileProgress(
+    withFileProgress(
       outputChannel,
       en.progress.activation,
       openUris,

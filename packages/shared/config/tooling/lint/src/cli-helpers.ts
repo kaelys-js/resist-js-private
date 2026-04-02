@@ -90,6 +90,8 @@ export const CliArgsSchema = v.strictObject({
   severityOverride: v.optional(v.picklist(['error', 'warn', 'off'])),
   /** Pipeline stage to filter by (undefined = no stage filter). */
   stage: v.optional(v.string()),
+  /** Filename to use when reading source from stdin instead of disk. */
+  stdinFilename: v.optional(v.string()),
   /** Whether to run external tools (shellcheck, hadolint, etc.) alongside custom rules. */
   tools: v.boolean(),
   /** Whether to exit 0 even if errors are found. */
@@ -173,6 +175,13 @@ export function parseCliArgs(argv: string[]): CliArgs {
     ? Number.parseInt(jobsFlag.split('=')[1] ?? '', 10) || undefined
     : undefined;
 
+  const stdinFilenameFlag: string | undefined = flags.find((f: string): boolean =>
+    f.startsWith('--stdin-filename='),
+  );
+  const stdinFilename: string | undefined = stdinFilenameFlag
+    ? (stdinFilenameFlag.split('=')[1] ?? '')
+    : undefined;
+
   return {
     bail: flags.includes('--bail'),
     cache: !flags.includes('--no-cache'),
@@ -193,6 +202,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
     ruleIds,
     severityOverride,
     stage,
+    stdinFilename,
     tools: flags.includes('--tools'),
     warnOnly: flags.includes('--warn-only'),
   };
@@ -916,6 +926,7 @@ export async function _runLintCore(
   config: LintConfig,
   loaded: Awaited<ReturnType<typeof loadAllRules>>,
   cwd: string,
+  stdinContent?: string,
 ): Promise<LintCoreResult> {
   const dbg = (msg: string): void => {
     if (cliArgs.debug) {
@@ -994,19 +1005,25 @@ export async function _runLintCore(
     );
   }
 
-  /* Collect files */
+  /* Collect files — when --stdin-filename is set, use that as the sole file */
   const allFiles: string[] = [];
-  for (const p of paths) {
-    const resolved: string = resolve(p);
-    try {
-      const s: Awaited<ReturnType<typeof stat>> = await stat(resolved);
-      if (s.isDirectory()) {
-        allFiles.push(...(await collectFiles(resolved, config, cwd)));
-      } else if (s.isFile() && shouldLint(resolved, config)) {
-        allFiles.push(resolved);
+  if (cliArgs.stdinFilename && stdinContent !== undefined) {
+    const resolved: string = resolve(cliArgs.stdinFilename);
+    allFiles.push(resolved);
+    dbg(`stdin-filename: using "${resolved}" with ${stdinContent.length} bytes from stdin`);
+  } else {
+    for (const p of paths) {
+      const resolved: string = resolve(p);
+      try {
+        const s: Awaited<ReturnType<typeof stat>> = await stat(resolved);
+        if (s.isDirectory()) {
+          allFiles.push(...(await collectFiles(resolved, config, cwd)));
+        } else if (s.isFile() && shouldLint(resolved, config)) {
+          allFiles.push(resolved);
+        }
+      } catch {
+        output.stderr(`${format(strings.errors.pathNotFound, { path: p })}\n`);
       }
-    } catch {
-      output.stderr(`${format(strings.errors.pathNotFound, { path: p })}\n`);
     }
   }
 
@@ -1044,7 +1061,7 @@ export async function _runLintCore(
   }
 
   if (allFiles.length === 0) {
-    if (!cliArgs.json) {
+    if (!cliArgs.json && cliArgs.format !== 'json') {
       output.stdout(`${strings.output.noFiles}\n`);
     }
     return { filesLinted: 0, fixesApplied: 0, results: [], ruleDescs };
@@ -1059,7 +1076,7 @@ export async function _runLintCore(
   const ruleHash: string = computeRuleHash(allRuleIds);
   let lintCache: LintCache | null = null;
 
-  if (cliArgs.cache) {
+  if (cliArgs.cache && !cliArgs.stdinFilename) {
     lintCache = LintCache.load(cachePath, ruleHash);
     dbg(format(strings.debug.cacheLoaded, { count: lintCache.getEntryCount() }));
   }
@@ -1086,13 +1103,20 @@ export async function _runLintCore(
   const cachedResults: LintResult[] = [];
 
   const fileContents: Map<string, string> = new Map();
-  const readResults: PromiseSettledResult<string>[] = await Promise.allSettled(
-    allFiles.map((filePath: string): Promise<string> => readFile(filePath, 'utf8')),
-  );
-  for (let i: number = 0; i < allFiles.length; i++) {
-    const result: PromiseSettledResult<string> | undefined = readResults[i];
-    if (result?.status === 'fulfilled') {
-      fileContents.set(allFiles[i] ?? '', result.value);
+
+  /* When stdin content is provided, use it directly instead of reading from disk */
+  if (cliArgs.stdinFilename && stdinContent !== undefined) {
+    const resolved: string = resolve(cliArgs.stdinFilename);
+    fileContents.set(resolved, stdinContent);
+  } else {
+    const readResults: PromiseSettledResult<string>[] = await Promise.allSettled(
+      allFiles.map((filePath: string): Promise<string> => readFile(filePath, 'utf8')),
+    );
+    for (let i: number = 0; i < allFiles.length; i++) {
+      const result: PromiseSettledResult<string> | undefined = readResults[i];
+      if (result?.status === 'fulfilled') {
+        fileContents.set(allFiles[i] ?? '', result.value);
+      }
     }
   }
 
@@ -1530,6 +1554,7 @@ export async function runLinter(
   cliArgs: CliArgs,
   output: CliOutput,
   strings: LintStrings,
+  stdinContent?: string,
 ): Promise<number> {
   /* --help flag */
   if (cliArgs.help) {
@@ -1650,7 +1675,7 @@ export async function runLinter(
   }
 
   /* Run core lint pipeline */
-  const core: LintCoreResult = await _runLintCore(cliArgs, output, strings, config, loaded, cwd);
+  const core: LintCoreResult = await _runLintCore(cliArgs, output, strings, config, loaded, cwd, stdinContent);
 
   /* When --quiet, only display errors (but still count warnings for summary) */
   const displayResults: LintResult[] = cliArgs.quiet

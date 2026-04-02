@@ -213,6 +213,7 @@ export class WorkspaceEdit {
 function createMockOutputChannel(): {
   appendLine: ReturnType<typeof vi.fn>;
   show: ReturnType<typeof vi.fn>;
+  clear: ReturnType<typeof vi.fn>;
   dispose: ReturnType<typeof vi.fn>;
   name: string;
   logLevel: number;
@@ -226,6 +227,7 @@ function createMockOutputChannel(): {
   return {
     appendLine: vi.fn(),
     show: vi.fn(),
+    clear: vi.fn(),
     dispose: vi.fn(),
     name: BRAND_NAME,
     logLevel: 1,

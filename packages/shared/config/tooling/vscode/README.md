@@ -52,7 +52,7 @@ All commands are available via the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+
 | `resist.lint.maxProblems` | number | `100` | Max diagnostics per file |
 | `resist.lint.stage` | string | `"lint"` | Active lint stage |
 | `resist.lint.fixOnSave` | boolean | `false` | Auto-fix on save |
-| `resist.lint.codeLens` | boolean | `false` | Show inline code lenses |
+| `resist.lint.codeLens` | boolean | `true` | Show inline code lenses |
 | `resist.lint.formatOnSave` | boolean | `false` | Use lint fixes for format-on-save |
 | `resist.lint.cache` | boolean | `true` | Cache file hashes |
 | `resist.lint.quiet` | boolean | `false` | Suppress warnings |

@@ -48,7 +48,93 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [],
+    "commands": [
+      {
+        "command": "resist.lint.file",
+        "title": "Lint Current File",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.workspace",
+        "title": "Lint All Files in Workspace",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.fix",
+        "title": "Apply All Auto-Fixes in Current File",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.clear",
+        "title": "Clear All Diagnostics",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.listRules",
+        "title": "Show Available Lint Rules",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.restart",
+        "title": "Restart Linter (Clear Cache & Re-Lint)",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.showOutput",
+        "title": "Show Output Channel",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.staged",
+        "title": "Lint Only Staged Changes (git)",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.uncommitted",
+        "title": "Lint Only Uncommitted Changes (git)",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.previewFixes",
+        "title": "Preview All Fixes in Diff View",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.showTiming",
+        "title": "Show Per-Rule Performance Timing",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.filterByCategory",
+        "title": "Filter Diagnostics by Rule Category",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.clearFilter",
+        "title": "Clear Diagnostic Category Filter",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.removeUnusedImports",
+        "title": "Remove Unused Imports in Current File",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.changeStage",
+        "title": "Change Active Lint Stage",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.clearOutput",
+        "title": "Clear Output Channel",
+        "category": "Resist"
+      },
+      {
+        "command": "resist.lint.toggleEnable",
+        "title": "Pause / Resume Linter",
+        "category": "Resist"
+      }
+    ],
     "configuration": {
       "title": "Resist Tooling",
       "properties": {
@@ -183,7 +269,7 @@
         },
         "resist.lint.codeLens": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Show inline code lenses above lines with lint diagnostics displaying rule ID and issue count."
         },
         "resist.lint.formatOnSave": {
