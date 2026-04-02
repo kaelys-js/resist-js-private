@@ -152,7 +152,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Plan**:
 - Run: `pnpm -w run qa:lint --tools`
-- Run: `pnpm -w run qa:format:check`
+- Run: `pnpm -w run qa:format`
 - Run: `pnpm qa:test` (or project-specific test command)
 - Verify test count increased from baseline
 

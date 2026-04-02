@@ -209,6 +209,11 @@
                 "enum": ["error", "warn", "off"],
                 "type": "string"
               },
+              "hygiene/no-bare-catch": {
+                "description": "Bare catch blocks that swallow errors are forbidden — always bind the error parameter.",
+                "enum": ["error", "warn", "off"],
+                "type": "string"
+              },
               "imports/no-barrel-files": {
                 "description": "Forbids barrel files (index.ts with re-exports)",
                 "enum": ["error", "warn", "off"],
@@ -1381,6 +1386,11 @@
         },
         "directives/require-ts-expect-error-reason": {
           "description": "Requires @ts-expect-error directives to include an explanation of at least 10 characters",
+          "enum": ["error", "warn", "off"],
+          "type": "string"
+        },
+        "hygiene/no-bare-catch": {
+          "description": "Bare catch blocks that swallow errors are forbidden — always bind the error parameter.",
           "enum": ["error", "warn", "off"],
           "type": "string"
         },
