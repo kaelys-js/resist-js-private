@@ -283,7 +283,7 @@
     }
   },
   "scripts": {
-    "build": "npx tsx scripts/generate-manifest.ts && tsgo -p ./",
+    "build": "npx tsx scripts/generate-manifest.ts --fix && tsgo -p ./",
     "watch": "tsgo -w -p ./",
     "qa:test": "pnpm -w exec vitest run --project config-tooling-vscode",
     "qa:test:coverage": "pnpm -w exec vitest run --project config-tooling-vscode --coverage --coverage.thresholds.statements=45 --coverage.thresholds.branches=30 --coverage.thresholds.functions=50 --coverage.thresholds.lines=45",

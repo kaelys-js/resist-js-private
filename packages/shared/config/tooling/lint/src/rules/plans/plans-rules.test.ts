@@ -10,6 +10,7 @@ import filesExist from './files-exist.ts';
 import requireConcreteVerification from './require-concrete-verification.ts';
 import noEmptyPlanSections from './no-empty-plan-sections.ts';
 import requireTestFiles from './require-test-files.ts';
+import requirePlanStructure from './require-plan-structure.ts';
 
 // =============================================================================
 // Test Helpers
@@ -102,11 +103,13 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Plan**:
 - Verify all declared commands have matching registerCommand calls
+- Verify all config settings are read via config.get somewhere in code
 - Verify all feature classes are instantiated in the entry point
-- Verify no unused exports or dead code
+- Verify no unused exports or dead code (orphaned)
 
 **Verification**:
 - \`grep -c 'registerCommand' src/extension.ts\` matches declared command count
+- All config settings have corresponding config.get calls
 - All feature classes instantiated (grep entry point for class names)
 - No orphaned exports (every export is imported somewhere)
 
@@ -762,6 +765,267 @@ describe('plans/require-test-files', () => {
       '/mock/docs/plans/2026-04-01-test.md': plan,
     });
     const results: LintResult[] = await requireTestFiles.check(ctx);
+    expect(results).toHaveLength(0);
+  });
+});
+
+// =============================================================================
+// plans/require-plan-structure
+// =============================================================================
+
+describe('plans/require-plan-structure', () => {
+  it('passes a well-formed plan', async () => {
+    const ctx = createMockContext({
+      '/mock/docs/plans/2026-04-01-test.md': VALID_PLAN,
+    });
+    const results: LintResult[] = await requirePlanStructure.check(ctx);
+    expect(results).toHaveLength(0);
+  });
+
+  it('reports missing Status Legend section', async () => {
+    const plan = `## Baseline
+
+| Metric | Value |
+|--------|-------|
+| Tests | 100 |
+
+## TASK 1 — Register Rules + Config
+
+**Status**: [x]
+
+**Plan**:
+- Register in config
+- Add exports
+
+**Verification**: All features in config, \`grep 'rule' src/index.ts\` outputs 1
+
+---
+
+## TASK 2 — Integration Verification
+
+**Status**: [x]
+
+**Plan**:
+- Verify all declared commands have matching registerCommand calls
+- Verify all config settings are read via config.get
+- Verify all feature classes are instantiated
+- Verify no unused exports or dead code (orphaned)
+
+**Verification**:
+- \`grep -c 'registerCommand' src/extension.ts\` matches declared count
+- No orphaned exports
+
+---
+
+## TASK 3 — Full QA + Coverage
+
+**Status**: [x]
+
+**Plan**:
+- Run: \`pnpm qa:test\`
+- Run: \`pnpm qa:lint\`
+
+**Verification**: All pnpm commands exit 0
+
+---
+
+## TASK 4 — Final Verification + Commit
+
+**Status**: [x]
+
+**Plan**:
+- Verify all implementation files exist
+- Verify all features registered in config
+- Verify all integration checks pass
+- Verify test count >= baseline
+
+**Verification**:
+- All files exist
+- All entries in config
+- Test count >= baseline
+- Integration audit shows zero gaps
+
+---
+
+## Execution Order
+
+| Task | Description | Depends On |
+|------|-------------|------------|
+| 1 | Register | -- |
+| 2 | Integration | 1 |
+| 3 | QA | 2 |
+| 4 | Final | 3 |
+`;
+    const ctx = createMockContext({
+      '/mock/docs/plans/2026-04-01-test.md': plan,
+    });
+    const results: LintResult[] = await requirePlanStructure.check(ctx);
+    const legendErrors = results.filter((r) => r.message.includes('Status Legend'));
+    expect(legendErrors).toHaveLength(1);
+  });
+
+  it('reports missing required tail tasks', async () => {
+    const plan = `## Status Legend
+
+- \`[ ]\` — Not started
+- \`[x]\` — Done
+
+---
+
+## Baseline
+
+| Metric | Value |
+|--------|-------|
+| Tests | 100 |
+
+---
+
+## TASK 1 — Do something
+
+**Status**: [x]
+
+**Verification**: Tests pass at \`src/foo.ts\`
+
+---
+
+## Execution Order
+
+| Task | Description | Depends On |
+|------|-------------|------------|
+| 1 | Do something | -- |
+`;
+    const ctx = createMockContext({
+      '/mock/docs/plans/2026-04-01-test.md': plan,
+    });
+    const results: LintResult[] = await requirePlanStructure.check(ctx);
+    /* Missing all 4 tail tasks */
+    const tailErrors = results.filter((r) => r.message.includes('Missing required tail task'));
+    expect(tailErrors).toHaveLength(4);
+  });
+
+  it('reports incomplete Integration Verification task', async () => {
+    const plan = `## Status Legend
+
+- \`[ ]\` — Not started
+- \`[x]\` — Done
+
+---
+
+## Baseline
+
+| Metric | Value |
+|--------|-------|
+| Tests | 100 |
+
+---
+
+## TASK 1 — Register Rules + Config
+
+**Status**: [x]
+
+**Plan**:
+- Register stuff
+- Add exports
+
+**Verification**: All features in config at \`src/index.ts\`
+
+---
+
+## TASK 2 — Integration Verification
+
+**Status**: [x]
+
+**Plan**:
+- Just check things
+- Make sure it works
+
+**Verification**: Looks good
+
+---
+
+## TASK 3 — Full QA + Coverage
+
+**Status**: [x]
+
+**Plan**:
+- Run: \`pnpm qa:test\`
+- Run: \`pnpm qa:lint\`
+
+**Verification**: All pnpm commands exit 0
+
+---
+
+## TASK 4 — Final Verification + Commit
+
+**Status**: [x]
+
+**Plan**:
+- Verify all implementation files exist
+- Verify all features registered in config
+- Verify all integration checks pass
+- Verify test count >= baseline
+
+**Verification**:
+- All files exist
+- All entries in config
+- Test count >= baseline
+- Integration audit zero gaps
+
+---
+
+## Execution Order
+
+| Task | Description | Depends On |
+|------|-------------|------------|
+| 1 | Register | -- |
+| 2 | Integration | 1 |
+| 3 | QA | 2 |
+| 4 | Final | 3 |
+`;
+    const ctx = createMockContext({
+      '/mock/docs/plans/2026-04-01-test.md': plan,
+    });
+    const results: LintResult[] = await requirePlanStructure.check(ctx);
+    const integrationErrors = results.filter((r) => r.message.includes('incomplete'));
+    expect(integrationErrors).toHaveLength(1);
+    expect(integrationErrors[0]?.message).toContain('command registration');
+  });
+
+  it('reports missing Execution Order table', async () => {
+    const plan = `## Status Legend
+
+- \`[ ]\` — Not started
+- \`[x]\` — Done
+
+---
+
+## Baseline
+
+| Metric | Value |
+|--------|-------|
+| Tests | 100 |
+
+---
+
+## TASK 1 — Do something
+
+**Status**: [x]
+
+**Verification**: Tests pass at \`src/foo.ts\`
+`;
+    const ctx = createMockContext({
+      '/mock/docs/plans/2026-04-01-test.md': plan,
+    });
+    const results: LintResult[] = await requirePlanStructure.check(ctx);
+    const orderErrors = results.filter((r) => r.message.includes('Execution Order'));
+    expect(orderErrors).toHaveLength(1);
+  });
+
+  it('skips TEMPLATE.md', async () => {
+    const ctx = createMockContext({
+      '/mock/docs/plans/TEMPLATE.md': '# Template\n\nNo structure here.',
+    });
+    const results: LintResult[] = await requirePlanStructure.check(ctx);
     expect(results).toHaveLength(0);
   });
 });
