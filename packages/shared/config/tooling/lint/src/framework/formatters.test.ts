@@ -101,6 +101,71 @@ describe('formatText', () => {
     expect(text).toContain('    ,-[');
     expect(text).toContain('    `----');
   });
+
+  it('includes per-tool breakdown header', () => {
+    const text: string = formatText([makeResult()], 1, en);
+    expect(text).toContain('Breakdown by tool:');
+  });
+
+  it('groups errors by tool prefix from ruleId', () => {
+    const results: LintResult[] = [
+      makeResult({ ruleId: 'oxlint/no-unused-vars', file: '/src/a.ts' }),
+      makeResult({ ruleId: 'tsgo/TS2345', file: '/src/b.ts' }),
+      makeResult({ ruleId: 'tsgo/TS2322', file: '/src/c.ts' }),
+    ];
+    const text: string = formatText(results, 3, en);
+    expect(text).toContain('oxlint (1 error(s), 0 warning(s)):');
+    expect(text).toContain('tsgo (2 error(s), 0 warning(s)):');
+  });
+
+  it('shows absolute file paths under each tool group', () => {
+    const results: LintResult[] = [
+      makeResult({ ruleId: 'tsgo/TS2345', file: '/Users/dev/project/src/foo.ts' }),
+      makeResult({ ruleId: 'tsgo/TS2322', file: '/Users/dev/project/src/bar.ts' }),
+    ];
+    const text: string = formatText(results, 2, en);
+    expect(text).toContain('    /Users/dev/project/src/bar.ts');
+    expect(text).toContain('    /Users/dev/project/src/foo.ts');
+  });
+
+  it('deduplicates files within a tool group', () => {
+    const results: LintResult[] = [
+      makeResult({ ruleId: 'tsgo/TS2345', file: '/src/same.ts', line: 10 }),
+      makeResult({ ruleId: 'tsgo/TS2322', file: '/src/same.ts', line: 20 }),
+    ];
+    const text: string = formatText(results, 1, en);
+    /* File appears in individual error headers + once in tool summary */
+    const summarySection: string = text.slice(text.indexOf('Breakdown by tool:'));
+    const summaryMatches: RegExpMatchArray | null = summarySection.match(/\/src\/same\.ts/g);
+    expect(summaryMatches?.length).toBe(1);
+  });
+
+  it('orders tools: oxlint first, tsgo second, rest alphabetical', () => {
+    const results: LintResult[] = [
+      makeResult({ ruleId: 'plans/no-empty', file: '/docs/plan.md' }),
+      makeResult({ ruleId: 'tsgo/TS2345', file: '/src/a.ts' }),
+      makeResult({ ruleId: 'oxlint/no-unused', file: '/src/b.ts' }),
+      makeResult({ ruleId: 'comments/require-jsdoc', file: '/src/c.ts' }),
+    ];
+    const text: string = formatText(results, 4, en);
+    const summarySection: string = text.slice(text.indexOf('Breakdown by tool:'));
+    const oxlintPos: number = summarySection.indexOf('oxlint (');
+    const tsgoPos: number = summarySection.indexOf('tsgo (');
+    const commentsPos: number = summarySection.indexOf('comments (');
+    const plansPos: number = summarySection.indexOf('plans (');
+    expect(oxlintPos).toBeLessThan(tsgoPos);
+    expect(tsgoPos).toBeLessThan(commentsPos);
+    expect(commentsPos).toBeLessThan(plansPos);
+  });
+
+  it('separates errors and warnings in tool summary', () => {
+    const results: LintResult[] = [
+      makeResult({ ruleId: 'oxlint/no-unused', severity: 'error', file: '/src/a.ts' }),
+      makeResult({ ruleId: 'oxlint/prefer-const', severity: 'warning', file: '/src/b.ts' }),
+    ];
+    const text: string = formatText(results, 2, en);
+    expect(text).toContain('oxlint (1 error(s), 1 warning(s)):');
+  });
 });
 
 // =============================================================================

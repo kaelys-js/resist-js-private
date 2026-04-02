@@ -482,7 +482,9 @@ export const window = {
       dispose: vi.fn(),
       onDidDispose: vi.fn((cb: () => void) => {
         // Store callback for test access
-        (window.createWebviewPanel as unknown as { __disposeCallback: () => void }).__disposeCallback = cb;
+        (
+          window.createWebviewPanel as unknown as { __disposeCallback: () => void }
+        ).__disposeCallback = cb;
         return createMockDisposable();
       }),
       visible: true,

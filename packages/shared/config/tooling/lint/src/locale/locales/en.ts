@@ -130,6 +130,10 @@ export const en: LintStrings = {
     helpPrefix: 'help',
     noFiles: 'No lintable files found.',
     summary: 'Found {errors} error(s) and {warnings} warning(s) in {files} file(s).',
+    toolSummaryHeader: '\nBreakdown by tool:',
+    toolSummaryLine: '  {tool} ({errors} error(s), {warnings} warning(s)):',
+    toolSummaryClean: '  {tool} (0 errors)',
+    toolSummaryFile: '    {file}',
   },
 
   schema: {
