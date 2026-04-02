@@ -110,30 +110,27 @@ function buildHoverContent(diag: vscode.Diagnostic): vscode.MarkdownString {
 
   // Tip
   if (data?.tip) {
-    sections.push(`> $(lightbulb) **${en.hover.tipPrefix}:** ${data.tip}`);
+    sections.push(`$(lightbulb) **${en.hover.tipPrefix}:** ${data.tip}`);
   }
 
-  // Example as fenced code block
+  // Example as fenced code block with @example label
   if (data?.example) {
-    sections.push(`**${en.hover.exampleLabel}:**\n\`\`\`ts\n${data.example}\n\`\`\``);
+    sections.push(
+      `$(code) **${en.hover.exampleLabel}:**\n\n\`\`\`typescript\n${data.example}\n\`\`\``,
+    );
   }
 
-  // Fix available + docs link on same line
-  const inlineItems: string[] = [];
-
+  // Fix available indicator
   if (data?.fix && !(data.fix.range.start === data.fix.range.end && data.fix.text === '')) {
-    inlineItems.push(`$(tools) *${en.hover.fixAvailable}*`);
+    sections.push(`$(tools) *${en.hover.fixAvailable}*`);
   }
 
+  // Documentation link
   if (data?.url) {
-    inlineItems.push(`[$(link-external) ${en.hover.viewDocs}](${data.url})`);
+    sections.push(`[$(link-external) ${en.hover.viewDocs}](${data.url})`);
   }
 
-  if (inlineItems.length > 0) {
-    sections.push(inlineItems.join(' · '));
-  }
-
-  md.appendMarkdown(sections.join('\n\n'));
+  md.appendMarkdown(sections.join('\n\n---\n\n'));
 
   return md;
 }

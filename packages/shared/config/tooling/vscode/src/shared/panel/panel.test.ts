@@ -104,6 +104,30 @@ describe('registerPanel', () => {
     );
   });
 
+  it('registers showLocation command', () => {
+    registerPanel(context, stateManager, diagnosticCollection, lifecycle, outputChannel);
+    expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+      COMMANDS.panelShowLocation,
+      expect.any(Function),
+    );
+  });
+
+  it('registers showRule command', () => {
+    registerPanel(context, stateManager, diagnosticCollection, lifecycle, outputChannel);
+    expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+      COMMANDS.panelShowRule,
+      expect.any(Function),
+    );
+  });
+
+  it('registers autoFix command', () => {
+    registerPanel(context, stateManager, diagnosticCollection, lifecycle, outputChannel);
+    expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+      COMMANDS.panelAutoFix,
+      expect.any(Function),
+    );
+  });
+
   it('registers 5 resources with lifecycle at priority 20', () => {
     const spy = vi.spyOn(lifecycle, 'register');
     registerPanel(context, stateManager, diagnosticCollection, lifecycle, outputChannel);

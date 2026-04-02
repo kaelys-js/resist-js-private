@@ -17,6 +17,7 @@ import {
   SectionItem,
   ToolStatusItem,
   FileDiagnosticItem,
+  RuleGroupItem,
   DiagnosticDetailItem,
   PlaceholderItem,
 } from './tree-items';
@@ -97,6 +98,14 @@ export class ResistTreeDataProvider implements vscode.TreeDataProvider<vscode.Tr
     }
 
     if (element instanceof FileDiagnosticItem) {
+      const children = this.getRuleGroupChildren(element);
+      for (const child of children) {
+        this.parentMap.set(child, element);
+      }
+      return children;
+    }
+
+    if (element instanceof RuleGroupItem) {
       const children = this.getDiagnosticChildren(element);
       for (const child of children) {
         this.parentMap.set(child, element);
@@ -185,9 +194,8 @@ export class ResistTreeDataProvider implements vscode.TreeDataProvider<vscode.Tr
       return [...children, ...this.getLintChildren(state)];
     }
 
-    // Format, test, benchmark, e2e: always show "not configured" placeholder
-    children.push(new PlaceholderItem(en.panel.notConfigured));
-    return children;
+    // Format, test, benchmark, e2e: single placeholder — not yet implemented
+    return [new PlaceholderItem(en.panel.notConfigured)];
   }
 
   /**
@@ -275,12 +283,61 @@ export class ResistTreeDataProvider implements vscode.TreeDataProvider<vscode.Tr
   }
 
   /**
-   * Builds individual diagnostic items for a file.
+   * Groups diagnostics by rule ID and returns RuleGroupItems.
    *
    * @param fileItem - The parent file diagnostic item
+   * @returns Array of RuleGroupItem children
+   */
+  private getRuleGroupChildren(fileItem: FileDiagnosticItem): vscode.TreeItem[] {
+    const groups = new Map<string, vscode.Diagnostic[]>();
+
+    for (const diag of fileItem.diagnostics) {
+      const ruleId = this.extractRuleId(diag);
+      const existing = groups.get(ruleId);
+
+      if (existing) {
+        existing.push(diag);
+      } else {
+        groups.set(ruleId, [diag]);
+      }
+    }
+
+    const items: vscode.TreeItem[] = [];
+
+    for (const [ruleId, diagnostics] of groups) {
+      items.push(new RuleGroupItem(ruleId, fileItem.fileUri, diagnostics));
+    }
+    return items;
+  }
+
+  /**
+   * Extracts the rule ID string from a diagnostic code.
+   *
+   * @param diag - The diagnostic to extract from
+   * @returns The rule ID string, or '(unknown)' if none
+   */
+  private extractRuleId(diag: vscode.Diagnostic): string {
+    const { code } = diag;
+
+    if (typeof code === 'string') {
+      return code;
+    }
+    if (typeof code === 'number') {
+      return String(code);
+    }
+    if (code && typeof code === 'object' && 'value' in code) {
+      return String(code.value);
+    }
+    return '(unknown)';
+  }
+
+  /**
+   * Builds individual diagnostic items for a rule group.
+   *
+   * @param ruleItem - The parent rule group item
    * @returns Array of DiagnosticDetailItem children
    */
-  private getDiagnosticChildren(fileItem: FileDiagnosticItem): vscode.TreeItem[] {
-    return fileItem.diagnostics.map((diag) => new DiagnosticDetailItem(diag, fileItem.fileUri));
+  private getDiagnosticChildren(ruleItem: RuleGroupItem): vscode.TreeItem[] {
+    return ruleItem.diagnostics.map((diag) => new DiagnosticDetailItem(diag, ruleItem.fileUri));
   }
 }

@@ -71,7 +71,7 @@ describe('parseBrandCommands', () => {
     expect(result.get('myCmd')).toBe('acme.tools.run');
   });
 
-  it('parses all 22 commands from real brand.ts pattern', () => {
+  it('parses all 25 commands from real brand.ts pattern', () => {
     const source = makeBrandSource(`
   lintFile: \`\${COMMAND_PREFIX}.lint.file\`,
   lintWorkspace: \`\${COMMAND_PREFIX}.lint.workspace\`,
@@ -95,15 +95,19 @@ describe('parseBrandCommands', () => {
   panelFilter: \`\${COMMAND_PREFIX}.panel.filter\`,
   panelClearFilter: \`\${COMMAND_PREFIX}.panel.clearFilter\`,
   panelMenu: \`\${COMMAND_PREFIX}.panel.menu\`,
+  panelShowLocation: \`\${COMMAND_PREFIX}.panel.showLocation\`,
+  panelShowRule: \`\${COMMAND_PREFIX}.panel.showRule\`,
+  panelAutoFix: \`\${COMMAND_PREFIX}.panel.autoFix\`,
 `);
     const result = parseBrandCommands(source);
 
-    expect(result.size).toBe(22);
+    expect(result.size).toBe(25);
     expect(result.get('lintFile')).toBe('resist.lint.file');
     expect(result.get('changeStage')).toBe('resist.lint.changeStage');
     expect(result.get('clearOutput')).toBe('resist.lint.clearOutput');
     expect(result.get('toggleEnable')).toBe('resist.lint.toggleEnable');
     expect(result.get('statusBarMenu')).toBe('resist.lint.statusBarMenu');
+    expect(result.get('panelAutoFix')).toBe('resist.panel.autoFix');
   });
 
   it('returns empty map when COMMANDS block has no entries', () => {
@@ -136,7 +140,7 @@ export const COMMANDS = {
 
     const result = parseBrandCommands(brandSource);
 
-    expect(result.size).toBe(22);
+    expect(result.size).toBe(25);
     // Verify every value starts with the prefix
     for (const [_key, cmdId] of result) {
       expect(cmdId).toMatch(/^resist\./);

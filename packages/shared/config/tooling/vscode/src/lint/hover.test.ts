@@ -98,7 +98,7 @@ describe('ResistHoverProvider', () => {
     expect(result).toBeDefined();
 
     const md = result!.contents[0] as vscode.MarkdownString;
-    expect(md.value).toContain('> $(lightbulb) **Tip:** Add a JSDoc @param tag');
+    expect(md.value).toContain('$(lightbulb) **Tip:** Add a JSDoc @param tag');
   });
 
   it('shows example as fenced code block with label', () => {
@@ -113,7 +113,7 @@ describe('ResistHoverProvider', () => {
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
     const md = result!.contents[0] as vscode.MarkdownString;
     expect(md.value).toContain('**Example:**');
-    expect(md.value).toContain('```ts\n/** @param {string} name */\n```');
+    expect(md.value).toContain('```typescript\n/** @param {string} name */\n```');
   });
 
   it('shows fix indicator for real fixes', () => {
@@ -143,7 +143,7 @@ describe('ResistHoverProvider', () => {
     );
   });
 
-  it('joins fix indicator and docs link with separator', () => {
+  it('separates fix indicator and docs link with horizontal rule', () => {
     const diag = createDiagnostic({
       data: {
         fix: { range: { start: 5, end: 10 }, text: 'x' },
@@ -155,7 +155,7 @@ describe('ResistHoverProvider', () => {
     const result = provider.provideHover(doc, new vscode.Position(0, 5));
     const md = result!.contents[0] as vscode.MarkdownString;
     expect(md.value).toContain('Auto-fix available');
-    expect(md.value).toContain(' · ');
+    expect(md.value).toContain('---');
     expect(md.value).toContain('View rule documentation');
   });
 
@@ -227,7 +227,7 @@ describe('ResistHoverProvider', () => {
     const md = result!.contents[0] as vscode.MarkdownString;
     expect(md.value).toContain('**Tip:** Use const');
     expect(md.value).toContain('**Example:**');
-    expect(md.value).toContain('```ts\nconst x = 1;\n```');
+    expect(md.value).toContain('```typescript\nconst x = 1;\n```');
     expect(md.value).toContain('Auto-fix available');
     expect(md.value).toContain('View rule documentation');
   });

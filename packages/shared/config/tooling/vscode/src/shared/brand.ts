@@ -66,6 +66,9 @@ export const COMMANDS = {
   panelFilter: `${COMMAND_PREFIX}.panel.filter`,
   panelClearFilter: `${COMMAND_PREFIX}.panel.clearFilter`,
   panelMenu: `${COMMAND_PREFIX}.panel.menu`,
+  panelShowLocation: `${COMMAND_PREFIX}.panel.showLocation`,
+  panelShowRule: `${COMMAND_PREFIX}.panel.showRule`,
+  panelAutoFix: `${COMMAND_PREFIX}.panel.autoFix`,
 } as const;
 
 // =============================================================================
@@ -74,26 +77,6 @@ export const COMMANDS = {
 
 /** Glob patterns for config files that trigger re-lint on change. */
 export const CONFIG_FILE_PATTERNS = ['**/resist.config.ts', '**/.resist-lint.jsonc'] as const;
-
-// =============================================================================
-// Inline Disable Comments
-// =============================================================================
-
-/** Prefix for single-line disable comments. */
-export const DISABLE_NEXT_LINE_PREFIX = 'resist-lint-disable-next-line';
-
-/** Prefix for file-level disable comments. */
-export const DISABLE_FILE_PREFIX = 'resist-lint-disable';
-
-/**
- * Regex pattern matching all disable comment forms.
- * Derived from DISABLE_FILE_PREFIX so the pattern stays in sync.
- * Groups: full match, optional rule list after colon.
- */
-export const DISABLE_PATTERN = new RegExp(
-  `\\/\\/\\s*${DISABLE_FILE_PREFIX}(?:-next-line)?(?:\\s*:\\s*(.+))?`,
-  'g',
-);
 
 // =============================================================================
 // Virtual Document Schemes

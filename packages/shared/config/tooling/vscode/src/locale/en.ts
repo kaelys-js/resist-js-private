@@ -77,11 +77,8 @@ export const en: VscodeStrings = {
     fix: 'Fix: {rule}',
     fixWithTip: 'Fix: {rule} — {tip}',
     fixAll: 'Fix all auto-fixable problems ({count})',
-    disableLine: 'Disable {rule} for this line',
-    disableFile: 'Disable {rule} for this file',
     actionFailed: 'Code action failed for {rule}: {error}',
     fixAllFailed: 'Fix-all action failed: {error}',
-    disableFailed: 'Disable action failed for {rule}: {error}',
   },
 
   documentFilter: {
@@ -262,5 +259,8 @@ export const en: VscodeStrings = {
     fixAction: 'Apply Fix',
     diagnosticLineWithRule: 'Ln {line}, Col {col} · {rule}',
     goToLineAction: 'Go to Line',
+    ruleGroupCount: '{count} issues',
+    autoFixNotAvailable: 'No auto-fix available for this issue',
+    ruleCopied: 'Rule name copied to clipboard',
   },
 };

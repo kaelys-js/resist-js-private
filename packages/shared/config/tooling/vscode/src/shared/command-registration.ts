@@ -21,7 +21,7 @@ import { safeRunAsync } from './errors';
  * @param {vscode.ExtensionContext} context - Extension context for subscription management
  * @param {vscode.OutputChannel} channel - Output channel for error logging
  * @param {string} id - Command identifier (e.g. 'resist.lint.file')
- * @param {() => Promise<void>} handler - Async command handler
+ * @param {(...args: unknown[]) => Promise<void>} handler - Async command handler
  *
  * @example
  * ```typescript
@@ -34,11 +34,14 @@ export function registerCommand(
   context: vscode.ExtensionContext,
   channel: vscode.OutputChannel,
   id: string,
-  handler: () => Promise<void>,
+  handler: (...args: unknown[]) => Promise<void>,
 ): void {
-  const disposable: vscode.Disposable = vscode.commands.registerCommand(id, async () => {
-    await safeRunAsync(channel, id, handler);
-  });
+  const disposable: vscode.Disposable = vscode.commands.registerCommand(
+    id,
+    async (...args: unknown[]) => {
+      await safeRunAsync(channel, id, () => handler(...args));
+    },
+  );
   context.subscriptions.push(disposable);
 }
 

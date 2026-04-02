@@ -13,6 +13,7 @@ import {
   SectionItem,
   ToolStatusItem,
   FileDiagnosticItem,
+  RuleGroupItem,
   DiagnosticDetailItem,
   PlaceholderItem,
 } from './tree-items';
@@ -153,44 +154,40 @@ describe('Lint section children', () => {
 // =============================================================================
 
 describe('Format, Test, Benchmark, E2E section children', () => {
-  it('format section shows status + not-configured placeholder', () => {
+  it('format section shows single placeholder', () => {
     const formatSection: SectionItem = provider.getChildren()[1]! as SectionItem;
     const children: vscode.TreeItem[] = provider.getChildren(formatSection);
 
-    expect(children).toHaveLength(2);
-    expect(children[0]!).toBeInstanceOf(ToolStatusItem);
-    expect(children[1]!).toBeInstanceOf(PlaceholderItem);
-    expect(children[1]!.label).toBe(en.panel.notConfigured);
+    expect(children).toHaveLength(1);
+    expect(children[0]!).toBeInstanceOf(PlaceholderItem);
+    expect(children[0]!.label).toBe(en.panel.notConfigured);
   });
 
-  it('test section shows status + not-configured placeholder', () => {
+  it('test section shows single placeholder', () => {
     const testSection: SectionItem = provider.getChildren()[2]! as SectionItem;
     const children: vscode.TreeItem[] = provider.getChildren(testSection);
 
-    expect(children).toHaveLength(2);
-    expect(children[0]!).toBeInstanceOf(ToolStatusItem);
-    expect(children[1]!).toBeInstanceOf(PlaceholderItem);
-    expect(children[1]!.label).toBe(en.panel.notConfigured);
+    expect(children).toHaveLength(1);
+    expect(children[0]!).toBeInstanceOf(PlaceholderItem);
+    expect(children[0]!.label).toBe(en.panel.notConfigured);
   });
 
-  it('benchmark section shows status + not-configured placeholder', () => {
+  it('benchmark section shows single placeholder', () => {
     const benchmarkSection: SectionItem = provider.getChildren()[3]! as SectionItem;
     const children: vscode.TreeItem[] = provider.getChildren(benchmarkSection);
 
-    expect(children).toHaveLength(2);
-    expect(children[0]!).toBeInstanceOf(ToolStatusItem);
-    expect(children[1]!).toBeInstanceOf(PlaceholderItem);
-    expect(children[1]!.label).toBe(en.panel.notConfigured);
+    expect(children).toHaveLength(1);
+    expect(children[0]!).toBeInstanceOf(PlaceholderItem);
+    expect(children[0]!.label).toBe(en.panel.notConfigured);
   });
 
-  it('e2e section shows status + not-configured placeholder', () => {
+  it('e2e section shows single placeholder', () => {
     const e2eSection: SectionItem = provider.getChildren()[4]! as SectionItem;
     const children: vscode.TreeItem[] = provider.getChildren(e2eSection);
 
-    expect(children).toHaveLength(2);
-    expect(children[0]!).toBeInstanceOf(ToolStatusItem);
-    expect(children[1]!).toBeInstanceOf(PlaceholderItem);
-    expect(children[1]!.label).toBe(en.panel.notConfigured);
+    expect(children).toHaveLength(1);
+    expect(children[0]!).toBeInstanceOf(PlaceholderItem);
+    expect(children[0]!.label).toBe(en.panel.notConfigured);
   });
 });
 
@@ -240,8 +237,9 @@ describe('Multi-level lint tree', () => {
     stateManager.setState('lint', 'ready');
     const uri = vscode.Uri.file('/test/file.ts');
     const range = new vscode.Range(0, 0, 0, 1);
-    const diags = [new vscode.Diagnostic(range, 'err1', vscode.DiagnosticSeverity.Error)];
-    diagnosticCollection.set(uri, diags);
+    const diag = new vscode.Diagnostic(range, 'err1', vscode.DiagnosticSeverity.Error);
+    diag.code = 'no-unused-vars';
+    diagnosticCollection.set(uri, [diag]);
 
     const lintSection: SectionItem = provider.getChildren()[0]! as SectionItem;
     const children: vscode.TreeItem[] = provider.getChildren(lintSection);
@@ -250,20 +248,65 @@ describe('Multi-level lint tree', () => {
     expect(fileItem.collapsibleState).toBe(vscode.TreeItemCollapsibleState.Collapsed);
   });
 
-  it('returns DiagnosticDetailItems for file children', () => {
+  it('returns RuleGroupItems for file children', () => {
     stateManager.setState('lint', 'ready');
     const uri = vscode.Uri.file('/test/file.ts');
     const range = new vscode.Range(0, 0, 0, 1);
-    const diags = [
-      new vscode.Diagnostic(range, 'err1', vscode.DiagnosticSeverity.Error),
-      new vscode.Diagnostic(range, 'warn1', vscode.DiagnosticSeverity.Warning),
-    ];
-    diagnosticCollection.set(uri, diags);
+    const diag1 = new vscode.Diagnostic(range, 'err1', vscode.DiagnosticSeverity.Error);
+    diag1.code = 'no-unused-vars';
+    const diag2 = new vscode.Diagnostic(range, 'warn1', vscode.DiagnosticSeverity.Warning);
+    diag2.code = 'no-console';
+    diagnosticCollection.set(uri, [diag1, diag2]);
 
     const lintSection: SectionItem = provider.getChildren()[0]! as SectionItem;
     const sectionChildren: vscode.TreeItem[] = provider.getChildren(lintSection);
     const fileItem: FileDiagnosticItem = sectionChildren[1]! as FileDiagnosticItem;
-    const detailChildren: vscode.TreeItem[] = provider.getChildren(fileItem);
+    const ruleGroups: vscode.TreeItem[] = provider.getChildren(fileItem);
+
+    expect(ruleGroups).toHaveLength(2);
+    expect(ruleGroups[0]!).toBeInstanceOf(RuleGroupItem);
+    expect(ruleGroups[1]!).toBeInstanceOf(RuleGroupItem);
+  });
+
+  it('groups diagnostics by rule ID', () => {
+    stateManager.setState('lint', 'ready');
+    const uri = vscode.Uri.file('/test/file.ts');
+    const range = new vscode.Range(0, 0, 0, 1);
+    const diag1 = new vscode.Diagnostic(range, 'err1', vscode.DiagnosticSeverity.Error);
+    diag1.code = 'no-unused-vars';
+    const diag2 = new vscode.Diagnostic(range, 'err2', vscode.DiagnosticSeverity.Error);
+    diag2.code = 'no-unused-vars';
+    const diag3 = new vscode.Diagnostic(range, 'warn1', vscode.DiagnosticSeverity.Warning);
+    diag3.code = 'no-console';
+    diagnosticCollection.set(uri, [diag1, diag2, diag3]);
+
+    const lintSection: SectionItem = provider.getChildren()[0]! as SectionItem;
+    const sectionChildren: vscode.TreeItem[] = provider.getChildren(lintSection);
+    const fileItem: FileDiagnosticItem = sectionChildren[1]! as FileDiagnosticItem;
+    const ruleGroups: RuleGroupItem[] = provider.getChildren(fileItem) as RuleGroupItem[];
+
+    expect(ruleGroups).toHaveLength(2);
+    expect(ruleGroups[0]!.ruleId).toBe('no-unused-vars');
+    expect(ruleGroups[0]!.diagnostics).toHaveLength(2);
+    expect(ruleGroups[1]!.ruleId).toBe('no-console');
+    expect(ruleGroups[1]!.diagnostics).toHaveLength(1);
+  });
+
+  it('returns DiagnosticDetailItems for rule group children', () => {
+    stateManager.setState('lint', 'ready');
+    const uri = vscode.Uri.file('/test/file.ts');
+    const range = new vscode.Range(5, 0, 5, 10);
+    const diag1 = new vscode.Diagnostic(range, 'an error', vscode.DiagnosticSeverity.Error);
+    diag1.code = 'no-unused-vars';
+    const diag2 = new vscode.Diagnostic(range, 'another error', vscode.DiagnosticSeverity.Error);
+    diag2.code = 'no-unused-vars';
+    diagnosticCollection.set(uri, [diag1, diag2]);
+
+    const lintSection: SectionItem = provider.getChildren()[0]! as SectionItem;
+    const sectionChildren: vscode.TreeItem[] = provider.getChildren(lintSection);
+    const fileItem: FileDiagnosticItem = sectionChildren[1]! as FileDiagnosticItem;
+    const ruleGroups: RuleGroupItem[] = provider.getChildren(fileItem) as RuleGroupItem[];
+    const detailChildren: vscode.TreeItem[] = provider.getChildren(ruleGroups[0]!);
 
     expect(detailChildren).toHaveLength(2);
     expect(detailChildren[0]!).toBeInstanceOf(DiagnosticDetailItem);
@@ -274,17 +317,18 @@ describe('Multi-level lint tree', () => {
     stateManager.setState('lint', 'ready');
     const uri = vscode.Uri.file('/test/file.ts');
     const range = new vscode.Range(5, 0, 5, 10);
-    const diags = [
-      new vscode.Diagnostic(range, 'an error', vscode.DiagnosticSeverity.Error),
-      new vscode.Diagnostic(range, 'a warning', vscode.DiagnosticSeverity.Warning),
-    ];
-    diagnosticCollection.set(uri, diags);
+    const diag1 = new vscode.Diagnostic(range, 'an error', vscode.DiagnosticSeverity.Error);
+    diag1.code = 'rule-a';
+    const diag2 = new vscode.Diagnostic(range, 'a warning', vscode.DiagnosticSeverity.Warning);
+    diag2.code = 'rule-a';
+    diagnosticCollection.set(uri, [diag1, diag2]);
 
     const lintSection: SectionItem = provider.getChildren()[0]! as SectionItem;
     const sectionChildren: vscode.TreeItem[] = provider.getChildren(lintSection);
     const fileItem: FileDiagnosticItem = sectionChildren[1]! as FileDiagnosticItem;
+    const ruleGroups: RuleGroupItem[] = provider.getChildren(fileItem) as RuleGroupItem[];
     const detailChildren: DiagnosticDetailItem[] = provider.getChildren(
-      fileItem,
+      ruleGroups[0]!,
     ) as DiagnosticDetailItem[];
 
     expect((detailChildren[0]!.iconPath as vscode.ThemeIcon).id).toBe('error');
@@ -295,20 +339,24 @@ describe('Multi-level lint tree', () => {
     stateManager.setState('lint', 'ready');
     const uri = vscode.Uri.file('/test/file.ts');
     const range = new vscode.Range(9, 0, 9, 5);
-    const diags = [
-      new vscode.Diagnostic(range, 'some error message', vscode.DiagnosticSeverity.Error),
-    ];
-    diagnosticCollection.set(uri, diags);
+    const diag = new vscode.Diagnostic(
+      range,
+      'some error message',
+      vscode.DiagnosticSeverity.Error,
+    );
+    diag.code = 'my-rule';
+    diagnosticCollection.set(uri, [diag]);
 
     const lintSection: SectionItem = provider.getChildren()[0]! as SectionItem;
     const sectionChildren: vscode.TreeItem[] = provider.getChildren(lintSection);
     const fileItem: FileDiagnosticItem = sectionChildren[1]! as FileDiagnosticItem;
+    const ruleGroups: RuleGroupItem[] = provider.getChildren(fileItem) as RuleGroupItem[];
     const detailChildren: DiagnosticDetailItem[] = provider.getChildren(
-      fileItem,
+      ruleGroups[0]!,
     ) as DiagnosticDetailItem[];
 
     expect(detailChildren[0]!.label).toBe('some error message');
-    expect(detailChildren[0]!.description).toBe('Ln 10, Col 1');
+    expect(detailChildren[0]!.description).toBe('Ln 10, Col 1 · my-rule');
   });
 });
 
@@ -337,20 +385,39 @@ describe('getParent', () => {
     expect(provider.getParent(sectionChildren[1]!)).toBe(lintSection);
   });
 
-  it('returns file item for diagnostic detail children', () => {
+  it('returns file item for rule group children', () => {
     stateManager.setState('lint', 'ready');
     const uri = vscode.Uri.file('/test/file.ts');
     const range = new vscode.Range(0, 0, 0, 1);
-    const diags = [new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error)];
-    diagnosticCollection.set(uri, diags);
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    diag.code = 'no-unused-vars';
+    diagnosticCollection.set(uri, [diag]);
 
     const roots: SectionItem[] = provider.getChildren() as SectionItem[];
     const lintSection: SectionItem = roots[0]!;
     const sectionChildren: vscode.TreeItem[] = provider.getChildren(lintSection);
     const fileItem: FileDiagnosticItem = sectionChildren[1]! as FileDiagnosticItem;
-    const detailChildren: vscode.TreeItem[] = provider.getChildren(fileItem);
+    const ruleGroups: vscode.TreeItem[] = provider.getChildren(fileItem);
 
-    expect(provider.getParent(detailChildren[0]!)).toBe(fileItem);
+    expect(provider.getParent(ruleGroups[0]!)).toBe(fileItem);
+  });
+
+  it('returns rule group for diagnostic detail children', () => {
+    stateManager.setState('lint', 'ready');
+    const uri = vscode.Uri.file('/test/file.ts');
+    const range = new vscode.Range(0, 0, 0, 1);
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    diag.code = 'no-unused-vars';
+    diagnosticCollection.set(uri, [diag]);
+
+    const roots: SectionItem[] = provider.getChildren() as SectionItem[];
+    const lintSection: SectionItem = roots[0]!;
+    const sectionChildren: vscode.TreeItem[] = provider.getChildren(lintSection);
+    const fileItem: FileDiagnosticItem = sectionChildren[1]! as FileDiagnosticItem;
+    const ruleGroups: RuleGroupItem[] = provider.getChildren(fileItem) as RuleGroupItem[];
+    const detailChildren: vscode.TreeItem[] = provider.getChildren(ruleGroups[0]!);
+
+    expect(provider.getParent(detailChildren[0]!)).toBe(ruleGroups[0]!);
   });
 });
 

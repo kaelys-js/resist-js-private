@@ -189,16 +189,10 @@ export type CodeActionStrings = {
   readonly fixWithTip: string;
   /** Fix all title. */
   readonly fixAll: string;
-  /** Disable rule for this line. */
-  readonly disableLine: string;
-  /** Disable rule for this file. */
-  readonly disableFile: string;
   /** Error log when creating individual code action fails. */
   readonly actionFailed: string;
   /** Error log when fix-all action fails. */
   readonly fixAllFailed: string;
-  /** Error log when creating disable action fails. */
-  readonly disableFailed: string;
 };
 
 /** Strings for document filter operations. */
@@ -509,6 +503,12 @@ export type PanelStrings = {
   readonly fixAction: string;
   /** Per-diagnostic action: Go to Line. */
   readonly goToLineAction: string;
+  /** Rule group description: "{count} issues". */
+  readonly ruleGroupCount: string;
+  /** Message when auto-fix is not available. */
+  readonly autoFixNotAvailable: string;
+  /** Message when rule name is copied. */
+  readonly ruleCopied: string;
 };
 
 // =============================================================================

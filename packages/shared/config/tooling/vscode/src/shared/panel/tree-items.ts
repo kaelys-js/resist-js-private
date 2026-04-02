@@ -25,6 +25,7 @@ export type TreeItemKind =
   | 'section'
   | 'tool-status'
   | 'file-diagnostic'
+  | 'rule-group'
   | 'diagnostic-detail'
   | 'placeholder';
 
@@ -145,6 +146,40 @@ export class FileDiagnosticItem extends vscode.TreeItem {
       command: 'vscode.open',
       arguments: [uri],
     };
+  }
+}
+
+// =============================================================================
+// Rule Group Item
+// =============================================================================
+
+/**
+ * Groups diagnostics by rule ID under a file node.
+ *
+ * Label shows the rule ID, description shows the issue count,
+ * and icon reflects the highest severity in the group.
+ */
+export class RuleGroupItem extends vscode.TreeItem {
+  /** The file URI containing these diagnostics. */
+  public readonly fileUri: vscode.Uri;
+
+  /** Diagnostics grouped under this rule. */
+  public readonly diagnostics: readonly vscode.Diagnostic[];
+
+  /** The rule ID for this group. */
+  public readonly ruleId: string;
+
+  constructor(ruleId: string, fileUri: vscode.Uri, diagnostics: readonly vscode.Diagnostic[]) {
+    super(ruleId, vscode.TreeItemCollapsibleState.Collapsed);
+    this.ruleId = ruleId;
+    this.fileUri = fileUri;
+    this.diagnostics = diagnostics;
+    this.description = format(en.panel.ruleGroupCount, { count: diagnostics.length });
+    this.contextValue = 'resist.ruleGroup';
+
+    // Icon: error if any errors, otherwise warning
+    const hasError = diagnostics.some((d) => d.severity === vscode.DiagnosticSeverity.Error);
+    this.iconPath = new vscode.ThemeIcon(hasError ? 'error' : 'warning');
   }
 }
 

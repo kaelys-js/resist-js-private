@@ -44,24 +44,21 @@ const SHARED_MENU_COMMANDS: string[] = [
   COMMANDS.clearOutput,
 ];
 
-/** Reads package.json and extracts view/title menu command IDs.
- * @returns Array of command ID strings from the overflow menu. */
-function getViewTitleOverflowCommands(): string[] {
+/** Reads package.json and extracts lint submenu command IDs.
+ * @returns Array of command ID strings from the Linting submenu. */
+function getLintingSubmenuCommands(): string[] {
   const pkgPath = resolve(__dirname, '../../../package.json');
   const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as {
     contributes: {
       menus: {
-        'view/title': Array<{ command: string; group?: string }>;
+        'resist.panel.linting': Array<{ command: string; group?: string }>;
       };
     };
   };
 
-  const viewTitle = pkg.contributes.menus['view/title'] ?? [];
+  const submenu = pkg.contributes.menus['resist.panel.linting'] ?? [];
 
-  // Overflow = entries with a non-navigation group (numbered groups like 1_control, 2_lint, etc.)
-  return viewTitle
-    .filter((entry) => entry.group && !entry.group.startsWith('navigation'))
-    .map((entry) => entry.command);
+  return submenu.map((entry) => entry.command);
 }
 
 /** Reads commands.ts and extracts command IDs from the statusBarMenu handler.
@@ -100,11 +97,11 @@ function getStatusBarMenuCommands(): string[] {
 // =============================================================================
 
 describe('Menu synchronization', () => {
-  it('sidebar overflow contains all shared menu commands', () => {
-    const overflowCommands = getViewTitleOverflowCommands();
+  it('linting submenu contains all shared menu commands', () => {
+    const overflowCommands = getLintingSubmenuCommands();
 
     for (const cmd of SHARED_MENU_COMMANDS) {
-      expect(overflowCommands, `Missing in sidebar overflow: ${cmd}`).toContain(cmd);
+      expect(overflowCommands, `Missing in linting submenu: ${cmd}`).toContain(cmd);
     }
   });
 
@@ -116,11 +113,11 @@ describe('Menu synchronization', () => {
     }
   });
 
-  it('sidebar overflow has no extra commands beyond shared set', () => {
-    const overflowCommands = getViewTitleOverflowCommands();
+  it('linting submenu has no extra commands beyond shared set', () => {
+    const overflowCommands = getLintingSubmenuCommands();
 
     for (const cmd of overflowCommands) {
-      expect(SHARED_MENU_COMMANDS, `Extra in sidebar overflow: ${cmd}`).toContain(cmd);
+      expect(SHARED_MENU_COMMANDS, `Extra in linting submenu: ${cmd}`).toContain(cmd);
     }
   });
 
