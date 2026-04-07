@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Num } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import {
@@ -850,5 +850,594 @@ describe('error paths', () => {
   it('formatList with narrow style', () => {
     const result = formatList(['a', 'b'], 'en', { type: 'conjunction', style: 'narrow' });
     expect(result.ok).toBe(true);
+  });
+});
+
+// =============================================================================
+// Intl exception / catch-block coverage
+// =============================================================================
+
+describe('Intl exception catch blocks', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('formatNumber — Intl.NumberFormat constructor throws → result.ok === false', () => {
+    vi.spyOn(Intl, 'NumberFormat').mockImplementation(() => {
+      throw new Error('mock NumberFormat error');
+    });
+    const result = formatNumber(123, 'en', {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('formatDate — Intl.DateTimeFormat constructor throws → result.ok === false', () => {
+    vi.spyOn(Intl, 'DateTimeFormat').mockImplementation(() => {
+      throw new Error('mock DateTimeFormat error');
+    });
+    const result = formatDate(new Date('2026-01-01'), 'en', { style: 'short' });
+    expect(result.ok).toBe(false);
+  });
+
+  it('formatTime — Intl.DateTimeFormat constructor throws → result.ok === false', () => {
+    vi.spyOn(Intl, 'DateTimeFormat').mockImplementation(() => {
+      throw new Error('mock DateTimeFormat error');
+    });
+    const result = formatTime(new Date('2026-01-01T12:00:00'), 'en', { style: 'short' });
+    expect(result.ok).toBe(false);
+  });
+
+  it('formatRelativeTime — Intl.RelativeTimeFormat constructor throws → result.ok === false', () => {
+    vi.spyOn(Intl, 'RelativeTimeFormat').mockImplementation(() => {
+      throw new Error('mock RelativeTimeFormat error');
+    });
+    const result = formatRelativeTime(-1, 'day', 'en', {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('formatList — Intl.ListFormat constructor throws → result.ok === false', () => {
+    vi.spyOn(Intl, 'ListFormat').mockImplementation(() => {
+      throw new Error('mock ListFormat error');
+    });
+    const result = formatList(['a', 'b'], 'en', {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('formatDateRange — Intl.DateTimeFormat formatRange throws → result.ok === false', () => {
+    vi.spyOn(Intl, 'DateTimeFormat').mockImplementation(() => {
+      throw new Error('mock formatRange error');
+    });
+    const start = new Date('2026-01-01');
+    const end = new Date('2026-02-01');
+    const result = formatDateRange(start, end, 'en', { style: 'short' });
+    expect(result.ok).toBe(false);
+  });
+
+  it('formatDisplayName — Intl.DisplayNames.of returns undefined → result.ok === false', () => {
+    vi.spyOn(Intl, 'DisplayNames').mockImplementation(
+      () =>
+        ({
+          of: () => undefined,
+          resolvedOptions: () => ({
+            locale: 'en',
+            type: 'language' as const,
+            style: 'long' as const,
+          }),
+        }) as unknown as Intl.DisplayNames,
+    );
+    const result = formatDisplayName('ZZZZ', 'en', 'language', {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('formatDisplayName — Intl.DisplayNames constructor throws → result.ok === false', () => {
+    vi.spyOn(Intl, 'DisplayNames').mockImplementation(() => {
+      throw new Error('mock DisplayNames error');
+    });
+    const result = formatDisplayName('en', 'en', 'language', {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('formatDuration — Intl.DurationFormat unavailable → result.ok === false', () => {
+    const intlRecord = Intl as Record<string, unknown>;
+    const original = intlRecord.DurationFormat;
+    delete intlRecord.DurationFormat;
+    try {
+      const result = formatDuration({ hours: 1, minutes: 30 }, 'en', {});
+      expect(result.ok).toBe(false);
+    } finally {
+      intlRecord.DurationFormat = original;
+    }
+  });
+});
+
+// =============================================================================
+// parseNumberSkeleton — group-min2 token
+// =============================================================================
+
+// =============================================================================
+// Branch coverage — format.ts uncovered branches
+// =============================================================================
+
+describe('formatDisplayName — displayName undefined branch (line 794)', () => {
+  const RealDisplayNames = Intl.DisplayNames;
+
+  afterEach(() => {
+    (Intl as Record<string, unknown>).DisplayNames = RealDisplayNames;
+  });
+
+  it('returns error when Intl.DisplayNames.of() returns undefined', () => {
+    // Replace Intl.DisplayNames with a class whose .of() returns undefined
+    const FakeDisplayNames = class {
+      of(): undefined {
+        return undefined;
+      }
+    };
+
+    (Intl as Record<string, unknown>).DisplayNames = FakeDisplayNames;
+
+    const result = formatDisplayName('INVALID', 'en', 'language', {});
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('LOCALE.FORMAT_FAILED');
+    }
+  });
+});
+
+describe('styleToOptions — unreachable branches through public API', () => {
+  // Lines 64, 70, 82, 95: These branches are in the private `styleToOptions` function.
+  // The public API validates style/kind via FormatDateOptionsSchema BEFORE calling styleToOptions,
+  // so invalid values never reach styleToOptions. These are defensive checks.
+  // We verify the closest reachable paths:
+
+  it('formatDate rejects invalid style at options validation level', () => {
+    const result = formatDate(new Date(), 'en', { style: 'invalid' as never });
+    expect(result.ok).toBe(false);
+  });
+
+  it('formatTime rejects invalid style at options validation level', () => {
+    const result = formatTime(new Date(), 'en', { style: 'invalid' as never });
+    expect(result.ok).toBe(false);
+  });
+
+  it('formatDateRange rejects invalid style at options validation level', () => {
+    const result = formatDateRange(new Date(), new Date(), 'en', { style: 'invalid' as never });
+    expect(result.ok).toBe(false);
+  });
+
+  // Confirm all valid style values work for both date and time
+  it.each([
+    'short',
+    'medium',
+    'long',
+    'full',
+  ] as const)('formatDate succeeds with %s style', (style) => {
+    const result = formatDate(new Date('2026-01-01'), 'en', { style });
+    expect(result.ok).toBe(true);
+  });
+
+  it.each([
+    'short',
+    'medium',
+    'long',
+    'full',
+  ] as const)('formatTime succeeds with %s style', (style) => {
+    const result = formatTime(new Date('2026-01-01T12:00:00'), 'en', { style });
+    expect(result.ok).toBe(true);
+  });
+
+  it.each([
+    'short',
+    'medium',
+    'long',
+    'full',
+  ] as const)('formatDateRange succeeds with %s style', (style) => {
+    const result = formatDateRange(new Date('2026-01-01'), new Date('2026-02-01'), 'en', { style });
+    expect(result.ok).toBe(true);
+  });
+});
+
+describe('parseNumberSkeleton — group-min2', () => {
+  it('parses group-min2 as useGrouping: min2', () => {
+    const result = parseNumberSkeleton('group-min2');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.useGrouping).toBe('min2');
+    }
+  });
+});
+
+// =============================================================================
+// Additional branch coverage — styleToOptions / formatDate / formatTime / etc.
+// =============================================================================
+
+describe('formatDate — additional style branches', () => {
+  const testDate = new Date('2026-02-23T00:00:00Z');
+
+  it('formats with full style (weekday included)', () => {
+    const result = formatDate(testDate, 'en-US', { style: 'full' });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      // full style includes weekday: 'long'
+      expect(result.data).toContain('2026');
+      expect(result.data).toContain('February');
+    }
+  });
+
+  it('formats with medium style', () => {
+    const result = formatDate(testDate, 'en-US', { style: 'medium' });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toContain('Feb');
+    }
+  });
+});
+
+describe('formatTime — additional branches', () => {
+  const testDate = new Date('2026-02-23T14:30:45Z');
+
+  it('formats with custom options (options branch, not style)', () => {
+    const result = formatTime(testDate, 'en-US', {
+      options: { hour: '2-digit', minute: '2-digit', hour12: false },
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toMatch(/\d{2}:\d{2}/);
+    }
+  });
+
+  it('formats with long style (timeZoneName: short)', () => {
+    const result = formatTime(testDate, 'en-US', { style: 'long' });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toMatch(/\d/);
+    }
+  });
+
+  it('formats with full style (timeZoneName: long)', () => {
+    const result = formatTime(testDate, 'en-US', { style: 'full' });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toMatch(/\d/);
+    }
+  });
+});
+
+describe('formatDateRange — additional branches', () => {
+  const start = new Date('2026-01-15T00:00:00Z');
+  const end = new Date('2026-02-20T00:00:00Z');
+
+  it('formats with custom options (options branch, not style)', () => {
+    const result = formatDateRange(start, end, 'en-US', {
+      options: { year: 'numeric', month: 'short' },
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toContain('Jan');
+      expect(result.data).toContain('Feb');
+    }
+  });
+
+  it('formats with long style', () => {
+    const result = formatDateRange(start, end, 'en-US', { style: 'long' });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toContain('January');
+      expect(result.data).toContain('February');
+    }
+  });
+});
+
+describe('formatCurrency — invalid currency error', () => {
+  it('returns error for invalid currency code', () => {
+    const result = formatCurrency(100, 'en-US', 'NOTREAL');
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('formatUnit — additional branches', () => {
+  it('formats with narrow display', () => {
+    const result = formatUnit(10, 'meter', 'en', { unitDisplay: 'narrow' });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toContain('10');
+    }
+  });
+
+  it('formats with extra options spread', () => {
+    const result = formatUnit(3.14159, 'liter', 'en', {
+      unitDisplay: 'long',
+      options: { maximumFractionDigits: 1 },
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toContain('3.1');
+    }
+  });
+
+  it('returns error for invalid unit string', () => {
+    const result = formatUnit(10, '' as never, 'en', {});
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('formatDuration — additional style branches', () => {
+  it('formats with narrow style', () => {
+    const result = formatDuration({ hours: 2, minutes: 15 }, 'en', { style: 'narrow' });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toContain('2');
+    }
+  });
+
+  it('formats with digital style', () => {
+    const result = formatDuration({ hours: 1, minutes: 30, seconds: 45 }, 'en', {
+      style: 'digital',
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toContain('1');
+    }
+  });
+});
+
+describe('parseDateTimeSkeleton — additional token branches', () => {
+  it('parses single d as day: numeric', () => {
+    const result = parseDateTimeSkeleton('d');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.day).toBe('numeric');
+    }
+  });
+
+  it('parses hh as hour 12h 2-digit', () => {
+    const result = parseDateTimeSkeleton('hh');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.hour).toBe('2-digit');
+      expect(result.data.hourCycle).toBe('h12');
+    }
+  });
+
+  it('parses H as hour 24h numeric', () => {
+    const result = parseDateTimeSkeleton('H');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.hour).toBe('numeric');
+      expect(result.data.hourCycle).toBe('h23');
+    }
+  });
+
+  it('parses single m as minute: numeric', () => {
+    const result = parseDateTimeSkeleton('m');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.minute).toBe('numeric');
+    }
+  });
+
+  it('parses single s as second: numeric', () => {
+    const result = parseDateTimeSkeleton('s');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.second).toBe('numeric');
+    }
+  });
+});
+
+// =============================================================================
+// Input validation failure branch coverage
+// =============================================================================
+
+describe('formatNumber — validation failures', () => {
+  it('returns error for invalid opts (non-object)', () => {
+    const result = formatNumber(1, 'en', 'bad' as never);
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid value (string)', () => {
+    const result = formatNumber('not-a-number' as never, 'en', {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid locale (non-string)', () => {
+    const result = formatNumber(1, 123 as never, {});
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('formatCurrency — validation failures', () => {
+  it('returns error for invalid value (non-number)', () => {
+    const result = formatCurrency('abc' as never, 'en', 'USD');
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid locale (non-string)', () => {
+    const result = formatCurrency(100, 123 as never, 'USD');
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid currency (non-string)', () => {
+    const result = formatCurrency(100, 'en', 123 as never);
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('formatDate — validation failures', () => {
+  it('returns error for invalid opts (non-object)', () => {
+    const result = formatDate(new Date(), 'en', 'bad' as never);
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid locale (non-string)', () => {
+    const result = formatDate(new Date(), 123 as never, { style: 'short' });
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid date value (non-date non-number)', () => {
+    const result = formatDate('not-a-date' as never, 'en', { style: 'short' });
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('formatTime — validation failures', () => {
+  it('returns error for invalid opts (non-object)', () => {
+    const result = formatTime(new Date(), 'en', 'bad' as never);
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid locale (non-string)', () => {
+    const result = formatTime(new Date(), 123 as never, { style: 'short' });
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid date value (non-date non-number)', () => {
+    const result = formatTime('not-a-date' as never, 'en', { style: 'short' });
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('formatRelativeTime — validation failures', () => {
+  it('returns error for invalid value (non-number)', () => {
+    const result = formatRelativeTime('abc' as never, 'day', 'en', {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid locale (non-string)', () => {
+    const result = formatRelativeTime(-1, 'day', 123 as never, {});
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('formatList — validation failures', () => {
+  it('returns error for invalid opts (non-object)', () => {
+    const result = formatList(['a'], 'en', 'bad' as never);
+    expect(result.ok).toBe(false);
+  });
+
+  it('throws for invalid items (non-iterable)', () => {
+    expect(() => formatList(123 as never, 'en', {})).toThrow(TypeError);
+  });
+
+  it('returns error for items containing non-strings', () => {
+    const result = formatList([123 as never], 'en', {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid locale (non-string)', () => {
+    const result = formatList(['a'], 123 as never, {});
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('formatDateRange — validation failures', () => {
+  it('returns error for invalid opts (non-object)', () => {
+    const result = formatDateRange(new Date(), new Date(), 'en', 'bad' as never);
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid locale (non-string)', () => {
+    const result = formatDateRange(new Date(), new Date(), 123 as never, { style: 'short' });
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid start date (non-date non-number)', () => {
+    const result = formatDateRange('bad' as never, new Date(), 'en', { style: 'short' });
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid end date (non-date non-number)', () => {
+    const result = formatDateRange(new Date(), 'bad' as never, 'en', { style: 'short' });
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('formatDisplayName — validation failures', () => {
+  it('returns error for invalid opts (non-object)', () => {
+    const result = formatDisplayName('en', 'en', 'language', 'bad' as never);
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid code (non-string)', () => {
+    const result = formatDisplayName(123 as never, 'en', 'language', {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid locale (non-string)', () => {
+    const result = formatDisplayName('en', 123 as never, 'language', {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid type (non-string)', () => {
+    const result = formatDisplayName('en', 'en', 123 as never, {});
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('formatPercent — validation failures', () => {
+  it('returns error for invalid opts (non-object)', () => {
+    const result = formatPercent(0.5, 'en', 'bad' as never);
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid value (non-number)', () => {
+    const result = formatPercent('abc' as never, 'en', {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid locale (non-string)', () => {
+    const result = formatPercent(0.5, 123 as never, {});
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('formatUnit — validation failures', () => {
+  it('returns error for invalid opts (non-object)', () => {
+    const result = formatUnit(10, 'meter', 'en', 'bad' as never);
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid value (non-number)', () => {
+    const result = formatUnit('abc' as never, 'meter', 'en', {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid unit (non-string)', () => {
+    const result = formatUnit(10, 123 as never, 'en', {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid locale (non-string)', () => {
+    const result = formatUnit(10, 'meter', 123 as never, {});
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('formatDuration — validation failures', () => {
+  it('returns error for invalid opts (non-object)', () => {
+    const result = formatDuration({ hours: 1 }, 'en', 'bad' as never);
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid duration (non-object)', () => {
+    const result = formatDuration('abc' as never, 'en', {});
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid locale (non-string)', () => {
+    const result = formatDuration({ hours: 1 }, 123 as never, {});
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('parseNumberSkeleton — validation failures', () => {
+  it('returns error for invalid skeleton (non-string)', () => {
+    const result = parseNumberSkeleton(123 as never);
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('parseDateTimeSkeleton — validation failures', () => {
+  it('returns error for invalid skeleton (non-string)', () => {
+    const result = parseDateTimeSkeleton(123 as never);
+    expect(result.ok).toBe(false);
   });
 });

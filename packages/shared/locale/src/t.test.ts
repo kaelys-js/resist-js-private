@@ -51,4 +51,11 @@ describe('t', () => {
     const result: Str = t(() => okResult('Hello Alice'), 'FALLBACK');
     expect(result).toBe('Hello Alice');
   });
+
+  it('returns raw fallback when fallback validation fails (line 35)', () => {
+    // Non-string fallback triggers safeParse(StrSchema, fallback) failure
+    const result: Str = t(() => okResult('Hello'), 42 as unknown as Str);
+    // When fallbackResult.ok is false, t() returns the raw fallback
+    expect(result).toBe(42);
+  });
 });
