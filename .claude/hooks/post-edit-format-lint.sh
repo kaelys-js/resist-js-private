@@ -30,15 +30,8 @@ ERRORS=""
 # ── Format ──────────────────────────────────────────────────────────────────
 
 case "$FILE_PATH" in
-  *.svelte)
-    if command -v prettier &>/dev/null; then
-      prettier --write "$FILE_PATH" 2>/dev/null || true
-    fi
-    ;;
-  *.ts|*.tsx|*.js|*.jsx|*.json|*.jsonc|*.css|*.html|*.graphql|*.md|*.mdx)
-    if command -v biome &>/dev/null; then
-      biome format --write "$FILE_PATH"
-    fi
+  *.svelte|*.ts|*.tsx|*.js|*.jsx|*.json|*.jsonc|*.css|*.html|*.graphql|*.md|*.mdx)
+    (cd "$PROJECT_DIR" && pnpm -w run qa:format) 2>/dev/null || true
     ;;
 esac
 
