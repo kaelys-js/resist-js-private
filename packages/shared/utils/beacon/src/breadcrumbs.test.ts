@@ -328,6 +328,27 @@ describe('initFetchBreadcrumbs', () => {
     expect(crumb.message).toContain('string error');
   });
 
+  it('handles exotic input type (not string, URL, or Request) — extractUrl fallback (line 56)', async () => {
+    const mockFetch: typeof fetch = vi.fn(
+      async () => new Response('ok', { status: 200 }),
+    ) as typeof fetch;
+    globalThis.fetch = mockFetch;
+
+    initFetchBreadcrumbs(['/api/errors'] as Str[]);
+
+    // Pass a number cast as RequestInfo — triggers extractUrl's final fallback: ok(StrSchema, '(unknown)')
+    await globalThis.fetch(42 as unknown as RequestInfo);
+
+    const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.data).toHaveLength(1);
+    const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
+    expect(crumb.message).toContain('(unknown)');
+    expect(crumb.message).toContain('GET');
+  });
+
   it('extracts method from Request object directly', async () => {
     const mockFetch: typeof fetch = vi.fn(
       async () => new Response('ok', { status: 200 }),
