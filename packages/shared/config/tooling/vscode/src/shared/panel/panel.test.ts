@@ -33,6 +33,7 @@ let outputChannel: vscode.OutputChannel;
 function getCommandHandler(commandId: string): (...args: unknown[]) => Promise<void> {
   const calls = (vscode.commands.registerCommand as ReturnType<typeof vi.fn>).mock.calls;
   const match = calls.find((c) => c[0] === commandId);
+
   if (!match) {
     throw new Error(`Command ${commandId} not registered`);
   }
@@ -45,7 +46,7 @@ function getCommandHandler(commandId: string): (...args: unknown[]) => Promise<v
  * Retrieves the mock TreeView object returned by vscode.window.createTreeView.
  */
 function getTreeView(): ReturnType<typeof vscode.window.createTreeView> {
-  return (vscode.window.createTreeView as ReturnType<typeof vi.fn>).mock.results[0]
+  return (vscode.window.createTreeView as ReturnType<typeof vi.fn>).mock.results[0]!
     .value as ReturnType<typeof vscode.window.createTreeView>;
 }
 
@@ -255,7 +256,7 @@ describe('observers', () => {
 
     // Capture the onDidChangeDiagnostics callback
     const diagCallback = (vscode.languages.onDidChangeDiagnostics as ReturnType<typeof vi.fn>).mock
-      .calls[0][0] as () => void;
+      .calls[0]![0] as () => void;
 
     diagCallback();
 
@@ -281,7 +282,7 @@ describe('observers', () => {
     const refreshSpy = vi.spyOn(provider, 'refresh');
 
     const diagCallback = (vscode.languages.onDidChangeDiagnostics as ReturnType<typeof vi.fn>).mock
-      .calls[0][0] as () => void;
+      .calls[0]![0] as () => void;
 
     // Fire 5 rapid changes
     diagCallback();

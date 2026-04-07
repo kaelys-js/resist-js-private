@@ -1633,7 +1633,7 @@ export async function runLinter(
     output.stderr(
       `[error] ${configWarnings.length} config validation error(s) — fix ${CONFIG_FILENAME}\n`,
     );
-    return { filesLinted: 0, fixesApplied: 0, results: [], ruleDescs: new Map() };
+    return 1;
   }
 
   /* Auto-generate JSON Schema for IDE autocomplete */

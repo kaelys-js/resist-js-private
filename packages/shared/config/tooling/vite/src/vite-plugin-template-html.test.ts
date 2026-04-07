@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Path, Str, Name, CssFontFamily, LocaleString } from '@/schemas/common';
+import type { Path, Str, Name, CssFontFamily, CssFontWeight, LocaleString } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import {
   deriveErrorIdPrefix,
@@ -27,17 +27,22 @@ const TEST_FONT_FAMILIES: CssFontFamily =
   "'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'" as CssFontFamily;
 
 const TEST_FONT_FACES: FontFaceEntry[] = [
-  { family: 'Inter' as Name, style: 'normal', weight: '100 900', src: '/fonts/inter-latin.woff2' }, // cast safe: test fixture
+  {
+    family: 'Inter' as Name,
+    style: 'normal',
+    weight: '100 900' as CssFontWeight,
+    src: '/fonts/inter-latin.woff2',
+  }, // cast safe: test fixture
   {
     family: 'Rajdhani' as Name,
     style: 'normal',
-    weight: '600',
+    weight: '600' as CssFontWeight,
     src: '/fonts/rajdhani-latin-600.woff2',
   }, // cast safe: test fixture
   {
     family: 'Rajdhani' as Name,
     style: 'normal',
-    weight: '700',
+    weight: '700' as CssFontWeight,
     src: '/fonts/rajdhani-latin-700.woff2',
   }, // cast safe: test fixture
 ];

@@ -523,6 +523,7 @@ describe('lintDocument — error and state paths', () => {
         const text = lines.join('\n');
         let ln = 0;
         let col = 0;
+
         for (let i = 0; i < offset && i < text.length; i++) {
           if (text[i] === '\n') {
             ln++;
@@ -535,9 +536,12 @@ describe('lintDocument — error and state paths', () => {
       },
       getWordRangeAtPosition: (pos: vscode.Position) => {
         const lineText = lines[pos.line] ?? '';
+
         if (lineText.length === 0) return;
         let end = pos.character;
+
         while (end < lineText.length && lineText[end] !== ' ') end++;
+
         if (end === pos.character) return;
         return new vscode.Range(pos.line, pos.character, pos.line, end);
       },
@@ -772,6 +776,7 @@ describe('appendConfigArgs via lintDocument', () => {
   async function getArgs(): Promise<readonly string[]> {
     await lintDocument(mockDocument, mockCollection, mockChannel, mockStateManager as never, {});
     const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
+
     return options.args;
   }
 
@@ -908,7 +913,7 @@ describe('lintWorkspace', () => {
     mockStateManager = { setState: vi.fn(), getState: vi.fn(() => 'ready') };
 
     reportSpy = vi.fn();
-    mockProgress = { report: reportSpy };
+    mockProgress = { report: reportSpy } as unknown as LintProgress;
 
     mockRunToolJson.mockResolvedValue({
       ok: true,
@@ -1040,7 +1045,7 @@ describe('lintWorkspace', () => {
 
   it('uses mapEntryToDiagnosticBasic when document is not open', async () => {
     // Ensure textDocuments is empty so no open document is found
-    vscode.workspace.textDocuments = [];
+    Object.defineProperty(vscode.workspace, 'textDocuments', { value: [], configurable: true });
 
     mockRunToolJson.mockResolvedValue({
       ok: true,
@@ -1068,7 +1073,10 @@ describe('lintWorkspace', () => {
       writable: true,
       configurable: true,
     });
-    vscode.workspace.textDocuments = [openDoc] as never;
+    Object.defineProperty(vscode.workspace, 'textDocuments', {
+      value: [openDoc],
+      configurable: true,
+    });
 
     mockRunToolJson.mockResolvedValue({
       ok: true,

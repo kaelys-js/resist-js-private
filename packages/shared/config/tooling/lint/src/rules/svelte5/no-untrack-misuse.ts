@@ -27,7 +27,7 @@ import { collectStateVariables, collectDerivedVariables } from './_svelte-helper
  */
 function getExpressionText(node: AstNode): string {
   if (node.type === 'Identifier') {
-    return (node as { name: string }).name;
+    return (node as unknown as { name: string }).name;
   }
 
   if (
@@ -49,7 +49,7 @@ function getExpressionText(node: AstNode): string {
   if (node.type === 'CallExpression') {
     const callee: AstNode | undefined = node.callee as AstNode | undefined;
     if (callee?.type === 'Identifier') {
-      return `${(callee as { name: string }).name}()`;
+      return `${(callee as unknown as { name: string }).name}()`;
     }
     if (
       callee?.type === 'StaticMemberExpression' ||
@@ -58,7 +58,7 @@ function getExpressionText(node: AstNode): string {
       const obj: AstNode | undefined = (callee as { object?: AstNode }).object;
       const prop: AstNode | undefined = (callee as { property?: AstNode }).property;
       if (obj?.type === 'Identifier' && prop?.type === 'Identifier') {
-        return `${(obj as { name: string }).name}.${(prop as { name: string }).name}()`;
+        return `${(obj as unknown as { name: string }).name}.${(prop as unknown as { name: string }).name}()`;
       }
     }
     return '<call>';
@@ -71,7 +71,7 @@ function getExpressionText(node: AstNode): string {
     const obj: AstNode | undefined = (node as { object?: AstNode }).object;
     const prop: AstNode | undefined = (node as { property?: AstNode }).property;
     if (obj?.type === 'Identifier' && prop?.type === 'Identifier') {
-      return `${(obj as { name: string }).name}.${(prop as { name: string }).name}`;
+      return `${(obj as unknown as { name: string }).name}.${(prop as unknown as { name: string }).name}`;
     }
   }
 
@@ -89,7 +89,7 @@ function referencesReactiveVar(node: AstNode, reactiveVars: Set<string>): boolea
   let found: boolean = false;
 
   walkNode(node, (n: AstNode): void => {
-    if (n.type === 'Identifier' && reactiveVars.has((n as { name: string }).name)) {
+    if (n.type === 'Identifier' && reactiveVars.has((n as unknown as { name: string }).name)) {
       found = true;
     }
   });

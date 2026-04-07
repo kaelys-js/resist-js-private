@@ -59,7 +59,7 @@ function collectBindableProps(ast: AstNode): Set<string> {
         if (right && isRuneCall(right, '$bindable')) {
           const left: AstNode | undefined = prop.left as AstNode | undefined;
           if (left?.type === 'Identifier') {
-            bindableProps.add((left as { name: string }).name);
+            bindableProps.add((left as unknown as { name: string }).name);
           }
         }
         continue;
@@ -73,7 +73,7 @@ function collectBindableProps(ast: AstNode): Set<string> {
           if (right && isRuneCall(right, '$bindable')) {
             const key: AstNode | undefined = prop.key as AstNode | undefined;
             if (key?.type === 'Identifier') {
-              bindableProps.add((key as { name: string }).name);
+              bindableProps.add((key as unknown as { name: string }).name);
             }
           }
         }
