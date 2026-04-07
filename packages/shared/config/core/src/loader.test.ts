@@ -5,7 +5,10 @@
  */
 
 // oxlint-disable require-await -- async test helpers for loadConfig don't always need await
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
+import { describe, expect, it, vi, beforeEach, afterAll } from 'vitest';
 import type { Bool, Path, Void } from '@/schemas/common';
 import type { CoreConfig } from '@/schemas/core-config/config';
 import type { Result } from '@/schemas/result/result';
@@ -208,6 +211,100 @@ describe('loadConfig', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error.code).toBe('CONFIG.LOAD_FAILED');
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Dynamic import branch tests — use real temp .mjs fixtures
+// ---------------------------------------------------------------------------
+
+const FIXTURE_DIR = path.join(os.tmpdir(), 'config-core-test-fixtures');
+
+// Create fixture directory once
+fs.mkdirSync(FIXTURE_DIR, { recursive: true });
+
+// Write fixture files once (they don't change between tests)
+const noDefaultFixture = path.join(FIXTURE_DIR, 'no-default.mjs');
+fs.writeFileSync(noDefaultFixture, 'export const company = { name: "Named Export Corp" };\n');
+
+const primitiveFixture = path.join(FIXTURE_DIR, 'primitive-export.mjs');
+fs.writeFileSync(primitiveFixture, 'export default 42;\n');
+
+const invalidLocaleFixture = path.join(FIXTURE_DIR, 'invalid-locale.mjs');
+fs.writeFileSync(invalidLocaleFixture, "export default { locales: ['fr'] };\n");
+
+afterAll(() => {
+  fs.rmSync(FIXTURE_DIR, { recursive: true, force: true });
+});
+
+describe('loadConfig dynamic import branches', () => {
+  it('falls through ?? to module when no .default export (line 144)', async () => {
+    resetConfig();
+    (findWorkspaceRoot as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: '/workspace' as Path,
+    });
+    (joinPath as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: noDefaultFixture as Path,
+    });
+    (pathExists as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: true as Bool,
+    });
+
+    const result = await loadConfig();
+
+    // module object itself is an object, passes typeof check, merges with defaults
+    expect(result.ok).toBe(true);
+  });
+
+  it('keeps userConfig as {} when rawConfig is non-object (line 148)', async () => {
+    resetConfig();
+    (findWorkspaceRoot as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: '/workspace' as Path,
+    });
+    (joinPath as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: primitiveFixture as Path,
+    });
+    (pathExists as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: true as Bool,
+    });
+
+    const result = await loadConfig();
+
+    // typeof 42 !== 'object', so userConfig stays {}, merge produces defaults
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.company.name).toBe(defaults.company.name);
+    }
+  });
+
+  it('returns CONFIG.INVALID when merged config fails validation (lines 164-170)', async () => {
+    resetConfig();
+    (findWorkspaceRoot as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: '/workspace' as Path,
+    });
+    (joinPath as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: invalidLocaleFixture as Path,
+    });
+    (pathExists as ReturnType<typeof vi.fn>).mockReturnValue({
+      ok: true,
+      data: true as Bool,
+    });
+
+    const result = await loadConfig();
+
+    // locales=['fr'] replaces default ['en'], but defaultLocale='en' stays — cross-field check fails
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('CONFIG.INVALID');
     }
   });
 });
