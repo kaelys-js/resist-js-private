@@ -753,7 +753,9 @@ describe('buildLocale — message references and array context', () => {
       return;
     }
 
-    const built = result.data as unknown as { items: Array<{ label: () => { ok: boolean; data?: string } }> };
+    const built = result.data as unknown as {
+      items: Array<{ label: () => { ok: boolean; data?: string } }>;
+    };
     // Array items should have context applied
     expect(built.items).toHaveLength(2);
   });

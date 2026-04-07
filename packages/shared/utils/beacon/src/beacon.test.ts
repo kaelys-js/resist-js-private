@@ -221,6 +221,31 @@ describe('beaconError', () => {
     expect(result.ok).toBe(false);
   });
 
+  it('returns INTERNAL.UNEXPECTED when toBeaconPayload fails (line 69)', async () => {
+    const beaconPayloadModule = await import('./beacon-payload');
+    const spy = vi.spyOn(beaconPayloadModule, 'toBeaconPayload').mockReturnValueOnce({
+      ok: false,
+      error: {
+        code: 'INTERNAL.UNEXPECTED',
+        message: 'payload build failed',
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        timestamp: '2026-03-05T12:00:00.000Z',
+        stack: '',
+        severity: 'error',
+        httpStatus: 500,
+      },
+    } as Result<never>);
+
+    const captured: CapturedError = makeCaptured();
+    const result: Result<Void> = beaconError(captured, '/api/errors');
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('INTERNAL.UNEXPECTED');
+    }
+    spy.mockRestore();
+  });
+
   it('returns error when safeStringify fails', () => {
     const originalStringify: typeof JSON.stringify = JSON.stringify;
     JSON.stringify = (): Str => {
