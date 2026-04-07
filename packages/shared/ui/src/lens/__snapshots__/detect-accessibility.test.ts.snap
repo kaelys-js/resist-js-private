@@ -59,6 +59,10 @@ exports[`auditAccessibility — per-component regressions > component failure ma
     "accordion-a11y",
     "semantic-html",
   ],
+  "affix": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "alert": [
     "color-not-sole-indicator",
     "semantic-html",
@@ -70,14 +74,30 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   "aspect-ratio": [
     "semantic-html",
   ],
+  "autocomplete": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "avatar": [
     "aria-live-regions",
     "link-distinguishable",
     "semantic-html",
     "svg-accessibility",
   ],
+  "backdrop": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "badge": [
     "link-distinguishable",
+  ],
+  "banner": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "bleed": [
+    "color-not-sole-indicator",
+    "semantic-html",
   ],
   "breadcrumb": [
     "a11yproject-nav-disambiguation",
@@ -96,6 +116,10 @@ exports[`auditAccessibility — per-component regressions > component failure ma
     "focus-restoration",
     "semantic-html",
   ],
+  "callout": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "card": [
     "link-distinguishable",
     "semantic-html",
@@ -103,12 +127,36 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   "carousel": [
     "semantic-html",
   ],
+  "cascader": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "center": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "checkbox": [
+    "semantic-html",
+  ],
+  "chip": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "clipboard": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "code": [
+    "color-not-sole-indicator",
     "semantic-html",
   ],
   "collapsible": [
     "accordion-a11y",
     "link-distinguishable",
+    "semantic-html",
+  ],
+  "combobox": [
+    "color-not-sole-indicator",
     "semantic-html",
   ],
   "command": [
@@ -118,7 +166,23 @@ exports[`auditAccessibility — per-component regressions > component failure ma
     "link-distinguishable",
     "semantic-html",
   ],
+  "confetti": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "container": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "context-menu": [
+    "semantic-html",
+  ],
+  "countdown": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "descriptions": [
+    "color-not-sole-indicator",
     "semantic-html",
   ],
   "dialog": [
@@ -127,7 +191,24 @@ exports[`auditAccessibility — per-component regressions > component failure ma
     "link-distinguishable",
     "semantic-html",
   ],
+  "diff": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "divider": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "dock": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "drawer": [
+    "escape-to-close",
+    "semantic-html",
+  ],
+  "dropdown": [
+    "color-not-sole-indicator",
     "escape-to-close",
     "semantic-html",
   ],
@@ -136,17 +217,65 @@ exports[`auditAccessibility — per-component regressions > component failure ma
     "link-distinguishable",
     "semantic-html",
   ],
+  "editable": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "empty": [
     "semantic-html",
   ],
   "field": [
     "semantic-html",
   ],
+  "fieldset": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "flex": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "form-field": [
     "color-not-sole-indicator",
     "semantic-html",
   ],
+  "galleria": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "gauge": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "globe": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "group": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "hero": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "highlight": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "hover-card": [
+    "semantic-html",
+  ],
+  "image": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "indicator": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "inplace": [
+    "color-not-sole-indicator",
     "semantic-html",
   ],
   "input": [
@@ -164,13 +293,61 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   "input-otp": [
     "semantic-html",
   ],
+  "inset": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "item": [
+    "semantic-html",
+  ],
+  "knob": [
+    "color-not-sole-indicator",
     "semantic-html",
   ],
   "label": [
     "semantic-html",
   ],
+  "lamp": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "link": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "list": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "listbox": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "marquee": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "masonry": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "mention": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "menu": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "menubar": [
+    "semantic-html",
+  ],
+  "message": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "meter": [
+    "color-not-sole-indicator",
     "semantic-html",
   ],
   "native-select": [
@@ -181,11 +358,40 @@ exports[`auditAccessibility — per-component regressions > component failure ma
     "section-508",
     "semantic-html",
   ],
+  "navbar": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "navigation-menu": [
+    "semantic-html",
+  ],
+  "notification": [
+    "color-not-sole-indicator",
+    "semantic-html",
+    "status-messages",
+  ],
+  "orbit": [
+    "color-not-sole-indicator",
     "semantic-html",
   ],
   "pagination": [
     "aria-live-regions",
+    "semantic-html",
+  ],
+  "panel": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "paper": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "persona": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "popconfirm": [
+    "color-not-sole-indicator",
     "semantic-html",
   ],
   "popover": [
@@ -207,7 +413,19 @@ exports[`auditAccessibility — per-component regressions > component failure ma
     "focus-restoration",
     "semantic-html",
   ],
+  "ripple": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "scroll-area": [
+    "semantic-html",
+  ],
+  "searchbox": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "section": [
+    "color-not-sole-indicator",
     "semantic-html",
   ],
   "select": [
@@ -238,6 +456,57 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   "slider": [
     "semantic-html",
   ],
+  "snackbar": [
+    "color-not-sole-indicator",
+    "semantic-html",
+    "status-messages",
+  ],
+  "snippet": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "sonner": [
+    "color-not-sole-indicator",
+    "semantic-html",
+    "status-messages",
+    "toast-a11y",
+  ],
+  "spacer": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "sparkles": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "spinner": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "spoiler": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "spotlight": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "stack": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "stat": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "stepper": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "swap": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "switch": [
     "pause-stop-controls",
     "semantic-html",
@@ -249,6 +518,14 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   "tabs": [
     "semantic-html",
   ],
+  "tag": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "terminal": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "textarea": [
     "aria-labels",
     "color-not-sole-indicator",
@@ -257,6 +534,16 @@ exports[`auditAccessibility — per-component regressions > component failure ma
     "section-508",
     "semantic-html",
   ],
+  "timeline": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "toast": [
+    "color-not-sole-indicator",
+    "semantic-html",
+    "status-messages",
+    "toast-a11y",
+  ],
   "toggle": [
     "color-not-sole-indicator",
     "semantic-html",
@@ -264,12 +551,52 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   "toggle-group": [
     "semantic-html",
   ],
+  "toolbar": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
   "tooltip": [
     "link-distinguishable",
     "semantic-html",
     "tooltip-a11y",
   ],
+  "tour": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "tracker": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "transfer": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "transition": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "truncate": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "typography": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "watermark": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "window": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
+  "wrap": [
+    "color-not-sole-indicator",
+    "semantic-html",
+  ],
 }
 `;
 
-exports[`auditAccessibility — per-component regressions > components with zero a11y failures stay clean 1`] = `814`;
+exports[`auditAccessibility — per-component regressions > components with zero a11y failures stay clean 1`] = `733`;

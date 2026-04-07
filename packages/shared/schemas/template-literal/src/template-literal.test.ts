@@ -12,6 +12,7 @@ import { describe, expect, expectTypeOf, it } from 'vitest';
 import * as v from 'valibot';
 
 import { templateLiteral } from '@/schemas/template-literal/template-literal';
+import type { TemplateLiteralPart } from '@/schemas/template-literal/types';
 
 /** Cast safe: tsgo cannot verify TemplateLiteralSchema conforms to BaseSchema generics */
 function asSchema(s: unknown): v.BaseSchema<string, string, v.BaseIssue<unknown>> {
@@ -19,8 +20,8 @@ function asSchema(s: unknown): v.BaseSchema<string, string, v.BaseIssue<unknown>
 }
 
 /** Cast safe: tsgo cannot verify SchemaWithPipe/TemplateLiteralSchema conforms to TemplateLiteralPart */
-function asParts(parts: readonly unknown[]): readonly (string | v.GenericSchema)[] {
-  return parts as readonly (string | v.GenericSchema)[];
+function asParts(parts: readonly unknown[]): readonly TemplateLiteralPart[] {
+  return parts as readonly TemplateLiteralPart[];
 }
 
 // =============================================================================

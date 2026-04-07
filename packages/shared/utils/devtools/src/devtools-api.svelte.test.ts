@@ -43,7 +43,7 @@ vi.mock('@/utils/web-vitals/vitals-panel-store.svelte', () => ({
 }));
 
 vi.mock('@/utils/web-vitals/vitals-beacon', () => ({
-  getBeaconStatus: () => mockBeaconStatus,
+  getBeaconStatus: () => ({ ok: true, data: mockBeaconStatus, error: null }),
   queueVital: vi.fn(),
   flushVitals: vi.fn(),
   setupVitalsBeacon: vi.fn(),
@@ -52,7 +52,7 @@ vi.mock('@/utils/web-vitals/vitals-beacon', () => ({
 }));
 
 vi.mock('@/utils/web-vitals/connection.svelte', () => ({
-  getConnectionSnapshot: (): ConnectionSnapshot => mockConnectionSnapshot,
+  getConnectionSnapshot: () => ({ ok: true, data: mockConnectionSnapshot, error: null }),
   getConnectionQuality: () => 'fast' as const,
   getEffectiveType: () => '4g',
   getSaveData: () => false as Bool,

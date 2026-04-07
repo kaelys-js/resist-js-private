@@ -4,6 +4,8 @@
  * @module
  */
 
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it, beforeAll } from 'vitest';
 import type { Filename, Path } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
@@ -22,7 +24,7 @@ describe('findWorkspaceRoot', () => {
     const result: Result<Path> = findWorkspaceRoot();
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.data).toContain('webforge');
+      expect(existsSync(join(result.data, 'pnpm-workspace.yaml'))).toBe(true);
     }
   });
 
@@ -30,7 +32,7 @@ describe('findWorkspaceRoot', () => {
     const result: Result<Path> = findWorkspaceRoot(undefined, 'pnpm-workspace.yaml' as Filename);
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.data).toContain('webforge');
+      expect(existsSync(join(result.data, 'pnpm-workspace.yaml'))).toBe(true);
     }
   });
 
@@ -50,7 +52,7 @@ describe('findWorkspaceRoot', () => {
     const result: Result<Path> = findWorkspaceRoot();
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.data).toContain('webforge');
+      expect(existsSync(join(result.data, 'pnpm-workspace.yaml'))).toBe(true);
     }
   });
 });

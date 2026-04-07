@@ -30,10 +30,10 @@ function mockErr(code: Str): Result<never> {
 // Mocks — must be set up before importing the module under test
 // ---------------------------------------------------------------------------
 
-const execSyncSafeMock = vi.fn((): Result<Str> => mockOk(''));
-const readFileMock = vi.fn((): Result<Str> => mockOk('{}'));
-const parseJsonWithCommentsMock = vi.fn((): Result<Record<Str, unknown>> => mockOk({}));
-const joinPathMock = vi.fn((): Result<Str> => mockOk(''));
+const execSyncSafeMock = vi.fn((_cmd: Str): Result<Str> => mockOk(''));
+const readFileMock = vi.fn((_path: Str): Result<Str> => mockOk('{}'));
+const parseJsonWithCommentsMock = vi.fn((_content: Str): Result<Record<Str, unknown>> => mockOk({}));
+const joinPathMock = vi.fn((_a: Str, _b: Str): Result<Str> => mockOk(''));
 
 vi.mock('@/utils/core/shell', () => ({
   execSyncSafe: (...args: unknown[]): Result<Str> => execSyncSafeMock(...(args as [Str])),
