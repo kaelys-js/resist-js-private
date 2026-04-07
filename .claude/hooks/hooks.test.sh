@@ -621,13 +621,65 @@ else
   fail "post-edit-format-lint.sh fails when no file_path"
 fi
 
-# post-edit-format-lint.sh: should skip markdown files
+# post-edit-format-lint.sh: should NOT skip markdown files (plan files need lint)
 run_hook "$HOOKS_DIR/post-edit-format-lint.sh" '{"tool_input":{"file_path":"docs/README.md"}}'
-if [ "$HOOK_EXIT" = "0" ] && ! echo "$HOOK_STDERR" | grep -q "lint errors"; then
-  pass "post-edit-format-lint.sh skips .md files"
+if [ "$HOOK_EXIT" = "0" ]; then
+  pass "post-edit-format-lint.sh processes .md files (exit 0)"
 else
-  fail "post-edit-format-lint.sh does NOT skip .md files"
+  fail "post-edit-format-lint.sh fails on .md files"
 fi
+
+# post-edit-format-lint.sh: should lint plan files and catch missing sections
+_PLAN_TEMP="/tmp/post-edit-plan-test-$$.md"
+echo "# Bad Plan" > "$_PLAN_TEMP"
+echo "No required sections." >> "$_PLAN_TEMP"
+run_hook "$HOOKS_DIR/post-edit-format-lint.sh" "{\"tool_input\":{\"file_path\":\"$REPO_ROOT/docs/plans/test-plan.md\"}}"
+# This uses the real path pattern but the file doesn't exist at that path, so it skips
+# Instead test with the actual temp file by symlinking or using the path directly
+rm -f "$_PLAN_TEMP"
+
+# Create a temp plan file in the actual docs/plans dir for testing
+_PLAN_TEST="$REPO_ROOT/docs/plans/_test-hook-plan.md"
+echo "# Incomplete Plan" > "$_PLAN_TEST"
+echo "Missing all required sections." >> "$_PLAN_TEST"
+run_hook "$HOOKS_DIR/post-edit-format-lint.sh" "{\"tool_input\":{\"file_path\":\"$_PLAN_TEST\"}}"
+if echo "$HOOK_STDERR" | grep -q "Plan lint errors"; then
+  pass "post-edit-format-lint.sh catches incomplete plan files"
+else
+  fail "post-edit-format-lint.sh does NOT catch incomplete plan files"
+fi
+rm -f "$_PLAN_TEST"
+
+# post-edit-format-lint.sh: valid plan file should pass lint
+_PLAN_VALID="$REPO_ROOT/docs/plans/_test-valid-plan.md"
+cat > "$_PLAN_VALID" << 'PLANEOF'
+# Test Plan
+
+## Status Legend
+- [ ] Not started
+
+## Baseline
+| Metric | Value |
+
+## TASK 1 — Register Rules + Config
+## TASK 2 — Integration Verification
+## TASK 3 — Full QA + Coverage
+pnpm test
+## TASK 4 — Final Verification + Commit
+- Verify a
+- Verify b
+- Verify c
+
+## Execution Order
+| Task | Depends On |
+PLANEOF
+run_hook "$HOOKS_DIR/post-edit-format-lint.sh" "{\"tool_input\":{\"file_path\":\"$_PLAN_VALID\"}}"
+if ! echo "$HOOK_STDERR" | grep -q "Plan lint errors"; then
+  pass "post-edit-format-lint.sh passes valid plan file"
+else
+  fail "post-edit-format-lint.sh rejects valid plan file"
+fi
+rm -f "$_PLAN_VALID"
 
 # post-edit-format-lint.sh: should skip snapshot files
 run_hook "$HOOKS_DIR/post-edit-format-lint.sh" '{"tool_input":{"file_path":"src/__snapshots__/test.snap"}}'
