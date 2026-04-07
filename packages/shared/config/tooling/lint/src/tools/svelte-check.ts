@@ -145,7 +145,6 @@ export function runSvelteCheckAllPackages(cwd: string): LintResult[] {
   const results: LintResult[] = [];
 
   for (const pkgDir of discoverSveltePackageDirs(cwd)) {
-
     const args: string[] = [
       '--tsconfig',
       './tsconfig.json',

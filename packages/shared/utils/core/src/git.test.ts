@@ -32,7 +32,9 @@ function mockErr(code: Str): Result<never> {
 
 const execSyncSafeMock = vi.fn((_cmd: Str): Result<Str> => mockOk(''));
 const readFileMock = vi.fn((_path: Str): Result<Str> => mockOk('{}'));
-const parseJsonWithCommentsMock = vi.fn((_content: Str): Result<Record<Str, unknown>> => mockOk({}));
+const parseJsonWithCommentsMock = vi.fn(
+  (_content: Str): Result<Record<Str, unknown>> => mockOk({}),
+);
 const joinPathMock = vi.fn((_a: Str, _b: Str): Result<Str> => mockOk(''));
 
 vi.mock('@/utils/core/shell', () => ({

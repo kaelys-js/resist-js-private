@@ -295,13 +295,31 @@ export function createDevtoolsAPI(
 
       beacon(): BeaconStatus {
         const result = getBeaconStatus();
-        if (!result.ok) return { queued: 0 as Num, queuedItems: [], lastFlushAt: null, sessionId: '' as Str, maxQueueSize: 0 as Num };
+        if (!result.ok)
+          return {
+            queued: 0 as Num,
+            queuedItems: [],
+            lastFlushAt: null,
+            sessionId: '' as Str,
+            maxQueueSize: 0 as Num,
+          };
         return result.data as BeaconStatus;
       },
 
       device(): ConnectionSnapshot {
         const result = getConnectionSnapshot();
-        if (!result.ok) return { effectiveType: '', saveData: false, rtt: 0, downlink: 0, quality: 'unknown', isLowEndDevice: false, isLowEndExperience: false, deviceMemory: 0, hardwareConcurrency: 0 } as ConnectionSnapshot;
+        if (!result.ok)
+          return {
+            effectiveType: '',
+            saveData: false,
+            rtt: 0,
+            downlink: 0,
+            quality: 'unknown',
+            isLowEndDevice: false,
+            isLowEndExperience: false,
+            deviceMemory: 0,
+            hardwareConcurrency: 0,
+          } as ConnectionSnapshot;
         return result.data;
       },
 

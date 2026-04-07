@@ -107,7 +107,11 @@ type ChainCopyFn = (nodes: ChainExportNode[], componentName: Str) => Promise<Boo
 type ChainCopyNoNameFn = (nodes: ChainExportNode[]) => Promise<Bool>;
 
 /** Image export function signature. */
-type ImageExportFn = (element: HTMLElement, filename: Str, options?: ExportOptions) => Promise<void>;
+type ImageExportFn = (
+  element: HTMLElement,
+  filename: Str,
+  options?: ExportOptions,
+) => Promise<void>;
 
 /**
  * Common browser-global stubs for all tests in this file.

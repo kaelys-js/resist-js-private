@@ -306,7 +306,9 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
     }
 
     case 'literal': {
-      const { literal }: { readonly literal: unknown } = schema as unknown as { readonly literal: unknown };
+      const { literal }: { readonly literal: unknown } = schema as unknown as {
+        readonly literal: unknown;
+      };
       return escapeRegex(String(literal));
     }
 

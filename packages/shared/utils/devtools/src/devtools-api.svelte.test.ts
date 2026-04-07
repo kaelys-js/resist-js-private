@@ -9,8 +9,20 @@ import type { ConnectionSnapshot } from '@/utils/web-vitals/connection.svelte';
 
 // cast safe: test fixture literals to branded types
 const mockPanelMetrics: PanelMetric[] = [
-  { name: 'LCP' as Name, value: 1200, rating: 'good', timestamp: 1000 as unknown as MillisecondTimestamp, diagnostics: null },
-  { name: 'CLS' as Name, value: 0.05, rating: 'good', timestamp: 1001 as unknown as MillisecondTimestamp, diagnostics: null },
+  {
+    name: 'LCP' as Name,
+    value: 1200,
+    rating: 'good',
+    timestamp: 1000 as unknown as MillisecondTimestamp,
+    diagnostics: null,
+  },
+  {
+    name: 'CLS' as Name,
+    value: 0.05,
+    rating: 'good',
+    timestamp: 1001 as unknown as MillisecondTimestamp,
+    diagnostics: null,
+  },
 ];
 
 const mockBeaconStatus = {
