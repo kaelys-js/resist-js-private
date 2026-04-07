@@ -48,14 +48,28 @@ const mockConnectionSnapshot: ConnectionSnapshot = {
   hardwareConcurrency: 8,
 };
 
+const {
+  mockGetVitalsPanelMetrics,
+  mockGetBeaconStatus,
+  mockGetConnectionSnapshot,
+  mockCreateWatcher,
+  mockFormatThresholds,
+} = vi.hoisted(() => ({
+  mockGetVitalsPanelMetrics: vi.fn(),
+  mockGetBeaconStatus: vi.fn(),
+  mockGetConnectionSnapshot: vi.fn(),
+  mockCreateWatcher: vi.fn(),
+  mockFormatThresholds: vi.fn(),
+}));
+
 vi.mock('@/utils/web-vitals/vitals-panel-store.svelte', () => ({
-  getVitalsPanelMetrics: () => ({ ok: true, data: mockPanelMetrics, error: null }),
+  getVitalsPanelMetrics: mockGetVitalsPanelMetrics,
   reportVitalToPanel: vi.fn(),
   resetPanelMetrics: vi.fn(),
 }));
 
 vi.mock('@/utils/web-vitals/vitals-beacon', () => ({
-  getBeaconStatus: () => ({ ok: true, data: mockBeaconStatus, error: null }),
+  getBeaconStatus: mockGetBeaconStatus,
   queueVital: vi.fn(),
   flushVitals: vi.fn(),
   setupVitalsBeacon: vi.fn(),
@@ -64,7 +78,7 @@ vi.mock('@/utils/web-vitals/vitals-beacon', () => ({
 }));
 
 vi.mock('@/utils/web-vitals/connection.svelte', () => ({
-  getConnectionSnapshot: () => ({ ok: true, data: mockConnectionSnapshot, error: null }),
+  getConnectionSnapshot: mockGetConnectionSnapshot,
   getConnectionQuality: () => 'fast' as const,
   getEffectiveType: () => '4g',
   getSaveData: () => false as Bool,
@@ -77,6 +91,14 @@ vi.mock('@/utils/web-vitals/connection.svelte', () => ({
   initConnection: vi.fn(),
   updateFromNavigatorInfo: vi.fn(),
   resetConnection: vi.fn(),
+}));
+
+vi.mock('./state-logger.svelte', () => ({
+  createWatcher: mockCreateWatcher,
+}));
+
+vi.mock('@/utils/web-vitals/vitals-diagnostics', () => ({
+  formatThresholds: mockFormatThresholds,
 }));
 
 const APP_NAME = 'TestApp';
@@ -146,6 +168,17 @@ beforeEach(() => {
   debugStore = createMockDebugStore();
   config = makeConfig();
   (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] = undefined;
+  mockGetVitalsPanelMetrics
+    .mockClear()
+    .mockImplementation(() => ({ ok: true, data: mockPanelMetrics, error: null }));
+  mockGetBeaconStatus
+    .mockClear()
+    .mockImplementation(() => ({ ok: true, data: mockBeaconStatus, error: null }));
+  mockGetConnectionSnapshot
+    .mockClear()
+    .mockImplementation(() => ({ ok: true, data: mockConnectionSnapshot, error: null }));
+  mockCreateWatcher.mockClear().mockImplementation(() => vi.fn());
+  mockFormatThresholds.mockClear().mockImplementation(() => 'good: ≤100, poor: >300');
 });
 
 afterEach(() => {
@@ -363,5 +396,411 @@ describe('devtools.help', () => {
     devtools.help();
     expect(spy).toHaveBeenCalled();
     api.destroy();
+  });
+});
+
+// ── Additional coverage tests ────────────────────────────────────────────────
+
+describe('devtools mutation methods (setMode, setLocale, setSidebarOpen)', () => {
+  it('setMode calls appStore.setMode', () => {
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.setMode('dark');
+    expect(appStore.setMode).toHaveBeenCalledWith('dark');
+    api.destroy();
+  });
+
+  it('setLocale calls appStore.setLocale', () => {
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.setLocale('ja');
+    expect(appStore.setLocale).toHaveBeenCalledWith('ja');
+    api.destroy();
+  });
+
+  it('setSidebarOpen calls appStore.setSidebarOpen', () => {
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.setSidebarOpen(false);
+    expect(appStore.setSidebarOpen).toHaveBeenCalledWith(false);
+    api.destroy();
+  });
+
+  it('setMode is no-op when setter is missing (typeof guard)', () => {
+    const store = { ...appStore, setMode: undefined };
+    const api = createDevtoolsAPI(store as never, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.setMode('dark');
+    api.destroy();
+  });
+
+  it('setLocale is no-op when setter is missing', () => {
+    const store = { ...appStore, setLocale: undefined };
+    const api = createDevtoolsAPI(store as never, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.setLocale('ja');
+    api.destroy();
+  });
+
+  it('setSidebarOpen is no-op when setter is missing', () => {
+    const store = { ...appStore, setSidebarOpen: undefined };
+    const api = createDevtoolsAPI(store as never, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.setSidebarOpen(false);
+    api.destroy();
+  });
+});
+
+describe('devtools.set additional branches', () => {
+  it('set debug.enabled calls debugStore.setEnabled', () => {
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.set('debug.enabled', true);
+    expect(debugStore.setEnabled).toHaveBeenCalledWith(true);
+    api.destroy();
+  });
+
+  it('set features.unknownFlag is no-op (not in featureKeys)', () => {
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.set('features.unknownFlag', true);
+    expect(appStore.setFeature).not.toHaveBeenCalled();
+    api.destroy();
+  });
+
+  it('set unknownSection.key is no-op (unknown section)', () => {
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.set('unknownSection.key', 'value');
+    expect(appStore.setTheme).not.toHaveBeenCalled();
+    expect(debugStore.setEnabled).not.toHaveBeenCalled();
+    api.destroy();
+  });
+
+  it('set app.unknownKey is no-op (key not in appSetterMap)', () => {
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.set('app.unknownKey', 'value');
+    api.destroy();
+  });
+});
+
+describe('devtools.logState', () => {
+  it('logs app, features, and debug state', () => {
+    const spy = vi.spyOn(console, 'log');
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.logState();
+    const allOutput: Str = spy.mock.calls.map((c: unknown[]) => String(c[0])).join('\n');
+    expect(allOutput).toContain('State');
+    expect(allOutput).toContain('app.');
+    expect(allOutput).toContain('features.');
+    expect(allOutput).toContain('debug.');
+    api.destroy();
+  });
+});
+
+describe('devtools.logFeatures', () => {
+  it('calls console.table with features', () => {
+    const tableSpy = vi.spyOn(console, 'table').mockImplementation(() => {});
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.logFeatures();
+    expect(tableSpy).toHaveBeenCalledOnce();
+    tableSpy.mockRestore();
+    api.destroy();
+  });
+});
+
+describe('devtools.registerWatcher / unregisterWatcher', () => {
+  it('registerWatcher calls createWatcher', () => {
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    const getter = () => ({ count: 1 });
+    devtools.registerWatcher('test', getter);
+    expect(mockCreateWatcher).toHaveBeenCalledWith('test', getter, debugStore, 'TestAppStore');
+    api.destroy();
+  });
+
+  it('registerWatcher replaces existing watcher (calls old cleanup)', () => {
+    const oldCleanup = vi.fn();
+    mockCreateWatcher.mockReturnValueOnce(oldCleanup);
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.registerWatcher('test', () => ({}));
+    devtools.registerWatcher('test', () => ({}));
+    expect(oldCleanup).toHaveBeenCalledOnce();
+    api.destroy();
+  });
+
+  it('unregisterWatcher calls cleanup and removes', () => {
+    const cleanup = vi.fn();
+    mockCreateWatcher.mockReturnValueOnce(cleanup);
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.registerWatcher('test', () => ({}));
+    devtools.unregisterWatcher('test');
+    expect(cleanup).toHaveBeenCalledOnce();
+    api.destroy();
+  });
+
+  it('unregisterWatcher is no-op for nonexistent name', () => {
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.unregisterWatcher('nonexistent');
+    api.destroy();
+  });
+});
+
+describe('devtools.toString / Symbol.toStringTag', () => {
+  it('toString returns formatted string with app name', () => {
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    const str: Str = devtools.toString();
+    expect(str).toContain('TestApp');
+    expect(str).toContain('Devtools');
+    api.destroy();
+  });
+
+  it('Symbol.toStringTag returns app name + Devtools', () => {
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    expect(devtools[Symbol.toStringTag]).toBe('TestApp Devtools');
+    api.destroy();
+  });
+});
+
+describe('devtools.appName getter', () => {
+  it('returns appName from appStore', () => {
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    expect(devtools.appName).toBe('TestApp');
+    api.destroy();
+  });
+
+  it('falls back to config.appName when appStore.app.appName is undefined', () => {
+    appStore.app.appName = undefined as unknown as Str;
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    expect(devtools.appName).toBe('TestApp');
+    api.destroy();
+  });
+});
+
+describe('devtools.buildInfo getter', () => {
+  it('returns build info (non-null in test env)', () => {
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    expect(devtools.buildInfo).not.toBeNull();
+    api.destroy();
+  });
+});
+
+describe('devtools.resetToDefaults / resetAllToDefaults', () => {
+  it('resetToDefaults calls setters with schema defaults', () => {
+    const spy = vi.spyOn(console, 'log');
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.resetToDefaults();
+    const allOutput: Str = spy.mock.calls.map((c: unknown[]) => String(c[0])).join('\n');
+    expect(allOutput).toContain('[Reset]');
+    api.destroy();
+  });
+
+  it('resetAllToDefaults resets preferences, features, and logLevel', () => {
+    const spy = vi.spyOn(console, 'log');
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.resetAllToDefaults();
+    expect(debugStore.setLogLevel).toHaveBeenCalledWith('info');
+    expect(appStore.setFeature).toHaveBeenCalled();
+    const allOutput: Str = spy.mock.calls.map((c: unknown[]) => String(c[0])).join('\n');
+    expect(allOutput).toContain('All state reset');
+    api.destroy();
+  });
+});
+
+describe('devtools.copyDebugUrl', () => {
+  it('copies URL to clipboard on success', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+      configurable: true,
+    });
+    const spy = vi.spyOn(console, 'log');
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    await devtools.copyDebugUrl();
+    expect(writeText).toHaveBeenCalledOnce();
+    const allOutput: Str = spy.mock.calls.map((c: unknown[]) => String(c[0])).join('\n');
+    expect(allOutput).toContain('[Copied]');
+    api.destroy();
+  });
+
+  it('falls back to console.log on clipboard failure', async () => {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText: vi.fn().mockRejectedValue(new Error('denied')) },
+      configurable: true,
+    });
+    const spy = vi.spyOn(console, 'log');
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    await devtools.copyDebugUrl();
+    const allOutput: Str = spy.mock.calls.map((c: unknown[]) => String(c[0])).join('\n');
+    expect(allOutput).toContain('[Debug URL]');
+    api.destroy();
+  });
+});
+
+describe('devtools.login / logout', () => {
+  it('login calls config.goto without auth param', () => {
+    Object.defineProperty(window, 'location', {
+      value: new URL('http://localhost/app?ta.auth=false'),
+      writable: true,
+      configurable: true,
+    });
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.login();
+    expect(config.goto).toHaveBeenCalledOnce();
+    const url: Str = (config.goto as ReturnType<typeof vi.fn>).mock.calls[0][0] as Str;
+    expect(url).not.toContain('ta.auth');
+    api.destroy();
+  });
+
+  it('logout calls config.goto with auth=false param', () => {
+    Object.defineProperty(window, 'location', {
+      value: new URL('http://localhost/app'),
+      writable: true,
+      configurable: true,
+    });
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.logout();
+    expect(config.goto).toHaveBeenCalledOnce();
+    const url: Str = (config.goto as ReturnType<typeof vi.fn>).mock.calls[0][0] as Str;
+    expect(url).toContain('ta.auth=false');
+    api.destroy();
+  });
+});
+
+describe('devtools.perf error paths', () => {
+  it('perf.vitals() returns empty array on error', () => {
+    mockGetVitalsPanelMetrics.mockReturnValueOnce({ ok: false, error: { code: 'ERR' } });
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    expect(devtools.perf.vitals()).toEqual([]);
+    api.destroy();
+  });
+
+  it('perf.beacon() returns fallback on error', () => {
+    mockGetBeaconStatus.mockReturnValueOnce({ ok: false, error: { code: 'ERR' } });
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    const beacon = devtools.perf.beacon();
+    expect(beacon.queued).toBe(0);
+    expect(beacon.sessionId).toBe('');
+    api.destroy();
+  });
+
+  it('perf.device() returns fallback on error', () => {
+    mockGetConnectionSnapshot.mockReturnValueOnce({ ok: false, error: { code: 'ERR' } });
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    const device = devtools.perf.device();
+    expect(device.quality).toBe('unknown');
+    api.destroy();
+  });
+
+  it('perf.logDevice() returns early on error (no console output)', () => {
+    mockGetConnectionSnapshot.mockReturnValueOnce({ ok: false, error: { code: 'ERR' } });
+    const spy = vi.spyOn(console, 'log');
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.perf.logDevice();
+    // Should NOT have logged device info (early return on error)
+    const deviceOutput = spy.mock.calls.filter((c: unknown[]) => String(c[0]).includes('Device'));
+    expect(deviceOutput).toHaveLength(0);
+    api.destroy();
+  });
+});
+
+describe('devtools.perf.logVitals detailed branches', () => {
+  it('logs "No Web Vitals" when metrics are empty', () => {
+    mockGetVitalsPanelMetrics.mockReturnValueOnce({ ok: true, data: [] });
+    const spy = vi.spyOn(console, 'log');
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.perf.logVitals();
+    const allOutput: Str = spy.mock.calls.map((c: unknown[]) => String(c[0])).join('\n');
+    expect(allOutput).toContain('No Web Vitals');
+    api.destroy();
+  });
+
+  it('logs metrics with diagnostics and findings', () => {
+    const metricsWithDiag: PanelMetric[] = [
+      {
+        name: 'LCP' as Name,
+        value: 3000,
+        rating: 'needsImprovement',
+        timestamp: 1000 as unknown as MillisecondTimestamp,
+        diagnostics: {
+          thresholds: { good: 2500, poor: 4000, unit: 'ms' as const },
+          findings: [
+            { label: 'LCP Element', value: '<img.hero>' },
+            { value: 'Slow network detected' },
+          ],
+        },
+      },
+      {
+        name: 'CLS' as Name,
+        value: 0.3,
+        rating: 'poor',
+        timestamp: 1001 as unknown as MillisecondTimestamp,
+        diagnostics: {
+          thresholds: { good: 0.1, poor: 0.25, unit: '' as const },
+          findings: [{ label: 'Shift source', value: 'image resize' }],
+        },
+      },
+    ];
+    mockGetVitalsPanelMetrics.mockReturnValueOnce({ ok: true, data: metricsWithDiag });
+    const spy = vi.spyOn(console, 'log');
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.perf.logVitals();
+    const allOutput: Str = spy.mock.calls.map((c: unknown[]) => c.join(' ')).join('\n');
+    expect(allOutput).toContain('LCP');
+    expect(allOutput).toContain('CLS');
+    expect(allOutput).toContain('Thresholds');
+    expect(allOutput).toContain('LCP Element');
+    expect(allOutput).toContain('Slow network detected');
+    expect(mockFormatThresholds).toHaveBeenCalled();
+    api.destroy();
+  });
+
+  it('logs "No Web Vitals" on vitals error result', () => {
+    mockGetVitalsPanelMetrics.mockReturnValueOnce({ ok: false, error: { code: 'ERR' } });
+    const spy = vi.spyOn(console, 'log');
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.perf.logVitals();
+    const allOutput: Str = spy.mock.calls.map((c: unknown[]) => String(c[0])).join('\n');
+    expect(allOutput).toContain('No Web Vitals');
+    api.destroy();
+  });
+});
+
+describe('devtools.destroy with active watchers', () => {
+  it('cleans up all registered watchers on destroy', () => {
+    const cleanup1 = vi.fn();
+    const cleanup2 = vi.fn();
+    mockCreateWatcher.mockReturnValueOnce(cleanup1).mockReturnValueOnce(cleanup2);
+    const api = createDevtoolsAPI(appStore, debugStore, config);
+    const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
+    devtools.registerWatcher('w1', () => ({}));
+    devtools.registerWatcher('w2', () => ({}));
+    api.destroy();
+    expect(cleanup1).toHaveBeenCalledOnce();
+    expect(cleanup2).toHaveBeenCalledOnce();
   });
 });

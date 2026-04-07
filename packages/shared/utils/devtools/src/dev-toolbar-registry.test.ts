@@ -83,6 +83,26 @@ describe('introspectEntry', () => {
     const result = introspectEntry(pipeEntry as Record<string, unknown>);
     expect(result.type).toBe('string');
   });
+
+  it('handles non-optional entry (skips optional unwrap)', () => {
+    // Raw boolean entry without v.optional() wrapper
+    const rawEntry = { type: 'boolean', default: true };
+    const result = introspectEntry(rawEntry as Record<string, unknown>);
+    expect(result.type).toBe('boolean');
+    expect(result.default).toBe(true);
+  });
+
+  it('handles top-level pipe without optional wrapper', () => {
+    // v.pipe(v.number(), v.minValue(0)) without v.optional()
+    const pipeEntry = {
+      type: 'pipe',
+      pipe: [{ type: 'number' }, { type: 'minValue' }],
+      default: 0,
+    };
+    const result = introspectEntry(pipeEntry as Record<string, unknown>);
+    expect(result.type).toBe('number');
+    expect(result.default).toBe(0);
+  });
 });
 
 // =============================================================================
@@ -262,6 +282,30 @@ describe('generateDebugUrl', () => {
     // darkMode is false but default is false → omitted
     // sidebar is true and default is true → omitted
     expect(url).not.toContain('ff.sidebar');
+    expect(url).not.toContain('ff.darkMode');
+  });
+
+  it('uses window.location.href when baseUrl is not provided', () => {
+    Object.defineProperty(window, 'location', {
+      value: new URL('http://localhost:5173/app?existing=1'),
+      writable: true,
+      configurable: true,
+    });
+    const url = generateDebugUrl(mockAppStore, mockDebugStore, mockConfig);
+    // Should use window.location.href base (without existing query)
+    expect(url).toContain('http://localhost:5173/app?');
+    expect(url).toContain('ta.debug=true');
+  });
+
+  it('includes non-default feature flags in URL', () => {
+    const storeWithOverride = {
+      ...mockAppStore,
+      features: { sidebar: false, darkMode: false },
+    };
+    const url = generateDebugUrl(storeWithOverride, mockDebugStore, mockConfig, 'http://localhost');
+    // sidebar is false but default is true → included
+    expect(url).toContain('ff.sidebar=false');
+    // darkMode is false and default is false → omitted
     expect(url).not.toContain('ff.darkMode');
   });
 });

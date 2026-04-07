@@ -195,4 +195,29 @@ describe('error handling', () => {
       expect(Object.keys(result.data.urlOverrides)).toHaveLength(0);
     }
   });
+
+  it('handles localStorage.getItem throwing (covers load catch block)', () => {
+    localStorageMock.getItem.mockImplementationOnce(() => {
+      throw new Error('SecurityError');
+    });
+    // createDebugStore calls load() which should catch the error
+    const result = createDebugStore({ storageKey: STORAGE_KEY });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      // Falls back to defaults
+      expect(result.data.debug.enabled).toBe(false);
+      expect(result.data.debug.logLevel).toBe('info');
+    }
+  });
+
+  it('save/load return early without storageKey (!_storageKey branch)', () => {
+    // No storageKey → !_storageKey is true → save/load skip localStorage
+    const result = createDebugStore();
+    if (!result.ok) throw new Error('should be ok');
+    // setLogLevel triggers save() which should return early
+    const setResult = result.data.setLogLevel('trace');
+    expect(setResult.ok).toBe(true);
+    // localStorage should NOT have been called with any key
+    expect(localStorageMock.setItem).not.toHaveBeenCalled();
+  });
 });
