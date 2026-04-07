@@ -6,7 +6,7 @@
  *
  * @module
  */
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Str } from '@/schemas/common';
 
 import { toOgLocale } from './og';
@@ -93,5 +93,47 @@ describe('toOgLocale', () => {
     if (result.ok) {
       expect(result.data).toBe('en_GB');
     }
+  });
+});
+
+// =============================================================================
+// Edge cases — Intl.Locale mock paths
+// =============================================================================
+
+describe('toOgLocale — Intl.Locale edge cases', () => {
+  const RealLocale = Intl.Locale;
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    Object.defineProperty(Intl, 'Locale', { value: RealLocale, configurable: true });
+  });
+
+  it('returns error when maximize returns no region (line 78-80)', () => {
+    const FakeLocale = class {
+      language = 'und';
+      region: string | undefined = undefined;
+      maximize(): { language: string; region: string | undefined } {
+        return { language: 'und', region: undefined };
+      }
+    };
+    Object.defineProperty(Intl, 'Locale', { value: FakeLocale, configurable: true });
+
+    const result = toOgLocale('und');
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error when maximize() returns data that fails MaximizedLocaleDataSchema validation (lines 78-79)', () => {
+    const FakeLocale = class {
+      language = 'en';
+      region = 'US';
+      maximize(): { language: undefined; region: string } {
+        // language is not a string — safeParse(MaximizedLocaleDataSchema) will fail
+        return { language: undefined as unknown as undefined, region: 'US' };
+      }
+    };
+    Object.defineProperty(Intl, 'Locale', { value: FakeLocale, configurable: true });
+
+    const result = toOgLocale('en');
+    expect(result.ok).toBe(false);
   });
 });

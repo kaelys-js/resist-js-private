@@ -4,7 +4,7 @@
  * Tests `getLanguageDisplayName` and `getLanguageDisplayNames` which wrap
  * the browser-native `Intl.DisplayNames` API to produce endonym/exonym pairs.
  */
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Str } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 
@@ -190,5 +190,64 @@ describe('getLanguageDisplayNames', () => {
       return;
     }
     expect(result.data).toHaveLength(0);
+  });
+});
+
+// =============================================================================
+// Edge cases — Intl.DisplayNames returning undefined
+// =============================================================================
+
+describe('getLanguageDisplayName — Intl.DisplayNames edge cases', () => {
+  const RealDisplayNames = Intl.DisplayNames;
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    Object.defineProperty(Intl, 'DisplayNames', { value: RealDisplayNames, configurable: true });
+  });
+
+  it('returns error when DisplayNames.of returns undefined (line 109)', () => {
+    const FakeDisplayNames = class {
+      of(): string | undefined {
+        return undefined;
+      }
+    };
+    Object.defineProperty(Intl, 'DisplayNames', { value: FakeDisplayNames, configurable: true });
+
+    const result = getLanguageDisplayName('en' as Str, 'en' as Str);
+    expect(result.ok).toBe(false);
+  });
+});
+
+// =============================================================================
+// safeParse validation error paths
+// =============================================================================
+
+describe('getLanguageDisplayName — safeParse validation errors', () => {
+  it('returns error when code is non-string (lines 82-83)', () => {
+    const result = getLanguageDisplayName(123 as unknown as Str, 'en' as Str);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
+    }
+  });
+
+  it('returns error when currentLocale is non-string (lines 92-93)', () => {
+    const result = getLanguageDisplayName('en' as Str, 456 as unknown as Str);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('LOCALE.INVALID_LOCALE');
+    }
+  });
+});
+
+describe('getLanguageDisplayNames — safeParse validation errors', () => {
+  it('returns error when codes contains non-strings (lines 144-145)', () => {
+    const result = getLanguageDisplayNames([123 as unknown as Str], 'en' as Str);
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error when currentLocale is non-string (lines 150-151)', () => {
+    const result = getLanguageDisplayNames(['en' as Str], 789 as unknown as Str);
+    expect(result.ok).toBe(false);
   });
 });

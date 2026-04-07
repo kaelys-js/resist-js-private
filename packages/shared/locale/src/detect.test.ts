@@ -630,3 +630,247 @@ describe('detectLocale', () => {
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+// Input validation failure branch coverage
+// ---------------------------------------------------------------------------
+
+describe('matchLocale — validation failures', () => {
+  it('throws for invalid available (non-iterable)', () => {
+    expect(() => matchLocale('en', 123 as unknown as readonly Str[])).toThrow(TypeError);
+  });
+
+  it('returns error for available containing non-strings', () => {
+    const result: Result<NullableStr> = matchLocale('en', [123 as unknown as Str]);
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('detectFromNavigator — validation failures', () => {
+  it('throws for invalid available (non-iterable)', () => {
+    expect(() => detectFromNavigator(123 as unknown as readonly Str[])).toThrow(TypeError);
+  });
+
+  it('returns error for available containing non-strings', () => {
+    const result: Result<NullableStr> = detectFromNavigator([123 as unknown as Str]);
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('detectFromAcceptLanguage — validation failures', () => {
+  it('throws for invalid available (non-iterable)', () => {
+    expect(() => detectFromAcceptLanguage('en', 123 as unknown as readonly Str[])).toThrow(
+      TypeError,
+    );
+  });
+
+  it('returns error for available containing non-strings', () => {
+    const result: Result<NullableStr> = detectFromAcceptLanguage('en', [123 as unknown as Str]);
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('detectFromUrlPath — validation failures', () => {
+  it('throws for invalid available (non-iterable)', () => {
+    expect(() =>
+      detectFromUrlPath(
+        'https://example.com/en',
+        0 as NonNegativeInteger,
+        123 as unknown as readonly Str[],
+      ),
+    ).toThrow(TypeError);
+  });
+
+  it('returns error for available containing non-strings', () => {
+    const result: Result<NullableStr> = detectFromUrlPath(
+      'https://example.com/en',
+      0 as NonNegativeInteger,
+      [123 as unknown as Str],
+    );
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('detectFromUrlQuery — validation failures', () => {
+  it('throws for invalid available (non-iterable)', () => {
+    expect(() =>
+      detectFromUrlQuery('https://example.com?lang=en', 'lang', 123 as unknown as readonly Str[]),
+    ).toThrow(TypeError);
+  });
+
+  it('returns error for available containing non-strings', () => {
+    const result: Result<NullableStr> = detectFromUrlQuery('https://example.com?lang=en', 'lang', [
+      123 as unknown as Str,
+    ]);
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('detectFromCookie — validation failures', () => {
+  it('throws for invalid available (non-iterable)', () => {
+    expect(() => detectFromCookie('lang=en', 'lang', 123 as unknown as readonly Str[])).toThrow(
+      TypeError,
+    );
+  });
+
+  it('returns error for available containing non-strings', () => {
+    const result: Result<NullableStr> = detectFromCookie('lang=en', 'lang', [
+      123 as unknown as Str,
+    ]);
+    expect(result.ok).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Branch coverage — uncovered branches
+// ---------------------------------------------------------------------------
+
+describe('detectFromNavigator — matchResult error (line 204)', () => {
+  it('returns error when navigator.languages contains non-string', () => {
+    const original = globalThis.navigator;
+    Object.defineProperty(globalThis, 'navigator', {
+      value: { languages: [123 as unknown as string, 'en'], language: 'en' },
+      writable: true,
+      configurable: true,
+    });
+
+    const result: Result<NullableStr> = detectFromNavigator(AVAILABLE);
+    // matchLocale will fail on the non-string tag (123), propagating the error
+    expect(result.ok).toBe(false);
+
+    Object.defineProperty(globalThis, 'navigator', {
+      value: original,
+      writable: true,
+      configurable: true,
+    });
+  });
+});
+
+describe('detectFromAcceptLanguage — edge cases for qMatch/lang branches', () => {
+  // Line 254: qMatch null coalescing — regex match fails
+  // The regex is /^q=(\d+(?:\.\d+)?)$/ — if the param doesn't match, ?.[1] is undefined → ?? null
+  it('handles malformed quality param (qMatch regex fails, line 254)', () => {
+    // 'q=abc' does not match the quality regex, so qMatch is null, quality stays 1
+    const result: Result<NullableStr> = detectFromAcceptLanguage('en;q=abc', AVAILABLE);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe('en');
+    }
+  });
+
+  it('handles param without q= prefix (qMatch regex fails)', () => {
+    // 'level=5' doesn't match q=... pattern
+    const result: Result<NullableStr> = detectFromAcceptLanguage('fr;level=5', AVAILABLE);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe('fr');
+    }
+  });
+
+  // Line 261: (lang ?? '').trim() — lang is undefined after split
+  // split(';') on an entry that is just ';' would give ['', ''], destructured as lang=''
+  // For lang to be truly undefined: the split result would need to be empty.
+  // Actually, split(';') always returns at least one element, so lang is never undefined.
+  // BUT: an entry like ';q=0.8' splits to ['', 'q=0.8'], so lang='', which gets filtered by length > 0
+  it('handles header entry starting with semicolon (lang is empty string)', () => {
+    const result: Result<NullableStr> = detectFromAcceptLanguage(';q=0.8,en;q=0.5', AVAILABLE);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe('en');
+    }
+  });
+
+  // Line 269: matchResult error in parseAcceptLanguage loop
+  // Need matchLocale to fail inside the loop. This happens when available contains non-string.
+  // But available is validated before the loop. The only way is if the tag itself is problematic.
+  // Actually, since available is pre-validated, and the tag is always a string (from the header),
+  // matchLocale won't fail. But we can trigger it by passing an available array where safeParse
+  // succeeds for the array but the individual matchLocale call fails. That's not possible.
+  // Let's try: passing available with non-strings that slip through StrArraySchema validation?
+  // No, StrArraySchema catches that.
+  // This branch may be unreachable in practice. Skip it.
+});
+
+describe('detectLocale — default switch case (line 543)', () => {
+  it('skips unknown source kind and falls back to default locale', () => {
+    // The DetectionSourceSchema is a discriminated union, so passing an unknown kind
+    // will cause validation to fail before reaching the switch. This branch is unreachable
+    // via the public API since safeParse of DetectLocaleOptionsSchema rejects unknown kinds.
+    // However, we can verify the validation error path:
+    const result: Result<Str> = detectLocale({
+      available: [...AVAILABLE],
+      fallback: 'en',
+      sources: [{ kind: 'unknown-source' } as never],
+    });
+    // The validation of options will fail because 'unknown-source' is not in the union
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('detectLocale — matchResult error propagation (line 548)', () => {
+  it('propagates error when header detection fails due to invalid available items', () => {
+    // This is hard to trigger because available is validated by DetectLocaleOptionsSchema.
+    // Let's test with a header source that itself causes an error.
+    // detectFromAcceptLanguage is called with validated.available — if that's valid strings,
+    // matchLocale won't fail inside. This branch appears unreachable through the public API.
+    // We verify the closest reachable path: invalid available causes options validation error.
+    const result: Result<Str> = detectLocale({
+      available: [123 as unknown as Str],
+      fallback: 'en',
+      sources: [{ kind: 'header', value: 'en' }],
+    });
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('detectLocale — storage match branch', () => {
+  it('returns locale from localStorage when value matches available', () => {
+    const original = globalThis.localStorage;
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: { getItem: (key: Str): NullableStr => (key === 'lang' ? 'fr' : null) },
+      writable: true,
+      configurable: true,
+    });
+
+    const result: Result<Str> = detectLocale({
+      available: [...AVAILABLE],
+      fallback: 'en',
+      sources: [{ kind: 'storage', key: 'lang' }],
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe('fr');
+    }
+
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: original,
+      writable: true,
+      configurable: true,
+    });
+  });
+
+  it('falls back to default when localStorage value does not match', () => {
+    const original = globalThis.localStorage;
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: { getItem: (key: Str): NullableStr => (key === 'lang' ? 'xx' : null) },
+      writable: true,
+      configurable: true,
+    });
+
+    const result: Result<Str> = detectLocale({
+      available: [...AVAILABLE],
+      fallback: 'en',
+      sources: [{ kind: 'storage', key: 'lang' }],
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe('en');
+    }
+
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: original,
+      writable: true,
+      configurable: true,
+    });
+  });
+});

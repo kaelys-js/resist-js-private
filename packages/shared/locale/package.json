@@ -7,7 +7,7 @@
     "clean": "rm -rf dist",
     "qa:test": "pnpm -w exec vitest run --project locale",
     "qa:test:unit": "pnpm -w exec vitest run --project locale",
-    "qa:test:coverage": "pnpm -w exec vitest run --project locale --coverage",
+    "qa:test:coverage": "pnpm -w exec vitest run --project locale --project locale-svelte --coverage",
     "qa:benchmark": "pnpm -w exec vitest bench --project locale"
   }
 }
