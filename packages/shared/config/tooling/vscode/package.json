@@ -486,7 +486,7 @@
     "build": "npx tsx scripts/generate-manifest.ts --fix && tsgo -p ./",
     "watch": "tsgo -w -p ./",
     "qa:test": "pnpm -w exec vitest run --project config-tooling-vscode",
-    "qa:test:coverage": "pnpm -w exec vitest run --project config-tooling-vscode --coverage --coverage.thresholds.statements=45 --coverage.thresholds.branches=30 --coverage.thresholds.functions=50 --coverage.thresholds.lines=45",
+    "qa:test:coverage": "pnpm -w exec vitest run --project config-tooling-vscode --coverage --coverage.thresholds.statements=90 --coverage.thresholds.branches=80 --coverage.thresholds.functions=85 --coverage.thresholds.lines=90",
     "clean": "rm -rf dist",
     "build:package": "vsce package --no-dependencies",
     "dev:local": "pnpm build && pnpm build:package && code --install-extension $(ls -t *.vsix | head -1)",

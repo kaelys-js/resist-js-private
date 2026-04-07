@@ -17,6 +17,17 @@ import { en } from '../locale/en';
 import { format } from '../locale/schema';
 import * as vscode from 'vscode';
 
+// Mock runner and workspace modules for showRulesViewer tests
+vi.mock('../shared/runner', () => ({
+  runToolText: vi.fn(),
+}));
+
+vi.mock('../shared/workspace', () => ({
+  getBinaryPath: vi.fn(),
+  getWorkspaceRoot: vi.fn(),
+  clearCache: vi.fn(),
+}));
+
 // =============================================================================
 // parseRulesOutput
 // =============================================================================
@@ -470,5 +481,328 @@ describe('showRulesViewer', () => {
     expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(en.messages.noWorkspaceFolder);
 
     Object.defineProperty(vscode.workspace, 'workspaceFolders', { value: originalFolders });
+  });
+
+  it('shows error message when binary not found', async () => {
+    const originalFolders = vscode.workspace.workspaceFolders;
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: [{ uri: vscode.Uri.file('/workspace'), name: 'ws', index: 0 }],
+      configurable: true,
+    });
+
+    const { getBinaryPath } = await import('../shared/workspace');
+    vi.mocked(getBinaryPath).mockReturnValueOnce(undefined);
+
+    await showRulesViewer();
+
+    expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(en.messages.binaryNotInNodeModules);
+
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: originalFolders,
+      configurable: true,
+    });
+  });
+
+  it('creates error panel when CLI fails', async () => {
+    const originalFolders = vscode.workspace.workspaceFolders;
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: [{ uri: vscode.Uri.file('/workspace'), name: 'ws', index: 0 }],
+      configurable: true,
+    });
+
+    const { getBinaryPath } = await import('../shared/workspace');
+    vi.mocked(getBinaryPath).mockReturnValueOnce('/usr/bin/resist-lint');
+
+    const { runToolText } = await import('../shared/runner');
+    vi.mocked(runToolText).mockResolvedValueOnce({
+      ok: false,
+      error: 'Command failed',
+      stderr: 'Command failed',
+      code: 1,
+    });
+
+    await showRulesViewer();
+
+    expect(vscode.window.createWebviewPanel).toHaveBeenCalledWith(
+      'resist-rules',
+      en.rulesViewer.title,
+      vscode.ViewColumn.One,
+      { enableScripts: false },
+    );
+
+    const panel = vi.mocked(vscode.window.createWebviewPanel).mock.results[0]?.value;
+    expect(panel.webview.html).toContain('Command failed');
+
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: originalFolders,
+      configurable: true,
+    });
+  });
+
+  it('creates panel with rules HTML on success', async () => {
+    const originalFolders = vscode.workspace.workspaceFolders;
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: [{ uri: vscode.Uri.file('/workspace'), name: 'ws', index: 0 }],
+      configurable: true,
+    });
+
+    const { getBinaryPath } = await import('../shared/workspace');
+    vi.mocked(getBinaryPath).mockReturnValueOnce('/usr/bin/resist-lint');
+
+    const { runToolText } = await import('../shared/runner');
+    vi.mocked(runToolText).mockResolvedValueOnce({
+      ok: true,
+      data: 'TestSection\n  my-rule (warning)\n    A test description\n',
+      stderr: '',
+      elapsed: 100,
+    });
+
+    await showRulesViewer();
+
+    expect(vscode.window.createWebviewPanel).toHaveBeenCalledWith(
+      'resist-rules',
+      en.rulesViewer.title,
+      vscode.ViewColumn.One,
+      { enableScripts: true },
+    );
+
+    const panel = vi.mocked(vscode.window.createWebviewPanel).mock.results[0]?.value;
+    expect(panel.webview.html).toContain('my-rule');
+    expect(panel.webview.html).toContain('A test description');
+
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: originalFolders,
+      configurable: true,
+    });
+  });
+
+  it('reveals existing panel instead of creating a new one', async () => {
+    const originalFolders = vscode.workspace.workspaceFolders;
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: [{ uri: vscode.Uri.file('/workspace'), name: 'ws', index: 0 }],
+      configurable: true,
+    });
+
+    const { getBinaryPath } = await import('../shared/workspace');
+    vi.mocked(getBinaryPath).mockReturnValue('/usr/bin/resist-lint');
+
+    const { runToolText } = await import('../shared/runner');
+    vi.mocked(runToolText).mockResolvedValue({
+      ok: true,
+      data: 'Section\n  rule-a (error)\n',
+      stderr: '',
+      elapsed: 50,
+    });
+
+    // First call creates the panel
+    await showRulesViewer();
+    expect(vscode.window.createWebviewPanel).toHaveBeenCalledTimes(1);
+
+    const panel = vi.mocked(vscode.window.createWebviewPanel).mock.results[0]?.value;
+
+    // Second call should reveal the existing panel, not create another
+    await showRulesViewer();
+    expect(vscode.window.createWebviewPanel).toHaveBeenCalledTimes(1);
+    expect(panel.reveal).toHaveBeenCalledWith(vscode.ViewColumn.One);
+
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: originalFolders,
+      configurable: true,
+    });
+  });
+
+  it('clears currentPanel on dispose', async () => {
+    const originalFolders = vscode.workspace.workspaceFolders;
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: [{ uri: vscode.Uri.file('/workspace'), name: 'ws', index: 0 }],
+      configurable: true,
+    });
+
+    const { getBinaryPath } = await import('../shared/workspace');
+    vi.mocked(getBinaryPath).mockReturnValue('/usr/bin/resist-lint');
+
+    const { runToolText } = await import('../shared/runner');
+    vi.mocked(runToolText).mockResolvedValue({
+      ok: true,
+      data: 'Section\n  rule-a (error)\n',
+      stderr: '',
+      elapsed: 50,
+    });
+
+    await showRulesViewer();
+    expect(vscode.window.createWebviewPanel).toHaveBeenCalledTimes(1);
+
+    // Trigger the dispose callback that was registered
+    const disposeCallback = (
+      vscode.window.createWebviewPanel as unknown as { __disposeCallback: () => void }
+    ).__disposeCallback;
+    disposeCallback();
+
+    // Now creating again should make a new panel, not reveal
+    await showRulesViewer();
+    expect(vscode.window.createWebviewPanel).toHaveBeenCalledTimes(2);
+
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: originalFolders,
+      configurable: true,
+    });
+  });
+
+  it('clears currentPanel on dispose after CLI failure', async () => {
+    const originalFolders = vscode.workspace.workspaceFolders;
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: [{ uri: vscode.Uri.file('/workspace'), name: 'ws', index: 0 }],
+      configurable: true,
+    });
+
+    const { getBinaryPath } = await import('../shared/workspace');
+    vi.mocked(getBinaryPath).mockReturnValue('/usr/bin/resist-lint');
+
+    const { runToolText } = await import('../shared/runner');
+    vi.mocked(runToolText).mockResolvedValue({
+      ok: false,
+      error: 'CLI crashed',
+      stderr: 'CLI crashed',
+      code: 1,
+    });
+
+    await showRulesViewer();
+    expect(vscode.window.createWebviewPanel).toHaveBeenCalledTimes(1);
+
+    // Trigger the dispose callback
+    const disposeCallback = (
+      vscode.window.createWebviewPanel as unknown as { __disposeCallback: () => void }
+    ).__disposeCallback;
+    disposeCallback();
+
+    // After dispose, a new call should create a fresh panel
+    await showRulesViewer();
+    expect(vscode.window.createWebviewPanel).toHaveBeenCalledTimes(2);
+
+    Object.defineProperty(vscode.workspace, 'workspaceFolders', {
+      value: originalFolders,
+      configurable: true,
+    });
+  });
+});
+
+// =============================================================================
+// parseRulesOutput — additional coverage
+// =============================================================================
+
+describe('parseRulesOutput — edge cases', () => {
+  it('accumulates multi-line descriptions', () => {
+    const output = [
+      'Rules',
+      '  my-rule (error)',
+      '    First line of description',
+      '    Second line of description',
+      '    Third line of description',
+    ].join('\n');
+    const result: RuleSection[] = parseRulesOutput(output);
+
+    expect(result[0]?.rules[0]?.description).toBe(
+      'First line of description Second line of description Third line of description',
+    );
+  });
+
+  it('flushes final rule without trailing newline', () => {
+    const output = 'Rules\n  final-rule (warning)';
+    const result: RuleSection[] = parseRulesOutput(output);
+
+    expect(result[0]?.rules).toHaveLength(1);
+    expect(result[0]?.rules[0]?.id).toBe('final-rule');
+    expect(result[0]?.rules[0]?.severity).toBe('warning');
+  });
+
+  it('flushes current rule when a new section header appears', () => {
+    const output = [
+      'Section A',
+      '  rule-a (error)',
+      '    Description A',
+      'Section B',
+      '  rule-b (warning)',
+    ].join('\n');
+    const result: RuleSection[] = parseRulesOutput(output);
+
+    expect(result).toHaveLength(2);
+    expect(result[0]?.rules).toHaveLength(1);
+    expect(result[0]?.rules[0]?.id).toBe('rule-a');
+    expect(result[0]?.rules[0]?.description).toBe('Description A');
+    expect(result[1]?.rules).toHaveLength(1);
+    expect(result[1]?.rules[0]?.id).toBe('rule-b');
+  });
+
+  it('parses lowercase patterns: prefix', () => {
+    const output = 'Rules\n  my-rule (error)\n    patterns: *.js, *.jsx\n';
+    const result: RuleSection[] = parseRulesOutput(output);
+
+    expect(result[0]?.rules[0]?.patterns).toBe('*.js, *.jsx');
+  });
+
+  it('parses lowercase categories: and stages: prefixes', () => {
+    const output = 'Rules\n  my-rule (error)\n    categories: perf  stages: build\n';
+    const result: RuleSection[] = parseRulesOutput(output);
+
+    expect(result[0]?.rules[0]?.categories).toBe('perf');
+    expect(result[0]?.rules[0]?.stages).toBe('build');
+  });
+
+  it('flushes previous rule when a new rule line is encountered', () => {
+    const output = [
+      'Rules',
+      '  rule-one (error)',
+      '    First rule description',
+      '  rule-two (warning) [fixable]',
+      '    Second rule description',
+    ].join('\n');
+    const result: RuleSection[] = parseRulesOutput(output);
+
+    expect(result[0]?.rules).toHaveLength(2);
+    expect(result[0]?.rules[0]?.id).toBe('rule-one');
+    expect(result[0]?.rules[0]?.description).toBe('First rule description');
+    expect(result[0]?.rules[1]?.id).toBe('rule-two');
+    expect(result[0]?.rules[1]?.fixable).toBe(true);
+    expect(result[0]?.rules[1]?.description).toBe('Second rule description');
+  });
+
+  it('handles categories-only line without stages', () => {
+    const output = 'Rules\n  my-rule (error)\n    Categories: accessibility\n';
+    const result: RuleSection[] = parseRulesOutput(output);
+
+    expect(result[0]?.rules[0]?.categories).toBe('accessibility');
+    expect(result[0]?.rules[0]?.stages).toBe('');
+  });
+
+  it('handles output with only whitespace lines between rules', () => {
+    const output = [
+      'Rules',
+      '',
+      '  rule-a (error)',
+      '    Description A',
+      '',
+      '  rule-b (warning)',
+      '    Description B',
+      '',
+    ].join('\n');
+    const result: RuleSection[] = parseRulesOutput(output);
+
+    expect(result[0]?.rules).toHaveLength(2);
+    expect(result[0]?.rules[0]?.id).toBe('rule-a');
+    expect(result[0]?.rules[1]?.id).toBe('rule-b');
+  });
+
+  it('defaults empty fields for rule with no detail lines', () => {
+    const output = 'Rules\n  bare-rule (info)\n';
+    const result: RuleSection[] = parseRulesOutput(output);
+
+    const rule = result[0]?.rules[0];
+    expect(rule?.id).toBe('bare-rule');
+    expect(rule?.severity).toBe('info');
+    expect(rule?.fixable).toBe(false);
+    expect(rule?.description).toBe('');
+    expect(rule?.patterns).toBe('');
+    expect(rule?.categories).toBe('');
+    expect(rule?.stages).toBe('');
   });
 });
