@@ -219,6 +219,85 @@ describe('templateLiteral() runtime validation', () => {
 });
 
 // =============================================================================
+// schemaToRegex — Additional Schema Types
+// =============================================================================
+
+describe('schemaToRegex — additional schema types', () => {
+  it('validates bigint interpolation slot', () => {
+    const result = templateLiteral(asParts(['big_', v.bigint()]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'big_42')).toBe(true);
+    expect(v.is(asSchema(result.data), 'big_-7')).toBe(true);
+    expect(v.is(asSchema(result.data), 'big_0')).toBe(true);
+    expect(v.is(asSchema(result.data), 'big_3.14')).toBe(false);
+    expect(v.is(asSchema(result.data), 'big_abc')).toBe(false);
+    expect(result.data.regex.source).toContain(String.raw`-?\d+`);
+  });
+
+  it('validates null interpolation slot', () => {
+    const result = templateLiteral(asParts(['val_', v.null_()]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'val_null')).toBe(true);
+    expect(v.is(asSchema(result.data), 'val_undefined')).toBe(false);
+    expect(v.is(asSchema(result.data), 'val_')).toBe(false);
+  });
+
+  it('validates undefined interpolation slot', () => {
+    const result = templateLiteral(asParts(['val_', v.undefined_()]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'val_undefined')).toBe(true);
+    expect(v.is(asSchema(result.data), 'val_null')).toBe(false);
+    expect(v.is(asSchema(result.data), 'val_')).toBe(false);
+  });
+
+  it('validates enum interpolation slot', () => {
+    const MyEnum = { Active: 'active', Inactive: 'inactive' } as const;
+    const result = templateLiteral(asParts(['status_', v.enum_(MyEnum)]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'status_active')).toBe(true);
+    expect(v.is(asSchema(result.data), 'status_inactive')).toBe(true);
+    expect(v.is(asSchema(result.data), 'status_pending')).toBe(false);
+  });
+
+  it('validates optional interpolation slot', () => {
+    const result = templateLiteral(asParts(['opt_', v.optional(v.number())]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'opt_42')).toBe(true);
+    expect(v.is(asSchema(result.data), 'opt_-3.14')).toBe(true);
+    expect(v.is(asSchema(result.data), 'opt_undefined')).toBe(true);
+    expect(v.is(asSchema(result.data), 'opt_null')).toBe(false);
+    expect(v.is(asSchema(result.data), 'opt_abc')).toBe(false);
+  });
+
+  it('validates nullish interpolation slot', () => {
+    const result = templateLiteral(asParts(['ns_', v.nullish(v.number())]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'ns_42')).toBe(true);
+    expect(v.is(asSchema(result.data), 'ns_null')).toBe(true);
+    expect(v.is(asSchema(result.data), 'ns_undefined')).toBe(true);
+    expect(v.is(asSchema(result.data), 'ns_abc')).toBe(false);
+  });
+});
+
+// =============================================================================
 // Pipe Introspection
 // =============================================================================
 
@@ -264,6 +343,122 @@ describe('templateLiteral() pipe introspection', () => {
     }
     expect(v.is(asSchema(result.data), 'tag_ABC')).toBe(true);
     expect(v.is(asSchema(result.data), 'tag_abc')).toBe(false);
+  });
+
+  it('uses email regex for v.pipe(v.string(), v.email())', () => {
+    const result = templateLiteral(asParts(['user_', v.pipe(v.string(), v.email())]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'user_test@example.com')).toBe(true);
+    expect(v.is(asSchema(result.data), 'user_notanemail')).toBe(false);
+  });
+
+  it('uses ULID regex for v.pipe(v.string(), v.ulid())', () => {
+    const result = templateLiteral(asParts(['id_', v.pipe(v.string(), v.ulid())]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'id_01ARZ3NDEKTSV4RRFFQ69G5FAV')).toBe(true);
+    expect(v.is(asSchema(result.data), 'id_not-a-ulid')).toBe(false);
+  });
+
+  it('uses CUID2 regex for v.pipe(v.string(), v.cuid2())', () => {
+    const result = templateLiteral(asParts(['id_', v.pipe(v.string(), v.cuid2())]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'id_clh3am8jg0000lf08e8s2hqzq')).toBe(true);
+    expect(v.is(asSchema(result.data), 'id_UPPERCASE')).toBe(false);
+  });
+
+  it('uses nanoid regex for v.pipe(v.string(), v.nanoid())', () => {
+    const result = templateLiteral(asParts(['id_', v.pipe(v.string(), v.nanoid())]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'id_V1StGXR8_Z5jdHi6B-myT')).toBe(true);
+    expect(v.is(asSchema(result.data), 'id_has spaces!')).toBe(false);
+  });
+
+  it('uses IPv4 regex for v.pipe(v.string(), v.ipv4())', () => {
+    const result = templateLiteral(asParts(['ip_', v.pipe(v.string(), v.ipv4())]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'ip_192.168.1.1')).toBe(true);
+    expect(v.is(asSchema(result.data), 'ip_10.0.0.1')).toBe(true);
+    expect(v.is(asSchema(result.data), 'ip_999.999.999.999')).toBe(false);
+  });
+
+  it('uses hexadecimal regex for v.pipe(v.string(), v.hexadecimal())', () => {
+    const result = templateLiteral(asParts(['hex_', v.pipe(v.string(), v.hexadecimal())]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'hex_deadBEEF')).toBe(true);
+    expect(v.is(asSchema(result.data), 'hex_0123456789abcdefABCDEF')).toBe(true);
+    expect(v.is(asSchema(result.data), 'hex_xyz')).toBe(false);
+  });
+
+  it('uses octal regex for v.pipe(v.string(), v.octal())', () => {
+    const result = templateLiteral(asParts(['oct_', v.pipe(v.string(), v.octal())]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'oct_01234567')).toBe(true);
+    expect(v.is(asSchema(result.data), 'oct_089')).toBe(false);
+  });
+
+  it('uses decimal regex for v.pipe(v.string(), v.decimal())', () => {
+    const result = templateLiteral(asParts(['dec_', v.pipe(v.string(), v.decimal())]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'dec_42')).toBe(true);
+    expect(v.is(asSchema(result.data), 'dec_-3.14')).toBe(true);
+    expect(v.is(asSchema(result.data), 'dec_abc')).toBe(false);
+  });
+
+  it('uses slug regex for v.pipe(v.string(), v.slug())', () => {
+    const result = templateLiteral(asParts(['slug_', v.pipe(v.string(), v.slug())]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'slug_my-cool-slug')).toBe(true);
+    expect(v.is(asSchema(result.data), 'slug_simple')).toBe(true);
+    expect(v.is(asSchema(result.data), 'slug_My Slug!')).toBe(false);
+  });
+
+  it('uses starts_with pattern for v.pipe(v.string(), v.startsWith(...))', () => {
+    const result = templateLiteral(asParts(['key_', v.pipe(v.string(), v.startsWith('prefix_'))]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'key_prefix_hello')).toBe(true);
+    expect(v.is(asSchema(result.data), 'key_prefix_')).toBe(true);
+    expect(v.is(asSchema(result.data), 'key_hello_prefix')).toBe(false);
+  });
+
+  it('uses ends_with pattern for v.pipe(v.string(), v.endsWith(...))', () => {
+    const result = templateLiteral(asParts(['key_', v.pipe(v.string(), v.endsWith('_suffix'))]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'key_hello_suffix')).toBe(true);
+    expect(v.is(asSchema(result.data), 'key__suffix')).toBe(true);
+    expect(v.is(asSchema(result.data), 'key_suffix_hello')).toBe(false);
   });
 });
 
@@ -384,5 +579,187 @@ describe('templateLiteral() regex generation', () => {
       return;
     }
     expect(result.data.regex.source).toBe('^(?:a|b|c)$');
+  });
+});
+
+// =============================================================================
+// Edge Cases
+// =============================================================================
+
+describe('templateLiteral() edge cases', () => {
+  it('uses exact length quantifier for v.pipe(v.string(), v.length(5))', () => {
+    const result = templateLiteral(asParts(['code_', v.pipe(v.string(), v.length(5))]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'code_abcde')).toBe(true);
+    expect(v.is(asSchema(result.data), 'code_abcd')).toBe(false);
+    expect(v.is(asSchema(result.data), 'code_abcdef')).toBe(false);
+    expect(result.data.regex.source).toContain('{5,5}');
+  });
+
+  it('uses minLength-only quantifier for v.pipe(v.string(), v.minLength(3))', () => {
+    const result = templateLiteral(asParts(['val_', v.pipe(v.string(), v.minLength(3))]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'val_abc')).toBe(true);
+    expect(v.is(asSchema(result.data), 'val_abcdef')).toBe(true);
+    expect(v.is(asSchema(result.data), 'val_ab')).toBe(false);
+    expect(result.data.regex.source).toContain('{3,}');
+  });
+
+  it('uses maxLength-only quantifier for v.pipe(v.string(), v.maxLength(5))', () => {
+    const result = templateLiteral(asParts(['val_', v.pipe(v.string(), v.maxLength(5))]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'val_abc')).toBe(true);
+    expect(v.is(asSchema(result.data), 'val_')).toBe(true);
+    expect(v.is(asSchema(result.data), 'val_abcdef')).toBe(false);
+    expect(result.data.regex.source).toContain('{0,5}');
+  });
+
+  it('hasUserRegex suppresses length constraints', () => {
+    const result = templateLiteral(
+      asParts(['tag_', v.pipe(v.string(), v.regex(/^[A-Z]+$/), v.minLength(2))]),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    // regex takes precedence — length constraint NOT applied
+    // Single uppercase letter matches regex but would fail minLength(2)
+    expect(v.is(asSchema(result.data), 'tag_A')).toBe(true);
+    expect(v.is(asSchema(result.data), 'tag_AB')).toBe(true);
+    // Does NOT contain length quantifier — regex overrides
+    expect(result.data.regex.source).not.toContain('{2,}');
+  });
+
+  it('handles SchemaWithPipe in default branch of schemaToRegex', () => {
+    // v.pipe(v.string(), v.trim()) — trim is not a recognized action type,
+    // hits default case in schemaToRegex which checks for pipe property
+    const result = templateLiteral(asParts(['val_', v.pipe(v.string(), v.trim())]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    // Should still work — falls back to string pattern via pipe introspection
+    expect(v.is(asSchema(result.data), 'val_hello')).toBe(true);
+    expect(v.is(asSchema(result.data), 'val_')).toBe(true);
+  });
+
+  it('buildExpects falls back to unknown for schema without expects property', () => {
+    // Create a minimal schema-like object with no expects property
+    const fakeSchema = { type: 'custom', kind: 'schema', async: false } as unknown;
+    const result = templateLiteral(asParts(['val_', fakeSchema]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.data.expects).toContain('unknown');
+  });
+
+  it('handles number pipe with integer action', () => {
+    // Test the number pipe path (not string) — covers schemaToRegex number+pipe branch
+    const result = templateLiteral(asParts(['n_', v.pipe(v.number(), v.integer())]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'n_42')).toBe(true);
+    expect(v.is(asSchema(result.data), 'n_3.14')).toBe(false);
+  });
+
+  it('handles number without pipe', () => {
+    const result = templateLiteral(['n_', v.number()]);
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(v.is(asSchema(result.data), 'n_42')).toBe(true);
+    expect(v.is(asSchema(result.data), 'n_3.14')).toBe(true);
+  });
+
+  it('schemaToRegex default fallback returns string pattern for unknown type', () => {
+    // A schema with no pipe and unknown type falls through to STRING_PATTERN
+    const fakeSchema = {
+      type: 'custom_unknown',
+      kind: 'schema',
+      async: false,
+    } as unknown;
+    const result = templateLiteral(asParts(['val_', fakeSchema]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    // Falls back to [\s\S]* — accepts anything
+    expect(v.is(asSchema(result.data), 'val_anything')).toBe(true);
+    expect(v.is(asSchema(result.data), 'val_')).toBe(true);
+  });
+
+  it('schemaToRegex default branch handles SchemaWithPipe with pipe property', () => {
+    // A schema with an unknown type but a pipe property — hits default branch pipe introspection
+    const fakePipedSchema = {
+      type: 'custom_piped',
+      kind: 'schema',
+      async: false,
+      pipe: [
+        { type: 'string', kind: 'schema', async: false, expects: 'string' },
+        { type: 'email' },
+      ],
+    } as unknown;
+    const result = templateLiteral(asParts(['val_', fakePipedSchema]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    // Base schema is string, pipe action is email — email regex should be applied
+    expect(v.is(asSchema(result.data), 'val_test@example.com')).toBe(true);
+  });
+
+  it('schemaToRegex default branch handles SchemaWithPipe with empty pipe', () => {
+    // SchemaWithPipe with empty pipe array — falls through to STRING_PATTERN
+    const fakePipedSchema = {
+      type: 'custom_piped',
+      kind: 'schema',
+      async: false,
+      pipe: [],
+    } as unknown;
+    const result = templateLiteral(asParts(['val_', fakePipedSchema]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    // Falls back to STRING_PATTERN
+    expect(v.is(asSchema(result.data), 'val_anything')).toBe(true);
+  });
+
+  it('pipe introspection skips non-object and null actions', () => {
+    // Fake piped schema with non-object actions in the pipe — tests the continue branch
+    const fakePipedSchema = {
+      type: 'custom_piped',
+      kind: 'schema',
+      async: false,
+      pipe: [
+        { type: 'string', kind: 'schema', async: false, expects: 'string' },
+        null,
+        42,
+        'not-an-object',
+        { noTypeProperty: true },
+        { type: 'uuid' },
+      ],
+    } as unknown;
+    const result = templateLiteral(asParts(['val_', fakePipedSchema]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    // Should still work — skips bad actions, processes uuid
+    expect(v.is(asSchema(result.data), 'val_550e8400-e29b-41d4-a716-446655440000')).toBe(true);
+    expect(v.is(asSchema(result.data), 'val_not-a-uuid')).toBe(false);
   });
 });
