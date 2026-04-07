@@ -12,7 +12,8 @@ if [[ "$COMMAND" != *"git commit"* ]]; then
 fi
 
 # Get the staged diff stats
-DIFF_STAT=$(cd /Users/coleb/Desktop/webforge && git diff --cached --stat 2>/dev/null)
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+DIFF_STAT=$(cd "$REPO_ROOT" && git diff --cached --stat 2>/dev/null)
 
 if [ -z "$DIFF_STAT" ]; then
   exit 0

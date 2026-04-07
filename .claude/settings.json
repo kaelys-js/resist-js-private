@@ -42,23 +42,23 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-destructive-git.sh"
+            "command": "bash .claude/hooks/pre-destructive-git.sh"
           },
           {
             "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-commit-verify.sh"
+            "command": "bash .claude/hooks/pre-commit-verify.sh"
           },
           {
             "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-qa-commands.sh"
+            "command": "bash .claude/hooks/pre-qa-commands.sh"
           },
           {
             "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-git-add-all.sh"
+            "command": "bash .claude/hooks/pre-git-add-all.sh"
           },
           {
             "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-plan-file-validate.sh"
+            "command": "bash .claude/hooks/pre-plan-file-validate.sh"
           }
         ]
       },
@@ -67,7 +67,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-plan-file-validate.sh"
+            "command": "bash .claude/hooks/pre-plan-file-validate.sh"
           },
           {
             "type": "prompt",
@@ -83,7 +83,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-agent-approval.sh"
+            "command": "bash .claude/hooks/pre-agent-approval.sh"
           },
           {
             "type": "prompt",
@@ -99,7 +99,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/pre-lint-rule-edit.sh"
+            "command": "bash .claude/hooks/pre-lint-rule-edit.sh"
           }
         ]
       }
@@ -111,7 +111,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/stop-preview-override.sh"
+            "command": "bash .claude/hooks/stop-preview-override.sh"
           }
         ]
       }
@@ -122,7 +122,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/session-start-orientation.sh"
+            "command": "bash .claude/hooks/session-start-orientation.sh"
           }
         ]
       },
@@ -131,7 +131,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/session-start-orientation.sh"
+            "command": "bash .claude/hooks/session-start-orientation.sh"
           }
         ]
       },
@@ -140,7 +140,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/session-start-orientation.sh"
+            "command": "bash .claude/hooks/session-start-orientation.sh"
           }
         ]
       },
@@ -149,7 +149,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/coleb/Desktop/webforge/.claude/hooks/session-start-orientation.sh"
+            "command": "bash .claude/hooks/session-start-orientation.sh"
           }
         ]
       }

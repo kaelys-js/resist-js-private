@@ -17,7 +17,7 @@
 Run after every file edit:
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -25,14 +25,14 @@ pnpm -w run qa:format:check
 Run tests:
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm qa:test
+cd packages/products/webforge/runtime &&pnpm qa:test
 ```
 
 Run specific test file:
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/sky-system.test.ts
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/parallax-manager.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/sky-system.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/parallax-manager.test.ts
 ```
 
 Format fix:
@@ -113,7 +113,7 @@ Add these after the existing `scale` field (line 123), before the closing `});`:
 **Step 3: Run QA**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -123,7 +123,7 @@ Expected: All pass (schema additions are additive with defaults).
 **Step 4: Run existing tests to confirm no regressions**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/parallax-manager.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/parallax-manager.test.ts
 ```
 
 Expected: All existing tests still pass (new fields have defaults).
@@ -221,7 +221,7 @@ Add before `parallaxLayers` in `SkyConfigSchema`:
 **Step 3: Run QA**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -229,7 +229,7 @@ pnpm -w run qa:format:check
 **Step 4: Run existing tests**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/sky-system.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/sky-system.test.ts
 ```
 
 Expected: Pass (new fields have defaults, existing configs still valid).
@@ -266,7 +266,7 @@ Add after the `contrast` field (line 634), before the closing `});`:
 **Step 2: Run QA**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -274,7 +274,7 @@ pnpm -w run qa:format:check
 **Step 3: Run day/night cycle tests**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/day-night-cycle.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/day-night-cycle.test.ts
 ```
 
 Expected: Pass (new fields are optional, existing keyframes unaffected).
@@ -367,7 +367,7 @@ describe('generateGradientPixels', () => {
 **Step 2: Run tests — verify they fail**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/sky-system.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/sky-system.test.ts
 ```
 
 Expected: FAIL — `generateGradientPixels` is not exported.
@@ -451,7 +451,7 @@ export function generateGradientPixels(
 **Step 4: Run tests — verify they pass**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/sky-system.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/sky-system.test.ts
 ```
 
 Expected: All pass.
@@ -570,7 +570,7 @@ test('falls back to color sky for gradient with <2 stops', () => {
 **Step 7: Run all tests**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/sky-system.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/sky-system.test.ts
 ```
 
 Expected: All pass.
@@ -578,7 +578,7 @@ Expected: All pass.
 **Step 8: Run full QA**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -630,7 +630,7 @@ describe('createSky — procedural type with SkyMaterial', () => {
 **Step 2: Run tests — verify they pass (existing procedural creates mesh)**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/sky-system.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/sky-system.test.ts
 ```
 
 Expected: Pass — existing code already creates a mesh. Now replace the implementation.
@@ -681,7 +681,7 @@ function createProceduralSky(
 **Step 4: Run tests**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/sky-system.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/sky-system.test.ts
 ```
 
 If SkyMaterial fails in NullEngine, wrap the procedural test in a try/catch or skip material assertion. The key test is that `createSky` returns `ok: true` with a non-null mesh.
@@ -689,7 +689,7 @@ If SkyMaterial fails in NullEngine, wrap the procedural test in a try/catch or s
 **Step 5: Run QA**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -871,7 +871,7 @@ describe('parallax blend mode mapping', () => {
 **Step 2: Run tests — verify they fail**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/parallax-manager.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/parallax-manager.test.ts
 ```
 
 Expected: FAIL — `mapBlendMode` not exported, blend modes not applied.
@@ -947,7 +947,7 @@ if (autoX !== 0 || autoY !== 0) {
 **Step 5: Run tests**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/parallax-manager.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/parallax-manager.test.ts
 ```
 
 Expected: All pass.
@@ -955,7 +955,7 @@ Expected: All pass.
 **Step 6: Run QA**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -1095,7 +1095,7 @@ describe('runtime layer management', () => {
 **Step 2: Run tests — verify they fail**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/parallax-manager.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/parallax-manager.test.ts
 ```
 
 Expected: FAIL — functions not exported.
@@ -1266,7 +1266,7 @@ export function setParallaxLayerTint(options: {
 **Step 4: Run tests**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/parallax-manager.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/parallax-manager.test.ts
 ```
 
 Expected: All pass.
@@ -1274,7 +1274,7 @@ Expected: All pass.
 **Step 5: Run QA**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -1356,7 +1356,7 @@ describe('regenerateGradientTexture', () => {
 **Step 2: Run tests — verify they fail**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/sky-system.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/sky-system.test.ts
 ```
 
 Expected: FAIL — `regenerateGradientTexture` not exported.
@@ -1497,13 +1497,13 @@ export function updateSkyFromDayNight(options: {
 **Step 5: Run tests**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/sky-system.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/sky-system.test.ts
 ```
 
 **Step 6: Run QA**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -1595,7 +1595,7 @@ describe('computeStarOpacity', () => {
 **Step 2: Run tests — verify they fail**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/sky-system.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/sky-system.test.ts
 ```
 
 Expected: FAIL — `computeStarOpacity` not exported.
@@ -1666,7 +1666,7 @@ export function computeStarOpacity(options: {
 **Step 4: Run tests**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/sky-system.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/sky-system.test.ts
 ```
 
 Expected: All pass.
@@ -1768,13 +1768,13 @@ if (sky.starLayer) {
 **Step 7: Run all tests**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/sky-system.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/sky-system.test.ts
 ```
 
 **Step 8: Run QA**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -1851,7 +1851,7 @@ export {
 **Step 2: Run QA**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -1859,7 +1859,7 @@ pnpm -w run qa:format:check
 **Step 3: Run full test suite**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm qa:test
+cd packages/products/webforge/runtime &&pnpm qa:test
 ```
 
 Expected: All pass.
@@ -1899,7 +1899,7 @@ import { mapBlendMode, addParallaxLayer, removeParallaxLayer, fadeLayerOpacity }
 **Step 2: Run QA**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -1938,7 +1938,7 @@ Add a "Stars" sub-header with:
 **Step 3: Run QA**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```
@@ -1957,7 +1957,7 @@ git commit -m "feat(dev): add procedural sky and star field controls"
 **Step 1: Start dev server**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm dev
+cd packages/products/webforge/runtime &&pnpm dev
 ```
 
 **Step 2: Verify in browser**
@@ -1977,7 +1977,7 @@ Open the dev harness at `http://localhost:3100` and verify:
 **Step 3: Run final full QA**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test
 ```
 
 Expected: All pass, 0 warnings, 0 errors.
@@ -2054,13 +2054,13 @@ test('interpolates skyGradientTop and skyGradientBottom', () => {
 **Step 5: Run tests**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && npx vitest run src/rendering/day-night-cycle.test.ts
+cd packages/products/webforge/runtime &&npx vitest run src/rendering/day-night-cycle.test.ts
 ```
 
 **Step 6: Run QA**
 
 ```bash
-cd /Users/coleb/Desktop/webforge/packages/products/webforge/runtime && pnpm -w run qa:lint --tools
+cd packages/products/webforge/runtime &&pnpm -w run qa:lint --tools
 pnpm -w run qa:lint
 pnpm -w run qa:format:check
 ```

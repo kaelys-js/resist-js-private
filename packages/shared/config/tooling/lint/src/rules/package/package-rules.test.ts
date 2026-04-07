@@ -3,8 +3,11 @@
  *
  * @module
  */
+import { execSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
 import type { LintResult, PackageJsonContext } from '../../framework/types.ts';
+
+const REPO_ROOT = execSync('git rev-parse --show-toplevel', { encoding: 'utf8' }).trim();
 import validTsconfig from './valid-tsconfig.ts';
 import requireProjectTest from './require-project-test.ts';
 import requireStandardScripts from './require-standard-scripts.ts';
@@ -384,7 +387,7 @@ describe('package/valid-tsconfig', () => {
   it('passes when tsconfig extends root and includes src', () => {
     const results: LintResult[] = validTsconfig.check(
       ctx({
-        file: '/Users/coleb/Desktop/webforge/packages/shared/schemas/common/package.json',
+        file: `${REPO_ROOT}/packages/shared/schemas/common/package.json`,
         pkg: { name: '@/schemas/common' },
       }),
     );
@@ -395,7 +398,7 @@ describe('package/valid-tsconfig', () => {
     const results: LintResult[] = validTsconfig.check(
       ctx({
         isRoot: true,
-        file: '/Users/coleb/Desktop/webforge/package.json',
+        file: `${REPO_ROOT}/package.json`,
         pkg: { name: 'webforge' },
       }),
     );
@@ -405,7 +408,7 @@ describe('package/valid-tsconfig', () => {
   it('exempts vscode packages', () => {
     const results: LintResult[] = validTsconfig.check(
       ctx({
-        file: '/Users/coleb/Desktop/webforge/packages/shared/extensions/vscode-formatter/package.json',
+        file: `${REPO_ROOT}/packages/shared/extensions/vscode-formatter/package.json`,
         pkg: { name: '@resist/vscode-formatter' },
       }),
     );
@@ -415,7 +418,7 @@ describe('package/valid-tsconfig', () => {
   it('exempts SvelteKit packages (extends .svelte-kit)', () => {
     const results: LintResult[] = validTsconfig.check(
       ctx({
-        file: '/Users/coleb/Desktop/webforge/packages/products/storylyne/editor/package.json',
+        file: `${REPO_ROOT}/packages/products/storylyne/editor/package.json`,
         pkg: { name: '@storylyne/editor' },
       }),
     );
@@ -425,7 +428,7 @@ describe('package/valid-tsconfig', () => {
   it('flags overridden protected compiler options', () => {
     const results: LintResult[] = validTsconfig.check(
       ctx({
-        file: '/Users/coleb/Desktop/webforge/packages/shared/config/tooling/lint/package.json',
+        file: `${REPO_ROOT}/packages/shared/config/tooling/lint/package.json`,
         pkg: { name: '@/lint' },
       }),
     );
@@ -512,7 +515,7 @@ describe('package/no-vitest-config', () => {
   it('flags sub-package with vitest.config.ts', () => {
     const results: LintResult[] = noVitestConfig.check(
       ctx({
-        file: '/Users/coleb/Desktop/webforge/packages/shared/utils/cli/package.json',
+        file: `${REPO_ROOT}/packages/shared/utils/cli/package.json`,
         pkg: { name: '@/cli' },
       }),
     );
@@ -532,7 +535,7 @@ describe('package/no-vitest-config', () => {
   it('passes for package without vitest.config.ts', () => {
     const results: LintResult[] = noVitestConfig.check(
       ctx({
-        file: '/Users/coleb/Desktop/webforge/packages/shared/schemas/common/package.json',
+        file: `${REPO_ROOT}/packages/shared/schemas/common/package.json`,
         pkg: { name: '@/schemas/common' },
       }),
     );
@@ -548,7 +551,7 @@ describe('package/require-shared-config', () => {
   it('passes for package with correct svelte.config.ts', () => {
     const results: LintResult[] = requireSharedConfig.check(
       ctx({
-        file: '/Users/coleb/Desktop/webforge/packages/products/storylyne/editor/package.json',
+        file: `${REPO_ROOT}/packages/products/storylyne/editor/package.json`,
         pkg: { name: '@storylyne/editor' },
       }),
     );
@@ -570,7 +573,7 @@ describe('package/require-shared-config', () => {
   it('passes for package without config files', () => {
     const results: LintResult[] = requireSharedConfig.check(
       ctx({
-        file: '/Users/coleb/Desktop/webforge/packages/shared/schemas/common/package.json',
+        file: `${REPO_ROOT}/packages/shared/schemas/common/package.json`,
         pkg: { name: '@/schemas/common' },
       }),
     );
@@ -586,7 +589,7 @@ describe('package/require-readme', () => {
   it('skips root package.json', () => {
     const results: LintResult[] = requireReadme.check(
       ctx({
-        file: '/Users/coleb/Desktop/webforge/package.json',
+        file: `${REPO_ROOT}/package.json`,
         pkg: { name: 'webforge' },
         isRoot: true,
       }),
@@ -609,7 +612,7 @@ describe('package/require-readme', () => {
     // Use @/config which has a README
     const results: LintResult[] = requireReadme.check(
       ctx({
-        file: '/Users/coleb/Desktop/webforge/packages/shared/config/core/package.json',
+        file: `${REPO_ROOT}/packages/shared/config/core/package.json`,
         pkg: { name: '@/config' },
       }),
     );
@@ -624,7 +627,7 @@ describe('package/require-readme', () => {
     // @/config README title is "# @/config" which matches
     const results: LintResult[] = requireReadme.check(
       ctx({
-        file: '/Users/coleb/Desktop/webforge/packages/shared/config/core/package.json',
+        file: `${REPO_ROOT}/packages/shared/config/core/package.json`,
         pkg: { name: '@/config' },
       }),
     );
