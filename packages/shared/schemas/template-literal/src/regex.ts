@@ -117,7 +117,7 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
     switch (actionType) {
       // ── String format actions ──
       case 'regex': {
-        const { requirement }: { readonly requirement: unknown } = action as {
+        const { requirement }: { readonly requirement: unknown } = action as unknown as {
           readonly requirement: unknown;
         };
         if (requirement instanceof RegExp) {
@@ -174,7 +174,7 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
       }
       // ── String length actions ──
       case 'min_length': {
-        const { requirement }: { readonly requirement: unknown } = action as {
+        const { requirement }: { readonly requirement: unknown } = action as unknown as {
           readonly requirement: unknown;
         };
         if (typeof requirement === 'number') {
@@ -183,7 +183,7 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
         break;
       }
       case 'max_length': {
-        const { requirement }: { readonly requirement: unknown } = action as {
+        const { requirement }: { readonly requirement: unknown } = action as unknown as {
           readonly requirement: unknown;
         };
         if (typeof requirement === 'number') {
@@ -192,7 +192,7 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
         break;
       }
       case 'length': {
-        const { requirement }: { readonly requirement: unknown } = action as {
+        const { requirement }: { readonly requirement: unknown } = action as unknown as {
           readonly requirement: unknown;
         };
         if (typeof requirement === 'number') {
@@ -203,7 +203,7 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
       }
       // ── String prefix/suffix actions ──
       case 'starts_with': {
-        const { requirement }: { readonly requirement: unknown } = action as {
+        const { requirement }: { readonly requirement: unknown } = action as unknown as {
           readonly requirement: unknown;
         };
         if (typeof requirement === 'string') {
@@ -216,7 +216,7 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
         break;
       }
       case 'ends_with': {
-        const { requirement }: { readonly requirement: unknown } = action as {
+        const { requirement }: { readonly requirement: unknown } = action as unknown as {
           readonly requirement: unknown;
         };
         if (typeof requirement === 'string') {
@@ -306,12 +306,12 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
     }
 
     case 'literal': {
-      const { literal }: { readonly literal: unknown } = schema as { readonly literal: unknown };
+      const { literal }: { readonly literal: unknown } = schema as unknown as { readonly literal: unknown };
       return escapeRegex(String(literal));
     }
 
     case 'picklist': {
-      const { options }: { readonly options: readonly unknown[] } = schema as {
+      const { options }: { readonly options: readonly unknown[] } = schema as unknown as {
         readonly options: readonly unknown[];
       };
       const escapedParts: Str[] = [];
@@ -326,7 +326,7 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
     }
 
     case 'enum': {
-      const { enum: enumObj }: { readonly enum: Record<string, unknown> } = schema as {
+      const { enum: enumObj }: { readonly enum: Record<string, unknown> } = schema as unknown as {
         readonly enum: Record<string, unknown>;
       };
       const values: unknown[] = Object.values(enumObj);
@@ -342,7 +342,7 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
     }
 
     case 'union': {
-      const { options }: { readonly options: readonly v.GenericSchema[] } = schema as {
+      const { options }: { readonly options: readonly v.GenericSchema[] } = schema as unknown as {
         readonly options: readonly v.GenericSchema[];
       };
       const unionParts: Str[] = [];
@@ -357,7 +357,7 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
     }
 
     case 'optional': {
-      const { wrapped }: { readonly wrapped: v.GenericSchema } = schema as {
+      const { wrapped }: { readonly wrapped: v.GenericSchema } = schema as unknown as {
         readonly wrapped: v.GenericSchema;
       };
       const innerResult: Result<Str> = schemaToRegex(wrapped);
@@ -368,7 +368,7 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
     }
 
     case 'nullable': {
-      const { wrapped }: { readonly wrapped: v.GenericSchema } = schema as {
+      const { wrapped }: { readonly wrapped: v.GenericSchema } = schema as unknown as {
         readonly wrapped: v.GenericSchema;
       };
       const innerResult: Result<Str> = schemaToRegex(wrapped);
@@ -379,7 +379,7 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
     }
 
     case 'nullish': {
-      const { wrapped }: { readonly wrapped: v.GenericSchema } = schema as {
+      const { wrapped }: { readonly wrapped: v.GenericSchema } = schema as unknown as {
         readonly wrapped: v.GenericSchema;
       };
       const innerResult: Result<Str> = schemaToRegex(wrapped);
@@ -390,7 +390,7 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
     }
 
     case 'template_literal': {
-      const { regex: nestedRegex }: { readonly regex: RegExp } = schema as {
+      const { regex: nestedRegex }: { readonly regex: RegExp } = schema as unknown as {
         readonly regex: RegExp;
       };
       const { source }: RegExp = nestedRegex;

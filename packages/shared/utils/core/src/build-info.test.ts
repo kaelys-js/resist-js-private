@@ -7,6 +7,14 @@
 import { describe, expect, it } from 'vitest';
 import { getBuildInfo } from './build-info';
 
+// Declare build-time globals for tsgo resolution
+declare global {
+  // eslint-disable-next-line no-var -- required for globalThis augmentation
+  var __APP_VERSION__: string | undefined;
+  // eslint-disable-next-line no-var -- required for globalThis augmentation
+  var __GIT_COMMIT__: string | undefined;
+}
+
 describe('getBuildInfo', () => {
   it('returns ok with valid build info from define constants', () => {
     const result = getBuildInfo();

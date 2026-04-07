@@ -8,7 +8,7 @@
       "type": "string"
     },
     "exclude": {
-      "default": ["*.test.ts", "*.d.ts"],
+      "default": ["*.d.ts"],
       "description": "Glob patterns to exclude from linting (e.g. \"*.test.ts\", \"*.d.ts\").",
       "items": {
         "type": "string"

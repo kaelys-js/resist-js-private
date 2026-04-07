@@ -90,7 +90,6 @@
       (window as unknown as Record<Str, unknown>)[getBuildKey(store.app.appName)] =
         buildResult.data;
       const b: typeof buildResult.data = buildResult.data;
-      // eslint-disable-next-line no-console -- Intentional startup log
       console.log(
         `%c${store.app.appName}%c v${b.version} (${b.branch}@${b.commit}${b.dirty ? ', dirty' : ''}) — built ${b.buildTimestamp}`,
         'color:#8cf;font-weight:bold',

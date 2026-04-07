@@ -294,11 +294,15 @@ export function createDevtoolsAPI(
       },
 
       beacon(): BeaconStatus {
-        return getBeaconStatus();
+        const result = getBeaconStatus();
+        if (!result.ok) return { queued: 0 as Num, queuedItems: [], lastFlushAt: null, sessionId: '' as Str, maxQueueSize: 0 as Num };
+        return result.data as BeaconStatus;
       },
 
       device(): ConnectionSnapshot {
-        return getConnectionSnapshot();
+        const result = getConnectionSnapshot();
+        if (!result.ok) return { effectiveType: '', saveData: false, rtt: 0, downlink: 0, quality: 'unknown', isLowEndDevice: false, isLowEndExperience: false, deviceMemory: 0, hardwareConcurrency: 0 } as ConnectionSnapshot;
+        return result.data;
       },
 
       logVitals(): Void {
@@ -353,7 +357,9 @@ export function createDevtoolsAPI(
       },
 
       logDevice(): Void {
-        const snap: ConnectionSnapshot = getConnectionSnapshot();
+        const snapResult = getConnectionSnapshot();
+        if (!snapResult.ok) return;
+        const snap: ConnectionSnapshot = snapResult.data;
         // eslint-disable-next-line unicorn/no-console-spaces -- Intentional badge padding for %c styled output
         console.log('%c Device & Connection ', HELP_HEADER);
         const entries: Array<[Str, Str]> = [

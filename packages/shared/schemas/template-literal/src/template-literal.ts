@@ -107,7 +107,7 @@ export function templateLiteral<const TParts extends readonly TemplateLiteralPar
   const schema: v.BaseSchema<string, TOutput, TemplateLiteralIssue> = {
     kind: 'schema' as const,
     type: 'template_literal' as const,
-    reference: templateLiteral as (
+    reference: templateLiteral as unknown as (
       ...args: readonly unknown[]
     ) => v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
     expects,
@@ -141,7 +141,7 @@ export function templateLiteral<const TParts extends readonly TemplateLiteralPar
           config,
         );
       }
-      return dataset as v.OutputDataset<TOutput, TemplateLiteralIssue>;
+      return dataset as unknown as v.OutputDataset<TOutput, TemplateLiteralIssue>;
     },
   } as v.BaseSchema<string, TOutput, TemplateLiteralIssue>;
 

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import type { Str, Num, Bool } from '@/schemas/common';
+import type { Str, Num, Bool, Name, MillisecondTimestamp } from '@/schemas/common';
 import { createDevtoolsAPI, getDevtoolsKey, type DevtoolsAPI } from './devtools-api.svelte';
 import type { DevtoolsConfig, AppStoreContract, DebugStoreContract } from './types';
 import type { PanelMetric } from '@/utils/web-vitals/vitals-panel-store.svelte';
@@ -7,9 +7,10 @@ import type { ConnectionSnapshot } from '@/utils/web-vitals/connection.svelte';
 
 // ── Perf module mocks ────────────────────────────────────────────────────────
 
+// cast safe: test fixture literals to branded types
 const mockPanelMetrics: PanelMetric[] = [
-  { name: 'LCP', value: 1200, rating: 'good', timestamp: 1000 },
-  { name: 'CLS', value: 0.05, rating: 'good', timestamp: 1001 },
+  { name: 'LCP' as Name, value: 1200, rating: 'good', timestamp: 1000 as unknown as MillisecondTimestamp, diagnostics: null },
+  { name: 'CLS' as Name, value: 0.05, rating: 'good', timestamp: 1001 as unknown as MillisecondTimestamp, diagnostics: null },
 ];
 
 const mockBeaconStatus = {

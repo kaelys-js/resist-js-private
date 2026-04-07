@@ -36,17 +36,17 @@ const parseJsonWithCommentsMock = vi.fn((): Result<Record<Str, unknown>> => mock
 const joinPathMock = vi.fn((): Result<Str> => mockOk(''));
 
 vi.mock('@/utils/core/shell', () => ({
-  execSyncSafe: (...args: unknown[]): Result<Str> => execSyncSafeMock(...args),
+  execSyncSafe: (...args: unknown[]): Result<Str> => execSyncSafeMock(...(args as [Str])),
 }));
 
 vi.mock('@/utils/core/fs', () => ({
-  readFile: (...args: unknown[]): Result<Str> => readFileMock(...args),
+  readFile: (...args: unknown[]): Result<Str> => readFileMock(...(args as [Str])),
   parseJsonWithComments: (...args: unknown[]): Result<Record<Str, unknown>> =>
-    parseJsonWithCommentsMock(...args),
+    parseJsonWithCommentsMock(...(args as [Str])),
 }));
 
 vi.mock('@/utils/core/path', () => ({
-  joinPath: (...args: unknown[]): Result<Str> => joinPathMock(...args),
+  joinPath: (...args: unknown[]): Result<Str> => joinPathMock(...(args as [Str, Str])),
 }));
 
 // Must import after mocks

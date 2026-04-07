@@ -45,6 +45,7 @@ import { WorkerPool, type WorkerResult, type WorkerTask } from '@/lint/framework
 import { format, type LintStrings } from '@/lint/locale/schema.ts';
 import { ALL_TOOLS, ALL_WORKSPACE_TOOLS } from '@/lint/tools/registry.ts';
 import { runSvelteCheckAllPackages, svelteCheckTool } from '@/lint/tools/svelte-check.ts';
+import { runTsgoAllPackages, tsgoTool } from '@/lint/tools/tsgo.ts';
 
 // =============================================================================
 // Types
@@ -1451,11 +1452,19 @@ export async function _runLintCore(
       wsResultCount += svelteResults.length;
     }
 
-    /* Run remaining workspace tools (tsgo, etc.) via the standard runner */
-    const nonSvelteWsTools: readonly WorkspaceTool[] = toolRegistry
+    /* tsgo needs special handling: runs per-package, not once at root */
+    if (tsgoTool.isAvailable?.()) {
+      const tsgoResults: LintResult[] = runTsgoAllPackages(process.cwd());
+      allResults.push(...tsgoResults);
+      wsResultCount += tsgoResults.length;
+    }
+
+    /* Run remaining workspace tools via the standard runner */
+    const perPkgToolNames: ReadonlySet<string> = new Set(['svelte-check', 'tsgo']);
+    const remainingWsTools: readonly WorkspaceTool[] = toolRegistry
       .getAllWorkspaceTools()
-      .filter((t: WorkspaceTool): boolean => t.name !== 'svelte-check');
-    for (const wsTool of nonSvelteWsTools) {
+      .filter((t: WorkspaceTool): boolean => !perPkgToolNames.has(t.name));
+    for (const wsTool of remainingWsTools) {
       const wsToolResults: LintResult[] = await toolRegistry.runWorkspaceTool(wsTool);
       allResults.push(...wsToolResults);
       wsResultCount += wsToolResults.length;

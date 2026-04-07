@@ -5443,6 +5443,23 @@ describe('transformTsgoOutput', () => {
     expect(results[0]!.file).toBe('src/my file (copy).ts');
     expect(results[0]!.ruleId).toBe('tsgo/TS1005');
   });
+
+  it('suppresses TS1005 from svelte.d.ts ambient declaration files', () => {
+    const output: string = [
+      'packages/shared/ui/src/svelte.d.ts(23,18): error TS1005: "," expected.',
+      'src/index.ts(10,5): error TS2322: Type mismatch.',
+    ].join('\n');
+    const results: LintResult[] = transformTsgoOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.ruleId).toBe('tsgo/TS2322');
+  });
+
+  it('does not suppress TS1005 from non-svelte.d.ts files', () => {
+    const output: string = 'src/app.d.ts(5,1): error TS1005: ";" expected.';
+    const results: LintResult[] = transformTsgoOutput(output);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.ruleId).toBe('tsgo/TS1005');
+  });
 });
 
 describe('tsgoTool definition', () => {

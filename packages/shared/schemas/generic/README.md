@@ -131,8 +131,8 @@ Use JavaScript default parameter values for optional type parameters:
 ```typescript
 const TaskContextSchema = generic(
   <TFlags extends Record<string, unknown>, TStrings>(
-    flagsSchema: v.GenericSchema<TFlags> = v.record(v.string(), v.unknown()) as any,
-    stringsSchema: v.GenericSchema<TStrings> = v.unknown() as any,
+    flagsSchema: v.GenericSchema<TFlags> = v.record(v.string(), v.unknown()) as unknown as v.GenericSchema<TFlags>,
+    stringsSchema: v.GenericSchema<TStrings> = v.unknown() as unknown as v.GenericSchema<TStrings>,
   ) =>
     v.strictObject({
       flags: flagsSchema,
@@ -233,8 +233,8 @@ interface TaskContext<
 ```typescript
 const TaskContextSchema = generic(
   <TToolFlags extends Record<string, unknown>, TStrings>(
-    flagsSchema: v.GenericSchema<TToolFlags> = v.record(v.string(), v.unknown()) as any,
-    stringsSchema: v.GenericSchema<TStrings> = v.unknown() as any,
+    flagsSchema: v.GenericSchema<TToolFlags> = v.record(v.string(), v.unknown()) as unknown as v.GenericSchema<TToolFlags>,
+    stringsSchema: v.GenericSchema<TStrings> = v.unknown() as unknown as v.GenericSchema<TStrings>,
   ) =>
     v.strictObject({
       flags: flagsSchema,
@@ -328,10 +328,10 @@ TypeScript can't infer that a default parameter satisfies a generic constraint i
 3. Type inference at call sites remains correct
 
 ```typescript
-// The `as any` is on the default value only — callers get full type safety
+// The `as unknown as` is on the default value only — callers get full type safety
 const Schema = generic(
   <T extends Record<string, unknown>>(
-    s: v.GenericSchema<T> = v.record(v.string(), v.unknown()) as any,
+    s: v.GenericSchema<T> = v.record(v.string(), v.unknown()) as unknown as v.GenericSchema<T>,
   ) => v.object({ data: s }),
 );
 

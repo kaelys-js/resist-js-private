@@ -48,7 +48,9 @@
       "@/secrets/infisical/*": ["./packages/shared/secrets/infisical/src/*.ts"],
       "@/secrets/infisical": ["./packages/shared/secrets/infisical/src/index.ts"],
       "@/products/*": ["./packages/products/*"],
-      "@/lint/*": ["./packages/shared/config/tooling/lint/src/*"]
+      "@/lint/*": ["./packages/shared/config/tooling/lint/src/*"],
+      "@/config/tooling/vite/lazy-plugin": ["./packages/shared/config/tooling/vite/src/vite-plugin-lazy.ts"],
+      "@/config/tooling/vite/template-html": ["./packages/shared/config/tooling/vite/src/vite-plugin-template-html.ts"]
     }
   },
   "exclude": ["node_modules", "dist", ".svelte-kit", "_INTEGRATE"]

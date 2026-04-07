@@ -84,6 +84,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Files**:
 - Edit: `scripts/generate-manifest.ts` (7 markers)
 - Edit: 10 test files (15 markers)
+- Test: `src/lint/provider.test.ts`
 
 **Verification**: `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep require-section-marker-style` returns 0 matches
 
@@ -97,10 +98,12 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Plan**:
 - Reorder sections to: Types → Constants → Helpers → Exported/API
+- Verify section markers match canonical `// ===` style after reordering
 
 **Files**:
 - Edit: `src/lint/import-sorting.ts`
 - Edit: `src/lint/profiling.ts`
+- Test: `src/lint/provider.test.ts`
 
 **Verification**: `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep require-section-order` returns 0 matches
 
@@ -114,6 +117,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Plan**:
 - Add blank lines at all 112 flagged locations across ~20 files
+- Run lint after each file batch to verify blank-line-group count decreases
 
 **Files**:
 - Edit: ~20 source and test files
@@ -130,6 +134,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Plan**:
 - Add `@module` to top-level JSDoc in each test file
+- Ensure `@module` tag matches the file's module path
 
 **Files**:
 - Edit: 7 test files
@@ -146,6 +151,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Plan**:
 - Add `{Type}` matching TypeScript parameter types to all `@param` tags
+- Verify type annotations match actual function signatures
 
 **Files**:
 - Edit: 11 source files
@@ -162,9 +168,11 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Plan**:
 - Add `{Type}` matching return types to all `@returns` tags
+- Verify type annotations match actual function return types
 
 **Files**:
 - Edit: `src/lint/diff-preview.ts`, `src/lint/profiling.ts`, `src/locale/schema.ts`, `src/lint/provider.ts`, `src/lint/watcher.ts`, `src/lint/per-folder.ts`, `src/lint/import-sorting.ts`
+- Test: `src/lint/provider.test.ts`
 
 **Verification**: `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep require-returns` returns 0 matches
 
@@ -178,6 +186,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Plan**:
 - Add `@example` blocks with realistic usage examples to all 19 exported functions
+- Use ` ```typescript ` code fences inside each `@example` block
 
 **Files**:
 - Edit: 11 source files
@@ -195,7 +204,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Verify `isRuleEnabledAnywhere` is exported from lint package index
 - Verify no orphaned code
 
-**Verification**: All new exports reachable, override block correctly structured
+**Verification**: `grep -c "isRuleEnabledAnywhere" packages/shared/config/tooling/lint/src/index.ts` outputs >= 1; `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep -c "override"` outputs 0 errors
 
 ---
 
@@ -210,9 +219,9 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Verify no unused exports or dead code (created but never imported)
 
 **Verification**:
-- All config settings have corresponding config.get calls
-- All feature classes instantiated
-- No orphaned exports
+- `grep -c "registerCommand" packages/shared/config/tooling/vscode/src/lint/commands.ts` matches declared command count
+- `grep -c "config.get" packages/shared/config/tooling/vscode/src/shared/config.ts` confirms all config settings read
+- `pnpm --filter @resist/vscode run qa:test` passes with no orphaned exports
 
 ---
 
@@ -241,9 +250,9 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Commit with descriptive message
 
 **Verification**:
-- All lint errors resolved
-- All tests pass
-- Integration audit shows zero gaps
+- `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep -c "error"` outputs 0
+- `pnpm --filter @resist/vscode run qa:test 2>&1 | grep "Tests"` shows >= 331 tests passing
+- `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep -c "jsdoc\|comments"` confirms all 12 rules enforced
 
 ---
 

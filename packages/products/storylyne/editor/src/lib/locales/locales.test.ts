@@ -21,7 +21,7 @@ for (const [path, mod] of Object.entries(localeModules)) {
   const [, code]: RegExpMatchArray = match;
   const [data]: EditorLocaleRaw[] = Object.values(mod);
   if (data) {
-    ALL_LOCALES[code] = data;
+    ALL_LOCALES[code!] = data;
   }
 }
 

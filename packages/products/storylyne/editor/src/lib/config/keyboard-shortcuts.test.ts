@@ -186,7 +186,7 @@ describe('DEFAULT_SHORTCUTS', () => {
       'DEV_RESET_ALL',
     ];
     for (let i = 0; i < panelIds.length; i++) {
-      const s = DEFAULT_SHORTCUTS[panelIds[i]];
+      const s = DEFAULT_SHORTCUTS[panelIds[i]!]!;
       expect(s.key).toBe(String(i + 1));
       expect(s.modifiers).toEqual(['ctrl']);
       expect(s.context).toBe('devToolbar');

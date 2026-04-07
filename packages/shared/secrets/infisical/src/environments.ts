@@ -290,5 +290,6 @@ export function detectEnvironment(): Result<StandardEnvironment> {
  * ```
  */
 export function validateEnvironment(env: Str): Result<StandardEnvironment> {
-  return ok(StandardEnvironmentSchema, env);
+  // cast safe: ok() validates env against StandardEnvironmentSchema at runtime
+  return ok(StandardEnvironmentSchema, env as unknown as StandardEnvironment);
 }

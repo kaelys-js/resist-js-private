@@ -126,7 +126,7 @@ describe('LintConfigSchema', () => {
       return;
     }
     expect(result.output.include).toEqual([]);
-    expect(result.output.exclude).toEqual(['*.test.ts', '*.d.ts']);
+    expect(result.output.exclude).toEqual(['*.d.ts']);
     expect(result.output.extensions).toEqual([
       '.ts',
       '.svelte.ts',
@@ -193,7 +193,7 @@ describe('loadConfig', () => {
 
     const config: LintConfig = loadConfig('/some/nonexistent/dir', undefined, en);
     expect(config.include).toEqual([]);
-    expect(config.exclude).toEqual(['*.test.ts', '*.d.ts']);
+    expect(config.exclude).toEqual(['*.d.ts']);
     expect(config.extensions).toEqual([
       '.ts',
       '.svelte.ts',
@@ -551,7 +551,7 @@ describe('generateJsonSchema', () => {
 
   it('exclude property has correct default', () => {
     const schema = generateJsonSchema([], new Map(), en);
-    expect(schema.properties['exclude']?.default).toEqual(['*.test.ts', '*.d.ts']);
+    expect(schema.properties['exclude']?.default).toEqual(['*.d.ts']);
   });
 
   it('extensions property has correct default', () => {
