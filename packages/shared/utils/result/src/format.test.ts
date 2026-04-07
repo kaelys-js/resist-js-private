@@ -160,6 +160,71 @@ describe('formatErrorDebug', () => {
       expect(result.data).toContain('DB.NOT_FOUND');
     }
   });
+
+  it('formats retry with no retryAfterMs or maxRetries', () => {
+    const error = makeError({ retry: { retryable: true } });
+    const result: Result<Str> = formatErrorDebug(error);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toContain('retryable=true');
+      expect(result.data).not.toContain('after=');
+      expect(result.data).not.toContain('max=');
+    }
+  });
+
+  it('formats source with only parameter (no pointer, no header)', () => {
+    const error = makeError({ source: { parameter: 'userId' } });
+    const result: Result<Str> = formatErrorDebug(error);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toContain('parameter=userId');
+      expect(result.data).not.toContain('pointer=');
+      expect(result.data).not.toContain('header=');
+    }
+  });
+
+  it('formats source with only pointer (no parameter, no header)', () => {
+    const error = makeError({ source: { pointer: '/data/name' } });
+    const result: Result<Str> = formatErrorDebug(error);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toContain('pointer=/data/name');
+      expect(result.data).not.toContain('parameter=');
+      expect(result.data).not.toContain('header=');
+    }
+  });
+
+  it('falls back to "root" when validation issue has no path', () => {
+    const error = makeError({
+      validation: {
+        issues: [
+          {
+            kind: 'validation' as const,
+            type: 'string' as const,
+            input: '',
+            expected: 'string',
+            received: 'undefined',
+            message: 'Invalid value',
+          },
+        ],
+        flattened: { nested: {} },
+      },
+    });
+    const result: Result<Str> = formatErrorDebug(error);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toContain('root: Invalid value');
+    }
+  });
+
+  it('omits stack section when stack is empty', () => {
+    const error = makeError({ stack: '' as Str });
+    const result: Result<Str> = formatErrorDebug(error);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).not.toContain('stack:');
+    }
+  });
 });
 
 // ── formatErrorJson ─────────────────────────────────────────────────────
@@ -225,6 +290,31 @@ describe('toRfc9457', () => {
     if (result.ok) {
       expect(result.data.errors).toBeDefined();
       expect(result.data.errors!.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('falls back to "root" when validation issue has no path', () => {
+    const error = makeError({
+      httpStatus: 422,
+      validation: {
+        issues: [
+          {
+            kind: 'validation' as const,
+            type: 'string' as const,
+            input: '',
+            expected: 'string',
+            received: 'undefined',
+            message: 'Bad value',
+          },
+        ],
+        flattened: { nested: {} },
+      },
+    });
+    const result: Result<ProblemDetails> = toRfc9457(error, 'https://example.com/errors');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.errors).toBeDefined();
+      expect(result.data.errors![0]!.field).toBe('root');
     }
   });
 });

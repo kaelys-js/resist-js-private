@@ -244,6 +244,44 @@ describe('combineWithAllErrors', () => {
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toEqual([1, 2]);
   });
+
+  it('preserves validation, source, cause, and meta from first error', () => {
+    const errorWithFields = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'bad input', {
+      validation: {
+        issues: [
+          {
+            kind: 'validation' as const,
+            type: 'string' as const,
+            input: '',
+            expected: 'string',
+            received: 'undefined',
+            message: 'Required',
+          },
+        ],
+        flattened: { nested: { name: ['Required'] } },
+      },
+      source: { pointer: '/data/name' },
+      cause: {
+        code: ERRORS.INTERNAL.UNEXPECTED,
+        message: 'root cause',
+        id: 'cause-id',
+        timestamp: '2026-01-01T00:00:00.000Z',
+        stack: '',
+      } as AppError,
+      meta: { field: 'name' },
+    }) as Result<number>;
+
+    const result = combineWithAllErrors([errorWithFields, errResult<number>(ERRORS.DB.NOT_FOUND)]);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.validation).toBeDefined();
+      expect(result.error.source).toEqual({ pointer: '/data/name' });
+      expect(result.error.cause).toBeDefined();
+      expect(result.error.cause!.message).toBe('root cause');
+      expect(result.error.meta).toEqual({ field: 'name' });
+      expect(result.error.related).toHaveLength(1);
+    }
+  });
 });
 
 // ── fromThrowable ───────────────────────────────────────────────────────
