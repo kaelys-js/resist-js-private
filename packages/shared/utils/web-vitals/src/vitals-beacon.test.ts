@@ -190,6 +190,28 @@ describe('vitals beacon', () => {
       // Queue should still be cleared
       expect(unwrapStatus().queued).toBe(0);
     });
+
+    it('returns error when safeStringify fails (line 176)', () => {
+      setDeviceInfo(createDevice());
+      queueVital(createMetric());
+
+      const originalStringify: typeof JSON.stringify = JSON.stringify;
+      JSON.stringify = (): never => {
+        throw new Error('circular reference');
+      };
+
+      const result: Result<Void> = flushVitals();
+
+      JSON.stringify = originalStringify;
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.code).toBe('VALIDATION.INVALID_FORMAT');
+      }
+      expect(mockSendBeacon).not.toHaveBeenCalled();
+      // Queue was already cleared before stringify attempt
+      expect(unwrapStatus().queued).toBe(0);
+    });
   });
 
   // ── setupVitalsBeacon ───────────────────────────────────────────────
