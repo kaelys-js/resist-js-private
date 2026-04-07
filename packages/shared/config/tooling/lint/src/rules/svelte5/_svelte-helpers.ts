@@ -79,7 +79,7 @@ export function collectStateVariables(ast: AstNode): Set<string> {
 
     const id: AstNode | undefined = node.id as AstNode | undefined;
     if (id?.type === 'Identifier') {
-      stateVars.add((id as { name: string }).name);
+      stateVars.add((id as unknown as { name: string }).name);
     }
   });
 
@@ -107,7 +107,7 @@ export function collectDerivedVariables(ast: AstNode): Set<string> {
 
     const id: AstNode | undefined = node.id as AstNode | undefined;
     if (id?.type === 'Identifier') {
-      derivedVars.add((id as { name: string }).name);
+      derivedVars.add((id as unknown as { name: string }).name);
     }
   });
 
@@ -175,12 +175,12 @@ export function findAssignmentTargets(body: AstNode): Array<{ name: string; node
     if (node.type === 'AssignmentExpression') {
       const left: AstNode | undefined = node.left as AstNode | undefined;
       if (left?.type === 'Identifier') {
-        targets.push({ name: (left as { name: string }).name, node });
+        targets.push({ name: (left as unknown as { name: string }).name, node });
       }
     } else if (node.type === 'UpdateExpression') {
       const argument: AstNode | undefined = node.argument as AstNode | undefined;
       if (argument?.type === 'Identifier') {
-        targets.push({ name: (argument as { name: string }).name, node });
+        targets.push({ name: (argument as unknown as { name: string }).name, node });
       }
     }
   });
@@ -294,7 +294,7 @@ export function findSubscriptionPatterns(body: AstNode): string[] {
 
     // Direct call: addEventListener(...), setInterval(...), subscribe(...)
     if (callee.type === 'Identifier') {
-      const name: string = (callee as { name: string }).name;
+      const name: string = (callee as unknown as { name: string }).name;
       if (SUBSCRIPTION_PATTERNS.has(name)) {
         patterns.push(name);
       }
@@ -307,7 +307,7 @@ export function findSubscriptionPatterns(body: AstNode): string[] {
     ) {
       const property: AstNode | undefined = (callee as { property?: AstNode }).property;
       if (property?.type === 'Identifier') {
-        const name: string = (property as { name: string }).name;
+        const name: string = (property as unknown as { name: string }).name;
         if (SUBSCRIPTION_PATTERNS.has(name)) {
           patterns.push(name);
         }

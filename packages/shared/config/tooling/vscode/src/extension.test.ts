@@ -854,7 +854,7 @@ describe('extension', () => {
       });
       activateAndCapture();
 
-      const watcherCb = h.fn.createBatchedFileWatcher.mock.calls[0]![1] as unknown as (
+      const watcherCb = (h.fn.createBatchedFileWatcher.mock.calls as unknown[][])[0]![1] as (
         uris: vscode.Uri[],
       ) => void;
       h.fn.safeRunAsync.mockClear();
@@ -871,7 +871,7 @@ describe('extension', () => {
       });
       activateAndCapture();
 
-      const watcherCb = h.fn.createBatchedFileWatcher.mock.calls[0]![1] as unknown as (
+      const watcherCb = (h.fn.createBatchedFileWatcher.mock.calls as unknown[][])[0]![1] as (
         uris: vscode.Uri[],
       ) => void;
       h.fn.safeRunAsync.mockClear();

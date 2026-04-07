@@ -53,7 +53,7 @@ function collectRenderedProps(templateAst: AstNode): Set<string> {
     if (expression.type === 'CallExpression') {
       const callee: AstNode | undefined = expression.callee as AstNode | undefined;
       if (callee?.type === 'Identifier') {
-        rendered.add((callee as { name: string }).name);
+        rendered.add((callee as unknown as { name: string }).name);
       }
     }
 
@@ -63,7 +63,7 @@ function collectRenderedProps(templateAst: AstNode): Set<string> {
       if (inner?.type === 'CallExpression') {
         const callee: AstNode | undefined = inner.callee as AstNode | undefined;
         if (callee?.type === 'Identifier') {
-          rendered.add((callee as { name: string }).name);
+          rendered.add((callee as unknown as { name: string }).name);
         }
       }
     }

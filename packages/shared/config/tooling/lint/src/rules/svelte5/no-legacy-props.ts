@@ -43,7 +43,7 @@ const rule: TypeScriptRule = {
         for (const declarator of declarators) {
           const id: AstNode | undefined = declarator.id as AstNode | undefined;
           const name: string =
-            id?.type === 'Identifier' ? (id as { name: string }).name : 'unknown';
+            id?.type === 'Identifier' ? (id as unknown as { name: string }).name : 'unknown';
 
           results.push({
             file: context.file,
