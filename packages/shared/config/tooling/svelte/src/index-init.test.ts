@@ -24,11 +24,12 @@ describe('resolveTemplatePaths module-level throws', () => {
         }),
       ),
       resolvePath: vi.fn(
-        (): Result<Path> => ({
-          ok: false,
-          data: null,
-          error: { code: 'VALIDATION.SCHEMA_FAILED', message: 'resolve failed' },
-        }) as Result<Path>,
+        (): Result<Path> =>
+          ({
+            ok: false,
+            data: null,
+            error: { code: 'VALIDATION.SCHEMA_FAILED', message: 'resolve failed' },
+          }) as Result<Path>,
       ),
     }));
 

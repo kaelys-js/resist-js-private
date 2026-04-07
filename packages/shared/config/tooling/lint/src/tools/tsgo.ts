@@ -153,7 +153,6 @@ export function runTsgoAllPackages(cwd: string): LintResult[] {
   const results: LintResult[] = [];
 
   for (const pkgDir of discoverTsconfigDirs(cwd)) {
-
     try {
       const output: string = execFileSync('tsgo', ['--noEmit'], {
         cwd: pkgDir,

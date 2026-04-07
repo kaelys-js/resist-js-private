@@ -244,7 +244,9 @@ describe('templateLiteral() pipe introspection', () => {
   });
 
   it('uses length constraints for v.pipe(v.string(), v.minLength(3), v.maxLength(10))', () => {
-    const result = templateLiteral(asParts(['code_', v.pipe(v.string(), v.minLength(3), v.maxLength(10))]));
+    const result = templateLiteral(
+      asParts(['code_', v.pipe(v.string(), v.minLength(3), v.maxLength(10))]),
+    );
     expect(result.ok).toBe(true);
     if (!result.ok) {
       return;

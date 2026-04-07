@@ -19,8 +19,12 @@ declare module '*/$types' {
   export type RequestHandler = (event: RequestEvent) => Response | Promise<Response>;
 
   /** SvelteKit layout server load function. */
-  export type LayoutServerLoad = (event: RequestEvent) => Record<string, unknown> | Promise<Record<string, unknown>>;
+  export type LayoutServerLoad = (
+    event: RequestEvent,
+  ) => Record<string, unknown> | Promise<Record<string, unknown>>;
 
   /** SvelteKit page server load function. */
-  export type PageServerLoad = (event: RequestEvent) => Record<string, unknown> | Promise<Record<string, unknown>>;
+  export type PageServerLoad = (
+    event: RequestEvent,
+  ) => Record<string, unknown> | Promise<Record<string, unknown>>;
 }
