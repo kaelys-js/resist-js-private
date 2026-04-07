@@ -8,7 +8,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 import { type WorkspaceTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
@@ -72,45 +72,59 @@ export function transformTsgoOutput(output: string): LintResult[] {
   return results;
 }
 
+/** Directories to skip during package discovery. */
+const SKIP_DIRS: ReadonlySet<string> = new Set([
+  'node_modules',
+  '.svelte-kit',
+  'dist',
+  '_INTEGRATE',
+]);
+
 /**
- * Packages that have their own tsconfig.json.
+ * Discover all directories under `packages/` that contain a `tsconfig.json`.
  *
- * tsgo runs once per package directory so each package's tsconfig
- * (including custom `paths` like SvelteKit's `$lib`) is respected.
- * Each path is relative to the workspace root.
+ * Walks the `packages/` tree recursively, skipping `node_modules`,
+ * `.svelte-kit`, `dist`, and `_INTEGRATE`.
+ *
+ * @param cwd - Workspace root directory
+ * @returns Absolute paths of directories with a tsconfig.json
  */
-const TSGO_PACKAGES: readonly string[] = [
-  'packages/products-template/app',
-  'packages/shared/config/core',
-  'packages/shared/config/test',
-  'packages/shared/config/tooling/lint',
-  'packages/shared/config/tooling/node',
-  'packages/shared/config/tooling/svelte',
-  'packages/shared/config/tooling/vite',
-  'packages/shared/config/tooling/vscode',
-  'packages/shared/locale',
-  'packages/shared/schemas/common',
-  'packages/shared/schemas/core-config',
-  'packages/shared/schemas/function',
-  'packages/shared/schemas/generic',
-  'packages/shared/schemas/result',
-  'packages/shared/schemas/template-literal',
-  'packages/shared/secrets/infisical',
-  'packages/shared/ui',
-  'packages/shared/utils/beacon',
-  'packages/shared/utils/cli',
-  'packages/shared/utils/core',
-  'packages/shared/utils/devtools',
-  'packages/shared/utils/result',
-  'packages/shared/utils/web-vitals',
-  'packages/products/storylyne/editor',
-];
+export function discoverTsconfigDirs(cwd: string): string[] {
+  const packagesDir: string = join(cwd, 'packages');
+  if (!existsSync(packagesDir)) {
+    return [];
+  }
+
+  const found: string[] = [];
+
+  function walk(dir: string): void {
+    let entries: import('node:fs').Dirent[];
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (!entry.isDirectory() || SKIP_DIRS.has(entry.name)) {
+        continue;
+      }
+      const full: string = join(dir, entry.name);
+      if (existsSync(join(full, 'tsconfig.json'))) {
+        found.push(full);
+      }
+      walk(full);
+    }
+  }
+
+  walk(packagesDir);
+  return found;
+}
 
 /**
  * Run tsgo across all packages that have a tsconfig.json.
  *
- * Unlike the standard workspace tool runner (which runs once at root),
- * this runs `tsgo --noEmit` once per package directory so each package's
+ * Dynamically discovers packages instead of relying on a hardcoded list.
+ * Runs `tsgo --noEmit` once per package directory so each package's
  * own tsconfig.json is used for path resolution.
  *
  * @param cwd - Workspace root directory
@@ -119,12 +133,7 @@ const TSGO_PACKAGES: readonly string[] = [
 export function runTsgoAllPackages(cwd: string): LintResult[] {
   const results: LintResult[] = [];
 
-  for (const pkgPath of TSGO_PACKAGES) {
-    const pkgDir: string = resolve(cwd, pkgPath);
-
-    if (!existsSync(join(pkgDir, 'tsconfig.json'))) {
-      continue;
-    }
+  for (const pkgDir of discoverTsconfigDirs(cwd)) {
 
     try {
       const output: string = execFileSync('tsgo', ['--noEmit'], {
