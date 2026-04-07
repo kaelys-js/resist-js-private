@@ -1,6 +1,18 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Path, Str, Name, CssFontFamily, CssFontWeight, LocaleString } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
+
+// ---------------------------------------------------------------------------
+// Mocks — readFile/writeFile for plugin lifecycle hook tests
+// ---------------------------------------------------------------------------
+
+vi.mock('@/utils/core/fs', () => ({
+  readFile: vi.fn(),
+  writeFile: vi.fn(),
+}));
+
+import { readFile, writeFile } from '@/utils/core/fs';
+
 import {
   deriveErrorIdPrefix,
   generateFontFaceCss,
@@ -71,6 +83,37 @@ const TEST_APP_CONFIG: AppHtmlConfig = {
   appName: TEST_APP_NAME,
   templatePath: TEST_TEMPLATE_PATH,
 };
+
+// ---------------------------------------------------------------------------
+// Mock helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Create a success Result for mock return values.
+ *
+ * @param {T} data - The success data
+ * @returns {Result<T>} A success Result
+ */
+function mockOk<T>(data: T): Result<T> {
+  return { ok: true, data, error: null } as Result<T>;
+}
+
+/**
+ * Create a failure Result for mock return values.
+ *
+ * @param {string} code - Error code
+ * @returns {Result<never>} A failure Result
+ */
+function mockErr(code: string): Result<never> {
+  return { ok: false, data: null, error: { code, message: code } } as Result<never>;
+}
+
+const readFileMock = readFile as ReturnType<typeof vi.fn>;
+const writeFileMock = writeFile as ReturnType<typeof vi.fn>;
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 // =============================================================================
 // Tests
@@ -330,5 +373,263 @@ var m = localStorage.getItem('{{STORAGE_PREFIX}}:mode');
       return;
     }
     expect(result.data).toContain("'my-app:mode'");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// templateErrorHtml lifecycle hooks
+// ---------------------------------------------------------------------------
+
+describe('templateErrorHtml lifecycle hooks', () => {
+  const buildEnv = { command: 'build' as const, mode: 'production' };
+  const MOCK_TEMPLATE: Str =
+    '<html><title>{{APP_NAME}}</title><style>{{FONT_FACE_CSS}}</style>' +
+    '<p>{{errors.serverError}}</p><p>{{errors.serverErrorDescription}}</p>' +
+    '<a>{{errors.goHome}}</a><span>{{errors.copied}}</span>' +
+    '<span>{{errors.copyFailed}}</span><button>{{errors.copyErrorId}}</button>' +
+    '<span>{{errors.errorIdPrefix}}</span><span>{{FONT_FAMILIES}}</span></html>';
+
+  let processOnSpy: ReturnType<typeof vi.spyOn>;
+  let processRemoveListenerSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    processOnSpy = vi.spyOn(process, 'on').mockReturnValue(process);
+    processRemoveListenerSpy = vi.spyOn(process, 'removeListener').mockReturnValue(process);
+  });
+
+  afterEach(() => {
+    processOnSpy.mockRestore();
+    processRemoveListenerSpy.mockRestore();
+  });
+
+  it('config() reads template, resolves placeholders, writes result', () => {
+    readFileMock.mockReturnValue(mockOk(MOCK_TEMPLATE));
+    writeFileMock.mockReturnValue(mockOk(undefined));
+
+    const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
+    (plugin.config as Function)({}, buildEnv);
+
+    expect(readFileMock).toHaveBeenCalledWith(TEST_TEMPLATE_PATH);
+    expect(writeFileMock).toHaveBeenCalledTimes(1);
+    const written: Str = writeFileMock.mock.calls[0][1] as Str;
+    expect(written).toContain(TEST_APP_NAME);
+    expect(written).not.toContain('{{APP_NAME}}');
+  });
+
+  it('config() registers process.on exit listener', () => {
+    readFileMock.mockReturnValue(mockOk(MOCK_TEMPLATE));
+    writeFileMock.mockReturnValue(mockOk(undefined));
+
+    const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
+    (plugin.config as Function)({}, buildEnv);
+
+    expect(processOnSpy).toHaveBeenCalledWith('exit', expect.any(Function));
+  });
+
+  it('config() throws when readFile fails', () => {
+    readFileMock.mockReturnValue(mockErr('IO.READ_FAILED'));
+
+    const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
+    expect(() => (plugin.config as Function)({}, buildEnv)).toThrow();
+  });
+
+  it('config() throws when writeFile fails', () => {
+    readFileMock.mockReturnValue(mockOk(MOCK_TEMPLATE));
+    writeFileMock.mockReturnValue(mockErr('IO.WRITE_FAILED'));
+
+    const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
+    expect(() => (plugin.config as Function)({}, buildEnv)).toThrow();
+  });
+
+  it('config() throws when resolveErrorHtml fails (empty fontFaces)', () => {
+    readFileMock.mockReturnValue(mockOk(MOCK_TEMPLATE));
+
+    const emptyFontConfig: ErrorHtmlConfig = {
+      ...TEST_ERROR_CONFIG,
+      fontFaces: [],
+    };
+    const plugin = templateErrorHtml(emptyFontConfig);
+    expect(() => (plugin.config as Function)({}, buildEnv)).toThrow();
+  });
+
+  it('closeBundle() restores original content', () => {
+    readFileMock.mockReturnValue(mockOk(MOCK_TEMPLATE));
+    writeFileMock.mockReturnValue(mockOk(undefined));
+
+    const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
+    (plugin.config as Function)({}, buildEnv);
+
+    writeFileMock.mockClear();
+    writeFileMock.mockReturnValue(mockOk(undefined));
+
+    (plugin.closeBundle as Function)();
+
+    expect(writeFileMock).toHaveBeenCalledWith(TEST_TEMPLATE_PATH, MOCK_TEMPLATE);
+    expect(processRemoveListenerSpy).toHaveBeenCalledWith('exit', expect.any(Function));
+  });
+
+  it('closeBundle() is no-op when originalContent is null', () => {
+    const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
+    (plugin.closeBundle as Function)();
+    expect(writeFileMock).not.toHaveBeenCalled();
+  });
+
+  it('restore throws when writeFile fails during restore', () => {
+    readFileMock.mockReturnValue(mockOk(MOCK_TEMPLATE));
+    writeFileMock.mockReturnValue(mockOk(undefined));
+
+    const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
+    (plugin.config as Function)({}, buildEnv);
+
+    writeFileMock.mockReturnValue(mockErr('IO.WRITE_FAILED'));
+    expect(() => (plugin.closeBundle as Function)()).toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// templateAppHtml lifecycle hooks
+// ---------------------------------------------------------------------------
+
+describe('templateAppHtml lifecycle hooks', () => {
+  const buildEnv = { command: 'build' as const, mode: 'production' };
+  const MOCK_TEMPLATE: Str =
+    '<html><title>{{APP_NAME}}</title>' + '<script>var p = "{{STORAGE_PREFIX}}";</script></html>';
+
+  let processOnSpy: ReturnType<typeof vi.spyOn>;
+  let processRemoveListenerSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    processOnSpy = vi.spyOn(process, 'on').mockReturnValue(process);
+    processRemoveListenerSpy = vi.spyOn(process, 'removeListener').mockReturnValue(process);
+  });
+
+  afterEach(() => {
+    processOnSpy.mockRestore();
+    processRemoveListenerSpy.mockRestore();
+  });
+
+  it('config() reads template, resolves placeholders, writes result', () => {
+    readFileMock.mockReturnValue(mockOk(MOCK_TEMPLATE));
+    writeFileMock.mockReturnValue(mockOk(undefined));
+
+    const plugin = templateAppHtml(TEST_APP_CONFIG);
+    (plugin.config as Function)({}, buildEnv);
+
+    expect(readFileMock).toHaveBeenCalledWith(TEST_TEMPLATE_PATH);
+    expect(writeFileMock).toHaveBeenCalledTimes(1);
+    const written: Str = writeFileMock.mock.calls[0][1] as Str;
+    expect(written).toContain(TEST_APP_NAME);
+    expect(written).not.toContain('{{APP_NAME}}');
+    expect(written).not.toContain('{{STORAGE_PREFIX}}');
+  });
+
+  it('config() registers process.on exit listener', () => {
+    readFileMock.mockReturnValue(mockOk(MOCK_TEMPLATE));
+    writeFileMock.mockReturnValue(mockOk(undefined));
+
+    const plugin = templateAppHtml(TEST_APP_CONFIG);
+    (plugin.config as Function)({}, buildEnv);
+
+    expect(processOnSpy).toHaveBeenCalledWith('exit', expect.any(Function));
+  });
+
+  it('config() throws when readFile fails', () => {
+    readFileMock.mockReturnValue(mockErr('IO.READ_FAILED'));
+
+    const plugin = templateAppHtml(TEST_APP_CONFIG);
+    expect(() => (plugin.config as Function)({}, buildEnv)).toThrow();
+  });
+
+  it('config() throws when resolveAppHtml fails (non-string from readFile)', () => {
+    readFileMock.mockReturnValue(mockOk(12345)); // non-string triggers resolveAppHtml validation error
+    writeFileMock.mockReturnValue(mockOk(undefined));
+
+    const plugin = templateAppHtml(TEST_APP_CONFIG);
+    expect(() => (plugin.config as Function)({}, buildEnv)).toThrow();
+  });
+
+  it('config() throws when writeFile fails', () => {
+    readFileMock.mockReturnValue(mockOk(MOCK_TEMPLATE));
+    writeFileMock.mockReturnValue(mockErr('IO.WRITE_FAILED'));
+
+    const plugin = templateAppHtml(TEST_APP_CONFIG);
+    expect(() => (plugin.config as Function)({}, buildEnv)).toThrow();
+  });
+
+  it('closeBundle() restores original content', () => {
+    readFileMock.mockReturnValue(mockOk(MOCK_TEMPLATE));
+    writeFileMock.mockReturnValue(mockOk(undefined));
+
+    const plugin = templateAppHtml(TEST_APP_CONFIG);
+    (plugin.config as Function)({}, buildEnv);
+
+    writeFileMock.mockClear();
+    writeFileMock.mockReturnValue(mockOk(undefined));
+
+    (plugin.closeBundle as Function)();
+
+    expect(writeFileMock).toHaveBeenCalledWith(TEST_TEMPLATE_PATH, MOCK_TEMPLATE);
+    expect(processRemoveListenerSpy).toHaveBeenCalledWith('exit', expect.any(Function));
+  });
+
+  it('closeBundle() is no-op when originalContent is null', () => {
+    const plugin = templateAppHtml(TEST_APP_CONFIG);
+    (plugin.closeBundle as Function)();
+    expect(writeFileMock).not.toHaveBeenCalled();
+  });
+
+  it('restore throws when writeFile fails during restore', () => {
+    readFileMock.mockReturnValue(mockOk(MOCK_TEMPLATE));
+    writeFileMock.mockReturnValue(mockOk(undefined));
+
+    const plugin = templateAppHtml(TEST_APP_CONFIG);
+    (plugin.config as Function)({}, buildEnv);
+
+    writeFileMock.mockReturnValue(mockErr('IO.WRITE_FAILED'));
+    expect(() => (plugin.closeBundle as Function)()).toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Validation error paths
+// ---------------------------------------------------------------------------
+
+describe('validation error paths', () => {
+  it('templateErrorHtml throws on invalid config', () => {
+    expect(() => templateErrorHtml({} as ErrorHtmlConfig)).toThrow();
+  });
+
+  it('templateAppHtml throws on invalid config', () => {
+    expect(() => templateAppHtml({} as AppHtmlConfig)).toThrow();
+  });
+
+  it('resolveErrorHtml returns error on invalid config', () => {
+    const result = resolveErrorHtml('template', {} as ErrorHtmlConfig);
+    expect(result.ok).toBe(false);
+  });
+
+  it('resolveAppHtml returns error on invalid config', () => {
+    const result = resolveAppHtml('template', {} as AppHtmlConfig);
+    expect(result.ok).toBe(false);
+  });
+
+  it('generateFontFaceCss returns error on invalid entries', () => {
+    const result = generateFontFaceCss([{} as FontFaceEntry]);
+    expect(result.ok).toBe(false);
+  });
+
+  it('resolveErrorHtml returns error on non-string template', () => {
+    const result = resolveErrorHtml(null as unknown as Str, TEST_ERROR_CONFIG);
+    expect(result.ok).toBe(false);
+  });
+
+  it('resolveAppHtml returns error on non-string template', () => {
+    const result = resolveAppHtml(null as unknown as Str, TEST_APP_CONFIG);
+    expect(result.ok).toBe(false);
+  });
+
+  it('deriveErrorIdPrefix returns error on non-string input', () => {
+    const result = deriveErrorIdPrefix(null as unknown as Str);
+    expect(result.ok).toBe(false);
   });
 });
