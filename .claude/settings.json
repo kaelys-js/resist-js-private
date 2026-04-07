@@ -59,6 +59,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/pre-plan-file-validate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-bash-no-file-writes.sh"
           }
         ]
       },
@@ -104,7 +108,17 @@
         ]
       }
     ],
-    "PostToolUse": [],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-edit-format-lint.sh"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",
