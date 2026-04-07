@@ -84,8 +84,9 @@ vi.mock('@sveltejs/vite-plugin-svelte', () => ({
 
 const { createSvelteConfig, TEMPLATE_PATHS } = await import('./index.ts');
 const { execSyncSafe } = await import('@/utils/core/shell');
-const { readFile } = await import('@/utils/core/fs');
+const { readFile, parseJsonWithComments } = await import('@/utils/core/fs');
 const { findWorkspaceRoot } = await import('@/utils/core/workspace');
+const { joinPath } = await import('@/utils/core/path');
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -302,5 +303,54 @@ describe('createSvelteConfig', () => {
     const wildcardPath: Str = config.kit.alias['@/utils/core/*'] as Str;
     expect(wildcardPath).not.toMatch(/\*\.ts$/);
     expect(wildcardPath).toMatch(/\*$/);
+  });
+
+  // --- buildAliasesFromTsconfig error paths ---
+
+  it('throws when joinPath fails for tsconfig.json path (line 250)', () => {
+    (joinPath as ReturnType<typeof vi.fn>).mockReturnValueOnce({
+      ok: false,
+      data: null,
+      error: { code: 'VALIDATION.SCHEMA_FAILED', message: 'bad path' },
+    });
+    expect(() => createSvelteConfig({ adapter: mockAdapter })).toThrow();
+  });
+
+  it('throws when parseJsonWithComments fails (line 262)', () => {
+    (parseJsonWithComments as ReturnType<typeof vi.fn>).mockReturnValueOnce({
+      ok: false,
+      data: null,
+      error: { code: 'PARSE.JSON_FAILED', message: 'invalid json' },
+    });
+    expect(() => createSvelteConfig({ adapter: mockAdapter })).toThrow();
+  });
+
+  it('throws when tsconfig content fails schema validation (line 268)', () => {
+    (parseJsonWithComments as ReturnType<typeof vi.fn>).mockReturnValueOnce({
+      ok: true,
+      data: { compilerOptions: { paths: 123 } },
+      error: null,
+    });
+    expect(() => createSvelteConfig({ adapter: mockAdapter })).toThrow();
+  });
+
+  it('throws when joinPath fails for individual alias resolution (line 305)', () => {
+    let callCount = 0;
+    (joinPath as ReturnType<typeof vi.fn>).mockImplementation(
+      (segments: string[]): Result<Path> => {
+        callCount++;
+        // First call: tsconfig.json path — succeed
+        if (callCount === 1) {
+          return { ok: true, data: segments.join('/') as Path, error: null };
+        }
+        // Subsequent calls: alias resolution — fail
+        return {
+          ok: false,
+          data: null,
+          error: { code: 'VALIDATION.SCHEMA_FAILED', message: 'alias path failed' },
+        } as Result<Path>;
+      },
+    );
+    expect(() => createSvelteConfig({ adapter: mockAdapter })).toThrow();
   });
 });
