@@ -237,4 +237,14 @@ describe('applyUrlOverrides', () => {
     );
     expect(result.ok).toBe(true);
   });
+
+  it('applies sidebarOpen=true as boolean true (covers true branch)', () => {
+    applyUrlOverrides(appStore, debugStore, { sidebarOpen: 'true' }, config);
+    expect(appStore.setSidebarOpen).toHaveBeenCalledWith(true);
+  });
+
+  it('converts non-numeric mockDataDelay to 0 (Number(value) || 0 fallback)', () => {
+    applyUrlOverrides(appStore, debugStore, { mockDataDelay: 'abc' }, config);
+    expect(appStore.setMockDataDelay).toHaveBeenCalledWith(0);
+  });
 });

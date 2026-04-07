@@ -132,4 +132,11 @@ describe('diffSnapshot', () => {
     // Both prev['a'] and next['a'] are undefined — no diff
     expect(diffs).toHaveLength(0);
   });
+
+  it('treats two different object refs with identical JSON as equal', () => {
+    const prev = { config: { x: 1, y: 2 } };
+    const next = { config: { x: 1, y: 2 } };
+    // Different refs but same JSON.stringify → no diff (covers JSON comparison true branch)
+    expect(diffSnapshot(prev, next)).toEqual([]);
+  });
 });
