@@ -162,4 +162,54 @@ describe('DiagnosticFilter', () => {
     filter.dispose();
     expect(filter.getActiveCategories()).toBeUndefined();
   });
+
+  it('skips non-resist diagnostics in extractCategories (line 70)', () => {
+    const foreignDiag = { ...createDiag('naming/rule'), source: 'eslint' };
+    const resistDiag = createDiag('jsdoc/require-param');
+    const collection = createMockCollection([
+      [vscode.Uri.file('/test.ts'), [foreignDiag, resistDiag]],
+    ]);
+
+    const categories = filter.extractCategories(
+      collection as unknown as vscode.DiagnosticCollection,
+    );
+    expect(categories).toEqual(['jsdoc']);
+  });
+
+  it('shows no-categories info when collection has no resist diagnostics (line 96-98)', async () => {
+    const collection = createMockCollection([]);
+    await filter.showFilterQuickPick(collection as unknown as vscode.DiagnosticCollection);
+    expect(vscode.window.showInformationMessage).toHaveBeenCalled();
+  });
+
+  it('returns early when user cancels quick pick (line 105-107)', async () => {
+    const collection = createMockCollection([
+      [vscode.Uri.file('/test.ts'), [createDiag('naming/rule')]],
+    ]);
+    vi.mocked(vscode.window.showQuickPick).mockResolvedValue(undefined);
+    await filter.showFilterQuickPick(collection as unknown as vscode.DiagnosticCollection);
+    expect(filter.getActiveCategories()).toBeUndefined();
+  });
+
+  it('applies filter from quick pick selection (line 109-110)', async () => {
+    const collection = createMockCollection([
+      [vscode.Uri.file('/test.ts'), [createDiag('naming/rule'), createDiag('jsdoc/param')]],
+    ]);
+    vi.mocked(vscode.window.showQuickPick).mockResolvedValue(['naming'] as any);
+    await filter.showFilterQuickPick(collection as unknown as vscode.DiagnosticCollection);
+    expect(filter.getActiveCategories()).toContain('naming');
+  });
+
+  it('preserves non-resist diagnostics during filter (line 142-143)', () => {
+    const foreignDiag = { ...createDiag('some-rule'), source: 'eslint' };
+    const resistDiag = createDiag('naming/rule');
+    const collection = createMockCollection([
+      [vscode.Uri.file('/test.ts'), [foreignDiag, resistDiag]],
+    ]);
+
+    filter.applyFilter(['naming'], collection);
+
+    const [, filtered] = collection.set.mock.calls[0]!;
+    expect(filtered).toHaveLength(2); // both preserved: foreign + matching resist
+  });
 });

@@ -140,4 +140,43 @@ describe('showFixDiffPreview', () => {
       expect.stringContaining('No'),
     );
   });
+
+  it('returns early when no active editor (line 131)', async () => {
+    (vscode.window as any).activeTextEditor = undefined;
+    const collection = vscode.languages.createDiagnosticCollection('test');
+
+    await showFixDiffPreview(collection);
+
+    expect(vscode.window.showInformationMessage).not.toHaveBeenCalled();
+    expect(vscode.commands.executeCommand).not.toHaveBeenCalled();
+  });
+
+  it('logs no-fixes message when channel provided (line 147-148)', async () => {
+    const doc = createMockDoc();
+    (vscode.window as any).activeTextEditor = { document: doc };
+    const collection = vscode.languages.createDiagnosticCollection('test');
+    collection.set(doc.uri, [createDiagWithoutFix()]);
+    const channel: any = { appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn() };
+
+    await showFixDiffPreview(collection, channel);
+
+    expect(vscode.window.showInformationMessage).toHaveBeenCalled();
+    expect(channel.appendLine).toHaveBeenCalled();
+  });
+
+  it('opens diff command when fixable diagnostics exist (line 152-154)', async () => {
+    const doc = createMockDoc();
+    (vscode.window as any).activeTextEditor = { document: doc };
+    const collection = vscode.languages.createDiagnosticCollection('test');
+    collection.set(doc.uri, [createDiagWithFix(0, 5, 'let')]);
+
+    await showFixDiffPreview(collection);
+
+    expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
+      'vscode.diff',
+      expect.anything(),
+      expect.anything(),
+      expect.stringContaining('file.ts'),
+    );
+  });
 });

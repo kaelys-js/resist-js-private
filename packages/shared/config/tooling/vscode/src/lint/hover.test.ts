@@ -279,4 +279,28 @@ describe('ResistHoverProvider', () => {
     expect(md.value).toContain('- const');
     expect(md.value).not.toContain('+ ');
   });
+
+  it('skips diagnostics outside hover position (line 48)', () => {
+    const diag = createDiagnostic({
+      range: new vscode.Range(0, 0, 0, 10),
+      data: { tip: 'Some tip', fix: { range: { start: 0, end: 0 }, text: '' } },
+    });
+    collection.set(doc.uri, [diag]);
+
+    const result = provider.provideHover(doc, new vscode.Position(1, 0));
+    expect(result).toBeUndefined();
+  });
+
+  it('handles object-type diagnostic code in hover content (line 136-137)', () => {
+    const diag = createDiagnostic({
+      code: { value: 'style/no-var', target: vscode.Uri.parse('https://example.com') },
+      data: { tip: 'Use const instead', fix: { range: { start: 0, end: 0 }, text: '' } },
+    });
+    collection.set(doc.uri, [diag]);
+
+    const result = provider.provideHover(doc, new vscode.Position(0, 5));
+    expect(result).toBeDefined();
+    const md = result!.contents[0] as vscode.MarkdownString;
+    expect(md.value).toContain('`style/no-var`');
+  });
 });

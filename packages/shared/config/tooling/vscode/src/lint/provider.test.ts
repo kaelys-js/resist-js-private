@@ -1162,6 +1162,125 @@ describe('lintWorkspace', () => {
     expect(mockStateManager.setState).toHaveBeenCalledWith('lint', 'ready');
   });
 
+  it('uses fallback diagnostic when createDiagnosticFromEntry returns undefined (line 629)', async () => {
+    // Ensure no open document so mapEntryToDiagnosticBasic is used
+    Object.defineProperty(vscode.workspace, 'textDocuments', { value: [], configurable: true });
+
+    // Entry with line: 0 makes createDiagnosticFromEntry return undefined
+    mockRunToolJson.mockResolvedValue({
+      ok: true,
+      data: [createEntry({ file: '/workspace/src/bad.ts', line: 0, message: 'fallback msg' })],
+      stderr: '',
+      elapsed: 200,
+    });
+
+    await lintWorkspace(mockCollection, mockChannel, mockStateManager as never, {}, mockProgress);
+
+    expect(mockCollection.set).toHaveBeenCalledTimes(1);
+    const [, diagnostics] = (mockCollection.set as ReturnType<typeof vi.fn>).mock.calls[0] as [
+      vscode.Uri,
+      vscode.Diagnostic[],
+    ];
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0]!.message).toBe('fallback msg');
+    expect(diagnostics[0]!.severity).toBe(vscode.DiagnosticSeverity.Warning);
+    expect(diagnostics[0]!.range.start.line).toBe(0);
+  });
+
+  it('uses "Unknown diagnostic" fallback when entry has no message (line 631)', async () => {
+    Object.defineProperty(vscode.workspace, 'textDocuments', { value: [], configurable: true });
+
+    mockRunToolJson.mockResolvedValue({
+      ok: true,
+      data: [createEntry({ file: '/workspace/src/bad.ts', line: 0, message: '' })],
+      stderr: '',
+      elapsed: 200,
+    });
+
+    await lintWorkspace(mockCollection, mockChannel, mockStateManager as never, {}, mockProgress);
+
+    const [, diagnostics] = (mockCollection.set as ReturnType<typeof vi.fn>).mock.calls[0] as [
+      vscode.Uri,
+      vscode.Diagnostic[],
+    ];
+    expect(diagnostics[0]!.message).toBe('Unknown diagnostic');
+  });
+
+  it('makes ruleId clickable in mapEntryToDiagnosticBasic when url is present (line 638)', async () => {
+    Object.defineProperty(vscode.workspace, 'textDocuments', { value: [], configurable: true });
+
+    mockRunToolJson.mockResolvedValue({
+      ok: true,
+      data: [
+        createEntry({
+          file: '/workspace/src/linked.ts',
+          line: 5,
+          column: 1,
+          ruleId: 'no-var',
+          url: 'https://example.com/no-var',
+        }),
+      ],
+      stderr: '',
+      elapsed: 200,
+    });
+
+    await lintWorkspace(mockCollection, mockChannel, mockStateManager as never, {}, mockProgress);
+
+    const [, diagnostics] = (mockCollection.set as ReturnType<typeof vi.fn>).mock.calls[0] as [
+      vscode.Uri,
+      vscode.Diagnostic[],
+    ];
+    expect(diagnostics[0]!.code).toEqual({
+      value: 'no-var',
+      target: expect.objectContaining({ scheme: 'https' }),
+    });
+  });
+
+  it('catches mapping errors and logs skipped count (lines 433-451)', async () => {
+    // Provide a document that throws in lineAt to trigger catch block
+    const throwingDoc = {
+      uri: vscode.Uri.file('/workspace/src/throws.ts'),
+      getText: () => 'content',
+      lineCount: 1,
+      lineAt: () => {
+        throw new Error('lineAt exploded');
+      },
+      positionAt: () => new vscode.Position(0, 0),
+      getWordRangeAtPosition: () => undefined,
+      isUntitled: false,
+    } as unknown as vscode.TextDocument;
+
+    Object.defineProperty(vscode.workspace, 'textDocuments', {
+      value: [throwingDoc],
+      configurable: true,
+    });
+
+    mockRunToolJson.mockResolvedValue({
+      ok: true,
+      data: [
+        createEntry({
+          file: '/workspace/src/throws.ts',
+          line: 1,
+          column: 1,
+          message: 'will throw',
+          ruleId: 'bad/rule',
+        }),
+      ],
+      stderr: '',
+      elapsed: 200,
+    });
+
+    await lintWorkspace(mockCollection, mockChannel, mockStateManager as never, {}, mockProgress);
+
+    // Should log the mapping error
+    expect(vi.mocked(logError)).toHaveBeenCalledWith(
+      mockChannel,
+      expect.stringContaining('lineAt exploded'),
+    );
+    // Should log skipped count
+    expect(vi.mocked(logError)).toHaveBeenCalledWith(mockChannel, expect.stringContaining('1'));
+  });
+
   it('logs skipped entries when diagnostic mapping throws', async () => {
     // Provide an entry that will fail in mapEntryToDiagnosticBasic
     // (createDiagnosticFromEntry returns undefined for entries with line < 1)

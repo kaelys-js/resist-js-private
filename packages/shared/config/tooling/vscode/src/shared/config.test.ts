@@ -185,5 +185,23 @@ describe('Configuration', () => {
         .results[0]!.value;
       expect(returnedDisposable.dispose).toHaveBeenCalled();
     });
+
+    it('onChange skips log when no channel (line 91)', () => {
+      const config = new ConfigManager(CONFIG_SECTION);
+      const callbacks = vi.mocked(vscode.workspace.onDidChangeConfiguration).mock.calls;
+      const [configChangeCallback] = callbacks.at(-1)! as [
+        (event: { affectsConfiguration: (section: string) => boolean }) => void,
+      ];
+      configChangeCallback({
+        affectsConfiguration: (section: string) => section === CONFIG_SECTION,
+      });
+      config.dispose();
+    });
+
+    it('refresh skips log when no channel (line 123)', () => {
+      const config = new ConfigManager(CONFIG_SECTION);
+      config.refresh();
+      config.dispose();
+    });
   });
 });

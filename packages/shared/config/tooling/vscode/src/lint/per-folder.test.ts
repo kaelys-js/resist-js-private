@@ -113,4 +113,18 @@ describe('getPerFolderLintOptions', () => {
     const logCalls = channel.appendLine.mock.calls.map((c: any) => c[0]);
     expect(logCalls.some((msg: string) => msg.includes('my-project'))).toBe(true);
   });
+
+  it('logs fallback message when no workspace folder and channel provided (line 44)', () => {
+    vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(undefined);
+    const channel: any = { appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn() };
+
+    const result = getPerFolderLintOptions(
+      vscode.Uri.file('/test/file.ts'),
+      globalOptions,
+      channel,
+    );
+
+    expect(result).toEqual(globalOptions);
+    expect(channel.appendLine).toHaveBeenCalled();
+  });
 });

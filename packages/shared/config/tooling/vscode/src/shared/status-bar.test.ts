@@ -350,4 +350,11 @@ describe('Status Bar', () => {
     expect(counts.errors).toBe(0);
     expect(counts.warnings).toBe(0);
   });
+
+  it('tooltip shows paused message for disabled state (line 252)', () => {
+    updateStatusBar(statusBarItem as vscode.StatusBarItem, 'disabled');
+    const md = statusBarItem.tooltip as vscode.MarkdownString;
+    expect(md).toBeDefined();
+    expect(md.value).toContain('paused');
+  });
 });

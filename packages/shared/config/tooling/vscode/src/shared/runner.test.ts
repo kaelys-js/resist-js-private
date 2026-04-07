@@ -313,6 +313,25 @@ describe('runToolJson', () => {
 
     vi.useRealTimers();
   });
+
+  it('double settle guard prevents second resolution after timeout (line 205-206)', async () => {
+    vi.useFakeTimers();
+    const promise = runToolJson<unknown>({
+      command: 'slow-tool',
+      args: [],
+      cwd: '/tmp',
+      timeout: 5000,
+    });
+    const child = getLastChild();
+
+    vi.advanceTimersByTime(5000);
+    child.emit('close', 0);
+
+    const result = await promise;
+    expect(result.ok).toBe(false);
+
+    vi.useRealTimers();
+  });
 });
 
 describe('runToolText', () => {
@@ -467,5 +486,24 @@ describe('runToolText', () => {
       expect(result.data).toBe('output');
     }
     expect(result.stderr).toBe('warning: something');
+  });
+
+  it('double settle guard prevents second resolution after timeout (line 74-75)', async () => {
+    vi.useFakeTimers();
+    const promise = runToolText({
+      command: 'slow-tool',
+      args: [],
+      cwd: '/tmp',
+      timeout: 5000,
+    });
+    const child = getLastChild();
+
+    vi.advanceTimersByTime(5000);
+    child.emit('close', 0);
+
+    const result = await promise;
+    expect(result.ok).toBe(false);
+
+    vi.useRealTimers();
   });
 });

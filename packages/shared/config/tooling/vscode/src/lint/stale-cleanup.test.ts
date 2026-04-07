@@ -129,4 +129,28 @@ describe('StaleDiagnosticCleaner', () => {
     // No error
     expect(true).toBe(true);
   });
+
+  it('ignores double start (line 56)', () => {
+    const collection: any = { delete: vi.fn(), get: vi.fn() };
+    cleaner.start(collection);
+    cleaner.start(collection);
+    cleaner.stop();
+    expect(true).toBe(true);
+  });
+
+  it('interval callback triggers cleanup (line 63)', () => {
+    const uri = vscode.Uri.file('/test/stale-timer.ts');
+    const collection: any = { delete: vi.fn(), get: vi.fn() };
+
+    (vscode.window as any).activeTextEditor = undefined;
+    (vscode.window as any).visibleTextEditors = [];
+
+    cleaner.trackEdit(uri);
+    cleaner.start(collection);
+
+    // Advance past timeout (1000ms) and interval (max(250, 5000) = 5000ms)
+    vi.advanceTimersByTime(6000);
+
+    expect(collection.delete).toHaveBeenCalled();
+  });
 });

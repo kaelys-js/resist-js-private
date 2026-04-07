@@ -680,6 +680,27 @@ describe('extension', () => {
   });
 
   // =========================================================================
+  // Configuration Change — Re-lint
+  // =========================================================================
+
+  describe('configuration change relint', () => {
+    it('calls forEachOpenDocument on config change callback (line 409)', () => {
+      activateAndCapture();
+
+      // onConfigurationChange was called with (section, callback, channel)
+      const configChangeCb = h.fn.onConfigurationChange.mock.calls[0]![1] as () => void;
+      h.fn.forEachOpenDocument.mockClear();
+      configChangeCb();
+
+      expect(h.fn.forEachOpenDocument).toHaveBeenCalledWith(
+        h.fn.isLintableDocument,
+        expect.any(Function),
+        expect.anything(),
+      );
+    });
+  });
+
+  // =========================================================================
   // Event Registry Handlers
   // =========================================================================
 
@@ -837,6 +858,41 @@ describe('extension', () => {
       activateAndCapture();
 
       expect(h.fn.withFileProgress).not.toHaveBeenCalled();
+    });
+
+    it('progress callback lints document when found by URI (line 458-461)', () => {
+      const savedDoc = createMockDoc('/src/found.ts', false);
+      Object.defineProperty(vscode.workspace, 'textDocuments', {
+        value: [savedDoc],
+        configurable: true,
+      });
+      activateAndCapture();
+
+      // Extract the progress callback passed to withFileProgress
+      const progressCb = h.fn.withFileProgress.mock.calls[0]![3] as (
+        uri: vscode.Uri,
+      ) => Promise<void>;
+      h.fn.lintDocument.mockClear();
+      progressCb(vscode.Uri.file('/src/found.ts'));
+
+      expect(h.fn.lintDocument).toHaveBeenCalled();
+    });
+
+    it('progress callback skips when document not found by URI (line 460)', () => {
+      const savedDoc = createMockDoc('/src/other.ts', false);
+      Object.defineProperty(vscode.workspace, 'textDocuments', {
+        value: [savedDoc],
+        configurable: true,
+      });
+      activateAndCapture();
+
+      const progressCb = h.fn.withFileProgress.mock.calls[0]![3] as (
+        uri: vscode.Uri,
+      ) => Promise<void>;
+      h.fn.lintDocument.mockClear();
+      progressCb(vscode.Uri.file('/src/missing.ts'));
+
+      expect(h.fn.lintDocument).not.toHaveBeenCalled();
     });
   });
 

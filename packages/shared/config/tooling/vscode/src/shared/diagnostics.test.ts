@@ -261,5 +261,25 @@ describe('Diagnostics Manager', () => {
       const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE);
       expect((diag as unknown as { data: unknown }).data).toBeUndefined();
     });
+
+    it('returns undefined for invalid entry with channel logging (line 113-121)', () => {
+      const entry = createEntry({ message: '', line: 0 });
+      const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE, mockChannel);
+      expect(diag).toBeUndefined();
+      expect(output.log).toHaveBeenCalled();
+    });
+
+    it('returns undefined for invalid entry without channel (line 112)', () => {
+      const entry = createEntry({ message: '', line: 0 });
+      const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE);
+      expect(diag).toBeUndefined();
+    });
+
+    it('uses default severity when severity not provided (line 130)', () => {
+      const entry = createEntry({ severity: undefined as unknown as string });
+      const diag = createDiagnosticFromEntry(entry, DIAGNOSTIC_SOURCE);
+      expect(diag).toBeDefined();
+      expect(diag!.severity).toBe(vscode.DiagnosticSeverity.Error);
+    });
   });
 });
