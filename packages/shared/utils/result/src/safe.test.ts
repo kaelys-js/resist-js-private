@@ -54,6 +54,52 @@ describe('safeParse', () => {
     expect(Object.isFrozen(result)).toBe(true);
   });
 
+  it('deep-freezes nested objects', () => {
+    const NestedSchema = v.strictObject({
+      outer: v.strictObject({
+        inner: v.string(),
+      }),
+    });
+    const result = safeParse(NestedSchema, { outer: { inner: 'val' } });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(Object.isFrozen(result.data)).toBe(true);
+      expect(Object.isFrozen(result.data.outer)).toBe(true);
+    }
+  });
+
+  it('handles already-frozen nested objects in _deepFreeze', () => {
+    const NestedSchema = v.strictObject({
+      child: v.strictObject({ value: v.string() }),
+    });
+    // Pass data where the nested object happens to already be frozen by a prior step
+    // The _deepFreeze function should skip recursion for frozen objects
+    const frozenChild = Object.freeze({ value: 'frozen-val' });
+    const result = safeParse(NestedSchema, { child: frozenChild });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(Object.isFrozen(result.data.child)).toBe(true);
+      expect(result.data.child.value).toBe('frozen-val');
+    }
+  });
+
+  it('handles null data without deep-freezing', () => {
+    const NullableSchema = v.nullable(v.string());
+    const result = safeParse(NullableSchema, null);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBeNull();
+    }
+  });
+
+  it('handles primitive data without deep-freezing', () => {
+    const result = safeParse(v.number(), 42);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(42);
+    }
+  });
+
   it('includes flattened errors in validation detail', () => {
     const result: Result<User> = safeParse(UserSchema, { name: '', age: 'not a number' });
     expect(result.ok).toBe(false);
@@ -139,5 +185,14 @@ describe('fromUnknownError', () => {
     const result: AppError = fromUnknownError({ code: 123, id: 'x', timestamp: 'y', message: 456 });
     expect(result.code).toContain('INTERNAL');
     expect(result.message).not.toBe(456);
+  });
+
+  it('uses fallback when Error has no stack property', () => {
+    const error = new Error('no-stack');
+    Object.defineProperty(error, 'stack', { value: undefined, writable: true });
+    const result: AppError = fromUnknownError(error);
+    expect(result.message).toBe('no-stack');
+    // stack should be empty string (the ?? '' fallback)
+    expect(result.stack).toBe('');
   });
 });

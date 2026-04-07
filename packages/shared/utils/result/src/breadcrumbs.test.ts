@@ -48,6 +48,20 @@ describe('addBreadcrumb', () => {
     }
   });
 
+  it('returns validation error for invalid breadcrumb data', () => {
+    // BreadcrumbSchema is strictObject — extra fields cause validation failure
+    const result = addBreadcrumb({
+      type: 'http',
+      message: 'test',
+      level: 'info',
+      unknownField: 'bad',
+    } as never);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toContain('VALIDATION');
+    }
+  });
+
   it('evicts oldest when exceeding MAX_BREADCRUMBS', () => {
     // Add 101 breadcrumbs (max is 100)
     for (let i = 0; i < 101; i++) {
