@@ -304,4 +304,38 @@ describe('toVitalsPayload', () => {
       expect(result2.data.url).toBe('/page');
     }
   });
+
+  it('returns error when crypto.randomUUID returns invalid UUID (line 175)', () => {
+    vi.stubGlobal('crypto', {
+      randomUUID: () => 'not-a-uuid',
+    });
+
+    const result = toVitalsPayload([createMetric()], createDevice(), '/test');
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+    }
+  });
+
+  it('returns error when stripped URL fails RelativeUrlSchema (line 179)', () => {
+    // URL '?foo' strips to '' (indexOf('?') = 0, slice(0,0) = ''), which lacks leading '/'
+    const result = toVitalsPayload([createMetric()], createDevice(), '?foo');
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+    }
+  });
+
+  it('returns error when Date.toISOString returns invalid timestamp (line 186)', () => {
+    const spy = vi.spyOn(Date.prototype, 'toISOString').mockReturnValue('invalid');
+
+    const result = toVitalsPayload([createMetric()], createDevice(), '/test');
+
+    spy.mockRestore();
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+    }
+  });
 });

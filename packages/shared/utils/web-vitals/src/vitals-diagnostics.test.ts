@@ -1071,4 +1071,381 @@ describe('vitals-diagnostics', () => {
       expect(slowest).toBeDefined();
     });
   });
+
+  // ── _inject* error paths ────────────────────────────────────────────────
+
+  describe('_inject* error paths', () => {
+    it('_injectLCPEntries returns error for non-array input', () => {
+      const result = _injectLCPEntries('bad' as unknown as unknown[]);
+      expect(result.ok).toBe(false);
+    });
+
+    it('_injectLayoutShiftEntries returns error for non-array input', () => {
+      const result = _injectLayoutShiftEntries(42 as unknown as unknown[]);
+      expect(result.ok).toBe(false);
+    });
+
+    it('_injectLongTasks returns error for non-array input', () => {
+      const result = _injectLongTasks(null as unknown as unknown[]);
+      expect(result.ok).toBe(false);
+    });
+
+    it('_injectEventTimings returns error for non-array input', () => {
+      const result = _injectEventTimings({} as unknown as unknown[]);
+      expect(result.ok).toBe(false);
+    });
+  });
+
+  // ── getThresholds safeParse failure ─────────────────────────────────────
+
+  describe('getThresholds safeParse failure', () => {
+    it('returns error when metricName is not a string', () => {
+      const result = getThresholds(123 as unknown as Str);
+      expect(result.ok).toBe(false);
+    });
+  });
+
+  // ── PerformanceObserver callback coverage ──────────────────────────────
+
+  describe('setupDiagnosticObservers observer callbacks', () => {
+    let origPerfObserver: typeof PerformanceObserver;
+
+    beforeEach(() => {
+      origPerfObserver = globalThis.PerformanceObserver;
+      resetDiagnostics();
+    });
+
+    afterEach(() => {
+      globalThis.PerformanceObserver = origPerfObserver;
+      resetDiagnostics();
+    });
+
+    it('LCP observer callback pushes entries to lcpEntries', () => {
+      const callbacks: Array<(list: { getEntries: () => unknown[] }) => void> = [];
+
+      globalThis.PerformanceObserver = class MockPO {
+        constructor(cb: (list: { getEntries: () => unknown[] }) => void) {
+          callbacks.push(cb);
+        }
+        observe(): void {}
+        disconnect(): void {}
+        takeRecords(): PerformanceEntryList {
+          return [];
+        }
+      } as unknown as typeof PerformanceObserver;
+
+      setupDiagnosticObservers();
+
+      // First callback is LCP observer
+      expect(callbacks.length).toBeGreaterThanOrEqual(1);
+      callbacks[0]!({
+        getEntries: () => [
+          mockLCPEntry({
+            element: mockElement('img', 'hero'),
+            renderTime: 2500,
+            loadTime: 1800,
+            size: 100_000,
+          }),
+        ],
+      });
+
+      // Now collectDiagnostics should find the LCP entry
+      const diag = unwrap(collectDiagnostics('LCP', 3000, 'needsImprovement'));
+      expect(diag).not.toBeNull();
+      const lcpEl = diag!.findings.find((f) => f.label === 'LCP Element');
+      expect(lcpEl).toBeDefined();
+      expect(lcpEl!.value).toBe('<img.hero>');
+    });
+
+    it('CLS observer callback pushes entries to layoutShiftEntries', () => {
+      const callbacks: Array<(list: { getEntries: () => unknown[] }) => void> = [];
+
+      globalThis.PerformanceObserver = class MockPO {
+        constructor(cb: (list: { getEntries: () => unknown[] }) => void) {
+          callbacks.push(cb);
+        }
+        observe(): void {}
+        disconnect(): void {}
+        takeRecords(): PerformanceEntryList {
+          return [];
+        }
+      } as unknown as typeof PerformanceObserver;
+
+      setupDiagnosticObservers();
+
+      // Second callback is CLS observer
+      expect(callbacks.length).toBeGreaterThanOrEqual(2);
+      callbacks[1]!({
+        getEntries: () => [mockLayoutShiftEntry({ value: 0.1, hadRecentInput: false })],
+      });
+
+      const diag = unwrap(collectDiagnostics('CLS', 0.2, 'needsImprovement'));
+      expect(diag).not.toBeNull();
+      const shifts = diag!.findings.find((f) => f.label === 'Layout Shifts');
+      expect(shifts).toBeDefined();
+    });
+
+    it('long task observer callback pushes entries to longTasks', () => {
+      const callbacks: Array<(list: { getEntries: () => unknown[] }) => void> = [];
+
+      globalThis.PerformanceObserver = class MockPO {
+        constructor(cb: (list: { getEntries: () => unknown[] }) => void) {
+          callbacks.push(cb);
+        }
+        observe(): void {}
+        disconnect(): void {}
+        takeRecords(): PerformanceEntryList {
+          return [];
+        }
+      } as unknown as typeof PerformanceObserver;
+
+      setupDiagnosticObservers();
+
+      // Third callback is long task observer
+      expect(callbacks.length).toBeGreaterThanOrEqual(3);
+      callbacks[2]!({
+        getEntries: () => [
+          { entryType: 'longtask', name: 'self', startTime: 100, duration: 120, attribution: [] },
+        ],
+      });
+
+      const diag = unwrap(collectDiagnostics('TBT', 400, 'needsImprovement'));
+      expect(diag).not.toBeNull();
+      const tasks = diag!.findings.find((f) => f.label === 'Long Tasks');
+      expect(tasks).toBeDefined();
+      expect(tasks!.value).toContain('1 tasks');
+    });
+
+    it('event timing observer callback pushes entries with interactionId > 0 and filters out interactionId = 0', () => {
+      const callbacks: Array<(list: { getEntries: () => unknown[] }) => void> = [];
+
+      globalThis.PerformanceObserver = class MockPO {
+        constructor(cb: (list: { getEntries: () => unknown[] }) => void) {
+          callbacks.push(cb);
+        }
+        observe(): void {}
+        disconnect(): void {}
+        takeRecords(): PerformanceEntryList {
+          return [];
+        }
+      } as unknown as typeof PerformanceObserver;
+
+      setupDiagnosticObservers();
+
+      // Fourth callback is event timing observer
+      expect(callbacks.length).toBeGreaterThanOrEqual(4);
+      callbacks[3]!({
+        getEntries: () => [
+          // interactionId = 0 should be filtered out
+          {
+            entryType: 'event',
+            name: 'mousemove',
+            startTime: 50,
+            duration: 200,
+            processingStart: 60,
+            processingEnd: 180,
+            target: null,
+            interactionId: 0,
+          },
+          // interactionId > 0 should be kept
+          {
+            entryType: 'event',
+            name: 'click',
+            startTime: 100,
+            duration: 300,
+            processingStart: 110,
+            processingEnd: 350,
+            target: null,
+            interactionId: 1,
+          },
+        ],
+      });
+
+      const diag = unwrap(collectDiagnostics('INP', 300, 'needsImprovement'));
+      expect(diag).not.toBeNull();
+      // Only 1 interaction (interactionId=0 was filtered)
+      const interactions = diag!.findings.find((f) => f.label === 'Interactions');
+      expect(interactions).toBeDefined();
+      expect(interactions!.value).toBe('1 recorded');
+    });
+
+    it('handles PerformanceObserver constructor throwing for individual observers', () => {
+      let callCount = 0;
+
+      globalThis.PerformanceObserver = class MockPO {
+        constructor(_cb: unknown) {
+          callCount++;
+          // Let the first observer succeed, throw on rest
+          if (callCount > 1) throw new Error('Not supported');
+        }
+        observe(): void {}
+        disconnect(): void {}
+        takeRecords(): PerformanceEntryList {
+          return [];
+        }
+      } as unknown as typeof PerformanceObserver;
+
+      // Should not throw — catch blocks handle errors
+      const result = setupDiagnosticObservers();
+      expect(result.ok).toBe(true);
+    });
+  });
+
+  // ── describeElement / describeNode edge cases ────────────────────────────
+
+  describe('describeElement edge cases', () => {
+    it('returns <tag> for element with no id and no className', () => {
+      const el: Element = mockElement('span', '');
+      _injectLCPEntries([mockLCPEntry({ element: el, renderTime: 2000, size: 100 })]);
+
+      const diag = unwrap(collectDiagnostics('LCP', 3000, 'needsImprovement'));
+      const elementFinding = diag!.findings.find((f) => f.label === 'LCP Element');
+      expect(elementFinding).toBeDefined();
+      expect(elementFinding!.value).toBe('<span>');
+    });
+
+    it('returns <tag> for element with className that is not a string (SVG-like)', () => {
+      const el: Partial<Element> = {
+        tagName: 'SVG',
+        className: { baseVal: 'icon' } as unknown as string, // SVGAnimatedString
+        id: '',
+        nodeName: 'SVG',
+      };
+      Object.setPrototypeOf(el, Element.prototype);
+
+      _injectLCPEntries([mockLCPEntry({ element: el, renderTime: 2000, size: 100 })]);
+
+      const diag = unwrap(collectDiagnostics('LCP', 3000, 'needsImprovement'));
+      const elementFinding = diag!.findings.find((f) => f.label === 'LCP Element');
+      expect(elementFinding).toBeDefined();
+      expect(elementFinding!.value).toBe('<svg>');
+    });
+  });
+
+  // ── describeNode non-Element ───────────────────────────────────────────
+
+  describe('describeNode for non-Element node', () => {
+    it('returns [#text] for Text node in CLS sources', () => {
+      const textNode: Partial<Node> = {
+        nodeName: '#text',
+        nodeType: 3,
+      };
+      // Do NOT set prototype to Element — it should NOT be instanceof Element
+      Object.setPrototypeOf(textNode, Node.prototype);
+
+      _injectLayoutShiftEntries([
+        mockLayoutShiftEntry({
+          value: 0.15,
+          hadRecentInput: false,
+          sources: [
+            {
+              node: textNode,
+              previousRect: { top: 100, left: 0 } as DOMRectReadOnly,
+              currentRect: { top: 200, left: 0 } as DOMRectReadOnly,
+            },
+          ],
+        }),
+      ]);
+
+      const diag = unwrap(collectDiagnostics('CLS', 0.15, 'needsImprovement'));
+      const largest = diag!.findings.find((f) => f.label === 'Largest Shift');
+      expect(largest).toBeDefined();
+      expect(largest!.value).toContain('[#text]');
+    });
+  });
+
+  // ── shortenUrl error path ─────────────────────────────────────────────
+
+  describe('shortenUrl malformed URL', () => {
+    it('uses raw URL when shortenUrl returns error for LCP resource', () => {
+      // Mock URL constructor to throw for a specific URL
+      const origURL = globalThis.URL;
+      const badUrl = 'http://malformed-test-url';
+      globalThis.URL = class extends origURL {
+        constructor(input: string | URL, base?: string | URL) {
+          if (typeof input === 'string' && input === badUrl) {
+            throw new TypeError('Invalid URL');
+          }
+          super(input, base);
+        }
+      } as typeof URL;
+
+      _injectLCPEntries([
+        mockLCPEntry({
+          element: null,
+          url: badUrl,
+          renderTime: 2000,
+          loadTime: 1500,
+        }),
+      ]);
+
+      const diag = unwrap(collectDiagnostics('LCP', 3000, 'needsImprovement'));
+      // shortenUrl returns err but diagnoseLCP uses the raw url as fallback
+      const resource = diag!.findings.find((f) => f.label === 'Resource');
+      expect(resource).toBeDefined();
+      expect(resource!.value).toBe(badUrl);
+
+      globalThis.URL = origURL;
+    });
+  });
+
+  // ── Diagnostic collector catch blocks ─────────────────────────────────
+
+  describe('diagnostic collector catch blocks', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('diagnoseLCP catch — returns error when entry throws', () => {
+      // Inject a normal entry first, then mutate it to throw
+      const normalEntry = mockLCPEntry({ element: null, renderTime: 2000 });
+      const arr: unknown[] = [normalEntry];
+      _injectLCPEntries(arr);
+
+      // Replace the entry with a poisoned one after injection
+      arr[0] = new Proxy(normalEntry, {
+        get(_target: Record<Str, unknown>, prop: string): unknown {
+          if (prop === 'element') throw new Error('Cannot access element');
+          return _target[prop];
+        },
+      });
+
+      const result = collectDiagnostics('LCP', 3000, 'needsImprovement');
+      expect(result.ok).toBe(false);
+    });
+
+    it('diagnoseCLS returns empty findings when no entries exist', () => {
+      // Don't inject any layout shift entries — covers line 336 true branch
+      const diag = unwrap(collectDiagnostics('CLS', 0.2, 'poor'));
+      expect(diag).not.toBeNull();
+      expect(diag!.findings).toHaveLength(0);
+    });
+
+    it('diagnoseCLS catch — returns error when entry throws', () => {
+      // Inject a normal entry first, then mutate it to throw
+      const normalEntry = mockLayoutShiftEntry({ value: 0.1, hadRecentInput: false });
+      const arr: unknown[] = [normalEntry];
+      _injectLayoutShiftEntries(arr);
+
+      // Replace with a proxy that throws during filter iteration
+      arr[0] = new Proxy(normalEntry, {
+        get(_target: Record<Str, unknown>, prop: string): unknown {
+          if (prop === 'hadRecentInput') throw new Error('Cannot access hadRecentInput');
+          return _target[prop];
+        },
+      });
+
+      const result = collectDiagnostics('CLS', 0.2, 'poor');
+      expect(result.ok).toBe(false);
+    });
+
+    it('diagnoseFCP catch — returns error when performance API throws for resource', () => {
+      vi.spyOn(performance, 'getEntriesByType').mockImplementation(() => {
+        throw new Error('Not supported');
+      });
+
+      const result = collectDiagnostics('FCP', 2000, 'poor');
+      expect(result.ok).toBe(false);
+    });
+  });
 });

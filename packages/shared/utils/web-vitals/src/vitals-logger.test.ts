@@ -226,6 +226,20 @@ describe('vitals logger', () => {
     });
   });
 
+  // ── Unknown rating fallback ─────────────────────────────────────────
+
+  describe('unknown rating fallback', () => {
+    it('uses ? icon and reset style for unknown rating (lines 216-217)', () => {
+      import.meta.env.DEV = true;
+      logVital('LCP', 100, 'custom-rating', null);
+      // Unknown rating is not 'poor', so in dev mode it logs via console.log
+      expect(mockConsoleLog).toHaveBeenCalledOnce();
+      const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
+      expect(fmt).toContain('?');
+      expect(fmt).toContain('custom-rating');
+    });
+  });
+
   // ── Return type ─────────────────────────────────────────────────────
 
   describe('return type', () => {
