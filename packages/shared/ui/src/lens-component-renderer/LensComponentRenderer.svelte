@@ -4652,7 +4652,6 @@
    * @param container - Preview container div element
    * @returns Cleanup function that restores console and disconnects observers
    */
-  // oxlint-ignore-next-line max-lines-per-function -- orchestrates 4 capture systems (console, events, mutations, lifecycle)
   function startConsoleCapture(key: Str, container: HTMLDivElement): () => void {
     const mountTime: Num = performance.now();
     cardConsoleMountTime[key] = mountTime;
@@ -5621,7 +5620,6 @@
     return parts.join(' > ') as Str;
   }
 
-  // oxlint-ignore-next-line max-lines-per-function -- collects 6 data categories from a single element
   function collectInspectData(el: Element): (typeof cardInspectedEl)[Str] {
     const cs: CSSStyleDeclaration = getComputedStyle(el);
     const rect: DOMRect = el.getBoundingClientRect();
@@ -7354,7 +7352,7 @@
     canvas.width = width as number;
     canvas.height = height as number;
     /* 2D context is always available in browser — non-null assertion is safe */
-    const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
+    const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!;
 
     /**
      * Draw an image centered within the canvas, preserving aspect ratio (object-contain).
@@ -7396,7 +7394,7 @@
     const blob: Blob = await new Promise<Blob>((resolve) => {
       canvas.toBlob((b: Blob | null): void => {
         /* toBlob always produces a blob for 'image/png' — non-null is safe */
-        resolve(b!); // eslint-disable-line @typescript-eslint/no-non-null-assertion
+        resolve(b!);
       }, 'image/png');
     });
     return URL.createObjectURL(blob) as Str;

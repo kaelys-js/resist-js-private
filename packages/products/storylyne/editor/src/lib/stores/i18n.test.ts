@@ -99,7 +99,7 @@ describe('t() helper', () => {
         ok: false,
         data: null,
         error: { code: 'TEST', message: 'test error' },
-      })) as Parameters<typeof t>[0],
+      })) as unknown as Parameters<typeof t>[0],
       'MY_FALLBACK',
     );
     expect(result).toBe('MY_FALLBACK');

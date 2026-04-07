@@ -10,7 +10,7 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { Str, Bool } from '@/schemas/common';
-import type { ChainExportNode } from './export-utils.js';
+import type { ChainExportNode, ExportOptions } from './export-utils.js';
 
 // Mock modern-screenshot before importing export-utils
 vi.mock('modern-screenshot', () => ({
@@ -107,7 +107,7 @@ type ChainCopyFn = (nodes: ChainExportNode[], componentName: Str) => Promise<Boo
 type ChainCopyNoNameFn = (nodes: ChainExportNode[]) => Promise<Bool>;
 
 /** Image export function signature. */
-type ImageExportFn = (element: HTMLElement, filename: Str, options?: unknown) => Promise<void>;
+type ImageExportFn = (element: HTMLElement, filename: Str, options?: ExportOptions) => Promise<void>;
 
 /**
  * Common browser-global stubs for all tests in this file.
@@ -321,8 +321,8 @@ describe('image and HTML export functions', () => {
   let exportJpeg: ImageExportFn;
   let exportSvg: ImageExportFn;
   let exportWebp: ImageExportFn;
-  let copyImageToClipboard: (element: HTMLElement, options?: unknown) => Promise<Bool>;
-  let copyDataUri: (element: HTMLElement, options?: unknown) => Promise<Bool>;
+  let copyImageToClipboard: (element: HTMLElement, options?: ExportOptions) => Promise<Bool>;
+  let copyDataUri: (element: HTMLElement, options?: ExportOptions) => Promise<Bool>;
   let downloadHtml: (element: HTMLElement, filename: Str) => void;
   let copyHtml: (element: HTMLElement) => Promise<Bool>;
   let downloadStandaloneHtml: (

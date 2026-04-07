@@ -1169,8 +1169,9 @@ export function captureWebSocketErrors(
 
   ws.addEventListener('error', onWsError);
 
-  const wsTeardown: TeardownFn = (): void => {
+  const wsTeardown: TeardownFn = (): undefined => {
     ws.removeEventListener('error', onWsError);
+    return undefined;
   };
 
   return okUnchecked<TeardownFn>(wsTeardown);

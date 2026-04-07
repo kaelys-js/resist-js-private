@@ -180,7 +180,7 @@ describe('IosPreviewCapturePool', (): void => {
 
     pool.stop();
 
-    const firstFrame: Buffer = onFrame.mock.calls[0][0] as Buffer;
+    const firstFrame: Buffer = onFrame.mock.calls[0]![0] as Buffer;
     expect(Buffer.isBuffer(firstFrame)).toBe(true);
   });
 

@@ -39,7 +39,7 @@ describe('device-frames', () => {
       const frames = listDeviceFrames();
       const [firstFrame] = frames;
       expect(firstFrame).toBeDefined();
-      const found = getDeviceFrame(firstFrame.id);
+      const found = getDeviceFrame(firstFrame!.id);
       expect(found).not.toBeNull();
     });
   });

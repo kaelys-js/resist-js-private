@@ -41,7 +41,7 @@ import { en } from '@/lint/locale/locales/en.ts';
 function makeConfig(overrides: Partial<LintConfig> = {}): LintConfig {
   return {
     include: [],
-    exclude: ['*.test.ts', '*.d.ts'],
+    exclude: ['*.d.ts'],
     extensions: ['.ts', '.svelte.ts', '.mjs'],
     rules: {},
     ruleOptions: {},

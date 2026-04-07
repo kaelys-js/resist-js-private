@@ -40,7 +40,7 @@ import { en } from '@/lint/locale/locales/en.ts';
 function makeConfig(overrides: Partial<LintConfig> = {}): LintConfig {
   return {
     include: [],
-    exclude: ['*.test.ts', '*.d.ts'],
+    exclude: ['*.d.ts'],
     extensions: ['.ts', '.svelte.ts', '.mjs'],
     rules: {},
     ruleOptions: {},
@@ -69,9 +69,9 @@ describe('shouldLint', () => {
     expect(shouldLint('/path/to/config.mjs', config)).toBe(true);
   });
 
-  it('returns false for a .test.ts file (excluded by default)', () => {
+  it('returns true for a .test.ts file (included by default)', () => {
     const config: LintConfig = makeConfig();
-    expect(shouldLint('/path/to/file.test.ts', config)).toBe(false);
+    expect(shouldLint('/path/to/file.test.ts', config)).toBe(true);
   });
 
   it('returns false for a .d.ts file (excluded by default)', () => {
@@ -295,12 +295,12 @@ describe('collectFiles', () => {
     expect(hasConstants).toBe(true);
   });
 
-  it('excludes .test.ts files', async () => {
+  it('includes .test.ts files by default', async () => {
     const config: LintConfig = makeConfig();
     const dir: string = resolve(import.meta.dirname);
     const files: string[] = await collectFiles(dir, config);
     const hasTestFiles: boolean = files.some((f: string): boolean => f.endsWith('.test.ts'));
-    expect(hasTestFiles).toBe(false);
+    expect(hasTestFiles).toBe(true);
   });
 
   it('skips directories in the exclude set', async () => {

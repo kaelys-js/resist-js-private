@@ -138,8 +138,8 @@ describe('scrcpy-server', (): void => {
 
   it('isAdbAvailable calls adb version', async (): Promise<void> => {
     await isAdbAvailable();
-    expect(execFileCalls[0].cmd).toBe('adb' as Str);
-    expect(execFileCalls[0].args).toContain('version');
+    expect(execFileCalls[0]!.cmd).toBe('adb' as Str);
+    expect(execFileCalls[0]!.args).toContain('version');
   });
 
   /* ---------------------------------------------------------------- */
@@ -171,17 +171,17 @@ describe('scrcpy-server', (): void => {
 
     expect(spawnCalls.length).toBe(1);
     const [call] = spawnCalls;
-    expect(call.cmd).toBe('adb' as Str);
+    expect(call!.cmd).toBe('adb' as Str);
 
     // Should include serial
-    expect(call.args).toContain('-s');
-    expect(call.args).toContain('emulator-5554');
+    expect(call!.args).toContain('-s');
+    expect(call!.args).toContain('emulator-5554');
 
     // Should include shell command
-    expect(call.args).toContain('shell');
+    expect(call!.args).toContain('shell');
 
     // Should include CLASSPATH and app_process
-    const shellCmd: Str = call.args.find((a: Str) => (a as string).includes('CLASSPATH')) as Str;
+    const shellCmd: Str = call!.args.find((a: Str) => (a as string).includes('CLASSPATH')) as Str;
     expect(shellCmd).toBeDefined();
     expect(shellCmd as string).toContain('scrcpy-server.jar');
     expect(shellCmd as string).toContain('app_process');
@@ -198,7 +198,7 @@ describe('scrcpy-server', (): void => {
       maxSize: 1920 as Num,
     });
 
-    const shellCmd: string = spawnCalls[0].args.find((a: Str) =>
+    const shellCmd: string = spawnCalls[0]!.args.find((a: Str) =>
       (a as string).includes('max_size'),
     ) as string;
     expect(shellCmd).toContain('max_size=1920');
@@ -211,7 +211,7 @@ describe('scrcpy-server', (): void => {
       videoCodec: 'h264' as Str,
     });
 
-    const shellCmd: string = spawnCalls[0].args.find((a: Str) =>
+    const shellCmd: string = spawnCalls[0]!.args.find((a: Str) =>
       (a as string).includes('video_codec'),
     ) as string;
     expect(shellCmd).toContain('video_codec=h264');
@@ -223,7 +223,7 @@ describe('scrcpy-server', (): void => {
       height: 1920 as Num,
     });
 
-    const shellCmd: string = spawnCalls[0].args.find((a: Str) =>
+    const shellCmd: string = spawnCalls[0]!.args.find((a: Str) =>
       (a as string).includes('audio=false'),
     ) as string;
     expect(shellCmd).toBeDefined();
@@ -274,7 +274,7 @@ describe('scrcpy-server', (): void => {
       videoBitRate: 4_000_000 as Num,
     });
 
-    const shellCmd: string = spawnCalls[0].args.find((a: Str) =>
+    const shellCmd: string = spawnCalls[0]!.args.find((a: Str) =>
       (a as string).includes('video_bit_rate'),
     ) as string;
     expect(shellCmd).toContain('video_bit_rate=4000000');
@@ -286,7 +286,7 @@ describe('scrcpy-server', (): void => {
       height: 1920 as Num,
     });
 
-    const shellCmd: string = spawnCalls[0].args.find((a: Str) =>
+    const shellCmd: string = spawnCalls[0]!.args.find((a: Str) =>
       (a as string).includes('scid='),
     ) as string;
     expect(shellCmd).toBeDefined();

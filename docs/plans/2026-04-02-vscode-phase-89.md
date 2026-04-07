@@ -63,6 +63,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Files**:
 - Edit: `src/locale/en.ts` — add new strings to `rulesViewer`
 - Edit: `src/locale/schema.ts` — add new fields to `RulesViewerStrings`
+- Test: `src/locale/locale.test.ts`
 
 **Verification**: `pnpm --filter @resist/vscode run qa:test` passes. Locale test validates all new strings exist.
 
@@ -144,7 +145,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Files**:
 - Edit: `src/lint/index.ts` — verify exports are correct
 
-**Verification**: All new features appear in config, all exports reachable
+**Verification**: `grep -c "showRulesViewer" packages/shared/config/tooling/vscode/src/lint/commands.ts` outputs >= 1; `grep -c "parseRulesOutput\|renderRulesHtml" packages/shared/config/tooling/vscode/src/lint/index.ts` confirms exports present
 
 ---
 

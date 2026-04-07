@@ -41,7 +41,7 @@ export const LintConfigSchema = v.strictObject({
   /** JSON Schema reference for IDE autocomplete (ignored by linter). */
   $schema: v.optional(v.string()),
   /** Glob patterns to exclude from linting. */
-  exclude: v.optional(v.array(v.string()), ['*.test.ts', '*.d.ts']),
+  exclude: v.optional(v.array(v.string()), ['*.d.ts']),
   /** File extensions to lint (including embedded-script formats). */
   extensions: v.optional(v.array(v.string()), [
     '.ts',
@@ -598,7 +598,7 @@ export function generateJsonSchema(
         type: 'string',
       },
       exclude: {
-        default: ['*.test.ts', '*.d.ts'],
+        default: ['*.d.ts'],
         description: strings.schema.excludeDescription,
         items: { type: 'string' },
         type: 'array',

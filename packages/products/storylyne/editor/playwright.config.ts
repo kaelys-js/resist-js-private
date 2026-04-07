@@ -9,4 +9,4 @@
 
 import { createPlaywrightConfig } from '@/test-presets/playwright';
 
-export default createPlaywrightConfig({});
+export default createPlaywrightConfig({} as Parameters<typeof createPlaywrightConfig>[0]);

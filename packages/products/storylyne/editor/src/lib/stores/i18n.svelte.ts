@@ -38,7 +38,7 @@ for (const [path, mod] of Object.entries(localeModules)) {
   // Each locale file exports a single named const — grab the first export value
   const [data]: RawLocaleStrings[] = Object.values(mod);
   if (data) {
-    locales[code] = data;
+    locales[code!] = data;
   }
 }
 

@@ -43,8 +43,9 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Files**:
 - Edit: `src/__mocks__/vscode.ts`
+- Test: `src/shared/runner.test.ts`
 
-**Verification**: tsgo type-check passes for mock-dependent test files
+**Verification**: `pnpm --filter @resist/vscode run qa:test 2>&1 | grep "Tests"` shows all tests passing; `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep "vscode.ts"` shows 0 errors for the mock file
 
 ---
 
@@ -64,8 +65,9 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Files**:
 - Edit: `src/extension.ts`
+- Test: `src/shared/lifecycle.test.ts`
 
-**Verification**: `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode` shows 0 errors for extension.ts
+**Verification**: `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep "extension.ts"` shows 0 errors for extension.ts
 
 ---
 
@@ -86,7 +88,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Edit: `src/shared/runner.ts`
 - Edit: `src/shared/runner.test.ts`
 
-**Verification**: Tests pass, no lint errors for these files
+**Verification**: `pnpm --filter @resist/vscode run qa:test 2>&1 | grep "runner"` shows runner tests passing; `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep "runner"` shows 0 errors
 
 ---
 
@@ -106,8 +108,9 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Files**:
 - Edit: `scripts/generate-manifest.ts`
+- Test: `scripts/generate-manifest.test.ts`
 
-**Verification**: Script still works (`pnpm --filter @resist/vscode build`), no lint errors
+**Verification**: `pnpm --filter @resist/vscode build 2>&1 | tail -1` exits cleanly; `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep "generate-manifest"` shows 0 errors
 
 ---
 
@@ -127,8 +130,9 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Edit: `src/shared/types.ts`
 - Edit: `src/shared/file-watcher.ts`
 - Edit: Various other files with type style errors
+- Test: `src/shared/config.test.ts`
 
-**Verification**: No consistent-type-definitions/imports/array-type errors remain
+**Verification**: `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep -c "consistent-type"` outputs 0; `pnpm --filter @resist/vscode run qa:test` passes
 
 ---
 
@@ -158,8 +162,9 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Edit: `src/lint/import-sorting.ts`, `src/lint/stale-cleanup.ts`, `src/lint/stage-indicator.ts`
 - Edit: `src/shared/debounce.ts`, `src/shared/config.test.ts`
 - Edit: `src/shared/command-registration.ts`
+- Test: `src/shared/diagnostics.test.ts`
 
-**Verification**: No oxlint errors remain for source files
+**Verification**: `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep -c "oxlint"` outputs 0 for source files; `pnpm --filter @resist/vscode run qa:test` passes
 
 ---
 
@@ -195,7 +200,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Edit: `src/locale/locale.test.ts`
 - Edit: `src/lint/diff-preview.test.ts`
 
-**Verification**: Tests pass, no lint errors in test files
+**Verification**: `pnpm --filter @resist/vscode run qa:test 2>&1 | grep "Tests"` shows all tests passing; `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep -E "test\.ts"` shows 0 lint errors in test files
 
 ---
 
@@ -211,8 +216,9 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 
 **Files**:
 - Edit: `src/lint/per-folder.ts` or `src/extension.ts` (where lint options are built)
+- Test: `src/lint/per-folder.test.ts`
 
-**Verification**: no-unread-settings rule no longer flags resist.lint.showTiming
+**Verification**: `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep -c "no-unread-settings"` outputs 0; `pnpm --filter @resist/vscode run qa:test 2>&1 | grep "per-folder"` shows tests passing
 
 ---
 
@@ -225,7 +231,7 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - No new rules/features to register (this phase is fixes only)
 - Verify no orphaned code
 
-**Verification**: All features still wired
+**Verification**: `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep -c "no-unregistered"` outputs 0; `grep -c "registerCommand" packages/shared/config/tooling/vscode/src/extension.ts` confirms all commands wired
 
 ---
 
@@ -240,9 +246,9 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Verify no unused exports or dead code (created but never imported)
 
 **Verification**:
-- All config settings have corresponding config.get calls
-- All feature classes instantiated
-- No orphaned exports
+- `grep -c "registerCommand" packages/shared/config/tooling/vscode/src/lint/commands.ts` matches declared command count
+- `grep -c "config.get" packages/shared/config/tooling/vscode/src/shared/config.ts` confirms all config settings read
+- `pnpm --filter @resist/vscode run qa:test` passes with no orphaned exports
 
 ---
 
@@ -272,10 +278,9 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - Commit with descriptive message
 
 **Verification**:
-- All lint errors resolved
-- All tests pass
-- Type-check clean
-- Integration audit shows zero gaps
+- `pnpm -w run qa:lint --tools -- packages/shared/config/tooling/vscode 2>&1 | grep -c "error"` outputs 0
+- `pnpm --filter @resist/vscode run qa:test 2>&1 | grep "Tests"` shows >= 331 tests passing
+- `pnpm -w run qa:typecheck 2>&1 | grep "vscode"` shows 0 type errors
 
 ---
 

@@ -28,19 +28,19 @@ describe('app-meta — THEME_COLORS', () => {
 
   it('all light values are #ffffff', () => {
     for (const theme of SUPPORTED_THEMES) {
-      expect(THEME_COLORS[theme].light).toBe('#ffffff');
+      expect(THEME_COLORS[theme]!.light).toBe('#ffffff');
     }
   });
 
   it('all dark values are valid hex colors', () => {
     for (const theme of SUPPORTED_THEMES) {
-      expect(THEME_COLORS[theme].dark).toMatch(HEX_PATTERN);
+      expect(THEME_COLORS[theme]!.dark).toMatch(HEX_PATTERN);
     }
   });
 
   it('dark values are non-empty and differ from light', () => {
     for (const theme of SUPPORTED_THEMES) {
-      const { light, dark } = THEME_COLORS[theme];
+      const { light, dark } = THEME_COLORS[theme]!;
       expect(dark.length).toBeGreaterThan(0);
       expect(dark).not.toBe(light);
     }

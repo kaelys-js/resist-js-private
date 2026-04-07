@@ -43,34 +43,43 @@ import type { TemplateLiteralPart, TemplateLiteralSchema } from '@/schemas/templ
  */
 export type SchemaToTemplateLiteralString<TSchema> =
   // v.string() → string
+  // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
   TSchema extends v.StringSchema<unknown>
     ? string
     : // v.number() → `${number}`
+      // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
       TSchema extends v.NumberSchema<unknown>
       ? `${number}`
       : // v.boolean() → `${boolean}` (= 'true' | 'false')
+        // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
         TSchema extends v.BooleanSchema<unknown>
         ? `${boolean}`
         : // v.bigint() → `${bigint}`
+          // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
           TSchema extends v.BigintSchema<unknown>
           ? `${bigint}`
           : // v.null() → 'null'
+            // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
             TSchema extends v.NullSchema<unknown>
             ? 'null'
             : // v.undefined() → 'undefined'
+              // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
               TSchema extends v.UndefinedSchema<unknown>
               ? 'undefined'
               : // v.literal(L) → `${L}`
+                // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
                 TSchema extends v.LiteralSchema<infer TLiteral, unknown>
                 ? TLiteral extends string | number | bigint | boolean | null | undefined
                   ? `${TLiteral}`
                   : never
                 : // v.picklist([...]) → union of stringified options
+                  // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
                   TSchema extends v.PicklistSchema<infer TOptions, unknown>
                   ? TOptions[number] extends string | number | bigint | boolean | null | undefined
                     ? `${TOptions[number]}`
                     : never
                   : // v.enum(E) → union of stringified enum values
+                    // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
                     TSchema extends v.EnumSchema<infer TEnum, unknown>
                     ? TEnum[keyof TEnum] extends
                         | string
@@ -82,6 +91,7 @@ export type SchemaToTemplateLiteralString<TSchema> =
                       ? `${TEnum[keyof TEnum]}`
                       : never
                     : // v.union([...]) → union of inner string representations
+                      // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
                       TSchema extends v.UnionSchema<infer TOptions, unknown>
                       ? TOptions extends ReadonlyArray<
                           v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>

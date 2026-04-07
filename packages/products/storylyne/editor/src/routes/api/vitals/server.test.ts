@@ -45,7 +45,7 @@ function createMetric(overrides: Partial<VitalsMetric> = {}): VitalsMetric {
     rating: 'needsImprovement',
     navigationType: 'navigate',
     ...overrides,
-  };
+  } as VitalsMetric;
 }
 
 /**
@@ -78,7 +78,7 @@ function createPayload(overrides: Partial<VitalsBeaconPayload> = {}): VitalsBeac
     metrics: [createMetric()],
     device: createDevice(),
     ...overrides,
-  };
+  } as VitalsBeaconPayload;
 }
 
 /**

@@ -90,17 +90,17 @@ describe('handleError', () => {
     );
     // Verify the key-value block contains both AppError and CapturedError fields
     const [kvCall] = logSpy.mock.calls;
-    expect(kvCall[0]).toContain('Code');
+    expect(kvCall![0]).toContain('Code');
     expect(kvCall[0]).toContain('Error ID');
     expect(kvCall[0]).toContain('Capture ID');
     expect(kvCall[0]).toContain('Type');
     expect(kvCall[0]).toContain('Environment');
     expect(kvCall[0]).toContain('Fatal');
-    expect(kvCall).toContain('INTERNAL.UNEXPECTED');
-    expect(kvCall).toContain(result.errorId);
+    expect(kvCall!).toContain('INTERNAL.UNEXPECTED');
+    expect(kvCall!).toContain(result.errorId);
     // CapturedError fields
-    expect(kvCall).toContain('resultError'); // type
-    expect(kvCall).toContain('false'); // fatal (non-fatal from handleError)
+    expect(kvCall!).toContain('resultError'); // type
+    expect(kvCall!).toContain('false'); // fatal (non-fatal from handleError)
 
     vi.restoreAllMocks();
   });
@@ -141,8 +141,8 @@ describe('handleError', () => {
     // The errorId should come from the original AppError
     expect(result.errorId).toBe(validationErr.error.id);
     const [kvCall] = logSpy.mock.calls;
-    expect(kvCall[0]).toContain('Code');
-    expect(kvCall).toContain('VALIDATION.SCHEMA_FAILED');
+    expect(kvCall![0]).toContain('Code');
+    expect(kvCall!).toContain('VALIDATION.SCHEMA_FAILED');
 
     vi.restoreAllMocks();
   });
@@ -183,8 +183,8 @@ describe('handleError', () => {
     // Should extract source from the first non-shared @fs URL frame
     // Source map resolution fails in test (no server), so falls back to raw positions
     const [kvCall] = logSpy.mock.calls;
-    expect(kvCall[0]).toContain('Source');
-    expect(kvCall).toContain(
+    expect(kvCall![0]).toContain('Source');
+    expect(kvCall!).toContain(
       'http://localhost:5173/@fs/Users/Test User/Desktop/storylyne/packages/products/storylyne/editor/src/routes/(testing)/test-error/validation-client/+page.svelte:21:22',
     );
 
@@ -220,8 +220,8 @@ describe('handleError', () => {
     await flushAsync();
 
     const [kvCall] = logSpy.mock.calls;
-    expect(kvCall[0]).toContain('Source');
-    expect(kvCall).toContain(
+    expect(kvCall![0]).toContain('Source');
+    expect(kvCall!).toContain(
       'http://localhost:5173/src/routes/(testing)/test-error/validation-client/+page.svelte:21:22',
     );
 
@@ -245,8 +245,8 @@ describe('handleError', () => {
 
     // The key-value block should include Release (from ambient options)
     const [kvCall] = logSpy.mock.calls;
-    expect(kvCall[0]).toContain('Release');
-    expect(kvCall).toContain('0.0.0-test');
+    expect(kvCall![0]).toContain('Release');
+    expect(kvCall!).toContain('0.0.0-test');
 
     vi.restoreAllMocks();
   });
