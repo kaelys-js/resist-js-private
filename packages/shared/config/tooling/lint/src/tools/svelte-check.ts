@@ -11,7 +11,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 import { type WorkspaceTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
@@ -24,16 +24,75 @@ import { createResult, type LintResult } from '@/lint/framework/types.ts';
  */
 const DIAGNOSTIC_RE: RegExp = /^\d+\s+(ERROR|WARNING)\s+"([^"]+)"\s+(\d+):(\d+)\s+"(.+)"$/;
 
+/** Directories to skip during package discovery. */
+const SKIP_DIRS: ReadonlySet<string> = new Set([
+  'node_modules',
+  '.svelte-kit',
+  'dist',
+  '_INTEGRATE',
+]);
+
 /**
- * SvelteKit packages that need svelte-check.
+ * Discover all package directories under `packages/` that contain `.svelte` files.
  *
- * Each entry is a relative path from workspace root to the package directory.
+ * A directory qualifies when it has a `package.json` and at least one `.svelte`
+ * file anywhere in its tree (skipping `node_modules`, `.svelte-kit`, etc.).
+ *
+ * @param cwd - Workspace root directory
+ * @returns Absolute paths of Svelte package directories
  */
-const SVELTE_PACKAGES: readonly string[] = [
-  'packages/products/storylyne/editor',
-  'packages/products-template/app',
-  'packages/shared/ui',
-];
+export function discoverSveltePackageDirs(cwd: string): string[] {
+  const packagesDir: string = join(cwd, 'packages');
+  if (!existsSync(packagesDir)) {
+    return [];
+  }
+
+  const found: string[] = [];
+
+  /** Return true if dir (or any descendant) contains a `.svelte` file. */
+  function hasSvelteFile(dir: string): boolean {
+    let entries: import('node:fs').Dirent[];
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return false;
+    }
+    for (const entry of entries) {
+      if (SKIP_DIRS.has(entry.name)) {
+        continue;
+      }
+      if (entry.isFile() && entry.name.endsWith('.svelte')) {
+        return true;
+      }
+      if (entry.isDirectory() && hasSvelteFile(join(dir, entry.name))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function walk(dir: string): void {
+    let entries: import('node:fs').Dirent[];
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (!entry.isDirectory() || SKIP_DIRS.has(entry.name)) {
+        continue;
+      }
+      const full: string = join(dir, entry.name);
+      if (existsSync(join(full, 'package.json')) && hasSvelteFile(full)) {
+        found.push(full);
+      }
+      walk(full);
+    }
+  }
+
+  walk(packagesDir);
+  return found;
+}
 
 /**
  * Transform svelte-check output into LintResult[].
@@ -85,12 +144,7 @@ export function transformSvelteCheckOutput(output: string): LintResult[] {
 export function runSvelteCheckAllPackages(cwd: string): LintResult[] {
   const results: LintResult[] = [];
 
-  for (const pkgPath of SVELTE_PACKAGES) {
-    const pkgDir: string = resolve(cwd, pkgPath);
-
-    if (!existsSync(join(pkgDir, 'package.json'))) {
-      continue;
-    }
+  for (const pkgDir of discoverSveltePackageDirs(cwd)) {
 
     const args: string[] = [
       '--tsconfig',
