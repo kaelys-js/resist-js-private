@@ -526,6 +526,13 @@ export const commands = {
   executeCommand: vi.fn(async () => undefined),
 };
 
+export const env = {
+  clipboard: {
+    writeText: vi.fn(async () => undefined),
+    readText: vi.fn(async () => ''),
+  },
+};
+
 // =============================================================================
 // Utilities
 // =============================================================================

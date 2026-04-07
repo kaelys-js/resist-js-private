@@ -8,7 +8,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { EventEmitter } from 'node:events';
-import { runToolJson } from './runner';
+import { runToolJson, runToolText } from './runner';
 
 // Mock child_process.spawn using EventEmitter-based streams
 vi.mock('node:child_process', async () => {
@@ -288,5 +288,184 @@ describe('runToolJson', () => {
     if (result.ok) {
       expect(result.data).toEqual([]);
     }
+  });
+
+  it('kills process and returns timeout error when timeout fires', async () => {
+    vi.useFakeTimers();
+
+    const promise = runToolJson<unknown>({
+      command: 'slow-tool',
+      args: [],
+      cwd: '/tmp',
+      timeout: 5000,
+    });
+
+    const child = getLastChild();
+    vi.advanceTimersByTime(5000);
+
+    const result = await promise;
+    expect(child.kill).toHaveBeenCalled();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toContain('5000');
+      expect(result.code).toBeNull();
+    }
+
+    vi.useRealTimers();
+  });
+});
+
+describe('runToolText', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('returns text stdout on success (exit 0)', async () => {
+    const promise = runToolText({
+      command: 'test-tool',
+      args: ['--format=text'],
+      cwd: '/tmp',
+    });
+
+    const child = getLastChild();
+    emitStdout(child, 'hello world output', 0);
+
+    const result = await promise;
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe('hello world output');
+      expect(result.elapsed).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it('returns failure with stderr on non-zero exit', async () => {
+    const promise = runToolText({
+      command: 'test-tool',
+      args: [],
+      cwd: '/tmp',
+    });
+
+    const child = getLastChild();
+    emitStderr(child, 'fatal error occurred', 2);
+
+    const result = await promise;
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toBe('fatal error occurred');
+      expect(result.code).toBe(2);
+    }
+  });
+
+  it('returns exit code message when stderr is empty on non-zero exit', async () => {
+    const promise = runToolText({
+      command: 'test-tool',
+      args: [],
+      cwd: '/tmp',
+    });
+
+    const child = getLastChild();
+    child.emit('close', 127);
+
+    const result = await promise;
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toContain('127');
+      expect(result.code).toBe(127);
+    }
+  });
+
+  it('returns failure with null code when process killed (exitCode null)', async () => {
+    vi.useFakeTimers();
+
+    const promise = runToolText({
+      command: 'slow-tool',
+      args: [],
+      cwd: '/tmp',
+      timeout: 3000,
+    });
+
+    const child = getLastChild();
+    vi.advanceTimersByTime(3000);
+
+    const result = await promise;
+    expect(child.kill).toHaveBeenCalled();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.code).toBeNull();
+    }
+
+    vi.useRealTimers();
+  });
+
+  it('returns failure on spawn error', async () => {
+    const promise = runToolText({
+      command: 'nonexistent',
+      args: [],
+      cwd: '/tmp',
+    });
+
+    const child = getLastChild();
+    child.emit('error', new Error('spawn ENOENT'));
+
+    const result = await promise;
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toContain('Failed to spawn');
+      expect(result.error).toContain('spawn ENOENT');
+      expect(result.code).toBeNull();
+    }
+  });
+
+  it('writes stdin content to child process when provided', async () => {
+    const promise = runToolText({
+      command: 'test-tool',
+      args: ['--stdin-filename=/src/foo.ts'],
+      cwd: '/tmp',
+      stdin: 'const x = 1;',
+    });
+
+    const child = getLastChild();
+    expect(child.stdin.write).toHaveBeenCalledWith('const x = 1;');
+    expect(child.stdin.end).toHaveBeenCalled();
+
+    emitStdout(child, 'lint output', 0);
+    const result = await promise;
+    expect(result.ok).toBe(true);
+  });
+
+  it('closes stdin without writing when no stdin provided', async () => {
+    const promise = runToolText({
+      command: 'test-tool',
+      args: [],
+      cwd: '/tmp',
+    });
+
+    const child = getLastChild();
+    expect(child.stdin.write).not.toHaveBeenCalled();
+    expect(child.stdin.end).toHaveBeenCalled();
+
+    emitStdout(child, '', 0);
+    const result = await promise;
+    expect(result.ok).toBe(true);
+  });
+
+  it('includes stderr in successful result', async () => {
+    const promise = runToolText({
+      command: 'test-tool',
+      args: [],
+      cwd: '/tmp',
+    });
+
+    const child = getLastChild();
+    child.stderr.emit('data', Buffer.from('warning: something'));
+    child.stdout.emit('data', Buffer.from('output'));
+    child.emit('close', 0);
+
+    const result = await promise;
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe('output');
+    }
+    expect(result.stderr).toBe('warning: something');
   });
 });

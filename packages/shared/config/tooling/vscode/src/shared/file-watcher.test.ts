@@ -8,7 +8,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as vscode from 'vscode';
-import { createFileWatcher } from './file-watcher';
+import { createFileWatcher, createBatchedFileWatcher } from './file-watcher';
 import * as output from './output';
 
 vi.mock('./output', () => ({
@@ -31,6 +31,7 @@ vi.mock('../locale/en', () => ({
   en: {
     watcher: {
       configChanged: 'Config file changed: {pattern}',
+      batchFired: 'Batch fired: {count} URIs',
     },
   },
 }));
@@ -152,6 +153,184 @@ describe('createFileWatcher', () => {
     onDidDeleteCallback!();
     vi.advanceTimersByTime(100);
 
+    expect(callback).toHaveBeenCalledOnce();
+  });
+});
+
+describe('createBatchedFileWatcher', () => {
+  const mockChannel = { appendLine: vi.fn() } as unknown as vscode.OutputChannel;
+  let onDidChangeCallback: ((uri: vscode.Uri) => void) | undefined;
+  let onDidCreateCallback: ((uri: vscode.Uri) => void) | undefined;
+  let onDidDeleteCallback: ((uri: vscode.Uri) => void) | undefined;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+
+    onDidChangeCallback = undefined;
+    onDidCreateCallback = undefined;
+    onDidDeleteCallback = undefined;
+
+    vi.mocked(vscode.workspace.createFileSystemWatcher).mockReturnValue({
+      onDidChange: vi.fn((cb: (uri: vscode.Uri) => void) => {
+        onDidChangeCallback = cb;
+      }),
+      onDidCreate: vi.fn((cb: (uri: vscode.Uri) => void) => {
+        onDidCreateCallback = cb;
+      }),
+      onDidDelete: vi.fn((cb: (uri: vscode.Uri) => void) => {
+        onDidDeleteCallback = cb;
+      }),
+      dispose: vi.fn(),
+    } as unknown as vscode.FileSystemWatcher);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('batches multiple change events and fires callback with URI array', () => {
+    const callback = vi.fn();
+    createBatchedFileWatcher(['**/*.ts'], callback, mockChannel, { batchWindowMs: 200 });
+
+    const uri1 = vscode.Uri.file('/src/a.ts');
+    const uri2 = vscode.Uri.file('/src/b.ts');
+    onDidChangeCallback!(uri1);
+    onDidChangeCallback!(uri2);
+
+    vi.advanceTimersByTime(200);
+    expect(callback).toHaveBeenCalledOnce();
+    expect(callback).toHaveBeenCalledWith([uri1, uri2]);
+  });
+
+  it('deduplicates URIs by fsPath (default behavior)', () => {
+    const callback = vi.fn();
+    createBatchedFileWatcher(['**/*.ts'], callback, mockChannel, { batchWindowMs: 100 });
+
+    const uri = vscode.Uri.file('/src/a.ts');
+    onDidChangeCallback!(uri);
+    onDidChangeCallback!(vscode.Uri.file('/src/a.ts'));
+
+    vi.advanceTimersByTime(100);
+    expect(callback).toHaveBeenCalledOnce();
+    expect(callback.mock.calls[0]![0]).toHaveLength(1);
+  });
+
+  it('does not deduplicate when deduplicateByUri is false', () => {
+    const callback = vi.fn();
+    createBatchedFileWatcher(['**/*.ts'], callback, mockChannel, {
+      batchWindowMs: 100,
+      deduplicateByUri: false,
+    });
+
+    const uri = vscode.Uri.file('/src/a.ts');
+    onDidChangeCallback!(uri);
+    onDidChangeCallback!(vscode.Uri.file('/src/a.ts'));
+
+    vi.advanceTimersByTime(100);
+    expect(callback).toHaveBeenCalledOnce();
+    expect(callback.mock.calls[0]![0]).toHaveLength(2);
+  });
+
+  it('does not fire callback when no events occurred before timer', () => {
+    const callback = vi.fn();
+    createBatchedFileWatcher(['**/*.ts'], callback, mockChannel, { batchWindowMs: 100 });
+
+    vi.advanceTimersByTime(500);
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it('clears pending batch on dispose', () => {
+    const callback = vi.fn();
+    const disposables = createBatchedFileWatcher(['**/*.ts'], callback, mockChannel, {
+      batchWindowMs: 200,
+    });
+
+    onDidChangeCallback!(vscode.Uri.file('/src/a.ts'));
+
+    // Dispose before timer fires
+    for (const d of disposables) {
+      d.dispose();
+    }
+
+    vi.advanceTimersByTime(200);
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it('catches callback errors and logs them', () => {
+    const callback = vi.fn(() => {
+      throw new Error('batch callback error');
+    });
+    createBatchedFileWatcher(['**/*.ts'], callback, mockChannel, { batchWindowMs: 100 });
+
+    onDidChangeCallback!(vscode.Uri.file('/src/a.ts'));
+    vi.advanceTimersByTime(100);
+
+    expect(callback).toHaveBeenCalledOnce();
+    expect(output.logError).toHaveBeenCalledWith(mockChannel, 'batch callback error');
+  });
+
+  it('works without channel (no logging)', () => {
+    const callback = vi.fn();
+    createBatchedFileWatcher(['**/*.ts'], callback, undefined, { batchWindowMs: 100 });
+
+    onDidChangeCallback!(vscode.Uri.file('/src/a.ts'));
+    vi.advanceTimersByTime(100);
+
+    expect(callback).toHaveBeenCalledOnce();
+    expect(output.log).not.toHaveBeenCalled();
+  });
+
+  it('logs batch count when channel provided', () => {
+    const callback = vi.fn();
+    createBatchedFileWatcher(['**/*.ts'], callback, mockChannel, { batchWindowMs: 100 });
+
+    onDidChangeCallback!(vscode.Uri.file('/src/a.ts'));
+    onDidChangeCallback!(vscode.Uri.file('/src/b.ts'));
+    vi.advanceTimersByTime(100);
+
+    expect(output.log).toHaveBeenCalledWith(mockChannel, 'Batch fired: 2 URIs');
+  });
+
+  it('responds to create and delete events', () => {
+    const callback = vi.fn();
+    createBatchedFileWatcher(['**/*.ts'], callback, mockChannel, { batchWindowMs: 100 });
+
+    onDidCreateCallback!(vscode.Uri.file('/src/new.ts'));
+    onDidDeleteCallback!(vscode.Uri.file('/src/old.ts'));
+    vi.advanceTimersByTime(100);
+
+    expect(callback).toHaveBeenCalledOnce();
+    expect(callback.mock.calls[0]![0]).toHaveLength(2);
+  });
+
+  it('resets batch timer on each new event', () => {
+    const callback = vi.fn();
+    createBatchedFileWatcher(['**/*.ts'], callback, mockChannel, { batchWindowMs: 200 });
+
+    onDidChangeCallback!(vscode.Uri.file('/src/a.ts'));
+    vi.advanceTimersByTime(150);
+    onDidChangeCallback!(vscode.Uri.file('/src/b.ts'));
+    vi.advanceTimersByTime(150);
+
+    // Should not have fired yet (timer reset at t=150)
+    expect(callback).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(50);
+    expect(callback).toHaveBeenCalledOnce();
+    expect(callback.mock.calls[0]![0]).toHaveLength(2);
+  });
+
+  it('uses default batchWindowMs of 500 when no options', () => {
+    const callback = vi.fn();
+    createBatchedFileWatcher(['**/*.ts'], callback, mockChannel);
+
+    onDidChangeCallback!(vscode.Uri.file('/src/a.ts'));
+
+    vi.advanceTimersByTime(499);
+    expect(callback).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(1);
     expect(callback).toHaveBeenCalledOnce();
   });
 });
