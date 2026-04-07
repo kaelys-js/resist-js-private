@@ -19,7 +19,7 @@ fi
 
 # Skip non-source files (markdown, images, snapshots, etc.)
 case "$FILE_PATH" in
-  *.md|*.mdx|*.snap|*.png|*.jpg|*.gif|*.svg|*.ico|*.woff|*.woff2|*.ttf|*.lock)
+  *.snap|*.png|*.jpg|*.gif|*.svg|*.ico|*.woff|*.woff2|*.ttf|*.lock)
     exit 0
     ;;
 esac
@@ -35,7 +35,7 @@ case "$FILE_PATH" in
       prettier --write "$FILE_PATH" 2>/dev/null || true
     fi
     ;;
-  *.ts|*.tsx|*.js|*.jsx|*.json|*.jsonc|*.css|*.html|*.graphql)
+  *.ts|*.tsx|*.js|*.jsx|*.json|*.jsonc|*.css|*.html|*.graphql|*.md|*.mdx)
     if command -v biome &>/dev/null; then
       biome format --write "$FILE_PATH" 2>/dev/null || true
     fi
@@ -56,6 +56,28 @@ case "$FILE_PATH" in
 
     if [[ -n "$LINT_ERRORS" ]]; then
       ERRORS="$LINT_ERRORS"
+    fi
+    ;;
+esac
+
+# ── Lint plan files (docs/plans/*.md) ────────────────────────────────────────
+
+case "$FILE_PATH" in
+  */docs/plans/*.md)
+    PLAN_ERRORS=""
+    CONTENT=$(cat "$FILE_PATH")
+
+    # Check required sections
+    echo "$CONTENT" | grep -q "Status Legend"          || PLAN_ERRORS="${PLAN_ERRORS}Missing: Status Legend\n"
+    echo "$CONTENT" | grep -q "Baseline"               || PLAN_ERRORS="${PLAN_ERRORS}Missing: Baseline\n"
+    echo "$CONTENT" | grep -qi "Register.*Config"      || PLAN_ERRORS="${PLAN_ERRORS}Missing: Register Rules + Config task\n"
+    echo "$CONTENT" | grep -q "Integration Verification" || PLAN_ERRORS="${PLAN_ERRORS}Missing: Integration Verification task\n"
+    echo "$CONTENT" | grep -qE "Full QA|QA.*Coverage"  || PLAN_ERRORS="${PLAN_ERRORS}Missing: Full QA + Coverage task\n"
+    echo "$CONTENT" | grep -qE "Final Verification.*Commit" || PLAN_ERRORS="${PLAN_ERRORS}Missing: Final Verification + Commit task\n"
+    echo "$CONTENT" | grep -q "Execution Order"        || PLAN_ERRORS="${PLAN_ERRORS}Missing: Execution Order\n"
+
+    if [[ -n "$PLAN_ERRORS" ]]; then
+      ERRORS="${ERRORS}Plan lint errors:\n${PLAN_ERRORS}"
     fi
     ;;
 esac
