@@ -88,15 +88,16 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 **Status**: [ ]
 
 **Plan**:
-- Verify all commands registered correctly — no production code modified
-- Verify config settings read unchanged — only test files added/edited
-- Verify no classes need instantiation changes — test-only
-- Verify no unused exports or dead code — no new exports created
+- No commands registered — test-only changes, no new command registration needed
+- Config settings read check: Run `git diff --name-only HEAD -- 'packages/shared/config/core/src/*.ts' ':!*.test.ts'` — expect 0 production files modified, confirming no config changes
+- Class instantiation check: N/A — no new classes added (test-only changes)
+- Unused exports / dead code check: Run `grep -c 'export' packages/shared/config/core/src/index.ts` — expect same count as baseline (no new exports introduced)
+- Run `pnpm --filter @/config run qa:test` — expect all test files discovered and passing
 
 **Verification**:
-- No production `.ts` files modified
-- All existing exports unchanged
-- No orphaned imports
+- `git diff --name-only` returns no production `.ts` files
+- Export count unchanged from baseline
+- `pnpm --filter @/config run qa:test` exits 0
 
 ---
 

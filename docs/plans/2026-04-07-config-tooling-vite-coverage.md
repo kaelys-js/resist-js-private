@@ -103,7 +103,8 @@ Each task is atomic: implement -> verify (QA + tests) -> update plan -> next.
 - `generateFontFaceCss()` line 154: validation error for invalid entries (e.g. missing required field)
 
 **Plan**:
-- Add tests passing invalid configs:
+- Add tests passing invalid configs to exercise validation error branches
+- Verify each function returns the expected error shape:
   1. `templateErrorHtml({} as any)` — assert throws (line 322-325)
   2. `templateAppHtml({} as any)` — assert throws (line 409-412)
   3. `resolveErrorHtml('template', {} as any)` — assert `result.ok === false` (line 220)
@@ -156,15 +157,16 @@ Note: `jsonDefine` error IS tested indirectly via "throws when safeStringify fai
 **Status**: [ ]
 
 **Plan**:
-- Verify all commands registered correctly — no production code modified
-- Verify config settings read unchanged — only test files edited
-- Verify no classes need instantiation changes — test-only
-- Verify no unused exports or dead code — no new exports created
+- No commands registered — test-only changes, no new command registration needed
+- Config settings read check: Run `git diff --name-only HEAD -- 'packages/shared/config/tooling/vite/src/*.ts' ':!*.test.ts'` — expect 0 production files modified, confirming no config changes
+- Class instantiation check: N/A — no new classes added (test-only changes)
+- Unused exports / dead code check: Run `grep -c 'export' packages/shared/config/tooling/vite/src/index.ts` — expect same count as baseline (no new exports introduced)
+- Run `pnpm --filter @/config/tooling/vite run qa:test` — expect 4 test files discovered, all pass
 
 **Verification**:
-- No production `.ts` files modified
-- All existing exports unchanged
-- No orphaned imports
+- `git diff --name-only` returns no production `.ts` files
+- Export count unchanged from baseline
+- `pnpm --filter @/config/tooling/vite run qa:test` exits 0 with 4 test files
 
 ---
 

@@ -39,7 +39,7 @@ vi.mock('@/schemas/result/result', async (importOriginal) => {
           ok: false,
           data: null,
           error: { code: 'FORCED_FAIL', message: 'forced deriveErrorIdPrefix failure' },
-        } as Result<never>;
+        } as unknown as Result<never>;
       }
       return (original.ok as (...a: unknown[]) => Result<unknown>)(...args);
     },

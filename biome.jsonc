@@ -29,7 +29,8 @@
       "!**/out/**",
       "!**/test-results/**",
       "!**/node_modules/**",
-      "!**/*.svelte"
+      "!**/*.svelte",
+      "!**/svelte.d.ts"
     ]
   },
 
