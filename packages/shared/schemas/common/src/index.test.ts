@@ -4,7 +4,7 @@
  * @module
  */
 
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as v from 'valibot';
 
 import {
@@ -80,6 +80,12 @@ import {
   DEFAULT_PROGRESS_BAR_WIDTH,
   DEFAULT_EXIT_CODE,
   FAILURE_EXIT_CODE,
+  RelativePathSchema,
+  AbortSignalSchema,
+  InterruptHandlerSchema,
+  CleanupCallbackSchema,
+  ConsoleLogFnSchema,
+  TeardownFnSchema,
 } from '@/schemas/common';
 
 // =============================================================================
@@ -703,5 +709,249 @@ describe('EventNameSchema', () => {
 
   it('rejects spaces', () => {
     expect(v.safeParse(EventNameSchema, 'page view').success).toBe(false);
+  });
+});
+
+// =============================================================================
+// Runtime Validators (v.check / v.custom)
+// =============================================================================
+
+describe('RelativePathSchema', () => {
+  it('accepts relative path', () => {
+    expect(v.safeParse(RelativePathSchema, 'src/index.ts').success).toBe(true);
+  });
+
+  it('accepts dot-prefixed relative path', () => {
+    expect(v.safeParse(RelativePathSchema, './local').success).toBe(true);
+  });
+
+  it('rejects absolute path (starts with /)', () => {
+    expect(v.safeParse(RelativePathSchema, '/absolute/path').success).toBe(false);
+  });
+
+  it('rejects empty string', () => {
+    expect(v.safeParse(RelativePathSchema, '').success).toBe(false);
+  });
+});
+
+describe('AbortSignalSchema', () => {
+  it('accepts AbortSignal instance', () => {
+    const controller = new AbortController();
+    expect(v.safeParse(AbortSignalSchema, controller.signal).success).toBe(true);
+  });
+
+  it('rejects plain object', () => {
+    expect(v.safeParse(AbortSignalSchema, {}).success).toBe(false);
+  });
+
+  it('rejects string', () => {
+    expect(v.safeParse(AbortSignalSchema, 'string').success).toBe(false);
+  });
+});
+
+describe('InterruptHandlerSchema', () => {
+  it('accepts function', () => {
+    expect(v.safeParse(InterruptHandlerSchema, (_signal: string) => {}).success).toBe(true);
+  });
+
+  it('rejects string', () => {
+    expect(v.safeParse(InterruptHandlerSchema, 'not a function').success).toBe(false);
+  });
+
+  it('rejects number', () => {
+    expect(v.safeParse(InterruptHandlerSchema, 42).success).toBe(false);
+  });
+});
+
+describe('CleanupCallbackSchema', () => {
+  it('accepts function', () => {
+    expect(v.safeParse(CleanupCallbackSchema, () => {}).success).toBe(true);
+  });
+
+  it('rejects null', () => {
+    expect(v.safeParse(CleanupCallbackSchema, null).success).toBe(false);
+  });
+
+  it('rejects object', () => {
+    expect(v.safeParse(CleanupCallbackSchema, {}).success).toBe(false);
+  });
+});
+
+describe('ConsoleLogFnSchema', () => {
+  it('accepts console.log', () => {
+    expect(v.safeParse(ConsoleLogFnSchema, console.log).success).toBe(true);
+  });
+
+  it('accepts arrow function', () => {
+    expect(v.safeParse(ConsoleLogFnSchema, () => {}).success).toBe(true);
+  });
+
+  it('rejects string', () => {
+    expect(v.safeParse(ConsoleLogFnSchema, 'not a function').success).toBe(false);
+  });
+});
+
+describe('TeardownFnSchema', () => {
+  it('accepts function', () => {
+    expect(v.safeParse(TeardownFnSchema, () => {}).success).toBe(true);
+  });
+
+  it('rejects undefined', () => {
+    expect(v.safeParse(TeardownFnSchema, undefined).success).toBe(false);
+  });
+
+  it('rejects number', () => {
+    expect(v.safeParse(TeardownFnSchema, 123).success).toBe(false);
+  });
+});
+
+// =============================================================================
+// Defensive IIFE branches — hardcoded constants always pass validation,
+// so the error branches are only reachable via mocked safeParse.
+// Order of v.safeParse calls during module init:
+//   1. DEFAULT_TERMINAL_WIDTH  (line 221)
+//   2. DEFAULT_JSON_INDENT     (line 243)
+//   3. DEFAULT_PROGRESS_BAR_WIDTH (line 304)
+//   4. DEFAULT_EXIT_CODE       (line 1906)
+//   5. FAILURE_EXIT_CODE       (line 1923)
+// =============================================================================
+
+describe('defensive IIFE validation branches', () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('DEFAULT_TERMINAL_WIDTH throws on validation failure', async () => {
+    let callCount = 0;
+    vi.doMock('valibot', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('valibot')>();
+      const origSafeParse = actual.safeParse;
+      return {
+        ...actual,
+        safeParse(...args: Parameters<typeof origSafeParse>) {
+          callCount++;
+          if (callCount === 1)
+            return {
+              success: false as const,
+              issues: [],
+              typed: false as const,
+              output: undefined,
+            };
+          return origSafeParse(...args);
+        },
+      };
+    });
+
+    await expect(import('@/schemas/common')).rejects.toThrow(
+      'BUG: DEFAULT_TERMINAL_WIDTH schema validation failed',
+    );
+  });
+
+  it('DEFAULT_JSON_INDENT throws on validation failure', async () => {
+    let callCount = 0;
+    vi.doMock('valibot', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('valibot')>();
+      const origSafeParse = actual.safeParse;
+      return {
+        ...actual,
+        safeParse(...args: Parameters<typeof origSafeParse>) {
+          callCount++;
+          if (callCount === 2)
+            return {
+              success: false as const,
+              issues: [],
+              typed: false as const,
+              output: undefined,
+            };
+          return origSafeParse(...args);
+        },
+      };
+    });
+
+    await expect(import('@/schemas/common')).rejects.toThrow(
+      'BUG: DEFAULT_JSON_INDENT schema validation failed',
+    );
+  });
+
+  it('DEFAULT_PROGRESS_BAR_WIDTH throws on validation failure', async () => {
+    let callCount = 0;
+    vi.doMock('valibot', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('valibot')>();
+      const origSafeParse = actual.safeParse;
+      return {
+        ...actual,
+        safeParse(...args: Parameters<typeof origSafeParse>) {
+          callCount++;
+          if (callCount === 3)
+            return {
+              success: false as const,
+              issues: [],
+              typed: false as const,
+              output: undefined,
+            };
+          return origSafeParse(...args);
+        },
+      };
+    });
+
+    await expect(import('@/schemas/common')).rejects.toThrow(
+      'BUG: DEFAULT_PROGRESS_BAR_WIDTH schema validation failed',
+    );
+  });
+
+  it('DEFAULT_EXIT_CODE throws on validation failure', async () => {
+    let callCount = 0;
+    vi.doMock('valibot', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('valibot')>();
+      const origSafeParse = actual.safeParse;
+      return {
+        ...actual,
+        safeParse(...args: Parameters<typeof origSafeParse>) {
+          callCount++;
+          if (callCount === 4)
+            return {
+              success: false as const,
+              issues: [],
+              typed: false as const,
+              output: undefined,
+            };
+          return origSafeParse(...args);
+        },
+      };
+    });
+
+    await expect(import('@/schemas/common')).rejects.toThrow(
+      'BUG: DEFAULT_EXIT_CODE schema validation failed',
+    );
+  });
+
+  it('FAILURE_EXIT_CODE throws on validation failure', async () => {
+    let callCount = 0;
+    vi.doMock('valibot', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('valibot')>();
+      const origSafeParse = actual.safeParse;
+      return {
+        ...actual,
+        safeParse(...args: Parameters<typeof origSafeParse>) {
+          callCount++;
+          if (callCount === 5)
+            return {
+              success: false as const,
+              issues: [],
+              typed: false as const,
+              output: undefined,
+            };
+          return origSafeParse(...args);
+        },
+      };
+    });
+
+    await expect(import('@/schemas/common')).rejects.toThrow(
+      'BUG: FAILURE_EXIT_CODE schema validation failed',
+    );
   });
 });
