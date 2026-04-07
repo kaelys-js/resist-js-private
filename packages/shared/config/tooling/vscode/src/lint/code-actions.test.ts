@@ -177,4 +177,47 @@ describe('ResistCodeActionProvider', () => {
     );
     expect(providerWithChannel).toBeInstanceOf(ResistCodeActionProvider);
   });
+
+  it('logs error and continues when positionAt throws during individual fix (line 95-103)', () => {
+    const throwingDoc = {
+      ...createMockDocument('const x = 1;\n'),
+      positionAt: () => {
+        throw new Error('positionAt exploded');
+      },
+    } as unknown as vscode.TextDocument;
+    const diag = createDiagnostic({ start: 0, end: 5, text: 'let' });
+
+    const actions = provider.provideCodeActions(throwingDoc, new vscode.Range(0, 0, 0, 5), {
+      diagnostics: [diag],
+    } as unknown as vscode.CodeActionContext);
+
+    expect(actions.length).toBe(0);
+    expect((mockChannel as { appendLine: ReturnType<typeof vi.fn> }).appendLine).toHaveBeenCalled();
+  });
+
+  it('logs error when positionAt throws during Fix all construction (line 142-148)', () => {
+    let callCount = 0;
+    const sometimesThrowDoc = {
+      ...createMockDocument('const x = 1;\nconst y = 2;\n'),
+      positionAt: (offset: number) => {
+        callCount++;
+        // Let individual fix calls succeed (first 4 calls: 2 diags × 2 positions)
+        if (callCount <= 4) {
+          return new vscode.Position(0, offset);
+        }
+        // Throw during Fix all construction
+        throw new Error('Fix all exploded');
+      },
+    } as unknown as vscode.TextDocument;
+    const diag1 = createDiagnostic({ start: 6, end: 7, text: 'a' });
+    const diag2 = createDiagnostic({ start: 20, end: 21, text: 'b' });
+
+    const actions = provider.provideCodeActions(sometimesThrowDoc, new vscode.Range(0, 0, 1, 5), {
+      diagnostics: [diag1, diag2],
+    } as unknown as vscode.CodeActionContext);
+
+    // Individual fixes succeed (2), Fix all fails and is not added
+    expect(actions.length).toBe(2);
+    expect((mockChannel as { appendLine: ReturnType<typeof vi.fn> }).appendLine).toHaveBeenCalled();
+  });
 });

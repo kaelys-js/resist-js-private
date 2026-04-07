@@ -186,6 +186,12 @@ describe('FileDiagnosticItem', () => {
     const item = new FileDiagnosticItem(uri, 1, 0, diags);
     expect(item.fileUri).toBe(uri);
   });
+
+  it('extracts basename from root-level file path (line 140)', () => {
+    const rootUri = vscode.Uri.file('/file.ts');
+    const item = new FileDiagnosticItem(rootUri, 1, 0, diags);
+    expect(item.label).toBe('file.ts');
+  });
 });
 
 // =============================================================================
@@ -404,6 +410,34 @@ describe('DiagnosticDetailItem', () => {
     const item = new DiagnosticDetailItem(diag, uri);
     expect(item.fileUri).toBe(uri);
     expect(item.diagnostic).toBe(diag);
+  });
+
+  it('extracts ruleId from numeric code (line 225-226)', () => {
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    diag.code = 42;
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect(item.label).toContain('42');
+  });
+
+  it('extracts ruleId from object code with value (line 227-228)', () => {
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    diag.code = { value: 'my-obj-rule', target: vscode.Uri.parse('https://example.com') };
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect(item.label).toContain('my-obj-rule');
+  });
+
+  it('uses empty ruleId when code is undefined (line 229-230)', () => {
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    diag.code = undefined;
+    const item = new DiagnosticDetailItem(diag, uri);
+    // Label should be line/col only, no rule suffix
+    expect(item.label).not.toContain('·');
+  });
+
+  it('falls back to "info" icon for unknown severity (line 247)', () => {
+    const diag = new vscode.Diagnostic(range, 'err', 99 as vscode.DiagnosticSeverity);
+    const item = new DiagnosticDetailItem(diag, uri);
+    expect((item.iconPath as vscode.ThemeIcon).id).toBe('info');
   });
 });
 

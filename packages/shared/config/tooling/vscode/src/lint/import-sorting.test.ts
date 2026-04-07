@@ -60,4 +60,38 @@ describe('removeUnusedImports', () => {
     expect(result).toBe(false);
     expect(vscode.window.showInformationMessage).toHaveBeenCalled();
   });
+
+  it('filters out non-resist diagnostics (line 36)', async () => {
+    const doc = createMockDoc();
+    const collection = vscode.languages.createDiagnosticCollection('test');
+    const diag = createDiag('no-unused-import', { start: 0, end: 25, text: '' });
+    diag.source = 'eslint';
+    collection.set(doc.uri, [diag]);
+
+    const result = await removeUnusedImports(doc, collection);
+    expect(result).toBe(false);
+    expect(vscode.window.showInformationMessage).toHaveBeenCalled();
+  });
+
+  it('logs no-imports message when channel provided (line 99)', async () => {
+    const doc = createMockDoc();
+    const collection = vscode.languages.createDiagnosticCollection('test');
+    collection.set(doc.uri, [createDiag('no-console')]);
+    const channel: any = { appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn() };
+
+    await removeUnusedImports(doc, collection, channel);
+
+    expect(channel.appendLine).toHaveBeenCalled();
+  });
+
+  it('logs success count when channel provided (line 133)', async () => {
+    const doc = createMockDoc();
+    const collection = vscode.languages.createDiagnosticCollection('test');
+    collection.set(doc.uri, [createDiag('no-unused-import', { start: 0, end: 25, text: '' })]);
+    const channel: any = { appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn() };
+
+    await removeUnusedImports(doc, collection, channel);
+
+    expect(channel.appendLine).toHaveBeenCalled();
+  });
 });

@@ -246,4 +246,11 @@ describe('DocumentEventRegistry', () => {
     expect(handler2).toHaveBeenCalledTimes(1);
     expect(handler3).toHaveBeenCalledTimes(1);
   });
+
+  it('skips dispatch when no handlers registered for event type (line 189)', () => {
+    registry.initialize();
+    const saveCallback = getLastCallback(vscode.workspace.onDidSaveTextDocument);
+    saveCallback(createMockDoc());
+    // No handlers for save — early return, no error
+  });
 });

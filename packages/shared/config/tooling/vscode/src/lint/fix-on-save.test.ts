@@ -159,4 +159,30 @@ describe('FixOnSaveManager', () => {
     // No error thrown — timers and state cleared
     expect(true).toBe(true);
   });
+
+  it('cleanup timer removes stale loop guard entries (line 40-44)', async () => {
+    vi.useFakeTimers();
+    const timerManager = new FixOnSaveManager(channel);
+
+    const doc = createMockDoc();
+    const collection = vscode.languages.createDiagnosticCollection('test');
+    collection.set(doc.uri, [createDiagWithFix(0, 5, 'let')]);
+
+    // First save adds entry to recentlyFixed
+    await timerManager.handleSave(doc, collection);
+
+    // Second save blocked by loop guard
+    let result = await timerManager.handleSave(doc, collection);
+    expect(result).toBe(false);
+
+    // Advance time past cleanup threshold (LOOP_GUARD_MS * 4)
+    vi.advanceTimersByTime(120_000);
+
+    // Cleanup timer should have removed the stale entry — re-save succeeds
+    result = await timerManager.handleSave(doc, collection);
+    expect(result).toBe(true);
+
+    timerManager.dispose();
+    vi.useRealTimers();
+  });
 });

@@ -459,6 +459,54 @@ describe('renderRulesHtml', () => {
     expect(html).toContain('<span class="badge severity-warning">warning</span>');
     expect(html).toContain('<span class="badge severity-off">off</span>');
   });
+
+  it('filters empty strings from stages split (line 239)', () => {
+    const sections: RuleSection[] = [
+      {
+        name: 'Test',
+        rules: [
+          {
+            id: 'rule-a',
+            severity: 'error',
+            fixable: false,
+            description: '',
+            patterns: '',
+            categories: '',
+            stages: 'lint,', // trailing comma → split produces ["lint", ""]
+          },
+        ],
+      },
+    ];
+    const html: string = renderRulesHtml(sections, nonce);
+
+    // "lint" should be present as a filter option, but not an empty string
+    expect(html).toContain('data-filter-value="lint"');
+    expect(html).not.toContain('data-filter-value=""');
+  });
+
+  it('filters empty strings from categories split (line 247)', () => {
+    const sections: RuleSection[] = [
+      {
+        name: 'Test',
+        rules: [
+          {
+            id: 'rule-b',
+            severity: 'warning',
+            fixable: false,
+            description: '',
+            patterns: '',
+            categories: 'style,', // trailing comma → split produces ["style", ""]
+            stages: '',
+          },
+        ],
+      },
+    ];
+    const html: string = renderRulesHtml(sections, nonce);
+
+    expect(html).toContain('data-filter-value="style"');
+    // Empty category should not appear as a filter checkbox
+    expect(html).not.toMatch(/data-filter-type="category" data-filter-value=""\s/);
+  });
 });
 
 // =============================================================================
@@ -804,5 +852,14 @@ describe('parseRulesOutput — edge cases', () => {
     expect(rule?.patterns).toBe('');
     expect(rule?.categories).toBe('');
     expect(rule?.stages).toBe('');
+  });
+
+  it('skips unrecognized parts in combined categories/stages line (line 146-148)', () => {
+    // "Extra: stuff" is neither categories: nor stages:, so it is silently skipped
+    const output = 'Rules\n  my-rule (error)\n    Categories: perf  Stages: ci  Extra: ignored\n';
+    const result: RuleSection[] = parseRulesOutput(output);
+
+    expect(result[0]?.rules[0]?.categories).toBe('perf');
+    expect(result[0]?.rules[0]?.stages).toBe('ci');
   });
 });

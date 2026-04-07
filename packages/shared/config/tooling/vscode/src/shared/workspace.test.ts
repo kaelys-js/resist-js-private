@@ -10,7 +10,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
 import { existsSync } from 'node:fs';
 import { BINARY_NAME } from './brand';
-import { getWorkspaceRoot, getBinaryPath, clearCache } from './workspace';
+import { getWorkspaceRoot, getBinaryPath, clearCache, resolveWorkspace } from './workspace';
 
 // Mock fs module
 vi.mock('node:fs', () => ({
@@ -153,6 +153,65 @@ describe('Workspace Resolution', () => {
 
       // After clearing cache, existsSync should be called again
       expect(callCount).toBeGreaterThan(firstCallCount);
+    });
+  });
+
+  describe('getBinaryPath caching', () => {
+    it('returns cached path on second call (line 117)', () => {
+      const uri = vscode.Uri.file('/repo/src/file.ts');
+      const folder = { uri: vscode.Uri.file('/repo'), name: 'repo', index: 0 };
+      vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(
+        folder as unknown as vscode.WorkspaceFolder,
+      );
+      vi.mocked(existsSync).mockReturnValue(true);
+
+      const first = getBinaryPath(BINARY_NAME, uri);
+      expect(first).toBeDefined();
+
+      const callsBefore = vi.mocked(existsSync).mock.calls.length;
+      const second = getBinaryPath(BINARY_NAME, uri);
+      expect(second).toBe(first);
+      expect(vi.mocked(existsSync).mock.calls.length).toBe(callsBefore);
+    });
+
+    it('returns undefined from negative cache (line 122)', () => {
+      const uri = vscode.Uri.file('/repo/src/file.ts');
+      const folder = { uri: vscode.Uri.file('/repo'), name: 'repo', index: 0 };
+      vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(
+        folder as unknown as vscode.WorkspaceFolder,
+      );
+      vi.mocked(existsSync).mockImplementation((p: unknown) => {
+        return String(p).endsWith('pnpm-workspace.yaml');
+      });
+
+      const first = getBinaryPath(BINARY_NAME, uri);
+      expect(first).toBeUndefined();
+
+      const callsBefore = vi.mocked(existsSync).mock.calls.length;
+      const second = getBinaryPath(BINARY_NAME, uri);
+      expect(second).toBeUndefined();
+      expect(vi.mocked(existsSync).mock.calls.length).toBe(callsBefore);
+    });
+  });
+
+  describe('resolveWorkspace', () => {
+    it('returns workspace info when root exists (line 177-185)', () => {
+      const uri = vscode.Uri.file('/repo/src/file.ts');
+      const folder = { uri: vscode.Uri.file('/repo'), name: 'repo', index: 0 };
+      vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(
+        folder as unknown as vscode.WorkspaceFolder,
+      );
+      vi.mocked(existsSync).mockReturnValue(true);
+
+      const info = resolveWorkspace(BINARY_NAME, uri);
+      expect(info).toBeDefined();
+      expect(info!.rootPath).toBeDefined();
+    });
+
+    it('returns undefined when no workspace root (line 179)', () => {
+      vi.mocked(vscode.workspace.getWorkspaceFolder).mockReturnValue(undefined);
+      const info = resolveWorkspace(BINARY_NAME, vscode.Uri.file('/orphan.ts'));
+      expect(info).toBeUndefined();
     });
   });
 });

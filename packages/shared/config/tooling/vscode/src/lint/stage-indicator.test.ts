@@ -98,4 +98,20 @@ describe('StageIndicator', () => {
     indicator.dispose();
     expect(true).toBe(true);
   });
+
+  it('skips logging when no channel in showQuickPick (line 80)', async () => {
+    const noChannelIndicator = new StageIndicator(statusBarItem);
+    vi.mocked(vscode.window.showQuickPick).mockResolvedValue('build' as any);
+    vi.mocked(vscode.workspace.getConfiguration).mockReturnValue({
+      get: vi.fn(),
+      update: vi.fn(),
+      has: vi.fn(),
+      inspect: vi.fn(),
+    } as any);
+
+    await noChannelIndicator.showQuickPick();
+
+    expect(noChannelIndicator.getStage()).toBe('build');
+    // No error — channel log branch skipped safely
+  });
 });

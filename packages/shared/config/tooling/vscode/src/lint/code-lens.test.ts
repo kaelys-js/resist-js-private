@@ -121,4 +121,40 @@ describe('ResistCodeLensProvider', () => {
     // Should not throw
     expect(true).toBe(true);
   });
+
+  it('extracts ruleId from object-type diagnostic code (line 65-67)', () => {
+    const doc = createMockDoc();
+    const diag: any = {
+      range: new vscode.Range(0, 0, 0, 10),
+      message: 'Object code issue',
+      severity: vscode.DiagnosticSeverity.Warning,
+      source: DIAGNOSTIC_SOURCE,
+      code: { value: 'style/no-var', target: vscode.Uri.parse('https://example.com') },
+      data: undefined,
+    };
+    collection.set(doc.uri, [diag]);
+
+    const lenses = provider.provideCodeLenses(doc);
+
+    expect(lenses).toHaveLength(1);
+    expect(lenses[0]!.command?.title).toContain('style/no-var');
+  });
+
+  it('falls back to "unknown" when diagnostic code is undefined (line 67)', () => {
+    const doc = createMockDoc();
+    const diag: any = {
+      range: new vscode.Range(0, 0, 0, 10),
+      message: 'No code issue',
+      severity: vscode.DiagnosticSeverity.Warning,
+      source: DIAGNOSTIC_SOURCE,
+      code: undefined,
+      data: undefined,
+    };
+    collection.set(doc.uri, [diag]);
+
+    const lenses = provider.provideCodeLenses(doc);
+
+    expect(lenses).toHaveLength(1);
+    expect(lenses[0]!.command?.title).toContain('unknown');
+  });
 });

@@ -269,6 +269,32 @@ describe('observers', () => {
     expect(refreshSpy).toHaveBeenCalledTimes(1);
   });
 
+  it('dispose clears pending diagnostic timer (line 203-204)', () => {
+    vi.useFakeTimers();
+
+    const provider = registerPanel(
+      context,
+      stateManager,
+      diagnosticCollection,
+      lifecycle,
+      outputChannel,
+    );
+    const refreshSpy = vi.spyOn(provider, 'refresh');
+
+    const diagCallback = (vscode.languages.onDidChangeDiagnostics as ReturnType<typeof vi.fn>).mock
+      .calls[0]![0] as () => void;
+
+    // Trigger diagnostic change to start the debounce timer
+    diagCallback();
+
+    // Dispose all lifecycle resources (including the timer cleanup)
+    lifecycle.disposeAll(outputChannel);
+
+    // Advance past debounce — should NOT fire since timer was cleared
+    vi.advanceTimersByTime(200);
+    expect(refreshSpy).not.toHaveBeenCalled();
+  });
+
   it('multiple rapid diagnostic changes result in a single refresh', () => {
     vi.useFakeTimers();
 

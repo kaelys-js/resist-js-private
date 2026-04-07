@@ -187,4 +187,26 @@ describe('ToolStateManager', () => {
       expect(callback).toHaveBeenCalledOnce(); // Only the first call before dispose
     });
   });
+
+  describe('observer error handling', () => {
+    it('catches and logs observer errors with channel (line 124-128)', () => {
+      const throwingCallback = vi.fn(() => {
+        throw new Error('observer boom');
+      });
+      manager.onStateChange('lint', throwingCallback);
+      manager.setState('lint', 'ready');
+      expect(throwingCallback).toHaveBeenCalledOnce();
+      expect(output.logError).toHaveBeenCalled();
+    });
+  });
+
+  describe('onStateChange dispose', () => {
+    it('dispose removes observer from list (line 163-166)', () => {
+      const callback = vi.fn();
+      const disposable = manager.onStateChange('lint', callback);
+      disposable.dispose();
+      manager.setState('lint', 'ready');
+      expect(callback).not.toHaveBeenCalled();
+    });
+  });
 });

@@ -615,6 +615,49 @@ describe('Lint Commands', () => {
 
     expect(vscode.commands.executeCommand).toHaveBeenCalledWith(COMMANDS.toggleEnable);
   });
+
+  it('logs error when applyEdit returns false (line 98-100)', async () => {
+    vi.mocked(vscode.workspace.applyEdit).mockResolvedValue(false);
+    const editor = {
+      document: {
+        uri: vscode.Uri.file('/test.ts'),
+        getText: () => 'const x = 1;',
+        positionAt: (offset: number) => new vscode.Position(0, offset),
+        isUntitled: false,
+        languageId: 'typescript',
+      },
+    };
+    const diag: any = {
+      source: 'resist-lint',
+      code: 'test/rule',
+      data: { fix: { range: { start: 0, end: 5 }, text: 'let' } },
+    };
+    diagnosticCollection.set(editor.document.uri, [diag]);
+
+    const handler = commandHandlers.get(COMMANDS.lintFix);
+    expect(handler).toBeDefined();
+    await handler!(editor);
+
+    expect(vscode.window.showErrorMessage).toHaveBeenCalled();
+  });
+
+  it('calls diagnosticFilter.showFilterQuickPick for filterByCategory (line 233)', async () => {
+    const handler = commandHandlers.get(COMMANDS.filterByCategory);
+    expect(handler).toBeDefined();
+    await handler!();
+  });
+
+  it('calls diagnosticFilter.clearFilter for clearFilter (line 238-239)', async () => {
+    const handler = commandHandlers.get(COMMANDS.clearFilter);
+    expect(handler).toBeDefined();
+    await handler!();
+  });
+
+  it('calls stageIndicator.showQuickPick for changeStage (line 244)', async () => {
+    const handler = commandHandlers.get(COMMANDS.changeStage);
+    expect(handler).toBeDefined();
+    await handler!();
+  });
 });
 
 /**

@@ -145,5 +145,16 @@ describe('NotificationManager', () => {
       expect(vscode.window.showWarningMessage).toHaveBeenCalledOnce();
       expect(output.log).not.toHaveBeenCalled();
     });
+
+    it('warnThrottled suppression skips log when no channel (line 68)', () => {
+      const manager = new NotificationManager();
+      const now = Date.now();
+      vi.spyOn(Date, 'now').mockReturnValue(now);
+      manager.warnThrottled('tkey', 'Warning', 5000);
+      vi.spyOn(Date, 'now').mockReturnValue(now + 3000);
+      manager.warnThrottled('tkey', 'Warning', 5000);
+      expect(vscode.window.showWarningMessage).toHaveBeenCalledOnce();
+      expect(output.log).not.toHaveBeenCalled();
+    });
   });
 });

@@ -549,6 +549,101 @@ describe('Filter', () => {
     expect(children).toHaveLength(3);
   });
 
+  it('filter matches numeric code as string (line 247)', () => {
+    stateManager.setState('lint', 'ready');
+    const uri = vscode.Uri.file('/test/file.ts');
+    const range = new vscode.Range(0, 0, 0, 1);
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    diag.code = 123;
+    diagnosticCollection.set(uri, [diag]);
+
+    provider.setFilter('123');
+    const lintSection: SectionItem = provider.getChildren()[0]! as SectionItem;
+    const children: vscode.TreeItem[] = provider.getChildren(lintSection);
+
+    expect(children).toHaveLength(2);
+    expect(children[1]!).toBeInstanceOf(FileDiagnosticItem);
+  });
+
+  it('filter matches object code value (line 249)', () => {
+    stateManager.setState('lint', 'ready');
+    const uri = vscode.Uri.file('/test/file.ts');
+    const range = new vscode.Range(0, 0, 0, 1);
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    diag.code = { value: 'obj-rule', target: vscode.Uri.parse('https://example.com') };
+    diagnosticCollection.set(uri, [diag]);
+
+    provider.setFilter('obj-rule');
+    const lintSection: SectionItem = provider.getChildren()[0]! as SectionItem;
+    const children: vscode.TreeItem[] = provider.getChildren(lintSection);
+
+    expect(children).toHaveLength(2);
+    expect(children[1]!).toBeInstanceOf(FileDiagnosticItem);
+  });
+
+  it('filter handles undefined code gracefully (line 251)', () => {
+    stateManager.setState('lint', 'ready');
+    const uri = vscode.Uri.file('/test/file.ts');
+    const range = new vscode.Range(0, 0, 0, 1);
+    const diag = new vscode.Diagnostic(range, 'match-by-msg', vscode.DiagnosticSeverity.Error);
+    // code is undefined → ruleId defaults to ''
+    diagnosticCollection.set(uri, [diag]);
+
+    provider.setFilter('match-by-msg');
+    const lintSection: SectionItem = provider.getChildren()[0]! as SectionItem;
+    const children: vscode.TreeItem[] = provider.getChildren(lintSection);
+
+    expect(children).toHaveLength(2);
+    expect(children[1]!).toBeInstanceOf(FileDiagnosticItem);
+  });
+
+  it('extractRuleId returns number as string (line 328-329)', () => {
+    stateManager.setState('lint', 'ready');
+    const uri = vscode.Uri.file('/test/file.ts');
+    const range = new vscode.Range(0, 0, 0, 1);
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    diag.code = 999;
+    diagnosticCollection.set(uri, [diag]);
+
+    const lintSection: SectionItem = provider.getChildren()[0]! as SectionItem;
+    const sectionChildren: vscode.TreeItem[] = provider.getChildren(lintSection);
+    const fileItem: FileDiagnosticItem = sectionChildren[1]! as FileDiagnosticItem;
+    const ruleGroups: RuleGroupItem[] = provider.getChildren(fileItem) as RuleGroupItem[];
+
+    expect(ruleGroups[0]!.ruleId).toBe('999');
+  });
+
+  it('extractRuleId returns object code value (line 331-332)', () => {
+    stateManager.setState('lint', 'ready');
+    const uri = vscode.Uri.file('/test/file.ts');
+    const range = new vscode.Range(0, 0, 0, 1);
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    diag.code = { value: 'obj-rule-id', target: vscode.Uri.parse('https://example.com') };
+    diagnosticCollection.set(uri, [diag]);
+
+    const lintSection: SectionItem = provider.getChildren()[0]! as SectionItem;
+    const sectionChildren: vscode.TreeItem[] = provider.getChildren(lintSection);
+    const fileItem: FileDiagnosticItem = sectionChildren[1]! as FileDiagnosticItem;
+    const ruleGroups: RuleGroupItem[] = provider.getChildren(fileItem) as RuleGroupItem[];
+
+    expect(ruleGroups[0]!.ruleId).toBe('obj-rule-id');
+  });
+
+  it('extractRuleId returns (unknown) when code is undefined (line 334)', () => {
+    stateManager.setState('lint', 'ready');
+    const uri = vscode.Uri.file('/test/file.ts');
+    const range = new vscode.Range(0, 0, 0, 1);
+    const diag = new vscode.Diagnostic(range, 'err', vscode.DiagnosticSeverity.Error);
+    diagnosticCollection.set(uri, [diag]);
+
+    const lintSection: SectionItem = provider.getChildren()[0]! as SectionItem;
+    const sectionChildren: vscode.TreeItem[] = provider.getChildren(lintSection);
+    const fileItem: FileDiagnosticItem = sectionChildren[1]! as FileDiagnosticItem;
+    const ruleGroups: RuleGroupItem[] = provider.getChildren(fileItem) as RuleGroupItem[];
+
+    expect(ruleGroups[0]!.ruleId).toBe('(unknown)');
+  });
+
   it('filter is case-insensitive', () => {
     stateManager.setState('lint', 'ready');
     const uri = vscode.Uri.file('/test/MyFile.ts');

@@ -155,6 +155,18 @@ describe('createFileWatcher', () => {
 
     expect(callback).toHaveBeenCalledOnce();
   });
+
+  it('dispose clears pending debounce timer (line 114-116)', () => {
+    const callback = vi.fn();
+    const disposables = createFileWatcher(['**/*.json'], callback, mockChannel, 500);
+
+    onDidChangeCallback!();
+
+    for (const d of disposables) d.dispose();
+
+    vi.advanceTimersByTime(600);
+    expect(callback).not.toHaveBeenCalled();
+  });
 });
 
 describe('createBatchedFileWatcher', () => {
@@ -332,5 +344,19 @@ describe('createBatchedFileWatcher', () => {
 
     vi.advanceTimersByTime(1);
     expect(callback).toHaveBeenCalledOnce();
+  });
+
+  it('dispose clears pending batch timer (line 170)', () => {
+    const callback = vi.fn();
+    const disposables = createBatchedFileWatcher(['**/*.ts'], callback, mockChannel, {
+      batchWindowMs: 200,
+    });
+
+    onDidChangeCallback!(vscode.Uri.file('/src/a.ts'));
+
+    for (const d of disposables) d.dispose();
+
+    vi.advanceTimersByTime(300);
+    expect(callback).not.toHaveBeenCalled();
   });
 });

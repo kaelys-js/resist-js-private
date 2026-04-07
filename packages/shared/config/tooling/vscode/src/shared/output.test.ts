@@ -117,4 +117,17 @@ describe('Output Channel', () => {
     expect(line).toContain('First line');
     expect(line).not.toContain('Example');
   });
+
+  it('logDiagnosticList() maps Information severity to "info" (line 159)', () => {
+    const diag = Object.assign(
+      new vscode.Diagnostic(new vscode.Range(0, 0, 0, 5), 'Info message', 2),
+      { code: 'info-rule' },
+    );
+
+    logDiagnosticList(channel, [diag], '/test.ts');
+
+    const line = (channel.appendLine as ReturnType<typeof vi.fn>).mock.calls[0]![0] as string;
+    expect(line).toContain('info');
+    expect(line).toContain('info-rule');
+  });
 });

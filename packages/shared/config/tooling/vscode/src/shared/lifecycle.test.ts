@@ -162,5 +162,28 @@ describe('LifecycleManager', () => {
 
       expect(disposeFn).toHaveBeenCalledOnce();
     });
+
+    it('disposeAll works without channel (line 69)', () => {
+      const disposeFn = vi.fn();
+      manager.register('res1', { dispose: disposeFn }, 10);
+      manager.disposeAll();
+      expect(disposeFn).toHaveBeenCalledOnce();
+    });
+
+    it('disposeAll without channel swallows errors silently (line 77)', () => {
+      const disposeFn = vi.fn();
+      manager.register(
+        'broken',
+        {
+          dispose: () => {
+            throw new Error('fail');
+          },
+        },
+        20,
+      );
+      manager.register('ok', { dispose: disposeFn }, 10);
+      manager.disposeAll();
+      expect(disposeFn).toHaveBeenCalledOnce();
+    });
   });
 });
