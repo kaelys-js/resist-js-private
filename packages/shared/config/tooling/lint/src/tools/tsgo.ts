@@ -8,7 +8,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 import { type WorkspaceTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
@@ -81,10 +81,29 @@ const SKIP_DIRS: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * SvelteKit packages extend `.svelte-kit/tsconfig.json` which contains
+ * virtual module declarations (`$app/*`, `$env/*`) that tsgo cannot resolve.
+ * These packages are type-checked by svelte-check instead.
+ */
+const SVELTEKIT_EXTENDS_RE: RegExp = /\.svelte-kit[/\\]tsconfig\.json/;
+
+/** Return true if the tsconfig.json in `dir` extends a SvelteKit-generated config. */
+function isSvelteKitTsconfig(dir: string): boolean {
+  try {
+    const content: string = readFileSync(join(dir, 'tsconfig.json'), 'utf8');
+    return SVELTEKIT_EXTENDS_RE.test(content);
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Discover all directories under `packages/` that contain a `tsconfig.json`.
  *
  * Walks the `packages/` tree recursively, skipping `node_modules`,
- * `.svelte-kit`, `dist`, and `_INTEGRATE`.
+ * `.svelte-kit`, `dist`, and `_INTEGRATE`. Also skips SvelteKit packages
+ * whose tsconfig extends `.svelte-kit/tsconfig.json` — those are
+ * type-checked by svelte-check instead.
  *
  * @param cwd - Workspace root directory
  * @returns Absolute paths of directories with a tsconfig.json
@@ -109,7 +128,7 @@ export function discoverTsconfigDirs(cwd: string): string[] {
         continue;
       }
       const full: string = join(dir, entry.name);
-      if (existsSync(join(full, 'tsconfig.json'))) {
+      if (existsSync(join(full, 'tsconfig.json')) && !isSvelteKitTsconfig(full)) {
         found.push(full);
       }
       walk(full);
