@@ -411,7 +411,9 @@ describe('templateErrorHtml lifecycle hooks', () => {
 
     expect(readFileMock).toHaveBeenCalledWith(TEST_TEMPLATE_PATH);
     expect(writeFileMock).toHaveBeenCalledTimes(1);
-    const written: Str = writeFileMock.mock.calls[0][1] as Str;
+    const call = writeFileMock.mock.calls[0];
+    expect(call).toBeDefined();
+    const written: Str = call![1] as Str;
     expect(written).toContain(TEST_APP_NAME);
     expect(written).not.toContain('{{APP_NAME}}');
   });
@@ -517,7 +519,9 @@ describe('templateAppHtml lifecycle hooks', () => {
 
     expect(readFileMock).toHaveBeenCalledWith(TEST_TEMPLATE_PATH);
     expect(writeFileMock).toHaveBeenCalledTimes(1);
-    const written: Str = writeFileMock.mock.calls[0][1] as Str;
+    const call = writeFileMock.mock.calls[0];
+    expect(call).toBeDefined();
+    const written: Str = call![1] as Str;
     expect(written).toContain(TEST_APP_NAME);
     expect(written).not.toContain('{{APP_NAME}}');
     expect(written).not.toContain('{{STORAGE_PREFIX}}');

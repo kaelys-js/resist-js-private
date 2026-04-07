@@ -37,12 +37,12 @@ case "$FILE_PATH" in
     ;;
   *.ts|*.tsx|*.js|*.jsx|*.json|*.jsonc|*.css|*.html|*.graphql|*.md|*.mdx)
     if command -v biome &>/dev/null; then
-      biome format --write "$FILE_PATH" 2>/dev/null || true
+      biome format --write "$FILE_PATH"
     fi
     ;;
 esac
 
-# ── Lint (oxlint rules only — no --tools, too slow per-file) ────────────────
+# ── Lint (@/lint CLI — oxlint + custom rules, no --tools per-file) ──────────
 
 # Only lint source files the linter understands
 case "$FILE_PATH" in

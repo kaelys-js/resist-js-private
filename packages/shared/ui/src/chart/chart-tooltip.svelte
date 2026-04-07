@@ -41,7 +41,9 @@
     labelKey?: string;
     hideIndicator?: boolean;
     labelClassName?: string;
-    labelFormatter?: ((value: unknown, payload: TooltipPayload[]) => string | number | Snippet) | null;
+    labelFormatter?:
+      | ((value: unknown, payload: TooltipPayload[]) => string | number | Snippet)
+      | null;
     formatter?: Snippet<
       [
         {
