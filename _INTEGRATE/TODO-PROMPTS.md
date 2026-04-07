@@ -3,14 +3,14 @@ COMMIT EVERYTHING UNSTAGED AND THEN:
 This: @/lint
 
 Custom Linter:
-  - Implement these rules "/Users/coleb/Desktop/webforge/_INTEGRATE/linter/.md", provide your explanation of each rule and what you plan to do.
+  - Implement these rules "_INTEGRATE/linter/.md", provide your explanation of each rule and what you plan to do.
 
 DO NOT weaken assertions, skip errors, or dismiss warnings as "acceptable." Every single diagnostic must be resolved — either fix the code or fix the rule. DO NOT skip ANY branch — trace every if/else, try/catch, ternary, ??, ||. Use exact error codes in assertions.
 
 Steps (MANDATORY, DO NOT SKIP, READ EVERY WORD, FOLLOW EXACTLY):
 - Re-invoke the fix-bug skill
 - Read CLAUDE.md
-- Follow /Users/coleb/Desktop/webforge/docs/plans/TEMPLATE.md EXACTLY THEN EnterPlanMode
+- Follow docs/plans/TEMPLATE.md EXACTLY THEN EnterPlanMode
 - After ExitPlanMode write the approved plan to docs/plans/[file].md
 - docs/plans/[file].md: Run Linter Against The Plan File And Fix All Issues
 - EnterPlanMode with docs/plans/[file].md
@@ -19,7 +19,7 @@ Steps (MANDATORY, DO NOT SKIP, READ EVERY WORD, FOLLOW EXACTLY):
 - [Prompt 8]
   COMMIT EVERYTHING UNSTAGED AND THEN:
 
-  This: /Users/coleb/Desktop/webforge/packages/shared/[TARGET_PATH]
+  This: packages/shared/[TARGET_PATH]
 
   Run ALL SIX QA checks, fix every error, and verify 100% test coverage.
 
@@ -63,7 +63,7 @@ Steps (MANDATORY, DO NOT SKIP, READ EVERY WORD, FOLLOW EXACTLY):
   <REQUIRED, DO NOT SKIP> DO THIS FIRST: RE-READ EVERY WORD AND RE-READ CLAUDE.md AND MEMORY.md AND RE-INVOKE fix-bug SKILL, THIS IS NOT OPTIONAL!!!
 
 - [Prompt 7]
-  This: /Users/coleb/Desktop/webforge/packages/shared/[TARGET_PATH]
+  This: packages/shared/[TARGET_PATH]
 
   I noticed [DESCRIBE WHAT YOU SEE — e.g. "functions returning raw objects instead of using ok()", "missing error handling in catch blocks", "inconsistent naming on schema variables"].
 

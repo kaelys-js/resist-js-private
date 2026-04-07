@@ -4,8 +4,9 @@
 
 set -e
 
-HOOKS_DIR="/Users/coleb/Desktop/webforge/.claude/hooks"
-SETTINGS="/Users/coleb/Desktop/webforge/.claude/settings.json"
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+HOOKS_DIR="$REPO_ROOT/.claude/hooks"
+SETTINGS="$REPO_ROOT/.claude/settings.json"
 PASS=0
 FAIL=0
 ERRORS=""
@@ -22,7 +23,7 @@ echo ""
 echo "Settings.json validation:"
 
 # Every hook file referenced in settings must exist
-REFERENCED_HOOKS=$(grep -oE '/Users/coleb/Desktop/webforge/.claude/hooks/[a-z-]+\.sh' "$SETTINGS" | sort -u)
+REFERENCED_HOOKS=$(grep -oE '\.claude/hooks/[a-z-]+\.sh' "$SETTINGS" | sort -u | sed "s|^|$REPO_ROOT/|")
 ALL_EXIST=true
 for hook in $REFERENCED_HOOKS; do
   if [ ! -f "$hook" ]; then
@@ -218,7 +219,7 @@ else
 fi
 
 # pre-lint-rule-edit.sh: should ask for lint rule files
-RESULT=$(echo '{"tool_input":{"file_path":"/Users/coleb/Desktop/webforge/packages/shared/config/tooling/lint/src/rules/typescript/no-throw.ts"}}' | bash "$HOOKS_DIR/pre-lint-rule-edit.sh")
+RESULT=$(echo "{\"tool_input\":{\"file_path\":\"$REPO_ROOT/packages/shared/config/tooling/lint/src/rules/typescript/no-throw.ts\"}}" | bash "$HOOKS_DIR/pre-lint-rule-edit.sh")
 if echo "$RESULT" | grep -q '"ask"'; then
   pass "pre-lint-rule-edit.sh asks for lint rule files"
 else
@@ -226,7 +227,7 @@ else
 fi
 
 # pre-lint-rule-edit.sh: should allow non-rule files
-RESULT=$(echo '{"tool_input":{"file_path":"/Users/coleb/Desktop/webforge/packages/shared/locale/src/detect.ts"}}' | bash "$HOOKS_DIR/pre-lint-rule-edit.sh")
+RESULT=$(echo "{\"tool_input\":{\"file_path\":\"$REPO_ROOT/packages/shared/locale/src/detect.ts\"}}" | bash "$HOOKS_DIR/pre-lint-rule-edit.sh")
 if echo "$RESULT" | grep -q '"allow"'; then
   pass "pre-lint-rule-edit.sh allows non-rule files"
 else
@@ -271,7 +272,7 @@ echo ""
 # =============================================================================
 echo "CLAUDE.md rules check:"
 
-CLAUDE_MD="/Users/coleb/Desktop/webforge/CLAUDE.md"
+CLAUDE_MD="$REPO_ROOT/CLAUDE.md"
 
 if grep -q "No response requested" "$CLAUDE_MD"; then
   pass "CLAUDE.md forbids 'No response requested'"
