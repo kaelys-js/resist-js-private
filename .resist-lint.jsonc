@@ -10,7 +10,8 @@
     "coverage",
     ".turbo",
     "_INTEGRATE",
-    "__mocks__"
+    "__mocks__",
+    "packages/shared/utils/cli"
   ],
   "extensions": [".ts", ".svelte.ts", ".svelte", ".astro", ".html", ".vue", ".md", ".mdx", ".mjs"],
   "rules": {
