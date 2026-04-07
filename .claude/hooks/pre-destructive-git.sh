@@ -151,8 +151,8 @@ elif echo "$COMMAND" | grep -qE 'curl\s.*\|\s*(sh|bash|zsh)'; then
 elif echo "$COMMAND" | grep -qE 'wget\s.*\|\s*(sh|bash|zsh)'; then
   REASON="piping wget to shell executes remote code"
 
-# eval (arbitrary code execution from string)
-elif echo "$COMMAND" | grep -qE '\beval\s'; then
+# eval (arbitrary code execution from string) — allow mise activation
+elif echo "$COMMAND" | grep -qE '\beval\s' && ! echo "$COMMAND" | grep -qE '\beval\s+"\$\(/opt/homebrew/bin/mise\s'; then
   REASON="eval executes arbitrary code from a string"
 
 # truncate / shred (file destruction)
