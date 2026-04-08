@@ -51,6 +51,7 @@ const {
   ResolvedOptionsSchema,
   ENV_VARS,
 } = await import('./client');
+const { getConfig } = await import('@/config/loader');
 
 // ---------------------------------------------------------------------------
 // Setup
@@ -215,5 +216,167 @@ describe('isAuthenticated', () => {
     const result: Result<Bool> = await isAuthenticated({});
 
     expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid options', async () => {
+    const result: Result<Bool> = await isAuthenticated(42 as any);
+
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns true when listSecrets succeeds', async () => {
+    process.env[ENV_VARS.PROJECT_ID] = 'test-project';
+    mockListSecrets.mockResolvedValue([]);
+    clearClient();
+
+    const result: Result<Bool> = await isAuthenticated({});
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// resolveOptions — error branches
+// ---------------------------------------------------------------------------
+
+describe('resolveOptions — error branches', () => {
+  it('returns error for invalid options input', () => {
+    const result = resolveOptions(42 as any);
+
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error when getConfig() fails', () => {
+    (getConfig as ReturnType<typeof vi.fn>).mockReturnValueOnce({
+      ok: false,
+      data: null,
+      error: { code: 'INTERNAL.UNEXPECTED', message: 'load failed' },
+    });
+
+    const result = resolveOptions({});
+
+    expect(result.ok).toBe(false);
+  });
+
+  it('uses INFISICAL_CACHE_TTL env var when set', () => {
+    process.env[ENV_VARS.CACHE_TTL] = '60000';
+
+    const result = resolveOptions({});
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.cacheTtl).toBe(60000);
+    }
+  });
+
+  it('returns error for non-numeric INFISICAL_CACHE_TTL', () => {
+    process.env[ENV_VARS.CACHE_TTL] = 'not-a-number';
+
+    const result = resolveOptions({});
+
+    expect(result.ok).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getClient — error branches
+// ---------------------------------------------------------------------------
+
+describe('getClient — error branches', () => {
+  it('returns error for invalid options', () => {
+    const result = getClient({ siteUrl: 42 } as any);
+
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error when resolveOptions fails', () => {
+    (getConfig as ReturnType<typeof vi.fn>).mockReturnValueOnce({
+      ok: false,
+      data: null,
+      error: { code: 'INTERNAL.UNEXPECTED', message: 'load failed' },
+    });
+
+    const result = getClient({});
+
+    expect(result.ok).toBe(false);
+  });
+
+  it('creates new client when options change', () => {
+    clearClient();
+    const result1 = getClient({});
+
+    expect(result1.ok).toBe(true);
+    const callCount1 = mockInfisicalClient.mock.calls.length;
+
+    // Change options to invalidate singleton
+    clearClient();
+    process.env[ENV_VARS.DEBUG] = 'true';
+    const result2 = getClient({});
+
+    expect(result2.ok).toBe(true);
+    expect(mockInfisicalClient.mock.calls.length).toBeGreaterThan(callCount1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// createClient — branches
+// ---------------------------------------------------------------------------
+
+describe('createClient — branches', () => {
+  it('returns error for invalid resolved options', () => {
+    const result = createClient({ siteUrl: 123 } as any);
+
+    expect(result.ok).toBe(false);
+  });
+
+  it('spreads accessToken when non-empty', () => {
+    const resolvedResult = resolveOptions({ accessToken: 'test-token' });
+
+    expect(resolvedResult.ok).toBe(true);
+    if (!resolvedResult.ok) return;
+
+    clearClient();
+    mockInfisicalClient.mockClear();
+    const result = createClient(resolvedResult.data);
+
+    expect(result.ok).toBe(true);
+    expect(mockInfisicalClient).toHaveBeenCalledWith(
+      expect.objectContaining({ accessToken: 'test-token' }),
+    );
+  });
+
+  it('spreads clientId and clientSecret when both non-empty', () => {
+    process.env[ENV_VARS.CLIENT_ID] = 'cid';
+    process.env[ENV_VARS.CLIENT_SECRET] = 'csec';
+
+    const resolvedResult = resolveOptions({});
+
+    expect(resolvedResult.ok).toBe(true);
+    if (!resolvedResult.ok) return;
+
+    clearClient();
+    mockInfisicalClient.mockClear();
+    const result = createClient(resolvedResult.data);
+
+    expect(result.ok).toBe(true);
+    expect(mockInfisicalClient).toHaveBeenCalledWith(
+      expect.objectContaining({ clientId: 'cid', clientSecret: 'csec' }),
+    );
+  });
+
+  it('writes to stdout when debug is true', () => {
+    const writeSpy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
+
+    const resolvedResult = resolveOptions({ debug: true });
+
+    expect(resolvedResult.ok).toBe(true);
+    if (!resolvedResult.ok) return;
+
+    clearClient();
+    createClient(resolvedResult.data);
+
+    expect(writeSpy).toHaveBeenCalledWith(expect.stringContaining('[infisical]'));
+    writeSpy.mockRestore();
   });
 });
