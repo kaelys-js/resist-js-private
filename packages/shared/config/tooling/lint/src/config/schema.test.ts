@@ -1201,3 +1201,89 @@ describe('isRuleEnabledAnywhere', () => {
     expect(isRuleEnabledAnywhere(config, 'jsdoc/require-param')).toBe(false);
   });
 });
+
+// =============================================================================
+// resolveRuleSeverity — fileMatchesPattern edge cases
+// =============================================================================
+
+describe('resolveRuleSeverity — fileMatchesPattern edge cases', () => {
+  it('matches **/dir/** pattern with wildcard suffix (recursive glob)', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      rules: { 'test/rule': 'warn' },
+      overrides: [{ files: ['**/tests/**'], rules: { 'test/rule': 'off' } }],
+    };
+    expect(resolveRuleSeverity(config, 'test/rule', '/project/tests/unit/foo.ts')).toBe('off');
+  });
+
+  it('**/wildcard pattern with no dot returns false', () => {
+    // Pattern like ** /prefix* where suffix.includes('*') but lastIndexOf('.') < 0
+    const config: LintConfig = {
+      ...baseConfig(),
+      rules: { 'test/rule': 'error' },
+      overrides: [{ files: ['**/*no-dot-here*'], rules: { 'test/rule': 'off' } }],
+    };
+    /* Since the pattern has * but no dot, fileMatchesPattern returns false */
+    expect(resolveRuleSeverity(config, 'test/rule', '/project/src/foo.ts')).toBe('error');
+  });
+
+  it('**/ suffix with exact match (no wildcards) uses includes()', () => {
+    const config: LintConfig = {
+      ...baseConfig(),
+      rules: { 'test/rule': 'error' },
+      overrides: [{ files: ['**/package.json'], rules: { 'test/rule': 'off' } }],
+    };
+    expect(resolveRuleSeverity(config, 'test/rule', '/project/packages/my-pkg/package.json')).toBe(
+      'off',
+    );
+    expect(resolveRuleSeverity(config, 'test/rule', '/project/src/code.ts')).toBe('error');
+  });
+});
+
+// =============================================================================
+// generateJsonSchema — additional branches
+// =============================================================================
+
+describe('generateJsonSchema — additional branches', () => {
+  it('generates ruleOptionProperties with array-type items in optionsSchema', () => {
+    const ruleIds: string[] = ['test/array-rule'];
+    const descriptions = new Map([['test/array-rule', 'Rule with array option']]);
+    const optionsSchemas = new Map<string, OptionsSchema>([
+      [
+        'test/array-rule',
+        {
+          targets: { type: 'array', items: 'string', description: 'Allowed targets' },
+          strict: { type: 'boolean', description: 'Enable strict mode' },
+        },
+      ],
+    ]);
+
+    const schema = generateJsonSchema(ruleIds, descriptions, en, optionsSchemas);
+    const ruleOpts = schema.properties.ruleOptions?.properties?.['test/array-rule'];
+    expect(ruleOpts).toBeDefined();
+    expect(ruleOpts?.properties?.targets?.type).toBe('array');
+    expect(ruleOpts?.properties?.targets?.items?.type).toBe('string');
+    expect(ruleOpts?.properties?.strict?.type).toBe('boolean');
+  });
+
+  it('generates ruleOptionProperties without optionsSchema (fallback)', () => {
+    const ruleIds: string[] = ['test/simple-rule'];
+    const descriptions = new Map([['test/simple-rule', 'Simple rule']]);
+
+    const schema = generateJsonSchema(ruleIds, descriptions, en);
+    const ruleOpts = schema.properties.ruleOptions?.properties?.['test/simple-rule'];
+    expect(ruleOpts).toBeDefined();
+    expect(ruleOpts?.type).toBe('object');
+    expect(ruleOpts?.properties).toBeUndefined();
+  });
+
+  it('passes optionsSchemas as undefined', () => {
+    const ruleIds: string[] = ['test/rule'];
+    const descriptions = new Map([['test/rule', 'desc']]);
+
+    const schema = generateJsonSchema(ruleIds, descriptions, en, undefined);
+    const ruleOpts = schema.properties.ruleOptions?.properties?.['test/rule'];
+    expect(ruleOpts).toBeDefined();
+    expect(ruleOpts?.type).toBe('object');
+  });
+});
