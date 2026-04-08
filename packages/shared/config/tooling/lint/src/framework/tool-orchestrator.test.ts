@@ -16,6 +16,7 @@ import {
   matchesPattern,
   isCommandAvailable,
   type ExternalTool,
+  type WorkspaceTool,
 } from './tool-orchestrator.ts';
 
 // =============================================================================
@@ -237,5 +238,293 @@ describe('Phase 51 — tool crash diagnostic', () => {
       (r: LintResult): boolean => r.ruleId === 'internal/tool-crash',
     );
     expect(crashes.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// ToolRegistry — workspace tools
+// =============================================================================
+
+/**
+ * Create a minimal mock workspace tool for testing.
+ *
+ * @param overrides - Optional partial overrides
+ * @returns A complete WorkspaceTool instance with defaults
+ */
+function createMockWorkspaceTool(overrides?: Partial<WorkspaceTool>): WorkspaceTool {
+  return {
+    name: 'mock-ws-tool',
+    command: 'echo',
+    args: ['ws-output'],
+    outputFormat: 'text',
+    transform: (): LintResult[] => [],
+    ...overrides,
+  };
+}
+
+describe('ToolRegistry — workspace tool registration', () => {
+  it('registers and retrieves workspace tools', () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const tool: WorkspaceTool = createMockWorkspaceTool();
+    registry.registerWorkspaceTool(tool);
+    expect(registry.getAllWorkspaceTools()).toHaveLength(1);
+    expect(registry.getAllWorkspaceTools()[0]?.name).toBe('mock-ws-tool');
+  });
+
+  it('registers multiple workspace tools', () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    registry.registerWorkspaceTool(createMockWorkspaceTool({ name: 'ws-a' }));
+    registry.registerWorkspaceTool(createMockWorkspaceTool({ name: 'ws-b' }));
+    expect(registry.getAllWorkspaceTools()).toHaveLength(2);
+  });
+
+  it('returns empty array when no workspace tools registered', () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    expect(registry.getAllWorkspaceTools()).toHaveLength(0);
+  });
+});
+
+describe('ToolRegistry — runWorkspaceTool', () => {
+  it('runs workspace tool and transforms output', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const tool: WorkspaceTool = createMockWorkspaceTool({
+      transform: (output: string): LintResult[] => {
+        if (output.trim().length > 0) {
+          return [
+            {
+              ruleId: 'ws/check',
+              file: 'workspace',
+              line: 1,
+              column: 1,
+              severity: 'warning',
+              message: output.trim(),
+              fix: { range: { start: 0, end: 0 }, text: '' },
+            },
+          ];
+        }
+        return [];
+      },
+    });
+    const results: LintResult[] = await registry.runWorkspaceTool(tool);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.message).toBe('ws-output');
+  });
+
+  it('skips workspace tool when isAvailable returns false', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const tool: WorkspaceTool = createMockWorkspaceTool({
+      isAvailable(): Promise<boolean> {
+        return Promise.resolve(false);
+      },
+      transform: (): LintResult[] => [
+        {
+          ruleId: 'ws/never',
+          file: 'x',
+          line: 1,
+          column: 1,
+          severity: 'error',
+          message: 'should not run',
+          fix: { range: { start: 0, end: 0 }, text: '' },
+        },
+      ],
+    });
+    const results: LintResult[] = await registry.runWorkspaceTool(tool);
+    expect(results).toHaveLength(0);
+  });
+
+  it('runs workspace tool when isAvailable returns true', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const tool: WorkspaceTool = createMockWorkspaceTool({
+      isAvailable(): Promise<boolean> {
+        return Promise.resolve(true);
+      },
+      transform: (output: string): LintResult[] => [
+        {
+          ruleId: 'ws/ok',
+          file: 'workspace',
+          line: 1,
+          column: 1,
+          severity: 'info' as LintResult['severity'],
+          message: output.trim(),
+          fix: { range: { start: 0, end: 0 }, text: '' },
+        },
+      ],
+    });
+    const results: LintResult[] = await registry.runWorkspaceTool(tool);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('ws/ok');
+  });
+
+  it('runs workspace tool with no isAvailable check', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const tool: WorkspaceTool = createMockWorkspaceTool({
+      transform: (): LintResult[] => [
+        {
+          ruleId: 'ws/no-check',
+          file: 'workspace',
+          line: 1,
+          column: 1,
+          severity: 'warning',
+          message: 'ran',
+          fix: { range: { start: 0, end: 0 }, text: '' },
+        },
+      ],
+    });
+    const results: LintResult[] = await registry.runWorkspaceTool(tool);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('ws/no-check');
+  });
+
+  it('emits tool-crash when workspace tool command not found', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const tool: WorkspaceTool = createMockWorkspaceTool({
+      command: 'definitely_not_a_real_workspace_command_xyz',
+      args: [],
+    });
+    const results: LintResult[] = await registry.runWorkspaceTool(tool);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('internal/tool-crash');
+    expect(results[0]?.severity).toBe('error');
+    expect(results[0]?.message).toContain("'definitely_not_a_real_workspace_command_xyz'");
+    expect(results[0]?.message).toContain('crashed');
+  });
+
+  it('captures stdout from workspace tool that exits non-zero', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const tool: WorkspaceTool = createMockWorkspaceTool({
+      command: 'node',
+      args: ['-e', "process.stdout.write('error-output'); process.exit(1)"],
+      transform: (output: string): LintResult[] => [
+        {
+          ruleId: 'ws/error',
+          file: 'workspace',
+          line: 1,
+          column: 1,
+          severity: 'error',
+          message: output,
+          fix: { range: { start: 0, end: 0 }, text: '' },
+        },
+      ],
+    });
+    const results: LintResult[] = await registry.runWorkspaceTool(tool);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('ws/error');
+    expect(results[0]?.message).toBe('error-output');
+  });
+
+  it('uses custom cwd for workspace tool', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const tool: WorkspaceTool = createMockWorkspaceTool({
+      command: 'pwd',
+      args: [],
+      cwd: '/tmp',
+      transform: (output: string): LintResult[] => [
+        {
+          ruleId: 'ws/cwd',
+          file: 'workspace',
+          line: 1,
+          column: 1,
+          severity: 'warning',
+          message: output.trim(),
+          fix: { range: { start: 0, end: 0 }, text: '' },
+        },
+      ],
+    });
+    const results: LintResult[] = await registry.runWorkspaceTool(tool);
+    expect(results[0]?.message).toMatch(/\/tmp/);
+  });
+
+  it('uses process.cwd() when tool has no cwd', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const tool: WorkspaceTool = createMockWorkspaceTool({
+      command: 'pwd',
+      args: [],
+    });
+    /* No crash = used a valid cwd (process.cwd()) */
+    const results: LintResult[] = await registry.runWorkspaceTool(tool);
+    const crashes: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'internal/tool-crash',
+    );
+    expect(crashes).toHaveLength(0);
+  });
+});
+
+describe('ToolRegistry — runAllWorkspaceTools', () => {
+  it('returns empty array when no workspace tools registered', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const results: LintResult[] = await registry.runAllWorkspaceTools();
+    expect(results).toHaveLength(0);
+  });
+
+  it('aggregates results from multiple workspace tools', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+
+    const makeResult = (id: string): LintResult => ({
+      ruleId: id,
+      file: 'workspace',
+      line: 1,
+      column: 1,
+      severity: 'warning',
+      message: id,
+      fix: { range: { start: 0, end: 0 }, text: '' },
+    });
+
+    registry.registerWorkspaceTool(
+      createMockWorkspaceTool({
+        name: 'tool-a',
+        transform: (): LintResult[] => [makeResult('a/rule')],
+      }),
+    );
+    registry.registerWorkspaceTool(
+      createMockWorkspaceTool({
+        name: 'tool-b',
+        transform: (): LintResult[] => [makeResult('b/rule')],
+      }),
+    );
+
+    const results: LintResult[] = await registry.runAllWorkspaceTools();
+    expect(results).toHaveLength(2);
+    const ruleIds: string[] = results.map((r: LintResult): string => r.ruleId);
+    expect(ruleIds).toContain('a/rule');
+    expect(ruleIds).toContain('b/rule');
+  });
+
+  it('includes crash diagnostics from failing workspace tools alongside successes', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+
+    registry.registerWorkspaceTool(
+      createMockWorkspaceTool({
+        name: 'good-tool',
+        transform: (): LintResult[] => [
+          {
+            ruleId: 'ws/good',
+            file: 'workspace',
+            line: 1,
+            column: 1,
+            severity: 'warning',
+            message: 'ok',
+            fix: { range: { start: 0, end: 0 }, text: '' },
+          },
+        ],
+      }),
+    );
+    registry.registerWorkspaceTool(
+      createMockWorkspaceTool({
+        name: 'crash-tool',
+        command: 'nonexistent_crash_cmd_xyz',
+        args: [],
+      }),
+    );
+
+    const results: LintResult[] = await registry.runAllWorkspaceTools();
+    expect(results.length).toBeGreaterThanOrEqual(2);
+    const goodResults: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'ws/good',
+    );
+    const crashes: LintResult[] = results.filter(
+      (r: LintResult): boolean => r.ruleId === 'internal/tool-crash',
+    );
+    expect(goodResults).toHaveLength(1);
+    expect(crashes).toHaveLength(1);
   });
 });
