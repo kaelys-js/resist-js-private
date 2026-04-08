@@ -228,3 +228,102 @@ describe('validateEnvironment', () => {
     expect(result.ok).toBe(false);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Validation error branches (non-string / invalid inputs)
+// ---------------------------------------------------------------------------
+
+describe('getEnvironmentFromBranch — validation errors', () => {
+  it('returns error for non-string input', () => {
+    const result = getEnvironmentFromBranch(42 as any);
+
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns development for chore/* branch', () => {
+    const result = getEnvironmentFromBranch('chore/update-deps');
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('development');
+  });
+
+  it('returns staging for develop', () => {
+    const result = getEnvironmentFromBranch('develop');
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('staging');
+  });
+
+  it('returns development for docs/* branch', () => {
+    const result = getEnvironmentFromBranch('docs/readme-update');
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('development');
+  });
+});
+
+describe('getParentEnvironment — validation errors', () => {
+  it('returns error for invalid env', () => {
+    const result = getParentEnvironment('invalid' as any);
+
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('getChildEnvironments — validation errors', () => {
+  it('returns error for invalid env', () => {
+    const result = getChildEnvironments('invalid' as any);
+
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('canAccessEnvironment — validation errors', () => {
+  it('returns error for invalid first param', () => {
+    const result: Result<Bool> = canAccessEnvironment('invalid' as any, 'production');
+
+    expect(result.ok).toBe(false);
+  });
+
+  it('returns error for invalid second param', () => {
+    const result: Result<Bool> = canAccessEnvironment('production', 'invalid' as any);
+
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe('detectEnvironment — CI fallbacks', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+    delete process.env.INFISICAL_ENV;
+    delete process.env.NODE_ENV;
+    delete process.env.CI;
+    delete process.env.GITHUB_REF_NAME;
+    delete process.env.GITHUB_HEAD_REF;
+    delete process.env.CI_COMMIT_BRANCH;
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
+  it('uses GITHUB_HEAD_REF fallback in CI', () => {
+    process.env.CI = 'true';
+    process.env.GITHUB_HEAD_REF = 'feature/test';
+    const result: Result<StandardEnvironment> = detectEnvironment();
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('development');
+  });
+
+  it('uses CI_COMMIT_BRANCH fallback in CI', () => {
+    process.env.CI = 'true';
+    process.env.CI_COMMIT_BRANCH = 'staging';
+    const result: Result<StandardEnvironment> = detectEnvironment();
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe('staging');
+  });
+});
