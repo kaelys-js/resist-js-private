@@ -76,7 +76,7 @@ echo ""
 # =============================================================================
 echo "Orphaned hook file check:"
 
-DISK_HOOKS=$(ls "$HOOKS_DIR"/*.sh 2>/dev/null | grep -v hooks.test.sh | sort)
+DISK_HOOKS=$(ls "$HOOKS_DIR"/*.sh 2>/dev/null | grep -v '\.test\.sh$' | sort)
 for hook_file in $DISK_HOOKS; do
   BASENAME=$(basename "$hook_file")
   if ! grep -q "$BASENAME" "$SETTINGS"; then
@@ -643,7 +643,7 @@ _PLAN_TEST="$REPO_ROOT/docs/plans/_test-hook-plan.md"
 echo "# Incomplete Plan" > "$_PLAN_TEST"
 echo "Missing all required sections." >> "$_PLAN_TEST"
 run_hook "$HOOKS_DIR/post-edit-format-lint.sh" "{\"tool_input\":{\"file_path\":\"$_PLAN_TEST\"}}"
-if echo "$HOOK_STDERR" | grep -q "Plan lint errors"; then
+if echo "$HOOK_STDERR" | grep -q "Plan file missing required sections"; then
   pass "post-edit-format-lint.sh catches incomplete plan files"
 else
   fail "post-edit-format-lint.sh does NOT catch incomplete plan files"
@@ -722,6 +722,26 @@ if echo "$HOOK_STDERR" | grep -q '"allow"'; then
 else
   fail "stop-preview-override.sh does NOT output allow"
 fi
+
+echo ""
+
+# =============================================================================
+# 4b. Delegate to sibling *.test.sh smoke tests
+# =============================================================================
+# Every *.test.sh under .claude/hooks/ (except this file) runs as one
+# pass/fail line in the summary. Keeps individual test files runnable
+# standalone while ensuring `pnpm qa:hooks` exercises all of them.
+echo "Sibling smoke tests:"
+for smoke in "$HOOKS_DIR"/*.test.sh; do
+  [ "$(basename "$smoke")" = "hooks.test.sh" ] && continue
+  [ ! -f "$smoke" ] && continue
+  BASENAME=$(basename "$smoke")
+  if bash "$smoke" >/dev/null 2>&1; then
+    pass "$BASENAME all scenarios passed"
+  else
+    fail "$BASENAME one or more scenarios failed (run directly for detail)"
+  fi
+done
 
 echo ""
 
