@@ -24,9 +24,22 @@ vi.mock('node:fs', async (importOriginal) => {
   };
 });
 
+/* Force isCommandAvailable to return true so the required-aware guard
+ * inside runTsgoAllPackages does not short-circuit these tests in
+ * environments where tsgo is not on PATH. */
+vi.mock('@/lint/framework/tool-orchestrator.ts', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lint/framework/tool-orchestrator.ts')>();
+  return {
+    ...actual,
+    isCommandAvailable: vi.fn((): boolean => true),
+  };
+});
+
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+
+import { isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 
 import { runTsgoAllPackages, scopeTsconfigDirsToFiles, transformTsgoOutput } from './tsgo.ts';
 
@@ -314,5 +327,22 @@ describe('runTsgoAllPackages', () => {
     expect(results[0]?.severity).toBe('error');
     expect(results[0]?.message).toContain('tsgo crashed');
     expect(results[0]?.message).toContain('ENOENT');
+  });
+
+  it('emits exactly one internal/tool-missing when tsgo is not on PATH', () => {
+    /* Flip the global mock for this test: tsgo binary not found.
+     * The required-aware guard runs BEFORE any fs work, so no fs mocks needed. */
+    vi.mocked(isCommandAvailable).mockReturnValueOnce(false);
+
+    const results = runTsgoAllPackages('/ws');
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('internal/tool-missing');
+    expect(results[0]?.severity).toBe('error');
+    expect(results[0]?.message).toContain("'tsgo'");
+    expect(results[0]?.message).toContain('not available on PATH');
+    /* Must short-circuit: execFileSync never called, and no fs discovery. */
+    expect(vi.mocked(execFileSync)).not.toHaveBeenCalled();
+    expect(vi.mocked(existsSync)).not.toHaveBeenCalled();
+    expect(vi.mocked(readdirSync)).not.toHaveBeenCalled();
   });
 });

@@ -14,7 +14,11 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-import { type WorkspaceTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
+import {
+  type WorkspaceTool,
+  isCommandAvailable,
+  missingToolResult,
+} from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
 
 /**
@@ -144,6 +148,13 @@ export function transformSvelteCheckOutput(output: string): LintResult[] {
 export function runSvelteCheckAllPackages(cwd: string, files: string[] = []): LintResult[] {
   const results: LintResult[] = [];
 
+  /* Availability check up-front: emit one internal/tool-missing for the whole
+   * workspace run rather than N per-package copies. Mirrors the required-aware
+   * path in tool-orchestrator.runWorkspaceTool. */
+  if (!isCommandAvailable('svelte-check')) {
+    return [missingToolResult('svelte-check', cwd)];
+  }
+
   const allDirs: string[] = discoverSveltePackageDirs(cwd);
   const pkgDirs: string[] =
     files.length === 0
@@ -197,6 +208,7 @@ export const svelteCheckTool: WorkspaceTool = {
   command: 'svelte-check',
   args: ['--tsconfig', './tsconfig.json'],
   outputFormat: 'text',
+  required: true,
   transform: transformSvelteCheckOutput,
   isAvailable(): boolean {
     return isCommandAvailable('svelte-check');

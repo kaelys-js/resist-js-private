@@ -143,7 +143,7 @@ describe('ToolRegistry — runTool', () => {
     expect(results).toHaveLength(0);
   });
 
-  it('skips tool when isAvailable returns false', async () => {
+  it('skips optional tool when isAvailable returns false', async () => {
     const registry: ToolRegistry = new ToolRegistry(en);
     const tool: ExternalTool = createMockTool({
       isAvailable(): Promise<boolean> {
@@ -152,6 +152,35 @@ describe('ToolRegistry — runTool', () => {
     });
     const results: LintResult[] = await registry.runTool(tool, ['/tmp/test.sh']);
     expect(results).toHaveLength(0);
+  });
+
+  it('skips optional tool (required=false) when isAvailable returns false', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const tool: ExternalTool = createMockTool({
+      required: false,
+      isAvailable(): Promise<boolean> {
+        return Promise.resolve(false);
+      },
+    });
+    const results: LintResult[] = await registry.runTool(tool, ['/tmp/test.sh']);
+    expect(results).toHaveLength(0);
+  });
+
+  it('emits internal/tool-missing when required tool is unavailable', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const tool: ExternalTool = createMockTool({
+      command: 'nonexistent-required-tool',
+      required: true,
+      isAvailable(): Promise<boolean> {
+        return Promise.resolve(false);
+      },
+    });
+    const results: LintResult[] = await registry.runTool(tool, ['/tmp/test.sh']);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('internal/tool-missing');
+    expect(results[0]?.severity).toBe('error');
+    expect(results[0]?.message).toContain("'nonexistent-required-tool'");
+    expect(results[0]?.file).toBe('/tmp/test.sh');
   });
 
   it('runs tool and transforms output', async () => {
@@ -310,7 +339,7 @@ describe('ToolRegistry — runWorkspaceTool', () => {
     expect(results[0]?.message).toBe('ws-output');
   });
 
-  it('skips workspace tool when isAvailable returns false', async () => {
+  it('skips optional workspace tool when isAvailable returns false', async () => {
     const registry: ToolRegistry = new ToolRegistry(en);
     const tool: WorkspaceTool = createMockWorkspaceTool({
       isAvailable(): Promise<boolean> {
@@ -327,6 +356,36 @@ describe('ToolRegistry — runWorkspaceTool', () => {
           fix: { range: { start: 0, end: 0 }, text: '' },
         },
       ],
+    });
+    const results: LintResult[] = await registry.runWorkspaceTool(tool);
+    expect(results).toHaveLength(0);
+  });
+
+  it('emits internal/tool-missing when required workspace tool is unavailable', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const tool: WorkspaceTool = createMockWorkspaceTool({
+      command: 'nonexistent-required-ws-tool',
+      cwd: '/tmp/ws-project',
+      required: true,
+      isAvailable(): Promise<boolean> {
+        return Promise.resolve(false);
+      },
+    });
+    const results: LintResult[] = await registry.runWorkspaceTool(tool);
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ruleId).toBe('internal/tool-missing');
+    expect(results[0]?.severity).toBe('error');
+    expect(results[0]?.message).toContain("'nonexistent-required-ws-tool'");
+    expect(results[0]?.file).toBe('/tmp/ws-project');
+  });
+
+  it('skips optional workspace tool (required=false) when unavailable', async () => {
+    const registry: ToolRegistry = new ToolRegistry(en);
+    const tool: WorkspaceTool = createMockWorkspaceTool({
+      required: false,
+      isAvailable(): Promise<boolean> {
+        return Promise.resolve(false);
+      },
     });
     const results: LintResult[] = await registry.runWorkspaceTool(tool);
     expect(results).toHaveLength(0);

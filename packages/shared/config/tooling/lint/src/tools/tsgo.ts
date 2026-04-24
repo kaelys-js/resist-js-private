@@ -11,7 +11,11 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-import { type WorkspaceTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
+import {
+  type WorkspaceTool,
+  isCommandAvailable,
+  missingToolResult,
+} from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
 
 /**
@@ -188,6 +192,14 @@ export function scopeTsconfigDirsToFiles(tsconfigDirs: string[], files: string[]
  */
 export function runTsgoAllPackages(cwd: string, files: string[] = []): LintResult[] {
   const results: LintResult[] = [];
+
+  /* Availability check up-front: emit one internal/tool-missing for the whole
+   * workspace run rather than N per-package copies. Mirrors the required-aware
+   * path in tool-orchestrator.runWorkspaceTool. */
+  if (!isCommandAvailable('tsgo')) {
+    return [missingToolResult('tsgo', cwd)];
+  }
+
   const allDirs: string[] = discoverTsconfigDirs(cwd);
   const pkgDirs: string[] = scopeTsconfigDirsToFiles(allDirs, files);
 
@@ -242,6 +254,7 @@ export const tsgoTool: WorkspaceTool = {
   command: 'tsgo',
   args: ['--noEmit'],
   outputFormat: 'text',
+  required: true,
   transform: transformTsgoOutput,
   isAvailable(): boolean {
     return isCommandAvailable('tsgo');
