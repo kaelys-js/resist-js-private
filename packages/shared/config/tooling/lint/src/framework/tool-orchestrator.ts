@@ -43,6 +43,12 @@ export const ExternalToolSchema = v.strictObject({
   transform: v.custom<(output: string, strings: LintStrings) => LintResult[]>(isFn),
   /** Optional check if the tool is available on the system (sync or async). */
   isAvailable: v.optional(v.custom<() => boolean | Promise<boolean>>(isFn)),
+  /**
+   * If true, a missing binary emits a synthetic `internal/tool-missing` error
+   * instead of being silently skipped. Default: undefined/false (silent skip).
+   * Reserve for mission-critical tools whose absence indicates a broken env.
+   */
+  required: v.optional(v.boolean()),
 });
 
 /** An external tool definition. See {@link ExternalToolSchema}. */
@@ -64,6 +70,12 @@ export const WorkspaceToolSchema = v.strictObject({
   transform: v.custom<(output: string, strings: LintStrings) => LintResult[]>(isFn),
   /** Optional check if the tool is available on the system. */
   isAvailable: v.optional(v.custom<() => boolean | Promise<boolean>>(isFn)),
+  /**
+   * If true, a missing binary emits a synthetic `internal/tool-missing` error
+   * instead of being silently skipped. Default: undefined/false (silent skip).
+   * Reserve for mission-critical tools whose absence indicates a broken env.
+   */
+  required: v.optional(v.boolean()),
 });
 
 /** A workspace-level tool definition. See {@link WorkspaceToolSchema}. */
@@ -138,8 +150,9 @@ export class ToolRegistry {
   /**
    * Run a single tool on a set of files.
    *
-   * If the tool has an `isAvailable` check and it returns false,
-   * the tool is skipped silently.
+   * If the tool has an `isAvailable` check and it returns false:
+   * - `required: true` → synthetic `internal/tool-missing` error returned.
+   * - otherwise (default) → tool is skipped silently (empty result).
    *
    * @param {ExternalTool} tool - Tool to run
    * @param {string[]} files - Files to lint
@@ -154,6 +167,9 @@ export class ToolRegistry {
     if (tool.isAvailable) {
       const available: boolean = await tool.isAvailable();
       if (!available) {
+        if (tool.required === true) {
+          return [missingToolResult(tool.command, files[0] ?? process.cwd())];
+        }
         return [];
       }
     }
@@ -240,6 +256,10 @@ export class ToolRegistry {
   /**
    * Run a single workspace tool.
    *
+   * If the tool has an `isAvailable` check and it returns false:
+   * - `required: true` → synthetic `internal/tool-missing` error returned.
+   * - otherwise (default) → tool is skipped silently (empty result).
+   *
    * @param {WorkspaceTool} tool - Workspace tool to run
    * @returns {Promise<LintResult[]>} Lint results from the tool
    */
@@ -248,6 +268,9 @@ export class ToolRegistry {
     if (tool.isAvailable) {
       const available: boolean = await tool.isAvailable();
       if (!available) {
+        if (tool.required === true) {
+          return [missingToolResult(tool.command, tool.cwd ?? process.cwd())];
+        }
         return [];
       }
     }
@@ -338,6 +361,27 @@ export function matchesPattern(filePath: string, pattern: string): boolean {
   /* Exact filename match */
   const fileName: string = filePath.slice(filePath.lastIndexOf('/') + 1);
   return fileName === pattern;
+}
+
+/**
+ * Build a synthetic `internal/tool-missing` finding for a required tool whose
+ * binary is absent from PATH. Mirrors the shape of `internal/tool-crash` so
+ * formatters, baselines, and the post-edit hook handle it identically.
+ *
+ * @param {string} command - The missing binary name (e.g. 'oxlint')
+ * @param {string} file - File path to attribute the finding to
+ * @returns {LintResult} Synthetic error finding
+ */
+export function missingToolResult(command: string, file: string): LintResult {
+  return {
+    file,
+    line: 1,
+    column: 1,
+    severity: 'error' as const,
+    message: `Required tool '${command}' is not available on PATH. Install via mise/brew/apt.`,
+    ruleId: 'internal/tool-missing',
+    fix: { range: { start: 0, end: 0 }, text: '' },
+  };
 }
 
 /**

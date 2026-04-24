@@ -44,8 +44,8 @@ import type {
 import { WorkerPool, type WorkerResult, type WorkerTask } from '@/lint/framework/worker-pool.ts';
 import { format, type LintStrings } from '@/lint/locale/schema.ts';
 import { ALL_TOOLS, ALL_WORKSPACE_TOOLS } from '@/lint/tools/registry.ts';
-import { runSvelteCheckAllPackages, svelteCheckTool } from '@/lint/tools/svelte-check.ts';
-import { runTsgoAllPackages, tsgoTool } from '@/lint/tools/tsgo.ts';
+import { runSvelteCheckAllPackages } from '@/lint/tools/svelte-check.ts';
+import { runTsgoAllPackages } from '@/lint/tools/tsgo.ts';
 
 // =============================================================================
 // Types
@@ -1449,20 +1449,20 @@ export async function _runLintCore(
      * leave scopeFiles empty so every package is checked. */
     const scopeFiles: string[] = cliArgs.paths.length > 0 ? allFiles : [];
 
-    /* svelte-check needs special handling: runs per-package, not once at root */
+    /* svelte-check needs special handling: runs per-package, not once at root.
+     * runSvelteCheckAllPackages performs its own availability check and emits
+     * internal/tool-missing when required binary is absent — no ad-hoc guard here. */
     let wsResultCount: number = 0;
-    if (svelteCheckTool.isAvailable?.()) {
-      const svelteResults: LintResult[] = runSvelteCheckAllPackages(process.cwd(), scopeFiles);
-      allResults.push(...svelteResults);
-      wsResultCount += svelteResults.length;
-    }
+    const svelteResults: LintResult[] = runSvelteCheckAllPackages(process.cwd(), scopeFiles);
+    allResults.push(...svelteResults);
+    wsResultCount += svelteResults.length;
 
-    /* tsgo needs special handling: runs per-package, not once at root */
-    if (tsgoTool.isAvailable?.()) {
-      const tsgoResults: LintResult[] = runTsgoAllPackages(process.cwd(), scopeFiles);
-      allResults.push(...tsgoResults);
-      wsResultCount += tsgoResults.length;
-    }
+    /* tsgo needs special handling: runs per-package, not once at root.
+     * runTsgoAllPackages performs its own availability check and emits
+     * internal/tool-missing when required binary is absent — no ad-hoc guard here. */
+    const tsgoResults: LintResult[] = runTsgoAllPackages(process.cwd(), scopeFiles);
+    allResults.push(...tsgoResults);
+    wsResultCount += tsgoResults.length;
 
     /* Run remaining workspace tools via the standard runner */
     const perPkgToolNames: ReadonlySet<string> = new Set(['svelte-check', 'tsgo']);

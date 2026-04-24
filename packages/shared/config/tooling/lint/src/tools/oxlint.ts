@@ -121,5 +121,6 @@ export const oxlintTool: ExternalTool = {
   },
   name: 'oxlint',
   outputFormat: 'json',
+  required: true,
   transform: transformOxlintOutput,
 };
