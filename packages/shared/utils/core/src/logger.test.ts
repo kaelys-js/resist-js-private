@@ -9,7 +9,15 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Bool, LogContext, LogLevel, OutputFormat, Str, TeardownFn } from '@/schemas/common';
+import type {
+  Bool,
+  LogContext,
+  LogLevel,
+  NonNegativeInteger,
+  OutputFormat,
+  Str,
+  TeardownFn,
+} from '@/schemas/common';
 import type { AppError, Result } from '@/schemas/result/result';
 import {
   addTransport,
@@ -395,7 +403,7 @@ describe('sampling', () => {
     log.warn('kept');
     log.error('dropped-because-no-longer-in-alwaysSample');
     const kept = (transport as ReturnType<typeof vi.fn>).mock.calls.map(
-      (c: [{ message: string }]) => c[0].message,
+      (c: unknown[]) => (c[0] as { message: string }).message,
     );
     expect(kept).toEqual(['kept']);
   });
@@ -556,7 +564,7 @@ describe('log object', () => {
   });
 
   it('log.json accepts custom indent', () => {
-    log.json({ a: 1 }, 4);
+    log.json({ a: 1 }, 4 as NonNegativeInteger);
     const call = (console.log as ReturnType<typeof vi.fn>).mock.calls[0]?.[0];
     /* indent 4 means 4-space indentation. */
     expect(String(call)).toContain('    "a"');
@@ -824,7 +832,9 @@ describe('withLogLevel', () => {
     });
     expect(result.ok).toBe(false);
     const after = getLogLevel();
-    if (after.ok) expect(after.data).toBe('info'); /* restored */
+    if (after.ok) {
+      expect(after.data).toBe('info'); /* restored */
+    }
   });
 
   it('rejects invalid level', () => {
@@ -937,7 +947,9 @@ describe('setupLogging', () => {
 
     const level = getLogLevel();
     expect(level.ok).toBe(true);
-    if (level.ok) expect(level.data).toBe('info'); /* default */
+    if (level.ok) {
+      expect(level.data).toBe('info'); /* default */
+    }
 
     const ctx = getContext();
     expect(ctx.ok).toBe(true);
@@ -997,7 +1009,7 @@ describe('setupLogging', () => {
     log.info('dropped');
     log.warn('kept');
     const messages = (transport as ReturnType<typeof vi.fn>).mock.calls.map(
-      (c: [{ message: string }]) => c[0].message,
+      (c: unknown[]) => (c[0] as { message: string }).message,
     );
     expect(messages).toEqual(['kept']);
   });
@@ -1284,7 +1296,7 @@ describe('createChildLogger', () => {
       message: 'broken',
       timestamp: 't',
       stack: 'Error: broken\n    at frame',
-    } as AppError;
+    } as unknown as AppError;
     child.data.errorObject(appErr);
     expect(console.error).toHaveBeenCalledWith('[TEST.BOOM] broken');
   });
@@ -1393,7 +1405,7 @@ describe('child logger data variants', () => {
     if (!child.ok) {
       throw new Error('expected ok');
     }
-    child.data.json({ a: 1 }, 4);
+    child.data.json({ a: 1 }, 4 as NonNegativeInteger);
     const call = (console.log as ReturnType<typeof vi.fn>).mock.calls[0]?.[0];
     expect(String(call)).toContain('    "a"');
   });
@@ -1634,7 +1646,7 @@ describe('child logger suppression & validation', () => {
     child.data.errorObject(appErr);
     expect(console.error).toHaveBeenCalledWith('[TEST.X] m');
     /* Only the main line was logged — no stack lines. */
-    const calls = (console.error as ReturnType<typeof vi.fn>).mock.calls;
+    const { calls } = (console.error as ReturnType<typeof vi.fn>).mock;
     expect(calls).toHaveLength(1);
   });
 
@@ -1720,7 +1732,7 @@ describe('parent log data variants', () => {
     } as unknown as AppError;
     log.errorObject(appErr);
     expect(console.error).toHaveBeenCalledWith('[NOSTACK] m');
-    const calls = (console.error as ReturnType<typeof vi.fn>).mock.calls;
+    const { calls } = (console.error as ReturnType<typeof vi.fn>).mock;
     expect(calls).toHaveLength(1);
   });
 

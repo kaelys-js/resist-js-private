@@ -47,41 +47,30 @@ case "$FILE_PATH" in
     ;;
 esac
 
-# ── Phase 3: Re-lint and compare to baseline ────────────────────────────────
+# ── Phase 3: Re-lint, compare to baseline, auto-shrink on approve ───────────
 case "$FILE_PATH" in
   *.ts|*.tsx|*.js|*.jsx|*.svelte)
     LINT_JSON=$(cd "$PROJECT_DIR" && pnpm exec resist-lint --tools --json "$FILE_PATH" 2>/dev/null) || true
 
-    # Compute NEW findings = current ∖ baseline (keyed on file+ruleId+line+message)
-    NEW_FINDINGS=$(BASELINE_PATH="$BASELINE" node -e "
-      const fs = require('node:fs');
-      let current, baseline;
-      try {
-        const parsed = JSON.parse(process.argv[1] || '[]');
-        current = parsed.results ?? parsed;
-        if (!Array.isArray(current)) current = [];
-      } catch { current = []; }
-      try { baseline = JSON.parse(fs.readFileSync(process.env.BASELINE_PATH, 'utf8')); }
-      catch { baseline = []; }
-      const key = (r) => r.file + '|' + r.ruleId + '|' + r.line + '|' + r.message;
-      const baselineKeys = new Set(baseline.map(key));
-      const fresh = current.filter((r) => !baselineKeys.has(key(r)));
-      if (fresh.length === 0) { process.exit(0); }
-      const msg = fresh.slice(0, 20).map((r) =>
-        r.file + ':' + r.line + ':' + r.column + ' ' + r.severity + ' ' + r.ruleId + ' — ' + r.message
-      ).join('\n');
-      console.log(msg);
-      process.exit(1);
-    " "$LINT_JSON" 2>&1) || {
+    # Baseline is a count-map {"file|ruleId|message": count}.
+    # NEW = any key where current_count_for_file > baseline_count.
+    # If no NEW, auto-shrink: for keys owned by edited file,
+    #                         baseline[k] = min(baseline[k], current_count).
+    # Helper lives in .claude/hooks/lib/baseline-compare.mjs (also directly testable).
+    HOOK_RESULT=$(BASELINE_PATH="$BASELINE" EDITED_FILE="$FILE_PATH" \
+      node "$PROJECT_DIR/.claude/hooks/lib/baseline-compare.mjs" "$LINT_JSON" 2>&1)
+
+    if [[ "$HOOK_RESULT" == BLOCK* ]]; then
+      BLOCK_MSG=$(echo "$HOOK_RESULT" | tail -n +2)
       REASON="New lint findings in $FILE_PATH (not in baseline):
 
-$NEW_FINDINGS
+$BLOCK_MSG
 
 Fix these before continuing. Auto-fix already ran — remaining findings require manual changes.
-Regenerate baseline only after intentional cleanup: .claude/scripts/lint-baseline.sh"
+Baseline auto-shrinks on successful edits — no manual refresh needed."
       jq -n --arg reason "$REASON" '{decision: "block", reason: $reason}'
       exit 0
-    }
+    fi
     ;;
 esac
 

@@ -36,8 +36,7 @@ describe('cwd', () => {
 
   it('returns IO.READ_FAILED when process.cwd() throws', () => {
     const orig = process.cwd;
-    // @ts-expect-error — override for test
-    process.cwd = () => {
+    process.cwd = (): string => {
       throw new Error('cwd inaccessible');
     };
     try {
