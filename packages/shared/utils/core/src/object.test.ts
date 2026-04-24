@@ -129,4 +129,25 @@ describe('safeStringify', () => {
       expect(result.data).toContain('\t"a"');
     }
   });
+
+  it('rejects invalid numeric indent (negative)', () => {
+    const result: Result<Str> = safeStringify({ a: 1 }, -1 as unknown as NonNegativeInteger);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+    }
+  });
+
+  it('rejects invalid numeric indent (non-integer)', () => {
+    const result: Result<Str> = safeStringify({ a: 1 }, 1.5 as unknown as NonNegativeInteger);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+    }
+  });
+
+  it('rejects non-string/non-number indent', () => {
+    const result: Result<Str> = safeStringify({ a: 1 }, true as unknown as NonNegativeInteger);
+    expect(result.ok).toBe(false);
+  });
 });

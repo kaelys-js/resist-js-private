@@ -1068,20 +1068,21 @@ export const log = {
     if (!allowed.ok) return allowed;
     if (!allowed.data) return ok(VoidSchema, undefined);
 
-    // In JSON mode, delegate to base logger (strips markup, emits structured entry)
-    const machineResult: Result<Bool> = isMachineReadable();
-    if (machineResult.ok && machineResult.data) {
-      const stripped: Result<Str> = stripMarkup(msgResult.data);
-      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-      return baseLog.info(cleanMessage);
-    }
-
-    // GitHub Actions format: emit ::notice::
+    // GitHub Actions format: emit ::notice:: (checked first so github-mode
+    // hits the workflow-command branch rather than falling through to baseLog)
     const format: OutputFormat | undefined = getCurrentFormat();
     if (format === 'github') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
       return emitGitHubCommand('notice', cleanMessage);
+    }
+
+    // In JSON/JUnit mode, delegate to base logger (strips markup, emits structured entry)
+    const machineResult: Result<Bool> = isMachineReadable();
+    if (machineResult.ok && machineResult.data) {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return baseLog.info(cleanMessage);
     }
 
     // Compact format: single-line INF prefix
@@ -1112,20 +1113,21 @@ export const log = {
     if (!allowed.ok) return allowed;
     if (!allowed.data) return ok(VoidSchema, undefined);
 
-    // In JSON mode, delegate to base logger
-    const machineResult: Result<Bool> = isMachineReadable();
-    if (machineResult.ok && machineResult.data) {
-      const stripped: Result<Str> = stripMarkup(msgResult.data);
-      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-      return baseLog.warn(cleanMessage);
-    }
-
-    // GitHub Actions format: emit ::warning::
+    // GitHub Actions format: emit ::warning:: (checked first so github-mode
+    // hits the workflow-command branch rather than falling through to baseLog)
     const format: OutputFormat | undefined = getCurrentFormat();
     if (format === 'github') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
       return emitGitHubCommand('warning', cleanMessage);
+    }
+
+    // In JSON/JUnit mode, delegate to base logger
+    const machineResult: Result<Bool> = isMachineReadable();
+    if (machineResult.ok && machineResult.data) {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return baseLog.warn(cleanMessage);
     }
 
     // Compact format
@@ -1158,20 +1160,21 @@ export const log = {
     if (!allowed.ok) return allowed;
     if (!allowed.data) return ok(VoidSchema, undefined);
 
-    // In JSON mode, delegate to base logger
-    const machineResult: Result<Bool> = isMachineReadable();
-    if (machineResult.ok && machineResult.data) {
-      const stripped: Result<Str> = stripMarkup(msgResult.data);
-      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-      return baseLog.error(cleanMessage);
-    }
-
-    // GitHub Actions format: emit ::error::
+    // GitHub Actions format: emit ::error:: (checked first so github-mode
+    // hits the workflow-command branch rather than falling through to baseLog)
     const format: OutputFormat | undefined = getCurrentFormat();
     if (format === 'github') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
       return emitGitHubCommand('error', cleanMessage);
+    }
+
+    // In JSON/JUnit mode, delegate to base logger
+    const machineResult: Result<Bool> = isMachineReadable();
+    if (machineResult.ok && machineResult.data) {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return baseLog.error(cleanMessage);
     }
 
     // Compact format
@@ -1206,20 +1209,21 @@ export const log = {
     if (!allowed.ok) return allowed;
     if (!allowed.data) return ok(VoidSchema, undefined);
 
-    // In JSON mode, delegate to base logger
-    const machineResult: Result<Bool> = isMachineReadable();
-    if (machineResult.ok && machineResult.data) {
-      const stripped: Result<Str> = stripMarkup(msgResult.data);
-      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-      return baseLog.debug(cleanMessage, data);
-    }
-
-    // GitHub Actions format: emit ::debug::
+    // GitHub Actions format: emit ::debug:: (checked first so github-mode
+    // hits the workflow-command branch rather than falling through to baseLog)
     const format: OutputFormat | undefined = getCurrentFormat();
     if (format === 'github') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
       return emitGitHubCommand('debug', cleanMessage);
+    }
+
+    // In JSON/JUnit mode, delegate to base logger
+    const machineResult: Result<Bool> = isMachineReadable();
+    if (machineResult.ok && machineResult.data) {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return baseLog.debug(cleanMessage, data);
     }
 
     // Compact format
@@ -1296,20 +1300,21 @@ export const log = {
     if (!allowed.ok) return allowed;
     if (!allowed.data) return ok(VoidSchema, undefined);
 
-    // In JSON mode, delegate to base logger
-    const machineResult: Result<Bool> = isMachineReadable();
-    if (machineResult.ok && machineResult.data) {
-      const stripped: Result<Str> = stripMarkup(msgResult.data);
-      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-      return baseLog.trace(cleanMessage, data);
-    }
-
-    // GitHub Actions format: emit ::debug:: (GitHub has no trace level)
+    // GitHub Actions format: emit ::debug:: — GitHub has no trace level (checked
+    // first so github-mode hits the workflow-command branch rather than baseLog)
     const format: OutputFormat | undefined = getCurrentFormat();
     if (format === 'github') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
       return emitGitHubCommand('debug', cleanMessage);
+    }
+
+    // In JSON/JUnit mode, delegate to base logger
+    const machineResult: Result<Bool> = isMachineReadable();
+    if (machineResult.ok && machineResult.data) {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return baseLog.trace(cleanMessage, data);
     }
 
     // Compact format

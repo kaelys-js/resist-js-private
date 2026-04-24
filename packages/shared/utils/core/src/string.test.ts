@@ -15,19 +15,57 @@ describe('padRight', () => {
   it('pads string to target length', () => {
     const result: Result<Str> = padRight('hello', 10 as NonNegativeInteger);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('hello     ');
+    if (result.ok) {
+      expect(result.data).toBe('hello     ');
+    }
   });
 
   it('returns unchanged when already at length', () => {
     const result: Result<Str> = padRight('hello', 5 as NonNegativeInteger);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('hello');
+    if (result.ok) {
+      expect(result.data).toBe('hello');
+    }
   });
 
   it('returns unchanged when longer than target', () => {
     const result: Result<Str> = padRight('long text', 4 as NonNegativeInteger);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('long text');
+    if (result.ok) {
+      expect(result.data).toBe('long text');
+    }
+  });
+
+  it('returns validation error for non-string input', () => {
+    const result: Result<Str> = padRight(42 as unknown as Str, 10 as NonNegativeInteger);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+    }
+  });
+
+  it('returns validation error for negative length', () => {
+    const result: Result<Str> = padRight('hello', -1 as unknown as NonNegativeInteger);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+    }
+  });
+
+  it('returns validation error for non-integer length', () => {
+    const result: Result<Str> = padRight('hello', 1.5 as unknown as NonNegativeInteger);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+    }
+  });
+
+  it('pads empty string to target width', () => {
+    const result: Result<Str> = padRight('', 3 as NonNegativeInteger);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe('   ');
+    }
   });
 });
 
@@ -46,7 +84,9 @@ describe('truncateLine', () => {
   it('returns unchanged when within width', () => {
     const result: Result<Str> = truncateLine('short', 20 as NonNegativeInteger);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('short');
+    if (result.ok) {
+      expect(result.data).toBe('short');
+    }
   });
 
   it('handles ANSI codes (not counted as visible)', () => {
@@ -62,7 +102,55 @@ describe('truncateLine', () => {
   it('handles zero width', () => {
     const result: Result<Str> = truncateLine('hello', 0 as NonNegativeInteger);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toContain('…');
+    if (result.ok) {
+      expect(result.data).toContain('…');
+    }
+  });
+
+  it('returns validation error for non-string input', () => {
+    const result: Result<Str> = truncateLine(null as unknown as Str, 10 as NonNegativeInteger);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+    }
+  });
+
+  it('returns validation error for negative width', () => {
+    const result: Result<Str> = truncateLine('hello', -5 as unknown as NonNegativeInteger);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+    }
+  });
+
+  it('returns empty string when input is empty', () => {
+    const result: Result<Str> = truncateLine('', 10 as NonNegativeInteger);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe('');
+    }
+  });
+
+  it('truncates long string with embedded ANSI codes', () => {
+    // Visible "Hello, world!" is 13 chars; truncated to 8 visible + ellipsis
+    const ansiStr = '\u001B[31mHello, world!\u001B[0m';
+    const result: Result<Str> = truncateLine(ansiStr, 8 as NonNegativeInteger);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toContain('…');
+      // Ensure ANSI prefix preserved
+      expect(result.data.startsWith('\u001B[31m')).toBe(true);
+    }
+  });
+
+  it('truncates when incomplete ANSI escape sequence present', () => {
+    // ESC [ without closing 'm' — should still count each character
+    const broken = '\u001B[aaaaaaaaaaaaa';
+    const result: Result<Str> = truncateLine(broken, 5 as NonNegativeInteger);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toContain('…');
+    }
   });
 });
 
@@ -72,18 +160,50 @@ describe('toCamelCase', () => {
   it('converts kebab-case to camelCase', () => {
     const result: Result<CamelCaseString> = toCamelCase('fail-fast');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('failFast');
+    if (result.ok) {
+      expect(result.data).toBe('failFast');
+    }
   });
 
   it('returns unchanged when no hyphens', () => {
     const result: Result<CamelCaseString> = toCamelCase('simple');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('simple');
+    if (result.ok) {
+      expect(result.data).toBe('simple');
+    }
   });
 
   it('handles multiple hyphens', () => {
     const result: Result<CamelCaseString> = toCamelCase('no-color-output');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('noColorOutput');
+    if (result.ok) {
+      expect(result.data).toBe('noColorOutput');
+    }
+  });
+
+  it('returns validation error for non-string input', () => {
+    const result: Result<CamelCaseString> = toCamelCase(42 as unknown as Str);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+    }
+  });
+
+  it('rejects empty string (CamelCaseString requires ≥1 char)', () => {
+    const result: Result<CamelCaseString> = toCamelCase('');
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('INTERNAL.OUTPUT_VALIDATION_FAILED');
+    }
+  });
+
+  it('fails output validation for mixed hyphen-uppercase (not camelCase)', () => {
+    // Regex replaces `-[a-z]`; `-B` is NOT matched, leaving the hyphen.
+    // Output "foo-Bar" fails CamelCaseString's regex → OUTPUT_VALIDATION_FAILED.
+    const result: Result<CamelCaseString> = toCamelCase('foo-Bar');
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('INTERNAL.OUTPUT_VALIDATION_FAILED');
+    }
   });
 });

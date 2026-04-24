@@ -19,13 +19,17 @@ describe('setOutputFormat / getOutputFormat', () => {
     expect(set.ok).toBe(true);
     const get: Result<OutputFormat> = getOutputFormat();
     expect(get.ok).toBe(true);
-    if (get.ok) expect(get.data).toBe('json');
+    if (get.ok) {
+      expect(get.data).toBe('json');
+    }
   });
 
   it('defaults to pretty', () => {
     const get: Result<OutputFormat> = getOutputFormat();
     expect(get.ok).toBe(true);
-    if (get.ok) expect(get.data).toBe('pretty');
+    if (get.ok) {
+      expect(get.data).toBe('pretty');
+    }
   });
 
   it('rejects invalid format', () => {
@@ -39,27 +43,35 @@ describe('isMachineReadable', () => {
     setOutputFormat('json');
     const result: Result<Bool> = isMachineReadable();
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
   });
 
   it('returns true for junit', () => {
     setOutputFormat('junit');
     const result: Result<Bool> = isMachineReadable();
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
   });
 
   it('returns true for github', () => {
     setOutputFormat('github');
     const result: Result<Bool> = isMachineReadable();
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
   });
 
   it('returns false for pretty', () => {
     setOutputFormat('pretty');
     const result: Result<Bool> = isMachineReadable();
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(false);
+    if (result.ok) {
+      expect(result.data).toBe(false);
+    }
   });
 });

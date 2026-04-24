@@ -12,10 +12,18 @@ import { withTimeout } from './async';
 // ── Helpers ─────────────────────────────────────────────────────────────
 
 const delay = (ms: number): Promise<string> =>
-  new Promise((resolve) => setTimeout(() => resolve('done'), ms));
+  new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('done');
+    }, ms);
+  });
 
 const delayReject = (ms: number): Promise<never> =>
-  new Promise((_, reject) => setTimeout(() => reject(new Error('rejected')), ms));
+  new Promise((_resolve, reject) => {
+    setTimeout(() => {
+      reject(new Error('rejected'));
+    }, ms);
+  });
 
 // ── Happy path ──────────────────────────────────────────────────────────
 
@@ -27,7 +35,9 @@ describe('withTimeout — success', () => {
       'Should not timeout' as Message,
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('done');
+    if (result.ok) {
+      expect(result.data).toBe('done');
+    }
   });
 
   it('returns frozen result data', async () => {
@@ -67,7 +77,9 @@ describe('withTimeout — zero timeout', () => {
       'timeout' as Message,
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('instant');
+    if (result.ok) {
+      expect(result.data).toBe('instant');
+    }
   });
 
   it('returns error when promise rejects with timeoutMs 0', async () => {

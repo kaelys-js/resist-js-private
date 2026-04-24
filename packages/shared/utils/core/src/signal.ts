@@ -725,7 +725,22 @@ export function getAbortSignal(): Result<AbortSignal> {
   if (!globalAbortController) {
     globalAbortController = new AbortController();
   }
-  return ok(AbortSignalSchema, globalAbortController.signal);
+  /*
+   * AbortSignal must NOT be deep-frozen — Node.js mutates `Symbol(kAborted)`
+   * on `controller.abort()`, which throws `TypeError: Cannot assign to read
+   * only property` if the signal was frozen. Validate via Valibot directly
+   * (skipping the `_okResult → _deepFreeze` path used by `ok()`/`safeParse()`)
+   * and construct the Result manually so the stateful signal is not frozen.
+   */
+  const parsed = v.safeParse(AbortSignalSchema, globalAbortController.signal);
+  if (!parsed.success) {
+    return safeParse(AbortSignalSchema, globalAbortController.signal) as Result<AbortSignal>;
+  }
+  return Object.freeze({
+    ok: true as const,
+    data: globalAbortController.signal,
+    error: null,
+  }) as Result<AbortSignal>;
 }
 
 // =============================================================================

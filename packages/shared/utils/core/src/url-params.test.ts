@@ -20,13 +20,17 @@ describe('parsePrefixedParams', () => {
   it('returns empty overrides for URL with no prefixed params', () => {
     const result = parsePrefixedParams(new URL('http://localhost'), PREFIX);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({});
+    if (result.ok) {
+      expect(result.data).toEqual({});
+    }
   });
 
   it('extracts single prefixed param', () => {
     const result = parsePrefixedParams(new URL(`http://localhost?${PREFIX}debug=true`), PREFIX);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({ debug: 'true' });
+    if (result.ok) {
+      expect(result.data).toEqual({ debug: 'true' });
+    }
   });
 
   it('extracts multiple prefixed params', () => {
@@ -50,13 +54,17 @@ describe('parsePrefixedParams', () => {
       PREFIX,
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({ debug: 'true' });
+    if (result.ok) {
+      expect(result.data).toEqual({ debug: 'true' });
+    }
   });
 
   it('handles empty value', () => {
     const result = parsePrefixedParams(new URL(`http://localhost?${PREFIX}debug=`), PREFIX);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({ debug: '' });
+    if (result.ok) {
+      expect(result.data).toEqual({ debug: '' });
+    }
   });
 
   it('handles URL with hash and path', () => {
@@ -65,7 +73,9 @@ describe('parsePrefixedParams', () => {
       PREFIX,
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({ debug: 'true' });
+    if (result.ok) {
+      expect(result.data).toEqual({ debug: 'true' });
+    }
   });
 
   it('works with different prefix values', () => {
@@ -86,7 +96,9 @@ describe('parsePrefixedParams', () => {
       PREFIX,
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({ 'ff.settings': 'false' });
+    if (result.ok) {
+      expect(result.data).toEqual({ 'ff.settings': 'false' });
+    }
   });
 
   it('returns empty overrides when all params use a different prefix', () => {
@@ -95,7 +107,9 @@ describe('parsePrefixedParams', () => {
       PREFIX,
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({});
+    if (result.ok) {
+      expect(result.data).toEqual({});
+    }
   });
 });
 
