@@ -296,6 +296,14 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          name: 'test-presets',
+          root: 'packages/shared/config/test',
+          include: ['src/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
           name: 'config-tooling-vite',
           root: 'packages/shared/config/tooling/vite',
           include: ['src/**/*.test.ts'],
