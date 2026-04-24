@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import type { Bool, NonNegativeNumber, Path, StrArray, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
-import type { FileContent } from './fs.schemas';
+import type { FileContent, FileEncoding } from './fs.schemas';
 import {
   readFile,
   writeFile,
@@ -75,7 +75,7 @@ describe('readFile', () => {
   it('reads file with explicit utf-8 encoding', () => {
     const filePath = join(testDir, 'enc.txt');
     writeFileSync(filePath, 'utf8 content', 'utf8');
-    const result = readFile(filePath as Path, 'utf8' as FileContent extends infer T ? T : never);
+    const result = readFile(filePath as Path, 'utf8' as FileEncoding);
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toBe('utf8 content');

@@ -140,7 +140,7 @@ describe('reportError', () => {
 
   it('preserves AppError directly (no fromUnknownError loss)', () => {
     const input = makeAppError({
-      code: 'CUSTOM.CODE' as Str,
+      code: 'CUSTOM.CODE' as unknown as AppError['code'],
       message: 'custom message' as Str,
     });
     const result = reportError(input);
@@ -347,7 +347,7 @@ describe('registerCleanupHandler', () => {
   });
 
   it('rejects invalid callback (non-function)', () => {
-    const result = registerCleanupHandler('not-a-fn' as unknown as () => void);
+    const result = registerCleanupHandler('not-a-fn' as unknown as () => undefined);
     expect(result.ok).toBe(false);
   });
 });

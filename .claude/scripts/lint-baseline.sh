@@ -17,29 +17,30 @@ cd "$PROJECT_DIR"
 # --json gives structured output; --severity stays default (real errors + warnings).
 pnpm exec resist-lint --tools --json > "$OUT.tmp" 2>/dev/null || true
 
-# Extract the canonical finding set: sort by (file, ruleId, line, column, message)
-# and drop mutable fields (timestamps, fix ranges) so the baseline is stable.
+# Emit count-map format: {"file|ruleId|message": count}.
+# Line/column intentionally omitted — line shifts from edits would otherwise
+# invalidate stable baseline entries. Multiplicity is preserved via count.
 node -e "
   const fs = require('node:fs');
   const raw = JSON.parse(fs.readFileSync('$OUT.tmp', 'utf8'));
-  const results = (raw.results ?? raw ?? []).map((r) => ({
-    file: r.file,
-    ruleId: r.ruleId,
-    line: r.line,
-    column: r.column,
-    severity: r.severity,
-    message: r.message,
-  }));
-  results.sort((a, b) =>
-    a.file.localeCompare(b.file) ||
-    a.ruleId.localeCompare(b.ruleId) ||
-    a.line - b.line ||
-    a.column - b.column ||
-    a.message.localeCompare(b.message),
-  );
-  fs.writeFileSync('$OUT', JSON.stringify(results, null, 2) + '\n');
+  const results = raw.results ?? raw ?? [];
+  const counts = {};
+  for (const r of results) {
+    const key = r.file + '|' + r.ruleId + '|' + r.message;
+    counts[key] = (counts[key] ?? 0) + 1;
+  }
+  const sorted = {};
+  for (const k of Object.keys(counts).sort()) {
+    sorted[k] = counts[k];
+  }
+  fs.writeFileSync('$OUT', JSON.stringify(sorted, null, 2) + '\n');
 "
 
 rm "$OUT.tmp"
-COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$OUT','utf8')).length)")
-echo "Baseline: $COUNT findings written to $OUT"
+TOTAL=$(node -e "
+  const b = JSON.parse(require('fs').readFileSync('$OUT','utf8'));
+  let total = 0;
+  for (const v of Object.values(b)) total += v;
+  console.log(Object.keys(b).length + ' unique keys, ' + total + ' total findings');
+")
+echo "Baseline: $TOTAL written to $OUT"
