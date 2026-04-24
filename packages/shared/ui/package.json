@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "clean": "rm -rf dist coverage .turbo",
-    "qa:test": "pnpm -w exec vitest run --project ui",
-    "qa:test:coverage": "pnpm -w exec vitest run --project ui --coverage",
+    "qa:test": "pnpm -w exec vitest run --project ui --project ui-svelte",
+    "qa:test:coverage": "pnpm -w exec vitest run --project ui --project ui-svelte --coverage",
     "qa:benchmark": "pnpm -w exec vitest bench --project ui"
   },
   "dependencies": {
