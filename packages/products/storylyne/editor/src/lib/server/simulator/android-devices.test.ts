@@ -4,8 +4,8 @@
  * @module
  */
 
-import type { Bool, Str } from '@/schemas/common';
-import { describe, expect, it } from 'vitest';
+import type { Bool, Num, Str } from '@/schemas/common';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   type AndroidDevice,
   type DeviceProfile,
@@ -220,6 +220,362 @@ describe('android-devices', () => {
       ];
       const filtered: DeviceProfile[] = filterPhoneAndTabletProfiles(profiles);
       expect(filtered).toHaveLength(1);
+    });
+  });
+
+  /* -----------------------------------------------------------------------
+   * Mocked async functions — listAvds / getAndroidDevices / listSystemImages /
+   * listDeviceProfiles / getAndroidDeviceProfiles / createAvd.
+   * Each test injects its own execFile and readFile mocks via vi.resetModules
+   * + dynamic import.
+   * -------------------------------------------------------------------- */
+  describe('async binary-invoking functions', () => {
+    type LoadedModule = typeof import('./android-devices');
+
+    type ExecCallback = (error: Error | null, result?: { stdout: string; stderr: string }) => void;
+    type ExecImpl = (file: string, args: readonly string[], cb: ExecCallback) => unknown;
+    type ReadFileImpl = (path: string, encoding: string) => Promise<string>;
+
+    const mockState = vi.hoisted(() => ({
+      execFile: null as ExecImpl | null,
+      readFile: null as ReadFileImpl | null,
+    }));
+
+    vi.mock('node:child_process', () => ({
+      default: {
+        execFile: (file: string, args: readonly string[], cb: ExecCallback) => {
+          if (!mockState.execFile) throw new Error('execFile mock not configured');
+          return mockState.execFile(file, args, cb);
+        },
+      },
+      execFile: (file: string, args: readonly string[], cb: ExecCallback) => {
+        if (!mockState.execFile) throw new Error('execFile mock not configured');
+        return mockState.execFile(file, args, cb);
+      },
+    }));
+
+    vi.mock('node:fs/promises', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('node:fs/promises')>();
+      return {
+        ...actual,
+        default: {
+          ...actual,
+          readFile: (path: string, encoding: string) => {
+            if (mockState.readFile) return mockState.readFile(path, encoding);
+            return actual.readFile(path, encoding as BufferEncoding);
+          },
+        },
+        readFile: (path: string, encoding: string) => {
+          if (mockState.readFile) return mockState.readFile(path, encoding);
+          return actual.readFile(path, encoding as BufferEncoding);
+        },
+      };
+    });
+
+    async function loadWithExec(opts: {
+      execFileImpl: ExecImpl;
+      readFileImpl?: ReadFileImpl;
+    }): Promise<LoadedModule> {
+      mockState.execFile = opts.execFileImpl;
+      mockState.readFile = opts.readFileImpl ?? null;
+      vi.resetModules();
+      return (await import('./android-devices')) as LoadedModule;
+    }
+
+    beforeEach(() => {
+      mockState.execFile = null;
+      mockState.readFile = null;
+      vi.resetModules();
+    });
+
+    afterEach(() => {
+      mockState.execFile = null;
+      mockState.readFile = null;
+    });
+
+    it('listAvds returns parsed names when execFile succeeds', async () => {
+      const mod = await loadWithExec({
+        execFileImpl: (_file, _args, cb) => {
+          cb(null, { stdout: 'Pixel_9_API_35\nMedium_Phone_API_35\n', stderr: '' });
+          return null;
+        },
+      });
+      const avds = await mod.listAvds('/bin/emulator' as Str);
+      expect(avds).toEqual(['Pixel_9_API_35', 'Medium_Phone_API_35']);
+    });
+
+    it('listAvds returns [] when execFile errors', async () => {
+      const mod = await loadWithExec({
+        execFileImpl: (_file, _args, cb) => {
+          cb(new Error('ENOENT'));
+          return null;
+        },
+      });
+      const avds = await mod.listAvds('/nope' as Str);
+      expect(avds).toEqual([]);
+    });
+
+    it('listDeviceProfiles parses + filters when execFile succeeds', async () => {
+      const listOutput = [
+        'id: 1 or "pixel_9"',
+        '    Name: Pixel 9',
+        '    OEM : Google',
+        '---------',
+        'id: 2 or "automotive_1024p"',
+        '    Name: Automotive',
+        '    OEM : Google',
+        '    Tag : android-automotive',
+        '---------',
+      ].join('\n');
+      const mod = await loadWithExec({
+        execFileImpl: (_file, _args, cb) => {
+          cb(null, { stdout: listOutput, stderr: '' });
+          return null;
+        },
+      });
+      const profiles = await mod.listDeviceProfiles('/bin/avdmanager' as Str);
+      expect(profiles).toHaveLength(1);
+      expect(profiles[0]?.deviceId).toBe('pixel_9');
+    });
+
+    it('listDeviceProfiles returns [] when execFile errors', async () => {
+      const mod = await loadWithExec({
+        execFileImpl: (_file, _args, cb) => {
+          cb(new Error('missing'));
+          return null;
+        },
+      });
+      const profiles = await mod.listDeviceProfiles('/nope' as Str);
+      expect(profiles).toEqual([]);
+    });
+
+    it('listSystemImages extracts system-images lines and pipe-splits', async () => {
+      const output = [
+        'Installed packages:',
+        '  Path | Version | Description',
+        '  system-images;android-35;google_apis;arm64-v8a | 1 | Google APIs ARM 64',
+        '  system-images;android-34;default;x86_64 | 2 | Android 34',
+        '  platform-tools | 3 | Platform Tools',
+        '',
+      ].join('\n');
+      const mod = await loadWithExec({
+        execFileImpl: (file, args, cb) => {
+          /* sdkmanager path is derived from avdmanager path — should be sdkmanager here */
+          expect(file).toMatch(/sdkmanager$/);
+          expect(args).toContain('--list_installed');
+          cb(null, { stdout: output, stderr: '' });
+          return null;
+        },
+      });
+      const images = await mod.listSystemImages('/sdk/cmdline-tools/latest/bin/avdmanager' as Str);
+      expect(images).toEqual([
+        'system-images;android-35;google_apis;arm64-v8a',
+        'system-images;android-34;default;x86_64',
+      ]);
+    });
+
+    it('listSystemImages returns [] when sdkmanager errors', async () => {
+      const mod = await loadWithExec({
+        execFileImpl: (_file, _args, cb) => {
+          cb(new Error('no sdkmanager'));
+          return null;
+        },
+      });
+      const images = await mod.listSystemImages('/nope/avdmanager' as Str);
+      expect(images).toEqual([]);
+    });
+
+    it('getAndroidDevices reads each AVD config.ini and builds devices', async () => {
+      const mod = await loadWithExec({
+        execFileImpl: (_file, _args, cb) => {
+          cb(null, { stdout: 'Pixel_9_API_35\n', stderr: '' });
+          return null;
+        },
+        readFileImpl: (path: string) => {
+          if (path.includes('Pixel_9_API_35.avd/config.ini')) {
+            return Promise.resolve(
+              [
+                'hw.lcd.width=1080',
+                'hw.lcd.height=2424',
+                'hw.lcd.density=420',
+                'image.sysdir.1=system-images/android-35/google_apis/arm64-v8a/',
+                'tag.display=Google APIs',
+                'hw.device.name=pixel_9',
+              ].join('\n'),
+            );
+          }
+          return Promise.reject(new Error('no config'));
+        },
+      });
+      const devices = await mod.getAndroidDevices('/bin/emulator' as Str);
+      expect(devices).toHaveLength(1);
+      expect(devices[0]?.name).toBe('Pixel_9_API_35');
+      expect(devices[0]?.width as number).toBe(1080);
+      expect(devices[0]?.height as number).toBe(2424);
+      expect(devices[0]?.density as number).toBe(420);
+      expect(devices[0]?.apiLevel as number).toBe(35);
+      expect(devices[0]?.displayTag).toBe('Google APIs');
+      expect(devices[0]?.deviceId).toBe('pixel_9');
+      expect(devices[0]?.created).toBe(true);
+    });
+
+    it('getAndroidDevices returns defaults when config.ini read throws', async () => {
+      const mod = await loadWithExec({
+        execFileImpl: (_file, _args, cb) => {
+          cb(null, { stdout: 'Broken_AVD\n', stderr: '' });
+          return null;
+        },
+        readFileImpl: () => Promise.reject(new Error('ENOENT')),
+      });
+      const devices = await mod.getAndroidDevices('/bin/emulator' as Str);
+      expect(devices).toHaveLength(1);
+      expect(devices[0]?.name).toBe('Broken_AVD');
+      expect(devices[0]?.width as number).toBe(0);
+      expect(devices[0]?.height as number).toBe(0);
+      expect(devices[0]?.apiLevel as number).toBe(0);
+      expect(devices[0]?.created).toBe(true);
+    });
+
+    it('getAndroidDevices: extractApiLevel returns 0 for config without image.sysdir.1', async () => {
+      const mod = await loadWithExec({
+        execFileImpl: (_file, _args, cb) => {
+          cb(null, { stdout: 'NoApi_AVD\n', stderr: '' });
+          return null;
+        },
+        readFileImpl: () => Promise.resolve('hw.lcd.width=720\n'),
+      });
+      const devices = await mod.getAndroidDevices('/bin/emulator' as Str);
+      expect(devices[0]?.apiLevel as number).toBe(0);
+    });
+
+    it('getAndroidDeviceProfiles merges AVDs with uncreated hardware profiles, dedup by deviceId', async () => {
+      const listDevicesOutput = [
+        'id: 1 or "pixel_9"',
+        '    Name: Pixel 9',
+        '    OEM : Google',
+        '---------',
+        'id: 2 or "pixel_8"',
+        '    Name: Pixel 8',
+        '    OEM : Google',
+        '---------',
+      ].join('\n');
+      const mod = await loadWithExec({
+        execFileImpl: (file, args, cb) => {
+          if ((args as readonly string[]).includes('-list-avds')) {
+            cb(null, { stdout: 'Pixel_9_API_35\n', stderr: '' });
+          } else if ((args as readonly string[])[0] === 'list') {
+            cb(null, { stdout: listDevicesOutput, stderr: '' });
+          } else {
+            cb(null, { stdout: '', stderr: '' });
+          }
+          return null;
+        },
+        readFileImpl: () =>
+          Promise.resolve(
+            [
+              'hw.lcd.width=1080',
+              'hw.lcd.height=2424',
+              'hw.lcd.density=420',
+              'image.sysdir.1=system-images/android-35/google_apis/arm64-v8a/',
+              'hw.device.name=pixel_9',
+            ].join('\n'),
+          ),
+      });
+      const all = await mod.getAndroidDeviceProfiles(
+        '/bin/emulator' as Str,
+        '/bin/avdmanager' as Str,
+      );
+      /* Existing pixel_9 AVD + uncreated pixel_8 hardware profile (pixel_9 deduped) */
+      expect(all).toHaveLength(2);
+      expect(all[0]?.deviceId).toBe('pixel_9');
+      expect(all[0]?.created).toBe(true);
+      expect(all[1]?.deviceId).toBe('pixel_8');
+      expect(all[1]?.created).toBe(false);
+      /* Uncreated device pulls dimensions from DEVICE_DIMENSIONS static lookup */
+      expect(all[1]?.width as number).toBe(1080);
+      expect(all[1]?.height as number).toBe(2400);
+    });
+
+    it('getAndroidDeviceProfiles gives zero dims for unknown deviceId not in lookup', async () => {
+      const listDevicesOutput = [
+        'id: 99 or "unknown_device_xyz"',
+        '    Name: Unknown',
+        '    OEM : Google',
+        '---------',
+      ].join('\n');
+      const mod = await loadWithExec({
+        execFileImpl: (_file, args, cb) => {
+          if ((args as readonly string[]).includes('-list-avds')) {
+            cb(null, { stdout: '', stderr: '' });
+          } else if ((args as readonly string[])[0] === 'list') {
+            cb(null, { stdout: listDevicesOutput, stderr: '' });
+          } else {
+            cb(null, { stdout: '', stderr: '' });
+          }
+          return null;
+        },
+      });
+      const all = await mod.getAndroidDeviceProfiles(
+        '/bin/emulator' as Str,
+        '/bin/avdmanager' as Str,
+      );
+      expect(all).toHaveLength(1);
+      expect(all[0]?.deviceId).toBe('unknown_device_xyz');
+      expect(all[0]?.width as number).toBe(0);
+      expect(all[0]?.height as number).toBe(0);
+      expect(all[0]?.density as number).toBe(0);
+    });
+
+    it('createAvd builds AVD name from deviceId + API level and invokes avdmanager', async () => {
+      let invokedArgs: readonly string[] | null = null;
+      const mod = await loadWithExec({
+        execFileImpl: (_file, args, cb) => {
+          invokedArgs = args;
+          cb(null, { stdout: '', stderr: '' });
+          return { stdin: { write: () => true, end: () => undefined } };
+        },
+      });
+      const name: Str = await mod.createAvd(
+        '/bin/avdmanager' as Str,
+        'pixel_9' as Str,
+        'system-images;android-35;google_apis;arm64-v8a' as Str,
+      );
+      expect(name).toBe('Pixel_9_API_35');
+      expect(invokedArgs).toContain('create');
+      expect(invokedArgs).toContain('avd');
+      expect(invokedArgs).toContain('--device');
+      expect(invokedArgs).toContain('pixel_9');
+    });
+
+    it('createAvd uses "unknown" API suffix when system image lacks android-NN', async () => {
+      const mod = await loadWithExec({
+        execFileImpl: (_file, _args, cb) => {
+          cb(null, { stdout: '', stderr: '' });
+          return { stdin: { write: () => true, end: () => undefined } };
+        },
+      });
+      const name: Str = await mod.createAvd(
+        '/bin/avdmanager' as Str,
+        'pixel_9_pro' as Str,
+        'system-images;no-android-version;foo;bar' as Str,
+      );
+      expect(name).toBe('Pixel_9_Pro_API_unknown');
+    });
+
+    it('createAvd rejects when execFile callback receives error', async () => {
+      const mod = await loadWithExec({
+        execFileImpl: (_file, _args, cb) => {
+          cb(new Error('creation failed'));
+          return { stdin: { write: () => true, end: () => undefined } };
+        },
+      });
+      await expect(
+        mod.createAvd(
+          '/bin/avdmanager' as Str,
+          'pixel_9' as Str,
+          'system-images;android-35;google_apis;arm64-v8a' as Str,
+        ),
+      ).rejects.toThrow('creation failed');
     });
   });
 

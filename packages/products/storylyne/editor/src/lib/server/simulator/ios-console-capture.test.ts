@@ -4,12 +4,14 @@
  * @module
  */
 
-import type { Str } from '@/schemas/common';
-import { describe, expect, it } from 'vitest';
+import { EventEmitter } from 'node:events';
+import type { Num, Str } from '@/schemas/common';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   type CapturedConsoleMessage,
   parseConsoleMessage,
   formatConsoleMessages,
+  stopCapture,
 } from './ios-console-capture';
 
 describe('ios-console-capture', () => {
@@ -121,6 +123,155 @@ describe('ios-console-capture', () => {
     it('returns empty array for empty input', () => {
       const formatted = formatConsoleMessages([]);
       expect(formatted).toEqual([]);
+    });
+  });
+
+  describe('stopCapture', () => {
+    it('is a no-op and returns undefined', () => {
+      expect(stopCapture()).toBeUndefined();
+    });
+  });
+
+  describe('parseConsoleMessage — defaults', () => {
+    it('applies defaults when message object omits fields', () => {
+      const raw: Str = JSON.stringify({
+        method: 'Console.messageAdded',
+        params: { message: {} },
+      }) as Str;
+      const m = parseConsoleMessage(raw);
+      expect(m).toEqual({
+        level: 'log',
+        text: '',
+        source: 'console-api',
+        url: undefined,
+        line: undefined,
+      });
+    });
+
+    it('omits url/line when non-string/non-number', () => {
+      const raw: Str = JSON.stringify({
+        method: 'Console.messageAdded',
+        params: { message: { text: 'x', line: 'not-a-number' } },
+      }) as Str;
+      const m = parseConsoleMessage(raw);
+      expect(m?.url).toBeUndefined();
+      expect(m?.line).toBeUndefined();
+    });
+  });
+
+  describe('captureConsoleLogs (mocked)', () => {
+    class FakeSocket extends EventEmitter {
+      public sent: string[] = [];
+      public closed = false;
+      public closeThrows = false;
+      send(d: string): void {
+        this.sent.push(d);
+      }
+      close(): void {
+        if (this.closeThrows) throw new Error('x');
+        this.closed = true;
+      }
+    }
+    const state = vi.hoisted(() => ({ socket: null as unknown as { new (u: string): unknown } }));
+    vi.mock('ws', () => ({
+      WebSocket: class {
+        constructor(url: string) {
+          if (!state.socket) throw new Error('no socket');
+          return new state.socket(url) as object;
+        }
+      },
+    }));
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    async function load(): Promise<typeof import('./ios-console-capture')> {
+      vi.resetModules();
+      return await import('./ios-console-capture');
+    }
+
+    it('sends Console.enable on open and collects messages until timeout', async () => {
+      const sock = new FakeSocket();
+      state.socket = class {
+        constructor() {
+          return sock;
+        }
+      } as never;
+      const mod = await load();
+      const p = mod.captureConsoleLogs('ws://x' as Str, 500 as Num);
+      await Promise.resolve();
+      await Promise.resolve();
+      sock.emit('open');
+      sock.emit(
+        'message',
+        Buffer.from(
+          JSON.stringify({
+            method: 'Console.messageAdded',
+            params: { message: { level: 'log', text: 'hi', source: 'console-api' } },
+          }),
+        ),
+      );
+      sock.emit('message', Buffer.from('not-json'));
+      sock.emit(
+        'message',
+        Buffer.from(JSON.stringify({ method: 'Page.loadEventFired', params: {} })),
+      );
+      await vi.advanceTimersByTimeAsync(500);
+      const msgs = await p;
+      expect(sock.sent[0]).toContain('Console.enable');
+      expect(msgs).toHaveLength(1);
+      expect(msgs[0]?.text).toBe('hi');
+      expect(sock.closed).toBe(true);
+    });
+
+    it('returns [] when ws emits error', async () => {
+      const sock = new FakeSocket();
+      state.socket = class {
+        constructor() {
+          return sock;
+        }
+      } as never;
+      const mod = await load();
+      const p = mod.captureConsoleLogs('ws://x' as Str, 5000 as Num);
+      await Promise.resolve();
+      await Promise.resolve();
+      sock.emit('error', new Error('x'));
+      await expect(p).resolves.toEqual([]);
+    });
+
+    it('returns [] when ws emits close', async () => {
+      const sock = new FakeSocket();
+      state.socket = class {
+        constructor() {
+          return sock;
+        }
+      } as never;
+      const mod = await load();
+      const p = mod.captureConsoleLogs('ws://x' as Str, 5000 as Num);
+      await Promise.resolve();
+      await Promise.resolve();
+      sock.emit('close');
+      await expect(p).resolves.toEqual([]);
+    });
+
+    it('swallows close() throwing during cleanup', async () => {
+      const sock = new FakeSocket();
+      sock.closeThrows = true;
+      state.socket = class {
+        constructor() {
+          return sock;
+        }
+      } as never;
+      const mod = await load();
+      const p = mod.captureConsoleLogs('ws://x' as Str, 500 as Num);
+      await Promise.resolve();
+      await Promise.resolve();
+      await vi.advanceTimersByTimeAsync(500);
+      await expect(p).resolves.toEqual([]);
     });
   });
 });

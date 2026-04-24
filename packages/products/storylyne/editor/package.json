@@ -11,9 +11,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf .svelte-kit dist",
-    "qa:test": "pnpm -w exec vitest run --project storylyne-editor",
-    "qa:test:unit": "pnpm -w exec vitest run --project storylyne-editor",
-    "qa:test:coverage": "pnpm -w exec vitest run --project storylyne-editor --coverage",
+    "qa:test": "pnpm -w exec vitest run --project storylyne-editor --project storylyne-editor-server",
+    "qa:test:unit": "pnpm -w exec vitest run --project storylyne-editor --project storylyne-editor-server",
+    "qa:test:coverage": "pnpm -w exec vitest run --project storylyne-editor --project storylyne-editor-server --coverage",
     "qa:benchmark": "pnpm -w exec vitest bench --project storylyne-editor",
     "qa:test:e2e": "playwright test",
     "generate-icons": "bash ../../../../packages/shared/utils/cli/src/tools/generate-icons/generate-icons.sh ."

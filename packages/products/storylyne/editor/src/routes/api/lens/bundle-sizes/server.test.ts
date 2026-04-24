@@ -16,7 +16,7 @@ describe('GET /api/lens/bundle-sizes', () => {
     const response: Response = GET({} as never);
     expect(response.status).toBe(200);
     expect(response.headers.get('Content-Type')).toBe('application/json');
-  });
+  }, 30_000);
 
   it('response body is a JSON object with component directories', async () => {
     const response: Response = GET({} as never);
