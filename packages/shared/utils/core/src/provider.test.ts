@@ -35,7 +35,9 @@ describe('detectProvider — basic', () => {
   it('returns undefined when no provider matches', () => {
     const result: Result<ProviderInfo | undefined> = detectProvider({});
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBeUndefined();
+    if (result.ok) {
+      expect(result.data).toBeUndefined();
+    }
   });
 });
 
@@ -71,7 +73,9 @@ describe('detectProvider — value match', () => {
   it('detects Codeship via CI_NAME=codeship', () => {
     const result: Result<ProviderInfo | undefined> = detectProvider({ CI_NAME: 'codeship' });
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data!.id).toBe('codeship');
+    if (result.ok) {
+      expect(result.data!.id).toBe('codeship');
+    }
   });
 
   it('does not detect Codeship for wrong CI_NAME value', () => {

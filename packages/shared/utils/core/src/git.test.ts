@@ -12,12 +12,22 @@ import type { Result } from '@/schemas/result/result';
 // Helpers — mock Result constructors
 // ---------------------------------------------------------------------------
 
-/** Helper to create a success Result. */
+/**
+ * Helper to create a success Result.
+ *
+ * @param data - Value to wrap in a success Result.
+ * @returns A frozen Result containing the data.
+ */
 function mockOk<T>(data: T): Result<T> {
   return Object.freeze({ ok: true as const, data, error: null }) as Result<T>;
 }
 
-/** Helper to create a failure Result. */
+/**
+ * Helper to create a failure Result.
+ *
+ * @param code - Error code for the failure Result.
+ * @returns A frozen Result containing the error.
+ */
 function mockErr(code: Str): Result<never> {
   return Object.freeze({
     ok: false as const,
@@ -72,14 +82,18 @@ describe('getGitCommitShort', () => {
     execSyncSafeMock.mockReturnValue(mockOk('a1b2c3d'));
     const result: Result<Str> = getGitCommitShort();
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('a1b2c3d');
+    if (result.ok) {
+      expect(result.data).toBe('a1b2c3d');
+    }
   });
 
   it('propagates error on failure', () => {
     execSyncSafeMock.mockReturnValue(mockErr('IO.EXEC_FAILED'));
     const result: Result<Str> = getGitCommitShort();
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('IO.EXEC_FAILED');
+    if (!result.ok) {
+      expect(result.error.code).toBe('IO.EXEC_FAILED');
+    }
   });
 });
 
@@ -90,14 +104,18 @@ describe('getGitCommitFull', () => {
     execSyncSafeMock.mockReturnValue(mockOk('abc1234def5678901234567890abcdef12345678'));
     const result: Result<Str> = getGitCommitFull();
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('abc1234def5678901234567890abcdef12345678');
+    if (result.ok) {
+      expect(result.data).toBe('abc1234def5678901234567890abcdef12345678');
+    }
   });
 
   it('propagates error on failure', () => {
     execSyncSafeMock.mockReturnValue(mockErr('IO.EXEC_FAILED'));
     const result: Result<Str> = getGitCommitFull();
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('IO.EXEC_FAILED');
+    if (!result.ok) {
+      expect(result.error.code).toBe('IO.EXEC_FAILED');
+    }
   });
 });
 
@@ -108,14 +126,18 @@ describe('getGitBranch', () => {
     execSyncSafeMock.mockReturnValue(mockOk('main'));
     const result: Result<Str> = getGitBranch();
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('main');
+    if (result.ok) {
+      expect(result.data).toBe('main');
+    }
   });
 
   it('propagates error on failure', () => {
     execSyncSafeMock.mockReturnValue(mockErr('IO.EXEC_FAILED'));
     const result: Result<Str> = getGitBranch();
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('IO.EXEC_FAILED');
+    if (!result.ok) {
+      expect(result.error.code).toBe('IO.EXEC_FAILED');
+    }
   });
 });
 
@@ -126,21 +148,27 @@ describe('getGitDirty', () => {
     execSyncSafeMock.mockReturnValue(mockOk(''));
     const result: Result<Bool> = getGitDirty();
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(false);
+    if (result.ok) {
+      expect(result.data).toBe(false);
+    }
   });
 
   it('returns true when git status --porcelain has output', () => {
     execSyncSafeMock.mockReturnValue(mockOk(' M src/file.ts\n'));
     const result: Result<Bool> = getGitDirty();
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
   });
 
   it('propagates error when git fails', () => {
     execSyncSafeMock.mockReturnValue(mockErr('IO.EXEC_FAILED'));
     const result: Result<Bool> = getGitDirty();
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('IO.EXEC_FAILED');
+    if (!result.ok) {
+      expect(result.error.code).toBe('IO.EXEC_FAILED');
+    }
   });
 });
 
@@ -152,16 +180,21 @@ describe('getGitInfo', () => {
     execSyncSafeMock.mockImplementation((): Result<Str> => {
       callCount++;
       switch (callCount) {
-        case 1:
+        case 1: {
           return mockOk('a1b2c3d'); // short
-        case 2:
+        }
+        case 2: {
           return mockOk('abc1234def5678901234567890abcdef12345678'); // full
-        case 3:
+        }
+        case 3: {
           return mockOk('main'); // branch
-        case 4:
+        }
+        case 4: {
           return mockOk(''); // porcelain
-        default:
+        }
+        default: {
           return mockOk('');
+        }
       }
     });
 
@@ -179,7 +212,9 @@ describe('getGitInfo', () => {
     execSyncSafeMock.mockReturnValue(mockErr('IO.EXEC_FAILED'));
     const result = getGitInfo();
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('IO.EXEC_FAILED');
+    if (!result.ok) {
+      expect(result.error.code).toBe('IO.EXEC_FAILED');
+    }
   });
 });
 
@@ -192,7 +227,9 @@ describe('getPackageVersion', () => {
 
     const result: Result<Str> = getPackageVersion('./package.json' as Path);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('1.2.3');
+    if (result.ok) {
+      expect(result.data).toBe('1.2.3');
+    }
   });
 
   it('handles missing version field', () => {
@@ -201,7 +238,9 @@ describe('getPackageVersion', () => {
 
     const result: Result<Str> = getPackageVersion('./package.json' as Path);
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('CONFIG.INVALID');
+    if (!result.ok) {
+      expect(result.error.code).toBe('CONFIG.INVALID');
+    }
   });
 
   it('propagates read errors', () => {
@@ -209,6 +248,8 @@ describe('getPackageVersion', () => {
 
     const result: Result<Str> = getPackageVersion('./package.json' as Path);
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('IO.READ_FAILED');
+    if (!result.ok) {
+      expect(result.error.code).toBe('IO.READ_FAILED');
+    }
   });
 });

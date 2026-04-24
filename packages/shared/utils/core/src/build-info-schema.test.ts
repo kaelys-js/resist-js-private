@@ -95,6 +95,8 @@ describe('BuildInfoSchema', () => {
   it('accepts dirty = true', () => {
     const result = safeParse(BuildInfoSchema, { ...validBuildInfo, dirty: true });
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.dirty).toBe(true);
+    if (result.ok) {
+      expect(result.data.dirty).toBe(true);
+    }
   });
 });
