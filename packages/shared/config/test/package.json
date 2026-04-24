@@ -9,7 +9,10 @@
     "./svelte": "./src/presets/svelte.ts",
     "./playwright": "./src/presets/playwright.ts"
   },
-  "scripts": {},
+  "scripts": {
+    "qa:test": "pnpm -w exec vitest run --project test-presets",
+    "qa:test:coverage": "pnpm -w exec vitest run --project test-presets --coverage"
+  },
   "dependencies": {
     "vitest": "^4.0.18"
   },
