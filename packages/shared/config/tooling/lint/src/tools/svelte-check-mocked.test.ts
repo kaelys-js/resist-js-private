@@ -306,4 +306,55 @@ describe('runSvelteCheckAllPackages', () => {
     expect(results[0]?.message).toBe('Error in app1');
     expect(results[1]?.message).toBe('Warning in app2');
   });
+
+  it('scopes svelte-check to a single package when one file is passed', () => {
+    vi.mocked(existsSync).mockImplementation((p: import('node:fs').PathLike): boolean => {
+      const s = String(p);
+      if (s === '/ws/packages') return true;
+      if (s === join('/ws/packages/app1', 'package.json')) return true;
+      if (s === join('/ws/packages/app2', 'package.json')) return true;
+      return false;
+    });
+    vi.mocked(readdirSync).mockImplementation(
+      (dir: import('node:fs').PathLike, _opts?: unknown): unknown[] => {
+        const d = String(dir);
+        if (d === '/ws/packages') {
+          return [
+            makeDirent('app1', { isDirectory: true }),
+            makeDirent('app2', { isDirectory: true }),
+          ];
+        }
+        if (d === '/ws/packages/app1') return [makeDirent('A.svelte', { isFile: true })];
+        if (d === '/ws/packages/app2') return [makeDirent('B.svelte', { isFile: true })];
+        return [];
+      },
+    );
+    vi.mocked(execFileSync).mockReturnValue('');
+
+    runSvelteCheckAllPackages('/ws', ['/ws/packages/app1/src/A.svelte']);
+    expect(vi.mocked(execFileSync)).toHaveBeenCalledTimes(1);
+    const call = vi.mocked(execFileSync).mock.calls[0];
+    expect(call?.[2]).toMatchObject({ cwd: '/ws/packages/app1' });
+  });
+
+  it('runs no svelte-check calls when files are outside all svelte packages', () => {
+    vi.mocked(existsSync).mockImplementation((p: import('node:fs').PathLike): boolean => {
+      const s = String(p);
+      if (s === '/ws/packages') return true;
+      if (s === join('/ws/packages/app1', 'package.json')) return true;
+      return false;
+    });
+    vi.mocked(readdirSync).mockImplementation(
+      (dir: import('node:fs').PathLike, _opts?: unknown): unknown[] => {
+        const d = String(dir);
+        if (d === '/ws/packages') return [makeDirent('app1', { isDirectory: true })];
+        if (d === '/ws/packages/app1') return [makeDirent('A.svelte', { isFile: true })];
+        return [];
+      },
+    );
+
+    const results = runSvelteCheckAllPackages('/ws', ['/elsewhere/foo.ts']);
+    expect(results).toEqual([]);
+    expect(vi.mocked(execFileSync)).not.toHaveBeenCalled();
+  });
 });

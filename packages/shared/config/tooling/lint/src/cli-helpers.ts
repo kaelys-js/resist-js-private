@@ -1444,17 +1444,22 @@ export async function _runLintCore(
       }),
     );
 
+    /* Scope per-package workspace tools to owning packages when the user
+     * passed explicit paths. When cliArgs.paths is empty (full workspace run),
+     * leave scopeFiles empty so every package is checked. */
+    const scopeFiles: string[] = cliArgs.paths.length > 0 ? allFiles : [];
+
     /* svelte-check needs special handling: runs per-package, not once at root */
     let wsResultCount: number = 0;
     if (svelteCheckTool.isAvailable?.()) {
-      const svelteResults: LintResult[] = runSvelteCheckAllPackages(process.cwd());
+      const svelteResults: LintResult[] = runSvelteCheckAllPackages(process.cwd(), scopeFiles);
       allResults.push(...svelteResults);
       wsResultCount += svelteResults.length;
     }
 
     /* tsgo needs special handling: runs per-package, not once at root */
     if (tsgoTool.isAvailable?.()) {
-      const tsgoResults: LintResult[] = runTsgoAllPackages(process.cwd());
+      const tsgoResults: LintResult[] = runTsgoAllPackages(process.cwd(), scopeFiles);
       allResults.push(...tsgoResults);
       wsResultCount += tsgoResults.length;
     }
