@@ -14,6 +14,8 @@ coverage/
 .claude/*
 !.claude/settings.json
 !.claude/hooks/
+!.claude/scripts/
+!.claude/lint-baseline.json
 !.claude/skills/
 .claude/skills/*
 !.claude/skills/fix-bug/

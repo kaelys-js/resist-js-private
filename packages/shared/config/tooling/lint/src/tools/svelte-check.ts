@@ -141,10 +141,18 @@ export function transformSvelteCheckOutput(output: string): LintResult[] {
  * @param cwd - Workspace root directory
  * @returns Aggregated lint results from all packages
  */
-export function runSvelteCheckAllPackages(cwd: string): LintResult[] {
+export function runSvelteCheckAllPackages(cwd: string, files: string[] = []): LintResult[] {
   const results: LintResult[] = [];
 
-  for (const pkgDir of discoverSveltePackageDirs(cwd)) {
+  const allDirs: string[] = discoverSveltePackageDirs(cwd);
+  const pkgDirs: string[] =
+    files.length === 0
+      ? allDirs
+      : allDirs.filter((dir: string): boolean =>
+          files.some((f: string): boolean => f === dir || f.startsWith(`${dir}/`)),
+        );
+
+  for (const pkgDir of pkgDirs) {
     const args: string[] = [
       '--tsconfig',
       './tsconfig.json',

@@ -140,19 +140,58 @@ export function discoverTsconfigDirs(cwd: string): string[] {
 }
 
 /**
+ * Given a set of absolute file paths and the list of discovered tsconfig
+ * directories, return the subset of directories that own at least one input
+ * file. A directory "owns" a file when it is the deepest tsconfig dir that is
+ * a path prefix of the file.
+ *
+ * When `files` is empty, returns `tsconfigDirs` unchanged (no scoping —
+ * workspace-wide run).
+ *
+ * @param tsconfigDirs - All discovered package dirs with a tsconfig.json
+ * @param files - Absolute file paths to scope to
+ * @returns Subset of `tsconfigDirs` that own at least one input file
+ */
+export function scopeTsconfigDirsToFiles(tsconfigDirs: string[], files: string[]): string[] {
+  if (files.length === 0) {
+    return tsconfigDirs;
+  }
+  /* Sort dirs by length descending so deepest prefix wins. */
+  const sorted: string[] = [...tsconfigDirs].sort(
+    (a: string, b: string): number => b.length - a.length,
+  );
+  const owning: Set<string> = new Set();
+  for (const file of files) {
+    for (const dir of sorted) {
+      if (file === dir || file.startsWith(`${dir}/`)) {
+        owning.add(dir);
+        break;
+      }
+    }
+  }
+  return [...owning];
+}
+
+/**
  * Run tsgo across all packages that have a tsconfig.json.
  *
  * Dynamically discovers packages instead of relying on a hardcoded list.
  * Runs `tsgo --noEmit` once per package directory so each package's
  * own tsconfig.json is used for path resolution.
  *
+ * When `files` is non-empty, only packages that own at least one file are
+ * type-checked. When omitted or empty, every discovered package is checked.
+ *
  * @param cwd - Workspace root directory
- * @returns Aggregated lint results from all packages
+ * @param files - Optional absolute file paths to scope the run to
+ * @returns Aggregated lint results from checked packages
  */
-export function runTsgoAllPackages(cwd: string): LintResult[] {
+export function runTsgoAllPackages(cwd: string, files: string[] = []): LintResult[] {
   const results: LintResult[] = [];
+  const allDirs: string[] = discoverTsconfigDirs(cwd);
+  const pkgDirs: string[] = scopeTsconfigDirsToFiles(allDirs, files);
 
-  for (const pkgDir of discoverTsconfigDirs(cwd)) {
+  for (const pkgDir of pkgDirs) {
     try {
       const output: string = execFileSync('tsgo', ['--noEmit'], {
         cwd: pkgDir,
