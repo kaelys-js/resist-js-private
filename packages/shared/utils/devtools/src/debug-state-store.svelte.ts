@@ -81,7 +81,9 @@ let _storageKey: Str = '';
  * @returns `Result<Void>` — ok on success, error if write fails
  */
 function save(): Result<Void> {
-  if (typeof window === 'undefined' || !_storageKey) return okUnchecked<Void>(undefined);
+  if (typeof window === 'undefined' || !_storageKey) {
+    return okUnchecked<Void>(undefined);
+  }
   try {
     // Only persist logLevel — `enabled` is session-only (set via URL param or keyboard shortcut)
     const data = { logLevel: _debug.logLevel };
@@ -101,14 +103,20 @@ function save(): Result<Void> {
  * @returns `Result<Void>` — ok on success, error if validation fails
  */
 function load(): Result<Void> {
-  if (typeof window === 'undefined' || !_storageKey) return okUnchecked<Void>(undefined);
+  if (typeof window === 'undefined' || !_storageKey) {
+    return okUnchecked<Void>(undefined);
+  }
   try {
     const raw: Str | null = localStorage.getItem(_storageKey);
-    if (raw === null) return okUnchecked<Void>(undefined);
+    if (raw === null) {
+      return okUnchecked<Void>(undefined);
+    }
 
     const parsed: unknown = JSON.parse(raw);
     const result = safeParse(DebugStateSchema, parsed);
-    if (!result.ok) return result;
+    if (!result.ok) {
+      return result;
+    }
 
     _debug = { ...result.data };
     return okUnchecked<Void>(undefined);
@@ -132,7 +140,9 @@ function load(): Result<Void> {
  */
 function setEnabled(enabled: Bool): Result<Void> {
   const result = safeParse(v.boolean(), enabled);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
 
   _debug = { ..._debug, enabled: result.data };
   return save();
@@ -146,7 +156,9 @@ function setEnabled(enabled: Bool): Result<Void> {
  */
 function setLogLevel(level: Str): Result<Void> {
   const result = safeParse(LogLevelSchema, level);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
 
   _debug = { ..._debug, logLevel: result.data };
   return save();

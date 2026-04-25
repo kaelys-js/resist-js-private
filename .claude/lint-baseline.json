@@ -740,8 +740,5 @@
   "/Users/home/Desktop/resist-js-private/packages/shared/utils/cli/src/utils/views.ts|tsgo/TS2345|Argument of type 'number & Brand<\"NonNegativeInteger\">' is not assignable to parameter of type 'number & Brand<\"NonNegativeNumber\">'.": 4,
   "/Users/home/Desktop/resist-js-private/packages/shared/utils/cli/src/utils/views.ts|tsgo/TS2345|Argument of type 'number' is not assignable to parameter of type 'number & Brand<\"NonNegativeInteger\">'.": 14,
   "/Users/home/Desktop/resist-js-private/packages/shared/utils/cli/src/utils/views.ts|tsgo/TS2345|Argument of type 'string | { count: number & Brand<\"NonNegativeInteger\">; duration: number & Brand<\"NonNegativeInteger\">; } | undefined' is not assignable to parameter of type 'string'.": 1,
-  "/Users/home/Desktop/resist-js-private/packages/shared/utils/cli/src/utils/views.ts|tsgo/TS2488|Type 'undefined' must have a '[Symbol.iterator]()' method that returns an iterator.": 1,
-  "/Users/home/Desktop/resist-js-private/packages/shared/utils/devtools/src/devtools-api.svelte.test.ts|tsgo/TS2322|Type '\"\"' is not assignable to type '\"ms\" | \"score\"'.": 1,
-  "/Users/home/Desktop/resist-js-private/packages/shared/utils/devtools/src/devtools-api.svelte.test.ts|tsgo/TS2532|Object is possibly 'undefined'.": 2,
-  "/Users/home/Desktop/resist-js-private/packages/shared/utils/devtools/src/devtools-api.svelte.test.ts|tsgo/TS2741|Property 'label' is missing in type '{ value: string; }' but required in type '{ label: string; value: string; }'.": 1
+  "/Users/home/Desktop/resist-js-private/packages/shared/utils/cli/src/utils/views.ts|tsgo/TS2488|Type 'undefined' must have a '[Symbol.iterator]()' method that returns an iterator.": 1
 }

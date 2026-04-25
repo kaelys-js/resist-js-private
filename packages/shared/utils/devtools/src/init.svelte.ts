@@ -77,9 +77,15 @@ const FF_PREFIX = 'ff.';
 
 /**
  * Checks whether a URL override key is recognized by the system.
+ *
+ * @param key - The override key to validate.
+ * @param config - The devtools config providing the validators.
+ * @returns True if the key matches a known debug/feature/app override.
  */
 function isRecognizedOverrideKey(key: Str, config: DevtoolsConfig): Bool {
-  if (key === 'debug' || key === 'logLevel') return true;
+  if (key === 'debug' || key === 'logLevel') {
+    return true;
+  }
   if (key.startsWith(FF_PREFIX)) {
     return config.isValidFeatureFlag(key.slice(FF_PREFIX.length));
   }
@@ -100,6 +106,10 @@ const BADGE_API =
 
 /**
  * Builds a single formatted log string from key-value pairs.
+ *
+ * @param entries - Pairs of `[key, value]` to render as a styled block.
+ * @param pad - Column width to pad keys to (default 14).
+ * @returns Tuple of (formatted string, ...style args) ready for `console.log(...)`.
  */
 function buildKVBlock(entries: Array<[Str, Str]>, pad = 14): [Str, ...Str[]] {
   const parts: Str[] = [];
@@ -116,7 +126,7 @@ function logWelcomeBanner(
   debugStore: DebugStoreContract,
   config: DevtoolsConfig,
 ): Void {
-  const appName: Str = config.appName;
+  const { appName } = config;
   const devtoolsKey: Str = getDevtoolsKey(appName);
   const globalName = `window.${devtoolsKey}`;
   const { logLevel } = debugStore.debug;

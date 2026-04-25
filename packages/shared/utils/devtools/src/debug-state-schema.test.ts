@@ -17,7 +17,9 @@ describe('LogLevelSchema', () => {
   it.each(LOG_LEVELS)('accepts valid level: %s', (level) => {
     const result = safeParse(LogLevelSchema, level);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(level);
+    if (result.ok) {
+      expect(result.data).toBe(level);
+    }
   });
 
   it('rejects invalid level', () => {

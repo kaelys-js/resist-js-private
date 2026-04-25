@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { tick, flushSync } from 'svelte';
-import type { Str, Void } from '@/schemas/common';
+import { tick } from 'svelte';
+import type { Str } from '@/schemas/common';
 import {
   LOG_LEVEL_PRIORITY,
   shouldLog,
@@ -93,7 +93,7 @@ describe('createWatcher', () => {
   });
 
   it('returns a cleanup function', () => {
-    let val = $state({ count: 0 });
+    const val = $state({ count: 0 });
     const debugStore = { debug: { logLevel: 'debug' as const } };
     const cleanup = createWatcher('test', () => ({ count: val.count }), debugStore);
     expect(typeof cleanup).toBe('function');
@@ -101,7 +101,7 @@ describe('createWatcher', () => {
   });
 
   it('logs state changes when logLevel allows debug', async () => {
-    let val = $state({ count: 0 });
+    const val = $state({ count: 0 });
     const debugStore = { debug: { logLevel: 'debug' as const } };
     const cleanup = createWatcher(
       'counters',
@@ -131,7 +131,7 @@ describe('createWatcher', () => {
   });
 
   it('suppresses logging when logLevel blocks debug messages', async () => {
-    let val = $state({ count: 0 });
+    const val = $state({ count: 0 });
     const debugStore = { debug: { logLevel: 'warn' as const } };
     const cleanup = createWatcher('test', () => ({ count: val.count }), debugStore);
 
@@ -144,7 +144,7 @@ describe('createWatcher', () => {
   });
 
   it('does not log when values are unchanged', async () => {
-    let val = $state({ count: 5 });
+    const val = $state({ count: 5 });
     const debugStore = { debug: { logLevel: 'debug' as const } };
     const cleanup = createWatcher('test', () => ({ count: val.count }), debugStore);
 
@@ -157,7 +157,7 @@ describe('createWatcher', () => {
   });
 
   it('uses default storeName "Store" when omitted', async () => {
-    let val = $state({ x: 0 });
+    const val = $state({ x: 0 });
     const debugStore = { debug: { logLevel: 'debug' as const } };
     const cleanup = createWatcher('section', () => ({ x: val.x }), debugStore);
 
@@ -170,7 +170,7 @@ describe('createWatcher', () => {
   });
 
   it('stops logging after cleanup is called', async () => {
-    let val = $state({ n: 0 });
+    const val = $state({ n: 0 });
     const debugStore = { debug: { logLevel: 'debug' as const } };
     const cleanup = createWatcher('test', () => ({ n: val.n }), debugStore);
 
@@ -204,8 +204,8 @@ describe('createStateLogger', () => {
   });
 
   it('watches multiple sections and logs changes', async () => {
-    let app = $state({ theme: 'warm' });
-    let debug = $state({ enabled: false });
+    const app = $state({ theme: 'warm' });
+    const debug = $state({ enabled: false });
     const debugStore = { debug: { logLevel: 'debug' as const } };
 
     const logger = createStateLogger(
@@ -229,7 +229,7 @@ describe('createStateLogger', () => {
   });
 
   it('uses default storeName "Store" when omitted', async () => {
-    let val = $state({ x: 0 });
+    const val = $state({ x: 0 });
     const debugStore = { debug: { logLevel: 'debug' as const } };
 
     const logger = createStateLogger([{ name: 'data', getter: () => ({ x: val.x }) }], debugStore);
@@ -243,7 +243,7 @@ describe('createStateLogger', () => {
   });
 
   it('destroy stops all watchers', async () => {
-    let val = $state({ a: 0 });
+    const val = $state({ a: 0 });
     const debugStore = { debug: { logLevel: 'debug' as const } };
 
     const logger = createStateLogger([{ name: 'sec', getter: () => ({ a: val.a }) }], debugStore);

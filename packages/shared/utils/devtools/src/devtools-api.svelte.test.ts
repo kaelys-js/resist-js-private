@@ -5,6 +5,13 @@ import type { DevtoolsConfig, AppStoreContract, DebugStoreContract } from './typ
 import type { PanelMetric } from '@/utils/web-vitals/vitals-panel-store.svelte';
 import type { ConnectionSnapshot } from '@/utils/web-vitals/connection.svelte';
 
+/**
+ * No-op getter used by registerWatcher tests; hoisted to module scope per consistent-function-scoping.
+ *
+ * @returns A static `{ count }` object used as a watcher source.
+ */
+const noopWatcherGetter = (): { count: Num } => ({ count: 1 as Num });
+
 // ── Perf module mocks ────────────────────────────────────────────────────────
 
 // cast safe: test fixture literals to branded types
@@ -516,9 +523,13 @@ describe('devtools.registerWatcher / unregisterWatcher', () => {
   it('registerWatcher calls createWatcher', () => {
     const api = createDevtoolsAPI(appStore, debugStore, config);
     const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
-    const getter = () => ({ count: 1 });
-    devtools.registerWatcher('test', getter);
-    expect(mockCreateWatcher).toHaveBeenCalledWith('test', getter, debugStore, 'TestAppStore');
+    devtools.registerWatcher('test', noopWatcherGetter);
+    expect(mockCreateWatcher).toHaveBeenCalledWith(
+      'test',
+      noopWatcherGetter,
+      debugStore,
+      'TestAppStore',
+    );
     api.destroy();
   });
 
@@ -663,7 +674,9 @@ describe('devtools.login / logout', () => {
     const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
     devtools.login();
     expect(config.goto).toHaveBeenCalledOnce();
-    const url: Str = (config.goto as ReturnType<typeof vi.fn>).mock.calls[0][0] as Str;
+    const loginCalls = (config.goto as ReturnType<typeof vi.fn>).mock.calls;
+    expect(loginCalls.length).toBeGreaterThan(0);
+    const url: Str = (loginCalls[0]?.[0] ?? '') as Str;
     expect(url).not.toContain('ta.auth');
     api.destroy();
   });
@@ -678,7 +691,9 @@ describe('devtools.login / logout', () => {
     const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as DevtoolsAPI;
     devtools.logout();
     expect(config.goto).toHaveBeenCalledOnce();
-    const url: Str = (config.goto as ReturnType<typeof vi.fn>).mock.calls[0][0] as Str;
+    const logoutCalls = (config.goto as ReturnType<typeof vi.fn>).mock.calls;
+    expect(logoutCalls.length).toBeGreaterThan(0);
+    const url: Str = (logoutCalls[0]?.[0] ?? '') as Str;
     expect(url).toContain('ta.auth=false');
     api.destroy();
   });
@@ -748,7 +763,7 @@ describe('devtools.perf.logVitals detailed branches', () => {
           thresholds: { good: 2500, poor: 4000, unit: 'ms' as const },
           findings: [
             { label: 'LCP Element', value: '<img.hero>' },
-            { value: 'Slow network detected' },
+            { label: 'Network', value: 'Slow network detected' },
           ],
         },
       },
@@ -758,7 +773,7 @@ describe('devtools.perf.logVitals detailed branches', () => {
         rating: 'poor',
         timestamp: 1001 as unknown as MillisecondTimestamp,
         diagnostics: {
-          thresholds: { good: 0.1, poor: 0.25, unit: '' as const },
+          thresholds: { good: 0.1, poor: 0.25, unit: 'score' as const },
           findings: [{ label: 'Shift source', value: 'image resize' }],
         },
       },

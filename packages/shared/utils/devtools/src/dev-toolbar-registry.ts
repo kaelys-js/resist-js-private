@@ -137,14 +137,15 @@ export function introspectEntry(entry: Record<Str, unknown>): {
 export function discoverFeatureFlags(
   schemaEntries: Record<Str, Record<Str, unknown>>,
 ): FlagDescriptor[] {
-  return Object.keys(schemaEntries).map((key: Str): FlagDescriptor => {
-    const entry: Record<Str, unknown> = schemaEntries[key]!;
-    const defaultValue: unknown = entry.default;
-    return {
-      key,
-      default: typeof defaultValue === 'boolean' ? defaultValue : true,
-    };
-  });
+  return Object.entries(schemaEntries).map(
+    ([key, entry]: [Str, Record<Str, unknown>]): FlagDescriptor => {
+      const defaultValue: unknown = entry.default;
+      return {
+        key,
+        default: typeof defaultValue === 'boolean' ? defaultValue : true,
+      };
+    },
+  );
 }
 
 /**
@@ -157,14 +158,16 @@ export function discoverFeatureFlags(
 export function discoverAppPreferences(
   schemaEntries: Record<Str, Record<Str, unknown>>,
 ): FieldDescriptor[] {
-  return Object.keys(schemaEntries).map((key: Str): FieldDescriptor => {
-    const info: {
-      type: 'boolean' | 'picklist' | 'string' | 'number';
-      options?: Str[];
-      default: unknown;
-    } = introspectEntry(schemaEntries[key]!);
-    return { key, ...info };
-  });
+  return Object.entries(schemaEntries).map(
+    ([key, entry]: [Str, Record<Str, unknown>]): FieldDescriptor => {
+      const info: {
+        type: 'boolean' | 'picklist' | 'string' | 'number';
+        options?: Str[];
+        default: unknown;
+      } = introspectEntry(entry);
+      return { key, ...info };
+    },
+  );
 }
 
 /**
@@ -177,14 +180,16 @@ export function discoverAppPreferences(
 export function discoverDebugFields(
   schemaEntries: Record<Str, Record<Str, unknown>>,
 ): FieldDescriptor[] {
-  return Object.keys(schemaEntries).map((key: Str): FieldDescriptor => {
-    const info: {
-      type: 'boolean' | 'picklist' | 'string' | 'number';
-      options?: Str[];
-      default: unknown;
-    } = introspectEntry(schemaEntries[key]!);
-    return { key, ...info };
-  });
+  return Object.entries(schemaEntries).map(
+    ([key, entry]: [Str, Record<Str, unknown>]): FieldDescriptor => {
+      const info: {
+        type: 'boolean' | 'picklist' | 'string' | 'number';
+        options?: Str[];
+        default: unknown;
+      } = introspectEntry(entry);
+      return { key, ...info };
+    },
+  );
 }
 
 // =============================================================================
@@ -208,7 +213,10 @@ export function generateDebugUrl(
   baseUrl?: Str,
 ): Str {
   const base: Str =
-    baseUrl ?? (typeof window === 'undefined' ? '/' : window.location.href.split('?')[0]!);
+    baseUrl ??
+    (typeof window === 'undefined'
+      ? '/'
+      : (window.location.href.split('?')[0] ?? window.location.href));
   const params: URLSearchParams = new URLSearchParams();
   const prefix: Str = config.urlParamPrefix;
 
@@ -229,7 +237,10 @@ export function generateDebugUrl(
     config.featureFlagsSchema as Record<Str, Record<Str, unknown>>,
   );
   for (const flag of flags) {
-    const current: Bool = features[flag.key as keyof typeof features]!;
+    const current: Bool | undefined = features[flag.key as keyof typeof features];
+    if (current === undefined) {
+      continue;
+    }
     if (current !== flag.default) {
       params.set(`${prefix}ff.${flag.key}`, String(current));
     }
@@ -285,7 +296,12 @@ const OPTION_LABELS: Record<Str, Record<Str, Str>> = {
  */
 export function humanizeOption(key: Str, value: Str): Str {
   const fieldLabels: Record<Str, Str> | undefined = OPTION_LABELS[key];
-  if (fieldLabels && value in fieldLabels) return fieldLabels[value]!;
-  if (!value) return 'Default';
+  const label: Str | undefined = fieldLabels?.[value];
+  if (label !== undefined) {
+    return label;
+  }
+  if (!value) {
+    return 'Default';
+  }
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
