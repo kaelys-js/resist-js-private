@@ -1,3 +1,5 @@
+- Full lint cleanup & threshold test coverage
+
 - [Lint]
   - Rules
     - Duplicates
