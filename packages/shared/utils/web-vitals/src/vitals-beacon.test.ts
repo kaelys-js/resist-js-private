@@ -79,7 +79,9 @@ function createDevice(): VitalsDevice {
 function unwrapStatus(): BeaconStatus {
   const result: Result<BeaconStatus> = getBeaconStatus();
   expect(result.ok).toBe(true);
-  if (!result.ok) throw new Error('getBeaconStatus() failed');
+  if (!result.ok) {
+    throw new Error('getBeaconStatus() failed');
+  }
   return result.data as BeaconStatus; // cast safe: ok-checked Result data
 }
 

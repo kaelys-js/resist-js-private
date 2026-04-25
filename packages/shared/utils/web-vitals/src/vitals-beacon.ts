@@ -11,7 +11,6 @@
 import * as v from 'valibot';
 
 import {
-  NameSchema,
   UuidSchema,
   type Str,
   type Num,
@@ -112,12 +111,14 @@ let lastFlushAt: NullableStr = null;
 export function queueVital(metric: VitalsMetric): Result<Void> {
   const metricResult: Result<VitalsMetric> = safeParse(VitalsMetricSchema, metric);
 
-  if (!metricResult.ok) return metricResult;
+  if (!metricResult.ok) {
+    return metricResult;
+  }
 
   queue.push(metricResult.data);
 
   if (queue.length >= MAX_QUEUE_SIZE) {
-    void flushVitals();
+    flushVitals();
   }
 
   return okUnchecked<Void>(undefined);
@@ -173,7 +174,9 @@ export function flushVitals(): Result<Void> {
   try {
     const jsonResult: Result<Str> = safeStringify(payload);
 
-    if (!jsonResult.ok) return jsonResult;
+    if (!jsonResult.ok) {
+      return jsonResult;
+    }
 
     const json: Str = jsonResult.data;
     // text/plain avoids CORS preflight — sendBeacon only allows simple content types
@@ -182,12 +185,18 @@ export function flushVitals(): Result<Void> {
     if (typeof navigator.sendBeacon === 'function') {
       navigator.sendBeacon(BEACON_URL, blob);
     } else if (typeof fetch === 'function') {
-      /* fire-and-forget — response is intentionally not awaited */
-      void fetch(BEACON_URL, {
-        method: 'POST',
-        body: blob,
-        keepalive: true,
-      });
+      /* fire-and-forget — response is intentionally not awaited; errors are non-critical */
+      (async (): Promise<Void> => {
+        try {
+          await fetch(BEACON_URL, {
+            method: 'POST',
+            body: blob,
+            keepalive: true,
+          });
+        } catch {
+          /* network error during page-unload beacon — non-critical, drop silently */
+        }
+      })();
     }
   } catch {
     /* sendBeacon/fetch threw (e.g. payload too large) — non-critical, drop silently */
@@ -217,7 +226,7 @@ export function flushVitals(): Result<Void> {
 export function setupVitalsBeacon(): Result<Void> {
   document.addEventListener('visibilitychange', (): Void => {
     if (document.visibilityState === 'hidden') {
-      void flushVitals();
+      flushVitals();
     }
   });
 
@@ -248,7 +257,9 @@ export function setupVitalsBeacon(): Result<Void> {
 export function setDeviceInfo(info: VitalsDevice): Result<Void> {
   const infoResult: Result<VitalsDevice> = safeParse(VitalsDeviceSchema, info);
 
-  if (!infoResult.ok) return infoResult;
+  if (!infoResult.ok) {
+    return infoResult;
+  }
 
   device = infoResult.data;
   return okUnchecked<Void>(undefined);

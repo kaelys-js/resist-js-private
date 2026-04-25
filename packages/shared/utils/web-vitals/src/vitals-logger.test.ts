@@ -291,7 +291,7 @@ describe('vitals logger', () => {
 
     it('handles diagnostics with empty findings array', () => {
       import.meta.env.DEV = true;
-      const mockConsoleLog: ReturnType<typeof vi.fn> = vi.spyOn(console, 'log');
+      const localConsoleSpy: ReturnType<typeof vi.fn> = vi.spyOn(console, 'log');
 
       const diagnostics = {
         thresholds: { good: 1800, poor: 3000, unit: 'ms' as const },
@@ -300,7 +300,7 @@ describe('vitals logger', () => {
       // Empty findings → hasDiagnostics is false → plain console.log
       logVital('FCP', 1200, 'good', diagnostics);
 
-      expect(mockConsoleLog).toHaveBeenCalled();
+      expect(localConsoleSpy).toHaveBeenCalled();
     });
 
     it('handles finding with diagnostics and uses groupCollapsed', () => {

@@ -9,10 +9,16 @@
 
 import * as v from 'valibot';
 
-import type { Str, Num, Bool, Void, OptionalStr } from '@/schemas/common';
-import { StrSchema, NumSchema } from '@/schemas/common';
-import type { AppError } from '@/schemas/result/result';
-import { ok, okUnchecked, err, ERRORS, type Result } from '@/schemas/result/result';
+import {
+  StrSchema,
+  NumSchema,
+  type Str,
+  type Num,
+  type Bool,
+  type Void,
+  type OptionalStr,
+} from '@/schemas/common';
+import { ok, okUnchecked, err, ERRORS, type AppError, type Result } from '@/schemas/result/result';
 import { safeParse, fromUnknownError } from '@/utils/result/safe';
 
 // =============================================================================
@@ -207,12 +213,16 @@ let observersActive: Bool = false;
 function describeElement(el: Element): Result<Str> {
   const tag: Str = el.tagName.toLowerCase();
 
-  if (el.id) return ok(StrSchema, `<${tag}#${el.id}>`);
+  if (el.id) {
+    return ok(StrSchema, `<${tag}#${el.id}>`);
+  }
 
   const firstClass: OptionalStr =
     el.className && typeof el.className === 'string' ? el.className.split(/\s+/)[0] : undefined;
 
-  if (firstClass) return ok(StrSchema, `<${tag}.${firstClass}>`);
+  if (firstClass) {
+    return ok(StrSchema, `<${tag}.${firstClass}>`);
+  }
 
   return ok(StrSchema, `<${tag}>`);
 }
@@ -224,7 +234,9 @@ function describeElement(el: Element): Result<Str> {
  * @returns A string description
  */
 function describeNode(node: Node): Result<Str> {
-  if (node instanceof Element) return describeElement(node);
+  if (node instanceof Element) {
+    return describeElement(node);
+  }
 
   return ok(StrSchema, `[${node.nodeName}]`);
 }
@@ -264,7 +276,9 @@ function diagnoseLCP(): Result<DiagnosticFinding[]> {
   const findings: DiagnosticFinding[] = [];
 
   try {
-    if (lcpEntries.length === 0) return okUnchecked(findings);
+    if (lcpEntries.length === 0) {
+      return okUnchecked(findings);
+    }
 
     // Use the latest LCP entry from the observer
     const lcp: LCPEntry = lcpEntries.at(-1) as LCPEntry; // cast safe: length > 0 guarantees at(-1) is defined
@@ -333,7 +347,9 @@ function diagnoseCLS(): Result<DiagnosticFinding[]> {
   const findings: DiagnosticFinding[] = [];
 
   try {
-    if (layoutShiftEntries.length === 0) return okUnchecked(findings);
+    if (layoutShiftEntries.length === 0) {
+      return okUnchecked(findings);
+    }
 
     const shifts: LayoutShiftEntry[] = layoutShiftEntries;
     const unexpectedShifts: LayoutShiftEntry[] = shifts.filter(
@@ -357,7 +373,7 @@ function diagnoseCLS(): Result<DiagnosticFinding[]> {
     }
 
     if (largestShift && largestShift.sources.length > 0) {
-      const source: LayoutShiftSource | undefined = largestShift.sources[0];
+      const [source]: ReadonlyArray<LayoutShiftSource | undefined> = largestShift.sources;
 
       if (source) {
         let nodeDesc: Str = '(unknown)';
@@ -412,12 +428,16 @@ function diagnoseTTFB(): Result<DiagnosticFinding[]> {
   try {
     const navEntries: PerformanceEntryList = performance.getEntriesByType('navigation');
 
-    if (navEntries.length === 0) return okUnchecked(findings);
+    if (navEntries.length === 0) {
+      return okUnchecked(findings);
+    }
 
     // Cast needed: PerformanceEntry -> PerformanceNavigationTiming (type narrowing from getEntriesByType)
-    const navEntry: PerformanceEntry | undefined = navEntries[0];
+    const [navEntry]: ReadonlyArray<PerformanceEntry | undefined> = navEntries;
 
-    if (!navEntry) return okUnchecked(findings);
+    if (!navEntry) {
+      return okUnchecked(findings);
+    }
 
     const nav: PerformanceNavigationTiming = navEntry as PerformanceNavigationTiming; // cast safe: getEntriesByType('navigation') returns PerformanceNavigationTiming
 
@@ -431,10 +451,17 @@ function diagnoseTTFB(): Result<DiagnosticFinding[]> {
     // Build a waterfall breakdown
     const parts: Str[] = [];
 
-    if (redirect > 0) parts.push(`redirect ${redirect}ms`);
-    if (dns > 0) parts.push(`DNS ${dns}ms`);
-    if (tls > 0) parts.push(`TLS ${tls}ms`);
-    else if (tcp > 0) parts.push(`TCP ${tcp}ms`);
+    if (redirect > 0) {
+      parts.push(`redirect ${redirect}ms`);
+    }
+    if (dns > 0) {
+      parts.push(`DNS ${dns}ms`);
+    }
+    if (tls > 0) {
+      parts.push(`TLS ${tls}ms`);
+    } else if (tcp > 0) {
+      parts.push(`TCP ${tcp}ms`);
+    }
     parts.push(`server ${serverTime}ms`);
 
     findings.push({ label: 'Waterfall', value: parts.join(' \u2192 ') });
@@ -450,9 +477,11 @@ function diagnoseTTFB(): Result<DiagnosticFinding[]> {
 
     bottlenecks.sort((a: [Str, Num], b: [Str, Num]): Num => b[1] - a[1]);
 
-    const biggest: [Str, Num] | undefined = bottlenecks[0];
+    const [biggest]: ReadonlyArray<[Str, Num] | undefined> = bottlenecks;
 
-    if (!biggest) return okUnchecked(findings);
+    if (!biggest) {
+      return okUnchecked(findings);
+    }
 
     if (biggest[1] > 50) {
       findings.push({
@@ -534,7 +563,7 @@ function diagnoseFCP(): Result<DiagnosticFinding[]> {
 
     if (navEntries.length > 0) {
       // Cast needed: PerformanceEntry -> PerformanceNavigationTiming (type narrowing from getEntriesByType)
-      const fcpNavEntry: PerformanceEntry | undefined = navEntries[0];
+      const [fcpNavEntry]: ReadonlyArray<PerformanceEntry | undefined> = navEntries;
 
       if (fcpNavEntry) {
         const nav: PerformanceNavigationTiming = fcpNavEntry as PerformanceNavigationTiming; // cast safe: getEntriesByType('navigation') returns PerformanceNavigationTiming
@@ -626,9 +655,11 @@ function diagnoseINP(): Result<DiagnosticFinding[]> {
 
     phases.sort((a: [Str, Num], b: [Str, Num]): Num => b[1] - a[1]);
 
-    const biggestPhase: [Str, Num] | undefined = phases[0];
+    const [biggestPhase]: ReadonlyArray<[Str, Num] | undefined> = phases;
 
-    if (!biggestPhase) return okUnchecked(findings);
+    if (!biggestPhase) {
+      return okUnchecked(findings);
+    }
 
     if (biggestPhase[1] > 50) {
       findings.push({
@@ -674,7 +705,9 @@ function diagnoseTBT(): Result<DiagnosticFinding[]> {
   for (const task of longTasks) {
     const blocking: Num = task.duration - 50;
 
-    if (blocking > 0) totalBlocking += blocking;
+    if (blocking > 0) {
+      totalBlocking += blocking;
+    }
 
     if (task.duration > longestDuration) {
       longestDuration = task.duration;
@@ -691,7 +724,7 @@ function diagnoseTBT(): Result<DiagnosticFinding[]> {
     let scriptInfo: Str = '';
 
     if (longestTask.attribution.length > 0) {
-      const attr: LongTaskAttribution | undefined = longestTask.attribution[0];
+      const [attr]: ReadonlyArray<LongTaskAttribution | undefined> = longestTask.attribution;
 
       if (attr) {
         if (attr.containerSrc) {
@@ -751,7 +784,9 @@ const COLLECTORS: Readonly<Record<Str, () => Result<DiagnosticFinding[]>>> = {
 export function getThresholds(metricName: Str): Result<VitalThresholds | null> {
   const parsed: Result<Str> = safeParse(StrSchema, metricName);
 
-  if (!parsed.ok) return parsed;
+  if (!parsed.ok) {
+    return parsed;
+  }
 
   return okUnchecked(THRESHOLDS[parsed.data] ?? null);
 }
@@ -774,8 +809,12 @@ export function getThresholds(metricName: Str): Result<VitalThresholds | null> {
  * ```
  */
 export function setupDiagnosticObservers(): Result<Void> {
-  if (observersActive) return okUnchecked<Void>(undefined);
-  if (typeof PerformanceObserver === 'undefined') return okUnchecked<Void>(undefined);
+  if (observersActive) {
+    return okUnchecked<Void>(undefined);
+  }
+  if (typeof PerformanceObserver === 'undefined') {
+    return okUnchecked<Void>(undefined);
+  }
   observersActive = true;
 
   // LCP observer — collects largest-contentful-paint entries (deprecated via getEntriesByType)
@@ -793,7 +832,7 @@ export function setupDiagnosticObservers(): Result<Void> {
     lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
   } catch (error: unknown) {
     // LCP API not supported in this browser — diagnostics will be partial
-    void fromUnknownError(error);
+    fromUnknownError(error);
   }
 
   // Layout shift observer — collects layout-shift entries (deprecated via getEntriesByType)
@@ -811,7 +850,7 @@ export function setupDiagnosticObservers(): Result<Void> {
     clsObserver.observe({ type: 'layout-shift', buffered: true });
   } catch (error: unknown) {
     // Layout Shift API not supported in this browser — diagnostics will be partial
-    void fromUnknownError(error);
+    fromUnknownError(error);
   }
 
   // Long task observer — collects main-thread blocking tasks > 50ms
@@ -829,7 +868,7 @@ export function setupDiagnosticObservers(): Result<Void> {
     longTaskObserver.observe({ type: 'longtask', buffered: true });
   } catch (error: unknown) {
     // Long Tasks API not supported in this browser — diagnostics will be partial
-    void fromUnknownError(error);
+    fromUnknownError(error);
   }
 
   // Event timing observer — collects interaction timings for INP attribution
@@ -850,7 +889,7 @@ export function setupDiagnosticObservers(): Result<Void> {
     eventObserver.observe({ type: 'event', buffered: true });
   } catch (error: unknown) {
     // Event Timing API not supported in this browser — diagnostics will be partial
-    void fromUnknownError(error);
+    fromUnknownError(error);
   }
 
   return okUnchecked<Void>(undefined);
@@ -891,7 +930,9 @@ export function resetDiagnostics(): Result<Void> {
 export function _injectLCPEntries(entries: unknown[]): Result<Void> {
   const parsed: Result<unknown[]> = safeParse(v.array(v.unknown()), entries);
 
-  if (!parsed.ok) return parsed;
+  if (!parsed.ok) {
+    return parsed;
+  }
 
   // Test helper — cast from unknown is safe because only test mocks are passed
   lcpEntries = entries as LCPEntry[]; // cast safe: test-only helper, callers pass mock LCPEntry objects
@@ -913,7 +954,9 @@ export function _injectLCPEntries(entries: unknown[]): Result<Void> {
 export function _injectLayoutShiftEntries(entries: unknown[]): Result<Void> {
   const parsed: Result<unknown[]> = safeParse(v.array(v.unknown()), entries);
 
-  if (!parsed.ok) return parsed;
+  if (!parsed.ok) {
+    return parsed;
+  }
 
   // Test helper — cast from unknown is safe because only test mocks are passed
   layoutShiftEntries = entries as LayoutShiftEntry[]; // cast safe: test-only helper, callers pass mock LayoutShiftEntry objects
@@ -935,7 +978,9 @@ export function _injectLayoutShiftEntries(entries: unknown[]): Result<Void> {
 export function _injectLongTasks(entries: unknown[]): Result<Void> {
   const parsed: Result<unknown[]> = safeParse(v.array(v.unknown()), entries);
 
-  if (!parsed.ok) return parsed;
+  if (!parsed.ok) {
+    return parsed;
+  }
 
   // Test helper — cast from unknown is safe because only test mocks are passed
   longTasks = entries as LongTaskEntry[]; // cast safe: test-only helper, callers pass mock LongTaskEntry objects
@@ -957,7 +1002,9 @@ export function _injectLongTasks(entries: unknown[]): Result<Void> {
 export function _injectEventTimings(entries: unknown[]): Result<Void> {
   const parsed: Result<unknown[]> = safeParse(v.array(v.unknown()), entries);
 
-  if (!parsed.ok) return parsed;
+  if (!parsed.ok) {
+    return parsed;
+  }
 
   // Test helper — cast from unknown is safe because only test mocks are passed
   eventTimings = entries as EventTimingEntry[]; // cast safe: test-only helper, callers pass mock EventTimingEntry objects
@@ -995,24 +1042,36 @@ export function collectDiagnostics(
 ): Result<VitalDiagnostics | null> {
   const metricParsed: Result<Str> = safeParse(StrSchema, metricName);
 
-  if (!metricParsed.ok) return metricParsed;
+  if (!metricParsed.ok) {
+    return metricParsed;
+  }
 
   const valueParsed: Result<Num> = safeParse(NumSchema, _value);
 
-  if (!valueParsed.ok) return valueParsed;
+  if (!valueParsed.ok) {
+    return valueParsed;
+  }
 
   const ratingParsed: Result<Str> = safeParse(StrSchema, rating);
 
-  if (!ratingParsed.ok) return ratingParsed;
+  if (!ratingParsed.ok) {
+    return ratingParsed;
+  }
 
   // Skip diagnostics for good metrics — no action needed
-  if (ratingParsed.data === 'good') return okUnchecked(null);
+  if (ratingParsed.data === 'good') {
+    return okUnchecked(null);
+  }
 
   const thresholdsResult: Result<VitalThresholds | null> = getThresholds(metricParsed.data);
 
-  if (!thresholdsResult.ok) return thresholdsResult;
+  if (!thresholdsResult.ok) {
+    return thresholdsResult;
+  }
 
-  if (!thresholdsResult.data) return okUnchecked(null);
+  if (!thresholdsResult.data) {
+    return okUnchecked(null);
+  }
 
   const thresholds: VitalThresholds = thresholdsResult.data;
   const collector: (() => Result<DiagnosticFinding[]>) | undefined = COLLECTORS[metricParsed.data];
@@ -1022,7 +1081,9 @@ export function collectDiagnostics(
   if (collector) {
     const collectorResult: Result<DiagnosticFinding[]> = collector();
 
-    if (!collectorResult.ok) return collectorResult;
+    if (!collectorResult.ok) {
+      return collectorResult;
+    }
 
     findings = collectorResult.data as DiagnosticFinding[]; // cast safe: Result.data is DeepReadonly but DiagnosticFinding[] is compatible
   }
@@ -1047,7 +1108,9 @@ export function collectDiagnostics(
 export function formatThresholds(thresholds: VitalThresholds): Result<Str> {
   const parsed: Result<VitalThresholds> = safeParse(VitalThresholdsSchema, thresholds);
 
-  if (!parsed.ok) return parsed;
+  if (!parsed.ok) {
+    return parsed;
+  }
 
   const suffix: Str = parsed.data.unit === 'ms' ? 'ms' : '';
   const goodVal: Str =

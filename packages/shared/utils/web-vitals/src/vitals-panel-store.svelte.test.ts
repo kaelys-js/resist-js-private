@@ -20,14 +20,18 @@ describe('vitals panel store', () => {
   it('getVitalsPanelMetrics returns empty array initially', () => {
     const result = getVitalsPanelMetrics();
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual([]);
+    if (result.ok) {
+      expect(result.data).toEqual([]);
+    }
   });
 
   it('reportVitalToPanel adds a metric to the store', () => {
     reportVitalToPanel('LCP' as Str, 2500 as Num, 'good' as Str, null);
     const result = getVitalsPanelMetrics();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toHaveLength(1);
     expect(result.data[0]!.name).toBe('LCP');
     expect(result.data[0]!.value).toBe(2500);
@@ -42,7 +46,9 @@ describe('vitals panel store', () => {
 
     const result = getVitalsPanelMetrics();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toHaveLength(3);
     expect(result.data[0]!.name).toBe('FCP');
     expect(result.data[1]!.name).toBe('LCP');
@@ -57,7 +63,9 @@ describe('vitals panel store', () => {
     reportVitalToPanel('LCP' as Str, 5000 as Num, 'poor' as Str, diagnostics as never);
     const result = getVitalsPanelMetrics();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data[0]!.diagnostics).toBeDefined();
     expect(result.data[0]!.diagnostics).not.toBeNull();
   });
@@ -66,7 +74,9 @@ describe('vitals panel store', () => {
     reportVitalToPanel('FCP' as Str, 1200 as Num, 'good' as Str, null);
     const result = getVitalsPanelMetrics();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data[0]!.diagnostics).toBeNull();
   });
 
@@ -75,12 +85,16 @@ describe('vitals panel store', () => {
     reportVitalToPanel('FCP' as Str, 1200 as Num, 'good' as Str, null);
     const beforeResult = getVitalsPanelMetrics();
     expect(beforeResult.ok).toBe(true);
-    if (beforeResult.ok) expect(beforeResult.data).toHaveLength(2);
+    if (beforeResult.ok) {
+      expect(beforeResult.data).toHaveLength(2);
+    }
 
     resetPanelMetrics();
     const afterResult = getVitalsPanelMetrics();
     expect(afterResult.ok).toBe(true);
-    if (afterResult.ok) expect(afterResult.data).toHaveLength(0);
+    if (afterResult.ok) {
+      expect(afterResult.data).toHaveLength(0);
+    }
   });
 
   // ── safeParse failures ──────────────────────────────────────────

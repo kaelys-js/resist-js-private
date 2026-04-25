@@ -13,16 +13,21 @@
 
 import * as v from 'valibot';
 
-import type { Str, Num, Void } from '@/schemas/common';
-import { StrSchema, NumSchema, NameSchema, MillisecondTimestampSchema } from '@/schemas/common';
-import type { Name, MillisecondTimestamp } from '@/schemas/common';
-import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
+import {
+  StrSchema,
+  NumSchema,
+  NameSchema,
+  MillisecondTimestampSchema,
+  type Str,
+  type Num,
+  type Void,
+  type Name,
+  type MillisecondTimestamp,
+} from '@/schemas/common';
+import { okUnchecked, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 
-import {
-  VitalDiagnosticsSchema,
-  type VitalDiagnostics,
-} from '@/utils/web-vitals/vitals-diagnostics';
+import { VitalDiagnosticsSchema } from '@/utils/web-vitals/vitals-diagnostics';
 
 // =============================================================================
 // Schema
@@ -88,22 +93,30 @@ export function reportVitalToPanel(
 ): Result<Void> {
   const nameResult: Result<Name> = safeParse(NameSchema, name);
 
-  if (!nameResult.ok) return nameResult;
+  if (!nameResult.ok) {
+    return nameResult;
+  }
 
   const valueResult: Result<Num> = safeParse(NumSchema, value);
 
-  if (!valueResult.ok) return valueResult;
+  if (!valueResult.ok) {
+    return valueResult;
+  }
 
   const ratingResult: Result<Str> = safeParse(StrSchema, rating);
 
-  if (!ratingResult.ok) return ratingResult;
+  if (!ratingResult.ok) {
+    return ratingResult;
+  }
 
   const diagResult: Result<NullableVitalDiagnostics> = safeParse(
     NullableVitalDiagnosticsSchema,
     diagnostics,
   );
 
-  if (!diagResult.ok) return diagResult;
+  if (!diagResult.ok) {
+    return diagResult;
+  }
 
   metrics = [
     ...metrics,
