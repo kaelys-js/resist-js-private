@@ -43,6 +43,6 @@ describe('loader module-level throw', () => {
       pathExists: vi.fn(),
     }));
 
-    await expect(async () => import('./loader')).rejects.toThrow();
+    await expect(() => import('./loader')).rejects.toThrow();
   });
 });
