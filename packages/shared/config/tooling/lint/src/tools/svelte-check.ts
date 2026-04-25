@@ -13,7 +13,9 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
+import type { LintCache } from '@/lint/framework/cache.ts';
 import { execFileAsync } from '@/lint/framework/exec.ts';
+import { fingerprintFiles } from '@/lint/framework/file-fingerprint.ts';
 
 import {
   type WorkspaceTool,
@@ -23,6 +25,70 @@ import {
   missingToolResult,
 } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+
+/** Directories whose contents never affect svelte-check input fingerprint. */
+const FINGERPRINT_SKIP_DIRS: ReadonlySet<string> = new Set([
+  'node_modules',
+  '.svelte-kit',
+  'dist',
+  '.turbo',
+  '.cache',
+  'coverage',
+]);
+
+/**
+ * Enumerate input files that affect a Svelte package's svelte-check result.
+ *
+ * Walks the package tree collecting `.svelte`, `.ts`, `.tsx`, `.cts`, `.mts`,
+ * `tsconfig*.json`, `svelte.config.{js,ts,mjs,cjs}`, and `package.json`.
+ * Results are absolute paths.
+ *
+ * @param pkgDir - Absolute package directory
+ * @returns Absolute paths of all files that affect svelte-check output
+ */
+function listSvelteCheckInputs(pkgDir: string): string[] {
+  const files: string[] = [];
+  function walk(dir: string): void {
+    let entries: import('node:fs').Dirent[];
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (FINGERPRINT_SKIP_DIRS.has(entry.name)) {
+        continue;
+      }
+      const full: string = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+        continue;
+      }
+      if (!entry.isFile()) {
+        continue;
+      }
+      const name: string = entry.name;
+      if (
+        name.endsWith('.svelte') ||
+        name.endsWith('.ts') ||
+        name.endsWith('.tsx') ||
+        name.endsWith('.cts') ||
+        name.endsWith('.mts') ||
+        name === 'package.json' ||
+        (name.startsWith('tsconfig') && name.endsWith('.json')) ||
+        (name.startsWith('svelte.config.') &&
+          (name.endsWith('.js') ||
+            name.endsWith('.ts') ||
+            name.endsWith('.mjs') ||
+            name.endsWith('.cjs')))
+      ) {
+        files.push(full);
+      }
+    }
+  }
+  walk(pkgDir);
+  return files;
+}
 
 /**
  * Regex matching svelte-check diagnostic lines.
@@ -160,6 +226,7 @@ export function transformSvelteCheckOutput(output: string): LintResult[] {
 export async function runSvelteCheckAllPackages(
   cwd: string,
   files: string[] = [],
+  lintCache: LintCache | null = null,
 ): Promise<LintResult[]> {
   /* Availability check up-front: emit one internal/tool-missing for the whole
    * workspace run rather than N per-package copies. Mirrors the required-aware
@@ -184,11 +251,23 @@ export async function runSvelteCheckAllPackages(
   ];
 
   /* Run svelte-check per package in parallel (bounded by TOOL_CONCURRENCY).
-   * Each cold-start is ~3-5s; serial loop dominated workspace-wide qa:lint. */
+   * Per-package result cache: fingerprint inputs (path+mtime+size) and skip
+   * the execFile entirely on hash match. Cache miss runs the tool and
+   * persists results keyed by the fingerprint. */
   const perPackage: LintResult[][] = await mapWithConcurrency(
     pkgDirs,
     TOOL_CONCURRENCY,
     async (pkgDir: string): Promise<LintResult[]> => {
+      const inputs: string[] = listSvelteCheckInputs(pkgDir);
+      const inputHash: string = fingerprintFiles(inputs);
+
+      const cached: LintResult[] | null =
+        lintCache?.getTool('svelte-check', pkgDir, inputHash) ?? null;
+      if (cached !== null) {
+        return cached;
+      }
+
+      let pkgResults: LintResult[];
       try {
         const { stdout } = await execFileAsync('svelte-check', args, {
           cwd: pkgDir,
@@ -196,25 +275,30 @@ export async function runSvelteCheckAllPackages(
           timeout: 120_000,
           maxBuffer: 16 * 1024 * 1024,
         });
-        return transformSvelteCheckOutput(stdout);
+        pkgResults = transformSvelteCheckOutput(stdout);
       } catch (error: unknown) {
         const execError = error as { stdout?: string };
         if (execError.stdout && typeof execError.stdout === 'string') {
-          return transformSvelteCheckOutput(execError.stdout);
+          pkgResults = transformSvelteCheckOutput(execError.stdout);
+        } else {
+          const message: string = error instanceof Error ? error.message : String(error);
+          /* Don't cache crash results — they're transient and a re-run might succeed. */
+          return [
+            {
+              file: pkgDir,
+              line: 1,
+              column: 1,
+              severity: 'error',
+              message: `svelte-check crashed for ${pkgDir} — type checking was skipped (${message})`,
+              ruleId: 'internal/tool-crash',
+              fix: { range: { start: 0, end: 0 }, text: '' },
+            },
+          ];
         }
-        const message: string = error instanceof Error ? error.message : String(error);
-        return [
-          {
-            file: pkgDir,
-            line: 1,
-            column: 1,
-            severity: 'error',
-            message: `svelte-check crashed for ${pkgDir} — type checking was skipped (${message})`,
-            ruleId: 'internal/tool-crash',
-            fix: { range: { start: 0, end: 0 }, text: '' },
-          },
-        ];
       }
+
+      lintCache?.setTool('svelte-check', pkgDir, inputHash, pkgResults);
+      return pkgResults;
     },
   );
 
