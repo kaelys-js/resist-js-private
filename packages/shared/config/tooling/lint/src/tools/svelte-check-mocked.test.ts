@@ -394,4 +394,104 @@ describe('runSvelteCheckAllPackages', () => {
     expect(vi.mocked(existsSync)).not.toHaveBeenCalled();
     expect(vi.mocked(readdirSync)).not.toHaveBeenCalled();
   });
+
+  /* ---------- per-package cache integration ---------- */
+
+  it('skips execFileAsync on cache hit for a Svelte package', async () => {
+    vi.mocked(existsSync).mockImplementation((p: import('node:fs').PathLike): boolean => {
+      const s = String(p);
+      if (s === '/ws/packages') return true;
+      if (s === join('/ws/packages/app', 'package.json')) return true;
+      if (s === join('/ws/packages/app', 'tsconfig.json')) return true;
+      return false;
+    });
+    vi.mocked(readdirSync).mockImplementation(((dir: import('node:fs').PathLike): unknown[] => {
+      const d = String(dir);
+      if (d === '/ws/packages') return [makeDirent('app', { isDirectory: true })];
+      if (d === '/ws/packages/app') return [makeDirent('A.svelte', { isFile: true })];
+      return [];
+    }) as never);
+
+    const cachedResults = [
+      {
+        file: '/ws/packages/app/A.svelte',
+        line: 5,
+        column: 3,
+        severity: 'warning' as const,
+        message: 'cached diag',
+        ruleId: 'svelte-check/warning',
+        fix: { range: { start: 0, end: 0 }, text: '' },
+      },
+    ];
+    const fakeCache = {
+      getTool: vi.fn((): typeof cachedResults => cachedResults),
+      setTool: vi.fn(),
+    } as unknown as import('@/lint/framework/cache.ts').LintCache;
+
+    const results = await runSvelteCheckAllPackages('/ws', [], fakeCache);
+    expect(results).toEqual(cachedResults);
+    expect(vi.mocked(execFileAsync)).not.toHaveBeenCalled();
+    expect(
+      vi.mocked((fakeCache as unknown as { getTool: ReturnType<typeof vi.fn> }).getTool),
+    ).toHaveBeenCalledWith('svelte-check', '/ws/packages/app', expect.any(String));
+  });
+
+  it('runs execFileAsync on cache miss and stores result via setTool', async () => {
+    vi.mocked(existsSync).mockImplementation((p: import('node:fs').PathLike): boolean => {
+      const s = String(p);
+      if (s === '/ws/packages') return true;
+      if (s === join('/ws/packages/app', 'package.json')) return true;
+      if (s === join('/ws/packages/app', 'tsconfig.json')) return true;
+      return false;
+    });
+    vi.mocked(readdirSync).mockImplementation(((dir: import('node:fs').PathLike): unknown[] => {
+      const d = String(dir);
+      if (d === '/ws/packages') return [makeDirent('app', { isDirectory: true })];
+      if (d === '/ws/packages/app') return [makeDirent('A.svelte', { isFile: true })];
+      return [];
+    }) as never);
+    vi.mocked(execFileAsync).mockResolvedValue({ stdout: '', stderr: '' });
+
+    const setTool = vi.fn();
+    const fakeCache = {
+      getTool: vi.fn((): null => null),
+      setTool,
+    } as unknown as import('@/lint/framework/cache.ts').LintCache;
+
+    await runSvelteCheckAllPackages('/ws', [], fakeCache);
+    expect(vi.mocked(execFileAsync)).toHaveBeenCalledTimes(1);
+    expect(setTool).toHaveBeenCalledWith(
+      'svelte-check',
+      '/ws/packages/app',
+      expect.any(String),
+      [],
+    );
+  });
+
+  it('does not cache crash results (transient errors should re-run on next invocation)', async () => {
+    vi.mocked(existsSync).mockImplementation((p: import('node:fs').PathLike): boolean => {
+      const s = String(p);
+      if (s === '/ws/packages') return true;
+      if (s === join('/ws/packages/app', 'package.json')) return true;
+      if (s === join('/ws/packages/app', 'tsconfig.json')) return true;
+      return false;
+    });
+    vi.mocked(readdirSync).mockImplementation(((dir: import('node:fs').PathLike): unknown[] => {
+      const d = String(dir);
+      if (d === '/ws/packages') return [makeDirent('app', { isDirectory: true })];
+      if (d === '/ws/packages/app') return [makeDirent('A.svelte', { isFile: true })];
+      return [];
+    }) as never);
+    vi.mocked(execFileAsync).mockRejectedValue(new Error('ENOENT: command not found'));
+
+    const setTool = vi.fn();
+    const fakeCache = {
+      getTool: vi.fn((): null => null),
+      setTool,
+    } as unknown as import('@/lint/framework/cache.ts').LintCache;
+
+    const results = await runSvelteCheckAllPackages('/ws', [], fakeCache);
+    expect(results[0]?.ruleId).toBe('internal/tool-crash');
+    expect(setTool).not.toHaveBeenCalled();
+  });
 });

@@ -241,3 +241,147 @@ describe('LintCache — disk persistence', () => {
     expect(() => LintCache.delete('/nonexistent/path.json')).not.toThrow();
   });
 });
+
+// =============================================================================
+// Tool cache (per-package, per-tool result cache)
+// =============================================================================
+
+describe('LintCache.getTool / setTool', () => {
+  const cachePaths: string[] = [];
+
+  afterEach(() => {
+    for (const path of cachePaths) {
+      cleanup(path);
+    }
+    cachePaths.length = 0;
+  });
+
+  it('returns null when no tool entry exists', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    expect(cache.getTool('tsgo', '/pkg/a', 'fp1')).toBeNull();
+  });
+
+  it('returns cached results when fingerprint matches', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    const results: LintResult[] = [
+      {
+        file: '/pkg/a/src/x.ts',
+        line: 1,
+        column: 1,
+        severity: 'error',
+        message: 'TS error',
+        ruleId: 'tsgo/TS2322',
+        fix: { range: { start: 0, end: 0 }, text: '' },
+      },
+    ];
+    cache.setTool('tsgo', '/pkg/a', 'fp1', results);
+    expect(cache.getTool('tsgo', '/pkg/a', 'fp1')).toEqual(results);
+  });
+
+  it('returns null when fingerprint differs', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    cache.setTool('tsgo', '/pkg/a', 'fp1', []);
+    expect(cache.getTool('tsgo', '/pkg/a', 'fp2')).toBeNull();
+  });
+
+  it('keys entries by toolName so two tools can cache the same package independently', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    const tsgoResults: LintResult[] = [];
+    const svelteResults: LintResult[] = [
+      {
+        file: '/pkg/a/src/A.svelte',
+        line: 5,
+        column: 3,
+        severity: 'warning',
+        message: 'mismatch',
+        ruleId: 'svelte-check/warning',
+        fix: { range: { start: 0, end: 0 }, text: '' },
+      },
+    ];
+    cache.setTool('tsgo', '/pkg/a', 'fp1', tsgoResults);
+    cache.setTool('svelte-check', '/pkg/a', 'fp1', svelteResults);
+    expect(cache.getTool('tsgo', '/pkg/a', 'fp1')).toEqual(tsgoResults);
+    expect(cache.getTool('svelte-check', '/pkg/a', 'fp1')).toEqual(svelteResults);
+  });
+
+  it('keys entries by pkgDir so two packages can cache the same tool independently', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    cache.setTool('tsgo', '/pkg/a', 'fp1', []);
+    cache.setTool('tsgo', '/pkg/b', 'fp1', []);
+    expect(cache.getTool('tsgo', '/pkg/a', 'fp1')).toEqual([]);
+    expect(cache.getTool('tsgo', '/pkg/b', 'fp1')).toEqual([]);
+  });
+
+  it('overwrites prior entry on second setTool call', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    cache.setTool('tsgo', '/pkg/a', 'fp1', []);
+    const newResults: LintResult[] = [
+      {
+        file: '/pkg/a/src/x.ts',
+        line: 9,
+        column: 1,
+        severity: 'error',
+        message: 'new',
+        ruleId: 'tsgo/TS9999',
+        fix: { range: { start: 0, end: 0 }, text: '' },
+      },
+    ];
+    cache.setTool('tsgo', '/pkg/a', 'fp2', newResults);
+    expect(cache.getTool('tsgo', '/pkg/a', 'fp1')).toBeNull();
+    expect(cache.getTool('tsgo', '/pkg/a', 'fp2')).toEqual(newResults);
+  });
+
+  it('persists tool entries across save/load', () => {
+    const path: string = tempCachePath();
+    cachePaths.push(path);
+
+    const cache: LintCache = LintCache.empty('rule-hash');
+    const results: LintResult[] = [
+      {
+        file: '/pkg/a/src/x.ts',
+        line: 1,
+        column: 1,
+        severity: 'error',
+        message: 'TS error',
+        ruleId: 'tsgo/TS2322',
+        fix: { range: { start: 0, end: 0 }, text: '' },
+      },
+    ];
+    cache.setTool('tsgo', '/pkg/a', 'fp1', results);
+    cache.save(path);
+
+    const loaded: LintCache = LintCache.load(path, 'rule-hash');
+    expect(loaded.getTool('tsgo', '/pkg/a', 'fp1')).toEqual(results);
+  });
+
+  it('increments hit counter on tool cache hit', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    cache.setTool('tsgo', '/pkg/a', 'fp1', []);
+    const before: number = cache.getHitCount();
+    cache.getTool('tsgo', '/pkg/a', 'fp1');
+    expect(cache.getHitCount()).toBe(before + 1);
+  });
+
+  it('increments miss counter on tool cache miss', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    const before: number = cache.getMissCount();
+    cache.getTool('tsgo', '/pkg/a', 'fp1');
+    expect(cache.getMissCount()).toBe(before + 1);
+  });
+
+  it('migrates pre-v2 caches missing toolEntries to empty toolEntries', () => {
+    const path: string = tempCachePath();
+    cachePaths.push(path);
+
+    /* Write a "version 2" cache that lacks the toolEntries key (defensive
+     * migration path). The runtime should not crash; getTool should miss. */
+    writeFileSync(
+      path,
+      JSON.stringify({ version: '2', ruleHash: 'rule-hash', entries: {} }),
+      'utf8',
+    );
+
+    const loaded: LintCache = LintCache.load(path, 'rule-hash');
+    expect(loaded.getTool('tsgo', '/pkg/a', 'fp1')).toBeNull();
+  });
+});
