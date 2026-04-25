@@ -7,13 +7,15 @@
  * @module
  */
 
-import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
+import { execFileAsync } from '@/lint/framework/exec.ts';
 import {
   type WorkspaceTool,
+  TOOL_CONCURRENCY,
   isCommandAvailable,
+  mapWithConcurrency,
   missingToolResult,
 } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
@@ -190,9 +192,7 @@ export function scopeTsconfigDirsToFiles(tsconfigDirs: string[], files: string[]
  * @param files - Optional absolute file paths to scope the run to
  * @returns Aggregated lint results from checked packages
  */
-export function runTsgoAllPackages(cwd: string, files: string[] = []): LintResult[] {
-  const results: LintResult[] = [];
-
+export async function runTsgoAllPackages(cwd: string, files: string[] = []): Promise<LintResult[]> {
   /* Availability check up-front: emit one internal/tool-missing for the whole
    * workspace run rather than N per-package copies. Mirrors the required-aware
    * path in tool-orchestrator.runWorkspaceTool. */
@@ -203,49 +203,54 @@ export function runTsgoAllPackages(cwd: string, files: string[] = []): LintResul
   const allDirs: string[] = discoverTsconfigDirs(cwd);
   const pkgDirs: string[] = scopeTsconfigDirsToFiles(allDirs, files);
 
-  for (const pkgDir of pkgDirs) {
-    try {
-      const output: string = execFileSync('tsgo', ['--noEmit'], {
-        cwd: pkgDir,
-        encoding: 'utf8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-        timeout: 120_000,
-      });
-
-      const pkgResults: LintResult[] = transformTsgoOutput(output);
-      /* Resolve relative file paths to absolute (tsgo outputs paths relative to cwd). */
-      for (const r of pkgResults) {
-        if (!r.file.startsWith('/')) {
-          r.file = resolve(pkgDir, r.file);
-        }
-      }
-      results.push(...pkgResults);
-    } catch (error: unknown) {
-      const execError = error as { stdout?: string };
-      if (execError.stdout && typeof execError.stdout === 'string') {
-        const pkgResults: LintResult[] = transformTsgoOutput(execError.stdout);
+  /* Run tsgo per package in parallel (bounded by TOOL_CONCURRENCY).
+   * tsgo cold-start is ~2-4s per package; serial blew the wall-clock. */
+  const perPackage: LintResult[][] = await mapWithConcurrency(
+    pkgDirs,
+    TOOL_CONCURRENCY,
+    async (pkgDir: string): Promise<LintResult[]> => {
+      try {
+        const { stdout } = await execFileAsync('tsgo', ['--noEmit'], {
+          cwd: pkgDir,
+          encoding: 'utf8',
+          timeout: 120_000,
+          maxBuffer: 16 * 1024 * 1024,
+        });
+        const pkgResults: LintResult[] = transformTsgoOutput(stdout);
         for (const r of pkgResults) {
           if (!r.file.startsWith('/')) {
             r.file = resolve(pkgDir, r.file);
           }
         }
-        results.push(...pkgResults);
-      } else {
+        return pkgResults;
+      } catch (error: unknown) {
+        const execError = error as { stdout?: string };
+        if (execError.stdout && typeof execError.stdout === 'string') {
+          const pkgResults: LintResult[] = transformTsgoOutput(execError.stdout);
+          for (const r of pkgResults) {
+            if (!r.file.startsWith('/')) {
+              r.file = resolve(pkgDir, r.file);
+            }
+          }
+          return pkgResults;
+        }
         const message: string = error instanceof Error ? error.message : String(error);
-        results.push({
-          file: pkgDir,
-          line: 1,
-          column: 1,
-          severity: 'error',
-          message: `tsgo crashed for ${pkgDir} — type checking was skipped (${message})`,
-          ruleId: 'internal/tool-crash',
-          fix: { range: { start: 0, end: 0 }, text: '' },
-        });
+        return [
+          {
+            file: pkgDir,
+            line: 1,
+            column: 1,
+            severity: 'error',
+            message: `tsgo crashed for ${pkgDir} — type checking was skipped (${message})`,
+            ruleId: 'internal/tool-crash',
+            fix: { range: { start: 0, end: 0 }, text: '' },
+          },
+        ];
       }
-    }
-  }
+    },
+  );
 
-  return results;
+  return perPackage.flat();
 }
 
 /** tsgo workspace tool definition. */

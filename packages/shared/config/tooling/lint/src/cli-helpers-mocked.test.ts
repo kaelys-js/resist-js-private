@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('node:child_process', () => ({
   execSync: vi.fn(),
+  execFile: vi.fn(),
+  execFileSync: vi.fn(),
 }));
 
 vi.mock('node:fs', async (importOriginal) => {

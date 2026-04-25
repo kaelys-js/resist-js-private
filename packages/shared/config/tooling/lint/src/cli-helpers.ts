@@ -1626,18 +1626,18 @@ export async function _runLintCore(
      * leave scopeFiles empty so every package is checked. */
     const scopeFiles: string[] = cliArgs.paths.length > 0 ? allFiles : [];
 
-    /* svelte-check needs special handling: runs per-package, not once at root.
-     * runSvelteCheckAllPackages performs its own availability check and emits
-     * internal/tool-missing when required binary is absent — no ad-hoc guard here. */
+    /* svelte-check + tsgo: each runs per-package and is the dominant
+     * workspace-wide cost. Run both concurrently AND parallel-per-package
+     * (each function is itself bounded by TOOL_CONCURRENCY).
+     * Each function performs its own availability check and emits
+     * internal/tool-missing when the required binary is absent. */
     let wsResultCount: number = 0;
-    const svelteResults: LintResult[] = runSvelteCheckAllPackages(process.cwd(), scopeFiles);
+    const [svelteResults, tsgoResults]: [LintResult[], LintResult[]] = await Promise.all([
+      runSvelteCheckAllPackages(process.cwd(), scopeFiles),
+      runTsgoAllPackages(process.cwd(), scopeFiles),
+    ]);
     allResults.push(...svelteResults);
     wsResultCount += svelteResults.length;
-
-    /* tsgo needs special handling: runs per-package, not once at root.
-     * runTsgoAllPackages performs its own availability check and emits
-     * internal/tool-missing when required binary is absent — no ad-hoc guard here. */
-    const tsgoResults: LintResult[] = runTsgoAllPackages(process.cwd(), scopeFiles);
     allResults.push(...tsgoResults);
     wsResultCount += tsgoResults.length;
 

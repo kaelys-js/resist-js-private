@@ -10,8 +10,8 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('node:child_process', () => ({
-  execFileSync: vi.fn(),
+vi.mock('@/lint/framework/exec.ts', () => ({
+  execFileAsync: vi.fn(),
 }));
 
 vi.mock('node:fs', async (importOriginal) => {
@@ -35,7 +35,7 @@ vi.mock('@/lint/framework/tool-orchestrator.ts', async (importOriginal) => {
   };
 });
 
-import { execFileSync } from 'node:child_process';
+import { execFileAsync } from '@/lint/framework/exec.ts';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -71,30 +71,30 @@ function makeDirent(
 /* ---------- scopeTsconfigDirsToFiles ---------- */
 
 describe('scopeTsconfigDirsToFiles', () => {
-  it('returns all dirs when files is empty', () => {
+  it('returns all dirs when files is empty', async () => {
     const dirs: string[] = ['/ws/packages/a', '/ws/packages/b'];
     expect(scopeTsconfigDirsToFiles(dirs, [])).toEqual(dirs);
   });
 
-  it('returns owning dir for a single file', () => {
+  it('returns owning dir for a single file', async () => {
     const dirs: string[] = ['/ws/packages/a', '/ws/packages/b'];
     const result: string[] = scopeTsconfigDirsToFiles(dirs, ['/ws/packages/a/src/x.ts']);
     expect(result).toEqual(['/ws/packages/a']);
   });
 
-  it('picks the deepest prefix when nested packages match', () => {
+  it('picks the deepest prefix when nested packages match', async () => {
     const dirs: string[] = ['/ws/packages/outer', '/ws/packages/outer/inner'];
     const result: string[] = scopeTsconfigDirsToFiles(dirs, ['/ws/packages/outer/inner/src/x.ts']);
     expect(result).toEqual(['/ws/packages/outer/inner']);
   });
 
-  it('excludes files not under any discovered dir', () => {
+  it('excludes files not under any discovered dir', async () => {
     const dirs: string[] = ['/ws/packages/a'];
     const result: string[] = scopeTsconfigDirsToFiles(dirs, ['/elsewhere/x.ts']);
     expect(result).toEqual([]);
   });
 
-  it('unions owning dirs across multiple files', () => {
+  it('unions owning dirs across multiple files', async () => {
     const dirs: string[] = ['/ws/packages/a', '/ws/packages/b', '/ws/packages/c'];
     const result: string[] = scopeTsconfigDirsToFiles(dirs, [
       '/ws/packages/a/src/x.ts',
@@ -103,7 +103,7 @@ describe('scopeTsconfigDirsToFiles', () => {
     expect(result.sort()).toEqual(['/ws/packages/a', '/ws/packages/c']);
   });
 
-  it('matches when file path equals dir path exactly', () => {
+  it('matches when file path equals dir path exactly', async () => {
     const dirs: string[] = ['/ws/packages/a'];
     const result: string[] = scopeTsconfigDirsToFiles(dirs, ['/ws/packages/a']);
     expect(result).toEqual(['/ws/packages/a']);
@@ -113,12 +113,12 @@ describe('scopeTsconfigDirsToFiles', () => {
 /* ---------- transformTsgoOutput ---------- */
 
 describe('transformTsgoOutput', () => {
-  it('returns empty for empty output', () => {
+  it('returns empty for empty output', async () => {
     expect(transformTsgoOutput('')).toEqual([]);
     expect(transformTsgoOutput('   \n  ')).toEqual([]);
   });
 
-  it('parses a single error diagnostic', () => {
+  it('parses a single error diagnostic', async () => {
     const output = 'src/foo.ts(10,5): error TS2322: Type mismatch.';
     const results = transformTsgoOutput(output);
     expect(results).toHaveLength(1);
@@ -130,19 +130,19 @@ describe('transformTsgoOutput', () => {
     expect(results[0]?.message).toBe('Type mismatch.');
   });
 
-  it('parses warning severity', () => {
+  it('parses warning severity', async () => {
     const output = 'src/foo.ts(1,1): warning TS6133: Unused var.';
     const results = transformTsgoOutput(output);
     expect(results[0]?.severity).toBe('warning');
   });
 
-  it('ignores non-matching lines', () => {
+  it('ignores non-matching lines', async () => {
     const output = ['some context line', 'src/x.ts(1,1): error TS1: msg', '  indented'].join('\n');
     const results = transformTsgoOutput(output);
     expect(results).toHaveLength(1);
   });
 
-  it('suppresses TS1005 from svelte.d.ts ambient files', () => {
+  it('suppresses TS1005 from svelte.d.ts ambient files', async () => {
     const output = 'pkg/svelte.d.ts(3,5): error TS1005: unexpected token.';
     const results = transformTsgoOutput(output);
     expect(results).toHaveLength(0);
@@ -156,17 +156,17 @@ describe('runTsgoAllPackages', () => {
     vi.mocked(existsSync).mockReset();
     vi.mocked(readdirSync).mockReset();
     vi.mocked(readFileSync).mockReset();
-    vi.mocked(execFileSync).mockReset();
+    vi.mocked(execFileAsync).mockReset();
   });
 
-  it('returns empty when no packages discovered', () => {
+  it('returns empty when no packages discovered', async () => {
     vi.mocked(existsSync).mockReturnValue(false);
-    const results = runTsgoAllPackages('/ws');
+    const results = await runTsgoAllPackages('/ws');
     expect(results).toEqual([]);
-    expect(vi.mocked(execFileSync)).not.toHaveBeenCalled();
+    expect(vi.mocked(execFileAsync)).not.toHaveBeenCalled();
   });
 
-  it('runs tsgo in every discovered package when files is empty', () => {
+  it('runs tsgo in every discovered package when files is empty', async () => {
     /* Two packages discovered */
     vi.mocked(existsSync).mockImplementation((p: import('node:fs').PathLike): boolean => {
       const s = String(p);
@@ -186,14 +186,14 @@ describe('runTsgoAllPackages', () => {
     );
     /* Not sveltekit */
     vi.mocked(readFileSync).mockReturnValue('{}');
-    vi.mocked(execFileSync).mockReturnValue('');
+    vi.mocked(execFileAsync).mockResolvedValue({ stdout: '', stderr: '' });
 
-    const results = runTsgoAllPackages('/ws');
+    const results = await runTsgoAllPackages('/ws');
     expect(results).toEqual([]);
-    expect(vi.mocked(execFileSync)).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(execFileAsync)).toHaveBeenCalledTimes(2);
   });
 
-  it('scopes execFileSync to a single package when one file is passed', () => {
+  it('scopes execFileSync to a single package when one file is passed', async () => {
     vi.mocked(existsSync).mockImplementation((p: import('node:fs').PathLike): boolean => {
       const s = String(p);
       if (s === '/ws/packages') return true;
@@ -211,16 +211,16 @@ describe('runTsgoAllPackages', () => {
       },
     );
     vi.mocked(readFileSync).mockReturnValue('{}');
-    vi.mocked(execFileSync).mockReturnValue('');
+    vi.mocked(execFileAsync).mockResolvedValue({ stdout: '', stderr: '' });
 
-    const results = runTsgoAllPackages('/ws', ['/ws/packages/a/src/x.ts']);
+    const results = await runTsgoAllPackages('/ws', ['/ws/packages/a/src/x.ts']);
     expect(results).toEqual([]);
-    expect(vi.mocked(execFileSync)).toHaveBeenCalledTimes(1);
-    const call = vi.mocked(execFileSync).mock.calls[0];
+    expect(vi.mocked(execFileAsync)).toHaveBeenCalledTimes(1);
+    const call = vi.mocked(execFileAsync).mock.calls[0];
     expect(call?.[2]).toMatchObject({ cwd: '/ws/packages/a' });
   });
 
-  it('runs tsgo once per owning package for files in multiple packages', () => {
+  it('runs tsgo once per owning package for files in multiple packages', async () => {
     vi.mocked(existsSync).mockImplementation((p: import('node:fs').PathLike): boolean => {
       const s = String(p);
       if (s === '/ws/packages') return true;
@@ -243,17 +243,17 @@ describe('runTsgoAllPackages', () => {
       },
     );
     vi.mocked(readFileSync).mockReturnValue('{}');
-    vi.mocked(execFileSync).mockReturnValue('');
+    vi.mocked(execFileAsync).mockResolvedValue({ stdout: '', stderr: '' });
 
-    runTsgoAllPackages('/ws', ['/ws/packages/a/src/x.ts', '/ws/packages/c/src/y.ts']);
-    expect(vi.mocked(execFileSync)).toHaveBeenCalledTimes(2);
+    await runTsgoAllPackages('/ws', ['/ws/packages/a/src/x.ts', '/ws/packages/c/src/y.ts']);
+    expect(vi.mocked(execFileAsync)).toHaveBeenCalledTimes(2);
     const cwds: string[] = vi
-      .mocked(execFileSync)
+      .mocked(execFileAsync)
       .mock.calls.map((c): string => (c[2] as { cwd: string }).cwd);
     expect(cwds.sort()).toEqual(['/ws/packages/a', '/ws/packages/c']);
   });
 
-  it('runs no tsgo calls when files list does not overlap any package', () => {
+  it('runs no tsgo calls when files list does not overlap any package', async () => {
     vi.mocked(existsSync).mockImplementation((p: import('node:fs').PathLike): boolean => {
       const s = String(p);
       if (s === '/ws/packages') return true;
@@ -269,12 +269,12 @@ describe('runTsgoAllPackages', () => {
     );
     vi.mocked(readFileSync).mockReturnValue('{}');
 
-    const results = runTsgoAllPackages('/ws', ['/elsewhere/foo.ts']);
+    const results = await runTsgoAllPackages('/ws', ['/elsewhere/foo.ts']);
     expect(results).toEqual([]);
-    expect(vi.mocked(execFileSync)).not.toHaveBeenCalled();
+    expect(vi.mocked(execFileAsync)).not.toHaveBeenCalled();
   });
 
-  it('captures stdout when tsgo exits non-zero', () => {
+  it('captures stdout when tsgo exits non-zero', async () => {
     vi.mocked(existsSync).mockImplementation((p: import('node:fs').PathLike): boolean => {
       const s = String(p);
       if (s === '/ws/packages') return true;
@@ -292,17 +292,15 @@ describe('runTsgoAllPackages', () => {
 
     const err = new Error('exit 1') as Error & { stdout: string };
     err.stdout = 'src/x.ts(2,3): error TS2322: boom.';
-    vi.mocked(execFileSync).mockImplementation((): never => {
-      throw err;
-    });
+    vi.mocked(execFileAsync).mockRejectedValue(err);
 
-    const results = runTsgoAllPackages('/ws');
+    const results = await runTsgoAllPackages('/ws');
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('tsgo/TS2322');
     expect(results[0]?.message).toBe('boom.');
   });
 
-  it('emits internal/tool-crash when tsgo throws without stdout', () => {
+  it('emits internal/tool-crash when tsgo throws without stdout', async () => {
     vi.mocked(existsSync).mockImplementation((p: import('node:fs').PathLike): boolean => {
       const s = String(p);
       if (s === '/ws/packages') return true;
@@ -317,11 +315,9 @@ describe('runTsgoAllPackages', () => {
       },
     );
     vi.mocked(readFileSync).mockReturnValue('{}');
-    vi.mocked(execFileSync).mockImplementation((): never => {
-      throw new Error('ENOENT: command not found');
-    });
+    vi.mocked(execFileAsync).mockRejectedValue(new Error('ENOENT: command not found'));
 
-    const results = runTsgoAllPackages('/ws');
+    const results = await runTsgoAllPackages('/ws');
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('internal/tool-crash');
     expect(results[0]?.severity).toBe('error');
@@ -329,19 +325,19 @@ describe('runTsgoAllPackages', () => {
     expect(results[0]?.message).toContain('ENOENT');
   });
 
-  it('emits exactly one internal/tool-missing when tsgo is not on PATH', () => {
+  it('emits exactly one internal/tool-missing when tsgo is not on PATH', async () => {
     /* Flip the global mock for this test: tsgo binary not found.
      * The required-aware guard runs BEFORE any fs work, so no fs mocks needed. */
     vi.mocked(isCommandAvailable).mockReturnValueOnce(false);
 
-    const results = runTsgoAllPackages('/ws');
+    const results = await runTsgoAllPackages('/ws');
     expect(results).toHaveLength(1);
     expect(results[0]?.ruleId).toBe('internal/tool-missing');
     expect(results[0]?.severity).toBe('error');
     expect(results[0]?.message).toContain("'tsgo'");
     expect(results[0]?.message).toContain('not available on PATH');
     /* Must short-circuit: execFileSync never called, and no fs discovery. */
-    expect(vi.mocked(execFileSync)).not.toHaveBeenCalled();
+    expect(vi.mocked(execFileAsync)).not.toHaveBeenCalled();
     expect(vi.mocked(existsSync)).not.toHaveBeenCalled();
     expect(vi.mocked(readdirSync)).not.toHaveBeenCalled();
   });
