@@ -15,6 +15,7 @@ import {
   ToolRegistry,
   matchesPattern,
   isCommandAvailable,
+  findWorkspaceRoot,
   type ExternalTool,
   type WorkspaceTool,
 } from './tool-orchestrator.ts';
@@ -225,6 +226,46 @@ describe('isCommandAvailable', () => {
   it('returns false for a nonexistent command', async () => {
     const available: boolean = await isCommandAvailable('definitely_not_a_real_command_xyz');
     expect(available).toBe(false);
+  });
+
+  it('returns true for a workspace-installed binary (oxlint via node_modules/.bin)', () => {
+    /* oxlint is hoisted into the workspace `node_modules/.bin/` by pnpm and
+     * may not be on PATH; the resolver must find it via the workspace check. */
+    const available: boolean = isCommandAvailable('oxlint');
+    expect(available).toBe(true);
+  });
+
+  it('returns true for a workspace-installed binary (tsgo via node_modules/.bin)', () => {
+    /* tsgo (the @typescript/native-preview shim) is similarly resolvable only
+     * via node_modules/.bin in this workspace. */
+    const available: boolean = isCommandAvailable('tsgo');
+    expect(available).toBe(true);
+  });
+
+  it('returns false when neither node_modules/.bin nor PATH has the binary', () => {
+    const available: boolean = isCommandAvailable('definitely_not_a_real_command_xyz_2');
+    expect(available).toBe(false);
+  });
+});
+
+// =============================================================================
+// findWorkspaceRoot
+// =============================================================================
+
+describe('findWorkspaceRoot', () => {
+  it('locates the workspace root from the package directory', () => {
+    /* The lint package sits below the repo root; walking upward must surface
+     * the directory containing pnpm-workspace.yaml. */
+    const root: string | null = findWorkspaceRoot(process.cwd());
+    expect(root).not.toBe(null);
+    if (root !== null) {
+      expect(root.endsWith('resist-js-private')).toBe(true);
+    }
+  });
+
+  it('returns null when no marker exists above the start path', () => {
+    const root: string | null = findWorkspaceRoot('/');
+    expect(root).toBe(null);
   });
 });
 

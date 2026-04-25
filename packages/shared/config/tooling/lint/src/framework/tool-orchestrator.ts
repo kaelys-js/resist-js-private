@@ -9,6 +9,8 @@
  */
 
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 
 import * as v from 'valibot';
 
@@ -385,12 +387,44 @@ export function missingToolResult(command: string, file: string): LintResult {
 }
 
 /**
+ * Walk parent directories from `start` looking for a `pnpm-workspace.yaml` file
+ * to identify the workspace root. Returns null when no marker is found before
+ * reaching the filesystem root.
+ *
+ * @param {string} start - Starting directory (typically `process.cwd()`).
+ * @returns {string | null} Workspace root path, or null when not found.
+ */
+export function findWorkspaceRoot(start: string): string | null {
+  let current: string = start;
+  let previous: string = '';
+  while (current !== previous) {
+    if (existsSync(join(current, 'pnpm-workspace.yaml'))) {
+      return current;
+    }
+    previous = current;
+    current = dirname(current);
+  }
+  return null;
+}
+
+/**
  * Check if a command is available on the system.
+ *
+ * Resolution order:
+ * 1. Workspace-local `node_modules/.bin/<command>` (where pnpm hoists package
+ *    binaries) — covers `oxlint`, `tsgo`, `svelte-check`, etc.
+ * 2. Fall back to `which <command>` for system-installed binaries.
  *
  * @param {string} command - Command to check
  * @returns {boolean} Whether the command is available
  */
 export function isCommandAvailable(command: string): boolean {
+  const workspaceRoot: string | null = findWorkspaceRoot(process.cwd());
+  if (workspaceRoot !== null) {
+    if (existsSync(join(workspaceRoot, 'node_modules', '.bin', command))) {
+      return true;
+    }
+  }
   try {
     execFileSync('which', [command], {
       encoding: 'utf8',
