@@ -11,6 +11,7 @@
 import { dirname, join } from 'node:path';
 
 import type { WorkspaceContext, WorkspacePackage } from '@/lint/framework/rule-context.ts';
+import { vscodeRuleInputs } from '@/lint/rules/vscode/_shared-inputs.ts';
 import { createResult, type LintResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 
 /** Rule ID constant. */
@@ -47,6 +48,10 @@ const rule: WorkspaceRule = {
   categories: ['vscode'],
   stages: ['lint', 'ci'],
   fixable: false,
+
+  async inputs(context: unknown): Promise<readonly string[]> {
+    return vscodeRuleInputs(context as WorkspaceContext);
+  },
 
   async check(context: unknown): Promise<LintResult[]> {
     const ctx: WorkspaceContext = context as WorkspaceContext;

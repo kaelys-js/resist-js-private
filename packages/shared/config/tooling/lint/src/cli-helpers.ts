@@ -1678,8 +1678,26 @@ export async function _runLintCore(
         config.exclude,
       );
 
+      /* Per-rule input-fingerprint cache. Rules that declare `inputs(ctx)` get
+       * cached results when their declared file set hasn't changed. Rules
+       * without `inputs` fall through to a normal check() call (unchanged
+       * behavior). Cache key namespace: `workspace:<ruleId>` with synthetic
+       * pkgDir '/' since workspace rules are not package-scoped. */
       const wsResults: LintResult[][] = await Promise.all(
-        wsRules.map((rule: WorkspaceRule): Promise<LintResult[]> => rule.check(wsContext)),
+        wsRules.map(async (rule: WorkspaceRule): Promise<LintResult[]> => {
+          if (rule.inputs && lintCache) {
+            const inputFiles: readonly string[] = await rule.inputs(wsContext);
+            const fp: string = fingerprintFiles(inputFiles);
+            const cached: LintResult[] | null = lintCache.getTool(`workspace:${rule.id}`, '/', fp);
+            if (cached !== null) {
+              return cached;
+            }
+            const results: LintResult[] = await rule.check(wsContext);
+            lintCache.setTool(`workspace:${rule.id}`, '/', fp, results);
+            return results;
+          }
+          return rule.check(wsContext);
+        }),
       );
 
       /* Post-filter: strip results from excluded paths (defense in depth) */

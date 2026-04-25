@@ -615,6 +615,17 @@ export const WorkspaceRuleSchema = v.strictObject({
    * reading, and searching.
    */
   check: v.custom<(context: unknown) => Promise<LintResult[]>>(isFn),
+  /**
+   * Optional declaration of the absolute file paths whose `(path, mtime, size)`
+   * fingerprint determines this rule's output. When declared and the cache is
+   * enabled, the framework computes a fingerprint over these paths and skips
+   * the `check()` call when results were cached for the same fingerprint.
+   *
+   * Only safe for rules whose output is a pure function of these files'
+   * contents. Rules that consult env vars, network, or git state should NOT
+   * declare inputs — they fall through to the uncached path.
+   */
+  inputs: v.optional(v.custom<(context: unknown) => Promise<readonly string[]>>(isFn)),
   /** Whether this rule provides real auto-fixes (not just placeholder no-ops) */
   fixable: v.optional(v.boolean()),
   /** Declares accepted ruleOptions keys and their types (for config validation + IDE autocomplete) */
