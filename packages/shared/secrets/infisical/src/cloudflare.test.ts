@@ -16,7 +16,11 @@ import {
   withValidatedEnv,
 } from './cloudflare';
 
-/** Minimum valid ProductSecrets env object for tests. */
+/**
+ * Minimum valid ProductSecrets env object for tests.
+ *
+ * @returns
+ */
 function makeValidEnv(): Record<string, string> {
   return {
     API_SECRET_KEY: 'a'.repeat(32),
@@ -91,7 +95,9 @@ describe('hasEnvSecret', () => {
     const result = hasEnvSecret(env, 'DATABASE_URL');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
   });
 
   it('should return false for empty string', () => {
@@ -99,7 +105,9 @@ describe('hasEnvSecret', () => {
     const result = hasEnvSecret(env, 'DATABASE_URL');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(false);
+    if (result.ok) {
+      expect(result.data).toBe(false);
+    }
   });
 });
 
@@ -131,7 +139,9 @@ describe('hasRequiredSecrets', () => {
     const result = hasRequiredSecrets(env, ['D1_DATABASE_ID', 'KV_NAMESPACE_ID']);
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(false);
+    if (result.ok) {
+      expect(result.data).toBe(false);
+    }
   });
 
   it('should return true when all keys present and non-empty', () => {
@@ -139,7 +149,9 @@ describe('hasRequiredSecrets', () => {
     const result = hasRequiredSecrets(env, ['D1_DATABASE_ID', 'KV_NAMESPACE_ID']);
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
   });
 
   it('should return error for invalid key names', () => {
@@ -153,7 +165,9 @@ describe('hasRequiredSecrets', () => {
     const result = hasRequiredSecrets(env, ['D1_DATABASE_ID']);
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(false);
+    if (result.ok) {
+      expect(result.data).toBe(false);
+    }
   });
 });
 
@@ -237,7 +251,9 @@ describe('getEnvSecret — success and error paths', () => {
     const result = getEnvSecret(makeValidEnv(), 'D1_DATABASE_ID');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('db-id');
+    if (result.ok) {
+      expect(result.data).toBe('db-id');
+    }
   });
 
   it('returns error for invalid key name', () => {
@@ -263,7 +279,9 @@ describe('hasEnvSecret — additional branches', () => {
     const result = hasEnvSecret(env, 'DATABASE_URL');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(false);
+    if (result.ok) {
+      expect(result.data).toBe(false);
+    }
   });
 
   it('returns error for invalid key (non-string)', () => {
@@ -282,14 +300,18 @@ describe('getEnvSecretOrDefault — success and fallback paths', () => {
     const result = getEnvSecretOrDefault(makeValidEnv(), 'D1_DATABASE_ID', 'fallback');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('db-id');
+    if (result.ok) {
+      expect(result.data).toBe('db-id');
+    }
   });
 
   it('returns default when getEnvSecret fails', () => {
     const result = getEnvSecretOrDefault({ partial: 'data' }, 'D1_DATABASE_ID', 'fallback');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('fallback');
+    if (result.ok) {
+      expect(result.data).toBe('fallback');
+    }
   });
 
   it('returns error for invalid key', () => {

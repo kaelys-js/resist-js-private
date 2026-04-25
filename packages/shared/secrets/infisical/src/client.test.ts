@@ -6,7 +6,7 @@
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { Result } from '@/schemas/result/result';
-import type { Bool, Str, Void } from '@/schemas/common';
+import type { Bool, Void } from '@/schemas/common';
 import type { InfisicalAuthMethod } from '@/schemas/core-config/tooling';
 
 // ---------------------------------------------------------------------------
@@ -47,8 +47,6 @@ const {
   clearClient,
   getAuthMethod,
   isAuthenticated,
-  ClientOptionsSchema,
-  ResolvedOptionsSchema,
   ENV_VARS,
 } = await import('./client');
 const { getConfig } = await import('@/config/loader');
@@ -62,14 +60,14 @@ beforeEach(() => {
   mockListSecrets.mockReset();
   mockGetSecret.mockReset();
   clearClient();
-  delete process.env[ENV_VARS.TOKEN];
-  delete process.env[ENV_VARS.CLIENT_ID];
-  delete process.env[ENV_VARS.CLIENT_SECRET];
-  delete process.env[ENV_VARS.PROJECT_ID];
-  delete process.env[ENV_VARS.ENV];
-  delete process.env[ENV_VARS.CACHE_TTL];
-  delete process.env[ENV_VARS.DEBUG];
-  delete process.env[ENV_VARS.SITE_URL];
+  Reflect.deleteProperty(process.env, ENV_VARS.TOKEN);
+  Reflect.deleteProperty(process.env, ENV_VARS.CLIENT_ID);
+  Reflect.deleteProperty(process.env, ENV_VARS.CLIENT_SECRET);
+  Reflect.deleteProperty(process.env, ENV_VARS.PROJECT_ID);
+  Reflect.deleteProperty(process.env, ENV_VARS.ENV);
+  Reflect.deleteProperty(process.env, ENV_VARS.CACHE_TTL);
+  Reflect.deleteProperty(process.env, ENV_VARS.DEBUG);
+  Reflect.deleteProperty(process.env, ENV_VARS.SITE_URL);
 });
 
 // ---------------------------------------------------------------------------
@@ -83,7 +81,7 @@ describe('resolveOptions', () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data.siteUrl).toBe('http://localhost:8080');
-      expect(result.data.cacheTtl).toBe(300000);
+      expect(result.data.cacheTtl).toBe(300_000);
       expect(result.data.debug).toBe(false);
     }
   });
@@ -125,7 +123,9 @@ describe('getAuthMethod', () => {
     const result: Result<InfisicalAuthMethod> = getAuthMethod();
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('token');
+    if (result.ok) {
+      expect(result.data).toBe('token');
+    }
   });
 
   it('returns machine-identity when client credentials are set', () => {
@@ -134,14 +134,18 @@ describe('getAuthMethod', () => {
     const result: Result<InfisicalAuthMethod> = getAuthMethod();
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('machine-identity');
+    if (result.ok) {
+      expect(result.data).toBe('machine-identity');
+    }
   });
 
   it('returns interactive when no credentials are set', () => {
     const result: Result<InfisicalAuthMethod> = getAuthMethod();
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('interactive');
+    if (result.ok) {
+      expect(result.data).toBe('interactive');
+    }
   });
 });
 
@@ -164,8 +168,9 @@ describe('clearClient', () => {
 describe('createClient', () => {
   it('creates an InfisicalClient with resolved options', () => {
     const resolvedResult = resolveOptions({});
-    if (!resolvedResult.ok) throw new Error('resolveOptions failed');
-
+    if (!resolvedResult.ok) {
+      throw new Error('resolveOptions failed');
+    }
     const result = createClient(resolvedResult.data);
 
     expect(result.ok).toBe(true);
@@ -205,7 +210,9 @@ describe('isAuthenticated', () => {
     const result: Result<Bool> = await isAuthenticated({});
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(false);
+    if (result.ok) {
+      expect(result.data).toBe(false);
+    }
   });
 
   it('returns error when listSecrets throws', async () => {
@@ -232,7 +239,9 @@ describe('isAuthenticated', () => {
     const result: Result<Bool> = await isAuthenticated({});
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
   });
 });
 
@@ -266,7 +275,7 @@ describe('resolveOptions — error branches', () => {
 
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.data.cacheTtl).toBe(60000);
+      expect(result.data.cacheTtl).toBe(60_000);
     }
   });
 
@@ -334,8 +343,9 @@ describe('createClient — branches', () => {
     const resolvedResult = resolveOptions({ accessToken: 'test-token' });
 
     expect(resolvedResult.ok).toBe(true);
-    if (!resolvedResult.ok) return;
-
+    if (!resolvedResult.ok) {
+      return;
+    }
     clearClient();
     mockInfisicalClient.mockClear();
     const result = createClient(resolvedResult.data);
@@ -353,8 +363,9 @@ describe('createClient — branches', () => {
     const resolvedResult = resolveOptions({});
 
     expect(resolvedResult.ok).toBe(true);
-    if (!resolvedResult.ok) return;
-
+    if (!resolvedResult.ok) {
+      return;
+    }
     clearClient();
     mockInfisicalClient.mockClear();
     const result = createClient(resolvedResult.data);
@@ -371,8 +382,9 @@ describe('createClient — branches', () => {
     const resolvedResult = resolveOptions({ debug: true });
 
     expect(resolvedResult.ok).toBe(true);
-    if (!resolvedResult.ok) return;
-
+    if (!resolvedResult.ok) {
+      return;
+    }
     clearClient();
     createClient(resolvedResult.data);
 
