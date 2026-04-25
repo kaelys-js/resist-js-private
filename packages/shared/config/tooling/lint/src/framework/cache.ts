@@ -63,6 +63,10 @@ export const LintCacheSchema = v.strictObject({
   entries: v.record(v.string(), CacheEntrySchema),
   /** Map of `<toolName>|<pkgDir>` → cached tool entry. */
   toolEntries: v.record(v.string(), ToolCacheEntrySchema),
+  /** Aggregate fingerprint of the last-linted file set (path+mtime+size).
+   * When the current invocation's fingerprint matches, we know no input file
+   * has changed and the entire per-file rule loop can be short-circuited. */
+  workspaceFingerprint: v.optional(v.string()),
 });
 
 /** The full lint cache. See {@link LintCacheSchema}. */
@@ -278,6 +282,45 @@ export class LintCache {
   setTool(toolName: string, pkgDir: string, inputHash: string, results: LintResult[]): void {
     const key: string = `${toolName}|${pkgDir}`;
     this.data.toolEntries[key] = { inputHash, results };
+  }
+
+  /**
+   * Get the cached aggregate workspace fingerprint, or null if none stored.
+   *
+   * @returns Hex-encoded fingerprint or null
+   */
+  getWorkspaceFingerprint(): string | null {
+    return this.data.workspaceFingerprint ?? null;
+  }
+
+  /**
+   * Store a new aggregate workspace fingerprint.
+   *
+   * @param fingerprint - Hex-encoded fingerprint of the input file set
+   */
+  setWorkspaceFingerprint(fingerprint: string): void {
+    this.data.workspaceFingerprint = fingerprint;
+  }
+
+  /**
+   * Bulk-fetch cached results for a list of file paths without per-file
+   * content hashing. Caller MUST have already verified the workspace
+   * fingerprint matches — otherwise stale results may be returned.
+   *
+   * Files not present in the cache are silently skipped.
+   *
+   * @param filePaths - Absolute paths to fetch
+   * @returns Concatenated cached results in input order
+   */
+  getAllByPath(filePaths: readonly string[]): LintResult[] {
+    const out: LintResult[] = [];
+    for (const f of filePaths) {
+      const entry: CacheEntry | undefined = this.data.entries[f];
+      if (entry) {
+        out.push(...entry.results);
+      }
+    }
+    return out;
   }
 
   /**
