@@ -10,13 +10,16 @@
  * @module
  */
 
-import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
+import { execFileAsync } from '@/lint/framework/exec.ts';
+
 import {
   type WorkspaceTool,
+  TOOL_CONCURRENCY,
   isCommandAvailable,
+  mapWithConcurrency,
   missingToolResult,
 } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
@@ -145,9 +148,10 @@ export function transformSvelteCheckOutput(output: string): LintResult[] {
  * @param cwd - Workspace root directory
  * @returns Aggregated lint results from all packages
  */
-export function runSvelteCheckAllPackages(cwd: string, files: string[] = []): LintResult[] {
-  const results: LintResult[] = [];
-
+export async function runSvelteCheckAllPackages(
+  cwd: string,
+  files: string[] = [],
+): Promise<LintResult[]> {
   /* Availability check up-front: emit one internal/tool-missing for the whole
    * workspace run rather than N per-package copies. Mirrors the required-aware
    * path in tool-orchestrator.runWorkspaceTool. */
@@ -163,43 +167,49 @@ export function runSvelteCheckAllPackages(cwd: string, files: string[] = []): Li
           files.some((f: string): boolean => f === dir || f.startsWith(`${dir}/`)),
         );
 
-  for (const pkgDir of pkgDirs) {
-    const args: string[] = [
-      '--tsconfig',
-      './tsconfig.json',
-      '--compiler-warnings',
-      'state_referenced_locally:ignore',
-    ];
+  const args: string[] = [
+    '--tsconfig',
+    './tsconfig.json',
+    '--compiler-warnings',
+    'state_referenced_locally:ignore',
+  ];
 
-    try {
-      const output: string = execFileSync('svelte-check', args, {
-        cwd: pkgDir,
-        encoding: 'utf8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-        timeout: 120_000,
-      });
-
-      results.push(...transformSvelteCheckOutput(output));
-    } catch (error: unknown) {
-      const execError = error as { stdout?: string };
-      if (execError.stdout && typeof execError.stdout === 'string') {
-        results.push(...transformSvelteCheckOutput(execError.stdout));
-      } else {
-        const message: string = error instanceof Error ? error.message : String(error);
-        results.push({
-          file: pkgDir,
-          line: 1,
-          column: 1,
-          severity: 'error',
-          message: `svelte-check crashed for ${pkgDir} — type checking was skipped (${message})`,
-          ruleId: 'internal/tool-crash',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+  /* Run svelte-check per package in parallel (bounded by TOOL_CONCURRENCY).
+   * Each cold-start is ~3-5s; serial loop dominated workspace-wide qa:lint. */
+  const perPackage: LintResult[][] = await mapWithConcurrency(
+    pkgDirs,
+    TOOL_CONCURRENCY,
+    async (pkgDir: string): Promise<LintResult[]> => {
+      try {
+        const { stdout } = await execFileAsync('svelte-check', args, {
+          cwd: pkgDir,
+          encoding: 'utf8',
+          timeout: 120_000,
+          maxBuffer: 16 * 1024 * 1024,
         });
+        return transformSvelteCheckOutput(stdout);
+      } catch (error: unknown) {
+        const execError = error as { stdout?: string };
+        if (execError.stdout && typeof execError.stdout === 'string') {
+          return transformSvelteCheckOutput(execError.stdout);
+        }
+        const message: string = error instanceof Error ? error.message : String(error);
+        return [
+          {
+            file: pkgDir,
+            line: 1,
+            column: 1,
+            severity: 'error',
+            message: `svelte-check crashed for ${pkgDir} — type checking was skipped (${message})`,
+            ruleId: 'internal/tool-crash',
+            fix: { range: { start: 0, end: 0 }, text: '' },
+          },
+        ];
       }
-    }
-  }
+    },
+  );
 
-  return results;
+  return perPackage.flat();
 }
 
 /** svelte-check workspace tool definition. */

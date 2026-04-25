@@ -10,6 +10,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
+import { availableParallelism } from 'node:os';
 import { dirname, join } from 'node:path';
 
 import * as v from 'valibot';
@@ -434,4 +435,46 @@ export function isCommandAvailable(command: string): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * Default concurrency cap for parallel tool invocations across packages.
+ * Bounded by available CPU parallelism but never above 8 to prevent
+ * memory pressure when many heavy tools (svelte-check, tsgo) run together.
+ */
+export const TOOL_CONCURRENCY: number = Math.min(availableParallelism(), 8);
+
+/**
+ * Map an array to results in parallel with bounded concurrency.
+ *
+ * Spawns up to `limit` workers; each repeatedly pulls the next index from
+ * a shared cursor. Order of `results` matches input order regardless of
+ * completion order.
+ *
+ * @param items - Items to map
+ * @param limit - Maximum parallel `fn` invocations
+ * @param fn - Async transform applied to each item
+ * @returns Results in input order
+ */
+export async function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  limit: number,
+  fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let cursor: number = 0;
+  const worker = async (): Promise<void> => {
+    while (cursor < items.length) {
+      const idx: number = cursor;
+      cursor += 1;
+      results[idx] = await fn(items[idx]!);
+    }
+  };
+  const workerCount: number = Math.min(limit, items.length);
+  const workers: Array<Promise<void>> = Array.from(
+    { length: workerCount },
+    (): Promise<void> => worker(),
+  );
+  await Promise.all(workers);
+  return results;
 }
