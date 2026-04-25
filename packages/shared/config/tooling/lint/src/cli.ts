@@ -9,9 +9,24 @@
  * @module
  */
 
+import { delimiter, join } from 'node:path';
+
 import { type CliArgs, type CliOutput, parseCliArgs, runLinter } from '@/lint/cli-helpers.ts';
+import { findWorkspaceRoot } from '@/lint/framework/tool-orchestrator.ts';
 import { resolveLocale, type LocaleResult } from '@/lint/locale/registry.ts';
 import { format } from '@/lint/locale/schema.ts';
+
+/* Extend PATH with workspace `node_modules/.bin` so spawned tools (oxlint,
+ * tsgo, svelte-check) installed via pnpm are discoverable by child processes
+ * that look up commands by bare name. Mirrors what `pnpm run` does. */
+const __workspaceRoot: string | null = findWorkspaceRoot(process.cwd());
+if (__workspaceRoot !== null) {
+  const binDir: string = join(__workspaceRoot, 'node_modules', '.bin');
+  const currentPath: string = process.env['PATH'] ?? '';
+  if (!currentPath.split(delimiter).includes(binDir)) {
+    process.env['PATH'] = `${binDir}${delimiter}${currentPath}`;
+  }
+}
 
 // =============================================================================
 // Entry Point
