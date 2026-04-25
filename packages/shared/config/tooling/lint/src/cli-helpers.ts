@@ -1329,11 +1329,12 @@ export async function _runLintCore(
      * paths were passed; otherwise check every package. */
     const scopeFiles: string[] = cliArgs.paths.length > 0 ? allFiles : [];
 
-    /* svelte-check + tsgo run concurrently, each parallel-per-package. */
+    /* svelte-check + tsgo run concurrently, each parallel-per-package, each
+     * with per-package result caching keyed by input fingerprint. */
     let wsResultCount: number = 0;
     const [svelteResults, tsgoResults]: [LintResult[], LintResult[]] = await Promise.all([
-      runSvelteCheckAllPackages(process.cwd(), scopeFiles),
-      runTsgoAllPackages(process.cwd(), scopeFiles),
+      runSvelteCheckAllPackages(process.cwd(), scopeFiles, lintCache),
+      runTsgoAllPackages(process.cwd(), scopeFiles, lintCache),
     ]);
     out.push(...svelteResults);
     wsResultCount += svelteResults.length;

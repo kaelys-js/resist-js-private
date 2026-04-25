@@ -20,7 +20,7 @@ import type { LintResult } from '@/lint/framework/types.ts';
 // =============================================================================
 
 /** Current cache format version. Bump this to invalidate all caches. */
-const CACHE_VERSION: string = '1';
+const CACHE_VERSION: string = '2';
 
 /** Default cache file name. */
 export const CACHE_FILENAME: string = '.resist-lint-cache.json';
@@ -42,6 +42,17 @@ export const CacheEntrySchema = v.strictObject({
 /** A single cache entry. See {@link CacheEntrySchema}. */
 export type CacheEntry = v.InferOutput<typeof CacheEntrySchema>;
 
+/** Schema for a per-tool, per-package cache entry. */
+export const ToolCacheEntrySchema = v.strictObject({
+  /** Aggregate hash of all input files (path + mtime + size). */
+  inputHash: v.string(),
+  /** Cached lint results from this tool for this package. */
+  results: v.custom<LintResult[]>((val: unknown): boolean => Array.isArray(val)),
+});
+
+/** A single tool cache entry. See {@link ToolCacheEntrySchema}. */
+export type ToolCacheEntry = v.InferOutput<typeof ToolCacheEntrySchema>;
+
 /** Schema for the full lint cache file. */
 export const LintCacheSchema = v.strictObject({
   /** Cache format version. */
@@ -50,6 +61,8 @@ export const LintCacheSchema = v.strictObject({
   ruleHash: v.string(),
   /** Map of file path → cached entry. */
   entries: v.record(v.string(), CacheEntrySchema),
+  /** Map of `<toolName>|<pkgDir>` → cached tool entry. */
+  toolEntries: v.record(v.string(), ToolCacheEntrySchema),
 });
 
 /** The full lint cache. See {@link LintCacheSchema}. */
@@ -133,7 +146,13 @@ export class LintCache {
         return LintCache.empty(ruleHash);
       }
 
-      return new LintCache(parsed as LintCacheData);
+      /* Migrate older shapes that lack toolEntries (defensive — CACHE_VERSION
+       * bump should already invalidate, but be tolerant). */
+      const data: LintCacheData = parsed as LintCacheData;
+      if (!data.toolEntries) {
+        data.toolEntries = {};
+      }
+      return new LintCache(data);
     } catch {
       return LintCache.empty(ruleHash);
     }
@@ -150,6 +169,7 @@ export class LintCache {
       version: CACHE_VERSION,
       ruleHash,
       entries: {},
+      toolEntries: {},
     });
   }
 
@@ -220,6 +240,44 @@ export class LintCache {
       mtime: Date.now(),
       results,
     };
+  }
+
+  /**
+   * Get cached results for a tool's run on a package.
+   *
+   * Returns null if no entry exists OR the input fingerprint differs.
+   *
+   * @param toolName - Tool identifier (e.g. 'svelte-check', 'tsgo')
+   * @param pkgDir - Absolute package directory the tool ran in
+   * @param inputHash - Fingerprint of the package's input file set
+   * @returns Cached results, or null on miss
+   */
+  getTool(toolName: string, pkgDir: string, inputHash: string): LintResult[] | null {
+    const key: string = `${toolName}|${pkgDir}`;
+    const entry: ToolCacheEntry | undefined = this.data.toolEntries[key];
+    if (!entry) {
+      this.missCount++;
+      return null;
+    }
+    if (entry.inputHash !== inputHash) {
+      this.missCount++;
+      return null;
+    }
+    this.hitCount++;
+    return entry.results;
+  }
+
+  /**
+   * Update the cache with a tool's results for a package.
+   *
+   * @param toolName - Tool identifier
+   * @param pkgDir - Absolute package directory
+   * @param inputHash - Fingerprint of the input file set
+   * @param results - Tool diagnostics for this package
+   */
+  setTool(toolName: string, pkgDir: string, inputHash: string, results: LintResult[]): void {
+    const key: string = `${toolName}|${pkgDir}`;
+    this.data.toolEntries[key] = { inputHash, results };
   }
 
   /**
