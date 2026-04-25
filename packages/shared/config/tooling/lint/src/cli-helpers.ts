@@ -1581,6 +1581,19 @@ export async function _runLintCore(
     }
     try {
       const raw: string = pkgResult.value;
+
+      /* Per-file content-hash cache for package.json rule results.
+       * Same cache mechanism the TypeScript file rules use — keyed by
+       * (path, content hash). Skips JSON.parse + rule execution on hit.
+       * Push to allResults directly (cachedResults has already been merged). */
+      if (lintCache) {
+        const cached: LintResult[] | null = lintCache.get(pkgPath, raw);
+        if (cached) {
+          allResults.push(...cached);
+          continue;
+        }
+      }
+
       const pkg: PackageJson = JSON.parse(raw) as PackageJson;
       const isRoot: boolean = resolve(pkgPath) === workspaceRootPkg;
 
@@ -1589,7 +1602,18 @@ export async function _runLintCore(
         (rule: PackageJsonRule): boolean => resolveRuleSeverity(config, rule.id, pkgPath) !== 'off',
       );
 
-      allResults.push(...runPkgRules(pkgPath, pkg, isRoot, applicablePkgRules, config.ruleOptions));
+      const pkgResults: LintResult[] = runPkgRules(
+        pkgPath,
+        pkg,
+        isRoot,
+        applicablePkgRules,
+        config.ruleOptions,
+      );
+      allResults.push(...pkgResults);
+
+      if (lintCache) {
+        lintCache.set(pkgPath, raw, pkgResults);
+      }
     } catch {
       /* skip unreadable */
     }
