@@ -20,8 +20,6 @@ describe('defaults module-level throw', () => {
       }),
     }));
 
-    await expect(async () => import('./defaults')).rejects.toThrow(
-      'Default config validation failed',
-    );
+    await expect(() => import('./defaults')).rejects.toThrow('Default config validation failed');
   });
 });
