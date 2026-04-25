@@ -1,12 +1,9 @@
 import * as v from 'valibot';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { StrSchema, NumSchema } from '@/schemas/common';
-import type { Str } from '@/schemas/common';
-import { ERRORS, ok, err } from '@/schemas/result/result';
-import type { Result } from '@/schemas/result/result';
+import { StrSchema, NumSchema, type Str } from '@/schemas/common';
+import { ERRORS, ok, err, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
-import { messageTemplate, renderMessage, buildLocale } from './template';
-import type { FormatterMap } from './template';
+import { messageTemplate, renderMessage, buildLocale, type FormatterMap } from './template';
 
 // =============================================================================
 // messageTemplate
@@ -1578,7 +1575,9 @@ describe('buildLocale — resolver key-not-found and key-not-callable', () => {
 
     const buildResult = buildLocale(Schema, raw);
     expect(buildResult.ok).toBe(true);
-    if (!buildResult.ok) return;
+    if (!buildResult.ok) {
+      return;
+    }
 
     const built = buildResult.data as unknown as Record<
       string,
@@ -1599,7 +1598,9 @@ describe('buildLocale — resolver key-not-found and key-not-callable', () => {
 
     const buildResult = buildLocale(Schema, raw);
     expect(buildResult.ok).toBe(true);
-    if (!buildResult.ok) return;
+    if (!buildResult.ok) {
+      return;
+    }
 
     const built = buildResult.data as unknown as Record<
       string,
@@ -1648,7 +1649,9 @@ describe('buildLocale — getSchemaEntries pipe and intersect branches', () => {
 
     const result = buildLocale(PipedSchema, raw);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as Record<string, () => { ok: boolean; data?: string }>;
     const greetResult = built.greeting!();
@@ -1666,7 +1669,9 @@ describe('buildLocale — getSchemaEntries pipe and intersect branches', () => {
 
     const result = buildLocale(IntersectedSchema, raw);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as Record<string, () => { ok: boolean; data?: string }>;
     expect(built.greeting!().ok).toBe(true);
@@ -1806,14 +1811,16 @@ describe('buildLocale — custom formatters', () => {
     const raw = { greeting: '{name|reverse}' };
     const customFormatters = {
       reverse: (value: string) => {
-        const reversed = value.split('').reverse().join('');
+        const reversed = [...value].toReversed().join('');
         return ok(StrSchema, reversed as Str);
       },
     } as unknown as FormatterMap;
 
     const result = buildLocale(Schema, raw, undefined, 'en', customFormatters);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as Record<
       string,
@@ -1921,7 +1928,9 @@ describe('buildLocale — array context with mixed item types', () => {
 
     const result = buildLocale(Schema, raw, context);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as { items: unknown[] };
     // String items in array are not objects, so they pass through as-is
@@ -1937,7 +1946,9 @@ describe('buildLocale — array context with mixed item types', () => {
 
     const result = buildLocale(Schema, raw, context);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as { items: Array<{ label: string; count: number }> };
     expect(built.items).toHaveLength(1);
@@ -1958,7 +1969,9 @@ describe('buildLocale — parameterized template with non-string rawValue', () =
 
     const buildResult = buildLocale(Schema, raw);
     expect(buildResult.ok).toBe(true);
-    if (!buildResult.ok) return;
+    if (!buildResult.ok) {
+      return;
+    }
 
     const built = buildResult.data as unknown as Record<
       string,
@@ -2098,7 +2111,9 @@ describe('buildLocale — resolver dot-path intermediate not an object', () => {
 
     const buildResult = buildLocale(Schema, raw);
     expect(buildResult.ok).toBe(true);
-    if (!buildResult.ok) return;
+    if (!buildResult.ok) {
+      return;
+    }
 
     const built = buildResult.data as unknown as Record<
       string,
@@ -2126,7 +2141,9 @@ describe('buildLocale — context substitution failure fallback', () => {
 
     const result = buildLocale(Schema, raw, context as unknown as Record<string, unknown>);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     // The function should still be callable, returning the raw template as fallback
     const built = result.data as unknown as Record<string, () => { ok: boolean; data?: string }>;
@@ -2155,7 +2172,9 @@ describe('buildLocale — array element render failure', () => {
 
     const result = buildLocale(Schema, raw, context as unknown as Record<string, unknown>);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as { items: unknown[] };
     // The array element mapping should have returned the error result
@@ -2255,7 +2274,7 @@ describe('renderMessage — date/time edge cases', () => {
 describe('renderMessage — number skeleton and style edge cases', () => {
   it('renders number with style that follows the skeleton path', () => {
     // Test the styleArg branch (non-skeleton, non-unknown style)
-    const result = renderMessage('{n, number, compact}', { n: 50000 }, 'en-US');
+    const result = renderMessage('{n, number, compact}', { n: 50_000 }, 'en-US');
     expect(result.ok).toBe(true);
     if (result.ok) {
       // compact notation
@@ -2291,7 +2310,9 @@ describe('buildLocale — getSchemaEntries intersect with non-object options', (
 
     const result = buildLocale(IntersectedSchema, raw);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as Record<string, () => { ok: boolean; data?: string }>;
     const greetResult = built.greeting!();
@@ -2320,7 +2341,9 @@ describe('buildLocale — getSchemaEntries pipe with nested object entries', () 
 
     const result = buildLocale(PipedSchema, raw, undefined, 'en-US');
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as {
       msg: () => { ok: boolean; data?: string };
@@ -2384,7 +2407,9 @@ describe('buildLocale — resolver key-is-callable vs key-not-callable', () => {
 
     const buildResult = buildLocale(Schema, raw);
     expect(buildResult.ok).toBe(true);
-    if (!buildResult.ok) return;
+    if (!buildResult.ok) {
+      return;
+    }
 
     const built = buildResult.data as unknown as {
       brand: () => { ok: boolean; data?: string };
@@ -2406,7 +2431,9 @@ describe('buildLocale — resolver key-is-callable vs key-not-callable', () => {
 
     const buildResult = buildLocale(Schema, raw);
     expect(buildResult.ok).toBe(true);
-    if (!buildResult.ok) return;
+    if (!buildResult.ok) {
+      return;
+    }
 
     const built = buildResult.data as unknown as Record<
       string,
@@ -2521,7 +2548,9 @@ describe('buildLocale — array context non-string field passthrough', () => {
 
     const result = buildLocale(Schema, raw, context);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as {
       items: Array<{ label: string; enabled: boolean; count: number }>;
@@ -2550,7 +2579,9 @@ describe('buildLocale — parameterized template renderMessage error propagation
 
     const buildResult = buildLocale(Schema, raw);
     expect(buildResult.ok).toBe(true);
-    if (!buildResult.ok) return;
+    if (!buildResult.ok) {
+      return;
+    }
 
     const built = buildResult.data as unknown as Record<
       string,
@@ -2692,7 +2723,9 @@ describe('buildLocale — nested schema entry error propagation', () => {
     // This should succeed — nested build works fine
     const result = buildLocale(Schema, raw);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as {
       errors: {
@@ -2868,7 +2901,9 @@ describe('buildLocale — custom formatters in message ref resolution', () => {
 
     const result = buildLocale(Schema, raw, undefined, 'en', customFormatters);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as {
       welcome: (params: Record<string, unknown>) => { ok: boolean; data?: string };
@@ -2900,7 +2935,9 @@ describe('buildLocale — pipe schema with check actions (non-object items in pi
 
     const result = buildLocale(PipedSchema, raw);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as Record<string, () => { ok: boolean; data?: string }>;
     expect(built.msg!().ok).toBe(true);
@@ -2928,7 +2965,9 @@ describe('buildLocale — deeply nested with message refs across levels', () => 
 
     const result = buildLocale(Schema, raw);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as {
       common: { brand: () => { ok: boolean; data?: string } };
@@ -2957,7 +2996,9 @@ describe('buildLocale — array without context passes through', () => {
 
     const result = buildLocale(Schema, raw);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const built = result.data as unknown as { tags: string[] };
     expect(built.tags).toEqual(['tag1', 'tag2']);
