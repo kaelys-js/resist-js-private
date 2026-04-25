@@ -619,7 +619,7 @@
       }
     },
     {
-      "files": ["**/app.d.ts"],
+      "files": ["**/app.d.ts", "**/env.d.ts"],
       "rules": {
         "typescript/consistent-type-definitions": "off",
         "unicorn/require-module-specifiers": "off"

@@ -9,7 +9,12 @@
 
 import { createResult, type LintResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
-import { discoverPlanFiles, parsePlan, type PlanTask, type TaskStatus } from '@/lint/rules/plans/plan-parser.ts';
+import {
+  discoverPlanFiles,
+  parsePlan,
+  type PlanTask,
+  type TaskStatus,
+} from '@/lint/rules/plans/plan-parser.ts';
 
 /** Rule ID constant. */
 const RULE_ID: string = 'plans/status-dependency-order';

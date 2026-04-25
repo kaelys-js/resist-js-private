@@ -16,7 +16,7 @@ import {
   type Void,
 } from '@/schemas/common';
 import type { BreadcrumbLevel } from '@/schemas/result/captured-error';
-import { type AppError, type Result, ok, err, ERRORS } from '@/schemas/result/result';
+import { type AppError, type Result, ok } from '@/schemas/result/result';
 import { addBreadcrumb } from '@/utils/result/breadcrumbs';
 import { safeParse, fromUnknownError } from '@/utils/result/safe';
 
@@ -26,15 +26,6 @@ import { safeParse, fromUnknownError } from '@/utils/result/safe';
 
 /** Original fetch reference, saved for teardown. */
 let originalFetch: typeof globalThis.fetch | null = null; // cast safe: nullable state for lazy init
-
-/** Default fetch endpoints to skip (avoids recursion with beacon endpoint). */
-const DEFAULT_SKIP_URLS: readonly Str[] = ['/api/errors'];
-
-/** Schema for initFetchBreadcrumbs options. */
-const FetchBreadcrumbOptionsSchema = v.strictObject({
-  /** URL substrings to skip breadcrumb recording for. */
-  skipUrls: v.optional(v.array(StrSchema), ['/api/errors']),
-});
 
 // =============================================================================
 // Helpers
@@ -47,11 +38,17 @@ const FetchBreadcrumbOptionsSchema = v.strictObject({
  * @returns {Result<Str>} The URL as a string.
  */
 function extractUrl(input: RequestInfo | URL): Result<Str> {
-  if (typeof input === 'string') return ok(StrSchema, input);
+  if (typeof input === 'string') {
+    return ok(StrSchema, input);
+  }
 
-  if (input instanceof URL) return ok(StrSchema, input.pathname);
+  if (input instanceof URL) {
+    return ok(StrSchema, input.pathname);
+  }
 
-  if (input instanceof Request) return ok(StrSchema, input.url);
+  if (input instanceof Request) {
+    return ok(StrSchema, input.url);
+  }
 
   return ok(StrSchema, '(unknown)');
 }
@@ -64,9 +61,13 @@ function extractUrl(input: RequestInfo | URL): Result<Str> {
  * @returns {Result<Str>} The HTTP method (defaults to 'GET').
  */
 function extractMethod(input: RequestInfo | URL, init: RequestInit | undefined): Result<Str> {
-  if (init?.method) return ok(StrSchema, init.method.toUpperCase());
+  if (init?.method) {
+    return ok(StrSchema, init.method.toUpperCase());
+  }
 
-  if (input instanceof Request) return ok(StrSchema, input.method.toUpperCase());
+  if (input instanceof Request) {
+    return ok(StrSchema, input.method.toUpperCase());
+  }
 
   return ok(StrSchema, 'GET');
 }
@@ -100,11 +101,15 @@ function extractMethod(input: RequestInfo | URL, init: RequestInit | undefined):
 export function addNavigationBreadcrumb(from: NullableStr, to: Str): Result<Void> {
   const fromResult: Result<NullableStr> = safeParse(NullableStrSchema, from);
 
-  if (!fromResult.ok) return fromResult;
+  if (!fromResult.ok) {
+    return fromResult;
+  }
 
   const toResult: Result<Str> = safeParse(StrSchema, to);
 
-  if (!toResult.ok) return toResult;
+  if (!toResult.ok) {
+    return toResult;
+  }
 
   const fromLabel: Str = (fromResult.data ?? '(initial)') as Str; // cast safe: string concatenation
 
@@ -145,7 +150,9 @@ export function addNavigationBreadcrumb(from: NullableStr, to: Str): Result<Void
 export function initFetchBreadcrumbs(skipUrls: readonly Str[]): Result<Void> {
   const skipUrlsResult: Result<readonly Str[]> = safeParse(v.array(StrSchema), skipUrls);
 
-  if (!skipUrlsResult.ok) return skipUrlsResult;
+  if (!skipUrlsResult.ok) {
+    return skipUrlsResult;
+  }
 
   // Already initialized — skip
   if (originalFetch !== null) {
@@ -162,11 +169,15 @@ export function initFetchBreadcrumbs(skipUrls: readonly Str[]): Result<Void> {
   ): Promise<Response> => {
     const urlResult: Result<Str> = extractUrl(input);
 
-    if (!urlResult.ok) return original(input, init);
+    if (!urlResult.ok) {
+      return original(input, init);
+    }
 
     const methodResult: Result<Str> = extractMethod(input, init);
 
-    if (!methodResult.ok) return original(input, init);
+    if (!methodResult.ok) {
+      return original(input, init);
+    }
 
     const url: Str = urlResult.data;
     const method: Str = methodResult.data;
@@ -202,7 +213,7 @@ export function initFetchBreadcrumbs(skipUrls: readonly Str[]): Result<Void> {
       });
 
       // integration boundary: fetch API contract requires throw on network errors
-      throw new Error(cause.message, { cause });
+      throw new Error(cause.message, { cause: error });
     }
   };
 

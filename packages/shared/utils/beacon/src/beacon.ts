@@ -44,11 +44,15 @@ import { toBeaconPayload, type BeaconPayload } from '@/utils/beacon/beacon-paylo
 export function beaconError(captured: CapturedError, endpoint: Str): Result<Void> {
   const capturedResult: Result<CapturedError> = safeParse(CapturedErrorSchema, captured);
 
-  if (!capturedResult.ok) return capturedResult;
+  if (!capturedResult.ok) {
+    return capturedResult;
+  }
 
   const endpointResult: Result<Str> = safeParse(StrSchema, endpoint);
 
-  if (!endpointResult.ok) return endpointResult;
+  if (!endpointResult.ok) {
+    return endpointResult;
+  }
 
   // Skip in dev mode — no need to beacon during development
   if (import.meta.env.DEV) {

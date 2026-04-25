@@ -14,7 +14,7 @@
 
 import * as v from 'valibot';
 
-import { IsoTimestampSchema, SemverSchema, UuidSchema, type Str } from '@/schemas/common';
+import { IsoTimestampSchema, SemverSchema, UuidSchema } from '@/schemas/common';
 import {
   type CapturedError,
   CapturedErrorSchema,
@@ -126,11 +126,15 @@ export type BeaconPayload = v.InferOutput<typeof BeaconPayloadSchema>;
 export function toBeaconPayload(captured: CapturedError): Result<BeaconPayload> {
   const capturedResult: Result<CapturedError> = safeParse(CapturedErrorSchema, captured);
 
-  if (!capturedResult.ok) return capturedResult;
+  if (!capturedResult.ok) {
+    return capturedResult;
+  }
 
   const safeError: Result<AppError> = formatErrorSafe(capturedResult.data.error as AppError); // cast safe: CapturedError.error is AppError after validation
 
-  if (!safeError.ok) return safeError;
+  if (!safeError.ok) {
+    return safeError;
+  }
 
   // cast safe: all fields validated by CapturedErrorSchema + formatErrorSafe above
   const payload: BeaconPayload = {

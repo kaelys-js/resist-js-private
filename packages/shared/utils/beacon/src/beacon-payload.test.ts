@@ -203,7 +203,9 @@ describe('toBeaconPayload', () => {
 
     const result: Result<BeaconPayload> = toBeaconPayload(captured);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     // PII stripped from error
     expect(result.data.error.message).toBe('INTERNAL.UNEXPECTED');
@@ -238,7 +240,9 @@ describe('toBeaconPayload', () => {
 
     const result: Result<BeaconPayload> = toBeaconPayload(captured);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     expect(result.data.breadcrumbs).toEqual(breadcrumbs);
     expect(result.data.tags).toEqual(tags);
@@ -257,7 +261,9 @@ describe('toBeaconPayload', () => {
 
     const result: Result<BeaconPayload> = toBeaconPayload(captured);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     expect(result.data.error.code).toBe('INTERNAL.UNEXPECTED');
     expect(result.data.error.severity).toBe('error');
@@ -269,7 +275,9 @@ describe('toBeaconPayload', () => {
     const captured: CapturedError = makeCaptured();
     const result: Result<BeaconPayload> = toBeaconPayload(captured);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const validated: Result<BeaconPayload> = safeParse(BeaconPayloadSchema, result.data);
     expect(validated.ok).toBe(true);
@@ -279,7 +287,9 @@ describe('toBeaconPayload', () => {
     const captured: CapturedError = makeCaptured();
     const result: Result<BeaconPayload> = toBeaconPayload(captured);
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     // Should have all required fields
     expect(result.data.id).toBeDefined();
