@@ -28,6 +28,7 @@ import { en } from '@/lint/locale/locales/en.ts';
 
 function makeCliArgs(overrides: Partial<CliArgs> = {}): CliArgs {
   return {
+    packageNames: [],
     paths: [],
     json: false,
     listRules: false,

@@ -369,6 +369,19 @@ expect_output "$QA" "cd packages/shared/locale; pnpm qa:lint" '"deny"' "pre-qa-c
 expect_allow "$QA" "pnpm -w run qa:test" "pre-qa-commands.sh allows pnpm -w run qa:test"
 expect_allow "$QA" "pnpm -w run qa:lint --tools" "pre-qa-commands.sh allows pnpm -w run qa:lint"
 
+# pre-qa-commands.sh: pipe-filter on qa:lint is denied (plan 2026-04-24-lint-scope-and-grep-block TASK 3)
+expect_output "$QA" "pnpm -w run qa:lint | grep foo" '"deny"' "pre-qa-commands.sh blocks qa:lint | grep"
+expect_output "$QA" "pnpm -w run qa:lint 2>&1 | head" '"deny"' "pre-qa-commands.sh blocks qa:lint 2>&1 | head"
+expect_output "$QA" "pnpm -w run qa:lint | tail -20" '"deny"' "pre-qa-commands.sh blocks qa:lint | tail"
+expect_output "$QA" "pnpm -w run qa:lint | wc -l" '"deny"' "pre-qa-commands.sh blocks qa:lint | wc"
+expect_output "$QA" "pnpm -w run qa:lint | awk {print}" '"deny"' "pre-qa-commands.sh blocks qa:lint | awk"
+
+# pre-qa-commands.sh: pipe-filter exemptions and scoped invocations
+expect_allow "$QA" "pnpm -w run qa:lint packages/x" "pre-qa-commands.sh allows scoped qa:lint path"
+expect_allow "$QA" "pnpm -w run qa:lint --package @/lint" "pre-qa-commands.sh allows qa:lint --package"
+expect_allow "$QA" "pnpm -w run qa:lint | tee out.log" "pre-qa-commands.sh allows qa:lint | tee"
+expect_allow "$QA" "pnpm -w run qa:format | grep something" "pre-qa-commands.sh allows qa:format | grep (rule is qa:lint-specific)"
+
 # pre-lint-rule-edit.sh: should ask for lint rule files
 run_hook "$HOOKS_DIR/pre-lint-rule-edit.sh" "{\"tool_input\":{\"file_path\":\"$REPO_ROOT/packages/shared/config/tooling/lint/src/rules/typescript/no-throw.ts\"}}"
 if echo "$HOOK_STDERR" | grep -q '"ask"'; then

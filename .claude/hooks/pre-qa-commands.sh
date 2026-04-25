@@ -16,4 +16,12 @@ if echo "$CMD" | grep -qE "^cd [^;]+&&.*qa:|^cd [^;]+;.*qa:|^cd [^;]+&&.*vitest|
   exit 0
 fi
 
+# Block: piping qa:lint output through grep/head/tail/awk/sed/wc.
+# The custom linter accepts path/--package args for scoped runs — use those
+# instead of post-filtering with grep loops. Allow | cat and | tee for log capture.
+if echo "$CMD" | grep -qE "qa:lint([^|]*)\|[[:space:]]*(grep|head|tail|awk|sed|wc)\b"; then
+  echo '{"decision":"deny","message":"Do not pipe qa:lint through grep/head/tail/awk/sed/wc. Use the scoped form instead: pnpm -w run qa:lint <path-or-package>. Workspace-level rules are auto-skipped when a path is passed."}'
+  exit 0
+fi
+
 exit 0

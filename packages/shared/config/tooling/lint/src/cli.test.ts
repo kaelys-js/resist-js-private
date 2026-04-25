@@ -99,6 +99,7 @@ function runCli(args: string[]): Promise<CliResult> {
  */
 function makeCliArgs(overrides: Partial<CliArgs> = {}): CliArgs {
   return {
+    packageNames: [],
     paths: [],
     json: false,
     listRules: false,

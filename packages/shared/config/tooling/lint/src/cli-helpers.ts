@@ -9,11 +9,12 @@
  */
 
 import { execSync } from 'node:child_process';
-import { type Dirent, writeFileSync } from 'node:fs';
+import { type Dirent, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { extname, join, relative, resolve } from 'node:path';
 
 import * as v from 'valibot';
+import { findWorkspaceRoot } from '@/lint/framework/tool-orchestrator.ts';
 import {
   generateJsonSchema,
   type LintConfig,
@@ -81,7 +82,9 @@ export const CliArgsSchema = v.strictObject({
   listRules: v.boolean(),
   /** Locale code for user-facing messages (e.g., 'en'). Undefined = default ('en'). */
   locale: v.optional(v.string()),
-  /** Positional path arguments. */
+  /** Package-name shorthand resolved to absolute paths via `--package <name>` flag. */
+  packageNames: v.array(v.string()),
+  /** Positional path arguments (includes paths resolved from `--package` flags). */
   paths: v.array(v.string()),
   /** Whether to suppress warning-level output (show errors only). */
   quiet: v.boolean(),
@@ -124,8 +127,40 @@ export type CliOutput = v.InferOutput<typeof CliOutputSchema>;
  * @returns {CliArgs} Parsed CLI arguments
  */
 export function parseCliArgs(argv: string[]): CliArgs {
-  const flags: string[] = argv.filter((a: string): boolean => a.startsWith('-'));
-  const paths: string[] = argv.filter((a: string): boolean => !a.startsWith('-'));
+  /* Extract --package <name> (space-form) and --package=<name> (eq-form) flags
+   * before the simple flag/positional split, since space-form consumes the next
+   * argv entry which would otherwise be misclassified as a positional path. */
+  const packageNames: string[] = [];
+  const consumed: Set<number> = new Set<number>();
+  for (let i: number = 0; i < argv.length; i++) {
+    const a: string = argv[i] ?? '';
+    if (a === '--package' && i + 1 < argv.length) {
+      packageNames.push(argv[i + 1] ?? '');
+      consumed.add(i);
+      consumed.add(i + 1);
+    } else if (a.startsWith('--package=')) {
+      packageNames.push(a.slice('--package='.length));
+      consumed.add(i);
+    }
+  }
+  const filteredArgv: string[] = argv.filter((_: string, i: number): boolean => !consumed.has(i));
+  const flags: string[] = filteredArgv.filter((a: string): boolean => a.startsWith('-'));
+  const paths: string[] = filteredArgv.filter((a: string): boolean => !a.startsWith('-'));
+
+  /* Resolve --package names to absolute paths and append to paths.
+   * Errors with the list of valid package names if a name doesn't resolve. */
+  if (packageNames.length > 0) {
+    const root: string = findWorkspaceRoot(process.cwd()) ?? process.cwd();
+    const pkgMap: ReadonlyMap<string, string> = getPackageMap(root);
+    for (const name of packageNames) {
+      const dir: string | undefined = pkgMap.get(name);
+      if (dir === undefined) {
+        const valid: string = [...pkgMap.keys()].sort().join(', ');
+        throw new Error(`Unknown --package: ${name}. Valid packages: ${valid}`);
+      }
+      paths.push(dir);
+    }
+  }
 
   const ruleFlag: string | undefined = flags.find((f: string): boolean => f.startsWith('--rule='));
   const ruleIds: string[] = ruleFlag ? (ruleFlag.split('=')[1] ?? '').split(',') : [];
@@ -198,6 +233,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
     json: flags.includes('--json'),
     listRules: flags.includes('--list-rules'),
     locale,
+    packageNames,
     paths,
     quiet: flags.includes('--quiet'),
     ruleIds,
@@ -237,6 +273,137 @@ function parseFormatFlag(
     return value as 'text' | 'json' | 'sarif' | 'github' | 'junit' | 'compact';
   }
   return 'text';
+}
+
+// =============================================================================
+// Package Resolution (--package <name>)
+// =============================================================================
+
+/** Process-level cache mapping workspace root → package-name → absolute dir. */
+const _packageMapCache: Map<string, Map<string, string>> = new Map<string, Map<string, string>>();
+
+/**
+ * Build (and cache) a map from workspace package names to their absolute
+ * directories by walking `<root>/packages/**` and reading each `package.json`'s
+ * `name` field. Walks pnpm-style monorepo layout. Skips `node_modules` and dot dirs.
+ *
+ * @param workspaceRoot - Absolute path to the workspace root (where pnpm-workspace.yaml lives)
+ * @returns Map of package name → absolute directory containing that package's package.json
+ */
+export function getPackageMap(workspaceRoot: string): ReadonlyMap<string, string> {
+  const cached: Map<string, string> | undefined = _packageMapCache.get(workspaceRoot);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const map: Map<string, string> = new Map<string, string>();
+  const walk = (dir: string): void => {
+    let entries: Dirent[];
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        if (entry.name === 'node_modules' || entry.name.startsWith('.')) {
+          continue;
+        }
+        walk(join(dir, entry.name));
+      } else if (entry.name === 'package.json') {
+        try {
+          const content: string = readFileSync(join(dir, 'package.json'), 'utf8');
+          const pkg: { name?: string } = JSON.parse(content) as { name?: string };
+          if (typeof pkg.name === 'string' && pkg.name.length > 0) {
+            map.set(pkg.name, dir);
+          }
+        } catch {
+          /* skip unreadable / unparseable */
+        }
+      }
+    }
+  };
+  walk(join(workspaceRoot, 'packages'));
+  _packageMapCache.set(workspaceRoot, map);
+  return map;
+}
+
+// =============================================================================
+// Path / Domain Scoping
+// =============================================================================
+
+/**
+ * Map from workspace-rule ID prefix to the path-domain that rule scans.
+ * Only workspace rules with an entry here are eligible for path-scoped skipping;
+ * rules without a declared domain are treated as truly global and run always.
+ *
+ * Domains are repo-relative directory prefixes (no leading `./`, no trailing `/`).
+ */
+const WORKSPACE_RULE_DOMAINS: ReadonlyArray<{ prefix: string; domain: string }> = [
+  { prefix: 'plans/', domain: 'docs/plans' },
+];
+
+/**
+ * Look up the declared domain for a workspace-rule ID, or null if the rule
+ * has no declared domain (truly global, runs unconditionally).
+ *
+ * @param ruleId - Workspace-rule ID (e.g. `plans/no-incomplete-tasks`)
+ * @returns Repo-relative domain prefix, or `null` if global
+ */
+function ruleDomainFor(ruleId: string): string | null {
+  for (const entry of WORKSPACE_RULE_DOMAINS) {
+    if (ruleId.startsWith(entry.prefix)) {
+      return entry.domain;
+    }
+  }
+  return null;
+}
+
+/**
+ * Determine whether at least one of the user-passed paths intersects a
+ * rule's declared domain. Intersection is a two-way prefix check: either the
+ * path is inside the domain (e.g. path=`docs/plans/foo.md`, domain=`docs/plans`),
+ * or the domain is inside the path (e.g. path=`docs`, domain=`docs/plans`).
+ *
+ * Path normalization: leading `./` is stripped; trailing `/` is stripped.
+ *
+ * @param paths - User-passed positional paths (repo-relative or absolute)
+ * @param domain - Repo-relative domain prefix
+ * @returns `true` if any path intersects the domain
+ */
+export function pathsIntersectDomain(paths: readonly string[], domain: string): boolean {
+  const normDomain: string = domain.replace(/^\.\//, '').replace(/\/+$/, '');
+  for (const raw of paths) {
+    const norm: string = raw.replace(/^\.\//, '').replace(/\/+$/, '');
+    if (norm === normDomain) {
+      return true;
+    }
+    if (norm.startsWith(`${normDomain}/`)) {
+      return true;
+    }
+    if (normDomain.startsWith(`${norm}/`)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Decide whether a workspace rule should run given the user's path scope.
+ * Returns `true` always when no paths were passed (full-workspace mode).
+ *
+ * @param ruleId - Workspace-rule ID
+ * @param paths - User-passed positional paths
+ * @returns `true` if the rule should run, `false` if it should be skipped
+ */
+export function shouldRunWorkspaceRule(ruleId: string, paths: readonly string[]): boolean {
+  if (paths.length === 0) {
+    return true;
+  }
+  const domain: string | null = ruleDomainFor(ruleId);
+  if (domain === null) {
+    return true;
+  }
+  return pathsIntersectDomain(paths, domain);
 }
 
 // =============================================================================
@@ -813,6 +980,7 @@ ${format(t.cli.usageListRules, n)}
 
 ${t.cli.optionsHeader}
   ${t.flags.paths}
+  --package <name>          Lint only the named workspace package (e.g. --package @/lint). Repeatable.
   ${t.flags.rule}
   ${t.flags.category}
   ${t.flags.stage}
@@ -1381,6 +1549,15 @@ export async function _runLintCore(
     if (cliArgs.ruleIds.length === 0) {
       wsRules = wsRules.filter((r: WorkspaceRule): boolean => isRuleEnabledAnywhere(config, r.id));
     }
+
+    /* Path-domain scoping: when the user passes explicit paths (e.g.
+     * `qa:lint packages/shared/config/core`), skip workspace rules whose
+     * domain doesn't intersect those paths. Each rule ID's domain is
+     * declared in WORKSPACE_RULE_DOMAINS above. Rules without a declared
+     * domain run unconditionally (they're treated as truly global). */
+    wsRules = wsRules.filter((r: WorkspaceRule): boolean =>
+      shouldRunWorkspaceRule(r.id, cliArgs.paths),
+    );
 
     if (wsRules.length > 0) {
       dbg(format(strings.debug.workspaceRunning, { count: wsRules.length }));
