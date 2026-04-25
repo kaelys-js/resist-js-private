@@ -1289,6 +1289,76 @@ export async function _runLintCore(
     }
   }
 
+  /* Fire the entire tool phase concurrently with file-content / package.json /
+   * workspace rule processing. They share no mutable state (each pushes into
+   * separate result arrays merged at the end). The tool phase is the dominant
+   * cost workspace-wide (svelte-check + tsgo + tool registry); overlapping
+   * it with the per-file rule loop saves ~its own duration on multi-core. */
+  const concurrentToolsPromise: Promise<LintResult[]> =
+    cliArgs.tools && !cliArgs.bail ? runToolPhase() : Promise.resolve([]);
+
+  async function runToolPhase(): Promise<LintResult[]> {
+    const out: LintResult[] = [];
+    dbg(strings.debug.toolLoading);
+    const toolRegistry: ToolRegistry = new ToolRegistry(strings);
+    for (const tool of ALL_TOOLS) {
+      toolRegistry.register(tool);
+    }
+    dbg(
+      format(strings.debug.toolRunning, {
+        fileCount: allFiles.length,
+        toolCount: toolRegistry.getAll().length,
+      }),
+    );
+    const toolResults: LintResult[] = await toolRegistry.runAll(allFiles);
+    out.push(...toolResults);
+    dbg(format(strings.debug.toolResults, { count: toolResults.length }));
+
+    /* Workspace-level tools (svelte-check, tsgo, others) */
+    dbg(strings.debug.workspaceToolLoading);
+    for (const wsTool of ALL_WORKSPACE_TOOLS) {
+      toolRegistry.registerWorkspaceTool(wsTool);
+    }
+    dbg(
+      format(strings.debug.workspaceToolRunning, {
+        toolCount: toolRegistry.getAllWorkspaceTools().length,
+      }),
+    );
+
+    /* Scope per-package workspace tools to owning packages when explicit
+     * paths were passed; otherwise check every package. */
+    const scopeFiles: string[] = cliArgs.paths.length > 0 ? allFiles : [];
+
+    /* svelte-check + tsgo run concurrently, each parallel-per-package. */
+    let wsResultCount: number = 0;
+    const [svelteResults, tsgoResults]: [LintResult[], LintResult[]] = await Promise.all([
+      runSvelteCheckAllPackages(process.cwd(), scopeFiles),
+      runTsgoAllPackages(process.cwd(), scopeFiles),
+    ]);
+    out.push(...svelteResults);
+    wsResultCount += svelteResults.length;
+    out.push(...tsgoResults);
+    wsResultCount += tsgoResults.length;
+
+    /* Other workspace tools: parallel single-shot invocations. */
+    const perPkgToolNames: ReadonlySet<string> = new Set(['svelte-check', 'tsgo']);
+    const remainingWsTools: readonly WorkspaceTool[] = toolRegistry
+      .getAllWorkspaceTools()
+      .filter((t: WorkspaceTool): boolean => !perPkgToolNames.has(t.name));
+    const remainingResults: LintResult[][] = await Promise.all(
+      remainingWsTools.map(
+        (wsTool: WorkspaceTool): Promise<LintResult[]> => toolRegistry.runWorkspaceTool(wsTool),
+      ),
+    );
+    for (const wsToolResults of remainingResults) {
+      out.push(...wsToolResults);
+      wsResultCount += wsToolResults.length;
+    }
+
+    dbg(format(strings.debug.workspaceToolResults, { count: wsResultCount }));
+    return out;
+  }
+
   for (const filePath of allFiles) {
     const content: string | undefined = fileContents.get(filePath);
     if (content === undefined) {
@@ -1591,68 +1661,16 @@ export async function _runLintCore(
     }
   }
 
-  /* Run external tools when --tools is enabled */
+  /* Run external tools when --tools is enabled.
+   * In normal mode, tools were fired concurrently with file/pkg/workspace
+   * rule processing via concurrentToolsPromise — just await + merge here.
+   * In --bail mode we run them now (we couldn't pre-fire because bail can
+   * short-circuit the whole pipeline before tool work would be useful). */
   if (cliArgs.tools && !bailed) {
-    dbg(strings.debug.toolLoading);
-    const toolRegistry: ToolRegistry = new ToolRegistry(strings);
-    for (const tool of ALL_TOOLS) {
-      toolRegistry.register(tool);
-    }
-
-    dbg(
-      format(strings.debug.toolRunning, {
-        fileCount: allFiles.length,
-        toolCount: toolRegistry.getAll().length,
-      }),
-    );
-    const toolResults: LintResult[] = await toolRegistry.runAll(allFiles);
-    allResults.push(...toolResults);
-    dbg(format(strings.debug.toolResults, { count: toolResults.length }));
-
-    /* Run workspace-level tools (type-checkers) */
-    dbg(strings.debug.workspaceToolLoading);
-    for (const wsTool of ALL_WORKSPACE_TOOLS) {
-      toolRegistry.registerWorkspaceTool(wsTool);
-    }
-
-    dbg(
-      format(strings.debug.workspaceToolRunning, {
-        toolCount: toolRegistry.getAllWorkspaceTools().length,
-      }),
-    );
-
-    /* Scope per-package workspace tools to owning packages when the user
-     * passed explicit paths. When cliArgs.paths is empty (full workspace run),
-     * leave scopeFiles empty so every package is checked. */
-    const scopeFiles: string[] = cliArgs.paths.length > 0 ? allFiles : [];
-
-    /* svelte-check + tsgo: each runs per-package and is the dominant
-     * workspace-wide cost. Run both concurrently AND parallel-per-package
-     * (each function is itself bounded by TOOL_CONCURRENCY).
-     * Each function performs its own availability check and emits
-     * internal/tool-missing when the required binary is absent. */
-    let wsResultCount: number = 0;
-    const [svelteResults, tsgoResults]: [LintResult[], LintResult[]] = await Promise.all([
-      runSvelteCheckAllPackages(process.cwd(), scopeFiles),
-      runTsgoAllPackages(process.cwd(), scopeFiles),
-    ]);
-    allResults.push(...svelteResults);
-    wsResultCount += svelteResults.length;
-    allResults.push(...tsgoResults);
-    wsResultCount += tsgoResults.length;
-
-    /* Run remaining workspace tools via the standard runner */
-    const perPkgToolNames: ReadonlySet<string> = new Set(['svelte-check', 'tsgo']);
-    const remainingWsTools: readonly WorkspaceTool[] = toolRegistry
-      .getAllWorkspaceTools()
-      .filter((t: WorkspaceTool): boolean => !perPkgToolNames.has(t.name));
-    for (const wsTool of remainingWsTools) {
-      const wsToolResults: LintResult[] = await toolRegistry.runWorkspaceTool(wsTool);
-      allResults.push(...wsToolResults);
-      wsResultCount += wsToolResults.length;
-    }
-
-    dbg(format(strings.debug.workspaceToolResults, { count: wsResultCount }));
+    const toolPhaseResults: LintResult[] = cliArgs.bail
+      ? await runToolPhase()
+      : await concurrentToolsPromise;
+    allResults.push(...toolPhaseResults);
   }
 
   /* Apply per-file severity from overrides (convert error to warning based on config) */
