@@ -840,4 +840,55 @@ describe('detectEnvironment', () => {
       }
     }
   });
+
+  it('detects Capacitor platform string web (covers picklist arm)', () => {
+    /* The IIFE at line 429 picks `platform` only if equal to ios/android/web.
+     * Hitting the 'web' branch covers the third arm in the picklist. */
+    const _g = globalThis as Record<Str, unknown>;
+    _g.Capacitor = { getPlatform: () => 'web' };
+    try {
+      const result = detectEnvironment();
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data.isCapacitor).toBe(true);
+        expect(result.data.capacitorPlatform).toBe('web');
+        expect(result.data.isIOS).toBe(false);
+        expect(result.data.isAndroid).toBe(false);
+      }
+    } finally {
+      delete _g.Capacitor;
+    }
+  });
+
+  it('Capacitor with non-function getPlatform yields undefined platform', () => {
+    /* Line 433: `typeof getPlatform !== 'function'` returns undefined. */
+    const _g = globalThis as Record<Str, unknown>;
+    _g.Capacitor = { getPlatform: 'not-a-fn' };
+    try {
+      const result = detectEnvironment();
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data.isCapacitor).toBe(true);
+        expect(result.data.capacitorPlatform).toBeUndefined();
+      }
+    } finally {
+      delete _g.Capacitor;
+    }
+  });
+
+  it('Capacitor with non-recognised platform string yields undefined platform', () => {
+    /* Line 435 picklist with an unmatched value — no return. */
+    const _g = globalThis as Record<Str, unknown>;
+    _g.Capacitor = { getPlatform: () => 'windows' };
+    try {
+      const result = detectEnvironment();
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data.isCapacitor).toBe(true);
+        expect(result.data.capacitorPlatform).toBeUndefined();
+      }
+    } finally {
+      delete _g.Capacitor;
+    }
+  });
 });

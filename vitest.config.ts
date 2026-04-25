@@ -136,7 +136,7 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/**/*.ts'],
       exclude: ['src/**/*.test.ts', 'src/**/*.spec.ts', 'src/**/*.bench.ts', 'src/**/*.d.ts'],
-      thresholds: { statements: 80, branches: 75, functions: 80, lines: 80 },
+      thresholds: { statements: 90, branches: 78, functions: 91, lines: 90 },
       reportsDirectory: 'coverage',
       reporter: ['text-summary', 'json', 'html'],
       skipFull: true,

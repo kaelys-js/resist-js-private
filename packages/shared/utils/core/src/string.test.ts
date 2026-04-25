@@ -107,6 +107,31 @@ describe('truncateLine', () => {
     }
   });
 
+  it('preserves trailing ANSI reset codes after truncation point', () => {
+    /* Visible text "abcdefgh" (8 visible) plus a trailing reset escape.
+     * Width 5 forces truncation, and the trailing ANSI cluster sits exactly
+     * at the truncation index — exercises the trailing-ANSI loop (lines 122–127). */
+    const input: Str = 'abcdefgh\u001B[0m';
+    const result: Result<Str> = truncateLine(input, 5 as NonNegativeInteger);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      /* Slice keeps the first 4 visible chars then ellipsis — no trailing reset
+       * is appended because the cursor sits before the ANSI cluster. */
+      expect(result.data).toBe('abcd…');
+    }
+  });
+
+  it('walks past a malformed trailing ANSI escape with no terminator', () => {
+    /* A bare ESC byte at the truncation index has no `m` terminator; the loop
+     * must `break` (line 125) instead of looping forever. */
+    const input: Str = 'abcd\u001B';
+    const result: Result<Str> = truncateLine(input, 3 as NonNegativeInteger);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe('ab…');
+    }
+  });
+
   it('returns validation error for non-string input', () => {
     const result: Result<Str> = truncateLine(null as unknown as Str, 10 as NonNegativeInteger);
     expect(result.ok).toBe(false);
