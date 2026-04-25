@@ -1,8 +1,7 @@
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
-import { createLocaleRegistry } from './registry';
+import { createLocaleRegistry, type LocaleRegistry } from './registry';
 import { createLocaleStore } from './svelte.svelte';
-import type { LocaleRegistry } from './registry';
 
 // =============================================================================
 // Test schemas and locale strings
@@ -32,6 +31,10 @@ function makeRegistry() {
 /**
  * Creates a wrapper around a real registry that delegates all methods but allows overrides.
  * Uses a plain object spread (not Proxy) since the frozen registry's properties are functions.
+ *
+ * @param base
+ * @param overrides
+ * @returns
  */
 function wrapRegistry(
   base: LocaleRegistry<typeof TestSchema>,
@@ -205,7 +208,13 @@ describe('createLocaleStore', () => {
 // Error-path coverage — mock registries returning {ok: false}
 // =============================================================================
 
-/** Helper: creates an error result matching the Result<never> shape. */
+/**
+ * Helper: creates an error result matching the Result<never> shape.
+ *
+ * @param code
+ * @param message
+ * @returns
+ */
 function fakeErr(code: string, message: string) {
   return {
     ok: false as const,
@@ -214,7 +223,12 @@ function fakeErr(code: string, message: string) {
   };
 }
 
-/** Helper: creates an ok result matching the Result<T> shape. */
+/**
+ * Helper: creates an ok result matching the Result<T> shape.
+ *
+ * @param data
+ * @returns
+ */
 function fakeOk<T>(data: T) {
   return { ok: true as const, data, error: null };
 }

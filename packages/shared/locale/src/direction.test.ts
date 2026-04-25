@@ -298,6 +298,7 @@ describe('getTextDirection — Intl.Locale branches', () => {
       constructor() {
         throw new Error('Unsupported locale');
       }
+      _unused(): void {}
     };
 
     globalThis.Intl = {
@@ -415,6 +416,7 @@ describe('getTextDirection — static lookup script/parts branches', () => {
       constructor() {
         throw new Error('forced static lookup');
       }
+      _unused(): void {}
     };
     globalThis.Intl = {
       ...RealIntl,

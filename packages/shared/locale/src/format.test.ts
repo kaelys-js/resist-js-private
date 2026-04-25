@@ -916,7 +916,7 @@ describe('Intl exception catch blocks', () => {
     vi.spyOn(Intl, 'DisplayNames').mockImplementation(
       () =>
         ({
-          of: () => undefined,
+          of(): undefined {},
           resolvedOptions: () => ({
             locale: 'en',
             type: 'language' as const,
@@ -1143,7 +1143,7 @@ describe('formatUnit — additional branches', () => {
   });
 
   it('formats with extra options spread', () => {
-    const result = formatUnit(3.14159, 'liter', 'en', {
+    const result = formatUnit(3.141_59, 'liter', 'en', {
       unitDisplay: 'long',
       options: { maximumFractionDigits: 1 },
     });
