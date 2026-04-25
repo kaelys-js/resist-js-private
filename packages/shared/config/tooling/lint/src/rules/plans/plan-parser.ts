@@ -332,6 +332,26 @@ export function parsePlan(content: string): ParsedPlan {
 }
 
 /**
+ * Discover plan files in the workspace.
+ *
+ * Filters all `.md` files to those under any `docs/plans/` directory,
+ * excluding the canonical `TEMPLATE.md`. Used by every `plans/*` rule
+ * to define both the file set they check AND the cache-input fingerprint
+ * declared via `WorkspaceRule.inputs`.
+ *
+ * @param ctx - Workspace context (must expose `filesByExtension`)
+ * @returns Absolute paths of plan files
+ */
+export async function discoverPlanFiles(ctx: {
+  filesByExtension(ext: string): Promise<readonly string[]>;
+}): Promise<readonly string[]> {
+  const mdFiles: readonly string[] = await ctx.filesByExtension('.md');
+  return mdFiles.filter(
+    (f: string): boolean => f.includes('/docs/plans/') && !f.endsWith('TEMPLATE.md'),
+  );
+}
+
+/**
  * Parse a date from a plan filename (YYYY-MM-DD-*.md).
  *
  * @param {string} filename - Plan filename

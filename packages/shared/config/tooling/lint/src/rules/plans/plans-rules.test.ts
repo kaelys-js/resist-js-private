@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { WorkspaceContext } from '../../framework/rule-context.ts';
 import type { LintResult } from '../../framework/types.ts';
-import { parsePlan, parsePlanDate } from './plan-parser.ts';
+import { discoverPlanFiles, parsePlan, parsePlanDate } from './plan-parser.ts';
 import noTemplatePlaceholders from './no-template-placeholders.ts';
 import noIncompleteTasks from './no-incomplete-tasks.ts';
 import statusDependencyOrder from './status-dependency-order.ts';
@@ -1027,5 +1027,47 @@ describe('plans/require-plan-structure', () => {
     });
     const results: LintResult[] = await requirePlanStructure.check(ctx);
     expect(results).toHaveLength(0);
+  });
+});
+
+// =============================================================================
+// discoverPlanFiles helper
+// =============================================================================
+
+describe('discoverPlanFiles', () => {
+  it('returns only .md files under docs/plans/', async () => {
+    const ctx = createMockContext({
+      '/mock/docs/plans/2026-04-24-foo.md': '# Foo',
+      '/mock/docs/plans/2026-04-25-bar.md': '# Bar',
+      '/mock/docs/other.md': '# elsewhere',
+      '/mock/README.md': '# root',
+    });
+    const files: readonly string[] = await discoverPlanFiles(ctx);
+    expect(files).toEqual(
+      expect.arrayContaining([
+        '/mock/docs/plans/2026-04-24-foo.md',
+        '/mock/docs/plans/2026-04-25-bar.md',
+      ]),
+    );
+    expect(files).not.toContain('/mock/docs/other.md');
+    expect(files).not.toContain('/mock/README.md');
+  });
+
+  it('excludes TEMPLATE.md from the result', async () => {
+    const ctx = createMockContext({
+      '/mock/docs/plans/2026-04-24-foo.md': '# Foo',
+      '/mock/docs/plans/TEMPLATE.md': '# Template',
+    });
+    const files: readonly string[] = await discoverPlanFiles(ctx);
+    expect(files).toContain('/mock/docs/plans/2026-04-24-foo.md');
+    expect(files).not.toContain('/mock/docs/plans/TEMPLATE.md');
+  });
+
+  it('returns empty when no .md files match', async () => {
+    const ctx = createMockContext({
+      '/mock/docs/other.md': '# elsewhere',
+    });
+    const files: readonly string[] = await discoverPlanFiles(ctx);
+    expect(files).toEqual([]);
   });
 });

@@ -537,3 +537,64 @@ describe('LintCache.getWorkspaceFingerprint / setWorkspaceFingerprint', () => {
     expect(loaded.getWorkspaceFingerprint()).toBeNull();
   });
 });
+
+// =============================================================================
+// Workspace rule cache (per-rule input-fingerprint cache)
+// =============================================================================
+
+describe('Workspace rule cache via getTool/setTool', () => {
+  it('uses `workspace:<ruleId>` namespace + synthetic / pkgDir', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    const results: LintResult[] = [
+      {
+        file: '/docs/plans/2026-04-24-foo.md',
+        line: 12,
+        column: 1,
+        severity: 'error',
+        message: 'incomplete task',
+        ruleId: 'plans/no-incomplete-tasks',
+        fix: { range: { start: 0, end: 0 }, text: '' },
+      },
+    ];
+    cache.setTool('workspace:plans/no-incomplete-tasks', '/', 'fp1', results);
+
+    /* Same key returns cached. */
+    expect(cache.getTool('workspace:plans/no-incomplete-tasks', '/', 'fp1')).toEqual(results);
+
+    /* Different ruleId is independent. */
+    expect(cache.getTool('workspace:plans/files-exist', '/', 'fp1')).toBeNull();
+
+    /* Different fingerprint invalidates. */
+    expect(cache.getTool('workspace:plans/no-incomplete-tasks', '/', 'fp2')).toBeNull();
+  });
+
+  it('two workspace rules can cache against same fingerprint independently', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    const a: LintResult[] = [
+      {
+        file: '/a',
+        line: 1,
+        column: 1,
+        severity: 'error',
+        message: 'A',
+        ruleId: 'plans/files-exist',
+        fix: { range: { start: 0, end: 0 }, text: '' },
+      },
+    ];
+    const b: LintResult[] = [
+      {
+        file: '/b',
+        line: 1,
+        column: 1,
+        severity: 'error',
+        message: 'B',
+        ruleId: 'plans/no-empty-plan-sections',
+        fix: { range: { start: 0, end: 0 }, text: '' },
+      },
+    ];
+    cache.setTool('workspace:plans/files-exist', '/', 'shared-fp', a);
+    cache.setTool('workspace:plans/no-empty-plan-sections', '/', 'shared-fp', b);
+    expect(cache.getTool('workspace:plans/files-exist', '/', 'shared-fp')).toEqual(a);
+    expect(cache.getTool('workspace:plans/no-empty-plan-sections', '/', 'shared-fp')).toEqual(b);
+  });
+});

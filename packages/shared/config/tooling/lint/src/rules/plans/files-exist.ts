@@ -12,7 +12,7 @@ import { join } from 'node:path';
 
 import { createResult, type LintResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
-import { parsePlan } from '@/lint/rules/plans/plan-parser.ts';
+import { discoverPlanFiles, parsePlan } from '@/lint/rules/plans/plan-parser.ts';
 
 /** Rule ID constant. */
 const RULE_ID: string = 'plans/files-exist';
@@ -36,14 +36,15 @@ const rule: WorkspaceRule = {
     },
   },
 
+  async inputs(context: unknown): Promise<readonly string[]> {
+    return discoverPlanFiles(context as WorkspaceContext);
+  },
+
   async check(context: unknown): Promise<LintResult[]> {
     const ctx = context as RuleContext;
     const results: LintResult[] = [];
 
-    const mdFiles: readonly string[] = await ctx.filesByExtension('.md');
-    const planFiles: readonly string[] = mdFiles.filter(
-      (f: string): boolean => f.includes('/docs/plans/') && !f.endsWith('TEMPLATE.md'),
-    );
+    const planFiles: readonly string[] = await discoverPlanFiles(ctx);
 
     for (const file of planFiles) {
       const content: string = await ctx.readFile(file);
