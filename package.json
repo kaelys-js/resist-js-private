@@ -18,8 +18,9 @@
     "qa:benchmark": "vitest bench",
     "qa:format": "biome format --write . && prettier --write --cache --cache-strategy content --log-level warn '**/*.svelte'",
     "qa:format:check": "biome format . && prettier --check --cache --cache-strategy content --log-level warn '**/*.svelte'",
-    "qa:hooks": "bash .claude/hooks/hooks.test.sh",
-    "qa:lint": "bash -c 'node --import ./packages/shared/config/tooling/node/src/register-aliases.mjs packages/shared/config/tooling/lint/src/cli.ts --tools \"$@\"; L=$?; if [ $# -eq 0 ]; then pnpm run qa:hooks; H=$?; else H=0; fi; exit $((L || H))' --"
+    "qa:hooks": "bash .claude/hooks/hooks.test.sh && mkdir -p node_modules/.cache && touch node_modules/.cache/.resist-hooks-stamp",
+    "qa:hooks:cached": "bash -c 'STAMP=node_modules/.cache/.resist-hooks-stamp; if [ -f \"$STAMP\" ] && [ -z \"$(find .claude/hooks -type f -newer \"$STAMP\" -print -quit)\" ]; then exit 0; fi; pnpm run qa:hooks'",
+    "qa:lint": "bash -c 'node --import ./packages/shared/config/tooling/node/src/register-aliases.mjs packages/shared/config/tooling/lint/src/cli.ts --tools \"$@\"; L=$?; if [ $# -eq 0 ]; then pnpm run qa:hooks:cached; H=$?; else H=0; fi; exit $((L || H))' --"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

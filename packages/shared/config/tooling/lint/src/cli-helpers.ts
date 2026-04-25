@@ -26,6 +26,7 @@ import {
 } from '@/lint/config/schema.ts';
 import { CONFIG_FILENAME, LINTER_NAME, SCHEMA_FILENAME } from '@/lint/constants.ts';
 import { CACHE_FILENAME, computeRuleHash, LintCache } from '@/lint/framework/cache.ts';
+import { fingerprintFiles } from '@/lint/framework/file-fingerprint.ts';
 import { formatResults, type OutputFormat } from '@/lint/framework/formatters.ts';
 import { runTypeScriptRules, EMBEDDED_CODE_EXTENSIONS } from '@/lint/framework/oxc-runner.ts';
 import { createWorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -1360,70 +1361,91 @@ export async function _runLintCore(
     return out;
   }
 
-  for (const filePath of allFiles) {
-    const content: string | undefined = fileContents.get(filePath);
-    if (content === undefined) {
-      /* File not readable — skip */
-      continue;
-    }
+  /* Workspace fingerprint short-circuit: if every input file has the same
+   * (path, mtime, size) fingerprint as last run, we know none changed.
+   * Use the cached aggregate results directly and skip the per-file
+   * content-hash + rule-pattern iteration entirely. Saves ~500ms-1s
+   * on warm runs across thousands of files.
+   * Only applies when stdin isn't being used (stdin is one-shot). */
+  const workspaceFingerprint: string =
+    cliArgs.stdinFilename === undefined ? fingerprintFiles(allFiles) : '';
+  const wsFingerprintMatch: boolean =
+    cliArgs.stdinFilename === undefined &&
+    lintCache !== null &&
+    lintCache.getWorkspaceFingerprint() === workspaceFingerprint;
 
-    /* Check cache first */
-    let cacheHit: boolean = false;
-    if (lintCache) {
-      const cached: LintResult[] | null = lintCache.get(filePath, content);
-      if (cached) {
-        cachedResults.push(...cached);
-        cacheHit = true;
+  if (wsFingerprintMatch && lintCache) {
+    cachedResults.push(...lintCache.getAllByPath(allFiles));
+    /* Tell the cache one workspace-level hit happened (informational). */
+    dbg(format(strings.debug.cacheStats, { hits: 1, misses: 0 }));
+  } else {
+    for (const filePath of allFiles) {
+      const content: string | undefined = fileContents.get(filePath);
+      if (content === undefined) {
+        /* File not readable — skip */
+        continue;
       }
-    }
 
-    /* Filter rules by file pattern AND per-file severity (overrides may disable) */
-    const applicableRules: TypeScriptRule[] = allTsRules.filter((rule: TypeScriptRule): boolean => {
-      /* Check file pattern match */
-      const isEmbeddedFile: boolean = EMBEDDED_CODE_EXTENSIONS.some((ext: string): boolean =>
-        filePath.endsWith(ext),
+      /* Check cache first */
+      let cacheHit: boolean = false;
+      if (lintCache) {
+        const cached: LintResult[] | null = lintCache.get(filePath, content);
+        if (cached) {
+          cachedResults.push(...cached);
+          cacheHit = true;
+        }
+      }
+
+      /* Filter rules by file pattern AND per-file severity (overrides may disable) */
+      const applicableRules: TypeScriptRule[] = allTsRules.filter(
+        (rule: TypeScriptRule): boolean => {
+          /* Check file pattern match */
+          const isEmbeddedFile: boolean = EMBEDDED_CODE_EXTENSIONS.some((ext: string): boolean =>
+            filePath.endsWith(ext),
+          );
+          const patternMatch: boolean = rule.patterns.some((pattern: string): boolean => {
+            if (pattern.startsWith('**/*.')) {
+              const ext: string = pattern.slice(4);
+              if (filePath.endsWith(ext)) {
+                return true;
+              }
+              // Embedded-code files also match TS patterns — their code blocks are TypeScript
+              if (isEmbeddedFile && (ext === '.ts' || ext === '.svelte.ts')) {
+                return true;
+              }
+              return false;
+            }
+            return filePath.includes(pattern);
+          });
+
+          if (!patternMatch) {
+            return false;
+          }
+
+          /* Check override severity — skip if "off" for this file */
+          const severity: string = resolveRuleSeverity(config, rule.id, filePath);
+          return severity !== 'off';
+        },
       );
-      const patternMatch: boolean = rule.patterns.some((pattern: string): boolean => {
-        if (pattern.startsWith('**/*.')) {
-          const ext: string = pattern.slice(4);
-          if (filePath.endsWith(ext)) {
-            return true;
-          }
-          // Embedded-code files also match TS patterns — their code blocks are TypeScript
-          if (isEmbeddedFile && (ext === '.ts' || ext === '.svelte.ts')) {
-            return true;
-          }
-          return false;
-        }
-        return filePath.includes(pattern);
-      });
 
-      if (!patternMatch) {
-        return false;
+      if (applicableRules.length === 0) {
+        continue;
       }
 
-      /* Check override severity — skip if "off" for this file */
-      const severity: string = resolveRuleSeverity(config, rule.id, filePath);
-      return severity !== 'off';
-    });
-
-    if (applicableRules.length === 0) {
-      continue;
-    }
-
-    if (cacheHit) {
-      /* Cache hit — only finalize rules need check() to populate cross-file state.
-       * Non-finalize check() results are already in cachedResults. */
-      if (hasFinalizeRules) {
-        const finalizeRules: TypeScriptRule[] = applicableRules.filter(
-          (r: TypeScriptRule): boolean => r.finalize !== undefined,
-        );
-        if (finalizeRules.length > 0) {
-          finalizeStateTasks.push({ applicableRules: finalizeRules, content, filePath });
+      if (cacheHit) {
+        /* Cache hit — only finalize rules need check() to populate cross-file state.
+         * Non-finalize check() results are already in cachedResults. */
+        if (hasFinalizeRules) {
+          const finalizeRules: TypeScriptRule[] = applicableRules.filter(
+            (r: TypeScriptRule): boolean => r.finalize !== undefined,
+          );
+          if (finalizeRules.length > 0) {
+            finalizeStateTasks.push({ applicableRules: finalizeRules, content, filePath });
+          }
         }
+      } else {
+        tasks.push({ applicableRules, content, filePath });
       }
-    } else {
-      tasks.push({ applicableRules, content, filePath });
     }
   }
 
@@ -1734,8 +1756,13 @@ export async function _runLintCore(
     }
   }
 
-  /* Save cache to disk */
+  /* Save cache to disk. Persist the current workspace fingerprint so the
+   * next invocation can short-circuit the per-file loop when no inputs
+   * have changed. Only set on full runs (not stdin one-shots). */
   if (lintCache) {
+    if (cliArgs.stdinFilename === undefined && workspaceFingerprint !== '') {
+      lintCache.setWorkspaceFingerprint(workspaceFingerprint);
+    }
     lintCache.save(cachePath);
     dbg(
       format(strings.debug.cacheSaved, {
