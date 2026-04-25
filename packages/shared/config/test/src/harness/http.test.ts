@@ -46,7 +46,7 @@ describe('http', () => {
       expect(parsed).toEqual({ key: 'value' });
     });
 
-    it('preserves caller-provided Content-Type (exact casing)', async () => {
+    it('preserves caller-provided Content-Type (exact casing)', () => {
       const req: Request = createRequest('POST', '/api/data', {
         body: { a: 1 },
         headers: { 'Content-Type': 'application/vnd.custom+json' },
@@ -54,7 +54,7 @@ describe('http', () => {
       expect(req.headers.get('content-type')).toBe('application/vnd.custom+json');
     });
 
-    it('preserves caller-provided content-type (lowercase)', async () => {
+    it('preserves caller-provided content-type (lowercase)', () => {
       const req: Request = createRequest('POST', '/api/data', {
         body: { a: 1 },
         headers: { 'content-type': 'application/vnd.lc+json' },

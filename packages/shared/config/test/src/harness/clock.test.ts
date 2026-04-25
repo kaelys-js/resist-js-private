@@ -24,7 +24,7 @@ describe('clock', () => {
       }
     });
 
-    it('pins time to provided Date', async () => {
+    it('pins time to provided Date', () => {
       const fixed: Date = new Date('2024-06-15T12:00:00.000Z');
       const clock = createFakeClock(vi, fixed);
       try {
@@ -34,7 +34,7 @@ describe('clock', () => {
       }
     });
 
-    it('pins time to provided numeric timestamp', async () => {
+    it('pins time to provided numeric timestamp', () => {
       const clock = createFakeClock(vi, 1_700_000_000_000);
       try {
         expect(Date.now()).toBe(1_700_000_000_000);

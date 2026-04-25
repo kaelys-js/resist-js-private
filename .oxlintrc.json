@@ -561,6 +561,7 @@
         "no-await-in-loop": "off",
         "new-cap": "off",
         "max-classes-per-file": "off",
+        "no-process-exit": "off",
         "import/max-dependencies": ["error", { "max": 100 }]
       }
     },

@@ -51,13 +51,13 @@ describe('createPlaywrightConfig', () => {
       opts({ previewPort: 5000, previewHost: '127.0.0.1' }),
     );
     expect(cfg.webServer).toBeDefined();
-    const command: string = (cfg.webServer as { command: string }).command;
+    const { command } = cfg.webServer as { command: string };
     expect(command).toBe('pnpm build && pnpm preview --port 5000 --host 127.0.0.1');
   });
 
   it('uses caller-provided buildCommand as-is', () => {
     const cfg: PlaywrightTestConfig = createPlaywrightConfig(opts({ buildCommand: 'pnpm dev' }));
-    const command: string = (cfg.webServer as { command: string }).command;
+    const { command } = cfg.webServer as { command: string };
     expect(command).toBe('pnpm dev');
   });
 
