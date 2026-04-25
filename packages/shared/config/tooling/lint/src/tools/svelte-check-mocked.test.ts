@@ -80,6 +80,7 @@ describe('discoverSveltePackageDirs', () => {
       const s = String(p);
       if (s === '/workspace/packages') return true;
       if (s === join('/workspace/packages/my-app', 'package.json')) return true;
+      if (s === join('/workspace/packages/my-app', 'tsconfig.json')) return true;
       return false;
     });
 
@@ -135,6 +136,7 @@ describe('discoverSveltePackageDirs', () => {
       const s = String(p);
       if (s === '/workspace/packages') return true;
       if (s === join('/workspace/packages/lib', 'package.json')) return true;
+      if (s === join('/workspace/packages/lib', 'tsconfig.json')) return true;
       return false;
     });
 
@@ -205,6 +207,7 @@ describe('runSvelteCheckAllPackages', () => {
       const s = String(p);
       if (s === '/ws/packages') return true;
       if (s === join('/ws/packages/app', 'package.json')) return true;
+      if (s === join('/ws/packages/app', 'tsconfig.json')) return true;
       return false;
     });
     vi.mocked(readdirSync).mockImplementation(
@@ -232,6 +235,7 @@ describe('runSvelteCheckAllPackages', () => {
       const s = String(p);
       if (s === '/ws/packages') return true;
       if (s === join('/ws/packages/app', 'package.json')) return true;
+      if (s === join('/ws/packages/app', 'tsconfig.json')) return true;
       return false;
     });
     vi.mocked(readdirSync).mockImplementation(
@@ -258,6 +262,7 @@ describe('runSvelteCheckAllPackages', () => {
       const s = String(p);
       if (s === '/ws/packages') return true;
       if (s === join('/ws/packages/app', 'package.json')) return true;
+      if (s === join('/ws/packages/app', 'tsconfig.json')) return true;
       return false;
     });
     vi.mocked(readdirSync).mockImplementation(
@@ -284,7 +289,9 @@ describe('runSvelteCheckAllPackages', () => {
       const s = String(p);
       if (s === '/ws/packages') return true;
       if (s === join('/ws/packages/app1', 'package.json')) return true;
+      if (s === join('/ws/packages/app1', 'tsconfig.json')) return true;
       if (s === join('/ws/packages/app2', 'package.json')) return true;
+      if (s === join('/ws/packages/app2', 'tsconfig.json')) return true;
       return false;
     });
     vi.mocked(readdirSync).mockImplementation(
@@ -322,7 +329,9 @@ describe('runSvelteCheckAllPackages', () => {
       const s = String(p);
       if (s === '/ws/packages') return true;
       if (s === join('/ws/packages/app1', 'package.json')) return true;
+      if (s === join('/ws/packages/app1', 'tsconfig.json')) return true;
       if (s === join('/ws/packages/app2', 'package.json')) return true;
+      if (s === join('/ws/packages/app2', 'tsconfig.json')) return true;
       return false;
     });
     vi.mocked(readdirSync).mockImplementation(
@@ -352,6 +361,7 @@ describe('runSvelteCheckAllPackages', () => {
       const s = String(p);
       if (s === '/ws/packages') return true;
       if (s === join('/ws/packages/app1', 'package.json')) return true;
+      if (s === join('/ws/packages/app1', 'tsconfig.json')) return true;
       return false;
     });
     vi.mocked(readdirSync).mockImplementation(

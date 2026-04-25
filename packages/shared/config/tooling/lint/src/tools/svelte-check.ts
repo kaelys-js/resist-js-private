@@ -90,7 +90,16 @@ export function discoverSveltePackageDirs(cwd: string): string[] {
         continue;
       }
       const full: string = join(dir, entry.name);
-      if (existsSync(join(full, 'package.json')) && hasSvelteFile(full)) {
+      /* svelte-check requires a tsconfig.json — skip parent dirs that
+       * only contain Svelte descendants (e.g. `packages/products` which
+       * holds child packages). Without this filter, svelte-check is
+       * spawned against a dir that has no resolvable tsconfig and
+       * produces redundant work over the descendant package's run. */
+      if (
+        existsSync(join(full, 'package.json')) &&
+        existsSync(join(full, 'tsconfig.json')) &&
+        hasSvelteFile(full)
+      ) {
         found.push(full);
       }
       walk(full);
