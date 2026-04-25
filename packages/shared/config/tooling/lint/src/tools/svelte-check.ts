@@ -26,10 +26,13 @@ import {
 } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
 
-/** Directories whose contents never affect svelte-check input fingerprint. */
+/** Directories whose contents never affect svelte-check input fingerprint.
+ * Includes svelte-check's own incremental cache dir (`.svelte-check/`)
+ * since its contents are derived from inputs and grow as svelte-check runs. */
 const FINGERPRINT_SKIP_DIRS: ReadonlySet<string> = new Set([
   'node_modules',
   '.svelte-kit',
+  '.svelte-check',
   'dist',
   '.turbo',
   '.cache',
@@ -243,11 +246,19 @@ export async function runSvelteCheckAllPackages(
           files.some((f: string): boolean => f === dir || f.startsWith(`${dir}/`)),
         );
 
+  /* --incremental: persist svelte2tsx outputs to disk so subsequent runs
+   *   only re-transpile changed .svelte files. Cache lives under
+   *   .svelte-kit/.svelte-check (SvelteKit) or .svelte-check (other).
+   * --tsgo: use tsgo (Microsoft's Go port of TypeScript) for the TS pass
+   *   instead of native tsc. Big win on packages with many .svelte files.
+   * Combined: shared/ui 26.77s -> 2.24s warm (12x). */
   const args: string[] = [
     '--tsconfig',
     './tsconfig.json',
     '--compiler-warnings',
     'state_referenced_locally:ignore',
+    '--incremental',
+    '--tsgo',
   ];
 
   /* Run svelte-check per package in parallel (bounded by TOOL_CONCURRENCY).
