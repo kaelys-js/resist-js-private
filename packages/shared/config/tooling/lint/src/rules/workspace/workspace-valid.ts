@@ -90,6 +90,11 @@ function parseWorkspaceYaml(content: string): { packages: unknown } | null {
 /** Description. */
 const rule: WorkspaceRule = {
   categories: ['workspace', 'pnpm'],
+  async inputs(context: unknown): Promise<readonly string[]> {
+    const ctx = context as WorkspaceContext;
+    return ctx.allFiles();
+  },
+
   async check(context: unknown): Promise<LintResult[]> {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const results: LintResult[] = [];

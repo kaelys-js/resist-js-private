@@ -102,6 +102,7 @@ const rule: WorkspaceRule = {
   categories: ['sync', 'workspace'],
   stages: ['lint', 'ci'],
   fixable: false,
+  /* Caching is opt-out: this rule depends on git/CI state via execSync. */
   async check(context: unknown): Promise<
     Array<{
       ruleId: string;

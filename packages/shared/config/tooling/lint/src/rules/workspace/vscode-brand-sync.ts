@@ -44,6 +44,7 @@ const rule: WorkspaceRule = {
   stages: ['lint', 'ci'],
   fixable: false,
 
+  /* Caching is opt-out: this rule depends on git/CI state via execSync. */
   async check(context: unknown): Promise<LintResult[]> {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const results: LintResult[] = [];

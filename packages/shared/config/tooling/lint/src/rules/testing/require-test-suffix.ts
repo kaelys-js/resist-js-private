@@ -35,6 +35,11 @@ const rule: WorkspaceRule = {
    * @param {unknown} context - The workspace context
    * @returns {Promise<LintResult[]>} Array of lint results
    */
+  async inputs(context: unknown): Promise<readonly string[]> {
+    const ctx = context as WorkspaceContext;
+    return ctx.allFiles();
+  },
+
   async check(context: unknown): Promise<LintResult[]> {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const results: LintResult[] = [];
