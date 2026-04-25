@@ -144,6 +144,7 @@ export function transformTsgoOutput(output: string): LintResult[] {
 const SKIP_DIRS: ReadonlySet<string> = new Set([
   'node_modules',
   '.svelte-kit',
+  '.svelte-check',
   'dist',
   '_INTEGRATE',
 ]);
