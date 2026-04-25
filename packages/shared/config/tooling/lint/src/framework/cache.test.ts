@@ -385,3 +385,155 @@ describe('LintCache.getTool / setTool', () => {
     expect(loaded.getTool('tsgo', '/pkg/a', 'fp1')).toBeNull();
   });
 });
+
+// =============================================================================
+// Workspace fingerprint short-circuit
+// =============================================================================
+
+describe('LintCache.getWorkspaceFingerprint / setWorkspaceFingerprint', () => {
+  const cachePaths: string[] = [];
+
+  afterEach(() => {
+    for (const path of cachePaths) {
+      cleanup(path);
+    }
+    cachePaths.length = 0;
+  });
+
+  it('getWorkspaceFingerprint returns null on a fresh cache', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    expect(cache.getWorkspaceFingerprint()).toBeNull();
+  });
+
+  it('setWorkspaceFingerprint persists for subsequent get calls', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    cache.setWorkspaceFingerprint('abc123');
+    expect(cache.getWorkspaceFingerprint()).toBe('abc123');
+  });
+
+  it('setWorkspaceFingerprint overwrites prior value', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    cache.setWorkspaceFingerprint('first');
+    cache.setWorkspaceFingerprint('second');
+    expect(cache.getWorkspaceFingerprint()).toBe('second');
+  });
+
+  it('persists across save/load', () => {
+    const path: string = tempCachePath();
+    cachePaths.push(path);
+
+    const cache: LintCache = LintCache.empty('rule-hash');
+    cache.setWorkspaceFingerprint('persistent-fp');
+    cache.save(path);
+
+    const loaded: LintCache = LintCache.load(path, 'rule-hash');
+    expect(loaded.getWorkspaceFingerprint()).toBe('persistent-fp');
+  });
+
+  it('getAllByPath returns empty array when no entries match', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    expect(cache.getAllByPath(['/path/missing.ts'])).toEqual([]);
+  });
+
+  it('getAllByPath returns concatenated results for files in the cache', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    const aResults: LintResult[] = [
+      {
+        file: '/pkg/a/x.ts',
+        line: 1,
+        column: 1,
+        severity: 'error',
+        message: 'A',
+        ruleId: 'r/A',
+        fix: { range: { start: 0, end: 0 }, text: '' },
+      },
+    ];
+    const bResults: LintResult[] = [
+      {
+        file: '/pkg/b/y.ts',
+        line: 2,
+        column: 1,
+        severity: 'warning',
+        message: 'B',
+        ruleId: 'r/B',
+        fix: { range: { start: 0, end: 0 }, text: '' },
+      },
+    ];
+    cache.set('/pkg/a/x.ts', 'content-a', aResults);
+    cache.set('/pkg/b/y.ts', 'content-b', bResults);
+
+    const out: LintResult[] = cache.getAllByPath(['/pkg/a/x.ts', '/pkg/b/y.ts']);
+    expect(out).toHaveLength(2);
+    expect(out[0]?.message).toBe('A');
+    expect(out[1]?.message).toBe('B');
+  });
+
+  it('getAllByPath skips paths missing from the cache without error', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    cache.set('/pkg/a/x.ts', 'content', [
+      {
+        file: '/pkg/a/x.ts',
+        line: 1,
+        column: 1,
+        severity: 'error',
+        message: 'A',
+        ruleId: 'r/A',
+        fix: { range: { start: 0, end: 0 }, text: '' },
+      },
+    ]);
+    const out: LintResult[] = cache.getAllByPath([
+      '/pkg/a/x.ts',
+      '/pkg/missing.ts',
+      '/pkg/also-missing.ts',
+    ]);
+    expect(out).toHaveLength(1);
+    expect(out[0]?.message).toBe('A');
+  });
+
+  it('getAllByPath preserves input order', () => {
+    const cache: LintCache = LintCache.empty('rule-hash');
+    const a: LintResult = {
+      file: '/a.ts',
+      line: 1,
+      column: 1,
+      severity: 'error',
+      message: 'A',
+      ruleId: 'r/A',
+      fix: { range: { start: 0, end: 0 }, text: '' },
+    };
+    const b: LintResult = {
+      file: '/b.ts',
+      line: 1,
+      column: 1,
+      severity: 'error',
+      message: 'B',
+      ruleId: 'r/B',
+      fix: { range: { start: 0, end: 0 }, text: '' },
+    };
+    cache.set('/a.ts', 'ac', [a]);
+    cache.set('/b.ts', 'bc', [b]);
+
+    expect(cache.getAllByPath(['/a.ts', '/b.ts'])[0]?.message).toBe('A');
+    expect(cache.getAllByPath(['/b.ts', '/a.ts'])[0]?.message).toBe('B');
+  });
+
+  it('migrates pre-β cache (no workspaceFingerprint) cleanly to null', () => {
+    const path: string = tempCachePath();
+    cachePaths.push(path);
+
+    /* Cache shape from before β: version 2, no workspaceFingerprint key. */
+    writeFileSync(
+      path,
+      JSON.stringify({
+        version: '2',
+        ruleHash: 'rule-hash',
+        entries: {},
+        toolEntries: {},
+      }),
+      'utf8',
+    );
+
+    const loaded: LintCache = LintCache.load(path, 'rule-hash');
+    expect(loaded.getWorkspaceFingerprint()).toBeNull();
+  });
+});

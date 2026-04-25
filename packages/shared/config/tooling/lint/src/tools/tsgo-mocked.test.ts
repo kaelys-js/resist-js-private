@@ -420,4 +420,32 @@ describe('runTsgoAllPackages', () => {
     expect(results[0]?.ruleId).toBe('internal/tool-crash');
     expect(setTool).not.toHaveBeenCalled();
   });
+
+  it('passes --incremental and --tsBuildInfoFile to tsgo', async () => {
+    vi.mocked(existsSync).mockImplementation((p: import('node:fs').PathLike): boolean => {
+      const s = String(p);
+      if (s === '/ws/packages') return true;
+      if (s === join('/ws/packages/a', 'tsconfig.json')) return true;
+      return false;
+    });
+    vi.mocked(readdirSync).mockImplementation(((dir: import('node:fs').PathLike): unknown[] => {
+      const d = String(dir);
+      if (d === '/ws/packages') return [makeDirent('a', { isDirectory: true })];
+      return [];
+    }) as never);
+    vi.mocked(readFileSync).mockReturnValue('{}');
+    vi.mocked(execFileAsync).mockResolvedValue({ stdout: '', stderr: '' });
+
+    await runTsgoAllPackages('/ws');
+    const calls = vi.mocked(execFileAsync).mock.calls;
+    expect(calls.length).toBe(1);
+    const [cmd, args] = calls[0]!;
+    expect(cmd).toBe('tsgo');
+    expect(args).toContain('--noEmit');
+    expect(args).toContain('--incremental');
+    expect(args).toContain('--tsBuildInfoFile');
+    /* The path arg follows --tsBuildInfoFile and points under node_modules/.cache */
+    const buildInfoIdx: number = (args as string[]).indexOf('--tsBuildInfoFile');
+    expect((args as string[])[buildInfoIdx + 1]).toContain('node_modules/.cache/tsgo.tsbuildinfo');
+  });
 });

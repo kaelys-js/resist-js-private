@@ -5,6 +5,7 @@
     "node_modules",
     ".git",
     ".svelte-kit",
+    ".svelte-check",
     "dist",
     "build",
     "coverage",

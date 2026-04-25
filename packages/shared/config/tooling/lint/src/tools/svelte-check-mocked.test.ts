@@ -494,4 +494,30 @@ describe('runSvelteCheckAllPackages', () => {
     expect(results[0]?.ruleId).toBe('internal/tool-crash');
     expect(setTool).not.toHaveBeenCalled();
   });
+
+  it('passes --incremental and --tsgo to svelte-check', async () => {
+    vi.mocked(existsSync).mockImplementation((p: import('node:fs').PathLike): boolean => {
+      const s = String(p);
+      if (s === '/ws/packages') return true;
+      if (s === join('/ws/packages/app', 'package.json')) return true;
+      if (s === join('/ws/packages/app', 'tsconfig.json')) return true;
+      return false;
+    });
+    vi.mocked(readdirSync).mockImplementation(((dir: import('node:fs').PathLike): unknown[] => {
+      const d = String(dir);
+      if (d === '/ws/packages') return [makeDirent('app', { isDirectory: true })];
+      if (d === '/ws/packages/app') return [makeDirent('A.svelte', { isFile: true })];
+      return [];
+    }) as never);
+    vi.mocked(execFileAsync).mockResolvedValue({ stdout: '', stderr: '' });
+
+    await runSvelteCheckAllPackages('/ws');
+    const calls = vi.mocked(execFileAsync).mock.calls;
+    expect(calls.length).toBe(1);
+    const [cmd, args] = calls[0]!;
+    expect(cmd).toBe('svelte-check');
+    expect(args).toContain('--incremental');
+    expect(args).toContain('--tsgo');
+    expect(args).toContain('--tsconfig');
+  });
 });
