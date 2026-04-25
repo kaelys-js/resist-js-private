@@ -472,6 +472,7 @@ describe('parseCliArgs — edge cases', () => {
  */
 function makeCliArgs(overrides: Partial<CliArgs> = {}): CliArgs {
   return {
+    packageNames: [],
     paths: [],
     json: false,
     listRules: false,

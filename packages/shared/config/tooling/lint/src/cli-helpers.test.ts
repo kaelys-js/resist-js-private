@@ -20,6 +20,8 @@ import {
   applyFixes,
   buildHelpText,
   parseCliArgs,
+  pathsIntersectDomain,
+  shouldRunWorkspaceRule,
   type CliArgs,
   type CliOutput,
 } from './cli-helpers.ts';
@@ -995,3 +997,92 @@ function captureOutput(): { stdoutLines: string[]; stderrLines: string[]; output
     },
   };
 }
+
+describe('pathsIntersectDomain', () => {
+  it('returns true when path is exactly the domain', () => {
+    expect(pathsIntersectDomain(['docs/plans'], 'docs/plans')).toBe(true);
+  });
+
+  it('returns true when path is inside the domain', () => {
+    expect(pathsIntersectDomain(['docs/plans/foo.md'], 'docs/plans')).toBe(true);
+  });
+
+  it('returns true when domain is inside the path (broader path)', () => {
+    expect(pathsIntersectDomain(['docs'], 'docs/plans')).toBe(true);
+  });
+
+  it('returns false when paths do not intersect domain', () => {
+    expect(pathsIntersectDomain(['packages/shared/config/core'], 'docs/plans')).toBe(false);
+  });
+
+  it('normalizes leading ./ and trailing /', () => {
+    expect(pathsIntersectDomain(['./docs/plans/'], 'docs/plans')).toBe(true);
+  });
+
+  it('returns false on empty paths', () => {
+    expect(pathsIntersectDomain([], 'docs/plans')).toBe(false);
+  });
+});
+
+describe('shouldRunWorkspaceRule', () => {
+  it('runs all rules when no paths passed (full-workspace mode)', () => {
+    expect(shouldRunWorkspaceRule('plans/no-incomplete-tasks', [])).toBe(true);
+    expect(shouldRunWorkspaceRule('workspace/some-rule', [])).toBe(true);
+  });
+
+  it('skips plans/* rules when scoped to a non-plans path', () => {
+    expect(
+      shouldRunWorkspaceRule('plans/no-incomplete-tasks', ['packages/shared/config/core']),
+    ).toBe(false);
+    expect(shouldRunWorkspaceRule('plans/files-exist', ['packages/x'])).toBe(false);
+  });
+
+  it('runs plans/* rules when scoped to docs/plans/', () => {
+    expect(shouldRunWorkspaceRule('plans/no-incomplete-tasks', ['docs/plans'])).toBe(true);
+    expect(shouldRunWorkspaceRule('plans/files-exist', ['docs/plans/foo.md'])).toBe(true);
+  });
+
+  it('runs plans/* rules when both packages and docs/plans paths are passed', () => {
+    expect(shouldRunWorkspaceRule('plans/no-incomplete-tasks', ['packages/x', 'docs/plans'])).toBe(
+      true,
+    );
+  });
+
+  it('runs rules without a declared domain unconditionally', () => {
+    expect(shouldRunWorkspaceRule('workspace/no-merge-conflicts', ['packages/x'])).toBe(true);
+  });
+});
+
+describe('parseCliArgs — --package', () => {
+  it('resolves --package <name> (space-form) to the package directory', () => {
+    const args: CliArgs = parseCliArgs(['--package', '@/lint']);
+    expect(args.packageNames).toEqual(['@/lint']);
+    expect(args.paths).toHaveLength(1);
+    expect(args.paths[0]).toMatch(/packages\/shared\/config\/tooling\/lint$/);
+  });
+
+  it('resolves --package=<name> (eq-form) to the package directory', () => {
+    const args: CliArgs = parseCliArgs(['--package=@/lint']);
+    expect(args.packageNames).toEqual(['@/lint']);
+    expect(args.paths).toHaveLength(1);
+    expect(args.paths[0]).toMatch(/packages\/shared\/config\/tooling\/lint$/);
+  });
+
+  it('throws on unknown package name with valid-list in message', () => {
+    expect(() => parseCliArgs(['--package', '@/does-not-exist'])).toThrow(
+      /Unknown --package: @\/does-not-exist\. Valid packages: .*@\/lint/,
+    );
+  });
+
+  it('merges multiple --package flags into paths', () => {
+    const args: CliArgs = parseCliArgs(['--package', '@/lint', '--package', '@/lint']);
+    expect(args.packageNames).toEqual(['@/lint', '@/lint']);
+    expect(args.paths).toHaveLength(2);
+  });
+
+  it('appends --package paths after positional paths', () => {
+    const args: CliArgs = parseCliArgs(['some/positional/path', '--package', '@/lint']);
+    expect(args.paths[0]).toBe('some/positional/path');
+    expect(args.paths[1]).toMatch(/packages\/shared\/config\/tooling\/lint$/);
+  });
+});

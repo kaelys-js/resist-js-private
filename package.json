@@ -19,7 +19,7 @@
     "qa:format": "biome format --write . && prettier --write '**/*.svelte'",
     "qa:format:check": "biome format . && prettier --check '**/*.svelte'",
     "qa:hooks": "bash .claude/hooks/hooks.test.sh",
-    "qa:lint": "bash -c 'node --import ./packages/shared/config/tooling/node/src/register-aliases.mjs packages/shared/config/tooling/lint/src/cli.ts --tools; L=$?; pnpm run qa:hooks; H=$?; exit $((L || H))'"
+    "qa:lint": "bash -c 'node --import ./packages/shared/config/tooling/node/src/register-aliases.mjs packages/shared/config/tooling/lint/src/cli.ts --tools \"$@\"; L=$?; pnpm run qa:hooks; H=$?; exit $((L || H))' --"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
