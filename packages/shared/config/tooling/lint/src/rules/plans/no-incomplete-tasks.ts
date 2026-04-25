@@ -9,7 +9,7 @@
 
 import { createResult, type LintResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
-import { parsePlan, parsePlanDate } from '@/lint/rules/plans/plan-parser.ts';
+import { discoverPlanFiles, parsePlan, parsePlanDate } from '@/lint/rules/plans/plan-parser.ts';
 
 /** Rule ID constant. */
 const RULE_ID: string = 'plans/no-incomplete-tasks';
@@ -36,6 +36,17 @@ const rule: WorkspaceRule = {
     },
   },
 
+  /* This rule's output depends on (a) plan-file content + (b) the current
+   * date — a plan that's "young" today may cross the maxAgeDays threshold
+   * tomorrow. We include a synthetic "__daily_rollover__/<UTC date>" path
+   * in the input set so the cache invalidates exactly once per day. */
+  async inputs(context: unknown): Promise<readonly string[]> {
+    const ctx: WorkspaceContext = context as WorkspaceContext;
+    const planFiles: readonly string[] = await discoverPlanFiles(ctx);
+    const today: string = new Date().toISOString().slice(0, 10);
+    return [...planFiles, `__daily_rollover__/${today}`];
+  },
+
   async check(context: unknown): Promise<LintResult[]> {
     const ctx = context as RuleContext;
     const maxAgeDays: number =
@@ -45,10 +56,7 @@ const rule: WorkspaceRule = {
 
     const results: LintResult[] = [];
     const now: Date = new Date();
-    const mdFiles: readonly string[] = await ctx.filesByExtension('.md');
-    const planFiles: readonly string[] = mdFiles.filter(
-      (f: string): boolean => f.includes('/docs/plans/') && !f.endsWith('TEMPLATE.md'),
-    );
+    const planFiles: readonly string[] = await discoverPlanFiles(ctx);
 
     for (const file of planFiles) {
       /* Check age from filename date */

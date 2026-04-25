@@ -38,6 +38,11 @@ const rule: WorkspaceRule = {
     },
   },
 
+  async inputs(context: unknown): Promise<readonly string[]> {
+    const ctx = context as WorkspaceContext;
+    return ctx.filesByExtension('.ts');
+  },
+
   async check(context: unknown): Promise<LintResult[]> {
     const ctx: DuplicateFnContext = context as DuplicateFnContext;
     const allowedNames: ReadonlySet<string> = new Set(ctx.ruleOptions?.allowedNames ?? []);

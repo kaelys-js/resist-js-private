@@ -23,6 +23,11 @@ const rule: WorkspaceRule = {
   categories: ['workspace', 'migrations'],
   stages: ['lint', 'check'],
   fixable: false,
+  async inputs(context: unknown): Promise<readonly string[]> {
+    const ctx = context as WorkspaceContext;
+    return ctx.allFiles();
+  },
+
   async check(context: unknown): Promise<
     Array<{
       ruleId: string;

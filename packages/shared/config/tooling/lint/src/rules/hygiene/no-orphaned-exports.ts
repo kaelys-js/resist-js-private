@@ -63,6 +63,11 @@ function shouldSkipFile(filePath: string): boolean {
 /** Description. */
 const rule: WorkspaceRule = {
   categories: ['hygiene'],
+  async inputs(context: unknown): Promise<readonly string[]> {
+    const ctx = context as WorkspaceContext;
+    return ctx.filesByExtension('.ts');
+  },
+
   async check(context: unknown): Promise<LintResult[]> {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const results: LintResult[] = [];

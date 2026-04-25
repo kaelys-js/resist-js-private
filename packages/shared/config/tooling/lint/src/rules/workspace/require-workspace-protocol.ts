@@ -26,6 +26,17 @@ const rule: WorkspaceRule = {
   categories: ['workspace', 'package'],
   stages: ['lint', 'check'],
   fixable: false,
+  async inputs(context: unknown): Promise<readonly string[]> {
+    const ctx = context as WorkspaceContext;
+    const all = await ctx.allFiles();
+    try {
+      const packages = await ctx.getWorkspacePackages();
+      return [...all, ...packages.map((p) => p.path)];
+    } catch {
+      return all;
+    }
+  },
+
   async check(context: unknown): Promise<
     Array<{
       ruleId: string;

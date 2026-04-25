@@ -1682,12 +1682,22 @@ export async function _runLintCore(
        * cached results when their declared file set hasn't changed. Rules
        * without `inputs` fall through to a normal check() call (unchanged
        * behavior). Cache key namespace: `workspace:<ruleId>` with synthetic
-       * pkgDir '/' since workspace rules are not package-scoped. */
+       * pkgDir '/' since workspace rules are not package-scoped.
+       *
+       * Many rules share the same input set (e.g. all rules over `allFiles()`).
+       * Memoize fingerprint compute by paths-key so 243× redundant statSync
+       * sweeps across the same file set collapse to a single sweep. */
+      const fpMemo: Map<string, string> = new Map();
       const wsResults: LintResult[][] = await Promise.all(
         wsRules.map(async (rule: WorkspaceRule): Promise<LintResult[]> => {
           if (rule.inputs && lintCache) {
             const inputFiles: readonly string[] = await rule.inputs(wsContext);
-            const fp: string = fingerprintFiles(inputFiles);
+            const pathsKey: string = [...inputFiles].sort().join('\n');
+            let fp: string | undefined = fpMemo.get(pathsKey);
+            if (fp === undefined) {
+              fp = fingerprintFiles(inputFiles);
+              fpMemo.set(pathsKey, fp);
+            }
             const cached: LintResult[] | null = lintCache.getTool(`workspace:${rule.id}`, '/', fp);
             if (cached !== null) {
               return cached;

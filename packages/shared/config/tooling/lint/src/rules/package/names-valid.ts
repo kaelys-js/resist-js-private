@@ -70,6 +70,15 @@ function diagnoseNameIssues(name: string): string[] {
 /** Description. */
 const rule: WorkspaceRule = {
   categories: ['package', 'naming'],
+  async inputs(context: unknown): Promise<readonly string[]> {
+    const ctx: WorkspaceContext = context as WorkspaceContext;
+    try {
+      const packages: WorkspacePackage[] = await ctx.getWorkspacePackages();
+      return packages.map((p: WorkspacePackage): string => p.path);
+    } catch {
+      return [];
+    }
+  },
   async check(context: unknown): Promise<LintResult[]> {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const results: LintResult[] = [];

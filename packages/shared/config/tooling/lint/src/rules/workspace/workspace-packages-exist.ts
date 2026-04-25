@@ -56,6 +56,16 @@ const rule: WorkspaceRule = {
   categories: ['workspace', 'pnpm'],
   stages: ['lint', 'ci'],
   fixable: false,
+  async inputs(context: unknown): Promise<readonly string[]> {
+    const ctx = context as WorkspaceContext;
+    try {
+      const packages = await ctx.getWorkspacePackages();
+      return packages.map((p) => p.path);
+    } catch {
+      return [];
+    }
+  },
+
   async check(context: unknown): Promise<
     Array<{
       ruleId: string;

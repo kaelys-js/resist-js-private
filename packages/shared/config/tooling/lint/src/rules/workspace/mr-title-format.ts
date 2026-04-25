@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   categories: ['workspace', 'ci'],
   stages: ['lint', 'check'],
   fixable: false,
+  /* Caching is opt-out: this rule depends on CI environment variables (process.env). */
   async check(context: unknown): Promise<
     Array<{
       ruleId: string;

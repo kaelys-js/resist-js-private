@@ -50,6 +50,11 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['workspace', 'safety'],
   stages: ['lint', 'pre-commit', 'ci'],
+  async inputs(context: unknown): Promise<readonly string[]> {
+    const ctx = context as WorkspaceContext;
+    return ctx.allFiles();
+  },
+
   async check(context: unknown): Promise<
     Array<{
       ruleId: string;

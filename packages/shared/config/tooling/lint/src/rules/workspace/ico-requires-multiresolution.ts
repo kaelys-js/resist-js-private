@@ -20,6 +20,7 @@ const rule: WorkspaceRule = {
   categories: ['workspace', 'encoding'],
   stages: ['lint', 'check'],
   fixable: false,
+  /* Caching is opt-out: this rule reads filesystem directly via node:fs (image/symlink inspection). */
   async check(context: unknown): Promise<
     Array<{
       ruleId: string;
