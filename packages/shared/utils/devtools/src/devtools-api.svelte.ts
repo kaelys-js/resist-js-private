@@ -36,12 +36,22 @@ import { formatThresholds } from '@/utils/web-vitals/vitals-diagnostics';
 // Key Generators
 // =============================================================================
 
-/** Returns the window global key for the devtools API. */
+/**
+ * Returns the window global key for the devtools API.
+ *
+ * @param appName - The application name to derive the key from.
+ * @returns The uppercase `__<APP>_DEVTOOLS__` global key.
+ */
 export function getDevtoolsKey(appName: Str): Str {
   return `__${appName.toUpperCase()}_DEVTOOLS__`;
 }
 
-/** Returns the window global key for build info. */
+/**
+ * Returns the window global key for build info.
+ *
+ * @param appName - The application name to derive the key from.
+ * @returns The uppercase `__<APP>_BUILD__` global key.
+ */
 export function getBuildKey(appName: Str): Str {
   return `__${appName.toUpperCase()}_BUILD__`;
 }
@@ -155,8 +165,8 @@ export function createDevtoolsAPI(
   const extensions: Map<Str, Record<Str, unknown>> = new Map<Str, Record<Str, unknown>>();
   const watchers: Map<Str, WatcherCleanup> = new Map<Str, WatcherCleanup>();
 
-  const devtoolsKey: Str = getDevtoolsKey(config.appName);
-  const appName: Str = config.appName;
+  const { appName } = config;
+  const devtoolsKey: Str = getDevtoolsKey(appName);
 
   // Build setter map from schema
   const appSetterMap: Record<Str, Str> = {};
@@ -178,7 +188,9 @@ export function createDevtoolsAPI(
 
     set(path: Str, value: unknown): Void {
       const [section, key] = path.split('.');
-      if (!section || !key) return;
+      if (!section || !key) {
+        return;
+      }
 
       if (section === 'app') {
         const setterName: Str | undefined = appSetterMap[key];
@@ -203,19 +215,27 @@ export function createDevtoolsAPI(
 
     setTheme(theme: Str): Void {
       const setter = (appStore as Record<Str, unknown>).setTheme;
-      if (typeof setter === 'function') (setter as (v: Str) => void)(theme);
+      if (typeof setter === 'function') {
+        (setter as (v: Str) => void)(theme);
+      }
     },
     setMode(mode: Str): Void {
       const setter = (appStore as Record<Str, unknown>).setMode;
-      if (typeof setter === 'function') (setter as (v: Str) => void)(mode);
+      if (typeof setter === 'function') {
+        (setter as (v: Str) => void)(mode);
+      }
     },
     setLocale(locale: Str): Void {
       const setter = (appStore as Record<Str, unknown>).setLocale;
-      if (typeof setter === 'function') (setter as (v: Str) => void)(locale);
+      if (typeof setter === 'function') {
+        (setter as (v: Str) => void)(locale);
+      }
     },
     setSidebarOpen(open: Bool): Void {
       const setter = (appStore as Record<Str, unknown>).setSidebarOpen;
-      if (typeof setter === 'function') (setter as (v: Bool) => void)(open);
+      if (typeof setter === 'function') {
+        (setter as (v: Bool) => void)(open);
+      }
     },
     setFeature(flag: Str, enabled: Bool): Void {
       appStore.setFeature(flag, enabled);
@@ -251,7 +271,9 @@ export function createDevtoolsAPI(
 
     registerWatcher(name: Str, getter: () => Record<Str, unknown>): Void {
       const existing: WatcherCleanup | undefined = watchers.get(name);
-      if (existing) existing();
+      if (existing) {
+        existing();
+      }
       watchers.set(name, createWatcher(name, getter, debugStore, `${appName}Store`));
     },
 
@@ -289,13 +311,15 @@ export function createDevtoolsAPI(
     perf: {
       vitals(): PanelMetric[] {
         const result = getVitalsPanelMetrics();
-        if (!result.ok) return [];
+        if (!result.ok) {
+          return [];
+        }
         return $state.snapshot(result.data) as PanelMetric[];
       },
 
       beacon(): BeaconStatus {
         const result = getBeaconStatus();
-        if (!result.ok)
+        if (!result.ok) {
           return {
             queued: 0 as Num,
             queuedItems: [],
@@ -303,12 +327,13 @@ export function createDevtoolsAPI(
             sessionId: '' as Str,
             maxQueueSize: 0 as Num,
           };
+        }
         return result.data as BeaconStatus;
       },
 
       device(): ConnectionSnapshot {
         const result = getConnectionSnapshot();
-        if (!result.ok)
+        if (!result.ok) {
           return {
             effectiveType: '',
             saveData: false,
@@ -320,6 +345,7 @@ export function createDevtoolsAPI(
             deviceMemory: 0,
             hardwareConcurrency: 0,
           } as ConnectionSnapshot;
+        }
         return result.data;
       },
 
@@ -343,8 +369,11 @@ export function createDevtoolsAPI(
             ? `${Math.round(m.value)}ms`
             : String(Math.round(m.value * 10_000) / 10_000);
           let ratingColor: Str = 'color:#f44';
-          if (m.rating === 'good') ratingColor = 'color:#4f4';
-          else if (m.rating === 'needsImprovement') ratingColor = 'color:#fa0';
+          if (m.rating === 'good') {
+            ratingColor = 'color:#4f4';
+          } else if (m.rating === 'needsImprovement') {
+            ratingColor = 'color:#fa0';
+          }
           console.log(
             `  %c${m.name.padEnd(6)}%c ${formatted.padEnd(10)} %c${m.rating}`,
             'color:#8cf;font-weight:bold',
@@ -376,7 +405,9 @@ export function createDevtoolsAPI(
 
       logDevice(): Void {
         const snapResult = getConnectionSnapshot();
-        if (!snapResult.ok) return;
+        if (!snapResult.ok) {
+          return;
+        }
         const snap: ConnectionSnapshot = snapResult.data;
         // eslint-disable-next-line unicorn/no-console-spaces -- Intentional badge padding for %c styled output
         console.log('%c Device & Connection ', HELP_HEADER);

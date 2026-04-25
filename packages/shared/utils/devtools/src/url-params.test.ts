@@ -47,7 +47,9 @@ describe('parseDebugParams', () => {
   it('returns empty overrides for URL with no prefixed params', () => {
     const result = parseDebugParams(new URL('http://localhost'), URL_PREFIX);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({});
+    if (result.ok) {
+      expect(result.data).toEqual({});
+    }
   });
 
   it('extracts single prefixed param', () => {
@@ -56,7 +58,9 @@ describe('parseDebugParams', () => {
       URL_PREFIX,
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({ debug: 'true' });
+    if (result.ok) {
+      expect(result.data).toEqual({ debug: 'true' });
+    }
   });
 
   it('extracts multiple prefixed params', () => {
@@ -78,7 +82,9 @@ describe('parseDebugParams', () => {
       URL_PREFIX,
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({ debug: 'true' });
+    if (result.ok) {
+      expect(result.data).toEqual({ debug: 'true' });
+    }
   });
 
   it('handles feature flag params with ff. prefix', () => {
@@ -87,7 +93,9 @@ describe('parseDebugParams', () => {
       URL_PREFIX,
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual({ 'ff.settings': 'false' });
+    if (result.ok) {
+      expect(result.data).toEqual({ 'ff.settings': 'false' });
+    }
   });
 });
 

@@ -133,7 +133,9 @@ export function createWatcher(
     $effect(() => {
       const current: Record<Str, unknown> = { ...getter() };
 
-      if (!shouldLog('debug', debugStore.debug.logLevel)) return;
+      if (!shouldLog('debug', debugStore.debug.logLevel)) {
+        return;
+      }
 
       const diffs = diffSnapshot(prev, current);
       for (const diff of diffs) {

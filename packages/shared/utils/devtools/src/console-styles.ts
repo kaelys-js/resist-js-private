@@ -107,7 +107,9 @@ export function diffSnapshot(
     const newVal: unknown = next[key];
 
     // Primitive equality check
-    if (oldVal === newVal) continue;
+    if (oldVal === newVal) {
+      continue;
+    }
 
     // For objects/arrays, compare via JSON to detect deep changes
     if (

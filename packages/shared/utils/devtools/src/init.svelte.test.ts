@@ -21,7 +21,7 @@ vi.mock('@/utils/core/build-info', () => ({
   getBuildInfo: mockGetBuildInfo,
 }));
 
-vi.mock('./devtools-api.svelte', async () => {
+vi.mock('./devtools-api.svelte', () => {
   const key: Str = `__TESTAPP_DEVTOOLS__`;
   return {
     getDevtoolsKey: (name: Str): Str => `__${name.toUpperCase()}_DEVTOOLS__`,

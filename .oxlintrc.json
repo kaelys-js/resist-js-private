@@ -574,6 +574,9 @@
         "**/debug/init.svelte.ts",
         "**/debug/state-logger.svelte.ts",
         "**/debug/devtools-api.svelte.ts",
+        "**/utils/devtools/**/init.svelte.ts",
+        "**/utils/devtools/**/state-logger.svelte.ts",
+        "**/utils/devtools/**/devtools-api.svelte.ts",
         "**/perf/vitals-logger.ts",
         "**/lens-stats/LensStats.svelte",
         "**/lens-component-renderer/LensComponentRenderer.svelte"
