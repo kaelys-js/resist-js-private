@@ -162,6 +162,53 @@ import * as Command from '../command/index.js';
     expect(deps.internal[0]!.kind).toBe('namespace');
     expect(deps.internal[0]!.names).toEqual(['Command']);
   });
+
+  it('handles `type Foo` default type import (else branch of type namedMatch)', () => {
+    const source: Str = `<script lang="ts">
+import type Foo from 'somepkg';
+</script>`;
+    const deps: DepTree = extractDeps(source);
+    expect(deps.external).toHaveLength(1);
+    expect(deps.external[0]!.names).toEqual(['Foo']);
+    expect(deps.external[0]!.kind).toBe('type');
+  });
+
+  it('type-only braced import with `type X` prefix and `as` alias', () => {
+    const source: Str = `<script lang="ts">
+import type { type Inner, X as Y } from 'pkg';
+</script>`;
+    const deps: DepTree = extractDeps(source);
+    expect(deps.external[0]!.names).toEqual(['Inner', 'Y']);
+    expect(deps.external[0]!.kind).toBe('type');
+  });
+
+  it('type-only braced import skips empty parts (trailing comma)', () => {
+    const source: Str = `<script lang="ts">
+import type { A, , B } from 'pkg';
+</script>`;
+    const deps: DepTree = extractDeps(source);
+    expect(deps.external[0]!.names).toEqual(['A', 'B']);
+    expect(deps.external[0]!.kind).toBe('type');
+  });
+
+  it('named import skips empty parts (double comma)', () => {
+    const source: Str = `<script lang="ts">
+import { A, , B } from 'pkg';
+</script>`;
+    const deps: DepTree = extractDeps(source);
+    expect(deps.external[0]!.names).toEqual(['A', 'B']);
+    expect(deps.external[0]!.kind).toBe('named');
+  });
+
+  it('default + named mixed import classifies as `named`', () => {
+    const source: Str = `<script lang="ts">
+import Default, { Named } from 'pkg';
+</script>`;
+    const deps: DepTree = extractDeps(source);
+    expect(deps.external).toHaveLength(1);
+    expect(deps.external[0]!.names).toEqual(['Named', 'Default']);
+    expect(deps.external[0]!.kind).toBe('named');
+  });
 });
 
 describe('extractReverseDeps', () => {

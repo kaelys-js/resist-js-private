@@ -124,6 +124,109 @@ export const buttonVariants = tv({
     expect(sizeKey?.options).toEqual(['default', 'sm', 'lg', 'icon', 'icon-sm', 'icon-lg']);
   });
 
+  it('returns null when tv() is unclosed (tvEndIdx === -1)', () => {
+    const source: string = `const x = tv({ variants: { variant: { a: 'x' } } `;
+    expect(extractVariants(source)).toBeNull();
+  });
+
+  it('returns null when tv() has no variants block', () => {
+    const source: string = `const x = tv({ base: 'flex' });`;
+    expect(extractVariants(source)).toBeNull();
+  });
+
+  it('returns null when defaultVariants key body is unclosed (extractBlock endIdx === -1)', () => {
+    /* The `variants` block closes, but `defaultVariants` starts and never
+     * closes before the tv() closing brace, which causes
+     * findMatchingBrace on the inner block to return -1. extractBlock then
+     * returns null for defaultVariants but variants still parses — so
+     * the whole call still succeeds but with empty defaults. */
+    const source: string = `const x = tv({
+      variants: { variant: { a: 'x', b: 'y' } },
+      defaultVariants: { variant: 'a'
+    `;
+    /* Unclosed inner — the outer tv() never closes either, so tvEndIdx is
+     * -1 and extractVariants short-circuits to null before reaching
+     * defaultVariants. This also exercises line 45. */
+    expect(extractVariants(source)).toBeNull();
+  });
+
+  it("string-literal values in tv() don't trip findMatchingBrace depth tracking", () => {
+    const source: string = `const x = tv({
+      variants: {
+        size: {
+          sm: 'has-{nested}-braces-{in-string}',
+          md: 'another-\\'string\\' with-quotes',
+        },
+      },
+    });`;
+    const meta = extractVariants(source);
+    expect(meta).not.toBeNull();
+    expect(meta?.variants[0]?.key).toBe('size');
+    expect(meta?.variants[0]?.options).toEqual(['sm', 'md']);
+  });
+
+  it('template-literal values also skip brace counting', () => {
+    const source: string = `const x = tv({
+      variants: {
+        k: {
+          a: \`tpl-{with}-braces\`,
+          b: 'plain',
+        },
+      },
+    });`;
+    const meta = extractVariants(source);
+    expect(meta?.variants[0]?.options).toEqual(['a', 'b']);
+  });
+
+  it('defaultVariants with empty keys are skipped', () => {
+    const source: string = `const x = tv({
+      variants: { k: { a: 'x', b: 'y' } },
+      defaultVariants: {},
+    });`;
+    const meta = extractVariants(source);
+    expect(meta?.variants[0]?.default).toBe('');
+  });
+
+  it('option block with quoted keys uses parseOptionNames quotedMatch path', () => {
+    const source: string = `const x = tv({
+      variants: {
+        size: { 'icon-sm': 'size-8', 'icon-lg': 'size-10' },
+      },
+    });`;
+    const meta = extractVariants(source);
+    expect(meta?.variants[0]?.options).toEqual(['icon-sm', 'icon-lg']);
+  });
+
+  it('option block with template-literal values exercises skipValue non-string branch', () => {
+    const source: string = `const x = tv({
+      variants: {
+        k: { a: \`tpl\`, b: \`other\` },
+      },
+    });`;
+    const meta = extractVariants(source);
+    expect(meta?.variants[0]?.options).toEqual(['a', 'b']);
+  });
+
+  it('option block with double-quoted values', () => {
+    const source: string = `const x = tv({
+      variants: {
+        k: { a: "double", b: "quoted" },
+      },
+    });`;
+    const meta = extractVariants(source);
+    expect(meta?.variants[0]?.options).toEqual(['a', 'b']);
+  });
+
+  it('option block with escaped quote inside value string', () => {
+    const source: string = `const x = tv({
+      variants: {
+        k: { a: 'it\\'s', b: 'ok' },
+      },
+    });`;
+    const meta = extractVariants(source);
+    expect(meta?.variants[0]?.options).toEqual(['a', 'b']);
+  });
+
   it('extracts variants from instance script (not module)', () => {
     const source: string = `<script lang="ts">
 const variants = tv({

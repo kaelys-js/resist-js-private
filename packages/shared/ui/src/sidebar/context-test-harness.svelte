@@ -5,7 +5,10 @@
 <script lang="ts">
   import { setSidebar, useSidebar } from './context.svelte.js';
 
-  type Props = { init: SidebarStateProps };
+  type Props = {
+    /** Initial sidebar state props forwarded to `setSidebar`. */
+    init: SidebarStateProps;
+  };
   const { init }: Props = $props();
   const sidebar = setSidebar(init);
   const retrieved = useSidebar();

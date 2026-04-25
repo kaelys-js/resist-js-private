@@ -295,6 +295,38 @@ describe('data export functions', () => {
       expect(output).toContain('  - **Child** *(named)* `utility`');
     });
 
+    it('Mermaid/Dot/PlantUml/CSV fall back to raw parentId when parent not in node list', async () => {
+      const orphanNodes = [
+        {
+          id: 'child',
+          label: 'Child',
+          kind: 'named' as Str,
+          category: 'component' as Str,
+          parentId: 'missing-parent' as Str,
+        },
+      ];
+      await copyChainMermaid(orphanNodes);
+      const mermaidOut: string = clipboardCopy.mock.calls[0]![0] as string;
+      /* Raw parentId is used directly as graph node id when not mapped. */
+      expect(mermaidOut).toContain('missing-parent');
+      clipboardCopy.mockClear();
+
+      await copyChainDot(orphanNodes, 'Root' as Str);
+      const dotOut: string = clipboardCopy.mock.calls[0]![0] as string;
+      expect(dotOut).toContain('missing-parent');
+      clipboardCopy.mockClear();
+
+      await copyChainPlantUml(orphanNodes, 'Root' as Str);
+      const plantOut: string = clipboardCopy.mock.calls[0]![0] as string;
+      expect(plantOut).toContain('missing-parent');
+      clipboardCopy.mockClear();
+
+      await copyChainCsv(orphanNodes);
+      const csvOut: string = clipboardCopy.mock.calls[0]![0] as string;
+      /* CSV falls back to empty string when parent node is absent. */
+      expect(csvOut).toContain('"Child","named","component",""');
+    });
+
     it('does not add kind suffix for default kind', async () => {
       const simpleNodes = [
         {
