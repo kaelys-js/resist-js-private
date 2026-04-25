@@ -80,7 +80,9 @@ describe('error reporting pipeline', () => {
     // Step 1: Convert to beacon payload (strips PII)
     const payloadResult: Result<BeaconPayload> = toBeaconPayload(captured);
     expect(payloadResult.ok).toBe(true);
-    if (!payloadResult.ok) return;
+    if (!payloadResult.ok) {
+      return;
+    }
 
     const payload: BeaconPayload = payloadResult.data as BeaconPayload;
 
@@ -122,7 +124,9 @@ describe('error reporting pipeline', () => {
     // Drain breadcrumbs into CapturedError (simulates what setupGlobalErrorHandling does)
     const crumbs: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(crumbs.ok).toBe(true);
-    if (!crumbs.ok) return;
+    if (!crumbs.ok) {
+      return;
+    }
 
     const captured: CapturedError = makeCaptured({
       breadcrumbs: crumbs.data as Breadcrumb[],
@@ -131,7 +135,9 @@ describe('error reporting pipeline', () => {
     // Convert and validate
     const payloadResult: Result<BeaconPayload> = toBeaconPayload(captured);
     expect(payloadResult.ok).toBe(true);
-    if (!payloadResult.ok) return;
+    if (!payloadResult.ok) {
+      return;
+    }
 
     // Breadcrumbs should be included
     expect(payloadResult.data.breadcrumbs).toHaveLength(3);
@@ -158,7 +164,9 @@ describe('error reporting pipeline', () => {
     addNavigationBreadcrumb('/' as Str, '/editor' as Str);
     const crumbs: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(crumbs.ok).toBe(true);
-    if (!crumbs.ok) return;
+    if (!crumbs.ok) {
+      return;
+    }
 
     const captured: CapturedError = makeCaptured({
       breadcrumbs: crumbs.data as Breadcrumb[],
@@ -201,7 +209,9 @@ describe('error reporting pipeline', () => {
     // Check breadcrumbs contain the fetch
     const crumbs: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(crumbs.ok).toBe(true);
-    if (!crumbs.ok) return;
+    if (!crumbs.ok) {
+      return;
+    }
 
     expect(crumbs.data).toHaveLength(1);
     expect(crumbs.data[0]!.type).toBe('http');
@@ -228,7 +238,9 @@ describe('error reporting pipeline', () => {
     const captured: CapturedError = makeCaptured();
     const payloadResult: Result<BeaconPayload> = toBeaconPayload(captured);
     expect(payloadResult.ok).toBe(true);
-    if (!payloadResult.ok) return;
+    if (!payloadResult.ok) {
+      return;
+    }
 
     // safeParse deep-freezes output
     expect(Object.isFrozen(payloadResult.data)).toBe(true);
@@ -244,7 +256,9 @@ describe('error reporting pipeline', () => {
     const captured: CapturedError = makeCaptured();
     const payloadResult: Result<BeaconPayload> = toBeaconPayload(captured);
     expect(payloadResult.ok).toBe(true);
-    if (!payloadResult.ok) return;
+    if (!payloadResult.ok) {
+      return;
+    }
 
     // Simulate an attacker injecting PII into the serialized payload
     const json: Str = JSON.stringify(payloadResult.data) as Str;

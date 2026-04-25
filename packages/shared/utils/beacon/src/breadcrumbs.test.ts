@@ -36,7 +36,9 @@ describe('addNavigationBreadcrumb', () => {
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     expect(result.data).toHaveLength(1);
     const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
@@ -63,7 +65,9 @@ describe('addNavigationBreadcrumb', () => {
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     expect(result.data).toHaveLength(1);
     const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
@@ -100,7 +104,9 @@ describe('initFetchBreadcrumbs', () => {
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     expect(result.data).toHaveLength(1);
     const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
@@ -124,7 +130,9 @@ describe('initFetchBreadcrumbs', () => {
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
     expect(crumb.level).toBe('error');
@@ -147,7 +155,9 @@ describe('initFetchBreadcrumbs', () => {
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
     expect(crumb.level).toBe('warning');
@@ -166,7 +176,9 @@ describe('initFetchBreadcrumbs', () => {
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
     expect(crumb.message).toContain('POST');
@@ -200,7 +212,9 @@ describe('initFetchBreadcrumbs', () => {
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     expect(result.data).toHaveLength(0);
   });
@@ -226,7 +240,9 @@ describe('initFetchBreadcrumbs', () => {
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     // Only /api/users should produce a breadcrumb
     expect(result.data).toHaveLength(1);
@@ -245,7 +261,9 @@ describe('initFetchBreadcrumbs', () => {
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     expect(result.data).toHaveLength(1);
     const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
@@ -265,7 +283,9 @@ describe('initFetchBreadcrumbs', () => {
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     expect(result.data).toHaveLength(1);
     const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
@@ -294,7 +314,9 @@ describe('initFetchBreadcrumbs', () => {
     await globalThis.fetch('/api/test');
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
     expect(result.data).toHaveLength(1);
   });
 
@@ -321,7 +343,9 @@ describe('initFetchBreadcrumbs', () => {
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
     expect(crumb.level).toBe('warning');
@@ -341,7 +365,9 @@ describe('initFetchBreadcrumbs', () => {
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     expect(result.data).toHaveLength(1);
     const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
@@ -363,7 +389,9 @@ describe('initFetchBreadcrumbs', () => {
 
     const result: Result<readonly Breadcrumb[]> = getBreadcrumbs();
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {
+      return;
+    }
 
     const crumb: Breadcrumb = result.data[0]! as Breadcrumb;
     expect(crumb.message).toContain('DELETE');

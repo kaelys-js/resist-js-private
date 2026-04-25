@@ -196,7 +196,9 @@ describe('beaconError', () => {
     const result: Result<Void> = beaconError(captured, '/api/errors');
 
     expect(result.ok).toBe(false);
-    if (result.ok) return;
+    if (result.ok) {
+      return;
+    }
     expect(result.error.code).toBe('NETWORK.PORT_UNAVAILABLE');
   });
 
