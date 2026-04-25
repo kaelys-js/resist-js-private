@@ -4,7 +4,7 @@
  * @module
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import type { Result } from '@/schemas/result/result';
 import type { StandardEnvironment } from '@/schemas/core-config/environment';
 import type { Bool } from '@/schemas/common';
@@ -34,49 +34,63 @@ describe('getEnvironmentFromBranch', () => {
     const result: Result<StandardEnvironment> = getEnvironmentFromBranch('main');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('production');
+    if (result.ok) {
+      expect(result.data).toBe('production');
+    }
   });
 
   it('returns production for master', () => {
     const result: Result<StandardEnvironment> = getEnvironmentFromBranch('master');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('production');
+    if (result.ok) {
+      expect(result.data).toBe('production');
+    }
   });
 
   it('returns staging for staging', () => {
     const result: Result<StandardEnvironment> = getEnvironmentFromBranch('staging');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('staging');
+    if (result.ok) {
+      expect(result.data).toBe('staging');
+    }
   });
 
   it('returns staging for release/* branches', () => {
     const result: Result<StandardEnvironment> = getEnvironmentFromBranch('release/v1.0');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('staging');
+    if (result.ok) {
+      expect(result.data).toBe('staging');
+    }
   });
 
   it('returns development for feature/* branches', () => {
     const result: Result<StandardEnvironment> = getEnvironmentFromBranch('feature/my-feature');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('development');
+    if (result.ok) {
+      expect(result.data).toBe('development');
+    }
   });
 
   it('returns development for fix/* branches', () => {
     const result: Result<StandardEnvironment> = getEnvironmentFromBranch('fix/bug-123');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('development');
+    if (result.ok) {
+      expect(result.data).toBe('development');
+    }
   });
 
   it('defaults to development for unknown branches', () => {
     const result: Result<StandardEnvironment> = getEnvironmentFromBranch('unknown-branch');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('development');
+    if (result.ok) {
+      expect(result.data).toBe('development');
+    }
   });
 });
 
@@ -85,21 +99,27 @@ describe('getParentEnvironment', () => {
     const result = getParentEnvironment('production');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBeUndefined();
+    if (result.ok) {
+      expect(result.data).toBeUndefined();
+    }
   });
 
   it('returns production for staging', () => {
     const result = getParentEnvironment('staging');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('production');
+    if (result.ok) {
+      expect(result.data).toBe('production');
+    }
   });
 
   it('returns staging for development', () => {
     const result = getParentEnvironment('development');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('staging');
+    if (result.ok) {
+      expect(result.data).toBe('staging');
+    }
   });
 });
 
@@ -108,21 +128,27 @@ describe('getChildEnvironments', () => {
     const result = getChildEnvironments('production');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual(['staging']);
+    if (result.ok) {
+      expect(result.data).toEqual(['staging']);
+    }
   });
 
   it('returns development for staging', () => {
     const result = getChildEnvironments('staging');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual(['development']);
+    if (result.ok) {
+      expect(result.data).toEqual(['development']);
+    }
   });
 
   it('returns empty array for development (no children)', () => {
     const result = getChildEnvironments('development');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual([]);
+    if (result.ok) {
+      expect(result.data).toEqual([]);
+    }
   });
 });
 
@@ -131,28 +157,36 @@ describe('canAccessEnvironment', () => {
     const result: Result<Bool> = canAccessEnvironment('development', 'staging');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
   });
 
   it('allows development to access production secrets', () => {
     const result: Result<Bool> = canAccessEnvironment('development', 'production');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
   });
 
   it('allows same environment access', () => {
     const result: Result<Bool> = canAccessEnvironment('staging', 'staging');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
   });
 
   it('denies production accessing development secrets', () => {
     const result: Result<Bool> = canAccessEnvironment('production', 'development');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(false);
+    if (result.ok) {
+      expect(result.data).toBe(false);
+    }
   });
 });
 
@@ -178,7 +212,9 @@ describe('detectEnvironment', () => {
     const result: Result<StandardEnvironment> = detectEnvironment();
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('production');
+    if (result.ok) {
+      expect(result.data).toBe('production');
+    }
   });
 
   it('falls back to NODE_ENV', () => {
@@ -186,14 +222,18 @@ describe('detectEnvironment', () => {
     const result: Result<StandardEnvironment> = detectEnvironment();
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('staging');
+    if (result.ok) {
+      expect(result.data).toBe('staging');
+    }
   });
 
   it('defaults to development when no env vars set', () => {
     const result: Result<StandardEnvironment> = detectEnvironment();
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('development');
+    if (result.ok) {
+      expect(result.data).toBe('development');
+    }
   });
 
   it('detects from CI branch', () => {
@@ -202,7 +242,9 @@ describe('detectEnvironment', () => {
     const result: Result<StandardEnvironment> = detectEnvironment();
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('production');
+    if (result.ok) {
+      expect(result.data).toBe('production');
+    }
   });
 
   it('defaults to staging in CI with no branch', () => {
@@ -210,7 +252,9 @@ describe('detectEnvironment', () => {
     const result: Result<StandardEnvironment> = detectEnvironment();
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('staging');
+    if (result.ok) {
+      expect(result.data).toBe('staging');
+    }
   });
 });
 
@@ -219,7 +263,9 @@ describe('validateEnvironment', () => {
     const result: Result<StandardEnvironment> = validateEnvironment('staging');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('staging');
+    if (result.ok) {
+      expect(result.data).toBe('staging');
+    }
   });
 
   it('returns error for invalid environment string', () => {
@@ -244,21 +290,27 @@ describe('getEnvironmentFromBranch — validation errors', () => {
     const result = getEnvironmentFromBranch('chore/update-deps');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('development');
+    if (result.ok) {
+      expect(result.data).toBe('development');
+    }
   });
 
   it('returns staging for develop', () => {
     const result = getEnvironmentFromBranch('develop');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('staging');
+    if (result.ok) {
+      expect(result.data).toBe('staging');
+    }
   });
 
   it('returns development for docs/* branch', () => {
     const result = getEnvironmentFromBranch('docs/readme-update');
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('development');
+    if (result.ok) {
+      expect(result.data).toBe('development');
+    }
   });
 });
 
@@ -315,7 +367,9 @@ describe('detectEnvironment — CI fallbacks', () => {
     const result: Result<StandardEnvironment> = detectEnvironment();
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('development');
+    if (result.ok) {
+      expect(result.data).toBe('development');
+    }
   });
 
   it('uses CI_COMMIT_BRANCH fallback in CI', () => {
@@ -324,6 +378,8 @@ describe('detectEnvironment — CI fallbacks', () => {
     const result: Result<StandardEnvironment> = detectEnvironment();
 
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('staging');
+    if (result.ok) {
+      expect(result.data).toBe('staging');
+    }
   });
 });

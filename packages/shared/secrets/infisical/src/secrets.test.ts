@@ -4,7 +4,7 @@
  * @module
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import * as v from 'valibot';
 import type { Str, Bool, Void, OptionalStr } from '@/schemas/common';
 import type {

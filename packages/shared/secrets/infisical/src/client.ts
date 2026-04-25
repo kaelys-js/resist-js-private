@@ -18,7 +18,6 @@ import * as v from 'valibot';
 import { getConfig } from '@/config/loader';
 import {
   BoolSchema,
-  NullableStrSchema,
   NonNegativeIntegerSchema,
   StrSchema,
   VoidSchema,
@@ -33,8 +32,7 @@ import type { CoreConfig } from '@/schemas/core-config/config';
 import { InfisicalAuthMethodSchema, type InfisicalAuthMethod } from '@/schemas/core-config/tooling';
 import { ERRORS, err, ok, okUnchecked, type AppError, type Result } from '@/schemas/result/result';
 import { fromUnknownError, safeParse } from '@/utils/result/safe';
-import { safeStringify } from '@/utils/core/object';
-import type { DeepReadonly } from '@/utils/core/object';
+import { safeStringify, type DeepReadonly } from '@/utils/core/object';
 
 // =============================================================================
 // Schemas
@@ -128,20 +126,22 @@ let cachedOptionsJson: NullableStr = null;
 export function resolveOptions(options: ClientOptions): Result<ResolvedOptions> {
   const optionsResult: Result<ClientOptions> = safeParse(ClientOptionsSchema, options);
 
-  if (!optionsResult.ok) return optionsResult;
-
+  if (!optionsResult.ok) {
+    return optionsResult;
+  }
   const validatedOptions: ClientOptions = optionsResult.data;
   const configResult: Result<DeepReadonly<CoreConfig>> = getConfig();
 
-  if (!configResult.ok) return configResult;
-
+  if (!configResult.ok) {
+    return configResult;
+  }
   const config: DeepReadonly<CoreConfig> = configResult.data;
   const infisicalConfig: DeepReadonly<CoreConfig['tooling']['infisical']> =
     config.tooling.infisical;
 
   const cacheTtlEnv: Str = process.env[ENV_VARS.CACHE_TTL] ?? '';
   const rawCacheTtl: Num = cacheTtlEnv // cast safe: parseInt returns number, schema validates below
-    ? parseInt(cacheTtlEnv, 10)
+    ? Number.parseInt(cacheTtlEnv, 10)
     : (infisicalConfig.auth.cacheTtlSeconds as Num) * 1000; // cast safe: DeepReadonly number is still number
 
   const cacheTtlResult: Result<NonNegativeInteger> = safeParse(
@@ -149,8 +149,9 @@ export function resolveOptions(options: ClientOptions): Result<ResolvedOptions> 
     rawCacheTtl,
   );
 
-  if (!cacheTtlResult.ok) return cacheTtlResult;
-
+  if (!cacheTtlResult.ok) {
+    return cacheTtlResult;
+  }
   const parsedCacheTtl: NonNegativeInteger = cacheTtlResult.data;
 
   const resolved: ResolvedOptions = {
@@ -185,17 +186,20 @@ export function resolveOptions(options: ClientOptions): Result<ResolvedOptions> 
 export function getClient(options: ClientOptions): Result<InfisicalClient> {
   const optionsResult: Result<ClientOptions> = safeParse(ClientOptionsSchema, options);
 
-  if (!optionsResult.ok) return optionsResult;
-
+  if (!optionsResult.ok) {
+    return optionsResult;
+  }
   const resolvedResult: Result<ResolvedOptions> = resolveOptions(optionsResult.data);
 
-  if (!resolvedResult.ok) return resolvedResult;
-
+  if (!resolvedResult.ok) {
+    return resolvedResult;
+  }
   const resolved: ResolvedOptions = resolvedResult.data;
   const optionsJsonResult: Result<Str> = safeStringify(resolved);
 
-  if (!optionsJsonResult.ok) return optionsJsonResult;
-
+  if (!optionsJsonResult.ok) {
+    return optionsJsonResult;
+  }
   const optionsJson: Str = optionsJsonResult.data;
 
   // Return existing client if options match
@@ -206,8 +210,9 @@ export function getClient(options: ClientOptions): Result<InfisicalClient> {
   // Create new client
   const createResult: Result<InfisicalClient> = createClient(resolved);
 
-  if (!createResult.ok) return createResult;
-
+  if (!createResult.ok) {
+    return createResult;
+  }
   const newClient: InfisicalClient = createResult.data as InfisicalClient; // cast safe: DeepReadonly doesn't affect InfisicalClient behavior
   clientInstance = newClient;
   cachedOptionsJson = optionsJson;
@@ -231,8 +236,9 @@ export function getClient(options: ClientOptions): Result<InfisicalClient> {
 export function createClient(resolved: ResolvedOptions): Result<InfisicalClient> {
   const resolvedResult: Result<ResolvedOptions> = safeParse(ResolvedOptionsSchema, resolved);
 
-  if (!resolvedResult.ok) return resolvedResult;
-
+  if (!resolvedResult.ok) {
+    return resolvedResult;
+  }
   const validatedResolved: ResolvedOptions = resolvedResult.data;
 
   const client: InfisicalClient = new InfisicalClient({
@@ -319,12 +325,14 @@ export function getAuthMethod(): Result<InfisicalAuthMethod> {
 export async function isAuthenticated(options: ClientOptions): Promise<Result<Bool>> {
   const optionsResult: Result<ClientOptions> = safeParse(ClientOptionsSchema, options);
 
-  if (!optionsResult.ok) return optionsResult;
-
+  if (!optionsResult.ok) {
+    return optionsResult;
+  }
   const clientResult: Result<InfisicalClient> = getClient(optionsResult.data);
 
-  if (!clientResult.ok) return clientResult;
-
+  if (!clientResult.ok) {
+    return clientResult;
+  }
   const projectId: Str = process.env[ENV_VARS.PROJECT_ID] ?? '';
 
   if (!projectId) {

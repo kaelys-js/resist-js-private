@@ -16,7 +16,7 @@ import * as v from 'valibot';
 
 import { ProductSecretsSchema, type ProductSecrets } from '@/schemas/core-config/secret-schemas';
 import { BoolSchema, StrSchema, type Bool, type Str } from '@/schemas/common';
-import { ERRORS, err, ok, okUnchecked, type Result } from '@/schemas/result/result';
+import { ok, okUnchecked, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import { safeStringify } from '@/utils/core/object';
 
@@ -65,8 +65,9 @@ const EnvObjectSchema = v.record(v.string(), v.unknown());
 export function validateWorkerEnv(env: unknown): Result<ProductSecrets> {
   const envResult: Result<Record<Str, unknown>> = safeParse(EnvObjectSchema, env);
 
-  if (!envResult.ok) return envResult;
-
+  if (!envResult.ok) {
+    return envResult;
+  }
   // Filter to only string values (exclude bindings like D1, KV, etc.)
   const secrets: Record<Str, unknown> = {};
 
@@ -101,8 +102,9 @@ export function createSecretsProxy(env: unknown): ProductSecrets {
   let validationError: Result<ProductSecrets> | null = null;
 
   function ensureValidated(): ProductSecrets {
-    if (validated !== null) return validated;
-
+    if (validated !== null) {
+      return validated;
+    }
     if (validationError !== null) {
       const msg: Result<Str> = safeStringify(validationError);
 
@@ -193,16 +195,19 @@ export function getEnvSecret<K extends keyof ProductSecrets>(
 ): Result<ProductSecrets[K]> {
   const envResult: Result<Record<Str, unknown>> = safeParse(EnvObjectSchema, env);
 
-  if (!envResult.ok) return envResult;
-
+  if (!envResult.ok) {
+    return envResult;
+  }
   const keyResult: Result<keyof ProductSecrets> = safeParse(ProductSecretsKeySchema, key);
 
-  if (!keyResult.ok) return keyResult;
-
+  if (!keyResult.ok) {
+    return keyResult;
+  }
   const result: Result<ProductSecrets> = validateWorkerEnv(env);
 
-  if (!result.ok) return result;
-
+  if (!result.ok) {
+    return result;
+  }
   return okUnchecked(result.data[keyResult.data] as ProductSecrets[K]); // cast safe: DeepReadonly preserves value
 }
 
@@ -223,12 +228,14 @@ export function getEnvSecret<K extends keyof ProductSecrets>(
 export function hasEnvSecret(env: unknown, key: Str): Result<Bool> {
   const keyResult: Result<Str> = safeParse(StrSchema, key);
 
-  if (!keyResult.ok) return keyResult;
-
+  if (!keyResult.ok) {
+    return keyResult;
+  }
   const envResult: Result<Record<Str, unknown>> = safeParse(EnvObjectSchema, env);
 
-  if (!envResult.ok) return envResult;
-
+  if (!envResult.ok) {
+    return envResult;
+  }
   const value: unknown = envResult.data[keyResult.data];
 
   return ok(BoolSchema, typeof value === 'string' && value.length > 0);
@@ -255,19 +262,24 @@ export function getEnvSecretOrDefault<K extends keyof ProductSecrets>(
 ): Result<ProductSecrets[K]> {
   const envResult: Result<Record<Str, unknown>> = safeParse(EnvObjectSchema, env);
 
-  if (!envResult.ok) return envResult;
-
+  if (!envResult.ok) {
+    return envResult;
+  }
   const keyResult: Result<keyof ProductSecrets> = safeParse(ProductSecretsKeySchema, key);
 
-  if (!keyResult.ok) return keyResult;
-
+  if (!keyResult.ok) {
+    return keyResult;
+  }
   const defaultResult: Result<Str> = safeParse(StrSchema, defaultValue);
 
-  if (!defaultResult.ok) return defaultResult;
-
+  if (!defaultResult.ok) {
+    return defaultResult;
+  }
   const result: Result<ProductSecrets[K]> = getEnvSecret(env, keyResult.data as K); // cast safe: keyResult.data validated as keyof ProductSecrets above
 
-  if (result.ok) return okUnchecked(result.data as ProductSecrets[K]); // cast safe: DeepReadonly preserves value
+  if (result.ok) {
+    return okUnchecked(result.data as ProductSecrets[K]); // cast safe: DeepReadonly preserves value
+  }
 
   return okUnchecked(defaultValue);
 }
@@ -289,8 +301,9 @@ export function getEnvSecretOrDefault<K extends keyof ProductSecrets>(
 export function withValidatedEnv(env: unknown): Result<ProductSecrets> {
   const envResult: Result<Record<Str, unknown>> = safeParse(EnvObjectSchema, env);
 
-  if (!envResult.ok) return envResult;
-
+  if (!envResult.ok) {
+    return envResult;
+  }
   return validateWorkerEnv(env);
 }
 
@@ -310,18 +323,21 @@ export function withValidatedEnv(env: unknown): Result<ProductSecrets> {
  */
 export function hasRequiredSecrets(
   env: unknown,
-  keys: readonly (keyof ProductSecrets)[],
+  keys: ReadonlyArray<keyof ProductSecrets>,
 ): Result<Bool> {
-  const keysResult: Result<(keyof ProductSecrets)[]> = safeParse(v.array(ProductSecretsKeySchema), [
-    ...keys,
-  ]);
+  const keysResult: Result<Array<keyof ProductSecrets>> = safeParse(
+    v.array(ProductSecretsKeySchema),
+    [...keys],
+  );
 
-  if (!keysResult.ok) return keysResult;
-
+  if (!keysResult.ok) {
+    return keysResult;
+  }
   const envResult: Result<Record<Str, unknown>> = safeParse(EnvObjectSchema, env);
 
-  if (!envResult.ok) return envResult;
-
+  if (!envResult.ok) {
+    return envResult;
+  }
   for (const key of keysResult.data) {
     const value: unknown = envResult.data[key];
 

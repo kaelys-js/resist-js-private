@@ -10,7 +10,7 @@
  * @module
  */
 
-import { BoolSchema, NumSchema, StrSchema, type Bool, type Num, type Str } from '@/schemas/common';
+import { BoolSchema, StrSchema, type Bool, type Num, type Str } from '@/schemas/common';
 import {
   StandardEnvironmentSchema,
   type StandardEnvironment,
@@ -78,11 +78,13 @@ const DEFAULT_BRANCH_MAPPING: Readonly<Record<Str, StandardEnvironment>> = {
 export function getEnvironmentFromBranch(branch: Str): Result<StandardEnvironment> {
   const branchResult: Result<Str> = safeParse(StrSchema, branch);
 
-  if (!branchResult.ok) return branchResult;
-
+  if (!branchResult.ok) {
+    return branchResult;
+  }
   // Check exact matches first
-  if (branchResult.data in DEFAULT_BRANCH_MAPPING) {
-    return ok(StandardEnvironmentSchema, DEFAULT_BRANCH_MAPPING[branchResult.data]!);
+  const mapped: StandardEnvironment | undefined = DEFAULT_BRANCH_MAPPING[branchResult.data];
+  if (mapped !== undefined) {
+    return ok(StandardEnvironmentSchema, mapped);
   }
 
   // Check pattern matches (prefix/*)
@@ -123,12 +125,14 @@ export function getParentEnvironment(
 ): Result<StandardEnvironment | undefined> {
   const envResult: Result<StandardEnvironment> = safeParse(StandardEnvironmentSchema, env);
 
-  if (!envResult.ok) return envResult;
-
+  if (!envResult.ok) {
+    return envResult;
+  }
   const idx: Num = ENVIRONMENT_HIERARCHY.indexOf(envResult.data);
 
-  if (idx <= 0) return okUnchecked(undefined);
-
+  if (idx <= 0) {
+    return okUnchecked(undefined);
+  }
   return okUnchecked(ENVIRONMENT_HIERARCHY[idx - 1]);
 }
 
@@ -153,15 +157,17 @@ export function getChildEnvironments(
 ): Result<readonly StandardEnvironment[]> {
   const envResult: Result<StandardEnvironment> = safeParse(StandardEnvironmentSchema, env);
 
-  if (!envResult.ok) return envResult;
-
+  if (!envResult.ok) {
+    return envResult;
+  }
   const idx: Num = ENVIRONMENT_HIERARCHY.indexOf(envResult.data);
 
-  if (idx === -1 || idx >= ENVIRONMENT_HIERARCHY.length - 1) {
+  const next: StandardEnvironment | undefined =
+    idx === -1 ? undefined : ENVIRONMENT_HIERARCHY[idx + 1];
+  if (next === undefined) {
     return okUnchecked([]);
   }
-
-  return okUnchecked([ENVIRONMENT_HIERARCHY[idx + 1]!]);
+  return okUnchecked([next]);
 }
 
 /**
@@ -192,15 +198,17 @@ export function canAccessEnvironment(
     requestingEnv,
   );
 
-  if (!requestingEnvResult.ok) return requestingEnvResult;
-
+  if (!requestingEnvResult.ok) {
+    return requestingEnvResult;
+  }
   const targetEnvResult: Result<StandardEnvironment> = safeParse(
     StandardEnvironmentSchema,
     targetEnv,
   );
 
-  if (!targetEnvResult.ok) return targetEnvResult;
-
+  if (!targetEnvResult.ok) {
+    return targetEnvResult;
+  }
   const requestingIdx: Num = ENVIRONMENT_HIERARCHY.indexOf(requestingEnvResult.data);
   const targetIdx: Num = ENVIRONMENT_HIERARCHY.indexOf(targetEnvResult.data);
 
