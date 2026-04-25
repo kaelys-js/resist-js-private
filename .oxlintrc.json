@@ -33,6 +33,7 @@
     "navigator": "readonly",
     "window": "readonly",
     "document": "readonly",
+    "Node": "readonly",
     "requestAnimationFrame": "readonly",
     "cancelAnimationFrame": "readonly",
     "Map": "readonly",
@@ -578,6 +579,7 @@
         "**/utils/devtools/**/state-logger.svelte.ts",
         "**/utils/devtools/**/devtools-api.svelte.ts",
         "**/perf/vitals-logger.ts",
+        "**/web-vitals/**/vitals-logger.ts",
         "**/lens-stats/LensStats.svelte",
         "**/lens-component-renderer/LensComponentRenderer.svelte"
       ],
@@ -622,7 +624,7 @@
       }
     },
     {
-      "files": ["**/app.d.ts", "**/env.d.ts"],
+      "files": ["**/app.d.ts", "**/env.d.ts", "**/vite-env.d.ts"],
       "rules": {
         "typescript/consistent-type-definitions": "off",
         "unicorn/require-module-specifiers": "off"

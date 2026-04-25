@@ -18,7 +18,6 @@ import {
   _injectLongTasks,
   _injectEventTimings,
   type VitalThresholds,
-  type VitalDiagnostics,
 } from './vitals-diagnostics';
 
 // =============================================================================
@@ -27,9 +26,14 @@ import {
 
 /**
  * Unwraps a Result for test assertions, returning the data or null on error.
+ *
+ * @param result - A Result-shaped object.
+ * @returns The result data on success, or null on error / missing data.
  */
 function unwrap<T>(result: { ok: boolean; data?: T | null }): T | null {
-  if ('ok' in result && result.ok && 'data' in result) return result.data ?? null;
+  if ('ok' in result && result.ok && 'data' in result) {
+    return result.data ?? null;
+  }
   return null;
 }
 
@@ -203,13 +207,17 @@ describe('vitals-diagnostics', () => {
     it('formats timing thresholds with ms suffix', () => {
       const fmtResult = formatThresholds({ good: 2500, poor: 4000, unit: 'ms' });
       expect(fmtResult.ok).toBe(true);
-      if (fmtResult.ok) expect(fmtResult.data).toBe('good < 2500ms \u00B7 poor > 4000ms');
+      if (fmtResult.ok) {
+        expect(fmtResult.data).toBe('good < 2500ms \u00B7 poor > 4000ms');
+      }
     });
 
     it('formats score thresholds without suffix', () => {
       const fmtResult = formatThresholds({ good: 0.1, poor: 0.25, unit: 'score' });
       expect(fmtResult.ok).toBe(true);
-      if (fmtResult.ok) expect(fmtResult.data).toBe('good < 0.1 \u00B7 poor > 0.25');
+      if (fmtResult.ok) {
+        expect(fmtResult.data).toBe('good < 0.1 \u00B7 poor > 0.25');
+      }
     });
   });
 
@@ -394,7 +402,9 @@ describe('vitals-diagnostics', () => {
             mockResourceEntry({ name: 'https://example.com/image.png', duration: 200 }),
           ] as unknown as PerformanceEntry[];
         }
-        if (type === 'navigation') return [];
+        if (type === 'navigation') {
+          return [];
+        }
         return [];
       }) as typeof performance.getEntriesByType);
 
@@ -408,7 +418,9 @@ describe('vitals-diagnostics', () => {
 
     it('reports TTFB impact when server response is slow', () => {
       vi.spyOn(performance, 'getEntriesByType').mockImplementation(((type: Str) => {
-        if (type === 'resource') return [];
+        if (type === 'resource') {
+          return [];
+        }
         if (type === 'navigation') {
           return [mockNavigationEntry({ responseStart: 900 })] as unknown as PerformanceEntry[];
         }
@@ -710,7 +722,9 @@ describe('vitals-diagnostics', () => {
             }),
           ] as unknown as PerformanceEntry[];
         }
-        if (type === 'navigation') return [];
+        if (type === 'navigation') {
+          return [];
+        }
         return [];
       }) as typeof performance.getEntriesByType);
 
@@ -726,7 +740,9 @@ describe('vitals-diagnostics', () => {
 
     it('does not add TTFB Impact when ttfb <= 400', () => {
       vi.spyOn(performance, 'getEntriesByType').mockImplementation(((type: Str) => {
-        if (type === 'resource') return [];
+        if (type === 'resource') {
+          return [];
+        }
         if (type === 'navigation') {
           return [mockNavigationEntry({ responseStart: 300 })] as unknown as PerformanceEntry[];
         }
@@ -748,7 +764,9 @@ describe('vitals-diagnostics', () => {
             }),
           ] as unknown as PerformanceEntry[];
         }
-        if (type === 'navigation') return [];
+        if (type === 'navigation') {
+          return [];
+        }
         return [];
       }) as typeof performance.getEntriesByType);
 
@@ -1276,7 +1294,9 @@ describe('vitals-diagnostics', () => {
         constructor(_cb: unknown) {
           callCount++;
           // Let the first observer succeed, throw on rest
-          if (callCount > 1) throw new Error('Not supported');
+          if (callCount > 1) {
+            throw new Error('Not supported');
+          }
         }
         observe(): void {}
         disconnect(): void {}
@@ -1405,7 +1425,9 @@ describe('vitals-diagnostics', () => {
       // Replace the entry with a poisoned one after injection
       arr[0] = new Proxy(normalEntry, {
         get(_target: Record<Str, unknown>, prop: string): unknown {
-          if (prop === 'element') throw new Error('Cannot access element');
+          if (prop === 'element') {
+            throw new Error('Cannot access element');
+          }
           return _target[prop];
         },
       });
@@ -1430,7 +1452,9 @@ describe('vitals-diagnostics', () => {
       // Replace with a proxy that throws during filter iteration
       arr[0] = new Proxy(normalEntry, {
         get(_target: Record<Str, unknown>, prop: string): unknown {
-          if (prop === 'hadRecentInput') throw new Error('Cannot access hadRecentInput');
+          if (prop === 'hadRecentInput') {
+            throw new Error('Cannot access hadRecentInput');
+          }
           return _target[prop];
         },
       });

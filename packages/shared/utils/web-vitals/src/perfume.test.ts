@@ -6,6 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Void } from '@/schemas/common';
+import type { AnalyticsTrackerFn } from './perfume';
 
 // Mock perfume.js — initPerfume is the only import we use
 const mockInitPerfume = vi.fn();
@@ -15,7 +16,6 @@ vi.mock('perfume.js', () => ({
 
 // Import after mock setup
 const { setupPerfume } = await import('./perfume');
-type AnalyticsTrackerFn = import('./perfume').AnalyticsTrackerFn;
 
 describe('setupPerfume', () => {
   beforeEach(() => {

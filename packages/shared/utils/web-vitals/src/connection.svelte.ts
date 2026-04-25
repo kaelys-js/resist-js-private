@@ -113,11 +113,21 @@ function deriveQuality(
   saveData: Bool,
   apiAvailable: Bool,
 ): Result<ConnectionQuality> {
-  if (!apiAvailable) return ok(ConnectionQualitySchema, 'unknown');
-  if (saveData) return ok(ConnectionQualitySchema, 'slow');
-  if (SLOW_TYPES.has(effectiveType)) return ok(ConnectionQualitySchema, 'slow');
-  if (effectiveType === '3g') return ok(ConnectionQualitySchema, 'medium');
-  if (effectiveType === '4g') return ok(ConnectionQualitySchema, 'fast');
+  if (!apiAvailable) {
+    return ok(ConnectionQualitySchema, 'unknown');
+  }
+  if (saveData) {
+    return ok(ConnectionQualitySchema, 'slow');
+  }
+  if (SLOW_TYPES.has(effectiveType)) {
+    return ok(ConnectionQualitySchema, 'slow');
+  }
+  if (effectiveType === '3g') {
+    return ok(ConnectionQualitySchema, 'medium');
+  }
+  if (effectiveType === '4g') {
+    return ok(ConnectionQualitySchema, 'fast');
+  }
 
   return ok(ConnectionQualitySchema, 'unknown');
 }
@@ -152,7 +162,9 @@ function readFromConnection(conn: NetworkInformation): Result<Void> {
     _apiAvailable,
   );
 
-  if (qualityResult.ok) _quality = qualityResult.data;
+  if (qualityResult.ok) {
+    _quality = qualityResult.data;
+  }
 
   return okUnchecked<Void>(undefined);
 }
@@ -193,7 +205,9 @@ export function initConnection(): Result<Void> {
 
   const readResult: Result<Void> = readFromConnection(conn);
 
-  if (!readResult.ok) return readResult;
+  if (!readResult.ok) {
+    return readResult;
+  }
 
   // Listen for connection changes (e.g. switching from WiFi to cellular)
   conn.addEventListener('change', (): Void => {
@@ -227,16 +241,24 @@ export function initConnection(): Result<Void> {
 export function updateFromNavigatorInfo(info: NavigatorInfo): Result<Void> {
   const infoResult: Result<ValidatedNavigatorInfo> = safeParse(NavigatorInfoSchema, info);
 
-  if (!infoResult.ok) return infoResult;
+  if (!infoResult.ok) {
+    return infoResult;
+  }
 
   const validated: ValidatedNavigatorInfo = infoResult.data;
 
-  if (validated.deviceMemory !== undefined) _deviceMemory = validated.deviceMemory;
-  if (validated.hardwareConcurrency !== undefined)
+  if (validated.deviceMemory !== undefined) {
+    _deviceMemory = validated.deviceMemory;
+  }
+  if (validated.hardwareConcurrency !== undefined) {
     _hardwareConcurrency = validated.hardwareConcurrency;
-  if (validated.isLowEndDevice !== undefined) _isLowEndDevice = validated.isLowEndDevice;
-  if (validated.isLowEndExperience !== undefined)
+  }
+  if (validated.isLowEndDevice !== undefined) {
+    _isLowEndDevice = validated.isLowEndDevice;
+  }
+  if (validated.isLowEndExperience !== undefined) {
     _isLowEndExperience = validated.isLowEndExperience;
+  }
   return okUnchecked<Void>(undefined);
 }
 

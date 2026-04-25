@@ -15,9 +15,18 @@
 
 import * as v from 'valibot';
 
-import type { NonNegativeInteger, Num, Str } from '@/schemas/common';
-import type { Uuid, RelativeUrl, IsoTimestamp } from '@/schemas/common';
-import { IsoTimestampSchema, NameSchema, UuidSchema, RelativeUrlSchema } from '@/schemas/common';
+import {
+  IsoTimestampSchema,
+  NameSchema,
+  UuidSchema,
+  RelativeUrlSchema,
+  type NonNegativeInteger,
+  type Num,
+  type Str,
+  type Uuid,
+  type RelativeUrl,
+  type IsoTimestamp,
+} from '@/schemas/common';
 import { ok, okUnchecked, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 
@@ -127,8 +136,12 @@ function stripUrlParams(url: Str): Result<Str> {
   // cast safe: string .length is always >= 0
   let end: NonNegativeInteger = url.length as NonNegativeInteger;
 
-  if (questionIdx >= 0) end = Math.min(end, questionIdx) as NonNegativeInteger; // cast safe: min of non-negatives
-  if (hashIdx >= 0) end = Math.min(end, hashIdx) as NonNegativeInteger; // cast safe: min of non-negatives
+  if (questionIdx >= 0) {
+    end = Math.min(end, questionIdx) as NonNegativeInteger; // cast safe: min of non-negatives
+  }
+  if (hashIdx >= 0) {
+    end = Math.min(end, hashIdx) as NonNegativeInteger; // cast safe: min of non-negatives
+  }
   return okUnchecked<Str>(url.slice(0, end));
 }
 
@@ -156,34 +169,48 @@ export function toVitalsPayload(
 ): Result<VitalsBeaconPayload> {
   const metricsResult: Result<VitalsMetric[]> = safeParse(v.array(VitalsMetricSchema), metrics);
 
-  if (!metricsResult.ok) return metricsResult;
+  if (!metricsResult.ok) {
+    return metricsResult;
+  }
 
   const deviceResult: Result<VitalsDevice> = safeParse(VitalsDeviceSchema, device);
 
-  if (!deviceResult.ok) return deviceResult;
+  if (!deviceResult.ok) {
+    return deviceResult;
+  }
 
   const urlResult: Result<Str> = safeParse(v.string(), url);
 
-  if (!urlResult.ok) return urlResult;
+  if (!urlResult.ok) {
+    return urlResult;
+  }
 
   const strippedUrl: Result<Str> = stripUrlParams(url);
 
-  if (!strippedUrl.ok) return strippedUrl;
+  if (!strippedUrl.ok) {
+    return strippedUrl;
+  }
 
   const sessionIdResult: Result<Uuid> = safeParse(UuidSchema, crypto.randomUUID());
 
-  if (!sessionIdResult.ok) return sessionIdResult;
+  if (!sessionIdResult.ok) {
+    return sessionIdResult;
+  }
 
   const urlResult2: Result<RelativeUrl> = safeParse(RelativeUrlSchema, strippedUrl.data);
 
-  if (!urlResult2.ok) return urlResult2;
+  if (!urlResult2.ok) {
+    return urlResult2;
+  }
 
   const timestampResult: Result<IsoTimestamp> = safeParse(
     IsoTimestampSchema,
     new Date().toISOString(),
   );
 
-  if (!timestampResult.ok) return timestampResult;
+  if (!timestampResult.ok) {
+    return timestampResult;
+  }
 
   const payload: VitalsBeaconPayload = {
     sessionId: sessionIdResult.data,

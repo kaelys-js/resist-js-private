@@ -9,15 +9,10 @@
 
 import * as v from 'valibot';
 
-import type { Str, Num, Bool, Void } from '@/schemas/common';
-import { StrSchema, NumSchema } from '@/schemas/common';
+import { StrSchema, NumSchema, type Str, type Num, type Bool, type Void } from '@/schemas/common';
 import { okUnchecked, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
-import {
-  formatThresholds,
-  VitalDiagnosticsSchema,
-  type VitalDiagnostics,
-} from '@/utils/web-vitals/vitals-diagnostics';
+import { formatThresholds, VitalDiagnosticsSchema } from '@/utils/web-vitals/vitals-diagnostics';
 
 // =============================================================================
 // Types
@@ -104,18 +99,18 @@ function printDiagnosticDetails(diagnostics: NullableDiagnostics): Result<Void> 
   }
 
   // Threshold context line
-  void console.log(`  %cThresholds: ${formatThresholds(diagnostics.thresholds)}`, THRESHOLD_STYLE);
+  console.log(`  %cThresholds: ${formatThresholds(diagnostics.thresholds)}`, THRESHOLD_STYLE);
 
   // Each finding as a labeled row
   for (const finding of diagnostics.findings) {
     if (finding.label) {
-      void console.log(
+      console.log(
         `  %c${finding.label.padEnd(16)}%c ${finding.value}`,
         DIAG_LABEL_STYLE,
         DIAG_VALUE_STYLE,
       );
     } else {
-      void console.log(`  %c${finding.value}`, DIAG_VALUE_STYLE);
+      console.log(`  %c${finding.value}`, DIAG_VALUE_STYLE);
     }
   }
 
@@ -144,7 +139,9 @@ function printDiagnosticDetails(diagnostics: NullableDiagnostics): Result<Void> 
 export function setVitalsLoggerAppName(name: Str): Result<Void> {
   const nameResult: Result<Str> = safeParse(StrSchema, name);
 
-  if (!nameResult.ok) return nameResult;
+  if (!nameResult.ok) {
+    return nameResult;
+  }
 
   appName = nameResult.data;
 
@@ -194,22 +191,30 @@ export function logVital(
 ): Result<Void> {
   const metricNameResult: Result<Str> = safeParse(StrSchema, metricName);
 
-  if (!metricNameResult.ok) return metricNameResult;
+  if (!metricNameResult.ok) {
+    return metricNameResult;
+  }
 
   const valueResult: Result<Num> = safeParse(NumSchema, value);
 
-  if (!valueResult.ok) return valueResult;
+  if (!valueResult.ok) {
+    return valueResult;
+  }
 
   const ratingResult: Result<Str> = safeParse(StrSchema, rating);
 
-  if (!ratingResult.ok) return ratingResult;
+  if (!ratingResult.ok) {
+    return ratingResult;
+  }
 
   const diagnosticsResult: Result<NullableDiagnostics> = safeParse(
     NullableDiagnosticsSchema,
     diagnostics,
   );
 
-  if (!diagnosticsResult.ok) return diagnosticsResult;
+  if (!diagnosticsResult.ok) {
+    return diagnosticsResult;
+  }
 
   const isTiming: Bool = TIMING_METRICS.has(metricName);
   const displayValue: Str = isTiming ? `${Math.round(value)}ms` : String(value);
@@ -255,13 +260,7 @@ export function logVital(
       const _diagResult: Result<Void> = printDiagnosticDetails(validDiagnostics);
       console.groupEnd();
     } else {
-      void console.log(
-        fmt,
-        vitalsStyles.vitalPrefix,
-        vitalsStyles.metricName,
-        ratingStyle,
-        ratingStyle,
-      );
+      console.log(fmt, vitalsStyles.vitalPrefix, vitalsStyles.metricName, ratingStyle, ratingStyle);
     }
   }
   // In production, 'good' and 'needsImprovement' are silent — data is beaconed, not console logged
