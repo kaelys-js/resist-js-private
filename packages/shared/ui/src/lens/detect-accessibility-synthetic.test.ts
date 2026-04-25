@@ -446,7 +446,7 @@ describe('auditAccessibility — synthetic sources', () => {
       '+page.svelte': PAGE_SVELTE,
       'app.ts': APP_TS,
     });
-    expect(audit.componentCount).toBe(5);
+    expect(audit.componentCount).toBe(6);
     expect(audit.totalRules).toBe(150);
     /* With a mix of pass/fail files, at least one rule should land in the
      * < 80% pass-rate bracket (status = 'fail' per statusFromRate). */

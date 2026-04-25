@@ -48,6 +48,12 @@ describe('stripSvelteProps', () => {
     const result = stripSvelteProps(props);
     expect(result).toEqual({ variant: 'outline', size: 'lg', disabled: true });
   });
+
+  it('removes $$-prefixed keys (Svelte internals)', () => {
+    const props = { $$slots: {}, $$scope: {}, variant: 'default' };
+    const result = stripSvelteProps(props);
+    expect(result).toEqual({ variant: 'default' });
+  });
 });
 
 describe('extractDir', () => {
