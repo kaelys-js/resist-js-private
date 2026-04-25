@@ -33,24 +33,27 @@ esac
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null || echo .)}"
 BASELINE="$PROJECT_DIR/.claude/lint-baseline.json"
 
-# ── Phase 1: Format ─────────────────────────────────────────────────────────
+# ── Phase 1: Format (direct binary call — pnpm exec adds 500ms per invocation) ─
 case "$FILE_PATH" in
-  *.svelte|*.ts|*.tsx|*.js|*.jsx|*.json|*.jsonc|*.css|*.html|*.graphql|*.md|*.mdx)
-    (cd "$PROJECT_DIR" && pnpm -w run qa:format) >/dev/null 2>&1 || true
+  *.svelte)
+    (cd "$PROJECT_DIR" && ./node_modules/.bin/prettier --write "$FILE_PATH") >/dev/null 2>&1 || true
+    ;;
+  *.ts|*.tsx|*.js|*.jsx|*.json|*.jsonc|*.css|*.html|*.graphql|*.md|*.mdx)
+    (cd "$PROJECT_DIR" && ./node_modules/.bin/biome format --write "$FILE_PATH") >/dev/null 2>&1 || true
     ;;
 esac
 
 # ── Phase 2: Auto-fix ───────────────────────────────────────────────────────
 case "$FILE_PATH" in
   *.ts|*.tsx|*.js|*.jsx|*.svelte)
-    (cd "$PROJECT_DIR" && pnpm exec resist-lint --fix "$FILE_PATH") >/dev/null 2>&1 || true
+    (cd "$PROJECT_DIR" && ./node_modules/.bin/resist-lint --fix "$FILE_PATH") >/dev/null 2>&1 || true
     ;;
 esac
 
 # ── Phase 3: Re-lint, compare to baseline, auto-shrink on approve ───────────
 case "$FILE_PATH" in
   *.ts|*.tsx|*.js|*.jsx|*.svelte)
-    LINT_JSON=$(cd "$PROJECT_DIR" && pnpm exec resist-lint --tools --json "$FILE_PATH" 2>/dev/null) || true
+    LINT_JSON=$(cd "$PROJECT_DIR" && ./node_modules/.bin/resist-lint --tools --json "$FILE_PATH" 2>/dev/null) || true
 
     # Baseline is a count-map {"file|ruleId|message": count}.
     # NEW = any key where current_count_for_file > baseline_count.

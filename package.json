@@ -16,10 +16,10 @@
     "qa:test:e2e": "turbo qa:test:e2e",
     "qa:test:coverage": "vitest run --coverage",
     "qa:benchmark": "vitest bench",
-    "qa:format": "biome format --write . && prettier --write '**/*.svelte'",
-    "qa:format:check": "biome format . && prettier --check '**/*.svelte'",
+    "qa:format": "biome format --write . && prettier --write --cache --cache-strategy content '**/*.svelte'",
+    "qa:format:check": "biome format . && prettier --check --cache --cache-strategy content '**/*.svelte'",
     "qa:hooks": "bash .claude/hooks/hooks.test.sh",
-    "qa:lint": "bash -c 'node --import ./packages/shared/config/tooling/node/src/register-aliases.mjs packages/shared/config/tooling/lint/src/cli.ts --tools \"$@\"; L=$?; pnpm run qa:hooks; H=$?; exit $((L || H))' --"
+    "qa:lint": "bash -c 'node --import ./packages/shared/config/tooling/node/src/register-aliases.mjs packages/shared/config/tooling/lint/src/cli.ts --tools \"$@\"; L=$?; if [ $# -eq 0 ]; then pnpm run qa:hooks; H=$?; else H=0; fi; exit $((L || H))' --"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
