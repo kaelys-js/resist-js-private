@@ -47,7 +47,7 @@ describe('createNodeTestConfig', () => {
     const cfg: ViteUserConfig = createNodeTestConfig(opts({ coverageExclude: ['src/legacy/**'] }));
     const excl: string[] | undefined = testSection(cfg).coverage?.exclude;
     expect(excl).toContain('src/**/*.test.ts');
-    expect(excl?.[excl.length - 1]).toBe('src/legacy/**');
+    expect(excl?.at(-1)).toBe('src/legacy/**');
   });
 
   it('returns no resolve block when packageName is omitted', () => {

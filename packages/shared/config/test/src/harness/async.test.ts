@@ -10,8 +10,8 @@ import { retry, waitFor, withAbort, withTimeout } from './async';
 async function captureError(p: Promise<unknown>): Promise<Error> {
   try {
     await p;
-  } catch (e: unknown) {
-    return e as Error;
+  } catch (error: unknown) {
+    return error as Error;
   }
   throw new Error('expected rejection but promise resolved');
 }
@@ -19,8 +19,8 @@ async function captureError(p: Promise<unknown>): Promise<Error> {
 async function captureUnknown(p: Promise<unknown>): Promise<unknown> {
   try {
     await p;
-  } catch (e: unknown) {
-    return e;
+  } catch (error: unknown) {
+    return error;
   }
   throw new Error('expected rejection but promise resolved');
 }
@@ -40,7 +40,9 @@ describe('async', () => {
       await waitFor(
         (): void => {
           calls += 1;
-          if (calls < 3) throw new Error('not yet');
+          if (calls < 3) {
+            throw new Error('not yet');
+          }
         },
         { interval: 5, timeout: 500 },
       );
@@ -76,7 +78,9 @@ describe('async', () => {
       let attempt: number = 0;
       await waitFor((): void => {
         attempt += 1;
-        if (attempt === 1) throw new Error('transient');
+        if (attempt === 1) {
+          throw new Error('transient');
+        }
       });
       expect(attempt).toBe(2);
     });
@@ -107,7 +111,9 @@ describe('async', () => {
       const result: string = await retry<string>(
         (): string => {
           attempt += 1;
-          if (attempt < 3) throw new Error('transient');
+          if (attempt < 3) {
+            throw new Error('transient');
+          }
           return 'ok';
         },
         { maxAttempts: 3 },
@@ -146,7 +152,9 @@ describe('async', () => {
       let attempt: number = 0;
       const result: number = await retry<number>((): number => {
         attempt += 1;
-        if (attempt < 3) throw new Error('transient');
+        if (attempt < 3) {
+          throw new Error('transient');
+        }
         return attempt;
       });
       expect(result).toBe(3);
@@ -158,7 +166,9 @@ describe('async', () => {
       await retry<number>(
         (): number => {
           attempt += 1;
-          if (attempt < 2) throw new Error('transient');
+          if (attempt < 2) {
+            throw new Error('transient');
+          }
           return attempt;
         },
         { maxAttempts: 2, delay: 20 },
@@ -261,7 +271,9 @@ describe('async', () => {
       const realSignal: AbortSignal = controller.signal;
       const fakeSignal: AbortSignal = new Proxy(realSignal, {
         get(target: AbortSignal, prop: string | symbol): unknown {
-          if (prop === 'reason') return undefined;
+          if (prop === 'reason') {
+            return undefined;
+          }
           const value: unknown = Reflect.get(target, prop);
           return typeof value === 'function' ? value.bind(target) : value;
         },
@@ -284,7 +296,9 @@ describe('async', () => {
       const realSignal: AbortSignal = controller.signal;
       const fakeSignal: AbortSignal = new Proxy(realSignal, {
         get(target: AbortSignal, prop: string | symbol): unknown {
-          if (prop === 'reason') return undefined;
+          if (prop === 'reason') {
+            return undefined;
+          }
           const value: unknown = Reflect.get(target, prop);
           return typeof value === 'function' ? value.bind(target) : value;
         },
