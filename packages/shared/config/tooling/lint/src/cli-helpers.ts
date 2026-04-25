@@ -1360,7 +1360,6 @@ export async function _runLintCore(
     dbg(format(strings.debug.workspaceToolResults, { count: wsResultCount }));
     return out;
   }
-
   /* Workspace fingerprint short-circuit: if every input file has the same
    * (path, mtime, size) fingerprint as last run, we know none changed.
    * Use the cached aggregate results directly and skip the per-file
@@ -1517,7 +1516,6 @@ export async function _runLintCore(
       ),
     );
   }
-
   /* Run finalize() on rules that aggregate cross-file data */
   if (!bailed) {
     for (const rule of allTsRules) {
@@ -1526,7 +1524,6 @@ export async function _runLintCore(
       }
     }
   }
-
   /* Update cache with newly-linted file results (exclude finalize results —
    * they are cross-file aggregations that can't be correctly cached per-file) */
   if (lintCache) {
@@ -1557,7 +1554,6 @@ export async function _runLintCore(
       }),
     );
   }
-
   /* Run package.json rules (skip if bailed) */
   const pkgFiles: string[] = [];
   for (const p of paths) {
@@ -1598,7 +1594,6 @@ export async function _runLintCore(
       /* skip unreadable */
     }
   }
-
   /* Run workspace rules (skip if bailed or if only individual files were provided).
    * Workspace rules scan the entire repo so they only make sense when linting
    * directories (e.g., `resist-lint packages/` or the default config include paths). */
