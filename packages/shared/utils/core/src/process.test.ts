@@ -349,6 +349,100 @@ describe('readStdin', () => {
       expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
     }
   });
+
+  it('resolves with collected data when stdin emits data + end', async () => {
+    /* Replace process.stdin with a controllable EventEmitter to drive the
+     * non-TTY code path: data handler appends, end handler resolves. This
+     * exercises the data + end listeners (lines 424–428, 430–433). */
+    const { EventEmitter } = await import('node:events');
+    type StdinLike = typeof process.stdin;
+    const origStdin: StdinLike = process.stdin;
+    const fakeStdin = new EventEmitter() as unknown as StdinLike & {
+      isTTY: boolean;
+      setEncoding: (e: string) => void;
+      resume: () => void;
+    };
+    /* Required surface for readStdin's body. */
+    Object.assign(fakeStdin, {
+      isTTY: false,
+      setEncoding: (): void => undefined,
+      resume: (): void => undefined,
+    });
+    Object.defineProperty(process, 'stdin', { value: fakeStdin, configurable: true });
+    try {
+      const promise = readStdin(1000 as NonNegativeInteger);
+      /* Emit synchronously after readStdin attaches listeners on next tick. */
+      await new Promise<void>((r) => setImmediate(r));
+      fakeStdin.emit('data', 'hello ');
+      fakeStdin.emit('data', 'world');
+      fakeStdin.emit('end');
+      const result: Result<Str> = await promise;
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data).toBe('hello world');
+      }
+    } finally {
+      Object.defineProperty(process, 'stdin', { value: origStdin, configurable: true });
+    }
+  });
+
+  it('resolves with empty string on stdin error event', async () => {
+    /* Exercises the `error` listener (lines 435–438). */
+    const { EventEmitter } = await import('node:events');
+    type StdinLike = typeof process.stdin;
+    const origStdin: StdinLike = process.stdin;
+    const fakeStdin = new EventEmitter() as unknown as StdinLike & {
+      isTTY: boolean;
+      setEncoding: (e: string) => void;
+      resume: () => void;
+    };
+    Object.assign(fakeStdin, {
+      isTTY: false,
+      setEncoding: (): void => undefined,
+      resume: (): void => undefined,
+    });
+    Object.defineProperty(process, 'stdin', { value: fakeStdin, configurable: true });
+    try {
+      const promise = readStdin(1000 as NonNegativeInteger);
+      await new Promise<void>((r) => setImmediate(r));
+      fakeStdin.emit('error', new Error('stdin failed'));
+      const result: Result<Str> = await promise;
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data).toBe('');
+      }
+    } finally {
+      Object.defineProperty(process, 'stdin', { value: origStdin, configurable: true });
+    }
+  });
+
+  it('resolves with empty string when timeout expires before any data arrives', async () => {
+    /* Exercises the timeout callback (lines 411–417). */
+    const { EventEmitter } = await import('node:events');
+    type StdinLike = typeof process.stdin;
+    const origStdin: StdinLike = process.stdin;
+    const fakeStdin = new EventEmitter() as unknown as StdinLike & {
+      isTTY: boolean;
+      setEncoding: (e: string) => void;
+      resume: () => void;
+      removeAllListeners: (e?: string) => void;
+    };
+    Object.assign(fakeStdin, {
+      isTTY: false,
+      setEncoding: (): void => undefined,
+      resume: (): void => undefined,
+    });
+    Object.defineProperty(process, 'stdin', { value: fakeStdin, configurable: true });
+    try {
+      const result: Result<Str> = await readStdin(20 as NonNegativeInteger);
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data).toBe('');
+      }
+    } finally {
+      Object.defineProperty(process, 'stdin', { value: origStdin, configurable: true });
+    }
+  });
 });
 
 // ── exit / fatalExit ────────────────────────────────────────────────────

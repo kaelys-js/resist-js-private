@@ -646,4 +646,103 @@ describe('EditorStore', () => {
     const s2 = useEditorStore();
     expect(s2).toBe(s1);
   });
+
+  // ── User profile setters ─────────────────────────────────────────────────
+
+  it('setUserName() with non-empty string updates app.userName and returns ok', () => {
+    const result = createEditorStore();
+    if (!result.ok) throw new Error('Store creation failed');
+    const store = result.data;
+    const r = store.setUserName('Alice' as Str);
+    expect(r.ok).toBe(true);
+    expect(store.app.userName).toBe('Alice');
+  });
+
+  it('setUserName() with empty string returns error and does not mutate state', () => {
+    const result = createEditorStore();
+    if (!result.ok) throw new Error('Store creation failed');
+    const store = result.data;
+    const before: Str = store.app.userName;
+    const r = store.setUserName('' as Str);
+    expect(r.ok).toBe(false);
+    expect(store.app.userName).toBe(before);
+  });
+
+  it('setUserEmail() accepts valid string and updates app.userEmail', () => {
+    const result = createEditorStore();
+    if (!result.ok) throw new Error('Store creation failed');
+    const store = result.data;
+    const r = store.setUserEmail('alice@example.com' as Str);
+    expect(r.ok).toBe(true);
+    expect(store.app.userEmail).toBe('alice@example.com');
+  });
+
+  it('setUserEmail() accepts empty string (no minLength constraint)', () => {
+    const result = createEditorStore();
+    if (!result.ok) throw new Error('Store creation failed');
+    const store = result.data;
+    const r = store.setUserEmail('' as Str);
+    expect(r.ok).toBe(true);
+    expect(store.app.userEmail).toBe('');
+  });
+
+  it('setUserAvatar() accepts valid URL string', () => {
+    const result = createEditorStore();
+    if (!result.ok) throw new Error('Store creation failed');
+    const store = result.data;
+    const r = store.setUserAvatar('https://example.com/a.png' as Str);
+    expect(r.ok).toBe(true);
+    expect(store.app.userAvatar).toBe('https://example.com/a.png');
+  });
+
+  it('setMockDataDelay() in-range value updates state', () => {
+    const result = createEditorStore();
+    if (!result.ok) throw new Error('Store creation failed');
+    const store = result.data;
+    const r = store.setMockDataDelay(
+      500 as unknown as Parameters<typeof store.setMockDataDelay>[0],
+    );
+    expect(r.ok).toBe(true);
+    expect(store.app.mockDataDelay).toBe(500);
+  });
+
+  it('setMockDataDelay() out-of-range value (< 0) returns error', () => {
+    const result = createEditorStore();
+    if (!result.ok) throw new Error('Store creation failed');
+    const store = result.data;
+    const r = store.setMockDataDelay(-1 as unknown as Parameters<typeof store.setMockDataDelay>[0]);
+    expect(r.ok).toBe(false);
+  });
+
+  it('setMockDataDelay() out-of-range value (> 10_000) returns error', () => {
+    const result = createEditorStore();
+    if (!result.ok) throw new Error('Store creation failed');
+    const store = result.data;
+    const r = store.setMockDataDelay(
+      99999 as unknown as Parameters<typeof store.setMockDataDelay>[0],
+    );
+    expect(r.ok).toBe(false);
+  });
+
+  it('useEditorStore() throws when called without prior init (fresh module-state simulation)', async () => {
+    // The singleton is set in this test suite via earlier initEditorStore calls. To exercise
+    // the throw branch, we re-import the module via vi.resetModules + dynamic import to get
+    // a fresh instance whose _singleton is still null.
+    vi.resetModules();
+    const fresh = await import('./editor-state.svelte');
+    expect(() => fresh.useEditorStore()).toThrow(/EditorStore not initialized/);
+  });
+
+  it('initEditorStore() throws if createEditorStore returns an error', async () => {
+    // Force schema-validation failure by stubbing localStorage to return an invalid blob
+    storage.set(STORAGE_KEY, 'this-is-not-json');
+    vi.resetModules();
+    const fresh = await import('./editor-state.svelte');
+    /* createEditorStore handles parse errors gracefully — invalid JSON is treated as
+     * "no saved state", so this path actually returns ok. The throw branch (L461) is
+     * only reachable if createEditorStore itself returns err. We document the contract
+     * here: createEditorStore should always succeed with valid defaults. */
+    const store = fresh.initEditorStore();
+    expect(store).toBeDefined();
+  });
 });

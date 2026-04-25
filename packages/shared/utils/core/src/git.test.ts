@@ -216,6 +216,45 @@ describe('getGitInfo', () => {
       expect(result.error.code).toBe('IO.EXEC_FAILED');
     }
   });
+
+  it('propagates getGitCommitFull failure (after short succeeds)', () => {
+    let callCount = 0;
+    execSyncSafeMock.mockImplementation((): Result<Str> => {
+      callCount++;
+      if (callCount === 1) return mockOk('a1b2c3d');
+      return mockErr('IO.EXEC_FAILED');
+    });
+    const result = getGitInfo();
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe('IO.EXEC_FAILED');
+  });
+
+  it('propagates getGitBranch failure (after short+full succeed)', () => {
+    let callCount = 0;
+    execSyncSafeMock.mockImplementation((): Result<Str> => {
+      callCount++;
+      if (callCount === 1) return mockOk('a1b2c3d');
+      if (callCount === 2) return mockOk('abc1234def5678901234567890abcdef12345678');
+      return mockErr('IO.EXEC_FAILED');
+    });
+    const result = getGitInfo();
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe('IO.EXEC_FAILED');
+  });
+
+  it('propagates getGitDirty failure (after short+full+branch succeed)', () => {
+    let callCount = 0;
+    execSyncSafeMock.mockImplementation((): Result<Str> => {
+      callCount++;
+      if (callCount === 1) return mockOk('a1b2c3d');
+      if (callCount === 2) return mockOk('abc1234def5678901234567890abcdef12345678');
+      if (callCount === 3) return mockOk('main');
+      return mockErr('IO.EXEC_FAILED');
+    });
+    const result = getGitInfo();
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe('IO.EXEC_FAILED');
+  });
 });
 
 // ── getPackageVersion ───────────────────────────────────────────────────
@@ -250,6 +289,25 @@ describe('getPackageVersion', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error.code).toBe('IO.READ_FAILED');
+    }
+  });
+
+  it('returns validation error for invalid (empty) path', () => {
+    const result: Result<Str> = getPackageVersion('' as Path);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION.SCHEMA_FAILED');
+    }
+  });
+
+  it('propagates parse errors after a successful read', () => {
+    readFileMock.mockReturnValue(mockOk('not-json{'));
+    parseJsonWithCommentsMock.mockReturnValue(mockErr('IO.PARSE_FAILED'));
+
+    const result: Result<Str> = getPackageVersion('./package.json' as Path);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('IO.PARSE_FAILED');
     }
   });
 });

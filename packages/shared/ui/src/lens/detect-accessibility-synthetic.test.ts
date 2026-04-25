@@ -502,3 +502,201 @@ describe('auditAccessibility — synthetic sources', () => {
     }
   });
 });
+
+/* =========================================================================
+ * Targeted per-rule fixtures — flip specific failing/passing branches inside
+ * individual rule check functions that the broader fixtures don't activate.
+ * ========================================================================= */
+
+/** Invalid autocomplete value triggers `valid-autocomplete` fail branch. */
+const INVALID_AUTOCOMPLETE_SVELTE: string = `
+<input type="text" autocomplete="bogus-value" />
+<input type="text" autocomplete="email" />
+<input type="text" autocomplete="section-billing name" />
+`;
+
+/** Multiple radio inputs without fieldset+legend triggers `form-fieldset-legend` fail. */
+const RADIO_NO_FIELDSET_SVELTE: string = `
+<form>
+  <input type="radio" name="opt" value="a" /> A
+  <input type="radio" name="opt" value="b" /> B
+  <input type="radio" name="opt" value="c" /> C
+</form>
+`;
+
+/** Multiple radios inside fieldset+legend triggers `form-fieldset-legend` pass. */
+const RADIO_WITH_FIELDSET_SVELTE: string = `
+<form>
+  <fieldset>
+    <legend>Pick one</legend>
+    <input type="radio" name="x" value="a" />
+    <input type="radio" name="x" value="b" />
+  </fieldset>
+</form>
+`;
+
+/** Native elements with redundant ARIA roles triggers `aria-redundant-role` fail. */
+const REDUNDANT_ROLES_SVELTE: string = `
+<button role="button">B</button>
+<a href="/x" role="link">L</a>
+<nav role="navigation">N</nav>
+<main role="main">M</main>
+<header role="banner">H</header>
+<footer role="contentinfo">F</footer>
+<aside role="complementary">A</aside>
+<ul role="list"><li>x</li></ul>
+<ol role="list"><li>y</li></ol>
+<table role="table"><tr><td>z</td></tr></table>
+`;
+
+/** Skip link without :not(:focus) triggers `ohara-visually-hidden-focusable` fail. */
+const SKIP_LINK_NO_REVEAL_SVELTE: string = `
+<a class="sr-only" href="#main">Skip to content</a>
+<a class="visually-hidden" href="#nav">Skip to nav</a>
+`;
+
+/** Skip link with focusable variant triggers pass branch. */
+const SKIP_LINK_FOCUSABLE_SVELTE: string = `
+<a class="visually-hidden focusable" href="#main">Skip</a>
+<a class="sr-only" href="#nav">Nav skip</a>
+<style>.sr-only:not(:focus):not(:active) { position: absolute; }</style>
+`;
+
+/** Input with title only as accessible name → `webaim-title-only-name` fail. */
+const TITLE_ONLY_NAME_SVELTE: string = `
+<input type="text" title="Search field" name="q" />
+<select title="Choose"><option>One</option></select>
+<textarea title="Notes"></textarea>
+`;
+
+/** Viewport meta with user-scalable=no → `webaim-viewport-zoom-disabled` fail. */
+const VIEWPORT_NO_SCALE_SVELTE: string = `
+<svelte:head>
+  <meta name="viewport" content="width=device-width, user-scalable=no" />
+</svelte:head>
+<main>x</main>
+`;
+
+/** Viewport meta with maximum-scale=1 → `webaim-viewport-zoom-disabled` fail. */
+const VIEWPORT_MAX_SCALE_SVELTE: string = `
+<svelte:head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+</svelte:head>
+<main>y</main>
+`;
+
+/** Healthy viewport meta passes `webaim-viewport-zoom-disabled`. */
+const VIEWPORT_GOOD_SVELTE: string = `
+<svelte:head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+</svelte:head>
+<main>z</main>
+`;
+
+/** ::selection missing background → `a11yproject-selection-contrast` fail (missing bg). */
+const SELECTION_NO_BG_CSS: string = `
+::selection { color: white; }
+`;
+
+/** ::selection missing color → `a11yproject-selection-contrast` fail (missing color). */
+const SELECTION_NO_COLOR_CSS: string = `
+::selection { background: blue; }
+`;
+
+/** ::selection missing both → fail (missing color and background). */
+const SELECTION_EMPTY_CSS: string = `
+::selection {  }
+`;
+
+/** Complete ::selection passes. */
+const SELECTION_COMPLETE_CSS: string = `
+::selection { color: white; background: navy; }
+`;
+
+describe('auditAccessibility — targeted per-rule branch fills', () => {
+  it('valid-autocomplete: invalid value triggers fail with specific finding', () => {
+    const audit: A11yAuditResult = auditAccessibility({
+      'bad.svelte': INVALID_AUTOCOMPLETE_SVELTE,
+    });
+    const rule = audit.rules.find((r) => r.id === 'valid-autocomplete');
+    expect(rule?.failingFiles).toContain('bad.svelte');
+    expect(rule?.fileFindings.some((f) => f.problem.includes('bogus-value'))).toBe(true);
+  });
+
+  it('form-fieldset-legend: radios without fieldset fail; with fieldset+legend pass', () => {
+    const audit: A11yAuditResult = auditAccessibility({
+      'bad.svelte': RADIO_NO_FIELDSET_SVELTE,
+      'good.svelte': RADIO_WITH_FIELDSET_SVELTE,
+    });
+    const rule = audit.rules.find((r) => r.id === 'form-fieldset-legend');
+    expect(rule?.failingFiles).toContain('bad.svelte');
+    expect(rule?.passingFiles).toContain('good.svelte');
+  });
+
+  it('aria-redundant-role: native elements with implicit role are flagged', () => {
+    const audit: A11yAuditResult = auditAccessibility({
+      'redundant.svelte': REDUNDANT_ROLES_SVELTE,
+    });
+    const rule = audit.rules.find((r) => r.id === 'aria-redundant-role');
+    expect(rule?.failingFiles).toContain('redundant.svelte');
+    expect((rule?.fileFindings ?? []).length).toBeGreaterThan(0);
+  });
+
+  it('ohara-visually-hidden-focusable: skip link without :not(:focus) fails', () => {
+    const audit: A11yAuditResult = auditAccessibility({
+      'skip.svelte': SKIP_LINK_NO_REVEAL_SVELTE,
+    });
+    const rule = audit.rules.find((r) => r.id === 'ohara-visually-hidden-focusable');
+    expect(rule?.failingFiles).toContain('skip.svelte');
+  });
+
+  it('ohara-visually-hidden-focusable: skip link with focusable variant passes', () => {
+    const audit: A11yAuditResult = auditAccessibility({
+      'skip-ok.svelte': SKIP_LINK_FOCUSABLE_SVELTE,
+    });
+    const rule = audit.rules.find((r) => r.id === 'ohara-visually-hidden-focusable');
+    expect(rule?.passingFiles).toContain('skip-ok.svelte');
+  });
+
+  it('webaim-title-only-name: input/select/textarea with title-only fail', () => {
+    const audit: A11yAuditResult = auditAccessibility({
+      'title-only.svelte': TITLE_ONLY_NAME_SVELTE,
+    });
+    const rule = audit.rules.find((r) => r.id === 'webaim-title-only-name');
+    expect(rule?.failingFiles).toContain('title-only.svelte');
+    /* Must contain a finding for at least one of the 3 element types. */
+    expect((rule?.fileFindings ?? []).length).toBeGreaterThan(0);
+  });
+
+  it('webaim-viewport-zoom-disabled: user-scalable=no fails, maximum-scale=1 fails, healthy passes', () => {
+    const audit: A11yAuditResult = auditAccessibility({
+      'no-scale.svelte': VIEWPORT_NO_SCALE_SVELTE,
+      'max-scale.svelte': VIEWPORT_MAX_SCALE_SVELTE,
+      'good-vp.svelte': VIEWPORT_GOOD_SVELTE,
+    });
+    const rule = audit.rules.find((r) => r.id === 'webaim-viewport-zoom-disabled');
+    expect(rule?.failingFiles).toEqual(
+      expect.arrayContaining(['no-scale.svelte', 'max-scale.svelte']),
+    );
+    expect(rule?.passingFiles).toContain('good-vp.svelte');
+  });
+
+  it('a11yproject-selection-contrast: missing-bg / missing-color / missing-both / complete', () => {
+    const audit: A11yAuditResult = auditAccessibility({
+      'no-bg.css': SELECTION_NO_BG_CSS,
+      'no-color.css': SELECTION_NO_COLOR_CSS,
+      'empty.css': SELECTION_EMPTY_CSS,
+      'complete.css': SELECTION_COMPLETE_CSS,
+    });
+    const rule = audit.rules.find((r) => r.id === 'a11yproject-selection-contrast');
+    expect(rule?.failingFiles).toEqual(
+      expect.arrayContaining(['no-bg.css', 'no-color.css', 'empty.css']),
+    );
+    expect(rule?.passingFiles).toContain('complete.css');
+    /* Findings include "missing background", "missing color", "missing color and background". */
+    const problems: string[] = (rule?.fileFindings ?? []).map((f) => f.problem);
+    expect(problems.some((p) => p.includes('missing background'))).toBe(true);
+    expect(problems.some((p) => p.includes('missing color'))).toBe(true);
+    expect(problems.some((p) => p.includes('missing color and background'))).toBe(true);
+  });
+});
