@@ -4959,7 +4959,7 @@ describe('transformSolhintOutput — branch coverage', () => {
   });
 
   it('skips summary lines starting with multiplication sign', () => {
-    const output: string = 'contracts/Token.sol:10:5: warning msg [rule-id]\n' + '\u00d7 1 problem';
+    const output: string = 'contracts/Token.sol:10:5: warning msg [rule-id]\n' + '\u00D7 1 problem';
     const results: LintResult[] = transformSolhintOutput(output);
     expect(results).toHaveLength(1);
   });

@@ -12,10 +12,10 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Maximum allowed size for .webp files (300KB). */
-const MAX_WEBP_SIZE: number = 307200;
+const MAX_WEBP_SIZE: number = 307_200;
 
 /** Maximum allowed size for .svg files (100KB). */
-const MAX_SVG_SIZE: number = 102400;
+const MAX_SVG_SIZE: number = 102_400;
 
 /** Pattern for excessive indentation in SVG files (8+ leading spaces). */
 const EXCESSIVE_INDENT_RE: RegExp = /^\s{8,}/m;

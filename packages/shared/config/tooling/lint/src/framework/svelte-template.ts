@@ -17,7 +17,7 @@ import type { AstNode } from '@/lint/framework/types.ts';
 // =============================================================================
 
 /** Successful parse result containing the template AST fragment. */
-interface SvelteParseOk {
+type SvelteParseOk = {
   /** Whether parsing succeeded. */
   ok: true;
   /** The parsed template AST fragment node. */
@@ -25,7 +25,7 @@ interface SvelteParseOk {
 }
 
 /** Failed parse result containing a descriptive error message. */
-interface SvelteParseErr {
+type SvelteParseErr = {
   /** Whether parsing succeeded. */
   ok: false;
   /** Descriptive error message explaining why parsing failed. */

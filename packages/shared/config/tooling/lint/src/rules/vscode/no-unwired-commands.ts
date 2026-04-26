@@ -61,7 +61,7 @@ const rule: WorkspaceRule = {
 
       const pkgDir: string = dirname(pkg.path);
       const brandPath: string = join(pkgDir, BRAND_PATH);
-      if (!(await ctx.fileExists(brandPath))) continue;
+      if (!(await ctx.fileExists(brandPath))) {continue;}
 
       const brandSource: string = await ctx.readFile(brandPath);
       const brandLines: string[] = brandSource.split('\n');
@@ -93,7 +93,7 @@ const rule: WorkspaceRule = {
       if (prefixMatch && prefixMatch[1]) {
         const prefix: string = prefixMatch[1];
         for (const entry of commandEntries) {
-          entry.id = entry.id.replaceAll(/\$\{COMMAND_PREFIX\}/g, prefix);
+          entry.id = entry.id.replaceAll('${COMMAND_PREFIX}', prefix);
         }
       }
 

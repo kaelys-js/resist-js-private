@@ -692,7 +692,7 @@ describe('loadConfig — custom config path', () => {
 
 describe('loadConfig — JSONC edge cases', () => {
   it('handles escaped quotes inside JSON strings', () => {
-    const jsonc: string = '{ "include": ["src/\\"special\\""] }';
+    const jsonc: string = String.raw`{ "include": ["src/\"special\""] }`;
     vi.mocked(readFileSync).mockReturnValue(jsonc);
 
     const config: LintConfig = loadConfig('/some/dir', undefined, en);
@@ -700,7 +700,7 @@ describe('loadConfig — JSONC edge cases', () => {
   });
 
   it('handles strings containing backslash-backslash before close quote', () => {
-    const jsonc: string = '{ "include": ["path\\\\"] }';
+    const jsonc: string = String.raw`{ "include": ["path\\"] }`;
     vi.mocked(readFileSync).mockReturnValue(jsonc);
 
     const config: LintConfig = loadConfig('/some/dir', undefined, en);

@@ -6,8 +6,6 @@
 import { execSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
 import type { LintResult, PackageJsonContext } from '../../framework/types.ts';
-
-const REPO_ROOT = execSync('git rev-parse --show-toplevel', { encoding: 'utf8' }).trim();
 import validTsconfig from './valid-tsconfig.ts';
 import requireProjectTest from './require-project-test.ts';
 import requireStandardScripts from './require-standard-scripts.ts';
@@ -24,6 +22,8 @@ import requireSharedConfig from './require-shared-config.ts';
 import requireScope from './require-scope.ts';
 import noGitDeps from './no-git-deps.ts';
 import noTsNode from './no-ts-node.ts';
+
+const REPO_ROOT = execSync('git rev-parse --show-toplevel', { encoding: 'utf8' }).trim();
 
 function ctx(
   overrides: Partial<PackageJsonContext> & { pkg?: Partial<PackageJsonContext['pkg']> } = {},

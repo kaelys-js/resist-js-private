@@ -44,9 +44,9 @@ const rule: TypeScriptRule = {
         const propertyName =
           property?.type === 'Identifier'
             ? propNameVal
-            : property?.type === 'Literal' && typeof propValueVal === 'string'
+            : (property?.type === 'Literal' && typeof propValueVal === 'string'
               ? propValueVal
-              : undefined;
+              : undefined);
 
         if (propertyName === 'toFixed') {
           results.push({

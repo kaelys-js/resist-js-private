@@ -226,7 +226,7 @@ export function foo(name: string): void {}
 `;
     const results: LintResult[] = await lint(requireParam, code);
     expect(results.length).toBe(1);
-    const fix = results[0]!.fix;
+    const {fix} = results[0]!;
     // Fix must NOT be a no-op (start === end && text === '')
     const isNoOp: boolean = fix.range.start === fix.range.end && fix.text === '';
     expect(isNoOp).toBe(false);
@@ -244,7 +244,7 @@ export function greet(name: string): void {}
 `;
     const results: LintResult[] = await lint(requireParam, code);
     expect(results.length).toBe(1);
-    const fix = results[0]!.fix;
+    const {fix} = results[0]!;
     // Applying the fix should produce valid JSDoc with {string} name
     const fixed: string = code.slice(0, fix.range.start) + fix.text + code.slice(fix.range.end);
     expect(fixed).toContain('@param {string} name');
@@ -262,7 +262,7 @@ export function process(count: number): void {}
     expect(results.length).toBe(1);
     expect(results[0]!.fix.text).toContain('{number}');
     // Verify applied fix is correct
-    const fix = results[0]!.fix;
+    const {fix} = results[0]!;
     const fixed: string = code.slice(0, fix.range.start) + fix.text + code.slice(fix.range.end);
     expect(fixed).toContain('@param {number} count');
   });
@@ -293,7 +293,7 @@ export function foo(name: string): void {}
 `;
     const results: LintResult[] = await lint(requireParam, code);
     expect(results.length).toBe(1);
-    const fix = results[0]!.fix;
+    const {fix} = results[0]!;
     // The fix text should include @param with {Type}
     expect(fix.text).toContain('@param {string} name');
     // Should be an insertion (start === end)
@@ -383,7 +383,7 @@ export function foo(): string { return ''; }
 `;
     const results: LintResult[] = await lint(requireReturns, code);
     expect(results.length).toBe(1);
-    const fix = results[0]!.fix;
+    const {fix} = results[0]!;
     expect(fix.text).toBe('{string} ');
     // The fix range should be a zero-width insert after "@returns "
     expect(fix.range.start).toBe(fix.range.end);
@@ -401,7 +401,7 @@ export function foo(): string { return ''; }
 `;
     const results: LintResult[] = await lint(requireReturns, code);
     expect(results.length).toBe(1);
-    const fix = results[0]!.fix;
+    const {fix} = results[0]!;
     expect(fix.text).toBe('{string}');
     // The fix range should cover {number}
     const replaced: string = code.slice(fix.range.start, fix.range.end);
@@ -535,7 +535,7 @@ export function foo(x: number): void {}
 `;
     const results: LintResult[] = await lint(paramTypeMatch, code);
     expect(results.length).toBe(1);
-    const fix = results[0]!.fix;
+    const {fix} = results[0]!;
     expect(fix.text).toBe('{number}');
     // The fix range should cover the {string} substring in the JSDoc
     const replaced: string = code.slice(fix.range.start, fix.range.end);
@@ -1162,7 +1162,7 @@ export type Foo = v.InferOutput<typeof FooSchema>;
 `;
     const results: LintResult[] = await lint(requireSchemaLink, code);
     expect(results.length).toBe(1);
-    const fix = results[0]!.fix;
+    const {fix} = results[0]!;
     expect(fix.text).toContain('{@link FooSchema}');
     // The fix should insert before the closing */
     const textAtRange: string = code.slice(fix.range.start, fix.range.end);
@@ -1180,7 +1180,7 @@ export type Bar = v.InferOutput<typeof BarSchema>;
 `;
     const results: LintResult[] = await lint(requireSchemaLink, code);
     expect(results.length).toBe(1);
-    const fix = results[0]!.fix;
+    const {fix} = results[0]!;
     expect(fix.text).toContain('/** See {@link BarSchema}.');
     expect(fix.text).toContain('*/');
   });

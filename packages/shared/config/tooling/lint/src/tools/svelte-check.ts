@@ -52,7 +52,7 @@ const FINGERPRINT_SKIP_DIRS: ReadonlySet<string> = new Set([
 function listSvelteCheckInputs(pkgDir: string): string[] {
   const files: string[] = [];
   function walk(dir: string): void {
-    let entries: import('node:fs').Dirent[];
+    let entries: Array<import('node:fs').Dirent>;
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -139,7 +139,7 @@ export function discoverSveltePackageDirs(cwd: string): string[] {
 
   /** Return true if dir (or any descendant) contains a `.svelte` file. */
   function hasSvelteFile(dir: string): boolean {
-    let entries: import('node:fs').Dirent[];
+    let entries: Array<import('node:fs').Dirent>;
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -160,7 +160,7 @@ export function discoverSveltePackageDirs(cwd: string): string[] {
   }
 
   function walk(dir: string): void {
-    let entries: import('node:fs').Dirent[];
+    let entries: Array<import('node:fs').Dirent>;
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {

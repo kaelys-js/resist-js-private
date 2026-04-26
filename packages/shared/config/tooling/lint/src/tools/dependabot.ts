@@ -208,7 +208,7 @@ export function validateDependabot(
     if (line.startsWith(' ') || line.startsWith('\t')) {
       return false;
     }
-    return /^updates:/.test(line);
+    return line.startsWith('updates:');
   });
 
   if (!hasUpdates) {

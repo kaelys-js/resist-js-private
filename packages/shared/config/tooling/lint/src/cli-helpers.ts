@@ -156,7 +156,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
     for (const name of packageNames) {
       const dir: string | undefined = pkgMap.get(name);
       if (dir === undefined) {
-        const valid: string = [...pkgMap.keys()].sort().join(', ');
+        const valid: string = [...pkgMap.keys()].toSorted().join(', ');
         throw new Error(`Unknown --package: ${name}. Valid packages: ${valid}`);
       }
       paths.push(dir);
@@ -640,7 +640,7 @@ export async function collectFiles(
     return files;
   }
 
-  const subdirPromises: Promise<string[]>[] = [];
+  const subdirPromises: Array<Promise<string[]>> = [];
 
   for (const entry of entries) {
     const fullPath: string = join(dir, entry.name as string);
@@ -689,7 +689,7 @@ export async function collectPackageJsonFiles(
     return files;
   }
 
-  const subdirPromises: Promise<string[]>[] = [];
+  const subdirPromises: Array<Promise<string[]>> = [];
 
   for (const entry of entries) {
     const fullPath: string = join(dir, entry.name as string);
@@ -1279,7 +1279,7 @@ export async function _runLintCore(
     const resolved: string = resolve(cliArgs.stdinFilename);
     fileContents.set(resolved, stdinContent);
   } else {
-    const readResults: PromiseSettledResult<string>[] = await Promise.allSettled(
+    const readResults: Array<PromiseSettledResult<string>> = await Promise.allSettled(
       allFiles.map((filePath: string): Promise<string> => readFile(filePath, 'utf8')),
     );
     for (let i: number = 0; i < allFiles.length; i++) {
@@ -1570,7 +1570,7 @@ export async function _runLintCore(
 
   const workspaceRootPkg: string = resolve('package.json');
   /* Read all package.json files concurrently */
-  const pkgReadResults: PromiseSettledResult<string>[] = await Promise.allSettled(
+  const pkgReadResults: Array<PromiseSettledResult<string>> = await Promise.allSettled(
     pkgFiles.map((pkgPath: string): Promise<string> => readFile(pkgPath, 'utf8')),
   );
   for (let i: number = 0; i < pkgFiles.length; i++) {
@@ -1692,7 +1692,7 @@ export async function _runLintCore(
         wsRules.map(async (rule: WorkspaceRule): Promise<LintResult[]> => {
           if (rule.inputs && lintCache) {
             const inputFiles: readonly string[] = await rule.inputs(wsContext);
-            const pathsKey: string = [...inputFiles].sort().join('\n');
+            const pathsKey: string = [...inputFiles].toSorted().join('\n');
             let fp: string | undefined = fpMemo.get(pathsKey);
             if (fp === undefined) {
               fp = fingerprintFiles(inputFiles);
@@ -1774,8 +1774,8 @@ export async function _runLintCore(
       fixesByFile.set(result.file, existing);
     }
 
-    const fixEntries: [string, LintFix[]][] = [...fixesByFile.entries()];
-    const fixReads: PromiseSettledResult<string>[] = await Promise.allSettled(
+    const fixEntries: Array<[string, LintFix[]]> = [...fixesByFile.entries()];
+    const fixReads: Array<PromiseSettledResult<string>> = await Promise.allSettled(
       fixEntries.map(([fp]: [string, LintFix[]]): Promise<string> => readFile(fp, 'utf8')),
     );
     for (let i: number = 0; i < fixEntries.length; i++) {

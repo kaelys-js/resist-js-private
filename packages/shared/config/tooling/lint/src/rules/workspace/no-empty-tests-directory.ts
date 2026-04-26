@@ -72,7 +72,7 @@ const rule: WorkspaceRule = {
        * directory is /root/src/__tests__.
        */
       const testsIdx: number = filePath.indexOf('/__tests__/');
-      const testsDirPath: string = filePath.substring(0, testsIdx + '/__tests__'.length);
+      const testsDirPath: string = filePath.slice(0, testsIdx + '/__tests__'.length);
 
       testsDirsExist.add(testsDirPath);
 

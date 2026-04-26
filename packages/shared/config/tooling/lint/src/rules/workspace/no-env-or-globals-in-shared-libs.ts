@@ -12,7 +12,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Patterns to detect global/env access with their human-readable type labels. */
-const GLOBAL_PATTERNS: readonly { regex: RegExp; type: string }[] = [
+const GLOBAL_PATTERNS: ReadonlyArray<{ regex: RegExp; type: string }> = [
   { regex: /(?:^|[^a-zA-Z])process\.env\./m, type: 'process.env' },
   { regex: /(?:^|[^a-zA-Z])globalThis\./m, type: 'globalThis' },
   { regex: /(?:^|[^a-zA-Z])global\./m, type: 'global' },

@@ -12,7 +12,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { type LintStrings } from '@/lint/locale/schema.ts';
+import type { LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform ignore-file validator text output into LintResult[].

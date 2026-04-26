@@ -35,7 +35,7 @@ function getExpressionText(node: AstNode): string {
     node.type === 'StringLiteral' ||
     node.type === 'BooleanLiteral'
   ) {
-    const value: unknown = (node as { value?: unknown }).value;
+    const {value} = (node as { value?: unknown });
     if (typeof value === 'string') {
       return `'${value}'`;
     }

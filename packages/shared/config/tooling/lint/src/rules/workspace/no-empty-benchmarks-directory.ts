@@ -72,7 +72,7 @@ const rule: WorkspaceRule = {
        * the directory is /root/src/__benchmarks__.
        */
       const benchIdx: number = filePath.indexOf('/__benchmarks__/');
-      const benchDirPath: string = filePath.substring(0, benchIdx + '/__benchmarks__'.length);
+      const benchDirPath: string = filePath.slice(0, benchIdx + '/__benchmarks__'.length);
 
       benchDirsExist.add(benchDirPath);
 

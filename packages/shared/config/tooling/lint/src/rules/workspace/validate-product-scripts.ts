@@ -71,7 +71,7 @@ const rule: WorkspaceRule = {
       }
 
       const segments: string[] = pkg.dir.split('/');
-      const product: string = segments[segments.length - 1] ?? '';
+      const product: string = segments.at(-1) ?? '';
       const pkgName: string = pkg.name ?? product;
       const scripts: Record<string, unknown> =
         typeof pkg.packageJson.scripts === 'object' && pkg.packageJson.scripts !== null

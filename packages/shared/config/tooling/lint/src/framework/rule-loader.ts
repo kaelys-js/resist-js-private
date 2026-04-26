@@ -309,7 +309,7 @@ async function collectRuleFiles(dir: string): Promise<string[]> {
     return files;
   }
 
-  const subdirPromises: Promise<string[]>[] = [];
+  const subdirPromises: Array<Promise<string[]>> = [];
 
   for (const entry of entries) {
     const name: string = entry.name as string;

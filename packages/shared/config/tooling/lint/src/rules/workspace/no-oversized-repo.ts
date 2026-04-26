@@ -52,7 +52,7 @@ const rule: WorkspaceRule = {
 
     const sizeKB: number = Number.parseInt(output.split('\t')[0] ?? '0', 10);
 
-    if (sizeKB > 500000) {
+    if (sizeKB > 500_000) {
       results.push(
         createResult(
           'workspace/no-oversized-repo',

@@ -176,7 +176,7 @@ export function getDefaultExportObject(ast: AstNode): AstNode | undefined {
  * @returns The adapter package name, or undefined
  */
 export function getAdapterImport(imports: ImportInfo[]): string | undefined {
-  const adapterPackages: string[] = [
+  const adapterPackages: string[] = new Set([
     '@sveltejs/adapter-cloudflare',
     '@sveltejs/adapter-cloudflare-workers',
     '@sveltejs/adapter-static',
@@ -184,10 +184,10 @@ export function getAdapterImport(imports: ImportInfo[]): string | undefined {
     '@sveltejs/adapter-auto',
     '@sveltejs/adapter-vercel',
     '@sveltejs/adapter-netlify',
-  ];
+  ]);
 
   for (const imp of imports) {
-    if (adapterPackages.includes(imp.source)) {
+    if (adapterPackages.has(imp.source)) {
       return imp.source;
     }
   }
@@ -251,8 +251,8 @@ export function collectPropertyPaths(obj: AstNode, prefix: string = ''): string[
  * @param obj - An ObjectExpression AST node
  * @returns Array of [name, valueNode] pairs
  */
-export function getPropertyEntries(obj: AstNode): [string, AstNode][] {
-  const entries: [string, AstNode][] = [];
+export function getPropertyEntries(obj: AstNode): Array<[string, AstNode]> {
+  const entries: Array<[string, AstNode]> = [];
 
   if (obj.type !== 'ObjectExpression') {
     return entries;

@@ -11,7 +11,7 @@
  * @module
  */
 
-import { type ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
+import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
 
 /**

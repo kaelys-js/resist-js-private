@@ -161,7 +161,7 @@ const rule: WorkspaceRule = {
       if (inferMatches !== null) {
         for (const match of inferMatches) {
           // Check if this Infer<> is part of a type alias declaration
-          const escapedMatch: string = match.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const escapedMatch: string = match.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
           const typeAliasPattern: RegExp = new RegExp(`type\\s+\\w+\\s*=\\s*${escapedMatch}`);
           if (!typeAliasPattern.test(content)) {
             results.push(

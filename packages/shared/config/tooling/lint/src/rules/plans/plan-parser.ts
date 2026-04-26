@@ -263,7 +263,7 @@ function parseDependencies(lines: string[]): TaskDependency[] {
   for (const rawLine of lines) {
     const line: string = rawLine.trim();
 
-    if (line.match(/^##\s+Execution Order/i)) {
+    if (/^##\s+Execution Order/i.test(line)) {
       inTable = true;
       continue;
     }

@@ -333,7 +333,7 @@ describe('missing-tool pipeline — ToolRegistry.runAllWorkspaceTools', () => {
     expect(missing).toHaveLength(2);
     const commands: string[] = missing
       .map((r: LintResult): string => r.message)
-      .sort((a: string, b: string): number => a.localeCompare(b));
+      .toSorted((a: string, b: string): number => a.localeCompare(b));
     expect(commands[0]).toContain("'ws-a-bin'");
     expect(commands[1]).toContain("'ws-b-bin'");
   });

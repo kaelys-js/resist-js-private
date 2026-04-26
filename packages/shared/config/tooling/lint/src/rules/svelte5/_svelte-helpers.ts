@@ -294,7 +294,7 @@ export function findSubscriptionPatterns(body: AstNode): string[] {
 
     // Direct call: addEventListener(...), setInterval(...), subscribe(...)
     if (callee.type === 'Identifier') {
-      const name: string = (callee as unknown as { name: string }).name;
+      const {name} = (callee as unknown as { name: string });
       if (SUBSCRIPTION_PATTERNS.has(name)) {
         patterns.push(name);
       }
@@ -305,9 +305,9 @@ export function findSubscriptionPatterns(body: AstNode): string[] {
       callee.type === 'StaticMemberExpression' ||
       (callee.type === 'MemberExpression' && !(callee as { computed?: boolean }).computed)
     ) {
-      const property: AstNode | undefined = (callee as { property?: AstNode }).property;
+      const {property} = (callee as { property?: AstNode });
       if (property?.type === 'Identifier') {
-        const name: string = (property as unknown as { name: string }).name;
+        const {name} = (property as unknown as { name: string });
         if (SUBSCRIPTION_PATTERNS.has(name)) {
           patterns.push(name);
         }

@@ -207,8 +207,8 @@ export async function lint(options?: LintOptions): Promise<LintApiResult<LintRes
       cwd,
     );
     fileResults = [...core.results];
-    filesLinted = core.filesLinted;
-    fixesApplied = core.fixesApplied;
+    ({ filesLinted } = core);
+    ({ fixesApplied } = core);
   }
 
   /* Run in-memory source linting */

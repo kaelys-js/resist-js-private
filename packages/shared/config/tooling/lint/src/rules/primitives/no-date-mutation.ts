@@ -55,9 +55,9 @@ const rule: TypeScriptRule = {
       const propertyName =
         propertyNode?.type === 'Identifier'
           ? (propertyNode.name as string)
-          : propertyNode?.type === 'Literal'
+          : (propertyNode?.type === 'Literal'
             ? String(propertyNode.value as unknown)
-            : undefined;
+            : undefined);
 
       if (!propertyName || !DATE_MUTATION_METHODS.has(propertyName)) {
         return results;

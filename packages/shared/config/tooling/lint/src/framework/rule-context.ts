@@ -504,7 +504,7 @@ export function createWorkspaceContext(
   const extCache: Map<string, Promise<readonly string[]>> = new Map();
 
   function cachedFilesByExtension(...exts: string[]): Promise<readonly string[]> {
-    const key: string = exts.slice().sort().join(',');
+    const key: string = [...exts].toSorted().join(',');
     let cached: Promise<readonly string[]> | undefined = extCache.get(key);
     if (cached === undefined) {
       cached = getFileCache().then((files: readonly string[]): readonly string[] =>

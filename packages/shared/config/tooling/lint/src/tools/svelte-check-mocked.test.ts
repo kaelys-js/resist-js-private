@@ -634,7 +634,7 @@ describe('runSvelteCheckAllPackages', () => {
     vi.mocked(execFileAsync).mockResolvedValue({ stdout: '', stderr: '' });
 
     await runSvelteCheckAllPackages('/ws');
-    const calls = vi.mocked(execFileAsync).mock.calls;
+    const {calls} = vi.mocked(execFileAsync).mock;
     expect(calls.length).toBe(1);
     const [cmd, args] = calls[0]!;
     expect(cmd).toBe('svelte-check');

@@ -140,7 +140,7 @@ const rule: WorkspaceRule = {
           /* Single-char values like `"` or `'` alone are also unclosed */
           if (
             trimmedValue.length === 1 ||
-            trimmedValue[0] !== trimmedValue[trimmedValue.length - 1]
+            trimmedValue[0] !== trimmedValue.at(-1)
           ) {
             results.push(
               createResult(

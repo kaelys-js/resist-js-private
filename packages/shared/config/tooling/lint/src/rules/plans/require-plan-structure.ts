@@ -18,7 +18,7 @@ import { discoverPlanFiles, parsePlan } from '@/lint/rules/plans/plan-parser.ts'
 const RULE_ID: string = 'plans/require-plan-structure';
 
 /** Required tail task patterns (case-insensitive). */
-const REQUIRED_TAIL_TASKS: readonly { pattern: RegExp; label: string }[] = [
+const REQUIRED_TAIL_TASKS: ReadonlyArray<{ pattern: RegExp; label: string }> = [
   { pattern: /register.*rules.*config|register.*config/i, label: 'Register Rules + Config' },
   { pattern: /integration\s+verification/i, label: 'Integration Verification' },
   { pattern: /full\s+qa|qa.*coverage/i, label: 'Full QA + Coverage' },
@@ -26,7 +26,7 @@ const REQUIRED_TAIL_TASKS: readonly { pattern: RegExp; label: string }[] = [
 ];
 
 /** Integration Verification must check these patterns. */
-const INTEGRATION_CHECKS: readonly { pattern: RegExp; label: string }[] = [
+const INTEGRATION_CHECKS: ReadonlyArray<{ pattern: RegExp; label: string }> = [
   {
     pattern: /command.*register|registerCommand|registered/i,
     label: 'command registration check',

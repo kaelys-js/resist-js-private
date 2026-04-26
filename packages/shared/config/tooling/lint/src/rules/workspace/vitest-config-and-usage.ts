@@ -45,7 +45,7 @@ const rule: WorkspaceRule = {
 
     // Find all vitest.config.ts files
     const configFiles: string[] = [...allFiles].filter((f: string): boolean =>
-      /vitest\.config\.ts$/.test(f),
+      f.endsWith('vitest.config.ts'),
     );
 
     for (const configFile of configFiles) {

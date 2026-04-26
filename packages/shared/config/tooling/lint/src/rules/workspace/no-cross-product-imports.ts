@@ -16,7 +16,7 @@ import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 const LAYERS: string = 'api|web|data|marketing|mobile|branding|infra';
 
 /** Regex to detect relative imports reaching into sibling product directories. */
-const CROSS_PRODUCT_RE: RegExp = new RegExp('from\\s+[\'"](\\.\\.\\/)+(' + LAYERS + ')\\/');
+const CROSS_PRODUCT_RE: RegExp = new RegExp(String.raw`from\s+['"](\.\.\/)+(` + LAYERS + String.raw`)\/`);
 
 /** Source file extensions to scan. */
 const SOURCE_EXTENSIONS: readonly string[] = ['.ts', '.tsx', '.js', '.jsx'];
