@@ -17,12 +17,16 @@ import { extractProps, buildBaseProps } from './extract-props.js';
  * into a sibling `types.ts` file (e.g. `button`, `badge`, `lens-props-table`).
  * For prop-extraction scans, the adjacent `types.ts` is part of the
  * component's effective surface and must be concatenated.
+ *
+ * @param filePath - Absolute path to the primary `.svelte` file
+ * @returns The `.svelte` source, optionally concatenated with the adjacent `types.ts` source
  */
 function readSvelteWithTypes(filePath: string): string {
   const sv: string = readFileSync(filePath, 'utf8');
   const typesPath: string = join(dirname(filePath), 'types.ts');
   if (existsSync(typesPath)) {
-    return `${sv}\n/* --- adjacent types.ts --- */\n${readFileSync(typesPath, 'utf8')}`;
+    const sep: string = '\n// --- adjacent types.ts ---\n';
+    return sv + sep + readFileSync(typesPath, 'utf8');
   }
   return sv;
 }

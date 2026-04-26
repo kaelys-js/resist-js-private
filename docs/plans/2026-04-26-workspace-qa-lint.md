@@ -49,19 +49,19 @@ Each task is atomic: implement → verify (`qa:lint`) → update plan → next.
 - Confirm the `discoverPlanFiles` filter at `packages/shared/config/tooling/lint/src/rules/plans/plan-parser.ts:360` already scopes to `/docs/plans/` and therefore excludes `/docs/plans-archive/` automatically — no rule code change needed.
 
 **Files** (move; do NOT edit content):
-- Move: `docs/plans/2026-04-24-config-test-lint-fix.md` → `docs/plans-archive/`
-- Move: `docs/plans/2026-04-24-secrets-lint-fix.md` → `docs/plans-archive/`
-- Move: `docs/plans/2026-04-25-beacon-qa-lint-cleanup.md` → `docs/plans-archive/`
-- Move: `docs/plans/2026-04-25-devtools-qa-lint-cleanup.md` → `docs/plans-archive/`
-- Move: `docs/plans/2026-04-25-result-qa-lint-cleanup.md` → `docs/plans-archive/`
-- Move: `docs/plans/2026-04-25-schemas-qa-lint-cleanup.md` → `docs/plans-archive/`
-- Move: `docs/plans/2026-04-25-web-vitals-qa-lint-cleanup.md` → `docs/plans-archive/`
-- Move: `docs/plans/2026-04-25-workspace-rule-cache-migration.md` → `docs/plans-archive/`
-- Move: `docs/plans/2026-04-26-lint-qa-cleanup.md` → `docs/plans-archive/`
-- Move: `docs/plans/2026-04-26-products-qa-lint-cleanup.md` → `docs/plans-archive/`
-- Move: `docs/plans/2026-04-26-shared-ui-qa-lint.md` → `docs/plans-archive/`
-- Move: `docs/plans/2026-04-26-utils-code-qa-lint-cleanup.md` → `docs/plans-archive/`
-- Move: `docs/plans/2026-04-26-vscode-qa-lint-cleanup.md` → `docs/plans-archive/`
+- Edit: `docs/plans/2026-04-24-config-test-lint-fix.md` → `docs/plans-archive/`
+- Edit: `docs/plans/2026-04-24-secrets-lint-fix.md` → `docs/plans-archive/`
+- Edit: `docs/plans/2026-04-25-beacon-qa-lint-cleanup.md` → `docs/plans-archive/`
+- Edit: `docs/plans/2026-04-25-devtools-qa-lint-cleanup.md` → `docs/plans-archive/`
+- Edit: `docs/plans/2026-04-25-result-qa-lint-cleanup.md` → `docs/plans-archive/`
+- Edit: `docs/plans/2026-04-25-schemas-qa-lint-cleanup.md` → `docs/plans-archive/`
+- Edit: `docs/plans/2026-04-25-web-vitals-qa-lint-cleanup.md` → `docs/plans-archive/`
+- Edit: `docs/plans/2026-04-25-workspace-rule-cache-migration.md` → `docs/plans-archive/`
+- Edit: `docs/plans/2026-04-26-lint-qa-cleanup.md` → `docs/plans-archive/`
+- Edit: `docs/plans/2026-04-26-products-qa-lint-cleanup.md` → `docs/plans-archive/`
+- Edit: `docs/plans/2026-04-26-shared-ui-qa-lint.md` → `docs/plans-archive/`
+- Edit: `docs/plans/2026-04-26-utils-code-qa-lint-cleanup.md` → `docs/plans-archive/`
+- Edit: `docs/plans/2026-04-26-vscode-qa-lint-cleanup.md` → `docs/plans-archive/`
 
 **Verification**:
 - `ls docs/plans/` — only `TEMPLATE.md` and the active plan (`2026-04-26-workspace-qa-lint.md`) remain.
