@@ -14,6 +14,7 @@
 
 import { createHash } from 'node:crypto';
 import { statSync } from 'node:fs';
+import type { Stats } from 'node:fs';
 
 /**
  * Compute an aggregate sha256 fingerprint of the given files.
@@ -30,7 +31,7 @@ export function fingerprintFiles(files: readonly string[]): string {
   const sorted: string[] = [...files].toSorted();
   for (const f of sorted) {
     try {
-      const s: import('node:fs').Stats = statSync(f);
+      const s: Stats = statSync(f);
       h.update(`${f}:${s.mtimeMs}:${s.size}\n`);
     } catch {
       h.update(`${f}:MISSING\n`);

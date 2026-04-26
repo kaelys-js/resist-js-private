@@ -7,7 +7,7 @@
  * @module
  */
 
-import { basename, relative } from 'node:path';
+import {relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -81,15 +81,13 @@ const rule: WorkspaceRule = {
             'error',
             `Disallowed relative import into sibling product layer in ${relativePath}`,
             {
-              tip: "Use alias imports like '@product/api' instead of deep relative paths",
-            },
+              tip: "Use alias imports like '@product/api' instead of deep relative paths"},
           ),
         );
       }
     }
 
     return results;
-  },
-};
+  }};
 
 export default rule;

@@ -7,7 +7,7 @@
  * @module
  */
 
-import { basename, relative } from 'node:path';
+import {relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -130,8 +130,7 @@ const rule: WorkspaceRule = {
               'error',
               `Disallowed cross-layer import: ${currentLayer} → ${targetLayer} in ${relativePath}`,
               {
-                tip: 'Move shared logic to packages/shared/ and import via alias',
-              },
+                tip: 'Move shared logic to packages/shared/ and import via alias'},
             ),
           );
         }
@@ -141,7 +140,6 @@ const rule: WorkspaceRule = {
     }
 
     return results;
-  },
-};
+  }};
 
 export default rule;

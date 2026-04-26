@@ -22,8 +22,7 @@ import {
   CliArgsSchema,
   CliOutputSchema,
   type CliArgs,
-  type CliOutput,
-} from './cli-helpers.ts';
+  type CliOutput} from './cli-helpers.ts';
 import type { LintConfig } from './config/schema.ts';
 import type { LintFix, LintResult, PackageJsonRule, PackageJson } from './framework/types.ts';
 import { en } from '@/lint/locale/locales/en.ts';
@@ -46,8 +45,7 @@ function makeConfig(overrides: Partial<LintConfig> = {}): LintConfig {
     rules: {},
     ruleOptions: {},
     overrides: [],
-    ...overrides,
-  };
+    ...overrides};
 }
 
 function captureOutput(): { stdoutLines: string[]; stderrLines: string[]; output: CliOutput } {
@@ -62,9 +60,7 @@ function captureOutput(): { stdoutLines: string[]; stderrLines: string[]; output
       },
       stderr: (msg: string): void => {
         stderrLines.push(msg);
-      },
-    },
-  };
+      }}};
 }
 
 describe.concurrent('runLinter', () => {
@@ -91,8 +87,7 @@ describe.concurrent('runLinter', () => {
         jobs: undefined,
         stdinFilename: undefined,
         tools: false,
-        cache: false,
-      },
+        cache: false},
       output,
       en,
     );
@@ -125,8 +120,7 @@ describe.concurrent('runLinter', () => {
         jobs: undefined,
         stdinFilename: undefined,
         tools: false,
-        cache: false,
-      },
+        cache: false},
       output,
       en,
     );
@@ -159,8 +153,7 @@ describe.concurrent('runLinter', () => {
         jobs: undefined,
         stdinFilename: undefined,
         tools: false,
-        cache: false,
-      },
+        cache: false},
       output,
       en,
     );
@@ -190,8 +183,7 @@ describe.concurrent('runLinter', () => {
         jobs: undefined,
         stdinFilename: undefined,
         tools: false,
-        cache: false,
-      },
+        cache: false},
       output,
       en,
     );
@@ -222,8 +214,7 @@ describe.concurrent('runLinter', () => {
         jobs: undefined,
         stdinFilename: undefined,
         tools: false,
-        cache: false,
-      },
+        cache: false},
       output,
       en,
     );
@@ -253,8 +244,7 @@ describe.concurrent('runLinter', () => {
         jobs: undefined,
         stdinFilename: undefined,
         tools: false,
-        cache: false,
-      },
+        cache: false},
       output,
       en,
     );
@@ -287,8 +277,7 @@ describe.concurrent('runLinter', () => {
         jobs: undefined,
         stdinFilename: undefined,
         tools: false,
-        cache: false,
-      },
+        cache: false},
       output,
       en,
     );
@@ -320,8 +309,7 @@ describe.concurrent('runLinter', () => {
         jobs: undefined,
         stdinFilename: undefined,
         tools: false,
-        cache: false,
-      },
+        cache: false},
       output,
       en,
     );
@@ -356,8 +344,7 @@ describe.concurrent('runLinter', () => {
         jobs: undefined,
         stdinFilename: undefined,
         tools: false,
-        cache: false,
-      },
+        cache: false},
       output,
       en,
     );
@@ -393,8 +380,7 @@ describe.concurrent('runLinter', () => {
         jobs: undefined,
         stdinFilename: undefined,
         tools: false,
-        cache: false,
-      },
+        cache: false},
       output,
       en,
     );
@@ -493,8 +479,7 @@ function makeCliArgs(overrides: Partial<CliArgs> = {}): CliArgs {
     stdinFilename: undefined,
     tools: false,
     cache: false,
-    ...overrides,
-  };
+    ...overrides};
 }
 
 describe.concurrent('runLinter — branch coverage', () => {
@@ -504,8 +489,7 @@ describe.concurrent('runLinter — branch coverage', () => {
       makeCliArgs({
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         debug: true,
-        ruleIds: ['typescript/no-throw'],
-      }),
+        ruleIds: ['typescript/no-throw']}),
       output,
       en,
     );
@@ -522,8 +506,7 @@ describe.concurrent('runLinter — branch coverage', () => {
       makeCliArgs({
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         severityOverride: 'off',
-        ruleIds: ['typescript/no-throw'],
-      }),
+        ruleIds: ['typescript/no-throw']}),
       output,
       en,
     );
@@ -540,8 +523,7 @@ describe.concurrent('runLinter — branch coverage', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         severityOverride: 'warn',
         json: true,
-        ruleIds: ['jsdoc/require-param'],
-      }),
+        ruleIds: ['jsdoc/require-param']}),
       output,
       en,
     );
@@ -565,8 +547,7 @@ describe.concurrent('runLinter — branch coverage', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         quiet: true,
         warnOnly: true,
-        ruleIds: ['typescript/no-throw'],
-      }),
+        ruleIds: ['typescript/no-throw']}),
       output,
       en,
     );
@@ -582,8 +563,7 @@ describe.concurrent('runLinter — branch coverage', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         format: 'sarif',
         warnOnly: true,
-        ruleIds: ['typescript/no-throw'],
-      }),
+        ruleIds: ['typescript/no-throw']}),
       output,
       en,
     );
@@ -605,8 +585,7 @@ describe.concurrent('runLinter — branch coverage', () => {
         ignore: ['*.ignored.ts'],
         debug: true,
         warnOnly: true,
-        ruleIds: ['typescript/no-throw'],
-      }),
+        ruleIds: ['typescript/no-throw']}),
       output,
       en,
     );
@@ -619,8 +598,7 @@ describe.concurrent('runLinter — branch coverage', () => {
     const { stdoutLines: _stdoutLines, output } = captureOutput();
     const code: number = await runLinter(
       makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src/nonexistent-dir-xyz')],
-      }),
+        paths: [resolve('packages/shared/config/tooling/lint/src/nonexistent-dir-xyz')]}),
       output,
       en,
     );
@@ -753,13 +731,11 @@ describe('writeJsonSchema', () => {
       id: 'test/ts-rule',
       description: 'A test rule',
       patterns: ['**/*.ts'],
-      visitor: {},
-    };
+      visitor: {}};
     const pkgRule = {
       id: 'test/pkg-rule',
       description: 'A test pkg rule',
-      check: (): LintResult[] => [],
-    };
+      check: (): LintResult[] => []};
     expect(() =>
       writeJsonSchema(
         [tsRule as unknown as Parameters<typeof writeJsonSchema>[0][number]],
@@ -956,12 +932,10 @@ describe('runPkgRules — additional branches', () => {
       check: (ctx): LintResult[] => {
         receivedOpts = ctx.ruleOptions;
         return [];
-      },
-    };
+      }};
 
     const ruleOptions: Record<string, Record<string, unknown>> = {
-      'test/opts-check': { maxLength: 100 },
-    };
+      'test/opts-check': { maxLength: 100 }};
 
     runPkgRules('/test/package.json', {}, false, [mockRule], ruleOptions);
     expect(receivedOpts).toEqual({ maxLength: 100 });
@@ -975,8 +949,7 @@ describe('runPkgRules — additional branches', () => {
       check: (ctx): LintResult[] => {
         receivedOpts = ctx.ruleOptions;
         return [];
-      },
-    };
+      }};
 
     runPkgRules('/test/package.json', {}, false, [mockRule], {});
     expect(receivedOpts).toBeUndefined();
@@ -986,8 +959,7 @@ describe('runPkgRules — additional branches', () => {
     const mockRule: PackageJsonRule = {
       id: 'test/empty',
       description: 'Empty rule',
-      check: (): LintResult[] => [],
-    };
+      check: (): LintResult[] => []};
 
     const results: LintResult[] = runPkgRules('/test/package.json', {}, false, [mockRule]);
     expect(results.length).toBe(0);
@@ -1007,13 +979,11 @@ describe('runPkgRules — additional branches', () => {
               severity: 'warning',
               message: 'Scoped package',
               ruleId: 'test/name-check',
-              fix: { range: { start: 0, end: 0 }, text: '' },
-            },
+              fix: { range: { start: 0, end: 0 }, text: '' }},
           ];
         }
         return [];
-      },
-    };
+      }};
 
     const pkg: PackageJson = { name: '@scope/pkg' };
     const results: LintResult[] = runPkgRules('/test/package.json', pkg, false, [mockRule]);
@@ -1280,8 +1250,7 @@ describe.concurrent('runLinter — format output branches', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         format: 'github',
         warnOnly: true,
-        ruleIds: ['typescript/no-throw'],
-      }),
+        ruleIds: ['typescript/no-throw']}),
       output,
       en,
     );
@@ -1298,8 +1267,7 @@ describe.concurrent('runLinter — format output branches', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         format: 'junit',
         warnOnly: true,
-        ruleIds: ['typescript/no-throw'],
-      }),
+        ruleIds: ['typescript/no-throw']}),
       output,
       en,
     );
@@ -1318,8 +1286,7 @@ describe.concurrent('runLinter — format output branches', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         format: 'compact',
         warnOnly: true,
-        ruleIds: ['typescript/no-throw'],
-      }),
+        ruleIds: ['typescript/no-throw']}),
       output,
       en,
     );
@@ -1335,8 +1302,7 @@ describe.concurrent('runLinter — format output branches', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         format: 'json',
         warnOnly: true,
-        ruleIds: ['typescript/no-throw'],
-      }),
+        ruleIds: ['typescript/no-throw']}),
       output,
       en,
     );
@@ -1356,8 +1322,7 @@ describe.concurrent('runLinter — severity override branches', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         severityOverride: 'error',
         json: true,
-        ruleIds: ['jsdoc/require-param'],
-      }),
+        ruleIds: ['jsdoc/require-param']}),
       output,
       en,
     );
@@ -1378,8 +1343,7 @@ describe.concurrent('runLinter — no files with --json flag', () => {
     const code: number = await runLinter(
       makeCliArgs({
         paths: [resolve('packages/shared/config/tooling/lint/src/nonexistent-dir-abc')],
-        json: true,
-      }),
+        json: true}),
       output,
       en,
     );
@@ -1400,8 +1364,7 @@ describe.concurrent('runLinter — debug output with various flags', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         debug: true,
         ruleIds: ['typescript/no-throw'],
-        warnOnly: true,
-      }),
+        warnOnly: true}),
       output,
       en,
     );
@@ -1418,8 +1381,7 @@ describe.concurrent('runLinter — debug output with various flags', () => {
         debug: true,
         categories: ['typescript'],
         warnOnly: true,
-        ruleIds: ['typescript/no-throw'],
-      }),
+        ruleIds: ['typescript/no-throw']}),
       output,
       en,
     );
@@ -1435,8 +1397,7 @@ describe.concurrent('runLinter — debug output with various flags', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         debug: true,
         warnOnly: true,
-        ruleIds: ['typescript/no-throw'],
-      }),
+        ruleIds: ['typescript/no-throw']}),
       output,
       en,
     );
@@ -1452,8 +1413,7 @@ describe.concurrent('runLinter — debug output with various flags', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         debug: true,
         warnOnly: true,
-        ruleIds: ['typescript/no-throw'],
-      }),
+        ruleIds: ['typescript/no-throw']}),
       output,
       en,
     );
@@ -1472,8 +1432,7 @@ describe.concurrent('runLinter — --quiet with JSON and text', () => {
         quiet: true,
         json: true,
         warnOnly: true,
-        ruleIds: ['typescript/no-throw'],
-      }),
+        ruleIds: ['typescript/no-throw']}),
       output,
       en,
     );
@@ -1492,8 +1451,7 @@ describe.concurrent('runLinter — single file path (not directory)', () => {
       makeCliArgs({
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         ruleIds: ['typescript/no-throw'],
-        warnOnly: true,
-      }),
+        warnOnly: true}),
       output,
       en,
     );
@@ -1507,8 +1465,7 @@ describe.concurrent('runLinter — single file path (not directory)', () => {
       makeCliArgs({
         paths: [resolve('package.json')],
         ruleIds: ['typescript/no-throw'],
-        warnOnly: true,
-      }),
+        warnOnly: true}),
       output,
       en,
     );
@@ -1526,8 +1483,7 @@ describe.concurrent('runLinter — --stage filtering', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         stage: 'pre-commit',
         json: true,
-        warnOnly: true,
-      }),
+        warnOnly: true}),
       output,
       en,
     );
@@ -1547,8 +1503,7 @@ describe.concurrent('runLinter — --stage filtering', () => {
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         stage: 'build',
         warnOnly: true,
-        ruleIds: ['typescript/no-throw'],
-      }),
+        ruleIds: ['typescript/no-throw']}),
       output,
       en,
     );

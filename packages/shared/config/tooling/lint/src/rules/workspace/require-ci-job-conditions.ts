@@ -6,7 +6,7 @@
  * @module
  */
 
-import { join, relative } from 'node:path';
+import {relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -78,15 +78,13 @@ const rule: WorkspaceRule = {
             'error',
             `CI file has no trigger conditions (rules/only/except/on/if): ${relativePath}`,
             {
-              tip: 'Add trigger conditions (rules:, only:, except:, on:, or if:) to control when CI jobs execute',
-            },
+              tip: 'Add trigger conditions (rules:, only:, except:, on:, or if:) to control when CI jobs execute'},
           ),
         );
       }
     }
 
     return results;
-  },
-};
+  }};
 
 export default rule;

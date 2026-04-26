@@ -63,7 +63,7 @@ const rule: WorkspaceRule = {
 
       let match: RegExpExecArray | null = ID_ATTR_RE.exec(content);
       while (match !== null) {
-        const idValue: string = match[1]!;
+        const idValue: string = match[1] ?? '';
         const existingFile: string | undefined = seenIds.get(idValue);
 
         if (existingFile !== undefined && existingFile !== filePath) {

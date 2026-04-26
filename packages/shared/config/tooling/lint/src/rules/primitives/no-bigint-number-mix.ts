@@ -18,6 +18,7 @@ const ARITHMETIC_OPERATORS = new Set(['+', '-', '*', '/', '%']);
 
 /**
  * Returns true if the node is a BigInt literal (has a `bigint` property).
+ * @returns Description
  */
 function isBigIntLiteral(node: AstNode): boolean {
   const { bigint } = node;
@@ -26,6 +27,7 @@ function isBigIntLiteral(node: AstNode): boolean {
 
 /**
  * Returns true if the node is a number literal.
+ * @returns Description
  */
 function isNumberLiteral(node: AstNode): boolean {
   const { value } = node;

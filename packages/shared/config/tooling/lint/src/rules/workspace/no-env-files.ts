@@ -19,6 +19,7 @@ const ALLOWED_ENV_BASENAMES: ReadonlySet<string> = new Set(['.env.example', '.en
  * Returns true if the given basename is a flagged env file.
  * Flags: .env (bare), .env.local, .env.production, .env.development,
  * .env.staging, .env.test, and any other .env.* variant not in the allow-list.
+ * @returns Description
  */
 function isFlaggedEnvFile(name: string): boolean {
   if (ALLOWED_ENV_BASENAMES.has(name)) {

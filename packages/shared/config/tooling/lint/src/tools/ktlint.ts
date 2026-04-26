@@ -39,6 +39,7 @@ const KTLINT_LINE: RegExp = /^(.+?):(\d+):(\d+):\s*(.+?)\s+\((.+?)\)$/;
  * // results[0].ruleId === 'ktlint/no-blank-line-before-rbrace'
  * // results[0].severity === 'error'
  * ```
+ * @returns Description
  */
 export function transformKtlintOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();

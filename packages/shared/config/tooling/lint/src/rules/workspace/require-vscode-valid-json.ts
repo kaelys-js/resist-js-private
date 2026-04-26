@@ -6,8 +6,6 @@
  * @module
  */
 
-import { basename, relative } from 'node:path';
-
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
@@ -63,15 +61,13 @@ const rule: WorkspaceRule = {
             'error',
             'Invalid JSON syntax in .vscode/settings.json',
             {
-              tip: 'Ensure the file uses valid JSON with double-quoted keys',
-            },
+              tip: 'Ensure the file uses valid JSON with double-quoted keys'},
           ),
         );
       }
     }
 
     return results;
-  },
-};
+  }};
 
 export default rule;

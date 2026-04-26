@@ -6,7 +6,7 @@
  * @module
  */
 
-import { basename, relative } from 'node:path';
+import {relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -75,15 +75,13 @@ const rule: WorkspaceRule = {
             'warning',
             `Placeholder marker found in documentation: ${relativePath}`,
             {
-              tip: 'Remove TODOs, FIXMEs, and placeholder tags before publishing',
-            },
+              tip: 'Remove TODOs, FIXMEs, and placeholder tags before publishing'},
           ),
         );
       }
     }
 
     return results;
-  },
-};
+  }};
 
 export default rule;

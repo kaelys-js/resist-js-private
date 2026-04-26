@@ -37,6 +37,7 @@ const PHP_ERROR: RegExp = /^(?:PHP )?Parse error:\s*(.+?)\s+in\s+(.+?)\s+on\s+li
  * // results[0].ruleId === 'php/syntax'
  * // results[0].line === 10
  * ```
+ * @returns Description
  */
 export function transformPhpOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();

@@ -42,6 +42,7 @@ const ERLC_ERROR: RegExp = /^(.+?):(\d+):\s*error:\s*(.+)$/;
  * // results[0].ruleId === 'erlc/compile'
  * // results[0].severity === 'warning'
  * ```
+ * @returns Description
  */
 export function transformErlcOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();

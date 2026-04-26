@@ -11,7 +11,8 @@
  */
 
 import { existsSync, readdirSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import type { Dirent } from 'node:fs';
+import { join } from 'node:path';
 
 import type { LintCache } from '@/lint/framework/cache.ts';
 import { execFileAsync } from '@/lint/framework/exec.ts';
@@ -22,8 +23,7 @@ import {
   TOOL_CONCURRENCY,
   isCommandAvailable,
   mapWithConcurrency,
-  missingToolResult,
-} from '@/lint/framework/tool-orchestrator.ts';
+  missingToolResult} from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
 
 /** Directories whose contents never affect svelte-check input fingerprint.
@@ -52,7 +52,7 @@ const FINGERPRINT_SKIP_DIRS: ReadonlySet<string> = new Set([
 function listSvelteCheckInputs(pkgDir: string): string[] {
   const files: string[] = [];
   function walk(dir: string): void {
-    let entries: Array<import('node:fs').Dirent>;
+    let entries: Array<Dirent>;
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -139,7 +139,7 @@ export function discoverSveltePackageDirs(cwd: string): string[] {
 
   /** Return true if dir (or any descendant) contains a `.svelte` file. */
   function hasSvelteFile(dir: string): boolean {
-    let entries: Array<import('node:fs').Dirent>;
+    let entries: Array<Dirent>;
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -160,7 +160,7 @@ export function discoverSveltePackageDirs(cwd: string): string[] {
   }
 
   function walk(dir: string): void {
-    let entries: Array<import('node:fs').Dirent>;
+    let entries: Array<Dirent>;
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -214,11 +214,9 @@ export function transformSvelteCheckOutput(output: string): LintResult[] {
       continue;
     }
 
-    const level: string = match[1]!;
-    const file: string = match[2]!;
-    const lineNum: number = Number.parseInt(match[3]!, 10);
-    const col: number = Number.parseInt(match[4]!, 10);
-    const message: string = match[5]!;
+    const [, level = '', file = '', lineStr = '1', colStr = '1', message = ''] = match;
+    const lineNum: number = Number.parseInt(lineStr, 10);
+    const col: number = Number.parseInt(colStr, 10);
 
     const severity: 'error' | 'warning' = level === 'WARNING' ? 'warning' : 'error';
     const ruleId: string = level === 'WARNING' ? 'svelte-check/warning' : 'svelte-check/error';
@@ -301,8 +299,7 @@ export async function runSvelteCheckAllPackages(
           cwd: pkgDir,
           encoding: 'utf8',
           timeout: 120_000,
-          maxBuffer: 16 * 1024 * 1024,
-        });
+          maxBuffer: 16 * 1024 * 1024});
         pkgResults = transformSvelteCheckOutput(stdout);
       } catch (error: unknown) {
         const execError = error as { stdout?: string };
@@ -319,8 +316,7 @@ export async function runSvelteCheckAllPackages(
               severity: 'error',
               message: `svelte-check crashed for ${pkgDir} — type checking was skipped (${message})`,
               ruleId: 'internal/tool-crash',
-              fix: { range: { start: 0, end: 0 }, text: '' },
-            },
+              fix: { range: { start: 0, end: 0 }, text: '' }},
           ];
         }
       }
@@ -343,5 +339,4 @@ export const svelteCheckTool: WorkspaceTool = {
   transform: transformSvelteCheckOutput,
   isAvailable(): boolean {
     return isCommandAvailable('svelte-check');
-  },
-};
+  }};

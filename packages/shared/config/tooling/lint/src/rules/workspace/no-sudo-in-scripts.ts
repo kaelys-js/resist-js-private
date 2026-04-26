@@ -56,7 +56,7 @@ const rule: WorkspaceRule = {
       const lines: string[] = content.split('\n');
 
       for (let i: number = 0; i < lines.length; i++) {
-        if (SUDO_PATTERN.test(lines[i]!)) {
+        if (SUDO_PATTERN.test((lines[i] ?? ''))) {
           const relativePath: string = relative(ctx.rootDir, filePath);
           results.push(
             createResult(

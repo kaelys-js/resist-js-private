@@ -7,7 +7,6 @@
  * @module
  */
 
-import { dirname, join } from 'node:path';
 import { basename, relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
@@ -95,15 +94,13 @@ const rule: WorkspaceRule = {
             'error',
             `Empty test folder: ${relativePath}`,
             {
-              tip: 'Either remove this folder or add a valid test file',
-            },
+              tip: 'Either remove this folder or add a valid test file'},
           ),
         );
       }
     }
 
     return results;
-  },
-};
+  }};
 
 export default rule;

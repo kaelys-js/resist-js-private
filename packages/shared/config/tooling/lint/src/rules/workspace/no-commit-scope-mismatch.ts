@@ -71,7 +71,7 @@ const rule: WorkspaceRule = {
       return results;
     }
 
-    const scope = match[1]!;
+    const scope = match[1] ?? '';
 
     if (!branch.includes(scope)) {
       results.push(

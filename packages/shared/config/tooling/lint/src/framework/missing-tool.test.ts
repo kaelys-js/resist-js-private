@@ -25,6 +25,7 @@ import { ToolRegistry, type ExternalTool, type WorkspaceTool } from './tool-orch
 /**
  * Build a minimal per-file tool with sensible defaults. Pattern matches any
  * `.ts` file so `runAll([...ts])` routes files to it.
+ * @returns Description
  */
 function makeExternalTool(overrides: Partial<ExternalTool> = {}): ExternalTool {
   return {

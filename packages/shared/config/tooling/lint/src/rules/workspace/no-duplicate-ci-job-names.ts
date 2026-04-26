@@ -90,14 +90,13 @@ const rule: WorkspaceRule = {
       }
 
       const lines: string[] = content.split('\n');
-      for (let i: number = 0; i < lines.length; i++) {
-        const line: string = lines[i]!;
+      for (const [i, line] of lines.entries()) {
         const match: RegExpMatchArray | null = line.match(TOP_LEVEL_KEY_PATTERN);
         if (match === null) {
           continue;
         }
 
-        const jobName: string = match[1]!;
+        const jobName: string = match[1] ?? '';
         if (RESERVED_KEYS.has(jobName)) {
           continue;
         }

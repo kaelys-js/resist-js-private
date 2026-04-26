@@ -59,7 +59,7 @@ const rule: WorkspaceRule = {
 
     const lines: string[] = content.split('\n');
     for (let i: number = 0; i < lines.length; i++) {
-      const match: RegExpMatchArray | null = lines[i]!.match(LOCAL_INCLUDE_PATTERN);
+      const match: RegExpMatchArray | null = (lines[i] ?? '').match(LOCAL_INCLUDE_PATTERN);
       if (match?.[1]) {
         const includePath: string = match[1];
         const fullPath: string = `${ctx.rootDir}/${includePath}`;

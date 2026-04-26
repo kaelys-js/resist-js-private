@@ -67,8 +67,7 @@ const rule: WorkspaceRule = {
       const lines: string[] = content.split('\n');
       const seen: Set<string> = new Set();
 
-      for (let i: number = 0; i < lines.length; i++) {
-        const line: string = lines[i]!;
+      for (const [i, line] of lines.entries()) {
         const lineNum: number = i + 1;
 
         /* Skip empty lines and comments */

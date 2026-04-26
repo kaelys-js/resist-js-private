@@ -59,7 +59,7 @@ const rule: WorkspaceRule = {
 
       // ICONDIRENTRY starts at offset 6
       // Byte 8 (offset 6+2) = color count: 0 means >=256 colors (32-bit/true color)
-      const colorCount: number = buf[8]!;
+      const colorCount: number = buf[8] ?? 0;
       const relativePath: string = relative(ctx.rootDir, filePath);
 
       if (colorCount === 0) {

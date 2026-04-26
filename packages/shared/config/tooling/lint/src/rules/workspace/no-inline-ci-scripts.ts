@@ -68,8 +68,7 @@ const rule: WorkspaceRule = {
       }
 
       const lines: string[] = content.split('\n');
-      for (let i: number = 0; i < lines.length; i++) {
-        const line: string = lines[i]!;
+      for (const [i, line] of lines.entries()) {
         if (INLINE_SCRIPT_PATTERN.test(line)) {
           results.push(
             createResult(

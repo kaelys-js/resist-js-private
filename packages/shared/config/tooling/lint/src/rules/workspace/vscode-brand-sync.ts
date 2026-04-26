@@ -103,9 +103,10 @@ const rule: WorkspaceRule = {
       }
 
       const brandCommands: string[] = [];
+      const commandsText: string = commandsBlock[1] ?? '';
       let match: RegExpExecArray | null;
-      while ((match = COMMAND_VALUE_RE.exec(commandsBlock[1]!)) !== null) {
-        brandCommands.push(match[1] ?? match[2]!);
+      while ((match = COMMAND_VALUE_RE.exec(commandsText)) !== null) {
+        brandCommands.push(match[1] ?? match[2] ?? '');
       }
 
       // Extract CONFIG_SECTION from brand.ts
@@ -127,7 +128,7 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const configSection: string = configMatch[1]!;
+      const configSection: string = configMatch[1] ?? '';
 
       // Extract commands from package.json
       const pkgCommands: string[] = (contributes['commands'] as Array<{ command: string }>).map(
@@ -221,8 +222,8 @@ const rule: WorkspaceRule = {
  * @returns 1-based line number, or undefined if not found
  */
 function findLineContaining(lines: string[], substring: string): number | undefined {
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i]!.includes(substring)) {
+  for (const [i, line] of lines.entries()) {
+    if (line.includes(substring)) {
       return i + 1;
     }
   }

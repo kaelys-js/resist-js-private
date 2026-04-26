@@ -467,7 +467,10 @@ export async function mapWithConcurrency<T, R>(
     while (cursor < items.length) {
       const idx: number = cursor;
       cursor += 1;
-      results[idx] = await fn(items[idx]!);
+      const item: T | undefined = items[idx];
+      if (item !== undefined) {
+        results[idx] = await fn(item);
+      }
     }
   };
   const workerCount: number = Math.min(limit, items.length);
