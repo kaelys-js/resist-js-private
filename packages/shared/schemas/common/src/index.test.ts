@@ -13,68 +13,45 @@ import {
   BoolSchema,
   NonNegativeIntegerSchema,
   PositiveIntegerSchema,
-  NonNegativeNumberSchema,
   UnitIntervalSchema,
   PortSchema,
   ExitCodeSchema,
-  NodeMajorVersionSchema,
   NameSchema,
   DescriptionSchema,
   TagSchema,
   SlugSchema,
   TitleSchema,
-  SummarySchema,
-  ContentSchema,
   SearchQuerySchema,
-  CommentSchema,
   SemverSchema,
   KebabCaseIdSchema,
-  ProductNameSchema,
   IsoTimestampSchema,
   DateOnlySchema,
-  TimeOnlySchema,
   YearSchema,
   DurationSchema,
-  CronExpressionSchema,
   TimezoneSchema,
   EmailSchema,
   UuidSchema,
   UrlStringSchema,
-  HttpsUrlSchema,
-  RelativeUrlSchema,
   HostnameSchema,
-  Ipv4Schema,
-  HexColorSchema,
   HttpStatusCodeSchema,
-  MimeTypeSchema,
   Base64Schema,
   Sha256Schema,
-  Md5Schema,
   JwtSchema,
   JsonStringSchema,
   RegexPatternSchema,
   FileExtensionSchema,
   PathSchema,
-  FilenameSchema,
-  CommandSchema,
   PasswordSchema,
-  PhoneSchema,
-  UsernameSchema,
   PriceSchema,
-  QuantitySchema,
   PercentageSchema,
-  DiscountPercentSchema,
   PaginationLimitSchema,
-  PaginationOffsetSchema,
   SortDirectionSchema,
-  FilterOperatorSchema,
   EventNameSchema,
   NpmPackageNameSchema,
   FeatureFlagSchema,
   ErrorCodeSchema,
   LogLevelSchema,
   HttpMethodSchema,
-  PlatformSchema,
   DEFAULT_TERMINAL_WIDTH,
   DEFAULT_JSON_INDENT,
   DEFAULT_PROGRESS_BAR_WIDTH,
@@ -194,7 +171,7 @@ describe('PortSchema', () => {
   });
 
   it('accepts 65535', () => {
-    expect(v.safeParse(PortSchema, 65535).success).toBe(true);
+    expect(v.safeParse(PortSchema, 65_535).success).toBe(true);
   });
 
   it('rejects 0', () => {
@@ -202,7 +179,7 @@ describe('PortSchema', () => {
   });
 
   it('rejects 65536', () => {
-    expect(v.safeParse(PortSchema, 65536).success).toBe(false);
+    expect(v.safeParse(PortSchema, 65_536).success).toBe(false);
   });
 });
 
@@ -828,19 +805,20 @@ describe('defensive IIFE validation branches', () => {
   it('DEFAULT_TERMINAL_WIDTH throws on validation failure', async () => {
     let callCount = 0;
     vi.doMock('valibot', async (importOriginal) => {
-      const actual = await importOriginal<typeof import('valibot')>();
+      const actual = await importOriginal<typeof v>();
       const origSafeParse = actual.safeParse;
       return {
         ...actual,
         safeParse(...args: Parameters<typeof origSafeParse>) {
           callCount++;
-          if (callCount === 1)
+          if (callCount === 1) {
             return {
               success: false as const,
               issues: [],
               typed: false as const,
               output: undefined,
             };
+          }
           return origSafeParse(...args);
         },
       };
@@ -854,19 +832,20 @@ describe('defensive IIFE validation branches', () => {
   it('DEFAULT_JSON_INDENT throws on validation failure', async () => {
     let callCount = 0;
     vi.doMock('valibot', async (importOriginal) => {
-      const actual = await importOriginal<typeof import('valibot')>();
+      const actual = await importOriginal<typeof v>();
       const origSafeParse = actual.safeParse;
       return {
         ...actual,
         safeParse(...args: Parameters<typeof origSafeParse>) {
           callCount++;
-          if (callCount === 2)
+          if (callCount === 2) {
             return {
               success: false as const,
               issues: [],
               typed: false as const,
               output: undefined,
             };
+          }
           return origSafeParse(...args);
         },
       };
@@ -880,19 +859,20 @@ describe('defensive IIFE validation branches', () => {
   it('DEFAULT_PROGRESS_BAR_WIDTH throws on validation failure', async () => {
     let callCount = 0;
     vi.doMock('valibot', async (importOriginal) => {
-      const actual = await importOriginal<typeof import('valibot')>();
+      const actual = await importOriginal<typeof v>();
       const origSafeParse = actual.safeParse;
       return {
         ...actual,
         safeParse(...args: Parameters<typeof origSafeParse>) {
           callCount++;
-          if (callCount === 3)
+          if (callCount === 3) {
             return {
               success: false as const,
               issues: [],
               typed: false as const,
               output: undefined,
             };
+          }
           return origSafeParse(...args);
         },
       };
@@ -906,19 +886,20 @@ describe('defensive IIFE validation branches', () => {
   it('DEFAULT_EXIT_CODE throws on validation failure', async () => {
     let callCount = 0;
     vi.doMock('valibot', async (importOriginal) => {
-      const actual = await importOriginal<typeof import('valibot')>();
+      const actual = await importOriginal<typeof v>();
       const origSafeParse = actual.safeParse;
       return {
         ...actual,
         safeParse(...args: Parameters<typeof origSafeParse>) {
           callCount++;
-          if (callCount === 4)
+          if (callCount === 4) {
             return {
               success: false as const,
               issues: [],
               typed: false as const,
               output: undefined,
             };
+          }
           return origSafeParse(...args);
         },
       };
@@ -932,19 +913,20 @@ describe('defensive IIFE validation branches', () => {
   it('FAILURE_EXIT_CODE throws on validation failure', async () => {
     let callCount = 0;
     vi.doMock('valibot', async (importOriginal) => {
-      const actual = await importOriginal<typeof import('valibot')>();
+      const actual = await importOriginal<typeof v>();
       const origSafeParse = actual.safeParse;
       return {
         ...actual,
         safeParse(...args: Parameters<typeof origSafeParse>) {
           callCount++;
-          if (callCount === 5)
+          if (callCount === 5) {
             return {
               success: false as const,
               issues: [],
               typed: false as const,
               output: undefined,
             };
+          }
           return origSafeParse(...args);
         },
       };

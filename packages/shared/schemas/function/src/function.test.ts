@@ -29,6 +29,23 @@ import { args } from '@/schemas/function/args';
 import { returns } from '@/schemas/function/returns';
 import { implement } from '@/schemas/function/implement';
 
+// ─── Module-level test fixtures (hoisted from inside `it` blocks per consistent-function-scoping) ───
+function namedFooFn(): void {}
+const classlikeStringFn: () => void = function (): void {};
+async function namedAsyncFn(): Promise<void> {}
+function namedSyncFn(): void {}
+function namedMyFunc(): number {
+  return 1;
+}
+const namedMyFn = (x: number): number => x * 2;
+
+class FooFixture {
+  // Instance property required to avoid `no-extraneous-class` (no-static-only)
+  // and `prefer-as-const` warnings while still keeping the `toString()` form
+  // starting with `class ` so the schema's class-rejection branch fires.
+  marker = 'fixture';
+}
+
 // =============================================================================
 // TASK 1 — types.ts: Schema Definitions
 // =============================================================================
@@ -37,13 +54,17 @@ describe('ErrorModeSchema', () => {
   it('accepts "throw"', () => {
     const result = v.safeParse(ErrorModeSchema, 'throw');
     expect(result.success).toBe(true);
-    if (result.success) expect(result.output).toBe('throw');
+    if (result.success) {
+      expect(result.output).toBe('throw');
+    }
   });
 
   it('accepts "result"', () => {
     const result = v.safeParse(ErrorModeSchema, 'result');
     expect(result.success).toBe(true);
-    if (result.success) expect(result.output).toBe('result');
+    if (result.success) {
+      expect(result.output).toBe('result');
+    }
   });
 
   it('rejects invalid string', () => {
@@ -109,13 +130,17 @@ describe('CallTimeOptionsSchema', () => {
   it('accepts { onError: "throw" }', () => {
     const r = v.safeParse(CallTimeOptionsSchema, { onError: 'throw' });
     expect(r.success).toBe(true);
-    if (r.success) expect(r.output.onError).toBe('throw');
+    if (r.success) {
+      expect(r.output.onError).toBe('throw');
+    }
   });
 
   it('accepts { onError: "result" }', () => {
     const r = v.safeParse(CallTimeOptionsSchema, { onError: 'result' });
     expect(r.success).toBe(true);
-    if (r.success) expect(r.output.onError).toBe('result');
+    if (r.success) {
+      expect(r.output.onError).toBe('result');
+    }
   });
 
   it('rejects extra fields (strictObject)', () => {
@@ -173,8 +198,7 @@ describe('functionSchema()', () => {
   });
 
   it('accepts named function', () => {
-    function foo() {}
-    expect(v.safeParse(schema, foo).success).toBe(true);
+    expect(v.safeParse(schema, namedFooFn).success).toBe(true);
   });
 
   it('accepts async function', () => {
@@ -202,15 +226,16 @@ describe('functionSchema()', () => {
   });
 
   it('rejects class constructor (startsWith "class ")', () => {
-    class Foo {}
-    expect(v.safeParse(schema, Foo).success).toBe(false);
+    expect(v.safeParse(schema, FooFixture).success).toBe(false);
   });
 
   it('rejects function with toString starting with "class{"', () => {
     // Defensive branch for engines that omit the space after 'class'
-    const fn = function () {};
-    Object.defineProperty(fn, 'toString', { value: () => 'class{constructor(){}}' });
-    expect(v.safeParse(schema, fn).success).toBe(false);
+    Object.defineProperty(classlikeStringFn, 'toString', {
+      value: (): string => 'class{constructor(){}}',
+      configurable: true,
+    });
+    expect(v.safeParse(schema, classlikeStringFn).success).toBe(false);
   });
 });
 
@@ -220,8 +245,7 @@ describe('isAsyncFunction()', () => {
   });
 
   it('returns true for async function declaration', () => {
-    async function asyncFn() {}
-    expect(isAsyncFunction(asyncFn)).toBe(true);
+    expect(isAsyncFunction(namedAsyncFn)).toBe(true);
   });
 
   it('returns false for sync arrow function', () => {
@@ -229,8 +253,7 @@ describe('isAsyncFunction()', () => {
   });
 
   it('returns false for sync function declaration', () => {
-    function syncFn() {}
-    expect(isAsyncFunction(syncFn)).toBe(false);
+    expect(isAsyncFunction(namedSyncFn)).toBe(false);
   });
 });
 
@@ -246,36 +269,55 @@ describe('arity()', () => {
 
     it('check accepts fn with matching length', () => {
       const r = arity(2);
-      if (!r.ok) return;
-      const schema = v.pipe(functionSchema(), r.data);
+      if (!r.ok) {
+        return;
+      }
+      const schema = v.pipe(
+        functionSchema(),
+        r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+      );
       expect(v.safeParse(schema, (_a: unknown, _b: unknown) => {}).success).toBe(true);
     });
 
     it('check rejects fn with non-matching length', () => {
       const r = arity(2);
-      if (!r.ok) return;
-      const schema = v.pipe(functionSchema(), r.data);
+      if (!r.ok) {
+        return;
+      }
+      const schema = v.pipe(
+        functionSchema(),
+        r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+      );
       expect(v.safeParse(schema, (_a: unknown) => {}).success).toBe(false);
     });
 
     it('arity(0) accepts zero-arg fn', () => {
       const r = arity(0);
-      if (!r.ok) return;
-      const schema = v.pipe(functionSchema(), r.data);
+      if (!r.ok) {
+        return;
+      }
+      const schema = v.pipe(
+        functionSchema(),
+        r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+      );
       expect(v.safeParse(schema, () => {}).success).toBe(true);
     });
 
     it('arity(-1) returns err INVALID_ARITY', () => {
       const r = arity(-1);
       expect(r.ok).toBe(false);
-      if (r.ok) return;
+      if (r.ok) {
+        return;
+      }
       expect(r.error.code).toBe(ERRORS.FUNCTION.INVALID_ARITY);
     });
 
     it('arity(1.5) returns err (non-integer)', () => {
       const r = arity(1.5);
       expect(r.ok).toBe(false);
-      if (r.ok) return;
+      if (r.ok) {
+        return;
+      }
       expect(r.error.code).toBe(ERRORS.FUNCTION.INVALID_ARITY);
     });
   });
@@ -283,31 +325,63 @@ describe('arity()', () => {
   describe('range arity', () => {
     it('{ min: 1, max: 3 } accepts length 1', () => {
       const r = arity({ min: 1, max: 3 });
-      if (!r.ok) return;
-      expect(v.safeParse(v.pipe(functionSchema(), r.data), (_a: unknown) => {}).success).toBe(true);
+      if (!r.ok) {
+        return;
+      }
+      expect(
+        v.safeParse(
+          v.pipe(
+            functionSchema(),
+            r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+          ),
+          (_a: unknown) => {},
+        ).success,
+      ).toBe(true);
     });
 
     it('{ min: 1, max: 3 } accepts length 3', () => {
       const r = arity({ min: 1, max: 3 });
-      if (!r.ok) return;
+      if (!r.ok) {
+        return;
+      }
       expect(
-        v.safeParse(v.pipe(functionSchema(), r.data), (_a: unknown, _b: unknown, _c: unknown) => {})
-          .success,
+        v.safeParse(
+          v.pipe(
+            functionSchema(),
+            r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+          ),
+          (_a: unknown, _b: unknown, _c: unknown) => {},
+        ).success,
       ).toBe(true);
     });
 
     it('{ min: 1, max: 3 } rejects length 0', () => {
       const r = arity({ min: 1, max: 3 });
-      if (!r.ok) return;
-      expect(v.safeParse(v.pipe(functionSchema(), r.data), () => {}).success).toBe(false);
+      if (!r.ok) {
+        return;
+      }
+      expect(
+        v.safeParse(
+          v.pipe(
+            functionSchema(),
+            r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+          ),
+          () => {},
+        ).success,
+      ).toBe(false);
     });
 
     it('{ min: 1, max: 3 } rejects length 4', () => {
       const r = arity({ min: 1, max: 3 });
-      if (!r.ok) return;
+      if (!r.ok) {
+        return;
+      }
       expect(
         v.safeParse(
-          v.pipe(functionSchema(), r.data),
+          v.pipe(
+            functionSchema(),
+            r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+          ),
           (_a: unknown, _b: unknown, _c: unknown, _d: unknown) => {},
         ).success,
       ).toBe(false);
@@ -315,41 +389,71 @@ describe('arity()', () => {
 
     it('{ min: 2 } accepts length 2+', () => {
       const r = arity({ min: 2 });
-      if (!r.ok) return;
-      const schema = v.pipe(functionSchema(), r.data);
+      if (!r.ok) {
+        return;
+      }
+      const schema = v.pipe(
+        functionSchema(),
+        r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+      );
       expect(v.safeParse(schema, (_a: unknown, _b: unknown) => {}).success).toBe(true);
       expect(v.safeParse(schema, (_a: unknown, _b: unknown, _c: unknown) => {}).success).toBe(true);
     });
 
     it('{ min: 2 } rejects length 1', () => {
       const r = arity({ min: 2 });
-      if (!r.ok) return;
-      expect(v.safeParse(v.pipe(functionSchema(), r.data), (_a: unknown) => {}).success).toBe(
-        false,
-      );
+      if (!r.ok) {
+        return;
+      }
+      expect(
+        v.safeParse(
+          v.pipe(
+            functionSchema(),
+            r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+          ),
+          (_a: unknown) => {},
+        ).success,
+      ).toBe(false);
     });
 
     it('{ max: 2 } accepts length 0-2', () => {
       const r = arity({ max: 2 });
-      if (!r.ok) return;
-      const schema = v.pipe(functionSchema(), r.data);
+      if (!r.ok) {
+        return;
+      }
+      const schema = v.pipe(
+        functionSchema(),
+        r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+      );
       expect(v.safeParse(schema, () => {}).success).toBe(true);
       expect(v.safeParse(schema, (_a: unknown, _b: unknown) => {}).success).toBe(true);
     });
 
     it('{ max: 2 } rejects length 3', () => {
       const r = arity({ max: 2 });
-      if (!r.ok) return;
+      if (!r.ok) {
+        return;
+      }
       expect(
-        v.safeParse(v.pipe(functionSchema(), r.data), (_a: unknown, _b: unknown, _c: unknown) => {})
-          .success,
+        v.safeParse(
+          v.pipe(
+            functionSchema(),
+            r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+          ),
+          (_a: unknown, _b: unknown, _c: unknown) => {},
+        ).success,
       ).toBe(false);
     });
 
     it('{} accepts any length', () => {
       const r = arity({});
-      if (!r.ok) return;
-      const schema = v.pipe(functionSchema(), r.data);
+      if (!r.ok) {
+        return;
+      }
+      const schema = v.pipe(
+        functionSchema(),
+        r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+      );
       expect(v.safeParse(schema, () => {}).success).toBe(true);
       expect(v.safeParse(schema, (_a: unknown, _b: unknown, _c: unknown) => {}).success).toBe(true);
     });
@@ -359,7 +463,9 @@ describe('arity()', () => {
     it('{ min: -1 } returns err', () => {
       const r = arity({ min: -1 });
       expect(r.ok).toBe(false);
-      if (r.ok) return;
+      if (r.ok) {
+        return;
+      }
       expect(r.error.code).toBe(ERRORS.FUNCTION.INVALID_ARITY);
       expect(r.error.message).toContain('min');
     });
@@ -367,7 +473,9 @@ describe('arity()', () => {
     it('{ max: -1 } returns err', () => {
       const r = arity({ max: -1 });
       expect(r.ok).toBe(false);
-      if (r.ok) return;
+      if (r.ok) {
+        return;
+      }
       expect(r.error.code).toBe(ERRORS.FUNCTION.INVALID_ARITY);
       expect(r.error.message).toContain('max');
     });
@@ -375,14 +483,18 @@ describe('arity()', () => {
     it('{ min: 1.5 } returns err', () => {
       const r = arity({ min: 1.5 });
       expect(r.ok).toBe(false);
-      if (r.ok) return;
+      if (r.ok) {
+        return;
+      }
       expect(r.error.code).toBe(ERRORS.FUNCTION.INVALID_ARITY);
     });
 
     it('{ max: 1.5 } returns err', () => {
       const r = arity({ max: 1.5 });
       expect(r.ok).toBe(false);
-      if (r.ok) return;
+      if (r.ok) {
+        return;
+      }
       expect(r.error.code).toBe(ERRORS.FUNCTION.INVALID_ARITY);
     });
   });
@@ -390,21 +502,35 @@ describe('arity()', () => {
   describe('description messages', () => {
     it('exact: message says "exactly N"', () => {
       const r = arity(2);
-      if (!r.ok) return;
-      const schema = v.pipe(functionSchema(), r.data);
+      if (!r.ok) {
+        return;
+      }
+      const schema = v.pipe(
+        functionSchema(),
+        r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+      );
       const pr = v.safeParse(schema, (_a: unknown) => {});
       expect(pr.success).toBe(false);
-      if (pr.success) return;
+      if (pr.success) {
+        return;
+      }
       expect(pr.issues[0]?.message).toContain('exactly 2');
     });
 
     it('range: message says ">= min and <= max"', () => {
       const r = arity({ min: 1, max: 3 });
-      if (!r.ok) return;
-      const schema = v.pipe(functionSchema(), r.data);
+      if (!r.ok) {
+        return;
+      }
+      const schema = v.pipe(
+        functionSchema(),
+        r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+      );
       const pr = v.safeParse(schema, () => {});
       expect(pr.success).toBe(false);
-      if (pr.success) return;
+      if (pr.success) {
+        return;
+      }
       const msg = pr.issues[0]?.message ?? '';
       expect(msg).toContain('>= 1');
       expect(msg).toContain('<= 3');
@@ -412,21 +538,35 @@ describe('arity()', () => {
 
     it('min-only: message says ">= min"', () => {
       const r = arity({ min: 2 });
-      if (!r.ok) return;
-      const schema = v.pipe(functionSchema(), r.data);
+      if (!r.ok) {
+        return;
+      }
+      const schema = v.pipe(
+        functionSchema(),
+        r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+      );
       const pr = v.safeParse(schema, (_a: unknown) => {});
       expect(pr.success).toBe(false);
-      if (pr.success) return;
+      if (pr.success) {
+        return;
+      }
       expect(pr.issues[0]?.message).toContain('>= 2');
     });
 
     it('max-only: message says "<= max"', () => {
       const r = arity({ max: 1 });
-      if (!r.ok) return;
-      const schema = v.pipe(functionSchema(), r.data);
+      if (!r.ok) {
+        return;
+      }
+      const schema = v.pipe(
+        functionSchema(),
+        r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+      );
       const pr = v.safeParse(schema, (_a: unknown, _b: unknown) => {});
       expect(pr.success).toBe(false);
-      if (pr.success) return;
+      if (pr.success) {
+        return;
+      }
       expect(pr.issues[0]?.message).toContain('<= 1');
     });
   });
@@ -459,11 +599,8 @@ describe('createWrapper()', () => {
 
   describe('wrapper metadata', () => {
     it('sets name to "validated(fnName)"', () => {
-      function myFunc() {
-        return 1;
-      }
-      const wrapper = createWrapper(myFunc, undefined, undefined, 'throw');
-      expect(wrapper.name).toBe('validated(myFunc)');
+      const wrapper = createWrapper(namedMyFunc, undefined, undefined, 'throw');
+      expect(wrapper.name).toBe('validated(namedMyFunc)');
     });
 
     it('sets name to "validated(<anonymous>)" for unnamed fn', () => {
@@ -549,7 +686,9 @@ describe('createWrapper()', () => {
         undefined,
         'throw',
       );
-      expect(() => wrapper('a', 'b' as unknown)).toThrow('parameter validation failed');
+      expect(() => (wrapper as (...args: unknown[]) => unknown)('a', 'b' as unknown)).toThrow(
+        'parameter validation failed',
+      );
     });
   });
 
@@ -612,13 +751,24 @@ describe('createWrapper()', () => {
 
   describe('async (Promise) return validation', () => {
     it('resolves valid async return', async () => {
-      const wrapper = createWrapper(async () => 42, undefined, _toBaseSchema(v.number()), 'throw');
+      const wrapper = createWrapper(
+        async () => {
+          await Promise.resolve();
+          return 42;
+        },
+        undefined,
+        _toBaseSchema(v.number()),
+        'throw',
+      );
       await expect(wrapper()).resolves.toBe(42);
     });
 
     it('rejects invalid async return (throw mode)', async () => {
       const wrapper = createWrapper(
-        async () => 'bad',
+        async () => {
+          await Promise.resolve();
+          return 'bad';
+        },
         undefined,
         _toBaseSchema(v.number()),
         'throw',
@@ -628,7 +778,10 @@ describe('createWrapper()', () => {
 
     it('resolves with err for invalid async return (result mode)', async () => {
       const wrapper = createWrapper(
-        async () => 'bad',
+        async () => {
+          await Promise.resolve();
+          return 'bad';
+        },
         undefined,
         _toBaseSchema(v.number()),
         'result',
@@ -689,7 +842,9 @@ describe('args()', () => {
     const schema = v.pipe(functionSchema(), args(v.tuple([v.string()])));
     const r = v.safeParse(schema, (s: string) => s.length);
     expect(r.success).toBe(true);
-    if (!r.success) return;
+    if (!r.success) {
+      return;
+    }
     expect(r.output('hello')).toBe(5);
     expect(() => r.output(42 as unknown as string)).toThrow();
   });
@@ -698,7 +853,9 @@ describe('args()', () => {
     const schema = v.pipe(functionSchema(), returns(v.number()), args(v.tuple([v.string()])));
     const r = v.safeParse(schema, (s: string) => s.length);
     expect(r.success).toBe(true);
-    if (!r.success) return;
+    if (!r.success) {
+      return;
+    }
     expect(r.output('hello')).toBe(5);
   });
 
@@ -706,7 +863,9 @@ describe('args()', () => {
     const schema = v.pipe(functionSchema(), args(v.tuple([v.string()]), { onError: 'result' }));
     const r = v.safeParse(schema, (s: string) => s.length);
     expect(r.success).toBe(true);
-    if (!r.success) return;
+    if (!r.success) {
+      return;
+    }
     const callR = r.output(42 as unknown as string) as unknown as {
       ok: boolean;
       error: { code: string };
@@ -721,7 +880,9 @@ describe('returns()', () => {
     const schema = v.pipe(functionSchema(), returns(v.number()));
     const r = v.safeParse(schema, () => 42);
     expect(r.success).toBe(true);
-    if (!r.success) return;
+    if (!r.success) {
+      return;
+    }
     expect(r.output()).toBe(42);
   });
 
@@ -729,7 +890,9 @@ describe('returns()', () => {
     const schema = v.pipe(functionSchema(), args(v.tuple([v.string()])), returns(v.number()));
     const r = v.safeParse(schema, (s: string) => s.length);
     expect(r.success).toBe(true);
-    if (!r.success) return;
+    if (!r.success) {
+      return;
+    }
     expect(r.output('hello')).toBe(5);
   });
 
@@ -737,7 +900,9 @@ describe('returns()', () => {
     const schema = v.pipe(functionSchema(), returns(v.number(), { onError: 'result' }));
     const r = v.safeParse(schema, () => 'bad');
     expect(r.success).toBe(true);
-    if (!r.success) return;
+    if (!r.success) {
+      return;
+    }
     const callR = r.output() as unknown as { ok: boolean; error: { code: string } };
     expect(callR.ok).toBe(false);
     expect(callR.error.code).toBe(ERRORS.FUNCTION.RETURN_VALIDATION_FAILED);
@@ -750,21 +915,27 @@ describe('args() + returns() combined', () => {
   it('valid args + valid return succeeds', () => {
     const r = v.safeParse(schema, (s: string) => s.length);
     expect(r.success).toBe(true);
-    if (!r.success) return;
+    if (!r.success) {
+      return;
+    }
     expect(r.output('hello')).toBe(5);
   });
 
   it('invalid args throws before fn called', () => {
     const r = v.safeParse(schema, (s: string) => s.length);
     expect(r.success).toBe(true);
-    if (!r.success) return;
+    if (!r.success) {
+      return;
+    }
     expect(() => r.output(42 as unknown as string)).toThrow('parameter validation failed');
   });
 
   it('invalid return throws after fn called', () => {
     const r = v.safeParse(schema, (s: string) => s.toUpperCase() as unknown as number);
     expect(r.success).toBe(true);
-    if (!r.success) return;
+    if (!r.success) {
+      return;
+    }
     expect(() => r.output('hello')).toThrow('return value validation failed');
   });
 });
@@ -779,17 +950,23 @@ describe('implement()', () => {
     );
     const r = v.safeParse(schema, () => {});
     expect(r.success).toBe(true);
-    if (!r.success) return;
+    if (!r.success) {
+      return;
+    }
     expect(r.output('  hello  ')).toBe(5);
   });
 
   it('without prior wrapper — returns fn as-is', () => {
-    const myFn = (x: number) => x * 2;
-    const schema = v.pipe(functionSchema(), implement(myFn));
+    const schema = v.pipe(
+      functionSchema(),
+      implement(namedMyFn) as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
+    );
     const r = v.safeParse(schema, () => {});
     expect(r.success).toBe(true);
-    if (!r.success) return;
-    expect(r.output(5)).toBe(10);
+    if (!r.success) {
+      return;
+    }
+    expect((r.output as (x: number) => number)(5)).toBe(10);
   });
 
   it('full pipe — validates args, calls fn, validates return', () => {
@@ -801,7 +978,9 @@ describe('implement()', () => {
     );
     const r = v.safeParse(schema, () => {});
     expect(r.success).toBe(true);
-    if (!r.success) return;
+    if (!r.success) {
+      return;
+    }
     expect(r.output('Alice', 30)).toBe('Alice is 30');
     expect(() => r.output(42 as unknown as string, 30)).toThrow('parameter validation failed');
   });
