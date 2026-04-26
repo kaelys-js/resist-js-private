@@ -80,13 +80,17 @@ describe('hasCode', () => {
   it('matches error code', () => {
     const result: Result<Bool> = hasCode(makeError(), ERRORS.HTTP.SERVER_ERROR);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
   });
 
   it('rejects wrong code', () => {
     const result: Result<Bool> = hasCode(makeError(), ERRORS.INTERNAL.UNEXPECTED);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(false);
+    if (result.ok) {
+      expect(result.data).toBe(false);
+    }
   });
 });
 
@@ -99,13 +103,17 @@ describe('hasAnyCode', () => {
       ERRORS.HTTP.SERVER_ERROR,
     ]);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
   });
 
   it('returns false when no codes match', () => {
     const result: Result<Bool> = hasAnyCode(makeError(), [ERRORS.INTERNAL.UNEXPECTED]);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(false);
+    if (result.ok) {
+      expect(result.data).toBe(false);
+    }
   });
 });
 
@@ -115,13 +123,17 @@ describe('isInDomain', () => {
   it('matches domain prefix', () => {
     const result: Result<Bool> = isInDomain(makeError(), 'HTTP');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
   });
 
   it('rejects wrong domain', () => {
     const result: Result<Bool> = isInDomain(makeError(), 'INTERNAL');
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(false);
+    if (result.ok) {
+      expect(result.data).toBe(false);
+    }
   });
 
   it('returns error for code with invalid domain prefix', () => {
@@ -154,7 +166,9 @@ describe('getCauseChain', () => {
   it('returns single-element array for error without cause', () => {
     const result = getCauseChain(makeError());
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toHaveLength(1);
+    if (result.ok) {
+      expect(result.data).toHaveLength(1);
+    }
   });
 });
 
@@ -176,7 +190,9 @@ describe('findInCauseChain', () => {
   it('returns null for no match', () => {
     const result = findInCauseChain(makeError(), 'NONEXISTENT.CODE' as KnownErrorCode);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBeNull();
+    if (result.ok) {
+      expect(result.data).toBeNull();
+    }
   });
 });
 
@@ -189,14 +205,18 @@ describe('getRootCause', () => {
 
     const result = getRootCause(top);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.code).toBe(ERRORS.DB.NOT_FOUND);
+    if (result.ok) {
+      expect(result.data.code).toBe(ERRORS.DB.NOT_FOUND);
+    }
   });
 
   it('returns self when no cause', () => {
     const error = makeError();
     const result = getRootCause(error);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data.code).toBe(ERRORS.HTTP.SERVER_ERROR);
+    if (result.ok) {
+      expect(result.data.code).toBe(ERRORS.HTTP.SERVER_ERROR);
+    }
   });
 });
 
@@ -206,7 +226,9 @@ describe('getDomain', () => {
   it('extracts domain from error code', () => {
     const result = getDomain(makeError());
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('HTTP');
+    if (result.ok) {
+      expect(result.data).toBe('HTTP');
+    }
   });
 
   it('returns error for code without dot separator', () => {
@@ -221,13 +243,17 @@ describe('getSeverity', () => {
   it('returns error severity', () => {
     const result = getSeverity(makeError({ severity: 'warning' }));
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('warning');
+    if (result.ok) {
+      expect(result.data).toBe('warning');
+    }
   });
 
   it('defaults to error when severity not set', () => {
     const result = getSeverity(makeError());
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('error');
+    if (result.ok) {
+      expect(result.data).toBe('error');
+    }
   });
 });
 
@@ -237,12 +263,16 @@ describe('isRetryable', () => {
   it('returns true when retry field is present', () => {
     const result = isRetryable(makeError({ retry: { retryable: true } }));
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(true);
+    if (result.ok) {
+      expect(result.data).toBe(true);
+    }
   });
 
   it('returns false when no retry field', () => {
     const result = isRetryable(makeError());
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(false);
+    if (result.ok) {
+      expect(result.data).toBe(false);
+    }
   });
 });

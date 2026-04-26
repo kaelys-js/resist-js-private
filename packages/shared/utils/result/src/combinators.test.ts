@@ -40,13 +40,15 @@ const errResult = <T>(
 
 describe('map', () => {
   it('transforms ok data', () => {
-    const result = map(okResult(42), (n) => String(n));
+    const result = map(okResult(42), String);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe('42');
+    if (result.ok) {
+      expect(result.data).toBe('42');
+    }
   });
 
   it('passes through error', () => {
-    const result = map(errResult<number>(), (n) => String(n));
+    const result = map(errResult<number>(), String);
     expect(result.ok).toBe(false);
   });
 
@@ -55,7 +57,9 @@ describe('map', () => {
       throw new Error('boom');
     });
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toContain('INTERNAL');
+    if (!result.ok) {
+      expect(result.error.code).toContain('INTERNAL');
+    }
   });
 });
 
@@ -68,7 +72,9 @@ describe('mapErr', () => {
       message: 'mapped',
     }));
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('HTTP.SERVER_ERROR');
+    if (!result.ok) {
+      expect(result.error.code).toBe('HTTP.SERVER_ERROR');
+    }
   });
 
   it('passes through ok', () => {
@@ -76,7 +82,9 @@ describe('mapErr', () => {
       code: ERRORS.HTTP.SERVER_ERROR,
     }));
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(42);
+    if (result.ok) {
+      expect(result.data).toBe(42);
+    }
   });
 });
 
@@ -86,7 +94,9 @@ describe('andThen', () => {
   it('chains ok results', () => {
     const result = andThen(okResult(42), (n) => okResult(n * 2));
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(84);
+    if (result.ok) {
+      expect(result.data).toBe(84);
+    }
   });
 
   it('passes through error', () => {
@@ -108,13 +118,17 @@ describe('orElse', () => {
   it('provides fallback for error', () => {
     const result = orElse(errResult<number>(), () => okResult(0));
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(0);
+    if (result.ok) {
+      expect(result.data).toBe(0);
+    }
   });
 
   it('passes through ok', () => {
     const result = orElse(okResult(42), () => okResult(0));
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(42);
+    if (result.ok) {
+      expect(result.data).toBe(42);
+    }
   });
 
   it('catches thrown exception in fallback fn', () => {
@@ -179,7 +193,9 @@ describe('tap', () => {
     });
     // tap swallows the error — original result returned unchanged
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(42);
+    if (result.ok) {
+      expect(result.data).toBe(42);
+    }
   });
 });
 
@@ -213,13 +229,17 @@ describe('combine', () => {
   it('collects all ok values', () => {
     const result = combine([okResult(1), okResult(2), okResult(3)]);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual([1, 2, 3]);
+    if (result.ok) {
+      expect(result.data).toEqual([1, 2, 3]);
+    }
   });
 
   it('short-circuits on first error', () => {
     const result = combine([okResult(1), errResult<number>(ERRORS.DB.NOT_FOUND), okResult(3)]);
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe(ERRORS.DB.NOT_FOUND);
+    if (!result.ok) {
+      expect(result.error.code).toBe(ERRORS.DB.NOT_FOUND);
+    }
   });
 });
 
@@ -242,7 +262,9 @@ describe('combineWithAllErrors', () => {
   it('returns ok when all succeed', () => {
     const result = combineWithAllErrors([okResult(1), okResult(2)]);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toEqual([1, 2]);
+    if (result.ok) {
+      expect(result.data).toEqual([1, 2]);
+    }
   });
 
   it('preserves validation, source, cause, and meta from first error', () => {
@@ -291,7 +313,9 @@ describe('fromThrowable', () => {
     const safeFn = fromThrowable((x: number) => x * 2, ERRORS.INTERNAL.UNEXPECTED);
     const result = safeFn(21);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(42);
+    if (result.ok) {
+      expect(result.data).toBe(42);
+    }
   });
 
   it('catches thrown exception', () => {
@@ -307,14 +331,20 @@ describe('fromThrowable', () => {
 
 describe('fromAsyncThrowable', () => {
   it('wraps successful async return', async () => {
-    const safeFn = fromAsyncThrowable(async (x: number) => x * 2, ERRORS.INTERNAL.UNEXPECTED);
+    const safeFn = fromAsyncThrowable(async (x: number): Promise<number> => {
+      await Promise.resolve();
+      return x * 2;
+    }, ERRORS.INTERNAL.UNEXPECTED);
     const result = await safeFn(21);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.data).toBe(42);
+    if (result.ok) {
+      expect(result.data).toBe(42);
+    }
   });
 
   it('catches thrown async exception', async () => {
-    const safeFn = fromAsyncThrowable(async () => {
+    const safeFn = fromAsyncThrowable(async (): Promise<never> => {
+      await Promise.resolve();
       throw new Error('async kaboom');
     }, ERRORS.INTERNAL.UNEXPECTED);
     const result = await safeFn();

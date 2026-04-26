@@ -83,10 +83,16 @@ export function isAppError(value: unknown): value is AppError {
  * ```
  */
 export function isResult(value: unknown): value is Result<unknown> {
-  if (typeof value !== 'object' || value === null) return false;
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
   const obj: Record<string, unknown> = value as Record<string, unknown>;
-  if (typeof obj.ok !== 'boolean') return false;
-  if (obj.ok === true) return 'data' in obj;
+  if (typeof obj.ok !== 'boolean') {
+    return false;
+  }
+  if (obj.ok === true) {
+    return 'data' in obj;
+  }
   return 'error' in obj && isAppError(obj.error);
 }
 
@@ -167,7 +173,9 @@ export function hasAnyCode(error: AppError, codes: readonly KnownErrorCode[]): R
  */
 export function isInDomain(error: AppError, domain: ErrorDomain): Result<Bool> {
   const parsed: Result<ErrorDomain> = safeParse(ErrorDomainSchema, domain);
-  if (!parsed.ok) return parsed;
+  if (!parsed.ok) {
+    return parsed;
+  }
   return ok(BoolSchema, error.code.startsWith(`${parsed.data}.`));
 }
 

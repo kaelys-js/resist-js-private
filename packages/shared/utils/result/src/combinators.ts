@@ -49,7 +49,9 @@ import { fromUnknownError } from '@/utils/result/safe';
  * ```
  */
 export function map<T, U>(result: Result<T>, fn: (data: T) => U): Result<U> {
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
   try {
     return okUnchecked<U>(fn(result.data as T));
   } catch (error: unknown) {
@@ -85,7 +87,9 @@ export function mapErr<T>(
   result: Result<T>,
   fn: (error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions },
 ): Result<T> {
-  if (result.ok) return result;
+  if (result.ok) {
+    return result;
+  }
   const mapped: { code: KnownErrorCode; message?: string; options?: ErrOptions } = fn(result.error);
   return err(mapped.code, mapped.message, mapped.options) as Result<T>;
 }
@@ -112,7 +116,9 @@ export function mapErr<T>(
  * ```
  */
 export function andThen<T, U>(result: Result<T>, fn: (data: T) => Result<U>): Result<U> {
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
   try {
     return fn(result.data as T);
   } catch (error: unknown) {
@@ -144,7 +150,9 @@ export function andThen<T, U>(result: Result<T>, fn: (data: T) => Result<U>): Re
  * ```
  */
 export function orElse<T>(result: Result<T>, fn: (error: AppError) => Result<T>): Result<T> {
-  if (result.ok) return result;
+  if (result.ok) {
+    return result;
+  }
   try {
     return fn(result.error);
   } catch (error: unknown) {
@@ -182,7 +190,9 @@ export function match<T, U>(
     err: (error: AppError) => U;
   },
 ): U {
-  if (result.ok) return handlers.ok(result.data as T);
+  if (result.ok) {
+    return handlers.ok(result.data as T);
+  }
   return handlers.err(result.error);
 }
 
@@ -204,7 +214,9 @@ export function match<T, U>(
  * ```
  */
 export function unwrapOr<T>(result: Result<T>, defaultValue: T): T {
-  if (result.ok) return result.data as T;
+  if (result.ok) {
+    return result.data as T;
+  }
   return defaultValue;
 }
 
@@ -302,7 +314,9 @@ export function tapErr<T>(result: Result<T>, fn: (error: AppError) => void): Res
 export function combine<T>(results: ReadonlyArray<Result<T>>): Result<readonly T[]> {
   const values: T[] = [];
   for (const result of results) {
-    if (!result.ok) return result;
+    if (!result.ok) {
+      return result;
+    }
     values.push(result.data as T);
   }
   return okUnchecked<readonly T[]>(values);
