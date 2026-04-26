@@ -34,8 +34,10 @@
     /** Whether word wrap is enabled by default. @values true, false */
     wordWrap: v.optional(BoolSchema, false),
   });
-  /** Props for the CodeBlock component. */
-  export type CodeBlockProps = v.InferOutput<typeof CodeBlockPropsSchema>;
+  /** Props for the CodeBlock component (caller-visible — defaults are optional). */
+  export type CodeBlockProps = v.InferInput<typeof CodeBlockPropsSchema>;
+  /** Validated props (post-default — every field present). */
+  export type CodeBlockPropsValidated = v.InferOutput<typeof CodeBlockPropsSchema>;
 </script>
 
 <script lang="ts">
@@ -55,14 +57,14 @@
   import ListOrdered from '@lucide/svelte/icons/list-ordered';
 
   const { ...restProps }: CodeBlockProps = $props();
-  const validated: CodeBlockProps = $derived.by(() => {
+  const validated: CodeBlockPropsValidated = $derived.by(() => {
     const rawProps: CodeBlockProps = stripSvelteProps(restProps);
     const result = safeParse(CodeBlockPropsSchema, rawProps);
     if (!result.ok) {
       throw result.error;
     }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
-    return result.data as CodeBlockProps;
+    return result.data as CodeBlockPropsValidated;
   });
 
   /** Whether we're currently in dark mode. */

@@ -87,8 +87,14 @@ export const ErrorHtmlConfigSchema = v.strictObject({
   }),
 });
 
-/** Configuration for the error HTML template plugin. See {@link ErrorHtmlConfigSchema}. */
-export type ErrorHtmlConfig = v.InferOutput<typeof ErrorHtmlConfigSchema>;
+/**
+ * Caller-visible config for the error HTML template plugin (input shape — pre-brand).
+ * The plugin runs `safeParse` to validate and brand the values internally; callers
+ * pass plain strings.
+ */
+export type ErrorHtmlConfig = v.InferInput<typeof ErrorHtmlConfigSchema>;
+/** Validated config (post-parse — branded). */
+export type ErrorHtmlConfigValidated = v.InferOutput<typeof ErrorHtmlConfigSchema>;
 
 /** Valibot schema for the app HTML template plugin configuration. */
 export const AppHtmlConfigSchema = v.strictObject({
@@ -102,8 +108,14 @@ export const AppHtmlConfigSchema = v.strictObject({
   ),
 });
 
-/** Configuration for the app HTML template plugin. See {@link AppHtmlConfigSchema}. */
-export type AppHtmlConfig = v.InferOutput<typeof AppHtmlConfigSchema>;
+/**
+ * Caller-visible config for the app HTML template plugin (input shape — pre-brand).
+ * The plugin runs `safeParse` to validate and brand the values internally; callers
+ * pass plain strings.
+ */
+export type AppHtmlConfig = v.InferInput<typeof AppHtmlConfigSchema>;
+/** Validated config (post-parse — branded). */
+export type AppHtmlConfigValidated = v.InferOutput<typeof AppHtmlConfigSchema>;
 
 // =============================================================================
 // Branded Types
@@ -216,7 +228,7 @@ export function resolveErrorHtml(template: Str, config: ErrorHtmlConfig): Result
     return tplResult;
   }
 
-  const cfgResult: Result<ErrorHtmlConfig> = safeParse(ErrorHtmlConfigSchema, config);
+  const cfgResult: Result<ErrorHtmlConfigValidated> = safeParse(ErrorHtmlConfigSchema, config);
 
   if (!cfgResult.ok) {
     return cfgResult;
@@ -276,7 +288,7 @@ export function resolveAppHtml(template: Str, config: AppHtmlConfig): Result<Str
     return tplResult;
   }
 
-  const cfgResult: Result<AppHtmlConfig> = safeParse(AppHtmlConfigSchema, config);
+  const cfgResult: Result<AppHtmlConfigValidated> = safeParse(AppHtmlConfigSchema, config);
 
   if (!cfgResult.ok) {
     return cfgResult;
@@ -317,7 +329,7 @@ export function resolveAppHtml(template: Str, config: AppHtmlConfig): Result<Str
  */
 export function templateErrorHtml(config: ErrorHtmlConfig): Plugin {
   // integration boundary: returns Vite Plugin type
-  const configResult: Result<ErrorHtmlConfig> = safeParse(ErrorHtmlConfigSchema, config);
+  const configResult: Result<ErrorHtmlConfigValidated> = safeParse(ErrorHtmlConfigSchema, config);
 
   if (!configResult.ok) {
     // integration boundary: Vite plugin callback
@@ -404,7 +416,7 @@ export function templateErrorHtml(config: ErrorHtmlConfig): Plugin {
  */
 export function templateAppHtml(config: AppHtmlConfig): Plugin {
   // integration boundary: returns Vite Plugin type
-  const configResult: Result<AppHtmlConfig> = safeParse(AppHtmlConfigSchema, config);
+  const configResult: Result<AppHtmlConfigValidated> = safeParse(AppHtmlConfigSchema, config);
 
   if (!configResult.ok) {
     // integration boundary: Vite plugin callback

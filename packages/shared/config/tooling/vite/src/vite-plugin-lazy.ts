@@ -31,8 +31,10 @@ const LazyPluginOptionsSchema = v.strictObject({
   ),
 });
 
-/** Options for creating a lazy Vite plugin. See {@link LazyPluginOptionsSchema}. */
-export type LazyPluginOptions = v.InferOutput<typeof LazyPluginOptionsSchema>;
+/** Caller-visible options (input shape — pre-brand). */
+export type LazyPluginOptions = v.InferInput<typeof LazyPluginOptionsSchema>;
+/** Validated options (post-parse — branded). */
+export type LazyPluginOptionsValidated = v.InferOutput<typeof LazyPluginOptionsSchema>;
 
 // =============================================================================
 // Plugin

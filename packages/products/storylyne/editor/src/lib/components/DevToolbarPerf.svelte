@@ -26,8 +26,19 @@
 
   let { onclose }: { onclose?: () => Void } = $props();
 
+  /**
+   * Unwraps a {@link Result} to its data, falling back to the supplied default
+   * when the result is an error. Centralises the `.data`-vs-fallback pattern
+   * used throughout this dev-only panel where metric reads are best-effort.
+   */
+  function unwrap<T>(r: { ok: true; data: T } | { ok: false }, fallback: T): T {
+    return r.ok ? r.data : fallback;
+  }
+
   // ── Vitals ─────────────────────────────────────────────────────────────
-  const panelMetrics: PanelMetric[] = $derived(getVitalsPanelMetrics());
+  const panelMetrics: PanelMetric[] = $derived(
+    unwrap(getVitalsPanelMetrics(), []) as PanelMetric[],
+  );
 
   /** Timing metrics that should display ms suffix. */
   const TIMING_METRICS: ReadonlySet<Str> = new Set([
@@ -276,9 +287,17 @@
      * Beacon module uses plain variables (not $state), so polling is required.
      */
     function refreshBeaconStatus(): Void {
-      const status = getBeaconStatus();
+      const result = getBeaconStatus();
+      if (!result.ok) {
+        return;
+      }
+      const status = result.data;
       beaconQueued = status.queued;
-      beaconQueuedItems = status.queuedItems;
+      beaconQueuedItems = status.queuedItems as unknown as Array<{
+        name: Str;
+        value: Num;
+        rating: Str;
+      }>;
       beaconSessionId = status.sessionId;
       beaconLastSent = status.lastFlushAt;
       beaconMaxQueue = status.maxQueueSize;
@@ -441,50 +460,50 @@
           class="text-popover-foreground font-mono inline-flex items-center gap-1.5"
           data-testid="perf-quality"
         >
-          <span class="size-2 rounded-full {qualityDotClass(getConnectionQuality())}"></span>
-          {friendlyQuality(getConnectionQuality())}
+          <span class="size-2 rounded-full {qualityDotClass(unwrap(getConnectionQuality(), 'unknown'))}"></span>
+          {friendlyQuality(unwrap(getConnectionQuality(), 'unknown'))}
         </span>
 
         <span class="text-muted-foreground"
           >{t(localeStore.t.devToolbar.networkSpeed, 'Network Speed')}</span
         >
         <span class="text-popover-foreground font-mono" data-testid="perf-effective-type">
-          {friendlyEffectiveType(getEffectiveType())}
+          {friendlyEffectiveType(unwrap(getEffectiveType(), '' as Str))}
         </span>
 
         <span class="text-muted-foreground"
           >{t(localeStore.t.devToolbar.deviceMemory, 'Device Memory')}</span
         >
         <span class="text-popover-foreground font-mono" data-testid="perf-device-memory">
-          {getDeviceMemory()}GB
+          {unwrap(getDeviceMemory(), 0 as Num)}GB
         </span>
 
         <span class="text-muted-foreground"
           >{t(localeStore.t.devToolbar.cpuCores, 'CPU Cores')}</span
         >
         <span class="text-popover-foreground font-mono" data-testid="perf-hw-concurrency">
-          {getHardwareConcurrency()}
+          {unwrap(getHardwareConcurrency(), 0 as Num)}
         </span>
 
         <span class="text-muted-foreground"
           >{t(localeStore.t.devToolbar.dataSaver, 'Data Saver')}</span
         >
         <span class="text-popover-foreground font-mono" data-testid="perf-save-data">
-          {getSaveData() ? 'Yes' : 'No'}
+          {unwrap(getSaveData(), false as Bool) ? 'Yes' : 'No'}
         </span>
 
         <span class="text-muted-foreground"
           >{t(localeStore.t.devToolbar.lowEndDevice, 'Low-End Device')}</span
         >
         <span class="text-popover-foreground font-mono" data-testid="perf-low-end">
-          {getIsLowEndDevice() ? 'Yes' : 'No'}
+          {unwrap(getIsLowEndDevice(), false as Bool) ? 'Yes' : 'No'}
         </span>
 
         <span class="text-muted-foreground"
           >{t(localeStore.t.devToolbar.lowEndExperience, 'Low-End Experience')}</span
         >
         <span class="text-popover-foreground font-mono" data-testid="perf-low-end-exp">
-          {getIsLowEndExperience() ? 'Yes' : 'No'}
+          {unwrap(getIsLowEndExperience(), false as Bool) ? 'Yes' : 'No'}
         </span>
       </div>
     </section>

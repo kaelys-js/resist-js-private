@@ -11,23 +11,23 @@ import { GET } from './+server';
 
 describe('GET /api/lens/screenshot/frames', () => {
   it('returns 200 with JSON containing frames array', async () => {
-    const response: Response = GET({} as never);
+    const response: Response = await GET({} as never);
     expect(response.status).toBe(200);
     expect(response.headers.get('Content-Type')).toBe('application/json');
 
-    const body = await response.json();
+    const body = (await response.json()) as Record<string, unknown>;
     expect(body.frames).toBeDefined();
     expect(Array.isArray(body.frames)).toBe(true);
   });
 
   it('frames array has entries with required fields', async () => {
-    const response: Response = GET({} as never);
-    const body = await response.json();
+    const response: Response = await GET({} as never);
+    const body = (await response.json()) as { frames: Array<Record<string, unknown>> };
 
     if (body.frames.length > 0) {
       const [first] = body.frames;
-      expect(first.id).toBeDefined();
-      expect(first.name).toBeDefined();
+      expect(first?.id).toBeDefined();
+      expect(first?.name).toBeDefined();
     }
   });
 });

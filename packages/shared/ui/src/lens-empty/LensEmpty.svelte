@@ -21,7 +21,10 @@
     /** Additional CSS classes for the root element. */
     class: v.optional(StrSchema),
   });
-  export type LensEmptyProps = v.InferOutput<typeof LensEmptyPropsSchema>;
+  /** Caller-visible props (input shape — defaults are optional). */
+  export type LensEmptyProps = v.InferInput<typeof LensEmptyPropsSchema>;
+  /** Validated props (post-default — every field present). */
+  export type LensEmptyPropsValidated = v.InferOutput<typeof LensEmptyPropsSchema>;
 </script>
 
 <script lang="ts">
@@ -39,14 +42,14 @@
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
   const { ...restProps }: LensEmptyProps = $props();
-  const validated: LensEmptyProps = $derived.by(() => {
+  const validated: LensEmptyPropsValidated = $derived.by(() => {
     const rawProps: LensEmptyProps = stripSvelteProps(restProps);
     const result = safeParse(LensEmptyPropsSchema, rawProps);
     if (!result.ok) {
       throw result.error;
     }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
-    return result.data as LensEmptyProps;
+    return result.data as LensEmptyPropsValidated;
   });
 </script>
 

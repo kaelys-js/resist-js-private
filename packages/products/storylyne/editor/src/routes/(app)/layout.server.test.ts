@@ -29,7 +29,7 @@ function makeUrl(search: string = ''): URL {
 
 describe('(app) +layout.server load', () => {
   it('returns null user and empty scenes when no user in locals', () => {
-    const result = (load as (event: Record<string, unknown>) => Record<string, any>)({
+    const result = (load as unknown as (event: Record<string, unknown>) => Record<string, any>)({
       locals: makeLocals(null),
       url: makeUrl(),
     });
@@ -39,7 +39,7 @@ describe('(app) +layout.server load', () => {
   });
 
   it('returns user and project promise when authenticated', () => {
-    const result = (load as (event: Record<string, unknown>) => Record<string, any>)({
+    const result = (load as unknown as (event: Record<string, unknown>) => Record<string, any>)({
       locals: makeLocals(),
       url: makeUrl(),
     });
@@ -49,7 +49,7 @@ describe('(app) +layout.server load', () => {
   });
 
   it('project promise resolves to project data', async () => {
-    const result = (load as (event: Record<string, unknown>) => Record<string, any>)({
+    const result = (load as unknown as (event: Record<string, unknown>) => Record<string, any>)({
       locals: makeLocals(),
       url: makeUrl(),
     });
@@ -60,7 +60,7 @@ describe('(app) +layout.server load', () => {
   });
 
   it('scenes promise resolves to scene array', async () => {
-    const result = (load as (event: Record<string, unknown>) => Record<string, any>)({
+    const result = (load as unknown as (event: Record<string, unknown>) => Record<string, any>)({
       locals: makeLocals(),
       url: makeUrl(),
     });
@@ -70,7 +70,7 @@ describe('(app) +layout.server load', () => {
   });
 
   it('scenes returns empty when sto.scenes=empty URL param set', async () => {
-    const result = (load as (event: Record<string, unknown>) => Record<string, any>)({
+    const result = (load as unknown as (event: Record<string, unknown>) => Record<string, any>)({
       locals: makeLocals(),
       url: makeUrl('?sto.scenes=empty'),
     });

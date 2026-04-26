@@ -67,7 +67,7 @@ describe('GET /api/lens/screenshot/ios/stream', () => {
     const { GET } = await load();
     const res = await GET(makeEvent() as never);
     expect(res.status).toBe(503);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('xcrun not available');
   });
 

@@ -190,7 +190,7 @@ describe('POST /api/vitals', () => {
   });
 
   it('includes url in log message', async () => {
-    const payload: VitalsBeaconPayload = createPayload({ url: '/editor/scenes/42' });
+    const payload: VitalsBeaconPayload = createPayload({ url: '/editor/scenes/42' as never });
     await POST({ request: makeRequest(payload) } as never);
 
     const logMessage: Str = (log.info as ReturnType<typeof vi.fn>).mock.calls[0]![0] as Str;
@@ -210,7 +210,7 @@ describe('POST /api/vitals', () => {
 
   it('formats non-timing metrics without ms suffix', async () => {
     const payload: VitalsBeaconPayload = createPayload({
-      metrics: [createMetric({ name: 'CLS', value: 0.15 })],
+      metrics: [createMetric({ name: 'CLS' as never, value: 0.15 })],
     });
     await POST({ request: makeRequest(payload) } as never);
 
