@@ -9,7 +9,7 @@
 
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { type LintStrings } from '@/lint/locale/schema.ts';
+import type { LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform jsonlint text output into LintResult[].

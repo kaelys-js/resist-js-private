@@ -68,7 +68,7 @@ const rule: WorkspaceRule = {
       );
     }
 
-    if (diff > 31536000) {
+    if (diff > 31_536_000) {
       results.push(
         createResult(
           'workspace/no-commit-date-skew',

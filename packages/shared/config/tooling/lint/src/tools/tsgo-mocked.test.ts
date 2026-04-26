@@ -99,7 +99,7 @@ describe('scopeTsconfigDirsToFiles', () => {
       '/ws/packages/a/src/x.ts',
       '/ws/packages/c/src/y.ts',
     ]);
-    expect(result.sort()).toEqual(['/ws/packages/a', '/ws/packages/c']);
+    expect(result.toSorted()).toEqual(['/ws/packages/a', '/ws/packages/c']);
   });
 
   it('matches when file path equals dir path exactly', async () => {
@@ -263,7 +263,7 @@ describe('runTsgoAllPackages', () => {
     const cwds: string[] = vi
       .mocked(execFileAsync)
       .mock.calls.map((c): string => (c[2] as { cwd: string }).cwd);
-    expect(cwds.sort()).toEqual(['/ws/packages/a', '/ws/packages/c']);
+    expect(cwds.toSorted()).toEqual(['/ws/packages/a', '/ws/packages/c']);
   });
 
   it('runs no tsgo calls when files list does not overlap any package', async () => {
@@ -499,7 +499,7 @@ describe('runTsgoAllPackages', () => {
     vi.mocked(execFileAsync).mockResolvedValue({ stdout: '', stderr: '' });
 
     await runTsgoAllPackages('/ws');
-    const calls = vi.mocked(execFileAsync).mock.calls;
+    const { calls } = vi.mocked(execFileAsync).mock;
     expect(calls.length).toBe(1);
     const [cmd, args] = calls[0]!;
     expect(cmd).toBe('tsgo');

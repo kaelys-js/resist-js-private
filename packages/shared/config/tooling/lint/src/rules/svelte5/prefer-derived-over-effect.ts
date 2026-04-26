@@ -67,7 +67,7 @@ const rule: TypeScriptRule = {
           return;
         }
 
-        const name: string = (left as unknown as { name: string }).name;
+        const {name} = (left as unknown as { name: string });
         if (!stateVars.has(name)) {
           return;
         }

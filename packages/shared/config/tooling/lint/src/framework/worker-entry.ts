@@ -51,7 +51,7 @@ type WorkerResponse = {
 let allRules: TypeScriptRule[] = [];
 
 async function initialize(): Promise<void> {
-  const strings: LintStrings = (workerData as { strings: LintStrings }).strings;
+  const {strings} = (workerData as { strings: LintStrings });
   const loaded: Awaited<ReturnType<typeof loadAllRules>> = await loadAllRules(strings);
   allRules = loaded.typescript;
 

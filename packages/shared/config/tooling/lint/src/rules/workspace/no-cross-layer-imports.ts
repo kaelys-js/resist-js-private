@@ -27,7 +27,7 @@ const LAYERS: readonly string[] = [
 const LAYERS_PATTERN: string = LAYERS.join('|');
 
 /** Regex to detect relative imports pointing to a layer directory. */
-const CROSS_LAYER_RE: RegExp = new RegExp('from\\s+[\'"](\\.\\.\\/)+(' + LAYERS_PATTERN + ')\\/');
+const CROSS_LAYER_RE: RegExp = new RegExp(String.raw`from\s+['"](\.\.\/)+(` + LAYERS_PATTERN + String.raw`)\/`);
 
 /** Source file extensions to scan. */
 const SOURCE_EXTENSIONS: readonly string[] = ['.ts', '.tsx', '.js', '.jsx'];
@@ -111,7 +111,7 @@ const rule: WorkspaceRule = {
 
       /** Build a regex that captures the target layer from relative imports. */
       const captureRe: RegExp = new RegExp(
-        'from\\s+[\'"](?:\\.\\.\\/)+(' + LAYERS_PATTERN + ')\\/',
+        String.raw`from\s+['"](?:\.\.\/)+(` + LAYERS_PATTERN + String.raw`)\/`,
         'gm',
       );
 

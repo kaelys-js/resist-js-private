@@ -86,7 +86,7 @@ const rule: TypeScriptRule = {
       }
 
       const results: LintResult[] = [];
-      const entries: [string, AstNode][] = getPropertyEntries(aliasObj);
+      const entries: Array<[string, AstNode]> = getPropertyEntries(aliasObj);
 
       for (const [aliasName, valueNode] of entries) {
         // Skip $lib — SvelteKit adds it automatically

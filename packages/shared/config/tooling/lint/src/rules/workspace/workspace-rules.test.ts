@@ -5126,7 +5126,7 @@ describe('workspace/no-tsconfig-deprecated-options', () => {
     const files: Map<string, string> = new Map([
       [
         '/workspace/tsconfig.json',
-        JSON.stringify({ compilerOptions: { charset: 'utf-8', listFiles: true } }),
+        JSON.stringify({ compilerOptions: { charset: 'utf8', listFiles: true } }),
       ],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
@@ -9385,9 +9385,9 @@ describe('workspace/validate-root-scripts-consistency', () => {
       scripts[name] =
         name === 'build'
           ? 'wrong command'
-          : name === 'prepare' || name === 'preinstall'
+          : (name === 'prepare' || name === 'preinstall'
             ? 'husky'
-            : `pnpm -r run ${name}`;
+            : `pnpm -r run ${name}`);
       descs[name] = `Does ${name}`;
     }
     const rootPkg: Record<string, unknown> = {
@@ -13094,7 +13094,7 @@ describe('workspace/validate-image-optimization', () => {
 
   it('warns on .webp files exceeding 300KB', async () => {
     const files: Map<string, string> = new Map([
-      ['/workspace/assets/large.webp', 'x'.repeat(400000)],
+      ['/workspace/assets/large.webp', 'x'.repeat(400_000)],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await validateImageOptimization.check(ctx);
@@ -13105,7 +13105,7 @@ describe('workspace/validate-image-optimization', () => {
 
   it('warns on .svg files exceeding 100KB', async () => {
     const files: Map<string, string> = new Map([
-      ['/workspace/assets/huge.svg', '<svg>' + 'x'.repeat(110000) + '</svg>'],
+      ['/workspace/assets/huge.svg', '<svg>' + 'x'.repeat(110_000) + '</svg>'],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await validateImageOptimization.check(ctx);
@@ -13141,7 +13141,7 @@ describe('workspace/validate-image-optimization', () => {
 
   it('skips non-image files', async () => {
     const files: Map<string, string> = new Map([
-      ['/workspace/assets/data.json', 'x'.repeat(400000)],
+      ['/workspace/assets/data.json', 'x'.repeat(400_000)],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await validateImageOptimization.check(ctx);
@@ -14548,7 +14548,7 @@ describe('workspace/no-commit-date-skew', () => {
 
   it('warns on very old commit date', async () => {
     const { execSync } = await import('node:child_process');
-    const oldTs: number = Math.floor(Date.now() / 1000) - 63072000;
+    const oldTs: number = Math.floor(Date.now() / 1000) - 63_072_000;
     vi.mocked(execSync).mockReturnValue(String(oldTs) + '\n');
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
     const results: LintResult[] = await noCommitDateSkew.check(ctx);
@@ -18055,7 +18055,7 @@ describe('workspace/webp-max-size', () => {
   });
 
   it('warns when .webp file exceeds 250KB', async () => {
-    const largeContent: string = 'x'.repeat(256001);
+    const largeContent: string = 'x'.repeat(256_001);
     const files: Map<string, string> = new Map([['/workspace/hero.webp', largeContent]]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await webpMaxSize.check(ctx);
@@ -18064,7 +18064,7 @@ describe('workspace/webp-max-size', () => {
   });
 
   it('passes when .webp file is under 250KB', async () => {
-    const smallContent: string = 'x'.repeat(100000);
+    const smallContent: string = 'x'.repeat(100_000);
     const files: Map<string, string> = new Map([['/workspace/icon.webp', smallContent]]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await webpMaxSize.check(ctx);
@@ -18072,7 +18072,7 @@ describe('workspace/webp-max-size', () => {
   });
 
   it('skips non-.webp files', async () => {
-    const files: Map<string, string> = new Map([['/workspace/big.png', 'x'.repeat(500000)]]);
+    const files: Map<string, string> = new Map([['/workspace/big.png', 'x'.repeat(500_000)]]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await webpMaxSize.check(ctx);
     expect(results.length).toBe(0);

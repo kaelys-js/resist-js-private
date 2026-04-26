@@ -144,7 +144,7 @@ const rule: WorkspaceRule = {
         return results;
       }
 
-      const formatter: unknown = biomeConfig['formatter'];
+      const {formatter} = biomeConfig;
       if (formatter !== undefined && formatter !== null && typeof formatter === 'object') {
         const formatterObj: Record<string, unknown> = formatter as Record<string, unknown>;
         const biomeIndentWidth: unknown = formatterObj['indentWidth'];

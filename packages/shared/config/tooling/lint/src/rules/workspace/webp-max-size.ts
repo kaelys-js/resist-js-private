@@ -54,7 +54,7 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      if (content.length > 256000) {
+      if (content.length > 256_000) {
         results.push(
           createResult(
             'workspace/webp-max-size',

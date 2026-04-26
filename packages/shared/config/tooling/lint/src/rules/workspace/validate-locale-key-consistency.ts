@@ -84,7 +84,7 @@ const rule: WorkspaceRule = {
       }
 
       /* Sort alphabetically — first file is the reference. */
-      const sorted: string[] = [...files].sort();
+      const sorted: string[] = [...files].toSorted();
       const referenceFile: string = sorted[0] as string;
 
       let referenceContent: string;
@@ -101,7 +101,7 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const referenceKeys: string[] = Object.keys(referenceData).sort();
+      const referenceKeys: string[] = Object.keys(referenceData).toSorted();
       const referenceRelative: string = relative(ctx.rootDir, referenceFile);
 
       /** Compare each other file to the reference. */
@@ -122,7 +122,7 @@ const rule: WorkspaceRule = {
           continue;
         }
 
-        const comparisonKeys: string[] = Object.keys(comparisonData).sort();
+        const comparisonKeys: string[] = Object.keys(comparisonData).toSorted();
         const comparisonRelative: string = relative(ctx.rootDir, comparisonFile);
 
         /** Find missing keys (in reference but not in comparison). */

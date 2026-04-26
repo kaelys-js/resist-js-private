@@ -13,7 +13,7 @@
 
 import type { ExternalTool } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
-import { type LintStrings } from '@/lint/locale/schema.ts';
+import type { LintStrings } from '@/lint/locale/schema.ts';
 
 /**
  * Transform GitHub PR template validation output into LintResult[].

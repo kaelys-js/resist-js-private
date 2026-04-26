@@ -47,7 +47,7 @@ const FINGERPRINT_SKIP_DIRS: ReadonlySet<string> = new Set([
 function listTsgoInputs(pkgDir: string): string[] {
   const files: string[] = [];
   function walk(dir: string): void {
-    let entries: import('node:fs').Dirent[];
+    let entries: Array<import('node:fs').Dirent>;
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -186,7 +186,7 @@ export function discoverTsconfigDirs(cwd: string): string[] {
   const found: string[] = [];
 
   function walk(dir: string): void {
-    let entries: import('node:fs').Dirent[];
+    let entries: Array<import('node:fs').Dirent>;
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -226,7 +226,7 @@ export function scopeTsconfigDirsToFiles(tsconfigDirs: string[], files: string[]
     return tsconfigDirs;
   }
   /* Sort dirs by length descending so deepest prefix wins. */
-  const sorted: string[] = [...tsconfigDirs].sort(
+  const sorted: string[] = [...tsconfigDirs].toSorted(
     (a: string, b: string): number => b.length - a.length,
   );
   const owning: Set<string> = new Set();

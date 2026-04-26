@@ -25,7 +25,7 @@ const BRAND_PATH: string = 'src/shared/brand.ts';
  * Each regex captures the function name and checks for a string literal argument.
  * Template literals, single-quoted, and double-quoted strings are all detected.
  */
-const MESSAGE_API_PATTERNS: readonly { pattern: RegExp; api: string }[] = [
+const MESSAGE_API_PATTERNS: ReadonlyArray<{ pattern: RegExp; api: string }> = [
   {
     pattern: /showErrorMessage\(\s*(['"`])/,
     api: 'showErrorMessage',
@@ -68,7 +68,7 @@ const rule: WorkspaceRule = {
 
       const pkgDir: string = dirname(pkg.path);
       const brandPath: string = join(pkgDir, BRAND_PATH);
-      if (!(await ctx.fileExists(brandPath))) continue;
+      if (!(await ctx.fileExists(brandPath))) {continue;}
 
       /* Read all .ts files in the extension */
       const allFiles: readonly string[] = await ctx.filesByExtension('.ts');

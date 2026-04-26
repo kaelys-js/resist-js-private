@@ -21,7 +21,7 @@ const RULE_ID: string = 'vscode/no-hardcoded-brand';
 const BRAND_PATH: string = 'src/shared/brand.ts';
 
 /** Brand constant values and their corresponding constant names. */
-const BRAND_CONSTANTS: readonly { value: string; constant: string }[] = [
+const BRAND_CONSTANTS: ReadonlyArray<{ value: string; constant: string }> = [
   { value: 'Resist', constant: 'BRAND_NAME' },
   { value: 'resist-lint-disable-next-line', constant: 'DISABLE_NEXT_LINE_PREFIX' },
   { value: 'resist-lint-disable', constant: 'DISABLE_FILE_PREFIX' },
@@ -35,7 +35,7 @@ const BRAND_CONSTANTS: readonly { value: string; constant: string }[] = [
  * Avoids matching partial substrings by requiring word boundaries or quote chars.
  */
 function buildBrandRegex(value: string): RegExp {
-  const escaped: string = value.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped: string = value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
   return new RegExp(`(?:^|[^a-zA-Z0-9_-])(?:'${escaped}'|"${escaped}"|\`${escaped}\`)`, 'g');
 }
 
@@ -67,7 +67,7 @@ const rule: WorkspaceRule = {
 
       const pkgDir: string = dirname(pkg.path);
       const brandPath: string = join(pkgDir, BRAND_PATH);
-      if (!(await ctx.fileExists(brandPath))) continue;
+      if (!(await ctx.fileExists(brandPath))) {continue;}
 
       /* Read all .ts files in the extension */
       const allFiles: readonly string[] = await ctx.filesByExtension('.ts');
