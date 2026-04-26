@@ -24,8 +24,6 @@ import { ok, err, ERRORS, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import { execSyncSafe } from '@/utils/core/shell';
 import { readFile, parseJsonWithComments } from '@/utils/core/fs';
-import { joinPath } from '@/utils/core/path';
-
 // =============================================================================
 // Individual Git Queries
 // =============================================================================
@@ -47,7 +45,9 @@ import { joinPath } from '@/utils/core/path';
 export function getGitCommitShort(): Result<Str> {
   // cast safe: string literal is a valid non-empty command
   const result: Result<Str> = execSyncSafe('git rev-parse --short HEAD' as Command);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
   return ok(v.pipe(v.string(), v.minLength(7), v.maxLength(12)), result.data.trim());
 }
 
@@ -68,7 +68,9 @@ export function getGitCommitShort(): Result<Str> {
 export function getGitCommitFull(): Result<Str> {
   // cast safe: string literal is a valid non-empty command
   const result: Result<Str> = execSyncSafe('git rev-parse HEAD' as Command);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
   return ok(v.pipe(v.string(), v.length(40)), result.data.trim());
 }
 
@@ -90,7 +92,9 @@ export function getGitCommitFull(): Result<Str> {
 export function getGitBranch(): Result<Str> {
   // cast safe: string literal is a valid non-empty command
   const result: Result<Str> = execSyncSafe('git rev-parse --abbrev-ref HEAD' as Command);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
   return ok(v.pipe(v.string(), v.minLength(1), v.maxLength(255)), result.data.trim());
 }
 
@@ -111,7 +115,9 @@ export function getGitBranch(): Result<Str> {
 export function getGitDirty(): Result<Bool> {
   // cast safe: string literal is a valid non-empty command
   const result: Result<Str> = execSyncSafe('git status --porcelain' as Command);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
   const isDirty: Bool = result.data.trim().length > 0;
   return ok(v.boolean(), isDirty);
 }
@@ -156,16 +162,24 @@ export type GitInfo = v.InferOutput<typeof GitInfoSchema>;
  */
 export function getGitInfo(): Result<GitInfo> {
   const commitResult: Result<Str> = getGitCommitShort();
-  if (!commitResult.ok) return commitResult;
+  if (!commitResult.ok) {
+    return commitResult;
+  }
 
   const fullResult: Result<Str> = getGitCommitFull();
-  if (!fullResult.ok) return fullResult;
+  if (!fullResult.ok) {
+    return fullResult;
+  }
 
   const branchResult: Result<Str> = getGitBranch();
-  if (!branchResult.ok) return branchResult;
+  if (!branchResult.ok) {
+    return branchResult;
+  }
 
   const dirtyResult: Result<Bool> = getGitDirty();
-  if (!dirtyResult.ok) return dirtyResult;
+  if (!dirtyResult.ok) {
+    return dirtyResult;
+  }
 
   return ok(GitInfoSchema, {
     commit: commitResult.data,
@@ -197,15 +211,21 @@ export function getGitInfo(): Result<GitInfo> {
  */
 export function getPackageVersion(packageJsonPath: Path): Result<Str> {
   const pathResult: Result<Path> = safeParse(PathSchema, packageJsonPath);
-  if (!pathResult.ok) return pathResult;
+  if (!pathResult.ok) {
+    return pathResult;
+  }
 
   const fileResult: Result<Str> = readFile(pathResult.data);
-  if (!fileResult.ok) return fileResult;
+  if (!fileResult.ok) {
+    return fileResult;
+  }
 
   const parsed: Result<Record<Str, unknown>> = parseJsonWithComments<Record<Str, unknown>>(
     fileResult.data,
   );
-  if (!parsed.ok) return parsed;
+  if (!parsed.ok) {
+    return parsed;
+  }
 
   const { version }: Record<Str, unknown> = parsed.data;
   if (typeof version !== 'string' || version.length === 0) {

@@ -54,10 +54,14 @@ function stripAnsi(str: Str): Str {
  */
 export function padRight(str: Str, length: NonNegativeInteger): Result<Str> {
   const strResult: Result<Str> = safeParse(StrSchema, str);
-  if (!strResult.ok) return strResult;
+  if (!strResult.ok) {
+    return strResult;
+  }
 
   const lengthResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, length);
-  if (!lengthResult.ok) return lengthResult;
+  if (!lengthResult.ok) {
+    return lengthResult;
+  }
 
   // Internal arithmetic — values provably non-negative from validated inputs
   const padding: number = Math.max(
@@ -89,10 +93,14 @@ export function padRight(str: Str, length: NonNegativeInteger): Result<Str> {
  */
 export function truncateLine(line: Str, maxWidth: NonNegativeInteger): Result<Str> {
   const lineResult: Result<Str> = safeParse(StrSchema, line);
-  if (!lineResult.ok) return lineResult;
+  if (!lineResult.ok) {
+    return lineResult;
+  }
 
   const widthResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, maxWidth);
-  if (!widthResult.ok) return widthResult;
+  if (!widthResult.ok) {
+    return widthResult;
+  }
 
   // Internal arithmetic — values provably non-negative from validated inputs
   const visibleLength: number = stripAnsi(lineResult.data).length;
@@ -150,7 +158,9 @@ export function truncateLine(line: Str, maxWidth: NonNegativeInteger): Result<St
  */
 export function toCamelCase(name: Str): Result<CamelCaseString> {
   const input: Result<Str> = safeParse(StrSchema, name);
-  if (!input.ok) return input;
+  if (!input.ok) {
+    return input;
+  }
   return ok(
     CamelCaseStringSchema,
     input.data.replaceAll(/-([a-z])/g, (_, c: Str) => c.toUpperCase()),

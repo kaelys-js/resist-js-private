@@ -178,19 +178,27 @@ export function safeStringify(
   let validatedIndent: NonNegativeInteger | Str;
   if (typeof indent === 'string') {
     const strResult: Result<Str> = safeParse(StrSchema, indent);
-    if (!strResult.ok) return strResult;
+    if (!strResult.ok) {
+      return strResult;
+    }
     validatedIndent = strResult.data;
   } else {
     const numResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, indent);
-    if (!numResult.ok) return numResult;
+    if (!numResult.ok) {
+      return numResult;
+    }
     validatedIndent = numResult.data as NonNegativeInteger;
   }
 
   const seen = new WeakSet<object>();
   const replacer = (_key: string, value: JsonData): JsonData => {
-    if (typeof value === 'bigint') return `[BigInt: ${value}]`;
+    if (typeof value === 'bigint') {
+      return `[BigInt: ${value}]`;
+    }
     if (typeof value === 'object' && value !== null) {
-      if (seen.has(value)) return '[Circular]';
+      if (seen.has(value)) {
+        return '[Circular]';
+      }
       seen.add(value);
     }
     return value;

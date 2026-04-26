@@ -38,7 +38,9 @@ import { safeParse } from '@/utils/result/safe';
  */
 export function escapeXml(str: Str): Result<Str> {
   const input: Result<Str> = safeParse(StrSchema, str);
-  if (!input.ok) return input;
+  if (!input.ok) {
+    return input;
+  }
 
   return ok(
     StrSchema,
@@ -72,12 +74,20 @@ export function escapeXml(str: Str): Result<Str> {
  */
 export function formatDuration(ms: NonNegativeNumber): Result<Str> {
   const input: Result<NonNegativeNumber> = safeParse(NonNegativeNumberSchema, ms);
-  if (!input.ok) return input;
+  if (!input.ok) {
+    return input;
+  }
 
   const msValue: number = input.data as unknown as number;
-  if (msValue < 1) return ok(StrSchema, '<1ms');
-  if (msValue < 1000) return ok(StrSchema, `${Math.round(msValue)}ms`);
-  if (msValue < 60_000) return ok(StrSchema, `${(msValue / 1000).toFixed(2)}s`);
+  if (msValue < 1) {
+    return ok(StrSchema, '<1ms');
+  }
+  if (msValue < 1000) {
+    return ok(StrSchema, `${Math.round(msValue)}ms`);
+  }
+  if (msValue < 60_000) {
+    return ok(StrSchema, `${(msValue / 1000).toFixed(2)}s`);
+  }
 
   const minutes: number = Math.floor(msValue / 60_000);
   const seconds: Str = ((msValue % 60_000) / 1000).toFixed(1);

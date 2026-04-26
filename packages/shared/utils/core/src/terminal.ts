@@ -85,7 +85,9 @@ const runtime: RuntimeKind = runtimeResult.ok ? runtimeResult.data : DEFAULT_RUN
  */
 let currentColorLevel: ColorLevel = (() => {
   // Browser always supports colors (via CSS %c)
-  if (runtime === 'browser') return 1 as ColorLevel;
+  if (runtime === 'browser') {
+    return 1 as ColorLevel;
+  }
   // Workers and edge runtimes never support ANSI colors
   if (
     runtime === 'worker' ||
@@ -100,7 +102,9 @@ let currentColorLevel: ColorLevel = (() => {
   }
   // Node/Deno/Bun — detect from env
   const envResult: Result<EnvRecordWithUndefined> = getEnvRecord();
-  if (!envResult.ok) return 0 as ColorLevel;
+  if (!envResult.ok) {
+    return 0 as ColorLevel;
+  }
   const ttyResult: Result<Bool> = isTTY();
   const tty: Bool = ttyResult.ok ? ttyResult.data : false;
   const colorResult: Result<ColorLevel> = detectColorLevel(
@@ -141,7 +145,9 @@ const useUnicode: Bool =
  */
 export function setColors(enabled: Bool): Result<Void> {
   const input: Result<Bool> = safeParse(BoolSchema, enabled);
-  if (!input.ok) return input;
+  if (!input.ok) {
+    return input;
+  }
   useColors = input.data;
   if (input.data) {
     currentColorLevel = currentColorLevel > 0 ? currentColorLevel : (1 as ColorLevel);
@@ -182,7 +188,9 @@ export function getColorLevel(): Result<ColorLevel> {
  */
 export function setColorLevel(level: ColorLevel): Result<Void> {
   const input: Result<ColorLevel> = safeParse(ColorLevelSchema, level);
-  if (!input.ok) return input;
+  if (!input.ok) {
+    return input;
+  }
   currentColorLevel = input.data;
   useColors = input.data > 0;
   return ok(VoidSchema, undefined);
@@ -207,7 +215,9 @@ export function setColorLevel(level: ColorLevel): Result<Void> {
  */
 export function getTerminalWidth(): Result<PositiveInteger> {
   const colsResult: Result<NonNegativeInteger> = getColumns();
-  if (!colsResult.ok) return colsResult;
+  if (!colsResult.ok) {
+    return colsResult;
+  }
   return safeParse(PositiveIntegerSchema, colsResult.data);
 }
 
@@ -227,21 +237,29 @@ export function getTerminalWidth(): Result<PositiveInteger> {
  */
 export function truncateLine(line: Str, maxWidth?: NonNegativeInteger): Result<Str> {
   const input: Result<Str> = safeParse(StrSchema, line);
-  if (!input.ok) return input;
+  if (!input.ok) {
+    return input;
+  }
 
   if (maxWidth !== undefined) {
     const maxWidthResult: Result<NonNegativeInteger> = safeParse(
       NonNegativeIntegerSchema,
       maxWidth,
     );
-    if (!maxWidthResult.ok) return maxWidthResult;
+    if (!maxWidthResult.ok) {
+      return maxWidthResult;
+    }
     return coreTruncateLine(input.data, maxWidthResult.data as NonNegativeInteger);
   }
 
   const widthResult: Result<PositiveInteger> = getTerminalWidth();
-  if (!widthResult.ok) return widthResult;
+  if (!widthResult.ok) {
+    return widthResult;
+  }
   const width: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, widthResult.data);
-  if (!width.ok) return width;
+  if (!width.ok) {
+    return width;
+  }
   return coreTruncateLine(input.data, width.data as NonNegativeInteger);
 }
 
@@ -322,7 +340,9 @@ function ansiToBrowserArgs(text: Str): Str[] {
         currentCss = [];
       } else {
         const css: OptionalStr = ansiToCss[code];
-        if (css) currentCss.push(css);
+        if (css) {
+          currentCss.push(css);
+        }
       }
     }
     lastIndex = match.index + match[0].length;
@@ -334,7 +354,9 @@ function ansiToBrowserArgs(text: Str): Str[] {
     cssArgs.push(currentCss.join(';'));
   }
 
-  if (parts.length === 0) return [text];
+  if (parts.length === 0) {
+    return [text];
+  }
   return [parts.join(''), ...cssArgs];
 }
 
@@ -375,13 +397,21 @@ function platformLog(stream: PrintStream, text: Str): void {
  */
 function applyStyle(text: Str, name: StyleName): Result<Str> {
   const textResult: Result<Str> = safeParse(StrSchema, text);
-  if (!textResult.ok) return textResult;
+  if (!textResult.ok) {
+    return textResult;
+  }
   const nameResult: Result<StyleName> = safeParse(StyleNameSchema, name);
-  if (!nameResult.ok) return nameResult;
+  if (!nameResult.ok) {
+    return nameResult;
+  }
 
-  if (!useColors) return ok(StrSchema, textResult.data);
+  if (!useColors) {
+    return ok(StrSchema, textResult.data);
+  }
   const code: OptionalStr = codes[nameResult.data];
-  if (!code) return ok(StrSchema, textResult.data);
+  if (!code) {
+    return ok(StrSchema, textResult.data);
+  }
   return ok(StrSchema, `${code}${textResult.data}${codes.reset}`);
 }
 
@@ -525,14 +555,18 @@ export const style = {
  */
 function stripMarkup(text: Str): Result<Str> {
   const input: Result<Str> = safeParse(StrSchema, text);
-  if (!input.ok) return input;
+  if (!input.ok) {
+    return input;
+  }
 
   // Replace {symbol:name} with actual characters
   const withSymbols: Str = input.data.replaceAll(
     /\{symbol:(\w+)\}/g,
     (_match: string, name: string): string => {
       const symNameResult: Result<SymbolName> = safeParse(SymbolNameSchema, name);
-      if (!symNameResult.ok) return _match;
+      if (!symNameResult.ok) {
+        return _match;
+      }
       return symbols[symNameResult.data];
     },
   );
@@ -574,7 +608,9 @@ function stripMarkup(text: Str): Result<Str> {
  */
 export function renderMarkup(text: Str): Result<Str> {
   const input: Result<Str> = safeParse(StrSchema, text);
-  if (!input.ok) return input;
+  if (!input.ok) {
+    return input;
+  }
 
   // Pass 1: Replace {symbol:name} with actual symbol characters
   // .replace() callback receives native `string` params — Str is non-branded, direct assignment works
@@ -582,7 +618,9 @@ export function renderMarkup(text: Str): Result<Str> {
     /\{symbol:(\w+)\}/g,
     (_match: string, name: string): string => {
       const symNameResult: Result<SymbolName> = safeParse(SymbolNameSchema, name);
-      if (!symNameResult.ok) return _match;
+      if (!symNameResult.ok) {
+        return _match;
+      }
       return symbols[symNameResult.data];
     },
   );
@@ -592,9 +630,13 @@ export function renderMarkup(text: Str): Result<Str> {
   const rendered: Str = withSymbols.replaceAll(
     /\{(bold|dim|italic|underline|inverse|strikethrough|red|green|yellow|blue|cyan|magenta|white|gray)\}(.*?)\{\/\}/gs,
     (_match: string, tag: string, content: string): string => {
-      if (!useColors) return content;
+      if (!useColors) {
+        return content;
+      }
       const styleResult: Result<StyleName> = safeParse(StyleNameSchema, tag);
-      if (!styleResult.ok) return content;
+      if (!styleResult.ok) {
+        return content;
+      }
       const code: OptionalStr = codes[styleResult.data];
       return code ? `${code}${content}${codes.reset}` : content;
     },
@@ -761,7 +803,9 @@ let spinnerInterval: NullableIntervalId = null;
  */
 export function startSpinner(message: Str): Result<Void> {
   const input: Result<Str> = safeParse(StrSchema, message);
-  if (!input.ok) return input;
+  if (!input.ok) {
+    return input;
+  }
 
   if (!useColors || runtime !== 'node-tty') {
     // Deliberate platformLog — spinner bypasses log.raw() because
@@ -772,11 +816,15 @@ export function startSpinner(message: Str): Result<Void> {
 
   spinnerIndex = 0;
   const frame: Result<Str> = style.cyan(spinnerFrames[spinnerIndex] ?? '');
-  if (!frame.ok) return frame;
+  if (!frame.ok) {
+    return frame;
+  }
   writeStdout(`${frame.data} ${input.data}`);
 
   const zeroCol: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, 0);
-  if (!zeroCol.ok) return zeroCol;
+  if (!zeroCol.ok) {
+    return zeroCol;
+  }
 
   spinnerInterval = setInterval(() => {
     spinnerIndex = (spinnerIndex + 1) % spinnerFrames.length;
@@ -805,7 +853,9 @@ export function startSpinner(message: Str): Result<Void> {
 export function stopSpinner(finalMessage?: Str): Result<Void> {
   if (finalMessage !== undefined) {
     const input: Result<Str> = safeParse(StrSchema, finalMessage);
-    if (!input.ok) return input;
+    if (!input.ok) {
+      return input;
+    }
   }
 
   if (spinnerInterval) {
@@ -816,7 +866,9 @@ export function stopSpinner(finalMessage?: Str): Result<Void> {
   if (runtime === 'node-tty') {
     clearLine();
     const zeroCol: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, 0);
-    if (zeroCol.ok) cursorTo(zeroCol.data as NonNegativeInteger);
+    if (zeroCol.ok) {
+      cursorTo(zeroCol.data as NonNegativeInteger);
+    }
   }
 
   if (finalMessage) {
@@ -851,13 +903,19 @@ export function progressBar(
   width: PositiveInteger = DEFAULT_PROGRESS_BAR_WIDTH,
 ): Result<Str> {
   const currentResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, current);
-  if (!currentResult.ok) return currentResult;
+  if (!currentResult.ok) {
+    return currentResult;
+  }
 
   const totalResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, total);
-  if (!totalResult.ok) return totalResult;
+  if (!totalResult.ok) {
+    return totalResult;
+  }
 
   const widthResult: Result<PositiveInteger> = safeParse(PositiveIntegerSchema, width);
-  if (!widthResult.ok) return widthResult;
+  if (!widthResult.ok) {
+    return widthResult;
+  }
 
   // Internal arithmetic — values provably non-negative from validated inputs
   const currentNum: number = currentResult.data as unknown as number;
@@ -868,12 +926,18 @@ export function progressBar(
   const empty: number = widthNum - filled;
 
   const filledBar: Result<Str> = style.green(symbols.progressFilled.repeat(filled));
-  if (!filledBar.ok) return filledBar;
+  if (!filledBar.ok) {
+    return filledBar;
+  }
   const emptyBar: Result<Str> = style.dim(symbols.progressEmpty.repeat(empty));
-  if (!emptyBar.ok) return emptyBar;
+  if (!emptyBar.ok) {
+    return emptyBar;
+  }
   const percentStr: Str = `${Math.round(percentage * 100)}%`.padStart(4);
   const dimPercent: Result<Str> = style.dim(percentStr);
-  if (!dimPercent.ok) return dimPercent;
+  if (!dimPercent.ok) {
+    return dimPercent;
+  }
 
   return ok(StrSchema, `${filledBar.data}${emptyBar.data} ${dimPercent.data}`);
 }
@@ -935,11 +999,21 @@ function emitGitHubCommand(
   let cmd: Str = `::${command}`;
   if (properties) {
     const props: Str[] = [];
-    if (properties.file) props.push(`file=${properties.file}`);
-    if (properties.line !== undefined) props.push(`line=${properties.line}`);
-    if (properties.col !== undefined) props.push(`col=${properties.col}`);
-    if (properties.title) props.push(`title=${properties.title}`);
-    if (props.length > 0) cmd = `${cmd} ${props.join(',')}`;
+    if (properties.file) {
+      props.push(`file=${properties.file}`);
+    }
+    if (properties.line !== undefined) {
+      props.push(`line=${properties.line}`);
+    }
+    if (properties.col !== undefined) {
+      props.push(`col=${properties.col}`);
+    }
+    if (properties.title) {
+      props.push(`title=${properties.title}`);
+    }
+    if (props.length > 0) {
+      cmd = `${cmd} ${props.join(',')}`;
+    }
   }
   cmd = `${cmd}::${message}`;
   console.log(cmd);
@@ -963,7 +1037,9 @@ function emitGitHubCommand(
  */
 export function startGroup(title: Str): Result<Void> {
   const input: Result<Str> = safeParse(StrSchema, title);
-  if (!input.ok) return input;
+  if (!input.ok) {
+    return input;
+  }
   console.log(`::group::${input.data}`);
   return ok(VoidSchema, undefined);
 }
@@ -1036,18 +1112,30 @@ export const log = {
    */
   print: (message: Str, options?: PrintOptions): Result<Void> => {
     const machineResult: Result<Bool> = isMachineReadable();
-    if (!machineResult.ok) return machineResult;
-    if (machineResult.data) return ok(VoidSchema, undefined);
+    if (!machineResult.ok) {
+      return machineResult;
+    }
+    if (machineResult.data) {
+      return ok(VoidSchema, undefined);
+    }
     const optionsResult: Result<PrintOptions> = safeParse(PrintOptionsSchema, options ?? {});
-    if (!optionsResult.ok) return optionsResult;
+    if (!optionsResult.ok) {
+      return optionsResult;
+    }
     const msgResult: Result<Str> = safeParse(StrSchema, message);
-    if (!msgResult.ok) return msgResult;
+    if (!msgResult.ok) {
+      return msgResult;
+    }
     const rendered: Result<Str> = renderMarkup(msgResult.data);
-    if (!rendered.ok) return rendered;
+    if (!rendered.ok) {
+      return rendered;
+    }
     const { level } = optionsResult.data;
     const { stream } = optionsResult.data;
     const allowed: Result<Bool> = shouldLog(level);
-    if (!allowed.ok) return allowed;
+    if (!allowed.ok) {
+      return allowed;
+    }
     if (allowed.data) {
       platformLog(stream, rendered.data);
     }
@@ -1063,10 +1151,16 @@ export const log = {
    */
   info: (message: Str): Result<Void> => {
     const msgResult: Result<Str> = safeParse(StrSchema, message);
-    if (!msgResult.ok) return msgResult;
+    if (!msgResult.ok) {
+      return msgResult;
+    }
     const allowed: Result<Bool> = shouldLog('info');
-    if (!allowed.ok) return allowed;
-    if (!allowed.data) return ok(VoidSchema, undefined);
+    if (!allowed.ok) {
+      return allowed;
+    }
+    if (!allowed.data) {
+      return ok(VoidSchema, undefined);
+    }
 
     // GitHub Actions format: emit ::notice:: (checked first so github-mode
     // hits the workflow-command branch rather than falling through to baseLog)
@@ -1094,7 +1188,9 @@ export const log = {
 
     // Pretty mode: render markup with ANSI/CSS
     const rendered: Result<Str> = renderMarkup(msgResult.data);
-    if (!rendered.ok) return rendered;
+    if (!rendered.ok) {
+      return rendered;
+    }
     platformLog('stdout', rendered.data);
     return ok(VoidSchema, undefined);
   },
@@ -1108,10 +1204,16 @@ export const log = {
    */
   warn: (message: Str): Result<Void> => {
     const msgResult: Result<Str> = safeParse(StrSchema, message);
-    if (!msgResult.ok) return msgResult;
+    if (!msgResult.ok) {
+      return msgResult;
+    }
     const allowed: Result<Bool> = shouldLog('warn');
-    if (!allowed.ok) return allowed;
-    if (!allowed.data) return ok(VoidSchema, undefined);
+    if (!allowed.ok) {
+      return allowed;
+    }
+    if (!allowed.data) {
+      return ok(VoidSchema, undefined);
+    }
 
     // GitHub Actions format: emit ::warning:: (checked first so github-mode
     // hits the workflow-command branch rather than falling through to baseLog)
@@ -1139,9 +1241,13 @@ export const log = {
 
     // Pretty mode: render markup with symbol prefix
     const rendered: Result<Str> = renderMarkup(msgResult.data);
-    if (!rendered.ok) return rendered;
+    if (!rendered.ok) {
+      return rendered;
+    }
     const sym: Result<Str> = style.yellow(symbols.warning);
-    if (!sym.ok) return sym;
+    if (!sym.ok) {
+      return sym;
+    }
     platformLog('stdout', `  ${sym.data} ${rendered.data}`);
     return ok(VoidSchema, undefined);
   },
@@ -1155,10 +1261,16 @@ export const log = {
    */
   error: (message: Str): Result<Void> => {
     const msgResult: Result<Str> = safeParse(StrSchema, message);
-    if (!msgResult.ok) return msgResult;
+    if (!msgResult.ok) {
+      return msgResult;
+    }
     const allowed: Result<Bool> = shouldLog('error');
-    if (!allowed.ok) return allowed;
-    if (!allowed.data) return ok(VoidSchema, undefined);
+    if (!allowed.ok) {
+      return allowed;
+    }
+    if (!allowed.data) {
+      return ok(VoidSchema, undefined);
+    }
 
     // GitHub Actions format: emit ::error:: (checked first so github-mode
     // hits the workflow-command branch rather than falling through to baseLog)
@@ -1186,9 +1298,13 @@ export const log = {
 
     // Pretty mode: render markup with symbol prefix
     const rendered: Result<Str> = renderMarkup(msgResult.data);
-    if (!rendered.ok) return rendered;
+    if (!rendered.ok) {
+      return rendered;
+    }
     const sym: Result<Str> = style.red(symbols.error);
-    if (!sym.ok) return sym;
+    if (!sym.ok) {
+      return sym;
+    }
     platformLog('stderr', `  ${sym.data} ${rendered.data}`);
     return ok(VoidSchema, undefined);
   },
@@ -1204,10 +1320,16 @@ export const log = {
    */
   debug: (message: Str, data?: JsonData): Result<Void> => {
     const msgResult: Result<Str> = safeParse(StrSchema, message);
-    if (!msgResult.ok) return msgResult;
+    if (!msgResult.ok) {
+      return msgResult;
+    }
     const allowed: Result<Bool> = shouldLog('debug');
-    if (!allowed.ok) return allowed;
-    if (!allowed.data) return ok(VoidSchema, undefined);
+    if (!allowed.ok) {
+      return allowed;
+    }
+    if (!allowed.data) {
+      return ok(VoidSchema, undefined);
+    }
 
     // GitHub Actions format: emit ::debug:: (checked first so github-mode
     // hits the workflow-command branch rather than falling through to baseLog)
@@ -1235,9 +1357,13 @@ export const log = {
 
     // Pretty mode: render markup with styled [DEBUG] prefix
     const rendered: Result<Str> = renderMarkup(msgResult.data);
-    if (!rendered.ok) return rendered;
+    if (!rendered.ok) {
+      return rendered;
+    }
     const styled: Result<Str> = style.dim(`[DEBUG] ${rendered.data}`);
-    if (!styled.ok) return styled;
+    if (!styled.ok) {
+      return styled;
+    }
     if (data === undefined) {
       platformLog('stderr', `${styled.data}`);
     } else {
@@ -1258,11 +1384,15 @@ export const log = {
     let validatedIndent: NonNegativeInteger = DEFAULT_JSON_INDENT;
     if (indent !== undefined) {
       const indentResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, indent);
-      if (!indentResult.ok) return indentResult;
+      if (!indentResult.ok) {
+        return indentResult;
+      }
       validatedIndent = indentResult.data as NonNegativeInteger;
     }
     const jsonResult: Result<Str> = safeStringify(data, validatedIndent);
-    if (!jsonResult.ok) return jsonResult;
+    if (!jsonResult.ok) {
+      return jsonResult;
+    }
     console.log(jsonResult.data);
     return ok(VoidSchema, undefined);
   },
@@ -1277,9 +1407,13 @@ export const log = {
    */
   raw: (message: Str): Result<Void> => {
     const msgResult: Result<Str> = safeParse(StrSchema, message);
-    if (!msgResult.ok) return msgResult;
+    if (!msgResult.ok) {
+      return msgResult;
+    }
     const rendered: Result<Str> = renderMarkup(msgResult.data);
-    if (!rendered.ok) return rendered;
+    if (!rendered.ok) {
+      return rendered;
+    }
     platformLog('stdout', rendered.data);
     return ok(VoidSchema, undefined);
   },
@@ -1295,10 +1429,16 @@ export const log = {
    */
   trace: (message: Str, data?: JsonData): Result<Void> => {
     const msgResult: Result<Str> = safeParse(StrSchema, message);
-    if (!msgResult.ok) return msgResult;
+    if (!msgResult.ok) {
+      return msgResult;
+    }
     const allowed: Result<Bool> = shouldLog('trace');
-    if (!allowed.ok) return allowed;
-    if (!allowed.data) return ok(VoidSchema, undefined);
+    if (!allowed.ok) {
+      return allowed;
+    }
+    if (!allowed.data) {
+      return ok(VoidSchema, undefined);
+    }
 
     // GitHub Actions format: emit ::debug:: — GitHub has no trace level (checked
     // first so github-mode hits the workflow-command branch rather than baseLog)
@@ -1326,9 +1466,13 @@ export const log = {
 
     // Pretty mode: render markup with styled [TRACE] prefix
     const rendered: Result<Str> = renderMarkup(msgResult.data);
-    if (!rendered.ok) return rendered;
+    if (!rendered.ok) {
+      return rendered;
+    }
     const styled: Result<Str> = style.dim(`[TRACE] ${rendered.data}`);
-    if (!styled.ok) return styled;
+    if (!styled.ok) {
+      return styled;
+    }
     if (data === undefined) {
       platformLog('stderr', `${styled.data}`);
     } else {
@@ -1347,9 +1491,13 @@ export const log = {
    */
   rawError: (message: Str): Result<Void> => {
     const msgResult: Result<Str> = safeParse(StrSchema, message);
-    if (!msgResult.ok) return msgResult;
+    if (!msgResult.ok) {
+      return msgResult;
+    }
     const rendered: Result<Str> = renderMarkup(msgResult.data);
-    if (!rendered.ok) return rendered;
+    if (!rendered.ok) {
+      return rendered;
+    }
     platformLog('stderr', rendered.data);
     return ok(VoidSchema, undefined);
   },

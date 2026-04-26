@@ -61,10 +61,14 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
  */
 // Module-init: cannot propagate Result; validated fallback via safeParse
 const _fallbackConcurrency: Result<PositiveInteger> = safeParse(PositiveIntegerSchema, 1);
-if (!_fallbackConcurrency.ok) throw new Error('Static literal 1 failed PositiveInteger validation');
+if (!_fallbackConcurrency.ok) {
+  throw new Error('Static literal 1 failed PositiveInteger validation');
+}
 export const DEFAULT_CONCURRENCY: PositiveInteger = (() => {
   const os: OptionalNodeOs = nodeOs;
-  if (!os) return _fallbackConcurrency.data as PositiveInteger;
+  if (!os) {
+    return _fallbackConcurrency.data as PositiveInteger;
+  }
   const result: Result<PositiveInteger> = safeParse(PositiveIntegerSchema, os.cpus().length);
   return (result.ok ? result.data : _fallbackConcurrency.data) as PositiveInteger;
 })();
@@ -76,7 +80,9 @@ export const DEFAULT_CONCURRENCY: PositiveInteger = (() => {
 // Module-init: 'linux' is safe default for cross-platform guards
 const platform: Platform = (() => {
   const proc: OptionalNodeProcess = getProcess();
-  if (!proc) return DEFAULT_PLATFORM;
+  if (!proc) {
+    return DEFAULT_PLATFORM;
+  }
   const result: Result<Platform> = safeParse(PlatformSchema, proc.platform);
   return result.ok ? result.data : DEFAULT_PLATFORM;
 })();
@@ -110,7 +116,9 @@ export const isLinux: Bool = platform === 'linux';
  */
 export function isTTY(): Result<Bool> {
   const proc: OptionalNodeProcess = getProcess();
-  if (!proc) return ok(BoolSchema, false);
+  if (!proc) {
+    return ok(BoolSchema, false);
+  }
   return ok(BoolSchema, proc.stdout?.isTTY === true);
 }
 
@@ -181,7 +189,9 @@ export function getArgv(): Result<StrArray> {
  */
 export function getScriptPath(): Result<OptionalStr> {
   const proc: OptionalNodeProcess = getProcess();
-  if (!proc) return safeParse(OptionalStrSchema, undefined);
+  if (!proc) {
+    return safeParse(OptionalStrSchema, undefined);
+  }
   return safeParse(OptionalStrSchema, proc.argv[1]);
 }
 
@@ -203,9 +213,13 @@ export function getScriptPath(): Result<OptionalStr> {
  */
 export function getEnvVar(name: Str): Result<OptionalStr> {
   const nameResult: Result<Str> = safeParse(StrSchema, name);
-  if (!nameResult.ok) return nameResult;
+  if (!nameResult.ok) {
+    return nameResult;
+  }
   const proc: OptionalNodeProcess = getProcess();
-  if (!proc) return safeParse(OptionalStrSchema, undefined);
+  if (!proc) {
+    return safeParse(OptionalStrSchema, undefined);
+  }
   return safeParse(OptionalStrSchema, proc.env[nameResult.data]);
 }
 
@@ -251,7 +265,9 @@ export function getEnvRecord(): Result<EnvRecordWithUndefined> {
  */
 export function writeStdout(text: Str): Result<Void> {
   const input: Result<Str> = safeParse(StrSchema, text);
-  if (!input.ok) return input;
+  if (!input.ok) {
+    return input;
+  }
   const proc: OptionalNodeProcess = getProcess();
   if (!proc || !proc.stdout) {
     return err(ERRORS.IO.WRITE_FAILED, {
@@ -278,7 +294,9 @@ export function writeStdout(text: Str): Result<Void> {
  */
 export function writeStderr(text: Str): Result<Void> {
   const input: Result<Str> = safeParse(StrSchema, text);
-  if (!input.ok) return input;
+  if (!input.ok) {
+    return input;
+  }
   const proc: OptionalNodeProcess = getProcess();
   if (!proc || !proc.stderr) {
     return err(ERRORS.IO.WRITE_FAILED, {
@@ -325,7 +343,9 @@ export function clearLine(): Result<Void> {
  */
 export function cursorTo(column: NonNegativeInteger): Result<Void> {
   const col: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, column);
-  if (!col.ok) return col;
+  if (!col.ok) {
+    return col;
+  }
   const proc: OptionalNodeProcess = getProcess();
   if (!proc || !proc.stdout?.cursorTo) {
     return ok(VoidSchema, undefined);
@@ -349,9 +369,13 @@ export function cursorTo(column: NonNegativeInteger): Result<Void> {
  */
 export function setExitCode(code: ExitCode): Result<Void> {
   const codeResult: Result<ExitCode> = safeParse(ExitCodeSchema, code);
-  if (!codeResult.ok) return codeResult;
+  if (!codeResult.ok) {
+    return codeResult;
+  }
   const proc: OptionalNodeProcess = getProcess();
-  if (!proc) return ok(VoidSchema, undefined);
+  if (!proc) {
+    return ok(VoidSchema, undefined);
+  }
   proc.exitCode = codeResult.data as unknown as number;
   return ok(VoidSchema, undefined);
 }
@@ -379,7 +403,9 @@ export function setExitCode(code: ExitCode): Result<Void> {
  */
 export async function readStdin(timeoutMs: NonNegativeInteger): Promise<Result<Str>> {
   const timeoutResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, timeoutMs);
-  if (!timeoutResult.ok) return timeoutResult;
+  if (!timeoutResult.ok) {
+    return timeoutResult;
+  }
 
   const proc: OptionalNodeProcess = getProcess();
   if (!proc || !proc.stdin) {
@@ -397,7 +423,9 @@ export async function readStdin(timeoutMs: NonNegativeInteger): Promise<Result<S
       let resolved: Bool = false;
 
       const settleWith = (value: string): void => {
-        if (resolved) return;
+        if (resolved) {
+          return;
+        }
         resolved = true;
         resolve(value);
       };
@@ -505,7 +533,9 @@ export function fatalExit(options: FatalExitOptions): never {
     throw new Error('fatalExit() requires Node.js');
   }
   const optionsResult: Result<FatalExitOptions> = safeParse(FatalExitOptionsSchema, options);
-  if (!optionsResult.ok) exit(FAILURE_EXIT_CODE);
+  if (!optionsResult.ok) {
+    exit(FAILURE_EXIT_CODE);
+  }
 
   const { message, exitCode, error, details } = optionsResult.data;
 

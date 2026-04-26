@@ -57,7 +57,9 @@ const LOCKFILE_MARKERS: Record<PackageManagerType, StrArray> = {
  */
 function getWorkspaceMarkers(): Result<StrArray> {
   const configResult: Result<DeepReadonly<CoreConfig>> = getConfig();
-  if (!configResult.ok) return configResult;
+  if (!configResult.ok) {
+    return configResult;
+  }
   const pmName: PackageManagerType = configResult.data.tooling.packageManager.manager;
   return ok(StrArraySchema, LOCKFILE_MARKERS[pmName]);
 }
@@ -88,30 +90,48 @@ function getWorkspaceMarkers(): Result<StrArray> {
  */
 export function findWorkspaceRoot(startDir?: Path, marker?: Filename): Result<Path> {
   const path: OptionalNodePath = nodePath;
-  if (!path) return requireRuntime('findWorkspaceRoot', 'node');
+  if (!path) {
+    return requireRuntime('findWorkspaceRoot', 'node');
+  }
   const startResult: Result<Path> =
-    startDir !== undefined ? safeParse(PathSchema, startDir) : cwd();
-  if (!startResult.ok) return startResult;
+    startDir === undefined ? cwd() : safeParse(PathSchema, startDir);
+  if (!startResult.ok) {
+    return startResult;
+  }
 
   // If marker explicitly provided, validate and use simple matching
   if (marker !== undefined) {
     const markerResult: Result<Filename> = safeParse(FilenameSchema, marker);
-    if (!markerResult.ok) return markerResult;
+    if (!markerResult.ok) {
+      return markerResult;
+    }
 
     const currentDirResult: Result<Path> = safeParse(PathSchema, path.resolve(startResult.data));
-    if (!currentDirResult.ok) return currentDirResult;
+    if (!currentDirResult.ok) {
+      return currentDirResult;
+    }
     let currentDir: Path = currentDirResult.data;
     while (true) {
       const markerPathResult: Result<Path> = joinPath([currentDir, markerResult.data]);
-      if (!markerPathResult.ok) return markerPathResult;
+      if (!markerPathResult.ok) {
+        return markerPathResult;
+      }
 
       const existsResult: Result<Bool> = pathExists(markerPathResult.data);
-      if (!existsResult.ok) return existsResult;
-      if (existsResult.data) return ok(PathSchema, currentDir);
+      if (!existsResult.ok) {
+        return existsResult;
+      }
+      if (existsResult.data) {
+        return ok(PathSchema, currentDir);
+      }
 
       const parentDirResult: Result<Path> = safeParse(PathSchema, path.dirname(currentDir));
-      if (!parentDirResult.ok) return parentDirResult;
-      if (parentDirResult.data === currentDir) break;
+      if (!parentDirResult.ok) {
+        return parentDirResult;
+      }
+      if (parentDirResult.data === currentDir) {
+        break;
+      }
       currentDir = parentDirResult.data;
     }
     return err(ERRORS.WORKSPACE.ROOT_NOT_FOUND, { meta: { cwd: startResult.data } });
@@ -119,21 +139,31 @@ export function findWorkspaceRoot(startDir?: Path, marker?: Filename): Result<Pa
 
   // Auto-detect: use lockfile markers for the configured PM
   const markersResult: Result<StrArray> = getWorkspaceMarkers();
-  if (!markersResult.ok) return markersResult;
-  const markers: ReadonlyArray<string> = markersResult.data;
+  if (!markersResult.ok) {
+    return markersResult;
+  }
+  const markers: readonly string[] = markersResult.data;
   const currentDirResult2: Result<Path> = safeParse(PathSchema, path.resolve(startResult.data));
-  if (!currentDirResult2.ok) return currentDirResult2;
+  if (!currentDirResult2.ok) {
+    return currentDirResult2;
+  }
   let currentDir: Path = currentDirResult2.data;
 
   while (true) {
     // Check PM-specific lockfile markers
     for (const m of markers) {
       const markerPathResult: Result<Path> = joinPath([currentDir, m]);
-      if (!markerPathResult.ok) return markerPathResult;
+      if (!markerPathResult.ok) {
+        return markerPathResult;
+      }
 
       const existsResult: Result<Bool> = pathExists(markerPathResult.data);
-      if (!existsResult.ok) return existsResult;
-      if (existsResult.data) return ok(PathSchema, currentDir);
+      if (!existsResult.ok) {
+        return existsResult;
+      }
+      if (existsResult.data) {
+        return ok(PathSchema, currentDir);
+      }
     }
 
     // Fallback: check for package.json with a workspaces field
@@ -150,8 +180,12 @@ export function findWorkspaceRoot(startDir?: Path, marker?: Filename): Result<Pa
     }
 
     const parentDirResult: Result<Path> = safeParse(PathSchema, path.dirname(currentDir));
-    if (!parentDirResult.ok) return parentDirResult;
-    if (parentDirResult.data === currentDir) break;
+    if (!parentDirResult.ok) {
+      return parentDirResult;
+    }
+    if (parentDirResult.data === currentDir) {
+      break;
+    }
     currentDir = parentDirResult.data;
   }
 
@@ -181,9 +215,13 @@ export function findWorkspaceRoot(startDir?: Path, marker?: Filename): Result<Pa
  */
 export function ensureWorkspaceRoot(cwdPath?: Path): Result<EnsureWorkspaceRootResult> {
   const pathMod: OptionalNodePath = nodePath;
-  if (!pathMod) return requireRuntime('ensureWorkspaceRoot', 'node');
-  const cwdResult: Result<Path> = cwdPath !== undefined ? safeParse(PathSchema, cwdPath) : cwd();
-  if (!cwdResult.ok) return cwdResult;
+  if (!pathMod) {
+    return requireRuntime('ensureWorkspaceRoot', 'node');
+  }
+  const cwdResult: Result<Path> = cwdPath === undefined ? cwd() : safeParse(PathSchema, cwdPath);
+  if (!cwdResult.ok) {
+    return cwdResult;
+  }
 
   const rootResult: Result<Path> = findWorkspaceRoot(cwdResult.data);
   if (!rootResult.ok) {
@@ -198,9 +236,13 @@ export function ensureWorkspaceRoot(cwdPath?: Path): Result<EnsureWorkspaceRootR
 
   // Resolve both paths to handle symlinks (e.g., /var -> /private/var on macOS)
   const resolvedCwdResult: Result<Path> = safeParse(PathSchema, pathMod.resolve(cwdResult.data));
-  if (!resolvedCwdResult.ok) return resolvedCwdResult;
+  if (!resolvedCwdResult.ok) {
+    return resolvedCwdResult;
+  }
   const resolvedRootResult: Result<Path> = safeParse(PathSchema, pathMod.resolve(rootResult.data));
-  if (!resolvedRootResult.ok) return resolvedRootResult;
+  if (!resolvedRootResult.ok) {
+    return resolvedRootResult;
+  }
 
   if (resolvedCwdResult.data !== resolvedRootResult.data) {
     return ok(EnsureWorkspaceRootResultSchema, {

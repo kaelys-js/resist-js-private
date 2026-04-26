@@ -102,9 +102,15 @@ export function detectAgent(env: EnvRecordWithUndefined): Result<AgentInfo | und
   for (const agent of AGENTS) {
     const anyMatch: Bool = agent.checks.some((check: ProviderEnvCheck): Bool => {
       const val: Str | undefined = env[check.key];
-      if (val === undefined) return false;
-      if (check.value !== undefined) return val === check.value;
-      if (check.includes !== undefined) return val.includes(check.includes);
+      if (val === undefined) {
+        return false;
+      }
+      if (check.value !== undefined) {
+        return val === check.value;
+      }
+      if (check.includes !== undefined) {
+        return val.includes(check.includes);
+      }
       return true;
     });
     if (anyMatch) {

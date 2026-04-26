@@ -53,7 +53,7 @@ import {
  * with `fs.readFileSync`.
  *
  * @param path - Absolute or relative file path (must be non-empty).
- * @param encoding - File encoding. Defaults to `'utf-8'`.
+ * @param encoding - File encoding. Defaults to `'utf8'`.
  * @returns `Result<FileContent>` — file contents on success, or `VALIDATION.SCHEMA_FAILED` / `IO.READ_FAILED` on error.
  *
  * @example
@@ -68,20 +68,26 @@ export function readFile(
   encoding: FileEncoding = DEFAULT_FILE_ENCODING,
 ): Result<FileContent> {
   const fs: OptionalNodeFs = nodeFs;
-  if (!fs) return requireRuntime('readFile', 'node');
+  if (!fs) {
+    return requireRuntime('readFile', 'node');
+  }
   const pathResult: Result<Path> = safeParse(PathSchema, path);
-  if (!pathResult.ok) return pathResult;
+  if (!pathResult.ok) {
+    return pathResult;
+  }
 
   const encResult: Result<FileEncoding> = safeParse(FileEncodingSchema, encoding);
-  if (!encResult.ok) return encResult;
+  if (!encResult.ok) {
+    return encResult;
+  }
 
   try {
     const content: FileContent = fs.readFileSync(pathResult.data, { encoding });
     return ok(FileContentSchema, content);
-  } catch (e: unknown) {
+  } catch (error: unknown) {
     return err(ERRORS.IO.READ_FAILED, {
       meta: { path },
-      cause: fromUnknownError(e),
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -94,7 +100,7 @@ export function readFile(
  *
  * @param path - Absolute or relative file path (must be non-empty).
  * @param content - String content to write.
- * @param encoding - File encoding. Defaults to `'utf-8'`.
+ * @param encoding - File encoding. Defaults to `'utf8'`.
  * @returns `Result<Void>` — success, or `VALIDATION.SCHEMA_FAILED` / `IO.WRITE_FAILED` on error.
  *
  * @example
@@ -109,23 +115,31 @@ export function writeFile(
   encoding: FileEncoding = DEFAULT_FILE_ENCODING,
 ): Result<Void> {
   const fs: OptionalNodeFs = nodeFs;
-  if (!fs) return requireRuntime('writeFile', 'node');
+  if (!fs) {
+    return requireRuntime('writeFile', 'node');
+  }
   const pathResult: Result<Path> = safeParse(PathSchema, path);
-  if (!pathResult.ok) return pathResult;
+  if (!pathResult.ok) {
+    return pathResult;
+  }
 
   const contentResult: Result<FileContent> = safeParse(FileContentSchema, content);
-  if (!contentResult.ok) return contentResult;
+  if (!contentResult.ok) {
+    return contentResult;
+  }
 
   const encResult: Result<FileEncoding> = safeParse(FileEncodingSchema, encoding);
-  if (!encResult.ok) return encResult;
+  if (!encResult.ok) {
+    return encResult;
+  }
 
   try {
     fs.writeFileSync(pathResult.data, contentResult.data, { encoding });
     return ok(VoidSchema, undefined);
-  } catch (e: unknown) {
+  } catch (error: unknown) {
     return err(ERRORS.IO.WRITE_FAILED, {
       meta: { path },
-      cause: fromUnknownError(e),
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -148,21 +162,25 @@ export function writeFile(
  */
 export function deleteFile(path: Path): Result<Void> {
   const fs: OptionalNodeFs = nodeFs;
-  if (!fs) return requireRuntime('deleteFile', 'node');
+  if (!fs) {
+    return requireRuntime('deleteFile', 'node');
+  }
   const pathResult: Result<Path> = safeParse(PathSchema, path);
-  if (!pathResult.ok) return pathResult;
+  if (!pathResult.ok) {
+    return pathResult;
+  }
 
   try {
     fs.unlinkSync(pathResult.data);
     return ok(VoidSchema, undefined);
-  } catch (e: unknown) {
+  } catch (error: unknown) {
     // ENOENT = file doesn't exist — idempotent, not an error
-    if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
       return ok(VoidSchema, undefined);
     }
     return err(ERRORS.IO.DELETE_FAILED, {
       meta: { path },
-      cause: fromUnknownError(e),
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -185,17 +203,21 @@ export function deleteFile(path: Path): Result<Void> {
  */
 export function mkdirRecursive(path: Path): Result<Void> {
   const fs: OptionalNodeFs = nodeFs;
-  if (!fs) return requireRuntime('mkdirRecursive', 'node');
+  if (!fs) {
+    return requireRuntime('mkdirRecursive', 'node');
+  }
   const pathResult: Result<Path> = safeParse(PathSchema, path);
-  if (!pathResult.ok) return pathResult;
+  if (!pathResult.ok) {
+    return pathResult;
+  }
 
   try {
     fs.mkdirSync(pathResult.data, { recursive: true });
     return ok(VoidSchema, undefined);
-  } catch (e: unknown) {
+  } catch (error: unknown) {
     return err(ERRORS.IO.MKDIR_FAILED, {
       meta: { path },
-      cause: fromUnknownError(e),
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -217,16 +239,22 @@ export function mkdirRecursive(path: Path): Result<Void> {
 export function ensureDir(path: Path): Result<Void> {
   const fs: OptionalNodeFs = nodeFs;
   const pathMod: OptionalNodePath = nodePath;
-  if (!fs || !pathMod) return requireRuntime('ensureDir', 'node');
+  if (!fs || !pathMod) {
+    return requireRuntime('ensureDir', 'node');
+  }
   const pathResult: Result<Path> = safeParse(PathSchema, path);
-  if (!pathResult.ok) return pathResult;
+  if (!pathResult.ok) {
+    return pathResult;
+  }
 
   const isLikelyFile: Bool = /\.[^/\\]+$/.test(pathResult.data);
 
   let dirPath: Path;
   if (isLikelyFile) {
     const dirResult: Result<Path> = safeParse(PathSchema, pathMod.dirname(pathResult.data));
-    if (!dirResult.ok) return dirResult;
+    if (!dirResult.ok) {
+      return dirResult;
+    }
     dirPath = dirResult.data;
   } else {
     dirPath = pathResult.data;
@@ -235,10 +263,10 @@ export function ensureDir(path: Path): Result<Void> {
   try {
     fs.mkdirSync(dirPath, { recursive: true });
     return ok(VoidSchema, undefined);
-  } catch (e: unknown) {
+  } catch (error: unknown) {
     return err(ERRORS.IO.MKDIR_FAILED, {
       meta: { path: dirPath, originalPath: path },
-      cause: fromUnknownError(e),
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -258,20 +286,26 @@ export function ensureDir(path: Path): Result<Void> {
  */
 export function copyDir(src: Path, dest: Path): Result<Void> {
   const fs: OptionalNodeFs = nodeFs;
-  if (!fs) return requireRuntime('copyDir', 'node');
+  if (!fs) {
+    return requireRuntime('copyDir', 'node');
+  }
   const srcResult: Result<Path> = safeParse(PathSchema, src);
-  if (!srcResult.ok) return srcResult;
+  if (!srcResult.ok) {
+    return srcResult;
+  }
 
   const destResult: Result<Path> = safeParse(PathSchema, dest);
-  if (!destResult.ok) return destResult;
+  if (!destResult.ok) {
+    return destResult;
+  }
 
   try {
     fs.cpSync(srcResult.data, destResult.data, { recursive: true });
     return ok(VoidSchema, undefined);
-  } catch (e: unknown) {
+  } catch (error: unknown) {
     return err(ERRORS.IO.COPY_FAILED, {
       meta: { src, dest },
-      cause: fromUnknownError(e),
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -291,19 +325,25 @@ export function copyDir(src: Path, dest: Path): Result<Void> {
  */
 export function readDir(path: Path): Result<StrArray> {
   const fs: OptionalNodeFs = nodeFs;
-  if (!fs) return requireRuntime('readDir', 'node');
+  if (!fs) {
+    return requireRuntime('readDir', 'node');
+  }
   const pathResult: Result<Path> = safeParse(PathSchema, path);
-  if (!pathResult.ok) return pathResult;
+  if (!pathResult.ok) {
+    return pathResult;
+  }
 
   try {
-    const entries: StrArray = fs.readdirSync(pathResult.data, { encoding: 'utf-8' });
+    const entries: StrArray = fs.readdirSync(pathResult.data, { encoding: 'utf8' });
     const entriesResult: Result<StrArray> = safeParse(StrArraySchema, entries);
-    if (!entriesResult.ok) return entriesResult;
+    if (!entriesResult.ok) {
+      return entriesResult;
+    }
     return entriesResult;
-  } catch (e: unknown) {
+  } catch (error: unknown) {
     return err(ERRORS.IO.READDIR_FAILED, {
       meta: { path },
-      cause: fromUnknownError(e),
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -327,9 +367,13 @@ export function readDir(path: Path): Result<StrArray> {
  */
 export function isDirectory(path: Path): Result<Bool> {
   const fs: OptionalNodeFs = nodeFs;
-  if (!fs) return requireRuntime('isDirectory', 'node');
+  if (!fs) {
+    return requireRuntime('isDirectory', 'node');
+  }
   const pathResult: Result<Path> = safeParse(PathSchema, path);
-  if (!pathResult.ok) return pathResult;
+  if (!pathResult.ok) {
+    return pathResult;
+  }
 
   try {
     const result: Bool = fs.statSync(pathResult.data).isDirectory();
@@ -358,14 +402,20 @@ export function isDirectory(path: Path): Result<Bool> {
  */
 export function getFileMtimeMs(path: Path): Result<NonNegativeNumber> {
   const fs: OptionalNodeFs = nodeFs;
-  if (!fs) return requireRuntime('getFileMtimeMs', 'node');
+  if (!fs) {
+    return requireRuntime('getFileMtimeMs', 'node');
+  }
   const pathResult: Result<Path> = safeParse(PathSchema, path);
-  if (!pathResult.ok) return pathResult;
+  if (!pathResult.ok) {
+    return pathResult;
+  }
 
   try {
-    const mtimeMs: number = fs.statSync(pathResult.data).mtimeMs;
+    const { mtimeMs } = fs.statSync(pathResult.data);
     const result: Result<NonNegativeNumber> = safeParse(NonNegativeNumberSchema, mtimeMs);
-    if (!result.ok) return result;
+    if (!result.ok) {
+      return result;
+    }
     return ok(NonNegativeNumberSchema, result.data);
   } catch (error: unknown) {
     return err(ERRORS.IO.READ_FAILED, {
@@ -395,18 +445,20 @@ export function getFileMtimeMs(path: Path): Result<NonNegativeNumber> {
  */
 export function parseJsonWithComments<T = unknown>(content: FileContent): Result<T> {
   const contentResult: Result<FileContent> = safeParse(FileContentSchema, content);
-  if (!contentResult.ok) return contentResult;
+  if (!contentResult.ok) {
+    return contentResult;
+  }
 
-  const cleaned: Str = contentResult.data.replace(/^\s*\/\/.*$/gm, '');
+  const cleaned: Str = contentResult.data.replaceAll(/^\s*\/\/.*$/gm, '');
 
   try {
     const parsed: unknown = JSON.parse(cleaned);
     // Generic T has no schema — caller is responsible for validating the parsed value
     return okUnchecked<T>(parsed as T);
-  } catch (e: unknown) {
+  } catch (error: unknown) {
     return err(ERRORS.VALIDATION.INVALID_FORMAT, {
       meta: { format: 'JSONC' },
-      cause: fromUnknownError(e),
+      cause: fromUnknownError(error),
     });
   }
 }

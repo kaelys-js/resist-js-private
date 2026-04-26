@@ -221,39 +221,57 @@ describe('getGitInfo', () => {
     let callCount = 0;
     execSyncSafeMock.mockImplementation((): Result<Str> => {
       callCount++;
-      if (callCount === 1) return mockOk('a1b2c3d');
+      if (callCount === 1) {
+        return mockOk('a1b2c3d');
+      }
       return mockErr('IO.EXEC_FAILED');
     });
     const result = getGitInfo();
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('IO.EXEC_FAILED');
+    if (!result.ok) {
+      expect(result.error.code).toBe('IO.EXEC_FAILED');
+    }
   });
 
   it('propagates getGitBranch failure (after short+full succeed)', () => {
     let callCount = 0;
     execSyncSafeMock.mockImplementation((): Result<Str> => {
       callCount++;
-      if (callCount === 1) return mockOk('a1b2c3d');
-      if (callCount === 2) return mockOk('abc1234def5678901234567890abcdef12345678');
+      if (callCount === 1) {
+        return mockOk('a1b2c3d');
+      }
+      if (callCount === 2) {
+        return mockOk('abc1234def5678901234567890abcdef12345678');
+      }
       return mockErr('IO.EXEC_FAILED');
     });
     const result = getGitInfo();
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('IO.EXEC_FAILED');
+    if (!result.ok) {
+      expect(result.error.code).toBe('IO.EXEC_FAILED');
+    }
   });
 
   it('propagates getGitDirty failure (after short+full+branch succeed)', () => {
     let callCount = 0;
     execSyncSafeMock.mockImplementation((): Result<Str> => {
       callCount++;
-      if (callCount === 1) return mockOk('a1b2c3d');
-      if (callCount === 2) return mockOk('abc1234def5678901234567890abcdef12345678');
-      if (callCount === 3) return mockOk('main');
+      if (callCount === 1) {
+        return mockOk('a1b2c3d');
+      }
+      if (callCount === 2) {
+        return mockOk('abc1234def5678901234567890abcdef12345678');
+      }
+      if (callCount === 3) {
+        return mockOk('main');
+      }
       return mockErr('IO.EXEC_FAILED');
     });
     const result = getGitInfo();
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('IO.EXEC_FAILED');
+    if (!result.ok) {
+      expect(result.error.code).toBe('IO.EXEC_FAILED');
+    }
   });
 });
 
