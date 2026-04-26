@@ -15,20 +15,20 @@ describe('GET /api/lens/screenshot/devices', () => {
     expect(response.status).toBe(200);
     expect(response.headers.get('Content-Type')).toBe('application/json');
 
-    const body = await response.json();
+    const body = (await response.json()) as Array<Record<string, unknown>>;
     expect(Array.isArray(body)).toBe(true);
     expect(body.length).toBeGreaterThan(0);
   });
 
   it('each device has name, width, height, scale fields', async () => {
     const response: Response = await GET({} as never);
-    const body = await response.json();
+    const body = (await response.json()) as Array<Record<string, unknown>>;
     const [first] = body;
 
-    expect(typeof first.name).toBe('string');
-    expect(typeof first.width).toBe('number');
-    expect(typeof first.height).toBe('number');
-    expect(typeof first.scale).toBe('number');
+    expect(typeof first?.name).toBe('string');
+    expect(typeof first?.width).toBe('number');
+    expect(typeof first?.height).toBe('number');
+    expect(typeof first?.scale).toBe('number');
   });
 
   it('devices are sorted by name ascending', async () => {

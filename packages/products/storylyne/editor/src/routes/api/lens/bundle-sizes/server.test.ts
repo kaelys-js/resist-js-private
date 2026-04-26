@@ -12,14 +12,14 @@ import type { Num } from '@/schemas/common';
 import { GET } from './+server';
 
 describe('GET /api/lens/bundle-sizes', () => {
-  it('returns 200 with JSON content type', () => {
-    const response: Response = GET({} as never);
+  it('returns 200 with JSON content type', async () => {
+    const response: Response = await GET({} as never);
     expect(response.status).toBe(200);
     expect(response.headers.get('Content-Type')).toBe('application/json');
   }, 30_000);
 
   it('response body is a JSON object with component directories', async () => {
-    const response: Response = GET({} as never);
+    const response: Response = await GET({} as never);
     const body: Record<string, unknown> = await response.json();
     expect(typeof body).toBe('object');
     const keys = Object.keys(body);
@@ -27,7 +27,7 @@ describe('GET /api/lens/bundle-sizes', () => {
   });
 
   it('each entry has compiled and gzip numeric fields', async () => {
-    const response: Response = GET({} as never);
+    const response: Response = await GET({} as never);
     const body: Record<string, { compiled: Num; gzip: Num }> = await response.json();
     const entries = Object.entries(body);
     expect(entries.length).toBeGreaterThan(0);
@@ -41,11 +41,11 @@ describe('GET /api/lens/bundle-sizes', () => {
   });
 
   it('returns cached result on second call', async () => {
-    const response1: Response = GET({} as never);
+    const response1: Response = await GET({} as never);
     const body1: string = await response1.text();
 
     const start = performance.now();
-    const response2: Response = GET({} as never);
+    const response2: Response = await GET({} as never);
     const elapsed = performance.now() - start;
     const body2: string = await response2.text();
 

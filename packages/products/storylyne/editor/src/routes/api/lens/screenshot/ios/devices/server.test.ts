@@ -58,7 +58,7 @@ describe('GET /api/lens/screenshot/ios/devices', () => {
     const { GET } = await load();
     const res = await GET({} as never);
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.available).toBe(false);
     expect(body.error).toBe('Xcode CLI tools not available');
     expect(body.devices).toEqual([]);
@@ -67,7 +67,7 @@ describe('GET /api/lens/screenshot/ios/devices', () => {
   it('returns fresh device list on cache miss', async () => {
     const { GET } = await load();
     const res = await GET({} as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.available).toBe(true);
     expect(body.devices).toEqual(state.devices);
   });
@@ -84,7 +84,7 @@ describe('GET /api/lens/screenshot/ios/devices', () => {
     const { GET } = await load();
     const res = await GET({} as never);
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.available).toBe(false);
     expect(body.error).toBe('simctl broken');
   });
@@ -93,7 +93,7 @@ describe('GET /api/lens/screenshot/ios/devices', () => {
     state.throws = 'oh-no';
     const { GET } = await load();
     const res = await GET({} as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('Failed to list simulator devices');
   });
 });

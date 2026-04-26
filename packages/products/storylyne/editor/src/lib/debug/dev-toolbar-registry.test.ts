@@ -30,7 +30,9 @@ const testConfig: DevtoolsConfig = {
   appPreferencesSchema: prefEntries,
   featureFlagsSchema: flagEntries,
   debugStateSchema: debugEntries,
-  goto: vi.fn(() => {}),
+  goto: vi.fn(async () => {
+    await Promise.resolve();
+  }),
   isValidAppKey: (key: string) => key in prefEntries,
   isValidFeatureFlag: (key: string) => key in flagEntries,
 };

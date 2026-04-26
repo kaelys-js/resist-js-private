@@ -38,7 +38,7 @@ import {
 
 setupLogging({ service: 'editor-client', initFromEnv: true });
 setVitalsLoggerAppName('Storylyne');
-initFetchBreadcrumbs();
+initFetchBreadcrumbs([]);
 setupGlobalErrorHandling({
   release: __APP_VERSION__,
   tags: { branch: __GIT_BRANCH__, side: 'client' },
@@ -51,7 +51,7 @@ setupGlobalErrorHandling({
     // logErrorToConsole never rejects (internal try-catch), safe to ignore promise.
     logErrorToConsole(captured);
     // Beacon PII-stripped error to /api/errors (no-op in dev mode)
-    beaconError(captured);
+    beaconError(captured, '/api/errors' as Str);
   },
 });
 
@@ -94,8 +94,14 @@ function analyticsTracker(options: AnalyticsTrackerOptions): Void {
       isLowEndExperience: navigatorInformation.isLowEndExperience ?? false,
       deviceMemory: navigatorInformation.deviceMemory ?? 0,
       hardwareConcurrency: navigatorInformation.hardwareConcurrency ?? 0,
-      effectiveType: getEffectiveType(),
-      saveData: getSaveData(),
+      effectiveType: ((): Str => {
+        const r = getEffectiveType();
+        return r.ok ? r.data : ('' as Str);
+      })(),
+      saveData: ((): Bool => {
+        const r = getSaveData();
+        return r.ok ? r.data : (false as Bool);
+      })(),
     });
   }
 
@@ -108,14 +114,18 @@ function analyticsTracker(options: AnalyticsTrackerOptions): Void {
   const safeRating: VitalsMetric['rating'] = rating ?? 'good';
 
   // Collect diagnostics for non-good metrics (queries Performance APIs for attribution)
-  const diagnostics: VitalDiagnostics | null = collectDiagnostics(metricName, data, safeRating);
+  const diagnosticsResult = collectDiagnostics(metricName, data, safeRating);
+  // DeepReadonly from safeParse — cast back to mutable shape for downstream consumers.
+  const diagnostics: VitalDiagnostics | null = diagnosticsResult.ok
+    ? (diagnosticsResult.data as VitalDiagnostics | null)
+    : null;
 
   // Log to console (color-coded by rating in dev, warnings-only in prod)
   logVital(metricName, data, safeRating, diagnostics);
 
   // Queue for beacon (flushed on visibilitychange → hidden or at MAX_QUEUE_SIZE)
   queueVital({
-    name: metricName,
+    name: metricName as VitalsMetric['name'],
     value: data,
     rating: safeRating,
     navigationType: navigationType ?? 'navigate',

@@ -15,7 +15,7 @@ describe('GET /api/lens/screenshot/status', () => {
     expect(response.status).toBe(200);
     expect(response.headers.get('Content-Type')).toBe('application/json');
 
-    const body = await response.json();
+    const body = (await response.json()) as Record<string, unknown>;
     expect(body.playwright).toBeDefined();
     expect(body.iosSimulator).toBeDefined();
     expect(body.androidEmulator).toBeDefined();
@@ -23,7 +23,9 @@ describe('GET /api/lens/screenshot/status', () => {
 
   it('playwright is always available', async () => {
     const response: Response = await GET({} as never);
-    const body = await response.json();
+    const body = (await response.json()) as {
+      playwright: { available: boolean; label: string };
+    };
     expect(body.playwright.available).toBe(true);
     expect(body.playwright.label).toBe('Playwright');
   });

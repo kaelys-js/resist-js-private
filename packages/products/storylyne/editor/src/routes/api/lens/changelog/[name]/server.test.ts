@@ -30,7 +30,7 @@ type ChangelogResponse = {
 
 describe('GET /api/lens/changelog/[name]', () => {
   it('returns JSON with entries array for known component', async () => {
-    const response: Response = GET({ params: { name: 'button' } } as never);
+    const response: Response = await GET({ params: { name: 'button' } } as never);
     expect(response.status).toBe(200);
     expect(response.headers.get('Content-Type')).toBe('application/json');
 
@@ -40,7 +40,7 @@ describe('GET /api/lens/changelog/[name]', () => {
   });
 
   it('entries have hash, message, date, author fields', async () => {
-    const response: Response = GET({ params: { name: 'button' } } as never);
+    const response: Response = await GET({ params: { name: 'button' } } as never);
     const body: ChangelogResponse = await response.json();
     const first = body.entries[0]!;
 
@@ -51,20 +51,22 @@ describe('GET /api/lens/changelog/[name]', () => {
   });
 
   it('returns empty entries for nonexistent component', async () => {
-    const response: Response = GET({ params: { name: 'nonexistent-component-xyz' } } as never);
+    const response: Response = await GET({
+      params: { name: 'nonexistent-component-xyz' },
+    } as never);
     const body: ChangelogResponse = await response.json();
     expect(body.entries).toHaveLength(0);
     expect(body.total).toBe(0);
   });
 
   it('returns empty array when name param is empty', async () => {
-    const response: Response = GET({ params: { name: '' } } as never);
+    const response: Response = await GET({ params: { name: '' } } as never);
     const body: unknown[] = await response.json();
     expect(body).toEqual([]);
   });
 
   it('includes repoUrl, componentPath, and diffAnchor in response', async () => {
-    const response: Response = GET({ params: { name: 'button' } } as never);
+    const response: Response = await GET({ params: { name: 'button' } } as never);
     const body: ChangelogResponse = await response.json();
 
     expect(typeof body.repoUrl).toBe('string');
@@ -73,21 +75,23 @@ describe('GET /api/lens/changelog/[name]', () => {
   });
 
   it('caps entries at MAX_ENTRIES (100)', async () => {
-    const response: Response = GET({ params: { name: 'button' } } as never);
+    const response: Response = await GET({ params: { name: 'button' } } as never);
     const body: ChangelogResponse = await response.json();
     expect(body.entries.length).toBeLessThanOrEqual(100);
   });
 
   it('caches repeated calls for the same component', async () => {
     // First call populates cache; second must return same entries array ref-equal contents.
-    const r1: ChangelogResponse = await GET({ params: { name: 'button' } } as never).json();
-    const r2: ChangelogResponse = await GET({ params: { name: 'button' } } as never).json();
+    const resp1 = await GET({ params: { name: 'button' } } as never);
+    const r1: ChangelogResponse = await resp1.json();
+    const resp2 = await GET({ params: { name: 'button' } } as never);
+    const r2: ChangelogResponse = await resp2.json();
     expect(r2.entries).toEqual(r1.entries);
     expect(r2.total).toBe(r1.total);
   });
 
   it('params.name undefined coerces to empty and returns []', async () => {
-    const response: Response = GET({ params: {} } as never);
+    const response: Response = await GET({ params: {} } as never);
     const body: unknown = await response.json();
     expect(body).toEqual([]);
   });
@@ -145,7 +149,7 @@ describe('changelog handler — mocked branches', () => {
         throw new Error('ENOENT');
       },
     });
-    const response = mod.GET({ params: { name: 'x' } } as never);
+    const response = await mod.GET({ params: { name: 'x' } } as never);
     const body: ChangelogResponse = await response.json();
     expect(body.repoUrl).toBe('https://github.com/acme/widgets');
   });
@@ -162,7 +166,7 @@ describe('changelog handler — mocked branches', () => {
         throw new Error('ENOENT');
       },
     });
-    const response = mod.GET({ params: { name: 'x' } } as never);
+    const response = await mod.GET({ params: { name: 'x' } } as never);
     const body: ChangelogResponse = await response.json();
     expect(body.repoUrl).toBe('https://github.com/acme/widgets');
   });
@@ -176,7 +180,7 @@ describe('changelog handler — mocked branches', () => {
         throw new Error('ENOENT');
       },
     });
-    const response = mod.GET({ params: { name: 'x' } } as never);
+    const response = await mod.GET({ params: { name: 'x' } } as never);
     const body: ChangelogResponse = await response.json();
     expect(body.repoUrl).toBe('');
   });
@@ -207,7 +211,7 @@ describe('changelog handler — mocked branches', () => {
         throw new Error('ENOENT');
       },
     });
-    const response = mod.GET({ params: { name: 'ghost' } } as never);
+    const response = await mod.GET({ params: { name: 'ghost' } } as never);
     const body: ChangelogResponse = await response.json();
     expect(body.entries).toEqual([]);
     expect(body.total).toBe(0);
@@ -231,7 +235,7 @@ describe('changelog handler — mocked branches', () => {
         /* exists */
       },
     });
-    const response = mod.GET({ params: { name: 'empty' } } as never);
+    const response = await mod.GET({ params: { name: 'empty' } } as never);
     const body: ChangelogResponse = await response.json();
     expect(body.entries).toEqual([]);
   });
@@ -259,7 +263,7 @@ describe('changelog handler — mocked branches', () => {
       },
       readdirSyncImpl: (): string[] => [],
     });
-    const response = mod.GET({ params: { name: 'c' } } as never);
+    const response = await mod.GET({ params: { name: 'c' } } as never);
     const body: ChangelogResponse = await response.json();
     expect(body.entries).toHaveLength(2);
     expect(body.entries[0]).toEqual({
@@ -296,7 +300,7 @@ describe('changelog handler — mocked branches', () => {
       },
       readdirSyncImpl: (): string[] => [],
     });
-    const response = mod.GET({ params: { name: 'c' } } as never);
+    const response = await mod.GET({ params: { name: 'c' } } as never);
     const body: ChangelogResponse = await response.json();
     expect(body.entries).toHaveLength(1);
     expect(body.entries[0]!.hash).toBe('abc');
@@ -317,7 +321,7 @@ describe('changelog handler — mocked branches', () => {
         /* exists */
       },
     });
-    const response = mod.GET({ params: { name: 'c' } } as never);
+    const response = await mod.GET({ params: { name: 'c' } } as never);
     const body: ChangelogResponse = await response.json();
     expect(body.entries).toEqual([]);
     expect(body.total).toBe(0);
@@ -345,7 +349,7 @@ describe('changelog handler — mocked branches', () => {
       },
       readdirSyncImpl: (): string[] => [],
     });
-    const response = mod.GET({ params: { name: 'c' } } as never);
+    const response = await mod.GET({ params: { name: 'c' } } as never);
     const body: ChangelogResponse = await response.json();
     expect(body.total).toBe(0);
   });
@@ -374,7 +378,7 @@ describe('changelog handler — mocked branches', () => {
         throw new Error('EACCES');
       },
     });
-    const response = mod.GET({ params: { name: 'c' } } as never);
+    const response = await mod.GET({ params: { name: 'c' } } as never);
     const body: ChangelogResponse = await response.json();
     expect(body.diffAnchor).toBe('');
   });
@@ -401,7 +405,7 @@ describe('changelog handler — mocked branches', () => {
       },
       readdirSyncImpl: (): string[] => ['index.ts', 'README.md'],
     });
-    const response = mod.GET({ params: { name: 'c' } } as never);
+    const response = await mod.GET({ params: { name: 'c' } } as never);
     const body: ChangelogResponse = await response.json();
     expect(body.diffAnchor).toBe('');
   });
@@ -428,7 +432,7 @@ describe('changelog handler — mocked branches', () => {
       },
       readdirSyncImpl: (): string[] => ['Other.svelte', 'CopyButton.svelte'],
     });
-    const response = mod.GET({ params: { name: 'copy-button' } } as never);
+    const response = await mod.GET({ params: { name: 'copy-button' } } as never);
     const body: ChangelogResponse = await response.json();
     // SHA-256 is deterministic for 'packages/shared/ui/src/copy-button/CopyButton.svelte'
     const { createHash } = await import('node:crypto');
@@ -460,7 +464,7 @@ describe('changelog handler — mocked branches', () => {
       },
       readdirSyncImpl: (): string[] => ['First.svelte', 'Second.svelte'],
     });
-    const response = mod.GET({ params: { name: 'no-match' } } as never);
+    const response = await mod.GET({ params: { name: 'no-match' } } as never);
     const body: ChangelogResponse = await response.json();
     const { createHash } = await import('node:crypto');
     const expected = createHash('sha256')

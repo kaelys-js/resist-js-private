@@ -147,7 +147,7 @@ describe('ios-debug-proxy', () => {
       vi.stubGlobal('fetch', async (url: string): Promise<Response> => {
         await Promise.resolve();
         if (state.fetchImpl) {
-          return state.fetchImpl(url);
+          return state.fetchImpl(url) as Promise<Response>;
         }
         throw new Error('no fetch');
       });

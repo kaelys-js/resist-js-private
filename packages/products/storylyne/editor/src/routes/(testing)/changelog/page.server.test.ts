@@ -14,7 +14,7 @@ import type * as NodeFsModule from 'node:fs';
 
 describe('(testing)/changelog +page.server load — real repo', () => {
   it('returns groups array with changelog entries', () => {
-    const result = (load as (event: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (load as unknown as (event: Record<string, unknown>) => unknown)({}) as ChangelogData;
     expect(result.groups).toBeDefined();
     expect(Array.isArray(result.groups)).toBe(true);
     expect(result.groups.length).toBeGreaterThan(0);
@@ -22,7 +22,7 @@ describe('(testing)/changelog +page.server load — real repo', () => {
   });
 
   it('each entry has hash, message, author, date, components fields', () => {
-    const result = (load as (event: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (load as unknown as (event: Record<string, unknown>) => unknown)({}) as ChangelogData;
     const first = result.groups[0]!.entries[0]!;
     expect(first.hash).toBeTruthy();
     expect(first.message).toBeTruthy();
@@ -33,7 +33,7 @@ describe('(testing)/changelog +page.server load — real repo', () => {
   });
 
   it('entries are grouped by date', () => {
-    const result = (load as (event: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (load as unknown as (event: Record<string, unknown>) => unknown)({}) as ChangelogData;
     for (const group of result.groups) {
       expect(group.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(group.entries.length).toBeGreaterThan(0);
@@ -41,7 +41,7 @@ describe('(testing)/changelog +page.server load — real repo', () => {
   });
 
   it('repoUrl is a non-empty string', () => {
-    const result = (load as (event: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (load as unknown as (event: Record<string, unknown>) => unknown)({}) as ChangelogData;
     expect(typeof result.repoUrl).toBe('string');
     expect(result.repoUrl.length).toBeGreaterThan(0);
   });
@@ -118,7 +118,7 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       throw new Error('git not found');
     };
     const mod = await loadMocked();
-    const result = (mod.load as (event: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (mod.load as unknown as (event: Record<string, unknown>) => unknown)({}) as ChangelogData;
     expect(result.groups).toEqual([]);
     expect(result.total).toBe(0);
     expect(result.repoUrl).toBe('https://github.com/acme/widgets');
@@ -140,7 +140,7 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       return bodyLog;
     };
     const mod = await loadMocked();
-    const result = (mod.load as (event: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (mod.load as unknown as (event: Record<string, unknown>) => unknown)({}) as ChangelogData;
     expect(result.repoUrl).toBe('https://github.com/foo/bar');
     expect(result.total).toBe(1);
     expect(result.groups[0]!.date).toBe('2025-01-05');
@@ -161,7 +161,7 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       return '';
     };
     const mod = await loadMocked();
-    const result = (mod.load as (event: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (mod.load as unknown as (event: Record<string, unknown>) => unknown)({}) as ChangelogData;
     expect(result.repoUrl).toBe('https://github.com/x/y');
   });
 
@@ -175,8 +175,8 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       return '';
     };
     const mod = await loadMocked();
-    (mod.load as (e: Record<string, unknown>) => unknown)({});
-    (mod.load as (e: Record<string, unknown>) => unknown)({});
+    (mod.load as unknown as (e: Record<string, unknown>) => unknown)({});
+    (mod.load as unknown as (e: Record<string, unknown>) => unknown)({});
     expect(remoteCalls).toBe(1);
   });
 
@@ -188,7 +188,7 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       return '';
     };
     const mod = await loadMocked();
-    const result = (mod.load as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (mod.load as unknown as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
     expect(result.repoUrl).toBe('');
   });
 
@@ -208,7 +208,7 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       return '';
     };
     const mod = await loadMocked();
-    const result = (mod.load as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (mod.load as unknown as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
     expect(result.total).toBe(1);
     expect(result.groups[0]!.entries[0]!.hash).toBe('def456');
   });
@@ -229,7 +229,7 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       return '';
     };
     const mod = await loadMocked();
-    const result = (mod.load as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (mod.load as unknown as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
     expect(result.total).toBe(1);
     expect(result.groups[0]!.entries[0]!.components).toEqual(['icon']);
   });
@@ -248,7 +248,7 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       throw new Error('body fetch fail');
     };
     const mod = await loadMocked();
-    const result = (mod.load as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (mod.load as unknown as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
     expect(result.total).toBe(1);
     expect(result.groups[0]!.entries[0]!.body).toBe('');
   });
@@ -270,7 +270,7 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       return bodyLog;
     };
     const mod = await loadMocked();
-    const result = (mod.load as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (mod.load as unknown as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
     const all = result.groups.flatMap((g) => g.entries);
     const aEntry = all.find((e) => e.hash === 'aaa');
     const bEntry = all.find((e) => e.hash === 'bbb');
@@ -294,7 +294,7 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       return '';
     };
     const mod = await loadMocked();
-    const result = (mod.load as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (mod.load as unknown as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
     const all = result.groups.flatMap((g) => g.entries);
     expect(all.find((e) => e.hash === 'h1')?.isNew).toBe(false);
     expect(all.find((e) => e.hash === 'h2')?.isNew).toBe(true);
@@ -318,7 +318,7 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       return '';
     };
     const mod = await loadMocked();
-    const result = (mod.load as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (mod.load as unknown as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
     expect(result.groups.map((g) => g.date)).toEqual(['2025-04-03', '2025-04-01']);
     expect(result.groups[1]!.entries).toHaveLength(2);
   });
@@ -339,7 +339,7 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       return '';
     };
     const mod = await loadMocked();
-    const result = (mod.load as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
+    const result = (mod.load as unknown as (e: Record<string, unknown>) => unknown)({}) as ChangelogData;
     expect(result.groups[0]!.entries[0]!.components).toEqual(['alpha', 'mango', 'zebra']);
   });
 });

@@ -35,8 +35,10 @@
     /** Additional CSS classes for the root element. */
     class: v.optional(StrSchema),
   });
-  /** Props for the LensSource component. */
-  export type LensSourceProps = v.InferOutput<typeof LensSourcePropsSchema>;
+  /** Caller-visible props (input shape — defaults are optional). */
+  export type LensSourceProps = v.InferInput<typeof LensSourcePropsSchema>;
+  /** Validated props (post-default). */
+  export type LensSourcePropsValidated = v.InferOutput<typeof LensSourcePropsSchema>;
 </script>
 
 <script lang="ts">
@@ -48,14 +50,14 @@
   import CodeBlock from '../code-block/CodeBlock.svelte';
 
   const { ...restProps }: LensSourceProps = $props();
-  const validated: LensSourceProps = $derived.by(() => {
+  const validated: LensSourcePropsValidated = $derived.by(() => {
     const rawProps: LensSourceProps = stripSvelteProps(restProps);
     const result = safeParse(LensSourcePropsSchema, rawProps);
     if (!result.ok) {
       throw result.error;
     }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
-    return result.data as LensSourceProps;
+    return result.data as LensSourcePropsValidated;
   });
 
   /** Resolved display title — uses title prop or PascalCase of name. */

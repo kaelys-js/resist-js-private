@@ -140,7 +140,9 @@ const testConfig: DevtoolsConfig = {
   >,
   featureFlagsSchema: FeatureFlagsSchema.entries as unknown as Record<Str, Record<Str, unknown>>,
   debugStateSchema: DebugStateSchema.entries as unknown as Record<Str, Record<Str, unknown>>,
-  goto: vi.fn(() => {}),
+  goto: vi.fn(async () => {
+    await Promise.resolve();
+  }),
   isValidAppKey: (key: Str) =>
     key in (AppPreferencesSchema.entries as unknown as Record<Str, unknown>),
   isValidFeatureFlag: (key: Str) =>

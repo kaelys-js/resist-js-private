@@ -15,7 +15,10 @@
     /** When true, the kbd badge is always visible instead of hidden on mobile. @values true, false */
     shortcutAlwaysVisible: v.optional(BoolSchema, false),
   });
-  export type TooltipLabelProps = v.InferOutput<typeof TooltipLabelPropsSchema>;
+  /** Caller-visible props (defaults are optional). */
+  export type TooltipLabelProps = v.InferInput<typeof TooltipLabelPropsSchema>;
+  /** Validated props (post-default — every field present). */
+  export type TooltipLabelPropsValidated = v.InferOutput<typeof TooltipLabelPropsSchema>;
 </script>
 
 <script lang="ts">
@@ -30,14 +33,14 @@
   import { stripSvelteProps } from '../lens/lens-utils.js';
 
   const { ...restProps }: TooltipLabelProps = $props();
-  const validated: TooltipLabelProps = $derived.by(() => {
+  const validated: TooltipLabelPropsValidated = $derived.by(() => {
     const rawProps: TooltipLabelProps = stripSvelteProps(restProps);
     const result = safeParse(TooltipLabelPropsSchema, rawProps);
     if (!result.ok) {
       throw result.error;
     }
     // DeepReadonly from safeParse is safe to cast — props are read-only in templates
-    return result.data as TooltipLabelProps;
+    return result.data as TooltipLabelPropsValidated;
   });
 </script>
 

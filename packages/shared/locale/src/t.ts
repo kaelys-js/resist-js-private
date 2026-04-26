@@ -16,11 +16,25 @@ import type { Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 
 /**
+ * Locale function shape accepted by {@link t}.
+ *
+ * The locale-registry type pipeline emits two callable forms depending on
+ * whether the source string has interpolation placeholders:
+ * - parameter-less keys → `() => Result<Str>`
+ * - keys with placeholders → `(params: { …namedFields }) => Result<Str>`
+ * - DeepReadonly normalisation can also collapse parameter-less keys to
+ *   `(params: { [x: string]: never }) => Result<Str>`
+ *
+ * Accepting all three lets call sites pass any locale function without casts.
+ */
+type LocaleFn = (() => Result<Str>) | ((params: { [k: string]: never }) => Result<Str>);
+
+/**
  * Convenience helper — calls a locale function and returns the string,
  * falling back to the provided default if the Result is an error.
  * Works around DeepReadonly type mangling on BuiltLocale function signatures.
  *
- * @param {() => Result<Str>} fn - Locale function from `localeStore.t.*.*`
+ * @param {LocaleFn} fn - Locale function from `localeStore.t.*.*`
  * @param {Str} fallback - Default string if the locale function returns an error
  * @returns {Str} The translated string, or the fallback
  *
@@ -29,7 +43,7 @@ import { safeParse } from '@/utils/result/safe';
  * const label: Str = t(localeStore.t.common.settings, 'Settings');
  * ```
  */
-export function t(fn: () => Result<Str>, fallback: Str): Str {
+export function t(fn: LocaleFn, fallback: Str): Str {
   const fallbackResult: Result<Str> = safeParse(StrSchema, fallback);
 
   if (!fallbackResult.ok) {
@@ -37,8 +51,11 @@ export function t(fn: () => Result<Str>, fallback: Str): Str {
     return fallback;
   }
 
-  // DeepReadonly mangles locale function signatures — cast to callable form
-  const result: Result<Str> = fn();
+  // DeepReadonly mangles locale function signatures — cast to callable form.
+  // Both LocaleFn variants accept zero args at runtime; the never-keyed param
+  // shape can never be satisfied with any concrete value, so passing nothing
+  // is the only legal call form.
+  const result: Result<Str> = (fn as () => Result<Str>)();
 
   if (!result.ok) {
     // integration boundary: t() is the designated error-to-string fallback point

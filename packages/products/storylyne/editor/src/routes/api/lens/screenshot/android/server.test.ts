@@ -156,7 +156,7 @@ describe('GET /api/lens/screenshot/android', () => {
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('Install Android Studio');
     expect(body.installed).toBe(false);
   });
@@ -165,7 +165,7 @@ describe('GET /api/lens/screenshot/android', () => {
     const { GET } = await load();
     const res = await GET(makeEvent('') as never);
     expect(res.status).toBe(400);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('Missing required "component" parameter');
   });
 
@@ -174,7 +174,7 @@ describe('GET /api/lens/screenshot/android', () => {
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('Failed to boot Android emulator with AVD "Medium_Phone_API_35"');
   });
 
@@ -183,7 +183,7 @@ describe('GET /api/lens/screenshot/android', () => {
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('boot failed');
   });
 
@@ -191,7 +191,7 @@ describe('GET /api/lens/screenshot/android', () => {
     state.acquireThrows = 'oops';
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('Android Emulator screenshot failed');
   });
 
@@ -201,7 +201,7 @@ describe('GET /api/lens/screenshot/android', () => {
     expect(res.status).toBe(200);
     expect(res.headers.get('Content-Type')).toBe('application/json');
     expect(res.headers.get('Cache-Control')).toBe('no-cache');
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.source).toBe('android-emulator');
     expect(body.browser).toBe('chrome-mobile');
     expect(body.device).toBe('Medium_Phone_API_35');
@@ -217,7 +217,7 @@ describe('GET /api/lens/screenshot/android', () => {
       ) as never,
     );
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.device).toBe('Pixel_9_API_35');
   });
 
@@ -226,7 +226,7 @@ describe('GET /api/lens/screenshot/android', () => {
     state.consoleLogs = [{ level: 'warning', text: 'yo', source: 'console-api' }];
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.consoleLogs).toEqual([{ level: 'warning', message: 'yo', source: 'console-api' }]);
   });
 
@@ -235,7 +235,7 @@ describe('GET /api/lens/screenshot/android', () => {
     state.cdpFetchTargets = [{ type: 'page', webSocketDebuggerUrl: 'ws://x' }];
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.consoleLogs).toEqual([]);
   });
 
@@ -243,7 +243,7 @@ describe('GET /api/lens/screenshot/android', () => {
     state.cdpFetchThrows = true;
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.consoleLogs).toEqual([]);
   });
 
@@ -251,7 +251,7 @@ describe('GET /api/lens/screenshot/android', () => {
     state.cdpFetchTargets = [{ type: 'worker' }];
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.consoleLogs).toEqual([]);
   });
 
@@ -259,7 +259,7 @@ describe('GET /api/lens/screenshot/android', () => {
     state.deviceFrame = { framePath: 'pixel-9', screenRegion: { x: 10 } };
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button&avd=Pixel_9_API_35') as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.deviceFrame).toEqual({ frameId: 'pixel-9', screenRegion: { x: 10 } });
   });
 
@@ -267,7 +267,7 @@ describe('GET /api/lens/screenshot/android', () => {
     state.deviceFrame = null;
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect('deviceFrame' in body).toBe(false);
   });
 });

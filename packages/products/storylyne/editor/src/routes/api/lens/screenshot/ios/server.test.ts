@@ -147,7 +147,7 @@ describe('GET /api/lens/screenshot/ios', () => {
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toMatch(/Xcode CLI tools not available/);
   });
 
@@ -155,7 +155,7 @@ describe('GET /api/lens/screenshot/ios', () => {
     const { GET } = await load();
     const res = await GET(makeEvent('') as never);
     expect(res.status).toBe(400);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('Missing required "component" parameter');
   });
 
@@ -164,7 +164,7 @@ describe('GET /api/lens/screenshot/ios', () => {
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toMatch(/No iOS Simulator devices available/);
   });
 
@@ -172,7 +172,7 @@ describe('GET /api/lens/screenshot/ios', () => {
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button&device=Nope+Phone') as never);
     expect(res.status).toBe(400);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('Unknown iOS Simulator device "Nope Phone"');
   });
 
@@ -182,14 +182,14 @@ describe('GET /api/lens/screenshot/ios', () => {
     expect(res.status).toBe(200);
     expect(res.headers.get('Content-Type')).toBe('application/json');
     expect(res.headers.get('Cache-Control')).toBe('no-cache');
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.source).toBe('ios-simulator');
     expect(body.browser).toBe('safari');
     expect(body.device).toBe('iPhone 17 Pro');
     expect(body.deviceOS).toBe('iOS 18.0');
     expect(body.debugProxyAvailable).toBe(false);
     expect(typeof body.image).toBe('string');
-    expect(body.image.length).toBeGreaterThan(0);
+    expect((body.image as string).length).toBeGreaterThan(0);
   });
 
   it('passes through s, variant, option, device query params', async () => {
@@ -200,7 +200,7 @@ describe('GET /api/lens/screenshot/ios', () => {
       ) as never,
     );
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.device).toBe('iPad Pro 13-inch');
   });
 
@@ -214,7 +214,7 @@ describe('GET /api/lens/screenshot/ios', () => {
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.debugProxyAvailable).toBe(true);
     expect(body.consoleLogs).toEqual([{ level: 'info', text: 'hi', source: 'console-api' }]);
   });
@@ -225,7 +225,7 @@ describe('GET /api/lens/screenshot/ios', () => {
     state.consoleLogs = [{ level: 'error', text: 'would-not-surface', source: 'console-api' }];
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.debugProxyAvailable).toBe(true);
     expect(body.consoleLogs).toEqual([]);
   });
@@ -234,7 +234,7 @@ describe('GET /api/lens/screenshot/ios', () => {
     state.safeAreaInsets = { top: 47, bottom: 34, left: 0, right: 0 };
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.safeAreaInsets).toEqual({ top: 47, bottom: 34, left: 0, right: 0 });
   });
 
@@ -242,7 +242,7 @@ describe('GET /api/lens/screenshot/ios', () => {
     state.safeAreaInsets = null;
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect('safeAreaInsets' in body).toBe(false);
   });
 
@@ -250,7 +250,7 @@ describe('GET /api/lens/screenshot/ios', () => {
     state.deviceFrame = { framePath: 'iphone-17-pro', screenRegion: { x: 0, y: 0 } };
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.deviceFrame).toEqual({
       frameId: 'iphone-17-pro',
       screenRegion: { x: 0, y: 0 },
@@ -262,7 +262,7 @@ describe('GET /api/lens/screenshot/ios', () => {
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('pool exhausted');
   });
 
@@ -271,7 +271,7 @@ describe('GET /api/lens/screenshot/ios', () => {
     const { GET } = await load();
     const res = await GET(makeEvent('?component=button') as never);
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('iOS Simulator screenshot failed');
   });
 });

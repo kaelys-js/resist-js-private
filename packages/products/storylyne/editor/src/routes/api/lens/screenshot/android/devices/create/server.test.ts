@@ -90,7 +90,7 @@ describe('POST /api/lens/screenshot/android/devices/create', () => {
     const { POST } = await load();
     const res = await POST(makeEvent('bad') as never);
     expect(res.status).toBe(400);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('Invalid JSON body');
   });
 
@@ -98,7 +98,7 @@ describe('POST /api/lens/screenshot/android/devices/create', () => {
     const { POST } = await load();
     const res = await POST(makeEvent({}) as never);
     expect(res.status).toBe(400);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('deviceId is required');
   });
 
@@ -111,7 +111,7 @@ describe('POST /api/lens/screenshot/android/devices/create', () => {
     const { POST } = await load();
     const res = await POST(makeEvent({ deviceId: 'pixel_9' }) as never);
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('Install Android SDK');
   });
 
@@ -120,7 +120,7 @@ describe('POST /api/lens/screenshot/android/devices/create', () => {
     const { POST } = await load();
     const res = await POST(makeEvent({ deviceId: 'pixel_9' }) as never);
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toMatch(/No system images/);
   });
 
@@ -128,7 +128,7 @@ describe('POST /api/lens/screenshot/android/devices/create', () => {
     const { POST } = await load();
     const res = await POST(makeEvent({ deviceId: 'pixel_9' }) as never);
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.name).toBe('Pixel_9_API_35');
     expect(body.deviceId).toBe('pixel_9');
   });
@@ -138,7 +138,7 @@ describe('POST /api/lens/screenshot/android/devices/create', () => {
     const { POST } = await load();
     const res = await POST(makeEvent({ deviceId: 'pixel_9' }) as never);
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('avdmanager failed');
   });
 
@@ -146,7 +146,7 @@ describe('POST /api/lens/screenshot/android/devices/create', () => {
     state.createThrows = 'x';
     const { POST } = await load();
     const res = await POST(makeEvent({ deviceId: 'pixel_9' }) as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('Failed to create AVD');
   });
 });

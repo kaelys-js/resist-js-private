@@ -88,7 +88,7 @@ describe('GET /api/lens/screenshot/android/devices', () => {
     const { GET } = await load();
     const res = await GET({} as never);
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.available).toBe(false);
     expect(body.error).toBe('Install Android SDK');
     expect(body.devices).toEqual([]);
@@ -98,7 +98,7 @@ describe('GET /api/lens/screenshot/android/devices', () => {
     const { GET } = await load();
     const res = await GET({} as never);
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.available).toBe(true);
     expect(body.devices).toEqual(state.profiles);
     expect(body.systemImages).toEqual(state.systemImages);
@@ -116,7 +116,7 @@ describe('GET /api/lens/screenshot/android/devices', () => {
     const { GET } = await load();
     const res = await GET({} as never);
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.available).toBe(false);
     expect(body.error).toBe('emulator missing');
   });
@@ -125,7 +125,7 @@ describe('GET /api/lens/screenshot/android/devices', () => {
     state.profilesThrows = 42;
     const { GET } = await load();
     const res = await GET({} as never);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.error).toBe('Failed to list Android devices');
   });
 });

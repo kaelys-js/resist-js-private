@@ -122,7 +122,7 @@ describe('POST /api/errors', () => {
 
   it('includes error id in log message', async () => {
     const payload: BeaconPayload = makeValidPayload({
-      id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' as Str,
+      id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' as never,
     });
     await POST({ request: makeRequest(payload) } as never);
 
