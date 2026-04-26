@@ -7,15 +7,21 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { readFileSync } from 'node:fs';
 import {
   mapEntryToDiagnostic,
   lintDocument,
   clearExcludeCache,
+  isExcludedPath,
+  lintWorkspace,
   type DiagnosticWithData,
+  type LintProgress,
 } from './provider';
 import * as vscode from 'vscode';
 import type { DiagnosticEntry, RunOptions } from '../shared/types';
 import { DIAGNOSTIC_SOURCE } from '../shared/brand';
+import { getBinaryPath, getWorkspaceRoot } from '../shared/workspace';
+import { logError } from '../shared/output';
 
 function createMockDocument(
   lines: string[] = ['const x = 1;', 'const y = 2;'],
@@ -378,9 +384,6 @@ describe('lintDocument — stdin mode', () => {
 // isExcludedPath & loadExcludeNames
 // =============================================================================
 
-import { isExcludedPath } from './provider';
-import { readFileSync } from 'node:fs';
-
 describe('isExcludedPath and loadExcludeNames', () => {
   const mockedReadFileSync = vi.mocked(readFileSync);
 
@@ -488,9 +491,6 @@ describe('isExcludedPath and loadExcludeNames', () => {
 // lintDocument — error and state paths
 // =============================================================================
 
-import { getBinaryPath, getWorkspaceRoot } from '../shared/workspace';
-import { logError } from '../shared/output';
-
 describe('lintDocument — error and state paths', () => {
   let mockDocument: vscode.TextDocument;
   let mockCollection: vscode.DiagnosticCollection;
@@ -537,12 +537,19 @@ describe('lintDocument — error and state paths', () => {
       getWordRangeAtPosition: (pos: vscode.Position) => {
         const lineText = lines[pos.line] ?? '';
 
-        if (lineText.length === 0) return;
+        if (lineText.length === 0) {
+          return;
+        }
+
         let end = pos.character;
 
-        while (end < lineText.length && lineText[end] !== ' ') end++;
+        while (end < lineText.length && lineText[end] !== ' ') {
+          end++;
+        }
 
-        if (end === pos.character) return;
+        if (end === pos.character) {
+          return;
+        }
         return new vscode.Range(pos.line, pos.character, pos.line, end);
       },
       isUntitled: false,
@@ -880,8 +887,6 @@ describe('appendConfigArgs via lintDocument', () => {
 // lintWorkspace
 // =============================================================================
 
-import { lintWorkspace, type LintProgress } from './provider';
-
 describe('lintWorkspace', () => {
   let mockCollection: vscode.DiagnosticCollection;
   let mockChannel: vscode.OutputChannel;
@@ -1100,7 +1105,7 @@ describe('lintWorkspace', () => {
     await lintWorkspace(mockCollection, mockChannel, mockStateManager as never, {}, mockProgress);
 
     const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
-    expect(options.args[options.args.length - 1]).toBe('.');
+    expect(options.args.at(-1)).toBe('.');
   });
 
   it('uses 120s timeout for workspace lint', async () => {
@@ -1246,7 +1251,7 @@ describe('lintWorkspace', () => {
         throw new Error('lineAt exploded');
       },
       positionAt: () => new vscode.Position(0, 0),
-      getWordRangeAtPosition: () => undefined,
+      getWordRangeAtPosition: () => {},
       isUntitled: false,
     } as unknown as vscode.TextDocument;
 
@@ -1353,18 +1358,18 @@ describe('lintDocument — untitled language extensions', () => {
     ['mdx', 'untitled.mdx'],
   ];
 
-  for (const [languageId, expectedFilename] of supportedLanguages) {
-    it(`generates synthetic filename "${expectedFilename}" for ${languageId}`, async () => {
-      const doc = createUntitledDoc(languageId);
+  it.each(
+    supportedLanguages,
+  )('generates synthetic filename for %s', async (languageId: string, expectedFilename: string) => {
+    const doc = createUntitledDoc(languageId);
 
-      await lintDocument(doc, mockCollection, mockChannel, mockStateManager as never, {});
+    await lintDocument(doc, mockCollection, mockChannel, mockStateManager as never, {});
 
-      expect(mockRunToolJson).toHaveBeenCalledTimes(1);
-      const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
-      const stdinFlag = options.args.find((a: string) => a.startsWith('--stdin-filename='));
-      expect(stdinFlag).toBe(`--stdin-filename=${expectedFilename}`);
-    });
-  }
+    expect(mockRunToolJson).toHaveBeenCalledTimes(1);
+    const options: RunOptions = mockRunToolJson.mock.calls[0]![0] as RunOptions;
+    const stdinFlag = options.args.find((a: string) => a.startsWith('--stdin-filename='));
+    expect(stdinFlag).toBe(`--stdin-filename=${expectedFilename}`);
+  });
 
   it('skips untitled doc with unsupported language (e.g. "json")', async () => {
     const doc = createUntitledDoc('json');

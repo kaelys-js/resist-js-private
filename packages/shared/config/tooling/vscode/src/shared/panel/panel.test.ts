@@ -29,9 +29,13 @@ let outputChannel: vscode.OutputChannel;
 /**
  * Retrieves the registered handler for a given command ID from the
  * vscode.commands.registerCommand mock calls.
+ *
+ * @param commandId - The command id whose handler to retrieve.
+ * @returns The handler arrow registered via registerCommand for that id.
  */
 function getCommandHandler(commandId: string): (...args: unknown[]) => Promise<void> {
-  const calls = (vscode.commands.registerCommand as ReturnType<typeof vi.fn>).mock.calls;
+  const mockFn = vscode.commands.registerCommand as ReturnType<typeof vi.fn>;
+  const { calls } = mockFn.mock;
   const match = calls.find((c) => c[0] === commandId);
 
   if (!match) {
@@ -44,6 +48,8 @@ function getCommandHandler(commandId: string): (...args: unknown[]) => Promise<v
 
 /**
  * Retrieves the mock TreeView object returned by vscode.window.createTreeView.
+ *
+ * @returns The mock TreeView from the first createTreeView call.
  */
 function getTreeView(): ReturnType<typeof vscode.window.createTreeView> {
   return (vscode.window.createTreeView as ReturnType<typeof vi.fn>).mock.results[0]!
@@ -52,6 +58,10 @@ function getTreeView(): ReturnType<typeof vscode.window.createTreeView> {
 
 /**
  * Creates a DiagnosticDetailItem for command handler tests.
+ *
+ * @param code - Optional Diagnostic.code value to attach to the fixture.
+ * @param data - Optional `data` payload to attach to the underlying Diagnostic.
+ * @returns A populated DiagnosticDetailItem fixture for /test/file.ts.
  */
 function makeDiagnosticDetailItem(
   code?: string | number | { value: string; target: vscode.Uri },
@@ -529,6 +539,7 @@ describe('panelAutoFix command', () => {
 
     const editReplaceSpy = vi.fn();
     const editSpy = vi.fn(async (callback: (builder: unknown) => void) => {
+      await Promise.resolve();
       callback({ replace: editReplaceSpy });
     });
 

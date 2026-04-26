@@ -162,7 +162,9 @@ describe('createFileWatcher', () => {
 
     onDidChangeCallback!();
 
-    for (const d of disposables) d.dispose();
+    for (const d of disposables) {
+      d.dispose();
+    }
 
     vi.advanceTimersByTime(600);
     expect(callback).not.toHaveBeenCalled();
@@ -354,7 +356,9 @@ describe('createBatchedFileWatcher', () => {
 
     onDidChangeCallback!(vscode.Uri.file('/src/a.ts'));
 
-    for (const d of disposables) d.dispose();
+    for (const d of disposables) {
+      d.dispose();
+    }
 
     vi.advanceTimersByTime(300);
     expect(callback).not.toHaveBeenCalled();

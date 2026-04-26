@@ -10,13 +10,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Branches that are exempt from prefix matching. */
-const EXEMPT_BRANCHES: readonly string[] = [
-  'main',
-  'master',
-  'develop',
-  'staging',
-  'production',
-];
+const EXEMPT_BRANCHES: readonly string[] = ['main', 'master', 'develop', 'staging', 'production'];
 
 /** Branch name prefix must appear in commit messages. */
 const rule: WorkspaceRule = {
