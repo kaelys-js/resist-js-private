@@ -29,7 +29,10 @@ vi.mock('$app/environment', () => ({
 }));
 
 vi.mock('$lib/server/simulator/android-sdk', () => ({
-  checkAndroidSdk: vi.fn(async () => { await Promise.resolve(); return state.sdkStatus; }),
+  checkAndroidSdk: vi.fn(async () => {
+    await Promise.resolve();
+    return state.sdkStatus;
+  }),
 }));
 
 vi.mock('$lib/server/simulator/android-devices', () => ({
@@ -39,7 +42,10 @@ vi.mock('$lib/server/simulator/android-devices', () => ({
     }
     return state.profiles;
   }),
-  listSystemImages: vi.fn(async () => { await Promise.resolve(); return state.systemImages; }),
+  listSystemImages: vi.fn(async () => {
+    await Promise.resolve();
+    return state.systemImages;
+  }),
 }));
 
 async function load() {

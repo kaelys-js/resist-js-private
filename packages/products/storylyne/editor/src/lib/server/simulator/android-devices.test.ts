@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { Bool, Num, Str } from '@/schemas/common';
+import type { Bool, Str } from '@/schemas/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   type AndroidDevice,
@@ -542,7 +542,7 @@ describe('android-devices', () => {
         execFileImpl: (_file, args, cb) => {
           invokedArgs = args;
           cb(null, { stdout: '', stderr: '' });
-          return { stdin: { write: () => true, end: () => undefined } };
+          return { stdin: { write: () => true, end: () => {} } };
         },
       });
       const name: Str = await mod.createAvd(
@@ -561,7 +561,7 @@ describe('android-devices', () => {
       const mod = await loadWithExec({
         execFileImpl: (_file, _args, cb) => {
           cb(null, { stdout: '', stderr: '' });
-          return { stdin: { write: () => true, end: () => undefined } };
+          return { stdin: { write: () => true, end: () => {} } };
         },
       });
       const name: Str = await mod.createAvd(
@@ -576,7 +576,7 @@ describe('android-devices', () => {
       const mod = await loadWithExec({
         execFileImpl: (_file, _args, cb) => {
           cb(new Error('creation failed'));
-          return { stdin: { write: () => true, end: () => undefined } };
+          return { stdin: { write: () => true, end: () => {} } };
         },
       });
       await expect(

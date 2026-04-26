@@ -35,7 +35,7 @@ describe('GET /api/lens/screenshot/devices', () => {
     const response: Response = await GET({} as never);
     const body: Array<{ name: string }> = await response.json();
     const names: string[] = body.map((d): string => d.name);
-    const sorted: string[] = [...names].sort((a: string, b: string): number => a.localeCompare(b));
+    const sorted: string[] = names.toSorted((a: string, b: string): number => a.localeCompare(b));
     expect(names).toEqual(sorted);
   });
 

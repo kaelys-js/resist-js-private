@@ -25,8 +25,7 @@ vi.mock('node:child_process', () => {
     }
     if (next.error) {
       cb(next.error);
-    }
-    else {
+    } else {
       cb(null, { stdout: next.stdout ?? '', stderr: '' });
     }
     return null;
@@ -111,9 +110,16 @@ describe('ios-lifecycle (mocked)', () => {
       stdout: JSON.stringify({ devices: { 'iOS-17': [{ udid: 'UDID', state: 'Shutdown' }] } }),
     }));
     const mod = await load();
-    const p = mod.waitForBoot('UDID' as Str, 1 as Num).catch((e: Error) => e);
+    const p: Promise<Error> = (async (): Promise<Error> => {
+      try {
+        await mod.waitForBoot('UDID' as Str, 1 as Num);
+        return new Error('expected throw');
+      } catch (error: unknown) {
+        return error as Error;
+      }
+    })();
     await vi.advanceTimersByTimeAsync(500);
-    const result: Error = (await p) as Error;
+    const result: Error = await p;
     expect(result).toBeInstanceOf(Error);
     expect(result.message).toMatch(/did not boot/);
   });

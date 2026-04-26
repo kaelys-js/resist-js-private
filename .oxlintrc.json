@@ -663,7 +663,9 @@
         "no-extraneous-class": "off",
         "no-constructor-return": "off",
         "unicorn/prefer-event-target": "off",
-        "vitest/hoisted-apis-on-top": "off"
+        "vitest/hoisted-apis-on-top": "off",
+        "require-await": "off",
+        "unicorn/prefer-await-to-then": "off"
       }
     }
   ]

@@ -54,17 +54,17 @@ describe('app-navigation mock', () => {
   });
 
   it('beforeNavigate returns undefined and accepts a callback', () => {
-    const result = beforeNavigate(() => undefined);
+    const result = beforeNavigate(() => {});
     expect(result).toBeUndefined();
   });
 
   it('afterNavigate returns undefined and accepts a callback', () => {
-    const result = afterNavigate(() => undefined);
+    const result = afterNavigate(() => {});
     expect(result).toBeUndefined();
   });
 
   it('onNavigate returns undefined and accepts a callback', () => {
-    const result = onNavigate(() => undefined);
+    const result = onNavigate(() => {});
     expect(result).toBeUndefined();
   });
 

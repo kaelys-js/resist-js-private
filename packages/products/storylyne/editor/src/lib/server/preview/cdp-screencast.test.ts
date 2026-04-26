@@ -111,7 +111,7 @@ describe('CdpScreencastProvider', (): void => {
 
     // Should send binary data
     expect(ws.send).toHaveBeenCalled();
-    const sentData = ws.send.mock.calls[0]![0];
+    const [sentData] = ws.send.mock.calls[0]!;
     expect(sentData).toBeInstanceOf(Buffer);
   });
 

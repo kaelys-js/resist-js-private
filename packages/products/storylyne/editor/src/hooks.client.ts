@@ -182,12 +182,13 @@ function extractSource(stack: Str): SourceLocation {
     if (urlMatch) {
       const [, origin, rawUrlPath, lineNo, colNo] = urlMatch;
       // Strip query string (e.g., ?t=1772535466719)
-      const qIdx: Num = rawUrlPath!.indexOf('?');
-      const urlPath: Str = qIdx >= 0 ? rawUrlPath!.slice(0, qIdx) : rawUrlPath!;
+      const safeRawUrlPath: Str = rawUrlPath ?? '';
+      const qIdx: Num = safeRawUrlPath.indexOf('?');
+      const urlPath: Str = qIdx >= 0 ? safeRawUrlPath.slice(0, qIdx) : safeRawUrlPath;
       // Build clickable URL (strip query string but keep origin + path + line:col)
       const clickableUrl: Str = `${origin}${urlPath}:${lineNo}:${colNo}`;
       // Full file URL for source map fetching (with query string for cache busting)
-      const fileUrl: Str = `${origin}${rawUrlPath!.split(':')[0]}`;
+      const fileUrl: Str = `${origin}${safeRawUrlPath.split(':')[0] ?? ''}`;
       const genLine: Num = Number(lineNo);
       const genCol: Num = Number(colNo);
       // Strip Vite @fs/ prefix to get filesystem path
@@ -225,8 +226,9 @@ function extractSource(stack: Str): SourceLocation {
     const fsMatch: RegExpMatchArray | null = trimmed.match(/\(?(\/[^)]+):(\d+):(\d+)\)?$/);
     if (fsMatch) {
       const [, fullPath, lineNo, colNo] = fsMatch;
-      const pkgIdx: Num = fullPath!.indexOf('packages/');
-      const relativePath: Str = pkgIdx >= 0 ? fullPath!.slice(pkgIdx) : fullPath!;
+      const safeFullPath: Str = fullPath ?? '';
+      const pkgIdx: Num = safeFullPath.indexOf('packages/');
+      const relativePath: Str = pkgIdx >= 0 ? safeFullPath.slice(pkgIdx) : safeFullPath;
       return {
         display: `${relativePath}:${lineNo}:${colNo}`,
         url: undefined,
@@ -346,7 +348,7 @@ async function fetchSourceMap(fileUrl: Str): Promise<SourceMapV3 | null> {
       _sourceMapCache.set(fileUrl, null);
       return null;
     }
-    const mapUrl: Str = match[1]!.trim();
+    const mapUrl: Str = (match[1] ?? '').trim();
 
     let mapJson: Str;
     if (mapUrl.startsWith('data:')) {

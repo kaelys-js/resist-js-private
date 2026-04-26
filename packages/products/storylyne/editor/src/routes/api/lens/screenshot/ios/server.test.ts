@@ -32,8 +32,14 @@ vi.mock('$app/environment', () => ({
 }));
 
 vi.mock('$lib/server/simulator/ios-simctl', () => ({
-  isXcrunAvailable: vi.fn(async () => { await Promise.resolve(); return state.xcrunAvailable; }),
-  listSimulatorDevices: vi.fn(async () => { await Promise.resolve(); return state.devices; }),
+  isXcrunAvailable: vi.fn(async () => {
+    await Promise.resolve();
+    return state.xcrunAvailable;
+  }),
+  listSimulatorDevices: vi.fn(async () => {
+    await Promise.resolve();
+    return state.devices;
+  }),
 }));
 
 vi.mock('$lib/server/simulator/ios-accessibility', () => ({
@@ -42,9 +48,15 @@ vi.mock('$lib/server/simulator/ios-accessibility', () => ({
 }));
 
 vi.mock('$lib/server/simulator/ios-debug-proxy', () => ({
-  isDebugProxyInstalled: vi.fn(async () => { await Promise.resolve(); return state.debugProxyInstalled; }),
+  isDebugProxyInstalled: vi.fn(async () => {
+    await Promise.resolve();
+    return state.debugProxyInstalled;
+  }),
   startDebugProxy: vi.fn(() => {}),
-  getInspectablePages: vi.fn(async () => { await Promise.resolve(); return state.inspectablePages; }),
+  getInspectablePages: vi.fn(async () => {
+    await Promise.resolve();
+    return state.inspectablePages;
+  }),
 }));
 
 vi.mock('$lib/server/simulator/ios-pool', () => ({
@@ -65,12 +77,18 @@ vi.mock('$lib/server/simulator/ios-page-load', () => ({
 }));
 
 vi.mock('$lib/server/simulator/ios-console-capture', () => ({
-  captureConsoleLogs: vi.fn(async () => { await Promise.resolve(); return state.consoleLogs; }),
+  captureConsoleLogs: vi.fn(async () => {
+    await Promise.resolve();
+    return state.consoleLogs;
+  }),
   formatConsoleMessages: vi.fn((m: unknown) => m),
 }));
 
 vi.mock('$lib/server/simulator/ios-screenshot', () => ({
-  captureSimulatorScreenshot: vi.fn(async () => { await Promise.resolve(); return state.screenshotBuffer; }),
+  captureSimulatorScreenshot: vi.fn(async () => {
+    await Promise.resolve();
+    return state.screenshotBuffer;
+  }),
 }));
 
 vi.mock('$lib/server/simulator/ios-navigate', () => ({

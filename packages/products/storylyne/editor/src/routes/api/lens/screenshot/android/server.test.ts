@@ -39,7 +39,10 @@ vi.mock('$app/environment', () => ({
 }));
 
 vi.mock('$lib/server/simulator/android-sdk', () => ({
-  checkAndroidSdk: vi.fn(async () => { await Promise.resolve(); return state.sdkStatus; }),
+  checkAndroidSdk: vi.fn(async () => {
+    await Promise.resolve();
+    return state.sdkStatus;
+  }),
 }));
 
 vi.mock('$lib/server/simulator/android-accessibility', () => ({
@@ -63,7 +66,10 @@ vi.mock('$lib/server/simulator/android-cdp', () => ({
       throw new Error('cdp forward failed');
     }
   }),
-  captureConsoleLogs: vi.fn(async () => { await Promise.resolve(); return state.consoleLogs; }),
+  captureConsoleLogs: vi.fn(async () => {
+    await Promise.resolve();
+    return state.consoleLogs;
+  }),
 }));
 
 vi.mock('$lib/server/simulator/android-navigate', () => ({
@@ -76,7 +82,10 @@ vi.mock('$lib/server/simulator/android-page-load', () => ({
 }));
 
 vi.mock('$lib/server/simulator/android-screenshot', () => ({
-  captureEmulatorScreenshot: vi.fn(async () => { await Promise.resolve(); return state.screenshotBase64; }),
+  captureEmulatorScreenshot: vi.fn(async () => {
+    await Promise.resolve();
+    return state.screenshotBase64;
+  }),
 }));
 
 vi.mock('$lib/server/simulator/device-frames', () => ({
@@ -115,7 +124,12 @@ describe('GET /api/lens/screenshot/android', () => {
         if (state.cdpFetchThrows) {
           throw new Error('ECONNREFUSED');
         }
-        return { json: async () => state.cdpFetchTargets } as unknown as Response;
+        return {
+          json: async () => {
+            await Promise.resolve();
+            return state.cdpFetchTargets;
+          },
+        } as unknown as Response;
       }),
     );
   });

@@ -431,8 +431,11 @@ export function detectConflicts(registry: ShortcutRegistry): ShortcutConflict[] 
 
   for (let i: Num = 0; i < entries.length; i++) {
     for (let j: Num = i + 1; j < entries.length; j++) {
-      const a: KeyboardShortcut = entries[i]!;
-      const b: KeyboardShortcut = entries[j]!;
+      const a: KeyboardShortcut | undefined = entries[i];
+      const b: KeyboardShortcut | undefined = entries[j];
+      if (!a || !b) {
+        continue;
+      }
 
       // Same key?
       if (a.key !== b.key) {
@@ -542,9 +545,12 @@ export function updateShortcut(
   const conflicts: ShortcutConflict[] = detectConflicts(updated);
   if (conflicts.length > 0) {
     const [conflict]: ShortcutConflict[] = conflicts;
+    if (!conflict) {
+      return err(ERRORS.VALIDATION.INVALID_FORMAT, 'Shortcut conflict (details unavailable)');
+    }
     return err(
       ERRORS.VALIDATION.INVALID_FORMAT,
-      `Shortcut conflict: "${conflict!.a}" and "${conflict!.b}" both use ${key} with [${modifiers.join(', ')}]`,
+      `Shortcut conflict: "${conflict.a}" and "${conflict.b}" both use ${key} with [${modifiers.join(', ')}]`,
     );
   }
 
