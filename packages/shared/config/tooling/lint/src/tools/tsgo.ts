@@ -65,7 +65,7 @@ function listTsgoInputs(pkgDir: string): string[] {
       if (!entry.isFile()) {
         continue;
       }
-      const name: string = entry.name;
+      const { name } = entry;
       if (
         name.endsWith('.ts') ||
         name.endsWith('.tsx') ||
@@ -121,8 +121,8 @@ export function transformTsgoOutput(output: string): LintResult[] {
     }
 
     const file: string = match[1]!;
-    const lineNum: number = parseInt(match[2]!, 10);
-    const col: number = parseInt(match[3]!, 10);
+    const lineNum: number = Number.parseInt(match[2]!, 10);
+    const col: number = Number.parseInt(match[3]!, 10);
     const level: string = match[4]!;
     const code: string = match[5]!;
     const message: string = match[6]!;

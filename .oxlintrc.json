@@ -649,6 +649,13 @@
       "rules": {
         "no-await-in-loop": "off"
       }
+    },
+    {
+      "files": ["**/lint/src/rules/workspace/**"],
+      "rules": {
+        "no-await-in-loop": "off",
+        "require-await": "off"
+      }
     }
   ]
 }

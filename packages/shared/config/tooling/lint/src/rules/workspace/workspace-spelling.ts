@@ -45,14 +45,14 @@ const rule: WorkspaceRule = {
         cwd: ctx.rootDir,
         stdio: 'pipe',
       });
-    } catch (err: unknown) {
+    } catch (error: unknown) {
       const stderr: string =
-        err instanceof Error && 'stderr' in err
-          ? String((err as Error & { stderr: Buffer }).stderr)
+        error instanceof Error && 'stderr' in error
+          ? String((error as Error & { stderr: Buffer }).stderr)
           : '';
       const stdout: string =
-        err instanceof Error && 'stdout' in err
-          ? String((err as Error & { stdout: Buffer }).stdout)
+        error instanceof Error && 'stdout' in error
+          ? String((error as Error & { stdout: Buffer }).stdout)
           : '';
       const output: string = stderr || stdout || 'Unknown spelling errors';
 

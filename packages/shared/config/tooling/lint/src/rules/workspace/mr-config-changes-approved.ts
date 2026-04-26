@@ -44,7 +44,7 @@ const rule: WorkspaceRule = {
     }
 
     const labels: string | undefined = process.env['MR_LABELS'];
-    const files: Array<string> = changedFiles.split(/[\n\s]+/).filter(Boolean);
+    const files: string[] = changedFiles.split(/[\n\s]+/).filter(Boolean);
     const configPattern: RegExp =
       /\.(secrets|json|yaml|yml|toml)$|\.env($|\.)|infra\/|wrangler\.json|tsconfig/;
     const hasConfigChange: boolean = files.some((f: string) => configPattern.test(f));

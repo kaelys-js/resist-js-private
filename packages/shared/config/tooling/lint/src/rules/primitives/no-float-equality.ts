@@ -19,7 +19,7 @@ import type {
  * Returns true if the node is a float literal (number with a fractional part).
  */
 function isFloatLiteral(node: AstNode): boolean {
-  const value: unknown = node.value;
+  const { value } = node;
   return node.type === 'Literal' && typeof value === 'number' && value % 1 !== 0;
 }
 

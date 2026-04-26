@@ -60,7 +60,7 @@ const rule: WorkspaceRule = {
         unknown
       >;
 
-      const target: unknown = compilerOptions.target;
+      const { target } = compilerOptions;
       if (typeof target !== 'string' || !ALLOWED_TARGETS.has(target)) {
         const relativePath: string = relative(ctx.rootDir, filePath);
         const found: string = typeof target === 'string' ? target : 'none';

@@ -35,7 +35,7 @@ const BRAND_CONSTANTS: readonly { value: string; constant: string }[] = [
  * Avoids matching partial substrings by requiring word boundaries or quote chars.
  */
 function buildBrandRegex(value: string): RegExp {
-  const escaped: string = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped: string = value.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return new RegExp(`(?:^|[^a-zA-Z0-9_-])(?:'${escaped}'|"${escaped}"|\`${escaped}\`)`, 'g');
 }
 
@@ -61,7 +61,9 @@ const rule: WorkspaceRule = {
     for (const pkg of packages) {
       const pkgJson = pkg.packageJson as Record<string, unknown>;
       const contributes = pkgJson['contributes'] as Record<string, unknown> | undefined;
-      if (!contributes || !contributes['commands']) continue;
+      if (!contributes || !contributes['commands']) {
+        continue;
+      }
 
       const pkgDir: string = dirname(pkg.path);
       const brandPath: string = join(pkgDir, BRAND_PATH);
@@ -87,9 +89,13 @@ const rule: WorkspaceRule = {
           for (let i: number = 0; i < lines.length; i++) {
             const line: string = lines[i] ?? '';
             /* Skip import lines — importing brand.ts is fine */
-            if (line.includes('import ') && line.includes('brand')) continue;
+            if (line.includes('import ') && line.includes('brand')) {
+              continue;
+            }
             /* Skip comments */
-            if (line.trimStart().startsWith('//') || line.trimStart().startsWith('*')) continue;
+            if (line.trimStart().startsWith('//') || line.trimStart().startsWith('*')) {
+              continue;
+            }
 
             if (regex.test(line)) {
               results.push(

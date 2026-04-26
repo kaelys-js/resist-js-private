@@ -54,9 +54,9 @@ async function ensureOxcParser(): Promise<boolean> {
     const oxc: Record<string, unknown> = await import('oxc-parser');
     parseSync = oxc.parseSync as unknown as typeof parseSync;
     return true;
-  } catch (err: unknown) {
+  } catch (error: unknown) {
     oxcLoadFailed = true;
-    const message: string = err instanceof Error ? err.message : String(err);
+    const message: string = error instanceof Error ? error.message : String(error);
     oxcLoadError = `oxc-parser not available — install oxc-parser to enable TypeScript lint rules (${message})`;
     return false;
   }
@@ -157,7 +157,7 @@ export function extractCodeFences(content: string): string {
     } else {
       if (
         CODE_FENCE_CLOSE_RE.test(trimmed) &&
-        trimmed.replace(/[^`]/g, '').length >= fenceBacktickCount
+        trimmed.replaceAll(/[^`]/g, '').length >= fenceBacktickCount
       ) {
         inFence = false;
         fenceBacktickCount = 0;
@@ -498,14 +498,14 @@ export async function runTypeScriptRules(
       return []; // No script block — nothing to lint (unless .svelte with template-only rules)
     }
     parseContent = extracted;
-    parseFilePath = filePath + '.ts'; // Tell oxc-parser to treat as TypeScript
+    parseFilePath = `${filePath}.ts`; // Tell oxc-parser to treat as TypeScript
   } else if (isCodeFenceFile) {
     const extracted: string = extractCodeFences(content);
     if (extracted.trim() === '') {
       return []; // No code fences — nothing to lint
     }
     parseContent = extracted;
-    parseFilePath = filePath + '.ts'; // Tell oxc-parser to treat as TypeScript
+    parseFilePath = `${filePath}.ts`; // Tell oxc-parser to treat as TypeScript
   }
 
   let ast: AstNode;
@@ -515,10 +515,18 @@ export async function runTypeScriptRules(
     try {
       const result: {
         program: unknown;
-        errors: { severity: string; message: string; labels?: { start: number; end: number }[] }[];
+        errors: Array<{
+          severity: string;
+          message: string;
+          labels?: Array<{ start: number; end: number }>;
+        }>;
       } = parseSync(parseFilePath, parseContent) as {
         program: unknown;
-        errors: { severity: string; message: string; labels?: { start: number; end: number }[] }[];
+        errors: Array<{
+          severity: string;
+          message: string;
+          labels?: Array<{ start: number; end: number }>;
+        }>;
       };
       ast = result.program as AstNode; // Safe: oxc-parser returns AST program node
 
@@ -550,8 +558,8 @@ export async function runTypeScriptRules(
         }
         return parseResults;
       }
-    } catch (err: unknown) {
-      const message: string = err instanceof Error ? err.message : String(err);
+    } catch (error: unknown) {
+      const message: string = error instanceof Error ? error.message : String(error);
       return [
         {
           file: filePath,
@@ -650,10 +658,10 @@ export async function runTypeScriptRules(
         try {
           const ruleResults: LintResult[] = visitorFn(node, context);
           results.push(...ruleResults);
-        } catch (err: unknown) {
+        } catch (error: unknown) {
           if (!crashedRules.has(rule.id)) {
             crashedRules.add(rule.id);
-            const message: string = err instanceof Error ? err.message : String(err);
+            const message: string = error instanceof Error ? error.message : String(error);
             results.push({
               file: filePath,
               line: node.loc?.start?.line ?? 1,
@@ -687,10 +695,10 @@ export async function runTypeScriptRules(
         try {
           const ruleResults: LintResult[] = visitorFn(node, context);
           results.push(...ruleResults);
-        } catch (err: unknown) {
+        } catch (error: unknown) {
           if (!crashedRules.has(rule.id)) {
             crashedRules.add(rule.id);
-            const message: string = err instanceof Error ? err.message : String(err);
+            const message: string = error instanceof Error ? error.message : String(error);
             results.push({
               file: filePath,
               line: node.loc?.start?.line ?? 1,

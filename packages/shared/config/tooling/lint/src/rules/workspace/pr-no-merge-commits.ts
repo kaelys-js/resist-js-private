@@ -10,7 +10,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Patterns indicating a merge commit message. */
-const MERGE_PATTERNS: ReadonlyArray<RegExp> = [/^Merge branch /, /^Merge remote-tracking /];
+const MERGE_PATTERNS: readonly RegExp[] = [/^Merge branch /, /^Merge remote-tracking /];
 
 /** PR must not contain merge commits — rebase instead. */
 const rule: WorkspaceRule = {
@@ -46,7 +46,7 @@ const rule: WorkspaceRule = {
       return Promise.resolve(results);
     }
 
-    const commitMessages: Array<string> = commits.split('\n').filter(Boolean);
+    const commitMessages: string[] = commits.split('\n').filter(Boolean);
 
     for (const message of commitMessages) {
       const isMergeCommit: boolean = MERGE_PATTERNS.some((p: RegExp) => p.test(message));

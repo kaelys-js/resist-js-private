@@ -37,7 +37,7 @@ function getParamName(param: AstNode): string | undefined {
     return param.name as string;
   }
   if (param.type === 'AssignmentPattern') {
-    const left: unknown = param.left;
+    const { left } = param;
     if (left !== null && typeof left === 'object') {
       const leftNode: AstNode = left as AstNode;
       if (leftNode.type === 'Identifier') {
@@ -68,7 +68,7 @@ const rule: TypeScriptRule = {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
 
-      const id: unknown = node.id;
+      const { id } = node;
       if (id === null || typeof id !== 'object') {
         return results;
       }
@@ -82,7 +82,7 @@ const rule: TypeScriptRule = {
       let isRecursive: boolean = false;
       walkBody(node, (child: AstNode): boolean | void => {
         if (child.type === 'CallExpression') {
-          const callee: unknown = child.callee;
+          const { callee } = child;
           if (callee !== null && typeof callee === 'object') {
             const calleeNode: AstNode = callee as AstNode;
             if (calleeNode.type === 'Identifier' && (calleeNode.name as string) === funcName) {

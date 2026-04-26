@@ -92,8 +92,8 @@ export function transformJscpdOutput(output: string, strings: LintStrings): Lint
 
   for (const dup of duplicates) {
     const entry: JscpdDuplicate = dup as JscpdDuplicate;
-    const firstFile: JscpdFileRef | undefined = entry.firstFile;
-    const secondFile: JscpdFileRef | undefined = entry.secondFile;
+    const { firstFile } = entry;
+    const { secondFile } = entry;
 
     if (!firstFile || !secondFile) {
       continue;

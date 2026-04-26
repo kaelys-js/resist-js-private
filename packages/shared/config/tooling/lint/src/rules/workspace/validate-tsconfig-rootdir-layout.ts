@@ -13,7 +13,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Standard rootDir values that are acceptable. */
-const STANDARD_ROOTDIRS: ReadonlyArray<string> = [
+const STANDARD_ROOTDIRS: readonly string[] = [
   'src',
   'src/',
   './src',
@@ -83,13 +83,13 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const compilerOptions: unknown = parsed.compilerOptions;
+      const { compilerOptions } = parsed;
       if (typeof compilerOptions !== 'object' || compilerOptions === null) {
         continue;
       }
 
       const options: Record<string, unknown> = compilerOptions as Record<string, unknown>;
-      const rootDir: unknown = options.rootDir;
+      const { rootDir } = options;
 
       if (typeof rootDir !== 'string') {
         continue;

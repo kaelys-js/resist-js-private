@@ -65,7 +65,9 @@ const rule: WorkspaceRule = {
       if (planDate !== undefined) {
         const ageMs: number = now.getTime() - planDate.getTime();
         const ageDays: number = ageMs / (1000 * 60 * 60 * 24);
-        if (ageDays < maxAgeDays) continue;
+        if (ageDays < maxAgeDays) {
+          continue;
+        }
       }
 
       const content: string = await ctx.readFile(file);

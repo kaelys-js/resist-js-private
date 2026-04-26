@@ -19,7 +19,7 @@ const LOCALHOST_RE: RegExp = /(?:localhost:\d{2,5}|127\.0\.0\.1(?::\d{2,5})?)/g;
 const SOURCE_EXTENSIONS: ReadonlySet<string> = new Set<string>(['.ts', '.tsx', '.js', '.jsx']);
 
 /** File patterns to exclude from checking. */
-const EXCLUDED_PATTERNS: ReadonlyArray<string> = [
+const EXCLUDED_PATTERNS: readonly string[] = [
   '.test.',
   '.spec.',
   '.e2e.',

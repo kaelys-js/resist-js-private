@@ -130,7 +130,7 @@ export function getCallbackBody(callNode: AstNode): AstNode | undefined {
     return undefined;
   }
 
-  const callback: AstNode | undefined = args[0];
+  const [callback]: AstNode | undefined = args;
   if (!callback) {
     return undefined;
   }

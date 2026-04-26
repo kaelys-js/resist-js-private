@@ -55,8 +55,8 @@ const rule: WorkspaceRule = {
     const gitlabPrefix: string = join(ctx.rootDir, '.gitlab');
 
     for (const filePath of await ctx.allFiles()) {
-      const isGithub: boolean = filePath.startsWith(githubPrefix + '/');
-      const isGitlab: boolean = filePath.startsWith(gitlabPrefix + '/');
+      const isGithub: boolean = filePath.startsWith(`${githubPrefix}/`);
+      const isGitlab: boolean = filePath.startsWith(`${gitlabPrefix}/`);
 
       if (!isGithub && !isGitlab) {
         continue;

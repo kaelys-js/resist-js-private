@@ -14,7 +14,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Required devDependencies that must be present in root package.json. */
-const REQUIRED_DEV_DEPS: ReadonlyArray<string> = [
+const REQUIRED_DEV_DEPS: readonly string[] = [
   '@biomejs/biome',
   'oxlint',
   'husky',
@@ -158,7 +158,7 @@ const rule: WorkspaceRule = {
     }
 
     /* Check packageManager field */
-    const packageManager: unknown = pkgJson.packageManager;
+    const { packageManager } = pkgJson;
 
     if (typeof packageManager !== 'string') {
       results.push(
@@ -204,7 +204,7 @@ const rule: WorkspaceRule = {
     }
 
     /* Check engines.node */
-    const engines: unknown = pkgJson.engines;
+    const { engines } = pkgJson;
 
     if (typeof engines !== 'object' || engines === null) {
       results.push(

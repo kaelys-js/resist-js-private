@@ -397,9 +397,13 @@ export function createUser(name: string, age: number): Result<User> {
     const code: string = `
 export function createUser(name: unknown, age: unknown): Result<User> {
   const nameResult = safeParse(NameSchema, name);
-  if (!nameResult.ok) return nameResult;
+  if (!nameResult.ok) {
+    return nameResult;
+  }
   const ageResult = safeParse(AgeSchema, age);
-  if (!ageResult.ok) return ageResult;
+  if (!ageResult.ok) {
+    return ageResult;
+  }
   return ok({ name: nameResult.data, age: ageResult.data });
 }
 `;
@@ -411,7 +415,9 @@ export function createUser(name: unknown, age: unknown): Result<User> {
     const code: string = `
 export function readFile(path: string, encoding: string): Result<string> {
   const pathResult = safeParse(PathSchema, path);
-  if (!pathResult.ok) return pathResult;
+  if (!pathResult.ok) {
+    return pathResult;
+  }
   return ok(FileSchema, content);
 }
 `;
@@ -455,7 +461,9 @@ export function getVersion(): string {
     const code: string = `
 export function processItems(items: unknown, onDone: () => void): Result<void> {
   const itemsResult = safeParse(ItemsSchema, items);
-  if (!itemsResult.ok) return itemsResult;
+  if (!itemsResult.ok) {
+    return itemsResult;
+  }
   return ok(VoidSchema, undefined);
 }
 `;
@@ -467,7 +475,9 @@ export function processItems(items: unknown, onDone: () => void): Result<void> {
     const code: string = `
 export function detectFromNavigator(available: readonly string[]): Result<string> {
   const availableResult = safeParse(StrArraySchema, [...available]);
-  if (!availableResult.ok) return availableResult;
+  if (!availableResult.ok) {
+    return availableResult;
+  }
   return ok(StrSchema, availableResult.data[0]);
 }
 `;
@@ -561,7 +571,7 @@ export function readFile(path: string): Result<string> {
   try {
     const data = fs.readFileSync(path);
     return ok(Schema, data);
-  } catch (e) {
+  } catch (error) {
     return ok(Schema, fallback);
   }
 }
@@ -578,8 +588,8 @@ export function readFile(path: string): Result<string> {
   try {
     const data = fs.readFileSync(path);
     return ok(Schema, data);
-  } catch (e) {
-    return err(ERRORS.IO.READ_FAILED, { cause: fromUnknownError(e) });
+  } catch (error) {
+    return err(ERRORS.IO.READ_FAILED, { cause: fromUnknownError(error) });
   }
 }
 `;
@@ -639,9 +649,13 @@ export function getVersion(): Result<string> {
     const code: string = `
 function getGitInfo(): Result<GitInfo> {
   const a: Result<Str> = execSyncSafe('cmd1');
-  if (!a.ok) return a;
+  if (!a.ok) {
+    return a;
+  }
   const b: Result<Str> = execSyncSafe('cmd2');
-  if (!b.ok) return b;
+  if (!b.ok) {
+    return b;
+  }
   return ok(GitInfoSchema, { commit: a.data, full: b.data });
 }
 `;
@@ -741,7 +755,9 @@ describe('result/no-redundant-ok-guard', () => {
     const code: string = `
 function example() {
   const validated = safeParse(Schema, data);
-  if (!validated.ok) return validated;
+  if (!validated.ok) {
+    return validated;
+  }
   return validated;
 }
 `;
@@ -756,7 +772,9 @@ function example() {
     const code: string = `
 function example() {
   const validated = safeParse(Schema, data);
-  if (!validated.ok) return validated;
+  if (!validated.ok) {
+    return validated;
+  }
   return ok(Schema, transformed);
 }
 `;
@@ -883,7 +901,9 @@ describe('result/validate-function-input — indirect validation', () => {
 export function setConfig(config: Partial<CoreConfig>): Result<CoreConfig> {
   const merged = deepMerge(defaults, config);
   const validated = safeParse(CoreConfigSchema, merged);
-  if (!validated.ok) return validated;
+  if (!validated.ok) {
+    return validated;
+  }
   return validated;
 }
 `;
@@ -895,7 +915,9 @@ export function setConfig(config: Partial<CoreConfig>): Result<CoreConfig> {
     const code: string = `
 export function setConfig(config: Partial<CoreConfig>): Result<CoreConfig> {
   const validated = safeParse(CoreConfigSchema, defaults);
-  if (!validated.ok) return validated;
+  if (!validated.ok) {
+    return validated;
+  }
   return validated;
 }
 `;
@@ -1168,7 +1190,9 @@ import { type Result } from '@/schemas/result/result';
 import * as v from 'valibot';
 export function buildLocale(schema: v.GenericSchema, rawStrs: RawLocaleStrings): Result<BuiltLocale> {
   const result = safeParse(schema, rawStrs);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
   return ok(BuiltLocaleSchema, result.data);
 }
 `;
@@ -1185,7 +1209,9 @@ import { type Result } from '@/schemas/result/result';
 import * as v from 'valibot';
 export function buildLocale(schema: v.GenericSchema, rawStrs: RawLocaleStrings): Result<BuiltLocale> {
   const result = safeParse(schema, rawStrs);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
   return ok(BuiltLocaleSchema, result.data);
 }
 `;
@@ -1201,7 +1227,9 @@ export function buildLocale(schema: v.GenericSchema, rawStrs: RawLocaleStrings):
 import { type Result } from '@/schemas/result/result';
 export function renderMessage(template: Str, formatters: FormatterMap): Result<Str> {
   const result = safeParse(StrSchema, template);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
   return ok(StrSchema, result.data);
 }
 `;
@@ -1233,9 +1261,13 @@ export function buildLocale<TSchema extends v.GenericSchema>(schema: TSchema, ra
 import { type Result } from '@/schemas/result/result';
 export function renderMessage(template: Str, params: Record<Str, unknown>): Result<Str> {
   const templateResult = safeParse(StrSchema, template);
-  if (!templateResult.ok) return templateResult;
+  if (!templateResult.ok) {
+    return templateResult;
+  }
   const paramsResult = safeParse(v.record(v.string(), v.unknown()), params);
-  if (!paramsResult.ok) return paramsResult;
+  if (!paramsResult.ok) {
+    return paramsResult;
+  }
   return ok(StrSchema, '');
 }
 `;
@@ -1256,7 +1288,9 @@ describe('result/validate-function-input — additional branch coverage', () => 
     const code: string = `
 export function createUser({ name, age }: UserInput): Result<User> {
   const result = safeParse(UserSchema, { name, age });
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
   return result;
 }
 `;
@@ -1268,7 +1302,9 @@ export function createUser({ name, age }: UserInput): Result<User> {
     const code: string = `
 export function processItems([first, second]: string[]): Result<string> {
   const result = safeParse(StrSchema, first);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
   return result;
 }
 `;
@@ -1280,7 +1316,9 @@ export function processItems([first, second]: string[]): Result<string> {
     const code: string = `
 export function handleRequest(data: unknown, retries = 3): Result<Response> {
   const dataResult = safeParse(DataSchema, data);
-  if (!dataResult.ok) return dataResult;
+  if (!dataResult.ok) {
+    return dataResult;
+  }
   return ok(ResponseSchema, {});
 }
 `;
@@ -1293,7 +1331,9 @@ export function handleRequest(data: unknown, retries = 3): Result<Response> {
     const code: string = `
 export function handleRequest(retries = 3): Result<Response> {
   const retriesResult = safeParse(NumSchema, retries);
-  if (!retriesResult.ok) return retriesResult;
+  if (!retriesResult.ok) {
+    return retriesResult;
+  }
   return ok(ResponseSchema, {});
 }
 `;
@@ -1331,7 +1371,9 @@ export function formatDate(date: Date | null): Result<string> {
     const code: string = `
 export function processItems(items: unknown, callback: Function): Result<void> {
   const itemsResult = safeParse(ItemsSchema, items);
-  if (!itemsResult.ok) return itemsResult;
+  if (!itemsResult.ok) {
+    return itemsResult;
+  }
   return ok(VoidSchema, undefined);
 }
 `;
@@ -1373,7 +1415,9 @@ export function runFormatter(fn: FormatterFn): Result<string> {
 import * as v from 'valibot';
 export function validate(schema: v.BaseSchema<string, string, v.BaseIssue<unknown>>, data: unknown): Result<string> {
   const result = safeParse(schema, data);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
   return result;
 }
 `;
@@ -1388,7 +1432,9 @@ export function validate(schema: v.BaseSchema<string, string, v.BaseIssue<unknow
     const code: string = `
 export function processInput(data: unknown): Result<Config> {
   const result = ConfigSchema.safeParse(data);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
   return result;
 }
 `;
@@ -1667,7 +1713,9 @@ export function handleRequest(data: unknown): void {
 import * as v from 'valibot';
 export function validateAsync(schema: v.GenericSchemaAsync, data: unknown): Result<string> {
   const result = safeParse(schema, data);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
   return result;
 }
 `;
@@ -2061,7 +2109,7 @@ export function readFile(path: string): Result<string> {
   try {
     const data = fs.readFileSync(path);
     return ok(Schema, data);
-  } catch (e) {
+  } catch (error) {
     return okUnchecked(fallback);
   }
 }
@@ -2089,7 +2137,9 @@ export function processData(input: string): Result<Config> {
   it('passes err() return outside catch/error-guard', async () => {
     const code: string = `
 export function validate(data: unknown): Result<Config> {
-  if (!data) return err(ERRORS.INVALID);
+  if (!data) {
+    return err(ERRORS.INVALID);
+  }
   return ok(ConfigSchema, data);
 }
 `;
@@ -2128,7 +2178,9 @@ export function add(a: number, b: number): Result<number>;
   it('skips bare return statement (no argument)', async () => {
     const code: string = `
 export function doStuff(data: unknown): Result<void> {
-  if (!data) return;
+  if (!data) {
+    return;
+  }
   return ok(VoidSchema, undefined);
 }
 `;
@@ -2294,7 +2346,9 @@ export async function getUser(id: string): Promise<Result<User>> {
     const code: string = `
 function getUser(id: string): Result<User> {
   const parsed = safeParse(IdSchema, id);
-  if (!parsed.ok) throw parsed.error;
+  if (!parsed.ok) {
+    throw parsed.error;
+  }
   return ok(UserSchema, user);
 }
 `;
@@ -2307,7 +2361,9 @@ function getUser(id: string): Result<User> {
     const code: string = `
 function getUser(id: string): Result<User> {
   const parsed = safeParse(IdSchema, id);
-  if (!parsed.ok) return parsed;
+  if (!parsed.ok) {
+    return parsed;
+  }
   return ok(UserSchema, user);
 }
 `;
@@ -2344,7 +2400,7 @@ export function getUser(id: string): Result<User> {
   try {
     const user = fetchUser(id);
     return ok(UserSchema, user);
-  } catch (e) {
+  } catch (error) {
     return err(ERRORS.NOT_FOUND);
   }
 }

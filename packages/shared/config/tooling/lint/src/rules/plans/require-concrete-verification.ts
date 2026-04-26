@@ -26,15 +26,25 @@ const RULE_ID: string = 'plans/require-concrete-verification';
  */
 function isConcrete(text: string): boolean {
   /* File path (contains / and ends with extension) */
-  if (/\S+\/\S+\.\w+/.test(text)) return true;
+  if (/\S+\/\S+\.\w+/.test(text)) {
+    return true;
+  }
   /* Shell command */
-  if (/(?:pnpm|grep|git|npm|node|vitest|tsc)\s/.test(text)) return true;
+  if (/(?:pnpm|grep|git|npm|node|vitest|tsc)\s/.test(text)) {
+    return true;
+  }
   /* Count or number reference */
-  if (/\d+\s+(?:test|file|rule|command|export|import|instance)/i.test(text)) return true;
+  if (/\d+\s+(?:test|file|rule|command|export|import|instance)/i.test(text)) {
+    return true;
+  }
   /* Specific code reference (backtick identifier) */
-  if (/`[a-zA-Z]\w+`/.test(text)) return true;
+  if (/`[a-zA-Z]\w+`/.test(text)) {
+    return true;
+  }
   /* Comparison operator */
-  if (/>=|<=|==|outputs?\s+\d+/.test(text)) return true;
+  if (/>=|<=|==|outputs?\s+\d+/.test(text)) {
+    return true;
+  }
 
   return false;
 }
@@ -74,7 +84,9 @@ const rule: WorkspaceRule = {
       const plan = parsePlan(content);
 
       for (const task of plan.tasks) {
-        if (task.verification.length === 0) continue;
+        if (task.verification.length === 0) {
+          continue;
+        }
 
         if (!isConcrete(task.verification)) {
           results.push(

@@ -374,7 +374,7 @@ const z: Bool = false;
   });
 
   it('reports number inside Array generic', async () => {
-    const code: string = `const x: Array<number> = [];`;
+    const code: string = `const x: number[] = [];`;
     const results: LintResult[] = await lint(noBuiltinTypes, code);
     expect(results.length).toBe(1);
     expect(results[0]!.message).toContain('Num');
@@ -482,20 +482,20 @@ describe('typescript/require-return-type', () => {
 
 describe('typescript/no-empty-catch', () => {
   it('reports empty catch without comment', async () => {
-    const code: string = 'try { } catch (e) {}';
+    const code: string = 'try { } catch (error) {}';
     const results: LintResult[] = await lint(noEmptyCatch, code);
     expect(results.some((r: LintResult): boolean => r.severity === 'error')).toBe(true);
     expect(results[0]!.ruleId).toBe('typescript/no-empty-catch');
   });
 
   it('passes empty catch with block comment', async () => {
-    const code: string = 'try { } catch (e) { /* intentionally ignored */ }';
+    const code: string = 'try { } catch (error) { /* intentionally ignored */ }';
     const results: LintResult[] = await lint(noEmptyCatch, code);
     expect(results.length).toBe(0);
   });
 
   it('passes empty catch with line comment', async () => {
-    const code: string = `try { } catch (e) {
+    const code: string = `try { } catch (error) {
   // intentionally ignored
 }`;
     const results: LintResult[] = await lint(noEmptyCatch, code);
@@ -503,7 +503,7 @@ describe('typescript/no-empty-catch', () => {
   });
 
   it('warns on non-empty catch without fromUnknownError', async () => {
-    const code: string = 'try { } catch (e) { /* handled */ console.log(e); }';
+    const code: string = 'try { } catch (error) { /* handled */ console.log(error); }';
     const results: LintResult[] = await lint(noEmptyCatch, code);
     expect(results.some((r: LintResult): boolean => r.message.includes('fromUnknownError'))).toBe(
       true,
@@ -512,9 +512,9 @@ describe('typescript/no-empty-catch', () => {
 
   it('warns on catch without err() return in Result function', async () => {
     const code: string = `function foo(): Result<Str> {
-  try { } catch (e) {
+  try { } catch (error) {
     /* handled */
-    const appError = fromUnknownError(e);
+    const appError = fromUnknownError(error);
     console.log(appError);
   }
 }`;
@@ -524,9 +524,9 @@ describe('typescript/no-empty-catch', () => {
 
   it('skips err() return check in non-Result function', async () => {
     const code: string = `async function fetchWrapper(): Promise<Response> {
-  try { return await fetch(url); } catch (e) {
+  try { return await fetch(url); } catch (error) {
     /* network error */
-    const appError = fromUnknownError(e);
+    const appError = fromUnknownError(error);
     throw new Error(appError.message);
   }
 }`;
@@ -538,9 +538,9 @@ describe('typescript/no-empty-catch', () => {
 
   it('passes catch with full fromUnknownError + err pattern', async () => {
     const code: string = `function foo(): Result<Str> {
-  try { } catch (e: unknown) {
+  try { } catch (error: unknown) {
     /* Convert and propagate error */
-    const appError = fromUnknownError(e);
+    const appError = fromUnknownError(error);
     return err(ERRORS.IO.READ_FAILED, { cause: appError });
   }
 }`;
@@ -550,9 +550,9 @@ describe('typescript/no-empty-catch', () => {
 
   it('flags err() without cause in meta', async () => {
     const code: string = `function foo(): Result<Str> {
-  try { } catch (e: unknown) {
+  try { } catch (error: unknown) {
     /* handled */
-    const appError = fromUnknownError(e);
+    const appError = fromUnknownError(error);
     return err(ERRORS.IO.READ_FAILED);
   }
 }`;
@@ -562,9 +562,9 @@ describe('typescript/no-empty-catch', () => {
 
   it('flags generic INTERNAL.UNEXPECTED error code', async () => {
     const code: string = `function foo(): Result<Str> {
-  try { } catch (e: unknown) {
+  try { } catch (error: unknown) {
     /* handled */
-    const appError = fromUnknownError(e);
+    const appError = fromUnknownError(error);
     return err(ERRORS.INTERNAL.UNEXPECTED, { cause: appError });
   }
 }`;
@@ -575,9 +575,9 @@ describe('typescript/no-empty-catch', () => {
   });
 
   it('passes err() with cause and specific code', async () => {
-    const code: string = `try { } catch (e: unknown) {
+    const code: string = `try { } catch (error: unknown) {
   /* Convert error */
-  const appError = fromUnknownError(e);
+  const appError = fromUnknownError(error);
   return err(ERRORS.IO.WRITE_FAILED, { cause: appError });
 }`;
     const results: LintResult[] = await lint(noEmptyCatch, code);

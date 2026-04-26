@@ -44,7 +44,7 @@ const rule: TypeScriptRule = {
           return;
         }
 
-        const line: number = node.loc.start.line;
+        const { line } = node.loc.start;
         if (line >= moduleRange.startLine && line <= moduleRange.endLine) {
           results.push({
             file: context.file,

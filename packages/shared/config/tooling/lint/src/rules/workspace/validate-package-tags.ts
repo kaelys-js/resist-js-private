@@ -109,7 +109,7 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const tags: unknown = parsed.tags;
+      const { tags } = parsed;
 
       if (!Array.isArray(tags)) {
         results.push(

@@ -52,10 +52,14 @@ const rule: WorkspaceRule = {
 
       /* Only check completed tasks */
       for (const task of plan.tasks) {
-        if (task.status !== '[x]') continue;
+        if (task.status !== '[x]') {
+          continue;
+        }
 
         for (const taskFile of task.files) {
-          if (taskFile.action !== 'create') continue;
+          if (taskFile.action !== 'create') {
+            continue;
+          }
 
           /* Resolve path: if plan has a package path, use it as base */
           let resolvedPath: string = taskFile.path;

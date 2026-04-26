@@ -40,7 +40,7 @@ const rule: TypeScriptRule = {
         return results;
       }
 
-      const callee: unknown = node.callee;
+      const { callee } = node;
       if (callee === null || typeof callee !== 'object') {
         return results;
       }

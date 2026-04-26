@@ -67,7 +67,7 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const scripts: unknown = parsed.scripts;
+      const { scripts } = parsed;
       if (typeof scripts !== 'object' || scripts === null) {
         continue;
       }

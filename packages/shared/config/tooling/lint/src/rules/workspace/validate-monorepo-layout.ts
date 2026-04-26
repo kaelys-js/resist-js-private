@@ -12,7 +12,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Required top-level directories. */
-const REQUIRED_DIRS: ReadonlyArray<string> = ['packages', 'docs'];
+const REQUIRED_DIRS: readonly string[] = ['packages', 'docs'];
 
 /** Validates monorepo directory layout. */
 const rule: WorkspaceRule = {

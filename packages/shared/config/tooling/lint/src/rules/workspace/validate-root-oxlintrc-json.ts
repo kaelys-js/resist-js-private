@@ -101,7 +101,7 @@ const rule: WorkspaceRule = {
       results.push(
         createResult(
           'workspace/validate-root-oxlintrc-json',
-          ctx.rootDir + '/.oxlintrc.json',
+          `${ctx.rootDir}/.oxlintrc.json`,
           1,
           1,
           'error',

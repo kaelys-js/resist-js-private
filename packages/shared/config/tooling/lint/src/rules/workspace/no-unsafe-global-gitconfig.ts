@@ -48,7 +48,7 @@ const rule: WorkspaceRule = {
 
     for (const [key, badValue] of BLACKLIST) {
       try {
-        const value: string = execSync('git config --global --get ' + key, {
+        const value: string = execSync(`git config --global --get ${key}`, {
           cwd: ctx.rootDir,
           encoding: 'utf8',
         }).trim();

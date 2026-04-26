@@ -47,7 +47,7 @@ const rule: WorkspaceRule = {
     const allFiles: readonly string[] = await ctx.allFiles();
 
     /** Collect tsconfig directories — each tsconfig covers files under its directory. */
-    const tsconfigDirs: Array<string> = [];
+    const tsconfigDirs: string[] = [];
 
     for (const filePath of allFiles) {
       const name: string = basename(filePath);
@@ -80,7 +80,7 @@ const rule: WorkspaceRule = {
 
       /** Check if the file is under at least one tsconfig directory. */
       const isCovered: boolean = tsconfigDirs.some(
-        (dir: string): boolean => filePath.startsWith(dir + '/') || filePath === dir,
+        (dir: string): boolean => filePath.startsWith(`${dir}/`) || filePath === dir,
       );
 
       if (!isCovered) {

@@ -35,7 +35,7 @@ function readTsconfigPaths(dir: string): Map<string, string> {
   try {
     const raw: string = readFileSync(tsconfigPath, 'utf8');
     // Strip comments from JSONC
-    const stripped: string = raw.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+    const stripped: string = raw.replaceAll(/\/\/.*$/gm, '').replaceAll(/\/\*[\s\S]*?\*\//g, '');
     const tsconfig: Record<string, unknown> = JSON.parse(stripped) as Record<string, unknown>;
     const compilerOptions: Record<string, unknown> | undefined = tsconfig.compilerOptions as
       | Record<string, unknown>

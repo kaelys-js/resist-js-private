@@ -34,7 +34,7 @@ const rule: PackageJsonRule = {
     }
     const scope: string =
       typeof context.ruleOptions?.['scope'] === 'string' ? context.ruleOptions['scope'] : '@/';
-    const name: string | undefined = context.pkg.name;
+    const { name } = context.pkg;
     if (!name) {
       results.push({
         file: context.file,

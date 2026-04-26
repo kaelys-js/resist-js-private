@@ -16,7 +16,7 @@ import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 const BINDING_NAME_RE: RegExp = /^[a-zA-Z][a-zA-Z0-9_-]{0,62}$/;
 
 /** Binding source types. */
-const BINDING_SOURCES: ReadonlyArray<string> = ['kv_namespaces', 'r2_buckets', 'd1_databases'];
+const BINDING_SOURCES: readonly string[] = ['kv_namespaces', 'r2_buckets', 'd1_databases'];
 
 /**
  * Extract all binding names from a config level.
@@ -149,7 +149,7 @@ const rule: WorkspaceRule = {
       }
 
       /* Check env-level bindings. */
-      const env: unknown = parsed.env;
+      const { env } = parsed;
       if (typeof env === 'object' && env !== null) {
         const envObj: Record<string, unknown> = env as Record<string, unknown>;
         for (const envConfig of Object.values(envObj)) {

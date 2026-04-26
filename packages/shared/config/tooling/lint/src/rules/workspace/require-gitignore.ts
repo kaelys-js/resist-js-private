@@ -107,13 +107,13 @@ const rule: WorkspaceRule = {
       );
     }
 
-    const lines: Array<string> = rootContent.split('\n');
-    const patterns: Array<string> = lines.filter(
+    const lines: string[] = rootContent.split('\n');
+    const patterns: string[] = lines.filter(
       (line: string) => line.trim().length > 0 && !line.trimStart().startsWith('#'),
     );
 
     const seen: Set<string> = new Set<string>();
-    const duplicates: Array<string> = [];
+    const duplicates: string[] = [];
     for (const pattern of patterns) {
       const trimmed: string = pattern.trim();
       if (seen.has(trimmed)) {

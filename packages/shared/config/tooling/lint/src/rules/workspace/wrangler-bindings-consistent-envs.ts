@@ -13,7 +13,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Binding source types. */
-const BINDING_SOURCES: ReadonlyArray<string> = ['kv_namespaces', 'r2_buckets', 'd1_databases'];
+const BINDING_SOURCES: readonly string[] = ['kv_namespaces', 'r2_buckets', 'd1_databases'];
 
 /**
  * Extract binding names from a config level.
@@ -111,7 +111,7 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const env: unknown = parsed.env;
+      const { env } = parsed;
       if (typeof env !== 'object' || env === null) {
         continue;
       }

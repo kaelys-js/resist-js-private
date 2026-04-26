@@ -54,7 +54,7 @@ const rule: WorkspaceRule = {
       const parsed: Record<string, unknown> = JSON.parse(content) as Record<string, unknown>;
       const relativePath: string = relative(ctx.rootDir, filePath);
 
-      const description: unknown = parsed.description;
+      const { description } = parsed;
       if (typeof description !== 'string' || description.trim().length === 0) {
         results.push(
           createResult(

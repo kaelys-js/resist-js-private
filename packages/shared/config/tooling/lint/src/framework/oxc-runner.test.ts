@@ -351,7 +351,7 @@ describe('runTypeScriptRules — loc patching (lazy)', () => {
     expect(isGetter || isValue).toBe(true);
 
     /* Access loc — should compute and cache */
-    const loc: AstNode['loc'] = node.loc;
+    const { loc } = node;
     expect(loc.start.line).toBe(1);
     expect(loc.start.column).toBe(0);
 

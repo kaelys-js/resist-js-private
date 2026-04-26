@@ -12,7 +12,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** HTTP headers disallowed in Cloudflare Workers. */
-const DISALLOWED_HEADERS: ReadonlyArray<string> = [
+const DISALLOWED_HEADERS: readonly string[] = [
   'Transfer-Encoding',
   'Connection',
   'Keep-Alive',
@@ -98,7 +98,7 @@ const rule: WorkspaceRule = {
         const headerLower: string = header.toLowerCase();
 
         /** Match patterns: .set('Header'), .append('Header'), .get('Header'), .delete('Header'), 'Header' in new Headers */
-        const patterns: Array<string> = [
+        const patterns: string[] = [
           `.set('${headerLower}'`,
           `.set("${headerLower}"`,
           `.append('${headerLower}'`,

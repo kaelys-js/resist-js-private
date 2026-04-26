@@ -185,7 +185,9 @@ const schema = v.pipe(
   v.string(),
   v.rawCheck(({ dataset, addIssue }) => {
     const result = v.safeParse(otherSchema, dataset.value);
-    if (!result.success) addIssue({ message: 'bad' });
+    if (!result.success) {
+      addIssue({ message: 'bad' });
+    }
   }),
 );
 `;

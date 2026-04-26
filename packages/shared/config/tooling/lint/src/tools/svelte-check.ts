@@ -70,7 +70,7 @@ function listSvelteCheckInputs(pkgDir: string): string[] {
       if (!entry.isFile()) {
         continue;
       }
-      const name: string = entry.name;
+      const { name } = entry;
       if (
         name.endsWith('.svelte') ||
         name.endsWith('.ts') ||
@@ -204,8 +204,8 @@ export function transformSvelteCheckOutput(output: string): LintResult[] {
 
     const level: string = match[1]!;
     const file: string = match[2]!;
-    const lineNum: number = parseInt(match[3]!, 10);
-    const col: number = parseInt(match[4]!, 10);
+    const lineNum: number = Number.parseInt(match[3]!, 10);
+    const col: number = Number.parseInt(match[4]!, 10);
     const message: string = match[5]!;
 
     const severity: 'error' | 'warning' = level === 'WARNING' ? 'warning' : 'error';

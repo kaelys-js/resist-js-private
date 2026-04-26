@@ -87,7 +87,7 @@ const rule: WorkspaceRule = {
     for (const filePath of await ctx.allFiles()) {
       /* Check if file is in a worker directory. */
       const isInWorkerDir: boolean = [...workerDirs].some(
-        (dir: string): boolean => filePath.startsWith(dir + '/') || filePath === dir,
+        (dir: string): boolean => filePath.startsWith(`${dir}/`) || filePath === dir,
       );
 
       if (!isInWorkerDir) {

@@ -100,7 +100,7 @@ const rule: WorkspaceRule = {
         const value: string = fmLine
           .slice(colonIndex + 1)
           .trim()
-          .replace(/^['"]|['"]$/g, '');
+          .replaceAll(/^['"]|['"]$/g, '');
         if (key.length > 0) {
           fields.set(key, value);
         }

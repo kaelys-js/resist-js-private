@@ -43,7 +43,9 @@ const rule: WorkspaceRule = {
       const content: string = await ctx.readFile(file);
       const plan = parsePlan(content);
 
-      if (plan.dependencies.length === 0) continue;
+      if (plan.dependencies.length === 0) {
+        continue;
+      }
 
       /* Build status map: task number -> status */
       const statusMap: Map<number, TaskStatus> = new Map();
@@ -56,10 +58,14 @@ const rule: WorkspaceRule = {
       /* Check each dependency */
       for (const dep of plan.dependencies) {
         const taskStatus: TaskStatus | undefined = statusMap.get(dep.task);
-        if (taskStatus !== '[x]') continue;
+        if (taskStatus !== '[x]') {
+          continue;
+        }
 
         const task: PlanTask | undefined = taskMap.get(dep.task);
-        if (task === undefined) continue;
+        if (task === undefined) {
+          continue;
+        }
 
         for (const depNum of dep.dependsOn) {
           const depStatus: TaskStatus | undefined = statusMap.get(depNum);

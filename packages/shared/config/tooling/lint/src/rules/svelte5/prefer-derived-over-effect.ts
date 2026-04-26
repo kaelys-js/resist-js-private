@@ -52,7 +52,7 @@ const rule: TypeScriptRule = {
           return;
         }
 
-        const stmt: AstNode | undefined = bodyStatements[0];
+        const [stmt]: AstNode | undefined = bodyStatements;
         if (!stmt || stmt.type !== 'ExpressionStatement') {
           return;
         }

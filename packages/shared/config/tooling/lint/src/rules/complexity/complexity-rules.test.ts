@@ -811,7 +811,9 @@ while (i < 10) {
     const code: string = `
 while (true) {
   const x = Math.random();
-  if (x > 0.9) break;
+  if (x > 0.9) {
+    break;
+  }
 }`;
     const results: LintResult[] = await lint(arraySizeWarning, code);
     expect(results.length).toBe(0);
@@ -836,7 +838,9 @@ describe('complexity/recursive-depth', () => {
   it('reports recursive function without depth parameter', async () => {
     const code: string = `
 function traverse(node: any) {
-  if (!node) return;
+  if (!node) {
+    return;
+  }
   traverse(node.left);
   traverse(node.right);
 }`;
@@ -849,7 +853,9 @@ function traverse(node: any) {
   it('passes recursive function with depth parameter', async () => {
     const code: string = `
 function traverse(node: any, depth = 0) {
-  if (!node || depth > 100) return;
+  if (!node || depth > 100) {
+    return;
+  }
   traverse(node.left, depth + 1);
 }`;
     const results: LintResult[] = await lint(recursiveDepth, code);
@@ -859,7 +865,9 @@ function traverse(node: any, depth = 0) {
   it('passes recursive function with limit parameter', async () => {
     const code: string = `
 function walk(node: any, limit = 50) {
-  if (!node || limit <= 0) return;
+  if (!node || limit <= 0) {
+    return;
+  }
   walk(node.child, limit - 1);
 }`;
     const results: LintResult[] = await lint(recursiveDepth, code);
@@ -869,7 +877,9 @@ function walk(node: any, limit = 50) {
   it('passes recursive function with maxDepth parameter', async () => {
     const code: string = `
 function search(node: any, maxDepth = 10) {
-  if (!node || maxDepth <= 0) return;
+  if (!node || maxDepth <= 0) {
+    return;
+  }
   search(node.next, maxDepth - 1);
 }`;
     const results: LintResult[] = await lint(recursiveDepth, code);
@@ -879,7 +889,9 @@ function search(node: any, maxDepth = 10) {
   it('passes recursive function with level parameter', async () => {
     const code: string = `
 function recurse(node: any, level = 0) {
-  if (!node || level > 20) return;
+  if (!node || level > 20) {
+    return;
+  }
   recurse(node.child, level + 1);
 }`;
     const results: LintResult[] = await lint(recursiveDepth, code);
@@ -889,7 +901,9 @@ function recurse(node: any, level = 0) {
   it('passes recursive function with max parameter', async () => {
     const code: string = `
 function dig(node: any, max = 100) {
-  if (!node || max <= 0) return;
+  if (!node || max <= 0) {
+    return;
+  }
   dig(node.child, max - 1);
 }`;
     const results: LintResult[] = await lint(recursiveDepth, code);

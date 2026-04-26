@@ -12,7 +12,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Temp file extensions to reject. */
-const TEMP_EXTENSIONS: ReadonlyArray<string> = ['.bak', '.tmp', '.swp'];
+const TEMP_EXTENSIONS: readonly string[] = ['.bak', '.tmp', '.swp'];
 
 /** Rejects temp files in migrations directories. */
 const rule: WorkspaceRule = {

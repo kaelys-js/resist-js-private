@@ -71,7 +71,7 @@ const rule: WorkspaceRule = {
         );
       }
 
-      const version: unknown = parsed.version;
+      const { version } = parsed;
       if (typeof version !== 'string' || version.trim().length === 0) {
         results.push(
           createResult(

@@ -36,7 +36,7 @@ const rule: TypeScriptRule = {
     WhileStatement(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
 
-      const test: unknown = node.test;
+      const { test } = node;
       if (test === null || typeof test !== 'object') {
         return results;
       }

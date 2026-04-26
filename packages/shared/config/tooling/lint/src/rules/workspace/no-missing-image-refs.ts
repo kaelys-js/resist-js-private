@@ -89,7 +89,7 @@ const rule: WorkspaceRule = {
       const checkedRefs: Set<string> = new Set<string>();
 
       for (const match of matches) {
-        const ref: string = match[0];
+        const [ref]: string = match;
         const refBasename: string = basename(ref);
 
         if (checkedRefs.has(refBasename)) {

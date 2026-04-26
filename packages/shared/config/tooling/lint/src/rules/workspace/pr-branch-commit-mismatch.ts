@@ -10,7 +10,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Branches that are exempt from prefix matching. */
-const EXEMPT_BRANCHES: ReadonlyArray<string> = [
+const EXEMPT_BRANCHES: readonly string[] = [
   'main',
   'master',
   'develop',
@@ -66,7 +66,7 @@ const rule: WorkspaceRule = {
       return Promise.resolve(results);
     }
 
-    const commitMessages: Array<string> = commits.split('\n').filter(Boolean);
+    const commitMessages: string[] = commits.split('\n').filter(Boolean);
     const prefixPattern: RegExp = new RegExp(`${prefix}[:(]`);
 
     for (const message of commitMessages) {

@@ -44,7 +44,7 @@ function extractRoutes(
   }
 
   /* Environment-level routes. */
-  const env: unknown = config.env;
+  const { env } = config;
   if (typeof env === 'object' && env !== null) {
     const envObj: Record<string, unknown> = env as Record<string, unknown>;
     for (const envConfig of Object.values(envObj)) {

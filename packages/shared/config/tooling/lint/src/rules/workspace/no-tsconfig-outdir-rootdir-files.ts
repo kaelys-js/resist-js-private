@@ -13,7 +13,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Fields that monorepo tsconfigs should avoid. */
-const DISCOURAGED_FIELDS: ReadonlyArray<string> = ['outDir', 'rootDir', 'files'];
+const DISCOURAGED_FIELDS: readonly string[] = ['outDir', 'rootDir', 'files'];
 
 /** Warns when monorepo tsconfigs use outDir, rootDir, or files. */
 const rule: WorkspaceRule = {
@@ -74,7 +74,7 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const compilerOptions: unknown = parsed.compilerOptions;
+      const { compilerOptions } = parsed;
       if (typeof compilerOptions !== 'object' || compilerOptions === null) {
         /* Check top-level files field. */
         if (Array.isArray(parsed.files)) {

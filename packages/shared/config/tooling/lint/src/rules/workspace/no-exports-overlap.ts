@@ -59,8 +59,8 @@ const rule: WorkspaceRule = {
     for (const pkgPath of packageJsonPaths) {
       const content: string = await ctx.readFile(pkgPath);
       const parsed: Record<string, unknown> = JSON.parse(content) as Record<string, unknown>;
-      const name: unknown = parsed.name;
-      const exports: unknown = parsed.exports;
+      const { name } = parsed;
+      const { exports } = parsed;
 
       if (typeof name !== 'string' || exports === undefined || exports === null) {
         continue;
@@ -74,7 +74,7 @@ const rule: WorkspaceRule = {
       const relativePath: string = relative(ctx.rootDir, pkgPath);
 
       for (const exportKey of Object.keys(exportsRecord)) {
-        const resolvedPath: string = name + '/' + exportKey;
+        const resolvedPath: string = name + `/${exportKey}`;
         const existing: string | undefined = exportMap.get(resolvedPath);
 
         if (existing !== undefined) {

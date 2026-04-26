@@ -68,7 +68,7 @@ const rule: TypeScriptRule = {
         return [];
       }
 
-      const arg: AstNode | undefined = args[0];
+      const [arg]: AstNode | undefined = args;
       if (!arg) {
         return [];
       }

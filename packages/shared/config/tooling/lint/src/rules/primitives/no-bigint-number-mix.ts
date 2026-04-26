@@ -20,7 +20,7 @@ const ARITHMETIC_OPERATORS = new Set(['+', '-', '*', '/', '%']);
  * Returns true if the node is a BigInt literal (has a `bigint` property).
  */
 function isBigIntLiteral(node: AstNode): boolean {
-  const bigint: unknown = node.bigint;
+  const { bigint } = node;
   return node.type === 'Literal' && bigint !== undefined && bigint !== null;
 }
 
@@ -28,7 +28,7 @@ function isBigIntLiteral(node: AstNode): boolean {
  * Returns true if the node is a number literal.
  */
 function isNumberLiteral(node: AstNode): boolean {
-  const value: unknown = node.value;
+  const { value } = node;
   return node.type === 'Literal' && typeof value === 'number';
 }
 
@@ -50,8 +50,8 @@ const rule: TypeScriptRule = {
         return results;
       }
 
-      const left: unknown = node.left;
-      const right: unknown = node.right;
+      const { left } = node;
+      const { right } = node;
       const leftNode = left !== null && typeof left === 'object' ? (left as AstNode) : undefined;
       const rightNode =
         right !== null && typeof right === 'object' ? (right as AstNode) : undefined;

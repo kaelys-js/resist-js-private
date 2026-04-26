@@ -30,7 +30,9 @@ const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
   const results: LintResult[] = [];
 
   walkBody(node, (child: AstNode): boolean | void => {
-    if (child.type !== 'CallExpression') return;
+    if (child.type !== 'CallExpression') {
+      return;
+    }
 
     for (const method of ARRAY_METHODS) {
       if (isCallTo(child, method)) {

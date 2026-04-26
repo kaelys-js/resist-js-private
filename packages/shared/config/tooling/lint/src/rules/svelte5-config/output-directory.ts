@@ -57,7 +57,7 @@ const rule: TypeScriptRule = {
       if (adapterValue?.type === 'CallExpression') {
         const args: AstNode[] | undefined = adapterValue.arguments as AstNode[] | undefined;
         if (args && args.length > 0 && args[0]?.type === 'ObjectExpression') {
-          const adapterOpts: AstNode = args[0];
+          const [adapterOpts]: AstNode = args;
 
           for (const prop of ['pages', 'assets'] as const) {
             const propValue: AstNode | undefined = getNestedValue(adapterOpts, prop);

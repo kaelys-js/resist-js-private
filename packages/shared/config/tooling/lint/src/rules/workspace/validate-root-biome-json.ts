@@ -101,7 +101,7 @@ const rule: WorkspaceRule = {
       results.push(
         createResult(
           'workspace/validate-root-biome-json',
-          ctx.rootDir + '/biome.json',
+          `${ctx.rootDir}/biome.json`,
           1,
           1,
           'error',

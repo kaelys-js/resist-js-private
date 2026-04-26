@@ -69,8 +69,12 @@ const rule: WorkspaceRule = {
       const plan = parsePlan(content);
 
       for (const task of plan.tasks) {
-        if (task.isTail) continue;
-        if (task.files.length === 0) continue;
+        if (task.isTail) {
+          continue;
+        }
+        if (task.files.length === 0) {
+          continue;
+        }
 
         /* Check if task has any non-exempt source files */
         const hasSourceFiles: boolean = task.files.some(
@@ -81,7 +85,9 @@ const rule: WorkspaceRule = {
             !isTestPath(f.path),
         );
 
-        if (!hasSourceFiles) continue;
+        if (!hasSourceFiles) {
+          continue;
+        }
 
         /* Check if task declares any test files */
         const hasTestFiles: boolean = task.files.some(

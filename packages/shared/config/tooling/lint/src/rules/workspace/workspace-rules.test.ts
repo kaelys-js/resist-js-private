@@ -13483,9 +13483,15 @@ describe('workspace/enforce-git-config', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('core.autocrlf')) return 'input\n';
-      if (command.includes('pull.rebase')) return 'false\n';
-      if (command.includes('push.default')) return 'simple\n';
+      if (command.includes('core.autocrlf')) {
+        return 'input\n';
+      }
+      if (command.includes('pull.rebase')) {
+        return 'false\n';
+      }
+      if (command.includes('push.default')) {
+        return 'simple\n';
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -13497,9 +13503,15 @@ describe('workspace/enforce-git-config', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('core.autocrlf')) return 'true\n';
-      if (command.includes('pull.rebase')) return 'false\n';
-      if (command.includes('push.default')) return 'simple\n';
+      if (command.includes('core.autocrlf')) {
+        return 'true\n';
+      }
+      if (command.includes('pull.rebase')) {
+        return 'false\n';
+      }
+      if (command.includes('push.default')) {
+        return 'simple\n';
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -13515,9 +13527,15 @@ describe('workspace/enforce-git-config', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('core.autocrlf')) throw new Error('unset');
-      if (command.includes('pull.rebase')) return 'false\n';
-      if (command.includes('push.default')) return 'simple\n';
+      if (command.includes('core.autocrlf')) {
+        throw new Error('unset');
+      }
+      if (command.includes('pull.rebase')) {
+        return 'false\n';
+      }
+      if (command.includes('push.default')) {
+        return 'simple\n';
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -13599,9 +13617,15 @@ describe('workspace/no-unsafe-main-push', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('symbolic-ref')) return 'main\n';
-      if (command.includes('push.default')) return 'force\n';
-      if (command.includes('git log')) return 'feat: normal commit\n';
+      if (command.includes('symbolic-ref')) {
+        return 'main\n';
+      }
+      if (command.includes('push.default')) {
+        return 'force\n';
+      }
+      if (command.includes('git log')) {
+        return 'feat: normal commit\n';
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -13616,9 +13640,15 @@ describe('workspace/no-unsafe-main-push', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('symbolic-ref')) return 'master\n';
-      if (command.includes('push.default')) return 'matching\n';
-      if (command.includes('git log')) return 'feat: normal commit\n';
+      if (command.includes('symbolic-ref')) {
+        return 'master\n';
+      }
+      if (command.includes('push.default')) {
+        return 'matching\n';
+      }
+      if (command.includes('git log')) {
+        return 'feat: normal commit\n';
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -13631,9 +13661,15 @@ describe('workspace/no-unsafe-main-push', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('symbolic-ref')) return 'main\n';
-      if (command.includes('push.default')) return 'simple\n';
-      if (command.includes('git log')) return 'fixup! something\n';
+      if (command.includes('symbolic-ref')) {
+        return 'main\n';
+      }
+      if (command.includes('push.default')) {
+        return 'simple\n';
+      }
+      if (command.includes('git log')) {
+        return 'fixup! something\n';
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -13646,9 +13682,15 @@ describe('workspace/no-unsafe-main-push', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('symbolic-ref')) return 'main\n';
-      if (command.includes('push.default')) return 'simple\n';
-      if (command.includes('git log')) return 'squash! something\n';
+      if (command.includes('symbolic-ref')) {
+        return 'main\n';
+      }
+      if (command.includes('push.default')) {
+        return 'simple\n';
+      }
+      if (command.includes('git log')) {
+        return 'squash! something\n';
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -13661,7 +13703,9 @@ describe('workspace/no-unsafe-main-push', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('symbolic-ref')) return 'feature/my-feature\n';
+      if (command.includes('symbolic-ref')) {
+        return 'feature/my-feature\n';
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -13897,7 +13941,9 @@ describe('workspace/no-broken-git-refs', () => {
       if (command.includes('rev-parse --verify HEAD')) {
         throw new Error('fatal: not a valid ref');
       }
-      if (command.includes('fsck')) return '';
+      if (command.includes('fsck')) {
+        return '';
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -13912,8 +13958,12 @@ describe('workspace/no-broken-git-refs', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('rev-parse')) return 'abc123\n';
-      if (command.includes('fsck')) return 'broken link from tree abc123\nmissing blob def456\n';
+      if (command.includes('rev-parse')) {
+        return 'abc123\n';
+      }
+      if (command.includes('fsck')) {
+        return 'broken link from tree abc123\nmissing blob def456\n';
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -13927,8 +13977,12 @@ describe('workspace/no-broken-git-refs', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('rev-parse')) return 'abc123\n';
-      if (command.includes('fsck')) return 'Checking object directories: 100% done.\n';
+      if (command.includes('rev-parse')) {
+        return 'abc123\n';
+      }
+      if (command.includes('fsck')) {
+        return 'Checking object directories: 100% done.\n';
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -13940,8 +13994,12 @@ describe('workspace/no-broken-git-refs', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('rev-parse')) return 'abc123\n';
-      if (command.includes('fsck')) return 'dangling commit abc456\n';
+      if (command.includes('rev-parse')) {
+        return 'abc123\n';
+      }
+      if (command.includes('fsck')) {
+        return 'dangling commit abc456\n';
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -13987,7 +14045,9 @@ describe('workspace/no-broken-git-head', () => {
     const { existsSync, readFileSync } = await import('node:fs');
     vi.mocked(existsSync).mockImplementation((p: unknown) => {
       const path: string = String(p);
-      if (path.endsWith('HEAD')) return true;
+      if (path.endsWith('HEAD')) {
+        return true;
+      }
       return false;
     });
     vi.mocked(readFileSync).mockReturnValue('ref: refs/heads/missing-branch\n');
@@ -14039,7 +14099,9 @@ describe('workspace/no-unsafe-global-gitconfig', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('push.default')) return 'matching\n';
+      if (command.includes('push.default')) {
+        return 'matching\n';
+      }
       throw new Error('unset');
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -14054,7 +14116,9 @@ describe('workspace/no-unsafe-global-gitconfig', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('core.autocrlf')) return 'true\n';
+      if (command.includes('core.autocrlf')) {
+        return 'true\n';
+      }
       throw new Error('unset');
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -14067,7 +14131,9 @@ describe('workspace/no-unsafe-global-gitconfig', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('core.ignorecase')) return 'true\n';
+      if (command.includes('core.ignorecase')) {
+        return 'true\n';
+      }
       throw new Error('unset');
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -14080,9 +14146,15 @@ describe('workspace/no-unsafe-global-gitconfig', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('push.default')) return 'matching\n';
-      if (command.includes('core.autocrlf')) return 'true\n';
-      if (command.includes('core.ignorecase')) return 'true\n';
+      if (command.includes('push.default')) {
+        return 'matching\n';
+      }
+      if (command.includes('core.autocrlf')) {
+        return 'true\n';
+      }
+      if (command.includes('core.ignorecase')) {
+        return 'true\n';
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -14117,8 +14189,12 @@ describe('workspace/no-orphaned-git-refs', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('for-each-ref')) return 'refs/heads/broken abc123\n';
-      if (command.includes('cat-file')) throw new Error('bad object');
+      if (command.includes('for-each-ref')) {
+        return 'refs/heads/broken abc123\n';
+      }
+      if (command.includes('cat-file')) {
+        throw new Error('bad object');
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -14133,7 +14209,9 @@ describe('workspace/no-orphaned-git-refs', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
-      if (command.includes('for-each-ref')) return 'refs/heads/main abc123\n';
+      if (command.includes('for-each-ref')) {
+        return 'refs/heads/main abc123\n';
+      }
       return '';
     });
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
