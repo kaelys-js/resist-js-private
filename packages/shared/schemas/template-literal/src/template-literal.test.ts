@@ -14,12 +14,22 @@ import * as v from 'valibot';
 import { templateLiteral } from '@/schemas/template-literal/template-literal';
 import type { TemplateLiteralPart } from '@/schemas/template-literal/types';
 
-/** Cast safe: tsgo cannot verify TemplateLiteralSchema conforms to BaseSchema generics */
+/**
+ * Cast safe: tsgo cannot verify TemplateLiteralSchema conforms to BaseSchema generics.
+ *
+ * @param s - The unknown value to cast.
+ * @returns The same value typed as a string-input/string-output BaseSchema.
+ */
 function asSchema(s: unknown): v.BaseSchema<string, string, v.BaseIssue<unknown>> {
   return s as v.BaseSchema<string, string, v.BaseIssue<unknown>>;
 }
 
-/** Cast safe: tsgo cannot verify SchemaWithPipe/TemplateLiteralSchema conforms to TemplateLiteralPart */
+/**
+ * Cast safe: tsgo cannot verify SchemaWithPipe/TemplateLiteralSchema conforms to TemplateLiteralPart.
+ *
+ * @param parts - The unknown parts array to cast.
+ * @returns The same array typed as a readonly tuple of TemplateLiteralPart.
+ */
 function asParts(parts: readonly unknown[]): readonly TemplateLiteralPart[] {
   return parts as readonly TemplateLiteralPart[];
 }

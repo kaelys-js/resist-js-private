@@ -577,8 +577,8 @@ export const TimezoneSchema = v.pipe(
   v.string(),
   v.check((s: Str): Bool => {
     try {
-      Intl.DateTimeFormat(undefined, { timeZone: s });
-      return true;
+      const _fmt: Intl.DateTimeFormat = new Intl.DateTimeFormat(undefined, { timeZone: s });
+      return _fmt !== undefined;
     } catch {
       return false;
     }
@@ -703,8 +703,7 @@ export const JsonStringSchema = v.pipe(
   v.check((s: Str): Bool => {
     try {
       // JSON.parse is correct here: validating string IS parseable JSON
-      const parsed: unknown = JSON.parse(s);
-
+      JSON.parse(s);
       return true;
     } catch {
       return false;
@@ -954,8 +953,8 @@ export const RegexPatternSchema = v.pipe(
   v.string(),
   v.check((s: Str): Bool => {
     try {
-      new RegExp(s);
-      return true;
+      const _re: RegExp = new RegExp(s);
+      return _re !== undefined;
     } catch {
       return false;
     }
