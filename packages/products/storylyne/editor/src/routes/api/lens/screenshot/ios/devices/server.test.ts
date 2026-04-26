@@ -20,9 +20,11 @@ vi.mock('$app/environment', () => ({
 }));
 
 vi.mock('$lib/server/simulator/ios-simctl', () => ({
-  isXcrunAvailable: vi.fn(async () => state.xcrunOk),
-  listSimulatorDevices: vi.fn(async () => {
-    if (state.throws) throw state.throws;
+  isXcrunAvailable: vi.fn(async () => { await Promise.resolve(); return state.xcrunOk; }),
+  listSimulatorDevices: vi.fn(() => {
+    if (state.throws) {
+      throw state.throws;
+    }
     return state.devices;
   }),
 }));

@@ -8,6 +8,7 @@ import { EventEmitter } from 'node:events';
 import type { Num, Str } from '@/schemas/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildReadyCheckScript, parseEvalResponse } from './android-page-load';
+import type * as AndroidPageLoadModule from './android-page-load';
 
 describe('android-page-load', () => {
   describe('buildReadyCheckScript', () => {
@@ -54,7 +55,9 @@ describe('android-page-load', () => {
         this.sent.push(d);
       }
       close(): void {
-        if (this.closeThrows) throw new Error('closed');
+        if (this.closeThrows) {
+          throw new Error('closed');
+        }
         this.closed = true;
       }
     }
@@ -62,7 +65,9 @@ describe('android-page-load', () => {
     vi.mock('ws', () => ({
       WebSocket: class {
         constructor(url: string) {
-          if (!state.socket) throw new Error('socket not set');
+          if (!state.socket) {
+            throw new Error('socket not set');
+          }
           return new state.socket(url) as object;
         }
       },
@@ -75,7 +80,7 @@ describe('android-page-load', () => {
       vi.useRealTimers();
     });
 
-    async function load(): Promise<typeof import('./android-page-load')> {
+    async function load(): Promise<typeof AndroidPageLoadModule> {
       vi.resetModules();
       return await import('./android-page-load');
     }

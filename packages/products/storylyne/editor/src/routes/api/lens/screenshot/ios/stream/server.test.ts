@@ -20,13 +20,15 @@ vi.mock('$app/environment', () => ({
 }));
 
 vi.mock('$lib/server/simulator/ios-simctl', () => ({
-  isXcrunAvailable: vi.fn(async () => state.xcrunOk),
+  isXcrunAvailable: vi.fn(async () => { await Promise.resolve(); return state.xcrunOk; }),
 }));
 
 vi.mock('$lib/server/simulator/ios-screenshot', () => ({
-  captureSimulatorScreenshot: vi.fn(async () => {
+  captureSimulatorScreenshot: vi.fn(() => {
     state.captureCalls++;
-    if (state.captureThrows) throw new Error('screenshot failed');
+    if (state.captureThrows) {
+      throw new Error('screenshot failed');
+    }
     return Buffer.from([0x89, 0x50, 0x4e, 0x47]);
   }),
 }));

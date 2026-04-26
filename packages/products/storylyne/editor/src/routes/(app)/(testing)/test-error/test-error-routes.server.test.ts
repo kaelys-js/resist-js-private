@@ -27,8 +27,8 @@ describe('test-error route load() — throws shape', () => {
     let thrown: unknown = null;
     try {
       (load400 as (e: typeof STUB_EVENT) => void)(STUB_EVENT);
-    } catch (err) {
-      thrown = err;
+    } catch (error) {
+      thrown = error;
     }
     expect(thrown).not.toBeNull();
     expect((thrown as { status?: number }).status).toBe(400);
@@ -39,8 +39,8 @@ describe('test-error route load() — throws shape', () => {
     let thrown: unknown = null;
     try {
       (load403 as (e: typeof STUB_EVENT) => void)(STUB_EVENT);
-    } catch (err) {
-      thrown = err;
+    } catch (error) {
+      thrown = error;
     }
     expect((thrown as { status?: number }).status).toBe(403);
     expect((thrown as { body?: { message: string } }).body?.message).toBe('Forbidden');
@@ -50,8 +50,8 @@ describe('test-error route load() — throws shape', () => {
     let thrown: unknown = null;
     try {
       (load404 as (e: typeof STUB_EVENT) => void)(STUB_EVENT);
-    } catch (err) {
-      thrown = err;
+    } catch (error) {
+      thrown = error;
     }
     expect((thrown as { status?: number }).status).toBe(404);
     expect((thrown as { body?: { message: string } }).body?.message).toBe('Not found');
@@ -61,8 +61,8 @@ describe('test-error route load() — throws shape', () => {
     let thrown: unknown = null;
     try {
       (load500 as (e: typeof STUB_EVENT) => void)(STUB_EVENT);
-    } catch (err) {
-      thrown = err;
+    } catch (error) {
+      thrown = error;
     }
     expect((thrown as { status?: number }).status).toBe(500);
     expect((thrown as { body?: { message: string } }).body?.message).toBe('Internal server error');
@@ -72,8 +72,8 @@ describe('test-error route load() — throws shape', () => {
     let thrown: unknown = null;
     try {
       (loadUnexpected as (e: typeof STUB_EVENT) => void)(STUB_EVENT);
-    } catch (err) {
-      thrown = err;
+    } catch (error) {
+      thrown = error;
     }
     expect(thrown).toBeInstanceOf(Error);
     expect((thrown as Error).message).toBe('Unexpected test error — this simulates a server crash');
@@ -83,8 +83,8 @@ describe('test-error route load() — throws shape', () => {
     let thrown: unknown = null;
     try {
       (loadValidation as (e: typeof STUB_EVENT) => void)(STUB_EVENT);
-    } catch (err) {
-      thrown = err;
+    } catch (error) {
+      thrown = error;
     }
     expect(thrown).not.toBeNull();
     /* AppError is the resist-js domain error — has a `code` property like

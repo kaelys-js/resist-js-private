@@ -7,8 +7,9 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type * as ServerModule from './+server';
 
-type LoadedModule = typeof import('./+server');
+type LoadedModule = typeof ServerModule;
 
 const state = vi.hoisted(() => ({
   dev: true,
@@ -31,45 +32,49 @@ vi.mock('$app/environment', () => ({
 }));
 
 vi.mock('$lib/server/simulator/ios-simctl', () => ({
-  isXcrunAvailable: vi.fn(async () => state.xcrunAvailable),
-  listSimulatorDevices: vi.fn(async () => state.devices),
+  isXcrunAvailable: vi.fn(async () => { await Promise.resolve(); return state.xcrunAvailable; }),
+  listSimulatorDevices: vi.fn(async () => { await Promise.resolve(); return state.devices; }),
 }));
 
 vi.mock('$lib/server/simulator/ios-accessibility', () => ({
-  applyAccessibilitySettings: vi.fn(async () => {}),
+  applyAccessibilitySettings: vi.fn(() => {}),
   parseAccessibilityParams: vi.fn(() => ({})),
 }));
 
 vi.mock('$lib/server/simulator/ios-debug-proxy', () => ({
-  isDebugProxyInstalled: vi.fn(async () => state.debugProxyInstalled),
-  startDebugProxy: vi.fn(async () => {}),
-  getInspectablePages: vi.fn(async () => state.inspectablePages),
+  isDebugProxyInstalled: vi.fn(async () => { await Promise.resolve(); return state.debugProxyInstalled; }),
+  startDebugProxy: vi.fn(() => {}),
+  getInspectablePages: vi.fn(async () => { await Promise.resolve(); return state.inspectablePages; }),
 }));
 
 vi.mock('$lib/server/simulator/ios-pool', () => ({
-  acquireSimulator: vi.fn(async (udid: string, name: string) => {
-    if (state.acquireThrows) throw state.acquireThrows;
-    if (state.acquireImpl) return state.acquireImpl(udid, name);
+  acquireSimulator: vi.fn((udid: string, name: string) => {
+    if (state.acquireThrows) {
+      throw state.acquireThrows;
+    }
+    if (state.acquireImpl) {
+      return state.acquireImpl(udid, name);
+    }
     return { udid };
   }),
   releaseSimulator: vi.fn(() => {}),
 }));
 
 vi.mock('$lib/server/simulator/ios-page-load', () => ({
-  waitForPageLoad: vi.fn(async () => {}),
+  waitForPageLoad: vi.fn(() => {}),
 }));
 
 vi.mock('$lib/server/simulator/ios-console-capture', () => ({
-  captureConsoleLogs: vi.fn(async () => state.consoleLogs),
+  captureConsoleLogs: vi.fn(async () => { await Promise.resolve(); return state.consoleLogs; }),
   formatConsoleMessages: vi.fn((m: unknown) => m),
 }));
 
 vi.mock('$lib/server/simulator/ios-screenshot', () => ({
-  captureSimulatorScreenshot: vi.fn(async () => state.screenshotBuffer),
+  captureSimulatorScreenshot: vi.fn(async () => { await Promise.resolve(); return state.screenshotBuffer; }),
 }));
 
 vi.mock('$lib/server/simulator/ios-navigate', () => ({
-  openUrlInSimulator: vi.fn(async () => {}),
+  openUrlInSimulator: vi.fn(() => {}),
 }));
 
 vi.mock('$lib/server/simulator/ios-safe-area', () => ({

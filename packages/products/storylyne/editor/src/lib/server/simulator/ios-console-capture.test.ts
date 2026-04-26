@@ -13,6 +13,7 @@ import {
   formatConsoleMessages,
   stopCapture,
 } from './ios-console-capture';
+import type * as IosConsoleCaptureModule from './ios-console-capture';
 
 describe('ios-console-capture', () => {
   describe('parseConsoleMessage', () => {
@@ -168,7 +169,9 @@ describe('ios-console-capture', () => {
         this.sent.push(d);
       }
       close(): void {
-        if (this.closeThrows) throw new Error('x');
+        if (this.closeThrows) {
+          throw new Error('x');
+        }
         this.closed = true;
       }
     }
@@ -176,7 +179,9 @@ describe('ios-console-capture', () => {
     vi.mock('ws', () => ({
       WebSocket: class {
         constructor(url: string) {
-          if (!state.socket) throw new Error('no socket');
+          if (!state.socket) {
+            throw new Error('no socket');
+          }
           return new state.socket(url) as object;
         }
       },
@@ -189,7 +194,7 @@ describe('ios-console-capture', () => {
       vi.useRealTimers();
     });
 
-    async function load(): Promise<typeof import('./ios-console-capture')> {
+    async function load(): Promise<typeof IosConsoleCaptureModule> {
       vi.resetModules();
       return await import('./ios-console-capture');
     }

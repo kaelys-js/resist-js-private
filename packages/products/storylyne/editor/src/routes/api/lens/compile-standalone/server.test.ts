@@ -11,6 +11,8 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type * as NodeUrlModule from 'node:url';
+import type * as NodeFsModule from 'node:fs';
 
 /* ------------------------------------------------------------------ */
 /*  Mocks — declared before import of the module under test            */
@@ -54,7 +56,7 @@ function resetFs(): void {
 }
 
 vi.mock('node:url', async () => {
-  const actual = await vi.importActual<typeof import('node:url')>('node:url');
+  const actual = await vi.importActual<typeof NodeUrlModule>('node:url');
   return {
     ...actual,
     fileURLToPath: vi.fn(
@@ -65,7 +67,7 @@ vi.mock('node:url', async () => {
 });
 
 vi.mock('node:fs', async () => {
-  const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
+  const actual = await vi.importActual<typeof NodeFsModule>('node:fs');
   return {
     ...actual,
     readFileSync: vi.fn((p: unknown, _enc?: unknown): string => {

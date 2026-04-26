@@ -11,6 +11,7 @@ import {
   buildAccessibilityCommands,
   parseAccessibilityParams,
 } from './ios-accessibility';
+import type * as NodeChildProcessModule from 'node:child_process';
 
 describe('ios-accessibility', () => {
   const udid: Str = 'TEST-UDID-1234' as Str;
@@ -173,7 +174,7 @@ describe('ios-accessibility', () => {
           } else {
             cb(null, { stdout: '', stderr: '' });
           }
-          return null as unknown as ReturnType<typeof import('node:child_process').execFile>;
+          return null as unknown as ReturnType<typeof NodeChildProcessModule.execFile>;
         },
       },
       execFile: (
@@ -187,7 +188,7 @@ describe('ios-accessibility', () => {
         } else {
           cb(null, { stdout: '', stderr: '' });
         }
-        return null as unknown as ReturnType<typeof import('node:child_process').execFile>;
+        return null as unknown as ReturnType<typeof NodeChildProcessModule.execFile>;
       },
     }));
 

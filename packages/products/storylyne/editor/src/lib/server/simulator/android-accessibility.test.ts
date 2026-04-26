@@ -103,8 +103,12 @@ describe('android-accessibility', () => {
           cb: (e: Error | null, r?: { stdout: string; stderr: string }) => void,
         ) => {
           state.calls.push([...args]);
-          if (state.reject.has(state.calls.length - 1)) cb(new Error('x'));
-          else cb(null, { stdout: '', stderr: '' });
+          if (state.reject.has(state.calls.length - 1)) {
+            cb(new Error('x'));
+          }
+          else {
+            cb(null, { stdout: '', stderr: '' });
+          }
           return null;
         },
       },
@@ -114,8 +118,12 @@ describe('android-accessibility', () => {
         cb: (e: Error | null, r?: { stdout: string; stderr: string }) => void,
       ) => {
         state.calls.push([...args]);
-        if (state.reject.has(state.calls.length - 1)) cb(new Error('x'));
-        else cb(null, { stdout: '', stderr: '' });
+        if (state.reject.has(state.calls.length - 1)) {
+          cb(new Error('x'));
+        }
+        else {
+          cb(null, { stdout: '', stderr: '' });
+        }
         return null;
       },
     }));
