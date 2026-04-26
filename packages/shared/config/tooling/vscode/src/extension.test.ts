@@ -325,7 +325,7 @@ describe('extension', () => {
     capturedEditorChangeCallback = undefined;
 
     for (const key of Object.keys(h.cfgValues)) {
-      delete h.cfgValues[key];
+      Reflect.deleteProperty(h.cfgValues, key);
     }
 
     h.binaryState.exists = true;

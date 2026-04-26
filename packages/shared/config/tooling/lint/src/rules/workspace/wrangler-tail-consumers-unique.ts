@@ -92,7 +92,7 @@ const rule: WorkspaceRule = {
           if (typeof consumer !== 'object' || consumer === null) {
             continue;
           }
-          const { service }: unknown = (consumer as Record<string, unknown>);
+          const { service }: unknown = consumer as Record<string, unknown>;
           if (typeof service !== 'string') {
             continue;
           }
