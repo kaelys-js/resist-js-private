@@ -111,7 +111,9 @@ Each task is atomic: implement → verify (`qa:lint <file>`) → update plan →
 **Files**:
 - Edit: `packages/shared/config/tooling/vite/src/vite-plugin-template-html-edge.test.ts`
 
-**Verification**: 0 diagnostics on file. Test still passes.
+**Verification**:
+- `pnpm -w run qa:lint packages/shared/config/tooling/vite/src/vite-plugin-template-html-edge.test.ts 2>&1 | grep -cE '^  ✗ '` returns `0`.
+- `pnpm --filter @/config/tooling/vite run qa:test 2>&1 | grep "Tests"` shows `Tests <N> passed` with N >= baseline.
 
 ---
 
@@ -139,7 +141,11 @@ Each task is atomic: implement → verify (`qa:lint <file>`) → update plan →
 - Class instantiation check: no new classes.
 - Dead code / unused export check: no deletions this round.
 
-**Verification**: All four counts match baselines.
+**Verification**:
+- `grep -rc 'registerCommand' packages/shared/config/tooling/vite/src 2>/dev/null | awk -F: '{s+=$2} END{print s}'` returns `0` (no slash-commands in vite plugin).
+- `grep -rc 'config\\.get(' packages/shared/config/tooling/vite/src 2>/dev/null | awk -F: '{s+=$2} END{print s}'` matches baseline.
+- `grep -rc '^export class\\|^class ' packages/shared/config/tooling/vite/src 2>/dev/null | awk -F: '{s+=$2} END{print s}'` matches baseline.
+- `pnpm -w run qa:lint 2>&1 | grep -c 'no-unused-vars'` returns `0`.
 
 ---
 

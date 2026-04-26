@@ -14,8 +14,7 @@
 import * as v from 'valibot';
 import type { Snippet } from 'svelte';
 import { type VariantProps, tv } from 'tailwind-variants';
-import { StrSchema, BoolSchema } from '@/schemas/common';
-import type { Bool } from '@/schemas/common';
+import { StrSchema, BoolSchema, type Bool } from '@/schemas/common';
 
 /** The tailwind-variants config for Badge. */
 export const badgeVariants = tv({

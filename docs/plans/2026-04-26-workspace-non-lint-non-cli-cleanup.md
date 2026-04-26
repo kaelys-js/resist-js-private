@@ -58,10 +58,10 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 - Update `Plan` of TASK 2 with the actual patterns and per-pattern site counts.
 
 **Files**:
-- Read: `packages/products/storylyne/editor/src/routes/(testing)/components/[name]/+page.svelte`
-- Read: `packages/products/storylyne/editor/src/routes/(testing)/+layout.svelte`
-- Read: `packages/products/storylyne/editor/src/routes/(testing)/icons/+page.svelte`
-- Read: `packages/products/storylyne/editor/src/routes/(testing)/changelog/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/components/[name]/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/+layout.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/icons/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/changelog/+page.svelte`
 
 **Verification**:
 - A documented mapping exists from each unique error message stem (top 6 by count) to a fix mechanism (snippet retype / `?? fallback` / `as never` cast / `<svelte:element>` swap / etc.).
@@ -121,15 +121,15 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 - Process each file end-to-end before moving to the next (don't interleave): read, edit per-site, verify file-level qa:lint shows 0 errors for that file, then move on.
 - Order by descending error count: icons (21), changelog (12), components/category (10), tokens (9), components/tags (8), DevToolbar (8), components/all (7), accessibility (7).
 
-**Files** (edits):
-- `src/routes/(testing)/icons/+page.svelte`
-- `src/routes/(testing)/changelog/+page.svelte`
-- `src/routes/(testing)/components/category/+page.svelte`
-- `src/routes/(testing)/tokens/+page.svelte`
-- `src/routes/(testing)/components/tags/+page.svelte`
-- `src/lib/components/DevToolbar.svelte`
-- `src/routes/(testing)/components/all/+page.svelte`
-- `src/routes/(testing)/accessibility/+page.svelte`
+**Files**:
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/icons/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/changelog/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/components/category/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/tokens/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/components/tags/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/lib/components/DevToolbar.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/components/all/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/accessibility/+page.svelte`
 
 **Verification**:
 - After each file: `pnpm -w run qa:lint <file>` returns 0 `^  ✗ ` lines.
@@ -149,7 +149,24 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 - Process each file end-to-end.
 - Aggressive parallelism not required — keep grouping by directory for cache efficiency.
 
-**Files**: Enumerated at TASK 5 start; estimated ~27 distinct `.svelte` files.
+**Files**:
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/about/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/browser-support/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/components/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/components/category/[category]/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/getting-started/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/styling/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/support/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/routes/isolate/[name]/+page.svelte`
+- Edit: `packages/products/storylyne/editor/src/lib/components/DevToolbarAppState.svelte`
+- Edit: `packages/products/storylyne/editor/src/lib/components/DevToolbarDebug.svelte`
+- Edit: `packages/products/storylyne/editor/src/lib/components/DevToolbarFeatureFlags.svelte`
+- Edit: `packages/products/storylyne/editor/src/lib/components/DevToolbarPerf.svelte`
+- Edit: `packages/products/storylyne/editor/src/lib/components/NavScenes.svelte`
+- Edit: `packages/products/storylyne/editor/src/lib/server/preview/cdp-input.ts`
+- Edit: `packages/products/storylyne/editor/src/routes/(app)/+layout.svelte`
+- Edit: `packages/shared/locale/src/direction.ts`
+- Test: `packages/shared/locale/src/direction.test.ts`
 
 **Verification**:
 - `pnpm -w run qa:lint packages/products/storylyne/editor 2>&1 | grep -c 'svelte-check/error'` returns 0.
@@ -167,7 +184,10 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 - For each: Read the site, apply the obvious fix (drop `async`, delete unused, `Record<K, V>` syntax).
 - Run `pnpm -w run qa:lint` workspace-wide after to confirm.
 
-**Files**: Enumerated at TASK 6 start (~3–5 distinct files).
+**Files**:
+- Edit: `packages/shared/locale/src/t.ts`
+- Edit: `packages/shared/config/tooling/svelte/src/index-init.test.ts`
+- Edit: `packages/products/storylyne/editor/src/routes/(testing)/components/[name]/+page.svelte`
 
 **Verification**:
 - `pnpm -w run qa:lint <all-paths-except-lint-and-cli> 2>&1 | grep -cE 'oxlint/(require-await|no-unused-vars|consistent-indexed-object-style)'` returns 0.
@@ -204,7 +224,10 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 - Dead code / unused export check: 2 `no-unused-vars` deletions in TASK 6; verify via `pnpm -w run qa:lint <paths> 2>&1 | grep -c 'no-unused-vars'` returns 0.
 
 **Verification**:
-- All four counts match baseline (except `no-unused-vars` count drops from 2 → 0).
+- `grep -rc 'registerCommand' packages/products/storylyne/editor/src 2>/dev/null | awk -F: '{s+=$2} END{print s}'` matches baseline count from prior commit `6e0dba96`.
+- `grep -rc 'config\\.get(' packages/products/storylyne/editor/src 2>/dev/null | awk -F: '{s+=$2} END{print s}'` matches baseline count from prior commit `6e0dba96`.
+- `git diff --stat HEAD~1 -- packages/products/storylyne/editor/src/` shows no new `class` keywords introduced.
+- `pnpm -w run qa:lint packages/products/storylyne/editor 2>&1 | grep -c 'no-unused-vars'` returns `0`.
 
 ---
 

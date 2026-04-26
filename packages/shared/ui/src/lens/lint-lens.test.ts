@@ -70,7 +70,8 @@ function readComponentSource(sveltePath: string): string {
   const sv: string = readFileSync(sveltePath, 'utf8');
   const typesPath: string = join(dirname(sveltePath), 'types.ts');
   if (existsSync(typesPath)) {
-    return `${sv}\n/* --- adjacent types.ts --- */\n${readFileSync(typesPath, 'utf8')}`;
+    const sep: string = '\n// --- adjacent types.ts ---\n';
+    return sv + sep + readFileSync(typesPath, 'utf8');
   }
   return sv;
 }

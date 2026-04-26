@@ -83,6 +83,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint`) → run `@/lin
 
 **Files**:
 - Edit: `packages/shared/config/tooling/lint/src/**/*.ts` (~30 files, mechanical)
+- Test: `packages/shared/config/tooling/lint/src/cli.test.ts`
 
 **Verification**:
 - `pnpm -w run qa:lint 2>&1 | grep -cE 'oxlint/(prefer-destructuring|numeric-separators-style|no-lonely-if|no-duplicate-imports|no-duplicates|prefer-template|prefer-string-raw|prefer-at|prefer-string-slice|no-useless-concat|prefer-number-properties|array-type|no-array-sort|no-new-array)'` returns `0`.
@@ -197,10 +198,11 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint`) → run `@/lin
 - If real issue: edit the comments to be plan-rule compliant.
 
 **Files**:
-- Read: `packages/shared/config/tooling/lint/src/rules/plans/require-plan-structure.ts`
-- Read: `packages/shared/config/tooling/lint/src/rules/plans/require-concrete-verification.ts`
-- Read: `packages/shared/config/tooling/lint/src/rules/plans/no-template-placeholders.ts`
-- Possible edit: `packages/shared/config/tooling/lint/src/rules/plans/plan-parser.ts` (extend `discoverPlanFiles` to skip `lint/src/rules/plans/*.ts`).
+- Edit: `packages/shared/config/tooling/lint/src/rules/plans/require-plan-structure.ts`
+- Edit: `packages/shared/config/tooling/lint/src/rules/plans/require-concrete-verification.ts`
+- Edit: `packages/shared/config/tooling/lint/src/rules/plans/no-template-placeholders.ts`
+- Edit: `packages/shared/config/tooling/lint/src/rules/plans/plan-parser.ts`
+- Test: `packages/shared/config/tooling/lint/src/rules/plans/plans-rules.test.ts`
 
 **Verification**:
 - `pnpm -w run qa:lint 2>&1 | grep -cE 'plans/'` returns `0`.
