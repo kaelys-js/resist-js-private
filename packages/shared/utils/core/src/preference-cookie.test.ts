@@ -22,7 +22,12 @@ import {
 /** Test storage prefix matching the editor's convention. */
 const PREFIX: Str = 'testapp';
 
-/** Helper to build a prefixed cookie key. */
+/**
+ * Helper to build a prefixed cookie key.
+ *
+ * @param name - The unprefixed cookie name.
+ * @returns The cookie name with the test prefix applied.
+ */
 function prefixedKey(name: Str): Str {
   return `${PREFIX}:${name}`;
 }

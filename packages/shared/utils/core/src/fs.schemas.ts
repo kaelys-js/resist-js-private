@@ -20,10 +20,10 @@ import * as v from 'valibot';
  * Schema for file encoding.
  *
  * Accepts one of the supported Node.js `BufferEncoding` subsets:
- * `'utf-8'`, `'utf8'`, `'ascii'`, `'binary'`, `'latin1'`, `'base64'`, `'hex'`.
+ * `'utf8'`, `'utf8'`, `'ascii'`, `'binary'`, `'latin1'`, `'base64'`, `'hex'`.
  */
 export const FileEncodingSchema = v.picklist([
-  'utf-8',
+  'utf8',
   'utf8',
   'ascii',
   'binary',
@@ -47,16 +47,16 @@ export const FileContentSchema = v.string();
 export type FileEncoding = v.InferOutput<typeof FileEncodingSchema>;
 
 /**
- * Default file encoding: `'utf-8'`.
+ * Default file encoding: `'utf8'`.
  *
  * Used as the default encoding for `readFile` and `writeFile`.
  *
  * @example
  * ```typescript
- * const encoding: FileEncoding = DEFAULT_FILE_ENCODING; // 'utf-8'
+ * const encoding: FileEncoding = DEFAULT_FILE_ENCODING; // 'utf8'
  * ```
  */
-export const DEFAULT_FILE_ENCODING: FileEncoding = 'utf-8';
+export const DEFAULT_FILE_ENCODING: FileEncoding = 'utf8';
 
 /** Inferred output type of {@link FileContentSchema}. A string of file content. */
 export type FileContent = v.InferOutput<typeof FileContentSchema>;

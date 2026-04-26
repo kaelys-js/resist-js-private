@@ -10,6 +10,7 @@
   "globals": {
     "console": "readonly",
     "setTimeout": "readonly",
+    "setImmediate": "readonly",
     "clearTimeout": "readonly",
     "setInterval": "readonly",
     "clearInterval": "readonly",
@@ -478,7 +479,7 @@
     "jsdoc/check-tag-names": [
       "error",
       {
-        "definedTags": ["typeParam", "remarks"]
+        "definedTags": ["typeParam", "remarks", "vitest-environment"]
       }
     ],
     "jsdoc/empty-tags": "error",
@@ -628,6 +629,25 @@
       "rules": {
         "typescript/consistent-type-definitions": "off",
         "unicorn/require-module-specifiers": "off"
+      }
+    },
+    {
+      "files": ["**/utils/core/src/shell.ts"],
+      "rules": {
+        "typescript/consistent-type-imports": "off",
+        "typescript/no-var-requires": "off"
+      }
+    },
+    {
+      "files": ["**/utils/core/src/process.test.ts"],
+      "rules": {
+        "unicorn/prefer-event-target": "off"
+      }
+    },
+    {
+      "files": ["**/utils/core/src/network.ts", "**/utils/core/src/pool.ts"],
+      "rules": {
+        "no-await-in-loop": "off"
       }
     }
   ]

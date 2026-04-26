@@ -253,7 +253,9 @@ function createCapturedError(
  * @returns Void — fire-and-forget context.
  */
 function safeInvoke(fn: (captured: CapturedError) => void, captured: CapturedError): Void {
-  if (isHandling) return;
+  if (isHandling) {
+    return;
+  }
   isHandling = true;
   try {
     fn(captured);
@@ -278,7 +280,9 @@ function safeInvoke(fn: (captured: CapturedError) => void, captured: CapturedErr
 function removeAllListeners(): Void {
   for (let i: number = registeredListeners.length - 1; i >= 0; i--) {
     const entry = registeredListeners[i];
-    if (!entry) continue;
+    if (!entry) {
+      continue;
+    }
     const { target, event, listener, capture, denoSignal } = entry;
     if (denoSignal) {
       // Deno signal listeners must use Deno.removeSignalListener
@@ -336,7 +340,9 @@ function teardown(): Void {
  */
 function registerNodeHandlers(options: GlobalErrorHandlerOptions, runtime: RuntimeKind): Void {
   const proc: OptionalNodeProcess = getProcess();
-  if (!proc || typeof proc.on !== 'function') return;
+  if (!proc || typeof proc.on !== 'function') {
+    return;
+  }
 
   if (!globalAbortController) {
     globalAbortController = new AbortController();
@@ -433,19 +439,29 @@ function registerNodeHandlers(options: GlobalErrorHandlerOptions, runtime: Runti
  * @returns Void — fire-and-forget.
  */
 function registerBrowserHandlers(options: GlobalErrorHandlerOptions, runtime: RuntimeKind): Void {
-  if (globalThis.window === undefined) return;
+  if (globalThis.window === undefined) {
+    return;
+  }
 
   const win: Window = globalThis.window;
 
   // window.error — JS errors (ErrorEvent) — non-fatal in browser
   addListener(win, 'error', (event: unknown): Void => {
     // Distinguish JS errors from resource errors
-    if (!(event instanceof ErrorEvent)) return;
+    if (!(event instanceof ErrorEvent)) {
+      return;
+    }
 
     const errorMeta: Record<Str, unknown> = {};
-    if (event.filename) errorMeta.filename = event.filename;
-    if (event.lineno) errorMeta.lineno = event.lineno;
-    if (event.colno) errorMeta.colno = event.colno;
+    if (event.filename) {
+      errorMeta.filename = event.filename;
+    }
+    if (event.lineno) {
+      errorMeta.lineno = event.lineno;
+    }
+    if (event.colno) {
+      errorMeta.colno = event.colno;
+    }
     // Detect CORS "Script error." cross-origin blocking
     if (event.message === 'Script error.' && !event.filename) {
       errorMeta.crossOriginBlocked = true;
@@ -530,9 +546,13 @@ function registerBrowserHandlers(options: GlobalErrorHandlerOptions, runtime: Ru
       'error',
       (event: unknown): Void => {
         // Only fires for HTMLElement targets (not ErrorEvent JS errors)
-        if (event instanceof ErrorEvent) return;
+        if (event instanceof ErrorEvent) {
+          return;
+        }
         const target: unknown = (event as Event)?.target;
-        if (!target || !(target instanceof HTMLElement)) return;
+        if (!target || !(target instanceof HTMLElement)) {
+          return;
+        }
         // Use getAttribute to get the raw attribute value, not the resolved URL.
         // .src/.href properties resolve relative/empty values to the page URL,
         // producing misleading "Resource load error: <IMG> http://current-page" messages.
@@ -540,7 +560,9 @@ function registerBrowserHandlers(options: GlobalErrorHandlerOptions, runtime: Ru
           (target as HTMLElement).getAttribute('src') ??
           (target as HTMLElement).getAttribute('href') ??
           '';
-        if (!rawSrc) return; // Skip elements with no actual src/href attribute
+        if (!rawSrc) {
+          return; // Skip elements with no actual src/href attribute
+        }
         const { tagName } = target;
         const captured: CapturedError = createCapturedError(
           'resourceError',
@@ -570,7 +592,9 @@ function registerBrowserHandlers(options: GlobalErrorHandlerOptions, runtime: Ru
  * @returns Void — fire-and-forget.
  */
 function registerWorkerHandlers(options: GlobalErrorHandlerOptions, runtime: RuntimeKind): Void {
-  if (globalThis.self === undefined) return;
+  if (globalThis.self === undefined) {
+    return;
+  }
 
   const selfRef: typeof globalThis.self = globalThis.self;
 
@@ -609,7 +633,9 @@ function registerDenoHandlers(options: GlobalErrorHandlerOptions, runtime: Runti
   const Deno: Record<Str, unknown> | undefined = denoGlobal.Deno as
     | Record<Str, unknown>
     | undefined;
-  if (!Deno) return;
+  if (!Deno) {
+    return;
+  }
 
   // Deno error events go through globalThis
   addListener(globalThis as unknown as EventTarget, 'error', (event: unknown): Void => {
@@ -791,7 +817,9 @@ export function setupGlobalErrorHandling(options: GlobalErrorHandlerOptions): Re
     GlobalErrorHandlerOptionsSchema,
     options,
   );
-  if (!optionsResult.ok) return optionsResult;
+  if (!optionsResult.ok) {
+    return optionsResult;
+  }
 
   // Store ambient options for createCapturedError and reportError
   const validatedOptions: GlobalErrorHandlerOptions =
@@ -799,11 +827,15 @@ export function setupGlobalErrorHandling(options: GlobalErrorHandlerOptions): Re
   _ambientOptions = validatedOptions;
 
   const runtimeResult: Result<RuntimeKind> = detectRuntime();
-  if (!runtimeResult.ok) return runtimeResult;
+  if (!runtimeResult.ok) {
+    return runtimeResult;
+  }
   const runtime: RuntimeKind = runtimeResult.data;
 
   const envResult: Result<EnvironmentConfig> = detectEnvironment();
-  if (!envResult.ok) return envResult;
+  if (!envResult.ok) {
+    return envResult;
+  }
   const env: EnvironmentConfig = envResult.data;
 
   if (!globalAbortController) {
@@ -961,7 +993,9 @@ export function reportError(appError: AppError, fatal: Bool = true as Bool): Res
  * ```
  */
 export function setupSignalHandlers(onInterrupt: InterruptHandler): Result<Void> {
-  if (signalHandlersSetup) return ok(VoidSchema, undefined);
+  if (signalHandlersSetup) {
+    return ok(VoidSchema, undefined);
+  }
   signalHandlersSetup = true;
 
   const globalResult: Result<TeardownFn> = setupGlobalErrorHandling({
@@ -982,7 +1016,9 @@ export function setupSignalHandlers(onInterrupt: InterruptHandler): Result<Void>
     exitTimeoutMs: 0, // Disable auto-exit — legacy callers handle exit themselves
   });
 
-  if (!globalResult.ok) return globalResult;
+  if (!globalResult.ok) {
+    return globalResult;
+  }
   return ok(VoidSchema, undefined);
 }
 
@@ -1013,7 +1049,9 @@ export function setupSignalHandlers(onInterrupt: InterruptHandler): Result<Void>
  */
 export function registerCleanupHandler(callback: CleanupCallback): Result<Void> {
   const callbackResult: Result<CleanupCallback> = safeParse(CleanupCallbackSchema, callback);
-  if (!callbackResult.ok) return callbackResult;
+  if (!callbackResult.ok) {
+    return callbackResult;
+  }
   const proc: OptionalNodeProcess = getProcess();
   if (!proc || typeof proc.on !== 'function') {
     return ok(VoidSchema, undefined);
@@ -1083,7 +1121,9 @@ export function wrapAsync<TArgs extends Array<unknown>, TReturn>(
   onError: (captured: CapturedError) => void,
 ): Result<(...args: TArgs) => Promise<TReturn>> {
   const runtimeResult: Result<RuntimeKind> = detectRuntime();
-  if (!runtimeResult.ok) return runtimeResult;
+  if (!runtimeResult.ok) {
+    return runtimeResult;
+  }
 
   const wrapped = async (...args: TArgs): Promise<TReturn> => {
     try {
@@ -1126,7 +1166,9 @@ export function wrapFetchHandler(
   onError: (captured: CapturedError) => void,
 ): Result<(request: Request, env: unknown, ctx: unknown) => Promise<Response>> {
   const runtimeResult: Result<RuntimeKind> = detectRuntime();
-  if (!runtimeResult.ok) return runtimeResult;
+  if (!runtimeResult.ok) {
+    return runtimeResult;
+  }
 
   const wrapped = async (request: Request, env: unknown, ctx: unknown): Promise<Response> => {
     try {
@@ -1169,7 +1211,9 @@ export function captureWebSocketErrors(
   onError: (captured: CapturedError) => void,
 ): Result<TeardownFn> {
   const runtimeResult: Result<RuntimeKind> = detectRuntime();
-  if (!runtimeResult.ok) return runtimeResult;
+  if (!runtimeResult.ok) {
+    return runtimeResult;
+  }
 
   const onWsError = (_event: Event): Void => {
     const captured: CapturedError = createCapturedError(

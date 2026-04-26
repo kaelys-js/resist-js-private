@@ -14,8 +14,6 @@
 import type { Server } from 'node:net';
 import type { NetworkInterfaceInfo } from 'node:os';
 
-import * as v from 'valibot';
-
 import {
   BoolSchema,
   HostnameSchema,
@@ -25,7 +23,6 @@ import {
   type Bool,
   type Hostname,
   type Ipv4AddressArray,
-  type NonNegativeInteger,
   type Port,
   type PositiveInteger,
 } from '@/schemas/common';
@@ -40,15 +37,11 @@ import {
 import { fromUnknownError, safeParse } from '@/utils/result/safe';
 
 /**
- * Schema for network interfaces map returned by `os.networkInterfaces()`.
+ * Map of network interface name to its info array.
  *
- * Uses `v.unknown()` for array elements because `NetworkInterfaceInfo` is
- * a Node.js platform type. The function validates its own output via
- * `ok(Ipv4AddressArraySchema, results)`.
+ * Uses `NetworkInterfaceInfo` (Node.js platform type). The producing
+ * function validates its own output via `ok(Ipv4AddressArraySchema, results)`.
  */
-const NetworkInterfacesMapSchema = v.record(v.string(), v.optional(v.array(v.unknown())));
-
-/** Map of network interface name to its info array. @see {@link NetworkInterfacesMapSchema} */
 type NetworkInterfacesMap = Record<string, NetworkInterfaceInfo[] | undefined>;
 
 /** Default max attempts for port scanning. Branded at module load. */
@@ -81,10 +74,15 @@ const DEFAULT_MAX_ATTEMPTS: PositiveInteger = _maxAttemptsResult.ok
  * ```
  */
 export async function isPortAvailable(port: Port): Promise<Result<Bool>> {
+  await Promise.resolve();
   const net: OptionalNodeNet = nodeNet;
-  if (!net) return requireRuntime('isPortAvailable', 'node');
+  if (!net) {
+    return requireRuntime('isPortAvailable', 'node');
+  }
   const portResult: Result<Port> = safeParse(PortSchema, port);
-  if (!portResult.ok) return portResult;
+  if (!portResult.ok) {
+    return portResult;
+  }
 
   return new Promise<Result<Bool>>((resolve: (value: Result<Bool>) => void) => {
     const server: Server = net.createServer();
@@ -126,25 +124,39 @@ export async function findAvailablePort(
   maxAttempts: PositiveInteger = DEFAULT_MAX_ATTEMPTS,
 ): Promise<Result<Port>> {
   const net: OptionalNodeNet = nodeNet;
-  if (!net) return requireRuntime('findAvailablePort', 'node');
+  if (!net) {
+    return requireRuntime('findAvailablePort', 'node');
+  }
   const portResult: Result<Port> = safeParse(PortSchema, preferredPort);
-  if (!portResult.ok) return portResult;
+  if (!portResult.ok) {
+    return portResult;
+  }
 
   const attemptsResult: Result<PositiveInteger> = safeParse(PositiveIntegerSchema, maxAttempts);
-  if (!attemptsResult.ok) return attemptsResult;
+  if (!attemptsResult.ok) {
+    return attemptsResult;
+  }
 
   for (let attempt: number = 0; attempt < attemptsResult.data; attempt++) {
     const candidate: number = portResult.data + attempt;
 
-    if (candidate > 65535) break;
+    if (candidate > 65_535) {
+      break;
+    }
 
     const candidateResult: Result<Port> = safeParse(PortSchema, candidate);
-    if (!candidateResult.ok) continue;
+    if (!candidateResult.ok) {
+      continue;
+    }
 
     const check: Result<Bool> = await isPortAvailable(candidateResult.data);
-    if (!check.ok) return check;
+    if (!check.ok) {
+      return check;
+    }
 
-    if (check.data) return ok(PortSchema, candidateResult.data);
+    if (check.data) {
+      return ok(PortSchema, candidateResult.data);
+    }
   }
 
   return err(ERRORS.NETWORK.PORT_UNAVAILABLE, {
@@ -172,9 +184,13 @@ export async function findAvailablePort(
  */
 export function isPortAvailableSync(port: Port): Result<Bool> {
   const net: OptionalNodeNet = nodeNet;
-  if (!net) return requireRuntime('isPortAvailableSync', 'node');
+  if (!net) {
+    return requireRuntime('isPortAvailableSync', 'node');
+  }
   const portResult: Result<Port> = safeParse(PortSchema, port);
-  if (!portResult.ok) return portResult;
+  if (!portResult.ok) {
+    return portResult;
+  }
 
   const server: Server = net.createServer();
 
@@ -209,21 +225,25 @@ export function isPortAvailableSync(port: Port): Result<Bool> {
  */
 export function getLocalIpAddresses(): Result<Ipv4AddressArray> {
   const os: OptionalNodeOs = nodeOs;
-  if (!os) return requireRuntime('getLocalIpAddresses', 'node');
+  if (!os) {
+    return requireRuntime('getLocalIpAddresses', 'node');
+  }
   let nets: NetworkInterfacesMap;
   try {
     nets = os.networkInterfaces();
-  } catch (e: unknown) {
+  } catch (error: unknown) {
     return err(ERRORS.IO.READ_FAILED, {
       meta: { path: 'networkInterfaces' },
-      cause: fromUnknownError(e),
+      cause: fromUnknownError(error),
     });
   }
 
   const results: Ipv4AddressArray = [];
 
   for (const interfaces of Object.values(nets)) {
-    if (!interfaces) continue;
+    if (!interfaces) {
+      continue;
+    }
     for (const iface of interfaces) {
       if (!iface.internal && iface.family === 'IPv4') {
         results.push(iface.address);
@@ -251,14 +271,16 @@ export function getLocalIpAddresses(): Result<Ipv4AddressArray> {
  */
 export function getLocalHostname(): Result<Hostname> {
   const os: OptionalNodeOs = nodeOs;
-  if (!os) return requireRuntime('getLocalHostname', 'node');
+  if (!os) {
+    return requireRuntime('getLocalHostname', 'node');
+  }
   let rawHostname: string;
   try {
     rawHostname = os.hostname();
-  } catch (e: unknown) {
+  } catch (error: unknown) {
     return err(ERRORS.IO.READ_FAILED, {
       meta: { path: 'hostname' },
-      cause: fromUnknownError(e),
+      cause: fromUnknownError(error),
     });
   }
 

@@ -43,7 +43,9 @@ let currentOutputFormat: OutputFormat = DEFAULT_OUTPUT_FORMAT;
  */
 export function setOutputFormat(format: OutputFormat): Result<Void> {
   const input: Result<OutputFormat> = safeParse(OutputFormatSchema, format);
-  if (!input.ok) return input;
+  if (!input.ok) {
+    return input;
+  }
   currentOutputFormat = input.data;
   return ok(VoidSchema, undefined);
 }

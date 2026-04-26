@@ -67,7 +67,9 @@ function setupBrowserGlobals(): () => void {
     },
     dispatchEvent(event: Event): boolean {
       const list = listeners.get(event.type) ?? [];
-      for (const fn of list) fn(event);
+      for (const fn of list) {
+        fn(event);
+      }
       return true;
     },
   };
@@ -86,7 +88,9 @@ function setupBrowserGlobals(): () => void {
     },
     dispatchEvent(event: Event): boolean {
       const list = listeners.get(`doc:${event.type}`) ?? [];
-      for (const fn of list) fn(event);
+      for (const fn of list) {
+        fn(event);
+      }
       return true;
     },
   };
@@ -181,7 +185,9 @@ function setupWorkerGlobals(): () => void {
     },
     dispatchEvent(event: Event): boolean {
       const list = listeners.get(event.type) ?? [];
-      for (const fn of list) fn(event);
+      for (const fn of list) {
+        fn(event);
+      }
       return true;
     },
   };
@@ -591,7 +597,9 @@ describe('setupGlobalErrorHandling — deno runtime', () => {
       const onError = vi.fn();
       const setup = setupGlobalErrorHandling({ onError, exitTimeoutMs: 0 });
       expect(setup.ok).toBe(true);
-      if (setup.ok) setup.data(); // triggers removeSignalListener path
+      if (setup.ok) {
+        setup.data(); // triggers removeSignalListener path
+      }
     } finally {
       cleanup();
     }
@@ -648,10 +656,18 @@ describe('wrapAsync — runtime failure', () => {
       data: null,
       error: { code: 'RUNTIME.UNSUPPORTED', message: 'no runtime', meta: {} },
     });
-    const result = wrapAsync(async () => 1, vi.fn());
+    const result = wrapAsync(async () => {
+      await Promise.resolve();
+      return 1;
+    }, vi.fn());
     expect(result.ok).toBe(false);
   });
 });
+
+const fetchHandlerFixture = async (): Promise<Response> => {
+  await Promise.resolve();
+  return new Response('ok');
+};
 
 describe('wrapFetchHandler — runtime failure', () => {
   it('returns runtime error when detectRuntime fails', () => {
@@ -660,8 +676,7 @@ describe('wrapFetchHandler — runtime failure', () => {
       data: null,
       error: { code: 'RUNTIME.UNSUPPORTED', message: 'no runtime', meta: {} },
     });
-    const handler = async () => new Response('ok');
-    const result = wrapFetchHandler(handler, vi.fn());
+    const result = wrapFetchHandler(fetchHandlerFixture, vi.fn());
     expect(result.ok).toBe(false);
   });
 });

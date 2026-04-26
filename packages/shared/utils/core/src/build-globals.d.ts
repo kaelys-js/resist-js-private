@@ -21,4 +21,10 @@ declare global {
   var __BUILD_TIMESTAMP__: string;
 }
 
-export {};
+export type BuildGlobalKey =
+  | '__APP_VERSION__'
+  | '__GIT_COMMIT__'
+  | '__GIT_COMMIT_FULL__'
+  | '__GIT_BRANCH__'
+  | '__GIT_DIRTY__'
+  | '__BUILD_TIMESTAMP__';

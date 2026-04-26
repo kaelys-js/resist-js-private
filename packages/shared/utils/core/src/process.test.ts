@@ -372,7 +372,9 @@ describe('readStdin', () => {
     try {
       const promise = readStdin(1000 as NonNegativeInteger);
       /* Emit synchronously after readStdin attaches listeners on next tick. */
-      await new Promise<void>((r) => setImmediate(r));
+      await new Promise<void>((resolve): void => {
+        setImmediate(resolve);
+      });
       fakeStdin.emit('data', 'hello ');
       fakeStdin.emit('data', 'world');
       fakeStdin.emit('end');
@@ -404,7 +406,9 @@ describe('readStdin', () => {
     Object.defineProperty(process, 'stdin', { value: fakeStdin, configurable: true });
     try {
       const promise = readStdin(1000 as NonNegativeInteger);
-      await new Promise<void>((r) => setImmediate(r));
+      await new Promise<void>((resolve): void => {
+        setImmediate(resolve);
+      });
       fakeStdin.emit('error', new Error('stdin failed'));
       const result: Result<Str> = await promise;
       expect(result.ok).toBe(true);

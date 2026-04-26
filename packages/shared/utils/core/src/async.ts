@@ -69,10 +69,14 @@ export async function withTimeout<T>(
     NonNegativeIntegerSchema,
     timeoutMs,
   );
-  if (!timeoutMsResult.ok) return timeoutMsResult;
+  if (!timeoutMsResult.ok) {
+    return timeoutMsResult;
+  }
 
   const errorMessageResult: Result<Message> = safeParse(MessageSchema, errorMessage);
-  if (!errorMessageResult.ok) return errorMessageResult;
+  if (!errorMessageResult.ok) {
+    return errorMessageResult;
+  }
 
   if ((timeoutMsResult.data as unknown as number) <= 0) {
     try {

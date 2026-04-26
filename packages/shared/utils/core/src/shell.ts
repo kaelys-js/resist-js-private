@@ -38,7 +38,7 @@ import {
 } from '@/schemas/common';
 import type { CoreConfig } from '@/schemas/core-config/config';
 import type { PackageManagerType } from '@/schemas/core-config/tooling';
-import { ERRORS, err, ok, okUnchecked, type Result } from '@/schemas/result/result';
+import { ERRORS, err, ok, type Result } from '@/schemas/result/result';
 import { requireRuntime } from '@/utils/core/environment';
 import { type OptionalNodeChildProcess, nodeChildProcess } from '@/utils/core/node-imports';
 import type { DeepReadonly } from '@/utils/core/object';
@@ -86,12 +86,18 @@ export function runCommand(
   env?: EnvRecord,
 ): Result<Str> {
   const cp: OptionalNodeChildProcess = nodeChildProcess;
-  if (!cp) return requireRuntime('runCommand', 'node');
+  if (!cp) {
+    return requireRuntime('runCommand', 'node');
+  }
   const cmdResult: Result<Command> = safeParse(CommandSchema, command);
-  if (!cmdResult.ok) return cmdResult;
+  if (!cmdResult.ok) {
+    return cmdResult;
+  }
 
   const stdioResult: Result<StdioOption> = safeParse(StdioOptionSchema, stdio);
-  if (!stdioResult.ok) return stdioResult;
+  if (!stdioResult.ok) {
+    return stdioResult;
+  }
 
   try {
     const envRecordResult: Result<EnvRecordWithUndefined> = getEnvRecord();
@@ -100,14 +106,14 @@ export function runCommand(
     const output: Str =
       cp.execSync(cmdResult.data, {
         stdio: stdioResult.data,
-        encoding: 'utf-8',
+        encoding: 'utf8',
         env: mergedEnv,
       }) ?? '';
     return ok(StrSchema, output);
-  } catch (thrown: unknown) {
+  } catch (error: unknown) {
     return err(ERRORS.IO.EXEC_FAILED, {
       meta: { command: cmdResult.data },
-      cause: fromUnknownError(thrown),
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -127,22 +133,26 @@ export function runCommand(
  */
 export function execSyncSafe(command: Command): Result<Str> {
   const cp: OptionalNodeChildProcess = nodeChildProcess;
-  if (!cp) return requireRuntime('execSyncSafe', 'node');
+  if (!cp) {
+    return requireRuntime('execSyncSafe', 'node');
+  }
   const cmdResult: Result<Command> = safeParse(CommandSchema, command);
-  if (!cmdResult.ok) return cmdResult;
+  if (!cmdResult.ok) {
+    return cmdResult;
+  }
 
   try {
     const output: Str = cp
       .execSync(cmdResult.data, {
         stdio: 'pipe',
-        encoding: 'utf-8',
+        encoding: 'utf8',
       })
       .trim();
     return ok(StrSchema, output);
-  } catch (thrown: unknown) {
+  } catch (error: unknown) {
     return err(ERRORS.IO.EXEC_FAILED, {
       meta: { command: cmdResult.data },
-      cause: fromUnknownError(thrown),
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -162,9 +172,13 @@ export function execSyncSafe(command: Command): Result<Str> {
  */
 export function execSyncBool(command: Command): Result<Bool> {
   const cp: OptionalNodeChildProcess = nodeChildProcess;
-  if (!cp) return requireRuntime('execSyncBool', 'node');
+  if (!cp) {
+    return requireRuntime('execSyncBool', 'node');
+  }
   const cmdResult: Result<Command> = safeParse(CommandSchema, command);
-  if (!cmdResult.ok) return cmdResult;
+  if (!cmdResult.ok) {
+    return cmdResult;
+  }
 
   try {
     cp.execSync(cmdResult.data, { stdio: 'ignore' });
@@ -191,18 +205,27 @@ export function execSyncBool(command: Command): Result<Bool> {
 export function spawnProcess(
   command: Command,
   args: StrArray = [],
-  options: SpawnProcessOptions = { inherit: true },
+  options?: SpawnProcessOptions,
 ): Result<ChildProcess> {
   const cp: OptionalNodeChildProcess = nodeChildProcess;
-  if (!cp) return requireRuntime('spawnProcess', 'node');
+  if (!cp) {
+    return requireRuntime('spawnProcess', 'node');
+  }
   const cmdResult: Result<Command> = safeParse(CommandSchema, command);
-  if (!cmdResult.ok) return cmdResult;
+  if (!cmdResult.ok) {
+    return cmdResult;
+  }
 
   const argsResult: Result<StrArray> = safeParse(StrArraySchema, args);
-  if (!argsResult.ok) return argsResult;
+  if (!argsResult.ok) {
+    return argsResult;
+  }
 
-  const optionsResult: Result<SpawnProcessOptions> = safeParse(SpawnProcessOptionsSchema, options);
-  if (!optionsResult.ok) return optionsResult;
+  const opts: SpawnProcessOptions = options ?? { inherit: true };
+  const optionsResult: Result<SpawnProcessOptions> = safeParse(SpawnProcessOptionsSchema, opts);
+  if (!optionsResult.ok) {
+    return optionsResult;
+  }
 
   const { inherit, ...spawnOptions } = optionsResult.data;
 
@@ -214,10 +237,10 @@ export function spawnProcess(
     // ChildProcess is a mutable Node.js handle — must NOT be frozen (kill/write/events need mutation).
     // Both ok() and okUnchecked() deep-freeze data, so we construct the Result manually.
     return Object.freeze({ ok: true as const, data: child, error: null }) as Result<ChildProcess>;
-  } catch (thrown: unknown) {
+  } catch (error: unknown) {
     return err(ERRORS.IO.EXEC_FAILED, {
       meta: { command: cmdResult.data },
-      cause: fromUnknownError(thrown),
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -240,13 +263,19 @@ export function spawnProcess(
  */
 export function commandExists(cmd: Command): Result<Bool> {
   const cp: OptionalNodeChildProcess = nodeChildProcess;
-  if (!cp) return requireRuntime('commandExists', 'node');
+  if (!cp) {
+    return requireRuntime('commandExists', 'node');
+  }
   const cmdResult: Result<Command> = safeParse(CommandSchema, cmd);
-  if (!cmdResult.ok) return cmdResult;
+  if (!cmdResult.ok) {
+    return cmdResult;
+  }
 
   const checkCommand: Str = isWindows ? `where ${cmdResult.data}` : `command -v ${cmdResult.data}`;
   const checkResult: Result<Command> = safeParse(CommandSchema, checkCommand);
-  if (!checkResult.ok) return checkResult;
+  if (!checkResult.ok) {
+    return checkResult;
+  }
   return execSyncBool(checkResult.data);
 }
 
@@ -271,15 +300,23 @@ export function commandExists(cmd: Command): Result<Bool> {
  */
 export function ensureCommand(cmd: Command, installHint: Command): Result<EnsureCommandResult> {
   const cp: OptionalNodeChildProcess = nodeChildProcess;
-  if (!cp) return requireRuntime('ensureCommand', 'node');
+  if (!cp) {
+    return requireRuntime('ensureCommand', 'node');
+  }
   const cmdResult: Result<Command> = safeParse(CommandSchema, cmd);
-  if (!cmdResult.ok) return cmdResult;
+  if (!cmdResult.ok) {
+    return cmdResult;
+  }
 
   const hintResult: Result<Command> = safeParse(CommandSchema, installHint);
-  if (!hintResult.ok) return hintResult;
+  if (!hintResult.ok) {
+    return hintResult;
+  }
 
   const exists: Result<Bool> = commandExists(cmdResult.data);
-  if (!exists.ok) return exists;
+  if (!exists.ok) {
+    return exists;
+  }
 
   if (exists.data) {
     return ok(EnsureCommandResultSchema, { status: 'available' });
@@ -311,14 +348,22 @@ export function ensureCommand(cmd: Command, installHint: Command): Result<Ensure
  */
 export function ensureCommandOrFail(cmd: Command, installHint: Command): Result<Void> {
   const cp: OptionalNodeChildProcess = nodeChildProcess;
-  if (!cp) return requireRuntime('ensureCommandOrFail', 'node');
+  if (!cp) {
+    return requireRuntime('ensureCommandOrFail', 'node');
+  }
   const cmdResult: Result<Command> = safeParse(CommandSchema, cmd);
-  if (!cmdResult.ok) return cmdResult;
+  if (!cmdResult.ok) {
+    return cmdResult;
+  }
   const hintResult: Result<Command> = safeParse(CommandSchema, installHint);
-  if (!hintResult.ok) return hintResult;
+  if (!hintResult.ok) {
+    return hintResult;
+  }
 
   const result: Result<EnsureCommandResult> = ensureCommand(cmdResult.data, hintResult.data);
-  if (!result.ok) return result;
+  if (!result.ok) {
+    return result;
+  }
 
   if (result.data.status === 'not_found') {
     return err(ERRORS.CONFIG.NOT_FOUND, {
@@ -355,16 +400,22 @@ export function runPmCommand(
   env?: EnvRecord,
 ): Result<Str> {
   const cp: OptionalNodeChildProcess = nodeChildProcess;
-  if (!cp) return requireRuntime('runPmCommand', 'node');
+  if (!cp) {
+    return requireRuntime('runPmCommand', 'node');
+  }
   // Deferred require to avoid circular dependency: @/config imports @/utils/core
   const { getConfig } = _loadConfig();
   const configResult: Result<DeepReadonly<CoreConfig>> = getConfig();
-  if (!configResult.ok) return configResult;
+  if (!configResult.ok) {
+    return configResult;
+  }
 
   const pmName: PackageManagerType = configResult.data.tooling.packageManager.manager;
   const commandStr: Str = `${pmName} ${args.join(' ')}`;
   const commandResult: Result<Command> = safeParse(CommandSchema, commandStr);
-  if (!commandResult.ok) return commandResult;
+  if (!commandResult.ok) {
+    return commandResult;
+  }
   return runCommand(commandResult.data, stdio, env);
 }
 
@@ -385,11 +436,15 @@ export function runPmCommand(
  */
 export function getPmTool(): Result<Str> {
   const cp: OptionalNodeChildProcess = nodeChildProcess;
-  if (!cp) return requireRuntime('getPmTool', 'node');
+  if (!cp) {
+    return requireRuntime('getPmTool', 'node');
+  }
   // Deferred require to avoid circular dependency: @/config imports @/utils/core
   const { getConfig } = _loadConfig();
   const configResult: Result<DeepReadonly<CoreConfig>> = getConfig();
-  if (!configResult.ok) return configResult;
+  if (!configResult.ok) {
+    return configResult;
+  }
 
   const pm: PackageManagerType = configResult.data.tooling.packageManager.manager;
   return ok(StrSchema, pm === 'npm' ? 'npm run tool' : `${pm} tool`);
@@ -411,16 +466,26 @@ export function getPmTool(): Result<Str> {
  */
 export function getPmExec(): Result<Str> {
   const cp: OptionalNodeChildProcess = nodeChildProcess;
-  if (!cp) return requireRuntime('getPmExec', 'node');
+  if (!cp) {
+    return requireRuntime('getPmExec', 'node');
+  }
   // Deferred require to avoid circular dependency: @/config imports @/utils/core
   const { getConfig } = _loadConfig();
   const configResult: Result<DeepReadonly<CoreConfig>> = getConfig();
-  if (!configResult.ok) return configResult;
+  if (!configResult.ok) {
+    return configResult;
+  }
 
   const pm: PackageManagerType = configResult.data.tooling.packageManager.manager;
-  if (pm === 'npm') return ok(StrSchema, 'npx');
-  if (pm === 'yarn') return ok(StrSchema, 'yarn');
-  if (pm === 'bun') return ok(StrSchema, 'bunx');
+  if (pm === 'npm') {
+    return ok(StrSchema, 'npx');
+  }
+  if (pm === 'yarn') {
+    return ok(StrSchema, 'yarn');
+  }
+  if (pm === 'bun') {
+    return ok(StrSchema, 'bunx');
+  }
   return ok(StrSchema, 'pnpm');
 }
 
@@ -438,7 +503,9 @@ export function getPmExec(): Result<Str> {
  */
 function checkMise(workspaceRoot: Str): Result<NullableStr> {
   const cp: OptionalNodeChildProcess = nodeChildProcess;
-  if (!cp) return requireRuntime('checkMise', 'node');
+  if (!cp) {
+    return requireRuntime('checkMise', 'node');
+  }
   const bootstrapPath: Str = `${workspaceRoot}/bin/mise`;
 
   try {
@@ -470,7 +537,9 @@ function checkMise(workspaceRoot: Str): Result<NullableStr> {
  */
 function installMise(workspaceRoot: Str, version: Str): Result<Bool> {
   const cp: OptionalNodeChildProcess = nodeChildProcess;
-  if (!cp) return requireRuntime('installMise', 'node');
+  if (!cp) {
+    return requireRuntime('installMise', 'node');
+  }
 
   const installPath: Str = `${workspaceRoot}/.mise/bin/mise`;
   const env: NodeJS.ProcessEnv = {
@@ -503,10 +572,10 @@ function installMise(workspaceRoot: Str, version: Str): Result<Bool> {
     );
 
     return ok(BoolSchema, true);
-  } catch (thrown: unknown) {
+  } catch (error: unknown) {
     return err(ERRORS.IO.EXEC_FAILED, {
       meta: { command: 'mise' },
-      cause: fromUnknownError(thrown),
+      cause: fromUnknownError(error),
     });
   }
 }
@@ -526,16 +595,22 @@ export function ensureMise(
   dryRun: Bool = false,
 ): Result<EnsureMiseResult> {
   const cp: OptionalNodeChildProcess = nodeChildProcess;
-  if (!cp) return requireRuntime('ensureMise', 'node');
+  if (!cp) {
+    return requireRuntime('ensureMise', 'node');
+  }
   const dryRunResult: Result<Bool> = safeParse(BoolSchema, dryRun);
-  if (!dryRunResult.ok) return dryRunResult;
+  if (!dryRunResult.ok) {
+    return dryRunResult;
+  }
 
   if (dryRunResult.data) {
     return ok(EnsureMiseResultSchema, { status: 'skipped_dry_run' });
   }
 
   const installedVersion: Result<NullableStr> = checkMise(workspaceRoot);
-  if (!installedVersion.ok) return installedVersion;
+  if (!installedVersion.ok) {
+    return installedVersion;
+  }
 
   // Already installed at correct version
   if (installedVersion.data === configVersion) {
@@ -544,7 +619,9 @@ export function ensureMise(
 
   // Missing or wrong version — install/update
   const installed: Result<Bool> = installMise(workspaceRoot, configVersion);
-  if (!installed.ok) return installed;
+  if (!installed.ok) {
+    return installed;
+  }
 
   if (installedVersion.data === null) {
     return ok(EnsureMiseResultSchema, { status: 'installed' });

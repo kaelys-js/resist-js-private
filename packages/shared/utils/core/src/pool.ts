@@ -18,7 +18,6 @@ import {
   PositiveIntegerSchema,
   type Bool,
   type NonNegativeInteger,
-  type OptionalAbortSignal,
   type PositiveInteger,
 } from '@/schemas/common';
 import { functionSchema } from '@/schemas/function/function';
@@ -33,7 +32,9 @@ import { safeParse } from '@/utils/result/safe';
 
 /** Pre-validated zero for NonNegativeInteger boundaries. */
 const _zeroResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, 0);
-if (!_zeroResult.ok) throw new Error('Static literal 0 failed NonNegativeInteger validation');
+if (!_zeroResult.ok) {
+  throw new Error('Static literal 0 failed NonNegativeInteger validation');
+}
 const _ZERO_NNI: NonNegativeInteger = _zeroResult.data;
 
 // =============================================================================
@@ -200,7 +201,7 @@ export type PoolResult<T> = {
  * ```
  */
 export async function runPool<T>(
-  tasks: PoolTask<T>[],
+  tasks: Array<PoolTask<T>>,
   options: Partial<PoolOptions<T>> = {},
 ): Promise<PoolResult<T>> {
   const startTime: number = Date.now();
@@ -216,12 +217,10 @@ export async function runPool<T>(
     : DEFAULT_CONCURRENCY;
 
   const failFast: Bool = options.failFast ?? false;
-  const onTaskComplete = options.onTaskComplete;
-  const onTaskError = options.onTaskError;
-  const signal: OptionalAbortSignal = options.signal;
+  const { onTaskComplete, onTaskError, signal } = options;
 
   const total: number = tasks.length;
-  const results: (T | undefined)[] = Array.from({ length: total });
+  const results: Array<T | undefined> = Array.from({ length: total });
   const errors: Array<{ index: NonNegativeInteger; error: Error }> = [];
 
   let currentIndex: number = 0;
@@ -239,9 +238,12 @@ export async function runPool<T>(
       }
 
       const index: number = currentIndex;
-      currentIndex = currentIndex + 1;
+      currentIndex += 1;
 
-      const task: PoolTask<T> = tasks[index]!;
+      const task: PoolTask<T> | undefined = tasks[index];
+      if (!task) {
+        break;
+      }
 
       try {
         const result: T = await task();
@@ -253,7 +255,7 @@ export async function runPool<T>(
         }
 
         results[index] = result;
-        completedCount = completedCount + 1;
+        completedCount += 1;
 
         if (onTaskComplete) {
           const completedResult: Result<NonNegativeInteger> = safeParse(
@@ -268,14 +270,14 @@ export async function runPool<T>(
             onTaskComplete(result, completedResult.data, totalResult.data);
           }
         }
-      } catch (thrown: unknown) {
-        const error: Error = thrown instanceof Error ? thrown : new Error(String(thrown));
+      } catch (error: unknown) {
+        const errInstance: Error = error instanceof Error ? error : new Error(String(error));
         const indexResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, index);
         if (indexResult.ok) {
-          errors.push({ index: indexResult.data, error });
+          errors.push({ index: indexResult.data, error: errInstance });
 
           if (onTaskError) {
-            onTaskError(error, indexResult.data);
+            onTaskError(errInstance, indexResult.data);
           }
         }
 
@@ -288,11 +290,11 @@ export async function runPool<T>(
   }
 
   // Start workers up to concurrency limit
-  const workers: Promise<void>[] = [];
+  const workers: Array<Promise<void>> = [];
   const workerCount: number = Math.min(concurrency, total);
 
   // Internal arithmetic — values provably non-negative from validated inputs
-  for (let i: number = 0; i < workerCount; i = i + 1) {
+  for (let i: number = 0; i < workerCount; i += 1) {
     workers.push(executeNext());
   }
 

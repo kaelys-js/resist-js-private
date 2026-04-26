@@ -68,7 +68,9 @@ export function getPreferenceCookie(storagePrefix: Str, name: Str): Str | null {
   const cookieName: Str = `${storagePrefix}:${name}=`;
   // oxlint-disable-next-line unicorn/no-document-cookie -- Cookie Store API is async and lacks SSR/Safari support; synchronous read needed
   const cookies: Str = document.cookie;
-  if (!cookies) return null;
+  if (!cookies) {
+    return null;
+  }
 
   const parts: Str[] = cookies.split(';');
   for (const part of parts) {
@@ -98,11 +100,17 @@ export function getPreferenceCookie(storagePrefix: Str, name: Str): Str | null {
  * ```
  */
 export function sanitizeSidebarWidth(raw: Str | null): Num | null {
-  if (raw === null || raw === '') return null;
+  if (raw === null || raw === '') {
+    return null;
+  }
   const parsed: Num = Number(raw);
-  if (!Number.isFinite(parsed)) return null;
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
   const rounded: Num = Math.round(parsed);
-  if (rounded < SIDEBAR_MIN_PX || rounded > SIDEBAR_MAX_PX) return null;
+  if (rounded < SIDEBAR_MIN_PX || rounded > SIDEBAR_MAX_PX) {
+    return null;
+  }
   return rounded;
 }
 
@@ -123,8 +131,12 @@ export function sanitizeSidebarWidth(raw: Str | null): Num | null {
  * ```
  */
 export function sanitizeSidebarOpen(raw: Str | null): boolean | null {
-  if (raw === 'true') return true;
-  if (raw === 'false') return false;
+  if (raw === 'true') {
+    return true;
+  }
+  if (raw === 'false') {
+    return false;
+  }
   return null;
 }
 
@@ -147,7 +159,11 @@ export function sanitizeSidebarOpen(raw: Str | null): boolean | null {
  * ```
  */
 export function sanitizeTheme(raw: Str | null, supportedThemes: readonly Str[]): Str {
-  if (raw === null) return '';
-  if (supportedThemes.includes(raw)) return raw;
+  if (raw === null) {
+    return '';
+  }
+  if (supportedThemes.includes(raw)) {
+    return raw;
+  }
   return '';
 }
