@@ -26,7 +26,7 @@ const rule: TypeScriptRule = {
     NewExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
 
-      const callee: unknown = node.callee;
+      const { callee } = node;
       if (callee === null || typeof callee !== 'object') {
         return results;
       }

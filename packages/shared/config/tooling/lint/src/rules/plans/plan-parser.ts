@@ -133,7 +133,7 @@ function parseTasks(content: string, lines: string[]): PlanTask[] {
     if (m && m[1] && m[2]) {
       taskPositions.push({
         index: i,
-        number: parseInt(m[1], 10),
+        number: Number.parseInt(m[1], 10),
         name: m[2].trim(),
         line: i + 1,
       });
@@ -173,7 +173,9 @@ function parseTasks(content: string, lines: string[]): PlanTask[] {
         if (line.startsWith('- ')) {
           planBullets.push(line.slice(2).trim());
         } else if (line.startsWith('**') || line === '---' || line === '') {
-          if (planBullets.length > 0) break;
+          if (planBullets.length > 0) {
+            break;
+          }
         }
       }
     }
@@ -187,7 +189,9 @@ function parseTasks(content: string, lines: string[]): PlanTask[] {
       for (let i: number = filesStart + 1; i < sectionLines.length; i++) {
         const line: string = (sectionLines[i] ?? '').trim();
         if (!line.startsWith('- ')) {
-          if (files.length > 0 || line.startsWith('**') || line === '---') break;
+          if (files.length > 0 || line.startsWith('**') || line === '---') {
+            break;
+          }
           continue;
         }
         const fileMatch: RegExpMatchArray | null = line.match(
@@ -219,7 +223,9 @@ function parseTasks(content: string, lines: string[]): PlanTask[] {
       }
       for (let i: number = verStart + 1; i < sectionLines.length; i++) {
         const line: string = (sectionLines[i] ?? '').trim();
-        if (line.startsWith('**') || line === '---') break;
+        if (line.startsWith('**') || line === '---') {
+          break;
+        }
         if (line.startsWith('- ') || line.startsWith('`') || line.length > 0) {
           verLines.push(line);
         }
@@ -262,7 +268,9 @@ function parseDependencies(lines: string[]): TaskDependency[] {
       continue;
     }
 
-    if (!inTable) continue;
+    if (!inTable) {
+      continue;
+    }
 
     /* Skip table header and separator rows */
     if (line.startsWith('| Task') || line.startsWith('|---') || line.startsWith('| -')) {
@@ -282,7 +290,7 @@ function parseDependencies(lines: string[]): TaskDependency[] {
       .filter((c: string): boolean => c.length > 0);
 
     if (cells.length >= 3) {
-      const taskNum: number = parseInt(cells[0] ?? '', 10);
+      const taskNum: number = Number.parseInt(cells[0] ?? '', 10);
       const depStr: string = cells[2] ?? '';
 
       if (!isNaN(taskNum)) {
@@ -291,16 +299,18 @@ function parseDependencies(lines: string[]): TaskDependency[] {
           /* Parse "1-3" as [1,2,3], "1,3" as [1,3], "1" as [1] */
           const rangeMatch: RegExpMatchArray | null = depStr.match(/^(\d+)-(\d+)$/);
           if (rangeMatch && rangeMatch[1] && rangeMatch[2]) {
-            const start: number = parseInt(rangeMatch[1], 10);
-            const end: number = parseInt(rangeMatch[2], 10);
+            const start: number = Number.parseInt(rangeMatch[1], 10);
+            const end: number = Number.parseInt(rangeMatch[2], 10);
             for (let i: number = start; i <= end; i++) {
               dependsOn.push(i);
             }
           } else {
             /* Comma-separated or single number */
             for (const part of depStr.split(/[,\s]+/)) {
-              const n: number = parseInt(part.trim(), 10);
-              if (!isNaN(n)) dependsOn.push(n);
+              const n: number = Number.parseInt(part.trim(), 10);
+              if (!isNaN(n)) {
+                dependsOn.push(n);
+              }
             }
           }
         }
@@ -359,7 +369,9 @@ export async function discoverPlanFiles(ctx: {
  */
 export function parsePlanDate(filename: string): Date | undefined {
   const m: RegExpMatchArray | null = filename.match(/(\d{4}-\d{2}-\d{2})/);
-  if (!m || !m[1]) return undefined;
-  const d: Date = new Date(m[1] + 'T00:00:00');
+  if (!m || !m[1]) {
+    return undefined;
+  }
+  const d: Date = new Date(`${m[1]}T00:00:00`);
   return isNaN(d.getTime()) ? undefined : d;
 }

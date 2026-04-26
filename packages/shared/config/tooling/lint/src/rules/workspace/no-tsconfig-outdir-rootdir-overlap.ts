@@ -57,8 +57,8 @@ const rule: WorkspaceRule = {
         unknown
       >;
       const relativePath: string = relative(ctx.rootDir, filePath);
-      const outDir: unknown = compilerOptions.outDir;
-      const rootDir: unknown = compilerOptions.rootDir;
+      const { outDir } = compilerOptions;
+      const { rootDir } = compilerOptions;
 
       if (typeof outDir !== 'string' || outDir === '') {
         continue;

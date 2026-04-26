@@ -50,7 +50,7 @@ const rule: WorkspaceRule = {
     for (const [key, expected] of REQUIRED_CONFIG) {
       let actual: string;
       try {
-        actual = execSync('git config --get ' + key, { cwd: ctx.rootDir, encoding: 'utf8' }).trim();
+        actual = execSync(`git config --get ${key}`, { cwd: ctx.rootDir, encoding: 'utf8' }).trim();
       } catch {
         actual = '<unset>';
       }

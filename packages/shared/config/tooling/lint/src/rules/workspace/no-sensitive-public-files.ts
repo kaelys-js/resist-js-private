@@ -13,7 +13,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Sensitive file extensions that must not appear in public directories. */
-const SENSITIVE_EXTENSIONS: ReadonlyArray<string> = ['.env', '.sql', '.bak'];
+const SENSITIVE_EXTENSIONS: readonly string[] = ['.env', '.sql', '.bak'];
 
 /** Flags sensitive files found inside public/ directories. */
 const rule: WorkspaceRule = {

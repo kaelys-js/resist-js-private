@@ -65,13 +65,13 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const compilerOptions: unknown = parsed.compilerOptions;
+      const { compilerOptions } = parsed;
       if (typeof compilerOptions !== 'object' || compilerOptions === null) {
         continue;
       }
 
       const options: Record<string, unknown> = compilerOptions as Record<string, unknown>;
-      const paths: unknown = options.paths;
+      const { paths } = options;
 
       if (typeof paths !== 'object' || paths === null) {
         continue;

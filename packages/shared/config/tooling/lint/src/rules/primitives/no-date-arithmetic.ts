@@ -15,7 +15,7 @@ import type {
 } from '@/lint/framework/types.ts';
 
 function isNewDateExpression(node: AstNode): boolean {
-  const callee: unknown = node.callee;
+  const { callee } = node;
   if (callee === null || typeof callee !== 'object') {
     return false;
   }

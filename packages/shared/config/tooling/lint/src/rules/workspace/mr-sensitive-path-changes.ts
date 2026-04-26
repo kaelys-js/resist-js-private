@@ -10,7 +10,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Patterns matching sensitive file paths. */
-const SENSITIVE_PATTERNS: Array<RegExp> = [
+const SENSITIVE_PATTERNS: RegExp[] = [
   /^scripts\//,
   /^\.gitlab\//,
   /^package\.json$/,
@@ -55,7 +55,7 @@ const rule: WorkspaceRule = {
     }
 
     const approved: string | undefined = process.env['MR_APPROVED'];
-    const files: Array<string> = changedFiles.split(/[\n\s]+/).filter(Boolean);
+    const files: string[] = changedFiles.split(/[\n\s]+/).filter(Boolean);
     const hasSensitiveChange: boolean = files.some((f: string) =>
       SENSITIVE_PATTERNS.some((p: RegExp) => p.test(f)),
     );

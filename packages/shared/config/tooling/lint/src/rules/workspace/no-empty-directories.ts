@@ -37,7 +37,7 @@ const SKIP_DIRS: ReadonlySet<string> = new Set([
  *
  * @param {string} dir - Directory to scan
  * @param {string} rootDir - Workspace root for computing relative paths
- * @param {Array<string>} results - Accumulator for empty directory paths (mutated)
+ * @param {string[]} results - Accumulator for empty directory paths (mutated)
  * @returns {Promise<void>} Resolves when scanning is complete
  */
 async function findEmptyDirs(dir: string, rootDir: string, results: string[]): Promise<void> {

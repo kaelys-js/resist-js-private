@@ -27,7 +27,7 @@ const rule: TypeScriptRule = {
 
   visitor: {
     EachBlock(node: AstNode, context: VisitorContext): LintResult[] {
-      const key: unknown = node.key;
+      const { key } = node;
 
       if (key !== null && key !== undefined) {
         return [];

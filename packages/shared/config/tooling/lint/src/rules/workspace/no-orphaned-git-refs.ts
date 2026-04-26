@@ -58,7 +58,7 @@ const rule: WorkspaceRule = {
         }
 
         try {
-          execSync('git cat-file -e ' + hash + '^{commit}', {
+          execSync(`git cat-file -e ${hash}` + '^{commit}', {
             cwd: ctx.rootDir,
             encoding: 'utf8',
           });

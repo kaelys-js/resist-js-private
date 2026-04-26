@@ -43,7 +43,7 @@ const rule: WorkspaceRule = {
       return Promise.resolve(results);
     }
 
-    const files: Array<string> = changedFilesRaw
+    const files: string[] = changedFilesRaw
       .split(/[\n\s]+/)
       .map((f: string) => f.trim())
       .filter((f: string) => f.length > 0);

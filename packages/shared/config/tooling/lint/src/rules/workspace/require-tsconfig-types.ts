@@ -65,9 +65,9 @@ const rule: WorkspaceRule = {
       const relativePath: string = relative(ctx.rootDir, filePath);
       const configDir: string = dirname(filePath);
 
-      const entries: Array<string> = [];
+      const entries: string[] = [];
 
-      const typeRoots: unknown = compilerOptions.typeRoots;
+      const { typeRoots } = compilerOptions;
       if (Array.isArray(typeRoots)) {
         for (const entry of typeRoots) {
           if (typeof entry === 'string') {
@@ -76,7 +76,7 @@ const rule: WorkspaceRule = {
         }
       }
 
-      const types: unknown = compilerOptions.types;
+      const { types } = compilerOptions;
       if (Array.isArray(types)) {
         for (const entry of types) {
           if (typeof entry === 'string') {

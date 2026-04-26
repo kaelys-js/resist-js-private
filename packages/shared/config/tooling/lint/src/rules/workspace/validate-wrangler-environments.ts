@@ -68,7 +68,7 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const env: unknown = parsed.env;
+      const { env } = parsed;
       if (typeof env !== 'object' || env === null) {
         continue;
       }

@@ -19,7 +19,7 @@ const SERVICE_URL_RE: RegExp =
 const SOURCE_EXTENSIONS: ReadonlySet<string> = new Set<string>(['.ts', '.tsx', '.js', '.jsx']);
 
 /** Patterns to exclude. */
-const EXCLUDED_PATTERNS: ReadonlyArray<string> = [
+const EXCLUDED_PATTERNS: readonly string[] = [
   '.test.',
   '.spec.',
   '.e2e.',

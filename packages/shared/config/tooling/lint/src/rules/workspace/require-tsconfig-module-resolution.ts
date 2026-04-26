@@ -63,7 +63,7 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const moduleResolution: unknown = compilerOptions.moduleResolution;
+      const { moduleResolution } = compilerOptions;
       if (moduleResolution !== 'bundler') {
         results.push(
           createResult(

@@ -45,7 +45,7 @@ const rule: WorkspaceRule = {
     const seenIds: Map<string, string> = new Map();
 
     /** Collect all SVG file paths first. */
-    const svgFiles: Array<string> = [];
+    const svgFiles: string[] = [];
 
     for (const filePath of await ctx.allFiles()) {
       if (filePath.toLowerCase().endsWith('.svg')) {

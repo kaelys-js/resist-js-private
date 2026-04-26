@@ -53,7 +53,7 @@ const rule: WorkspaceRule = {
     const packages: WorkspacePackage[] = await ctx.getWorkspacePackages();
 
     for (const pkg of packages) {
-      const bin: unknown = pkg.packageJson.bin;
+      const { bin } = pkg.packageJson;
 
       if (bin === undefined || bin === null) {
         continue;

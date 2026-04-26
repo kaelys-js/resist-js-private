@@ -43,7 +43,7 @@ const rule: WorkspaceRule = {
       return Promise.resolve(results);
     }
 
-    const labels: Array<string> = labelsRaw
+    const labels: string[] = labelsRaw
       .split(/[,\n]/)
       .map((l: string) => l.trim())
       .filter((l: string) => l.length > 0);

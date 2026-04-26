@@ -115,7 +115,7 @@ const rule: WorkspaceRule = {
       const parsed: Record<string, unknown> = JSON.parse(content) as Record<string, unknown>;
       const relativePath: string = relative(ctx.rootDir, filePath);
 
-      const license: unknown = parsed.license;
+      const { license } = parsed;
       if (typeof license !== 'string' || license.trim().length === 0) {
         results.push(
           createResult(

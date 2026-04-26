@@ -27,7 +27,7 @@ const rule: TypeScriptRule = {
     TSAsExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
 
-      const typeAnnotation: unknown = node.typeAnnotation;
+      const { typeAnnotation } = node;
       if (typeAnnotation === null || typeof typeAnnotation !== 'object') {
         return results;
       }

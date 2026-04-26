@@ -119,7 +119,7 @@ const rule: WorkspaceRule = {
       try {
         const content: string = await ctx.readFile(biomePath);
         const parsed: Record<string, unknown> = JSON.parse(content) as Record<string, unknown>;
-        const formatter: unknown = parsed.formatter;
+        const { formatter } = parsed;
         if (typeof formatter === 'object' && formatter !== null) {
           const fmt: Record<string, unknown> = formatter as Record<string, unknown>;
           if (typeof fmt.indentStyle === 'string') {

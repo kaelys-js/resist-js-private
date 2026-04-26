@@ -29,22 +29,30 @@ function findRuneCall(node: AstNode): AstNode | null {
     const callee = node.callee as AstNode | undefined;
     if (callee?.type === 'Identifier') {
       const name = (callee.name as string) ?? '';
-      if (SVELTE_RUNES.has(name)) return node;
+      if (SVELTE_RUNES.has(name)) {
+        return node;
+      }
     }
   }
   for (const key of Object.keys(node)) {
-    if (key === 'type' || key === 'start' || key === 'end' || key === 'loc') continue;
+    if (key === 'type' || key === 'start' || key === 'end' || key === 'loc') {
+      continue;
+    }
     const val = node[key];
     if (Array.isArray(val)) {
       for (const item of val) {
         if (item && typeof item === 'object' && 'type' in item) {
           const found = findRuneCall(item as AstNode);
-          if (found) return found;
+          if (found) {
+            return found;
+          }
         }
       }
     } else if (val && typeof val === 'object' && 'type' in val) {
       const found = findRuneCall(val as AstNode);
-      if (found) return found;
+      if (found) {
+        return found;
+      }
     }
   }
   return null;
@@ -60,9 +68,13 @@ const rule: TypeScriptRule = {
   fixable: false,
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
-      if (context.file.endsWith('.svelte.ts')) return [];
+      if (context.file.endsWith('.svelte.ts')) {
+        return [];
+      }
       const runeCall = findRuneCall(node);
-      if (!runeCall) return [];
+      if (!runeCall) {
+        return [];
+      }
       const callee = runeCall.callee as AstNode;
       const name = (callee.name as string) ?? '$state';
       return [

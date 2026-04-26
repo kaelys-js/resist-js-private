@@ -104,7 +104,7 @@ const rule: WorkspaceRule = {
     }
 
     const sectionRegex: RegExp = /^\[.*\]$/gm;
-    const sections: Array<string> = [];
+    const sections: string[] = [];
     let match: RegExpExecArray | null = sectionRegex.exec(rootContent);
     while (match !== null) {
       sections.push(match[0]);
@@ -112,7 +112,7 @@ const rule: WorkspaceRule = {
     }
 
     const seen: Set<string> = new Set<string>();
-    const duplicates: Array<string> = [];
+    const duplicates: string[] = [];
     for (const section of sections) {
       if (seen.has(section)) {
         duplicates.push(section);

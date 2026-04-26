@@ -110,7 +110,7 @@ function extractCronExpressions(config: Record<string, unknown>): string[] {
   const crons: string[] = [];
 
   /* Top-level triggers.cron. */
-  const triggers: unknown = config.triggers;
+  const { triggers } = config;
   if (typeof triggers === 'object' && triggers !== null) {
     const triggersObj: Record<string, unknown> = triggers as Record<string, unknown>;
     if (Array.isArray(triggersObj.cron)) {
@@ -123,7 +123,7 @@ function extractCronExpressions(config: Record<string, unknown>): string[] {
   }
 
   /* Environment-level triggers.cron. */
-  const env: unknown = config.env;
+  const { env } = config;
   if (typeof env === 'object' && env !== null) {
     const envObj: Record<string, unknown> = env as Record<string, unknown>;
     for (const envConfig of Object.values(envObj)) {

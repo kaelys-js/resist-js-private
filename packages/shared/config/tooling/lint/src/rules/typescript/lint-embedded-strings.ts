@@ -43,7 +43,7 @@ function getStringValue(node: AstNode, context: VisitorContext): string | null {
       return null;
     }
 
-    const firstQuasi: AstNode | undefined = quasis[0];
+    const [firstQuasi]: AstNode | undefined = quasis;
     if (!firstQuasi) {
       return null;
     }

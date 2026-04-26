@@ -60,7 +60,7 @@ const rule: WorkspaceRule = {
       const relativePath: string = relative(ctx.rootDir, filePath);
       const configDir: string = dirname(filePath);
 
-      const paths: unknown = compilerOptions.paths;
+      const { paths } = compilerOptions;
       if (paths === undefined || paths === null || typeof paths !== 'object') {
         continue;
       }

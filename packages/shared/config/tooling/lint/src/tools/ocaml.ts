@@ -65,7 +65,7 @@ export function transformOcamlOutput(output: string): LintResult[] {
     if (stripped.startsWith('File "')) {
       diagnosticLines.push(stripped);
     } else if (diagnosticLines.length > 0) {
-      diagnosticLines[diagnosticLines.length - 1] += ' ' + stripped;
+      diagnosticLines[diagnosticLines.length - 1] += ` ${stripped}`;
     }
   }
 

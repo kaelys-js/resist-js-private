@@ -28,7 +28,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       // Check if the inner expression is also a TSAsExpression (chained assertion)
-      const expression: unknown = node.expression;
+      const { expression } = node;
       if (expression === null || typeof expression !== 'object') {
         return results;
       }

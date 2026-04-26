@@ -15,7 +15,7 @@ import { discoverPlanFiles } from '@/lint/rules/plans/plan-parser.ts';
 const RULE_ID: string = 'plans/no-template-placeholders';
 
 /** Placeholder patterns to detect (case-sensitive). */
-const PLACEHOLDER_PATTERNS: readonly { pattern: RegExp; label: string }[] = [
+const PLACEHOLDER_PATTERNS: ReadonlyArray<{ pattern: RegExp; label: string }> = [
   { pattern: /\[descriptive-name\]/g, label: '[descriptive-name]' },
   { pattern: /\[value\]/g, label: '[value]' },
   { pattern: /\[domain-specific metric\]/g, label: '[domain-specific metric]' },

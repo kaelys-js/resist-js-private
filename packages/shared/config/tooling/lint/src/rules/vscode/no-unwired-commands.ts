@@ -55,7 +55,9 @@ const rule: WorkspaceRule = {
     for (const pkg of packages) {
       const pkgJson = pkg.packageJson as Record<string, unknown>;
       const contributes = pkgJson['contributes'] as Record<string, unknown> | undefined;
-      if (!contributes || !contributes['commands']) continue;
+      if (!contributes || !contributes['commands']) {
+        continue;
+      }
 
       const pkgDir: string = dirname(pkg.path);
       const brandPath: string = join(pkgDir, BRAND_PATH);
@@ -66,7 +68,9 @@ const rule: WorkspaceRule = {
 
       /* Extract COMMANDS entries */
       const commandsBlock: RegExpMatchArray | null = COMMANDS_BLOCK_RE.exec(brandSource);
-      if (!commandsBlock || !commandsBlock[1]) continue;
+      if (!commandsBlock || !commandsBlock[1]) {
+        continue;
+      }
 
       const commandEntries: Array<{ key: string; id: string }> = [];
       const re: RegExp = new RegExp(COMMAND_ENTRY_RE.source, 'g');
@@ -80,14 +84,16 @@ const rule: WorkspaceRule = {
         match = re.exec(commandsBlock[1]);
       }
 
-      if (commandEntries.length === 0) continue;
+      if (commandEntries.length === 0) {
+        continue;
+      }
 
       /* Resolve ${COMMAND_PREFIX} in template literal command IDs */
       const prefixMatch: RegExpMatchArray | null = COMMAND_PREFIX_RE.exec(brandSource);
       if (prefixMatch && prefixMatch[1]) {
         const prefix: string = prefixMatch[1];
         for (const entry of commandEntries) {
-          entry.id = entry.id.replace(/\$\{COMMAND_PREFIX\}/g, prefix);
+          entry.id = entry.id.replaceAll(/\$\{COMMAND_PREFIX\}/g, prefix);
         }
       }
 
@@ -148,7 +154,9 @@ const rule: WorkspaceRule = {
  */
 function findLine(lines: string[], sub: string): number | undefined {
   for (let i: number = 0; i < lines.length; i++) {
-    if ((lines[i] ?? '').includes(sub)) return i + 1;
+    if ((lines[i] ?? '').includes(sub)) {
+      return i + 1;
+    }
   }
   return undefined;
 }

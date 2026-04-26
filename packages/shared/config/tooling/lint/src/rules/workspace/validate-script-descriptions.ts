@@ -62,7 +62,7 @@ const rule: WorkspaceRule = {
       const relativePath: string = relative(ctx.rootDir, filePath);
 
       /* If no scripts field, skip */
-      const scripts: unknown = pkgJson.scripts;
+      const { scripts } = pkgJson;
       if (typeof scripts !== 'object' || scripts === null) {
         continue;
       }
@@ -75,7 +75,7 @@ const rule: WorkspaceRule = {
       }
 
       /* Check meta.scripts.description exists */
-      const meta: unknown = pkgJson.meta;
+      const { meta } = pkgJson;
       let descriptions: Record<string, unknown> | undefined;
 
       if (typeof meta === 'object' && meta !== null) {

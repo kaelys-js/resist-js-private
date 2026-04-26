@@ -54,7 +54,7 @@ const rule: WorkspaceRule = {
       const parsed: Record<string, unknown> = JSON.parse(content) as Record<string, unknown>;
       const relativePath: string = relative(ctx.rootDir, filePath);
 
-      const author: unknown = parsed.author;
+      const { author } = parsed;
       let hasValidAuthor: boolean = false;
 
       if (typeof author === 'string' && author.trim().length > 0) {

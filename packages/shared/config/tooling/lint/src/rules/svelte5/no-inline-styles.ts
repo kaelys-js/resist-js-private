@@ -33,7 +33,7 @@ const rule: TypeScriptRule = {
       }
 
       // Check if the value is a literal string (hardcoded)
-      const value: unknown = node.value;
+      const { value } = node;
       if (!Array.isArray(value)) {
         return [];
       }

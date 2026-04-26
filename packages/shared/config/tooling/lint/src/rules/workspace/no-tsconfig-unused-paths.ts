@@ -48,7 +48,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     /** Collect all files first since allFiles is an async iterable that can only be iterated once. */
-    const allFiles: Array<string> = [];
+    const allFiles: string[] = [];
     for (const filePath of await ctx.allFiles()) {
       allFiles.push(filePath);
     }
@@ -80,7 +80,7 @@ const rule: WorkspaceRule = {
     }
 
     /** Second pass: scan source files for usage of each alias. */
-    const sourceContents: Array<string> = [];
+    const sourceContents: string[] = [];
 
     for (const filePath of allFiles) {
       const ext: string = filePath.slice(filePath.lastIndexOf('.'));

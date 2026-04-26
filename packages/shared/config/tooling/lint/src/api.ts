@@ -148,7 +148,7 @@ export async function lint(options?: LintOptions): Promise<LintApiResult<LintRes
   if (!localeResult.ok) {
     return { ok: false, error: localeResult.error };
   }
-  const strings: LintStrings = localeResult.strings;
+  const { strings } = localeResult;
 
   const cwd: string = opts.cwd ?? process.cwd();
 
@@ -156,8 +156,8 @@ export async function lint(options?: LintOptions): Promise<LintApiResult<LintRes
   let config: LintConfig;
   try {
     config = loadConfig(cwd, opts.configPath, strings);
-  } catch (err: unknown) {
-    return { ok: false, error: String(err) };
+  } catch (error: unknown) {
+    return { ok: false, error: String(error) };
   }
 
   /* Load rules */

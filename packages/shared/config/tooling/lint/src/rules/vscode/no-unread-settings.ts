@@ -48,7 +48,9 @@ const rule: WorkspaceRule = {
     for (const pkg of packages) {
       const pkgJson = pkg.packageJson as Record<string, unknown>;
       const contributes = pkgJson['contributes'] as Record<string, unknown> | undefined;
-      if (!contributes || !contributes['configuration']) continue;
+      if (!contributes || !contributes['configuration']) {
+        continue;
+      }
 
       const pkgDir: string = dirname(pkg.path);
       const brandPath: string = join(pkgDir, BRAND_PATH);
@@ -67,10 +69,14 @@ const rule: WorkspaceRule = {
       const configuration = contributes['configuration'] as
         | { properties: Record<string, unknown> }
         | undefined;
-      if (!configuration || !configuration.properties) continue;
+      if (!configuration || !configuration.properties) {
+        continue;
+      }
 
       const settingKeys: string[] = Object.keys(configuration.properties);
-      if (settingKeys.length === 0) continue;
+      if (settingKeys.length === 0) {
+        continue;
+      }
 
       /* Read package.json source for line number reporting */
       const pkgSource: string = await ctx.readFile(pkg.path);
@@ -140,7 +146,9 @@ const rule: WorkspaceRule = {
  */
 function findLine(lines: string[], sub: string): number | undefined {
   for (let i: number = 0; i < lines.length; i++) {
-    if ((lines[i] ?? '').includes(sub)) return i + 1;
+    if ((lines[i] ?? '').includes(sub)) {
+      return i + 1;
+    }
   }
   return undefined;
 }

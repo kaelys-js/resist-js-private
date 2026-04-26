@@ -38,14 +38,14 @@ const rule: TypeScriptRule = {
      */
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      const callsByObject: Map<string, { method: string; node: AstNode }[]> = new Map();
+      const callsByObject: Map<string, Array<{ method: string; node: AstNode }>> = new Map();
 
       walkBody(node, (child: AstNode): boolean | void => {
         for (const method of TRAVERSAL_METHODS) {
           if (isCallTo(child, method)) {
             const objectName: string | undefined = getCalleeObjectName(child);
             if (objectName) {
-              const existing: { method: string; node: AstNode }[] =
+              const existing: Array<{ method: string; node: AstNode }> =
                 callsByObject.get(objectName) ?? [];
               existing.push({ method, node: child });
               callsByObject.set(objectName, existing);

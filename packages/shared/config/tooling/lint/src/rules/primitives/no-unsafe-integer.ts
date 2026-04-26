@@ -27,7 +27,7 @@ const rule: TypeScriptRule = {
     Literal(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
 
-      const value: unknown = node.value;
+      const { value } = node;
       if (
         typeof value === 'number' &&
         Number.isInteger(value) &&

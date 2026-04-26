@@ -66,7 +66,7 @@ const rule: WorkspaceRule = {
         unknown
       >;
       const relativePath: string = relative(ctx.rootDir, filePath);
-      const baseUrl: unknown = compilerOptions.baseUrl;
+      const { baseUrl } = compilerOptions;
 
       if (baseUrl === undefined || baseUrl === null) {
         results.push(

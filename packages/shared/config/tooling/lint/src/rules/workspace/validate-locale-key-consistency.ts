@@ -54,7 +54,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     /** Group locale JSON files by their parent directory. */
-    const groups: Map<string, Array<string>> = new Map<string, Array<string>>();
+    const groups: Map<string, string[]> = new Map<string, string[]>();
 
     for (const filePath of await ctx.allFiles()) {
       if (!filePath.endsWith('.json')) {
@@ -68,7 +68,7 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const existing: Array<string> | undefined = groups.get(parentDir);
+      const existing: string[] | undefined = groups.get(parentDir);
       if (existing !== undefined) {
         existing.push(filePath);
       } else {
@@ -84,7 +84,7 @@ const rule: WorkspaceRule = {
       }
 
       /* Sort alphabetically — first file is the reference. */
-      const sorted: Array<string> = [...files].sort();
+      const sorted: string[] = [...files].sort();
       const referenceFile: string = sorted[0] as string;
 
       let referenceContent: string;
@@ -101,7 +101,7 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const referenceKeys: Array<string> = Object.keys(referenceData).sort();
+      const referenceKeys: string[] = Object.keys(referenceData).sort();
       const referenceRelative: string = relative(ctx.rootDir, referenceFile);
 
       /** Compare each other file to the reference. */
@@ -122,16 +122,16 @@ const rule: WorkspaceRule = {
           continue;
         }
 
-        const comparisonKeys: Array<string> = Object.keys(comparisonData).sort();
+        const comparisonKeys: string[] = Object.keys(comparisonData).sort();
         const comparisonRelative: string = relative(ctx.rootDir, comparisonFile);
 
         /** Find missing keys (in reference but not in comparison). */
-        const missingKeys: Array<string> = referenceKeys.filter(
+        const missingKeys: string[] = referenceKeys.filter(
           (key: string): boolean => !comparisonKeys.includes(key),
         );
 
         /** Find extra keys (in comparison but not in reference). */
-        const extraKeys: Array<string> = comparisonKeys.filter(
+        const extraKeys: string[] = comparisonKeys.filter(
           (key: string): boolean => !referenceKeys.includes(key),
         );
 

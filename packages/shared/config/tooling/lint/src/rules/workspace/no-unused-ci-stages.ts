@@ -84,7 +84,7 @@ const rule: WorkspaceRule = {
         if (inStagesBlock) {
           const stageEntry: RegExpMatchArray | null = line.match(/^\s+-\s+(.+)/);
           if (stageEntry !== null) {
-            const stageName: string = (stageEntry[1] ?? '').trim().replace(/^['"]|['"]$/g, '');
+            const stageName: string = (stageEntry[1] ?? '').trim().replaceAll(/^['"]|['"]$/g, '');
             if (stageName.length > 0) {
               declaredStages.set(stageName, i + 1);
             }
@@ -97,7 +97,7 @@ const rule: WorkspaceRule = {
         /* Extract stage references from job definitions. */
         const refMatch: RegExpMatchArray | null = line.match(STAGE_REF_PATTERN);
         if (refMatch !== null) {
-          const stageName: string = (refMatch[1] ?? '').trim().replace(/^['"]|['"]$/g, '');
+          const stageName: string = (refMatch[1] ?? '').trim().replaceAll(/^['"]|['"]$/g, '');
           if (stageName.length > 0) {
             usedStages.add(stageName);
           }

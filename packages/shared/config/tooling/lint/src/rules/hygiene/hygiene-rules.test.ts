@@ -17,7 +17,7 @@ describe('hygiene/no-bare-catch', () => {
   });
 
   it('does not report catch (e) {}', async () => {
-    const code = `try { throw new Error('x'); } catch (e) { console.log(e); }`;
+    const code = `try { throw new Error('x'); } catch (error) { console.log(error); }`;
     const results: LintResult[] = await runTypeScriptRules('test.ts', code, [noBareCatch]);
     expect(results).toHaveLength(0);
   });

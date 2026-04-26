@@ -109,7 +109,7 @@ const rule: WorkspaceRule = {
       }
 
       /* Check env-level d1_databases */
-      const env: unknown = config.env;
+      const { env } = config;
       if (typeof env === 'object' && env !== null) {
         const envObj: Record<string, unknown> = env as Record<string, unknown>;
         for (const envName of Object.keys(envObj)) {

@@ -95,7 +95,7 @@ export function transformDependencyCruiserOutput(
     const entry: DepcruiseViolation = violation as DepcruiseViolation;
     const from: string = entry.from ?? '';
     const to: string = entry.to ?? '';
-    const rule: DepcruiseViolation['rule'] | undefined = entry.rule;
+    const { rule } = entry;
     const ruleName: string = rule?.name ?? 'unknown';
     const severity: string = rule?.severity ?? 'error';
 

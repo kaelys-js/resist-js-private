@@ -75,8 +75,8 @@ const rule: WorkspaceRule = {
     const versionMap: Map<string, string> = new Map<string, string>();
 
     for (const pkg of workspacePackages) {
-      const name: string | undefined = pkg.name;
-      const version: unknown = pkg.packageJson.version;
+      const { name } = pkg;
+      const { version } = pkg.packageJson;
       if (typeof name === 'string' && typeof version === 'string') {
         versionMap.set(name, version);
       }

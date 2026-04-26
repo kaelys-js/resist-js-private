@@ -65,7 +65,7 @@ const rule: WorkspaceRule = {
       const content: string = await ctx.readFile(filePath);
       const parsed: Record<string, unknown> = JSON.parse(content) as Record<string, unknown>;
 
-      const scripts: unknown = parsed.scripts;
+      const { scripts } = parsed;
       if (scripts === undefined || scripts === null || typeof scripts !== 'object') {
         continue;
       }

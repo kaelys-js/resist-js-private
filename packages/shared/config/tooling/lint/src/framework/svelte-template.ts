@@ -72,9 +72,9 @@ async function ensureSvelteCompiler(): Promise<boolean> {
     const mod: Record<string, unknown> = await import('svelte/compiler');
     svelteParse = mod.parse as unknown as SvelteParseFn;
     return true;
-  } catch (err: unknown) {
+  } catch (error: unknown) {
     compilerLoadFailed = true;
-    const message: string = err instanceof Error ? err.message : String(err);
+    const message: string = error instanceof Error ? error.message : String(error);
     compilerLoadError = `svelte/compiler not available — install svelte to enable template linting (${message})`;
     return false;
   }
@@ -103,8 +103,8 @@ export async function parseSvelteTemplate(content: string): Promise<SvelteParseR
   try {
     const result: { fragment: unknown } = svelteParse(content, { modern: true });
     return { ok: true, ast: result.fragment as AstNode };
-  } catch (err: unknown) {
-    const message: string = err instanceof Error ? err.message : String(err);
+  } catch (error: unknown) {
+    const message: string = error instanceof Error ? error.message : String(error);
     return {
       ok: false,
       error: `Svelte template parse error: ${message}`,

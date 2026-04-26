@@ -132,7 +132,7 @@ const rule: TypeScriptRule = {
           return;
         }
 
-        const callback: AstNode | undefined = args[0];
+        const [callback]: AstNode | undefined = args;
         if (!callback) {
           return;
         }

@@ -46,7 +46,7 @@ const rule: PackageJsonRule = {
         }
       }
     }
-    const scripts: Record<string, string> | undefined = context.pkg.scripts;
+    const { scripts } = context.pkg;
     if (scripts) {
       for (const [key, value] of Object.entries(scripts)) {
         if (value.includes('ts-node')) {

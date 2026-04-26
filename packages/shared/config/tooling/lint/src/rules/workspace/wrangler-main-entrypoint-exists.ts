@@ -64,7 +64,7 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const main: unknown = parsed.main;
+      const { main } = parsed;
       if (typeof main !== 'string') {
         continue;
       }

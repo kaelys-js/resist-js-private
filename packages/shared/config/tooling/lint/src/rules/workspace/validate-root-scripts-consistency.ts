@@ -14,7 +14,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Standard root scripts expected in the workspace root package.json. */
-const EXPECTED_SCRIPTS: ReadonlyArray<string> = [
+const EXPECTED_SCRIPTS: readonly string[] = [
   'benchmark',
   'bootstrap',
   'build',
@@ -102,7 +102,7 @@ const rule: WorkspaceRule = {
 
     /* Extract meta.scripts.description for checking */
     let descriptions: Record<string, unknown> | undefined;
-    const meta: unknown = pkgJson.meta;
+    const { meta } = pkgJson;
 
     if (typeof meta === 'object' && meta !== null) {
       const metaObj: Record<string, unknown> = meta as Record<string, unknown>;

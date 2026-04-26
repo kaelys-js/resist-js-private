@@ -57,17 +57,17 @@ const rule: WorkspaceRule = {
         unknown
       >;
       const relativePath: string = relative(ctx.rootDir, filePath);
-      const types: unknown = compilerOptions.types;
+      const { types } = compilerOptions;
 
       if (!Array.isArray(types) || types.length < 2) {
         continue;
       }
 
-      const typeStrings: Array<string> = types.filter(
+      const typeStrings: string[] = types.filter(
         (t: unknown): t is string => typeof t === 'string',
       );
       const hasNode: boolean = typeStrings.includes('node');
-      const otherTypes: Array<string> = typeStrings.filter((t: string) => t !== 'node');
+      const otherTypes: string[] = typeStrings.filter((t: string) => t !== 'node');
 
       if (hasNode && otherTypes.length > 0) {
         results.push(

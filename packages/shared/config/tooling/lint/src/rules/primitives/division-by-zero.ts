@@ -27,7 +27,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const operator = node.operator as string;
-      const right: unknown = node.right;
+      const { right } = node;
       const rightNode =
         right !== null && typeof right === 'object' ? (right as AstNode) : undefined;
 

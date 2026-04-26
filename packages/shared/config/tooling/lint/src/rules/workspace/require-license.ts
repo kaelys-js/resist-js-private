@@ -99,7 +99,7 @@ const rule: WorkspaceRule = {
       }
 
       const pkgJson: Record<string, unknown> = JSON.parse(pkgContent) as Record<string, unknown>;
-      const license: unknown = pkgJson.license;
+      const { license } = pkgJson;
 
       if (license === undefined || license === null) {
         results.push(

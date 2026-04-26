@@ -10,7 +10,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Patterns indicating an unoptimized SVG. */
-const UNOPTIMIZED_PATTERNS: Array<RegExp> = [
+const UNOPTIMIZED_PATTERNS: RegExp[] = [
   /xmlns:xlink/,
   /<metadata[\s>]/,
   /inkscape:/,
