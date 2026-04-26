@@ -334,7 +334,7 @@ describe('auditAccessibility — synthetic sources', () => {
   });
 
   it('overallScore is in [0, 100] for every fixture', () => {
-    const fixtures: Record<string, string>[] = [
+    const fixtures: Array<Record<string, string>> = [
       {},
       { 'a.svelte': GOOD_SVELTE },
       { 'a.svelte': BAD_SVELTE },

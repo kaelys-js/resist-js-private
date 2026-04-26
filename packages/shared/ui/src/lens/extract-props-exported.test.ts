@@ -70,7 +70,12 @@ describe('extractDescription', () => {
 /*  extractPropsVariants                                               */
 /* ------------------------------------------------------------------ */
 
-/** Build a minimal PropMeta with only the fields a given branch needs. */
+/**
+ * Build a minimal PropMeta with only the fields a given branch needs.
+ *
+ * @param over - Field overrides merged on top of the baseline PropMeta defaults.
+ * @returns A complete PropMeta combining baseline defaults with `over`.
+ */
 function mkProp(over: Partial<PropMeta>): PropMeta {
   return {
     name: 'p',

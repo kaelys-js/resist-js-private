@@ -100,6 +100,18 @@ function listSvelteCheckInputs(pkgDir: string): string[] {
  */
 const DIAGNOSTIC_RE: RegExp = /^\d+\s+(ERROR|WARNING)\s+"([^"]+)"\s+(\d+):(\d+)\s+"(.+)"$/;
 
+/**
+ * Svelte ambient declaration files (`*.svelte.d.ts`) use intentional
+ * non-standard syntax (`export var [key: string]: unknown`) so that tsgo
+ * resolves arbitrary named exports from `<script module>` blocks. The
+ * tsgo runner already suppresses the resulting `TS1005` parse error for
+ * the same files (`tools/tsgo.ts`'s `SVELTE_AMBIENT_PARSE_SUPPRESSION`).
+ * svelte-check's wrapped TS pass also balks at the same line, so we
+ * mirror the suppression here.
+ */
+const SVELTE_AMBIENT_PARSE_SUPPRESSION: RegExp = /svelte\.d\.ts$/;
+const SVELTE_AMBIENT_PARSE_MESSAGE: RegExp = /',' expected\.|Expected .* but found/;
+
 /** Directories to skip during package discovery. */
 const SKIP_DIRS: ReadonlySet<string> = new Set([
   'node_modules',
@@ -210,6 +222,11 @@ export function transformSvelteCheckOutput(output: string): LintResult[] {
 
     const severity: 'error' | 'warning' = level === 'WARNING' ? 'warning' : 'error';
     const ruleId: string = level === 'WARNING' ? 'svelte-check/warning' : 'svelte-check/error';
+
+    // Skip parse errors from svelte.d.ts — intentional ambient syntax.
+    if (SVELTE_AMBIENT_PARSE_SUPPRESSION.test(file) && SVELTE_AMBIENT_PARSE_MESSAGE.test(message)) {
+      continue;
+    }
 
     results.push(createResult(ruleId, file, lineNum, col, severity, message));
   }
