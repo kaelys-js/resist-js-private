@@ -14,6 +14,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { Name, Path, CssFontFamily, CssFontWeight, LocaleString } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
+import type * as ResultModule from '@/schemas/result/result';
 import type { ErrorHtmlConfig } from './vite-plugin-template-html.js';
 
 // ---------------------------------------------------------------------------
@@ -27,7 +28,7 @@ import type { ErrorHtmlConfig } from './vite-plugin-template-html.js';
 const state = vi.hoisted(() => ({ okCallCount: 0 }));
 
 vi.mock('@/schemas/result/result', async (importOriginal) => {
-  const original = await importOriginal<typeof import('@/schemas/result/result')>();
+  const original = await importOriginal<typeof ResultModule>();
   return {
     ...original,
     ok: (...args: unknown[]): Result<unknown> => {

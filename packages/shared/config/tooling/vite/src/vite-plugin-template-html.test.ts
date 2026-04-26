@@ -1,18 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Path, Str, Name, CssFontFamily, CssFontWeight, LocaleString } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
-
-// ---------------------------------------------------------------------------
-// Mocks — readFile/writeFile for plugin lifecycle hook tests
-// ---------------------------------------------------------------------------
-
-vi.mock('@/utils/core/fs', () => ({
-  readFile: vi.fn(),
-  writeFile: vi.fn(),
-}));
-
 import { readFile, writeFile } from '@/utils/core/fs';
-
 import {
   deriveErrorIdPrefix,
   generateFontFaceCss,
@@ -24,6 +13,19 @@ import {
   type ErrorHtmlConfig,
   type FontFaceEntry,
 } from './vite-plugin-template-html.js';
+
+// ---------------------------------------------------------------------------
+// Mocks — readFile/writeFile for plugin lifecycle hook tests
+// ---------------------------------------------------------------------------
+
+vi.mock('@/utils/core/fs', () => ({
+  readFile: vi.fn(),
+  writeFile: vi.fn(),
+}));
+
+// Vite-plugin lifecycle hook signatures used in `as` casts below.
+type ConfigHook = (config: object, env: { command: 'build' | 'serve'; mode: Str }) => unknown;
+type CloseBundleHook = () => unknown;
 
 // =============================================================================
 // Test fixtures
@@ -407,11 +409,11 @@ describe('templateErrorHtml lifecycle hooks', () => {
     writeFileMock.mockReturnValue(mockOk(undefined));
 
     const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
-    (plugin.config as Function)({}, buildEnv);
+    (plugin.config as ConfigHook)({}, buildEnv);
 
     expect(readFileMock).toHaveBeenCalledWith(TEST_TEMPLATE_PATH);
     expect(writeFileMock).toHaveBeenCalledTimes(1);
-    const call = writeFileMock.mock.calls[0];
+    const [call] = writeFileMock.mock.calls;
     expect(call).toBeDefined();
     const written: Str = call![1] as Str;
     expect(written).toContain(TEST_APP_NAME);
@@ -423,7 +425,7 @@ describe('templateErrorHtml lifecycle hooks', () => {
     writeFileMock.mockReturnValue(mockOk(undefined));
 
     const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
-    (plugin.config as Function)({}, buildEnv);
+    (plugin.config as ConfigHook)({}, buildEnv);
 
     expect(processOnSpy).toHaveBeenCalledWith('exit', expect.any(Function));
   });
@@ -432,7 +434,7 @@ describe('templateErrorHtml lifecycle hooks', () => {
     readFileMock.mockReturnValue(mockErr('IO.READ_FAILED'));
 
     const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
-    expect(() => (plugin.config as Function)({}, buildEnv)).toThrow();
+    expect(() => (plugin.config as ConfigHook)({}, buildEnv)).toThrow();
   });
 
   it('config() throws when writeFile fails', () => {
@@ -440,7 +442,7 @@ describe('templateErrorHtml lifecycle hooks', () => {
     writeFileMock.mockReturnValue(mockErr('IO.WRITE_FAILED'));
 
     const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
-    expect(() => (plugin.config as Function)({}, buildEnv)).toThrow();
+    expect(() => (plugin.config as ConfigHook)({}, buildEnv)).toThrow();
   });
 
   it('config() throws when resolveErrorHtml fails (empty fontFaces)', () => {
@@ -451,7 +453,7 @@ describe('templateErrorHtml lifecycle hooks', () => {
       fontFaces: [],
     };
     const plugin = templateErrorHtml(emptyFontConfig);
-    expect(() => (plugin.config as Function)({}, buildEnv)).toThrow();
+    expect(() => (plugin.config as ConfigHook)({}, buildEnv)).toThrow();
   });
 
   it('closeBundle() restores original content', () => {
@@ -459,12 +461,12 @@ describe('templateErrorHtml lifecycle hooks', () => {
     writeFileMock.mockReturnValue(mockOk(undefined));
 
     const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
-    (plugin.config as Function)({}, buildEnv);
+    (plugin.config as ConfigHook)({}, buildEnv);
 
     writeFileMock.mockClear();
     writeFileMock.mockReturnValue(mockOk(undefined));
 
-    (plugin.closeBundle as Function)();
+    (plugin.closeBundle as CloseBundleHook)();
 
     expect(writeFileMock).toHaveBeenCalledWith(TEST_TEMPLATE_PATH, MOCK_TEMPLATE);
     expect(processRemoveListenerSpy).toHaveBeenCalledWith('exit', expect.any(Function));
@@ -472,7 +474,7 @@ describe('templateErrorHtml lifecycle hooks', () => {
 
   it('closeBundle() is no-op when originalContent is null', () => {
     const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
-    (plugin.closeBundle as Function)();
+    (plugin.closeBundle as CloseBundleHook)();
     expect(writeFileMock).not.toHaveBeenCalled();
   });
 
@@ -481,10 +483,10 @@ describe('templateErrorHtml lifecycle hooks', () => {
     writeFileMock.mockReturnValue(mockOk(undefined));
 
     const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
-    (plugin.config as Function)({}, buildEnv);
+    (plugin.config as ConfigHook)({}, buildEnv);
 
     writeFileMock.mockReturnValue(mockErr('IO.WRITE_FAILED'));
-    expect(() => (plugin.closeBundle as Function)()).toThrow();
+    expect(() => (plugin.closeBundle as CloseBundleHook)()).toThrow();
   });
 });
 
@@ -495,7 +497,7 @@ describe('templateErrorHtml lifecycle hooks', () => {
 describe('templateAppHtml lifecycle hooks', () => {
   const buildEnv = { command: 'build' as const, mode: 'production' };
   const MOCK_TEMPLATE: Str =
-    '<html><title>{{APP_NAME}}</title>' + '<script>var p = "{{STORAGE_PREFIX}}";</script></html>';
+    '<html><title>{{APP_NAME}}</title><script>var p = "{{STORAGE_PREFIX}}";</script></html>';
 
   let processOnSpy: ReturnType<typeof vi.spyOn>;
   let processRemoveListenerSpy: ReturnType<typeof vi.spyOn>;
@@ -515,11 +517,11 @@ describe('templateAppHtml lifecycle hooks', () => {
     writeFileMock.mockReturnValue(mockOk(undefined));
 
     const plugin = templateAppHtml(TEST_APP_CONFIG);
-    (plugin.config as Function)({}, buildEnv);
+    (plugin.config as ConfigHook)({}, buildEnv);
 
     expect(readFileMock).toHaveBeenCalledWith(TEST_TEMPLATE_PATH);
     expect(writeFileMock).toHaveBeenCalledTimes(1);
-    const call = writeFileMock.mock.calls[0];
+    const [call] = writeFileMock.mock.calls;
     expect(call).toBeDefined();
     const written: Str = call![1] as Str;
     expect(written).toContain(TEST_APP_NAME);
@@ -532,7 +534,7 @@ describe('templateAppHtml lifecycle hooks', () => {
     writeFileMock.mockReturnValue(mockOk(undefined));
 
     const plugin = templateAppHtml(TEST_APP_CONFIG);
-    (plugin.config as Function)({}, buildEnv);
+    (plugin.config as ConfigHook)({}, buildEnv);
 
     expect(processOnSpy).toHaveBeenCalledWith('exit', expect.any(Function));
   });
@@ -541,15 +543,15 @@ describe('templateAppHtml lifecycle hooks', () => {
     readFileMock.mockReturnValue(mockErr('IO.READ_FAILED'));
 
     const plugin = templateAppHtml(TEST_APP_CONFIG);
-    expect(() => (plugin.config as Function)({}, buildEnv)).toThrow();
+    expect(() => (plugin.config as ConfigHook)({}, buildEnv)).toThrow();
   });
 
   it('config() throws when resolveAppHtml fails (non-string from readFile)', () => {
-    readFileMock.mockReturnValue(mockOk(12345)); // non-string triggers resolveAppHtml validation error
+    readFileMock.mockReturnValue(mockOk(12_345)); // non-string triggers resolveAppHtml validation error
     writeFileMock.mockReturnValue(mockOk(undefined));
 
     const plugin = templateAppHtml(TEST_APP_CONFIG);
-    expect(() => (plugin.config as Function)({}, buildEnv)).toThrow();
+    expect(() => (plugin.config as ConfigHook)({}, buildEnv)).toThrow();
   });
 
   it('config() throws when writeFile fails', () => {
@@ -557,7 +559,7 @@ describe('templateAppHtml lifecycle hooks', () => {
     writeFileMock.mockReturnValue(mockErr('IO.WRITE_FAILED'));
 
     const plugin = templateAppHtml(TEST_APP_CONFIG);
-    expect(() => (plugin.config as Function)({}, buildEnv)).toThrow();
+    expect(() => (plugin.config as ConfigHook)({}, buildEnv)).toThrow();
   });
 
   it('closeBundle() restores original content', () => {
@@ -565,12 +567,12 @@ describe('templateAppHtml lifecycle hooks', () => {
     writeFileMock.mockReturnValue(mockOk(undefined));
 
     const plugin = templateAppHtml(TEST_APP_CONFIG);
-    (plugin.config as Function)({}, buildEnv);
+    (plugin.config as ConfigHook)({}, buildEnv);
 
     writeFileMock.mockClear();
     writeFileMock.mockReturnValue(mockOk(undefined));
 
-    (plugin.closeBundle as Function)();
+    (plugin.closeBundle as CloseBundleHook)();
 
     expect(writeFileMock).toHaveBeenCalledWith(TEST_TEMPLATE_PATH, MOCK_TEMPLATE);
     expect(processRemoveListenerSpy).toHaveBeenCalledWith('exit', expect.any(Function));
@@ -578,7 +580,7 @@ describe('templateAppHtml lifecycle hooks', () => {
 
   it('closeBundle() is no-op when originalContent is null', () => {
     const plugin = templateAppHtml(TEST_APP_CONFIG);
-    (plugin.closeBundle as Function)();
+    (plugin.closeBundle as CloseBundleHook)();
     expect(writeFileMock).not.toHaveBeenCalled();
   });
 
@@ -587,10 +589,10 @@ describe('templateAppHtml lifecycle hooks', () => {
     writeFileMock.mockReturnValue(mockOk(undefined));
 
     const plugin = templateAppHtml(TEST_APP_CONFIG);
-    (plugin.config as Function)({}, buildEnv);
+    (plugin.config as ConfigHook)({}, buildEnv);
 
     writeFileMock.mockReturnValue(mockErr('IO.WRITE_FAILED'));
-    expect(() => (plugin.closeBundle as Function)()).toThrow();
+    expect(() => (plugin.closeBundle as CloseBundleHook)()).toThrow();
   });
 });
 
