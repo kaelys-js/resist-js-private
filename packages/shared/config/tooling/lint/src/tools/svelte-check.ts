@@ -10,8 +10,7 @@
  * @module
  */
 
-import { existsSync, readdirSync } from 'node:fs';
-import type { Dirent } from 'node:fs';
+import { existsSync, readdirSync, type Dirent } from 'node:fs';
 import { join } from 'node:path';
 
 import type { LintCache } from '@/lint/framework/cache.ts';
@@ -23,7 +22,8 @@ import {
   TOOL_CONCURRENCY,
   isCommandAvailable,
   mapWithConcurrency,
-  missingToolResult} from '@/lint/framework/tool-orchestrator.ts';
+  missingToolResult,
+} from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
 
 /** Directories whose contents never affect svelte-check input fingerprint.
@@ -299,7 +299,8 @@ export async function runSvelteCheckAllPackages(
           cwd: pkgDir,
           encoding: 'utf8',
           timeout: 120_000,
-          maxBuffer: 16 * 1024 * 1024});
+          maxBuffer: 16 * 1024 * 1024,
+        });
         pkgResults = transformSvelteCheckOutput(stdout);
       } catch (error: unknown) {
         const execError = error as { stdout?: string };
@@ -316,7 +317,8 @@ export async function runSvelteCheckAllPackages(
               severity: 'error',
               message: `svelte-check crashed for ${pkgDir} — type checking was skipped (${message})`,
               ruleId: 'internal/tool-crash',
-              fix: { range: { start: 0, end: 0 }, text: '' }},
+              fix: { range: { start: 0, end: 0 }, text: '' },
+            },
           ];
         }
       }
@@ -339,4 +341,5 @@ export const svelteCheckTool: WorkspaceTool = {
   transform: transformSvelteCheckOutput,
   isAvailable(): boolean {
     return isCommandAvailable('svelte-check');
-  }};
+  },
+};

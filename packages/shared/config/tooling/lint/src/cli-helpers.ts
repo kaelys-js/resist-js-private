@@ -14,7 +14,6 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import { extname, join, relative, resolve } from 'node:path';
 
 import * as v from 'valibot';
-import { findWorkspaceRoot } from '@/lint/framework/tool-orchestrator.ts';
 import {
   generateJsonSchema,
   type LintConfig,
@@ -31,7 +30,11 @@ import { formatResults, type OutputFormat } from '@/lint/framework/formatters.ts
 import { runTypeScriptRules, EMBEDDED_CODE_EXTENSIONS } from '@/lint/framework/oxc-runner.ts';
 import { createWorkspaceContext } from '@/lint/framework/rule-context.ts';
 import { loadAllRules } from '@/lint/framework/rule-loader.ts';
-import { ToolRegistry, type WorkspaceTool } from '@/lint/framework/tool-orchestrator.ts';
+import {
+  findWorkspaceRoot,
+  ToolRegistry,
+  type WorkspaceTool,
+} from '@/lint/framework/tool-orchestrator.ts';
 import type {
   LintFix,
   LintResult,

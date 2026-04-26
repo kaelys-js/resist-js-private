@@ -6,8 +6,7 @@
  * @module
  */
 
-import { basename, relative } from 'node:path';
-import { join } from 'node:path';
+import { basename, join, relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';

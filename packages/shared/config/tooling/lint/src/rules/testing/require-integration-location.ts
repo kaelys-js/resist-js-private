@@ -10,8 +10,7 @@
 
 import { basename, dirname } from 'node:path';
 
-import { createResult } from '@/lint/framework/types.ts';
-import type { WorkspaceRule, LintResult } from '@/lint/framework/types.ts';
+import { createResult, type WorkspaceRule, type LintResult } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Pattern matching integration test file names. */

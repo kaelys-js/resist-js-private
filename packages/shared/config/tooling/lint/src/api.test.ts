@@ -5,8 +5,13 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { lint, lintSource } from '@/lint/api.ts';
-import type { LintApiResult, LintResultSummary, LintSource as LintSourceType } from '@/lint/api.ts';
+import {
+  lint,
+  lintSource,
+  type LintApiResult,
+  type LintResultSummary,
+  type LintSource as LintSourceType,
+} from '@/lint/api.ts';
 import type { LintResult } from '@/lint/framework/types.ts';
 
 // =============================================================================

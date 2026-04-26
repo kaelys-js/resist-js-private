@@ -7,8 +7,7 @@
  * @module
  */
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import type { Dirent } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, type Dirent } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 import type { LintCache } from '@/lint/framework/cache.ts';

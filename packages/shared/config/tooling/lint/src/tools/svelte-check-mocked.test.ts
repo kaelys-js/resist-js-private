@@ -9,14 +9,14 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { Dirent, PathLike } from 'node:fs';
 import * as NodeFsModule from 'node:fs';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, type Dirent, type PathLike } from 'node:fs';
 import { join } from 'node:path';
 
 import { execFileAsync } from '@/lint/framework/exec.ts';
 import * as ToolOrchestratorModule from '@/lint/framework/tool-orchestrator.ts';
-import { isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
+
+const { isCommandAvailable } = ToolOrchestratorModule;
 
 import { discoverSveltePackageDirs, runSvelteCheckAllPackages } from './svelte-check.ts';
 

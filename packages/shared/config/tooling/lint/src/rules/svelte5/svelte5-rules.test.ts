@@ -12,10 +12,17 @@
 
 import { describe, expect, it } from 'vitest';
 import { runTypeScriptRules } from '../../framework/oxc-runner.ts';
-import type { AstNode, LintResult, TypeScriptRule } from '../../framework/types.ts';
-import { AstVisitorSchema } from '../../framework/types.ts';
-import { parseSvelteTemplate, walkSvelteNode } from '../../framework/svelte-template.ts';
-import type { SvelteParseResult } from '../../framework/svelte-template.ts';
+import {
+  AstVisitorSchema,
+  type AstNode,
+  type LintResult,
+  type TypeScriptRule,
+} from '../../framework/types.ts';
+import {
+  parseSvelteTemplate,
+  walkSvelteNode,
+  type SvelteParseResult,
+} from '../../framework/svelte-template.ts';
 
 import noLegacyReactiveStatements from './no-legacy-reactive-statements.ts';
 import noLegacyProps from './no-legacy-props.ts';
