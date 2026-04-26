@@ -9385,9 +9385,9 @@ describe('workspace/validate-root-scripts-consistency', () => {
       scripts[name] =
         name === 'build'
           ? 'wrong command'
-          : (name === 'prepare' || name === 'preinstall'
+          : name === 'prepare' || name === 'preinstall'
             ? 'husky'
-            : `pnpm -r run ${name}`);
+            : `pnpm -r run ${name}`;
       descs[name] = `Does ${name}`;
     }
     const rootPkg: Record<string, unknown> = {
@@ -15167,7 +15167,10 @@ describe('workspace/validate-stateless-utils', () => {
   it('continues on readFile failure', async () => {
     const files: Map<string, string> = new Map([['/workspace/packages/shared/utils.ts', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
-    ctx.readFile = (): Promise<string> => Promise.reject(new Error('fail'));
+    ctx.readFile = async (): Promise<string> => {
+      await Promise.resolve();
+      throw new Error('fail');
+    };
     const results: LintResult[] = await validateStatelessUtils.check(ctx);
     expect(results.length).toBe(0);
   });
@@ -15633,7 +15636,10 @@ describe('workspace/validate-biome-rules', () => {
   it('reports error when readFile throws', async () => {
     const files: Map<string, string> = new Map([['/workspace/biome.base.json', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
-    ctx.readFile = (): Promise<string> => Promise.reject(new Error('read error'));
+    ctx.readFile = async (): Promise<string> => {
+      await Promise.resolve();
+      throw new Error('read error');
+    };
     const results: LintResult[] = await validateBiomeRules.check(ctx);
     expect(results.length).toBe(1);
     expect(results[0]!.severity).toBe('error');
@@ -15775,7 +15781,10 @@ describe('workspace/no-biome-disable', () => {
   it('returns empty when readFile throws', async () => {
     const files: Map<string, string> = new Map([['/workspace/biome.base.json', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
-    ctx.readFile = (): Promise<string> => Promise.reject(new Error('read error'));
+    ctx.readFile = async (): Promise<string> => {
+      await Promise.resolve();
+      throw new Error('read error');
+    };
     const results: LintResult[] = await noBiomeDisable.check(ctx);
     expect(results.length).toBe(0);
   });
@@ -16114,9 +16123,10 @@ describe('workspace/no-unreferenced-images', () => {
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const origReadFile: (path: string) => Promise<string> = ctx.readFile.bind(ctx);
-    ctx.readFile = (path: string): Promise<string> => {
+    ctx.readFile = async (path: string): Promise<string> => {
       if (path.endsWith('.ts')) {
-        return Promise.reject(new Error('read error'));
+        await Promise.resolve();
+        throw new Error('read error');
       }
       return origReadFile(path);
     };
@@ -16323,9 +16333,10 @@ describe('workspace/no-missing-image-refs', () => {
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const origReadFile: (path: string) => Promise<string> = ctx.readFile.bind(ctx);
-    ctx.readFile = (path: string): Promise<string> => {
+    ctx.readFile = async (path: string): Promise<string> => {
       if (path.endsWith('app.ts')) {
-        return Promise.reject(new Error('read error'));
+        await Promise.resolve();
+        throw new Error('read error');
       }
       return origReadFile(path);
     };
@@ -16419,7 +16430,10 @@ describe('workspace/svg-requires-title-or-desc', () => {
   it('continues on readFile failure', async () => {
     const files: Map<string, string> = new Map([['/workspace/icon.svg', '']]);
     const ctx: WorkspaceContext = mockContext({ files });
-    ctx.readFile = (): Promise<string> => Promise.reject(new Error('fail'));
+    ctx.readFile = async (): Promise<string> => {
+      await Promise.resolve();
+      throw new Error('fail');
+    };
     const results: LintResult[] = await svgRequiresTitleOrDesc.check(ctx);
     expect(results.length).toBe(0);
   });
@@ -17169,7 +17183,10 @@ describe('workspace/svg-no-hidden-interactive', () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
       allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await svgNoHiddenInteractive.check(ctx);
     expect(results.length).toBe(0);
@@ -17381,7 +17398,10 @@ describe('workspace/svg-ids-unique', () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
       allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await svgIdsUnique.check(ctx);
     expect(results.length).toBe(0);
@@ -17546,7 +17566,10 @@ describe('workspace/svg-title-first-child', () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
       allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await svgTitleFirstChild.check(ctx);
     expect(results.length).toBe(0);
@@ -17900,7 +17923,10 @@ describe('workspace/no-inline-svg-in-source', () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
       allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.tsx']),
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await noInlineSvgInSource.check(ctx);
     expect(results.length).toBe(0);
@@ -17960,7 +17986,10 @@ describe('workspace/no-webp-in-css', () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
       allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.css']),
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await noWebpInCss.check(ctx);
     expect(results.length).toBe(0);
@@ -18032,7 +18061,10 @@ describe('workspace/no-raw-svg-in-components', () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
       allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svelte']),
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await noRawSvgInComponents.check(ctx);
     expect(results.length).toBe(0);
@@ -18082,7 +18114,10 @@ describe('workspace/webp-max-size', () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
       allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.webp']),
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await webpMaxSize.check(ctx);
     expect(results.length).toBe(0);
@@ -18219,7 +18254,10 @@ describe('workspace/webp-no-metadata', () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
       allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.webp']),
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await webpNoMetadata.check(ctx);
     expect(results.length).toBe(0);
@@ -18424,7 +18462,10 @@ describe('workspace/no-misleading-image-extension', () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
       allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await noMisleadingImageExtension.check(ctx);
     expect(results.length).toBe(0);
@@ -18508,7 +18549,10 @@ describe('workspace/svg-valid-xml', () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
       allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await svgValidXml.check(ctx);
     expect(results.length).toBe(0);
@@ -18708,7 +18752,10 @@ describe('workspace/webp-no-color-profile', () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
       allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.webp']),
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await webpNoColorProfile.check(ctx);
     expect(results.length).toBe(0);
@@ -18891,7 +18938,10 @@ describe('workspace/gitlab-ci-schema-header', () => {
     });
     const badCtx: WorkspaceContext = {
       ...ctx,
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await gitlabCiSchemaHeader.check(badCtx);
     expect(results.length).toBe(0);
@@ -18951,7 +19001,10 @@ describe('workspace/gitlab-ci-yaml-syntax', () => {
     });
     const badCtx: WorkspaceContext = {
       ...ctx,
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await gitlabCiYamlSyntax.check(badCtx);
     expect(results.length).toBe(0);
@@ -19166,7 +19219,10 @@ describe('workspace/shell-function-docblocks', () => {
     });
     const badCtx: WorkspaceContext = {
       ...ctx,
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await shellFunctionDocblocks.check(badCtx);
     expect(results.length).toBe(0);
@@ -19239,7 +19295,10 @@ describe('workspace/gitlab-ci-jobs-have-script', () => {
     });
     const badCtx: WorkspaceContext = {
       ...ctx,
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await gitlabCiJobsHaveScript.check(badCtx);
     expect(results.length).toBe(0);
@@ -19297,7 +19356,10 @@ describe('workspace/gitlab-ci-standard-naming', () => {
     });
     const badCtx: WorkspaceContext = {
       ...ctx,
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await gitlabCiStandardNaming.check(badCtx);
     expect(results.length).toBe(0);
@@ -19411,7 +19473,10 @@ describe('workspace/gitlab-ci-stages-standard', () => {
     });
     const badCtx: WorkspaceContext = {
       ...ctx,
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await gitlabCiStagesStandard.check(badCtx);
     expect(results.length).toBe(0);
@@ -19485,7 +19550,10 @@ describe('workspace/cli-tools-help-version', () => {
     });
     const badCtx: WorkspaceContext = {
       ...ctx,
-      readFile: (): Promise<string> => Promise.reject(new Error('ENOENT')),
+      readFile: async (): Promise<string> => {
+        await Promise.resolve();
+        throw new Error('ENOENT');
+      },
     };
     const results: LintResult[] = await cliToolsHelpVersion.check(badCtx);
     expect(results.length).toBe(0);

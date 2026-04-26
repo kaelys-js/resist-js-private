@@ -89,9 +89,9 @@ const rule: WorkspaceRule = {
 
     /* Need at least 2 config files to compare. */
     const configCount: number =
-      (editorconfigPath !== undefined ? 1 : 0) +
-      (biomePath !== undefined ? 1 : 0) +
-      (vscodePath !== undefined ? 1 : 0);
+      (editorconfigPath === undefined ? 0 : 1) +
+      (biomePath === undefined ? 0 : 1) +
+      (vscodePath === undefined ? 0 : 1);
 
     if (configCount < 2) {
       return results;
