@@ -97,23 +97,26 @@
 </script>
 
 <section class={cn('overflow-hidden rounded-lg border bg-card', validated.class)}>
-  <div
+  <svelte:element
+    this={validated.collapsible ? 'button' : 'div'}
+    type={validated.collapsible ? 'button' : undefined}
+    role={validated.collapsible ? 'button' : 'group'}
     class={cn(
-      'flex items-center justify-between bg-muted/50 px-5 py-3',
+      'flex w-full items-center justify-between bg-muted/50 px-5 py-3 text-left',
       isOpen && 'border-b',
       validated.collapsible && 'cursor-pointer select-none',
     )}
-    onclick={validated.collapsible ? validated.ontoggle : undefined}
-    onkeydown={validated.collapsible
-      ? (e: KeyboardEvent) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            validated.ontoggle?.();
+    onclick={validated.collapsible
+      ? (e: MouseEvent) => {
+          /* Skip toggle when the click originated inside the code-controls
+             toolbar — those are independent buttons (toggle code, copy). */
+          const target: HTMLElement = e.target as HTMLElement;
+          if (target.closest('[data-lens-section-toolbar]')) {
+            return;
           }
+          validated.ontoggle?.();
         }
       : undefined}
-    role={validated.collapsible ? 'button' : undefined}
-    tabindex={validated.collapsible ? 0 : undefined}
     aria-expanded={validated.collapsible ? isOpen : undefined}
   >
     <div class="min-w-0 flex-1">
@@ -146,16 +149,18 @@
       {/if}
     </div>
     {#if validated.code && isOpen}
-      <div
-        class="flex items-center gap-1"
-        onclick={(e: MouseEvent) => e.stopPropagation()}
-        onkeydown={(e: KeyboardEvent) => e.stopPropagation()}
-        role="group"
-      >
+      <!-- Toolbar of code-related controls. The parent header (when collapsible)
+           uses a [data-collapsible-target] check on the click target to avoid
+           toggling when this toolbar is clicked, removing the need for
+           stopPropagation handlers on the toolbar itself. -->
+      <div class="flex items-center gap-1" data-lens-section-toolbar>
         <button
           type="button"
           class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          onclick={toggleCode}
+          onclick={(e: MouseEvent) => {
+            e.stopPropagation();
+            toggleCode();
+          }}
           aria-expanded={codeOpen}
         >
           <Code class="size-3.5" aria-hidden="true" />
@@ -170,7 +175,7 @@
         {/if}
       </div>
     {/if}
-  </div>
+  </svelte:element>
 
   {#if isOpen}
     <div transition:slide={{ duration: 200 }}>

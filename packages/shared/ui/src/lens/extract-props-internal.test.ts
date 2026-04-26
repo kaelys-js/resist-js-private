@@ -247,20 +247,28 @@ describe('extractPropsVariants — boolean/numeric/union/snippet branches', () =
  * extractPropsVariants — typeFields path → parseTypeFieldAccepts branches
  * ========================================================================= */
 
-describe('parseTypeFieldAccepts — via extractPropsVariants', () => {
-  /** Build a single-prop PropMeta carrying one typeField. */
-  function singleField(name: string, tf: TypeField, propType: string = 'Config'): PropMeta {
-    return {
-      name,
-      type: propType,
-      default: '',
-      description: '',
-      bindable: false,
-      typeDefinition: '{ ... }',
-      typeFields: [tf],
-    };
-  }
+/**
+ * Build a single-prop PropMeta carrying one typeField, used as a fixture
+ * generator across the parseTypeFieldAccepts test cases below.
+ *
+ * @param name - Prop name to embed in the generated PropMeta.
+ * @param tf - The single TypeField the synthetic prop should expose.
+ * @param propType - Optional type annotation for the prop (defaults to `'Config'`).
+ * @returns A fully populated PropMeta whose `typeFields` is a single-element array.
+ */
+function singleField(name: string, tf: TypeField, propType: string = 'Config'): PropMeta {
+  return {
+    name,
+    type: propType,
+    default: '',
+    description: '',
+    bindable: false,
+    typeDefinition: '{ ... }',
+    typeFields: [tf],
+  };
+}
 
+describe('parseTypeFieldAccepts — via extractPropsVariants', () => {
   it('boolean accepts string emits true/false', () => {
     const variants: VariantKeyMeta[] = extractPropsVariants([
       singleField('config', {

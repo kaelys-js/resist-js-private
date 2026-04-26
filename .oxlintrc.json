@@ -35,6 +35,7 @@
     "window": "readonly",
     "document": "readonly",
     "Node": "readonly",
+    "KeyboardEvent": "readonly",
     "requestAnimationFrame": "readonly",
     "cancelAnimationFrame": "readonly",
     "Map": "readonly",
@@ -629,6 +630,12 @@
       "rules": {
         "typescript/consistent-type-definitions": "off",
         "unicorn/require-module-specifiers": "off"
+      }
+    },
+    {
+      "files": ["**/lens-scaffolds.discovery.svelte.test.ts"],
+      "rules": {
+        "import/default": "off"
       }
     },
     {

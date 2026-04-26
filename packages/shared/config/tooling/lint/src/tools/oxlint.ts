@@ -11,6 +11,17 @@ import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orc
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
 
 /**
+ * Svelte ambient declaration files (`*.svelte.d.ts`) use intentional
+ * non-standard syntax (`export var [key: string]: unknown`) so that tsgo
+ * resolves arbitrary named exports from `<script module>` blocks. The
+ * existing tsgo runner already suppresses the resulting `TS1005` parse
+ * error for the same files (`tools/tsgo.ts`'s `SVELTE_AMBIENT_PARSE_SUPPRESSION`).
+ * Oxlint's parser also balks at the same line and emits a code-less
+ * "Expected `,` or `]`" diagnostic, so we mirror the suppression here.
+ */
+const SVELTE_AMBIENT_PARSE_SUPPRESSION: RegExp = /svelte\.d\.ts$/;
+
+/**
  * Transform oxlint JSON output into LintResult[].
  *
  * Oxlint JSON output is an object with a `diagnostics` array, each entry having:
@@ -72,6 +83,13 @@ export function transformOxlintOutput(output: string): LintResult[] {
 
     // Rule ID: oxlint uses format like "eslint(no-unused-vars)" — normalize to "oxlint/no-unused-vars"
     const ruleId: string = normalizeRuleId(code);
+
+    // Suppress code-less parse errors from svelte.d.ts (intentional ambient syntax,
+    // already suppressed in the tsgo runner — see SVELTE_AMBIENT_PARSE_SUPPRESSION
+    // header comment).
+    if (ruleId === 'oxlint/unknown' && SVELTE_AMBIENT_PARSE_SUPPRESSION.test(filename)) {
+      continue;
+    }
 
     results.push(
       createResult(ruleId, filename, line, column, severity, message, {

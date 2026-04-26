@@ -24,7 +24,7 @@ const ROWS: Row[] = [
   { id: 2, name: 'Bob' },
 ];
 
-const COLUMNS: ColumnDef<Row>[] = [
+const COLUMNS: Array<ColumnDef<Row>> = [
   { accessorKey: 'id', header: 'ID' },
   { accessorKey: 'name', header: 'Name' },
 ];
@@ -52,7 +52,7 @@ describe('mergeObjects', () => {
     const merged = mergeObjects(
       { a: 1 },
       () => null,
-      () => undefined,
+      () => {},
     );
     expect(merged.a).toBe(1);
   });
@@ -65,13 +65,13 @@ describe('mergeObjects', () => {
 
   it('Proxy `ownKeys` aggregates keys from every source (deduped)', () => {
     const merged = mergeObjects({ a: 1, b: 2 }, { b: 3, c: 4 });
-    const keys: (string | symbol)[] = Reflect.ownKeys(merged);
+    const keys: Array<string | symbol> = Reflect.ownKeys(merged);
     expect(new Set(keys)).toEqual(new Set(['a', 'b', 'c']));
   });
 
   it('Proxy `ownKeys` skips thunk sources that return null', () => {
     const merged = mergeObjects({ a: 1 }, () => null);
-    const keys: (string | symbol)[] = Reflect.ownKeys(merged);
+    const keys: Array<string | symbol> = Reflect.ownKeys(merged);
     expect(keys).toEqual(['a']);
   });
 

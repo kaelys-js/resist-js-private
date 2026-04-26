@@ -33,12 +33,32 @@ const modules = import.meta.glob<{ meta?: unknown }>(
   { eager: true },
 );
 
+/**
+ * Lexicographic comparator for `[path, module]` entries — kept named so the
+ * outer expression stays free of nested ternaries.
+ *
+ * @param entryA - First scaffold entry; only the `[0]` path is compared.
+ * @param entryB - Second scaffold entry; only the `[0]` path is compared.
+ * @returns -1, 0, or 1 in standard `Array#sort` semantics.
+ */
+function compareScaffoldEntries(
+  entryA: readonly [string, { meta?: unknown }],
+  entryB: readonly [string, { meta?: unknown }],
+): number {
+  const [a] = entryA;
+  const [b] = entryB;
+  if (a < b) {
+    return -1;
+  }
+  if (a > b) {
+    return 1;
+  }
+  return 0;
+}
+
 /** Stable, sorted list of `[path, module]` pairs for deterministic iteration. */
-const scaffoldEntries: ReadonlyArray<readonly [string, { meta?: unknown }]> = Object.entries(
-  modules,
-)
-  .slice()
-  .sort(([a], [b]): number => (a < b ? -1 : a > b ? 1 : 0));
+const scaffoldEntries: ReadonlyArray<readonly [string, { meta?: unknown }]> =
+  Object.entries(modules).toSorted(compareScaffoldEntries);
 
 describe('lens.ts scaffold discovery', () => {
   it('discovers at least 800 scaffolds', () => {
