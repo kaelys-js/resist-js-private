@@ -95,26 +95,24 @@ export function extractScriptBlocks(content: string): string {
   for (let i: number = 0; i < lines.length; i++) {
     const trimmed: string = (lines[i] ?? '').trim();
 
-    if (!inScript) {
-      if (SCRIPT_OPEN_RE.test(trimmed)) {
-        inScript = true;
-        foundAny = true;
-        /* The opening <script> tag line itself is blanked — only content lines are kept */
-      }
-    } else {
+    if (inScript) {
       if (SCRIPT_CLOSE_RE.test(trimmed)) {
         inScript = false;
       } else {
         output[i] = lines[i] ?? '';
       }
+    } else if (SCRIPT_OPEN_RE.test(trimmed)) {
+      inScript = true;
+      foundAny = true;
+      /* The opening <script> tag line itself is blanked — only content lines are kept */
     }
   }
 
-  if (!foundAny) {
-    return '';
+  if (foundAny) {
+    return output.join('\n');
   }
 
-  return output.join('\n');
+  return '';
 }
 
 // =============================================================================
@@ -147,14 +145,7 @@ export function extractCodeFences(content: string): string {
   for (let i: number = 0; i < lines.length; i++) {
     const trimmed: string = (lines[i] ?? '').trim();
 
-    if (!inFence) {
-      const match: RegExpMatchArray | null = trimmed.match(CODE_FENCE_OPEN_RE);
-      if (match) {
-        inFence = true;
-        foundAny = true;
-        fenceBacktickCount = (match[1] ?? '```').length;
-      }
-    } else {
+    if (inFence) {
       if (
         CODE_FENCE_CLOSE_RE.test(trimmed) &&
         trimmed.replaceAll(/[^`]/g, '').length >= fenceBacktickCount
@@ -164,14 +155,21 @@ export function extractCodeFences(content: string): string {
       } else {
         output[i] = lines[i] ?? '';
       }
+    } else {
+      const match: RegExpMatchArray | null = trimmed.match(CODE_FENCE_OPEN_RE);
+      if (match) {
+        inFence = true;
+        foundAny = true;
+        fenceBacktickCount = (match[1] ?? '```').length;
+      }
     }
   }
 
-  if (!foundAny) {
-    return '';
+  if (foundAny) {
+    return output.join('\n');
   }
 
-  return output.join('\n');
+  return '';
 }
 
 // =============================================================================
