@@ -6,7 +6,7 @@
  * @module
  */
 
-import { basename, relative } from 'node:path';
+import {relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -64,8 +64,7 @@ const rule: WorkspaceRule = {
           'error',
           'Missing .dockerignore at project root',
           {
-            tip: 'Create a .dockerignore file at the project root to exclude unnecessary files from Docker builds.',
-          },
+            tip: 'Create a .dockerignore file at the project root to exclude unnecessary files from Docker builds.'},
         ),
       );
       return results;
@@ -83,8 +82,7 @@ const rule: WorkspaceRule = {
           'error',
           '.dockerignore is empty',
           {
-            tip: 'Add patterns to .dockerignore to exclude node_modules, .git, and other non-essential files.',
-          },
+            tip: 'Add patterns to .dockerignore to exclude node_modules, .git, and other non-essential files.'},
         ),
       );
       return results;
@@ -100,8 +98,7 @@ const rule: WorkspaceRule = {
           'error',
           '.dockerignore must end with a trailing newline',
           {
-            tip: 'Add a newline at the end of .dockerignore.',
-          },
+            tip: 'Add a newline at the end of .dockerignore.'},
         ),
       );
     }
@@ -133,14 +130,12 @@ const rule: WorkspaceRule = {
           'error',
           `Duplicate patterns in .dockerignore: ${duplicates.join(', ')}`,
           {
-            tip: 'Remove duplicate patterns from .dockerignore to keep it clean and maintainable.',
-          },
+            tip: 'Remove duplicate patterns from .dockerignore to keep it clean and maintainable.'},
         ),
       );
     }
 
     return results;
-  },
-};
+  }};
 
 export default rule;

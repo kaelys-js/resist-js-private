@@ -12,7 +12,7 @@
  * @module
  */
 
-import { dirname, join, relative } from 'node:path';
+import { dirname, join } from 'node:path';
 
 import type { WorkspaceContext, WorkspacePackage } from '@/lint/framework/rule-context.ts';
 import { vscodeRuleInputs } from '@/lint/rules/vscode/_shared-inputs.ts';
@@ -133,8 +133,7 @@ const rule: WorkspaceRule = {
               'error',
               `Command COMMANDS.${entry.key} ("${entry.id}") is defined in brand.ts but never referenced in any registerCommand/registerTextEditorCommand call.`,
               {
-                tip: `Add a registerCommand(context, outputChannel, COMMANDS.${entry.key}, handler) call in commands.ts.`,
-              },
+                tip: `Add a registerCommand(context, outputChannel, COMMANDS.${entry.key}, handler) call in commands.ts.`},
             ),
           );
         }
@@ -142,8 +141,7 @@ const rule: WorkspaceRule = {
     }
 
     return results;
-  },
-};
+  }};
 
 /**
  * Find the 1-based line number containing a substring.

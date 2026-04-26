@@ -6,7 +6,7 @@
  * @module
  */
 
-import { basename, dirname, join, relative } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -62,8 +62,7 @@ const rule: WorkspaceRule = {
           'error',
           'Missing .editorconfig at project root',
           {
-            tip: 'Add a .editorconfig file to enforce consistent coding styles',
-          },
+            tip: 'Add a .editorconfig file to enforce consistent coding styles'},
         ),
       );
       return results;
@@ -79,8 +78,7 @@ const rule: WorkspaceRule = {
           'error',
           '.editorconfig is empty',
           {
-            tip: 'Add editor configuration rules for indent style, charset, etc.',
-          },
+            tip: 'Add editor configuration rules for indent style, charset, etc.'},
         ),
       );
       return results;
@@ -97,8 +95,7 @@ const rule: WorkspaceRule = {
           'warning',
           "Missing 'root = true' in .editorconfig",
           {
-            tip: "Add 'root = true' at the top to prevent editors from searching parent directories",
-          },
+            tip: "Add 'root = true' at the top to prevent editors from searching parent directories"},
         ),
       );
     }
@@ -130,14 +127,12 @@ const rule: WorkspaceRule = {
           'error',
           `Duplicate section headers in .editorconfig: ${duplicates.join(', ')}`,
           {
-            tip: 'Merge duplicate sections into a single block',
-          },
+            tip: 'Merge duplicate sections into a single block'},
         ),
       );
     }
 
     return results;
-  },
-};
+  }};
 
 export default rule;

@@ -7,7 +7,7 @@
  * @module
  */
 
-import { basename, relative } from 'node:path';
+import { basename } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -81,8 +81,7 @@ const rule: WorkspaceRule = {
             'error',
             `Non-markdown file in /docs: ${fileName}`,
             {
-              tip: 'Only .md files are allowed in /docs',
-            },
+              tip: 'Only .md files are allowed in /docs'},
           ),
         );
         continue;
@@ -99,15 +98,13 @@ const rule: WorkspaceRule = {
             'error',
             `Invalid docs filename casing: ${fileName}`,
             {
-              tip: 'Use lowercase kebab-case or snake_case for documentation files',
-            },
+              tip: 'Use lowercase kebab-case or snake_case for documentation files'},
           ),
         );
       }
     }
 
     return results;
-  },
-};
+  }};
 
 export default rule;

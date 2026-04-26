@@ -1,25 +1,22 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('node:child_process', () => ({
-  execSync: vi.fn(),
-  execFile: vi.fn(),
-  execFileSync: vi.fn(),
-}));
-
-vi.mock('node:fs', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('node:fs')>();
-  return {
-    ...actual,
-    writeFileSync: vi.fn(),
-  };
-});
-
 import { execSync } from 'node:child_process';
+import * as NodeFsModule from 'node:fs';
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { collapseShortJsonArrays, getGitChangedFiles, writeJsonSchema } from './cli-helpers.ts';
-import en from './locale/locales/en.ts';
+import { collapseShortJsonArrays, getGitChangedFiles } from './cli-helpers.ts';
+vi.mock('node:child_process', () => ({
+  execSync: vi.fn(),
+  execFile: vi.fn(),
+  execFileSync: vi.fn()}));
+
+vi.mock('node:fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof NodeFsModule>();
+  return {
+    ...actual,
+    writeFileSync: vi.fn()};
+});
 
 /* ---------- collapseShortJsonArrays ---------- */
 
@@ -170,8 +167,7 @@ describe('writeJsonSchema', () => {
         patterns: ['**/*.ts'],
         categories: [],
         stages: ['lint'],
-        visitor: {},
-      },
+        visitor: {}},
     ];
     const pkgRules = [
       {
@@ -180,8 +176,7 @@ describe('writeJsonSchema', () => {
         patterns: ['**/package.json'],
         categories: [],
         stages: ['lint'],
-        check: () => [],
-      },
+        check: () => []},
     ];
     const cwd = '/tmp/test-project';
 
@@ -205,8 +200,7 @@ describe('writeJsonSchema', () => {
         patterns: ['**/*.ts'],
         categories: [],
         stages: ['lint'],
-        visitor: {},
-      },
+        visitor: {}},
     ];
 
     freshWrite(tsRules as any, [] as any, freshEn, [], '/tmp');
@@ -257,8 +251,7 @@ describe('writeJsonSchema', () => {
         stages: ['lint'],
         scope: 'workspace',
         check: async () => [],
-        optionsSchema: { type: 'object', properties: { strict: { type: 'boolean' } } },
-      },
+        optionsSchema: { type: 'object', properties: { strict: { type: 'boolean' } } }},
     ];
 
     freshWrite([] as any, [] as any, freshEn, wsRules as any, '/tmp');

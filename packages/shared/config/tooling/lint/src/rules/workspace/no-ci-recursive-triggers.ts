@@ -7,7 +7,7 @@
  * @module
  */
 
-import { join, relative } from 'node:path';
+import {relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -70,8 +70,7 @@ const rule: WorkspaceRule = {
       }
 
       const lines: string[] = content.split('\n');
-      for (let i: number = 0; i < lines.length; i++) {
-        const line: string = lines[i]!;
+      for (const [i, line] of lines.entries()) {
         const match: RegExpMatchArray | null = line.match(RECURSIVE_TRIGGER_PATTERN);
         if (match !== null) {
           results.push(
@@ -83,8 +82,7 @@ const rule: WorkspaceRule = {
               'error',
               `Recursive CI trigger pattern '${match[0]}' found in ${relativePath}`,
               {
-                tip: 'Remove git push/commit/rebase/merge from CI scripts to prevent infinite trigger loops',
-              },
+                tip: 'Remove git push/commit/rebase/merge from CI scripts to prevent infinite trigger loops'},
             ),
           );
         }
@@ -92,7 +90,6 @@ const rule: WorkspaceRule = {
     }
 
     return results;
-  },
-};
+  }};
 
 export default rule;

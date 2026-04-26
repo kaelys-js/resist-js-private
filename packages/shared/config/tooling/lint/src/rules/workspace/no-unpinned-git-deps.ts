@@ -55,8 +55,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
     const unpinnedPattern: RegExp = /github\.com.*#(main|master|next|canary|dev|develop)\b/;
 
-    for (let i: number = 0; i < lines.length; i++) {
-      const line: string = lines[i]!;
+    for (const [i, line] of lines.entries()) {
       if (unpinnedPattern.test(line)) {
         results.push(
           createResult(

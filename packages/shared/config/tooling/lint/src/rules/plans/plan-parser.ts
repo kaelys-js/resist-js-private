@@ -141,10 +141,9 @@ function parseTasks(content: string, lines: string[]): PlanTask[] {
   }
 
   /* Extract each task section */
-  for (let t: number = 0; t < taskPositions.length; t++) {
-    const pos = taskPositions[t]!;
-    const nextIndex: number =
-      t + 1 < taskPositions.length ? taskPositions[t + 1]!.index : lines.length;
+  for (const [t, pos] of taskPositions.entries()) {
+    const nextPos = taskPositions[t + 1];
+    const nextIndex: number = nextPos !== undefined ? nextPos.index : lines.length;
     const sectionLines: string[] = lines.slice(pos.index, nextIndex);
     const section: string = sectionLines.join('\n');
 

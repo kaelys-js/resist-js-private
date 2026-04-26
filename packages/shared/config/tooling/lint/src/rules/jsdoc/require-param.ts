@@ -211,14 +211,17 @@ function checkFunction(
   const insertOffset: number = getJsDocEndOffset(exportNode, context.content);
   const funcName: string = ((funcNode.id as AstNode | undefined)?.name as string) ?? '<anonymous>';
 
-  for (let i = 0; i < funcParamNames.length; i++) {
-    const paramName: string = funcParamNames[i]!;
+  for (const [i, paramName] of funcParamNames.entries()) {
     if (paramName.startsWith('__destructured_')) {
       continue;
     }
 
     if (!docParamNames.includes(paramName)) {
-      const paramType: string = extractParamType(params[i]!, context.content);
+      const paramNode: AstNode | undefined = params[i];
+      if (paramNode === undefined) {
+        continue;
+      }
+      const paramType: string = extractParamType(paramNode, context.content);
       const fixText: string = ` * @param {${paramType}} ${paramName} - Description\n `;
       results.push({
         file: context.file,
@@ -241,8 +244,9 @@ function checkFunction(
   for (const entry of docEntries) {
     if (!entry.hasType && funcParamNames.includes(entry.name)) {
       const paramIdx: number = funcParamNames.indexOf(entry.name);
+      const paramNode: AstNode | undefined = paramIdx >= 0 ? params[paramIdx] : undefined;
       const actualType: string =
-        paramIdx >= 0 ? extractParamType(params[paramIdx]!, context.content) : 'unknown';
+        paramNode !== undefined ? extractParamType(paramNode, context.content) : 'unknown';
       const insertAt: number = findParamInsertOffset(entry.name, exportNode, context.content);
       const fixData =
         insertAt >= 0

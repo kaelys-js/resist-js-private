@@ -93,8 +93,8 @@ export function transformGitleaksOutput(output: string, strings: LintStrings): L
     const file: string = typed.File ?? '';
     const startLine: number = typed.StartLine ?? 1;
     const startColumn: number = typed.StartColumn ?? 1;
-    const endLine: number = typed.EndLine ?? undefined!;
-    const endColumn: number = typed.EndColumn ?? undefined!;
+    const endLine: number | undefined = typed.EndLine;
+    const endColumn: number | undefined = typed.EndColumn;
     const description: string = typed.Description ?? 'Secret detected';
     const ruleID: string = typed.RuleID ?? 'unknown';
     const secret: string = typed.Secret ?? '';

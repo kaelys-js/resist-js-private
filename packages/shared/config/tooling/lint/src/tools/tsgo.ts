@@ -8,6 +8,7 @@
  */
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import type { Dirent } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 import type { LintCache } from '@/lint/framework/cache.ts';
@@ -47,7 +48,7 @@ const FINGERPRINT_SKIP_DIRS: ReadonlySet<string> = new Set([
 function listTsgoInputs(pkgDir: string): string[] {
   const files: string[] = [];
   function walk(dir: string): void {
-    let entries: Array<import('node:fs').Dirent>;
+    let entries: Array<Dirent>;
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -120,12 +121,9 @@ export function transformTsgoOutput(output: string): LintResult[] {
       continue;
     }
 
-    const file: string = match[1]!;
-    const lineNum: number = Number.parseInt(match[2]!, 10);
-    const col: number = Number.parseInt(match[3]!, 10);
-    const level: string = match[4]!;
-    const code: string = match[5]!;
-    const message: string = match[6]!;
+    const [, file = '', lineStr = '1', colStr = '1', level = '', code = '', message = ''] = match;
+    const lineNum: number = Number.parseInt(lineStr, 10);
+    const col: number = Number.parseInt(colStr, 10);
 
     /* Skip TS1005 from svelte.d.ts — intentional index-signature export syntax. */
     if (code === 'TS1005' && SVELTE_AMBIENT_PARSE_SUPPRESSION.test(file)) {
@@ -186,7 +184,7 @@ export function discoverTsconfigDirs(cwd: string): string[] {
   const found: string[] = [];
 
   function walk(dir: string): void {
-    let entries: Array<import('node:fs').Dirent>;
+    let entries: Array<Dirent>;
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {

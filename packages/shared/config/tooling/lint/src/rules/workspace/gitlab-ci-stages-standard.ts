@@ -80,9 +80,7 @@ const rule: WorkspaceRule = {
       const declaredStages: string[] = [];
       let stagesLine: number = 0;
 
-      for (let i: number = 0; i < lines.length; i++) {
-        const line: string = lines[i]!;
-
+      for (const [i, line] of lines.entries()) {
         if (/^\s*stages:\s*$/.test(line)) {
           inStages = true;
           stagesLine = i + 1;
@@ -147,9 +145,8 @@ const rule: WorkspaceRule = {
       const filteredDeclared: string[] = declaredStages.filter((s: string): boolean =>
         approvedSet.has(s),
       );
-      for (let i: number = 0; i < filteredDeclared.length; i++) {
+      for (const [i, actual] of filteredDeclared.entries()) {
         const expected: string | undefined = APPROVED_STAGES[i];
-        const actual: string = filteredDeclared[i]!;
         if (expected !== actual) {
           results.push(
             createResult(

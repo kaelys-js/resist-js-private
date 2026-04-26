@@ -33,6 +33,7 @@ const BRAND_CONSTANTS: ReadonlyArray<{ value: string; constant: string }> = [
 /**
  * Build a regex that matches a brand value as a standalone string literal.
  * Avoids matching partial substrings by requiring word boundaries or quote chars.
+ * @returns Description
  */
 function buildBrandRegex(value: string): RegExp {
   const escaped: string = value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);

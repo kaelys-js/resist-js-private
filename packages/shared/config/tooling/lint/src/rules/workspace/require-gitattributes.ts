@@ -6,7 +6,7 @@
  * @module
  */
 
-import { basename, relative } from 'node:path';
+import {relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -73,8 +73,7 @@ const rule: WorkspaceRule = {
           'error',
           'Missing .gitattributes at project root',
           {
-            tip: 'Create a .gitattributes file to ensure consistent line endings and binary file handling.',
-          },
+            tip: 'Create a .gitattributes file to ensure consistent line endings and binary file handling.'},
         ),
       );
       return results;
@@ -92,8 +91,7 @@ const rule: WorkspaceRule = {
           'error',
           '.gitattributes is empty',
           {
-            tip: 'Add file type rules to .gitattributes for consistent handling across platforms.',
-          },
+            tip: 'Add file type rules to .gitattributes for consistent handling across platforms.'},
         ),
       );
       return results;
@@ -110,8 +108,7 @@ const rule: WorkspaceRule = {
             'error',
             `Missing required attribute: ${pattern}`,
             {
-              tip: `Add "${pattern}" to .gitattributes.`,
-            },
+              tip: `Add "${pattern}" to .gitattributes.`},
           ),
         );
       }
@@ -153,14 +150,12 @@ const rule: WorkspaceRule = {
           'error',
           `Duplicate rules in .gitattributes: ${dupes}`,
           {
-            tip: 'Remove duplicate glob patterns — each file pattern should have exactly one rule.',
-          },
+            tip: 'Remove duplicate glob patterns — each file pattern should have exactly one rule.'},
         ),
       );
     }
 
     return results;
-  },
-};
+  }};
 
 export default rule;

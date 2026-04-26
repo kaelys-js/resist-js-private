@@ -58,8 +58,10 @@ const rule: WorkspaceRule = {
 
       // ICO ICONDIR: 6 bytes header, then ICONDIRENTRY at offset 6
       // ICONDIRENTRY byte 0 = width (0 means 256), byte 1 = height (0 means 256)
-      const width: number = buf[6] === 0 ? 256 : buf[6]!;
-      const height: number = buf[7] === 0 ? 256 : buf[7]!;
+      const widthByte: number = buf[6] ?? 0;
+      const heightByte: number = buf[7] ?? 0;
+      const width: number = widthByte === 0 ? 256 : widthByte;
+      const height: number = heightByte === 0 ? 256 : heightByte;
 
       if (width < 64 || height < 64) {
         results.push(

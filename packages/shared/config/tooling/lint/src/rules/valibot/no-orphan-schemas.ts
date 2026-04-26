@@ -214,7 +214,10 @@ const rule: TypeScriptRule = {
           });
         } else if (!exportedNames.has(expectedType)) {
           // Type alias exists but is not exported — prepend `export ` keyword
-          const typeNode: AstNode = allTypes.get(expectedType)!;
+          const typeNode: AstNode | undefined = allTypes.get(expectedType);
+          if (typeNode === undefined) {
+            continue;
+          }
           results.push({
             column: info.column,
             file: context.file,

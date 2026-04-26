@@ -7,7 +7,7 @@
  * @module
  */
 
-import { basename, relative } from 'node:path';
+import {relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -122,8 +122,7 @@ const rule: WorkspaceRule = {
                 'error',
                 `Package ${pkgName} depends on ${depName}@${depVersion} but declared version is ${actualVersion}`,
                 {
-                  tip: 'Update the dependency to match the declared major version',
-                },
+                  tip: 'Update the dependency to match the declared major version'},
               ),
             );
           }
@@ -132,7 +131,6 @@ const rule: WorkspaceRule = {
     }
 
     return results;
-  },
-};
+  }};
 
 export default rule;

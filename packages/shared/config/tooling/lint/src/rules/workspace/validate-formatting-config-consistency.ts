@@ -164,10 +164,11 @@ const rule: WorkspaceRule = {
       indentSizes.push({ source: '.vscode/settings.json', value: vscodeTabSize });
     }
 
-    if (indentSizes.length >= 2) {
-      const firstSize: number = indentSizes[0]!.value;
-      for (let i: number = 1; i < indentSizes.length; i++) {
-        if (indentSizes[i]!.value !== firstSize) {
+    const [firstSizeEntry, ...restSizes] = indentSizes;
+    if (firstSizeEntry !== undefined && restSizes.length > 0) {
+      const firstSize: number = firstSizeEntry.value;
+      for (const entry of restSizes) {
+        if (entry.value !== firstSize) {
           results.push(
             createResult(
               'workspace/validate-formatting-config-consistency',
@@ -175,7 +176,7 @@ const rule: WorkspaceRule = {
               1,
               1,
               'error',
-              `Indent size mismatch: ${indentSizes[0]!.source} uses ${String(firstSize)}, ${indentSizes[i]!.source} uses ${String(indentSizes[i]!.value)}`,
+              `Indent size mismatch: ${firstSizeEntry.source} uses ${String(firstSize)}, ${entry.source} uses ${String(entry.value)}`,
               {
                 tip: 'Align indent size across all formatting configs',
               },
@@ -199,10 +200,11 @@ const rule: WorkspaceRule = {
       indentStyles.push({ source: '.vscode/settings.json', value: style });
     }
 
-    if (indentStyles.length >= 2) {
-      const firstStyle: string = indentStyles[0]!.value;
-      for (let i: number = 1; i < indentStyles.length; i++) {
-        if (indentStyles[i]!.value !== firstStyle) {
+    const [firstStyleEntry, ...restStyles] = indentStyles;
+    if (firstStyleEntry !== undefined && restStyles.length > 0) {
+      const firstStyle: string = firstStyleEntry.value;
+      for (const entry of restStyles) {
+        if (entry.value !== firstStyle) {
           results.push(
             createResult(
               'workspace/validate-formatting-config-consistency',
@@ -210,7 +212,7 @@ const rule: WorkspaceRule = {
               1,
               1,
               'error',
-              `Indent style mismatch: ${indentStyles[0]!.source} uses '${firstStyle}', ${indentStyles[i]!.source} uses '${indentStyles[i]!.value}'`,
+              `Indent style mismatch: ${firstStyleEntry.source} uses '${firstStyle}', ${entry.source} uses '${entry.value}'`,
               {
                 tip: 'Align indent style across all formatting configs',
               },

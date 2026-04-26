@@ -6,7 +6,7 @@
  * @module
  */
 
-import { basename, relative } from 'node:path';
+import { basename } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -76,15 +76,13 @@ const rule: WorkspaceRule = {
             'error',
             `Invalid filename casing: ${fileName} — only kebab-case or snake_case allowed`,
             {
-              tip: 'Rename to use lowercase a-z, numbers, dashes, underscores, or dots only',
-            },
+              tip: 'Rename to use lowercase a-z, numbers, dashes, underscores, or dots only'},
           ),
         );
       }
     }
 
     return results;
-  },
-};
+  }};
 
 export default rule;

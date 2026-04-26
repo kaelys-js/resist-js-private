@@ -121,8 +121,7 @@ const rule: WorkspaceRule = {
 
       // 4. Inline anonymous v.object schemas (not assigned to const/export)
       const lines: string[] = content.split('\n');
-      for (let i: number = 0; i < lines.length; i++) {
-        const line: string = lines[i]!;
+      for (const [i, line] of lines.entries()) {
         if (
           /v\.object\(\{/.test(line) &&
           !/^\s*(export\s+)?(const|let|var)\s+\w+\s*=\s*v\.object/.test(line)

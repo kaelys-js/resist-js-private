@@ -28,6 +28,7 @@ const ZSH_LINE: RegExp = /^(.+?):(\d+): (.+)$/;
  * // results[0].ruleId === 'zsh/syntax'
  * // results[0].line === 10
  * ```
+ * @returns Description
  */
 export function transformZshOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();

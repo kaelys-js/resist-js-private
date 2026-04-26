@@ -17,6 +17,7 @@ import type {
 
 /**
  * Returns true if the node is a float literal (number with a fractional part).
+ * @returns Description
  */
 function isFloatLiteral(node: AstNode): boolean {
   const { value } = node;

@@ -38,6 +38,7 @@ const NIX_LINE: RegExp = /^error:\s+(.+?),?\s+at\s+(.+?):(\d+):(\d+)$/;
  * // results[0].ruleId === 'nix/syntax'
  * // results[0].line === 12
  * ```
+ * @returns Description
  */
 export function transformNixOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();

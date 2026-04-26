@@ -60,7 +60,7 @@ const rule: WorkspaceRule = {
       const lines: string[] = content.split('\n');
 
       for (let i: number = 0; i < lines.length; i++) {
-        const match: RegExpMatchArray | null = lines[i]!.match(FUNC_PATTERN);
+        const match: RegExpMatchArray | null = (lines[i] ?? '').match(FUNC_PATTERN);
         if (!match?.[1]) {
           continue;
         }
@@ -71,7 +71,7 @@ const rule: WorkspaceRule = {
         let braceCount: number = 0;
         let started: boolean = false;
         for (let j: number = i; j < lines.length; j++) {
-          const line: string = lines[j]!;
+          const line: string = lines[j] ?? '';
           body += line + '\n';
           if (line.includes('{')) {
             braceCount++;
