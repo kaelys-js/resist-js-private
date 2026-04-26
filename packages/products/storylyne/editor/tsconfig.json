@@ -12,10 +12,6 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "moduleResolution": "bundler",
-    "types": ["@cloudflare/workers-types"],
-    "paths": {
-      "$lib": ["./src/lib"],
-      "$lib/*": ["./src/lib/*"]
-    }
+    "types": ["@cloudflare/workers-types"]
   }
 }
