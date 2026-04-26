@@ -119,9 +119,10 @@ export function getTextDirection(locale: Str): Result<TextDirection> {
     // getTextInfo() — Node 21+, Chrome 99+
     if (
       'getTextInfo' in intlLocale &&
-      typeof (intlLocale as Record<Str, unknown>).getTextInfo === 'function' // cast safe: guarded by 'getTextInfo' in intlLocale
+      typeof (intlLocale as unknown as Record<Str, unknown>).getTextInfo === 'function' // cast safe: guarded by 'getTextInfo' in intlLocale
     ) {
-      const getTextInfoFn = (intlLocale as Record<Str, unknown>).getTextInfo as () => unknown; // cast safe: guarded by 'getTextInfo' in intlLocale
+      const getTextInfoFn = (intlLocale as unknown as Record<Str, unknown>)
+        .getTextInfo as () => unknown; // cast safe: guarded by 'getTextInfo' in intlLocale
       const rawTextInfo: unknown = getTextInfoFn.call(intlLocale);
       const textInfoResult: Result<TextInfo> = safeParse(TextInfoSchema, rawTextInfo);
 
@@ -136,7 +137,7 @@ export function getTextDirection(locale: Str): Result<TextDirection> {
 
     // textInfo property (Safari)
     if ('textInfo' in intlLocale) {
-      const rawTextInfo: unknown = (intlLocale as Record<Str, unknown>).textInfo; // cast safe: guarded by 'textInfo' in intlLocale
+      const rawTextInfo: unknown = (intlLocale as unknown as Record<Str, unknown>).textInfo; // cast safe: guarded by 'textInfo' in intlLocale
       const textInfoResult: Result<TextInfo> = safeParse(TextInfoSchema, rawTextInfo);
 
       if (textInfoResult.ok) {

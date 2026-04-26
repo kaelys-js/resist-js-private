@@ -1367,9 +1367,9 @@
         <Tooltip.Provider>
           <Tooltip.Root delayDuration={300}>
             <Tooltip.Trigger>
-              {#snippet child({ props: tooltipProps })}
+              {#snippet child({ props: tooltipProps }: { props: Record<string, unknown> })}
                 <DropdownMenu.Trigger>
-                  {#snippet child({ props: triggerProps })}
+                  {#snippet child({ props: triggerProps }: { props: Record<string, unknown> })}
                     <button
                       type="button"
                       class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -1429,7 +1429,7 @@
                   </DropdownMenu.Label>
                   {#each filteredExportItems.filter((p) => p.category === exportCat) as item (item.id)}
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handlePageExport(item.id);
                       }}
@@ -1461,7 +1461,7 @@
 
           <!-- View Mode submenu -->
           <DropdownMenu.Sub
-            onOpenChange={(open) => {
+            onOpenChange={(open: boolean) => {
               if (open) viewSearchQuery = '' as Str;
             }}
           >
@@ -1530,7 +1530,7 @@
 
           <!-- Sort By submenu -->
           <DropdownMenu.Sub
-            onOpenChange={(open) => {
+            onOpenChange={(open: boolean) => {
               if (open) sortSearchQuery = '' as Str;
             }}
           >
@@ -1602,7 +1602,7 @@
 
           <!-- Grid Density submenu -->
           <DropdownMenu.Sub
-            onOpenChange={(open) => {
+            onOpenChange={(open: boolean) => {
               if (open) densitySearchQuery = '' as Str;
             }}
           >
@@ -1673,7 +1673,7 @@
 
           <!-- Color Mode submenu -->
           <DropdownMenu.Sub
-            onOpenChange={(open) => {
+            onOpenChange={(open: boolean) => {
               if (open) colorModeSearchQuery = '' as Str;
             }}
           >
@@ -1744,7 +1744,7 @@
 
           <!-- Theme submenu -->
           <DropdownMenu.Sub
-            onOpenChange={(open) => {
+            onOpenChange={(open: boolean) => {
               if (open) themeSearchQuery = '' as Str;
             }}
           >
@@ -1894,7 +1894,7 @@
           <DropdownMenu.Item
             variant="destructive"
             disabled={!isCustomized}
-            onSelect={(e) => {
+            onSelect={(e: Event) => {
               e.preventDefault();
               handleReset();
             }}
@@ -1951,7 +1951,7 @@
         <Tooltip.Provider>
           <Tooltip.Root delayDuration={400}>
             <Tooltip.Trigger>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <button
                   {...props}
                   type="button"
@@ -2033,7 +2033,7 @@
                 <Tooltip.Provider>
                   <Tooltip.Root>
                     <Tooltip.Trigger>
-                      {#snippet child({ props })}
+                      {#snippet child({ props }: { props: Record<string, unknown> })}
                         <button
                           {...props}
                           type="button"
@@ -2056,7 +2056,7 @@
                 <Tooltip.Provider>
                   <Tooltip.Root>
                     <Tooltip.Trigger>
-                      {#snippet child({ props })}
+                      {#snippet child({ props }: { props: Record<string, unknown> })}
                         <button
                           {...props}
                           type="button"
@@ -2086,16 +2086,24 @@
               <div class="flex items-center gap-1">
                 <!-- Copy as... dropdown -->
                 <DropdownMenu.Root
-                  onOpenChange={(open) => {
+                  onOpenChange={(open: boolean) => {
                     if (open) detailExportSearch = '' as Str;
                   }}
                 >
                   <Tooltip.Provider>
                     <Tooltip.Root delayDuration={300}>
                       <Tooltip.Trigger>
-                        {#snippet child({ props: tooltipProps })}
+                        {#snippet child({
+                          props: tooltipProps,
+                        }: {
+                          props: Record<string, unknown>;
+                        })}
                           <DropdownMenu.Trigger>
-                            {#snippet child({ props: triggerProps })}
+                            {#snippet child({
+                              props: triggerProps,
+                            }: {
+                              props: Record<string, unknown>;
+                            })}
                               <button
                                 type="button"
                                 class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -2170,7 +2178,7 @@
                         Clipboard
                       </DropdownMenu.Label>
                       <DropdownMenu.Item
-                        onSelect={(e) => {
+                        onSelect={(e: Event) => {
                           e.preventDefault();
                           handleDetailCopy('svg' as Str, selectedSvgMarkup);
                         }}
@@ -2188,7 +2196,7 @@
                         </div>
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
-                        onSelect={(e) => {
+                        onSelect={(e: Event) => {
                           e.preventDefault();
                           handleDetailCopy('svelte' as Str, importSvelte);
                         }}
@@ -2208,7 +2216,7 @@
                         </div>
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
-                        onSelect={(e) => {
+                        onSelect={(e: Event) => {
                           e.preventDefault();
                           handleDetailCopy('usage' as Str, usageExample);
                         }}
@@ -2228,7 +2236,7 @@
                         </div>
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
-                        onSelect={(e) => {
+                        onSelect={(e: Event) => {
                           e.preventDefault();
                           handleDetailCopy('html' as Str, usageCss);
                         }}
@@ -2277,7 +2285,7 @@
                 <Tooltip.Provider>
                   <Tooltip.Root>
                     <Tooltip.Trigger>
-                      {#snippet child({ props })}
+                      {#snippet child({ props }: { props: Record<string, unknown> })}
                         <button
                           {...props}
                           type="button"
@@ -2304,7 +2312,7 @@
                   <Tooltip.Provider>
                     <Tooltip.Root delayDuration={300}>
                       <Tooltip.Trigger>
-                        {#snippet child({ props })}
+                        {#snippet child({ props }: { props: Record<string, unknown> })}
                           <button
                             {...props}
                             type="button"

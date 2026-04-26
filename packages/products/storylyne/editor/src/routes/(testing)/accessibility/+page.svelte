@@ -714,9 +714,9 @@
         <Tooltip.Provider>
           <Tooltip.Root delayDuration={300}>
             <Tooltip.Trigger>
-              {#snippet child({ props: tooltipProps })}
+              {#snippet child({ props: tooltipProps }: { props: Record<string, unknown> })}
                 <DropdownMenu.Trigger>
-                  {#snippet child({ props: triggerProps })}
+                  {#snippet child({ props: triggerProps }: { props: Record<string, unknown> })}
                     <button
                       type="button"
                       class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -776,7 +776,7 @@
                   </DropdownMenu.Label>
                   {#each filteredExportItems.filter((p) => p.category === category) as item (item.id)}
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handleExport(item.id);
                       }}
@@ -809,7 +809,7 @@
 
           <!-- View Mode submenu -->
           <DropdownMenu.Sub
-            onOpenChange={(open) => {
+            onOpenChange={(open: boolean) => {
               if (open) viewSearchQuery = '' as Str;
             }}
           >
@@ -880,7 +880,7 @@
 
           <!-- Sort By submenu -->
           <DropdownMenu.Sub
-            onOpenChange={(open) => {
+            onOpenChange={(open: boolean) => {
               if (open) sortSearchQuery = '' as Str;
             }}
           >
@@ -990,7 +990,7 @@
           <DropdownMenu.Item
             variant="destructive"
             disabled={!isCustomized}
-            onSelect={(e) => {
+            onSelect={(e: Event) => {
               e.preventDefault();
               handleReset();
             }}
@@ -1467,7 +1467,7 @@
                             <Tooltip.Provider>
                               <Tooltip.Root delayDuration={300}>
                                 <Tooltip.Trigger>
-                                  {#snippet child({ props })}
+                                  {#snippet child({ props }: { props: Record<string, unknown> })}
                                     <span
                                       {...props}
                                       class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium {statusClasses(

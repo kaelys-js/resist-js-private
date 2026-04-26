@@ -184,7 +184,7 @@
     {#if onclose}
       <Tooltip.Root delayDuration={300}>
         <Tooltip.Trigger>
-          {#snippet child({ props })}
+          {#snippet child({ props }: { props: Record<string, unknown> })}
             <button
               {...props}
               onclick={onclose}
@@ -306,7 +306,7 @@
       <Switch
         id="pref-{pref.key}"
         checked={Boolean(currentValue)}
-        onCheckedChange={(value) => callSetter(pref.key, value)}
+        onCheckedChange={(value: boolean) => callSetter(pref.key, value)}
       />
     </div>
   {:else if pref.type === 'picklist' && pref.options}
@@ -316,7 +316,7 @@
       </Label>
       <Popover.Root bind:open={openPicklists[pref.key]}>
         <Popover.Trigger bind:ref={triggerRefs[pref.key]}>
-          {#snippet child({ props })}
+          {#snippet child({ props }: { props: Record<string, unknown> })}
             <Button
               {...props}
               variant="outline"

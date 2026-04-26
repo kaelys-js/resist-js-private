@@ -323,7 +323,7 @@
               <Tooltip.Provider>
                 <PrimaryComponent {...baseProps} {...variantProps}>Example</PrimaryComponent>
               </Tooltip.Provider>
-              {#snippet failed(error)}
+              {#snippet failed(error: unknown)}
                 <LensError
                   title="Render failed"
                   description={error instanceof Error
@@ -351,7 +351,7 @@
             <Tooltip.Provider>
               <PrimaryComponent {...baseProps} {...variantProps}>Example</PrimaryComponent>
             </Tooltip.Provider>
-            {#snippet failed(error)}
+            {#snippet failed(error: unknown)}
               <LensError
                 title="Render failed"
                 description={error instanceof Error

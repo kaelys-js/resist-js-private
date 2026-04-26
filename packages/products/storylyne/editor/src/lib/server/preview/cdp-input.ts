@@ -169,7 +169,7 @@ export class CdpInputDispatcher {
       case 'touchStart': {
         await this.cdp.send('Input.dispatchTouchEvent', {
           type: 'touchStart',
-          touchPoints: msg.touches.map((t) => ({
+          touchPoints: msg.touches.map((t: { x: unknown; y: unknown; id: unknown }) => ({
             x: t.x as number,
             y: t.y as number,
             id: t.id as number,
@@ -181,7 +181,7 @@ export class CdpInputDispatcher {
       case 'touchMove': {
         await this.cdp.send('Input.dispatchTouchEvent', {
           type: 'touchMove',
-          touchPoints: msg.touches.map((t) => ({
+          touchPoints: msg.touches.map((t: { x: unknown; y: unknown; id: unknown }) => ({
             x: t.x as number,
             y: t.y as number,
             id: t.id as number,
@@ -193,7 +193,7 @@ export class CdpInputDispatcher {
       case 'touchEnd': {
         await this.cdp.send('Input.dispatchTouchEvent', {
           type: 'touchEnd',
-          touchPoints: msg.touches.map((t) => ({
+          touchPoints: msg.touches.map((t: { x: unknown; y: unknown; id: unknown }) => ({
             x: t.x as number,
             y: t.y as number,
             id: t.id as number,

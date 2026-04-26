@@ -1944,9 +1944,9 @@
           <DropdownMenu.Root>
             <Tooltip.Root delayDuration={300}>
               <Tooltip.Trigger>
-                {#snippet child({ props: tooltipProps })}
+                {#snippet child({ props: tooltipProps }: { props: Record<string, unknown> })}
                   <DropdownMenu.Trigger>
-                    {#snippet child({ props: triggerProps })}
+                    {#snippet child({ props: triggerProps }: { props: Record<string, unknown> })}
                       <button
                         type="button"
                         class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -1964,7 +1964,7 @@
             </Tooltip.Root>
             <DropdownMenu.Content align="start" sideOffset={4}>
               <DropdownMenu.Sub
-                onOpenChange={(open) => {
+                onOpenChange={(open: boolean) => {
                   if (open) sidebarExportSearchQuery = '';
                 }}
               >
@@ -1986,7 +1986,7 @@
                         placeholder="Search formats..."
                         class="h-5 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
                         bind:value={sidebarExportSearchQuery}
-                        onclick={(e) => e.stopPropagation()}
+                        onclick={(e: MouseEvent) => e.stopPropagation()}
                         onkeydown={(e) => e.stopPropagation()}
                       />
                     </div>
@@ -2011,7 +2011,7 @@
                         </DropdownMenu.Label>
                         {#each filteredSidebarExportItems.filter((p) => p.category === category) as item (item.id)}
                           <DropdownMenu.Item
-                            onSelect={(e) => {
+                            onSelect={(e: Event) => {
                               e.preventDefault();
                               handleSidebarExport(item.id);
                             }}
@@ -2062,7 +2062,7 @@
         <Sidebar.Menu>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/components' && !currentName}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/components" {...props}>
                   <Home class="size-4" />
                   <span>Overview</span>
@@ -2072,7 +2072,7 @@
           </Sidebar.MenuItem>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/getting-started'}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/getting-started" {...props}>
                   <BookOpen class="size-4" />
                   <span>Getting Started</span>
@@ -2092,7 +2092,7 @@
             CATEGORY_COLORS[pinMeta?.category ?? 'display'] ?? ('text-muted-foreground' as Str)}
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={currentName === name}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/components/{name}" {...props}>
                   <PinIcon class="size-4 {pinColor}" />
                   <span>{toTitle(name)}</span>
@@ -2102,12 +2102,12 @@
             <Sidebar.MenuAction>
               <Tooltip.Root delayDuration={300}>
                 <Tooltip.Trigger>
-                  {#snippet child({ props: unpinTip })}
+                  {#snippet child({ props: unpinTip }: { props: Record<string, unknown> })}
                     <button
                       type="button"
                       class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/50 hover:text-foreground"
                       {...unpinTip}
-                      onclick={(e) => {
+                      onclick={(e: MouseEvent) => {
                         e.preventDefault();
                         e.stopPropagation();
                         togglePin(name);
@@ -2127,14 +2127,14 @@
             <Sidebar.GroupLabel
               class="h-8 gap-2 text-sm rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
             >
-              {#snippet child({ props: pinnedLabelProps })}
+              {#snippet child({ props: pinnedLabelProps }: { props: Record<string, unknown> })}
                 <Collapsible.Trigger {...pinnedLabelProps}>
                   <Star class="size-3" />
                   Pinned
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger
                       class="ml-auto rounded-sm p-0.5 text-muted-foreground/50 transition-colors hover:text-foreground"
-                      onclick={(e) => e.stopPropagation()}
+                      onclick={(e: MouseEvent) => e.stopPropagation()}
                     >
                       <EllipsisVertical class="size-3.5" />
                       <span class="sr-only">Pinned options</span>
@@ -2142,7 +2142,7 @@
                     <DropdownMenu.Content align="end" class="w-44">
                       <DropdownMenu.Item
                         variant="destructive"
-                        onSelect={(e) => {
+                        onSelect={(e: Event) => {
                           e.preventDefault();
                           handleClearPinned();
                         }}
@@ -2200,7 +2200,7 @@
             CATEGORY_COLORS[recMeta?.category ?? 'display'] ?? ('text-muted-foreground' as Str)}
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={currentName === name}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/components/{name}" {...props}>
                   <RecIcon class="size-4 {recColor}" />
                   <span>{toTitle(name)}</span>
@@ -2210,12 +2210,12 @@
             <Sidebar.MenuAction>
               <Tooltip.Root delayDuration={300}>
                 <Tooltip.Trigger>
-                  {#snippet child({ props: removeTip })}
+                  {#snippet child({ props: removeTip }: { props: Record<string, unknown> })}
                     <button
                       type="button"
                       class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/50 hover:text-foreground"
                       {...removeTip}
-                      onclick={(e) => {
+                      onclick={(e: MouseEvent) => {
                         e.preventDefault();
                         e.stopPropagation();
                         removeRecent(name);
@@ -2235,14 +2235,14 @@
             <Sidebar.GroupLabel
               class="h-8 gap-2 text-sm rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
             >
-              {#snippet child({ props: recentLabelProps })}
+              {#snippet child({ props: recentLabelProps }: { props: Record<string, unknown> })}
                 <Collapsible.Trigger {...recentLabelProps}>
                   <Clock class="size-3" />
                   Recent
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger
                       class="ml-auto rounded-sm p-0.5 text-muted-foreground/50 transition-colors hover:text-foreground"
-                      onclick={(e) => e.stopPropagation()}
+                      onclick={(e: MouseEvent) => e.stopPropagation()}
                     >
                       <EllipsisVertical class="size-3.5" />
                       <span class="sr-only">Recent options</span>
@@ -2250,7 +2250,7 @@
                     <DropdownMenu.Content align="end" class="w-44">
                       <DropdownMenu.Item
                         variant="destructive"
-                        onSelect={(e) => {
+                        onSelect={(e: Event) => {
                           e.preventDefault();
                           handleClearRecent();
                         }}
@@ -2307,7 +2307,7 @@
           <Sidebar.GroupLabel
             class="h-8 gap-2 text-sm font-semibold rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
           >
-            {#snippet child({ props })}
+            {#snippet child({ props }: { props: Record<string, unknown> })}
               <Collapsible.Trigger {...props}>
                 <LayoutGrid class="size-3" />
                 Components
@@ -2352,7 +2352,11 @@
               <div class="pb-0.5">
                 <Tooltip.Root delayDuration={300}>
                   <Tooltip.Trigger>
-                    {#snippet child({ props: toggleTooltipProps })}
+                    {#snippet child({
+                      props: toggleTooltipProps,
+                    }: {
+                      props: Record<string, unknown>;
+                    })}
                       <button
                         type="button"
                         class="flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-xs transition-colors hover:bg-accent/50 {hideIncompatible
@@ -2407,7 +2411,11 @@
                 >
                   <Tooltip.Root delayDuration={400}>
                     <Tooltip.Trigger>
-                      {#snippet child({ props: catTooltipProps })}
+                      {#snippet child({
+                        props: catTooltipProps,
+                      }: {
+                        props: Record<string, unknown>;
+                      })}
                         <Collapsible.Trigger
                           class="flex w-full items-center gap-1.5 rounded-md px-3 py-1 transition-colors hover:bg-accent/50"
                           {...catTooltipProps}
@@ -2485,17 +2493,25 @@
                             <Tooltip.Provider disableHoverableContent={false}>
                               <Tooltip.Root
                                 delayDuration={400}
-                                onOpenChange={(open) => {
+                                onOpenChange={(open: boolean) => {
                                   compatTooltipOpenName = (open ? name : '') as Str;
                                 }}
                               >
                                 <Tooltip.Trigger>
-                                  {#snippet child({ props: tooltipProps })}
+                                  {#snippet child({
+                                    props: tooltipProps,
+                                  }: {
+                                    props: Record<string, unknown>;
+                                  })}
                                     <Sidebar.MenuButton
                                       isActive={currentName === name}
                                       {...tooltipProps}
                                     >
-                                      {#snippet child({ props })}
+                                      {#snippet child({
+                                        props,
+                                      }: {
+                                        props: Record<string, unknown>;
+                                      })}
                                         <a
                                           href="/components/{name}"
                                           {...props}
@@ -2572,7 +2588,11 @@
                               <Tooltip.Provider>
                                 <Tooltip.Root delayDuration={300}>
                                   <Tooltip.Trigger>
-                                    {#snippet child({ props: pinTip })}
+                                    {#snippet child({
+                                      props: pinTip,
+                                    }: {
+                                      props: Record<string, unknown>;
+                                    })}
                                       <button
                                         type="button"
                                         class="flex size-5 items-center justify-center rounded-sm text-muted-foreground/40 transition-colors hover:text-foreground {pinnedComponents.has(
@@ -2581,7 +2601,7 @@
                                           ? 'text-amber-500 hover:text-amber-600'
                                           : ''}"
                                         {...pinTip}
-                                        onclick={(e) => {
+                                        onclick={(e: MouseEvent) => {
                                           e.preventDefault();
                                           e.stopPropagation();
                                           togglePin(name);
@@ -2617,7 +2637,7 @@
         <Sidebar.Menu>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/components/all'}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/components/all" {...props}>
                   <ComponentIcon class="size-4" />
                   <span>All Components</span>
@@ -2632,7 +2652,7 @@
           </Sidebar.MenuItem>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/components/category'}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/components/category" {...props}>
                   <LayoutGrid class="size-4" />
                   <span>Categories</span>
@@ -2647,7 +2667,7 @@
           </Sidebar.MenuItem>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/components/tags'}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/components/tags" {...props}>
                   <Tag class="size-4" />
                   <span>Tags</span>
@@ -2670,7 +2690,7 @@
         <Sidebar.Menu>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/tokens'}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/tokens" {...props}>
                   <Palette class="size-4" />
                   <span>Design Tokens</span>
@@ -2687,7 +2707,7 @@
           </Sidebar.MenuItem>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/icons'}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/icons" {...props}>
                   <Shapes class="size-4" />
                   <span>Icons</span>
@@ -2704,7 +2724,7 @@
           </Sidebar.MenuItem>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/styling'}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/styling" {...props}>
                   <PaintbrushIcon class="size-4" />
                   <span>Styling</span>
@@ -2714,7 +2734,7 @@
           </Sidebar.MenuItem>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/changelog'}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/changelog" {...props}>
                   <Newspaper class="size-4" />
                   <span>What's New</span>
@@ -2724,7 +2744,7 @@
           </Sidebar.MenuItem>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/accessibility'}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/accessibility" {...props}>
                   <AccessibilityIcon class="size-4" />
                   <span>Accessibility</span>
@@ -2734,7 +2754,7 @@
           </Sidebar.MenuItem>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/browser-support'}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/browser-support" {...props}>
                   <Monitor class="size-4" />
                   <span>Browser Support</span>
@@ -2744,7 +2764,7 @@
           </Sidebar.MenuItem>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/about'}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/about" {...props}>
                   <Info class="size-4" />
                   <span>About</span>
@@ -2754,7 +2774,7 @@
           </Sidebar.MenuItem>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton isActive={page.url.pathname === '/support'}>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <a href="/support" {...props}>
                   <LifeBuoy class="size-4" />
                   <span>Support</span>
@@ -2885,7 +2905,11 @@
                       <!-- Overview + Getting Started (matches sidebar top group) -->
                       {#if bcShowOverview}
                         <DropdownMenu.Item>
-                          {#snippet child({ props: overviewProps })}
+                          {#snippet child({
+                            props: overviewProps,
+                          }: {
+                            props: Record<string, unknown>;
+                          })}
                             <a href="/components" {...overviewProps}>
                               <Home class="size-4" />
                               Overview
@@ -2895,7 +2919,7 @@
                       {/if}
                       {#if bcShowGettingStarted}
                         <DropdownMenu.Item>
-                          {#snippet child({ props: gsProps })}
+                          {#snippet child({ props: gsProps }: { props: Record<string, unknown> })}
                             <a href="/getting-started" {...gsProps}>
                               <BookOpen class="size-4" />
                               Getting Started
@@ -2917,7 +2941,11 @@
                           {@const bcColor =
                             CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
                           <DropdownMenu.Item>
-                            {#snippet child({ props: catItemProps })}
+                            {#snippet child({
+                              props: catItemProps,
+                            }: {
+                              props: Record<string, unknown>;
+                            })}
                               <a
                                 href="/components/category/{group.name}"
                                 class="flex w-full items-center"
@@ -2946,7 +2974,11 @@
                         </DropdownMenu.Label>
                         {#if bcShowAllComponents}
                           <DropdownMenu.Item>
-                            {#snippet child({ props: allProps })}
+                            {#snippet child({
+                              props: allProps,
+                            }: {
+                              props: Record<string, unknown>;
+                            })}
                               <a href="/components/all" {...allProps}>
                                 <ComponentIcon class="size-4" />
                                 All Components
@@ -2956,7 +2988,11 @@
                         {/if}
                         {#if bcShowCategories}
                           <DropdownMenu.Item>
-                            {#snippet child({ props: catIndexProps })}
+                            {#snippet child({
+                              props: catIndexProps,
+                            }: {
+                              props: Record<string, unknown>;
+                            })}
                               <a href="/components/category" {...catIndexProps}>
                                 <LayoutGrid class="size-4" />
                                 Categories
@@ -2966,7 +3002,11 @@
                         {/if}
                         {#if bcShowTags}
                           <DropdownMenu.Item>
-                            {#snippet child({ props: tagsProps })}
+                            {#snippet child({
+                              props: tagsProps,
+                            }: {
+                              props: Record<string, unknown>;
+                            })}
                               <a href="/components/tags" {...tagsProps}>
                                 <Tag class="size-4" />
                                 Tags
@@ -2983,7 +3023,11 @@
                         {/if}
                         {#if bcShowTokens}
                           <DropdownMenu.Item>
-                            {#snippet child({ props: tokensProps })}
+                            {#snippet child({
+                              props: tokensProps,
+                            }: {
+                              props: Record<string, unknown>;
+                            })}
                               <a href="/tokens" {...tokensProps}>
                                 <Palette class="size-4" />
                                 Design Tokens
@@ -2993,7 +3037,7 @@
                         {/if}
                         {#if bcShowIcons}
                           <DropdownMenu.Item>
-                            {#snippet child({ props: icProps })}
+                            {#snippet child({ props: icProps }: { props: Record<string, unknown> })}
                               <a href="/icons" {...icProps}>
                                 <Shapes class="size-4" />
                                 Icons
@@ -3003,7 +3047,7 @@
                         {/if}
                         {#if bcShowStyling}
                           <DropdownMenu.Item>
-                            {#snippet child({ props: stProps })}
+                            {#snippet child({ props: stProps }: { props: Record<string, unknown> })}
                               <a href="/styling" {...stProps}>
                                 <PaintbrushIcon class="size-4" />
                                 Styling
@@ -3013,7 +3057,7 @@
                         {/if}
                         {#if bcShowWhatsNew}
                           <DropdownMenu.Item>
-                            {#snippet child({ props: clProps })}
+                            {#snippet child({ props: clProps }: { props: Record<string, unknown> })}
                               <a href="/changelog" {...clProps}>
                                 <Newspaper class="size-4" />
                                 What's New
@@ -3023,7 +3067,11 @@
                         {/if}
                         {#if bcShowAccessibility}
                           <DropdownMenu.Item>
-                            {#snippet child({ props: a11yProps })}
+                            {#snippet child({
+                              props: a11yProps,
+                            }: {
+                              props: Record<string, unknown>;
+                            })}
                               <a href="/accessibility" {...a11yProps}>
                                 <AccessibilityIcon class="size-4" />
                                 Accessibility
@@ -3033,7 +3081,7 @@
                         {/if}
                         {#if bcShowBrowserSupport}
                           <DropdownMenu.Item>
-                            {#snippet child({ props: bsProps })}
+                            {#snippet child({ props: bsProps }: { props: Record<string, unknown> })}
                               <a href="/browser-support" {...bsProps}>
                                 <Monitor class="size-4" />
                                 Browser Support
@@ -3043,7 +3091,11 @@
                         {/if}
                         {#if bcShowAbout}
                           <DropdownMenu.Item>
-                            {#snippet child({ props: aboutProps })}
+                            {#snippet child({
+                              props: aboutProps,
+                            }: {
+                              props: Record<string, unknown>;
+                            })}
                               <a href="/about" {...aboutProps}>
                                 <Info class="size-4" />
                                 About
@@ -3053,7 +3105,11 @@
                         {/if}
                         {#if bcShowSupport}
                           <DropdownMenu.Item>
-                            {#snippet child({ props: supProps })}
+                            {#snippet child({
+                              props: supProps,
+                            }: {
+                              props: Record<string, unknown>;
+                            })}
                               <a href="/support" {...supProps}>
                                 <LifeBuoy class="size-4" />
                                 Support
@@ -3099,7 +3155,7 @@
         <div class="ml-auto flex items-center gap-2">
           <Tooltip.Root delayDuration={300}>
             <Tooltip.Trigger>
-              {#snippet child({ props: searchTooltipProps })}
+              {#snippet child({ props: searchTooltipProps }: { props: Record<string, unknown> })}
                 <button
                   type="button"
                   class="inline-flex h-9 items-center gap-2 rounded-md border bg-card px-3 text-sm text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
@@ -3124,7 +3180,7 @@
           <!-- Notification center bell -->
           <Popover.Root bind:open={notifCenterOpen}>
             <Popover.Trigger>
-              {#snippet child({ props: bellProps })}
+              {#snippet child({ props: bellProps }: { props: Record<string, unknown> })}
                 <span class="relative inline-flex">
                   <button
                     type="button"
@@ -3153,7 +3209,7 @@
                 <!-- 3-dot menu -->
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
-                    {#snippet child({ props: notifMenuProps })}
+                    {#snippet child({ props: notifMenuProps }: { props: Record<string, unknown> })}
                       <button
                         type="button"
                         class="flex size-6 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
@@ -3177,7 +3233,7 @@
 
                     <!-- Filter submenu -->
                     <DropdownMenu.Sub
-                      onOpenChange={(open) => {
+                      onOpenChange={(open: boolean) => {
                         if (open) notifFilterSearchQuery = '' as Str;
                       }}
                     >
@@ -3277,7 +3333,7 @@
                     <DropdownMenu.Item
                       variant="destructive"
                       disabled={notifList.length === 0}
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         if (confirmClearNotifs) {
                           clearAllNotifications();

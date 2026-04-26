@@ -478,7 +478,7 @@
           <!-- Panel buttons -->
           <Tooltip.Root delayDuration={300}>
             <Tooltip.Trigger>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <Button
                   {...props}
                   variant="ghost"
@@ -506,7 +506,7 @@
 
           <Tooltip.Root delayDuration={300}>
             <Tooltip.Trigger>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <Button
                   {...props}
                   variant="ghost"
@@ -534,7 +534,7 @@
 
           <Tooltip.Root delayDuration={300}>
             <Tooltip.Trigger>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <Button
                   {...props}
                   variant="ghost"
@@ -562,7 +562,7 @@
 
           <Tooltip.Root delayDuration={300}>
             <Tooltip.Trigger>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <Button
                   {...props}
                   variant="ghost"
@@ -593,7 +593,7 @@
           <!-- Quick action: cycle mode -->
           <Tooltip.Root delayDuration={300}>
             <Tooltip.Trigger>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <Button
                   {...props}
                   variant="ghost"
@@ -625,7 +625,7 @@
           <!-- Quick action: copy debug info -->
           <Tooltip.Root delayDuration={300}>
             <Tooltip.Trigger>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <Button
                   {...props}
                   variant="ghost"
@@ -667,7 +667,7 @@
           <!-- Quick action: reset all -->
           <Tooltip.Root delayDuration={300}>
             <Tooltip.Trigger>
-              {#snippet child({ props })}
+              {#snippet child({ props }: { props: Record<string, unknown> })}
                 <Button
                   {...props}
                   variant="ghost"
@@ -711,7 +711,7 @@
       <!-- Trigger pill -->
       <Tooltip.Root delayDuration={1500}>
         <Tooltip.Trigger>
-          {#snippet child({ props })}
+          {#snippet child({ props }: { props: Record<string, unknown> })}
             <button
               {...props}
               class="flex items-center justify-center size-9 rounded-full bg-white/[0.08] dark:bg-white/[0.06] backdrop-blur-2xl backdrop-saturate-150 border border-white/[0.12] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_1px_rgba(255,255,255,0.1)_inset] text-popover-foreground hover:bg-accent transition-colors touch-none {dragging

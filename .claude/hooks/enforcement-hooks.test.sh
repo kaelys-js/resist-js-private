@@ -91,6 +91,36 @@ else
   fail "approval marker should allow edit"
 fi
 
+# 7. .resist-lint.jsonc — adding a `packages/X` path to exclude → block
+INPUT='{"tool_input":{"file_path":"/repo/.resist-lint.jsonc","new_string":"\"packages/shared/foo\"","old_string":""}}'
+OUT=$(echo "$INPUT" | bash "$HOOKS_DIR/pre-edit-lint-config-deny.sh" 2>&1)
+if [ $? -ne 0 ] || echo "$OUT" | grep -q "BLOCKED"; then
+  pass ".resist-lint.jsonc adds packages/ path → block"
+else
+  fail ".resist-lint.jsonc with packages/ path should block but allowed"
+fi
+
+# 8. .resist-lint.jsonc — pure rule edit (no packages path) → allow
+INPUT='{"tool_input":{"file_path":"/repo/.resist-lint.jsonc","new_string":"\"hygiene/no-bare-catch\": \"warn\"","old_string":""}}'
+if echo "$INPUT" | bash "$HOOKS_DIR/pre-edit-lint-config-deny.sh" 2>/dev/null; then
+  pass ".resist-lint.jsonc rule-only edit → allow"
+else
+  fail ".resist-lint.jsonc non-path edit should be allowed"
+fi
+
+# 9. .resist-lint.jsonc adds packages/ path WITH approval marker → consume + allow
+touch "$REPO_ROOT/.claude/approved-lint-disable"
+INPUT='{"tool_input":{"file_path":"/repo/.resist-lint.jsonc","new_string":"\"packages/shared/x\"","old_string":""}}'
+if echo "$INPUT" | bash "$HOOKS_DIR/pre-edit-lint-config-deny.sh" 2>/dev/null; then
+  if [ ! -f "$REPO_ROOT/.claude/approved-lint-disable" ]; then
+    pass "approval marker consumed for .resist-lint.jsonc edit"
+  else
+    fail "approval marker not consumed"
+  fi
+else
+  fail "approval marker should allow .resist-lint.jsonc edit"
+fi
+
 echo ""
 
 # =============================================================================
