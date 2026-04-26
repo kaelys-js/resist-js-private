@@ -27,37 +27,51 @@ vi.mock('$app/environment', () => ({
 }));
 
 /** Playwright stub — tracks which engine was launched. */
-const launchCalls: { engine: string; options: unknown }[] = [];
+const launchCalls: Array<{ engine: string; options: unknown }> = [];
 const newContextCalls: unknown[] = [];
-const routeHandlerRegistrations: { pattern: string }[] = [];
+const routeHandlerRegistrations: Array<{ pattern: string }> = [];
 
 function makeBrowserStub(engine: string): unknown {
   return {
     isConnected: (): boolean => true,
     version: (): string => `${engine}-1.0`,
     async newContext(options: unknown) {
+      await Promise.resolve();
       newContextCalls.push(options);
       return {
         async newPage() {
+          await Promise.resolve();
           const page = {
             on: vi.fn(),
             route: vi.fn(async (pattern: string, _handler: unknown): Promise<void> => {
+              await Promise.resolve();
               routeHandlerRegistrations.push({ pattern });
             }),
-            goto: vi.fn(async (): Promise<void> => { await Promise.resolve(); }),
-            waitForSelector: vi.fn(async (): Promise<void> => { await Promise.resolve(); }),
-            waitForTimeout: vi.fn(async (): Promise<void> => { await Promise.resolve(); }),
-            evaluate: vi.fn(
-              async (): Promise<Record<string, number>> => ({
+            goto: vi.fn(async (): Promise<void> => {
+              await Promise.resolve();
+            }),
+            waitForSelector: vi.fn(async (): Promise<void> => {
+              await Promise.resolve();
+            }),
+            waitForTimeout: vi.fn(async (): Promise<void> => {
+              await Promise.resolve();
+            }),
+            evaluate: vi.fn(async (): Promise<Record<string, number>> => {
+              await Promise.resolve();
+              return {
                 domContentLoaded: 42,
                 load: 100,
-              }),
-            ),
-            screenshot: vi.fn(async (): Promise<Buffer> => Buffer.from('PNGDATA')),
+              };
+            }),
+            screenshot: vi.fn(async (): Promise<Buffer> => {
+              await Promise.resolve();
+              return Buffer.from('PNGDATA');
+            }),
           };
           return page;
         },
         async close(): Promise<void> {
+          await Promise.resolve();
           /* no-op */
         },
       };
@@ -68,18 +82,21 @@ function makeBrowserStub(engine: string): unknown {
 const playwrightStub = {
   chromium: {
     async launch(options: unknown) {
+      await Promise.resolve();
       launchCalls.push({ engine: 'chromium', options });
       return makeBrowserStub('chromium');
     },
   },
   firefox: {
     async launch(options: unknown) {
+      await Promise.resolve();
       launchCalls.push({ engine: 'firefox', options });
       return makeBrowserStub('firefox');
     },
   },
   webkit: {
     async launch(options: unknown) {
+      await Promise.resolve();
       launchCalls.push({ engine: 'webkit', options });
       return makeBrowserStub('webkit');
     },
@@ -409,12 +426,15 @@ describe('GET /api/lens/screenshot', () => {
         isConnected: (): boolean => true,
         version: (): string => 'chromium-1.0',
         async newContext() {
+          await Promise.resolve();
           return {
             async newPage() {
+              await Promise.resolve();
               return {
                 on: vi.fn(),
                 route: vi.fn(),
                 goto: vi.fn(async (u: string): Promise<void> => {
+                  await Promise.resolve();
                   capturedUrl = u;
                 }),
                 waitForSelector: vi.fn(),

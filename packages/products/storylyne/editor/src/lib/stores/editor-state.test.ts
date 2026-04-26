@@ -735,7 +735,7 @@ describe('EditorStore', () => {
     }
     const store = result.data;
     const r = store.setMockDataDelay(
-      99999 as unknown as Parameters<typeof store.setMockDataDelay>[0],
+      99_999 as unknown as Parameters<typeof store.setMockDataDelay>[0],
     );
     expect(r.ok).toBe(false);
   });

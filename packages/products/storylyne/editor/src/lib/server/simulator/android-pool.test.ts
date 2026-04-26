@@ -7,6 +7,13 @@
 import type { Bool, Num, Str, Void } from '@/schemas/common';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { EmulatorInstance } from './android-lifecycle';
+import {
+  acquireEmulator,
+  assignSerial,
+  releaseEmulator,
+  getPoolSize,
+  shutdownPool,
+} from './android-pool';
 
 /* Mock android-lifecycle so the pool module never spawns a real emulator. */
 const _bootResult = { value: true as Bool };
@@ -23,24 +30,20 @@ vi.mock('./android-lifecycle', () => ({
       process: { pid: 1234 },
     } as unknown as EmulatorInstance;
   }),
-  waitForBoot: vi.fn(async (_adbPath: Str, _serial: Str): Promise<Bool> => _bootResult.value),
+  waitForBoot: vi.fn(async (_adbPath: Str, _serial: Str): Promise<Bool> => {
+    await Promise.resolve();
+    return _bootResult.value;
+  }),
   killEmulatorProcess: vi.fn((instance: EmulatorInstance): Void => {
     killedSerials.push(instance.serial);
     return undefined;
   }),
   shutdownEmulator: vi.fn(async (_adbPath: Str, serial: Str): Promise<Void> => {
+    await Promise.resolve();
     shutdownSerials.push(serial);
     return undefined;
   }),
 }));
-
-import {
-  acquireEmulator,
-  assignSerial,
-  releaseEmulator,
-  getPoolSize,
-  shutdownPool,
-} from './android-pool';
 
 beforeEach(async (): Promise<void> => {
   await shutdownPool('/fake/adb');
@@ -133,8 +136,8 @@ describe('android-pool', () => {
       await acquireEmulator('/fake/emu', '/fake/adb', 'Pixel_9');
       await acquireEmulator('/fake/emu', '/fake/adb', 'Pixel_10');
       await shutdownPool('/fake/adb');
-      expect(shutdownSerials.sort()).toEqual(['emulator-5554', 'emulator-5556']);
-      expect(killedSerials.sort()).toEqual(['emulator-5554', 'emulator-5556']);
+      expect(shutdownSerials.toSorted()).toEqual(['emulator-5554', 'emulator-5556']);
+      expect(killedSerials.toSorted()).toEqual(['emulator-5554', 'emulator-5556']);
       expect(getPoolSize()).toBe(0);
     });
 

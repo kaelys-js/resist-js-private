@@ -123,7 +123,7 @@ describe('shortcutStore', () => {
     const result: Result<Void> = shortcutStore.load();
     expect(result.ok).toBe(true);
     /* Resulting registry must be either the saved customization or defaults — both valid. */
-    const key: Str = shortcutStore.get('CLOSE_PANEL').key;
+    const { key } = shortcutStore.get('CLOSE_PANEL');
     expect(typeof key).toBe('string');
     expect(key.length).toBeGreaterThan(0);
   });

@@ -37,8 +37,8 @@ for (const [path, mod] of Object.entries(localeModules)) {
   const [, code]: RegExpMatchArray = match;
   // Each locale file exports a single named const — grab the first export value
   const [data]: RawLocaleStrings[] = Object.values(mod);
-  if (data) {
-    locales[code!] = data;
+  if (data && code !== undefined) {
+    locales[code] = data;
   }
 }
 

@@ -121,8 +121,7 @@ describe('ios-debug-proxy', () => {
         ) => {
           if (state.whichOk) {
             cb(null, { stdout: '/usr/bin/x', stderr: '' });
-          }
-          else {
+          } else {
             cb(new Error('not found'));
           }
           return null;
@@ -132,8 +131,7 @@ describe('ios-debug-proxy', () => {
       execFile: (_f: string, _a: readonly string[], cb: (e: Error | null, r?: unknown) => void) => {
         if (state.whichOk) {
           cb(null, { stdout: '/usr/bin/x', stderr: '' });
-        }
-        else {
+        } else {
           cb(new Error('not found'));
         }
         return null;
@@ -146,9 +144,13 @@ describe('ios-debug-proxy', () => {
       state.whichOk = true;
       state.spawnRes = null;
       state.fetchImpl = null;
-      vi.stubGlobal('fetch', (url: string) =>
-        state.fetchImpl ? state.fetchImpl(url) : Promise.reject(new Error('no fetch')),
-      );
+      vi.stubGlobal('fetch', async (url: string): Promise<Response> => {
+        await Promise.resolve();
+        if (state.fetchImpl) {
+          return state.fetchImpl(url);
+        }
+        throw new Error('no fetch');
+      });
     });
     afterEach(() => {
       vi.useRealTimers();
@@ -229,25 +231,42 @@ describe('ios-debug-proxy', () => {
     });
 
     it('getInspectablePages returns [] when fetch rejects', async () => {
-      state.fetchImpl = () => Promise.reject(new Error('ECONNREFUSED'));
+      state.fetchImpl = async (): Promise<Response> => {
+        await Promise.resolve();
+        throw new Error('ECONNREFUSED');
+      };
       const mod = await load();
       await expect(mod.getInspectablePages(27_753 as Num)).resolves.toEqual([]);
     });
 
     it('getInspectablePages returns [] when response.ok is false', async () => {
-      state.fetchImpl = () =>
-        Promise.resolve({ ok: false, text: async () => '[]' } as unknown as Response);
+      state.fetchImpl = async (): Promise<Response> => {
+        await Promise.resolve();
+        return {
+          ok: false,
+          text: async (): Promise<string> => {
+            await Promise.resolve();
+            return '[]';
+          },
+        } as unknown as Response;
+      };
       const mod = await load();
       await expect(mod.getInspectablePages(27_753 as Num)).resolves.toEqual([]);
     });
 
     it('getInspectablePages parses valid response', async () => {
-      state.fetchImpl = () =>
-        Promise.resolve({
+      state.fetchImpl = async (): Promise<Response> => {
+        await Promise.resolve();
+        return {
           ok: true,
-          text: async () =>
-            JSON.stringify([{ title: 'T', url: 'http://u', webSocketDebuggerUrl: 'ws://w' }]),
-        } as unknown as Response);
+          text: async (): Promise<string> => {
+            await Promise.resolve();
+            return JSON.stringify([
+              { title: 'T', url: 'http://u', webSocketDebuggerUrl: 'ws://w' },
+            ]);
+          },
+        } as unknown as Response;
+      };
       const mod = await load();
       const pages = await mod.getInspectablePages(27_753 as Num);
       expect(pages).toHaveLength(1);

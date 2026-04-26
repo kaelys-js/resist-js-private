@@ -87,8 +87,9 @@ function extractSource(stack: Str): Str {
     if (match) {
       const [, fullPath, lineNo, colNo] = match;
       // Strip everything up to and including 'packages/' for a project-relative path
-      const pkgIdx: Num = fullPath!.indexOf('packages/');
-      const relativePath: Str = pkgIdx >= 0 ? fullPath!.slice(pkgIdx) : fullPath!;
+      const safeFullPath: Str = fullPath ?? '';
+      const pkgIdx: Num = safeFullPath.indexOf('packages/');
+      const relativePath: Str = pkgIdx >= 0 ? safeFullPath.slice(pkgIdx) : safeFullPath;
       return `${relativePath}:${lineNo}:${colNo}`;
     }
   }

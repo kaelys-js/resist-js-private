@@ -23,7 +23,10 @@ vi.mock('$app/environment', () => ({
 }));
 
 vi.mock('$lib/server/simulator/android-sdk', () => ({
-  checkAndroidSdk: vi.fn(async () => { await Promise.resolve(); return state.sdk; }),
+  checkAndroidSdk: vi.fn(async () => {
+    await Promise.resolve();
+    return state.sdk;
+  }),
 }));
 
 vi.mock('$lib/server/simulator/android-screenshot', () => ({

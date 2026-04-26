@@ -6,6 +6,13 @@
 
 import type { Num, Str, Void } from '@/schemas/common';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import {
+  acquireSimulator,
+  drainPool,
+  getPoolStatus,
+  releaseSimulator,
+  removeFromPool,
+} from './ios-pool';
 
 /* Mock the ios-lifecycle module before importing ios-pool. The pool module
  * imports lifecycle helpers at module load — without mocks, acquireSimulator
@@ -17,28 +24,26 @@ const waitCalls: Str[] = [];
 
 vi.mock('./ios-lifecycle', () => ({
   bootSimulator: vi.fn(async (udid: Str): Promise<Void> => {
+    await Promise.resolve();
     bootCalls.push(udid);
     _state.state = 'Booted';
     return undefined;
   }),
-  getDeviceState: vi.fn(async (_udid: Str): Promise<Str> => _state.state),
+  getDeviceState: vi.fn(async (_udid: Str): Promise<Str> => {
+    await Promise.resolve();
+    return _state.state;
+  }),
   shutdownSimulator: vi.fn(async (udid: Str): Promise<Void> => {
+    await Promise.resolve();
     shutdownCalls.push(udid);
     return undefined;
   }),
   waitForBoot: vi.fn(async (udid: Str): Promise<Void> => {
+    await Promise.resolve();
     waitCalls.push(udid);
     return undefined;
   }),
 }));
-
-import {
-  acquireSimulator,
-  drainPool,
-  getPoolStatus,
-  releaseSimulator,
-  removeFromPool,
-} from './ios-pool';
 
 beforeEach(async (): Promise<void> => {
   /* Drain pool between tests so each test starts fresh. */

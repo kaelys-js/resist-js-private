@@ -20,7 +20,10 @@ vi.mock('$app/environment', () => ({
 }));
 
 vi.mock('$lib/server/simulator/ios-simctl', () => ({
-  isXcrunAvailable: vi.fn(async () => { await Promise.resolve(); return state.xcrunOk; }),
+  isXcrunAvailable: vi.fn(async () => {
+    await Promise.resolve();
+    return state.xcrunOk;
+  }),
 }));
 
 vi.mock('$lib/server/simulator/ios-screenshot', () => ({
