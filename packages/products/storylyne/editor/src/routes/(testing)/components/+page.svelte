@@ -487,7 +487,7 @@
           <div class="flex items-baseline gap-2">
             <Tooltip.Root delayDuration={300}>
               <Tooltip.Trigger>
-                {#snippet child({ props: compatLabelTip })}
+                {#snippet child({ props: compatLabelTip }: { props: Record<string, unknown> })}
                   <span
                     class="cursor-help text-sm font-semibold underline decoration-dotted underline-offset-4"
                     {...compatLabelTip}
@@ -741,7 +741,7 @@
                       <Tooltip.Provider disableHoverableContent={false}>
                         <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
-                            {#snippet child({ props: hubBadgeTip })}
+                            {#snippet child({ props: hubBadgeTip }: { props: Record<string, unknown> })}
                               <span
                                 class="inline-flex"
                                 onclick={(e) => e.preventDefault()}
@@ -871,7 +871,7 @@
                 <Tooltip.Provider disableHoverableContent={false}>
                   <Tooltip.Root delayDuration={300}>
                     <Tooltip.Trigger>
-                      {#snippet child({ props: catCountTip })}
+                      {#snippet child({ props: catCountTip }: { props: Record<string, unknown> })}
                         <span
                           class="inline-flex"
                           onclick={(e) => e.preventDefault()}
@@ -948,7 +948,7 @@
                   <Tooltip.Provider disableHoverableContent={false}>
                     <Tooltip.Root delayDuration={300}>
                       <Tooltip.Trigger>
-                        {#snippet child({ props: tagCountTip })}
+                        {#snippet child({ props: tagCountTip }: { props: Record<string, unknown> })}
                           <span
                             class="cursor-default text-[10px] tabular-nums text-muted-foreground/60"
                             onclick={(e) => e.preventDefault()}

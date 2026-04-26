@@ -666,9 +666,9 @@
         <Tooltip.Provider>
           <Tooltip.Root delayDuration={300}>
             <Tooltip.Trigger>
-              {#snippet child({ props: tooltipProps })}
+              {#snippet child({ props: tooltipProps }: { props: Record<string, unknown> })}
                 <DropdownMenu.Trigger>
-                  {#snippet child({ props: triggerProps })}
+                  {#snippet child({ props: triggerProps }: { props: Record<string, unknown> })}
                     <button
                       type="button"
                       class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -748,7 +748,7 @@
 
           <!-- View Mode submenu -->
           <DropdownMenu.Sub
-            onOpenChange={(open) => {
+            onOpenChange={(open: boolean) => {
               if (open) viewModeSearch = '' as Str;
             }}
           >
@@ -806,7 +806,7 @@
 
           <!-- Sort By submenu -->
           <DropdownMenu.Sub
-            onOpenChange={(open) => {
+            onOpenChange={(open: boolean) => {
               if (open) sortSearch = '' as Str;
             }}
           >
@@ -1093,7 +1093,11 @@
                           {/if}
                           <Tooltip.Root delayDuration={500}>
                             <Tooltip.Trigger>
-                              {#snippet child({ props: msgTipProps })}
+                              {#snippet child({
+                                props: msgTipProps,
+                              }: {
+                                props: Record<string, unknown>;
+                              })}
                                 <p {...msgTipProps} class="truncate text-sm font-medium">
                                   {entry.message}
                                 </p>
@@ -1156,7 +1160,11 @@
                         <span class="text-[10px] text-muted-foreground">{entry.author}</span>
                         <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
-                            {#snippet child({ props: dateTipProps })}
+                            {#snippet child({
+                              props: dateTipProps,
+                            }: {
+                              props: Record<string, unknown>;
+                            })}
                               <span {...dateTipProps} class="text-[10px] text-muted-foreground">
                                 {relativeTime(entry.date)}
                               </span>
@@ -1169,7 +1177,11 @@
                         {#if data.repoUrl}
                           <Tooltip.Root delayDuration={300}>
                             <Tooltip.Trigger>
-                              {#snippet child({ props: ghTipProps })}
+                              {#snippet child({
+                                props: ghTipProps,
+                              }: {
+                                props: Record<string, unknown>;
+                              })}
                                 <a
                                   {...ghTipProps}
                                   href="{data.repoUrl}/commit/{entry.hash}"
@@ -1366,7 +1378,11 @@
                       {#if entry.components.length > 3}
                         <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
-                            {#snippet child({ props: tblMoreTip })}
+                            {#snippet child({
+                              props: tblMoreTip,
+                            }: {
+                              props: Record<string, unknown>;
+                            })}
                               <span
                                 class="cursor-default rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground/60"
                                 {...tblMoreTip}>+{entry.components.length - 3} more</span
@@ -1458,7 +1474,7 @@
                   {#if entry.components.length > 3}
                     <Tooltip.Root delayDuration={300}>
                       <Tooltip.Trigger>
-                        {#snippet child({ props: moreCompTip })}
+                        {#snippet child({ props: moreCompTip }: { props: Record<string, unknown> })}
                           <span
                             class="hidden cursor-default items-center gap-1 rounded border bg-muted/50 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground/60 sm:inline-flex"
                             {...moreCompTip}
@@ -1503,7 +1519,7 @@
                   {/if}
                   <Tooltip.Root delayDuration={300}>
                     <Tooltip.Trigger>
-                      {#snippet child({ props: dateTip })}
+                      {#snippet child({ props: dateTip }: { props: Record<string, unknown> })}
                         <span {...dateTip} class="shrink-0 text-[10px] text-muted-foreground/60">
                           {relativeTime(entry.date)}
                         </span>
@@ -1516,7 +1532,7 @@
                   {#if data.repoUrl}
                     <Tooltip.Root delayDuration={300}>
                       <Tooltip.Trigger>
-                        {#snippet child({ props: ghTip })}
+                        {#snippet child({ props: ghTip }: { props: Record<string, unknown> })}
                           <a
                             {...ghTip}
                             href="{data.repoUrl}/commit/{entry.hash}"
@@ -1564,7 +1580,7 @@
               {/if}
               <Tooltip.Root delayDuration={300}>
                 <Tooltip.Trigger>
-                  {#snippet child({ props: dateTip })}
+                  {#snippet child({ props: dateTip }: { props: Record<string, unknown> })}
                     <span {...dateTip} class="shrink-0 text-[10px] text-muted-foreground">
                       {relativeTime(entry.date)}
                     </span>

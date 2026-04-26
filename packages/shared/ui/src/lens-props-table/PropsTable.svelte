@@ -1,42 +1,12 @@
 <script module lang="ts">
-  import * as v from 'valibot';
-  import { StrSchema } from '@/schemas/common';
-  import { PropMetaSchema, type PropMeta, type TypeField } from '../lens/types.js';
-
-  /** Sort column identifier for PropsTable header sorting. */
-  export type PropsTableSortColumn =
-    | 'name'
-    | 'required'
-    | 'type'
-    | 'accepts'
-    | 'default'
-    | 'description';
-
-  /** Sort direction for PropsTable header sorting. */
-  export type PropsTableSortDirection = 'asc' | 'desc' | 'none';
-
-  export const PropsTablePropsSchema = v.strictObject({
-    /** Array of prop metadata to render. @values [{name: "variant", type: "Str", default: "default", description: "Visual style", bindable: false}] */
-    props: v.array(PropMetaSchema),
-    /** Variant key names — props matching these get a "See variants" action. @values variant, size, disabled */
-    variantKeys: v.optional(v.array(StrSchema)),
-    /** Additional CSS classes for the root element. */
-    class: v.optional(StrSchema),
-    /** Callback when a sortable column header is clicked. @values (column, direction) => void */
-    onsort: v.optional(
-      v.custom<(column: PropsTableSortColumn, direction: PropsTableSortDirection) => void>(
-        () => true,
-      ),
-    ),
-    /** Currently sorted column for header indicator display. @values name, required, type, accepts, default, description */
-    sortColumn: v.optional(
-      v.nullable(v.picklist(['name', 'required', 'type', 'accepts', 'default', 'description'])),
-    ),
-    /** Current sort direction for header indicator display. @values asc, desc, none */
-    sortDirection: v.optional(v.picklist(['asc', 'desc', 'none'])),
-  });
-  /** Props for the PropsTable component. */
-  export type PropsTableProps = v.InferOutput<typeof PropsTablePropsSchema>;
+  /* Public types/values live in `./types.ts` so consumers can re-export
+     them via standard TS module resolution. */
+  export {
+    PropsTablePropsSchema,
+    type PropsTableSortColumn,
+    type PropsTableSortDirection,
+    type PropsTableProps,
+  } from './types.js';
 </script>
 
 <script lang="ts">
@@ -50,6 +20,7 @@
    */
   import { fade, slide } from 'svelte/transition';
   import type { Bool, Num, Str, Void } from '@/schemas/common';
+  import type { PropMeta, TypeField } from '../lens/types.js';
   import ArrowUp from '@lucide/svelte/icons/arrow-up';
   import ArrowDown from '@lucide/svelte/icons/arrow-down';
   import ToggleLeft from '@lucide/svelte/icons/toggle-left';

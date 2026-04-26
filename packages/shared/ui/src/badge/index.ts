@@ -4,6 +4,7 @@ export {
   type BadgeVariant,
   type BadgeSize,
   type BadgeRadius,
+  type BadgeInputProps,
   type BadgeProps,
   BadgePropsSchema,
-} from './badge.svelte';
+} from './types.js';

@@ -36,6 +36,9 @@ case "$FILE" in
   */.oxlintrc.json|*/.oxlintrc|*/biome.json|*/biome.base.json)
     SENSITIVE=true
     ;;
+  */.resist-lint.jsonc|*/.resist-lint.json)
+    SENSITIVE=true
+    ;;
   */lint/src/tools/oxlint.ts|*/lint/src/tools/svelte-check.ts|*/lint/src/tools/tsgo.ts|*/lint/src/framework/oxc-runner.ts)
     SENSITIVE=true
     ;;
@@ -62,6 +65,18 @@ fi
 if echo "$NEW_STRING" | grep -qE 'PARSE_SUPPRESSION|continue;.*svelte\.d\.ts|skipFile|suppressDiagnostic'; then
   BLOCKED_REASON="adds diagnostic-suppression logic to a lint runner"
 fi
+
+# Pattern 4: adding a path/glob to a JSONC `exclude` array. Detects the
+# JSONC syntax `"<path>"` appearing in an exclude block. The heuristic
+# matches any quoted string that looks like a package path (contains
+# `packages/` OR ends with a recognizable workspace package name).
+case "$FILE" in
+  */.resist-lint.jsonc|*/.resist-lint.json)
+    if echo "$NEW_STRING" | grep -qE '"packages/'; then
+      BLOCKED_REASON="adds a path entry to .resist-lint.jsonc (likely an exclude/include change). Per-task scope changes belong in the active-plan success_check, not in workspace config."
+    fi
+    ;;
+esac
 
 if [[ -n "$BLOCKED_REASON" ]]; then
   cat <<EOF >&2

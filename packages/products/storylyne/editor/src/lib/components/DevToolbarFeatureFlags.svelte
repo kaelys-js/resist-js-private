@@ -80,7 +80,7 @@
       {#if onclose}
         <Tooltip.Root delayDuration={300}>
           <Tooltip.Trigger>
-            {#snippet child({ props })}
+            {#snippet child({ props }: { props: Record<string, unknown> })}
               <button
                 {...props}
                 onclick={onclose}
@@ -147,7 +147,7 @@
           <Switch
             id="flag-{flag.key}"
             {checked}
-            onCheckedChange={(value) => handleToggle(flag.key, value)}
+            onCheckedChange={(value: boolean) => handleToggle(flag.key, value)}
           />
         </div>
       {:else}

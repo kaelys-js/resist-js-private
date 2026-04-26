@@ -27,7 +27,7 @@ import { safeParse } from '@/utils/result/safe';
  *
  * Accepting all three lets call sites pass any locale function without casts.
  */
-type LocaleFn = (() => Result<Str>) | ((params: { [k: string]: never }) => Result<Str>);
+type LocaleFn = (() => Result<Str>) | ((params: Record<string, never>) => Result<Str>);
 
 /**
  * Convenience helper — calls a locale function and returns the string,

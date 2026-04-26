@@ -42,7 +42,7 @@
         </Sidebar.MenuButton>
         <DropdownMenu.Root>
           <DropdownMenu.Trigger>
-            {#snippet child({ props })}
+            {#snippet child({ props }: { props: Record<string, unknown> })}
               <Sidebar.MenuAction showOnHover {...props}>
                 <MoreHorizontal aria-hidden="true" />
                 <span class="sr-only">{t(localeStore.t.common.more, 'More')}</span>
@@ -99,7 +99,7 @@
       <Sidebar.MenuItem>
         <Popover.Root>
           <Popover.Trigger>
-            {#snippet child({ props })}
+            {#snippet child({ props }: { props: Record<string, unknown> })}
               <Sidebar.MenuButton
                 data-testid="scenes-popover-trigger"
                 tooltipContent={scenesLabel}
@@ -125,7 +125,7 @@
   <Collapsible.Root bind:open class="group/collapsible">
     <Sidebar.Group>
       <Sidebar.GroupLabel>
-        {#snippet child({ props })}
+        {#snippet child({ props }: { props: Record<string, unknown> })}
           <Collapsible.Trigger {...props}>
             {scenesLabel}
             <ChevronRight

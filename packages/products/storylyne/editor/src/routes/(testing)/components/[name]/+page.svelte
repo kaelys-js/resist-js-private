@@ -49,10 +49,11 @@
   import LensSection from '@/ui/lens-section/LensSection.svelte';
   import LensSource from '@/ui/lens-source/LensSource.svelte';
   import LensDependencyTree from '@/ui/lens-dependency-tree/LensDependencyTree.svelte';
-  import PropsTable, {
-    type PropsTableSortColumn,
-    type PropsTableSortDirection,
-  } from '@/ui/lens-props-table/PropsTable.svelte';
+  import PropsTable from '@/ui/lens-props-table/PropsTable.svelte';
+  import type {
+    PropsTableSortColumn,
+    PropsTableSortDirection,
+  } from '@/ui/lens-props-table/types.js';
   import LensComponentRenderer from '@/ui/lens-component-renderer/LensComponentRenderer.svelte';
   import { LensCardSettingsMenu } from '@/ui/lens-card-settings-menu/index.js';
   import CodeBlock from '@/ui/code-block/CodeBlock.svelte';
@@ -3037,9 +3038,13 @@
                     <Tooltip.Root delayDuration={300}>
                       <DropdownMenu.Root>
                         <Tooltip.Trigger>
-                          {#snippet child({ props: tipProps })}
+                          {#snippet child({ props: tipProps }: { props: Record<string, unknown> })}
                             <DropdownMenu.Trigger>
-                              {#snippet child({ props: filterTriggerProps })}
+                              {#snippet child({
+                                props: filterTriggerProps,
+                              }: {
+                                props: Record<string, unknown>;
+                              })}
                                 <button
                                   {...tipProps}
                                   {...filterTriggerProps}
@@ -3079,7 +3084,7 @@
                           ] as const}
                           {#each filterOptions as opt (opt.value)}
                             <DropdownMenu.Item
-                              onSelect={(e) => {
+                              onSelect={(e: Event) => {
                                 e.preventDefault();
                                 propsFilter = opt.value;
                               }}
@@ -3108,9 +3113,13 @@
                     <Tooltip.Root delayDuration={300}>
                       <DropdownMenu.Root>
                         <Tooltip.Trigger>
-                          {#snippet child({ props: tipProps })}
+                          {#snippet child({ props: tipProps }: { props: Record<string, unknown> })}
                             <DropdownMenu.Trigger>
-                              {#snippet child({ props: sortTriggerProps })}
+                              {#snippet child({
+                                props: sortTriggerProps,
+                              }: {
+                                props: Record<string, unknown>;
+                              })}
                                 <button
                                   {...tipProps}
                                   {...sortTriggerProps}
@@ -3183,7 +3192,7 @@
                           ] as const}
                           {#each sortOptions as opt (opt.value)}
                             <DropdownMenu.Item
-                              onSelect={(e) => {
+                              onSelect={(e: Event) => {
                                 e.preventDefault();
                                 propsSort = opt.value;
                               }}
@@ -3212,7 +3221,7 @@
               {#if props.length > 0}
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
-                    {#snippet child({ props: menuProps })}
+                    {#snippet child({ props: menuProps }: { props: Record<string, unknown> })}
                       <button
                         {...menuProps}
                         class="ml-auto inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -3224,7 +3233,7 @@
                   </DropdownMenu.Trigger>
                   <DropdownMenu.Content align="end" class="w-52">
                     <DropdownMenu.Sub
-                      onOpenChange={(open) => {
+                      onOpenChange={(open: boolean) => {
                         if (open) propsExportSearchQuery = '';
                       }}
                     >
@@ -3248,9 +3257,9 @@
                               placeholder="Search formats..."
                               class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                               bind:value={propsExportSearchQuery}
-                              onkeydown={(e) => e.stopPropagation()}
-                              onkeyup={(e) => e.stopPropagation()}
-                              onkeypress={(e) => e.stopPropagation()}
+                              onkeydown={(e: KeyboardEvent) => e.stopPropagation()}
+                              onkeyup={(e: KeyboardEvent) => e.stopPropagation()}
+                              onkeypress={(e: KeyboardEvent) => e.stopPropagation()}
                             />
                           </div>
                         </div>
@@ -3271,7 +3280,7 @@
                             </DropdownMenu.Label>
                             {#each filteredPropsExportItems.filter((i) => i.category === category) as item (item.id)}
                               <DropdownMenu.Item
-                                onSelect={(e) => {
+                                onSelect={(e: Event) => {
                                   e.preventDefault();
                                   handlePropsExport(item.id);
                                 }}
@@ -3399,7 +3408,11 @@
                         <Tooltip.Provider disableHoverableContent={false}>
                           <Tooltip.Root delayDuration={200}>
                             <Tooltip.Trigger>
-                              {#snippet child({ props: defaultsTip })}
+                              {#snippet child({
+                                props: defaultsTip,
+                              }: {
+                                props: Record<string, unknown>;
+                              })}
                                 <Badge
                                   {...defaultsTip}
                                   variant="outline"
@@ -3490,7 +3503,7 @@
               {#if hasVariants}
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
-                    {#snippet child({ props: menuProps })}
+                    {#snippet child({ props: menuProps }: { props: Record<string, unknown> })}
                       <button
                         {...menuProps}
                         class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -3503,7 +3516,7 @@
                   <DropdownMenu.Content align="end" class="min-w-56">
                     <LensCardSettingsMenu
                       active={variantSectionActive}
-                      onSetting={(settingName, value) => {
+                      onSetting={(settingName: string, value: unknown) => {
                         if (settingName === 'mediaPref') {
                           const mp = value as { pref: Str; value: Str };
                           const prev: Record<Str, Str> =
@@ -3542,7 +3555,7 @@
                       </DropdownMenu.SubTrigger>
                       <DropdownMenu.SubContent class="min-w-48">
                         <DropdownMenu.Item
-                          onSelect={(e) => {
+                          onSelect={(e: Event) => {
                             e.preventDefault();
                             document.dispatchEvent(
                               new CustomEvent('lens:section-export', {
@@ -3588,7 +3601,11 @@
                             <Tooltip.Provider disableHoverableContent={false}>
                               <Tooltip.Root delayDuration={200}>
                                 <Tooltip.Trigger>
-                                  {#snippet child({ props: variantTip })}
+                                  {#snippet child({
+                                    props: variantTip,
+                                  }: {
+                                    props: Record<string, unknown>;
+                                  })}
                                     <Badge
                                       {...variantTip}
                                       variant="outline"
@@ -3680,7 +3697,11 @@
                               <Tooltip.Provider disableHoverableContent={false}>
                                 <Tooltip.Root delayDuration={200}>
                                   <Tooltip.Trigger>
-                                    {#snippet child({ props: requiresTip })}
+                                    {#snippet child({
+                                      props: requiresTip,
+                                    }: {
+                                      props: Record<string, unknown>;
+                                    })}
                                       <Badge
                                         {...requiresTip}
                                         variant="secondary"
@@ -3773,7 +3794,7 @@
               {#if hasExamples}
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
-                    {#snippet child({ props: menuProps })}
+                    {#snippet child({ props: menuProps }: { props: Record<string, unknown> })}
                       <button
                         {...menuProps}
                         class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -3786,7 +3807,7 @@
                   <DropdownMenu.Content align="end" class="min-w-56">
                     <LensCardSettingsMenu
                       active={exampleSectionActive}
-                      onSetting={(settingName, value) => {
+                      onSetting={(settingName: string, value: unknown) => {
                         if (settingName === 'mediaPref') {
                           const mp = value as { pref: Str; value: Str };
                           const prev: Record<Str, Str> =
@@ -3876,7 +3897,7 @@
                   <Tooltip.Provider>
                     <Tooltip.Root>
                       <Tooltip.Trigger>
-                        {#snippet child({ props: badgeProps })}
+                        {#snippet child({ props: badgeProps }: { props: Record<string, unknown> })}
                           <span
                             {...badgeProps}
                             class="rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground"
@@ -3893,7 +3914,11 @@
                         <Tooltip.Provider>
                           <Tooltip.Root>
                             <Tooltip.Trigger>
-                              {#snippet child({ props: passProps })}
+                              {#snippet child({
+                                props: passProps,
+                              }: {
+                                props: Record<string, unknown>;
+                              })}
                                 <span {...passProps} class="flex items-center gap-1 text-green-500">
                                   <CircleCheck class="size-3" />{errorBoundaryPassCount}
                                 </span>
@@ -3909,7 +3934,11 @@
                         <Tooltip.Provider>
                           <Tooltip.Root>
                             <Tooltip.Trigger>
-                              {#snippet child({ props: failProps })}
+                              {#snippet child({
+                                props: failProps,
+                              }: {
+                                props: Record<string, unknown>;
+                              })}
                                 <span {...failProps} class="flex items-center gap-1 text-red-500">
                                   <CircleX class="size-3" />{errorBoundaryFailCount}
                                 </span>
@@ -3928,7 +3957,7 @@
                   <Tooltip.Provider>
                     <Tooltip.Root>
                       <Tooltip.Trigger>
-                        {#snippet child({ props: tipProps })}
+                        {#snippet child({ props: tipProps }: { props: Record<string, unknown> })}
                           <button
                             {...tipProps}
                             type="button"
@@ -3951,7 +3980,7 @@
                   </Tooltip.Provider>
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger>
-                      {#snippet child({ props: menuProps })}
+                      {#snippet child({ props: menuProps }: { props: Record<string, unknown> })}
                         <button
                           {...menuProps}
                           class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -3963,7 +3992,7 @@
                     </DropdownMenu.Trigger>
                     <DropdownMenu.Content align="end" class="w-52">
                       <DropdownMenu.Item
-                        onSelect={(e) => {
+                        onSelect={(e: Event) => {
                           e.preventDefault();
                           handleErrorBoundaryExport('copy-results');
                         }}
@@ -3978,7 +4007,7 @@
                         Copy Results
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
-                        onSelect={(e) => {
+                        onSelect={(e: Event) => {
                           e.preventDefault();
                           handleErrorBoundaryExport('copy-markdown');
                         }}
@@ -3994,7 +4023,7 @@
                       </DropdownMenu.Item>
                       <DropdownMenu.Separator />
                       <DropdownMenu.Item
-                        onSelect={(e) => {
+                        onSelect={(e: Event) => {
                           e.preventDefault();
                           resetErrorBoundaryTests();
                         }}
@@ -4009,7 +4038,7 @@
                         Re-run All Tests
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
-                        onSelect={(e) => {
+                        onSelect={(e: Event) => {
                           e.preventDefault();
                           showCustomErrorTest = !showCustomErrorTest;
                         }}
@@ -4051,7 +4080,7 @@
                               placeholder={'{"unknownProp": "value"}'}
                               bind:value={customErrorPropsJson}
                               oninput={parseCustomErrorProps}
-                              onkeydown={(e) => {
+                              onkeydown={(e: KeyboardEvent) => {
                                 if (e.key === 'Enter') {
                                   e.preventDefault();
                                   parseCustomErrorProps();
@@ -4088,7 +4117,7 @@
                                   contextWrapper={lensContextWrapper ?? undefined}
                                   codeText={`<!-- Custom props test -->\n<${toTag(name)} ${customErrorPropsJson} />`}
                                 />
-                                {#snippet failed(error)}
+                                {#snippet failed(error: unknown)}
                                   <LensError
                                     title="Validation Error"
                                     description={error instanceof Error
@@ -4153,7 +4182,7 @@
                               {#if test.id === 'missing-props'}
                                 {#if hasRequiredProps}
                                   <svelte:boundary
-                                    onerror={(error) =>
+                                    onerror={(error: unknown) =>
                                       recordErrorBoundaryCatch('missing-props' as Str, error)}
                                   >
                                     <LensComponentRenderer
@@ -4165,7 +4194,7 @@
                                       contextWrapper={lensContextWrapper ?? undefined}
                                       codeText={`<!-- Missing required props — validation error -->\n<${toTag(name)} />`}
                                     />
-                                    {#snippet failed(error)}
+                                    {#snippet failed(error: unknown)}
                                       <LensError
                                         title="Validation Error"
                                         description={error instanceof Error
@@ -4188,7 +4217,7 @@
                               {:else if test.id === 'invalid-props'}
                                 {#if invalidTestProp}
                                   <svelte:boundary
-                                    onerror={(error) =>
+                                    onerror={(error: unknown) =>
                                       recordErrorBoundaryCatch('invalid-props' as Str, error)}
                                   >
                                     <LensComponentRenderer
@@ -4210,7 +4239,7 @@
                                       contextWrapper={lensContextWrapper ?? undefined}
                                       codeText={`<!-- Invalid value for ${invalidTestProp.name} — schema validation rejection -->\n<${toTag(name)} ${invalidTestProp.name}="__INVALID__" />`}
                                     />
-                                    {#snippet failed(error)}
+                                    {#snippet failed(error: unknown)}
                                       <LensError
                                         title="Validation Error"
                                         description={error instanceof Error
@@ -4272,7 +4301,7 @@
                 </button>
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
-                    {#snippet child({ props })}
+                    {#snippet child({ props }: { props: Record<string, unknown> })}
                       <button
                         {...props}
                         class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -4284,7 +4313,7 @@
                   </DropdownMenu.Trigger>
                   <DropdownMenu.Content align="end" class="w-52">
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handleSourceExport('copy-source');
                       }}
@@ -4299,7 +4328,7 @@
                       Copy Source
                     </DropdownMenu.Item>
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handleSourceExport('copy-markdown');
                       }}
@@ -4314,7 +4343,7 @@
                       Copy as Markdown
                     </DropdownMenu.Item>
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handleSourceExport('copy-path');
                       }}
@@ -4330,7 +4359,7 @@
                     </DropdownMenu.Item>
                     <DropdownMenu.Separator />
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handleSourceExport('download');
                       }}
@@ -4416,7 +4445,7 @@
               {#if hasDocs}
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
-                    {#snippet child({ props: menuProps })}
+                    {#snippet child({ props: menuProps }: { props: Record<string, unknown> })}
                       <button
                         {...menuProps}
                         class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -4428,7 +4457,7 @@
                   </DropdownMenu.Trigger>
                   <DropdownMenu.Content align="end" class="w-52">
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handleDocsExport('copy-markdown');
                       }}
@@ -4443,7 +4472,7 @@
                       Copy as Markdown
                     </DropdownMenu.Item>
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handleDocsExport('copy-html');
                       }}
@@ -4458,7 +4487,7 @@
                       Copy as HTML
                     </DropdownMenu.Item>
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handleDocsExport('copy-path');
                       }}
@@ -4474,7 +4503,7 @@
                     </DropdownMenu.Item>
                     <DropdownMenu.Separator />
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handleDocsExport('download');
                       }}
@@ -4630,7 +4659,7 @@
                 </button>
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
-                    {#snippet child({ props })}
+                    {#snippet child({ props }: { props: Record<string, unknown> })}
                       <button
                         {...props}
                         class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -4642,7 +4671,7 @@
                   </DropdownMenu.Trigger>
                   <DropdownMenu.Content align="end" class="w-56">
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handleDepsExport('copy-imports' as Str);
                       }}
@@ -4657,7 +4686,7 @@
                       Copy All Imports
                     </DropdownMenu.Item>
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handleDepsExport('copy-summary' as Str);
                       }}
@@ -4672,7 +4701,7 @@
                       Copy Summary
                     </DropdownMenu.Item>
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handleDepsExport('copy-json' as Str);
                       }}
@@ -4740,7 +4769,7 @@
                 </button>
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
-                    {#snippet child({ props })}
+                    {#snippet child({ props }: { props: Record<string, unknown> })}
                       <button
                         {...props}
                         class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -4753,7 +4782,7 @@
                   <DropdownMenu.Content align="end" class="w-56">
                     <!-- Quick copy actions -->
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handleChangelogExport('copy-markdown');
                       }}
@@ -4768,7 +4797,7 @@
                       Copy as Markdown
                     </DropdownMenu.Item>
                     <DropdownMenu.Item
-                      onSelect={(e) => {
+                      onSelect={(e: Event) => {
                         e.preventDefault();
                         handleChangelogExport('copy-json');
                       }}
@@ -4784,7 +4813,7 @@
                     </DropdownMenu.Item>
                     {#if selectedChangelogRows.size > 0}
                       <DropdownMenu.Item
-                        onSelect={(e) => {
+                        onSelect={(e: Event) => {
                           e.preventDefault();
                           copySelectedChangelog();
                         }}
@@ -4795,7 +4824,7 @@
                     {/if}
                     <DropdownMenu.Separator />
                     <DropdownMenu.Sub
-                      onOpenChange={(open) => {
+                      onOpenChange={(open: boolean) => {
                         if (open) changelogExportSearchQuery = '';
                       }}
                     >
@@ -4819,9 +4848,9 @@
                               placeholder="Search formats..."
                               class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                               bind:value={changelogExportSearchQuery}
-                              onkeydown={(e) => e.stopPropagation()}
-                              onkeyup={(e) => e.stopPropagation()}
-                              onkeypress={(e) => e.stopPropagation()}
+                              onkeydown={(e: KeyboardEvent) => e.stopPropagation()}
+                              onkeyup={(e: KeyboardEvent) => e.stopPropagation()}
+                              onkeypress={(e: KeyboardEvent) => e.stopPropagation()}
                             />
                           </div>
                         </div>
@@ -4842,7 +4871,7 @@
                             </DropdownMenu.Label>
                             {#each filteredChangelogExportItems.filter((i) => i.category === category) as item (item.id)}
                               <DropdownMenu.Item
-                                onSelect={(e) => {
+                                onSelect={(e: Event) => {
                                   e.preventDefault();
                                   handleChangelogExport(item.id);
                                 }}
@@ -5037,7 +5066,7 @@
                                 role="button"
                                 tabindex="0"
                                 onclick={() => toggleChangelogRow(entry.hash)}
-                                onkeydown={(e) => {
+                                onkeydown={(e: KeyboardEvent) => {
                                   if (e.key === 'Enter' || e.key === ' ') {
                                     e.preventDefault();
                                     toggleChangelogRow(entry.hash);
@@ -5087,7 +5116,11 @@
                                       {/if}
                                       <Tooltip.Root delayDuration={500}>
                                         <Tooltip.Trigger>
-                                          {#snippet child({ props: msgTipProps })}
+                                          {#snippet child({
+                                            props: msgTipProps,
+                                          }: {
+                                            props: Record<string, unknown>;
+                                          })}
                                             <span {...msgTipProps} class="block truncate"
                                               >{entry.message}</span
                                             >
@@ -5113,7 +5146,11 @@
                                 >
                                   <Tooltip.Root delayDuration={300}>
                                     <Tooltip.Trigger>
-                                      {#snippet child({ props: dateTipProps })}
+                                      {#snippet child({
+                                        props: dateTipProps,
+                                      }: {
+                                        props: Record<string, unknown>;
+                                      })}
                                         <span {...dateTipProps}>{relativeDate(entry.date)}</span>
                                       {/snippet}
                                     </Tooltip.Trigger>
@@ -5130,8 +5167,8 @@
                                     class="flex items-center gap-0.5"
                                     role="toolbar"
                                     tabindex="-1"
-                                    onclick={(e) => e.stopPropagation()}
-                                    onkeydown={(e) => e.stopPropagation()}
+                                    onclick={(e: MouseEvent) => e.stopPropagation()}
+                                    onkeydown={(e: KeyboardEvent) => e.stopPropagation()}
                                   >
                                     <CopyButton
                                       text={`${entry.hash} ${entry.message} (${entry.author}, ${new Date(entry.date).toLocaleString()})`}
@@ -5140,7 +5177,11 @@
                                     {#if changelogRepoUrl}
                                       <Tooltip.Root delayDuration={300}>
                                         <Tooltip.Trigger>
-                                          {#snippet child({ props: tipProps })}
+                                          {#snippet child({
+                                            props: tipProps,
+                                          }: {
+                                            props: Record<string, unknown>;
+                                          })}
                                             <a
                                               {...tipProps}
                                               href="{changelogRepoUrl}/commit/{entry.hash}{changelogDiffAnchor
@@ -5188,7 +5229,7 @@
             </section>
           {/if}
         </div>
-        {#snippet failed(error)}
+        {#snippet failed(error: unknown)}
           <div class="overflow-hidden rounded-lg border border-dashed">
             <LensError
               title="Page render error"

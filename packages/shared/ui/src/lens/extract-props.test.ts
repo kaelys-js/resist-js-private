@@ -3,12 +3,29 @@
  *
  * Tests regex-based extraction of `$props()` metadata from raw Svelte source.
  */
-import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import type { PropMeta } from './types.js';
 import { extractProps, buildBaseProps } from './extract-props.js';
+
+/**
+ * Read a `.svelte` source PLUS its adjacent `types.ts` if present.
+ *
+ * Some components extract their valibot schema / `tv()` config / public types
+ * into a sibling `types.ts` file (e.g. `button`, `badge`, `lens-props-table`).
+ * For prop-extraction scans, the adjacent `types.ts` is part of the
+ * component's effective surface and must be concatenated.
+ */
+function readSvelteWithTypes(filePath: string): string {
+  const sv: string = readFileSync(filePath, 'utf8');
+  const typesPath: string = join(dirname(filePath), 'types.ts');
+  if (existsSync(typesPath)) {
+    return `${sv}\n/* --- adjacent types.ts --- */\n${readFileSync(typesPath, 'utf8')}`;
+  }
+  return sv;
+}
 
 describe('extractProps', () => {
   it('extracts simple props with string defaults', () => {
@@ -656,7 +673,7 @@ const validated = $derived.by(() => {
 
       for (const file of svelteFiles) {
         const filePath: string = join(dirPath, file);
-        const source: string = readFileSync(filePath, 'utf8');
+        const source: string = readSvelteWithTypes(filePath);
 
         // Only check schema-based components (safeParse pattern)
         if (!source.includes('safeParse(') || !source.includes('$props()')) {
@@ -933,7 +950,7 @@ export type DepTree = {
   });
 
   it('merges schema defaults into destructured props (hybrid pattern)', (): void => {
-    const source: string = readFileSync(resolve(__dirname, '../badge/badge.svelte'), 'utf8');
+    const source: string = readSvelteWithTypes(resolve(__dirname, '../badge/badge.svelte'));
     const props: PropMeta[] = extractProps(source);
 
     const variantProp: PropMeta | undefined = props.find(

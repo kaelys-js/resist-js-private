@@ -321,7 +321,7 @@
     {#if onclose}
       <Tooltip.Root delayDuration={300}>
         <Tooltip.Trigger>
-          {#snippet child({ props })}
+          {#snippet child({ props }: { props: Record<string, unknown> })}
             <button
               {...props}
               onclick={onclose}
@@ -460,7 +460,9 @@
           class="text-popover-foreground font-mono inline-flex items-center gap-1.5"
           data-testid="perf-quality"
         >
-          <span class="size-2 rounded-full {qualityDotClass(unwrap(getConnectionQuality(), 'unknown'))}"></span>
+          <span
+            class="size-2 rounded-full {qualityDotClass(unwrap(getConnectionQuality(), 'unknown'))}"
+          ></span>
           {friendlyQuality(unwrap(getConnectionQuality(), 'unknown'))}
         </span>
 
@@ -522,7 +524,7 @@
         <!-- Queued Metrics with flush hint tooltip -->
         <Tooltip.Root delayDuration={200}>
           <Tooltip.Trigger>
-            {#snippet child({ props })}
+            {#snippet child({ props }: { props: Record<string, unknown> })}
               <span
                 {...props}
                 class="text-muted-foreground cursor-help underline decoration-dotted underline-offset-2"
@@ -563,7 +565,7 @@
         >
         <Tooltip.Root delayDuration={200}>
           <Tooltip.Trigger>
-            {#snippet child({ props })}
+            {#snippet child({ props }: { props: Record<string, unknown> })}
               <span
                 {...props}
                 class="text-popover-foreground font-mono truncate cursor-help"
@@ -581,7 +583,7 @@
         <!-- Last Sent with tooltip explaining what it means -->
         <Tooltip.Root delayDuration={200}>
           <Tooltip.Trigger>
-            {#snippet child({ props })}
+            {#snippet child({ props }: { props: Record<string, unknown> })}
               <span
                 {...props}
                 class="text-muted-foreground cursor-help underline decoration-dotted underline-offset-2"

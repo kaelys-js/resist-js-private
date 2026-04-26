@@ -8,8 +8,8 @@
  */
 
 import { describe, expect, it, vi } from 'vitest';
-import type { Str, Path } from '@/schemas/common';
-import type { Result, DeepReadonly } from '@/schemas/result/result';
+import type { Path } from '@/schemas/common';
+import type { Result } from '@/schemas/result/result';
 
 describe('resolveTemplatePaths module-level throws', () => {
   it('throws when appHtml path resolution fails (line 206)', async () => {
@@ -54,7 +54,7 @@ describe('resolveTemplatePaths module-level throws', () => {
       vitePreprocess: vi.fn(() => ({ name: 'vitePreprocess' })),
     }));
 
-    await expect(async () => import('./index')).rejects.toThrow();
+    await expect(() => import('./index')).rejects.toThrow();
   });
 
   it('throws when errorHtml path resolution fails (line 213)', async () => {
@@ -109,6 +109,6 @@ describe('resolveTemplatePaths module-level throws', () => {
       vitePreprocess: vi.fn(() => ({ name: 'vitePreprocess' })),
     }));
 
-    await expect(async () => import('./index')).rejects.toThrow();
+    await expect(() => import('./index')).rejects.toThrow();
   });
 });

@@ -52,6 +52,29 @@ const svelteFiles: string[] = readdirSync(UI_SRC, { recursive: true })
   )
   .map((f: string): string => join(UI_SRC, f));
 
+/**
+ * Read a `.svelte` component source PLUS its adjacent `types.ts` when present.
+ *
+ * Some components (e.g. `button`, `badge`, `lens-props-table`) extract their
+ * `tv()` config / valibot schema / public types into a sibling `types.ts` file
+ * so `index.ts` can re-export them via standard TS module resolution (avoiding
+ * the workspace-level `*.svelte` ambient declaration). For lens-lint scans
+ * that look for textual markers like `v.strictObject(` / `safeParse(` /
+ * `stripSvelteProps(` / `@values`, the adjacent `types.ts` is part of the
+ * component's effective surface and must be included.
+ *
+ * @param sveltePath - Absolute path to the primary `.svelte` file
+ * @returns Concatenated source: the `.svelte` file plus the adjacent `types.ts` if it exists
+ */
+function readComponentSource(sveltePath: string): string {
+  const sv: string = readFileSync(sveltePath, 'utf8');
+  const typesPath: string = join(dirname(sveltePath), 'types.ts');
+  if (existsSync(typesPath)) {
+    return `${sv}\n/* --- adjacent types.ts --- */\n${readFileSync(typesPath, 'utf8')}`;
+  }
+  return sv;
+}
+
 /** Props excluded from @values checks — CSS passthrough, never rendered in docs. */
 const SKIP_VALUES_FIELDS: ReadonlySet<string> = new Set(['class']);
 
@@ -298,7 +321,7 @@ describe('Lens lint', () => {
     const violations: string[] = [];
 
     for (const file of svelteFiles) {
-      const source: string = readFileSync(file, 'utf8');
+      const source: string = readComponentSource(file);
       for (const block of findTypeBlocks(source)) {
         for (const field of parseFields(block.body)) {
           if (
@@ -321,7 +344,7 @@ describe('Lens lint', () => {
     const violations: string[] = [];
 
     for (const file of svelteFiles) {
-      const source: string = readFileSync(file, 'utf8');
+      const source: string = readComponentSource(file);
       for (const block of findTypeBlocks(source)) {
         if (!block.name.endsWith('Props')) {
           continue;
@@ -365,7 +388,7 @@ describe('Lens lint', () => {
     const violations: string[] = [];
 
     for (const file of svelteFiles) {
-      const source: string = readFileSync(file, 'utf8');
+      const source: string = readComponentSource(file);
       for (const block of findTypeBlocks(source)) {
         for (const field of parseFields(block.body)) {
           if (!field.jsdoc) {
@@ -384,7 +407,7 @@ describe('Lens lint', () => {
     const violations: string[] = [];
 
     for (const file of svelteFiles) {
-      const source: string = readFileSync(file, 'utf8');
+      const source: string = readComponentSource(file);
 
       // Only enforce on components that define their own type blocks
       // (shadcn sub-component wrappers with no type defs are excluded)
@@ -512,7 +535,7 @@ describe('Lens lint', () => {
     const violations: string[] = [];
 
     for (const file of svelteFiles) {
-      const source: string = readFileSync(file, 'utf8');
+      const source: string = readComponentSource(file);
       const props: PropMeta[] = extractProps(source);
       for (const prop of props) {
         if (!prop.description) {
@@ -532,7 +555,7 @@ describe('Lens lint', () => {
     const violations: string[] = [];
 
     for (const file of svelteFiles) {
-      const source: string = readFileSync(file, 'utf8');
+      const source: string = readComponentSource(file);
       const props: PropMeta[] = extractProps(source);
       for (const prop of props) {
         if (NEEDS_VALUES.has(prop.type) && (!prop.mockValues || prop.mockValues.length === 0)) {
@@ -583,7 +606,7 @@ describe('Lens lint', () => {
         continue;
       }
 
-      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      const source: string = readComponentSource(join(dirPath, primaryFile));
 
       // Skip placeholder components explicitly marked for future implementation
       if (source.includes('@convert-to-lens')) {
@@ -681,7 +704,7 @@ describe('Lens lint', () => {
         continue;
       }
 
-      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      const source: string = readComponentSource(join(dirPath, primaryFile));
       if (source.includes('@convert-to-lens')) {
         continue;
       }
@@ -700,7 +723,7 @@ describe('Lens lint', () => {
     const violations: string[] = [];
 
     for (const file of svelteFiles) {
-      const source: string = readFileSync(file, 'utf8');
+      const source: string = readComponentSource(file);
       if (source.includes('@convert-to-lens')) {
         continue;
       }
@@ -738,7 +761,7 @@ describe('Lens lint', () => {
         continue;
       }
 
-      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      const source: string = readComponentSource(join(dirPath, primaryFile));
       if (source.includes('@convert-to-lens')) {
         continue;
       }
@@ -773,7 +796,7 @@ describe('Lens lint', () => {
     const violations: string[] = [];
 
     for (const file of svelteFiles) {
-      const source: string = readFileSync(file, 'utf8');
+      const source: string = readComponentSource(file);
       if (source.includes('@convert-to-lens')) {
         continue;
       }
@@ -888,7 +911,7 @@ describe('Lens lint', () => {
     const violations: string[] = [];
 
     for (const file of svelteFiles) {
-      const source: string = readFileSync(file, 'utf8');
+      const source: string = readComponentSource(file);
       if (source.includes('@convert-to-lens')) {
         continue;
       }
@@ -936,7 +959,7 @@ describe('Lens lint', () => {
         continue;
       }
 
-      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      const source: string = readComponentSource(join(dirPath, primaryFile));
       if (source.includes('@convert-to-lens')) {
         continue;
       }
@@ -998,7 +1021,7 @@ describe('Lens lint', () => {
         continue;
       }
 
-      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      const source: string = readComponentSource(join(dirPath, primaryFile));
       if (source.includes('@convert-to-lens')) {
         continue;
       }
@@ -1037,7 +1060,7 @@ describe('Lens lint', () => {
         continue;
       }
 
-      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      const source: string = readComponentSource(join(dirPath, primaryFile));
       if (source.includes('@convert-to-lens')) {
         continue;
       }
@@ -1088,7 +1111,7 @@ describe('Lens lint', () => {
         continue;
       }
 
-      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      const source: string = readComponentSource(join(dirPath, primaryFile));
       if (source.includes('@convert-to-lens')) {
         continue;
       }
@@ -1151,7 +1174,7 @@ describe('Lens lint', () => {
         continue;
       }
 
-      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      const source: string = readComponentSource(join(dirPath, primaryFile));
       if (source.includes('@convert-to-lens')) {
         continue;
       }
@@ -1212,7 +1235,7 @@ describe('Lens lint', () => {
         continue;
       }
 
-      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      const source: string = readComponentSource(join(dirPath, primaryFile));
       if (source.includes('@convert-to-lens')) {
         continue;
       }

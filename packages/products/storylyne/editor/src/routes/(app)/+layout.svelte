@@ -480,7 +480,7 @@
   bind:ref={providerEl}
   open={store.app.sidebarOpen}
   onOpenChange={useResizable ? handleSidebarOpenChange : undefined}
-  matchToggleShortcut={(e) => shortcutStore.matches(e, 'TOGGLE_SIDEBAR')}
+  matchToggleShortcut={(e: KeyboardEvent) => shortcutStore.matches(e, 'TOGGLE_SIDEBAR')}
   class="min-w-[450px]"
   style="--sidebar-width: {data.sidebarPx ??
     SIDEBAR_DEFAULT_PX}px; --header-height: calc(var(--spacing) * 12);"

@@ -75,6 +75,21 @@ function buildSources(): Record<string, string> {
     const relPath: string = relative(UI_SRC, file);
     sources[relPath] = readFileSync(file, 'utf8');
   }
+  // Some components (e.g. `button`, `badge`, `lens-props-table`) extract their
+  // `tv()` config / valibot schema / public types into a sibling `types.ts`.
+  // For .svelte files with such a sibling, append the types.ts contents to the
+  // .svelte source so Tailwind class strings declared in types.ts (link
+  // variants, etc.) remain visible to scans that read only the .svelte.
+  for (const sveltePath of svelteFiles) {
+    const relPath: string = relative(UI_SRC, sveltePath);
+    const dir: string = sveltePath.slice(0, sveltePath.lastIndexOf('/'));
+    const typesPath: string = `${dir}/types.ts`;
+    const typesRel: string = relative(UI_SRC, typesPath);
+    if (Object.hasOwn(sources, typesRel)) {
+      sources[relPath] =
+        `${sources[relPath]}\n/* --- adjacent types.ts --- */\n${sources[typesRel]}`;
+    }
+  }
   return sources;
 }
 
