@@ -336,7 +336,7 @@ describe('toHttpResponse', () => {
     }
   });
 
-  it('defaults to 500 when httpStatus not set', async () => {
+  it('defaults to 500 when httpStatus not set', () => {
     const result: Result<Response> = toHttpResponse(makeError(), 'https://example.com/errors');
     expect(result.ok).toBe(true);
     if (result.ok) {

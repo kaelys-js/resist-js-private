@@ -82,15 +82,23 @@ export function formatErrorDebug(error: AppError): Result<Str> {
     `  timestamp: ${error.timestamp}`,
   ];
 
-  if (error.severity) lines.push(`  severity: ${error.severity}`);
-  if (error.httpStatus) lines.push(`  httpStatus: ${error.httpStatus}`);
-  if (error.help) lines.push(`  help: ${error.help}`);
+  if (error.severity) {
+    lines.push(`  severity: ${error.severity}`);
+  }
+  if (error.httpStatus) {
+    lines.push(`  httpStatus: ${error.httpStatus}`);
+  }
+  if (error.help) {
+    lines.push(`  help: ${error.help}`);
+  }
   if (error.retry) {
     const retryParts: string[] = [`retryable=${String(error.retry.retryable)}`];
-    if (error.retry.retryAfterMs !== undefined)
+    if (error.retry.retryAfterMs !== undefined) {
       retryParts.push(`after=${String(error.retry.retryAfterMs)}ms`);
-    if (error.retry.maxRetries !== undefined)
+    }
+    if (error.retry.maxRetries !== undefined) {
       retryParts.push(`max=${String(error.retry.maxRetries)}`);
+    }
     lines.push(`  retry: ${retryParts.join(', ')}`);
   }
   if (error.tags) {
@@ -109,9 +117,15 @@ export function formatErrorDebug(error: AppError): Result<Str> {
   }
   if (error.source) {
     const sourceParts: string[] = [];
-    if (error.source.pointer) sourceParts.push(`pointer=${error.source.pointer}`);
-    if (error.source.parameter) sourceParts.push(`parameter=${error.source.parameter}`);
-    if (error.source.header) sourceParts.push(`header=${error.source.header}`);
+    if (error.source.pointer) {
+      sourceParts.push(`pointer=${error.source.pointer}`);
+    }
+    if (error.source.parameter) {
+      sourceParts.push(`parameter=${error.source.parameter}`);
+    }
+    if (error.source.header) {
+      sourceParts.push(`header=${error.source.header}`);
+    }
     lines.push(`  source: { ${sourceParts.join(', ')} }`);
   }
   if (error.validation) {
@@ -295,7 +309,9 @@ export function toRfc9457(error: AppError, baseUrl: Str): Result<ProblemDetails>
  */
 export function toHttpResponse(error: AppError, baseUrl: Str): Result<Response> {
   const problem: Result<ProblemDetails> = toRfc9457(error, baseUrl);
-  if (!problem.ok) return problem;
+  if (!problem.ok) {
+    return problem;
+  }
 
   const response: Response = new Response(JSON.stringify(problem.data), {
     status: error.httpStatus ?? 500,
