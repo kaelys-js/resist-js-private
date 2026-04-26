@@ -78,6 +78,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/pre-bash-no-file-writes.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-bash-block-bulk-script.sh"
           }
         ]
       },
@@ -87,6 +91,14 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/pre-plan-file-validate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-edit-lint-config-deny.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-edit-revert-detector.sh"
           },
           {
             "type": "prompt",
@@ -119,6 +131,14 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/pre-lint-rule-edit.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-edit-lint-config-deny.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-edit-revert-detector.sh"
           }
         ]
       }
@@ -132,6 +152,15 @@
             "command": "bash .claude/hooks/post-edit-format-lint.sh"
           }
         ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-exit-plan-mode-record.sh"
+          }
+        ]
       }
     ],
     "Stop": [
@@ -141,6 +170,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/stop-preview-override.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/stop-active-plan-block.sh"
           }
         ]
       }

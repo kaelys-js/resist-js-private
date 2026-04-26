@@ -63,10 +63,23 @@ for e in entries:
     if e.get('hooks'):
         print(e.get('matcher', 'unknown'))
 " 2>/dev/null)
-if [ "$POST_HOOKS" = "Edit|Write" ] || [ -z "$POST_HOOKS" ]; then
-  pass "PostToolUse hooks are format+lint only (Edit|Write)"
+# Allowed PostToolUse matchers:
+#   Edit|Write    — format+lint (existing)
+#   ExitPlanMode  — active-plan marker recorder (binds Stop hook)
+ALLOWED_POST="Edit|Write
+ExitPlanMode"
+UNEXPECTED=""
+while IFS= read -r m; do
+  [ -z "$m" ] && continue
+  case "$m" in
+    "Edit|Write"|"ExitPlanMode") ;;
+    *) UNEXPECTED="$UNEXPECTED $m" ;;
+  esac
+done <<< "$POST_HOOKS"
+if [ -z "$UNEXPECTED" ]; then
+  pass "PostToolUse hooks are recognized (Edit|Write, ExitPlanMode)"
 else
-  fail "Unexpected PostToolUse hooks found: $POST_HOOKS"
+  fail "Unexpected PostToolUse hooks found:$UNEXPECTED"
 fi
 
 echo ""
@@ -76,9 +89,25 @@ echo ""
 # =============================================================================
 echo "Orphaned hook file check:"
 
+# User-invoked hooks (NOT registered in settings — invoked by the user via
+# explicit `bash .claude/hooks/X.sh` from the prompt). These are the only
+# legitimate "orphans" — they bypass settings registration intentionally.
+USER_INVOKED_HOOKS=("abandon-plan.sh")
+
 DISK_HOOKS=$(ls "$HOOKS_DIR"/*.sh 2>/dev/null | grep -v '\.test\.sh$' | sort)
 for hook_file in $DISK_HOOKS; do
   BASENAME=$(basename "$hook_file")
+
+  # Skip user-invoked hooks (they don't go in settings)
+  IS_USER_INVOKED=false
+  for ui in "${USER_INVOKED_HOOKS[@]}"; do
+    if [ "$BASENAME" = "$ui" ]; then IS_USER_INVOKED=true; break; fi
+  done
+  if [ "$IS_USER_INVOKED" = "true" ]; then
+    pass "User-invoked hook OK: $BASENAME (intentionally not in settings)"
+    continue
+  fi
+
   if ! grep -q "$BASENAME" "$SETTINGS"; then
     # Check if it's a neutralized hook (exit 0 only)
     LINES=$(grep -v '^#' "$hook_file" | grep -v '^$' | grep -v 'exit 0' | wc -l | tr -d ' ')
