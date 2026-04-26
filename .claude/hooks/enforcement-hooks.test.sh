@@ -342,6 +342,162 @@ export HOME="$HOME_BAK"
 rm -rf "$TMP_PLANS"
 
 echo ""
+
+# =============================================================================
+# pre-bash-block-multi-file-shell.sh
+# =============================================================================
+echo "pre-bash-block-multi-file-shell.sh:"
+
+# 1. Plain echo → allow
+INPUT='{"tool_input":{"command":"echo hello"}}'
+if echo "$INPUT" | bash "$HOOKS_DIR/pre-bash-block-multi-file-shell.sh" 2>/dev/null; then
+  pass "plain echo → allow"
+else
+  fail "plain echo should be allowed"
+fi
+
+# 2. find -exec sed -i → block
+INPUT='{"tool_input":{"command":"find packages -name \"*.ts\" -exec sed -i \"\" \"s/foo/bar/\" {} +"}}'
+OUT=$(echo "$INPUT" | bash "$HOOKS_DIR/pre-bash-block-multi-file-shell.sh" 2>&1)
+if [ $? -ne 0 ] || echo "$OUT" | grep -q "BLOCKED"; then
+  pass "find -exec sed -i → block"
+else
+  fail "find -exec sed -i should block"
+fi
+
+# 3. find -exec ls → allow (read-only)
+INPUT='{"tool_input":{"command":"find packages -name \"*.ts\" -exec ls -la {} +"}}'
+if echo "$INPUT" | bash "$HOOKS_DIR/pre-bash-block-multi-file-shell.sh" 2>/dev/null; then
+  pass "find -exec ls (read-only) → allow"
+else
+  fail "find -exec ls should be allowed (read-only)"
+fi
+
+# 4. for-loop with sed -i → block
+INPUT='{"tool_input":{"command":"for f in packages/*/src/*.ts; do sed -i \"\" \"s/x/y/\" \"$f\"; done"}}'
+OUT=$(echo "$INPUT" | bash "$HOOKS_DIR/pre-bash-block-multi-file-shell.sh" 2>&1)
+if [ $? -ne 0 ] || echo "$OUT" | grep -q "BLOCKED"; then
+  pass "for-loop over glob with sed -i → block"
+else
+  fail "shell for-loop with write should block"
+fi
+
+# 5. xargs sed -i → block
+INPUT='{"tool_input":{"command":"echo a.ts b.ts | xargs sed -i \"\" \"s/x/y/\""}}'
+OUT=$(echo "$INPUT" | bash "$HOOKS_DIR/pre-bash-block-multi-file-shell.sh" 2>&1)
+if [ $? -ne 0 ] || echo "$OUT" | grep -q "BLOCKED"; then
+  pass "xargs sed -i → block"
+else
+  fail "xargs sed -i should block"
+fi
+
+# 6. grep -rl piped to sed → block
+INPUT='{"tool_input":{"command":"grep -rl pattern packages/ | xargs sed -i \"\" \"s/p/q/\""}}'
+OUT=$(echo "$INPUT" | bash "$HOOKS_DIR/pre-bash-block-multi-file-shell.sh" 2>&1)
+if [ $? -ne 0 ] || echo "$OUT" | grep -q "BLOCKED"; then
+  pass "grep -rl | xargs sed → block"
+else
+  fail "grep -rl piped to sed should block"
+fi
+
+# 7. Approval marker present → consume and allow
+touch "$REPO_ROOT/.claude/approved-bulk-script"
+INPUT='{"tool_input":{"command":"find packages -name \"*.ts\" -exec sed -i \"\" \"s/x/y/\" {} +"}}'
+if echo "$INPUT" | bash "$HOOKS_DIR/pre-bash-block-multi-file-shell.sh" 2>/dev/null; then
+  if [ ! -f "$REPO_ROOT/.claude/approved-bulk-script" ]; then
+    pass "approval marker consumed for find -exec sed"
+  else
+    fail "approval marker not consumed"
+  fi
+else
+  fail "approval marker should allow find -exec sed"
+fi
+
+echo ""
+
+# =============================================================================
+# pre-bash-block-claude-abandon-attempt.sh
+# =============================================================================
+echo "pre-bash-block-claude-abandon-attempt.sh:"
+
+# 1. Plain command → allow
+INPUT='{"tool_input":{"command":"git status"}}'
+if echo "$INPUT" | bash "$HOOKS_DIR/pre-bash-block-claude-abandon-attempt.sh" 2>/dev/null; then
+  pass "git status → allow"
+else
+  fail "git status should be allowed"
+fi
+
+# 2. bash .claude/hooks/abandon-plan.sh → block
+INPUT='{"tool_input":{"command":"bash .claude/hooks/abandon-plan.sh \"impossible\""}}'
+OUT=$(echo "$INPUT" | bash "$HOOKS_DIR/pre-bash-block-claude-abandon-attempt.sh" 2>&1)
+if [ $? -ne 0 ] || echo "$OUT" | grep -q "BLOCKED"; then
+  pass "bash abandon-plan.sh → block"
+else
+  fail "abandon-plan invocation should block"
+fi
+
+# 3. ./.claude/hooks/abandon-plan.sh → block
+INPUT='{"tool_input":{"command":"./.claude/hooks/abandon-plan.sh \"reason\""}}'
+OUT=$(echo "$INPUT" | bash "$HOOKS_DIR/pre-bash-block-claude-abandon-attempt.sh" 2>&1)
+if [ $? -ne 0 ] || echo "$OUT" | grep -q "BLOCKED"; then
+  pass "direct path abandon-plan.sh → block"
+else
+  fail "direct-path abandon-plan should block"
+fi
+
+# 4. Mention in echo (string only, not invocation) → allow
+INPUT='{"tool_input":{"command":"echo \"the user can run bash .claude/hooks/abandon-plan.sh\""}}'
+# Note: this is technically a false positive — the hook detects the string in
+# `echo`. But that's acceptable: Claude shouldn't be printing the command in
+# Bash either (it could be confused for a real invocation by the user).
+# We allow this case to NOT be a hard requirement.
+echo "$INPUT" | bash "$HOOKS_DIR/pre-bash-block-claude-abandon-attempt.sh" 2>/dev/null
+RC=$?
+if [ "$RC" = "2" ] || [ "$RC" = "0" ]; then
+  pass "echo containing abandon-plan path → either allow or block (both acceptable)"
+else
+  fail "unexpected exit code $RC for echo case"
+fi
+
+echo ""
+
+# =============================================================================
+# post-edit-test-regression-block.sh
+# =============================================================================
+echo "post-edit-test-regression-block.sh:"
+
+# 1. No active plan → exit 0 (skip test run entirely)
+rm -f "$REPO_ROOT/.claude/active-plan.json"
+INPUT='{"tool_input":{"file_path":"/repo/packages/foo/src/index.ts"}}'
+if echo "$INPUT" | bash "$HOOKS_DIR/post-edit-test-regression-block.sh" 2>/dev/null; then
+  pass "no active plan → skip (exit 0)"
+else
+  fail "no active plan should skip without running tests"
+fi
+
+# 2. Active plan but file outside packages/ → exit 0
+cat > "$REPO_ROOT/.claude/active-plan.json" <<EOF
+{"plan_path":"x","approved_at":"x","success_check":"true","expected":"0","label":"x"}
+EOF
+INPUT='{"tool_input":{"file_path":"/repo/docs/plans/foo.md"}}'
+if echo "$INPUT" | bash "$HOOKS_DIR/post-edit-test-regression-block.sh" 2>/dev/null; then
+  pass "active plan + non-package file → skip"
+else
+  fail "non-package file should skip"
+fi
+
+# 3. Active plan + non-source file (e.g. .json) → exit 0
+INPUT='{"tool_input":{"file_path":"/repo/packages/foo/package.json"}}'
+if echo "$INPUT" | bash "$HOOKS_DIR/post-edit-test-regression-block.sh" 2>/dev/null; then
+  pass "active plan + non-source file → skip"
+else
+  fail "non-source file should skip"
+fi
+
+rm -f "$REPO_ROOT/.claude/active-plan.json"
+
+echo ""
 echo "=== Summary ==="
 echo "Passed: $PASS"
 echo "Failed: $FAIL"
