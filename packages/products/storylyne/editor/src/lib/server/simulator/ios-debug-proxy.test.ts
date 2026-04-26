@@ -8,6 +8,7 @@ import { EventEmitter } from 'node:events';
 import type { Num, Str } from '@/schemas/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildProxyArgs, parseInspectablePages, type InspectablePage } from './ios-debug-proxy';
+import type * as IosDebugProxyModule from './ios-debug-proxy';
 
 describe('ios-debug-proxy', () => {
   describe('buildProxyArgs', () => {
@@ -118,15 +119,23 @@ describe('ios-debug-proxy', () => {
           _a: readonly string[],
           cb: (e: Error | null, r?: unknown) => void,
         ) => {
-          if (state.whichOk) cb(null, { stdout: '/usr/bin/x', stderr: '' });
-          else cb(new Error('not found'));
+          if (state.whichOk) {
+            cb(null, { stdout: '/usr/bin/x', stderr: '' });
+          }
+          else {
+            cb(new Error('not found'));
+          }
           return null;
         },
         spawn: () => state.spawnRes ?? new FakeChild(),
       },
       execFile: (_f: string, _a: readonly string[], cb: (e: Error | null, r?: unknown) => void) => {
-        if (state.whichOk) cb(null, { stdout: '/usr/bin/x', stderr: '' });
-        else cb(new Error('not found'));
+        if (state.whichOk) {
+          cb(null, { stdout: '/usr/bin/x', stderr: '' });
+        }
+        else {
+          cb(new Error('not found'));
+        }
         return null;
       },
       spawn: () => state.spawnRes ?? new FakeChild(),
@@ -146,7 +155,7 @@ describe('ios-debug-proxy', () => {
       vi.unstubAllGlobals();
     });
 
-    async function load(): Promise<typeof import('./ios-debug-proxy')> {
+    async function load(): Promise<typeof IosDebugProxyModule> {
       vi.resetModules();
       return await import('./ios-debug-proxy');
     }

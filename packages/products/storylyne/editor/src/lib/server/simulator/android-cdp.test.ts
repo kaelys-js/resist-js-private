@@ -13,6 +13,7 @@ import {
   type CdpConsoleEntry,
   type CdpMessage,
 } from './android-cdp';
+import type * as AndroidCdpModule from './android-cdp';
 
 describe('android-cdp', () => {
   describe('buildAdbForwardArgs', () => {
@@ -95,7 +96,7 @@ describe('android-cdp', () => {
    * Mocked captureConsoleLogs — WebSocket + fetch with hoisted state.
    * -------------------------------------------------------------------- */
   describe('captureConsoleLogs (mocked)', () => {
-    type LoadedModule = typeof import('./android-cdp');
+    type LoadedModule = typeof AndroidCdpModule;
 
     class FakeSocket extends EventEmitter {
       public sent: string[] = [];
@@ -105,7 +106,9 @@ describe('android-cdp', () => {
         this.sent.push(data);
       }
       close(): void {
-        if (this.closeThrows) throw new Error('close failed');
+        if (this.closeThrows) {
+          throw new Error('close failed');
+        }
         this.closed = true;
       }
     }
@@ -117,7 +120,9 @@ describe('android-cdp', () => {
     vi.mock('ws', () => ({
       WebSocket: class {
         constructor(url: string) {
-          if (!state.socketFactory) throw new Error('socketFactory not set');
+          if (!state.socketFactory) {
+            throw new Error('socketFactory not set');
+          }
           return state.socketFactory(url) as object;
         }
       },

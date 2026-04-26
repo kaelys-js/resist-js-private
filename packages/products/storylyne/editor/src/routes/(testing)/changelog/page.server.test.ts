@@ -8,6 +8,9 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { load, type ChangelogData } from './+page.server';
+import type * as PageServerModule from './+page.server';
+import type * as NodeChildProcessModule from 'node:child_process';
+import type * as NodeFsModule from 'node:fs';
 
 describe('(testing)/changelog +page.server load — real repo', () => {
   it('returns groups array with changelog entries', () => {
@@ -49,7 +52,7 @@ describe('(testing)/changelog +page.server load — real repo', () => {
  * date grouping, and the "no workspace.yaml" fallback.
  * -------------------------------------------------------------------- */
 
-type LoadedModule = typeof import('./+page.server');
+type LoadedModule = typeof PageServerModule;
 
 type ExecSyncImpl = (cmd: string, opts?: Record<string, unknown>) => string | Buffer;
 type StatSyncImpl = (path: string) => unknown;
@@ -60,9 +63,11 @@ const state = vi.hoisted(() => ({
 }));
 
 vi.mock('node:child_process', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('node:child_process')>();
+  const actual = await importOriginal<typeof NodeChildProcessModule>();
   const wrap = (cmd: string, opts?: Record<string, unknown>): string | Buffer => {
-    if (state.execSync) return state.execSync(cmd, opts);
+    if (state.execSync) {
+      return state.execSync(cmd, opts);
+    }
     return actual.execSync(cmd, opts as Parameters<typeof actual.execSync>[1]) as string | Buffer;
   };
   return {
@@ -73,9 +78,11 @@ vi.mock('node:child_process', async (importOriginal) => {
 });
 
 vi.mock('node:fs', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('node:fs')>();
+  const actual = await importOriginal<typeof NodeFsModule>();
   const statWrapper = (p: string): unknown => {
-    if (state.statSync) return state.statSync(p);
+    if (state.statSync) {
+      return state.statSync(p);
+    }
     return actual.statSync(p);
   };
   return {
@@ -105,7 +112,9 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
     let calls = 0;
     state.execSync = (cmd: string): string => {
       calls++;
-      if (cmd.startsWith('git remote')) return 'git@github.com:acme/widgets.git\n';
+      if (cmd.startsWith('git remote')) {
+        return 'git@github.com:acme/widgets.git\n';
+      }
       throw new Error('git not found');
     };
     const mod = await loadMocked();
@@ -122,8 +131,12 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       'packages/shared/ui/src/button/Button.svelte\n';
     const bodyLog = 'abc123|||The body text\n---COMMIT---';
     state.execSync = (cmd: string): string => {
-      if (cmd.startsWith('git remote')) return 'git@github.com:foo/bar.git\n';
-      if (cmd.includes('--name-only')) return headerLog;
+      if (cmd.startsWith('git remote')) {
+        return 'git@github.com:foo/bar.git\n';
+      }
+      if (cmd.includes('--name-only')) {
+        return headerLog;
+      }
       return bodyLog;
     };
     const mod = await loadMocked();
@@ -142,7 +155,9 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
 
   it('parses HTTPS remote and strips trailing .git', async () => {
     state.execSync = (cmd: string): string => {
-      if (cmd.startsWith('git remote')) return 'https://github.com/x/y.git\n';
+      if (cmd.startsWith('git remote')) {
+        return 'https://github.com/x/y.git\n';
+      }
       return '';
     };
     const mod = await loadMocked();
@@ -167,7 +182,9 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
 
   it('returns empty repoUrl when git remote throws', async () => {
     state.execSync = (cmd: string): string => {
-      if (cmd.startsWith('git remote')) throw new Error('not a git repo');
+      if (cmd.startsWith('git remote')) {
+        throw new Error('not a git repo');
+      }
       return '';
     };
     const mod = await loadMocked();
@@ -182,8 +199,12 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       '---COMMIT---def456|||create card|||Dev|||2025-02-10T00:00:00Z\n' +
       'packages/shared/ui/src/card/Card.svelte\n';
     state.execSync = (cmd: string): string => {
-      if (cmd.startsWith('git remote')) return 'https://github.com/a/b\n';
-      if (cmd.includes('--name-only')) return headerLog;
+      if (cmd.startsWith('git remote')) {
+        return 'https://github.com/a/b\n';
+      }
+      if (cmd.includes('--name-only')) {
+        return headerLog;
+      }
       return '';
     };
     const mod = await loadMocked();
@@ -199,8 +220,12 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       '---COMMIT---222bbb|||add icon|||Dev|||2025-02-12T00:00:00Z\n' +
       'packages/shared/ui/src/icon/Icon.svelte\n';
     state.execSync = (cmd: string): string => {
-      if (cmd.startsWith('git remote')) return 'https://github.com/a/b\n';
-      if (cmd.includes('--name-only')) return headerLog;
+      if (cmd.startsWith('git remote')) {
+        return 'https://github.com/a/b\n';
+      }
+      if (cmd.includes('--name-only')) {
+        return headerLog;
+      }
       return '';
     };
     const mod = await loadMocked();
@@ -214,8 +239,12 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       '---COMMIT---zzz|||add thing|||Dev|||2025-02-13T00:00:00Z\n' +
       'packages/shared/ui/src/thing/Thing.svelte\n';
     state.execSync = (cmd: string): string => {
-      if (cmd.startsWith('git remote')) return 'https://github.com/a/b\n';
-      if (cmd.includes('--name-only')) return headerLog;
+      if (cmd.startsWith('git remote')) {
+        return 'https://github.com/a/b\n';
+      }
+      if (cmd.includes('--name-only')) {
+        return headerLog;
+      }
       throw new Error('body fetch fail');
     };
     const mod = await loadMocked();
@@ -232,8 +261,12 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       'packages/shared/ui/src/b/B.svelte\n';
     const bodyLog = 'no-separator-here\n---COMMIT---bbb|||body-for-b---COMMIT---';
     state.execSync = (cmd: string): string => {
-      if (cmd.startsWith('git remote')) return 'https://github.com/a/b\n';
-      if (cmd.includes('--name-only')) return headerLog;
+      if (cmd.startsWith('git remote')) {
+        return 'https://github.com/a/b\n';
+      }
+      if (cmd.includes('--name-only')) {
+        return headerLog;
+      }
       return bodyLog;
     };
     const mod = await loadMocked();
@@ -252,8 +285,12 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       '---COMMIT---h2|||initial commit|||Dev|||2025-03-11T00:00:00Z\n' +
       'packages/shared/ui/src/x/X.svelte\n';
     state.execSync = (cmd: string): string => {
-      if (cmd.startsWith('git remote')) return 'https://github.com/a/b\n';
-      if (cmd.includes('--name-only')) return headerLog;
+      if (cmd.startsWith('git remote')) {
+        return 'https://github.com/a/b\n';
+      }
+      if (cmd.includes('--name-only')) {
+        return headerLog;
+      }
       return '';
     };
     const mod = await loadMocked();
@@ -272,8 +309,12 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       '---COMMIT---d3|||add third|||Dev|||2025-04-01T15:00:00Z\n' +
       'packages/shared/ui/src/three/T.svelte\n';
     state.execSync = (cmd: string): string => {
-      if (cmd.startsWith('git remote')) return 'https://github.com/a/b\n';
-      if (cmd.includes('--name-only')) return headerLog;
+      if (cmd.startsWith('git remote')) {
+        return 'https://github.com/a/b\n';
+      }
+      if (cmd.includes('--name-only')) {
+        return headerLog;
+      }
       return '';
     };
     const mod = await loadMocked();
@@ -289,8 +330,12 @@ describe('(testing)/changelog +page.server load — mocked branches', () => {
       'packages/shared/ui/src/alpha/A.svelte\n' +
       'packages/shared/ui/src/mango/M.svelte\n';
     state.execSync = (cmd: string): string => {
-      if (cmd.startsWith('git remote')) return 'https://github.com/a/b\n';
-      if (cmd.includes('--name-only')) return headerLog;
+      if (cmd.startsWith('git remote')) {
+        return 'https://github.com/a/b\n';
+      }
+      if (cmd.includes('--name-only')) {
+        return headerLog;
+      }
       return '';
     };
     const mod = await loadMocked();

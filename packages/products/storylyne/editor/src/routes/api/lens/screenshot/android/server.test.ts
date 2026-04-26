@@ -7,8 +7,9 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type * as ServerModule from './+server';
 
-type LoadedModule = typeof import('./+server');
+type LoadedModule = typeof ServerModule;
 
 const state = vi.hoisted(() => ({
   dev: true,
@@ -38,40 +39,44 @@ vi.mock('$app/environment', () => ({
 }));
 
 vi.mock('$lib/server/simulator/android-sdk', () => ({
-  checkAndroidSdk: vi.fn(async () => state.sdkStatus),
+  checkAndroidSdk: vi.fn(async () => { await Promise.resolve(); return state.sdkStatus; }),
 }));
 
 vi.mock('$lib/server/simulator/android-accessibility', () => ({
-  applyAccessibilitySettings: vi.fn(async () => {}),
+  applyAccessibilitySettings: vi.fn(() => {}),
   parseAccessibilityParams: vi.fn(() => ({})),
 }));
 
 vi.mock('$lib/server/simulator/android-pool', () => ({
-  acquireEmulator: vi.fn(async () => {
-    if (state.acquireThrows) throw state.acquireThrows;
+  acquireEmulator: vi.fn(() => {
+    if (state.acquireThrows) {
+      throw state.acquireThrows;
+    }
     return state.acquireResult;
   }),
   releaseEmulator: vi.fn(() => {}),
 }));
 
 vi.mock('$lib/server/simulator/android-cdp', () => ({
-  setupCdpForward: vi.fn(async () => {
-    if (state.cdpForwardThrows) throw new Error('cdp forward failed');
+  setupCdpForward: vi.fn(() => {
+    if (state.cdpForwardThrows) {
+      throw new Error('cdp forward failed');
+    }
   }),
-  captureConsoleLogs: vi.fn(async () => state.consoleLogs),
+  captureConsoleLogs: vi.fn(async () => { await Promise.resolve(); return state.consoleLogs; }),
 }));
 
 vi.mock('$lib/server/simulator/android-navigate', () => ({
-  openUrlInEmulator: vi.fn(async () => {}),
-  setupPortForward: vi.fn(async () => {}),
+  openUrlInEmulator: vi.fn(() => {}),
+  setupPortForward: vi.fn(() => {}),
 }));
 
 vi.mock('$lib/server/simulator/android-page-load', () => ({
-  waitForPageLoad: vi.fn(async () => {}),
+  waitForPageLoad: vi.fn(() => {}),
 }));
 
 vi.mock('$lib/server/simulator/android-screenshot', () => ({
-  captureEmulatorScreenshot: vi.fn(async () => state.screenshotBase64),
+  captureEmulatorScreenshot: vi.fn(async () => { await Promise.resolve(); return state.screenshotBase64; }),
 }));
 
 vi.mock('$lib/server/simulator/device-frames', () => ({
@@ -106,8 +111,10 @@ describe('GET /api/lens/screenshot/android', () => {
 
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => {
-        if (state.cdpFetchThrows) throw new Error('ECONNREFUSED');
+      vi.fn(() => {
+        if (state.cdpFetchThrows) {
+          throw new Error('ECONNREFUSED');
+        }
         return { json: async () => state.cdpFetchTargets } as unknown as Response;
       }),
     );

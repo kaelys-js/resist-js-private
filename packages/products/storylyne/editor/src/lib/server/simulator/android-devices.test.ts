@@ -14,6 +14,8 @@ import {
   parseConfigIni,
   parseDeviceProfiles,
 } from './android-devices';
+import type * as NodeFsPromisesModule from 'node:fs/promises';
+import type * as AndroidDevicesModule from './android-devices';
 
 describe('android-devices', () => {
   describe('parseAvdList', () => {
@@ -230,7 +232,7 @@ describe('android-devices', () => {
    * + dynamic import.
    * -------------------------------------------------------------------- */
   describe('async binary-invoking functions', () => {
-    type LoadedModule = typeof import('./android-devices');
+    type LoadedModule = typeof AndroidDevicesModule;
 
     type ExecCallback = (error: Error | null, result?: { stdout: string; stderr: string }) => void;
     type ExecImpl = (file: string, args: readonly string[], cb: ExecCallback) => unknown;
@@ -244,29 +246,37 @@ describe('android-devices', () => {
     vi.mock('node:child_process', () => ({
       default: {
         execFile: (file: string, args: readonly string[], cb: ExecCallback) => {
-          if (!mockState.execFile) throw new Error('execFile mock not configured');
+          if (!mockState.execFile) {
+            throw new Error('execFile mock not configured');
+          }
           return mockState.execFile(file, args, cb);
         },
       },
       execFile: (file: string, args: readonly string[], cb: ExecCallback) => {
-        if (!mockState.execFile) throw new Error('execFile mock not configured');
+        if (!mockState.execFile) {
+          throw new Error('execFile mock not configured');
+        }
         return mockState.execFile(file, args, cb);
       },
     }));
 
     vi.mock('node:fs/promises', async (importOriginal) => {
-      const actual = await importOriginal<typeof import('node:fs/promises')>();
+      const actual = await importOriginal<typeof NodeFsPromisesModule>();
       return {
         ...actual,
         default: {
           ...actual,
           readFile: (path: string, encoding: string) => {
-            if (mockState.readFile) return mockState.readFile(path, encoding);
+            if (mockState.readFile) {
+              return mockState.readFile(path, encoding);
+            }
             return actual.readFile(path, encoding as BufferEncoding);
           },
         },
         readFile: (path: string, encoding: string) => {
-          if (mockState.readFile) return mockState.readFile(path, encoding);
+          if (mockState.readFile) {
+            return mockState.readFile(path, encoding);
+          }
           return actual.readFile(path, encoding as BufferEncoding);
         },
       };

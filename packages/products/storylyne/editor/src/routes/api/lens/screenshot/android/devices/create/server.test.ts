@@ -29,13 +29,15 @@ vi.mock('$app/environment', () => ({
 }));
 
 vi.mock('$lib/server/simulator/android-sdk', () => ({
-  checkAndroidSdk: vi.fn(async () => state.sdk),
+  checkAndroidSdk: vi.fn(async () => { await Promise.resolve(); return state.sdk; }),
 }));
 
 vi.mock('$lib/server/simulator/android-devices', () => ({
-  listSystemImages: vi.fn(async () => state.systemImages),
-  createAvd: vi.fn(async () => {
-    if (state.createThrows) throw state.createThrows;
+  listSystemImages: vi.fn(async () => { await Promise.resolve(); return state.systemImages; }),
+  createAvd: vi.fn(() => {
+    if (state.createThrows) {
+      throw state.createThrows;
+    }
     return state.createAvdName;
   }),
 }));

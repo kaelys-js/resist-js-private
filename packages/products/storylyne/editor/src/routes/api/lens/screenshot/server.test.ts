@@ -44,9 +44,9 @@ function makeBrowserStub(engine: string): unknown {
             route: vi.fn(async (pattern: string, _handler: unknown): Promise<void> => {
               routeHandlerRegistrations.push({ pattern });
             }),
-            goto: vi.fn(async (): Promise<void> => undefined),
-            waitForSelector: vi.fn(async (): Promise<void> => undefined),
-            waitForTimeout: vi.fn(async (): Promise<void> => undefined),
+            goto: vi.fn(async (): Promise<void> => { await Promise.resolve(); }),
+            waitForSelector: vi.fn(async (): Promise<void> => { await Promise.resolve(); }),
+            waitForTimeout: vi.fn(async (): Promise<void> => { await Promise.resolve(); }),
             evaluate: vi.fn(
               async (): Promise<Record<string, number>> => ({
                 domContentLoaded: 42,
@@ -366,7 +366,7 @@ describe('GET /api/lens/screenshot', () => {
   it('returns 500 JSON with error message when screenshot throws', async () => {
     /* Replace the default chromium.launch with a throwing stub for this test. */
     const originalLaunch = playwrightStub.chromium.launch;
-    playwrightStub.chromium.launch = async () => {
+    playwrightStub.chromium.launch = () => {
       throw new Error('playwright crashed');
     };
     try {
@@ -382,7 +382,7 @@ describe('GET /api/lens/screenshot', () => {
 
   it('returns 500 with generic message when non-Error thrown', async () => {
     const originalLaunch = playwrightStub.chromium.launch;
-    playwrightStub.chromium.launch = async () => {
+    playwrightStub.chromium.launch = () => {
       throw 'weird';
     };
     try {
@@ -403,7 +403,7 @@ describe('GET /api/lens/screenshot', () => {
      * custom browser stub that exposes the last-visited URL. */
     let capturedUrl: string | undefined;
     const originalLaunch = playwrightStub.chromium.launch;
-    playwrightStub.chromium.launch = async (options: unknown) => {
+    playwrightStub.chromium.launch = (options: unknown) => {
       launchCalls.push({ engine: 'chromium', options });
       return {
         isConnected: (): boolean => true,
@@ -419,8 +419,14 @@ describe('GET /api/lens/screenshot', () => {
                 }),
                 waitForSelector: vi.fn(),
                 waitForTimeout: vi.fn(),
-                evaluate: vi.fn(async () => ({})),
-                screenshot: vi.fn(async () => Buffer.from('x')),
+                evaluate: vi.fn(async () => {
+                  await Promise.resolve();
+                  return {};
+                }),
+                screenshot: vi.fn(async () => {
+                  await Promise.resolve();
+                  return Buffer.from('x');
+                }),
               };
             },
             async close(): Promise<void> {

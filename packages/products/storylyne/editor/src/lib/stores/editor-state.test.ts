@@ -651,7 +651,9 @@ describe('EditorStore', () => {
 
   it('setUserName() with non-empty string updates app.userName and returns ok', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
     const r = store.setUserName('Alice' as Str);
     expect(r.ok).toBe(true);
@@ -660,7 +662,9 @@ describe('EditorStore', () => {
 
   it('setUserName() with empty string returns error and does not mutate state', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
     const before: Str = store.app.userName;
     const r = store.setUserName('' as Str);
@@ -670,7 +674,9 @@ describe('EditorStore', () => {
 
   it('setUserEmail() accepts valid string and updates app.userEmail', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
     const r = store.setUserEmail('alice@example.com' as Str);
     expect(r.ok).toBe(true);
@@ -679,7 +685,9 @@ describe('EditorStore', () => {
 
   it('setUserEmail() accepts empty string (no minLength constraint)', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
     const r = store.setUserEmail('' as Str);
     expect(r.ok).toBe(true);
@@ -688,7 +696,9 @@ describe('EditorStore', () => {
 
   it('setUserAvatar() accepts valid URL string', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
     const r = store.setUserAvatar('https://example.com/a.png' as Str);
     expect(r.ok).toBe(true);
@@ -697,7 +707,9 @@ describe('EditorStore', () => {
 
   it('setMockDataDelay() in-range value updates state', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
     const r = store.setMockDataDelay(
       500 as unknown as Parameters<typeof store.setMockDataDelay>[0],
@@ -708,7 +720,9 @@ describe('EditorStore', () => {
 
   it('setMockDataDelay() out-of-range value (< 0) returns error', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
     const r = store.setMockDataDelay(-1 as unknown as Parameters<typeof store.setMockDataDelay>[0]);
     expect(r.ok).toBe(false);
@@ -716,7 +730,9 @@ describe('EditorStore', () => {
 
   it('setMockDataDelay() out-of-range value (> 10_000) returns error', () => {
     const result = createEditorStore();
-    if (!result.ok) throw new Error('Store creation failed');
+    if (!result.ok) {
+      throw new Error('Store creation failed');
+    }
     const store = result.data;
     const r = store.setMockDataDelay(
       99999 as unknown as Parameters<typeof store.setMockDataDelay>[0],

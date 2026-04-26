@@ -811,11 +811,17 @@ describe('handleError', () => {
 
     // Build a deep cause chain: outer → inner → innermost
     const innermost = err(ERRORS.VALIDATION.INVALID_FORMAT, 'innermost');
-    if (innermost.ok) throw new Error('err() should return error');
+    if (innermost.ok) {
+      throw new Error('err() should return error');
+    }
     const inner = err(ERRORS.VALIDATION.MISSING_FIELD, 'inner', { cause: innermost.error });
-    if (inner.ok) throw new Error('err() should return error');
+    if (inner.ok) {
+      throw new Error('err() should return error');
+    }
     const outer = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'outer', { cause: inner.error });
-    if (outer.ok) throw new Error('err() should return error');
+    if (outer.ok) {
+      throw new Error('err() should return error');
+    }
 
     callHandleError({ error: outer.error, status: 500, message: 'x' });
     await flushAsync();

@@ -23,13 +23,15 @@ vi.mock('$app/environment', () => ({
 }));
 
 vi.mock('$lib/server/simulator/android-sdk', () => ({
-  checkAndroidSdk: vi.fn(async () => state.sdk),
+  checkAndroidSdk: vi.fn(async () => { await Promise.resolve(); return state.sdk; }),
 }));
 
 vi.mock('$lib/server/simulator/android-screenshot', () => ({
-  captureEmulatorScreenshot: vi.fn(async () => {
+  captureEmulatorScreenshot: vi.fn(() => {
     state.captureCalls++;
-    if (state.captureThrows) throw new Error('screencap failed');
+    if (state.captureThrows) {
+      throw new Error('screencap failed');
+    }
     /* 1x1 PNG base64 */
     return 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
   }),

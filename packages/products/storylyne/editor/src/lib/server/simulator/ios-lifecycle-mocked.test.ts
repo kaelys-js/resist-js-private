@@ -6,6 +6,7 @@
 
 import type { Num, Str } from '@/schemas/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type * as IosLifecycleModule from './ios-lifecycle';
 
 const state = vi.hoisted(() => ({
   queue: [] as Array<{ stdout?: string; error?: Error & { code?: number } }>,
@@ -22,8 +23,12 @@ vi.mock('node:child_process', () => {
       cb(new Error('no exec response queued'));
       return null;
     }
-    if (next.error) cb(next.error);
-    else cb(null, { stdout: next.stdout ?? '', stderr: '' });
+    if (next.error) {
+      cb(next.error);
+    }
+    else {
+      cb(null, { stdout: next.stdout ?? '', stderr: '' });
+    }
     return null;
   };
   return { default: { execFile: wrap }, execFile: wrap };
@@ -39,7 +44,7 @@ describe('ios-lifecycle (mocked)', () => {
     state.queue = [];
   });
 
-  async function load(): Promise<typeof import('./ios-lifecycle')> {
+  async function load(): Promise<typeof IosLifecycleModule> {
     vi.resetModules();
     return await import('./ios-lifecycle');
   }

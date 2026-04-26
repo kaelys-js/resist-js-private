@@ -8,6 +8,7 @@ import { EventEmitter } from 'node:events';
 import type { Num, Str } from '@/schemas/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildReadyCheckScript, parseEvalResponse } from './ios-page-load';
+import type * as IosPageLoadModule from './ios-page-load';
 
 describe('ios-page-load', () => {
   describe('buildReadyCheckScript', () => {
@@ -99,7 +100,9 @@ describe('ios-page-load', () => {
         this.sent.push(d);
       }
       close(): void {
-        if (this.closeThrows) throw new Error('closed');
+        if (this.closeThrows) {
+          throw new Error('closed');
+        }
         this.closed = true;
       }
     }
@@ -107,7 +110,9 @@ describe('ios-page-load', () => {
     vi.mock('ws', () => ({
       WebSocket: class {
         constructor(url: string) {
-          if (!state.socket) throw new Error('socket not set');
+          if (!state.socket) {
+            throw new Error('socket not set');
+          }
           return new state.socket(url) as object;
         }
       },
@@ -120,7 +125,7 @@ describe('ios-page-load', () => {
       vi.useRealTimers();
     });
 
-    async function load(): Promise<typeof import('./ios-page-load')> {
+    async function load(): Promise<typeof IosPageLoadModule> {
       vi.resetModules();
       return await import('./ios-page-load');
     }

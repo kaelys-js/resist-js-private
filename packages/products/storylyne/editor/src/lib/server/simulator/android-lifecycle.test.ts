@@ -8,6 +8,7 @@ import { EventEmitter } from 'node:events';
 import type { Num, Str } from '@/schemas/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildEmulatorArgs, parseBootStatus } from './android-lifecycle';
+import type * as AndroidLifecycleModule from './android-lifecycle';
 
 describe('android-lifecycle', () => {
   describe('buildEmulatorArgs', () => {
@@ -65,9 +66,13 @@ describe('android-lifecycle', () => {
           cb: (e: Error | null, r?: { stdout: string; stderr: string }) => void,
         ) => {
           const next = state.execResponses.shift();
-          if (!next) cb(new Error('no exec response queued'));
-          else if (next.error) cb(next.error);
-          else cb(null, { stdout: next.stdout ?? '', stderr: '' });
+          if (!next) {
+            cb(new Error('no exec response queued'));
+          } else if (next.error) {
+            cb(next.error);
+          } else {
+            cb(null, { stdout: next.stdout ?? '', stderr: '' });
+          }
           return null;
         },
         spawn: () => state.spawned ?? new FakeChild(),
@@ -78,9 +83,13 @@ describe('android-lifecycle', () => {
         cb: (e: Error | null, r?: { stdout: string; stderr: string }) => void,
       ) => {
         const next = state.execResponses.shift();
-        if (!next) cb(new Error('no exec response queued'));
-        else if (next.error) cb(next.error);
-        else cb(null, { stdout: next.stdout ?? '', stderr: '' });
+        if (!next) {
+          cb(new Error('no exec response queued'));
+        } else if (next.error) {
+          cb(next.error);
+        } else {
+          cb(null, { stdout: next.stdout ?? '', stderr: '' });
+        }
         return null;
       },
       spawn: () => state.spawned ?? new FakeChild(),
@@ -95,7 +104,7 @@ describe('android-lifecycle', () => {
       vi.useRealTimers();
     });
 
-    async function load(): Promise<typeof import('./android-lifecycle')> {
+    async function load(): Promise<typeof AndroidLifecycleModule> {
       vi.resetModules();
       return await import('./android-lifecycle');
     }

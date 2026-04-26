@@ -656,6 +656,15 @@
         "no-await-in-loop": "off",
         "require-await": "off"
       }
+    },
+    {
+      "files": ["**/lib/server/simulator/*.test.ts"],
+      "rules": {
+        "no-extraneous-class": "off",
+        "no-constructor-return": "off",
+        "unicorn/prefer-event-target": "off",
+        "vitest/hoisted-apis-on-top": "off"
+      }
     }
   ]
 }

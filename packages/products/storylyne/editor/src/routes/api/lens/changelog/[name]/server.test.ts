@@ -9,6 +9,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Num, Str } from '@/schemas/common';
 import { GET } from './+server';
+import type * as ServerModule from './+server';
+import type * as NodeFsModule from 'node:fs';
 
 type ChangelogEntry = {
   hash: Str;
@@ -97,7 +99,7 @@ describe('GET /api/lens/changelog/[name]', () => {
  * its own caches, and injected mocks for node:child_process / node:fs.
  * -------------------------------------------------------------------------- */
 describe('changelog handler — mocked branches', () => {
-  type LoadedModule = typeof import('./+server');
+  type LoadedModule = typeof ServerModule;
 
   async function loadWithMocks(opts: {
     execSyncImpl: (cmd: string, _opts?: unknown) => string;
@@ -110,7 +112,7 @@ describe('changelog handler — mocked branches', () => {
     }));
     if (opts.statSyncImpl !== undefined || opts.readdirSyncImpl !== undefined) {
       vi.doMock('node:fs', async () => {
-        const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
+        const actual = await vi.importActual<typeof NodeFsModule>('node:fs');
         return {
           ...actual,
           statSync: opts.statSyncImpl ?? actual.statSync,
@@ -214,9 +216,15 @@ describe('changelog handler — mocked branches', () => {
   it('returns empty entries when git log produces empty output', async () => {
     const mod = await loadWithMocks({
       execSyncImpl: (cmd: string): string => {
-        if (cmd.startsWith('git log')) return '';
-        if (cmd.startsWith('git rev-list')) return '0';
-        if (cmd === 'git remote get-url origin') return 'https://github.com/a/b\n';
+        if (cmd.startsWith('git log')) {
+          return '';
+        }
+        if (cmd.startsWith('git rev-list')) {
+          return '0';
+        }
+        if (cmd === 'git remote get-url origin') {
+          return 'https://github.com/a/b\n';
+        }
         return '';
       },
       statSyncImpl: (): void => {
@@ -235,9 +243,15 @@ describe('changelog handler — mocked branches', () => {
     const second = `def456${FS}Follow-up${FS}${FS}2026-04-02T00:00:00Z${FS}John${RS}`;
     const mod = await loadWithMocks({
       execSyncImpl: (cmd: string): string => {
-        if (cmd.startsWith('git log')) return record + second;
-        if (cmd.startsWith('git rev-list')) return '42\n';
-        if (cmd === 'git remote get-url origin') return 'https://github.com/a/b\n';
+        if (cmd.startsWith('git log')) {
+          return record + second;
+        }
+        if (cmd.startsWith('git rev-list')) {
+          return '42\n';
+        }
+        if (cmd === 'git remote get-url origin') {
+          return 'https://github.com/a/b\n';
+        }
         return '';
       },
       statSyncImpl: (): void => {
@@ -266,9 +280,15 @@ describe('changelog handler — mocked branches', () => {
     const bad = `xyz${FS}only-two${RS}`;
     const mod = await loadWithMocks({
       execSyncImpl: (cmd: string): string => {
-        if (cmd.startsWith('git log')) return good + bad;
-        if (cmd.startsWith('git rev-list')) return '1';
-        if (cmd === 'git remote get-url origin') return 'https://github.com/a/b';
+        if (cmd.startsWith('git log')) {
+          return good + bad;
+        }
+        if (cmd.startsWith('git rev-list')) {
+          return '1';
+        }
+        if (cmd === 'git remote get-url origin') {
+          return 'https://github.com/a/b';
+        }
         return '';
       },
       statSyncImpl: (): void => {
@@ -285,8 +305,12 @@ describe('changelog handler — mocked branches', () => {
   it('returns empty entries when git log throws', async () => {
     const mod = await loadWithMocks({
       execSyncImpl: (cmd: string): string => {
-        if (cmd.startsWith('git log')) throw new Error('git log failed');
-        if (cmd === 'git remote get-url origin') return 'https://github.com/a/b';
+        if (cmd.startsWith('git log')) {
+          throw new Error('git log failed');
+        }
+        if (cmd === 'git remote get-url origin') {
+          return 'https://github.com/a/b';
+        }
         return '';
       },
       statSyncImpl: (): void => {
@@ -305,9 +329,15 @@ describe('changelog handler — mocked branches', () => {
     const good = `abc${FS}msg${FS}body${FS}2026-01-01T00:00:00Z${FS}A${RS}`;
     const mod = await loadWithMocks({
       execSyncImpl: (cmd: string): string => {
-        if (cmd.startsWith('git log')) return good;
-        if (cmd.startsWith('git rev-list')) throw new Error('count failed');
-        if (cmd === 'git remote get-url origin') return 'https://github.com/a/b';
+        if (cmd.startsWith('git log')) {
+          return good;
+        }
+        if (cmd.startsWith('git rev-list')) {
+          throw new Error('count failed');
+        }
+        if (cmd === 'git remote get-url origin') {
+          return 'https://github.com/a/b';
+        }
         return '';
       },
       statSyncImpl: (): void => {
@@ -326,9 +356,15 @@ describe('changelog handler — mocked branches', () => {
     const good = `abc${FS}m${FS}${FS}2026-01-01T00:00:00Z${FS}A${RS}`;
     const mod = await loadWithMocks({
       execSyncImpl: (cmd: string): string => {
-        if (cmd.startsWith('git log')) return good;
-        if (cmd.startsWith('git rev-list')) return '1';
-        if (cmd === 'git remote get-url origin') return 'https://github.com/a/b';
+        if (cmd.startsWith('git log')) {
+          return good;
+        }
+        if (cmd.startsWith('git rev-list')) {
+          return '1';
+        }
+        if (cmd === 'git remote get-url origin') {
+          return 'https://github.com/a/b';
+        }
         return '';
       },
       statSyncImpl: (): void => {
@@ -349,9 +385,15 @@ describe('changelog handler — mocked branches', () => {
     const good = `abc${FS}m${FS}${FS}2026-01-01T00:00:00Z${FS}A${RS}`;
     const mod = await loadWithMocks({
       execSyncImpl: (cmd: string): string => {
-        if (cmd.startsWith('git log')) return good;
-        if (cmd.startsWith('git rev-list')) return '1';
-        if (cmd === 'git remote get-url origin') return 'https://github.com/a/b';
+        if (cmd.startsWith('git log')) {
+          return good;
+        }
+        if (cmd.startsWith('git rev-list')) {
+          return '1';
+        }
+        if (cmd === 'git remote get-url origin') {
+          return 'https://github.com/a/b';
+        }
         return '';
       },
       statSyncImpl: (): void => {
@@ -370,9 +412,15 @@ describe('changelog handler — mocked branches', () => {
     const good = `abc${FS}m${FS}${FS}2026-01-01T00:00:00Z${FS}A${RS}`;
     const mod = await loadWithMocks({
       execSyncImpl: (cmd: string): string => {
-        if (cmd.startsWith('git log')) return good;
-        if (cmd.startsWith('git rev-list')) return '1';
-        if (cmd === 'git remote get-url origin') return 'https://github.com/a/b';
+        if (cmd.startsWith('git log')) {
+          return good;
+        }
+        if (cmd.startsWith('git rev-list')) {
+          return '1';
+        }
+        if (cmd === 'git remote get-url origin') {
+          return 'https://github.com/a/b';
+        }
         return '';
       },
       statSyncImpl: (): void => {
@@ -396,9 +444,15 @@ describe('changelog handler — mocked branches', () => {
     const good = `abc${FS}m${FS}${FS}2026-01-01T00:00:00Z${FS}A${RS}`;
     const mod = await loadWithMocks({
       execSyncImpl: (cmd: string): string => {
-        if (cmd.startsWith('git log')) return good;
-        if (cmd.startsWith('git rev-list')) return '1';
-        if (cmd === 'git remote get-url origin') return 'https://github.com/a/b';
+        if (cmd.startsWith('git log')) {
+          return good;
+        }
+        if (cmd.startsWith('git rev-list')) {
+          return '1';
+        }
+        if (cmd === 'git remote get-url origin') {
+          return 'https://github.com/a/b';
+        }
         return '';
       },
       statSyncImpl: (): void => {
