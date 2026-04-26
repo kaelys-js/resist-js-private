@@ -10,7 +10,6 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { Dirent, PathLike } from 'node:fs';
 vi.mock('@/lint/framework/exec.ts', () => ({
   execFileAsync: vi.fn(),
 }));
@@ -37,7 +36,7 @@ vi.mock('@/lint/framework/tool-orchestrator.ts', async (importOriginal) => {
 });
 
 import { execFileAsync } from '@/lint/framework/exec.ts';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, type Dirent, type PathLike } from 'node:fs';
 import { join } from 'node:path';
 
 import { isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
@@ -51,10 +50,7 @@ import { runTsgoAllPackages, scopeTsconfigDirsToFiles, transformTsgoOutput } fro
  * @param opts - Flags controlling isFile/isDirectory
  * @returns Mock Dirent instance
  */
-function makeDirent(
-  name: string,
-  opts: { isFile?: boolean; isDirectory?: boolean } = {},
-): Dirent {
+function makeDirent(name: string, opts: { isFile?: boolean; isDirectory?: boolean } = {}): Dirent {
   return {
     name,
     isFile: (): boolean => opts.isFile ?? false,

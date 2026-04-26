@@ -13,8 +13,7 @@
  */
 
 import { createHash } from 'node:crypto';
-import { statSync } from 'node:fs';
-import type { Stats } from 'node:fs';
+import { statSync, type Stats } from 'node:fs';
 
 /**
  * Compute an aggregate sha256 fingerprint of the given files.

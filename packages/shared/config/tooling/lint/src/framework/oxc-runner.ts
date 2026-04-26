@@ -16,8 +16,11 @@ import type {
   ImportInfo,
   ImportSpecifier,
 } from '@/lint/framework/types.ts';
-import { parseSvelteTemplate, walkSvelteNode } from '@/lint/framework/svelte-template.ts';
-import type { SvelteParseResult } from '@/lint/framework/svelte-template.ts';
+import {
+  parseSvelteTemplate,
+  walkSvelteNode,
+  type SvelteParseResult,
+} from '@/lint/framework/svelte-template.ts';
 
 // =============================================================================
 // Parser

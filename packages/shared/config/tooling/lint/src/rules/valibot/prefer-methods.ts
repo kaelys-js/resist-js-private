@@ -8,12 +8,12 @@
  * @module
  */
 
-import { NO_OP_FIX } from '@/lint/framework/types.ts';
-import type {
-  AstNode,
-  LintResult,
-  TypeScriptRule,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type AstNode,
+  type LintResult,
+  type TypeScriptRule,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** The prefer-methods lint rule. */

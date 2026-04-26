@@ -7,14 +7,13 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  createResult,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
-
-import { createResult } from '@/lint/framework/types.ts';
 
 /** The no-bare-catch lint rule. */
 const rule: TypeScriptRule = {
