@@ -1,3 +1,12 @@
+/**
+ * Lens manifest for the Descriptions component (data-display
+ * category) — key-value display for labeled data fields, often
+ * used in detail views. Tagged for descriptions / key-value /
+ * detail / definition lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
