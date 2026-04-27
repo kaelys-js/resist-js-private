@@ -1,3 +1,12 @@
+/**
+ * Lens manifest for the AvatarGroup component (display category)
+ * — stacks multiple avatars with overlap spacing, max count, and
+ * a "+N" overflow badge. Tagged for avatar / group / stack /
+ * overflow-count / tv-variant lookups.
+ *
+ * @module
+ */
+
 import type { Str } from '@/schemas/common';
 import type { LensMeta } from '../lens/types.js';
 
