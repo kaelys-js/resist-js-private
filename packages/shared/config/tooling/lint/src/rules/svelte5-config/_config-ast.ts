@@ -176,7 +176,7 @@ export function getDefaultExportObject(ast: AstNode): AstNode | undefined {
  * @returns The adapter package name, or undefined
  */
 export function getAdapterImport(imports: ImportInfo[]): string | undefined {
-  const adapterPackages: string[] = new Set([
+  const adapterPackages: Set<string> = new Set([
     '@sveltejs/adapter-cloudflare',
     '@sveltejs/adapter-cloudflare-workers',
     '@sveltejs/adapter-static',
