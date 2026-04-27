@@ -7,6 +7,31 @@ import noDeadLocaleKeys from './no-dead-locale-keys.ts';
 import noDuplicateFunctionSignatures from './no-duplicate-function-signatures.ts';
 import noOrphanedExports from './no-orphaned-exports.ts';
 
+/**
+ * Build a mock WorkspaceContext from a virtual file map.
+ *
+ * @param files - Virtual file paths -> contents
+ * @param ruleOptions - Optional per-rule options bag
+ * @returns Mock WorkspaceContext with optional ruleOptions attached
+ */
+function makeMockContext(
+  files: Record<string, string>,
+  ruleOptions?: Record<string, unknown>,
+): WorkspaceContext & { ruleOptions?: Record<string, unknown> } {
+  const filePaths: string[] = Object.keys(files);
+  return {
+    rootDir: '/mock',
+    allFiles: async (): Promise<readonly string[]> => filePaths,
+    filesByExtension: async (...exts: string[]): Promise<readonly string[]> =>
+      filePaths.filter((f: string): boolean => exts.some((e: string): boolean => f.endsWith(e))),
+    readFile: async (path: string): Promise<string> => files[path] ?? '',
+    fileExists: async (path: string): Promise<boolean> => path in files,
+    dirExists: async (): Promise<boolean> => false,
+    getWorkspacePackages: async () => [],
+    ruleOptions,
+  };
+}
+
 describe('hygiene/no-bare-catch', () => {
   it('reports bare catch {}', async () => {
     const code = `try { throw new Error('x'); } catch { console.log('swallowed'); }`;
@@ -30,23 +55,7 @@ describe('hygiene/no-bare-catch', () => {
 });
 
 describe('hygiene/no-duplicate-function-signatures', () => {
-  function createMockContext(
-    files: Record<string, string>,
-    ruleOptions?: Record<string, unknown>,
-  ): WorkspaceContext & { ruleOptions?: Record<string, unknown> } {
-    const filePaths: string[] = Object.keys(files);
-    return {
-      rootDir: '/mock',
-      allFiles: async (): Promise<readonly string[]> => filePaths,
-      filesByExtension: async (...exts: string[]): Promise<readonly string[]> =>
-        filePaths.filter((f: string): boolean => exts.some((e: string): boolean => f.endsWith(e))),
-      readFile: async (path: string): Promise<string> => files[path] ?? '',
-      fileExists: async (path: string): Promise<boolean> => path in files,
-      dirExists: async (): Promise<boolean> => false,
-      getWorkspacePackages: async () => [],
-      ruleOptions,
-    };
-  }
+  const createMockContext = makeMockContext;
 
   it('reports duplicate exported function names across files', async () => {
     const ctx = createMockContext({
@@ -91,19 +100,8 @@ describe('hygiene/no-duplicate-function-signatures', () => {
 });
 
 describe('hygiene/no-orphaned-exports', () => {
-  function createMockContext(files: Record<string, string>): WorkspaceContext {
-    const filePaths: string[] = Object.keys(files);
-    return {
-      rootDir: '/mock',
-      allFiles: async (): Promise<readonly string[]> => filePaths,
-      filesByExtension: async (...exts: string[]): Promise<readonly string[]> =>
-        filePaths.filter((f: string): boolean => exts.some((e: string): boolean => f.endsWith(e))),
-      readFile: async (path: string): Promise<string> => files[path] ?? '',
-      fileExists: async (path: string): Promise<boolean> => path in files,
-      dirExists: async (): Promise<boolean> => false,
-      getWorkspacePackages: async () => [],
-    };
-  }
+  const createMockContext = (files: Record<string, string>): WorkspaceContext =>
+    makeMockContext(files);
 
   it('reports export with no consumer', async () => {
     const ctx: WorkspaceContext = createMockContext({
@@ -176,23 +174,7 @@ describe('hygiene/no-orphaned-exports', () => {
 });
 
 describe('hygiene/no-dead-locale-keys', () => {
-  function createMockContext(
-    files: Record<string, string>,
-    ruleOptions?: Record<string, unknown>,
-  ): WorkspaceContext & { ruleOptions?: Record<string, unknown> } {
-    const filePaths: string[] = Object.keys(files);
-    return {
-      rootDir: '/mock',
-      allFiles: async (): Promise<readonly string[]> => filePaths,
-      filesByExtension: async (...exts: string[]): Promise<readonly string[]> =>
-        filePaths.filter((f: string): boolean => exts.some((e: string): boolean => f.endsWith(e))),
-      readFile: async (path: string): Promise<string> => files[path] ?? '',
-      fileExists: async (path: string): Promise<boolean> => path in files,
-      dirExists: async (): Promise<boolean> => false,
-      getWorkspacePackages: async () => [],
-      ruleOptions,
-    };
-  }
+  const createMockContext = makeMockContext;
 
   it('reports locale keys with no consumer', async () => {
     const ctx = createMockContext(
