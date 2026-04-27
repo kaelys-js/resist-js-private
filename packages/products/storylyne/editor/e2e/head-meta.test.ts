@@ -1,10 +1,18 @@
+/**
+ * Playwright e2e: comprehensive `<head>` metadata coverage on both
+ * normal and error pages.
+ *
+ * Verifies charset, viewport, color-scheme, robots, title, description,
+ * application-name, theme-color (light/dark), every Open Graph
+ * property, favicons (ICO/SVG/Apple-touch), manifest link, mobile-web-
+ * app capability flags, plus the page-level CSS hardening
+ * (user-select, overscroll-behavior, touch-action, tap-highlight).
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 import { APP_NAME, APP_TAGLINE } from '../src/lib/config/app-meta';
-
-/**
- * Comprehensive head meta tag tests for both normal and error pages.
- * Every meta tag, favicon link, and OG property is verified on both page types.
- */
 
 test.describe('head meta — normal page (/)', () => {
   test('charset is utf-8', async ({ page }) => {

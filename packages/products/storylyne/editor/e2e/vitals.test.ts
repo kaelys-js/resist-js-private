@@ -1,3 +1,15 @@
+/**
+ * Playwright e2e: web vitals beacon endpoint.
+ *
+ * Posts well-formed and malformed payloads to the vitals beacon route
+ * to verify schema validation (`VitalsBeaconPayloadSchema`), `204` on
+ * accept, `400` on invalid JSON or missing required fields, and that
+ * the route is hardened against oversize bodies and unknown metric
+ * names.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 
 /**

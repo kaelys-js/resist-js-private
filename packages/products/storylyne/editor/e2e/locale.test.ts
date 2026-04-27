@@ -1,3 +1,14 @@
+/**
+ * Playwright e2e: locale resolution and persistence.
+ *
+ * Verifies the default `<html lang="en">`, that the locale cookie set
+ * before navigation produces a SSR `<html lang="...">` matching the
+ * cookie value, and that switching locales via the in-app menu writes
+ * the cookie back so subsequent reloads honor the choice.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 import { APP_NAME, storageKey } from '../src/lib/config/app-meta';
 

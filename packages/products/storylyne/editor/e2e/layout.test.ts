@@ -1,3 +1,14 @@
+/**
+ * Playwright e2e: page-shell layout structure.
+ *
+ * Verifies the document title pattern, sidebar attachment, header pane
+ * widths at multiple viewports, content-pane horizontal-overflow
+ * clipping, and the resizable pane group ordering on desktop, tablet,
+ * and mobile breakpoints.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 import { APP_NAME, APP_TAGLINE } from '../src/lib/config/app-meta';
 

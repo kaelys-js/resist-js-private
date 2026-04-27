@@ -1,3 +1,14 @@
+/**
+ * Playwright e2e: scene navigation in the editor sidebar.
+ *
+ * Verifies the default scene list (Overworld / Town Interior / Dungeon
+ * B1), that the active scene is visually distinct via `data-active`,
+ * and that clicking a non-active scene activates it and updates the
+ * active marker accordingly.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 
 test.describe('scene navigation', () => {

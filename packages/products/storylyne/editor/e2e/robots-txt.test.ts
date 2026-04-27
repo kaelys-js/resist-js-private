@@ -1,10 +1,15 @@
-import { test, expect } from '@playwright/test';
-
 /**
- * robots.txt integration tests.
- * Verifies the robots.txt route returns correct directives for
- * search engines, AI search crawlers, and AI training crawlers.
+ * Playwright e2e: robots.txt route behavior.
+ *
+ * Verifies the `/robots.txt` route returns 200 with `text/plain`
+ * Content-Type and emits the expected directives for search engines,
+ * AI-search crawlers (e.g. Perplexity, ChatGPT-User), and AI-training
+ * crawlers (GPTBot, ClaudeBot, etc).
+ *
+ * @module
  */
+
+import { test, expect } from '@playwright/test';
 
 test.describe('robots.txt', () => {
   test('returns 200', async ({ request }) => {

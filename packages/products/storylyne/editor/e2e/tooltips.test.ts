@@ -1,3 +1,16 @@
+/**
+ * Playwright e2e: tooltip behavior across the editor surface.
+ *
+ * Verifies hover-driven tooltip visibility on sidebar trigger, header
+ * buttons, and disabled/icon-only controls; that tooltips include the
+ * keyboard-shortcut hint where applicable; and that they dismiss on
+ * mouseout / focusout. Targets the shadcn-svelte
+ * `[data-slot=tooltip-content]` attribute since bits-ui v1.8.0 doesn't
+ * apply `role="tooltip"`.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 
 // bits-ui v1.8.0 does not set role="tooltip" on tooltip content.

@@ -1,3 +1,13 @@
+/**
+ * Playwright e2e: header user-avatar dropdown.
+ *
+ * Drives the `header-user-trigger` avatar in the page chrome and asserts
+ * dropdown visibility on click, item layout (account / settings /
+ * sign-out), keyboard navigation, and outside-click dismiss.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 import { URL_PARAM_PREFIX } from '../src/lib/config/app-meta';
 

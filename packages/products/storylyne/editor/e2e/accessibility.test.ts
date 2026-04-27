@@ -1,3 +1,13 @@
+/**
+ * Playwright e2e: WCAG 2.2 AA accessibility coverage.
+ *
+ * Verifies the skip link, landmark roles, aria-live polite region,
+ * sidebar aria-label, and keyboard navigation contracts on the rendered
+ * editor pages.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 import { URL_PARAM_PREFIX } from '../src/lib/config/app-meta';
 

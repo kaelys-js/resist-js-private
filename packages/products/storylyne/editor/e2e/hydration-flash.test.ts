@@ -1,3 +1,14 @@
+/**
+ * Playwright e2e: SSR hydration-flash prevention.
+ *
+ * Sets the `sidebar-px` preference cookie before navigating so SvelteKit
+ * SSR can inject `data-sidebar-width` on first paint, then verifies the
+ * sidebar renders at the intended width without the brief default-width
+ * flash that would otherwise occur on hydration.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 import { storageKey } from '../src/lib/config/app-meta';
 

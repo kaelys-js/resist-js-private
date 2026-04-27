@@ -1,3 +1,13 @@
+/**
+ * Playwright e2e: dev toolbar interactions.
+ *
+ * Drives the in-app dev toolbar (visible when `?debug=true` is set) and
+ * asserts trigger visibility, expand/collapse, button clicks, tooltip
+ * dismissal, and the toolbar's persistence across navigations.
+ *
+ * @module
+ */
+
 import { test, expect, type Page } from '@playwright/test';
 import { URL_PARAM_PREFIX } from '../src/lib/config/app-meta';
 

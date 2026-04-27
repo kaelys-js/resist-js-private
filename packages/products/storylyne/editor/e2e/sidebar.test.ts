@@ -1,3 +1,14 @@
+/**
+ * Playwright e2e: desktop sidebar shell.
+ *
+ * Verifies sidebar branding (app name + tagline), the default scene
+ * list rendering, sub-section headers, the resize handle, sticky
+ * footer (project + user), and that resizing persists the chosen
+ * width via the `sidebar-px` cookie.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 import { APP_NAME, APP_TAGLINE } from '../src/lib/config/app-meta';
 

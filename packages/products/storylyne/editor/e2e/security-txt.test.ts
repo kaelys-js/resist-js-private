@@ -1,9 +1,15 @@
-import { test, expect } from '@playwright/test';
-
 /**
- * security.txt integration tests.
- * Verifies RFC 9116 compliance for the /.well-known/security.txt route.
+ * Playwright e2e: RFC 9116 `/.well-known/security.txt` route.
+ *
+ * Verifies the route returns 200 with `text/plain` Content-Type and
+ * the body contains the RFC-mandated `Contact:` and `Expires:` fields
+ * along with optional `Encryption:`, `Acknowledgments:`, `Policy:`,
+ * `Hiring:`, and `Preferred-Languages:` directives where configured.
+ *
+ * @module
  */
+
+import { test, expect } from '@playwright/test';
 
 test.describe('security.txt', () => {
   test('returns 200 at /.well-known/security.txt', async ({ request }) => {

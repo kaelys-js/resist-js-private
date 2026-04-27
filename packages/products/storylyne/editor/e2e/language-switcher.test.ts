@@ -1,3 +1,14 @@
+/**
+ * Playwright e2e: in-app language switcher.
+ *
+ * Opens the language submenu via the sidebar footer user dropdown,
+ * selects each registered locale, and asserts that the visible app
+ * chrome (page title, OG metadata, sidebar text) reflects the chosen
+ * locale and that the choice persists across reloads.
+ *
+ * @module
+ */
+
 import { test, expect, type Page } from '@playwright/test';
 
 /**

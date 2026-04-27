@@ -1,3 +1,14 @@
+/**
+ * Playwright e2e: feature-flag persistence and rendering effects.
+ *
+ * Writes feature-flag overrides into the editor-state localStorage key,
+ * reloads, and verifies that flagged UI surfaces (sidebar, dev toolbar,
+ * theme switcher, etc.) appear/disappear and that URL `?ff.X=value`
+ * params take precedence.
+ *
+ * @module
+ */
+
 import { test, expect, type Page } from '@playwright/test';
 import { APP_NAME, APP_TAGLINE, URL_PARAM_PREFIX, storageKey } from '../src/lib/config/app-meta';
 

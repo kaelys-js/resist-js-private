@@ -1,3 +1,15 @@
+/**
+ * Playwright e2e: subscription-plan-driven feature gating.
+ *
+ * Writes the free / pro / enterprise plan into editor-state localStorage,
+ * reloads, and verifies that the visible UI reflects the plan's flag
+ * set — the free plan disables 10 flags (settings, themeSelection,
+ * languageSelection, resizableSidebar, projectDropdown, etc), pro
+ * unlocks them, and enterprise additionally exposes admin surfaces.
+ *
+ * @module
+ */
+
 import { test, expect, type Page } from '@playwright/test';
 import { URL_PARAM_PREFIX, storageKey } from '../src/lib/config/app-meta';
 
