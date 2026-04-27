@@ -9,6 +9,11 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { execFileAsync } from '@/lint/framework/exec.ts';
+import { existsSync, readFileSync, readdirSync, type Dirent, type PathLike } from 'node:fs';
+import { join } from 'node:path';
+import { isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
+import { runTsgoAllPackages, scopeTsconfigDirsToFiles, transformTsgoOutput } from './tsgo.ts';
 
 vi.mock('@/lint/framework/exec.ts', () => ({
   execFileAsync: vi.fn(),
@@ -34,14 +39,6 @@ vi.mock('@/lint/framework/tool-orchestrator.ts', async (importOriginal) => {
     isCommandAvailable: vi.fn((): boolean => true),
   };
 });
-
-import { execFileAsync } from '@/lint/framework/exec.ts';
-import { existsSync, readFileSync, readdirSync, type Dirent, type PathLike } from 'node:fs';
-import { join } from 'node:path';
-
-import { isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
-
-import { runTsgoAllPackages, scopeTsconfigDirsToFiles, transformTsgoOutput } from './tsgo.ts';
 
 /**
  * Helper to create a mock Dirent.
