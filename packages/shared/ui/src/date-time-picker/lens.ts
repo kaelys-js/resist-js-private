@@ -1,3 +1,11 @@
+/**
+ * Lens manifest for the DateTimePicker component (date-time
+ * category) — combined date + time picker. Tagged for date-time
+ * / picker / combined / datetime lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
