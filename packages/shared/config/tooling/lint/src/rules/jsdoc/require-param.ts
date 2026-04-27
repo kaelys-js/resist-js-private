@@ -246,7 +246,7 @@ function checkFunction(
       const paramIdx: number = funcParamNames.indexOf(entry.name);
       const paramNode: AstNode | undefined = paramIdx >= 0 ? params[paramIdx] : undefined;
       const actualType: string =
-        paramNode !== undefined ? extractParamType(paramNode, context.content) : 'unknown';
+        paramNode === undefined ? 'unknown' : extractParamType(paramNode, context.content);
       const insertAt: number = findParamInsertOffset(entry.name, exportNode, context.content);
       const fixData =
         insertAt >= 0

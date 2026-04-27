@@ -56,13 +56,13 @@ const rule: WorkspaceRule = {
     const changedFilesEnv: string | undefined = process.env['MR_CHANGED_FILES'];
     let svgFiles: string[];
 
-    if (changedFilesEnv !== undefined) {
+    if (changedFilesEnv === undefined) {
+      const allFiles: readonly string[] = await ctx.allFiles();
+      svgFiles = allFiles.filter((f: string): boolean => f.endsWith('.svg'));
+    } else {
       svgFiles = changedFilesEnv
         .split(/[\n\s]+/)
         .filter((f: string): boolean => f.endsWith('.svg'));
-    } else {
-      const allFiles: readonly string[] = await ctx.allFiles();
-      svgFiles = allFiles.filter((f: string): boolean => f.endsWith('.svg'));
     }
 
     for (const file of svgFiles) {

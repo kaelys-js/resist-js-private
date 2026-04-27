@@ -71,7 +71,7 @@ const rule: WorkspaceRule = {
           const depStatus: TaskStatus | undefined = statusMap.get(depNum);
           if (depStatus !== undefined && depStatus !== '[x]') {
             const depTask: PlanTask | undefined = taskMap.get(depNum);
-            const depName: string = depTask !== undefined ? depTask.name : `TASK ${String(depNum)}`;
+            const depName: string = depTask === undefined ? `TASK ${String(depNum)}` : depTask.name;
             results.push(
               createResult(
                 RULE_ID,
