@@ -79,18 +79,16 @@ const rule: WorkspaceRule = {
 
         const existing: { value: string; file: string } | undefined =
           scriptRegistry.get(scriptName);
-        if (existing !== undefined) {
-          if (existing.value !== scriptValue) {
-            conflicts.push({
-              scriptName,
-              file: filePath,
-              value: scriptValue,
-              firstFile: existing.file,
-              firstValue: existing.value,
-            });
-          }
-        } else {
+        if (existing === undefined) {
           scriptRegistry.set(scriptName, { value: scriptValue, file: filePath });
+        } else if (existing.value !== scriptValue) {
+          conflicts.push({
+            scriptName,
+            file: filePath,
+            value: scriptValue,
+            firstFile: existing.file,
+            firstValue: existing.value,
+          });
         }
       }
     }

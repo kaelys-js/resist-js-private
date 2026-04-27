@@ -102,7 +102,9 @@ const rule: WorkspaceRule = {
         }
 
         const existing: { file: string; line: number } | undefined = jobNameMap.get(jobName);
-        if (existing !== undefined) {
+        if (existing === undefined) {
+          jobNameMap.set(jobName, { file: filePath, line: i + 1 });
+        } else {
           const existingRelative: string = relative(ctx.rootDir, existing.file);
           results.push(
             createResult(
@@ -117,8 +119,6 @@ const rule: WorkspaceRule = {
               },
             ),
           );
-        } else {
-          jobNameMap.set(jobName, { file: filePath, line: i + 1 });
         }
       }
     }

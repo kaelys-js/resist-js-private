@@ -52,10 +52,10 @@ const rule: WorkspaceRule = {
       const lower: string = relativePath.toLowerCase();
       const existing: string[] | undefined = caseMap.get(lower);
 
-      if (existing !== undefined) {
-        existing.push(relativePath);
-      } else {
+      if (existing === undefined) {
         caseMap.set(lower, [relativePath]);
+      } else {
+        existing.push(relativePath);
       }
     }
 
