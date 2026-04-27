@@ -3,6 +3,8 @@
    * An individual selectable item within a command palette list.
    *
    * Supports keyboard navigation, aria-selected highlighting, and disabled states.
+   *
+   * @module
    */
   import { Command as CommandPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';

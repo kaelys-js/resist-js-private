@@ -1,4 +1,13 @@
 <script module lang="ts">
+  /**
+   * CommandSearch — global command-search dialog opening via
+   * Cmd/Ctrl+K. Wraps `Dialog` + `Command` primitives to offer a
+   * searchable, grouped command palette where items can navigate
+   * via `href` or fire an `onSelect` callback.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema, BoolSchema } from '@/schemas/common';
   import { SearchItemSchema, type SearchItem } from '../search-autocomplete/search-item.js';

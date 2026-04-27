@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Command shortcut — keyboard-shortcut hint text rendered to
+   * the right of a command item. Uses muted-foreground / tracking
+   * styling and the `data-slot="command-shortcut"` selector.
+   *
+   * @module
+   */
+
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

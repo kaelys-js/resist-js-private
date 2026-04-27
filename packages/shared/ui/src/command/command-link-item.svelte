@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Command link-item — anchor-rendered selectable item that
+   * navigates via `href`. Wraps Bits UI's `Command.LinkItem`
+   * with our `data-slot="command-item"` styling.
+   *
+   * @module
+   */
+
   import { Command as CommandPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

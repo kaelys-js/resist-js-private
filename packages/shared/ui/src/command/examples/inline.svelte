@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Command Lens example — inline command palette rendered
+   * directly in the document with grouped action / settings
+   * items.
+   *
+   * @module
+   */
+
   import * as Command from '@/ui/command';
   import CalendarIcon from '@lucide/svelte/icons/calendar';
   import SettingsIcon from '@lucide/svelte/icons/settings';

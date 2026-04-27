@@ -3,6 +3,8 @@
    * A dialog-wrapped command palette that opens as a modal overlay.
    *
    * Combines Dialog and Command primitives into a single component with accessible title/description and a bindable open state.
+   *
+   * @module
    */
   import type { Command as CommandPrimitive, Dialog as DialogPrimitive } from 'bits-ui';
   import type { Snippet } from 'svelte';
