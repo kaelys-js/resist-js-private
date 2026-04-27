@@ -1,3 +1,12 @@
+/**
+ * Tests for the `vscode/*` lint rules — covers `no-hardcoded-brand`,
+ * `no-unlocalized-strings`, `no-unread-settings`,
+ * `no-unwired-commands`, and `require-error-boundary` against
+ * shared VS Code extension fixture inputs.
+ *
+ * @module
+ */
+
 import { describe, expect, it } from 'vitest';
 
 import type { WorkspaceContext, WorkspacePackage } from '../../framework/rule-context.ts';

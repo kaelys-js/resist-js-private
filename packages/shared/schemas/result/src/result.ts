@@ -1,6 +1,8 @@
 /**
  * Result Type System
  *
+ * @module
+ *
  * Universal return type for every function in the monorepo. Provides a single,
  * consistent contract: every function returns `Result<T>` — either a success
  * with typed data, or a failure with a structured {@link AppError}.

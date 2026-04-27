@@ -1,3 +1,12 @@
+/**
+ * Tests for the shared svelte5-config AST helpers used by the
+ * Svelte-config lint rules — covers `collectPropertyPaths`,
+ * `findProperty`, `getAdapterImport`, and the
+ * `CLOUDFLARE_ADAPTERS` / `STATIC_ADAPTERS` registries.
+ *
+ * @module
+ */
+
 import { describe, expect, it } from 'vitest';
 
 import type { AstNode, ImportInfo } from '@/lint/framework/types.ts';

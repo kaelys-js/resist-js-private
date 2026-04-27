@@ -1,3 +1,13 @@
+/**
+ * Tests for the `plans/*` lint rules — covers plan parsing
+ * (`parsePlan`, `parsePlanDate`), the discovery helper, and each
+ * of the plan-format rules (no template placeholders, no
+ * incomplete tasks, status dependency order, files exist,
+ * require concrete verification).
+ *
+ * @module
+ */
+
 import { describe, expect, it } from 'vitest';
 
 import type { WorkspaceContext } from '../../framework/rule-context.ts';

@@ -1,3 +1,11 @@
+/**
+ * Tests for the Svelte locale store — covers `createLocaleStore`
+ * and its integration with the typed `LocaleRegistry` produced
+ * by `createLocaleRegistry`.
+ *
+ * @module
+ */
+
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 import { createLocaleRegistry, type LocaleRegistry } from './registry';

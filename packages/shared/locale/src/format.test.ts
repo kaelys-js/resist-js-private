@@ -1,3 +1,11 @@
+/**
+ * Tests for the `@/locale/format` helpers — covers `formatNumber`,
+ * `formatCurrency`, `formatDate`, `formatTime`,
+ * `formatRelativeTime`, and `formatList` against multiple locales.
+ *
+ * @module
+ */
+
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Num } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';

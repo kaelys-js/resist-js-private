@@ -1,3 +1,13 @@
+/**
+ * Tests for the `hygiene/*` lint rules — runs each rule against
+ * fixture sources via `runTypeScriptRules` and asserts the
+ * expected diagnostics for `no-bare-catch`,
+ * `no-dead-locale-keys`, `no-duplicate-function-signatures`, and
+ * `no-orphaned-exports`.
+ *
+ * @module
+ */
+
 import { describe, expect, it } from 'vitest';
 import { runTypeScriptRules } from '../../framework/oxc-runner.ts';
 import type { LintResult } from '../../framework/types.ts';

@@ -1,3 +1,12 @@
+/**
+ * Tests for the Vite template-html plugin — covers
+ * `deriveErrorIdPrefix`, `generateFontFaceCss`, `resolveAppHtml`
+ * / `resolveErrorHtml`, and the `templateAppHtml` helper that
+ * substitutes app metadata into the shared SvelteKit templates.
+ *
+ * @module
+ */
+
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Path, Str, Name, CssFontFamily, CssFontWeight, LocaleString } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';

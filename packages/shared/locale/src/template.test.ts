@@ -1,3 +1,12 @@
+/**
+ * Tests for the locale message-template helpers — covers
+ * `messageTemplate` (parameter binding), `renderMessage` (final
+ * substitution), `buildLocale` (assembling a strict-typed locale
+ * from raw strings), and the `FormatterMap` extension hook.
+ *
+ * @module
+ */
+
 import * as v from 'valibot';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StrSchema, NumSchema, type Str } from '@/schemas/common';

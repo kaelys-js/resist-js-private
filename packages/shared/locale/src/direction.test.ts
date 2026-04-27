@@ -1,3 +1,11 @@
+/**
+ * Tests for `@/locale/direction` — covers `TextDirectionSchema`
+ * (accepts ltr / rtl) and the `getTextDirection` helper that
+ * resolves a BCP-47 locale tag to its writing direction.
+ *
+ * @module
+ */
+
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { safeParse } from '@/utils/result/safe';
 import type { Str } from '@/schemas/common';
