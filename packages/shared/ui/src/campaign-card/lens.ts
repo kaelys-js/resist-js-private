@@ -1,3 +1,11 @@
+/**
+ * Lens manifest for the CampaignCard component (marketing
+ * category) — marketing-campaign summary card. Tagged for
+ * campaign / card / marketing lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

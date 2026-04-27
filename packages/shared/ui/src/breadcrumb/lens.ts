@@ -1,3 +1,13 @@
+/**
+ * Lens manifest + examples for the Breadcrumb component
+ * (navigation category) — breadcrumb trail navigation with
+ * separator icons; ships simple and ellipsis-collapsed examples.
+ * Tagged for breadcrumb / trail / navigation / path / compound
+ * lookups.
+ *
+ * @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
