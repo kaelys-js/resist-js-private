@@ -68,30 +68,30 @@ function makeDirent(name: string, opts: { isFile?: boolean; isDirectory?: boolea
 /* ---------- scopeTsconfigDirsToFiles ---------- */
 
 describe('scopeTsconfigDirsToFiles', () => {
-  it('returns all dirs when files is empty', async () => {
+  it('returns all dirs when files is empty', () => {
     const dirs: string[] = ['/ws/packages/a', '/ws/packages/b'];
     expect(scopeTsconfigDirsToFiles(dirs, [])).toEqual(dirs);
   });
 
-  it('returns owning dir for a single file', async () => {
+  it('returns owning dir for a single file', () => {
     const dirs: string[] = ['/ws/packages/a', '/ws/packages/b'];
     const result: string[] = scopeTsconfigDirsToFiles(dirs, ['/ws/packages/a/src/x.ts']);
     expect(result).toEqual(['/ws/packages/a']);
   });
 
-  it('picks the deepest prefix when nested packages match', async () => {
+  it('picks the deepest prefix when nested packages match', () => {
     const dirs: string[] = ['/ws/packages/outer', '/ws/packages/outer/inner'];
     const result: string[] = scopeTsconfigDirsToFiles(dirs, ['/ws/packages/outer/inner/src/x.ts']);
     expect(result).toEqual(['/ws/packages/outer/inner']);
   });
 
-  it('excludes files not under any discovered dir', async () => {
+  it('excludes files not under any discovered dir', () => {
     const dirs: string[] = ['/ws/packages/a'];
     const result: string[] = scopeTsconfigDirsToFiles(dirs, ['/elsewhere/x.ts']);
     expect(result).toEqual([]);
   });
 
-  it('unions owning dirs across multiple files', async () => {
+  it('unions owning dirs across multiple files', () => {
     const dirs: string[] = ['/ws/packages/a', '/ws/packages/b', '/ws/packages/c'];
     const result: string[] = scopeTsconfigDirsToFiles(dirs, [
       '/ws/packages/a/src/x.ts',
@@ -100,7 +100,7 @@ describe('scopeTsconfigDirsToFiles', () => {
     expect(result.toSorted()).toEqual(['/ws/packages/a', '/ws/packages/c']);
   });
 
-  it('matches when file path equals dir path exactly', async () => {
+  it('matches when file path equals dir path exactly', () => {
     const dirs: string[] = ['/ws/packages/a'];
     const result: string[] = scopeTsconfigDirsToFiles(dirs, ['/ws/packages/a']);
     expect(result).toEqual(['/ws/packages/a']);
@@ -110,12 +110,12 @@ describe('scopeTsconfigDirsToFiles', () => {
 /* ---------- transformTsgoOutput ---------- */
 
 describe('transformTsgoOutput', () => {
-  it('returns empty for empty output', async () => {
+  it('returns empty for empty output', () => {
     expect(transformTsgoOutput('')).toEqual([]);
     expect(transformTsgoOutput('   \n  ')).toEqual([]);
   });
 
-  it('parses a single error diagnostic', async () => {
+  it('parses a single error diagnostic', () => {
     const output = 'src/foo.ts(10,5): error TS2322: Type mismatch.';
     const results = transformTsgoOutput(output);
     expect(results).toHaveLength(1);
@@ -127,19 +127,19 @@ describe('transformTsgoOutput', () => {
     expect(results[0]?.message).toBe('Type mismatch.');
   });
 
-  it('parses warning severity', async () => {
+  it('parses warning severity', () => {
     const output = 'src/foo.ts(1,1): warning TS6133: Unused var.';
     const results = transformTsgoOutput(output);
     expect(results[0]?.severity).toBe('warning');
   });
 
-  it('ignores non-matching lines', async () => {
+  it('ignores non-matching lines', () => {
     const output = ['some context line', 'src/x.ts(1,1): error TS1: msg', '  indented'].join('\n');
     const results = transformTsgoOutput(output);
     expect(results).toHaveLength(1);
   });
 
-  it('suppresses TS1005 from svelte.d.ts ambient files', async () => {
+  it('suppresses TS1005 from svelte.d.ts ambient files', () => {
     const output = 'pkg/svelte.d.ts(3,5): error TS1005: unexpected token.';
     const results = transformTsgoOutput(output);
     expect(results).toHaveLength(0);
