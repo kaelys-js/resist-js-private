@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * CoolMode — particle burst that emits on click for celebratory
+   * UI feedback. Placeholder shell awaiting full implementation;
+   * ships with a `class` prop for root-level styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

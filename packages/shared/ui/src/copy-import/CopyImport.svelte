@@ -1,4 +1,11 @@
 <script module lang="ts">
+  /**
+   * CopyImport — code-badge that displays an import path and
+   * copies the configured `copyText` to the clipboard on click.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
