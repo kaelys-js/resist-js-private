@@ -1299,8 +1299,9 @@ export async function _runLintCore(
    * separate result arrays merged at the end). The tool phase is the dominant
    * cost workspace-wide (svelte-check + tsgo + tool registry); overlapping
    * it with the per-file rule loop saves ~its own duration on multi-core. */
+  const noOpToolPromise = async (): Promise<LintResult[]> => [];
   const concurrentToolsPromise: Promise<LintResult[]> =
-    cliArgs.tools && !cliArgs.bail ? runToolPhase() : Promise.resolve([]);
+    cliArgs.tools && !cliArgs.bail ? runToolPhase() : noOpToolPromise();
 
   async function runToolPhase(): Promise<LintResult[]> {
     const out: LintResult[] = [];
