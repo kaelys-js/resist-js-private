@@ -6062,6 +6062,100 @@ describe('workspace/svg-no-black-fill', () => {
 // inputs() lifecycle coverage
 // =============================================================================
 
+// Bulk inputs() smoke-tests — invoke every imported rule's inputs() against
+// a rich mock context, just to record the function as executed in coverage.
+// Per-rule semantic tests live elsewhere; this is purely for coverage of the
+// async wrapper + inline arrows.
+const BULK_INPUTS_RULES_3: ReadonlyArray<{
+  id: string;
+  rule: { inputs?: (ctx: unknown) => Promise<readonly string[]> };
+}> = [
+  { id: 'enforce-docs-location', rule: enforceDocsLocationRule },
+  { id: 'no-migration-tempfiles', rule: noMigrationTempfiles },
+  { id: 'no-nonpreferred-image-formats', rule: noNonpreferredImageFormats },
+  { id: 'validate-formatting-config-consistency', rule: validateFormattingConfigConsistency },
+  { id: 'validate-nanostores-safety', rule: validateNanostoresSafety },
+  { id: 'validate-tsconfig-paths-resolution', rule: validateTsconfigPathsResolution },
+  { id: 'no-oversized-commits', rule: noOversizedCommits },
+  { id: 'validate-monorepo-layout', rule: validateMonorepoLayout },
+  { id: 'validate-yaml-schema-directives', rule: validateYamlSchemaDirectives },
+  { id: 'validate-json-schema-fields', rule: validateJsonSchemaFields },
+  { id: 'validate-makefiles', rule: validateMakefiles },
+  { id: 'no-world-writable-files', rule: noWorldWritableFiles },
+  { id: 'no-wrangler-route-collisions', rule: noWranglerRouteCollisions },
+  { id: 'validate-sql-migrations', rule: validateSqlMigrations },
+  { id: 'validate-shell-scripts', rule: validateShellScripts },
+  { id: 'validate-ci-folder-structure', rule: validateCiFolderStructure },
+  { id: 'no-empty-vscode-settings', rule: noEmptyVscodeSettings },
+  { id: 'validate-all-contributorsrc', rule: validateAllContributorsrc },
+  { id: 'validate-codeowners', rule: validateCodeowners },
+  { id: 'prefer-env-bash-shebang', rule: preferEnvBashShebang },
+  { id: 'require-script-descriptions', rule: requireScriptDescriptions },
+  { id: 'no-unreferenced-shell-scripts', rule: noUnreferencedShellScripts },
+  { id: 'validate-env-file-integrity', rule: validateEnvFileIntegrity },
+  { id: 'validate-wrangler-config', rule: validateWranglerConfig },
+  { id: 'validate-db-name-safety', rule: validateDbNameSafety },
+  { id: 'validate-monorepo-schema-example', rule: validateMonorepoSchemaExample },
+  { id: 'no-inline-ci-scripts', rule: noInlineCiScripts },
+  { id: 'warn-unused-gitignore-patterns', rule: warnUnusedGitignorePatterns },
+  { id: 'no-ci-recursive-triggers', rule: noCiRecursiveTriggers },
+  { id: 'require-ci-job-conditions', rule: requireCiJobConditions },
+  { id: 'require-ci-job-timeouts', rule: requireCiJobTimeouts },
+  { id: 'no-unused-ci-stages', rule: noUnusedCiStages },
+  { id: 'require-codeowners-coverage', rule: requireCodeownersCoverage },
+  { id: 'validate-docs-frontmatter', rule: validateDocsFrontmatter },
+  { id: 'require-makefile-help-target', rule: requireMakefileHelpTarget },
+  { id: 'no-orphaned-ts-files', rule: noOrphanedTsFiles },
+  { id: 'validate-locale-key-consistency', rule: validateLocaleKeyConsistency },
+  { id: 'validate-image-optimization', rule: validateImageOptimization },
+  { id: 'enforce-branch-naming', rule: enforceBranchNaming },
+  { id: 'enforce-conventional-commits', rule: enforceConventionalCommits },
+  { id: 'enforce-git-config', rule: enforceGitConfig },
+  { id: 'validate-stateless-utils', rule: validateStatelessUtils },
+  { id: 'validate-docs-locale', rule: validateDocsLocale },
+  { id: 'validate-docs-workspace', rule: validateDocsWorkspace },
+  { id: 'validate-biome-rules', rule: validateBiomeRules },
+  { id: 'no-biome-disable', rule: noBiomeDisable },
+  { id: 'no-legacy-image-formats', rule: noLegacyImageFormats },
+  { id: 'no-unreferenced-images', rule: noUnreferencedImages },
+  { id: 'no-missing-image-refs', rule: noMissingImageRefs },
+  { id: 'svg-requires-title-or-desc', rule: svgRequiresTitleOrDesc },
+  { id: 'svg-no-inline-style', rule: svgNoInlineStyle },
+  { id: 'svg-requires-viewbox', rule: svgRequiresViewbox },
+  { id: 'svg-requires-dimensions', rule: svgRequiresDimensions },
+  { id: 'svg-no-black-fill', rule: svgNoBlackFill },
+];
+
+describe('workspace-rules-3 — bulk inputs() smoke-coverage', () => {
+  for (const { id, rule } of BULK_INPUTS_RULES_3) {
+    it(`workspace/${id}.inputs() runs without throwing`, async () => {
+      if (typeof rule.inputs !== 'function') {
+        return;
+      }
+      const ctx: WorkspaceContext = mockContext({
+        rootDir: '/workspace',
+        files: new Map([
+          ['/workspace/foo.ts', 'export const a = 1;'],
+          ['/workspace/.github/workflows/ci.yml', 'name: ci\n'],
+          ['/workspace/Makefile', 'help:\n\t@echo hi\n'],
+          ['/workspace/scripts/run.sh', '#!/usr/bin/env bash\n'],
+          ['/workspace/wrangler.toml', 'name = "x"\n'],
+        ]),
+        packages: [
+          {
+            name: '@/a',
+            path: '/workspace/packages/a/package.json',
+            dir: '/workspace/packages/a',
+            packageJson: { name: '@/a' },
+          },
+        ],
+      });
+      const inputs = await rule.inputs!(ctx);
+      expect(Array.isArray(inputs)).toBe(true);
+    });
+  }
+});
+
 describe('workspace/no-unlinked-workspace-deps — inputs() lifecycle', () => {
   it('returns combined files + package paths', async () => {
     const files: Map<string, string> = new Map([['/workspace/foo.ts', 'x']]);
