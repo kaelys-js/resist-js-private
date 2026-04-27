@@ -34,35 +34,53 @@ async function flushAsync(): Promise<void> {
 }
 
 describe('handleError', () => {
-  it('returns App.Error with message and errorId', () => {
+  it('returns App.Error with message and errorId', async () => {
+    vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
     const result: App.Error = callHandleError({
       error: new Error('test crash'),
       status: 500,
       message: 'Internal Error',
     });
+    await flushAsync();
     expect(result).toHaveProperty('message', 'Internal Error');
     expect(result).toHaveProperty('errorId');
     expect(typeof result.errorId).toBe('string');
+    vi.restoreAllMocks();
   });
 
-  it('errorId is a valid UUID', () => {
+  it('errorId is a valid UUID', async () => {
+    vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
     const result: App.Error = callHandleError({
       error: new Error('test'),
       status: 500,
       message: 'Error',
     });
+    await flushAsync();
     expect(result.errorId).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
     );
+    vi.restoreAllMocks();
   });
 
-  it('preserves the provided message', () => {
+  it('preserves the provided message', async () => {
+    vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
     const result: App.Error = callHandleError({
       error: new Error('crash'),
       status: 404,
       message: 'Not Found',
     });
+    await flushAsync();
     expect(result.message).toBe('Not Found');
+    vi.restoreAllMocks();
   });
 
   it('logs error via CapturedError pipeline with groupCollapsed header', async () => {
@@ -105,7 +123,11 @@ describe('handleError', () => {
     vi.restoreAllMocks();
   });
 
-  it('generates unique errorIds for each call', () => {
+  it('generates unique errorIds for each call', async () => {
+    vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
     const result1: App.Error = callHandleError({
       error: new Error('a'),
       status: 500,
@@ -116,7 +138,9 @@ describe('handleError', () => {
       status: 500,
       message: 'Error',
     });
+    await flushAsync();
     expect(result1.errorId).not.toBe(result2.errorId);
+    vi.restoreAllMocks();
   });
 
   it('preserves domain-specific AppError code when thrown error is an AppError', async () => {

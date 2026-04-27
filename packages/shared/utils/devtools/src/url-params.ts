@@ -137,10 +137,13 @@ export function applyUrlOverrides(
       continue;
     }
 
-    // Unknown key — silently ignore. (No global logger available in this layer;
-    // valid keys are: debug, logLevel, plus configured setterMap keys, plus
-    // ff.<flag>.) Devtools URL overrides are debug-time only and an unknown
-    // key here is non-fatal.
+    // Unknown key — warn so typos are caught. Devtools URL overrides are
+    // debug-time only; this `console.warn` is the user-facing surface for
+    // mistyped keys (per the no-console override below covering devtools
+    // logger paths).
+    console.warn(
+      `[Devtools] Unknown URL override: ${config.urlParamPrefix}${key}=${value} — valid: debug, logLevel, ${Object.keys(setterMap).join(', ')}, ff.<flag>`,
+    );
   }
 
   return okUnchecked<Void>(undefined);
