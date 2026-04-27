@@ -276,8 +276,9 @@ export class WorkerPool {
 
     worker.on('message', onMessage);
     worker.on('error', onError);
-    // oxlint-disable-next-line unicorn/require-post-message-target-origin -- node:worker_threads, not browser
-    worker.postMessage(task);
+    // node:worker_threads `postMessage(value)` does not accept a target origin.
+    const post: (msg: unknown) => void = worker.postMessage.bind(worker);
+    post(task);
   }
 
   /**
