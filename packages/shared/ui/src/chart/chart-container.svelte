@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Chart container — wraps a chart with the shared `ChartStyle`
+   * tag and stores the chart's color / label config in
+   * `setChartContext` so `chart-tooltip` and other consumers can
+   * read it.
+   *
+   * @module
+   */
+
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
   import ChartStyle from './chart-style.svelte';

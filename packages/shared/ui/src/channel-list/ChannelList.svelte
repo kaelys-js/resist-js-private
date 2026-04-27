@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * ChannelList — chat channel / room list sidebar. Placeholder
+   * shell awaiting full implementation; ships with a `class`
+   * prop for root-level styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

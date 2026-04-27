@@ -1,8 +1,18 @@
+/**
+ * Chart utilities — shared types (`ChartConfig`, `TooltipPayload`)
+ * and Svelte context helpers (`setChartContext` / `useChart` /
+ * `getPayloadConfigFromPayload`) that wire chart-container,
+ * chart-style, and chart-tooltip together.
+ *
+ * @module
+ */
+
 import type { Tooltip } from 'layerchart';
 import { type Component, type ComponentProps, getContext, type Snippet, setContext } from 'svelte';
 
 export const THEMES = { dark: '.dark', light: '' } as const;
 
+/** Description. */
 export type ChartConfig = Record<
   string,
   {
@@ -14,13 +24,16 @@ export type ChartConfig = Record<
   )
 >;
 
+/** Description. */
 export type ExtractSnippetParams<T> = T extends Snippet<[infer P]> ? P : never;
 
+/** Description. */
 export type TooltipPayload = ExtractSnippetParams<
   ComponentProps<typeof Tooltip.Root>['children']
 >['payload'][number];
 
 // Helper to extract item config from a payload.
+/** Description. */
 export function getPayloadConfigFromPayload(
   config: ChartConfig,
   payload: TooltipPayload,
@@ -60,10 +73,12 @@ type ChartContextValue = {
 
 const chartContextKey = Symbol('chart-context');
 
+/** Description. */
 export function setChartContext(value: ChartContextValue) {
   return setContext(chartContextKey, value);
 }
 
+/** Description. */
 export function useChart() {
   return getContext<ChartContextValue>(chartContextKey);
 }

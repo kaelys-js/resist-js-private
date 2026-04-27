@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Chart style — `<style>` tag that emits CSS custom-property
+   * declarations for each theme's color overrides given a
+   * `ChartConfig`, scoped to the matching chart container's id.
+   *
+   * @module
+   */
+
   import { type ChartConfig, THEMES } from './chart-utils.js';
 
   let {

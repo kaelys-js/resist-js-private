@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * Cascader — multi-level dropdown for hierarchical data where
+   * each selection reveals the next level. Placeholder shell
+   * awaiting full implementation; ships with a `class` prop for
+   * root-level styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
