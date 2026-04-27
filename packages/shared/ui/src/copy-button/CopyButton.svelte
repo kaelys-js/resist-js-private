@@ -1,4 +1,12 @@
 <script module lang="ts">
+  /**
+   * CopyButton — copy-to-clipboard button with tooltip feedback
+   * and accessible status. Defines `text`, `label`, and `class`
+   * props.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
