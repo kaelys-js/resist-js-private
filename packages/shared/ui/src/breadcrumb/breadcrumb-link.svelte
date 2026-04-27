@@ -3,6 +3,8 @@
    * Clickable anchor within a breadcrumb trail that navigates to a parent route.
    *
    * Supports a `child` render-prop snippet for custom element rendering (e.g., framework-specific link components).
+   *
+   * @module
    */
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import type { Snippet } from 'svelte';

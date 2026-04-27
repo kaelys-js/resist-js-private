@@ -3,6 +3,8 @@
    * Non-interactive breadcrumb element representing the current page.
    *
    * Rendered as a `<span>` with `aria-current="page"` and `aria-disabled="true"` for accessibility.
+   *
+   * @module
    */
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';

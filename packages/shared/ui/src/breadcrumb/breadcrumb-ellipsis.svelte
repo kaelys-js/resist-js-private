@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Breadcrumb ellipsis — collapsed-path indicator placed between
+   * breadcrumb items when the trail is too long to render in
+   * full. Renders an ellipsis icon with screen-reader-only "More"
+   * text.
+   *
+   * @module
+   */
+
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef, type WithoutChildren } from '../utils.js';

@@ -3,6 +3,8 @@
    * Ordered list container for breadcrumb items.
    *
    * Renders a horizontal `<ol>` with muted text, wrapping, and responsive gap spacing.
+   *
+   * @module
    */
   import type { HTMLOlAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
