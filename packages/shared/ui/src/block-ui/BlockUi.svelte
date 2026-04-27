@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * BlockUi — overlay that blocks user interaction with a section
+   * or the entire page during loading or processing. Placeholder
+   * shell awaiting full implementation; ships with a `class` prop
+   * for root-level styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

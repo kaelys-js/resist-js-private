@@ -1,9 +1,19 @@
 <script module lang="ts">
+  /**
+   * Blockquote — styled quotation block with attribution,
+   * decorative icon, and multiple visual variants. Defines the
+   * `blockquoteVariants` TV helper plus the props schema and
+   * inferred input / output types.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import type { Snippet } from 'svelte';
   import { type VariantProps, tv } from 'tailwind-variants';
   import { StrSchema, BoolSchema, NumSchema } from '@/schemas/common';
 
+  /** TV helper for Blockquote styling — variant / size / tone. */
   export const blockquoteVariants = tv({
     base: 'relative my-4 py-4 [&>svg.bq-icon]:absolute',
     variants: {
@@ -89,10 +99,15 @@
     },
   });
 
+  /** Visual variant (default / solid / bordered / plain). */
   export type BlockquoteVariant = VariantProps<typeof blockquoteVariants>['variant'];
+  /** Color tone token. */
   export type BlockquoteColor = VariantProps<typeof blockquoteVariants>['color'];
+  /** Size token (sm / md / lg). */
   export type BlockquoteSize = VariantProps<typeof blockquoteVariants>['size'];
+  /** Text alignment (left / center / right). */
   export type BlockquoteAlign = VariantProps<typeof blockquoteVariants>['align'];
+  /** Border-radius token. */
   export type BlockquoteRadius = VariantProps<typeof blockquoteVariants>['radius'];
 
   export const BlockquotePropsSchema = v.strictObject({
@@ -130,6 +145,7 @@
     /** Footer slot for testimonial-style layouts (avatar, name, role). @values {#snippet footer()}<footer>...</footer>{/snippet} */
     footer: v.optional(v.custom<Snippet>(() => true)),
   });
+  /** Input props — all optional (for $props). */
   export type BlockquoteInputProps = v.InferInput<typeof BlockquotePropsSchema>;
   /** Public component props for Blockquote. */
   export type BlockquoteProps = v.InferOutput<typeof BlockquotePropsSchema>;

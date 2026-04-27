@@ -1,4 +1,15 @@
 <script lang="ts" module>
+  /**
+   * Badge root — small inline label for status indicators,
+   * counts, or categories. Re-exports the shared
+   * `badgeVariants` / `BadgePropsSchema` and the `BadgeVariant` /
+   * `BadgeSize` / `BadgeRadius` / `BadgeInputProps` /
+   * `BadgeProps` types from `./types.ts` so `badge/index.ts` can
+   * use standard TS module resolution.
+   *
+   * @module
+   */
+
   /* Public types/values live in `./types.ts` so `badge/index.ts` can re-export
      them via standard TS module resolution (avoiding the wildcard `*.svelte`
      ambient declaration). */

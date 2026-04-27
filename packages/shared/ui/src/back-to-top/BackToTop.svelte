@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * BackToTop — button that appears after scrolling down and
+   * smoothly scrolls the page back to the top. Placeholder shell
+   * awaiting full implementation; ships with a `class` prop for
+   * root-level styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
