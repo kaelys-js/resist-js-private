@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Carousel previous — arrow button that moves the carousel
+   * back by one slide. Reads `EmblaContext` for orientation,
+   * scroll-prev action, and keyboard handler.
+   *
+   * @module
+   */
+
   import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
   import type { WithoutChildren } from 'bits-ui';
   import { Button, type Props } from '../button/index.js';

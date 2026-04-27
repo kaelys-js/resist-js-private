@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Carousel next — arrow button that advances the carousel by
+   * one slide. Reads `EmblaContext` for orientation, scroll-next
+   * action, and keyboard handler.
+   *
+   * @module
+   */
+
   import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
   import type { WithoutChildren } from 'bits-ui';
   import { Button, type Props } from '../button/index.js';

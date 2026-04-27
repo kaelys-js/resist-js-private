@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Carousel content — viewport / container pair that hosts the
+   * Embla slides. Reads the shared `EmblaContext` for orientation
+   * and Embla options, then mounts the `embla-carousel-svelte`
+   * action.
+   *
+   * @module
+   */
+
   import emblaCarouselSvelte from 'embla-carousel-svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';

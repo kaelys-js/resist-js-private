@@ -1,3 +1,11 @@
+/**
+ * Barrel re-export for the carousel compound component — exposes
+ * Root / Content / Item / Previous / Next sub-components under
+ * both internal aliases and the `Carousel*` public names.
+ *
+ * @module
+ */
+
 import Root from './carousel.svelte';
 import Content from './carousel-content.svelte';
 import Item from './carousel-item.svelte';

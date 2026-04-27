@@ -1,3 +1,12 @@
+/**
+ * Carousel context — shared types and `setEmblaContext` /
+ * `getEmblaContext` helpers used by the Carousel root and its
+ * sub-components (content, item, next, previous) to communicate
+ * Embla state without prop-drilling.
+ *
+ * @module
+ */
+
 import type {
   EmblaCarouselSvelteType,
   default as emblaCarouselSvelte,
@@ -6,6 +15,7 @@ import { getContext, hasContext, setContext } from 'svelte';
 import type { HTMLAttributes } from 'svelte/elements';
 import type { WithElementRef } from '../utils.js';
 
+/** Description. */
 export type CarouselAPI =
   NonNullable<NonNullable<EmblaCarouselSvelteType['$$_attributes']>['on:emblaInit']> extends (
     evt: CustomEvent<infer CarouselAPI>,
@@ -15,11 +25,14 @@ export type CarouselAPI =
 
 type EmblaCarouselConfig = NonNullable<Parameters<typeof emblaCarouselSvelte>[1]>;
 
+/** Description. */
 export type CarouselOptions = EmblaCarouselConfig['options'];
+/** Description. */
 export type CarouselPlugins = EmblaCarouselConfig['plugins'];
 
 ////
 
+/** Description. */
 export type CarouselProps = {
   opts?: CarouselOptions;
   plugins?: CarouselPlugins;
@@ -29,6 +42,7 @@ export type CarouselProps = {
 
 const EMBLA_CAROUSEL_CONTEXT = Symbol('EMBLA_CAROUSEL_CONTEXT');
 
+/** Description. */
 export type EmblaContext = {
   api: CarouselAPI | undefined;
   orientation: 'horizontal' | 'vertical';
@@ -45,11 +59,13 @@ export type EmblaContext = {
   selectedIndex: number;
 };
 
+/** Description. */
 export function setEmblaContext(config: EmblaContext): EmblaContext {
   setContext(EMBLA_CAROUSEL_CONTEXT, config);
   return config;
 }
 
+/** Description. */
 export function getEmblaContext(name = 'This component') {
   if (!hasContext(EMBLA_CAROUSEL_CONTEXT)) {
     throw new Error(`${name} must be used within a <Carousel.Root> component`);

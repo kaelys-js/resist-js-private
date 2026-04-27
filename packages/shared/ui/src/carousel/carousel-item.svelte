@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Carousel item — single slide inside the carousel content,
+   * tagged with `role="group"` and `aria-roledescription="slide"`
+   * for accessibility.
+   *
+   * @module
+   */
+
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
   import { getEmblaContext } from './context.js';
