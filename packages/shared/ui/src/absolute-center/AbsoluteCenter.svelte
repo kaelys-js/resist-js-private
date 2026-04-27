@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * AbsoluteCenter — utility wrapper that absolutely centers its
+   * child within the nearest positioned ancestor. Defines a
+   * single `class` prop for root-level styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

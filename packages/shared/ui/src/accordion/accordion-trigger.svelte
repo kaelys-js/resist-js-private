@@ -1,4 +1,14 @@
 <script lang="ts">
+  /**
+   * Accordion trigger — clickable heading that toggles its
+   * `Accordion.Item` open/closed. Wraps the Bits UI `Header` +
+   * `Trigger` primitives, exposes a `level` prop to set the
+   * underlying heading level, and renders a rotating chevron
+   * indicator.
+   *
+   * @module
+   */
+
   import { Accordion as AccordionPrimitive } from 'bits-ui';
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
   import { cn, type WithoutChild } from '../utils.js';

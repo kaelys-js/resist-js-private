@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * AboutDialog — application about-dialog component shell with
+   * its public props schema (currently a single `class` override
+   * for the root element). Awaiting full implementation.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

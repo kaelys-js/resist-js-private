@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * ActionSheet — iOS-style bottom action sheet for mobile UIs.
+   * Awaiting full implementation; ships with a placeholder props
+   * schema accepting only a root `class` override.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

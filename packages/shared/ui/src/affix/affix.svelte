@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * Affix — wrapper that fixes its child to the viewport once the
+   * user scrolls past a configured threshold. Placeholder shell
+   * awaiting full implementation; ships with a `class` prop for
+   * root-level styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
