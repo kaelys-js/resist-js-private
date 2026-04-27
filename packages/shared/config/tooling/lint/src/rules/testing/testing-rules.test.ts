@@ -233,12 +233,10 @@ function mockContext(
   const packages: WorkspacePackage[] = overrides.packages ?? [];
 
   return {
-    allFiles: (): Promise<readonly string[]> => Promise.resolve([...files.keys()]),
-    filesByExtension: (...exts: string[]): Promise<readonly string[]> =>
-      Promise.resolve(
-        [...files.keys()].filter((f: string): boolean =>
-          exts.some((ext: string): boolean => f.endsWith(ext)),
-        ),
+    allFiles: async (): Promise<readonly string[]> => [...files.keys()],
+    filesByExtension: async (...exts: string[]): Promise<readonly string[]> =>
+      [...files.keys()].filter((f: string): boolean =>
+        exts.some((ext: string): boolean => f.endsWith(ext)),
       ),
     dirExists: (_path: string): Promise<boolean> =>
       new Promise<boolean>((resolve: (v: boolean) => void): void => {

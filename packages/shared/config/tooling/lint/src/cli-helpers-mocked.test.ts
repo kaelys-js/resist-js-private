@@ -255,7 +255,10 @@ describe('writeJsonSchema', () => {
         categories: [],
         stages: ['lint'],
         scope: 'workspace',
-        check: () => Promise.resolve([]),
+        check: async () => {
+          await Promise.resolve();
+          return [];
+        },
         optionsSchema: { type: 'object', properties: { strict: { type: 'boolean' } } },
       },
     ];
