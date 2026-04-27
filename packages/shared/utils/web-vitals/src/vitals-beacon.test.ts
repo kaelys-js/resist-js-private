@@ -366,8 +366,7 @@ describe('vitals beacon', () => {
     it('uses fallback URL when window is undefined (SSR)', () => {
       import.meta.env.DEV = false;
       const originalWindow = globalThis.window;
-      // @ts-expect-error — removing window for SSR simulation
-      delete globalThis.window;
+      delete (globalThis as { window?: Window }).window;
 
       setDeviceInfo(createDevice());
       queueVital(createMetric());
@@ -384,8 +383,7 @@ describe('vitals beacon', () => {
       import.meta.env.DEV = false;
       vi.stubGlobal('navigator', {});
       const originalFetch = globalThis.fetch;
-      // @ts-expect-error — removing fetch for test
-      delete globalThis.fetch;
+      delete (globalThis as { fetch?: typeof fetch }).fetch;
 
       queueVital({ name: 'FCP' as Name, value: 1200, rating: 'good', navigationType: 'navigate' });
 

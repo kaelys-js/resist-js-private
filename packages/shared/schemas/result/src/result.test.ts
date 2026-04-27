@@ -482,8 +482,8 @@ describe('_okResult (object vs primitive)', () => {
 
 describe('ok() validation failure', () => {
   it('returns err with OUTPUT_VALIDATION_FAILED when data fails schema', () => {
-    // @ts-expect-error -- intentionally passing wrong type to test runtime path
-    const result = ok(v.number(), 'not-a-number');
+    const okLoose = ok as unknown as (schema: unknown, data: unknown) => Result<number>;
+    const result: Result<number> = okLoose(v.number(), 'not-a-number');
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error.code).toBe(ERRORS.INTERNAL.OUTPUT_VALIDATION_FAILED);

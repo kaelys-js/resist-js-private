@@ -463,8 +463,9 @@ describe('vitals-diagnostics', () => {
   describe('setupDiagnosticObservers', () => {
     it('does not throw when PerformanceObserver is unavailable', () => {
       const orig = globalThis.PerformanceObserver;
-      // @ts-expect-error — Simulating missing API
-      globalThis.PerformanceObserver = undefined;
+      (
+        globalThis as { PerformanceObserver?: typeof PerformanceObserver | undefined }
+      ).PerformanceObserver = undefined;
 
       expect(() => setupDiagnosticObservers()).not.toThrow();
 

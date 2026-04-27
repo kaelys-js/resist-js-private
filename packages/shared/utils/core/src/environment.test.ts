@@ -29,8 +29,7 @@ describe('getProcess', () => {
 
   it('returns undefined when process is undefined', () => {
     const original = globalThis.process;
-    // @ts-expect-error — simulating non-Node environment
-    globalThis.process = undefined;
+    (globalThis as { process?: NodeJS.Process | undefined }).process = undefined;
     try {
       expect(getProcess()).toBeUndefined();
     } finally {
@@ -118,8 +117,7 @@ describe('detectRuntime', () => {
 
   it('detects worker as fallback when no process or browser globals', () => {
     const original = globalThis.process;
-    // @ts-expect-error — simulating non-Node environment
-    globalThis.process = undefined;
+    (globalThis as { process?: NodeJS.Process | undefined }).process = undefined;
     try {
       const result: Result<RuntimeKind> = detectRuntime();
       expect(result.ok).toBe(true);
@@ -427,8 +425,7 @@ describe('detectRuntimeInfo', () => {
   it('returns undefined version for non-versioned runtimes', () => {
     // Simulate worker runtime by removing process
     const original = globalThis.process;
-    // @ts-expect-error — simulating non-Node
-    globalThis.process = undefined;
+    (globalThis as { process?: NodeJS.Process | undefined }).process = undefined;
     try {
       const result = detectRuntimeInfo();
       expect(result.ok).toBe(true);
