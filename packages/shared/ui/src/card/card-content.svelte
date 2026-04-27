@@ -1,6 +1,8 @@
 <script lang="ts">
   /**
    * Body content area of a Card, providing horizontal padding.
+   *
+   * @module
    */
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';

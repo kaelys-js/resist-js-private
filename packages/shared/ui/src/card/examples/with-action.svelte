@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Card Lens example — notification card with title,
+   * description, an action button in the header (`Mark all
+   * read`), and a stack of unread message rows.
+   *
+   * @module
+   */
+
   import * as Card from '@/ui/card';
 </script>
 
