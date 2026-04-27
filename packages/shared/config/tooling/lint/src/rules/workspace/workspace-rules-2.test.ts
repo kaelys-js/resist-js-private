@@ -5245,3 +5245,136 @@ describe('workspace/require-workspace-protocol — inputs() lifecycle', () => {
     expect(inputs).toEqual(['/workspace/only.ts']);
   });
 });
+
+// =============================================================================
+// Bulk inputs() smoke-coverage for workspace-rules-2
+// =============================================================================
+const BULK_INPUTS_RULES_2: ReadonlyArray<{
+  id: string;
+  rule: { inputs?: (ctx: unknown) => Promise<readonly string[]> };
+}> = [
+  { id: 'no-tsconfig-deprecated-options', rule: noTsconfigDeprecatedOptions },
+  { id: 'require-tsconfig-module-resolution', rule: requireTsconfigModuleResolution },
+  { id: 'no-tsconfig-include-exclude-overlap', rule: noTsconfigIncludeExcludeOverlap },
+  { id: 'require-tsconfig-exclude-defaults', rule: requireTsconfigExcludeDefaults },
+  { id: 'tsconfig-paths-resolve', rule: tsconfigPathsResolve },
+  { id: 'no-tsconfig-path-shadowing', rule: noTsconfigPathShadowing },
+  { id: 'require-tsconfig-schema', rule: requireTsconfigSchema },
+  { id: 'no-tsconfig-types-duplicates', rule: noTsconfigTypesDuplicates },
+  { id: 'tsconfig-references-resolve', rule: tsconfigReferencesResolve },
+  { id: 'no-tsconfig-import-inconsistency', rule: noTsconfigImportInconsistency },
+  { id: 'no-wildcard-versions', rule: noWildcardVersions },
+  { id: 'no-tarball-deps', rule: noTarballDeps },
+  { id: 'no-optional-dependencies', rule: noOptionalDependencies },
+  { id: 'validate-package-entrypoints', rule: validatePackageEntrypoints },
+  { id: 'require-package-description', rule: requirePackageDescription },
+  { id: 'require-package-name-version', rule: requirePackageNameVersion },
+  { id: 'require-package-schema', rule: requirePackageSchema },
+  { id: 'require-package-name-matches-path', rule: requirePackageNameMatchesPath },
+  { id: 'no-invalid-package-version', rule: noInvalidPackageVersion },
+  { id: 'require-package-metadata', rule: requirePackageMetadata },
+  { id: 'no-script-conflicts', rule: noScriptConflicts },
+  { id: 'require-package-author', rule: requirePackageAuthor },
+  { id: 'no-duplicate-package-names', rule: noDuplicatePackageNames },
+  { id: 'require-spdx-license', rule: requireSpdxLicense },
+  { id: 'require-tsconfig-baseurl', rule: requireTsconfigBaseurl },
+  { id: 'tsconfig-baseurl-resolves', rule: tsconfigBaseurlResolves },
+  { id: 'no-tsconfig-conflicting-types', rule: noTsconfigConflictingTypes },
+  { id: 'no-tsconfig-outdir-rootdir-overlap', rule: noTsconfigOutdirRootdirOverlap },
+  { id: 'require-tsconfig-types', rule: requireTsconfigTypes },
+  { id: 'no-tsconfig-unused-paths', rule: noTsconfigUnusedPaths },
+  { id: 'no-multiple-tsconfig-base', rule: noMultipleTsconfigBase },
+  { id: 'require-pnpm-scripts', rule: requirePnpmScripts },
+  { id: 'require-private-internal-packages', rule: requirePrivateInternalPackages },
+  { id: 'require-scoped-package-names', rule: requireScopedPackageNames },
+  { id: 'no-duplicate-deps', rule: noDuplicateDeps },
+  { id: 'no-custom-dependency-sources', rule: noCustomDependencySources },
+  { id: 'no-sideeffects-true', rule: noSideeffectsTrue },
+  { id: 'no-large-dependencies', rule: noLargeDependencies },
+  { id: 'no-npmrc', rule: noNpmrc },
+  { id: 'require-vscode-folder', rule: requireVscodeFolder },
+  { id: 'no-extra-vscode-files', rule: noExtraVscodeFiles },
+  { id: 'require-vscode-valid-json', rule: requireVscodeValidJson },
+  { id: 'require-editorconfig', rule: requireEditorconfig },
+  { id: 'require-gitignore', rule: requireGitignore },
+  { id: 'require-dockerignore', rule: requireDockerignore },
+  { id: 'require-gitattributes', rule: requireGitattributes },
+  { id: 'require-biome-extends-root', rule: requireBiomeExtendsRoot },
+  { id: 'require-oxlint-extends-root', rule: requireOxlintExtendsRoot },
+  { id: 'no-linter-config-override', rule: noLinterConfigOverride },
+  { id: 'no-cross-product-imports', rule: noCrossProductImports },
+  { id: 'no-deep-relative-shared-imports', rule: noDeepRelativeSharedImports },
+  { id: 'no-cross-layer-imports', rule: noCrossLayerImports },
+  { id: 'no-empty-tests-directory', rule: noEmptyTestsDirectory },
+  { id: 'no-empty-benchmarks-directory', rule: noEmptyBenchmarksDirectory },
+  { id: 'validate-filename-casing', rule: validateFilenameCasing },
+  { id: 'enforce-docs-naming', rule: enforceDocsNaming },
+  { id: 'enforce-test-file-naming', rule: enforceTestFileNaming },
+  { id: 'no-todo-in-docs', rule: noTodoInDocs },
+  { id: 'no-broken-markdown-links', rule: noBrokenMarkdownLinks },
+  { id: 'no-nextjs-artifacts', rule: noNextjsArtifacts },
+  { id: 'no-gatsby-artifacts', rule: noGatsbyArtifacts },
+  { id: 'no-hugo-configs', rule: noHugoConfigs },
+  { id: 'no-unapproved-ssg', rule: noUnapprovedSsg },
+  { id: 'validate-mjs-cjs-usage', rule: validateMjsCjsUsage },
+  { id: 'no-exports-overlap', rule: noExportsOverlap },
+  { id: 'validate-root-biome-json', rule: validateRootBiomeJson },
+  { id: 'validate-root-oxlintrc-json', rule: validateRootOxlintrcJson },
+  { id: 'enforce-benchmark-file-naming', rule: enforceBenchmarkFileNaming },
+  { id: 'no-react-native-artifacts', rule: noReactNativeArtifacts },
+  { id: 'no-docker-compose-v1', rule: noDockerComposeV1 },
+  { id: 'detect-undeclared-dependencies', rule: detectUndeclaredDependencies },
+  { id: 'warn-vscode-settings-conflicts', rule: warnVscodeSettingsConflicts },
+  { id: 'validate-vscode-extensions', rule: validateVscodeExtensions },
+  { id: 'no-sensitive-public-files', rule: noSensitivePublicFiles },
+  { id: 'validate-root-package-config', rule: validateRootPackageConfig },
+  { id: 'validate-script-descriptions', rule: validateScriptDescriptions },
+  { id: 'validate-root-scripts-consistency', rule: validateRootScriptsConsistency },
+  { id: 'no-deploy-scripts', rule: noDeployScripts },
+  { id: 'no-lint-ignore-directives', rule: noLintIgnoreDirectives },
+  { id: 'validate-package-tags', rule: validatePackageTags },
+  { id: 'no-env-or-globals-in-shared-libs', rule: noEnvOrGlobalsInSharedLibs },
+  { id: 'no-tsconfig-duplicate-extends', rule: noTsconfigDuplicateExtends },
+  { id: 'validate-tsconfig-rootdir-layout', rule: validateTsconfigRootdirLayout },
+  { id: 'no-tsconfig-outdir-rootdir-files', rule: noTsconfigOutdirRootdirFiles },
+  { id: 'validate-tsconfig-include-patterns', rule: validateTsconfigIncludePatterns },
+  { id: 'validate-wrangler-cron-syntax', rule: validateWranglerCronSyntax },
+  { id: 'wrangler-name-matches-package', rule: wranglerNameMatchesPackage },
+  { id: 'wrangler-main-entrypoint-exists', rule: wranglerMainEntrypointExists },
+  { id: 'wrangler-binding-names-unique', rule: wranglerBindingNamesUnique },
+  { id: 'no-forbidden-node-imports-in-workers', rule: noForbiddenNodeImportsInWorkers },
+  { id: 'no-hardcoded-localhost-ports', rule: noHardcodedLocalhostPorts },
+];
+
+describe('workspace-rules-2 — bulk inputs() smoke-coverage', () => {
+  for (const { id, rule } of BULK_INPUTS_RULES_2) {
+    it(`workspace/${id}.inputs() runs without throwing`, async () => {
+      if (typeof rule.inputs !== 'function') {
+        return;
+      }
+      const ctx: WorkspaceContext = mockContext({
+        rootDir: '/workspace',
+        files: new Map([
+          ['/workspace/foo.ts', 'export const a = 1;'],
+          ['/workspace/tsconfig.json', '{"compilerOptions":{}}'],
+          ['/workspace/package.json', '{"name":"x"}'],
+          ['/workspace/.editorconfig', '[*]\nindent_style = space\n'],
+          ['/workspace/.gitignore', 'node_modules\n'],
+          ['/workspace/biome.json', '{}'],
+          ['/workspace/.oxlintrc.json', '{}'],
+          ['/workspace/wrangler.toml', 'name = "x"\n'],
+        ]),
+        packages: [
+          {
+            name: '@/a',
+            path: '/workspace/packages/a/package.json',
+            dir: '/workspace/packages/a',
+            packageJson: { name: '@/a' },
+          },
+        ],
+      });
+      const inputs = await rule.inputs!(ctx);
+      expect(Array.isArray(inputs)).toBe(true);
+    });
+  }
+});
