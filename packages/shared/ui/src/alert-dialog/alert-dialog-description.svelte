@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * AlertDialog description — supporting body copy beneath the
+   * alert dialog title. Wraps Bits UI's `AlertDialog.Description`
+   * with muted-foreground / small-text styling.
+   *
+   * @module
+   */
+
   import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

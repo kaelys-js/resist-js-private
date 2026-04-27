@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * AlertDialog content — centered modal panel of the alert
+   * dialog. Wraps Bits UI's `AlertDialog.Content` with our portal
+   * + overlay composition and the open/close fade-zoom animation.
+   *
+   * @module
+   */
+
   import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
   import AlertDialogPortal from './alert-dialog-portal.svelte';
   import AlertDialogOverlay from './alert-dialog-overlay.svelte';

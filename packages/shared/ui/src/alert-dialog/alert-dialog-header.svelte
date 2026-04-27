@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * AlertDialog header — flex column container for the title +
+   * description at the top of the alert dialog content.
+   * Center-aligned on mobile and start-aligned on `sm` and up.
+   *
+   * @module
+   */
+
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
 
