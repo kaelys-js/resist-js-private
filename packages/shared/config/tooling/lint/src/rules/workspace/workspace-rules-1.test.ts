@@ -2918,6 +2918,48 @@ describe('workspace/no-coverage-directory', () => {
     const results: LintResult[] = await noCoverageDirectory.check(ctx);
     expect(results.length).toBe(0);
   });
+
+  it('inputs() returns package paths', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      rootDir: '/workspace',
+      packages: [
+        {
+          name: '@/a',
+          path: '/workspace/packages/a/package.json',
+          dir: '/workspace/packages/a',
+          packageJson: { name: '@/a' },
+        },
+        {
+          name: '@/b',
+          path: '/workspace/packages/b/package.json',
+          dir: '/workspace/packages/b',
+          packageJson: { name: '@/b' },
+        },
+      ],
+    });
+    expect(typeof noCoverageDirectory.inputs).toBe('function');
+    const inputs = await noCoverageDirectory.inputs!(ctx);
+    expect(Array.isArray(inputs)).toBe(true);
+    expect(inputs).toEqual([
+      '/workspace/packages/a/package.json',
+      '/workspace/packages/b/package.json',
+    ]);
+  });
+
+  it('inputs() handles getWorkspacePackages failure gracefully', async () => {
+    const baseCtx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+    const ctx: WorkspaceContext = {
+      ...baseCtx,
+      getWorkspacePackages: (): Promise<WorkspacePackage[]> =>
+        new Promise<WorkspacePackage[]>(
+          (_resolve: (v: WorkspacePackage[]) => void, reject: (e: Error) => void): void => {
+            reject(new Error('boom'));
+          },
+        ),
+    };
+    const inputs = await noCoverageDirectory.inputs!(ctx);
+    expect(inputs).toEqual([]);
+  });
 });
 
 describe('workspace/no-hardcoded-urls', () => {
