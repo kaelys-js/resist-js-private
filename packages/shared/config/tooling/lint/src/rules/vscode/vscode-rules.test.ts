@@ -7,6 +7,7 @@ import noUnlocalizedStrings from './no-unlocalized-strings.ts';
 import noUnreadSettings from './no-unread-settings.ts';
 import noUnwiredCommands from './no-unwired-commands.ts';
 import requireErrorBoundary from './require-error-boundary.ts';
+import { vscodeRuleInputs } from './_shared-inputs.ts';
 
 // =============================================================================
 // Test Helpers
@@ -815,5 +816,46 @@ const msg = error instanceof Error ? error.message : String(error);
 
     const results: LintResult[] = await requireErrorBoundary.check(ctx);
     expect(results).toHaveLength(0);
+  });
+});
+
+describe('vscode/_shared-inputs', () => {
+  it('vscodeRuleInputs returns ts files + package paths', async () => {
+    const files: Record<string, string> = {
+      '/mock/a.ts': 'export const a = 1;',
+      '/mock/b.ts': 'export const b = 2;',
+      '/mock/c.md': 'docs',
+    };
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@/x',
+        path: '/mock/packages/x/package.json',
+        dir: '/mock/packages/x',
+        packageJson: { name: '@/x' },
+      },
+      {
+        name: '@/y',
+        path: '/mock/packages/y/package.json',
+        dir: '/mock/packages/y',
+        packageJson: { name: '@/y' },
+      },
+    ];
+    const ctx: WorkspaceContext = createMockContext(files, packages);
+    const inputs = await vscodeRuleInputs(ctx);
+    expect(inputs).toEqual(
+      expect.arrayContaining([
+        '/mock/a.ts',
+        '/mock/b.ts',
+        '/mock/packages/x/package.json',
+        '/mock/packages/y/package.json',
+      ]),
+    );
+    expect(inputs).not.toContain('/mock/c.md');
+  });
+
+  it('vscodeRuleInputs returns empty arrays gracefully', async () => {
+    const ctx: WorkspaceContext = createMockContext({}, []);
+    const inputs = await vscodeRuleInputs(ctx);
+    expect(inputs).toEqual([]);
   });
 });
