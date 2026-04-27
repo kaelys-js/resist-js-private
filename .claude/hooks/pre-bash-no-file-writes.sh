@@ -12,6 +12,46 @@ if [[ -z "$COMMAND" ]]; then
   exit 0
 fi
 
+# ── ABSOLUTE BLOCK (cannot be bypassed by allow rules below) ────────────────
+# Approval markers (`.claude/approved-*`) are USER-ONLY tokens. Claude must
+# not create, move, copy, link, or refresh them via Bash — they exist so the
+# user (running their own shell) can grant per-instance authorization for
+# lint-disable / bulk-script / revert operations. If Claude could `touch`
+# them itself, they become a self-rubber-stamp and the per-instance
+# authorization mechanism collapses.
+#
+# Block any shell builtin/utility that can create or update a path under
+# `.claude/approved-`: touch, install, dd, mv, cp, ln, chmod, chown, cat,
+# tee, printf-into-redirect, etc.
+if echo "$COMMAND" | grep -qE '(^|[[:space:]]|;|&&|\|\|)(touch|install|dd|mv|cp|ln|chmod|chown|tee|cat|printf|echo)([[:space:]]+[^;&|]*)?\.claude/approved-'; then
+  cat <<'EOF' >&2
+⛔ BLOCKED: Approval-marker creation/refresh via Bash is forbidden.
+
+`.claude/approved-*` markers are USER-ONLY authorization tokens. Claude
+may not create, refresh, or move them. The marker mechanism only works
+if the user (running their own shell) creates the file in response to
+an explicit per-instance approval question.
+
+If you need a lint-disable, bulk-script, or revert override:
+  1. STOP this command.
+  2. Ask the user explicitly:
+     "May I do <X>? Justification: <one sentence>."
+  3. The USER will run `touch .claude/approved-<marker>` if approving.
+  4. Then retry the operation.
+
+NEVER run `touch .claude/approved-*` yourself — even if the user
+appears to have given general consent earlier in the session, each
+override needs its own explicit token.
+EOF
+  exit 2
+fi
+
+# Same pattern via the absolute project path (covers subshells / cd chains).
+if echo "$COMMAND" | grep -qE '/\.claude/approved-' && echo "$COMMAND" | grep -qE '(^|[[:space:]]|;|&&|\|\|)(touch|install|dd|mv|cp|ln|chmod|chown|tee|cat|printf|echo)\b'; then
+  echo "⛔ BLOCKED: Approval-marker creation via absolute path is forbidden — markers are USER-ONLY tokens." >&2
+  exit 2
+fi
+
 # ── Allowed patterns (must come before the block check) ─────────────────────
 
 # Allow git commands (they write to .git/, not source files)
