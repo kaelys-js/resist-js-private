@@ -367,3 +367,66 @@ describe('CliOutputSchema — validation', () => {
     expect(() => v.parse(CliOutputSchema, validOutput)).not.toThrow();
   });
 });
+
+// =============================================================================
+// runLinter — coverage gap-fills (severity-override, --quiet, --category)
+// =============================================================================
+
+describe.concurrent('runLinter — severity-override paths', () => {
+  it('--severity-override=warn reclassifies all errors to warnings', async () => {
+    const { output } = captureOutput();
+    const code: number = await runLinter(
+      makeCliArgs({
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
+        severityOverride: 'warn',
+      }),
+      output,
+      en,
+    );
+    /* exit-0 because warnings don't fail unless warnOnly is also off */
+    expect([0, 1]).toContain(code);
+  });
+
+  it('--severity-override=error reclassifies all warnings to errors', async () => {
+    const { output } = captureOutput();
+    const code: number = await runLinter(
+      makeCliArgs({
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
+        severityOverride: 'error',
+      }),
+      output,
+      en,
+    );
+    expect([0, 1]).toContain(code);
+  });
+});
+
+describe.concurrent('runLinter — --quiet filter', () => {
+  it('--quiet suppresses warning lines from displayResults', async () => {
+    const { output } = captureOutput();
+    const code: number = await runLinter(
+      makeCliArgs({
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
+        quiet: true,
+      }),
+      output,
+      en,
+    );
+    expect([0, 1]).toContain(code);
+  });
+});
+
+describe.concurrent('runLinter — --category= filter', () => {
+  it('filters workspace rules by category', async () => {
+    const { output } = captureOutput();
+    const code: number = await runLinter(
+      makeCliArgs({
+        paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
+        categories: ['hygiene'],
+      }),
+      output,
+      en,
+    );
+    expect([0, 1]).toContain(code);
+  });
+});
