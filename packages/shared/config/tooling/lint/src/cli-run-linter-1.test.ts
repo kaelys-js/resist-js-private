@@ -6,7 +6,6 @@
 
 import { describe, expect, it } from 'vitest';
 import { resolve } from 'node:path';
-import * as v from 'valibot';
 
 import {
   shouldLint,

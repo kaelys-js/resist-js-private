@@ -23,7 +23,6 @@ import {
   pathsIntersectDomain,
   shouldRunWorkspaceRule,
   type CliArgs,
-  type CliOutput,
 } from './cli-helpers.ts';
 import type { LintConfig } from './config/schema.ts';
 import type { LintFix, LintResult, PackageJsonRule, PackageJson } from './framework/types.ts';

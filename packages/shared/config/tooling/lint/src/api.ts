@@ -19,7 +19,6 @@ import { runTypeScriptRules } from '@/lint/framework/oxc-runner.ts';
 import { loadAllRules } from '@/lint/framework/rule-loader.ts';
 import type { LintResult, TypeScriptRule, Stage } from '@/lint/framework/types.ts';
 import { resolveLocale } from '@/lint/locale/registry.ts';
-import type { LintStrings } from '@/lint/locale/schema.ts';
 
 // =============================================================================
 // Schemas
