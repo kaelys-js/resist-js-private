@@ -91,7 +91,12 @@ export function loadAllRules(strings: LintStrings): Promise<LoadedRules> {
   return cachedRules;
 }
 
-/** Uncached implementation — called once per process. */
+/**
+ * Uncached implementation — called once per process.
+ *
+ * @param strings - Locale strings for user-facing messages
+ * @returns Aggregated rules and registered tools loaded from disk
+ */
 async function _loadAllRulesUncached(strings: LintStrings): Promise<LoadedRules> {
   const currentDir: string = fileURLToPath(new URL('.', import.meta.url));
   const rulesDir: string = join(currentDir, '..', 'rules');

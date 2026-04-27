@@ -1084,13 +1084,14 @@ function processBailTasks(
  * Separated from {@link runLinter} so the programmatic API can call this
  * directly without CLI-specific I/O (help text, formatting, exit codes).
  *
- * @param {CliArgs} cliArgs - Parsed CLI arguments (or synthesized from API options)
- * @param {CliOutput} output - Output sink for messages
- * @param {LintStrings} strings - Locale strings for user-facing messages
- * @param {LintConfig} config - Loaded and merged config
- * @param {Awaited<ReturnType<typeof loadAllRules>>} loaded - All discovered rules
- * @param {string} cwd - Working directory
- * @returns {Promise<LintCoreResult>} Lint results, file count, and fix count
+ * @param cliArgs - Parsed CLI arguments (or synthesized from API options)
+ * @param output - Output sink for messages
+ * @param strings - Locale strings for user-facing messages
+ * @param config - Loaded and merged config
+ * @param loaded - All discovered rules
+ * @param cwd - Working directory
+ * @param stdinContent - Optional stdin source text (for `--stdin-filename` mode)
+ * @returns Lint results, file count, and fix count
  */
 export async function _runLintCore(
   cliArgs: CliArgs,
@@ -1858,10 +1859,11 @@ export async function _runLintCore(
  * Loads config, discovers rules, collects files, runs rules,
  * applies fixes, and outputs results. Returns an exit code.
  *
- * @param {CliArgs} cliArgs - Parsed CLI arguments
- * @param {CliOutput} output - Output sink for messages
- * @param {LintStrings} strings - Locale strings for user-facing messages
- * @returns {Promise<number>} Exit code (0 = clean, 1 = errors, 2 = crash)
+ * @param cliArgs - Parsed CLI arguments
+ * @param output - Output sink for messages
+ * @param strings - Locale strings for user-facing messages
+ * @param stdinContent - Optional stdin source text (for `--stdin-filename` mode)
+ * @returns Exit code (0 = clean, 1 = errors, 2 = crash)
  */
 export async function runLinter(
   cliArgs: CliArgs,

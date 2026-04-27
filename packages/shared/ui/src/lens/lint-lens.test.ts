@@ -53,18 +53,10 @@ const svelteFiles: string[] = readdirSync(UI_SRC, { recursive: true })
   .map((f: string): string => join(UI_SRC, f));
 
 /**
- * Read a `.svelte` component source PLUS its adjacent `types.ts` when present.
+ * Read a .svelte component source plus its adjacent types.ts when present.
  *
- * Some components (e.g. `button`, `badge`, `lens-props-table`) extract their
- * `tv()` config / valibot schema / public types into a sibling `types.ts` file
- * so `index.ts` can re-export them via standard TS module resolution (avoiding
- * the workspace-level `*.svelte` ambient declaration). For lens-lint scans
- * that look for textual markers like `v.strictObject(` / `safeParse(` /
- * `stripSvelteProps(` / `@values`, the adjacent `types.ts` is part of the
- * component's effective surface and must be included.
- *
- * @param sveltePath - Absolute path to the primary `.svelte` file
- * @returns Concatenated source: the `.svelte` file plus the adjacent `types.ts` if it exists
+ * @param sveltePath - Absolute path to the primary .svelte file
+ * @returns Concatenated source (svelte plus adjacent types.ts if it exists)
  */
 function readComponentSource(sveltePath: string): string {
   const sv: string = readFileSync(sveltePath, 'utf8');

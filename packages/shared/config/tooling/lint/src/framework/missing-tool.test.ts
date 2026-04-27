@@ -25,7 +25,9 @@ import { ToolRegistry, type ExternalTool, type WorkspaceTool } from './tool-orch
 /**
  * Build a minimal per-file tool with sensible defaults. Pattern matches any
  * `.ts` file so `runAll([...ts])` routes files to it.
- * @returns Description
+ *
+ * @param overrides - Optional fields to override on the mock tool
+ * @returns A minimal ExternalTool instance
  */
 function makeExternalTool(overrides: Partial<ExternalTool> = {}): ExternalTool {
   return {
@@ -39,7 +41,12 @@ function makeExternalTool(overrides: Partial<ExternalTool> = {}): ExternalTool {
   };
 }
 
-/** Build a minimal workspace-level tool with sensible defaults. */
+/**
+ * Build a minimal workspace-level tool with sensible defaults.
+ *
+ * @param overrides - Optional fields to override on the mock workspace tool
+ * @returns A minimal WorkspaceTool instance
+ */
 function makeWorkspaceTool(overrides: Partial<WorkspaceTool> = {}): WorkspaceTool {
   return {
     name: 'mock-ws-tool',
