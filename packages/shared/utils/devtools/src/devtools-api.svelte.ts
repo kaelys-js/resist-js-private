@@ -296,8 +296,7 @@ export function createDevtoolsAPI(
 
     unregister(namespace: Str): Void {
       extensions.delete(namespace);
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Intentional extension unregistration
-      delete (devtools as Record<Str, unknown>)[namespace];
+      Reflect.deleteProperty(devtools as Record<Str, unknown>, namespace);
     },
 
     get appName(): Str {
@@ -360,8 +359,7 @@ export function createDevtoolsAPI(
           );
           return;
         }
-        // eslint-disable-next-line unicorn/no-console-spaces -- Intentional badge padding for %c styled output
-        console.log('%c Web Vitals ', HELP_HEADER);
+        console.log('%cWeb Vitals', HELP_HEADER);
         for (const m of metrics) {
           const isTimingMetric: Bool =
             m.name !== 'CLS' && m.name !== 'navigationTiming' && m.name !== 'networkInformation';
@@ -409,8 +407,7 @@ export function createDevtoolsAPI(
           return;
         }
         const snap: ConnectionSnapshot = snapResult.data;
-        // eslint-disable-next-line unicorn/no-console-spaces -- Intentional badge padding for %c styled output
-        console.log('%c Device & Connection ', HELP_HEADER);
+        console.log('%cDevice & Connection', HELP_HEADER);
         const entries: Array<[Str, Str]> = [
           ['Quality', snap.quality],
           ['Effective Type', snap.effectiveType || '—'],
@@ -500,8 +497,7 @@ export function createDevtoolsAPI(
     help(): Void {
       const globalName = `window.${devtoolsKey}`;
 
-      // eslint-disable-next-line unicorn/no-console-spaces -- Intentional badge padding for %c styled output
-      console.log(`%c ${appName} Devtools `, HELP_HEADER);
+      console.log(`%c${appName} Devtools`, HELP_HEADER);
       console.log(`%cAccess via: %c${globalName}`, HELP_DESC, HELP_METHOD);
       console.log('');
 
@@ -559,8 +555,7 @@ export function createDevtoolsAPI(
       }
       watchers.clear();
 
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Intentional global cleanup
-      delete (window as unknown as Record<Str, unknown>)[devtoolsKey];
+      Reflect.deleteProperty(window as unknown as Record<Str, unknown>, devtoolsKey);
     },
   };
 }
