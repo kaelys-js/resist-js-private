@@ -1,3 +1,12 @@
+/**
+ * RenderSnippetConfig — internal helper class that wraps a
+ * Svelte Snippet with its params so the data-table adapter can
+ * identify and render it from `columnDef.cell` /
+ * `columnDef.header`.
+ *
+ * @module
+ */
+
 import type { Snippet } from 'svelte';
 
 /**

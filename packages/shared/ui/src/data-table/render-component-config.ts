@@ -1,3 +1,12 @@
+/**
+ * RenderComponentConfig — internal helper class that wraps a
+ * Svelte component reference with its props so the data-table
+ * adapter can identify and instantiate it from `columnDef.cell`
+ * / `columnDef.header`.
+ *
+ * @module
+ */
+
 import type { Component, ComponentProps } from 'svelte';
 
 /**

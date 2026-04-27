@@ -1,3 +1,12 @@
+/**
+ * Lens manifest for the DataView component (data-display
+ * category) — switchable list / grid view with pagination and
+ * sorting. Tagged for data / grid / list / view-switcher
+ * lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
