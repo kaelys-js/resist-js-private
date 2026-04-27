@@ -1,4 +1,12 @@
 <script module lang="ts">
+  /**
+   * CodeBlock — syntax-highlighted code block powered by Shiki
+   * with light / dark theme switching, optional language badge,
+   * line numbers, word wrap, and inline search.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { BoolSchema, StrSchema } from '@/schemas/common';
 

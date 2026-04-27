@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Collapsible content — animated content panel that expands /
+   * collapses with the parent `Collapsible.Root`. Wraps Bits UI's
+   * `Collapsible.Content` with the open/close height animation.
+   *
+   * @module
+   */
+
   import { Collapsible as CollapsiblePrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

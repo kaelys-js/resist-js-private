@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * Checkbox — toggleable boolean input with checked, unchecked,
+   * and indeterminate states. Wraps Bits UI's `Checkbox.Root`
+   * with our `data-slot` convention and the check / minus
+   * indicator icons.
+   *
+   * @module
+   */
+
   import { Checkbox as CheckboxPrimitive } from 'bits-ui';
   import CheckIcon from '@lucide/svelte/icons/check';
   import MinusIcon from '@lucide/svelte/icons/minus';

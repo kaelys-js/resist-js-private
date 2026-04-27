@@ -1,3 +1,11 @@
+/**
+ * Lens manifest + examples for the Collapsible component
+ * (disclosure category) — expandable and collapsible content
+ * section. Ships basic and open-by-default examples.
+ *
+ * @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

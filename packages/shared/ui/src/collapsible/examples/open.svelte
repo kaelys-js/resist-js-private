@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Collapsible Lens example — project-files list initialized in
+   * the open state, demonstrating the default-expanded use case.
+   *
+   * @module
+   */
+
   import * as Collapsible from '@/ui/collapsible';
   import Button from '@/ui/button/button.svelte';
   import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
