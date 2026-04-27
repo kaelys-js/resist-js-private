@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Calendar head cell — single weekday header cell (e.g.,
+   * "Mo" / "Tu") rendered above the grid body. Wraps Bits UI's
+   * `Calendar.HeadCell` with muted text styling.
+   *
+   * @module
+   */
+
   import { Calendar as CalendarPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

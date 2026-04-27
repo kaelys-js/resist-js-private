@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Calendar months — outer flex container that holds one or more
+   * `CalendarMonth` columns. Stacks column on mobile and row on
+   * `md` and up.
+   *
+   * @module
+   */
+
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
 

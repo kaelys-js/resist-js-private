@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Calendar grid — top-level calendar grid container that holds
+   * the head + body sub-components. Wraps Bits UI's
+   * `Calendar.Grid` with column-flex layout.
+   *
+   * @module
+   */
+
   import { Calendar as CalendarPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Calendar nav — `<nav>` container for the prev / next month
+   * buttons rendered above the calendar grid.
+   *
+   * @module
+   */
+
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
 

@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Calendar caption — month / year display above the calendar
+   * grid. Renders either a label or one / two dropdown(s) based
+   * on `captionLayout`, with locale-aware formatting via
+   * `Intl.DateFormat`.
+   *
+   * @module
+   */
+
   import { DateFormatter, type DateValue, getLocalTimeZone } from '@internationalized/date';
   import type { ComponentProps } from 'svelte';
   import type Calendar from './calendar.svelte';
