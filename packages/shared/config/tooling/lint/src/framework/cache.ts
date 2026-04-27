@@ -366,15 +366,34 @@ export function computeHash(content: string): string {
 }
 
 /**
- * Compute a hash representing the current set of rules.
+ * Compute a hash representing the current set of rules AND their
+ * resolved severity from the user's `.resist-lint.jsonc` config.
  *
- * When rules are added, removed, or renamed, this hash changes,
- * causing the entire cache to invalidate.
+ * When rules are added, removed, renamed, OR have their severity
+ * flipped (e.g. `"off"` → `"error"`), this hash changes, causing the
+ * entire cache to invalidate. Hashing only `ruleIds` (the previous
+ * behavior) was a bug: a rule flipping from `"off"` to `"error"`
+ * leaves the rule-id set unchanged, so the cache reused stale
+ * "no diagnostics" results for files whose content hadn't changed,
+ * silently hiding the newly-active rule's findings.
  *
- * @param {string[]} ruleIds - Sorted array of all rule IDs
- * @returns {string} Hex-encoded MD5 hash of rule IDs
+ * @param {string[]} ruleIds - Array of all loaded rule IDs (unsorted OK).
+ * @param {Record<string, unknown>} rulesConfig - The merged `rules` map
+ *   from `.resist-lint.jsonc` (rule-id → severity, "off" / "warn" /
+ *   "error" / `[severity, options]`). Object key order is normalized
+ *   internally so callers don't need to sort.
+ * @returns {string} Hex-encoded MD5 hash of (rule IDs + resolved rules map).
  */
-export function computeRuleHash(ruleIds: string[]): string {
-  const sorted: string[] = [...ruleIds].toSorted();
-  return computeHash(sorted.join('\n'));
+export function computeRuleHash(
+  ruleIds: string[],
+  rulesConfig: Record<string, unknown> = {},
+): string {
+  const sortedIds: string[] = [...ruleIds].toSorted();
+  const sortedKeys: string[] = Object.keys(rulesConfig).toSorted();
+  const sortedRules: Record<string, unknown> = {};
+  for (const key of sortedKeys) {
+    sortedRules[key] = rulesConfig[key];
+  }
+  const payload: string = sortedIds.join('\n') + '\n----\n' + JSON.stringify(sortedRules);
+  return computeHash(payload);
 }

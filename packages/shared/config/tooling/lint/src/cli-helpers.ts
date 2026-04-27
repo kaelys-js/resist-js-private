@@ -834,6 +834,7 @@ export function applyFixes(content: string, fixes: LintFix[]): string {
 /** Track whether the JSON schema has already been written this process. */
 let schemaWritten: boolean = false;
 
+/** Description. */
 export function writeJsonSchema(
   tsRules: TypeScriptRule[],
   pkgRules: PackageJsonRule[],
@@ -1269,7 +1270,7 @@ export async function _runLintCore(
     ...allTsRules.map((r: TypeScriptRule): string => r.id),
     ...allPkgRules.map((r: PackageJsonRule): string => r.id),
   ];
-  const ruleHash: string = computeRuleHash(allRuleIds);
+  const ruleHash: string = computeRuleHash(allRuleIds, config.rules);
   let lintCache: LintCache | null = null;
 
   if (cliArgs.cache && !cliArgs.stdinFilename) {
