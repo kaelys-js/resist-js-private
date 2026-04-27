@@ -10,17 +10,21 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { execFileAsync } from '@/lint/framework/exec.ts';
+import * as NodeFsModule from 'node:fs';
 import { existsSync, readFileSync, readdirSync, type Dirent, type PathLike } from 'node:fs';
 import { join } from 'node:path';
-import { isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
+import * as ToolOrchestratorModule from '@/lint/framework/tool-orchestrator.ts';
 import { runTsgoAllPackages, scopeTsconfigDirsToFiles, transformTsgoOutput } from './tsgo.ts';
+import type { LintCache } from '@/lint/framework/cache.ts';
+
+const { isCommandAvailable } = ToolOrchestratorModule;
 
 vi.mock('@/lint/framework/exec.ts', () => ({
   execFileAsync: vi.fn(),
 }));
 
 vi.mock('node:fs', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('node:fs')>();
+  const actual = await importOriginal<typeof NodeFsModule>();
   return {
     ...actual,
     existsSync: vi.fn(),
@@ -33,7 +37,7 @@ vi.mock('node:fs', async (importOriginal) => {
  * inside runTsgoAllPackages does not short-circuit these tests in
  * environments where tsgo is not on PATH. */
 vi.mock('@/lint/framework/tool-orchestrator.ts', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/lint/framework/tool-orchestrator.ts')>();
+  const actual = await importOriginal<typeof ToolOrchestratorModule>();
   return {
     ...actual,
     isCommandAvailable: vi.fn((): boolean => true),
@@ -397,7 +401,7 @@ describe('runTsgoAllPackages', () => {
     const fakeCache = {
       getTool: vi.fn((): typeof cachedResults => cachedResults),
       setTool: vi.fn(),
-    } as unknown as import('@/lint/framework/cache.ts').LintCache;
+    } as unknown as LintCache;
 
     const results = await runTsgoAllPackages('/ws', [], fakeCache);
     expect(results).toEqual(cachedResults);
@@ -432,7 +436,7 @@ describe('runTsgoAllPackages', () => {
     const fakeCache = {
       getTool: vi.fn((): null => null),
       setTool,
-    } as unknown as import('@/lint/framework/cache.ts').LintCache;
+    } as unknown as LintCache;
 
     await runTsgoAllPackages('/ws', [], fakeCache);
     expect(vi.mocked(execFileAsync)).toHaveBeenCalledTimes(1);
@@ -464,7 +468,7 @@ describe('runTsgoAllPackages', () => {
     const fakeCache = {
       getTool: vi.fn((): null => null),
       setTool,
-    } as unknown as import('@/lint/framework/cache.ts').LintCache;
+    } as unknown as LintCache;
 
     const results = await runTsgoAllPackages('/ws', [], fakeCache);
     expect(results[0]?.ruleId).toBe('internal/tool-crash');
