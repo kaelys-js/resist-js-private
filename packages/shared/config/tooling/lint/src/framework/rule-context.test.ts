@@ -269,6 +269,7 @@ describe('search — error handling', () => {
   it('skips files when reader throws an error', async () => {
     let callCount: number = 0;
     const failReader = async (_path: string): Promise<string> => {
+      await Promise.resolve();
       callCount++;
       throw new Error('file read failed');
     };
@@ -284,6 +285,7 @@ describe('search — error handling', () => {
   it('continues searching other files after one fails', async () => {
     let callIndex: number = 0;
     const mixedReader = async (_path: string): Promise<string> => {
+      await Promise.resolve();
       callIndex++;
       if (callIndex === 1) {
         throw new Error('first file fails');
