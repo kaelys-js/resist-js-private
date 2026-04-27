@@ -43,44 +43,35 @@ import type { TemplateLiteralPart, TemplateLiteralSchema } from '@/schemas/templ
  */
 export type SchemaToTemplateLiteralString<TSchema> =
   // v.string() → string
-  // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
-  TSchema extends v.StringSchema<unknown>
+  TSchema extends v.StringSchema<infer _StrM>
     ? string
     : // v.number() → `${number}`
-      // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
-      TSchema extends v.NumberSchema<unknown>
+      TSchema extends v.NumberSchema<infer _NumM>
       ? `${number}`
       : // v.boolean() → `${boolean}` (= 'true' | 'false')
-        // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
-        TSchema extends v.BooleanSchema<unknown>
+        TSchema extends v.BooleanSchema<infer _BoolM>
         ? `${boolean}`
         : // v.bigint() → `${bigint}`
-          // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
-          TSchema extends v.BigintSchema<unknown>
+          TSchema extends v.BigintSchema<infer _BigM>
           ? `${bigint}`
           : // v.null() → 'null'
-            // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
-            TSchema extends v.NullSchema<unknown>
+            TSchema extends v.NullSchema<infer _NullM>
             ? 'null'
             : // v.undefined() → 'undefined'
-              // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
-              TSchema extends v.UndefinedSchema<unknown>
+              TSchema extends v.UndefinedSchema<infer _UndefM>
               ? 'undefined'
               : // v.literal(L) → `${L}`
-                // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
-                TSchema extends v.LiteralSchema<infer TLiteral, unknown>
+                TSchema extends v.LiteralSchema<infer TLiteral, infer _LitM>
                 ? TLiteral extends string | number | bigint | boolean | null | undefined
                   ? `${TLiteral}`
                   : never
                 : // v.picklist([...]) → union of stringified options
-                  // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
-                  TSchema extends v.PicklistSchema<infer TOptions, unknown>
+                  TSchema extends v.PicklistSchema<infer TOptions, infer _PickM>
                   ? TOptions[number] extends string | number | bigint | boolean | null | undefined
                     ? `${TOptions[number]}`
                     : never
                   : // v.enum(E) → union of stringified enum values
-                    // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
-                    TSchema extends v.EnumSchema<infer TEnum, unknown>
+                    TSchema extends v.EnumSchema<infer TEnum, infer _EnumM>
                     ? TEnum[keyof TEnum] extends
                         | string
                         | number
@@ -91,43 +82,36 @@ export type SchemaToTemplateLiteralString<TSchema> =
                       ? `${TEnum[keyof TEnum]}`
                       : never
                     : // v.union([...]) → union of inner string representations
-                      // @ts-expect-error -- conditional branch: `unknown` doesn't satisfy ErrorMessage constraint
-                      TSchema extends v.UnionSchema<infer TOptions, unknown>
+                      TSchema extends v.UnionSchema<infer TOptions, infer _UnionM>
                       ? TOptions extends ReadonlyArray<
                           v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>
                         >
                         ? SchemaToTemplateLiteralString<TOptions[number]>
                         : never
                       : // v.optional(T) → inner | 'undefined'
-                        TSchema extends v.OptionalSchema<infer TWrapped, unknown>
+                        TSchema extends v.OptionalSchema<infer TWrapped, infer _OptM>
                         ? TWrapped extends v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>
                           ? SchemaToTemplateLiteralString<TWrapped> | 'undefined'
                           : never
                         : // v.nullable(T) → inner | 'null'
-                          TSchema extends v.NullableSchema<infer TWrapped, unknown>
+                          TSchema extends v.NullableSchema<infer TWrapped, infer _NullableM>
                           ? TWrapped extends v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>
                             ? SchemaToTemplateLiteralString<TWrapped> | 'null'
                             : never
                           : // v.nullish(T) → inner | 'null' | 'undefined'
-                            TSchema extends v.NullishSchema<infer TWrapped, unknown>
+                            TSchema extends v.NullishSchema<infer TWrapped, infer _NullishM>
                             ? TWrapped extends v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>
                               ? SchemaToTemplateLiteralString<TWrapped> | 'null' | 'undefined'
                               : never
                             : // v.pipe(S, ...) → use base schema's type
                               TSchema extends v.SchemaWithPipe<infer TPipe>
-                              ? TPipe extends readonly [
-                                  infer TBase,
-                                  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- pipe items not used
-                                  ...infer _TRest,
-                                ]
+                              ? TPipe extends readonly [infer TBase, ...infer _TRest]
                                 ? SchemaToTemplateLiteralString<TBase>
                                 : never
                               : // Nested TemplateLiteralSchema → use its inferred output
                                 TSchema extends TemplateLiteralSchema<
-                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                     infer _TParts,
                                     infer TOutput,
-                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                     infer _TMessage
                                   >
                                 ? TOutput
