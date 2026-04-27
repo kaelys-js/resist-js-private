@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * AlertDialog title — heading at the top of the alert dialog
+   * content. Wraps Bits UI's `AlertDialog.Title` with the default
+   * `text-lg font-semibold` styling.
+   *
+   * @module
+   */
+
   import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

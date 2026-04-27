@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * AlertDialog overlay — semi-transparent black scrim behind the
+   * alert dialog content. Wraps Bits UI's `AlertDialog.Overlay`
+   * with the open/close fade animation.
+   *
+   * @module
+   */
+
   import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 
