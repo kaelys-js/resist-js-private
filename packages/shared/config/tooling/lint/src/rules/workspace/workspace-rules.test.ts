@@ -7572,15 +7572,14 @@ describe('workspace/require-gitattributes', () => {
   });
 
   it('reports error for duplicate glob rules', async () => {
-    const content: string =
-      [
-        '* text=auto',
-        '*.ts text eol=lf',
-        '*.ts text eol=crlf',
-        '*.js text eol=lf',
-        'pnpm-lock.yaml -text',
-        '*.png binary',
-      ].join('\n') + '\n';
+    const content: string = `${[
+      '* text=auto',
+      '*.ts text eol=lf',
+      '*.ts text eol=crlf',
+      '*.js text eol=lf',
+      'pnpm-lock.yaml -text',
+      '*.png binary',
+    ].join('\n')}\n`;
     const files: Map<string, string> = new Map([['/workspace/.gitattributes', content]]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireGitattributes.check(ctx);
@@ -9379,12 +9378,15 @@ describe('workspace/validate-root-scripts-consistency', () => {
       'test',
     ];
     for (const name of expected) {
-      scripts[name] =
-        name === 'build'
-          ? 'wrong command'
-          : name === 'prepare' || name === 'preinstall'
-            ? 'husky'
-            : `pnpm -r run ${name}`;
+      let scriptValue: string;
+      if (name === 'build') {
+        scriptValue = 'wrong command';
+      } else if (name === 'prepare' || name === 'preinstall') {
+        scriptValue = 'husky';
+      } else {
+        scriptValue = `pnpm -r run ${name}`;
+      }
+      scripts[name] = scriptValue;
       descs[name] = `Does ${name}`;
     }
     const rootPkg: Record<string, unknown> = {
