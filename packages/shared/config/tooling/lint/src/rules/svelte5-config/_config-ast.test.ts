@@ -59,10 +59,6 @@ function makeObjectExpression(properties: AstNode[]): AstNode {
   return makeNode({ type: 'ObjectExpression', properties });
 }
 
-function makeArrayExpression(elements: AstNode[]): AstNode {
-  return makeNode({ type: 'ArrayExpression', elements });
-}
-
 /* ---------- getPropertyName ---------- */
 
 describe('getPropertyName', () => {

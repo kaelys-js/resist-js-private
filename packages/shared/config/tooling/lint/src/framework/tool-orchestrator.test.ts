@@ -67,6 +67,24 @@ describe('matchesPattern', () => {
  * @param overrides - Optional partial overrides for the mock tool
  * @returns A complete ExternalTool instance with defaults
  */
+/**
+ * Build a workspace LintResult fixture with the given rule id.
+ *
+ * @param id - Rule id to assign on the synthetic result
+ * @returns A minimal LintResult bound to a synthetic workspace file
+ */
+function makeWorkspaceResult(id: string): LintResult {
+  return {
+    ruleId: id,
+    file: 'workspace',
+    line: 1,
+    column: 1,
+    severity: 'warning',
+    message: id,
+    fix: { range: { start: 0, end: 0 }, text: '' },
+  };
+}
+
 function createMockTool(overrides?: Partial<ExternalTool>): ExternalTool {
   return {
     name: 'mock-tool',
@@ -559,15 +577,7 @@ describe('ToolRegistry — runAllWorkspaceTools', () => {
   it('aggregates results from multiple workspace tools', async () => {
     const registry: ToolRegistry = new ToolRegistry(en);
 
-    const makeResult = (id: string): LintResult => ({
-      ruleId: id,
-      file: 'workspace',
-      line: 1,
-      column: 1,
-      severity: 'warning',
-      message: id,
-      fix: { range: { start: 0, end: 0 }, text: '' },
-    });
+    const makeResult = makeWorkspaceResult;
 
     registry.registerWorkspaceTool(
       createMockWorkspaceTool({
