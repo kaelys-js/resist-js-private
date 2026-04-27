@@ -14,16 +14,21 @@ import type {
   AstNode,
   VisitorContext,
 } from '@/lint/framework/types.ts';
+import { computeLineStarts, offsetToLineNumber } from '@/lint/framework/comment-helpers.ts';
 
 /** Patterns to detect lint-suppression comments. */
-const DISABLE_PATTERNS: ReadonlyArray<{ pattern: RegExp; label: string }> = [
+const DISABLE_PATTERNS: ReadonlyArray<{
+  pattern: RegExp;
+  label: string;
+  blockOnly?: boolean;
+}> = [
   { pattern: /eslint-disable(?:-next-line)?/, label: 'eslint-disable' },
   { pattern: /oxlint-ignore/, label: 'oxlint-ignore' },
   { pattern: /oxlint-disable/, label: 'oxlint-disable' },
   { pattern: /@ts-ignore/, label: '@ts-ignore' },
   { pattern: /@ts-nocheck/, label: '@ts-nocheck' },
   { pattern: /@ts-expect-error/, label: '@ts-expect-error' },
-  { pattern: /\/\*\s*global\s+/, label: '/* global */' },
+  { pattern: /^\s*global\s+/, label: '/* global */', blockOnly: true },
 ];
 
 /** The no-lint-disable lint rule. */
@@ -46,29 +51,30 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      const allowedTargets = (context.ruleOptions?.allowedTargets ?? []) as string[];
-      const lines: string[] = context.content.split('\n');
+      const allowedTargets: string[] = (context.ruleOptions?.allowedTargets ??
+        DEFAULT_ALLOWED_TARGETS) as string[];
+      const lineStarts: number[] = computeLineStarts(context.content);
 
-      for (let i: number = 0; i < lines.length; i++) {
-        const line: string = lines[i] ?? '';
-
+      for (const comment of context.comments) {
         for (const { pattern, label } of DISABLE_PATTERNS) {
-          if (
-            pattern.test(line) &&
-            !allowedTargets.some((target: string): boolean => line.includes(target))
-          ) {
-            results.push({
-              file: context.file,
-              line: i + 1,
-              column: 1,
-              severity: 'error',
-              message: `Lint-suppression comment '${label}' is forbidden — fix the code instead`,
-              ruleId: 'comments/no-lint-disable',
-              tip: 'Fix the underlying issue. Add missing globals to .oxlintrc.json instead.',
-              fix: { range: { start: 0, end: 0 }, text: '' },
-            });
-            break;
+          if (!pattern.test(comment.value)) {
+            continue;
           }
+          if (allowedTargets.some((target: string): boolean => comment.value.includes(target))) {
+            continue;
+          }
+          const lineNumber: number = offsetToLineNumber(comment.start, lineStarts);
+          results.push({
+            file: context.file,
+            line: lineNumber,
+            column: 1,
+            severity: 'error',
+            message: `Lint-suppression comment '${label}' is forbidden — fix the code instead`,
+            ruleId: 'comments/no-lint-disable',
+            tip: 'Fix the underlying issue. Add missing globals to .oxlintrc.json instead.',
+            fix: { range: { start: 0, end: 0 }, text: '' },
+          });
+          break;
         }
       }
 
@@ -76,5 +82,8 @@ const rule: TypeScriptRule = {
     },
   },
 };
+
+/** Default allowed-target rule IDs (CLAUDE.md exempts `max-lines` family). */
+const DEFAULT_ALLOWED_TARGETS: readonly string[] = ['max-lines', 'max-lines-per-function'];
 
 export default rule;

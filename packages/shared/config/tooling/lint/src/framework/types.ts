@@ -418,6 +418,21 @@ export const ImportInfoSchema = v.strictObject({
 /** Parsed import declaration info. See {@link ImportInfoSchema}. */
 export type ImportInfo = v.InferOutput<typeof ImportInfoSchema>;
 
+/** Schema for a single AST comment node (line or block). */
+export const CommentInfoSchema = v.strictObject({
+  /** Comment kind: 'Line' for `//` or 'Block' for slash-star block. */
+  type: v.picklist(['Line', 'Block']),
+  /** Comment text content (without the leading `//` or surrounding block delimiters). */
+  value: v.string(),
+  /** Source character offset where the comment starts (inclusive). */
+  start: v.number(),
+  /** Source character offset where the comment ends (exclusive). */
+  end: v.number(),
+});
+
+/** Parsed comment info from oxc-parser's program comments. See {@link CommentInfoSchema}. */
+export type CommentInfo = v.InferOutput<typeof CommentInfoSchema>;
+
 // =============================================================================
 // Visitor Context
 // =============================================================================
@@ -432,6 +447,8 @@ export const VisitorContextSchema = v.strictObject({
   ast: AstNodeSchema,
   /** All imports in the file */
   imports: v.array(ImportInfoSchema),
+  /** All comments in the file (line + block) extracted by oxc-parser */
+  comments: v.array(CommentInfoSchema),
   /** Extract source text for a node */
   getNodeText: v.custom<(node: AstNode) => string>(isFn),
   /** Check if an identifier is imported from a specific module */

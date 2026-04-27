@@ -148,7 +148,7 @@
                 "type": "string"
               },
               "directives/max-suppressions-per-file": {
-                "description": "Warns when a file has more than 3 @ts-expect-error directives",
+                "description": "Warns when a file has more than 3 TS suppression directives",
                 "enum": ["error", "warn", "off"],
                 "type": "string"
               },
@@ -178,7 +178,7 @@
                 "type": "string"
               },
               "directives/no-suppression-in-new-code": {
-                "description": "Warns on @ts-expect-error — new code should be properly typed",
+                "description": "Warns on TS suppression directives — new code should be properly typed",
                 "enum": ["error", "warn", "off"],
                 "type": "string"
               },
@@ -203,7 +203,7 @@
                 "type": "string"
               },
               "directives/require-ts-expect-error-reason": {
-                "description": "Requires @ts-expect-error directives to include an explanation of at least 10 characters",
+                "description": "Requires TS suppression directives to include an explanation of at least 10 characters",
                 "enum": ["error", "warn", "off"],
                 "type": "string"
               },
@@ -5899,7 +5899,7 @@
           "type": "string"
         },
         "directives/max-suppressions-per-file": {
-          "description": "Warns when a file has more than 3 @ts-expect-error directives",
+          "description": "Warns when a file has more than 3 TS suppression directives",
           "enum": ["error", "warn", "off"],
           "type": "string"
         },
@@ -5929,7 +5929,7 @@
           "type": "string"
         },
         "directives/no-suppression-in-new-code": {
-          "description": "Warns on @ts-expect-error — new code should be properly typed",
+          "description": "Warns on TS suppression directives — new code should be properly typed",
           "enum": ["error", "warn", "off"],
           "type": "string"
         },
@@ -5954,7 +5954,7 @@
           "type": "string"
         },
         "directives/require-ts-expect-error-reason": {
-          "description": "Requires @ts-expect-error directives to include an explanation of at least 10 characters",
+          "description": "Requires TS suppression directives to include an explanation of at least 10 characters",
           "enum": ["error", "warn", "off"],
           "type": "string"
         },

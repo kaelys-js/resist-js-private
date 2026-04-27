@@ -15,6 +15,7 @@ import type {
   VisitorFn,
   ImportInfo,
   ImportSpecifier,
+  CommentInfo,
 } from '@/lint/framework/types.ts';
 import {
   parseSvelteTemplate,
@@ -26,9 +27,19 @@ import {
 // Parser
 // =============================================================================
 
-// Dynamic import — oxc-parser may not be installed
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- oxc-parser has no @types
-let parseSync: ((filename: string, source: string) => { program: unknown }) | null = null;
+/** Result shape from oxc-parser's parseSync — narrowed to the fields we consume. */
+type OxcParseResult = {
+  program: unknown;
+  comments?: CommentInfo[];
+  errors: Array<{
+    severity: string;
+    message: string;
+    labels?: Array<{ start: number; end: number }>;
+  }>;
+};
+
+/** Dynamic import — oxc-parser may not be installed. */
+let parseSync: ((filename: string, source: string) => OxcParseResult) | null = null;
 
 /** Whether we already attempted and failed to load oxc-parser. */
 let oxcLoadFailed: boolean = false;
@@ -382,6 +393,7 @@ function extractImports(ast: AstNode): ImportInfo[] {
  * @param content - File source text
  * @param ast - Parsed AST root
  * @param imports - Pre-extracted imports (shared across rules)
+ * @param comments - Pre-extracted comments (shared across rules)
  * @param rule - The rule being evaluated
  * @param ruleOptions - Per-rule config options from the config file
  * @param templateAst - Optional Svelte/embedded-template AST for embedded scripts
@@ -393,6 +405,7 @@ function createVisitorContext(
   content: string,
   ast: AstNode,
   imports: ImportInfo[],
+  comments: CommentInfo[],
   rule: TypeScriptRule,
   ruleOptions?: Record<string, unknown>,
   templateAst?: AstNode,
@@ -403,6 +416,7 @@ function createVisitorContext(
     content,
     ast,
     imports,
+    comments,
     rule,
     ruleOptions,
     templateAst,
@@ -512,26 +526,14 @@ export async function runTypeScriptRules(
   }
 
   let ast: AstNode;
+  let parsedComments: CommentInfo[] = [];
   const hasScript: boolean = parseContent.trim() !== '';
 
   if (hasScript) {
     try {
-      const result: {
-        program: unknown;
-        errors: Array<{
-          severity: string;
-          message: string;
-          labels?: Array<{ start: number; end: number }>;
-        }>;
-      } = parseSync(parseFilePath, parseContent) as {
-        program: unknown;
-        errors: Array<{
-          severity: string;
-          message: string;
-          labels?: Array<{ start: number; end: number }>;
-        }>;
-      };
+      const result: OxcParseResult = parseSync(parseFilePath, parseContent);
       ast = result.program as AstNode; // Safe: oxc-parser returns AST program node
+      parsedComments = result.comments ?? [];
 
       // oxc-parser is error-tolerant — it always produces a partial AST.
       // Only emit parse error diagnostics when the AST body is empty,
@@ -632,6 +634,7 @@ export async function runTypeScriptRules(
         parseContent,
         ast,
         imports,
+        parsedComments,
         rule,
         ruleOpts,
         templateAst,
