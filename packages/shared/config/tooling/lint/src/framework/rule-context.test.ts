@@ -167,6 +167,16 @@ function* mockFileList(path: string): Iterable<string> {
   yield path;
 }
 
+/**
+ * Async generator yielding two synthetic mock file paths.
+ *
+ * @yields Two mock file paths under `/mock/`
+ */
+async function* twoMockFiles(): AsyncIterable<string> {
+  yield '/mock/file1.ts';
+  yield '/mock/file2.ts';
+}
+
 async function* toAsyncIterable(path: string): AsyncIterable<string> {
   for (const p of mockFileList(path)) {
     yield p;
@@ -293,13 +303,8 @@ describe('search — error handling', () => {
       return 'findme here';
     };
 
-    async function* twoFiles(): AsyncIterable<string> {
-      yield '/mock/file1.ts';
-      yield '/mock/file2.ts';
-    }
-
     const matches: Array<{ file: string }> = [];
-    for await (const m of search(/findme/, twoFiles(), mixedReader)) {
+    for await (const m of search(/findme/, twoMockFiles(), mixedReader)) {
       matches.push(m);
     }
     expect(matches.length).toBe(1);
