@@ -38,7 +38,7 @@ function lint(
 }
 
 // =============================================================================
-// directives/no-ts-ignore
+// TS ignore-directive ban rule
 // =============================================================================
 
 describe('directives/no-ts-ignore', () => {
@@ -146,7 +146,7 @@ describe('directives/no-ts-expect-error-on-any', () => {
 });
 
 // =============================================================================
-// directives/no-eslint-disable
+// ESLint directive ban rule
 // =============================================================================
 
 describe('directives/no-eslint-disable', () => {
@@ -227,7 +227,7 @@ describe('directives/no-biome-ignore', () => {
 });
 
 // =============================================================================
-// directives/no-oxlint-ignore
+// Oxlint directive ban rule
 // =============================================================================
 
 describe('directives/no-oxlint-ignore', () => {
