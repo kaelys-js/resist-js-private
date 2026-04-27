@@ -3,6 +3,8 @@
    * Descriptive text rendered below the dialog title, styled as muted secondary copy.
    *
    * Provides an accessible description for the dialog via aria-describedby.
+   *
+   * @module
    */
   import { Dialog as DialogPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';

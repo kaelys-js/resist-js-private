@@ -3,6 +3,8 @@
    * Modal content panel centered on screen with an overlay backdrop and animated open/close transitions.
    *
    * Renders inside a portal with an optional close button in the top-right corner.
+   *
+   * @module
    */
   import { Dialog as DialogPrimitive } from 'bits-ui';
   import DialogPortal from './dialog-portal.svelte';

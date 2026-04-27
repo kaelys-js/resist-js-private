@@ -3,6 +3,8 @@
    * Semi-transparent backdrop overlay that covers the screen behind an open dialog.
    *
    * Animates in and out with a fade transition.
+   *
+   * @module
    */
   import { Dialog as DialogPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';

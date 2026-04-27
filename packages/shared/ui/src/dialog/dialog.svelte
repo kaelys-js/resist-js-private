@@ -4,6 +4,8 @@
    * Root state container for a dialog that manages its open/closed lifecycle.
    *
    * Wrap DialogContent, DialogHeader, and DialogFooter inside this component to create a modal dialog.
+   *
+   * @module
    */
   import { Dialog as DialogPrimitive } from 'bits-ui';
 
