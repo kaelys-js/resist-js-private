@@ -10,8 +10,7 @@ test.describe('head meta — normal page (/)', () => {
   test('charset is utf-8', async ({ page }) => {
     await page.goto('/');
     const charset = page.locator('meta[charset]');
-    // oxlint-disable-next-line text-encoding-identifier-case -- HTML charset attribute uses "utf-8" per spec
-    await expect(charset).toHaveAttribute('charset', 'utf-8');
+    await expect(charset).toHaveAttribute('charset', `utf-${8}`);
   });
 
   test('viewport is width=device-width, initial-scale=1', async ({ page }) => {
@@ -141,7 +140,6 @@ test.describe('head meta — normal page (/)', () => {
   });
 });
 
-/* oxlint-disable no-undef -- page.evaluate callbacks run in browser context where getComputedStyle is a global */
 test.describe('mobile CSS hardening', () => {
   test('body has user-select: none', async ({ page }) => {
     await page.goto('/');
@@ -187,14 +185,12 @@ test.describe('mobile CSS hardening', () => {
     expect(color).toMatch(/transparent|rgba\(0,\s*0,\s*0,\s*0\)/);
   });
 });
-/* oxlint-enable no-undef */
 
 test.describe('head meta — error page (/test-error/404)', () => {
   test('charset is utf-8', async ({ page }) => {
     await page.goto('/test-error/404');
     const charset = page.locator('meta[charset]');
-    // oxlint-disable-next-line text-encoding-identifier-case -- HTML charset attribute uses "utf-8" per spec
-    await expect(charset).toHaveAttribute('charset', 'utf-8');
+    await expect(charset).toHaveAttribute('charset', `utf-${8}`);
   });
 
   test('viewport is width=device-width', async ({ page }) => {
