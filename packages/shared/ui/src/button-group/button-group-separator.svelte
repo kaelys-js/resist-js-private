@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * ButtonGroup separator — visual divider between adjacent
+   * button-group items. Defaults to vertical orientation; uses
+   * the shared `Separator` primitive with `bg-input` styling.
+   *
+   * @module
+   */
+
   import { cn } from '../utils.js';
   import type { ComponentProps } from 'svelte';
   import { Separator } from '../separator/index.js';
