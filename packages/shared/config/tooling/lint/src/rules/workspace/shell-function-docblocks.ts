@@ -72,7 +72,7 @@ const rule: WorkspaceRule = {
         let started: boolean = false;
         for (let j: number = i; j < lines.length; j++) {
           const line: string = lines[j] ?? '';
-          body += line + '\n';
+          body += `${line}\n`;
           if (line.includes('{')) {
             braceCount++;
             started = true;
