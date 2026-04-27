@@ -62,12 +62,6 @@ describe('matchesPattern', () => {
 // =============================================================================
 
 /**
- * Create a minimal mock tool for testing.
- *
- * @param overrides - Optional partial overrides for the mock tool
- * @returns A complete ExternalTool instance with defaults
- */
-/**
  * Build a workspace LintResult fixture with the given rule id.
  *
  * @param id - Rule id to assign on the synthetic result
@@ -85,6 +79,12 @@ function makeWorkspaceResult(id: string): LintResult {
   };
 }
 
+/**
+ * Create a minimal mock tool for testing.
+ *
+ * @param overrides - Optional partial overrides for the mock tool
+ * @returns A complete ExternalTool instance with defaults
+ */
 function createMockTool(overrides?: Partial<ExternalTool>): ExternalTool {
   return {
     name: 'mock-tool',
