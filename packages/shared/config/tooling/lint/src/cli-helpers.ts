@@ -1340,10 +1340,27 @@ export async function _runLintCore(
       runSvelteCheckAllPackages(process.cwd(), scopeFiles, lintCache),
       runTsgoAllPackages(process.cwd(), scopeFiles, lintCache),
     ]);
-    out.push(...svelteResults);
-    wsResultCount += svelteResults.length;
-    out.push(...tsgoResults);
-    wsResultCount += tsgoResults.length;
+    /* Apply config.exclude post-hoc to tsgo+svelte-check results: these tools
+     * type-check the entire tsconfig project graph (not just the lint-targeted
+     * paths), so excluded packages (e.g. `packages/shared/utils/cli`) can leak
+     * cross-file errors into the workspace lint output. Filter them here. */
+    const excludedPathPrefixes: readonly string[] = config.exclude
+      .filter((p: string): boolean => p.includes('/'))
+      .map((p: string): string => `${cwd}/${p}`);
+    const isExcludedPath = (filePath: string): boolean =>
+      excludedPathPrefixes.some(
+        (prefix: string): boolean => filePath === prefix || filePath.startsWith(`${prefix}/`),
+      );
+    const filteredSvelteResults: LintResult[] = svelteResults.filter(
+      (r: LintResult): boolean => !isExcludedPath(r.file),
+    );
+    const filteredTsgoResults: LintResult[] = tsgoResults.filter(
+      (r: LintResult): boolean => !isExcludedPath(r.file),
+    );
+    out.push(...filteredSvelteResults);
+    wsResultCount += filteredSvelteResults.length;
+    out.push(...filteredTsgoResults);
+    wsResultCount += filteredTsgoResults.length;
 
     /* Other workspace tools: parallel single-shot invocations. */
     const perPkgToolNames: ReadonlySet<string> = new Set(['svelte-check', 'tsgo']);
