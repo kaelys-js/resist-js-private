@@ -60,7 +60,6 @@ export const WRAPPER_SYMBOL: unique symbol = Symbol('functionSchemaWrapper');
 export function _toFnType<TArgs extends unknown[] = unknown[], TReturn = unknown>(
   value: unknown,
 ): FnType<TArgs, TReturn> {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- centralized cast
   return value as FnType<TArgs, TReturn>;
 }
 
@@ -78,7 +77,6 @@ export function _toFnType<TArgs extends unknown[] = unknown[], TReturn = unknown
 export function _toBaseSchema(
   schema: v.GenericSchema,
 ): v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- centralized cast
   return schema as v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>;
 }
 

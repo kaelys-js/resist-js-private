@@ -1127,8 +1127,7 @@ export type AppError = {
  */
 // Recursive schema: branded ErrorCode widens to `string` in StrictObjectSchema
 // output, but runtime validation guarantees KnownErrorCode conformance.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const AppErrorSchema: v.GenericSchema<any> = v.strictObject({
+export const AppErrorSchema: v.GenericSchema<unknown> = v.strictObject({
   // Core — always present
   code: ErrorCodeSchema,
   message: v.pipe(v.string(), v.minLength(1)),
