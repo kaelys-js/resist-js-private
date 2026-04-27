@@ -15,6 +15,7 @@ import { join } from 'node:path';
 
 import { execFileAsync } from '@/lint/framework/exec.ts';
 import * as ToolOrchestratorModule from '@/lint/framework/tool-orchestrator.ts';
+import type { LintCache } from '@/lint/framework/cache.ts';
 import { discoverSveltePackageDirs, runSvelteCheckAllPackages } from './svelte-check.ts';
 
 const { isCommandAvailable } = ToolOrchestratorModule;
@@ -497,7 +498,7 @@ describe('runSvelteCheckAllPackages', () => {
     const fakeCache = {
       getTool: vi.fn((): typeof cachedResults => cachedResults),
       setTool: vi.fn(),
-    } as unknown as import('@/lint/framework/cache.ts').LintCache;
+    } as unknown as LintCache;
 
     const results = await runSvelteCheckAllPackages('/ws', [], fakeCache);
     expect(results).toEqual(cachedResults);
@@ -537,7 +538,7 @@ describe('runSvelteCheckAllPackages', () => {
     const fakeCache = {
       getTool: vi.fn((): null => null),
       setTool,
-    } as unknown as import('@/lint/framework/cache.ts').LintCache;
+    } as unknown as LintCache;
 
     await runSvelteCheckAllPackages('/ws', [], fakeCache);
     expect(vi.mocked(execFileAsync)).toHaveBeenCalledTimes(1);
@@ -579,7 +580,7 @@ describe('runSvelteCheckAllPackages', () => {
     const fakeCache = {
       getTool: vi.fn((): null => null),
       setTool,
-    } as unknown as import('@/lint/framework/cache.ts').LintCache;
+    } as unknown as LintCache;
 
     const results = await runSvelteCheckAllPackages('/ws', [], fakeCache);
     expect(results[0]?.ruleId).toBe('internal/tool-crash');
