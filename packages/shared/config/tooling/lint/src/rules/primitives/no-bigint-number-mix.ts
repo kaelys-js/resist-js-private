@@ -14,7 +14,7 @@ import type {
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
-const ARITHMETIC_OPERATORS = new Set([, '-', '*', '/', '%']);
+const ARITHMETIC_OPERATORS = new Set(['+', '-', '*', '/', '%']);
 
 /**
  * Returns true if the node is a BigInt literal (has a `bigint` property).

@@ -56,7 +56,7 @@ const rule: TypeScriptRule = {
         return argNode.type === 'Literal' && (argNode.value as unknown) === 0;
       };
 
-      if (Number.isNaN(left) || Number.isNaN(right) || isNegativeZero(left) || isNegativeZero(right)) {
+      if (isNaN(left) || isNaN(right) || isNegativeZero(left) || isNegativeZero(right)) {
         results.push({
           file: context.file,
           line: node.loc.start.line,
