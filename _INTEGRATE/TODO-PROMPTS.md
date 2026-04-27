@@ -1,6 +1,24 @@
 COMMIT EVERYTHING UNSTAGED AND THEN:
 
 This: Entire Workspace
+* Verify that qa:lint passes. Present all errors/warnings in the changelog with explanation/solution if there are any.
+
+DO NOT weaken assertions, skip errors, or dismiss warnings as "acceptable." Every single diagnostic must be resolved — either fix the code or fix the rule. DO NOT skip ANY branch — trace every if/else, try/catch, ternary, ??, ||. Use exact error codes in assertions.
+
+Steps (MANDATORY, DO NOT SKIP, READ EVERY WORD, FOLLOW EXACTLY):
+- Re-invoke the fix-bug skill
+- Read CLAUDE.md
+- Follow docs/plans/TEMPLATE.md EXACTLY THEN EnterPlanMode
+- After ExitPlanMode write the approved plan to docs/plans/[file].md
+- docs/plans/[file].md: Run Linter Against The Plan File And Fix All Issues
+- EnterPlanMode with docs/plans/[file].md
+- Use TodoList for Tracking
+
+--
+
+COMMIT EVERYTHING UNSTAGED AND THEN:
+
+This: Entire Workspace
 * Verify that qa:test:coverage passes thresholds. If not, get coverage to passing thresholds or near 100%.
 
 DO NOT weaken assertions, skip errors, or dismiss warnings as "acceptable." Every single diagnostic must be resolved — either fix the code or fix the rule. DO NOT skip ANY branch — trace every if/else, try/catch, ternary, ??, ||. Use exact error codes in assertions.
