@@ -109,8 +109,12 @@ export type LintApiResult<T> = Ok<T> | Err;
 
 /** No-op output sink for programmatic usage (suppresses all CLI output). */
 const SILENT_OUTPUT: CliOutput = {
-  stderr: (): void => {},
-  stdout: (): void => {},
+  stderr: (): void => {
+    /* programmatic-API: silence stderr */
+  },
+  stdout: (): void => {
+    /* programmatic-API: silence stdout */
+  },
 };
 
 // =============================================================================

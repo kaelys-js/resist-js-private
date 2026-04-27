@@ -1,7 +1,7 @@
 /**
  * Rule: workspace/validate-stateless-utils
  *
- * @stateless utility files must not contain side effects or mutation.
+ * `\@stateless` utility files must not contain side effects or mutation.
  * Checks for global state access, side-effectful APIs, and non-deterministic calls.
  *
  * @module
@@ -23,7 +23,7 @@ const SIDE_EFFECT_PATTERN: RegExp =
 /** Pattern matching non-deterministic calls. */
 const NON_DETERMINISTIC_PATTERN: RegExp = /\b(Date\.now|new Date|Math\.random)\b/;
 
-/** @stateless utility files must not contain side effects or mutation. */
+/** Stateless utility files must not contain side effects or mutation. */
 const rule: WorkspaceRule = {
   id: 'workspace/validate-stateless-utils',
   description: '@stateless utility files must not contain side effects or mutation.',
