@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * ColorChannelField — number input for editing a single color
+   * channel (R/G/B/A or H/S/L). Placeholder shell awaiting full
+   * implementation; ships with a `class` prop for root-level
+   * styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
