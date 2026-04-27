@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * Carousel root — Embla-powered scrollable carousel container
+   * with support for horizontal / vertical orientation, custom
+   * options, plugins, and an external `setApi` hook. Wires the
+   * shared `EmblaContext` for sub-components.
+   *
+   * @module
+   */
+
   import { cn, type WithElementRef } from '../utils.js';
   import {
     type CarouselAPI,
