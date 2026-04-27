@@ -87,7 +87,6 @@ export class PageDirtyDetector implements DirtyDetector {
     this.installed = true;
 
     await this.page.evaluate((): void => {
-      /* eslint-disable -- browser context, not Node */
       const w = window as unknown as Record<string, unknown>;
       w.__lensFrameDirty = true; // Start dirty so first frame is captured
 
@@ -111,7 +110,6 @@ export class PageDirtyDetector implements DirtyDetector {
         w.__lensFrameDirty = true;
         return origRAF.call(window, callback);
       };
-      /* eslint-enable */
     });
   }
 
