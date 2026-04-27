@@ -153,7 +153,7 @@ const rule: WorkspaceRule = {
     }
 
     /* Detect duplicate extends: multiple tsconfigs extending the same base. */
-    for (const [base, extenders] of baseToExtenders) {
+    for (const [, extenders] of baseToExtenders) {
       if (extenders.length > 1) {
         /* This is informational — only flag if it creates version conflicts. */
         /* Skip: multiple files extending the same base is normal in monorepos. */

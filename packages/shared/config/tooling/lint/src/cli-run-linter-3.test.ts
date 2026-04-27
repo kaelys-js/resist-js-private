@@ -331,7 +331,7 @@ describe('getGitChangedFiles — error handling', () => {
 
 describe.concurrent('runLinter — usage error when no paths', () => {
   it('returns 1 with usage error when config has no includes and no paths given', async () => {
-    const { stderrLines, output } = captureOutput();
+    const { output } = captureOutput();
     const code: number = await runLinter(
       makeCliArgs({
         paths: [],

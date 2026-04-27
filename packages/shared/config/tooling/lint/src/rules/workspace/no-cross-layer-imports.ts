@@ -7,7 +7,7 @@
  * @module
  */
 
-import {relative } from 'node:path';
+import { relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -25,9 +25,6 @@ const LAYERS: readonly string[] = [
 
 /** Pipe-separated layers for the regex pattern. */
 const LAYERS_PATTERN: string = LAYERS.join('|');
-
-/** Regex to detect relative imports pointing to a layer directory. */
-const CROSS_LAYER_RE: RegExp = new RegExp(String.raw`from\s+['"](\.\.\/)+(` + LAYERS_PATTERN + String.raw`)\/`);
 
 /** Source file extensions to scan. */
 const SOURCE_EXTENSIONS: readonly string[] = ['.ts', '.tsx', '.js', '.jsx'];
@@ -130,7 +127,8 @@ const rule: WorkspaceRule = {
               'error',
               `Disallowed cross-layer import: ${currentLayer} → ${targetLayer} in ${relativePath}`,
               {
-                tip: 'Move shared logic to packages/shared/ and import via alias'},
+                tip: 'Move shared logic to packages/shared/ and import via alias',
+              },
             ),
           );
         }
@@ -140,6 +138,7 @@ const rule: WorkspaceRule = {
     }
 
     return results;
-  }};
+  },
+};
 
 export default rule;
