@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the breadcrumb compound component —
+ * exposes Root / Ellipsis / Item / Link / List / Page / Separator
+ * sub-components under both internal aliases and the
+ * `Breadcrumb*` public names.
+ *
+ * @module
+ */
+
 import Root from './breadcrumb.svelte';
 import Ellipsis from './breadcrumb-ellipsis.svelte';
 import Item from './breadcrumb-item.svelte';

@@ -1,3 +1,13 @@
+/**
+ * Barrel re-export for the alert-dialog compound component —
+ * exposes Root / Trigger / Portal / Overlay / Content / Header /
+ * Footer / Title / Description / Action / Cancel sub-components
+ * under both internal aliases and the `AlertDialog*` public
+ * names.
+ *
+ * @module
+ */
+
 import Root from './alert-dialog.svelte';
 import Portal from './alert-dialog-portal.svelte';
 import Trigger from './alert-dialog-trigger.svelte';

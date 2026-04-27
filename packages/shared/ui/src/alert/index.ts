@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the alert compound component — exposes
+ * Root / Title / Description sub-components under both internal
+ * aliases and the `Alert*` public names, plus the
+ * `alertVariants` helper and `AlertVariant` type.
+ *
+ * @module
+ */
+
 import Root from './alert.svelte';
 import Description from './alert-description.svelte';
 import Title from './alert-title.svelte';

@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the avatar compound component — exposes
+ * Root / Image / Fallback sub-components under both internal
+ * aliases and the `Avatar*` public names, plus props types,
+ * the props schema, and the `avatarVariants` TV helper.
+ *
+ * @module
+ */
+
 import Root, {
   type AvatarInputProps,
   type AvatarProps,
