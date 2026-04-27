@@ -171,10 +171,11 @@ function parseTasks(content: string, lines: string[]): PlanTask[] {
         const line: string = (sectionLines[i] ?? '').trim();
         if (line.startsWith('- ')) {
           planBullets.push(line.slice(2).trim());
-        } else if (line.startsWith('**') || line === '---' || line === '') {
-          if (planBullets.length > 0) {
-            break;
-          }
+        } else if (
+          (line.startsWith('**') || line === '---' || line === '') &&
+          planBullets.length > 0
+        ) {
+          break;
         }
       }
     }
