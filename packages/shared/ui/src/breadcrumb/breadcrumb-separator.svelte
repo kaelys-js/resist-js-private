@@ -3,6 +3,8 @@
    * Visual separator between breadcrumb items, defaulting to a chevron-right icon.
    *
    * Hidden from assistive technology via `aria-hidden`. Accepts custom separator content via the default slot.
+   *
+   * @module
    */
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { cn, type WithElementRef } from '../utils.js';

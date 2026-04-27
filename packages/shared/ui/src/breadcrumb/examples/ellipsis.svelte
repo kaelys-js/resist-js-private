@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Breadcrumb Lens example — long path with an ellipsis
+   * indicator between Home and the deep current-page leaf.
+   *
+   * @module
+   */
+
   import * as Breadcrumb from '@/ui/breadcrumb';
 </script>
 

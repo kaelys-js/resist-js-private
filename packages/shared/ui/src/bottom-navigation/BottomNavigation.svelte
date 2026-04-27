@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * BottomNavigation — fixed bottom-of-screen tab navigation for
+   * mobile interfaces. Placeholder shell awaiting full
+   * implementation; ships with a `class` prop for root-level
+   * styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
