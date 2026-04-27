@@ -1077,3 +1077,53 @@ describe('discoverPlanFiles', () => {
     expect(files).toEqual([]);
   });
 });
+
+// =============================================================================
+// inputs() lifecycle for each plans/* rule
+// =============================================================================
+
+const PLAN_RULES_SIMPLE_INPUTS: ReadonlyArray<{
+  name: string;
+  rule: { inputs?: (ctx: unknown) => Promise<readonly string[]> };
+}> = [
+  { name: 'plans/files-exist', rule: filesExist },
+  { name: 'plans/no-empty-plan-sections', rule: noEmptyPlanSections },
+  { name: 'plans/no-template-placeholders', rule: noTemplatePlaceholders },
+  { name: 'plans/status-dependency-order', rule: statusDependencyOrder },
+  { name: 'plans/require-concrete-verification', rule: requireConcreteVerification },
+  { name: 'plans/require-test-files', rule: requireTestFiles },
+  { name: 'plans/require-plan-structure', rule: requirePlanStructure },
+];
+
+for (const { name, rule } of PLAN_RULES_SIMPLE_INPUTS) {
+  describe(`${name} — inputs() lifecycle`, () => {
+    it('returns plan .md files under docs/plans/', async () => {
+      const ctx = createMockContext({
+        '/mock/docs/plans/2026-04-24-foo.md': '# Foo',
+        '/mock/docs/plans/TEMPLATE.md': '# Template',
+        '/mock/README.md': '# root',
+      });
+      expect(typeof rule.inputs).toBe('function');
+      const inputs = await rule.inputs!(ctx);
+      expect(inputs).toEqual(expect.arrayContaining(['/mock/docs/plans/2026-04-24-foo.md']));
+      expect(inputs).not.toContain('/mock/docs/plans/TEMPLATE.md');
+      expect(inputs).not.toContain('/mock/README.md');
+    });
+  });
+}
+
+describe('plans/no-incomplete-tasks — inputs() lifecycle', () => {
+  it('returns plan files plus a daily-rollover sentinel', async () => {
+    const ctx = createMockContext({
+      '/mock/docs/plans/2026-04-24-foo.md': '# Foo',
+    });
+    expect(typeof noIncompleteTasks.inputs).toBe('function');
+    const inputs = await noIncompleteTasks.inputs!(ctx);
+    expect(inputs).toEqual(
+      expect.arrayContaining([
+        '/mock/docs/plans/2026-04-24-foo.md',
+        expect.stringMatching(/__daily_rollover__\/\d{4}-\d{2}-\d{2}/),
+      ]),
+    );
+  });
+});
