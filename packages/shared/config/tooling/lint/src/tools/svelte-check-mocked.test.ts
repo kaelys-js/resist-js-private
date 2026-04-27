@@ -406,7 +406,7 @@ describe('runSvelteCheckAllPackages', () => {
 
     await runSvelteCheckAllPackages('/ws', ['/ws/packages/app1/src/A.svelte']);
     expect(vi.mocked(execFileAsync)).toHaveBeenCalledTimes(1);
-    const call = vi.mocked(execFileAsync).mock.calls[0];
+    const [call] = vi.mocked(execFileAsync).mock.calls;
     expect(call?.[2]).toMatchObject({ cwd: '/ws/packages/app1' });
   });
 

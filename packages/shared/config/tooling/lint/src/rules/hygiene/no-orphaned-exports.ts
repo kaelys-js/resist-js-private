@@ -115,13 +115,13 @@ const rule: WorkspaceRule = {
 
         const mainMatch: RegExpMatchArray | null = trimmed.match(EXPORT_RE);
         if (mainMatch) {
-          symbolName = mainMatch[1];
+          [, symbolName] = mainMatch;
         }
 
         if (symbolName === undefined) {
           const typeMatch: RegExpMatchArray | null = trimmed.match(EXPORT_TYPE_RE);
           if (typeMatch) {
-            symbolName = typeMatch[1];
+            [, symbolName] = typeMatch;
           }
         }
 

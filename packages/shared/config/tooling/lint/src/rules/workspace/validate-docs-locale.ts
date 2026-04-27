@@ -67,7 +67,7 @@ const rule: WorkspaceRule = {
         match[1] !== undefined &&
         match[2] !== undefined
       ) {
-        const locale: string = match[1];
+        const [, locale] = match;
         if (!localeFiles.has(locale)) {
           localeFiles.set(locale, new Set<string>());
         }

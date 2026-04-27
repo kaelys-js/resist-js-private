@@ -240,7 +240,7 @@ export function validateDependabot(
     const match: RegExpMatchArray | null = line.match(ecosystemPattern);
 
     if (match && match[1]) {
-      const ecosystem: string = match[1];
+      const [, ecosystem] = match;
       if (!VALID_ECOSYSTEMS.has(ecosystem)) {
         results.push(
           createResult(

@@ -156,7 +156,7 @@ export function validateFunding(
 
     const match: RegExpMatchArray | null = line.match(keyPattern);
     if (match && match[1]) {
-      const key: string = match[1];
+      const [, key] = match;
       if (!VALID_PLATFORMS.has(key)) {
         results.push(
           createResult(

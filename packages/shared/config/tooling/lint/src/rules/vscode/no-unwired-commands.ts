@@ -61,7 +61,9 @@ const rule: WorkspaceRule = {
 
       const pkgDir: string = dirname(pkg.path);
       const brandPath: string = join(pkgDir, BRAND_PATH);
-      if (!(await ctx.fileExists(brandPath))) {continue;}
+      if (!(await ctx.fileExists(brandPath))) {
+        continue;
+      }
 
       const brandSource: string = await ctx.readFile(brandPath);
       const brandLines: string[] = brandSource.split('\n');
@@ -91,7 +93,7 @@ const rule: WorkspaceRule = {
       /* Resolve ${COMMAND_PREFIX} in template literal command IDs */
       const prefixMatch: RegExpMatchArray | null = COMMAND_PREFIX_RE.exec(brandSource);
       if (prefixMatch && prefixMatch[1]) {
-        const prefix: string = prefixMatch[1];
+        const [, prefix] = prefixMatch;
         for (const entry of commandEntries) {
           entry.id = entry.id.replaceAll('${COMMAND_PREFIX}', prefix);
         }
@@ -133,7 +135,8 @@ const rule: WorkspaceRule = {
               'error',
               `Command COMMANDS.${entry.key} ("${entry.id}") is defined in brand.ts but never referenced in any registerCommand/registerTextEditorCommand call.`,
               {
-                tip: `Add a registerCommand(context, outputChannel, COMMANDS.${entry.key}, handler) call in commands.ts.`},
+                tip: `Add a registerCommand(context, outputChannel, COMMANDS.${entry.key}, handler) call in commands.ts.`,
+              },
             ),
           );
         }
@@ -141,7 +144,8 @@ const rule: WorkspaceRule = {
     }
 
     return results;
-  }};
+  },
+};
 
 /**
  * Find the 1-based line number containing a substring.
