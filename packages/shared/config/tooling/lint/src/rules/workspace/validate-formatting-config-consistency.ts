@@ -12,7 +12,12 @@ import { relative } from 'node:path';
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
-/** Simple .editorconfig parser for root-level settings. */
+/**
+ * Simple .editorconfig parser for root-level settings.
+ *
+ * @param content - Raw .editorconfig file contents
+ * @returns Parsed indentStyle/indentSize from the root section
+ */
 function parseEditorconfig(content: string): { indentStyle?: string; indentSize?: number } {
   const result: { indentStyle?: string; indentSize?: number } = {};
   const lines: string[] = content.split('\n');

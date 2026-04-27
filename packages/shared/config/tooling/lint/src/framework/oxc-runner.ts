@@ -384,6 +384,8 @@ function extractImports(ast: AstNode): ImportInfo[] {
  * @param imports - Pre-extracted imports (shared across rules)
  * @param rule - The rule being evaluated
  * @param ruleOptions - Per-rule config options from the config file
+ * @param templateAst - Optional Svelte/embedded-template AST for embedded scripts
+ * @param originalContent - Optional original (pre-extraction) source for templates
  * @returns A VisitorContext
  */
 function createVisitorContext(

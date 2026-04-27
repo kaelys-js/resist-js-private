@@ -14,7 +14,13 @@ import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 /** Metadata fields to compare against root package.json. */
 const METADATA_FIELDS: readonly string[] = ['author', 'homepage', 'repository', 'bugs'] as const;
 
-/** Extracts a comparable string value from a metadata field. */
+/**
+ * Extracts a comparable string value from a metadata field.
+ *
+ * @param parsed - Parsed package.json object
+ * @param field - Top-level field name (e.g. `author`, `repository`)
+ * @returns Stringified field value (or empty string when missing/non-string)
+ */
 function extractFieldValue(parsed: Record<string, unknown>, field: string): string {
   const value: unknown = parsed[field];
   if (typeof value === 'string') {

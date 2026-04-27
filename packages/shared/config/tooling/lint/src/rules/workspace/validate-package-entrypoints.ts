@@ -11,7 +11,12 @@ import { basename, dirname, join, relative } from 'node:path';
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
-/** Collects all string leaf values from an exports object recursively. */
+/**
+ * Collects all string leaf values from an exports object recursively.
+ *
+ * @param obj - Current node being walked (object, array, or string)
+ * @param paths - Mutable accumulator for collected string leaf values
+ */
 function collectExportPaths(obj: unknown, paths: string[]): void {
   if (typeof obj === 'string') {
     paths.push(obj);

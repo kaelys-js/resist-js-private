@@ -9,7 +9,12 @@
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext, WorkspacePackage } from '@/lint/framework/rule-context.ts';
 
-/** Build the list of required scripts for a product package. */
+/**
+ * Build the list of required scripts for a product package.
+ *
+ * @param product - Product name (used as suffix in build:&lt;product&gt; etc.)
+ * @returns Required script names that the product package.json must define
+ */
 function getRequiredScripts(product: string): readonly string[] {
   return [
     `build:${product}`,

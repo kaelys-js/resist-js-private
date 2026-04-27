@@ -83,7 +83,12 @@ const rule: WorkspaceRule = {
 
       const relativePath: string = relative(ctx.rootDir, filePath);
 
-      /** Process tail_consumers from a given level. */
+      /**
+       * Process tail_consumers from a given level.
+       *
+       * @param tailConsumers - Raw tail_consumers value (expected: array)
+       * @param envName - Environment label for diagnostic messages
+       */
       const processTailConsumers = (tailConsumers: unknown, envName: string): void => {
         if (!Array.isArray(tailConsumers)) {
           return;
@@ -92,7 +97,7 @@ const rule: WorkspaceRule = {
           if (typeof consumer !== 'object' || consumer === null) {
             continue;
           }
-          const { service }: unknown = consumer as Record<string, unknown>;
+          const { service } = consumer as Record<string, unknown>;
           if (typeof service !== 'string') {
             continue;
           }
