@@ -5,16 +5,15 @@
  */
 
 import { describe, expect, it, vi } from 'vitest';
+import { resolve } from 'node:path';
+import { runLinter, type CliArgs, type CliOutput } from './cli-helpers.ts';
+import type { LintResult } from './framework/types.ts';
+import { en } from '@/lint/locale/locales/en.ts';
 
 /* Integration tests call runLinter() which spawns git/tool subprocesses.
    Under parallel execution with 30+ test files, CPU contention can push
    individual tests past the default 10s timeout. */
 vi.setConfig({ testTimeout: 30_000 });
-import { resolve } from 'node:path';
-
-import { runLinter, type CliArgs, type CliOutput } from './cli-helpers.ts';
-import type { LintResult } from './framework/types.ts';
-import { en } from '@/lint/locale/locales/en.ts';
 
 // =============================================================================
 // Test Helpers
