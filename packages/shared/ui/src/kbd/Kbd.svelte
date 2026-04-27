@@ -123,6 +123,7 @@
     children: v.optional(v.custom<Snippet>(() => true)),
   });
   export type KbdInputProps = v.InferInput<typeof KbdPropsSchema>;
+  /** Public component props for Kbd. */
   export type KbdProps = v.InferOutput<typeof KbdPropsSchema>;
 </script>
 

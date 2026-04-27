@@ -571,6 +571,24 @@ const x: string = 'hello';`;
     const results: LintResult[] = await lint(requireModule, code);
     expect(results.length).toBe(0);
   });
+
+  it('skips .md files (README documentation, not source modules)', async () => {
+    const code: string = "export const noModule: string = 'hello';";
+    const results: LintResult[] = await runTypeScriptRules('docs/README.md', code, [requireModule]);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips .mdx files (MDX documentation)', async () => {
+    const code: string = "export const noModule: string = 'hello';";
+    const results: LintResult[] = await runTypeScriptRules('docs/page.mdx', code, [requireModule]);
+    expect(results.length).toBe(0);
+  });
+
+  it('skips .html files (app shell, not a source module)', async () => {
+    const code: string = "const noModule: string = 'hello';";
+    const results: LintResult[] = await runTypeScriptRules('src/app.html', code, [requireModule]);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================

@@ -7,6 +7,7 @@
     /** Additional CSS classes for the root element. @values custom-class */
     class: v.optional(StrSchema),
   });
+  /** Public component props for IncidentTimeline. */
   export type IncidentTimelineProps = v.InferOutput<typeof IncidentTimelinePropsSchema>;
 </script>
 

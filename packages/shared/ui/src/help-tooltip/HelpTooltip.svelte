@@ -18,6 +18,7 @@
     /** Icon size in pixels. @values 14, 16, 20, 24 */
     size: v.optional(NumSchema),
   });
+  /** Public component props for HelpTooltip. */
   export type HelpTooltipProps = v.InferOutput<typeof HelpTooltipPropsSchema>;
 </script>
 

@@ -7,6 +7,7 @@
     /** Additional CSS classes for the root element. @values custom-class */
     class: v.optional(StrSchema),
   });
+  /** Public component props for AbsoluteCenter. */
   export type AbsoluteCenterProps = v.InferOutput<typeof AbsoluteCenterPropsSchema>;
 </script>
 

@@ -10,6 +10,7 @@
     /** Additional CSS classes for the button element. */
     class: v.optional(StrSchema),
   });
+  /** Public component props for CopyButton. */
   export type CopyButtonProps = v.InferOutput<typeof CopyButtonPropsSchema>;
 </script>
 

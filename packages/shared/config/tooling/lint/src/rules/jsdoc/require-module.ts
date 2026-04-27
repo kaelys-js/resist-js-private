@@ -26,6 +26,13 @@ const rule: TypeScriptRule = {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
 
+      // The @module convention applies to TypeScript source modules only.
+      // .md/.mdx (README documentation, code-fence examples) and .html
+      // (e.g. SvelteKit app shell) are out of scope.
+      if (/\.(md|mdx|html)$/i.test(context.file)) {
+        return results;
+      }
+
       const hasModule: boolean = /@module\b/.test(context.content.slice(0, 500));
 
       if (!hasModule) {

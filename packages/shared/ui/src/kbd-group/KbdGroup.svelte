@@ -8,6 +8,7 @@
     /** Additional CSS classes. @values gap-1, ml-2 */
     class: v.optional(StrSchema),
   });
+  /** Public component props for KbdGroup. */
   export type KbdGroupProps = v.InferOutput<typeof KbdGroupPropsSchema>;
 </script>
 
