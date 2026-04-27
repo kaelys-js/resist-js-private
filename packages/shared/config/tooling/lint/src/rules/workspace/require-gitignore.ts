@@ -6,7 +6,7 @@
  * @module
  */
 
-import {relative } from 'node:path';
+import { relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -67,7 +67,8 @@ const rule: WorkspaceRule = {
           'error',
           'Missing .gitignore at project root',
           {
-            tip: 'Add a .gitignore to prevent committing build artifacts and dependencies'},
+            tip: 'Add a .gitignore to prevent committing build artifacts and dependencies',
+          },
         ),
       );
       return results;
@@ -83,7 +84,8 @@ const rule: WorkspaceRule = {
           'error',
           '.gitignore is empty',
           {
-            tip: 'Add ignore patterns for node_modules, dist, and other build artifacts'},
+            tip: 'Add ignore patterns for node_modules, dist, and other build artifacts',
+          },
         ),
       );
       return results;
@@ -99,7 +101,8 @@ const rule: WorkspaceRule = {
           'error',
           '.gitignore is missing trailing newline',
           {
-            tip: 'Add a trailing newline at the end of the file'},
+            tip: 'Add a trailing newline at the end of the file',
+          },
         ),
       );
     }
@@ -129,12 +132,14 @@ const rule: WorkspaceRule = {
           'error',
           `Duplicate ignore patterns in .gitignore: ${duplicates.join(', ')}`,
           {
-            tip: 'Remove duplicate patterns to keep the file clean'},
+            tip: 'Remove duplicate patterns to keep the file clean',
+          },
         ),
       );
     }
 
     return results;
-  }};
+  },
+};
 
 export default rule;

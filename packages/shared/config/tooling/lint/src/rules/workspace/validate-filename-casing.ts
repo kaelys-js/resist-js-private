@@ -76,13 +76,15 @@ const rule: WorkspaceRule = {
             'error',
             `Invalid filename casing: ${fileName} — only kebab-case or snake_case allowed`,
             {
-              tip: 'Rename to use lowercase a-z, numbers, dashes, underscores, or dots only'},
+              tip: 'Rename to use lowercase a-z, numbers, dashes, underscores, or dots only',
+            },
           ),
         );
       }
     }
 
     return results;
-  }};
+  },
+};
 
 export default rule;

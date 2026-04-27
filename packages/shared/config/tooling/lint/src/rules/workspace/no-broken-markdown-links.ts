@@ -6,7 +6,7 @@
  * @module
  */
 
-import {dirname, join, relative } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -88,7 +88,8 @@ const rule: WorkspaceRule = {
                 'warning',
                 `Broken local link in ${relativePath}: ${href}`,
                 {
-                  tip: 'Fix the broken link target or rename the referenced file'},
+                  tip: 'Fix the broken link target or rename the referenced file',
+                },
               ),
             );
           }
@@ -99,6 +100,7 @@ const rule: WorkspaceRule = {
     }
 
     return results;
-  }};
+  },
+};
 
 export default rule;

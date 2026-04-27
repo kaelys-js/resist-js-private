@@ -94,13 +94,15 @@ const rule: WorkspaceRule = {
             'error',
             `Empty test folder: ${relativePath}`,
             {
-              tip: 'Either remove this folder or include a valid benchmark file'},
+              tip: 'Either remove this folder or include a valid benchmark file',
+            },
           ),
         );
       }
     }
 
     return results;
-  }};
+  },
+};
 
 export default rule;

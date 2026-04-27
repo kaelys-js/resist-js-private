@@ -7,7 +7,7 @@
  * @module
  */
 
-import {relative } from 'node:path';
+import { relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -16,7 +16,9 @@ import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 const LAYERS: string = 'api|web|data|marketing|mobile|branding|infra';
 
 /** Regex to detect relative imports reaching into sibling product directories. */
-const CROSS_PRODUCT_RE: RegExp = new RegExp(String.raw`from\s+['"](\.\.\/)+(` + LAYERS + String.raw`)\/`);
+const CROSS_PRODUCT_RE: RegExp = new RegExp(
+  String.raw`from\s+['"](\.\.\/)+(` + LAYERS + String.raw`)\/`,
+);
 
 /** Source file extensions to scan. */
 const SOURCE_EXTENSIONS: readonly string[] = ['.ts', '.tsx', '.js', '.jsx'];
@@ -81,13 +83,15 @@ const rule: WorkspaceRule = {
             'error',
             `Disallowed relative import into sibling product layer in ${relativePath}`,
             {
-              tip: "Use alias imports like '@product/api' instead of deep relative paths"},
+              tip: "Use alias imports like '@product/api' instead of deep relative paths",
+            },
           ),
         );
       }
     }
 
     return results;
-  }};
+  },
+};
 
 export default rule;

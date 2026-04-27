@@ -61,13 +61,15 @@ const rule: WorkspaceRule = {
             'error',
             'Invalid JSON syntax in .vscode/settings.json',
             {
-              tip: 'Ensure the file uses valid JSON with double-quoted keys'},
+              tip: 'Ensure the file uses valid JSON with double-quoted keys',
+            },
           ),
         );
       }
     }
 
     return results;
-  }};
+  },
+};
 
 export default rule;

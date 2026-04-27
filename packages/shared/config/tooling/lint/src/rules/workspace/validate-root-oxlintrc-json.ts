@@ -7,7 +7,7 @@
  * @module
  */
 
-import {relative } from 'node:path';
+import { relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -71,7 +71,8 @@ const rule: WorkspaceRule = {
             'error',
             ".oxlintrc.json missing 'extends' field",
             {
-              tip: 'Root .oxlintrc.json should only contain $schema and extends'},
+              tip: 'Root .oxlintrc.json should only contain $schema and extends',
+            },
           ),
         );
       }
@@ -88,7 +89,8 @@ const rule: WorkspaceRule = {
               'error',
               `.oxlintrc.json should not define config directly — found unexpected key: ${key}`,
               {
-                tip: 'Root .oxlintrc.json should only contain $schema and extends'},
+                tip: 'Root .oxlintrc.json should only contain $schema and extends',
+              },
             ),
           );
         }
@@ -105,12 +107,14 @@ const rule: WorkspaceRule = {
           'error',
           'Missing root .oxlintrc.json',
           {
-            tip: 'Root .oxlintrc.json should only contain $schema and extends'},
+            tip: 'Root .oxlintrc.json should only contain $schema and extends',
+          },
         ),
       );
     }
 
     return results;
-  }};
+  },
+};
 
 export default rule;

@@ -11,13 +11,17 @@ import { load, type TestingLayoutData } from './+layout.server';
 
 describe('(testing) +layout.server load', () => {
   it('returns iconCount as a non-negative number', () => {
-    const result = (load as unknown as (event: Record<string, unknown>) => unknown)({}) as TestingLayoutData;
+    const result = (load as unknown as (event: Record<string, unknown>) => unknown)(
+      {},
+    ) as TestingLayoutData;
     expect(typeof result.iconCount).toBe('number');
     expect(result.iconCount).toBeGreaterThanOrEqual(0);
   });
 
   it('returns integer iconCount', () => {
-    const result = (load as unknown as (event: Record<string, unknown>) => unknown)({}) as TestingLayoutData;
+    const result = (load as unknown as (event: Record<string, unknown>) => unknown)(
+      {},
+    ) as TestingLayoutData;
     expect(Number.isInteger(result.iconCount)).toBe(true);
   });
 });
