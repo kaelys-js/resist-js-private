@@ -132,26 +132,24 @@ const rule: WorkspaceRule = {
 
         /* Check for unclosed quotes */
         const trimmedValue: string = value.trim();
-        if (
+        const startsWithQuote: boolean =
           (trimmedValue.startsWith('"') && !trimmedValue.endsWith('"')) ||
-          (trimmedValue.startsWith("'") && !trimmedValue.endsWith("'"))
+          (trimmedValue.startsWith("'") && !trimmedValue.endsWith("'"));
+        /* Single-char values like `"` or `'` alone are also unclosed */
+        if (
+          startsWithQuote &&
+          (trimmedValue.length === 1 || trimmedValue[0] !== trimmedValue.at(-1))
         ) {
-          /* Single-char values like `"` or `'` alone are also unclosed */
-          if (
-            trimmedValue.length === 1 ||
-            trimmedValue[0] !== trimmedValue.at(-1)
-          ) {
-            results.push(
-              createResult(
-                'workspace/validate-env-file-integrity',
-                filePath,
-                lineNum,
-                eqIndex + 2,
-                'error',
-                `Unclosed quote in value for key '${key}' on line ${String(lineNum)} in ${relativePath}`,
-              ),
-            );
-          }
+          results.push(
+            createResult(
+              'workspace/validate-env-file-integrity',
+              filePath,
+              lineNum,
+              eqIndex + 2,
+              'error',
+              `Unclosed quote in value for key '${key}' on line ${String(lineNum)} in ${relativePath}`,
+            ),
+          );
         }
 
         seen.add(key);

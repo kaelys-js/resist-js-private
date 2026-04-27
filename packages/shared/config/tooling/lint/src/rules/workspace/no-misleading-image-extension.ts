@@ -103,23 +103,21 @@ const rule: WorkspaceRule = {
         } catch {
           continue;
         }
-        if (buf.length >= 4) {
+        if (buf.length >= 4 && (buf[0] !== 0 || buf[1] !== 0 || buf[2] !== 1 || buf[3] !== 0)) {
           // ICO magic: 00 00 01 00
-          if (buf[0] !== 0 || buf[1] !== 0 || buf[2] !== 1 || buf[3] !== 0) {
-            results.push(
-              createResult(
-                'workspace/no-misleading-image-extension',
-                filePath,
-                1,
-                1,
-                'error',
-                `File claims to be .ico but does not have ICO magic bytes: ${filePath}`,
-                {
-                  tip: 'Rename the file or re-encode it to match its extension',
-                },
-              ),
-            );
-          }
+          results.push(
+            createResult(
+              'workspace/no-misleading-image-extension',
+              filePath,
+              1,
+              1,
+              'error',
+              `File claims to be .ico but does not have ICO magic bytes: ${filePath}`,
+              {
+                tip: 'Rename the file or re-encode it to match its extension',
+              },
+            ),
+          );
         }
       }
     }

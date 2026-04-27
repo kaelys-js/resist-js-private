@@ -47,23 +47,24 @@ const rule: WorkspaceRule = {
     const paths: string[] = modifiedPaths.split(/\s+/).filter(Boolean);
 
     for (const path of paths) {
-      if (path.endsWith('package.json') || path.endsWith('pnpm-lock.yaml')) {
-        if (!labels?.includes('deps-reviewed')) {
-          results.push(
-            createResult(
-              'workspace/mr-dependency-changes-reviewed',
-              ctx.rootDir,
-              1,
-              1,
-              'error',
-              `Dependency file changed without 'deps-reviewed' label: ${path}`,
-              {
-                tip: "Add 'deps-reviewed' label after peer review of changes",
-              },
-            ),
-          );
-          return Promise.resolve(results);
-        }
+      if (
+        (path.endsWith('package.json') || path.endsWith('pnpm-lock.yaml')) &&
+        !labels?.includes('deps-reviewed')
+      ) {
+        results.push(
+          createResult(
+            'workspace/mr-dependency-changes-reviewed',
+            ctx.rootDir,
+            1,
+            1,
+            'error',
+            `Dependency file changed without 'deps-reviewed' label: ${path}`,
+            {
+              tip: "Add 'deps-reviewed' label after peer review of changes",
+            },
+          ),
+        );
+        return Promise.resolve(results);
       }
     }
 

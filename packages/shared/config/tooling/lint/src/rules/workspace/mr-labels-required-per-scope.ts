@@ -56,22 +56,20 @@ const rule: WorkspaceRule = {
 
     for (const path of paths) {
       for (const [dir, requiredLabel] of SCOPE_MAP) {
-        if (path.startsWith(dir)) {
-          if (!labels.includes(requiredLabel)) {
-            results.push(
-              createResult(
-                'workspace/mr-labels-required-per-scope',
-                ctx.rootDir,
-                1,
-                1,
-                'error',
-                `MR modifies '${dir}' but is missing label: '${requiredLabel}'`,
-                {
-                  tip: `Add label '${requiredLabel}' to the MR`,
-                },
-              ),
-            );
-          }
+        if (path.startsWith(dir) && !labels.includes(requiredLabel)) {
+          results.push(
+            createResult(
+              'workspace/mr-labels-required-per-scope',
+              ctx.rootDir,
+              1,
+              1,
+              'error',
+              `MR modifies '${dir}' but is missing label: '${requiredLabel}'`,
+              {
+                tip: `Add label '${requiredLabel}' to the MR`,
+              },
+            ),
+          );
         }
       }
     }

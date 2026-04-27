@@ -130,7 +130,7 @@ export function getCallbackBody(callNode: AstNode): AstNode | undefined {
     return undefined;
   }
 
-  const [callback]: AstNode | undefined = args;
+  const [callback] = args;
   if (!callback) {
     return undefined;
   }
@@ -241,11 +241,9 @@ export function getModuleScriptRange(
       if (/^<script\s[^>]*(context\s*=\s*["']module["']|module(\s|>))/i.test(trimmed)) {
         startLine = i + 1; // 1-based
       }
-    } else {
+    } else if (/^<\/script\s*>/i.test(trimmed)) {
       // Look for closing tag
-      if (/^<\/script\s*>/i.test(trimmed)) {
-        return { startLine, endLine: i + 1 };
-      }
+      return { startLine, endLine: i + 1 };
     }
   }
 
@@ -294,7 +292,7 @@ export function findSubscriptionPatterns(body: AstNode): string[] {
 
     // Direct call: addEventListener(...), setInterval(...), subscribe(...)
     if (callee.type === 'Identifier') {
-      const {name} = (callee as unknown as { name: string });
+      const { name } = callee as unknown as { name: string };
       if (SUBSCRIPTION_PATTERNS.has(name)) {
         patterns.push(name);
       }
@@ -305,9 +303,9 @@ export function findSubscriptionPatterns(body: AstNode): string[] {
       callee.type === 'StaticMemberExpression' ||
       (callee.type === 'MemberExpression' && !(callee as { computed?: boolean }).computed)
     ) {
-      const {property} = (callee as { property?: AstNode });
+      const { property } = callee as { property?: AstNode };
       if (property?.type === 'Identifier') {
-        const {name} = (property as unknown as { name: string });
+        const { name } = property as unknown as { name: string };
         if (SUBSCRIPTION_PATTERNS.has(name)) {
           patterns.push(name);
         }
