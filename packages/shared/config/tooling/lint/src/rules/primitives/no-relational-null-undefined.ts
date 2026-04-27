@@ -15,6 +15,19 @@ import type {
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
+/**
+ * Returns true when `n` is a `null` literal or the `undefined` identifier.
+ *
+ * @param n - AST node to test
+ * @returns True when the node is null/undefined
+ */
+function isNullOrUndefined(n: AstNode): boolean {
+  return (
+    (n.type === 'Literal' && (n.value as unknown) === null) ||
+    (n.type === 'Identifier' && (n.name as string) === 'undefined')
+  );
+}
+
 const rule: TypeScriptRule = {
   id: 'primitives/no-relational-null-undefined',
   description: 'Relational comparison with null/undefined has counterintuitive results',
@@ -41,10 +54,6 @@ const rule: TypeScriptRule = {
 
       const left = leftRaw as AstNode;
       const right = rightRaw as AstNode;
-
-      const isNullOrUndefined = (n: AstNode): boolean =>
-        (n.type === 'Literal' && (n.value as unknown) === null) ||
-        (n.type === 'Identifier' && (n.name as string) === 'undefined');
 
       if (isNullOrUndefined(left) || isNullOrUndefined(right)) {
         results.push({

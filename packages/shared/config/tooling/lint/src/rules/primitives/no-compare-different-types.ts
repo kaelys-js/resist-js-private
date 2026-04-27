@@ -14,6 +14,28 @@ import type {
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
+/**
+ * Returns true when `n` is a string-valued Literal node.
+ *
+ * @param n - AST node to test
+ * @returns True when node is a Literal whose value is a string
+ */
+function isStringLiteral(n: AstNode): boolean {
+  const val: unknown = n.value;
+  return n.type === 'Literal' && typeof val === 'string';
+}
+
+/**
+ * Returns true when `n` is a number-valued Literal node.
+ *
+ * @param n - AST node to test
+ * @returns True when node is a Literal whose value is a number
+ */
+function isNumberLiteral(n: AstNode): boolean {
+  const val: unknown = n.value;
+  return n.type === 'Literal' && typeof val === 'number';
+}
+
 const rule: TypeScriptRule = {
   id: 'primitives/no-compare-different-types',
   description: 'Comparison between different types uses implicit coercion - convert explicitly',
@@ -40,15 +62,6 @@ const rule: TypeScriptRule = {
 
       const left = leftRaw as AstNode;
       const right = rightRaw as AstNode;
-
-      const isStringLiteral = (n: AstNode): boolean => {
-        const val: unknown = n.value;
-        return n.type === 'Literal' && typeof val === 'string';
-      };
-      const isNumberLiteral = (n: AstNode): boolean => {
-        const val: unknown = n.value;
-        return n.type === 'Literal' && typeof val === 'number';
-      };
 
       const leftIsString = isStringLiteral(left);
       const leftIsNumber = isNumberLiteral(left);
