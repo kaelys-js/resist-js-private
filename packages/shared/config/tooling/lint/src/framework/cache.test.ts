@@ -99,6 +99,31 @@ describe('computeRuleHash', () => {
   it('returns different hash when rules change', () => {
     expect(computeRuleHash(['rule/a'])).not.toBe(computeRuleHash(['rule/a', 'rule/b']));
   });
+
+  it('returns different hash when a rule severity flips off→error', () => {
+    const ids: string[] = ['rule/a'];
+    const off: string = computeRuleHash(ids, { 'rule/a': 'off' });
+    const on: string = computeRuleHash(ids, { 'rule/a': 'error' });
+    expect(off).not.toBe(on);
+  });
+
+  it('returns different hash when a rule entry is added with off severity', () => {
+    const ids: string[] = ['rule/a', 'rule/b'];
+    const without: string = computeRuleHash(ids, { 'rule/a': 'error' });
+    const withB: string = computeRuleHash(ids, { 'rule/a': 'error', 'rule/b': 'off' });
+    expect(without).not.toBe(withB);
+  });
+
+  it('returns same hash regardless of rules-map key order', () => {
+    const ids: string[] = ['rule/a', 'rule/b'];
+    const ab: string = computeRuleHash(ids, { 'rule/a': 'error', 'rule/b': 'warn' });
+    const ba: string = computeRuleHash(ids, { 'rule/b': 'warn', 'rule/a': 'error' });
+    expect(ab).toBe(ba);
+  });
+
+  it('returns same hash when rulesConfig defaults to empty', () => {
+    expect(computeRuleHash(['rule/a'])).toBe(computeRuleHash(['rule/a'], {}));
+  });
 });
 
 // =============================================================================

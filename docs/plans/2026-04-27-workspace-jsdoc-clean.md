@@ -1,18 +1,22 @@
-# Workspace QA — Clear 228 qa:lint Diagnostics from Newly-Activated jsdoc Rules
+# Workspace QA — Fix `@/lint` Cache-Invalidation Bug, Then Clear ~3,193 jsdoc Diagnostics
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Date**: 2026-04-27
-**Package**: workspace-wide (`packages/**`) + `@/lint` (`packages/shared/config/tooling/lint/src/rules/jsdoc/`)
-**Goal**: Make `pnpm -w run qa:lint` exit 0 by resolving every one of the 228 diagnostics introduced when commit `37b69adc` enabled two previously-off jsdoc rules in `.resist-lint.jsonc` (`jsdoc/require-module`, `jsdoc/require-jsdoc`). Per the user mandate, every diagnostic is fixed at the code or rule level — no rule reverts, no severity downgrades.
+**Package**: `@/lint` (`packages/shared/config/tooling/lint/src/framework/cache.ts` + `cli-helpers.ts`) and workspace-wide source files (`packages/**/*.{ts,svelte}`)
+**Goal**: Make `pnpm -w run qa:lint` exit 0 by:
+  1. Fixing a cache-invalidation bug in the `@/lint` runner that hid ~2,900 jsdoc diagnostics across the prior turn.
+  2. Resolving every one of the ~3,193 real diagnostics surfaced after the cache fix — 3,107 `jsdoc/require-module` (missing `@module` JSDoc) and 86 `jsdoc/require-jsdoc` (missing function/type JSDoc).
+
+This plan **explicitly supersedes** the prior plan at `/Users/home/.claude/plans/atomic-growing-tarjan.md` (now replaced) and the staged copy at `docs/plans/2026-04-27-workspace-jsdoc-clean.md`. The prior plan's baseline of 228 diagnostics was wrong — it was the count from a stale `.resist-lint-cache.json` that did not invalidate when commit `37b69adc` flipped two rules from `"off"` to `"error"` in `.resist-lint.jsonc`. The cache bug must be fixed FIRST so the subsequent counts are accurate and reproducible.
 
 **Architecture**:
-- `jsdoc/require-module` (215 errors) and `jsdoc/require-jsdoc` (13 errors) both fire on TypeScript source through the oxc-runner script-block extraction path. They flag (a) genuinely-undocumented .ts / .svelte / .test.ts files and (b) false-positive matches from `.md` code-fence content extracted by `extractCodeFences()` and run as virtual `.ts`. The `.md` matches are not real source files — they are documentation examples — so the rule should not fire on them.
-- **Rule fix at the linter level (require-module ONLY)**: refine `jsdoc/require-module` to short-circuit early when `context.file` ends in `.md`, `.mdx`, or `.html`. Eliminates 12 false positives (10 .md + 2 .html). `jsdoc/require-jsdoc` is intentionally LEFT firing on `.md`/`.mdx` because exported types declared in README code fences are real, documented examples that should themselves carry JSDoc — those 2 README diagnostics get a code-level fix in TASK 4.
-- **Code fix for the remaining 216 real diagnostics**: add a top-of-file `/** … @module */` JSDoc to every flagged source file (70 .test.ts, 74 .svelte, 45 .ts, 14 misc), and add a one-line JSDoc above each of the 11 remaining exported functions / types. The 7 `XxxProps` types in shared `.svelte` components share the canonical pattern `/** Public component props for {ComponentName}. */` so that batch is mechanical.
-- The 203 `@module`-add edits are too many for individual `Edit` invocations and qualify for a bulk-script approval marker. The marker will be requested explicitly via `AskUserQuestion`-style text before TASK 2 begins; the user (not Claude) creates `.claude/approved-bulk-script` to grant it. The script reads each flagged file path from `qa:lint` output, prepends the canonical `@module` JSDoc only when the file does not already begin with `/**`, and writes back via `node:fs` (no shell loops).
+- **Cache bug root cause** (TASK 1): `cli-helpers.ts:1272` calls `computeRuleHash(allRuleIds)` which hashes only the *rule ID set* (the modules that load), not the *resolved per-rule severity* from `.resist-lint.jsonc`. When a rule's severity changes from `"off"` to `"error"`, the rule's ID is unchanged, so the rule hash is unchanged, so `LintCache.load()` accepts the cache as current. Cached entries — whose results were computed under the *old* rule-active set — are reused for files whose content hasn't changed, hiding any new diagnostics that the newly-active rule would have produced.
+- **Cache fix at the runner level**: extend `computeRuleHash` to accept and incorporate the resolved rules map (`config.rules: Record<string, Severity>`). The new hash is `MD5(sorted(ruleIds).join('\n') + '\n--\n' + JSON.stringify(sortedRulesMap))`. Any severity flip — including `"off"` → `"error"` — produces a new hash, invalidating the entire cache. Tests cover (a) baseline hit-with-same-config, (b) severity flip causing miss, (c) override scope change causing miss.
+- **TASK 4 (the bulk-Props change already shipped in commit `bf8e8c28`)** is reflected in this plan as a completed sub-task — it added `/** Public component props for <Name>. */` to 783 `<script module lang="ts">` `XxxProps` aliases under user-approved bulk-script (`.claude/approved-bulk-script` consumed). The plan binding now matches what shipped.
+- **The 3,107 `@module` additions are per-file authored.** No bulk script with filename-derived placeholders. For each file the description is taken from the file's existing first-comment (when present), the file's first export, or — for SvelteKit route files / `+page.ts` shells — the convention "<role> for <route>". Batches are organized by package + extension for review locality. This is realistically a few-hour grind, not days, because most files have an obvious purpose visible in their first 20 lines. Per-batch commits.
 
-Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools`) → update plan → next.
+Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools` after invalidating the cache for accurate counts) → update plan → next.
 
 ---
 
@@ -24,174 +28,215 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools`) → up
 
 ---
 
-## Baseline (before any changes)
+## Baseline (before any further changes)
 
 | Metric | Value |
 |--------|-------|
 | `pnpm -w run qa:lint` exit code | 1 |
-| `pnpm -w run qa:lint 2>&1 \| grep -cE '^  ✗ '` total errors | 228 |
-| `jsdoc/require-module` errors | 215 |
-| `jsdoc/require-jsdoc` errors | 13 |
-| Affected files (require-module) | 212 unique |
-| Affected files (require-jsdoc) | 12 unique |
+| `pnpm -w run qa:lint 2>&1 \| tail -5 \| grep -oE 'Found [0-9]+'` total errors | 3,193 |
+| `jsdoc/require-module` errors (real, post cache-invalidation) | 3,107 |
+| `jsdoc/require-jsdoc` errors (function) | 13 |
+| `jsdoc/require-jsdoc` errors (type, residual after commit `bf8e8c28`) | 73 |
 | Workspace tests | 19,738 / 19,738 passing |
-| Workspace coverage thresholds | All four pass |
+| Workspace coverage | All four thresholds pass |
+| `.resist-lint-cache.json` size | ~2.5 MB (currently STALE — does not invalidate on rule-severity flips) |
 
-**Distribution by extension (require-module):**
-- 74 .svelte (components — `<script>` block extraction)
-- 70 .test.ts (test files)
-- 45 .ts (regular source)
-- 10 .md (README code fences — false positives)
-- 2 .svelte.test.ts
-- 2 .server.ts
-- 2 .server.test.ts
-- 2 .html (false positives)
-- 2 .d.ts
-- 1 .svelte.ts
+**Files already shipped (commit `bf8e8c28`):**
+- `packages/shared/config/tooling/lint/src/rules/jsdoc/require-module.ts` — added `.md/.mdx/.html` skip
+- `packages/shared/config/tooling/lint/src/rules/jsdoc/jsdoc-rules.test.ts` — added 3 fixtures
+- 783 `packages/shared/ui/src/<comp>/<Component>.svelte` — `XxxProps` JSDoc bulk-add
+- `docs/plans/2026-04-27-workspace-jsdoc-clean.md` — superseded by this plan
 
 ---
 
-## TASK 1 — Refine `jsdoc/require-module` to skip `.md`/`.mdx`/`.html`
+## TASK 1 — Fix cache-invalidation bug in `@/lint`
 
 **Status**: [ ]
 
-**Gap**: `jsdoc/require-module` fires on virtual `.ts` content extracted from `.md` code fences (10) and `.html` script blocks (2), producing 12 false positives. The `@module` convention applies to TypeScript source modules — not to README documentation or HTML shell pages. Per user direction, the rule should NOT apply to `.md`/`.mdx`/`.html`. (`jsdoc/require-jsdoc` is intentionally kept active for these extensions: exported types in README code fences DO need JSDoc; this is fixed in TASK 4.)
+**Gap**: `computeRuleHash(allRuleIds)` (`packages/shared/config/tooling/lint/src/framework/cache.ts:377`) hashes only the loaded rule IDs, not the resolved severities from `.resist-lint.jsonc`. When a rule flips from `"off"` to `"error"` (or any severity transition), the rule hash is unchanged, the cache is marked current, and stale cached entries are reused — silently hiding any diagnostics the newly-activated rule would produce. This is the bug that hid ~2,900 jsdoc diagnostics across the prior turn.
 
 **Plan**:
-- In `packages/shared/config/tooling/lint/src/rules/jsdoc/require-module.ts`, before the existing `hasModule` check, add `if (/\.(md|mdx|html)$/i.test(context.file)) { return []; }` to short-circuit.
-- Do NOT modify `packages/shared/config/tooling/lint/src/rules/jsdoc/require-jsdoc.ts` — README code-fence exports without JSDoc are real diagnostics (handled in TASK 4).
-- Add a fixture case to the rule unit tests asserting `[]` is returned for `.md` and `.html` paths.
+- Update the `computeRuleHash` signature in `framework/cache.ts` to take a second argument `rulesConfig: Record<string, Severity | unknown>` (the merged config rules map) in addition to `ruleIds`. The hash becomes:
+  - `MD5(sorted(ruleIds).join('\n') + '\n----\n' + JSON.stringify(sortedRulesMap))`.
+- Update `cli-helpers.ts:1272` call site to pass `config.rules` (the parsed `.resist-lint.jsonc` `rules` map).
+- Update unit tests in `framework/cache.test.ts`:
+  - Existing test: `computeRuleHash(['a', 'b'])` matches `computeRuleHash(['b', 'a'])` (sort independence) — keep.
+  - New test: `computeRuleHash(ids, {a:'error'}) !== computeRuleHash(ids, {a:'off'})` — severity affects hash.
+  - New test: `computeRuleHash(ids, {a:'error'}) !== computeRuleHash(ids, {a:'error', b:'off'})` — added rule entries affect hash.
+  - New test: `computeRuleHash(ids, {a:'error', b:'warn'}) === computeRuleHash(ids, {b:'warn', a:'error'})` — key-order independence (achieved via sortedRulesMap).
+- After the fix, re-run `pnpm -w run qa:lint` once with cache invalidated to confirm the real workspace baseline is reproducible.
 
 **Files**:
-- Edit: `packages/shared/config/tooling/lint/src/rules/jsdoc/require-module.ts`
-- Edit: `packages/shared/config/tooling/lint/src/rules/jsdoc/jsdoc-rules.test.ts`
-- Test: `packages/shared/config/tooling/lint/src/rules/jsdoc/jsdoc-rules.test.ts`
+- Edit: `packages/shared/config/tooling/lint/src/framework/cache.ts` (signature + impl of `computeRuleHash`)
+- Edit: `packages/shared/config/tooling/lint/src/cli-helpers.ts` (call site at line 1272)
+- Edit: `packages/shared/config/tooling/lint/src/framework/cache.test.ts` (4 tests)
+- Test: `packages/shared/config/tooling/lint/src/framework/cache.test.ts`
 
 **Verification**:
-- `pnpm --filter @/lint exec vitest run --project lint src/rules/jsdoc/ 2>&1 \| grep -E '^\s*Tests'` shows new pass count ≥ baseline + 2 (positive + negative fixtures for .md/.html).
-- `pnpm -w run qa:lint 2>&1 \| grep -cE 'jsdoc/require-module'` drops from 215 to 203 (12 .md+.html false positives eliminated).
-- `pnpm -w run qa:lint 2>&1 \| grep -cE 'jsdoc/require-jsdoc'` is unchanged at 13 (the two README `Exported type` diagnostics remain real until TASK 4).
+- `pnpm --filter @/lint exec vitest run --project lint src/framework/cache.test.ts 2>&1 \| grep -E '^\s*Tests'` shows new pass count ≥ baseline + 3.
+- After fix: edit `.resist-lint.jsonc` to flip any rule from `"error"` → `"off"`, then run `pnpm -w run qa:lint`; cache invalidates entirely (no stale results).
+- After flipping the rule back, the next `pnpm -w run qa:lint` builds a fresh cache and reports the correct diagnostics count.
+- `pnpm -w run qa:lint 2>&1 \| tail -5 \| grep -oE 'Found [0-9]+'` reproduces 3,193 ± 0 baseline diagnostics deterministically across consecutive runs.
 
 ---
 
-## TASK 2 — Author `/** … @module */` per-file for 203 flagged source files
+## TASK 2 — Acknowledge already-shipped fixes (`bf8e8c28`)
 
-**Status**: [ ]
+**Status**: [x]
 
-**Gap**: 203 real source files (74 .svelte + 70 .test.ts + 45 .ts + 14 misc) lack the canonical top-of-file `@module` JSDoc. A mechanical bulk-script cannot produce accurate descriptions of what each file does — per the user's "don't weaken assertions" mandate, each `@module` must describe its file's actual purpose. **No bulk script. No `.claude/approved-bulk-script` marker.** Per-file edits authored after reading the file.
+**Gap**: Two fixes already shipped in commit `bf8e8c28`. They are recorded here so the plan's binding contract reflects what is on `main`.
 
 **Plan**:
-- Process the 203 files in batches grouped by package/role for review locality and per-batch commits:
-  - **Batch 2a** — `packages/shared/ui/src/<component>/<Component>.svelte` shells (~74 files). Read each component's `lens.ts` sibling (when present) for a one-line purpose summary; the canonical JSDoc form is `/**\n * <ComponentName> Svelte component — <one-line purpose>.\n *\n * @module\n */\n` placed inside the `<script lang="ts">` block above the first import.
-  - **Batch 2b** — `packages/shared/ui/src/**/*.test.ts` + `packages/products/storylyne/editor/e2e/*.test.ts` + other test files (~72 files). Description form: `Tests for <subject> — <coverage scope>.`
-  - **Batch 2c** — `packages/shared/config/tooling/lint/src/**` (~10 files). Description form derived from each file's exported public API (e.g. `<Action> <subject> for <consumer>`).
-  - **Batch 2d** — `packages/shared/{schemas,utils}/**` (~25 files). Description form derived from the schema/utility's role (e.g. `<X> schema/util — <one-line purpose>`).
-  - **Batch 2e** — `packages/products/storylyne/editor/src/**` non-test (~20 files). Description form derived from the route/lib/feature.
-  - **Batch 2f** — Remaining (~2 misc).
-- For each file: read it (≤30 lines), author the one-sentence purpose, prepend the JSDoc block. Commit per-batch.
-- For `.svelte` files: place JSDoc inside the first `<script lang="ts">` block, indented to match. The rule scans the extracted script content; the JSDoc must be inside the script block, not the markup.
-- Skip any file whose first 500 chars already match `/@module\b/` (already documented).
+- (Already done) `packages/shared/config/tooling/lint/src/rules/jsdoc/require-module.ts` skips `.md/.mdx/.html`. 12 false positives eliminated. 3 fixture tests added in `jsdoc-rules.test.ts`.
+- (Already done) 783 `<Component>.svelte` files in `packages/shared/ui/src/<comp>/` got `/** Public component props for <Name>. */` above their `XxxProps` type alias inside `<script module lang="ts">`. User approved bulk-script via `.claude/approved-bulk-script` (consumed). 856 `Exported type` diagnostics dropped to 73 (residual from non-XxxProps types in `types.ts` / `context.ts` / `chart-utils.ts` / etc. — these are addressed in TASK 6).
 
-**Files**:
-- Edit: ~203 source files across the 6 batches above. No new files created.
-- Test: `pnpm --filter @storylyne/editor run qa:test` and `pnpm --filter @/ui run qa:test` after each batch (smoke-check that the prepended JSDoc didn't break any imports / svelte parses).
+**Files**: Already committed.
 
 **Verification**:
-- `pnpm -w run qa:lint 2>&1 \| grep -cE 'jsdoc/require-module'` returns 0 after all batches.
-- After each batch, `pnpm -w run qa:lint 2>&1 \| grep -cE 'jsdoc/require-module'` decreases monotonically.
-- `pnpm --filter @storylyne/editor run qa:test 2>&1 \| grep -E '^\s*Tests' \| grep -oE '[0-9]+ passed' \| head -1` count unchanged from baseline.
-- `pnpm --filter @/ui run qa:test 2>&1 \| grep -E '^\s*Tests' \| grep -oE '[0-9]+ passed' \| head -1` count unchanged from baseline.
-- After each batch, run `pnpm -w exec biome format ...` if needed and ensure no formatter reverts the prepended JSDoc.
+- `git log --oneline bf8e8c28 -1` shows the commit.
+- `git show bf8e8c28 --stat | head -10` shows 786 files changed.
+- `pnpm -w run qa:lint 2>&1 \| grep -c 'jsdoc/require-jsdoc.*Exported type'` returns 73.
 
 ---
 
-## TASK 3 — Add JSDoc to 4 exported functions
+## TASK 3 — Author `/** … @module */` per-file for the 3,107 flagged source files
 
 **Status**: [ ]
 
-**Gap**: Four exported functions lack JSDoc:
-- `packages/products/storylyne/editor/src/hooks.server.ts:198` — `handle`
-- `packages/shared/config/tooling/lint/src/cli-helpers.ts:837` — `writeJsonSchema`
-- `packages/shared/config/tooling/lint/src/config/schema.ts:95` — `loadConfig`
-- `packages/shared/config/tooling/lint/src/framework/rule-loader.ts:87` — `loadAllRules`
+**Gap**: 3,107 source files lack `/** … @module */` at the top. Per-file authored descriptions, no bulk-script-with-placeholders. Realistic time: a few focused hours; most files' purpose is obvious in the first 20 lines.
 
-**Plan**:
-- For each function, add a JSDoc block above the export with:
-  - One-sentence summary derived from the function's purpose (read the body to determine).
-  - `@param` for each parameter (with type and description).
-  - `@returns` describing the return value.
-- All four are public/internal-public APIs already documented elsewhere; the JSDoc should match the conventions used by neighboring functions in the same file.
+**Plan**: Process by package + extension batches. Each batch reads a small group of files (≤20) in parallel, authors per-file, edits in one go, then runs the package's `qa:test` and an incremental `qa:lint --tools` to confirm count drops monotonically. Per-batch commit.
 
-**Files**:
-- Edit: `packages/products/storylyne/editor/src/hooks.server.ts`
-- Edit: `packages/shared/config/tooling/lint/src/cli-helpers.ts`
-- Edit: `packages/shared/config/tooling/lint/src/config/schema.ts`
-- Edit: `packages/shared/config/tooling/lint/src/framework/rule-loader.ts`
-- Test: existing tests for each touched file (`pnpm --filter @/lint run qa:test`, `pnpm --filter @storylyne/editor run qa:test`).
+| Batch | Scope | Approx file count |
+|---|---|---|
+| 3a | `packages/shared/ui/src/**/*.svelte` (component shells, including the 1240 `.svelte` flagged by require-module — note: TASK 2 added Props JSDoc but NOT `@module`) | ~1240 |
+| 3b | `packages/shared/ui/src/**/*.ts` (lens.ts / index.ts / types.ts / utility files) | ~700 |
+| 3c | `packages/shared/{schemas,utils}/**/*.{ts,svelte.ts}` non-test | ~150 |
+| 3d | `packages/shared/config/**/*.{ts}` non-test | ~80 |
+| 3e | `packages/products/storylyne/editor/src/**/*.{svelte,ts}` non-test | ~250 |
+| 3f | All `*.test.ts` / `*.spec.ts` workspace-wide | ~600 |
+| 3g | Remaining (`.svelte.test.ts`, `.server.ts`, `.d.ts`, `.config.ts`, etc) | ~85 |
+
+For each file:
+- Read first 20 lines to determine the file's role:
+  - `<script module lang="ts">` → component shell — description is `<ComponentName> Svelte component — <one-line purpose from the Component's own first-script JSDoc when present>.`
+  - `*.test.ts` → description is `Tests for <module-under-test>.`
+  - `lens.ts` → `Lens manifest for <ComponentName>.`
+  - `index.ts` (barrel) → `Barrel re-export for <package-or-folder>.`
+  - `+page.ts` / `+page.server.ts` → `<Route> page <load|action> handler.`
+  - Plain `.ts` source → first export's name + purpose.
+- Insert (or skip if already present) the canonical block:
+  ```
+  /**
+   * <description>.
+   *
+   * @module
+   */
+  ```
+- For `.svelte` files: insert inside the FIRST `<script module lang="ts">` block (or `<script lang="ts">` if no module block) above the first import.
+- For `.ts` files: insert at the top of the file (above any imports).
+
+**Files**: ~3,107 source files across the 7 batches. Each batch commit references its package + count.
+- Test: per-batch `pnpm --filter <pkg> run qa:test`.
 
 **Verification**:
-- `pnpm -w run qa:lint 2>&1 \| grep -cE "jsdoc/require-jsdoc.*Exported function"` returns 0.
-- `pnpm -w run qa:test:coverage 2>&1 \| grep -E '^\s*Tests'` pass count unchanged.
+- After each batch: `pnpm -w run qa:lint --tools 2>&1 \| grep -c 'jsdoc/require-module'` decreases monotonically.
+- Final: `pnpm -w run qa:lint --tools 2>&1 \| grep -c 'jsdoc/require-module'` returns 0.
+- All per-package `qa:test` commands pass with unchanged counts.
 
 ---
 
-## TASK 4 — Add JSDoc to 9 exported types (7 in `.svelte` + 2 in README code fences)
+## TASK 4 — Add JSDoc to 13 exported functions
 
 **Status**: [ ]
 
-**Gap**: Nine exported types lack JSDoc. Seven are `XxxProps` types in `packages/shared/ui/src/<component>/<Component>.svelte` (`v.InferOutput<typeof XxxPropsSchema>`); two are example types declared in a code fence inside `packages/shared/locale/README.md`:
-
-- `about-dialog/AboutDialog.svelte:10` — `AboutDialogProps`
-- `absolute-center/AbsoluteCenter.svelte:10` — `AbsoluteCenterProps`
-- `accordion-menu/AccordionMenu.svelte:10` — `AccordionMenuProps`
-- `achievement-badge/AchievementBadge.svelte:10` — `AchievementBadgeProps`
-- `action-sheet/ActionSheet.svelte:10` — `ActionSheetProps`
-- `activity-bar/ActivityBar.svelte:10` — `ActivityBarProps`
-- `activity-feed/ActivityFeed.svelte:10` — `ActivityFeedProps`
-- `packages/shared/locale/README.md:752` — `MyToolStrings` (inside ```ts fence)
-- `packages/shared/locale/README.md:753` — `BuiltMyToolStrings` (inside ```ts fence)
+**Gap**: 13 exported functions in production source files lack JSDoc:
+- `packages/products/storylyne/editor/src/hooks.server.ts` — `handle`
+- `packages/shared/config/tooling/lint/src/cli-helpers.ts` — `writeJsonSchema`
+- `packages/shared/config/tooling/lint/src/config/schema.ts` — `loadConfig`
+- `packages/shared/config/tooling/lint/src/framework/rule-loader.ts` — `loadAllRules`
+- `packages/shared/ui/src/carousel/context.ts` — `setEmblaContext`
+- `packages/shared/ui/src/carousel/context.ts` — `getEmblaContext`
+- `packages/shared/ui/src/chart/chart-utils.ts` — `getPayloadConfigFromPayload`
+- `packages/shared/ui/src/chart/chart-utils.ts` — `setChartContext`
+- `packages/shared/ui/src/chart/chart-utils.ts` — `useChart`
+- `packages/shared/ui/src/data-table/data-table.svelte.ts` — `mergeObjects`
+- `packages/shared/ui/src/scroll-area/scroll-area.svelte.ts` — `getRetrieved`
+- `packages/shared/ui/src/toggle-group/toggle-group.svelte.ts` — `setToggleGroupCtx`
+- `packages/shared/ui/src/toggle-group/toggle-group.svelte.ts` — `getToggleGroupCtx`
 
 **Plan**:
-- For each `.svelte` file, prepend `/** Public component props for `<ComponentName>`. */` immediately above the `export type` line — mirrors the convention already used by neighbouring `<ComponentName>Props` exports in the same UI package (verified via `grep -B1 'export type.*Props = v.InferOutput' packages/shared/ui/src/`).
-- For `README.md`, add a JSDoc comment immediately above each of the two `export type` lines INSIDE the code fence: `/** Output type inferred from MyToolStringsSchema (per-tool strings). */` and `/** Built locale wrapping MyToolStrings (with format helpers). */`. Keep the code fence tag as ```ts. The rule extracts code-fence content and runs require-jsdoc against the extracted content; the in-fence JSDoc satisfies it.
+- For each function, read the body and signature, author a JSDoc block above the export with `@param`, `@returns` matching the function's signature.
+- All 13 are public-API entries in their packages; the JSDoc style matches neighboring documented functions in the same file.
 
-**Files**:
-- Edit: 7 `.svelte` files listed above.
-- Edit: `packages/shared/locale/README.md` (lines 750–755 area; add 2 `/** … */` lines).
-- Test: `pnpm --filter @/ui run qa:test` (component prop types are consumed by tests; ensure none break).
+**Files**: 9 files (a few have ≥2 functions).
+- Test: `pnpm --filter @/ui run qa:test`, `pnpm --filter @/lint run qa:test`, `pnpm --filter @storylyne/editor run qa:test`.
 
 **Verification**:
-- `pnpm -w run qa:lint 2>&1 \| grep -cE "jsdoc/require-jsdoc.*Exported type"` returns 0.
-- `pnpm --filter @/ui run qa:test 2>&1 \| grep -E '^\s*Tests'` pass count unchanged.
+- `pnpm -w run qa:lint 2>&1 \| grep -cE 'jsdoc/require-jsdoc.*Exported function'` returns 0.
 
 ---
 
-## TASK 5 — Register Rules + Config
+## TASK 5 — Add JSDoc to remaining 71 non-Svelte exported types
+
+**Status**: [ ]
+
+**Gap**: 73 `Exported type` diagnostics remain after TASK 2's bulk Props JSDoc — 71 are in non-Svelte `.ts` files (carousel/context.ts, lens-utils.ts, types.ts, etc.) and 2 are in README code fences (handled in TASK 7). The 71 are real types that need authored JSDoc.
+
+**Plan**:
+- Group by file (each .ts file has multiple exported types). Read each file's exports, author one-line JSDoc per type.
+- The types fall into clusters: chart payloads, lens props, sidebar context, badge/button variants — all have an obvious one-line purpose visible in their declaration site.
+
+**Files**: ~9 .ts files (2 in @/locale README handled in TASK 7).
+
+**Verification**:
+- `pnpm -w run qa:lint 2>&1 \| grep -cE 'jsdoc/require-jsdoc.*Exported type'` drops from 73 to 2 (the README code-fence types).
+
+---
+
+## TASK 6 — Add JSDoc to 2 README in-fence exported types
+
+**Status**: [ ]
+
+**Gap**: `packages/shared/locale/README.md:752,753` declares `MyToolStrings` and `BuiltMyToolStrings` inside a ```ts fence as documented examples. The rule extracts the fence and runs `require-jsdoc` against its content; the in-fence types lack JSDoc.
+
+**Plan**:
+- Edit the README.md fence content to add JSDoc above each `export type` line:
+  - `/** Output type inferred from MyToolStringsSchema (per-tool strings). */`
+  - `/** Built locale wrapping MyToolStrings (with format helpers). */`
+
+**Files**: `packages/shared/locale/README.md` (2 single-line additions inside the existing fence).
+
+**Verification**:
+- `pnpm -w run qa:lint 2>&1 \| grep -cE 'jsdoc/require-jsdoc'` returns 0.
+
+---
+
+## TASK 7 — Register Rules + Config
 
 **Status**: [ ]
 
 **Plan**:
-- This phase doesn't add new rules; it modifies two existing ones (TASK 1) plus adds JSDoc to source files (TASKs 2–4). Nothing to register in `.resist-lint.jsonc` — the activations are already there from commit `37b69adc`.
-- Verify the auto-loader still picks up the modified rule files and rule shape unchanged: `pnpm --filter @/lint exec node --import ./packages/shared/config/tooling/node/src/register-aliases.mjs packages/shared/config/tooling/lint/src/cli.ts --list-rules 2>&1 \| grep -cE '^jsdoc/'` matches baseline.
+- This phase doesn't add new rules; it modifies one existing rule (TASK 1's cache fix touches `framework/cache.ts`, not a rule) and adds JSDoc to source files (TASKs 3–6). Nothing to register in `.resist-lint.jsonc`.
+- Verify the auto-loader still picks up every modified file: `node --import ./packages/shared/config/tooling/node/src/register-aliases.mjs packages/shared/config/tooling/lint/src/cli.ts --list-rules 2>&1 \| wc -l` matches baseline.
 
-**Files**:
-- Read-only audit: `.resist-lint.jsonc` (must stay byte-for-byte identical).
+**Files**: read-only audit.
 
 **Verification**:
 - `git diff --name-only HEAD -- .resist-lint.jsonc` returns empty.
-- `pnpm --filter @/lint exec node --import ./packages/shared/config/tooling/node/src/register-aliases.mjs packages/shared/config/tooling/lint/src/cli.ts --list-rules 2>&1 \| wc -l` matches baseline ± 0.
+- `node ... --list-rules 2>&1 \| wc -l` matches baseline ± 0.
 
 ---
 
-## TASK 6 — Integration Verification
+## TASK 8 — Integration Verification
 
 **Status**: [ ]
 
 **Plan**:
-- **Command registration check**: `grep -cE 'registerCommand\|command\.register' packages/shared/config/tooling/lint/src/` is unchanged from baseline (this phase adds no CLI commands).
-- **Config settings read check**: TASK 1's modified rules still read `context.file` and `context.content`. `grep -nE 'context\\.file' packages/shared/config/tooling/lint/src/rules/jsdoc/require-module.ts` returns ≥1.
-- **Class instantiation check**: every modified rule still exports a default value matching `TypeScriptRuleSchema`. Verified by running the rule-loader: `pnpm --filter @/lint exec node ... --list-rules 2>&1 \| grep -cE '^jsdoc/'` matches baseline.
-- **Dead code / unused export check**: no new helpers added. The `/tmp/add-module-jsdoc.mjs` script lives outside `packages/` and is not committed. `grep -rn '@module' packages/products/storylyne/editor/src \| wc -l` rises by ~70 (one per touched file).
+- **Command registration check**: `grep -cE 'registerCommand\|command\.register' packages/shared/config/tooling/lint/src/` is unchanged from baseline.
+- **Config settings read check**: TASK 1's modified `computeRuleHash` reads from `config.rules`. `grep -nE 'config\\.rules' packages/shared/config/tooling/lint/src/cli-helpers.ts` returns ≥1.
+- **Class instantiation check**: every modified rule still exports a default value matching the rule schema. Verified by running `--list-rules`.
+- **Dead code / unused export check**: no new exported symbols. The `/tmp/add-component-props-jsdoc.mjs` script lives outside `packages/` and is not committed. `grep -rn '@module' packages/shared/ui/src \| wc -l` rises by ~700 (one per touched .svelte file's component-shell).
 
 **Files**: read-only audit.
 
@@ -201,7 +246,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools`) → up
 
 ---
 
-## TASK 7 — Full QA + Coverage
+## TASK 9 — Full QA + Coverage
 
 **Status**: [ ]
 
@@ -211,29 +256,29 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools`) → up
 - Run: `pnpm -w run qa:lint`
 - Run: `pnpm -w run qa:test:coverage`
 - Confirm all four exit 0.
-- Confirm test count unchanged from baseline (19,738) — TASKs 2–4 add comments only, no new tests.
-- Confirm workspace coverage thresholds still pass (functions ≥91%, branches ≥78%, statements ≥90%, lines ≥90%).
+- Confirm test count is unchanged from baseline (19,738) — TASKs 3–6 add comments only, no new tests except the 3 cache-test fixtures from TASK 1.
+- Confirm workspace coverage thresholds still pass.
 
 **Verification**:
 - `pnpm -w run qa:format:check` exits 0.
 - `pnpm -w run qa:lint` exits 0.
 - `pnpm -w run qa:test:coverage` exits 0 — `pnpm -w run qa:test:coverage 2>&1 \| grep -c 'does not meet global threshold'` returns 0.
-- `pnpm -w run qa:test:coverage 2>&1 \| grep -E 'Tests' \| grep -oE '[0-9]+ passed' \| head -1` shows pass count ≥ 19738.
+- `pnpm -w run qa:test:coverage 2>&1 \| grep -E 'Tests' \| grep -oE '[0-9]+ passed' \| head -1` shows pass count ≥ 19,741.
 - `pnpm -w run qa:test:coverage 2>&1 \| grep -E 'Functions' \| grep -oE '[0-9]+\.[0-9]+%' \| head -1` shows percentage ≥ 91.00.
 
 ---
 
-## TASK 8 — Final Verification + Commit
+## TASK 10 — Final Verification + Commit
 
 **Status**: [ ]
 
 **Plan**:
-- Verify TASK 1 rule refinement: 0 `jsdoc/require-module` errors on `.md`/`.html` files.
-- Verify TASK 2 module-jsdoc add: 0 `jsdoc/require-module` errors workspace-wide.
-- Verify TASK 3 function-jsdoc add: 0 `jsdoc/require-jsdoc` errors for `Exported function` messages.
-- Verify TASK 4 type-jsdoc add: 0 `jsdoc/require-jsdoc` errors for `Exported type` messages.
-- Verify TASK 7 full QA: all four `pnpm -w run qa:*` commands exit 0.
-- Commit per-task across the work; final aggregate commit message: `fix(lint): clear 228 jsdoc diagnostics — rule .md/.html skip + module/function/type JSDoc`.
+- Verify TASK 1 cache fix: rule severity flips invalidate cache.
+- Verify TASK 3 module-jsdoc add: 0 `jsdoc/require-module` errors workspace-wide.
+- Verify TASK 4 function-jsdoc add: 0 `jsdoc/require-jsdoc` errors for `Exported function`.
+- Verify TASK 5+6 type-jsdoc add: 0 `jsdoc/require-jsdoc` errors for `Exported type`.
+- Verify TASK 9 full QA: all four `pnpm -w run qa:*` commands exit 0.
+- Final aggregate commit message: `fix(lint): cache-invalidate on rule-severity change + clear 3193 jsdoc diagnostics`.
 
 **Verification**:
 - Verify `pnpm -w run qa:lint 2>&1 \| grep -cE '^  ✗ '` returns 0.
@@ -247,11 +292,13 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools`) → up
 
 | Task | Description | Depends On |
 |------|-------------|------------|
-| 1 | Refine require-module + require-jsdoc to skip .md/.mdx/.html | -- |
-| 2 | Add `@module` JSDoc to 203 source files (bulk script, marker required) | 1 |
-| 3 | Add JSDoc to 4 exported functions | -- |
-| 4 | Add JSDoc to 7 `XxxProps` types in `.svelte` files | -- |
-| 5 | Register Rules + Config audit | 1–4 |
-| 6 | Integration Verification | 5 |
-| 7 | Full QA + Coverage | 6 |
-| 8 | Final Verification + Commit | 7 |
+| 1 | Fix cache-invalidation bug (rule severity in cache hash) | -- |
+| 2 | (Already shipped: `bf8e8c28`) Skip .md/.mdx/.html + bulk-add Props JSDoc | -- |
+| 3 | Author `@module` JSDoc per-file for 3,107 files (7 batches) | 1 |
+| 4 | Author JSDoc for 13 exported functions | 1 |
+| 5 | Author JSDoc for 71 non-Svelte exported types | 1 |
+| 6 | Author JSDoc for 2 README in-fence types | 1 |
+| 7 | Register Rules + Config audit | 3–6 |
+| 8 | Integration Verification | 7 |
+| 9 | Full QA + Coverage | 8 |
+| 10 | Final Verification + Commit | 9 |
