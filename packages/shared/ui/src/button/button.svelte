@@ -1,5 +1,15 @@
 <!-- @convert-to-lens -->
 <script lang="ts" module>
+  /**
+   * Button root — clickable button with multiple style variants
+   * and sizes. Re-exports `buttonVariants` plus the
+   * `ButtonVariant` / `ButtonSize` / `ButtonProps` types from
+   * `./types.ts` so `button/index.ts` can use standard TS module
+   * resolution.
+   *
+   * @module
+   */
+
   /* Public types and the `buttonVariants` value live in `./types.ts` so
      that `button/index.ts` can re-export them via standard TS module
      resolution (avoiding the wildcard `*.svelte` ambient declaration). */

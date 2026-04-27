@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * ButtonGroup text — read-only static text segment inside a
+   * button group (e.g., a prefix label). Uses muted background +
+   * shared border styling and supports a `child` render-prop
+   * snippet for custom rendering.
+   *
+   * @module
+   */
+
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
   import type { Snippet } from 'svelte';
