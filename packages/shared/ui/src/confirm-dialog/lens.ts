@@ -1,3 +1,12 @@
+/**
+ * Lens manifest for the ConfirmDialog component (overlay
+ * category) — specialized dialog for confirming or canceling an
+ * action, with accept / reject buttons. Tagged for dialog /
+ * confirm / action / destructive lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

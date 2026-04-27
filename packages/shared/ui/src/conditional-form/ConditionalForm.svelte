@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * ConditionalForm — form layout that shows / hides fields based
+   * on conditional rules. Placeholder shell awaiting full
+   * implementation; ships with a `class` prop for root-level
+   * styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

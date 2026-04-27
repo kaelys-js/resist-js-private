@@ -1,3 +1,12 @@
+/**
+ * Lens manifest for the ConfigProvider component (utility
+ * category) — context provider that sets global configuration
+ * (theme, locale, size) for all child components. Tagged for
+ * provider / config / theme / context lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
