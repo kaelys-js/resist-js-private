@@ -1,3 +1,12 @@
+/**
+ * Lens manifest for the Alert component (feedback category) —
+ * callout block that surfaces important information with
+ * contextual styling. Tagged for alert / callout / message / info
+ * / tv-variant lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
