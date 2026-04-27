@@ -79,7 +79,9 @@ const rule: WorkspaceRule = {
 
       /* Check for duplicate names. */
       const existingPath: string | undefined = migrationNames.get(name);
-      if (existingPath !== undefined) {
+      if (existingPath === undefined) {
+        migrationNames.set(name, filePath);
+      } else {
         const relExisting: string = relative(ctx.rootDir, existingPath);
         results.push(
           createResult(
@@ -94,8 +96,6 @@ const rule: WorkspaceRule = {
             },
           ),
         );
-      } else {
-        migrationNames.set(name, filePath);
       }
 
       /* Check for BOM. */

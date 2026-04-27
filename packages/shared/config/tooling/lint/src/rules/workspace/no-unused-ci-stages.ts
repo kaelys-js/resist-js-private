@@ -83,14 +83,14 @@ const rule: WorkspaceRule = {
 
         if (inStagesBlock) {
           const stageEntry: RegExpMatchArray | null = line.match(/^\s+-\s+(.+)/);
-          if (stageEntry !== null) {
+          if (stageEntry === null) {
+            /* Exit stages block when line doesn't match list item pattern. */
+            inStagesBlock = false;
+          } else {
             const stageName: string = (stageEntry[1] ?? '').trim().replaceAll(/^['"]|['"]$/g, '');
             if (stageName.length > 0) {
               declaredStages.set(stageName, i + 1);
             }
-          } else {
-            /* Exit stages block when line doesn't match list item pattern. */
-            inStagesBlock = false;
           }
         }
 

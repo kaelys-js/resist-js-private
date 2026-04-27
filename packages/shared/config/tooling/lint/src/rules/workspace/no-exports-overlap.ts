@@ -77,7 +77,9 @@ const rule: WorkspaceRule = {
         const resolvedPath: string = `${name}/${exportKey}`;
         const existing: string | undefined = exportMap.get(resolvedPath);
 
-        if (existing !== undefined) {
+        if (existing === undefined) {
+          exportMap.set(resolvedPath, relativePath);
+        } else {
           results.push(
             createResult(
               'workspace/no-exports-overlap',
@@ -91,8 +93,6 @@ const rule: WorkspaceRule = {
               },
             ),
           );
-        } else {
-          exportMap.set(resolvedPath, relativePath);
         }
       }
     }
