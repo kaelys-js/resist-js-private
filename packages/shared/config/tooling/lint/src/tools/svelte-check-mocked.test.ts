@@ -70,12 +70,12 @@ describe('discoverSveltePackageDirs', () => {
     vi.mocked(readdirSync).mockReset();
   });
 
-  it('returns empty when packages dir does not exist', async () => {
+  it('returns empty when packages dir does not exist', () => {
     vi.mocked(existsSync).mockReturnValue(false);
     expect(discoverSveltePackageDirs('/workspace')).toEqual([]);
   });
 
-  it('finds package with .svelte file', async () => {
+  it('finds package with .svelte file', () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
       if (s === '/workspace/packages') {
@@ -105,7 +105,7 @@ describe('discoverSveltePackageDirs', () => {
     expect(result).toContain('/workspace/packages/my-app');
   });
 
-  it('skips node_modules and .svelte-kit directories', async () => {
+  it('skips node_modules and .svelte-kit directories', () => {
     vi.mocked(existsSync).mockReturnValue(true);
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike, _opts?: unknown): unknown[] => {
       const d = String(dir);
@@ -123,7 +123,7 @@ describe('discoverSveltePackageDirs', () => {
     expect(result).toEqual([]);
   });
 
-  it('returns empty when readdirSync throws', async () => {
+  it('returns empty when readdirSync throws', () => {
     vi.mocked(existsSync).mockReturnValue(true);
     vi.mocked(readdirSync).mockImplementation(() => {
       throw new Error('EACCES');
@@ -133,7 +133,7 @@ describe('discoverSveltePackageDirs', () => {
     expect(result).toEqual([]);
   });
 
-  it('finds nested svelte files in subdirectories', async () => {
+  it('finds nested svelte files in subdirectories', () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
       if (s === '/workspace/packages') {
@@ -166,7 +166,7 @@ describe('discoverSveltePackageDirs', () => {
     expect(result).toContain('/workspace/packages/lib');
   });
 
-  it('skips directory without package.json even if it has svelte files', async () => {
+  it('skips directory without package.json even if it has svelte files', () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
       if (s === '/workspace/packages') {
@@ -353,6 +353,7 @@ describe('runSvelteCheckAllPackages', () => {
 
     let callCount = 0;
     vi.mocked(execFileAsync).mockImplementation((async () => {
+      await Promise.resolve();
       callCount++;
       if (callCount === 1) {
         return { stdout: '1711814400000 ERROR "src/A.svelte" 1:1 "Error in app1"\n', stderr: '' };
