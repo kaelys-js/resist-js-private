@@ -51,6 +51,11 @@ const FINGERPRINT_SKIP_DIRS: ReadonlySet<string> = new Set([
  */
 function listSvelteCheckInputs(pkgDir: string): string[] {
   const files: string[] = [];
+  /**
+   * Recursively collect file paths under `dir`, skipping standard ignore dirs.
+   *
+   * @param dir - Directory to walk
+   */
   function walk(dir: string): void {
     let entries: Dirent[];
     try {
@@ -137,7 +142,12 @@ export function discoverSveltePackageDirs(cwd: string): string[] {
 
   const found: string[] = [];
 
-  /** Return true if dir (or any descendant) contains a `.svelte` file. */
+  /**
+   * Return true if dir (or any descendant) contains a `.svelte` file.
+   *
+   * @param dir - Directory to scan
+   * @returns True if a `.svelte` file is found at or below `dir`
+   */
   function hasSvelteFile(dir: string): boolean {
     let entries: Dirent[];
     try {
@@ -239,6 +249,8 @@ export function transformSvelteCheckOutput(output: string): LintResult[] {
  * directory and aggregates all results.
  *
  * @param cwd - Workspace root directory
+ * @param files - Optional absolute file paths to scope the run to
+ * @param lintCache - Optional lint cache for per-package result memoization
  * @returns Aggregated lint results from all packages
  */
 export async function runSvelteCheckAllPackages(
