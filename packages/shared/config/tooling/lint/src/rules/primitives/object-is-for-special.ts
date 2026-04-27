@@ -14,6 +14,34 @@ import type {
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
+/**
+ * Returns true when `n` is the `NaN` identifier reference.
+ *
+ * @param n - AST node to test
+ * @returns True when node is `Identifier` with name `'NaN'`
+ */
+function isNaNIdentifier(n: AstNode): boolean {
+  return n.type === 'Identifier' && (n.name as string) === 'NaN';
+}
+
+/**
+ * Returns true when `n` is the unary expression `-0`.
+ *
+ * @param n - AST node to test
+ * @returns True when node is `UnaryExpression` with operator `-` and argument `Literal 0`
+ */
+function isNegativeZero(n: AstNode): boolean {
+  if (n.type !== 'UnaryExpression' || (n.operator as string) !== '-') {
+    return false;
+  }
+  const argRaw: unknown = n.argument;
+  if (argRaw === null || typeof argRaw !== 'object') {
+    return false;
+  }
+  const argNode = argRaw as AstNode;
+  return argNode.type === 'Literal' && (argNode.value as unknown) === 0;
+}
+
 const rule: TypeScriptRule = {
   id: 'primitives/object-is-for-special',
   description: 'Use Object.is() for -0 or NaN comparison, not ===',
@@ -41,22 +69,12 @@ const rule: TypeScriptRule = {
       const left = leftRaw as AstNode;
       const right = rightRaw as AstNode;
 
-      const isNaN = (n: AstNode): boolean =>
-        n.type === 'Identifier' && (n.name as string) === 'NaN';
-
-      const isNegativeZero = (n: AstNode): boolean => {
-        if (n.type !== 'UnaryExpression' || (n.operator as string) !== '-') {
-          return false;
-        }
-        const argRaw: unknown = n.argument;
-        if (argRaw === null || typeof argRaw !== 'object') {
-          return false;
-        }
-        const argNode = argRaw as AstNode;
-        return argNode.type === 'Literal' && (argNode.value as unknown) === 0;
-      };
-
-      if (isNaN(left) || isNaN(right) || isNegativeZero(left) || isNegativeZero(right)) {
+      if (
+        isNaNIdentifier(left) ||
+        isNaNIdentifier(right) ||
+        isNegativeZero(left) ||
+        isNegativeZero(right)
+      ) {
         results.push({
           file: context.file,
           line: node.loc.start.line,

@@ -14,6 +14,41 @@ import type {
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
+/**
+ * Returns true when `side` is a `x % 1` BinaryExpression.
+ *
+ * @param side - AST node to test (typically the left/right of an equality op)
+ * @returns True for `x % 1` patterns
+ */
+function isModOneCheck(side: AstNode): boolean {
+  const sideOp = side.operator as string | undefined;
+  const sideRightRaw: unknown = side.right;
+  const sideRightNode =
+    sideRightRaw !== null && typeof sideRightRaw === 'object'
+      ? (sideRightRaw as AstNode)
+      : undefined;
+  const sideRightValue: unknown = sideRightNode?.value;
+  return (
+    side.type === 'BinaryExpression' &&
+    sideOp === '%' &&
+    sideRightNode !== undefined &&
+    sideRightNode.type === 'Literal' &&
+    typeof sideRightValue === 'number' &&
+    sideRightValue === 1
+  );
+}
+
+/**
+ * Returns true when `side` is a numeric Literal with value 0.
+ *
+ * @param side - AST node to test
+ * @returns True for `0` literal nodes
+ */
+function isZeroLiteral(side: AstNode): boolean {
+  const sideValue: unknown = side.value;
+  return side.type === 'Literal' && typeof sideValue === 'number' && sideValue === 0;
+}
+
 /** The use-number-is-integer lint rule. */
 const rule: TypeScriptRule = {
   id: 'primitives/use-number-is-integer',
@@ -31,29 +66,6 @@ const rule: TypeScriptRule = {
       if (operator !== '===') {
         return results;
       }
-
-      const isModOneCheck = (side: AstNode): boolean => {
-        const sideOp = side.operator as string | undefined;
-        const sideRightRaw: unknown = side.right;
-        const sideRightNode =
-          sideRightRaw !== null && typeof sideRightRaw === 'object'
-            ? (sideRightRaw as AstNode)
-            : undefined;
-        const sideRightValue: unknown = sideRightNode?.value;
-        return (
-          side.type === 'BinaryExpression' &&
-          sideOp === '%' &&
-          sideRightNode !== undefined &&
-          sideRightNode.type === 'Literal' &&
-          typeof sideRightValue === 'number' &&
-          sideRightValue === 1
-        );
-      };
-
-      const isZeroLiteral = (side: AstNode): boolean => {
-        const sideValue: unknown = side.value;
-        return side.type === 'Literal' && typeof sideValue === 'number' && sideValue === 0;
-      };
 
       const leftRaw: unknown = node.left;
       const rightRaw: unknown = node.right;
