@@ -61,10 +61,10 @@ const rule: WorkspaceRule = {
       }
 
       const existing: string[] | undefined = nameToFiles.get(pkgName);
-      if (existing !== undefined) {
-        existing.push(filePath);
-      } else {
+      if (existing === undefined) {
         nameToFiles.set(pkgName, [filePath]);
+      } else {
+        existing.push(filePath);
       }
     }
 

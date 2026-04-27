@@ -74,10 +74,10 @@ const rule: WorkspaceRule = {
 
         for (const depName of Object.keys(depEntries)) {
           const existing: string[] | undefined = depFieldMap.get(depName);
-          if (existing !== undefined) {
-            existing.push(field);
-          } else {
+          if (existing === undefined) {
             depFieldMap.set(depName, [field]);
+          } else {
+            existing.push(field);
           }
         }
       }
