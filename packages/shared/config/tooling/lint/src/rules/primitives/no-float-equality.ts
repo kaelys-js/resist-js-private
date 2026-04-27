@@ -17,7 +17,9 @@ import type {
 
 /**
  * Returns true if the node is a float literal (number with a fractional part).
- * @returns Description
+ *
+ * @param node - AST node to test
+ * @returns True for numeric Literal nodes whose value has a fractional component
  */
 function isFloatLiteral(node: AstNode): boolean {
   const { value } = node;

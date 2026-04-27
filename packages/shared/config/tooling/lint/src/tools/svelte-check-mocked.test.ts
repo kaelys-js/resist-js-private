@@ -46,7 +46,10 @@ vi.mock('@/lint/framework/tool-orchestrator.ts', async (importOriginal) => {
 
 /**
  * Helper to create a mock Dirent.
- * @returns Description
+ *
+ * @param name - Entry basename
+ * @param opts - Flags controlling isFile/isDirectory
+ * @returns Mock Dirent instance
  */
 function makeDirent(name: string, opts: { isFile?: boolean; isDirectory?: boolean } = {}): Dirent {
   return {

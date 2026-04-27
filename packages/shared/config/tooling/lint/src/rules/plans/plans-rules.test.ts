@@ -16,7 +16,13 @@ import requirePlanStructure from './require-plan-structure.ts';
 // Test Helpers
 // =============================================================================
 
-/** Build a mock WorkspaceContext from a file map. */
+/**
+ * Build a mock WorkspaceContext from a file map.
+ *
+ * @param files - Map of file paths to contents
+ * @param ruleOptions - Optional per-rule options bag
+ * @returns Mock WorkspaceContext (with optional ruleOptions attached)
+ */
 function createMockContext(
   files: Record<string, string>,
   ruleOptions?: Record<string, unknown>,
