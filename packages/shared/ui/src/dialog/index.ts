@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the dialog compound component — exposes
+ * Root / Title / Portal / Footer / Header / Trigger / Overlay
+ * / Content / Description / Close sub-components under both
+ * internal aliases and the `Dialog*` public names.
+ *
+ * @module
+ */
+
 import Root from './dialog.svelte';
 import Portal from './dialog-portal.svelte';
 import Title from './dialog-title.svelte';

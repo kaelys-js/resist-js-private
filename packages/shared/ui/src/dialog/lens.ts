@@ -1,3 +1,11 @@
+/**
+ * Lens manifest + examples for the Dialog component (overlay
+ * category) — modal dialog window with backdrop overlay. Ships
+ * basic and form-dialog examples.
+ *
+ * @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
