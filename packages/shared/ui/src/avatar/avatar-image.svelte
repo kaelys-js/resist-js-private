@@ -9,6 +9,8 @@
    * ```svelte
    * <Avatar.Image src="/user.jpg" alt="Profile" />
    * ```
+   *
+   * @module
    */
   import { Avatar as AvatarPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
