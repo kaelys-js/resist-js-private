@@ -46,6 +46,11 @@ const FINGERPRINT_SKIP_DIRS: ReadonlySet<string> = new Set([
  */
 function listTsgoInputs(pkgDir: string): string[] {
   const files: string[] = [];
+  /**
+   * Recursively collect file paths under `dir`, skipping standard ignore dirs.
+   *
+   * @param dir - Directory to walk
+   */
   function walk(dir: string): void {
     let entries: Dirent[];
     try {
@@ -153,7 +158,12 @@ const SKIP_DIRS: ReadonlySet<string> = new Set([
  */
 const SVELTEKIT_EXTENDS_RE: RegExp = /\.svelte-kit[/\\]tsconfig\.json/;
 
-/** Return true if the tsconfig.json in `dir` extends a SvelteKit-generated config. */
+/**
+ * Return true if the tsconfig.json in `dir` extends a SvelteKit-generated config.
+ *
+ * @param dir - Package directory containing a tsconfig.json
+ * @returns True when the config extends a SvelteKit-generated tsconfig
+ */
 function isSvelteKitTsconfig(dir: string): boolean {
   try {
     const content: string = readFileSync(join(dir, 'tsconfig.json'), 'utf8');
@@ -250,6 +260,7 @@ export function scopeTsconfigDirsToFiles(tsconfigDirs: string[], files: string[]
  *
  * @param cwd - Workspace root directory
  * @param files - Optional absolute file paths to scope the run to
+ * @param lintCache - Optional lint cache for per-package result memoization
  * @returns Aggregated lint results from checked packages
  */
 export async function runTsgoAllPackages(

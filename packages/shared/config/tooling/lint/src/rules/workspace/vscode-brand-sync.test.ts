@@ -15,7 +15,13 @@ import rule from './vscode-brand-sync.ts';
 // Helpers
 // =============================================================================
 
-/** Creates a mock WorkspaceContext with the given files and packages. */
+/**
+ * Creates a mock WorkspaceContext with the given files and packages.
+ *
+ * @param files - Map of file paths to contents
+ * @param packages - Workspace packages
+ * @returns Mock WorkspaceContext
+ */
 function createMockContext(
   files: Record<string, string>,
   packages: WorkspacePackage[],
@@ -32,7 +38,12 @@ function createMockContext(
   };
 }
 
-/** Builds a minimal VS Code extension package.json string. */
+/**
+ * Builds a minimal VS Code extension package.json string.
+ *
+ * @param opts - Options bag with optional commands and settings
+ * @returns Stringified package.json
+ */
 function buildPkgJson(opts: {
   commands?: Array<{ command: string; title: string }>;
   settings?: Record<string, unknown>;
@@ -47,7 +58,12 @@ function buildPkgJson(opts: {
   return JSON.stringify({ contributes }, null, 2);
 }
 
-/** Builds a minimal brand.ts string. */
+/**
+ * Builds a minimal brand.ts string.
+ *
+ * @param opts - Options with commands map and configSection
+ * @returns Stringified brand.ts source
+ */
 function buildBrand(opts: { commands: Record<string, string>; configSection: string }): string {
   const entries: string = Object.entries(opts.commands)
     .map(([key, value]) => `  ${key}: '${value}'`)
