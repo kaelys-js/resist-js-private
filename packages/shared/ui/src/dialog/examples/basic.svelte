@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Dialog Lens example — basic modal dialog with title,
+   * description, and a close button triggered by an outline
+   * button.
+   *
+   * @module
+   */
+
   import * as Dialog from '@/ui/dialog';
   import Button from '@/ui/button/button.svelte';
 </script>
