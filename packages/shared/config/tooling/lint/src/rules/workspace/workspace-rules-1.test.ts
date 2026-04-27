@@ -4625,3 +4625,72 @@ describe('workspace/no-tsconfig-circular-extends', () => {
     expect(results.length).toBeGreaterThanOrEqual(1);
   });
 });
+
+// =============================================================================
+// inputs() lifecycle coverage — every rule with a try/catch+packages.map(...)
+// has TWO uncovered functions until inputs() is invoked: the async wrapper
+// and the inline `.map((p) => p.path)`. These tests exercise both.
+// =============================================================================
+
+const STD_PACKAGES_FIXTURE: WorkspacePackage[] = [
+  {
+    name: '@/a',
+    path: '/workspace/packages/a/package.json',
+    dir: '/workspace/packages/a',
+    packageJson: { name: '@/a' },
+  },
+  {
+    name: '@/b',
+    path: '/workspace/packages/b/package.json',
+    dir: '/workspace/packages/b',
+    packageJson: { name: '@/b' },
+  },
+];
+
+function ctxWithRejectingPackages(): WorkspaceContext {
+  const base: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+  return {
+    ...base,
+    getWorkspacePackages: (): Promise<WorkspacePackage[]> =>
+      new Promise<WorkspacePackage[]>(
+        (_resolve: (v: WorkspacePackage[]) => void, reject: (e: Error) => void): void => {
+          reject(new Error('boom'));
+        },
+      ),
+  };
+}
+
+const RULES_WITH_PACKAGE_INPUTS: ReadonlyArray<{
+  name: string;
+  rule: { inputs?: (ctx: unknown) => Promise<readonly string[]> };
+}> = [
+  { name: 'workspace/require-license', rule: requireLicense },
+  { name: 'workspace/require-type-field', rule: requireTypeField },
+  { name: 'workspace/valid-bin-targets', rule: validBinTargets },
+  { name: 'workspace/no-nested-node-modules', rule: noNestedNodeModules },
+  { name: 'package/names-valid', rule: namesValid },
+];
+
+for (const { name, rule } of RULES_WITH_PACKAGE_INPUTS) {
+  describe(`${name} — inputs() lifecycle`, () => {
+    it('returns package paths via packages.map((p) => p.path)', async () => {
+      const ctx: WorkspaceContext = mockContext({
+        rootDir: '/workspace',
+        packages: [...STD_PACKAGES_FIXTURE],
+      });
+      expect(typeof rule.inputs).toBe('function');
+      const inputs = await rule.inputs!(ctx);
+      expect(Array.isArray(inputs)).toBe(true);
+      expect(inputs).toEqual([
+        '/workspace/packages/a/package.json',
+        '/workspace/packages/b/package.json',
+      ]);
+    });
+
+    it('returns [] when getWorkspacePackages rejects', async () => {
+      const ctx: WorkspaceContext = ctxWithRejectingPackages();
+      const inputs = await rule.inputs!(ctx);
+      expect(inputs).toEqual([]);
+    });
+  });
+}
