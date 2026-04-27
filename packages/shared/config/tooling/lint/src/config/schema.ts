@@ -540,10 +540,11 @@ export type JsonSchemaDocument = v.InferOutput<typeof JsonSchemaDocumentSchema>;
  * Includes all discovered rule IDs as enum values in the rules property,
  * giving IDE autocomplete with descriptions.
  *
- * @param {string[]} ruleIds - All known rule IDs (e.g. ['jsdoc/require-param', ...])
- * @param {Map<string, string>} ruleDescriptions - Map of rule ID to human-readable description
- * @param {LintStrings} strings - Locale strings for user-facing messages
- * @returns {JsonSchemaDocument} JSON Schema document as a plain object
+ * @param ruleIds - All known rule IDs (e.g. ['jsdoc/require-param', ...])
+ * @param ruleDescriptions - Map of rule ID to human-readable description
+ * @param strings - Locale strings for user-facing messages
+ * @param optionsSchemas - Optional per-rule options schemas (rule ID -> OptionsSchema)
+ * @returns JSON Schema document as a plain object
  */
 export function generateJsonSchema(
   ruleIds: string[],
