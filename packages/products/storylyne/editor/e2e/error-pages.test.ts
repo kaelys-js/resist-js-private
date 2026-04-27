@@ -1,3 +1,13 @@
+/**
+ * Playwright e2e: branded error pages (400 / 403 / 404 / 500 / unexpected).
+ *
+ * Asserts each status's visible title, friendly description, action
+ * buttons (Go to homepage / Try again), title metadata, x-error-id
+ * response header, and post-navigation title/og:title cleanup.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 import { APP_NAME, APP_TAGLINE } from '../src/lib/config/app-meta';
 

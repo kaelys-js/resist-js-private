@@ -1,3 +1,14 @@
+/**
+ * Playwright e2e: theme switcher (color theme, not light/dark mode).
+ *
+ * Opens the theme submenu via the sidebar footer user dropdown,
+ * selects each registered color theme (default, slate, violet, etc.),
+ * and asserts the chosen theme writes its `data-theme` attribute on
+ * `<html>` and persists across reloads via the theme cookie/storage.
+ *
+ * @module
+ */
+
 import { test, expect, type Page } from '@playwright/test';
 
 /**

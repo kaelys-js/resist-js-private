@@ -1,11 +1,16 @@
+/**
+ * Playwright e2e: web manifest integration.
+ *
+ * Verifies the `/manifest.webmanifest` route returns 200 with valid
+ * JSON, all required PWA fields (`name`, `short_name`, `start_url`,
+ * `display`, `theme_color`, `background_color`, `icons`), and that
+ * each declared icon path resolves to a real served file.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 import { APP_NAME, APP_SHORT_NAME } from '../src/lib/config/app-meta';
-
-/**
- * Web manifest integration tests.
- * Verifies the manifest.webmanifest route returns valid JSON with all
- * required PWA fields and that icon paths resolve to real files.
- */
 
 test.describe('manifest.webmanifest', () => {
   test('returns 200', async ({ request }) => {

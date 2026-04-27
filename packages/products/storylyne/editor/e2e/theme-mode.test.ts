@@ -1,3 +1,14 @@
+/**
+ * Playwright e2e: light/dark mode toggling via mode-watcher.
+ *
+ * Verifies the mode-watcher script is injected and updates `<html>`
+ * class on toggle, that the toggle button is accessible (named
+ * via aria-label), keyboard-operable, and persists the chosen mode
+ * across reloads via the localStorage key.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 
 test.describe('theme and mode', () => {

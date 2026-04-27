@@ -1,3 +1,13 @@
+/**
+ * Playwright e2e: project + user data rendering in the sidebar footer.
+ *
+ * Verifies the default mock project ("Sample Project") and its
+ * subtitle, the user avatar/name pair in the footer, and the URL-
+ * parameter overrides that swap project/user data for snapshot tests.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 import { URL_PARAM_PREFIX } from '../src/lib/config/app-meta';
 

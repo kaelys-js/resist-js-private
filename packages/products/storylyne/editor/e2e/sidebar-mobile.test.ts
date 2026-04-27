@@ -1,3 +1,14 @@
+/**
+ * Playwright e2e: mobile-viewport sidebar (sheet) interactions.
+ *
+ * Pins the viewport to a 375×812 mobile size and verifies the sidebar
+ * renders as a Sheet (drawer) — open/close via trigger button, dismiss
+ * via overlay tap, route-change auto-close, and that focus + aria-
+ * modal contracts hold while the drawer is open.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 import { APP_NAME, APP_TAGLINE } from '../src/lib/config/app-meta';
 

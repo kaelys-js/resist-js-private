@@ -1,3 +1,15 @@
+/**
+ * Playwright e2e: HTTP security headers on every served response.
+ *
+ * Asserts the editor's response headers include `X-Frame-Options`,
+ * `X-Content-Type-Options`, `Referrer-Policy`, `Cross-Origin-Opener-
+ * Policy`, `Cross-Origin-Resource-Policy`, and `Cross-Origin-Embedder-
+ * Policy` with the values configured by `hooks.server.ts`. HSTS is
+ * intentionally excluded because the dev server runs with `dev=true`.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 
 /**

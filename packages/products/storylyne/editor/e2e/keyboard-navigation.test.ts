@@ -1,3 +1,14 @@
+/**
+ * Playwright e2e: app-wide keyboard navigation.
+ *
+ * Verifies Tab/Shift-Tab focus traversal through the sidebar, header,
+ * and content panes, plus the global Cmd/Ctrl+B sidebar-toggle and
+ * other registered shortcut combos defined in the keyboard-shortcut
+ * registry.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 
 test.describe('keyboard navigation', () => {

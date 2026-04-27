@@ -1,10 +1,15 @@
-import { test, expect } from '@playwright/test';
-
 /**
- * Icon asset integration tests.
- * Verifies every icon file referenced by meta tags and the web manifest
- * is accessible, returns the correct Content-Type, and has valid dimensions.
+ * Playwright e2e: icon asset integration.
+ *
+ * Verifies every icon file referenced by `<head>` meta tags and the web
+ * manifest is accessible, returns the correct Content-Type (allowing
+ * the three valid `.ico` MIME variants), and reports valid dimensions
+ * for each declared `<link rel=icon>` size.
+ *
+ * @module
  */
+
+import { test, expect } from '@playwright/test';
 
 // ── Static icon assets ───────────────────────────────────────────────────────
 

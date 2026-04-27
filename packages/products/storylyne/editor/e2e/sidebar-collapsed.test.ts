@@ -1,3 +1,14 @@
+/**
+ * Playwright e2e: collapsed sidebar state and icon-mode content.
+ *
+ * Drives the Cmd/Ctrl+B shortcut to toggle the sidebar between
+ * `data-state="expanded"` and `data-state="collapsed"`, verifies the
+ * collapsed icon-only rail still surfaces the same nav items via
+ * tooltips, and that focus / aria-label remain intact after collapse.
+ *
+ * @module
+ */
+
 import { test, expect } from '@playwright/test';
 
 // =============================================================================
