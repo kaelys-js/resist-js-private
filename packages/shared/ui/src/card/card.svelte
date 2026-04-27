@@ -4,6 +4,8 @@
    * Container for grouped content with a rounded border, background, and shadow.
    *
    * Compose with CardHeader, CardContent, CardFooter, CardTitle, and CardDescription for structured layouts.
+   *
+   * @module
    */
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';

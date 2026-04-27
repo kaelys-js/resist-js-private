@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Card Lens example — basic project-settings card with title,
+   * description, content section, and a footer with a timestamp.
+   *
+   * @module
+   */
+
   import * as Card from '@/ui/card';
 </script>
 

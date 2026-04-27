@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Card action — action slot rendered inside the Card header
+   * (e.g., a menu trigger or close button). Positioned at the
+   * end of the second column, spanning both header rows.
+   *
+   * @module
+   */
+
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 
