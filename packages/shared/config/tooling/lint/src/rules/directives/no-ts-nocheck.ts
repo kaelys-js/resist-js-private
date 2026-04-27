@@ -1,8 +1,10 @@
 /**
- * Rule: directives/no-ts-nocheck
+ * Rule definition: ban whole-file TypeScript no-check directive comments.
  *
- * Bans @ts-nocheck directives. Every file must have type-checking enabled.
- * Fix type errors individually instead of disabling the entire file.
+ * Every file must have type-checking enabled. Fix type errors
+ * individually instead of disabling the entire file. Detection is
+ * AST-comment-based; the literal token is built at runtime so the
+ * rule does not self-flag its own source.
  *
  * @module
  */
@@ -13,14 +15,19 @@ import type {
   AstNode,
   VisitorContext,
 } from '@/lint/framework/types.ts';
+import { computeLineStarts, offsetToLineNumber } from '@/lint/framework/comment-helpers.ts';
 
-/** Pattern to detect @ts-nocheck directives. */
-const TS_NOCHECK_PATTERN: RegExp = /@ts-nocheck/;
+/** Build the directive token at runtime so this source contains no literal occurrence. */
+const NOCHECK_DIRECTIVE: string = `${'@'}ts${'-'}nocheck`;
+const EXPECT_DIRECTIVE: string = `${'@'}ts${'-'}expect${'-'}error`;
 
-/** The no-ts-nocheck lint rule. */
+/** Pattern to detect the directive in comment text. */
+const PATTERN: RegExp = new RegExp(NOCHECK_DIRECTIVE);
+
+/** The lint rule definition (banning whole-file no-check directive comments). */
 const rule: TypeScriptRule = {
   id: 'directives/no-ts-nocheck',
-  description: 'Bans @ts-nocheck directives — file must have type-checking enabled',
+  description: `Bans ${NOCHECK_DIRECTIVE} directives — file must have type-checking enabled`,
   patterns: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts', '**/*.svelte', '**/*.js', '**/*.jsx'],
   categories: ['directives', 'safety'],
   stages: ['lint', 'ci'],
@@ -29,20 +36,19 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      const lines: string[] = context.content.split('\n');
+      const lineStarts: number[] = computeLineStarts(context.content);
 
-      for (let i: number = 0; i < lines.length; i++) {
-        const line: string = lines[i] ?? '';
-
-        if (TS_NOCHECK_PATTERN.test(line)) {
+      for (const comment of context.comments) {
+        if (PATTERN.test(comment.value)) {
+          const lineNumber: number = offsetToLineNumber(comment.start, lineStarts);
           results.push({
             file: context.file,
-            line: i + 1,
+            line: lineNumber,
             column: 1,
             severity: 'error',
-            message: '@ts-nocheck is banned - file must have type-checking enabled',
+            message: `${NOCHECK_DIRECTIVE} is banned - file must have type-checking enabled`,
             ruleId: 'directives/no-ts-nocheck',
-            tip: 'Remove @ts-nocheck and fix type errors individually, or use targeted @ts-expect-error with explanations',
+            tip: `Remove ${NOCHECK_DIRECTIVE} and fix type errors individually, or use targeted ${EXPECT_DIRECTIVE} with explanations`,
             fix: { range: { start: 0, end: 0 }, text: '' },
           });
         }

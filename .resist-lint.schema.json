@@ -168,7 +168,7 @@
                 "type": "string"
               },
               "directives/no-oxlint-ignore": {
-                "description": "Forbids oxlint directives — fix the code or adjust oxlint.json",
+                "description": "Forbids Oxlint directives — fix the code or adjust oxlint.json",
                 "enum": ["error", "warn", "off"],
                 "type": "string"
               },
@@ -188,7 +188,7 @@
                 "type": "string"
               },
               "directives/no-ts-ignore": {
-                "description": "Bans @ts-ignore directives — use @ts-expect-error with an explanation instead",
+                "description": "Bans @ts-ignore — use @ts-expect-error with an explanation instead",
                 "enum": ["error", "warn", "off"],
                 "type": "string"
               },
@@ -5919,7 +5919,7 @@
           "type": "string"
         },
         "directives/no-oxlint-ignore": {
-          "description": "Forbids oxlint directives — fix the code or adjust oxlint.json",
+          "description": "Forbids Oxlint directives — fix the code or adjust oxlint.json",
           "enum": ["error", "warn", "off"],
           "type": "string"
         },
@@ -5939,7 +5939,7 @@
           "type": "string"
         },
         "directives/no-ts-ignore": {
-          "description": "Bans @ts-ignore directives — use @ts-expect-error with an explanation instead",
+          "description": "Bans @ts-ignore — use @ts-expect-error with an explanation instead",
           "enum": ["error", "warn", "off"],
           "type": "string"
         },
