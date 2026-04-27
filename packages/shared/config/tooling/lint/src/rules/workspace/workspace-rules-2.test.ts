@@ -5139,3 +5139,109 @@ describe('workspace/no-hardcoded-localhost-ports', () => {
     expect(results.length).toBe(0);
   });
 });
+
+// =============================================================================
+// inputs() lifecycle coverage — packages.map((p) => p.path) callbacks
+// =============================================================================
+
+const STD_PACKAGES_FIXTURE_2: WorkspacePackage[] = [
+  {
+    name: '@/a',
+    path: '/workspace/packages/a/package.json',
+    dir: '/workspace/packages/a',
+    packageJson: { name: '@/a' },
+  },
+  {
+    name: '@/b',
+    path: '/workspace/packages/b/package.json',
+    dir: '/workspace/packages/b',
+    packageJson: { name: '@/b' },
+  },
+];
+
+function ctxWithRejectingPackages2(): WorkspaceContext {
+  const base: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+  return {
+    ...base,
+    getWorkspacePackages: (): Promise<WorkspacePackage[]> =>
+      new Promise<WorkspacePackage[]>(
+        (_resolve: (v: WorkspacePackage[]) => void, reject: (e: Error) => void): void => {
+          reject(new Error('boom'));
+        },
+      ),
+  };
+}
+
+const RULES_WITH_PACKAGE_INPUTS_2: ReadonlyArray<{
+  name: string;
+  rule: { inputs?: (ctx: unknown) => Promise<readonly string[]> };
+}> = [
+  { name: 'workspace/enforce-peer-dependency-consistency', rule: enforcePeerDependencyConsistency },
+  { name: 'workspace/enforce-workspace-version-alignment', rule: enforceWorkspaceVersionAlignment },
+  { name: 'workspace/validate-product-scripts', rule: validateProductScripts },
+];
+
+for (const { name, rule } of RULES_WITH_PACKAGE_INPUTS_2) {
+  describe(`${name} — inputs() lifecycle`, () => {
+    it('returns package paths via packages.map((p) => p.path)', async () => {
+      const ctx: WorkspaceContext = mockContext({
+        rootDir: '/workspace',
+        packages: [...STD_PACKAGES_FIXTURE_2],
+      });
+      expect(typeof rule.inputs).toBe('function');
+      const inputs = await rule.inputs!(ctx);
+      expect(Array.isArray(inputs)).toBe(true);
+      expect(inputs).toEqual([
+        '/workspace/packages/a/package.json',
+        '/workspace/packages/b/package.json',
+      ]);
+    });
+
+    it('returns [] when getWorkspacePackages rejects', async () => {
+      const ctx: WorkspaceContext = ctxWithRejectingPackages2();
+      const inputs = await rule.inputs!(ctx);
+      expect(inputs).toEqual([]);
+    });
+  });
+}
+
+describe('workspace/require-workspace-protocol — inputs() lifecycle', () => {
+  it('returns combined files + package paths', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/foo.ts', 'x'],
+      ['/workspace/bar.ts', 'y'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({
+      rootDir: '/workspace',
+      files,
+      packages: [...STD_PACKAGES_FIXTURE_2],
+    });
+    expect(typeof requireWorkspaceProtocol.inputs).toBe('function');
+    const inputs = await requireWorkspaceProtocol.inputs!(ctx);
+    expect(Array.isArray(inputs)).toBe(true);
+    expect(inputs).toEqual(
+      expect.arrayContaining([
+        '/workspace/foo.ts',
+        '/workspace/bar.ts',
+        '/workspace/packages/a/package.json',
+        '/workspace/packages/b/package.json',
+      ]),
+    );
+  });
+
+  it('falls back to allFiles when getWorkspacePackages rejects', async () => {
+    const files: Map<string, string> = new Map([['/workspace/only.ts', 'z']]);
+    const base: WorkspaceContext = mockContext({ rootDir: '/workspace', files });
+    const ctx: WorkspaceContext = {
+      ...base,
+      getWorkspacePackages: (): Promise<WorkspacePackage[]> =>
+        new Promise<WorkspacePackage[]>(
+          (_resolve: (v: WorkspacePackage[]) => void, reject: (e: Error) => void): void => {
+            reject(new Error('boom'));
+          },
+        ),
+    };
+    const inputs = await requireWorkspaceProtocol.inputs!(ctx);
+    expect(inputs).toEqual(['/workspace/only.ts']);
+  });
+});
