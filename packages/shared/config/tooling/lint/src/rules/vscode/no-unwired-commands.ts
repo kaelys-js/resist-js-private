@@ -95,7 +95,7 @@ const rule: WorkspaceRule = {
       if (prefixMatch && prefixMatch[1]) {
         const [, prefix] = prefixMatch;
         for (const entry of commandEntries) {
-          entry.id = entry.id.replaceAll('${COMMAND_PREFIX}', prefix);
+          entry.id = entry.id.replaceAll(`\${COMMAND_PREFIX}`, prefix);
         }
       }
 

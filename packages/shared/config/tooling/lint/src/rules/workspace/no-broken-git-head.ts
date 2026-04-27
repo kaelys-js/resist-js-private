@@ -82,7 +82,7 @@ const rule: WorkspaceRule = {
       }
     } else {
       try {
-        execSync(`git cat-file -e ${content}` + '^{commit}', {
+        execSync(`git cat-file -e ${content}^{commit}`, {
           cwd: ctx.rootDir,
           encoding: 'utf8',
         });

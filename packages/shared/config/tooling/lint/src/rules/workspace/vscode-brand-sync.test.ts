@@ -270,8 +270,8 @@ describe('workspace/vscode-brand-sync', () => {
       "export const COMMAND_PREFIX = 'resist';",
       '',
       'export const COMMANDS = {',
-      '  lintFile: `${COMMAND_PREFIX}.lint.file`,',
-      '  lintFix: `${COMMAND_PREFIX}.lint.fix`,',
+      `  lintFile: \`\${COMMAND_PREFIX}.lint.file\`,`,
+      `  lintFix: \`\${COMMAND_PREFIX}.lint.fix\`,`,
       '} as const;',
     ].join('\n');
     const pkgJson: string = buildPkgJson({
