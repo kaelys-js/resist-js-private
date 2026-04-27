@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Collapsible Lens example — basic three-item list with a
+   * chevron toggle in the header that expands the trailing two
+   * items.
+   *
+   * @module
+   */
+
   import * as Collapsible from '@/ui/collapsible';
   import Button from '@/ui/button/button.svelte';
   import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';

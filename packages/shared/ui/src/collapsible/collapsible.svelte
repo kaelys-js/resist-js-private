@@ -4,6 +4,8 @@
    * A collapsible container that toggles visibility of its content section.
    *
    * Wraps bits-ui Collapsible.Root with a bindable `open` state for controlled expand/collapse behavior.
+   *
+   * @module
    */
   import { Collapsible as CollapsiblePrimitive } from 'bits-ui';
 

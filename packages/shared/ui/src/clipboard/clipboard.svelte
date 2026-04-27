@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * Clipboard — helper for copying text to the clipboard with
+   * visual feedback. Placeholder shell awaiting full
+   * implementation; ships with a `class` prop for root-level
+   * styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
