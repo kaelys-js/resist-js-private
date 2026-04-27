@@ -35,7 +35,7 @@ function getExpressionText(node: AstNode): string {
     node.type === 'StringLiteral' ||
     node.type === 'BooleanLiteral'
   ) {
-    const {value} = (node as { value?: unknown });
+    const { value } = node as { value?: unknown };
     if (typeof value === 'string') {
       return `'${value}'`;
     }
@@ -132,7 +132,7 @@ const rule: TypeScriptRule = {
           return;
         }
 
-        const [callback]: AstNode | undefined = args;
+        const [callback] = args;
         if (!callback) {
           return;
         }
