@@ -69,10 +69,10 @@ const rule: WorkspaceRule = {
       }
 
       const existing: string[] | undefined = groups.get(parentDir);
-      if (existing !== undefined) {
-        existing.push(filePath);
-      } else {
+      if (existing === undefined) {
         groups.set(parentDir, [filePath]);
+      } else {
+        existing.push(filePath);
       }
     }
 

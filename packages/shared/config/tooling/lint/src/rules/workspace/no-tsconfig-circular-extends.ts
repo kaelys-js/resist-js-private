@@ -106,7 +106,9 @@ const rule: WorkspaceRule = {
         }
 
         // Check if the resolved target is in our map; if not, chain ends
-        if (!extendsMap.has(next)) {
+        if (extendsMap.has(next)) {
+          current = next;
+        } else {
           // Try with .json suffix
           const withJson: string = `${next}.json`;
           if (extendsMap.has(withJson)) {
@@ -114,8 +116,6 @@ const rule: WorkspaceRule = {
           } else {
             break;
           }
-        } else {
-          current = next;
         }
       }
     }
