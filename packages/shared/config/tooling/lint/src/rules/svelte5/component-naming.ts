@@ -48,7 +48,7 @@ const rule: TypeScriptRule = {
       const baseName: string = filename.replace(/\.svelte$/, '');
 
       // Exempt SvelteKit convention files
-      if (baseName.startsWith('+')) {
+      if (baseName.startsWith()) {
         return [];
       }
 

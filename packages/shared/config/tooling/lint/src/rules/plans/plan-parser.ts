@@ -292,7 +292,7 @@ function parseDependencies(lines: string[]): TaskDependency[] {
       const taskNum: number = Number.parseInt(cells[0] ?? '', 10);
       const depStr: string = cells[2] ?? '';
 
-      if (!isNaN(taskNum)) {
+      if (!Number.isNaN(taskNum)) {
         const dependsOn: number[] = [];
         if (depStr !== '--' && depStr !== '-') {
           /* Parse "1-3" as [1,2,3], "1,3" as [1,3], "1" as [1] */
@@ -307,7 +307,7 @@ function parseDependencies(lines: string[]): TaskDependency[] {
             /* Comma-separated or single number */
             for (const part of depStr.split(/[,\s]+/)) {
               const n: number = Number.parseInt(part.trim(), 10);
-              if (!isNaN(n)) {
+              if (!Number.isNaN(n)) {
                 dependsOn.push(n);
               }
             }
@@ -372,5 +372,5 @@ export function parsePlanDate(filename: string): Date | undefined {
     return undefined;
   }
   const d: Date = new Date(`${m[1]}T00:00:00`);
-  return isNaN(d.getTime()) ? undefined : d;
+  return Number.isNaN(d.getTime()) ? undefined : d;
 }

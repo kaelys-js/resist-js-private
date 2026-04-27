@@ -1,7 +1,7 @@
 /**
  * Rule: primitives/no-array-hole
  *
- * Detects array holes (sparse arrays) from literal elisions, new Array(n),
+ * Detects array holes (sparse arrays) from literal elisions, Array.from({ length: n }),
  * and delete on array indices. Array holes behave differently from undefined
  * and cause subtle bugs.
  *
@@ -74,7 +74,7 @@ const rule: TypeScriptRule = {
             line: node.loc.start.line,
             column: node.loc.start.column + 1,
             severity: 'warning',
-            message: 'new Array(n) creates sparse array with holes - use Array.from or fill',
+            message: 'Array.from({ length: n }) creates sparse array with holes - use Array.from or fill',
             ruleId: 'primitives/no-array-hole',
             tip: 'Use explicit undefined values or Array.from/fill to avoid holes',
             fix: { range: { start: 0, end: 0 }, text: '' },

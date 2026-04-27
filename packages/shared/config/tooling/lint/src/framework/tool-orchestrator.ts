@@ -461,7 +461,7 @@ export async function mapWithConcurrency<T, R>(
   limit: number,
   fn: (item: T) => Promise<R>,
 ): Promise<R[]> {
-  const results: R[] = new Array(items.length);
+  const results: R[] = Array.from({ length: items.length });
   let cursor: number = 0;
   const worker = async (): Promise<void> => {
     while (cursor < items.length) {
