@@ -120,6 +120,19 @@ export const CliOutputSchema = v.strictObject({
 /** Output sink for CLI messages (allows testing without stdout/stderr). See {@link CliOutputSchema}. */
 export type CliOutput = v.InferOutput<typeof CliOutputSchema>;
 
+/**
+ * Returns a resolved Promise of an empty `LintResult[]`.
+ *
+ * Used as the no-op branch when `--tools` is disabled or `--bail` is set so
+ * the concurrent tool-phase still has a Promise to await without forcing a
+ * Promise.resolve call site (avoids `oxlint/prefer-await-to-then`).
+ *
+ * @returns Empty LintResult[] inside a Promise
+ */
+async function emptyResultsPromise(): Promise<LintResult[]> {
+  return [];
+}
+
 // =============================================================================
 // Argument Parsing
 // =============================================================================
@@ -1186,18 +1199,26 @@ export async function _runLintCore(
     allFiles.push(resolved);
     dbg(`stdin-filename: using "${resolved}" with ${stdinContent.length} bytes from stdin`);
   } else {
-    for (const p of paths) {
-      const resolved: string = resolve(p);
-      try {
-        const s: Awaited<ReturnType<typeof stat>> = await stat(resolved);
-        if (s.isDirectory()) {
-          allFiles.push(...(await collectFiles(resolved, config, cwd)));
-        } else if (s.isFile() && shouldLint(resolved, config)) {
-          allFiles.push(resolved);
+    const collectedPerPath: string[][] = await Promise.all(
+      paths.map(async (p): Promise<string[]> => {
+        const resolved: string = resolve(p);
+        try {
+          const s: Awaited<ReturnType<typeof stat>> = await stat(resolved);
+          if (s.isDirectory()) {
+            return collectFiles(resolved, config, cwd);
+          }
+          if (s.isFile() && shouldLint(resolved, config)) {
+            return [resolved];
+          }
+          return [];
+        } catch {
+          output.stderr(`${format(strings.errors.pathNotFound, { path: p })}\n`);
+          return [];
         }
-      } catch {
-        output.stderr(`${format(strings.errors.pathNotFound, { path: p })}\n`);
-      }
+      }),
+    );
+    for (const collected of collectedPerPath) {
+      allFiles.push(...collected);
     }
   }
 
@@ -1299,9 +1320,8 @@ export async function _runLintCore(
    * separate result arrays merged at the end). The tool phase is the dominant
    * cost workspace-wide (svelte-check + tsgo + tool registry); overlapping
    * it with the per-file rule loop saves ~its own duration on multi-core. */
-  const noOpToolPromise = async (): Promise<LintResult[]> => [];
   const concurrentToolsPromise: Promise<LintResult[]> =
-    cliArgs.tools && !cliArgs.bail ? runToolPhase() : noOpToolPromise();
+    cliArgs.tools && !cliArgs.bail ? runToolPhase() : emptyResultsPromise();
 
   async function runToolPhase(): Promise<LintResult[]> {
     const out: LintResult[] = [];
@@ -1577,18 +1597,22 @@ export async function _runLintCore(
     );
   }
   /* Run package.json rules (skip if bailed) */
-  const pkgFiles: string[] = [];
-  for (const p of paths) {
-    const resolved: string = resolve(p);
-    try {
-      const s: Awaited<ReturnType<typeof stat>> = await stat(resolved);
-      if (s.isDirectory()) {
-        pkgFiles.push(...(await collectPackageJsonFiles(resolved, config, cwd)));
+  const pkgFilesPerPath: string[][] = await Promise.all(
+    paths.map(async (p): Promise<string[]> => {
+      const resolved: string = resolve(p);
+      try {
+        const s: Awaited<ReturnType<typeof stat>> = await stat(resolved);
+        if (s.isDirectory()) {
+          return collectPackageJsonFiles(resolved, config, cwd);
+        }
+        return [];
+      } catch {
+        /* skip */
+        return [];
       }
-    } catch {
-      /* skip */
-    }
-  }
+    }),
+  );
+  const pkgFiles: string[] = pkgFilesPerPath.flat();
 
   const workspaceRootPkg: string = resolve('package.json');
   /* Read all package.json files concurrently */

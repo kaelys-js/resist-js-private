@@ -248,27 +248,33 @@ export async function lint(options?: LintOptions): Promise<LintApiResult<LintRes
       (r: TypeScriptRule): boolean => (config.rules[r.id] ?? 'error') !== 'off',
     );
 
-    for (const source of opts.sources) {
-      /* Filter rules by file pattern */
-      const applicableRules: TypeScriptRule[] = tsRules.filter((rule: TypeScriptRule): boolean =>
-        rule.patterns.some((pattern: string): boolean => {
-          if (pattern.startsWith('**/*.')) {
-            const ext: string = pattern.slice(4);
-            return source.filePath.endsWith(ext);
-          }
-          return source.filePath.includes(pattern);
-        }),
-      );
+    const perSourceResults: LintResult[][] = await Promise.all(
+      opts.sources.map(async (source): Promise<LintResult[]> => {
+        /* Filter rules by file pattern */
+        const applicableRules: TypeScriptRule[] = tsRules.filter((rule: TypeScriptRule): boolean =>
+          rule.patterns.some((pattern: string): boolean => {
+            if (pattern.startsWith('**/*.')) {
+              const ext: string = pattern.slice(4);
+              return source.filePath.endsWith(ext);
+            }
+            return source.filePath.includes(pattern);
+          }),
+        );
 
-      if (applicableRules.length > 0) {
-        const results: LintResult[] = await runTypeScriptRules(
+        if (applicableRules.length === 0) {
+          return [];
+        }
+
+        return runTypeScriptRules(
           source.filePath,
           source.content,
           applicableRules,
           config.ruleOptions,
         );
-        sourceResults.push(...results);
-      }
+      }),
+    );
+    for (const results of perSourceResults) {
+      sourceResults.push(...results);
     }
 
     filesLinted += opts.sources.length;
