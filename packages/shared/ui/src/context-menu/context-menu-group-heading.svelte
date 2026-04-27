@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * ContextMenu group heading — non-interactive label rendered
+   * above a `ContextMenu.Group` to label its contents. Wraps
+   * Bits UI's `ContextMenu.GroupHeading`.
+   *
+   * @module
+   */
+
   import { ContextMenu as ContextMenuPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

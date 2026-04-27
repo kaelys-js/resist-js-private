@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * ContextMenu radio group — exclusive-selection grouping for a
+   * set of `ContextMenu.RadioItem` children. Wraps Bits UI's
+   * `ContextMenu.RadioGroup` with a bindable `value`.
+   *
+   * @module
+   */
+
   import { ContextMenu as ContextMenuPrimitive } from 'bits-ui';
 
   let {

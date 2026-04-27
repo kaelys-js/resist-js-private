@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * ContextMenu content — popover surface holding the menu items.
+   * Wraps Bits UI's `ContextMenu.Content` with portal +
+   * open/close fade-zoom animation.
+   *
+   * @module
+   */
+
   import { ContextMenu as ContextMenuPrimitive } from 'bits-ui';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';
   import ContextMenuPortal from './context-menu-portal.svelte';

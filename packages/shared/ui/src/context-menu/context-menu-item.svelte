@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * ContextMenu item — selectable menu entry with optional inset
+   * (for icon alignment) and `default` / `destructive` variants.
+   * Wraps Bits UI's `ContextMenu.Item`.
+   *
+   * @module
+   */
+
   import { ContextMenu as ContextMenuPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

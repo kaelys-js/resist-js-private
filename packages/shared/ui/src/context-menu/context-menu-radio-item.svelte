@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * ContextMenu radio item — single radio entry inside a
+   * `ContextMenu.RadioGroup`. Wraps Bits UI's
+   * `ContextMenu.RadioItem` with a circle indicator for the
+   * selected state.
+   *
+   * @module
+   */
+
   import { ContextMenu as ContextMenuPrimitive } from 'bits-ui';
   import CircleIcon from '@lucide/svelte/icons/circle';
   import { cn, type WithoutChild } from '../utils.js';

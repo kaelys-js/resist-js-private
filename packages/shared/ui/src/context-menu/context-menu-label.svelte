@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * ContextMenu label — non-interactive label rendered inside
+   * the context menu (e.g., a section title). Supports the
+   * `inset` flag for icon-column alignment.
+   *
+   * @module
+   */
+
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 
