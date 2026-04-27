@@ -22,7 +22,7 @@ type SvelteParseOk = {
   ok: true;
   /** The parsed template AST fragment node. */
   ast: AstNode;
-}
+};
 
 /** Failed parse result containing a descriptive error message. */
 type SvelteParseErr = {
@@ -30,7 +30,7 @@ type SvelteParseErr = {
   ok: false;
   /** Descriptive error message explaining why parsing failed. */
   error: string;
-}
+};
 
 /** Result of parsing a Svelte template — either a parsed AST or a descriptive error. */
 export type SvelteParseResult = SvelteParseOk | SvelteParseErr;

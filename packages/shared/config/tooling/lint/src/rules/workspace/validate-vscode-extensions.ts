@@ -127,7 +127,7 @@ const rule: WorkspaceRule = {
     }
 
     /* Extract recommendations. */
-    const {recommendations} = parsed;
+    const { recommendations } = parsed;
     const recList: string[] = Array.isArray(recommendations) ? (recommendations as string[]) : [];
     const recSet: Set<string> = new Set<string>(recList);
 

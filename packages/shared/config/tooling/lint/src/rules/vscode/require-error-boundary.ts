@@ -68,7 +68,9 @@ const rule: WorkspaceRule = {
 
       const pkgDir: string = dirname(pkg.path);
       const brandPath: string = join(pkgDir, BRAND_PATH);
-      if (!(await ctx.fileExists(brandPath))) {continue;}
+      if (!(await ctx.fileExists(brandPath))) {
+        continue;
+      }
 
       /* Read all .ts files in the extension */
       const allFiles: readonly string[] = await ctx.filesByExtension('.ts');

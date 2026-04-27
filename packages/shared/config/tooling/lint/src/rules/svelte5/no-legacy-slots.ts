@@ -50,7 +50,7 @@ const rule: TypeScriptRule = {
           return;
         }
 
-        const {name} = (node as { name?: string });
+        const { name } = node as { name?: string };
         if (name !== '$$slots') {
           return;
         }

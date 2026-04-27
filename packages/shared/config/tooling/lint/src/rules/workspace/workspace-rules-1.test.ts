@@ -4669,6 +4669,7 @@ const RULES_WITH_PACKAGE_INPUTS: ReadonlyArray<{
   { name: 'workspace/valid-bin-targets', rule: validBinTargets },
   { name: 'workspace/no-nested-node-modules', rule: noNestedNodeModules },
   { name: 'package/names-valid', rule: namesValid },
+  { name: 'workspace/workspace-packages-exist', rule: workspacePackagesExist },
 ];
 
 for (const { name, rule } of RULES_WITH_PACKAGE_INPUTS) {

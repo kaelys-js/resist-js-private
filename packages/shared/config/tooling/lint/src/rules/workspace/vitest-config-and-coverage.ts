@@ -120,7 +120,7 @@ const rule: WorkspaceRule = {
           const content: string = await ctx.readFile(file);
           const lines: string[] = content.split('\n');
           for (let i: number = 0; i < lines.length; i++) {
-            if (/\b(it|test|describe)\.(skip|only|todo)\b/.test((lines[i] ?? ''))) {
+            if (/\b(it|test|describe)\.(skip|only|todo)\b/.test(lines[i] ?? '')) {
               results.push(
                 createResult(
                   'workspace/vitest-config-and-coverage',

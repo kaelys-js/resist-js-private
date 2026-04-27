@@ -741,7 +741,11 @@
                       <Tooltip.Provider disableHoverableContent={false}>
                         <Tooltip.Root delayDuration={300}>
                           <Tooltip.Trigger>
-                            {#snippet child({ props: hubBadgeTip }: { props: Record<string, unknown> })}
+                            {#snippet child({
+                              props: hubBadgeTip,
+                            }: {
+                              props: Record<string, unknown>;
+                            })}
                               <span
                                 class="inline-flex"
                                 onclick={(e) => e.preventDefault()}

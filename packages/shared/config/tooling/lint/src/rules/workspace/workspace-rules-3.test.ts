@@ -6057,3 +6057,43 @@ describe('workspace/svg-no-black-fill', () => {
     expect(results.length).toBe(0);
   });
 });
+
+// =============================================================================
+// inputs() lifecycle coverage
+// =============================================================================
+
+describe('workspace/no-unlinked-workspace-deps — inputs() lifecycle', () => {
+  it('returns combined files + package paths', async () => {
+    const files: Map<string, string> = new Map([['/workspace/foo.ts', 'x']]);
+    const packages: WorkspacePackage[] = [
+      {
+        name: '@/a',
+        path: '/workspace/packages/a/package.json',
+        dir: '/workspace/packages/a',
+        packageJson: { name: '@/a' },
+      },
+    ];
+    const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace', files, packages });
+    expect(typeof noUnlinkedWorkspaceDeps.inputs).toBe('function');
+    const inputs = await noUnlinkedWorkspaceDeps.inputs!(ctx);
+    expect(inputs).toEqual(
+      expect.arrayContaining(['/workspace/foo.ts', '/workspace/packages/a/package.json']),
+    );
+  });
+
+  it('falls back to allFiles when getWorkspacePackages rejects', async () => {
+    const files: Map<string, string> = new Map([['/workspace/only.ts', 'z']]);
+    const base: WorkspaceContext = mockContext({ rootDir: '/workspace', files });
+    const ctx: WorkspaceContext = {
+      ...base,
+      getWorkspacePackages: (): Promise<WorkspacePackage[]> =>
+        new Promise<WorkspacePackage[]>(
+          (_resolve: (v: WorkspacePackage[]) => void, reject: (e: Error) => void): void => {
+            reject(new Error('boom'));
+          },
+        ),
+    };
+    const inputs = await noUnlinkedWorkspaceDeps.inputs!(ctx);
+    expect(inputs).toEqual(['/workspace/only.ts']);
+  });
+});

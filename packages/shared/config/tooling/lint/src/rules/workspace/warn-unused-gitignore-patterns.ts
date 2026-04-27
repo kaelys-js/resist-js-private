@@ -65,7 +65,7 @@ const rule: WorkspaceRule = {
 
     const lines: string[] = content.split('\n');
     for (let i: number = 0; i < lines.length; i++) {
-      const raw: string = (lines[i] ?? '');
+      const raw: string = lines[i] ?? '';
       const trimmed: string = raw.trim();
 
       /** Skip empty lines, comments, and negation patterns. */

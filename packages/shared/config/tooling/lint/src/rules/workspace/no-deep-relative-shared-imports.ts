@@ -7,7 +7,7 @@
  * @module
  */
 
-import {relative } from 'node:path';
+import { relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -74,13 +74,15 @@ const rule: WorkspaceRule = {
             'error',
             `Relative import into shared/ detected in ${relativePath} — use @/shared/ alias instead`,
             {
-              tip: "Use alias imports like '@/shared/utils/foo' instead of relative paths"},
+              tip: "Use alias imports like '@/shared/utils/foo' instead of relative paths",
+            },
           ),
         );
       }
     }
 
     return results;
-  }};
+  },
+};
 
 export default rule;

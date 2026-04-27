@@ -83,7 +83,8 @@ const rule: WorkspaceRule = {
             'warning',
             `CLI tool does not appear to support --help: ${rel}`,
             {
-              tip: 'Add --help flag handling to display usage information'},
+              tip: 'Add --help flag handling to display usage information',
+            },
           ),
         );
       }
@@ -100,13 +101,15 @@ const rule: WorkspaceRule = {
             'warning',
             `CLI tool does not appear to support --version: ${rel}`,
             {
-              tip: 'Add --version flag handling to display version information'},
+              tip: 'Add --version flag handling to display version information',
+            },
           ),
         );
       }
     }
 
     return results;
-  }};
+  },
+};
 
 export default rule;
