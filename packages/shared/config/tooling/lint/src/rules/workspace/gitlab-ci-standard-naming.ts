@@ -88,11 +88,10 @@ const rule: WorkspaceRule = {
       const lines: string[] = content.split('\n');
 
       for (const [i, line] of lines.entries()) {
-
         /** Top-level key (job name). */
         const jobMatch: RegExpMatchArray | null = line.match(/^([a-zA-Z0-9_-]+):\s*$/);
         if (jobMatch?.[1]) {
-          const jobName: string = jobMatch[1];
+          const [, jobName] = jobMatch;
           if (!ALLOWED_JOBS.has(jobName)) {
             results.push(
               createResult(
@@ -113,7 +112,7 @@ const rule: WorkspaceRule = {
         /** Stage value under a job. */
         const stageMatch: RegExpMatchArray | null = line.match(/^\s+stage:\s*([a-zA-Z0-9_-]+)\s*$/);
         if (stageMatch?.[1]) {
-          const stage: string = stageMatch[1];
+          const [, stage] = stageMatch;
           if (!ALLOWED_STAGES.has(stage)) {
             results.push(
               createResult(

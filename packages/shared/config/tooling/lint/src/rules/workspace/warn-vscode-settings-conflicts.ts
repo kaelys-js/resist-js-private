@@ -85,11 +85,12 @@ const rule: WorkspaceRule = {
         const trimmed: string = line.trim();
         const sizeMatch: RegExpMatchArray | null = /^indent_size\s*=\s*(\d+)/.exec(trimmed);
         if (sizeMatch !== null) {
-          editorIndentSize = Number(sizeMatch[1]);
+          const [, sizeStr] = sizeMatch;
+          editorIndentSize = Number(sizeStr);
         }
         const styleMatch: RegExpMatchArray | null = /^indent_style\s*=\s*(space|tab)/.exec(trimmed);
         if (styleMatch !== null) {
-          editorIndentStyle = styleMatch[1];
+          [, editorIndentStyle] = styleMatch;
         }
       }
 
@@ -144,7 +145,7 @@ const rule: WorkspaceRule = {
         return results;
       }
 
-      const {formatter} = biomeConfig;
+      const { formatter } = biomeConfig;
       if (formatter !== undefined && formatter !== null && typeof formatter === 'object') {
         const formatterObj: Record<string, unknown> = formatter as Record<string, unknown>;
         const biomeIndentWidth: unknown = formatterObj['indentWidth'];
