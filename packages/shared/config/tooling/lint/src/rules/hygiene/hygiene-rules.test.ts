@@ -268,3 +268,25 @@ describe('hygiene/no-dead-locale-keys', () => {
     expect(results[0]?.severity).toBe('warning');
   });
 });
+
+// =============================================================================
+// inputs() lifecycle smoke-coverage
+// =============================================================================
+describe('hygiene — inputs() lifecycle smoke-coverage', () => {
+  for (const { id, rule } of [
+    { id: 'no-duplicate-function-signatures', rule: noDuplicateFunctionSignatures },
+    { id: 'no-orphaned-exports', rule: noOrphanedExports },
+  ] as const) {
+    it(`${id}.inputs() runs without throwing`, async () => {
+      if (typeof rule.inputs !== 'function') {
+        return;
+      }
+      const ctx = makeMockContext({
+        '/mock/src/a.ts': 'export const a = 1;',
+        '/mock/src/b.ts': 'export const b = 2;',
+      });
+      const inputs = await rule.inputs(ctx);
+      expect(Array.isArray(inputs)).toBe(true);
+    });
+  }
+});
