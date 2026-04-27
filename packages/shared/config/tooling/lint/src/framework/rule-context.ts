@@ -503,7 +503,7 @@ export function createWorkspaceContext(
   /** Extension-filtered file cache — keyed by sorted comma-joined extensions. */
   const extCache: Map<string, Promise<readonly string[]>> = new Map();
 
-  async function cachedFilesByExtension(...exts: string[]): Promise<readonly string[]> {
+  function cachedFilesByExtension(...exts: string[]): Promise<readonly string[]> {
     const key: string = [...exts].toSorted().join(',');
     let cached: Promise<readonly string[]> | undefined = extCache.get(key);
     if (cached === undefined) {

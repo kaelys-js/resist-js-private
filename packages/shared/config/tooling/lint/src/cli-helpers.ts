@@ -130,6 +130,7 @@ export type CliOutput = v.InferOutput<typeof CliOutputSchema>;
  * @returns Empty LintResult[] inside a Promise
  */
 async function emptyResultsPromise(): Promise<LintResult[]> {
+  await Promise.resolve();
   return [];
 }
 
@@ -1670,13 +1671,14 @@ export async function _runLintCore(
   const dirChecks: boolean[] = await Promise.all(
     paths.map(async (p: string): Promise<boolean> => {
       try {
-        return (await stat(resolve(p))).isDirectory();
+        const st: Awaited<ReturnType<typeof stat>> = await stat(resolve(p));
+        return st.isDirectory();
       } catch {
         return false;
       }
     }),
   );
-  const hasDirectoryPaths: boolean = dirChecks.some((v: boolean): boolean => v);
+  const hasDirectoryPaths: boolean = dirChecks.some(Boolean);
 
   if (!bailed && hasDirectoryPaths && !cliArgs.stdinFilename && loaded.workspace.length > 0) {
     let wsRules: WorkspaceRule[] = [...loaded.workspace];
