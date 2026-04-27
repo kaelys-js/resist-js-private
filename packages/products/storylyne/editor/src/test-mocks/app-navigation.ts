@@ -14,7 +14,9 @@
 import type { Str, Bool, Void } from '@/schemas/common';
 
 /** Sentinel resolved-Promise return for async mocks (avoids `require-await`). */
-const RESOLVED_VOID: Promise<Void> = Promise.resolve();
+const RESOLVED_VOID: Promise<Void> = new Promise<Void>((resolve: (value: Void) => void): void => {
+  resolve(undefined);
+});
 
 /** Sentinel no-op body marker (avoids `no-empty-function`). */
 const NOOP_VOID: Void = undefined;

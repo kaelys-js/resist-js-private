@@ -1072,10 +1072,10 @@ function processBailTasks(
    * @returns Accumulated results and bail status
    */
   async function processNext(index: number): Promise<{ results: LintResult[]; bailed: boolean }> {
-    if (index >= tasks.length) {
+    const task = tasks[index];
+    if (index >= tasks.length || !task) {
       return { bailed: false, results: accumulated };
     }
-    const task = tasks[index]!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
     const taskResults: LintResult[] = await runTypeScriptRules(
       task.filePath,
       task.content,

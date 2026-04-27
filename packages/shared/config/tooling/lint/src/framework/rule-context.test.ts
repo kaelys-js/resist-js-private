@@ -154,7 +154,6 @@ describe('getWorkspacePackages', () => {
 // =============================================================================
 
 function mockReaderWithContent(content: string): () => Promise<string> {
-  /* eslint-disable-next-line require-await -- returns a Promise for the search() interface */
   return (): Promise<string> => {
     const deferred: Promise<string> = new Promise<string>((resolve: (v: string) => void): void => {
       resolve(content);

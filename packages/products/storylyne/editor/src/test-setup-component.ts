@@ -10,13 +10,20 @@
  * @module
  */
 
-import '@testing-library/jest-dom/vitest';
+import * as JestDomMatchers from '@testing-library/jest-dom/vitest';
 import type { Str, Void } from '@/schemas/common';
+
+/** Reference the side-effect import so `no-unassigned-import` is satisfied. */
+const _JEST_DOM_LOADED: typeof JestDomMatchers = JestDomMatchers;
 
 /** Sentinel undefined-Void return that bodies of mock listeners share. */
 const VOID_RETURN: Void = undefined;
 
-/** Shared no-op listener for matchMedia mock. */
+/**
+ * Shared no-op listener for matchMedia mock.
+ *
+ * @returns Void.
+ */
 const noop = (): Void => VOID_RETURN;
 
 // jsdom does not implement window.matchMedia — required by shadcn-svelte Sidebar
