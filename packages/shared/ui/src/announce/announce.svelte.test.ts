@@ -3,6 +3,8 @@
  *
  * Tests the `announce` function and `getAnnouncement` getter that power
  * `aria-live="polite"` regions across all products.
+ *
+ * @module
  */
 import { flushSync } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';

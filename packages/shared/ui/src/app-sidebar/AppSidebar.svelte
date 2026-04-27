@@ -1,4 +1,14 @@
 <script module lang="ts">
+  /**
+   * AppSidebar — main application sidebar surfacing project
+   * navigation. Accepts pre-resolved `appName` / `tagline` /
+   * `sidebarLabel` strings plus a `NavItem[]` schema for the
+   * secondary nav, with `objectWithRest` allowing passthrough
+   * props.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema, BoolSchema } from '@/schemas/common';
   import type { Snippet } from 'svelte';

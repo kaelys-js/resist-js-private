@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * AspectRatio Lens example — basic 16:9 container with a
+   * placeholder body that fills the maintained ratio.
+   *
+   * @module
+   */
+
   import AspectRatio from '@/ui/aspect-ratio/aspect-ratio.svelte';
 </script>
 

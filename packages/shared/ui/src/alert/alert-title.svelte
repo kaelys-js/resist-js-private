@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Alert title — heading at the top of the alert content.
+   * Renders a `<div>` with line-clamp-1 / medium-weight styling
+   * and the `data-slot="alert-title"` selector.
+   *
+   * @module
+   */
+
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
 
