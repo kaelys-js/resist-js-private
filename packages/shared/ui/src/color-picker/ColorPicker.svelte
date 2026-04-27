@@ -1,4 +1,12 @@
 <script module lang="ts">
+  /**
+   * ColorPicker — color input with hex preview swatch and
+   * `onValueChange` callback. Wires the props schema and exports
+   * `ColorPickerProps` for the Lens system.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema, type Str } from '@/schemas/common';
 

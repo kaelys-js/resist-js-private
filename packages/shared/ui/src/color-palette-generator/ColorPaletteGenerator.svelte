@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * ColorPaletteGenerator — generates a tonal palette from a
+   * seed color (shades, tints, complements). Placeholder shell
+   * awaiting full implementation; ships with a `class` prop for
+   * root-level styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
