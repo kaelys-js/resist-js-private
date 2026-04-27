@@ -5751,7 +5751,7 @@ describe('workspace/validate-package-entrypoints', () => {
       ['/workspace/pkg/package.json', JSON.stringify({ main: './dist/index.js' })],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
-    vi.spyOn(ctx, 'fileExists').mockImplementation(() => Promise.resolve(false));
+    vi.spyOn(ctx, 'fileExists').mockImplementation(async () => false);
     const results: LintResult[] = await validatePackageEntrypoints.check(ctx);
     expect(results.length).toBe(1);
     expect(results[0]!.ruleId).toBe('workspace/validate-package-entrypoints');
@@ -5764,7 +5764,7 @@ describe('workspace/validate-package-entrypoints', () => {
       ['/workspace/pkg/package.json', JSON.stringify({ module: './dist/index.mjs' })],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
-    vi.spyOn(ctx, 'fileExists').mockImplementation(() => Promise.resolve(false));
+    vi.spyOn(ctx, 'fileExists').mockImplementation(async () => false);
     const results: LintResult[] = await validatePackageEntrypoints.check(ctx);
     expect(results.length).toBe(1);
     expect(results[0]!.message).toContain('module');
@@ -5778,7 +5778,7 @@ describe('workspace/validate-package-entrypoints', () => {
       ],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
-    vi.spyOn(ctx, 'fileExists').mockImplementation(() => Promise.resolve(false));
+    vi.spyOn(ctx, 'fileExists').mockImplementation(async () => false);
     const results: LintResult[] = await validatePackageEntrypoints.check(ctx);
     expect(results.length).toBe(1);
     expect(results[0]!.message).toContain('./dist/index.mjs');
@@ -7560,14 +7560,13 @@ describe('workspace/require-gitattributes', () => {
   });
 
   it('passes for valid .gitattributes with required patterns', async () => {
-    const content: string =
-      [
-        '* text=auto',
-        '*.ts text eol=lf',
-        '*.js text eol=lf',
-        'pnpm-lock.yaml -text',
-        '*.png binary',
-      ].join('\n') + '\n';
+    const content: string = `${[
+      '* text=auto',
+      '*.ts text eol=lf',
+      '*.js text eol=lf',
+      'pnpm-lock.yaml -text',
+      '*.png binary',
+    ].join('\n')}\n`;
     const files: Map<string, string> = new Map([['/workspace/.gitattributes', content]]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await requireGitattributes.check(ctx);
@@ -13105,7 +13104,7 @@ describe('workspace/validate-image-optimization', () => {
 
   it('warns on .svg files exceeding 100KB', async () => {
     const files: Map<string, string> = new Map([
-      ['/workspace/assets/huge.svg', '<svg>' + 'x'.repeat(110_000) + '</svg>'],
+      ['/workspace/assets/huge.svg', `<svg>${'x'.repeat(110_000)}</svg>`],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await validateImageOptimization.check(ctx);
@@ -14490,7 +14489,7 @@ describe('workspace/no-bloated-commits', () => {
       { length: 120 },
       (_: unknown, i: number) => `file${String(i)}.ts`,
     ).join('\n');
-    vi.mocked(execSync).mockReturnValue(files + '\n');
+    vi.mocked(execSync).mockReturnValue(`${files}\n`);
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
     const results: LintResult[] = await noBloatedCommits.check(ctx);
     expect(results.length).toBe(1);
@@ -14505,7 +14504,7 @@ describe('workspace/no-bloated-commits', () => {
       { length: 50 },
       (_: unknown, i: number) => `file${String(i)}.ts`,
     ).join('\n');
-    vi.mocked(execSync).mockReturnValue(files + '\n');
+    vi.mocked(execSync).mockReturnValue(`${files}\n`);
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
     const results: LintResult[] = await noBloatedCommits.check(ctx);
     expect(results.length).toBe(0);
@@ -14537,7 +14536,7 @@ describe('workspace/no-commit-date-skew', () => {
   it('warns on future commit date', async () => {
     const { execSync } = await import('node:child_process');
     const futureTs: number = Math.floor(Date.now() / 1000) + 7200;
-    vi.mocked(execSync).mockReturnValue(String(futureTs) + '\n');
+    vi.mocked(execSync).mockReturnValue(`${String(futureTs)}\n`);
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
     const results: LintResult[] = await noCommitDateSkew.check(ctx);
     expect(results.length).toBe(1);
@@ -14549,7 +14548,7 @@ describe('workspace/no-commit-date-skew', () => {
   it('warns on very old commit date', async () => {
     const { execSync } = await import('node:child_process');
     const oldTs: number = Math.floor(Date.now() / 1000) - 63_072_000;
-    vi.mocked(execSync).mockReturnValue(String(oldTs) + '\n');
+    vi.mocked(execSync).mockReturnValue(`${String(oldTs)}\n`);
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
     const results: LintResult[] = await noCommitDateSkew.check(ctx);
     expect(results.length).toBe(1);
@@ -14559,7 +14558,7 @@ describe('workspace/no-commit-date-skew', () => {
   it('passes on recent commit', async () => {
     const { execSync } = await import('node:child_process');
     const recentTs: number = Math.floor(Date.now() / 1000) - 3600;
-    vi.mocked(execSync).mockReturnValue(String(recentTs) + '\n');
+    vi.mocked(execSync).mockReturnValue(`${String(recentTs)}\n`);
     const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
     const results: LintResult[] = await noCommitDateSkew.check(ctx);
     expect(results.length).toBe(0);
@@ -17182,7 +17181,7 @@ describe('workspace/svg-no-hidden-interactive', () => {
   it('skips files that cannot be read', async () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
-      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
+      allFiles: async (): Promise<readonly string[]> => ['/workspace/bad.svg'],
       readFile: async (): Promise<string> => {
         await Promise.resolve();
         throw new Error('ENOENT');
@@ -17397,7 +17396,7 @@ describe('workspace/svg-ids-unique', () => {
   it('skips files that cannot be read', async () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
-      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
+      allFiles: async (): Promise<readonly string[]> => ['/workspace/bad.svg'],
       readFile: async (): Promise<string> => {
         await Promise.resolve();
         throw new Error('ENOENT');
@@ -17565,7 +17564,7 @@ describe('workspace/svg-title-first-child', () => {
   it('skips files that cannot be read', async () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
-      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
+      allFiles: async (): Promise<readonly string[]> => ['/workspace/bad.svg'],
       readFile: async (): Promise<string> => {
         await Promise.resolve();
         throw new Error('ENOENT');
@@ -18461,7 +18460,7 @@ describe('workspace/no-misleading-image-extension', () => {
   it('skips SVG files that cannot be read', async () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
-      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
+      allFiles: async (): Promise<readonly string[]> => ['/workspace/bad.svg'],
       readFile: async (): Promise<string> => {
         await Promise.resolve();
         throw new Error('ENOENT');
@@ -18548,7 +18547,7 @@ describe('workspace/svg-valid-xml', () => {
   it('skips files that cannot be read', async () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
-      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svg']),
+      allFiles: async (): Promise<readonly string[]> => ['/workspace/bad.svg'],
       readFile: async (): Promise<string> => {
         await Promise.resolve();
         throw new Error('ENOENT');

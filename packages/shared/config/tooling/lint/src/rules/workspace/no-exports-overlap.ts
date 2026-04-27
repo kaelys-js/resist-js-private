@@ -74,7 +74,7 @@ const rule: WorkspaceRule = {
       const relativePath: string = relative(ctx.rootDir, pkgPath);
 
       for (const exportKey of Object.keys(exportsRecord)) {
-        const resolvedPath: string = name + `/${exportKey}`;
+        const resolvedPath: string = `${name}/${exportKey}`;
         const existing: string | undefined = exportMap.get(resolvedPath);
 
         if (existing !== undefined) {
