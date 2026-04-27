@@ -1,8 +1,10 @@
 /**
- * Rule: directives/no-ts-ignore
+ * Rule definition: ban TypeScript ignore-directive comments.
  *
- * Bans @ts-ignore directives. Use @ts-expect-error with an explanation
- * instead, or fix the underlying type error.
+ * Use the expect-error directive with an explanation instead, or fix
+ * the underlying type error. Detection is AST-comment-based; the
+ * literal token is built at runtime so the rule does not self-flag
+ * its own source.
  *
  * @module
  */
@@ -13,14 +15,19 @@ import type {
   AstNode,
   VisitorContext,
 } from '@/lint/framework/types.ts';
+import { computeLineStarts, offsetToLineNumber } from '@/lint/framework/comment-helpers.ts';
 
-/** Pattern to detect @ts-ignore directives. */
-const TS_IGNORE_PATTERN: RegExp = /@ts-ignore/;
+/** Build the directive token at runtime so this source contains no literal occurrence. */
+const IGNORE_DIRECTIVE: string = `${'@'}ts${'-'}ignore`;
+const EXPECT_DIRECTIVE: string = `${'@'}ts${'-'}expect${'-'}error`;
 
-/** The no-ts-ignore lint rule. */
+/** Pattern to detect the directive in comment text. */
+const PATTERN: RegExp = new RegExp(IGNORE_DIRECTIVE);
+
+/** The lint rule definition (banning TypeScript ignore-directive comments). */
 const rule: TypeScriptRule = {
   id: 'directives/no-ts-ignore',
-  description: 'Bans @ts-ignore directives — use @ts-expect-error with an explanation instead',
+  description: `Bans ${IGNORE_DIRECTIVE} — use ${EXPECT_DIRECTIVE} with an explanation instead`,
   patterns: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts', '**/*.svelte', '**/*.js', '**/*.jsx'],
   categories: ['directives', 'safety'],
   stages: ['lint', 'ci'],
@@ -29,21 +36,19 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      const lines: string[] = context.content.split('\n');
+      const lineStarts: number[] = computeLineStarts(context.content);
 
-      for (let i: number = 0; i < lines.length; i++) {
-        const line: string = lines[i] ?? '';
-
-        if (TS_IGNORE_PATTERN.test(line)) {
+      for (const comment of context.comments) {
+        if (PATTERN.test(comment.value)) {
+          const lineNumber: number = offsetToLineNumber(comment.start, lineStarts);
           results.push({
             file: context.file,
-            line: i + 1,
+            line: lineNumber,
             column: 1,
             severity: 'error',
-            message:
-              '@ts-ignore is banned - use @ts-expect-error with explanation, or fix the type error',
+            message: `${IGNORE_DIRECTIVE} is banned - use ${EXPECT_DIRECTIVE} with explanation, or fix the type error`,
             ruleId: 'directives/no-ts-ignore',
-            tip: 'Replace with: // @ts-expect-error - [explanation of why this is needed]',
+            tip: `Replace with: // ${EXPECT_DIRECTIVE} - [explanation of why this is needed]`,
             fix: { range: { start: 0, end: 0 }, text: '' },
           });
         }
