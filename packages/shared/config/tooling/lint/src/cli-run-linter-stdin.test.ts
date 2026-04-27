@@ -373,9 +373,7 @@ export function greet(name: string): string {
     const diskContent: string = readFileSync(filePath, 'utf8');
 
     // Inject a deliberate error into the "editor buffer"
-    const modifiedContent: string =
-      diskContent +
-      `
+    const modifiedContent: string = `${diskContent}
 /**
  * Added function with missing param type.
  *

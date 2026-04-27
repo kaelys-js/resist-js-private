@@ -4959,7 +4959,7 @@ describe('transformSolhintOutput — branch coverage', () => {
   });
 
   it('skips summary lines starting with multiplication sign', () => {
-    const output: string = 'contracts/Token.sol:10:5: warning msg [rule-id]\n' + '\u00D7 1 problem';
+    const output = 'contracts/Token.sol:10:5: warning msg [rule-id]\n\u00D7 1 problem';
     const results: LintResult[] = transformSolhintOutput(output);
     expect(results).toHaveLength(1);
   });
@@ -4969,7 +4969,7 @@ describe('transformSolhintOutput — branch coverage', () => {
   });
 
   it('parses multiple inline diagnostics', () => {
-    const output: string = 'a.sol:1:1: warning msg1 [rule1]\n' + 'b.sol:2:3: error msg2 [rule2]';
+    const output = 'a.sol:1:1: warning msg1 [rule1]\nb.sol:2:3: error msg2 [rule2]';
     const results: LintResult[] = transformSolhintOutput(output);
     expect(results).toHaveLength(2);
     expect(results[0]?.ruleId).toBe('solidity/rule1');

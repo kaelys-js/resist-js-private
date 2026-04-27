@@ -421,10 +421,8 @@ export function findWorkspaceRoot(start: string): string | null {
  */
 export function isCommandAvailable(command: string): boolean {
   const workspaceRoot: string | null = findWorkspaceRoot(process.cwd());
-  if (workspaceRoot !== null) {
-    if (existsSync(join(workspaceRoot, 'node_modules', '.bin', command))) {
-      return true;
-    }
+  if (workspaceRoot !== null && existsSync(join(workspaceRoot, 'node_modules', '.bin', command))) {
+    return true;
   }
   try {
     execFileSync('which', [command], {

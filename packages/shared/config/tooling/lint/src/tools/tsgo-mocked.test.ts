@@ -258,9 +258,8 @@ describe('runTsgoAllPackages', () => {
 
     await runTsgoAllPackages('/ws', ['/ws/packages/a/src/x.ts', '/ws/packages/c/src/y.ts']);
     expect(vi.mocked(execFileAsync)).toHaveBeenCalledTimes(2);
-    const cwds: string[] = vi
-      .mocked(execFileAsync)
-      .mock.calls.map((c): string => (c[2] as { cwd: string }).cwd);
+    const mocked = vi.mocked(execFileAsync);
+    const cwds: string[] = mocked.mock.calls.map((c): string => (c[2] as { cwd: string }).cwd);
     expect(cwds.toSorted()).toEqual(['/ws/packages/a', '/ws/packages/c']);
   });
 

@@ -250,6 +250,7 @@ export async function lint(options?: LintOptions): Promise<LintApiResult<LintRes
 
     const perSourceResults: LintResult[][] = await Promise.all(
       opts.sources.map(async (source): Promise<LintResult[]> => {
+        await Promise.resolve();
         /* Filter rules by file pattern */
         const applicableRules: TypeScriptRule[] = tsRules.filter((rule: TypeScriptRule): boolean =>
           rule.patterns.some((pattern: string): boolean => {
