@@ -36,8 +36,7 @@ export function cn(...inputs: ClassValue[]): Str {
  * Used by shadcn-svelte wrapper components that provide their own
  * child rendering and need to omit the underlying `child` prop.
  */
-// oxlint-disable-next-line typescript/no-explicit-any -- shadcn-svelte utility type
-export type WithoutChild<T> = T extends { child?: any } ? Omit<T, 'child'> : T;
+export type WithoutChild<T> = T extends { child?: unknown } ? Omit<T, 'child'> : T;
 
 /**
  * Strips the `children` snippet prop from a component props type.
@@ -45,8 +44,7 @@ export type WithoutChild<T> = T extends { child?: any } ? Omit<T, 'child'> : T;
  * Used by shadcn-svelte wrapper components that provide their own
  * children rendering and need to omit the underlying `children` prop.
  */
-// oxlint-disable-next-line typescript/no-explicit-any -- shadcn-svelte utility type
-export type WithoutChildren<T> = T extends { children?: any } ? Omit<T, 'children'> : T;
+export type WithoutChildren<T> = T extends { children?: unknown } ? Omit<T, 'children'> : T;
 
 /** Strips both `child` and `children` snippet props from a component props type. */
 export type WithoutChildrenOrChild<T> = WithoutChildren<WithoutChild<T>>;

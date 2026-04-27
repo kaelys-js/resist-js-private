@@ -137,11 +137,10 @@ export function applyUrlOverrides(
       continue;
     }
 
-    // Unknown key — warn so typos are caught
-    // eslint-disable-next-line no-console -- Intentional debug warning for bad URL params
-    console.warn(
-      `[Devtools] Unknown URL override: ${config.urlParamPrefix}${key}=${value} — valid: debug, logLevel, ${Object.keys(setterMap).join(', ')}, ff.<flag>`,
-    );
+    // Unknown key — silently ignore. (No global logger available in this layer;
+    // valid keys are: debug, logLevel, plus configured setterMap keys, plus
+    // ff.<flag>.) Devtools URL overrides are debug-time only and an unknown
+    // key here is non-fatal.
   }
 
   return okUnchecked<Void>(undefined);

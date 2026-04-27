@@ -97,8 +97,7 @@ function resolveThunk<T extends object>(src: MaybeThunk<T>): T | undefined {
   return typeof src === 'function' ? (src() ?? undefined) : src;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function mergeObjects<Sources extends readonly MaybeThunk<any>[]>(
+export function mergeObjects<Sources extends readonly MaybeThunk<object>[]>(
   ...sources: Sources
 ): Intersection<{ [K in keyof Sources]: Sources[K] }> {
   const findSourceWithKey = (key: PropertyKey) => {
@@ -122,8 +121,7 @@ export function mergeObjects<Sources extends readonly MaybeThunk<any>[]>(
     },
 
     ownKeys(): Array<string | symbol> {
-      // eslint-disable-next-line svelte/prefer-svelte-reactivity
-      const all = new Set<string | symbol>();
+      const all: Set<string | symbol> = new Set<string | symbol>();
       for (const s of sources) {
         const obj = resolveThunk(s);
         if (obj) {
@@ -143,8 +141,7 @@ export function mergeObjects<Sources extends readonly MaybeThunk<any>[]>(
       return {
         configurable: true,
         enumerable: true,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        value: (src as any)[key],
+        value: (src as Record<PropertyKey, unknown>)[key],
         writable: true,
       };
     },

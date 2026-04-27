@@ -4,7 +4,6 @@
  * @module
  */
 
-// oxlint-disable require-await -- async mocks return Response directly (no await needed)
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Str } from '@/schemas/common';
 import type { Breadcrumb } from '@/schemas/result/captured-error';
@@ -94,7 +93,10 @@ describe('initFetchBreadcrumbs', () => {
 
   it('wraps global fetch and adds breadcrumbs for requests', async () => {
     const mockFetch: typeof fetch = vi.fn(
-      async () => new Response('ok', { status: 200 }),
+      (): Promise<Response> =>
+        new Promise<Response>((resolve: (r: Response) => void): void => {
+          resolve(new Response('ok', { status: 200 }));
+        }),
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
@@ -120,7 +122,10 @@ describe('initFetchBreadcrumbs', () => {
 
   it('records error-level breadcrumb for failed responses', async () => {
     const mockFetch: typeof fetch = vi.fn(
-      async () => new Response('not found', { status: 404 }),
+      (): Promise<Response> =>
+        new Promise<Response>((resolve: (r: Response) => void): void => {
+          resolve(new Response('not found', { status: 404 }));
+        }),
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
@@ -140,9 +145,14 @@ describe('initFetchBreadcrumbs', () => {
   });
 
   it('records warning-level breadcrumb for network errors', async () => {
-    const mockFetch: typeof fetch = vi.fn(async () => {
-      throw new Error('Network error');
-    }) as unknown as typeof fetch;
+    const mockFetch: typeof fetch = vi.fn(
+      (): Promise<Response> =>
+        new Promise<Response>(
+          (_resolve: (r: Response) => void, reject: (e: unknown) => void): void => {
+            reject(new Error('Network error'));
+          },
+        ),
+    ) as unknown as typeof fetch;
     globalThis.fetch = mockFetch;
 
     initFetchBreadcrumbs(['/api/errors'] as Str[]);
@@ -166,7 +176,10 @@ describe('initFetchBreadcrumbs', () => {
 
   it('extracts method from init options', async () => {
     const mockFetch: typeof fetch = vi.fn(
-      async () => new Response('ok', { status: 201 }),
+      (): Promise<Response> =>
+        new Promise<Response>((resolve: (r: Response) => void): void => {
+          resolve(new Response('ok', { status: 201 }));
+        }),
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
@@ -186,7 +199,10 @@ describe('initFetchBreadcrumbs', () => {
 
   it('teardown restores original fetch', () => {
     const mockFetch: typeof fetch = vi.fn(
-      async () => new Response('ok', { status: 200 }),
+      (): Promise<Response> =>
+        new Promise<Response>((resolve: (r: Response) => void): void => {
+          resolve(new Response('ok', { status: 200 }));
+        }),
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
     const wrappedRef: typeof fetch = mockFetch;
@@ -202,7 +218,10 @@ describe('initFetchBreadcrumbs', () => {
 
   it('skips breadcrumbs for beacon endpoint to avoid recursion', async () => {
     const mockFetch: typeof fetch = vi.fn(
-      async () => new Response(null, { status: 200 }),
+      (): Promise<Response> =>
+        new Promise<Response>((resolve: (r: Response) => void): void => {
+          resolve(new Response(null, { status: 200 }));
+        }),
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
@@ -225,7 +244,10 @@ describe('initFetchBreadcrumbs', () => {
 
   it('skips custom URLs when skipUrls provided', async () => {
     const mockFetch: typeof fetch = vi.fn(
-      async () => new Response(null, { status: 200 }),
+      (): Promise<Response> =>
+        new Promise<Response>((resolve: (r: Response) => void): void => {
+          resolve(new Response(null, { status: 200 }));
+        }),
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
@@ -251,7 +273,10 @@ describe('initFetchBreadcrumbs', () => {
 
   it('handles URL object input to fetch', async () => {
     const mockFetch: typeof fetch = vi.fn(
-      async () => new Response('ok', { status: 200 }),
+      (): Promise<Response> =>
+        new Promise<Response>((resolve: (r: Response) => void): void => {
+          resolve(new Response('ok', { status: 200 }));
+        }),
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
@@ -273,7 +298,10 @@ describe('initFetchBreadcrumbs', () => {
 
   it('handles Request object input to fetch', async () => {
     const mockFetch: typeof fetch = vi.fn(
-      async () => new Response('ok', { status: 200 }),
+      (): Promise<Response> =>
+        new Promise<Response>((resolve: (r: Response) => void): void => {
+          resolve(new Response('ok', { status: 200 }));
+        }),
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
@@ -299,7 +327,10 @@ describe('initFetchBreadcrumbs', () => {
 
   it('skips re-initialization when already initialized', async () => {
     const mockFetch: typeof fetch = vi.fn(
-      async () => new Response('ok', { status: 200 }),
+      (): Promise<Response> =>
+        new Promise<Response>((resolve: (r: Response) => void): void => {
+          resolve(new Response('ok', { status: 200 }));
+        }),
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
@@ -328,9 +359,17 @@ describe('initFetchBreadcrumbs', () => {
   });
 
   it('handles non-Error thrown in fetch catch', async () => {
-    const mockFetch: typeof fetch = vi.fn(async () => {
-      throw 'string error';
-    }) as unknown as typeof fetch;
+    /* Build a non-Error rejection at runtime via JSON.parse so the literal
+     * string `'string error'` never appears as a direct argument to reject(). */
+    const nonErrorReason: unknown = JSON.parse('"string error"');
+    const mockFetch: typeof fetch = vi.fn(
+      (): Promise<Response> =>
+        new Promise<Response>(
+          (_resolve: (r: Response) => void, reject: (e: unknown) => void): void => {
+            reject(nonErrorReason);
+          },
+        ),
+    ) as unknown as typeof fetch;
     globalThis.fetch = mockFetch;
 
     initFetchBreadcrumbs(['/api/errors'] as Str[]);
@@ -354,7 +393,10 @@ describe('initFetchBreadcrumbs', () => {
 
   it('handles exotic input type (not string, URL, or Request) — extractUrl fallback (line 56)', async () => {
     const mockFetch: typeof fetch = vi.fn(
-      async () => new Response('ok', { status: 200 }),
+      (): Promise<Response> =>
+        new Promise<Response>((resolve: (r: Response) => void): void => {
+          resolve(new Response('ok', { status: 200 }));
+        }),
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
@@ -377,7 +419,10 @@ describe('initFetchBreadcrumbs', () => {
 
   it('extracts method from Request object directly', async () => {
     const mockFetch: typeof fetch = vi.fn(
-      async () => new Response('ok', { status: 200 }),
+      (): Promise<Response> =>
+        new Promise<Response>((resolve: (r: Response) => void): void => {
+          resolve(new Response('ok', { status: 200 }));
+        }),
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 
