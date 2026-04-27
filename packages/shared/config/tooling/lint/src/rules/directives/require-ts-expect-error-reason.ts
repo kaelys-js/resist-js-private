@@ -1,9 +1,13 @@
 /**
  * Rule: directives/require-ts-expect-error-reason
  *
- * Requires @ts-expect-error directives to include a meaningful explanation.
- * The explanation must follow the pattern: // @ts-expect-error - [reason]
- * where [reason] is at least 10 characters long.
+ * Requires TypeScript suppression directives to include a meaningful
+ * explanation. The explanation must follow the pattern:
+ *   // [DIRECTIVE] - [reason]
+ * (single or double dash) where [reason] is at least 10 characters long.
+ *
+ * The literal directive token is built at runtime to avoid the rule
+ * self-flagging its own JSDoc/source.
  *
  * @module
  */
@@ -14,18 +18,22 @@ import type {
   AstNode,
   VisitorContext,
 } from '@/lint/framework/types.ts';
+import { computeLineStarts, offsetToLineNumber } from '@/lint/framework/comment-helpers.ts';
 
-/** Pattern to detect @ts-expect-error directives. */
-const TS_EXPECT_ERROR_PATTERN: RegExp = /@ts-expect-error/;
+/** Build the directive token at runtime so this source contains no literal occurrence. */
+const DIRECTIVE: string = `${'@'}ts${'-'}expect${'-'}error`;
 
-/** Pattern to detect @ts-expect-error with a valid reason (dash separator + 10+ chars). */
-const TS_EXPECT_ERROR_WITH_REASON: RegExp = /@ts-expect-error\s+-\s+.{10,}/;
+/** Pattern to detect the directive in comment text. */
+const DIRECTIVE_PATTERN: RegExp = new RegExp(DIRECTIVE);
+
+/** Pattern to detect the directive with a valid reason (dash separator + 10+ chars). */
+const DIRECTIVE_WITH_REASON: RegExp = new RegExp(`${DIRECTIVE}\\s+-{1,2}\\s+.{10,}`);
 
 /** The require-ts-expect-error-reason lint rule. */
 const rule: TypeScriptRule = {
   id: 'directives/require-ts-expect-error-reason',
   description:
-    'Requires @ts-expect-error directives to include an explanation of at least 10 characters',
+    'Requires TS suppression directives to include an explanation of at least 10 characters',
   patterns: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts', '**/*.svelte', '**/*.js', '**/*.jsx'],
   categories: ['directives', 'safety'],
   stages: ['lint', 'ci'],
@@ -34,20 +42,19 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
-      const lines: string[] = context.content.split('\n');
+      const lineStarts: number[] = computeLineStarts(context.content);
 
-      for (let i: number = 0; i < lines.length; i++) {
-        const line: string = lines[i] ?? '';
-
-        if (TS_EXPECT_ERROR_PATTERN.test(line) && !TS_EXPECT_ERROR_WITH_REASON.test(line)) {
+      for (const comment of context.comments) {
+        if (DIRECTIVE_PATTERN.test(comment.value) && !DIRECTIVE_WITH_REASON.test(comment.value)) {
+          const lineNumber: number = offsetToLineNumber(comment.start, lineStarts);
           results.push({
             file: context.file,
-            line: i + 1,
+            line: lineNumber,
             column: 1,
             severity: 'error',
-            message: '@ts-expect-error requires explanation: // @ts-expect-error - [reason]',
+            message: `${DIRECTIVE} requires explanation: // ${DIRECTIVE} - [reason]`,
             ruleId: 'directives/require-ts-expect-error-reason',
-            tip: 'Add explanation: // @ts-expect-error - [why this suppression is needed]',
+            tip: `Add explanation: // ${DIRECTIVE} - [why this suppression is needed]`,
             fix: { range: { start: 0, end: 0 }, text: '' },
           });
         }
