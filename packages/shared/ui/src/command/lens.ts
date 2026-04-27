@@ -1,3 +1,11 @@
+/**
+ * Lens manifest + examples for the Command component (overlay
+ * category) — command palette with search and keyboard
+ * navigation. Ships inline and dialog examples.
+ *
+ * @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

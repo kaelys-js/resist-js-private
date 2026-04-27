@@ -4,10 +4,13 @@
    * Root container for a command palette with fuzzy search and keyboard navigation.
    *
    * Provides the search context and styling wrapper for CommandInput, CommandList, CommandGroup, and CommandItem children.
+   *
+   * @module
    */
   import { cn } from '../utils.js';
   import { Command as CommandPrimitive } from 'bits-ui';
 
+  /** Bits UI Command root API instance type — exposed for external control. */
   export type CommandRootApi = CommandPrimitive.Root;
 
   let {

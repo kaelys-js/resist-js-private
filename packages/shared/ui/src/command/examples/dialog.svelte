@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Command Lens example — dialog-wrapped command palette
+   * triggered by a button, with grouped action items.
+   *
+   * @module
+   */
+
   import * as Command from '@/ui/command';
   import Button from '@/ui/button/button.svelte';
   import CalendarIcon from '@lucide/svelte/icons/calendar';

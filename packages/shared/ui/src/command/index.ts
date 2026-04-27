@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the command compound component — exposes
+ * Root / Dialog / Empty / Group / Item / LinkItem / Input / List
+ * / Separator / Shortcut / Loading sub-components under both
+ * internal aliases and the `Command*` public names.
+ *
+ * @module
+ */
+
 import Root from './command.svelte';
 import Loading from './command-loading.svelte';
 import Dialog from './command-dialog.svelte';
