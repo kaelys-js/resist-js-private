@@ -136,7 +136,9 @@ const rule: WorkspaceRule = {
 
     for (const entry of allRoutes) {
       const existing: string | undefined = seen.get(entry.route);
-      if (existing !== undefined) {
+      if (existing === undefined) {
+        seen.set(entry.route, entry.file);
+      } else {
         const relFile: string = relative(ctx.rootDir, entry.file);
         const relExisting: string = relative(ctx.rootDir, existing);
         results.push(
@@ -152,8 +154,6 @@ const rule: WorkspaceRule = {
             },
           ),
         );
-      } else {
-        seen.set(entry.route, entry.file);
       }
     }
 

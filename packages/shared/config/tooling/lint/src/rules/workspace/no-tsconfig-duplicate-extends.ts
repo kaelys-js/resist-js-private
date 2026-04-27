@@ -80,10 +80,10 @@ const rule: WorkspaceRule = {
       const resolvedBase: string = resolve(dir, extendsField);
 
       const extenders: string[] | undefined = baseToExtenders.get(resolvedBase);
-      if (extenders !== undefined) {
-        extenders.push(filePath);
-      } else {
+      if (extenders === undefined) {
         baseToExtenders.set(resolvedBase, [filePath]);
+      } else {
+        extenders.push(filePath);
       }
 
       /* Check for circular extends (file extends itself). */

@@ -133,7 +133,9 @@ const rule: WorkspaceRule = {
 
     for (const binding of allBindings) {
       const existing: { source: string; file: string } | undefined = seen.get(binding.name);
-      if (existing !== undefined) {
+      if (existing === undefined) {
+        seen.set(binding.name, { source: binding.source, file: binding.file });
+      } else {
         const relFile: string = relative(ctx.rootDir, binding.file);
         const relExisting: string = relative(ctx.rootDir, existing.file);
         results.push(
@@ -149,8 +151,6 @@ const rule: WorkspaceRule = {
             },
           ),
         );
-      } else {
-        seen.set(binding.name, { source: binding.source, file: binding.file });
       }
     }
 
