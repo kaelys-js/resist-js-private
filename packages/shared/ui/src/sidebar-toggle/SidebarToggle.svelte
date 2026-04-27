@@ -13,6 +13,7 @@
     /** Formatted keyboard shortcut display string (e.g. "⌘B"). @values ⌘B, Ctrl+B, ⌘\\ */
     shortcutLabel: StrSchema,
   });
+  /** Public component props for SidebarToggle. */
   export type SidebarToggleProps = v.InferOutput<typeof SidebarTogglePropsSchema>;
 </script>
 

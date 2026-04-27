@@ -13,6 +13,7 @@
     /** Content to render inside the scoped portal context. */
     children: v.custom<Snippet>((val) => typeof val === 'function'),
   });
+  /** Public component props for LensPortalScope. */
   export type LensPortalScopeProps = v.InferOutput<typeof LensPortalScopePropsSchema>;
 </script>
 

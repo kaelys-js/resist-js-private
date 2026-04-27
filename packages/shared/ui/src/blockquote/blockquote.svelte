@@ -131,6 +131,7 @@
     footer: v.optional(v.custom<Snippet>(() => true)),
   });
   export type BlockquoteInputProps = v.InferInput<typeof BlockquotePropsSchema>;
+  /** Public component props for Blockquote. */
   export type BlockquoteProps = v.InferOutput<typeof BlockquotePropsSchema>;
 </script>
 

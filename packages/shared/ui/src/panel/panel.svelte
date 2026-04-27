@@ -7,6 +7,7 @@
     /** Additional CSS classes for the root element. @values custom-class */
     class: v.optional(StrSchema),
   });
+  /** Public component props for Panel. */
   export type PanelProps = v.InferOutput<typeof PanelPropsSchema>;
 </script>
 

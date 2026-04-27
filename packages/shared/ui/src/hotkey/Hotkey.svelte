@@ -7,6 +7,7 @@
     /** Additional CSS classes for the root element. @values custom-class */
     class: v.optional(StrSchema),
   });
+  /** Public component props for Hotkey. */
   export type HotkeyProps = v.InferOutput<typeof HotkeyPropsSchema>;
 </script>
 

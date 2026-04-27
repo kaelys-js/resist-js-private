@@ -13,6 +13,7 @@
     /** Additional CSS classes for the root element. */
     class: v.optional(StrSchema),
   });
+  /** Public component props for LensError. */
   export type LensErrorProps = v.InferOutput<typeof LensErrorPropsSchema>;
 </script>
 

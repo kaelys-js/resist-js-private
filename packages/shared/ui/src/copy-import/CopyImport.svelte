@@ -10,6 +10,7 @@
     /** Additional CSS classes for the root element. */
     class: v.optional(StrSchema),
   });
+  /** Public component props for CopyImport. */
   export type CopyImportProps = v.InferOutput<typeof CopyImportPropsSchema>;
 </script>
 
