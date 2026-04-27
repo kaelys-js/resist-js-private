@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Accordion content — collapsible content panel revealed when
+   * its `Accordion.Item` is open. Wraps Bits UI's
+   * `Accordion.Content` with the open/closed expand-collapse
+   * animation and our `data-slot` convention.
+   *
+   * @module
+   */
+
   import { Accordion as AccordionPrimitive } from 'bits-ui';
   import { cn, type WithoutChild } from '../utils.js';
 

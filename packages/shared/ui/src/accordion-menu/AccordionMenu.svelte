@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * AccordionMenu — vertical navigation menu with expandable /
+   * collapsible sections, typically used for sidebar navigation
+   * with nested items. Exposes a single `class` prop for
+   * root-level styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
