@@ -78,7 +78,6 @@ const rule: WorkspaceRule = {
       let hasScript: boolean = false;
 
       for (const [i, line] of lines.entries()) {
-
         /** Detect top-level key (no leading whitespace, ends with :). */
         const topKeyMatch: RegExpMatchArray | null = line.match(/^([a-zA-Z0-9_-]+):\s*$/);
         if (topKeyMatch?.[1]) {
@@ -99,7 +98,7 @@ const rule: WorkspaceRule = {
             );
           }
 
-          const key: string = topKeyMatch[1];
+          const [, key] = topKeyMatch;
           if (NON_JOB_KEYS.has(key)) {
             currentJob = null;
           } else {

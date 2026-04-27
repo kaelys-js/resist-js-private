@@ -64,7 +64,7 @@ const rule: WorkspaceRule = {
         if (!match?.[1]) {
           continue;
         }
-        const funcName: string = match[1];
+        const [, funcName] = match;
 
         /** Extract the function body (lines from declaration to closing }). */
         let body: string = '';

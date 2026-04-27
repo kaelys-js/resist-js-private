@@ -12,7 +12,7 @@ import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Wrangler config filenames that should not be committed. */
-const WRANGLER_FILES: readonly string[] = new Set(['wrangler.toml', 'wrangler.jsonc']);
+const WRANGLER_FILES: ReadonlySet<string> = new Set(['wrangler.toml', 'wrangler.jsonc']);
 
 /** Flags wrangler config files in the workspace. */
 const rule: WorkspaceRule = {

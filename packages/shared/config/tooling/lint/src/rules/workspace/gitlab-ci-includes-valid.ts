@@ -61,7 +61,7 @@ const rule: WorkspaceRule = {
     for (let i: number = 0; i < lines.length; i++) {
       const match: RegExpMatchArray | null = (lines[i] ?? '').match(LOCAL_INCLUDE_PATTERN);
       if (match?.[1]) {
-        const includePath: string = match[1];
+        const [, includePath] = match;
         const fullPath: string = `${ctx.rootDir}/${includePath}`;
         if (!fileSet.has(fullPath)) {
           results.push(
