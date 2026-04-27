@@ -1,9 +1,20 @@
 <script lang="ts" module>
+  /**
+   * Avatar root — user avatar surface with image, automatic
+   * initials fallback, status indicators, and badge overlay.
+   * Defines the `avatarVariants` TV helper (size / shape /
+   * variant / color), the props schema, and the input / output
+   * props types.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import type { Snippet } from 'svelte';
   import { type VariantProps, tv } from 'tailwind-variants';
   import { StrSchema, BoolSchema, NumSchema } from '@/schemas/common';
 
+  /** TV helper for Avatar styling — size / shape / variant / color. */
   export const avatarVariants = tv({
     base: 'relative inline-flex shrink-0 items-center justify-center',
     variants: {
@@ -55,8 +66,11 @@
     },
   });
 
+  /** Avatar size token (xs..2xl). */
   export type AvatarSize = VariantProps<typeof avatarVariants>['size'];
+  /** Avatar shape (circle / square / rounded). */
   export type AvatarShape = VariantProps<typeof avatarVariants>['shape'];
+  /** Visual style variant (default / solid / soft / outlined / plain). */
   export type AvatarVariant = VariantProps<typeof avatarVariants>['variant'];
 
   export const AvatarPropsSchema = v.strictObject({

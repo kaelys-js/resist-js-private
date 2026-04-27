@@ -8,6 +8,8 @@
  * @example
  * import { announce } from '@/ui/announce/announce.svelte';
  * announce('Copied to clipboard');
+ *
+ * @module
  */
 
 import type { Str, Void } from '@/schemas/common';

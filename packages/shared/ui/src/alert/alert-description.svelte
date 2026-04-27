@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Alert description — supporting body copy beneath the alert
+   * title. Renders a `<div>` with muted-foreground / small-text
+   * styling and the `data-slot="alert-description"` selector that
+   * the alert variant uses for its destructive color override.
+   *
+   * @module
+   */
+
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
 

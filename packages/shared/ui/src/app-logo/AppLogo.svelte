@@ -1,4 +1,13 @@
 <script module lang="ts">
+  /**
+   * AppLogo — animated application brand logo rendered from
+   * `/favicon.svg` with a fade-in / grow / sparkle entrance
+   * animation that respects `prefers-reduced-motion`. Accepts a
+   * `size` prop for the pixel dimensions.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema, NumSchema } from '@/schemas/common';
 

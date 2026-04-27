@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * AspectRatio Lens example — side-by-side comparison of 1:1,
+   * 4:3, and 16:9 containers, each with a placeholder body
+   * filling the maintained ratio.
+   *
+   * @module
+   */
+
   import AspectRatio from '@/ui/aspect-ratio/aspect-ratio.svelte';
 </script>
 

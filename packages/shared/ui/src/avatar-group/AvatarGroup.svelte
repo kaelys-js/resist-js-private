@@ -1,9 +1,20 @@
 <script lang="ts" module>
+  /**
+   * AvatarGroup — stacks multiple Avatar components with
+   * configurable overlap spacing, an overflow `+N` badge, and an
+   * optional grid layout. Defines the `avatarGroupVariants` TV
+   * helper, the props schema, and `AvatarGroupInputProps` /
+   * `AvatarGroupProps` types.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import type { Snippet } from 'svelte';
   import { tv } from 'tailwind-variants';
   import { StrSchema, BoolSchema, NumSchema } from '@/schemas/common';
 
+  /** TV helper for AvatarGroup styling — spacing and grid variants. */
   export const avatarGroupVariants = tv({
     base: 'flex items-center',
     variants: {
