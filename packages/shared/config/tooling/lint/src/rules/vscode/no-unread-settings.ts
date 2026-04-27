@@ -61,7 +61,7 @@ const rule: WorkspaceRule = {
         const brandSource: string = await ctx.readFile(brandPath);
         const configMatch: RegExpMatchArray | null = CONFIG_SECTION_RE.exec(brandSource);
         if (configMatch && configMatch[1]) {
-          configSection = configMatch[1];
+          [, configSection] = configMatch;
         }
       }
 

@@ -221,7 +221,7 @@ describe('runTsgoAllPackages', () => {
     const results = await runTsgoAllPackages('/ws', ['/ws/packages/a/src/x.ts']);
     expect(results).toEqual([]);
     expect(vi.mocked(execFileAsync)).toHaveBeenCalledTimes(1);
-    const call = vi.mocked(execFileAsync).mock.calls[0];
+    const [call] = vi.mocked(execFileAsync).mock.calls;
     expect(call?.[2]).toMatchObject({ cwd: '/ws/packages/a' });
   });
 
