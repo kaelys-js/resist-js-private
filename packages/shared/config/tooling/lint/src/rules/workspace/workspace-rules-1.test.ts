@@ -65,6 +65,7 @@ import noWranglerToml from './no-wrangler-toml.ts';
 import noTestsDirectory from './no-tests-directory.ts';
 import noBenchDirectory from './no-bench-directory.ts';
 import noCoverageDirectory from './no-coverage-directory.ts';
+import noCrlf from './no-crlf.ts';
 import noEslintConfig from './no-eslint-config.ts';
 import noPrettierConfig from './no-prettier-config.ts';
 import noJestConfig from './no-jest-config.ts';
@@ -713,6 +714,87 @@ describe('workspace/no-empty-directories', () => {
     expect(noEmptyDirectories.stages).toContain('lint');
     expect(noEmptyDirectories.stages).toContain('ci');
     expect(typeof noEmptyDirectories.check).toBe('function');
+  });
+
+  it('returns array when invoked against unreadable rootDir', async () => {
+    const ctx: WorkspaceContext = mockContext({
+      rootDir: `/nonexistent-test-path-xyz-${String(Date.now())}`,
+    });
+    const results: LintResult[] = await noEmptyDirectories.check(ctx);
+    expect(Array.isArray(results)).toBe(true);
+  });
+
+  it('scans existing directory without throwing', async () => {
+    const ctx: WorkspaceContext = mockContext({ rootDir: process.cwd() });
+    const results: LintResult[] = await noEmptyDirectories.check(ctx);
+    expect(Array.isArray(results)).toBe(true);
+    for (const r of results) {
+      expect(r.ruleId).toBe('workspace/no-empty-directories');
+      expect(r.severity).toBe('warning');
+    }
+  });
+});
+
+describe('workspace/no-crlf', () => {
+  it('has correct rule metadata', () => {
+    expect(noCrlf.id).toBe('workspace/no-crlf');
+    expect(noCrlf.scope).toBe('workspace');
+    expect(typeof noCrlf.check).toBe('function');
+    expect(noCrlf.categories).toContain('workspace');
+    expect(noCrlf.categories).toContain('safety');
+  });
+
+  it('returns empty for empty file map', async () => {
+    const ctx: WorkspaceContext = mockContext({ files: new Map() });
+    const results: LintResult[] = await noCrlf.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it(String.raw`reports CRLF for text files containing \r\n`, async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/a.ts', 'export const x = 1;\r\n'],
+      ['/workspace/b.md', '# Title\r\nbody\r\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCrlf.check(ctx);
+    expect(results.length).toBe(2);
+    expect(results[0]!.ruleId).toBe('workspace/no-crlf');
+    expect(results[0]!.severity).toBe('error');
+    expect(results[0]!.message).toContain('CRLF');
+  });
+
+  it('skips non-text extensions and LF-only files', async () => {
+    const files: Map<string, string> = new Map([
+      ['/workspace/img.png', 'binarydata\r\n'],
+      ['/workspace/lf-only.ts', 'export const y = 2;\n'],
+      ['/workspace/no-ext-file', 'whatever\r\n'],
+    ]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    const results: LintResult[] = await noCrlf.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('handles compound extensions and read failures gracefully', async () => {
+    const files: Map<string, string> = new Map([['/workspace/some.svelte.ts', 'crlf\r\n']]);
+    const baseCtx: WorkspaceContext = mockContext({ files });
+    const ctx: WorkspaceContext = {
+      ...baseCtx,
+      readFile: (path: string): Promise<string> =>
+        new Promise<string>((_resolve: (v: string) => void, reject: (e: Error) => void): void => {
+          reject(new Error(`Permission denied: ${path}`));
+        }),
+    };
+    const results: LintResult[] = await noCrlf.check(ctx);
+    expect(results.length).toBe(0);
+  });
+
+  it('inputs() returns the workspace files list', async () => {
+    const files: Map<string, string> = new Map([['/workspace/a.ts', 'x']]);
+    const ctx: WorkspaceContext = mockContext({ files });
+    expect(typeof noCrlf.inputs).toBe('function');
+    const inputs = await noCrlf.inputs!(ctx);
+    expect(Array.isArray(inputs)).toBe(true);
+    expect(inputs).toContain('/workspace/a.ts');
   });
 });
 

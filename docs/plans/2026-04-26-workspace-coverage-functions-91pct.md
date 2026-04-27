@@ -224,8 +224,13 @@ The plan execute under the active-plan binding contract: the Stop hook will refu
 - Test: `packages/shared/utils/core/src/index.test.ts`
 
 **Verification**:
-- Workspace functions coverage rises by ≥ 0.85pp (35/4097).
-- All 5 packages' test suites still pass.
+- `pnpm -w run qa:test:coverage 2>&1 | grep -E 'All files' | awk '{print $5}'` (functions %) rises by ≥ 0.85pp from 86.19 to ≥ 87.04.
+- `pnpm --filter @/utils/core run qa:test 2>&1 | grep -E '^\s*Tests'` reports pass count ≥ baseline + 6 (covers the 20 missing fns in `packages/shared/utils/core/src/`).
+- `pnpm --filter @/ui run qa:test 2>&1 | grep -E '^\s*Tests'` reports pass count ≥ baseline + 3 (covers the 9 missing fns in `packages/shared/ui/src/`).
+- `pnpm --filter @/utils/devtools run qa:test 2>&1 | grep -E '^\s*Tests'` reports pass count ≥ baseline + 2 (covers the 4 missing fns in `packages/shared/utils/devtools/src/`).
+- `pnpm --filter @/schemas/function run qa:test 2>&1 | grep -E '^\s*Tests'` reports pass count ≥ baseline + 1 (covers the 1 missing fn in `packages/shared/schemas/function/src/`).
+- `pnpm --filter @/locale run qa:test 2>&1 | grep -E '^\s*Tests'` reports pass count ≥ baseline + 1 (covers the 1 missing fn in `packages/shared/locale/src/`).
+- `node /tmp/coverage-by-pkg.js` shows each of the 5 packages at ≥ 99% functions coverage.
 
 ---
 
