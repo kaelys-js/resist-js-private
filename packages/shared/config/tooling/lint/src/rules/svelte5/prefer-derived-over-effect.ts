@@ -52,7 +52,7 @@ const rule: TypeScriptRule = {
           return;
         }
 
-        const [stmt]: AstNode | undefined = bodyStatements;
+        const [stmt] = bodyStatements;
         if (!stmt || stmt.type !== 'ExpressionStatement') {
           return;
         }
@@ -67,7 +67,7 @@ const rule: TypeScriptRule = {
           return;
         }
 
-        const {name} = (left as unknown as { name: string });
+        const { name } = left as unknown as { name: string };
         if (!stateVars.has(name)) {
           return;
         }

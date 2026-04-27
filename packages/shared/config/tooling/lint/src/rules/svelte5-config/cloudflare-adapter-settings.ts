@@ -36,7 +36,7 @@ function hasRoutesConfig(adapterNode: AstNode): boolean {
     return false;
   }
 
-  const [firstArg]: AstNode | undefined = args;
+  const [firstArg] = args;
   if (!firstArg || firstArg.type !== 'ObjectExpression') {
     return false;
   }
