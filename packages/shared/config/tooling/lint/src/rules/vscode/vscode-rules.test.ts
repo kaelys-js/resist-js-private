@@ -12,7 +12,13 @@ import requireErrorBoundary from './require-error-boundary.ts';
 // Test Helpers
 // =============================================================================
 
-/** Build a mock WorkspaceContext with workspace packages. */
+/**
+ * Build a mock WorkspaceContext with workspace packages.
+ *
+ * @param files - Map of file paths to contents
+ * @param packages - Workspace packages
+ * @returns Mock WorkspaceContext
+ */
 function createMockContext(
   files: Record<string, string>,
   packages: WorkspacePackage[],

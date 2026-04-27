@@ -33,7 +33,9 @@ const BRAND_CONSTANTS: ReadonlyArray<{ value: string; constant: string }> = [
 /**
  * Build a regex that matches a brand value as a standalone string literal.
  * Avoids matching partial substrings by requiring word boundaries or quote chars.
- * @returns Description
+ *
+ * @param value - Brand string literal to match (will be regex-escaped)
+ * @returns Compiled global RegExp matching the value when surrounded by quotes
  */
 function buildBrandRegex(value: string): RegExp {
   const escaped: string = value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
@@ -68,7 +70,9 @@ const rule: WorkspaceRule = {
 
       const pkgDir: string = dirname(pkg.path);
       const brandPath: string = join(pkgDir, BRAND_PATH);
-      if (!(await ctx.fileExists(brandPath))) {continue;}
+      if (!(await ctx.fileExists(brandPath))) {
+        continue;
+      }
 
       /* Read all .ts files in the extension */
       const allFiles: readonly string[] = await ctx.filesByExtension('.ts');
