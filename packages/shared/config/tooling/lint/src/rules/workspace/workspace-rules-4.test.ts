@@ -5653,3 +5653,102 @@ describe('sync/pnpm-workspace', () => {
     expect(results.length).toBe(0);
   });
 });
+
+// =============================================================================
+// Bulk inputs() smoke-coverage
+// =============================================================================
+const BULK_INPUTS_RULES_4: ReadonlyArray<{
+  id: string;
+  rule: { inputs?: (ctx: unknown) => Promise<readonly string[]> };
+}> = [
+  { id: 'svg-no-embedded-font', rule: svgNoEmbeddedFont },
+  { id: 'svg-no-script', rule: svgNoScript },
+  { id: 'svg-no-external-url', rule: svgNoExternalUrl },
+  { id: 'svg-no-raster-image', rule: svgNoRasterImage },
+  { id: 'svg-no-external-font-url', rule: svgNoExternalFontUrl },
+  { id: 'svg-no-text-element', rule: svgNoTextElement },
+  { id: 'svg-no-xlink-http', rule: svgNoXlinkHttp },
+  { id: 'svg-requires-namespace', rule: svgRequiresNamespace },
+  { id: 'svg-no-event-handler', rule: svgNoEventHandler },
+  { id: 'svg-no-remote-href', rule: svgNoRemoteHref },
+  { id: 'svg-no-embedded-media', rule: svgNoEmbeddedMedia },
+  { id: 'svg-no-hidden-interactive', rule: svgNoHiddenInteractive },
+  { id: 'svg-symbol-requires-viewbox', rule: svgSymbolRequiresViewbox },
+  { id: 'svg-opacity-requires-fill', rule: svgOpacityRequiresFill },
+  { id: 'svg-no-blur-filter', rule: svgNoBlurFilter },
+  { id: 'svg-ids-unique', rule: svgIdsUnique },
+  { id: 'svg-requires-aria-role', rule: svgRequiresAriaRole },
+  { id: 'svg-no-clipped-text', rule: svgNoClippedText },
+  { id: 'svg-title-first-child', rule: svgTitleFirstChild },
+  { id: 'svg-no-tabindex', rule: svgNoTabindex },
+  { id: 'svg-no-mask-fragment', rule: svgNoMaskFragment },
+  { id: 'svg-requires-aria-attrs', rule: svgRequiresAriaAttrs },
+  { id: 'svg-title-desc-requires-lang', rule: svgTitleDescRequiresLang },
+  { id: 'no-webp-icons', rule: noWebpIcons },
+  { id: 'no-inline-svg-in-source', rule: noInlineSvgInSource },
+  { id: 'no-webp-in-css', rule: noWebpInCss },
+  { id: 'no-raw-svg-in-components', rule: noRawSvgInComponents },
+  { id: 'webp-max-size', rule: webpMaxSize },
+  { id: 'webp-no-lossless', rule: webpNoLossless },
+  { id: 'webp-no-metadata', rule: webpNoMetadata },
+  { id: 'ico-min-resolution', rule: icoMinResolution },
+  { id: 'no-misleading-image-extension', rule: noMisleadingImageExtension },
+  { id: 'svg-valid-xml', rule: svgValidXml },
+  { id: 'ico-requires-multiresolution', rule: icoRequiresMultiresolution },
+  { id: 'ico-optimal-palette', rule: icoOptimalPalette },
+  { id: 'webp-no-color-profile', rule: webpNoColorProfile },
+  { id: 'webp-yuv420-required', rule: webpYuv420Required },
+  { id: 'gitlab-ci-file-required', rule: gitlabCiFileRequired },
+  { id: 'gitlab-ci-schema-header', rule: gitlabCiSchemaHeader },
+  { id: 'gitlab-ci-yaml-syntax', rule: gitlabCiYamlSyntax },
+  { id: 'gitlab-ci-stages-declared', rule: gitlabCiStagesDeclared },
+  { id: 'gitlab-ci-includes-valid', rule: gitlabCiIncludesValid },
+  { id: 'shell-function-docblocks', rule: shellFunctionDocblocks },
+  { id: 'gitlab-ci-jobs-have-script', rule: gitlabCiJobsHaveScript },
+  { id: 'gitlab-ci-standard-naming', rule: gitlabCiStandardNaming },
+  { id: 'wrangler-authenticated', rule: wranglerAuthenticated },
+  { id: 'gitlab-ci-stages-standard', rule: gitlabCiStagesStandard },
+  { id: 'cli-tools-help-version', rule: cliToolsHelpVersion },
+  { id: 'workspace-spelling', rule: workspaceSpelling },
+  { id: 'valibot-consistency', rule: valibotConsistency },
+  { id: 'vitest-config-and-coverage', rule: vitestConfigAndCoverage },
+  { id: 'vitest-config-and-usage', rule: vitestConfigAndUsage },
+  { id: 'sync-turbo-tasks', rule: syncTurboTasks },
+  { id: 'sync-tsconfig-paths', rule: syncTsconfigPaths },
+  { id: 'sync-lefthook-scripts', rule: syncLefthookScripts },
+  { id: 'sync-onboarding-steps', rule: syncOnboardingSteps },
+  { id: 'sync-workflow-scripts', rule: syncWorkflowScripts },
+  { id: 'sync-filter-patterns', rule: syncFilterPatterns },
+  { id: 'sync-pnpm-workspace', rule: syncPnpmWorkspace },
+];
+
+describe('workspace-rules-4 — bulk inputs() smoke-coverage', () => {
+  for (const { id, rule } of BULK_INPUTS_RULES_4) {
+    it(`workspace/${id}.inputs() runs without throwing`, async () => {
+      if (typeof rule.inputs !== 'function') {
+        return;
+      }
+      const ctx: WorkspaceContext = mockContext({
+        rootDir: '/workspace',
+        files: new Map([
+          ['/workspace/foo.ts', 'export const a = 1;'],
+          ['/workspace/.gitlab-ci.yml', 'stages:\n  - test\n'],
+          ['/workspace/icon.svg', '<svg/>'],
+          ['/workspace/img.webp', 'WEBP'],
+          ['/workspace/icon.ico', 'ICO'],
+          ['/workspace/wrangler.toml', 'name = "x"\n'],
+        ]),
+        packages: [
+          {
+            name: '@/a',
+            path: '/workspace/packages/a/package.json',
+            dir: '/workspace/packages/a',
+            packageJson: { name: '@/a' },
+          },
+        ],
+      });
+      const inputs = await rule.inputs!(ctx);
+      expect(Array.isArray(inputs)).toBe(true);
+    });
+  }
+});
